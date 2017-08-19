@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - "6"
+install:
+  - npm install
+script:
+  - npm run build
+  - npm run docs
+  - npm test
+branches:
+  except:
+    - /^feature\/.*$/
+    - /^hotfix\/.*$/

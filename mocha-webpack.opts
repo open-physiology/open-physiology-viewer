@@ -1,0 +1,6 @@
+--colors
+--timeout 10000
+--webpack-config webpack.config-test.js
+--require source-map-support/register
+--require babel-polyfill
+test/**/*.spec.js
