@@ -1,7 +1,6 @@
 import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
 
-import 'babel-polyfill';
 import 'polyfill-function-prototype-bind';
 import chai                   from 'chai';
 import sinon                  from 'sinon';

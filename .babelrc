@@ -1,13 +1,12 @@
 {
   "presets": [
-    "es2015"
+    "@babel/preset-env"
   ],
   "plugins": [
     "babel-plugin-transform-strict-mode",
     "transform-object-rest-spread",
     "transform-decorators-legacy",
     "transform-class-properties",
-    "transform-es2015-instanceof",
     "transform-async-to-generator",
     "transform-function-bind",
     "syntax-flow",
