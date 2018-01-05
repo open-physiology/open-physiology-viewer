@@ -3,27 +3,15 @@
     "@babel/preset-env"
   ],
   "plugins": [
+    "angular2-annotations",
     "babel-plugin-transform-strict-mode",
-    "transform-object-rest-spread",
+    "@babel/plugin-syntax-flow",
+    "@babel/plugin-transform-destructuring",
     "transform-decorators-legacy",
     "transform-class-properties",
     "transform-async-to-generator",
     "transform-function-bind",
-    "syntax-flow",
     "transform-flow-strip-types"
   ],
-  "env": {
-    "development": {
-      "plugins": [
-        "typecheck",
-        ["espower", { "embedAst": true }]
-      ]
-    },
-    "production": {
-      "plugins": [
-        "unassert"
-      ]
-    }
-  },
   "sourceMaps": true
 }
