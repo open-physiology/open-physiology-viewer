@@ -1,6 +1,6 @@
 import assert from 'power-assert';
 
-assert(window.Rx, "The boxer library expects the Rxjs library to be loaded as the window.Rx object.");
+assert(window.Rx, "The program expects the Rxjs library to be loaded as the window.Rx object.");
 
 export default window.Rx;
 
