@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.nodes circle {
+  stroke: black	;
+  stroke-width: 0px;
+}
+.paths{
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5px;
+}
+svg {  }
+</style>
+<svg width="900" height="600"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+//create somewhere to put the force directed graph
+var svg = d3.select("svg"),
+    width  = + svg.attr("width"),
+    height = + svg.attr("height");
+const radius = 15;
+const center = { "x": width / 2, "y": height / 2 };
+
+var nodes_data =  [
+        {   "id"  : "node_u", "name": "u", "val" : 10, "color": "#D2691E", "graph": "A", "type": "+"},
+        {   "id"  : "node_n", "name": "n", "val" : 10, "color": "#D2691E", "graph": "A", "type": "-"},
+        {   "id"  : "node_t", "name": "t", "val" : 10, "color": "#808080", "graph": "B", "type": "-"},
+        {   "id"  : "node_a", "name": "a", "val" : 10, "color": "#808080", "graph": "B", "type": "0"},
+        {   "id"  : "node_h", "name": "h", "val" : 10, "color": "#444444", "graph": "B", "type": "+"},
+        {   "id"  : "node_R", "name": "R", "val" : 10, "color": "#ff0000", "graph": "C", "type": "-" },
+        {   "id"  : "node_L", "name": "L", "val" : 10, "color": "#7B68EE", "graph": "C", "type": "+"},
+        {   "id"  : "node_S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "type": "-"},
+        {   "id"  : "node_P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "type": "+"}
+    ];
+
+var links_data = [
+    {   "source": "node_u", "target": "node_n", "name": "Axial",     "type": "link"},
+    {   "source": "node_t", "target": "node_a", "name": "Ependymal", "type": "link"},
+    {   "source": "node_a", "target": "node_h", "name": "Ependymal", "type": "link"},
+    {   "source": "node_R", "target": "node_L", "name": "Pulmonary", "type": "path"},
+    {   "source": "node_L", "target": "node_R", "name": "Systemic",  "type": "path"},
+    {   "source": "node_S", "target": "node_P", "name": "Gut",       "type": "path"},
+    {   "source": "node_P", "target": "node_S", "name": "Gut'",      "type": "path"}
+];
+
+//set up the simulation
+var simulation = d3.forceSimulation().nodes(nodes_data);
+
+var link_force =  d3.forceLink(links_data).id(function(d) { return d.id; });
+            
+var charge_force = d3.forceManyBody().strength(-100);
+    
+var center_force = d3.forceCenter(center.x, center.y);
+
+const forceX = d3.forceX(center.x).strength(1);
+
+const forceY = d3.forceY(center.y).strength(1);
+
+
+// custom force example - bring all male nodes to right side, all female nodes to left side
+function splitting_force() { 
+  for (var i = 0, n = nodes_data.length; i < n; ++i) {
+    curr_node = nodes_data[i];
+    if(curr_node.type == "-"){
+        if (curr_node.graph === "C"){
+            curr_node.y += 5;
+        } else {
+            curr_node.x += 5;
+        }
+    } else if(curr_node.type == "+"){
+        if (curr_node.graph === "C"){
+            curr_node.y -= 5;
+        } else {
+            curr_node.x -= 5;
+        }
+    }    
+  }
+}
+               
+simulation
+    .force("charge_force", charge_force)
+    .force("center_force", center_force)
+    .force("links", link_force)
+    .force('x', forceX)
+    .force('y', forceY)
+    .force("splitting",splitting_force);
+
+simulation.on("tick", tickActions );
+
+var path = svg.append("g").selectAll("path")
+    .data(links_data)
+    .enter().append("path")
+    .attr("id", function(d,i) { return "path_"+i; })
+    //A unique ID to reference later
+    .attr("class", "paths");
+
+var pathLabel = svg.append("g").selectAll("pathLabel")
+    .data(links_data).enter().append("text")
+    .attr("class", "pathLabel")
+    .style("text-anchor","middle")
+    .append("textPath")
+    .attr("xlink:href",function(d,i){return "#path_"+i;})
+    //place the ID of the path here
+    .attr("startOffset", "50%");		//place the text halfway on the arc
+
+var node = svg.append("g")
+        .attr("class", "nodes") 
+        .selectAll("circle")
+        .data(nodes_data)
+        .enter()
+        .append("circle")
+        .attr("r", radius)
+        .attr("fill", function(x){return x.color});
+
+var nodeLabel = svg.append("g").selectAll("nodeLabel")
+    .data(nodes_data)
+    .enter().append("text")
+    .attr("class", "nodeLabel")
+    .attr("x", 1.2 * radius)
+    .attr("y", 1.2 * radius)
+    .text(function(d) { return d.name; });
+
+
+function linkArc(d) {
+    if (d.type === "path"){
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy) / 4;
+        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+    } else {
+        return "M" + d.source.x + "," + d.source.y + " L " + d.target.x + "," + d.target.y;
+    }
+}
+
+var drag_handler = d3.drag()
+    .on("start", drag_start)
+    .on("drag", drag_drag)
+    .on("end", drag_end);
+
+drag_handler(node);
+
+function dragsubject() {
+    return simulation.find(d3.event.x, d3.event.y);
+}
+
+
+//drag handler
+function drag_start(d) {
+ if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+function drag_drag(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+function drag_end(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+function distance(d){
+    switch(d.graph){
+        case "A": { return width  / 2}
+        case "B": { return width  / 4}
+        case "C": { return height / 3}
+        case "D": { return width  / 3}
+        default: return width  / 2
+    }
+    return distance;
+}
+
+function transform(d) {
+    return "translate(" + d.x + "," + d.y + ")";
+}
+
+function tickActions() {
+    path.attr("d", linkArc);
+    nodeLabel.attr("transform", transform);
+
+    node
+        .attr("cx", function(d) { return d.x = Math.max(center.x - distance(d) + radius,
+            Math.min(center.x + distance(d) - radius, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(center.y - distance(d) + radius,
+            Math.min(center.y + distance(d) - radius, d.y)); });
+
+
+
+}
+</script>

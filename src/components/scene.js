@@ -12,7 +12,6 @@ import {FormsModule} from '@angular/forms';
             <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('B')"/> B
             <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('C')"/> C
             <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('D')"/> D
-            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('Random')"/> Random
             <input type="checkbox" name="show_planes" (change)="_renderService.togglePlanes()" checked/> Planes
         </div>
         <div class="dimensions-selector">
