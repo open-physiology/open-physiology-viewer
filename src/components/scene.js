@@ -6,12 +6,13 @@ import {FormsModule} from '@angular/forms';
 @Component({
     selector: 'scene',
     template: `
+        <button type="button" name="create" (click)="_renderService.createGraph()"> Create graph</button>
         <div class="view-selector">
             Show:
-            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('A')"/> A
-            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('B')"/> B
-            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('C')"/> C
-            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('D')"/> D
+            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('A')" checked/> A
+            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('B')" checked/> B
+            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('C')" checked/> C
+            <input type="checkbox" name="show_graph" (change)="_renderService.toggleGraph('D')" checked/> D
             <input type="checkbox" name="show_planes" (change)="_renderService.togglePlanes()" checked/> Planes
         </div>
         <div class="dimensions-selector">

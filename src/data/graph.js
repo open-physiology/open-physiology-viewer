@@ -50,8 +50,8 @@ export const dataSet={
     }
 };
 
-export const dataSetOne={
-        "nodes": [
+export const dataSetOne = {
+        nodes : [
             {   "id"  : "node_u", "name": "u", "val" : 10, "color": "#D2691E", "graph": "A", "type": "+"},
             {   "id"  : "node_n", "name": "n", "val" : 10, "color": "#D2691E", "graph": "A", "type": "-"},
             {   "id"  : "node_t", "name": "t", "val" : 10, "color": "#808080", "graph": "B", "type": "-"},
@@ -62,19 +62,18 @@ export const dataSetOne={
             {   "id"  : "node_S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "type": "-"},
             {   "id"  : "node_P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "type": "+"}
         ],
-        "links": [
-            {   "source": "node_u", "target": "node_n", "name": "Axial",     "type": "link"},
-            {   "source": "node_t", "target": "node_a", "name": "Ependymal", "type": "link"},
-            {   "source": "node_a", "target": "node_h", "name": "Ependymal", "type": "link"},
-            {   "source": "node_R", "target": "node_L", "name": "Pulmonary", "type": "path"},
-            {   "source": "node_L", "target": "node_R", "name": "Systemic",  "type": "path"},
-            {   "source": "node_S", "target": "node_P", "name": "Gut",       "type": "path"},
-            {   "source": "node_P", "target": "node_S", "name": "Gut'",      "type": "path"}
-        ],
-        "labels": {
-            "A": "Axial",
-            "B": "Ependymal",
-            "C": "Endhotelial",
-            "D": "Epithelial"
-        }
+        links : [
+            {   "source": "node_u", "target": "node_n", "name": "",          "type": "link", "length": 100},
+            {   "source": "node_t", "target": "node_a", "name": "Ependymal", "type": "link", "length": 35 },
+            {   "source": "node_a", "target": "node_h", "name": "Ependymal", "type": "link", "length": 35 },
+            {   "source": "node_R", "target": "node_L", "name": "Pulmonary", "type": "path", "length": 70 },
+            {   "source": "node_L", "target": "node_R", "name": "Systemic",  "type": "path", "length": 70 },
+            {   "source": "node_S", "target": "node_P", "name": "Gut",       "type": "path", "length": 90 },
+            {   "source": "node_P", "target": "node_S", "name": "Gut'",      "type": "path", "length": 90 },
+            //invisible force links
+            {   "source": "node_t", "target": "node_n", "name": "",          "type": "force", "length": 15},
+            {   "source": "node_h", "target": "node_u", "name": "",          "type": "force", "length": 15},
+            {   "source": "node_S", "target": "node_n", "name": "",          "type": "force", "length": 5 },
+            {   "source": "node_P", "target": "node_u", "name": "",          "type": "force", "length": 5 },
+        ]
     };
