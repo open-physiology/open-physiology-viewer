@@ -5,16 +5,14 @@ const three = window.THREE
     : THREE;
 
 import {
-    forceSimulation as d3ForceSimulation,
-    forceLink as d3ForceLink,
-    forceManyBody as d3ForceManyBody,
-    forceCenter as d3ForceCenter
+    forceSimulation,
+    forceLink,
+    forceManyBody,
+    forceCenter,
+    forceX,
+    forceY,
+    forceZ
 } from 'd3-force-3d';
-
-import graph from 'ngraph.graph';
-import forcelayout from 'ngraph.forcelayout';
-import forcelayout3d from 'ngraph.forcelayout3d';
-const ngraph = { graph, forcelayout, forcelayout3d };
 
 import Kapsule from 'kapsule';
 import qwest from 'qwest';
@@ -41,7 +39,7 @@ export default Kapsule({
 
                 function eraseDimension(nodes, dim) {
                     nodes.forEach(d => {
-                        delete d[dim];     // position
+                        delete d[dim];       // position
                         delete d[`v${dim}`]; // velocity
                     });
                 }
@@ -56,13 +54,13 @@ export default Kapsule({
         nodeThreeObject: {},
         linkSource: { default: 'source' },
         linkTarget: { default: 'target' },
-        linkColor: { default: 'color' },
-        nodeLabel: {default: 'name'},
-        linkLabel: {default: 'name'},
+        linkColor:  { default: 'color' },
+        nodeLabel:  { default: 'name'},
+        linkLabel:  { default: 'name'},
         linkAutoColorBy: {},
         linkOpacity: { default: 0.5 },
         axis: {default: 300},
-        forceEngine: { default: 'd3' }, // d3 or ngraph
+        forceEngine: { default: 'd3' }, // d3
         d3AlphaDecay: { default: 0.0228 },
         d3VelocityDecay: { default: 0.4 },
         warmupTicks: { default: 0 }, // how many times to tick the force engine at init before starting to render
@@ -70,10 +68,6 @@ export default Kapsule({
         cooldownTime: { default: 15000 }, // ms
         onLoading: { default: () => {}, triggerUpdate: false },
         onFinishLoading: { default: () => {}, triggerUpdate: false }
-    },
-
-    aliases: {
-        autoColorBy: 'nodeAutoColorBy'
     },
 
     methods: {
@@ -92,11 +86,11 @@ export default Kapsule({
     },
 
     stateInit: () => ({
-        d3ForceLayout: d3ForceSimulation()
-            .force('link', d3ForceLink())
-            .force('charge', d3ForceManyBody())
-            .force('center', d3ForceCenter())
-            .stop()
+        d3ForceLayout: forceSimulation()
+            .force('link', forceLink())
+            .force('charge', forceManyBody())
+            .force('center', forceCenter()) //TODO check if we need to set center explicitly
+        .stop()
     }),
 
     init(threeObj, state) {
@@ -175,71 +169,61 @@ export default Kapsule({
             state.graphScene.add(node.__threeObj = obj);
         });
 
-        const linkColorAccessor = accessorFn(state.linkColor);
+        const edgeColorAccessor = accessorFn(state.linkColor);
 
-
-        const lineMaterials = {}; // indexed by color
+        const edgeMaterials = {}; // indexed by color
         state.graphData.links.forEach(link => {
-            const color = linkColorAccessor(link);
-            if (!lineMaterials.hasOwnProperty(color)) {
-                lineMaterials[color] = new three.LineBasicMaterial({
+            const color = edgeColorAccessor(link);
+            if (!edgeMaterials.hasOwnProperty(color)) {
+                edgeMaterials[color] = new three.LineBasicMaterial({
                     color: colorStr2Hex(color || '#f0f0f0'),
                     transparent: true,
-                    linewidth: 5,
                     opacity: state.linkOpacity
                 });
             }
 
             let geometry = new three.BufferGeometry();
-            const lineMaterial = lineMaterials[color];
-            let line;
             if (link.type === "path"){
-                //TODO replace with CircleBufferGeometry
-                geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(50 * 3), 50));
+                geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(50 * 3), 3));
             } else {
-               if (link.type === "link"){
+                if (link.type === "link"){
                     geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(2 * 3), 3));
-               }
+                }
             }
-            line = new three.Line(geometry, lineMaterial);
-            line.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
-            line.__graphObjType = 'link'; // Add object type
-            line.__data = link; // Attach link data
-            state.graphScene.add(link.__lineObj = line);
+
+            const edgeMaterial = edgeMaterials[color];
+            let edge = new three.Line(geometry, edgeMaterial);
+            edge.__graphObjType = 'link'; // Add object type
+            edge.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
+            edge.__data = link;    // Attach link data
+            state.graphScene.add(link.__lineObj = edge);
         });
 
         // Feed data to force-directed layout
-        const isD3Sim = state.forceEngine !== 'ngraph';
         let layout;
-        if (isD3Sim) {
-            // D3-force
-            (layout = state.d3ForceLayout)
-                .stop()
-                .alpha(1)// re-heat the simulation
-                .alphaDecay(state.d3AlphaDecay)
-                .velocityDecay(state.d3VelocityDecay)
-                .numDimensions(state.numDimensions)
-                .nodes(state.graphData.nodes)
-                .force('link')
-                .id(d => d[state.nodeId])
-                .links(state.graphData.links);
+        // D3-force
+        (layout = state.d3ForceLayout)
+            .stop()
+            .alpha(1)// re-heat the simulation
+            .alphaDecay(state.d3AlphaDecay)
+            .velocityDecay(state.d3VelocityDecay)
+            .numDimensions(state.numDimensions)
+            .nodes(state.graphData.nodes)
+            .force('link')
+            .id(d => d[state.nodeId])
+            .links(state.graphData.links);
 
-            layout.force('link').distance(function(d) {
-                //Stretch graphs by creating overall length deficit
-                return 0.01 * d.length * (2 * state.axis) * ((d.source.graph === "A")? 1: 0.7);
-            }).strength(0.9);
-        } else {
-            // ngraph
-            const graph = ngraph.graph();
-            state.graphData.nodes.forEach(node => { graph.addNode(node[state.nodeId]); });
-            state.graphData.links.forEach(link => { graph.addLink(link.source, link.target); });
-            layout = ngraph['forcelayout' + (state.numDimensions === 2 ? '' : '3d')](graph);
-            layout.graph = graph;
-        }
+
+        layout
+            .force("y", forceY().y(d => (d.type === "-y")? -state.axis
+                : (d.type === "+y")? state.axis : 0))
+            .force("x", forceX().x(d => (d.type === "-x")? -state.axis
+                : (d.type === "+x")? state.axis : 0))
+            .force('link').distance(d =>  0.01 * d.length * (2 * state.axis)).strength(0.9);
 
         // Initial ticks before starting to render
         for (let i=0; i < state.warmupTicks; i++) {
-            layout[isD3Sim? 'tick' : 'step']();
+            layout['tick']();
         }
 
         let cntTicks = 0;
@@ -247,12 +231,28 @@ export default Kapsule({
         state.onFrame = layoutTick;
         state.onFinishLoading();
 
+        //TODO replace with circle passing via start, stop with center in (stop - start) / 2
+        //TODO change to vector arithmetics to work correctly for any position of end points (now only works for X axis)
+        function getBezierCircle(start, stop){
+            let v = [stop.x - start.x, stop.y - start.y, stop.z - start.z];
+            let d = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+            let inset  = d * 0.05;
+            let offset = d * 2.0 / 3.0;
+            let sign = (stop.x - start.x) / Math.abs(stop.x - start.x);
+
+            return new THREE.CubicBezierCurve3(
+                new THREE.Vector3( start.x, start.y, start.z),
+                new THREE.Vector3( start.x + inset, start.y + sign * offset, start.z + inset ),
+                new THREE.Vector3( stop.x  - inset, stop.y  + sign * offset, stop.z  - inset ),
+                new THREE.Vector3( stop.x,  stop.y,  stop.z )
+            );
+        }
 
         function layoutTick() {
             if (++cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
                 state.onFrame = null; // Stop ticking graph
             } else {
-                layout[isD3Sim ? 'tick' : 'step'](); // Tick it
+                layout['tick'](); // Tick it
             }
 
             // Update nodes position
@@ -260,7 +260,7 @@ export default Kapsule({
                 const obj = node.__threeObj;
                 if (!obj) return;
 
-                const pos = isD3Sim ? node : layout.getNodePosition(node[state.nodeId]);
+                const pos = node;
 
                 obj.position.x = pos.x;
                 obj.position.y = pos.y || 0;
@@ -269,38 +269,42 @@ export default Kapsule({
 
             // Update links position
             state.graphData.links.forEach(link => {
-                const line = link.__lineObj;
-                if (!line) return;
+                const edge = link.__lineObj;
+                if (!edge) return;
 
-                const pos = isD3Sim
-                        ? link
-                        : layout.getLinkPosition(layout.graph.getLink(link.source, link.target).id),
-                      start = pos[isD3Sim ? 'source' : 'from'],
-                        end = pos[isD3Sim ? 'target' : 'to'],
-                    linePos = line.geometry.attributes.position;
+                const pos = link,
+                    start = pos['source'],
+                      end = pos['target'],
+                  edgePos = edge.geometry.attributes.position;
 
-                if (line.__data.type === "path"){
-                    // let curve = new THREE.CubicBezierCurve3(
-                    //     start,
-                    //     new THREE.Vector3( -5, 15, 0 ),
-                    //     new THREE.Vector3( 20, 15, 0 ),
-                    //     end
-                    // );
-                    //linePos.array = [];
-                    //let points = curve.getPoints( 50 );
+                if (!edgePos) return;
+
+                let _start = { x: start.x, y: start.y || 0, z: start.z || 0 };
+                let _end = { x: end.x, y: end.y || 0, z: end.z || 0 };
+
+                if (edge.__data.type === "path") {
+
+                    let curve = getBezierCircle(_start, _end);
+
+                    let points = curve.getPoints( 49 );
+                    for (let i = 0; i < 50; i++){
+                        edgePos.array[3*i] = points[i].x;
+                        edgePos.array[3*i+1] = points[i].y;
+                        edgePos.array[3*i+2] = points[i].z;
+                    }
                 } else {
-                    if (line.__data.type === "link"){
-                        linePos.array[0] = start.x;
-                        linePos.array[1] = start.y || 0;
-                        linePos.array[2] = start.z || 0;
-                        linePos.array[3] = end.x;
-                        linePos.array[4] = end.y || 0;
-                        linePos.array[5] = end.z || 0;
-
-                        linePos.needsUpdate = true;
-                        line.geometry.computeBoundingSphere();
+                    if (edge.__data.type === "link") {
+                        edgePos.array[0] = _start.x;
+                        edgePos.array[1] = _start.y;
+                        edgePos.array[2] = _start.z;
+                        edgePos.array[3] = _end.x;
+                        edgePos.array[4] = _end.y;
+                        edgePos.array[5] = _end.z;
                     }
                 }
+
+                edgePos.needsUpdate = true;
+                edge.geometry.computeBoundingSphere();
 
             });
         }

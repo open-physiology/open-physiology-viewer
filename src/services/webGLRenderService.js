@@ -2,26 +2,27 @@ import * as THREE from 'three';
 import * as TWEEN from 'es6-tween'
 import TrackballControls from 'three-trackballcontrols';
 import ThreeForceGraph from '../three/ThreeForceGraph';
-import {dataSetOne} from '../data/graph';
+import {dataSetMain}   from '../data/graph';
 
-export class MainSceneRenderService {
-    scene: THREE.Scene;
-    camera: THREE.PerspectiveCamera;
-    renderer: THREE.WebGLRenderer; //CSS3DRenderer;
-    controls: TrackballControls;
+export class WebGLRenderService {
+    scene    : THREE.Scene;
+    camera   : THREE.PerspectiveCamera;
+    renderer : THREE.WebGLRenderer;
+    controls : TrackballControls;
     raycaster: THREE.Raycaster;
     graph;
     planes = [];
 
     init(container: HTMLElement) {
+        if (this.renderer) {return;} //already initialized
+
         const width = window.innerWidth;
         const height = window.innerHeight - 90;
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45, width / height);
-        this.camera.position.set(0, 0, 100);
+        this.camera.position.set(0, 100, 100);
         this.camera.aspect = window.innerWidth / window.innerHeight;
-
         this.renderer = new THREE.WebGLRenderer({antialias: true});
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -42,6 +43,7 @@ export class MainSceneRenderService {
         this.raycaster = new THREE.Raycaster();
 
         this.createPlanes();
+        this.createGraph();
         this.animate();
     }
 
@@ -57,41 +59,43 @@ export class MainSceneRenderService {
     }
 
     createPlanes() {
-        let gridHelper1 = new THREE.GridHelper(1000, 10, new THREE.Color(0x666666));
+        let gridColor = new THREE.Color(0x333333);
+        let axisColor = new THREE.Color(0x666666);
+
+        // x-y plane
+        let gridHelper1 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
+        gridHelper1.geometry.rotateX( Math.PI / 2 );
         this.scene.add(gridHelper1);
         this.planes.push(gridHelper1);
 
-        let gridHelper2 = new THREE.GridHelper(1000, 10, new THREE.Color(0x666666));
-        let parent = new THREE.Object3D();
-        gridHelper2.applyMatrix(new THREE.Matrix4().makeTranslation(0, 45, 0));
-        parent.add(gridHelper2);
-        parent.rotation.x = 1;
-        this.scene.add(parent);
+        // x-z plane
+        let gridHelper2 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
+        this.scene.add(gridHelper2);
         this.planes.push(gridHelper2);
+
+        let axisHelper = new THREE.AxisHelper( 510 );
+        this.scene.add( axisHelper );
     }
 
     createGraph() {
+
+        dataSetMain.links.forEach(link => link.color = "#66ccff");
         //Create
         this.graph = new ThreeForceGraph()
-            .nodeRelSize(0.8)
+            //.nodeRelSize(0.9)
             .nodeAutoColorBy('color')
-            .graphData(dataSetOne);
+            .graphData(dataSetMain);
 
         this.scene.add(this.graph);
-            // if (label == "C") {
-            //     this.planes[1].add(this.graphs[label]);
-            // } else {
-            //     this.planes[0].add(this.graphs[label]);
-            // }
     }
 
     togglePlanes(){
-        this.planeMaterial.visible = !this.planeMaterial.visible;
+        this.planes.forEach(plane => {plane.visible = !plane.visible});
     }
 
     toggleGraph(label){
-            //Toggle graph category visibility
-            //this.graphs[label].visible = !this.graphs[label].visible;
+        //Toggle graph category visibility
+        //this.graphs[label].visible = !this.graphs[label].visible;
 
     }
 

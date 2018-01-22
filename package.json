@@ -61,16 +61,15 @@
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
     "accessor-fn": "^1.2.2",
+    "d3": "^4.12.2",
     "d3-force-3d": "^1.1.0",
     "es6-tween": "^5.0.5",
     "install": "^0.10.2",
     "jquery": "^3.2.1",
     "jquery-mousewheel": "^3.1.13",
     "kapsule": "^1.9.0",
+    "lodash": "^4.17.4",
     "lodash-bound": "^1",
-    "ngraph.forcelayout": "^0.2.1",
-    "ngraph.forcelayout3d": "0.0.16",
-    "ngraph.graph": "0.0.14",
     "npm": "^5.6.0",
     "pixi": "^0.3.1",
     "qwest": "^4.5.0",
@@ -81,6 +80,7 @@
     "three-trackballcontrols": "0.0.7",
     "tinycolor2": "^1.4.1",
     "tween.js": "^16.6.0",
+    "utilities": "open-physiology/utilities",
     "zone.js": "^0.8.4"
   }
 }

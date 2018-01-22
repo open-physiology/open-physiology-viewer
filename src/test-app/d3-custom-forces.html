@@ -5,7 +5,7 @@
   stroke: black	;
   stroke-width: 0px;
 }
-.path{
+.edge path{
     fill: none;
     stroke: #666;
     stroke-width: 1.5px;
@@ -15,8 +15,10 @@ svg {  }
 </style>
 <svg width="900" height="900"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/qwest/4.4.5/qwest.min.js"></script>
 <script>
 //create somewhere to put the force directed graph
+
 const svg = d3.select("svg"),
     width  = + svg.attr("width"),
     height = + svg.attr("height");
@@ -34,52 +36,33 @@ const margins = {
 
 const graph = {
     nodes : [
-        {   "id"  : "node_u", "name": "u", "val" : 10, "color": "#D2691E", "graph": "A", "type": "+"},
-        {   "id"  : "node_n", "name": "n", "val" : 10, "color": "#D2691E", "graph": "A", "type": "-"},
-        {   "id"  : "node_t", "name": "t", "val" : 10, "color": "#808080", "graph": "B", "type": "-"},
+        {   "id"  : "node_u", "name": "u", "val" : 10, "color": "#D2691E", "graph": "A", "type": "+x"},
+        {   "id"  : "node_n", "name": "n", "val" : 10, "color": "#D2691E", "graph": "A", "type": "-x"},
+        {   "id"  : "node_t", "name": "t", "val" : 10, "color": "#808080", "graph": "B", "type": "-x"},
         {   "id"  : "node_a", "name": "a", "val" : 10, "color": "#808080", "graph": "B", "type": "0"},
-        {   "id"  : "node_h", "name": "h", "val" : 10, "color": "#444444", "graph": "B", "type": "+"},
-        {   "id"  : "node_R", "name": "R", "val" : 10, "color": "#ff0000", "graph": "C", "type": "-" },
-        {   "id"  : "node_L", "name": "L", "val" : 10, "color": "#7B68EE", "graph": "C", "type": "+"},
-        {   "id"  : "node_S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "type": "-"},
-        {   "id"  : "node_P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "type": "+"}
+        {   "id"  : "node_h", "name": "h", "val" : 10, "color": "#444444", "graph": "B", "type": "+x"},
+        {   "id"  : "node_R", "name": "R", "val" : 10, "color": "#ff0000", "graph": "C", "type": "-y" },
+        {   "id"  : "node_L", "name": "L", "val" : 10, "color": "#7B68EE", "graph": "C", "type": "+y"},
+        {   "id"  : "node_S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "type": "-x"},
+        {   "id"  : "node_P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "type": "+x"}
     ],
     links : [
-        {   "source": "node_u", "target": "node_n", "name": "",          "type": "link", "length": 100},
-        {   "source": "node_t", "target": "node_a", "name": "Ependymal", "type": "link", "length": 35 },
-        {   "source": "node_a", "target": "node_h", "name": "Ependymal", "type": "link", "length": 35 },
-        {   "source": "node_R", "target": "node_L", "name": "Pulmonary", "type": "path", "length": 70 },
-        {   "source": "node_L", "target": "node_R", "name": "Systemic",  "type": "path", "length": 70 },
-        {   "source": "node_S", "target": "node_P", "name": "Gut",       "type": "path", "length": 90 },
-        {   "source": "node_P", "target": "node_S", "name": "Gut'",      "type": "path", "length": 90 },
-        //invisible force links
-        {   "source": "node_t", "target": "node_n", "name": "",          "type": "force", "length": 15},
-        {   "source": "node_h", "target": "node_u", "name": "",          "type": "force", "length": 15},
-        {   "source": "node_S", "target": "node_n", "name": "",          "type": "force", "length": 5 },
-        {   "source": "node_P", "target": "node_u", "name": "",          "type": "force", "length": 5 },
-        ]
+        {   "source": "node_u", "target": "node_n", "name": "",          "type": "link", "length": 100 },
+        {   "source": "node_t", "target": "node_a", "name": "Ependymal", "type": "link", "length": 30 , "lyph": 2 },
+        {   "source": "node_a", "target": "node_h", "name": "Ependymal", "type": "link", "length": 30 , "lyph": 2 },
+        {   "source": "node_R", "target": "node_L", "name": "Pulmonary", "type": "path", "length": 70 , "lyph": 3 },
+        {   "source": "node_L", "target": "node_R", "name": "Systemic",  "type": "path", "length": 70 , "lyph": 4 },
+        {   "source": "node_S", "target": "node_P", "name": "Gut",       "type": "path", "length": 90 , "lyph": 5 },
+        {   "source": "node_P", "target": "node_S", "name": "Gut'",      "type": "path", "length": 90 , "lyph": 1 }
+    ]
 };
 
-// Bring all '-' nodes to the left side, all '+' nodes to right side
-function splitting_force() {
-  for (var i = 0, n = graph.nodes.length; i < n; ++i) {
-    curr_node = graph.nodes[i];
-    if(curr_node.type == "-"){
-        if (curr_node.graph === "C"){
-            curr_node.y += 5;
-        } else {
-            curr_node.x += 5;
-        }
-    } else
-        if(curr_node.type == "+"){
-            if (curr_node.graph === "C"){
-                curr_node.y -= 5;
-            } else {
-                curr_node.x -= 5;
-            }
-    }    
-  }
-}
+qwest.get('../data/kidney-lobus-layout.json').then((_, data) => {
+    //const lyphs = {};
+    //data.nodes.forEach(node => { lyphs[node.id] = node }); // Index by ID
+    console.log('data from kidney-lobus-layout', data);
+});
+
 
 //set up the simulation
 var simulation = d3.forceSimulation().nodes(graph.nodes);
@@ -88,24 +71,19 @@ simulation
     .force("link", d3.forceLink(graph.links).id(function(d) { return d.id }))
     .force("link", d3.forceLink(graph.links)
         .distance(function(d) {//Stretch graphs by creating overall length deficit
-            return 0.01 * d.length * (2 * axis) * ((d.source.graph === "A")? 1: 0.7);
-        }).strength(0.9))
+            return 0.01 * d.length * (2 * axis)}).strength(1))
     .force("collide",d3.forceCollide( function(d){return d.r}).iterations(16))
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(center.x, center.y))
-    .force("y", d3.forceY(0))
-    .force("x", d3.forceX(0))
-    //.force("splitting",splitting_force)
+    .force("y", d3.forceY(0).y(d => (d.type === "-y")? -axis
+        : (d.type === "+y")? axis : 0))
+    .force("x", d3.forceX().x(d => (d.type === "-x")? -axis
+            : (d.type === "+x")? axis : 0))
 ;
-
-//simulation.force("link", d3.forceLink(graph.links)
-//    .distance(function(d) {//Stretch graphs by creating overall length deficit
-//        return 0.01 * d.length * (2 * axis) * ((d.source.graph === "A")? 1: 0.7);
-//    }).strength(0.9));
 
 simulation.on("tick", tick );
 
-var path = svg.append("g").selectAll("path")
+var path = svg.append("g").attr("class", "edge").selectAll("path")
     .data(graph.links)
     .enter().append("path")
     .attr("id", function(d,i) { return "path_" + i; }) //a unique ID to reference later
@@ -119,6 +97,27 @@ var pathLabel = svg.append("g").selectAll("path")
     .attr("xlink:href",function(d,i){return "#path_" + i;}) //path ID
     .attr("startOffset", "50%")
     .text(function(d) { return d.name; }); //place the text halfway on the arc
+
+var lyphIcon = svg.append("g").selectAll("path")
+    .data(graph.links.filter(link => link.lyph)).enter().append("rect")
+    .attr("class", "lyphIcon")
+    .attr("xlink:href", function(d,i){return "#path_" + i;}) //icon ID
+    .attr("width", 50)
+    .attr("height", 30)
+    .attr("fill", function(d){ return "#"+((1<<24)*Math.random()|0).toString(16)});
+
+//each(d => {
+//        let model = new LyphRectangle({model: d.lyph,
+//            x: position.x,
+//            y: position.y,
+//            width: vp.node.size.width,
+//            height: vp.node.size.height});
+//        let lyphSvg = $(svgGroup.node());
+//        let canvas = new Canvas({element: lyphSvg});
+//        model.parent = canvas;
+//        d3.select(model.element).attr("transform",
+//            "rotate(" + 90 + ',' + (position.x + dx) + ',' + (position.y + dy) + ")")
+//})
 
 var node = svg.append("g").attr("class", "node").selectAll("circle")
     .data(graph.nodes).enter()
@@ -156,7 +155,6 @@ function drag_end(d) {
     d.fy = null;
 }
 
-
 function drawEdge(d) {
     if (d.type === "path"){
         var dx = d.target.x - d.source.x,
@@ -174,20 +172,30 @@ function transform(d) {
     return "translate(" + d.x + "," + d.y + ")";
 }
 
-//const foci = [{x: 0, y: center.y}, {x: width, y: center.y}, {x: center.x, y: 0}, {x: center.x, y: height}];
+function translateAlongPath(d) {
+    if (d.type === "path") {
+        var v = {x: d.target.x - d.source.x, y: d.target.y - d.source.y};
+        var v2 = {x: v.x/2, y: v.y/2};
+        var v3 = {x: center.x + v2.y, y: center.y + v2.x};
+        return "translate(" + v3.x + "," + v3.y + ")";
+    } else {
+        if (d.type === "link") {
+            return "translate(" + ((d.target.x + d.source.x) / 2) + "," + ((d.target.y + d.source.y)) / 2 + ")";
+        }
+    }
+//    var l = path.getTotalLength();
+//    return function(d, i, a) {
+//        return function(t) {
+//            var p = path.getPointAtLength(t * l);
+//            return "translate(" + p.x + "," + p.y + ")";
+//        };
+//    };
+}
 
-function tick() {
-//    // Push nodes toward their designated focus.
-//    var k = .1 * d.alpha;
-//    graph.nodes.forEach(function(o, i) {
-//        o.y += (foci[o.id].y - o.y) * k;
-//        o.x += (foci[o.id].x - o.x) * k;
-//    });
-
+function tick(e) {
     node
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
-
 
     node
         .attr("cx", function(d) { return d.x = Math.max(center.x - margins[d.graph] + radius,
@@ -197,6 +205,7 @@ function tick() {
 
     nodeLabel.attr("transform", transform);
     path.attr("d", drawEdge);
+    lyphIcon.attr("transform", translateAlongPath);
 
 }
 </script>
