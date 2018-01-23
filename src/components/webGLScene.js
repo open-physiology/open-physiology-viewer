@@ -24,7 +24,6 @@ import {FormsModule}  from '@angular/forms';
     `,
     styles: [`
         #webGLScene { width: 100%; }
-        #create{ align: right; }        
     `]
 })
 export class WebGLSceneComponent {

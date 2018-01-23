@@ -27,7 +27,7 @@ export class WebGLRenderService {
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(width, height);
-        this.renderer.setClearColor(0x000000);
+        this.renderer.setClearColor(0xffffff);
         container.appendChild(this.renderer.domElement);
 
         this.controls = new TrackballControls(this.camera, container);
@@ -44,6 +44,7 @@ export class WebGLRenderService {
 
         this.createPlanes();
         this.createGraph();
+        //this.drawSpline();
         this.animate();
     }
 
@@ -59,8 +60,8 @@ export class WebGLRenderService {
     }
 
     createPlanes() {
-        let gridColor = new THREE.Color(0x333333);
-        let axisColor = new THREE.Color(0x666666);
+        let gridColor = new THREE.Color(0xcccccc);
+        let axisColor = new THREE.Color(0xaaaaaa);
 
         // x-y plane
         let gridHelper1 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
@@ -73,13 +74,13 @@ export class WebGLRenderService {
         this.scene.add(gridHelper2);
         this.planes.push(gridHelper2);
 
-        let axisHelper = new THREE.AxisHelper( 510 );
-        this.scene.add( axisHelper );
+        // let axisHelper = new THREE.AxisHelper( 510 );
+        // this.scene.add( axisHelper );
     }
 
     createGraph() {
 
-        dataSetMain.links.forEach(link => link.color = "#66ccff");
+        dataSetMain.links.forEach(link => link.color = "#000000");
         //Create
         this.graph = new ThreeForceGraph()
             //.nodeRelSize(0.9)
@@ -102,4 +103,22 @@ export class WebGLRenderService {
     toggleDimensions(numDimensions) {
         this.graph.numDimensions(numDimensions);
     };
+
+    //Experiment with tube geometry to draw thick edges
+    drawSpline(){
+        let numPoints = 100;
+        let start = new THREE.Vector3(-5, 0, 20);
+        let middle = new THREE.Vector3(0, 35, 0);
+        let end = new THREE.Vector3(5, 0, -20);
+
+        let curveQuad = new THREE.QuadraticBezierCurve3(start, middle, end);
+
+        let tube = new THREE.TubeGeometry(curveQuad, numPoints, 0.5, 20, false);
+        let mesh = new THREE.Mesh(tube, new THREE.MeshNormalMaterial({
+            opacity: 0.9,
+            transparent: true
+        }));
+
+        this.scene.add(mesh);
+    }
 }

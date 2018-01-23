@@ -10,8 +10,7 @@ import {
     forceManyBody,
     forceCenter,
     forceX,
-    forceY,
-    forceZ
+    forceY
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
@@ -138,7 +137,7 @@ export default Kapsule({
         const valAccessor = accessorFn(state.nodeVal);
         const colorAccessor = accessorFn(state.nodeColor);
         const sphereGeometries = {}; // indexed by node value
-        const sphereMaterials = {}; // indexed by color
+        const sphereMaterials = {};  // indexed by color
         state.graphData.nodes.forEach(node => {
             const customObj = customNodeObjectAccessor(node);
 
@@ -172,6 +171,7 @@ export default Kapsule({
         const edgeColorAccessor = accessorFn(state.linkColor);
 
         const edgeMaterials = {}; // indexed by color
+
         state.graphData.links.forEach(link => {
             const color = edgeColorAccessor(link);
             if (!edgeMaterials.hasOwnProperty(color)) {
@@ -233,19 +233,39 @@ export default Kapsule({
 
         //TODO replace with circle passing via start, stop with center in (stop - start) / 2
         //TODO change to vector arithmetics to work correctly for any position of end points (now only works for X axis)
-        function getBezierCircle(start, stop){
-            let v = [stop.x - start.x, stop.y - start.y, stop.z - start.z];
-            let d = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-            let inset  = d * 0.05;
-            let offset = d * 2.0 / 3.0;
-            let sign = (stop.x - start.x) / Math.abs(stop.x - start.x);
+        function getBezierCircle(startV, endV){
 
-            return new THREE.CubicBezierCurve3(
-                new THREE.Vector3( start.x, start.y, start.z),
-                new THREE.Vector3( start.x + inset, start.y + sign * offset, start.z + inset ),
-                new THREE.Vector3( stop.x  - inset, stop.y  + sign * offset, stop.z  - inset ),
-                new THREE.Vector3( stop.x,  stop.y,  stop.z )
-            );
+            let edgeV = endV.clone().sub(startV);
+            let pEdgeV = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
+
+            //DO not need edgeV and pEdgeV anymore
+            let insetV = edgeV.multiplyScalar(0.05);
+            let offsetV = pEdgeV.multiplyScalar(2/3);
+
+            let v2 = startV.clone().add(insetV).add(offsetV);
+            let v3 = endV.clone().sub(insetV).add(offsetV);
+
+            return new THREE.CubicBezierCurve3( startV.clone(), v2, v3, endV.clone());
+
+            // return new THREE.CubicBezierCurve3(
+            //     new THREE.Vector3( startV.x, startV.y, startV.z),
+            //     new THREE.Vector3( v2.x, v2.y, v2.z),
+            //     new THREE.Vector3( v3.x, v3.y, v3.z),
+            //     new THREE.Vector3( endV.x,  endV.y,  endV.z )
+            // );
+
+
+            // let d = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+            // let inset  = d * 0.05;
+            // let offset = d * 2.0 / 3.0;
+            //let sign = (endV.x - startV.x) / Math.abs(endV.x - startV.x);
+
+            // return new THREE.CubicBezierCurve3(
+            //     new THREE.Vector3( startV.x, startV.y, startV.z),
+            //     new THREE.Vector3( startV.x + inset, startV.y + sign * offset, startV.z + inset ),
+            //     new THREE.Vector3( endV.x  - inset, endV.y  + sign * offset, endV.z  - inset ),
+            //     new THREE.Vector3( endV.x,  endV.y,  endV.z )
+            // );
         }
 
         function layoutTick() {
@@ -279,13 +299,12 @@ export default Kapsule({
 
                 if (!edgePos) return;
 
-                let _start = { x: start.x, y: start.y || 0, z: start.z || 0 };
-                let _end = { x: end.x, y: end.y || 0, z: end.z || 0 };
+                //adjust coordinates for correct computations in 2d and 1d
+                let _start = new THREE.Vector3(start.x, start.y || 0, start.z || 0);
+                let _end   = new THREE.Vector3(end.x, end.y || 0, end.z || 0);
 
                 if (edge.__data.type === "path") {
-
                     let curve = getBezierCircle(_start, _end);
-
                     let points = curve.getPoints( 49 );
                     for (let i = 0; i < 50; i++){
                         edgePos.array[3*i] = points[i].x;
