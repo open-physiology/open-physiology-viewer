@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { MeshText2D} from 'three-text2d'
 
 const three = window.THREE
     ? window.THREE // Prefer consumption from global THREE, if exists
@@ -17,7 +18,7 @@ import Kapsule from 'kapsule';
 import qwest from 'qwest';
 import accessorFn from 'accessor-fn';
 
-import { autoColorObjects, colorStr2Hex } from './color-utils';
+import { autoColorObjects, colorStr2Hex } from './utils';
 
 export default Kapsule({
 
@@ -166,6 +167,11 @@ export default Kapsule({
             obj.__data = node; // Attach node data
 
             state.graphScene.add(node.__threeObj = obj);
+
+            //TODO replace label with name accessor
+            let objLabel = new MeshText2D(node.name, { font: '12px Arial', fillStyle: '#000000', antialias: true });
+            objLabel.parent = obj;
+            state.graphScene.add(node.__threeObjLabel = objLabel);
         });
 
         const edgeColorAccessor = accessorFn(state.linkColor);
@@ -196,7 +202,15 @@ export default Kapsule({
             edge.__graphObjType = 'link'; // Add object type
             edge.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
             edge.__data = link;    // Attach link data
-            state.graphScene.add(link.__lineObj = edge);
+            state.graphScene.add(link.__edgeObj = edge);
+
+            //Add lyphs and edge text
+            if (link.lyph){
+                let lyphGeometry1 = new THREE.PlaneGeometry( 20, 10, 8 );
+                let lyphMaterial1 = new THREE.MeshBasicMaterial( {color: 0x00ff00, side: THREE.DoubleSide} );
+                let lyph = new THREE.Mesh( lyphGeometry1, lyphMaterial1 );
+                state.graphScene.add(link.__lyphObj = lyph);
+            }
         });
 
         // Feed data to force-directed layout
@@ -235,37 +249,16 @@ export default Kapsule({
         //TODO change to vector arithmetics to work correctly for any position of end points (now only works for X axis)
         function getBezierCircle(startV, endV){
 
-            let edgeV = endV.clone().sub(startV);
-            let pEdgeV = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
-
-            //DO not need edgeV and pEdgeV anymore
-            let insetV = edgeV.multiplyScalar(0.05);
+            let edgeV   = endV.clone().sub(startV);
+            let pEdgeV  = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
+            let insetV  = edgeV.multiplyScalar(0.05);
             let offsetV = pEdgeV.multiplyScalar(2/3);
 
-            let v2 = startV.clone().add(insetV).add(offsetV);
-            let v3 = endV.clone().sub(insetV).add(offsetV);
-
-            return new THREE.CubicBezierCurve3( startV.clone(), v2, v3, endV.clone());
-
-            // return new THREE.CubicBezierCurve3(
-            //     new THREE.Vector3( startV.x, startV.y, startV.z),
-            //     new THREE.Vector3( v2.x, v2.y, v2.z),
-            //     new THREE.Vector3( v3.x, v3.y, v3.z),
-            //     new THREE.Vector3( endV.x,  endV.y,  endV.z )
-            // );
-
-
-            // let d = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-            // let inset  = d * 0.05;
-            // let offset = d * 2.0 / 3.0;
-            //let sign = (endV.x - startV.x) / Math.abs(endV.x - startV.x);
-
-            // return new THREE.CubicBezierCurve3(
-            //     new THREE.Vector3( startV.x, startV.y, startV.z),
-            //     new THREE.Vector3( startV.x + inset, startV.y + sign * offset, startV.z + inset ),
-            //     new THREE.Vector3( endV.x  - inset, endV.y  + sign * offset, endV.z  - inset ),
-            //     new THREE.Vector3( endV.x,  endV.y,  endV.z )
-            // );
+            return new THREE.CubicBezierCurve3(
+                startV.clone(),
+                startV.clone().add(insetV).add(offsetV),
+                endV.clone().sub(insetV).add(offsetV),
+                endV.clone());
         }
 
         function layoutTick() {
@@ -279,17 +272,26 @@ export default Kapsule({
             state.graphData.nodes.forEach(node => {
                 const obj = node.__threeObj;
                 if (!obj) return;
-
                 const pos = node;
 
                 obj.position.x = pos.x;
                 obj.position.y = pos.y || 0;
                 obj.position.z = pos.z || 0;
+
+
+                const objLabel = node.__threeObjLabel;
+                if (objLabel) {
+
+                    let radius = Math.cbrt(node.val) * state.nodeRelSize;
+                    objLabel.position.x = obj.position.x + 1.2 * radius;
+                    objLabel.position.y = obj.position.y + 1.2 * radius;
+                    objLabel.position.z = obj.position.z;
+                }
             });
 
             // Update links position
             state.graphData.links.forEach(link => {
-                const edge = link.__lineObj;
+                const edge = link.__edgeObj;
                 if (!edge) return;
 
                 const pos = link,
@@ -303,23 +305,31 @@ export default Kapsule({
                 let _start = new THREE.Vector3(start.x, start.y || 0, start.z || 0);
                 let _end   = new THREE.Vector3(end.x, end.y || 0, end.z || 0);
 
+                let points = [];
+                let middle;
                 if (edge.__data.type === "path") {
                     let curve = getBezierCircle(_start, _end);
-                    let points = curve.getPoints( 49 );
-                    for (let i = 0; i < 50; i++){
-                        edgePos.array[3*i] = points[i].x;
-                        edgePos.array[3*i+1] = points[i].y;
-                        edgePos.array[3*i+2] = points[i].z;
-                    }
+                    middle = curve.getPoint(0.5);
+                    points = curve.getPoints( 49 );
                 } else {
                     if (edge.__data.type === "link") {
-                        edgePos.array[0] = _start.x;
-                        edgePos.array[1] = _start.y;
-                        edgePos.array[2] = _start.z;
-                        edgePos.array[3] = _end.x;
-                        edgePos.array[4] = _end.y;
-                        edgePos.array[5] = _end.z;
+                        points.push(_start);
+                        points.push(_end);
+                        middle = _start.clone().add(_end).multiplyScalar(0.5);
                     }
+                }
+                for (let i = 0; i < points.length; i++){
+                    edgePos.array[3*i] = points[i].x;
+                    edgePos.array[3*i+1] = points[i].y;
+                    edgePos.array[3*i+2] = points[i].z;
+                }
+
+                const lyph = link.__lyphObj;
+                if (lyph){
+                    lyph.position.x = middle.x;
+                    lyph.position.y = middle.y;
+                    lyph.position.z = middle.z;
+
                 }
 
                 edgePos.needsUpdate = true;

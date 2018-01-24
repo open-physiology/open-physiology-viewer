@@ -97,7 +97,6 @@ export class WebGLRenderService {
     toggleGraph(label){
         //Toggle graph category visibility
         //this.graphs[label].visible = !this.graphs[label].visible;
-
     }
 
     toggleDimensions(numDimensions) {

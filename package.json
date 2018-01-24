@@ -75,6 +75,7 @@
     "rxjs": "5",
     "three": "^0.86.0",
     "three-stats": "^1.0.1",
+    "three-text2d": "^0.3.4",
     "three-trackballcontrols": "0.0.7",
     "tinycolor2": "^1.4.1",
     "tween.js": "^16.6.0",
