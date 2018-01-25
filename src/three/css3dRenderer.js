@@ -1,7 +1,10 @@
-//Renderer that places CSS object to Three.js scenes
-//Example: https://threejs.org/examples/css3d_periodictable.html
+/**
+ * Renderer that places CSS object to Three.js scenes
+ * Example: https://threejs.org/examples/css3d_periodictable.html
+ */
 
-var THREE = window.THREE || require('three');
+import * as three from 'three';
+const THREE = window.THREE || three;
 
 export function CSS3DObject ( element ) {
 
@@ -82,13 +85,10 @@ export function CSS3DRenderer () {
     };
 
     function epsilon( value ) {
-
         return Math.abs( value ) < 1e-10 ? 0 : value;
-
     }
 
     function getCameraCSSMatrix( matrix ) {
-
         let elements = matrix.elements;
 
         return 'matrix3d(' +

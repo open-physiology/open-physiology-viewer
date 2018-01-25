@@ -1,9 +1,7 @@
-import * as THREE from 'three';
+import * as three from 'three';
 import { MeshText2D} from 'three-text2d'
 
-const three = window.THREE
-    ? window.THREE // Prefer consumption from global THREE, if exists
-    : THREE;
+const THREE = window.THREE || three;
 
 import {
     forceSimulation,
@@ -18,16 +16,24 @@ import Kapsule from 'kapsule';
 import qwest from 'qwest';
 import accessorFn from 'accessor-fn';
 
-import { autoColorObjects, colorStr2Hex } from './utils';
+import { autoColorObjects, colorStr2Hex, createBezierSemicircle } from './utils';
+import { lyph2d, lyph3d } from './lyphs';
 
 export default Kapsule({
-
     props: {
         jsonUrl: {},
         graphData: {
             default: {
                 nodes: [],
                 links: []
+            },
+            onChange(_, state) { state.onFrame = null; } // Pause simulation
+        },
+        omegaTrees: {
+            default: {
+                nodes: [],
+                links: [],
+                trees: []
             },
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
@@ -59,7 +65,8 @@ export default Kapsule({
         linkLabel:  { default: 'name'},
         linkAutoColorBy: {},
         linkOpacity: { default: 0.5 },
-        axis: {default: 300},
+        axisX: {default: 400},
+        axisY: {default: 400},
         forceEngine: { default: 'd3' }, // d3
         d3AlphaDecay: { default: 0.0228 },
         d3VelocityDecay: { default: 0.4 },
@@ -74,9 +81,9 @@ export default Kapsule({
         // Expose d3 forces for external manipulation
         d3Force: function(state, forceName, forceFn) {
             if (forceFn === undefined) {
-                return state.d3ForceLayout.force(forceName); // Force getter
+                return state.simulation.force(forceName); // Force getter
             }
-            state.d3ForceLayout.force(forceName, forceFn); // Force setter
+            state.simulation.force(forceName, forceFn); // Force setter
             return this;
         },
         tickFrame: function(state) {
@@ -86,9 +93,9 @@ export default Kapsule({
     },
 
     stateInit: () => ({
-        d3ForceLayout: forceSimulation()
+        simulation: forceSimulation()
             .force('link', forceLink())
-            .force('charge', forceManyBody())
+            //.force('charge', forceManyBody())
             .force('center', forceCenter()) //TODO check if we need to set center explicitly
         .stop()
     }),
@@ -139,6 +146,7 @@ export default Kapsule({
         const colorAccessor = accessorFn(state.nodeColor);
         const sphereGeometries = {}; // indexed by node value
         const sphereMaterials = {};  // indexed by color
+
         state.graphData.nodes.forEach(node => {
             const customObj = customNodeObjectAccessor(node);
 
@@ -148,19 +156,19 @@ export default Kapsule({
             } else { // Default object (sphere mesh)
                 const val = valAccessor(node) || 1;
                 if (!sphereGeometries.hasOwnProperty(val)) {
-                    sphereGeometries[val] = new three.SphereGeometry(Math.cbrt(val) * state.nodeRelSize, state.nodeResolution, state.nodeResolution);
+                    sphereGeometries[val] = new THREE.SphereGeometry(Math.cbrt(val) * state.nodeRelSize, state.nodeResolution, state.nodeResolution);
                 }
 
                 const color = colorAccessor(node);
                 if (!sphereMaterials.hasOwnProperty(color)) {
-                    sphereMaterials[color] = new three.MeshLambertMaterial({
+                    sphereMaterials[color] = new THREE.MeshLambertMaterial({
                         color: colorStr2Hex(color || '#ffffaa'),
                         transparent: true,
                         opacity: 0.75
                     });
                 }
 
-                obj = new three.Mesh(sphereGeometries[val], sphereMaterials[color]);
+                obj = new THREE.Mesh(sphereGeometries[val], sphereMaterials[color]);
             }
 
             obj.__graphObjType = 'node'; // Add object type
@@ -168,11 +176,39 @@ export default Kapsule({
 
             state.graphScene.add(node.__threeObj = obj);
 
-            //TODO replace label with name accessor
+            //TODO replace "name" with accessor?
             let objLabel = new MeshText2D(node.name, { font: '12px Arial', fillStyle: '#000000', antialias: true });
             objLabel.parent = obj;
             state.graphScene.add(node.__threeObjLabel = objLabel);
         });
+
+        //TODO: make function that draws both nodes and omega nodes
+        const omegaGeometries = {}; // indexed by node value
+        const omegaMaterials = {};  // indexed by color
+        state.omegaTrees.nodes.forEach(
+            node => {
+                let obj;
+                const val = valAccessor(node) || 1;
+                if (!omegaGeometries.hasOwnProperty(val)) {
+                    omegaGeometries[val] = new THREE.SphereGeometry(Math.cbrt(val) * state.nodeRelSize, state.nodeResolution, state.nodeResolution);
+                }
+
+                const color = colorAccessor(node);
+                if (!omegaMaterials.hasOwnProperty(color)) {
+                    omegaMaterials[color] = new THREE.MeshLambertMaterial({
+                        color: colorStr2Hex(color || '#888'),
+                        transparent: true,
+                        opacity: 0.75
+                    });
+                }
+
+                obj = new THREE.Mesh(omegaGeometries[val], omegaMaterials[color]);
+
+                obj.__graphObjType = 'node'; // Add object type
+                obj.__data = node;           // Attach node data
+                state.graphScene.add(node.__threeObj = obj);
+            }
+        );
 
         const edgeColorAccessor = accessorFn(state.linkColor);
 
@@ -181,24 +217,24 @@ export default Kapsule({
         state.graphData.links.forEach(link => {
             const color = edgeColorAccessor(link);
             if (!edgeMaterials.hasOwnProperty(color)) {
-                edgeMaterials[color] = new three.LineBasicMaterial({
+                edgeMaterials[color] = new THREE.LineBasicMaterial({
                     color: colorStr2Hex(color || '#f0f0f0'),
                     transparent: true,
                     opacity: state.linkOpacity
                 });
             }
 
-            let geometry = new three.BufferGeometry();
+            let geometry = new THREE.BufferGeometry();
             if (link.type === "path"){
-                geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(50 * 3), 3));
+                geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(50 * 3), 3));
             } else {
                 if (link.type === "link"){
-                    geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(2 * 3), 3));
+                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
                 }
             }
 
             const edgeMaterial = edgeMaterials[color];
-            let edge = new three.Line(geometry, edgeMaterial);
+            let edge = new THREE.Line(geometry, edgeMaterial);
             edge.__graphObjType = 'link'; // Add object type
             edge.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
             edge.__data = link;    // Attach link data
@@ -206,9 +242,15 @@ export default Kapsule({
 
             //Add lyphs and edge text
             if (link.lyph){
-                let lyphGeometry1 = new THREE.PlaneGeometry( 20, 10, 8 );
-                let lyphMaterial1 = new THREE.MeshBasicMaterial( {color: 0x00ff00, side: THREE.DoubleSide} );
-                let lyph = new THREE.Mesh( lyphGeometry1, lyphMaterial1 );
+                //let lyph = lyph3d(link.lyph);
+                let lyph = lyph2d(link.lyph);
+
+                //Rotate lyph to follow the line
+                if (link.base === "y" && state.numDimensions > 1){
+                    lyph.rotation.z =  Math.PI / 2 ;
+                }
+                //TODO is it useful to make lyph a child of the edge? lyph.parent = edge;
+
                 state.graphScene.add(link.__lyphObj = lyph);
             }
         });
@@ -216,7 +258,7 @@ export default Kapsule({
         // Feed data to force-directed layout
         let layout;
         // D3-force
-        (layout = state.d3ForceLayout)
+        (layout = state.simulation)
             .stop()
             .alpha(1)// re-heat the simulation
             .alphaDecay(state.d3AlphaDecay)
@@ -227,39 +269,22 @@ export default Kapsule({
             .id(d => d[state.nodeId])
             .links(state.graphData.links);
 
-
         layout
-            .force("y", forceY().y(d => (d.type === "-y")? -state.axis
-                : (d.type === "+y")? state.axis : 0))
-            .force("x", forceX().x(d => (d.type === "-x")? -state.axis
-                : (d.type === "+x")? state.axis : 0))
-            .force('link').distance(d =>  0.01 * d.length * (2 * state.axis)).strength(0.9);
+            .force("y", forceY().y(d => (d.type === "-y")? -state.axisY
+                : (d.type === "+y")? state.axisY : 0))
+            .force("x", forceX().x(d => (d.type === "-x")? -state.axisX
+                : (d.type === "+x")? state.axisX : 0))
+            .force('link').distance(d =>  0.01 * d.length * 2 * ((d.base === "y")? state.axisY: state.axisX)).strength(0.9);
+
+
 
         // Initial ticks before starting to render
-        for (let i=0; i < state.warmupTicks; i++) {
-            layout['tick']();
-        }
+        for (let i=0; i < state.warmupTicks; i++) { layout['tick'](); }
 
         let cntTicks = 0;
         const startTickTime = new Date();
         state.onFrame = layoutTick;
         state.onFinishLoading();
-
-        //TODO replace with circle passing via start, stop with center in (stop - start) / 2
-        //TODO change to vector arithmetics to work correctly for any position of end points (now only works for X axis)
-        function getBezierCircle(startV, endV){
-
-            let edgeV   = endV.clone().sub(startV);
-            let pEdgeV  = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
-            let insetV  = edgeV.multiplyScalar(0.05);
-            let offsetV = pEdgeV.multiplyScalar(2/3);
-
-            return new THREE.CubicBezierCurve3(
-                startV.clone(),
-                startV.clone().add(insetV).add(offsetV),
-                endV.clone().sub(insetV).add(offsetV),
-                endV.clone());
-        }
 
         function layoutTick() {
             if (++cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
@@ -267,6 +292,7 @@ export default Kapsule({
             } else {
                 layout['tick'](); // Tick it
             }
+
 
             // Update nodes position
             state.graphData.nodes.forEach(node => {
@@ -278,10 +304,8 @@ export default Kapsule({
                 obj.position.y = pos.y || 0;
                 obj.position.z = pos.z || 0;
 
-
                 const objLabel = node.__threeObjLabel;
                 if (objLabel) {
-
                     let radius = Math.cbrt(node.val) * state.nodeRelSize;
                     objLabel.position.x = obj.position.x + 1.2 * radius;
                     objLabel.position.y = obj.position.y + 1.2 * radius;
@@ -308,9 +332,37 @@ export default Kapsule({
                 let points = [];
                 let middle;
                 if (edge.__data.type === "path") {
-                    let curve = getBezierCircle(_start, _end);
+                    let curve = createBezierSemicircle(_start, _end);
                     middle = curve.getPoint(0.5);
                     points = curve.getPoints( 49 );
+
+                    //Adjust coordinates to produce an ellipse for different (axisX, axisY)
+                    if (state.axisY !== state.axisX){
+                        let scaleXY = state.axisX / state.axisY;
+                        //In 1d all nodes forced to be on X axis, so do not scale along it
+                        if (edge.__data.base === "y" && state.numDimensions > 1){
+                            points.forEach(p => {p.x *= scaleXY});
+                            middle.x *= scaleXY;
+                        } else {
+                            points.forEach(p => {p.y /= scaleXY});
+                            middle.y /= scaleXY;
+                        }
+                    }
+
+                    //TODO assign positions of omega tree roots
+                    let hostedNodes = state.omegaTrees.nodes.filter(node => node.host === edge.__data.id);
+                    if (hostedNodes.length > 0){
+                        let i = 1;
+                        let offset =  1 / (hostedNodes.length + 1);
+                        hostedNodes.forEach(omegaRoot => {
+                            let omegaRootObj = omegaRoot.__threeObj;
+                            if (!omegaRootObj) { return; }
+                            let pos = curve.getPoint(offset * i++);
+                            omegaRootObj.position.x = pos.x;
+                            omegaRootObj.position.y = pos.y;
+                            omegaRootObj.position.z = pos.z;
+                        });
+                    }
                 } else {
                     if (edge.__data.type === "link") {
                         points.push(_start);
@@ -329,7 +381,6 @@ export default Kapsule({
                     lyph.position.x = middle.x;
                     lyph.position.y = middle.y;
                     lyph.position.z = middle.z;
-
                 }
 
                 edgePos.needsUpdate = true;

@@ -1,4 +1,4 @@
-import {dataSetMain} from '../data/graph';
+import {coreGraphData} from '../data/data';
 import * as d3 from 'd3';
 
 export class SVGRenderService {
@@ -19,33 +19,32 @@ export class SVGRenderService {
             "D": axis * 0.9
         };
 
-        let simulation = d3.forceSimulation().nodes(dataSetMain.nodes);
+        let simulation = d3.forceSimulation().nodes(coreGraphData.nodes);
 
         simulation
-            .force("link", d3.forceLink(dataSetMain.links).id(d => d.id))
-            .force("link", d3.forceLink(dataSetMain.links)
-                //Stretch dataSetMains by creating overall length deficit
-                .distance(d => 0.01 * d.length * (2 * axis) * ((d.source.dataSetMain === "A") ? 1 : 0.7))
-                .strength(0.9))
+            .force("link", d3.forceLink(coreGraphData.links).id(d => d.id))
+            .force("link", d3.forceLink(coreGraphData.links)
+                .distance(d => 0.01 * d.length * 2 * axis).strength(1))
             .force("collide", d3.forceCollide(d => d.r).iterations(16))
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(center.x, center.y))
-            .force("y", d3.forceY(0))
-            .force("x", d3.forceX(0))
-            //.force("splitting",splitting_force)
+            .force("y", d3.forceY(0).y(d => (d.type === "-y")? -axis
+                : (d.type === "+y")? axis : 0))
+            .force("x", d3.forceX().x(d => (d.type === "-x")? -axis
+                : (d.type === "+x")? axis : 0))
         ;
 
         this.svg.append("rect").attr("width", 100).attr("height", 100).attr("fill", "red");
 
 
         let path = this.svg.append("g").attr("class", "edge").selectAll("path")
-            .data(dataSetMain.links)
+            .data(coreGraphData.links)
             .enter().append("path")
             .attr("id", (d, i) => "path_" + i) //a unique ID to reference later
             .attr("class", "path");
 
         let pathLabel = this.svg.append("g").selectAll("path")
-            .data(dataSetMain.links).enter().append("text")
+            .data(coreGraphData.links).enter().append("text")
             .attr("class", "pathLabel")
             .style("text-anchor", "middle")
             .append("textPath")
@@ -55,7 +54,7 @@ export class SVGRenderService {
             .text(d => d.name); //place the text halfway on the arc
 
         let lyphIcon = this.svg.append("g").selectAll("path")
-            .data(dataSetMain.links).enter().append("g")
+            .data(coreGraphData.links).enter().append("g")
             .attr("class", "lyphIcon")
             .attr("xlink:href", (d, i) => "#path_" + i) //icon ID
             .attr("startOffset", "60%")
@@ -66,12 +65,12 @@ export class SVGRenderService {
             .text(d => d.lyph); //place the text halfway on the arc
 
         let node = this.svg.append("g").attr("class", "node").selectAll("circle")
-            .data(dataSetMain.nodes).enter()
+            .data(coreGraphData.nodes).enter()
             .append("circle")
             .attr("r", radius)
             .attr("fill", x => x.color);
 
-        let nodeLabel = this.svg.append("g").selectAll("node").data(dataSetMain.nodes)
+        let nodeLabel = this.svg.append("g").selectAll("node").data(coreGraphData.nodes)
             .enter().append("text")
             .attr("class", "nodeLabel")
             .attr("x", 1.2 * radius)

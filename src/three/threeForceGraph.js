@@ -1,5 +1,5 @@
 import { Group } from 'three';
-import ForceGraph from './ThreeForceGraphKapsule.js';
+import ForceGraph from './threeForceGraphKapsule.js';
 
 function fromKapsule(kapsule, baseClass = Object, initKapsuleWithSelf = false) {
 
