@@ -17,8 +17,8 @@ import qwest from 'qwest';
 import accessorFn from 'accessor-fn';
 
 import { autoColorObjects, colorStr2Hex, createBezierSemicircle } from './utils';
-import { lyph2d, lyph3d } from './lyphs';
 
+//TODO handle drawing of domain-specific objects like omega trees outside
 export default Kapsule({
     props: {
         jsonUrl: {},
@@ -51,29 +51,31 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize: { default: 4 }, // volume per val unit
-        nodeId: { default: 'id' },
-        nodeVal: { default: 'val' },
-        nodeResolution: { default: 8 }, // how many slice segments in the sphere's circumference
-        nodeColor: { default: 'color' },
+        nodeRelSize    : { default: 4 }, // volume per val unit
+        nodeId         : { default: 'id' },
+        nodeVal        : { default: 'val' },
+        nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
+        nodeColor      : { default: 'color' },
         nodeAutoColorBy: {},
         nodeThreeObject: {},
-        linkSource: { default: 'source' },
-        linkTarget: { default: 'target' },
-        linkColor:  { default: 'color' },
-        nodeLabel:  { default: 'name'},
-        linkLabel:  { default: 'name'},
+        linkSource     : { default: 'source' },
+        linkTarget     : { default: 'target' },
+        linkColor      : { default: 'color' },
+        nodeLabel      : { default: 'name'},
+        linkLabel      : { default: 'name'},
         linkAutoColorBy: {},
-        linkOpacity: { default: 0.5 },
-        axisX: {default: 400},
-        axisY: {default: 400},
-        forceEngine: { default: 'd3' }, // d3
-        d3AlphaDecay: { default: 0.0228 },
+        linkExtension  : {},
+        linkExtensionParams: {},
+        linkOpacity    : { default: 0.5 },
+        axisX          : { default: 400 },
+        axisY          : { default: 400 },
+        forceEngine    : { default: 'd3' }, // d3
+        d3AlphaDecay   : { default: 0.0228 },
         d3VelocityDecay: { default: 0.4 },
-        warmupTicks: { default: 0 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks: { default: Infinity },
-        cooldownTime: { default: 15000 }, // ms
-        onLoading: { default: () => {}, triggerUpdate: false },
+        warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
+        cooldownTicks  : { default: Infinity },
+        cooldownTime   : { default: 15000 }, // ms
+        onLoading      : { default: () => {}, triggerUpdate: false },
         onFinishLoading: { default: () => {}, triggerUpdate: false }
     },
 
@@ -241,17 +243,11 @@ export default Kapsule({
             state.graphScene.add(link.__edgeObj = edge);
 
             //Add lyphs and edge text
-            if (link.lyph){
-                //let lyph = lyph3d(link.lyph);
-                let lyph = lyph2d(link.lyph);
-
-                //Rotate lyph to follow the line
-                if (link.base === "y" && state.numDimensions > 1){
-                    lyph.rotation.z =  Math.PI / 2 ;
+            if (state.linkExtension){
+                let linkIcon = state.linkExtension(link, state);
+                if (linkIcon){
+                    state.graphScene.add(link.__linkIconObj = linkIcon);
                 }
-                //TODO is it useful to make lyph a child of the edge? lyph.parent = edge;
-
-                state.graphScene.add(link.__lyphObj = lyph);
             }
         });
 
@@ -275,7 +271,6 @@ export default Kapsule({
             .force("x", forceX().x(d => (d.type === "-x")? -state.axisX
                 : (d.type === "+x")? state.axisX : 0))
             .force('link').distance(d =>  0.01 * d.length * 2 * ((d.base === "y")? state.axisY: state.axisX)).strength(0.9);
-
 
 
         // Initial ticks before starting to render
@@ -376,11 +371,11 @@ export default Kapsule({
                     edgePos.array[3*i+2] = points[i].z;
                 }
 
-                const lyph = link.__lyphObj;
-                if (lyph){
-                    lyph.position.x = middle.x;
-                    lyph.position.y = middle.y;
-                    lyph.position.z = middle.z;
+                const linkIcon = link.__linkIconObj;
+                if (linkIcon){
+                    linkIcon.position.x = middle.x;
+                    linkIcon.position.y = middle.y;
+                    linkIcon.position.z = middle.z;
                 }
 
                 edgePos.needsUpdate = true;

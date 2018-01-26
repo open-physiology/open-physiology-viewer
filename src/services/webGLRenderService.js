@@ -3,6 +3,7 @@ import * as TWEEN from 'es6-tween'
 import TrackballControls from 'three-trackballcontrols';
 import ThreeForceGraph from '../three/threeForceGraph';
 import {coreGraphData, omegaTrees}   from '../data/data';
+import { linkExtension } from './lyphs';
 
 export class WebGLRenderService {
     scene    : THREE.Scene;
@@ -83,7 +84,9 @@ export class WebGLRenderService {
         //Create
         this.graph = new ThreeForceGraph()
             .graphData(coreGraphData)
-            .omegaTrees(omegaTrees);
+            .omegaTrees(omegaTrees)
+            .linkExtension(linkExtension)
+            .linkExtensionParams({method: "3d"});
 
         this.scene.add(this.graph);
     }
@@ -92,9 +95,8 @@ export class WebGLRenderService {
         this.planes.forEach(plane => {plane.visible = !plane.visible});
     }
 
-    toggleGraph(label){
-        //Toggle graph category visibility
-        //this.graphs[label].visible = !this.graphs[label].visible;
+    toggleLinkIcon(method){
+        this.graph.linkExtensionParams({method: method});
     }
 
     toggleDimensions(numDimensions) {

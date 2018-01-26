@@ -8,11 +8,12 @@ import {FormsModule}  from '@angular/forms';
     template: `
         <div class="view_selector">
             Show:
-            <input type="checkbox" name="show_graph"  (change)="_renderService.toggleGraph('A')" checked/> A
-            <input type="checkbox" name="show_graph"  (change)="_renderService.toggleGraph('B')" checked/> B
-            <input type="checkbox" name="show_graph"  (change)="_renderService.toggleGraph('C')" checked/> C
-            <input type="checkbox" name="show_graph"  (change)="_renderService.toggleGraph('D')" checked/> D
             <input type="checkbox" name="show_planes" (change)="_renderService.togglePlanes()" checked/> Grid
+        </div>
+        <div class="icon_selector">
+            Lyph icon:
+            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLinkIcon('2d')"/> 2D
+            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLinkIcon('3d')" checked/> 3D
         </div>
         <div class="dimensions_selector">
             Dimensions:

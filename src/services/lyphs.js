@@ -59,13 +59,33 @@ function lyph3d(id){
     let i = 1;
     Object.keys(layerMaterials).forEach(id => {
         let layer = createSolidCylinder(
-            [ thickness * i, thickness * i, 80, 20, 4],
-            [ thickness * (i + 1), thickness * (i + 1), 80, 20, 4], layerMaterials[id]);
+            [ thickness * i, thickness * i, 40, 10, 4],
+            [ thickness * (i + 1), thickness * (i + 1), 40, 10, 4], layerMaterials[id]);
         lyph.add(layer);
         i++;
     });
 
     return lyph;
+}
+
+function linkExtension(link, state){
+    //Add lyphs and edge text
+    if (link.lyph){
+        let lyph = (state.linkExtensionParams.method === "3d")? lyph3d(link.lyph): lyph2d(link.lyph);
+
+        if (state.linkExtensionParams.method === "3d"){
+            //Rotate lyph cylinder to follow the line
+            if (link.base !== "y" || state.numDimensions === 1) {
+                lyph.rotation.z = Math.PI / 2;
+            }
+        } else {
+            //Rotate lyph rectangle to follow the line
+            if (link.base === "y" && state.numDimensions > 1) {
+                lyph.rotation.z = Math.PI / 2;
+            }
+        }
+        return lyph;
+    }
 }
 
 /**
@@ -95,6 +115,4 @@ function testSpline(curve){
     return mesh;
 }
 
-
-
-export {lyph2d, lyph3d, createSolidCylinder}
+export {linkExtension}
