@@ -7,9 +7,10 @@ import {
     forceSimulation,
     forceLink,
     forceManyBody,
-    forceCenter,
     forceX,
-    forceY
+    forceY,
+    forceZ,
+    forceRadial
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
@@ -26,14 +27,6 @@ export default Kapsule({
             default: {
                 nodes: [],
                 links: []
-            },
-            onChange(_, state) { state.onFrame = null; } // Pause simulation
-        },
-        omegaTrees: {
-            default: {
-                nodes: [],
-                links: [],
-                trees: []
             },
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
@@ -97,8 +90,7 @@ export default Kapsule({
     stateInit: () => ({
         simulation: forceSimulation()
             .force('link', forceLink())
-            //.force('charge', forceManyBody())
-            .force('center', forceCenter()) //TODO check if we need to set center explicitly
+            .force('charge', forceManyBody())
         .stop()
     }),
 
@@ -164,7 +156,7 @@ export default Kapsule({
                 const color = colorAccessor(node);
                 if (!sphereMaterials.hasOwnProperty(color)) {
                     sphereMaterials[color] = new THREE.MeshLambertMaterial({
-                        color: colorStr2Hex(color || '#ffffaa'),
+                        color: colorStr2Hex(color || '#888'),
                         transparent: true,
                         opacity: 0.75
                     });
@@ -178,42 +170,15 @@ export default Kapsule({
 
             state.graphScene.add(node.__threeObj = obj);
 
-            //TODO replace "name" with accessor?
-            let objLabel = new MeshText2D(node.name, { font: '12px Arial', fillStyle: '#000000', antialias: true });
-            objLabel.parent = obj;
-            state.graphScene.add(node.__threeObjLabel = objLabel);
+            //Label only core graph nodes
+            //if (node.graph){
+                let objLabel = new MeshText2D(node[state.nodeLabel], { font: '12px Arial', fillStyle: '#888', antialias: true });
+                objLabel.parent = obj;
+                state.graphScene.add(node.__threeObjLabel = objLabel);
+            //}
         });
 
-        //TODO: make function that draws both nodes and omega nodes
-        const omegaGeometries = {}; // indexed by node value
-        const omegaMaterials = {};  // indexed by color
-        state.omegaTrees.nodes.forEach(
-            node => {
-                let obj;
-                const val = valAccessor(node) || 1;
-                if (!omegaGeometries.hasOwnProperty(val)) {
-                    omegaGeometries[val] = new THREE.SphereGeometry(Math.cbrt(val) * state.nodeRelSize, state.nodeResolution, state.nodeResolution);
-                }
-
-                const color = colorAccessor(node);
-                if (!omegaMaterials.hasOwnProperty(color)) {
-                    omegaMaterials[color] = new THREE.MeshLambertMaterial({
-                        color: colorStr2Hex(color || '#888'),
-                        transparent: true,
-                        opacity: 0.75
-                    });
-                }
-
-                obj = new THREE.Mesh(omegaGeometries[val], omegaMaterials[color]);
-
-                obj.__graphObjType = 'node'; // Add object type
-                obj.__data = node;           // Attach node data
-                state.graphScene.add(node.__threeObj = obj);
-            }
-        );
-
         const edgeColorAccessor = accessorFn(state.linkColor);
-
         const edgeMaterials = {}; // indexed by color
 
         state.graphData.links.forEach(link => {
@@ -230,9 +195,10 @@ export default Kapsule({
             if (link.type === "path"){
                 geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(50 * 3), 3));
             } else {
-                if (link.type === "link"){
+                //TODO Be default straight lines for all links
+                //if (link.type === "link"){
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-                }
+                //}
             }
 
             const edgeMaterial = edgeMaterials[color];
@@ -270,7 +236,20 @@ export default Kapsule({
                 : (d.type === "+y")? state.axisY : 0))
             .force("x", forceX().x(d => (d.type === "-x")? -state.axisX
                 : (d.type === "+x")? state.axisX : 0))
-            .force('link').distance(d =>  0.01 * d.length * 2 * ((d.base === "y")? state.axisY: state.axisX)).strength(0.9);
+            .force("z", forceZ(0).z(d => (d.type === "-y")? -100
+                : (d.type === "+y")? 100 : 0))
+            .force("link").distance(d =>  0.01 * d.length * 2 * ((d.base === "y")? state.axisY: state.axisX));//.strength(0.9);
+
+        layout.force("radial", forceRadial(d => {
+            if (d.direction === "in") {
+                return 0.5 * state.axisX;
+            }
+            if (d.direction === "out") {
+                return 2 * state.axisX;
+            }
+            return 0;
+        })/*.strength(d => (d.direction)? 0.9: 0.1)*/);
+
 
 
         // Initial ticks before starting to render
@@ -287,7 +266,6 @@ export default Kapsule({
             } else {
                 layout['tick'](); // Tick it
             }
-
 
             // Update nodes position
             state.graphData.nodes.forEach(node => {
@@ -308,62 +286,54 @@ export default Kapsule({
                 }
             });
 
-            // Update links position
-            state.graphData.links.forEach(link => {
+            // Update links position for paths, set omega nodes
+            state.graphData.links.filter(link => link.type === "path").forEach(link => {
                 const edge = link.__edgeObj;
                 if (!edge) return;
 
                 const pos = link,
                     start = pos['source'],
-                      end = pos['target'],
-                  edgePos = edge.geometry.attributes.position;
-
+                    end = pos['target'],
+                    edgePos = edge.geometry.attributes.position;
                 if (!edgePos) return;
 
                 //adjust coordinates for correct computations in 2d and 1d
                 let _start = new THREE.Vector3(start.x, start.y || 0, start.z || 0);
                 let _end   = new THREE.Vector3(end.x, end.y || 0, end.z || 0);
 
-                let points = [];
-                let middle;
-                if (edge.__data.type === "path") {
-                    let curve = createBezierSemicircle(_start, _end);
-                    middle = curve.getPoint(0.5);
-                    points = curve.getPoints( 49 );
+                let curve = createBezierSemicircle(_start, _end);
+                let middle = curve.getPoint(0.5);
+                let points = curve.getPoints( 49 );
 
-                    //Adjust coordinates to produce an ellipse for different (axisX, axisY)
-                    if (state.axisY !== state.axisX){
-                        let scaleXY = state.axisX / state.axisY;
-                        //In 1d all nodes forced to be on X axis, so do not scale along it
-                        if (edge.__data.base === "y" && state.numDimensions > 1){
-                            points.forEach(p => {p.x *= scaleXY});
-                            middle.x *= scaleXY;
-                        } else {
-                            points.forEach(p => {p.y /= scaleXY});
-                            middle.y /= scaleXY;
-                        }
+                //Adjust coordinates to produce an ellipse for different (axisX, axisY)
+                if (state.axisY !== state.axisX){
+                    let scaleXY = state.axisX / state.axisY;
+                    //In 1d all nodes forced to be on X axis, so do not scale along it
+                    if (edge.__data.base === "y" && state.numDimensions > 1){
+                        points.forEach(p => {p.x *= scaleXY});
+                        middle.x *= scaleXY;
+                    } else {
+                        points.forEach(p => {p.y /= scaleXY});
+                        middle.y /= scaleXY;
                     }
+                }
 
-                    //TODO assign positions of omega tree roots
-                    let hostedNodes = state.omegaTrees.nodes.filter(node => node.host === edge.__data.id);
-                    if (hostedNodes.length > 0){
-                        let i = 1;
-                        let offset =  1 / (hostedNodes.length + 1);
-                        hostedNodes.forEach(omegaRoot => {
-                            let omegaRootObj = omegaRoot.__threeObj;
-                            if (!omegaRootObj) { return; }
-                            let pos = curve.getPoint(offset * i++);
-                            omegaRootObj.position.x = pos.x;
-                            omegaRootObj.position.y = pos.y;
-                            omegaRootObj.position.z = pos.z;
-                        });
-                    }
-                } else {
-                    if (edge.__data.type === "link") {
-                        points.push(_start);
-                        points.push(_end);
-                        middle = _start.clone().add(_end).multiplyScalar(0.5);
-                    }
+                //Position omega tree roots
+                let hostedNodes = state.graphData.nodes.filter(node => node.host === edge.__data.id);
+                if (hostedNodes.length > 0){
+                    let i = 1;
+                    let offset =  1 / (hostedNodes.length + 1);
+                    hostedNodes.forEach(root => {
+                        let rootObj = root.__threeObj;
+                        if (!rootObj) { return; }
+                        let pos = curve.getPoint(offset * i++);
+                        rootObj.position.x = pos.x;
+                        rootObj.position.y = pos.y;
+                        rootObj.position.z = pos.z;
+                        root.x = pos.x;
+                        root.y = pos.y;
+                        root.z = pos.z;
+                    });
                 }
                 for (let i = 0; i < points.length; i++){
                     edgePos.array[3*i] = points[i].x;
@@ -381,6 +351,42 @@ export default Kapsule({
                 edgePos.needsUpdate = true;
                 edge.geometry.computeBoundingSphere();
 
+            });
+
+            // Update links position for everything else
+            state.graphData.links.filter(link => link.type !== "path").forEach(link => {
+                const edge = link.__edgeObj;
+                if (!edge) return;
+
+                const pos = link,
+                    start = pos['source'],
+                      end = pos['target'],
+                  edgePos = edge.geometry.attributes.position;
+
+                if (!edgePos) return;
+
+                //adjust coordinates for correct computations in 2d and 1d
+                let _start = new THREE.Vector3(start.x, start.y || 0, start.z || 0);
+                let _end   = new THREE.Vector3(end.x, end.y || 0, end.z || 0);
+
+                let points = [_start, _end];
+                let middle = _start.clone().add(_end).multiplyScalar(0.5);
+
+                for (let i = 0; i < points.length; i++){
+                    edgePos.array[3*i] = points[i].x;
+                    edgePos.array[3*i+1] = points[i].y;
+                    edgePos.array[3*i+2] = points[i].z;
+                }
+
+                const linkIcon = link.__linkIconObj;
+                if (linkIcon){
+                    linkIcon.position.x = middle.x;
+                    linkIcon.position.y = middle.y;
+                    linkIcon.position.z = middle.z;
+                }
+
+                edgePos.needsUpdate = true;
+                edge.geometry.computeBoundingSphere();
             });
         }
     }

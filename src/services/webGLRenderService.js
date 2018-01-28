@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as TWEEN from 'es6-tween'
 import TrackballControls from 'three-trackballcontrols';
 import ThreeForceGraph from '../three/threeForceGraph';
-import {coreGraphData, omegaTrees}   from '../data/data';
+import {coreGraphData}   from '../data/data';
 import { linkExtension } from './lyphs';
 
 export class WebGLRenderService {
@@ -79,12 +79,11 @@ export class WebGLRenderService {
     }
 
     createGraph() {
-
-        coreGraphData.links.forEach(link => link.color = "#000000");
+        console.log("coreGraph", coreGraphData);
+        coreGraphData.links.forEach(link => link.color = "#888");
         //Create
         this.graph = new ThreeForceGraph()
             .graphData(coreGraphData)
-            .omegaTrees(omegaTrees)
             .linkExtension(linkExtension)
             .linkExtensionParams({method: "3d"});
 

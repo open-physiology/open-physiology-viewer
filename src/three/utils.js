@@ -28,6 +28,7 @@ function autoColorObjects(objects, colorByAccessor, colorField) {
 function createBezierSemicircle(startV, endV){
     let edgeV   = endV.clone().sub(startV);
     let pEdgeV  = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
+    pEdgeV.z = 0;
     let insetV  = edgeV.multiplyScalar(0.05);
     let offsetV = pEdgeV.multiplyScalar(2/3);
 
