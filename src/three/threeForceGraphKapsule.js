@@ -1,23 +1,21 @@
 import * as three from 'three';
-import { MeshText2D} from 'three-text2d'
+import { SpriteText2D } from 'three-text2d';
 
+import {LINK_TYPES} from '../data/data';
 const THREE = window.THREE || three;
 
 import {
     forceSimulation,
     forceLink,
     forceManyBody,
-    forceX,
-    forceY,
-    forceZ,
-    forceRadial
+    forceCollide
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
 import qwest from 'qwest';
 import accessorFn from 'accessor-fn';
 
-import { autoColorObjects, colorStr2Hex, createBezierSemicircle } from './utils';
+import { autoColorObjects, colorStr2Hex, createBezierSemicircle, copyCoords, iconAlign } from './utils';
 
 //TODO handle drawing of domain-specific objects like omega trees outside
 export default Kapsule({
@@ -34,10 +32,9 @@ export default Kapsule({
             default: 3,
             onChange(numDim, state) {
                 if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
-                if (numDim < 2) { eraseDimension(state.graphData.nodes, 'y'); }
 
                 function eraseDimension(nodes, dim) {
-                    nodes.forEach(d => {
+                    nodes.filter(node => !node.coalescence).forEach(d => {
                         delete d[dim];       // position
                         delete d[`v${dim}`]; // velocity
                     });
@@ -56,18 +53,17 @@ export default Kapsule({
         linkColor      : { default: 'color' },
         nodeLabel      : { default: 'name'},
         linkLabel      : { default: 'name'},
+        showNodeLabel  : { default: true},
         linkAutoColorBy: {},
         linkExtension  : {},
         linkExtensionParams: {},
         linkOpacity    : { default: 0.5 },
-        axisX          : { default: 400 },
-        axisY          : { default: 400 },
-        forceEngine    : { default: 'd3' }, // d3
-        d3AlphaDecay   : { default: 0.0228 },
-        d3VelocityDecay: { default: 0.4 },
+        axisLength     : { default: 400 },
+        d3AlphaDecay   : { default: 0.045 },
+        d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
         cooldownTicks  : { default: Infinity },
-        cooldownTime   : { default: 15000 }, // ms
+        cooldownTime   : { default: 20000 }, // ms
         onLoading      : { default: () => {}, triggerUpdate: false },
         onFinishLoading: { default: () => {}, triggerUpdate: false }
     },
@@ -91,6 +87,7 @@ export default Kapsule({
         simulation: forceSimulation()
             .force('link', forceLink())
             .force('charge', forceManyBody())
+            .force('collide', forceCollide(15))
         .stop()
     }),
 
@@ -167,15 +164,10 @@ export default Kapsule({
 
             obj.__graphObjType = 'node'; // Add object type
             obj.__data = node; // Attach node data
-
             state.graphScene.add(node.__threeObj = obj);
 
-            //Label only core graph nodes
-            //if (node.graph){
-                let objLabel = new MeshText2D(node[state.nodeLabel], { font: '12px Arial', fillStyle: '#888', antialias: true });
-                objLabel.parent = obj;
-                state.graphScene.add(node.__threeObjLabel = objLabel);
-            //}
+            let objLabel = new SpriteText2D(node[state.nodeLabel], { font: '12px Arial', fillStyle: '#888', antialias: true });
+            state.graphScene.add(node.__threeObjLabel = objLabel);
         });
 
         const edgeColorAccessor = accessorFn(state.linkColor);
@@ -192,13 +184,12 @@ export default Kapsule({
             }
 
             let geometry = new THREE.BufferGeometry();
-            if (link.type === "path"){
+            if (link.type === LINK_TYPES.PATH){
                 geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(50 * 3), 3));
             } else {
-                //TODO Be default straight lines for all links
-                //if (link.type === "link"){
+                if (link.type !== LINK_TYPES.COALESCENCE){
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-                //}
+                }
             }
 
             const edgeMaterial = edgeMaterials[color];
@@ -226,31 +217,13 @@ export default Kapsule({
             .alphaDecay(state.d3AlphaDecay)
             .velocityDecay(state.d3VelocityDecay)
             .numDimensions(state.numDimensions)
-            .nodes(state.graphData.nodes)
-            .force('link')
+            .nodes(state.graphData.nodes);
+
+        layout.force('link')
             .id(d => d[state.nodeId])
+            .distance(d =>  0.02 * d.length * state.axisLength)
+            .strength(1)
             .links(state.graphData.links);
-
-        layout
-            .force("y", forceY().y(d => (d.type === "-y")? -state.axisY
-                : (d.type === "+y")? state.axisY : 0))
-            .force("x", forceX().x(d => (d.type === "-x")? -state.axisX
-                : (d.type === "+x")? state.axisX : 0))
-            .force("z", forceZ(0).z(d => (d.type === "-y")? -100
-                : (d.type === "+y")? 100 : 0))
-            .force("link").distance(d =>  0.01 * d.length * 2 * ((d.base === "y")? state.axisY: state.axisX));//.strength(0.9);
-
-        layout.force("radial", forceRadial(d => {
-            if (d.direction === "in") {
-                return 0.5 * state.axisX;
-            }
-            if (d.direction === "out") {
-                return 2 * state.axisX;
-            }
-            return 0;
-        })/*.strength(d => (d.direction)? 0.9: 0.1)*/);
-
-
 
         // Initial ticks before starting to render
         for (let i=0; i < state.warmupTicks; i++) { layout['tick'](); }
@@ -274,20 +247,20 @@ export default Kapsule({
                 const pos = node;
 
                 obj.position.x = pos.x;
-                obj.position.y = pos.y || 0;
+                obj.position.y = pos.y;
                 obj.position.z = pos.z || 0;
 
                 const objLabel = node.__threeObjLabel;
                 if (objLabel) {
-                    let radius = Math.cbrt(node.val) * state.nodeRelSize;
-                    objLabel.position.x = obj.position.x + 1.2 * radius;
-                    objLabel.position.y = obj.position.y + 1.2 * radius;
-                    objLabel.position.z = obj.position.z;
+                    objLabel.visible = state.showNodeLabel;
+                    copyCoords(objLabel.position, obj.position);
+                    objLabel.position.x += 15;
+                    objLabel.position.y += 15;
                 }
             });
 
             // Update links position for paths, set omega nodes
-            state.graphData.links.filter(link => link.type === "path").forEach(link => {
+            state.graphData.links.filter(link => link.type === LINK_TYPES.PATH).forEach(link => {
                 const edge = link.__edgeObj;
                 if (!edge) return;
 
@@ -298,54 +271,37 @@ export default Kapsule({
                 if (!edgePos) return;
 
                 //adjust coordinates for correct computations in 2d and 1d
-                let _start = new THREE.Vector3(start.x, start.y || 0, start.z || 0);
-                let _end   = new THREE.Vector3(end.x, end.y || 0, end.z || 0);
+                let _start = new THREE.Vector3(start.x, start.y, start.z || 0);
+                let _end   = new THREE.Vector3(end.x, end.y, end.z || 0);
 
                 let curve = createBezierSemicircle(_start, _end);
                 let middle = curve.getPoint(0.5);
-                let points = curve.getPoints( 49 );
-
-                //Adjust coordinates to produce an ellipse for different (axisX, axisY)
-                if (state.axisY !== state.axisX){
-                    let scaleXY = state.axisX / state.axisY;
-                    //In 1d all nodes forced to be on X axis, so do not scale along it
-                    if (edge.__data.base === "y" && state.numDimensions > 1){
-                        points.forEach(p => {p.x *= scaleXY});
-                        middle.x *= scaleXY;
-                    } else {
-                        points.forEach(p => {p.y /= scaleXY});
-                        middle.y /= scaleXY;
-                    }
-                }
+                let points = curve.getPoints(49);
 
                 //Position omega tree roots
-                let hostedNodes = state.graphData.nodes.filter(node => node.host === edge.__data.id);
+                let hostedNodes = state.graphData.nodes.filter(node => (node.host === edge.__data.id) && node.isRoot);
                 if (hostedNodes.length > 0){
-                    let i = 1;
-                    let offset =  1 / (hostedNodes.length + 1);
-                    hostedNodes.forEach(root => {
-                        let rootObj = root.__threeObj;
+                    const delta = ((hostedNodes.length % 2) === 1)? 0.4: 0;
+                    const offset =  1 / (hostedNodes.length + 1 + delta);
+                    hostedNodes.forEach((root, i) => {
+                        const rootObj = root.__threeObj;
                         if (!rootObj) { return; }
-                        let pos = curve.getPoint(offset * i++);
-                        rootObj.position.x = pos.x;
-                        rootObj.position.y = pos.y;
-                        rootObj.position.z = pos.z;
-                        root.x = pos.x;
-                        root.y = pos.y;
-                        root.z = pos.z;
+                        const pos = curve.getPoint(offset * (i + 1));
+                        copyCoords(rootObj.position, pos);
+                        copyCoords(root, pos);
                     });
                 }
+
                 for (let i = 0; i < points.length; i++){
-                    edgePos.array[3*i] = points[i].x;
+                    edgePos.array[3*i]   = points[i].x;
                     edgePos.array[3*i+1] = points[i].y;
                     edgePos.array[3*i+2] = points[i].z;
                 }
 
-                const linkIcon = link.__linkIconObj;
-                if (linkIcon){
-                    linkIcon.position.x = middle.x;
-                    linkIcon.position.y = middle.y;
-                    linkIcon.position.z = middle.z;
+                const icon = link.__linkIconObj;
+                if (icon){
+                    copyCoords(icon.position, middle);
+                    iconAlign(icon, link);
                 }
 
                 edgePos.needsUpdate = true;
@@ -353,8 +309,8 @@ export default Kapsule({
 
             });
 
-            // Update links position for everything else
-            state.graphData.links.filter(link => link.type !== "path").forEach(link => {
+            // Update links position for other visible links
+            state.graphData.links.filter(link => link.type === LINK_TYPES.LINK).forEach(link => {
                 const edge = link.__edgeObj;
                 if (!edge) return;
 
@@ -366,23 +322,22 @@ export default Kapsule({
                 if (!edgePos) return;
 
                 //adjust coordinates for correct computations in 2d and 1d
-                let _start = new THREE.Vector3(start.x, start.y || 0, start.z || 0);
-                let _end   = new THREE.Vector3(end.x, end.y || 0, end.z || 0);
+                let _start = new THREE.Vector3(start.x, start.y, start.z || 0);
+                let _end   = new THREE.Vector3(end.x, end.y, end.z || 0);
 
                 let points = [_start, _end];
                 let middle = _start.clone().add(_end).multiplyScalar(0.5);
 
                 for (let i = 0; i < points.length; i++){
-                    edgePos.array[3*i] = points[i].x;
+                    edgePos.array[3*i]   = points[i].x;
                     edgePos.array[3*i+1] = points[i].y;
                     edgePos.array[3*i+2] = points[i].z;
                 }
 
-                const linkIcon = link.__linkIconObj;
-                if (linkIcon){
-                    linkIcon.position.x = middle.x;
-                    linkIcon.position.y = middle.y;
-                    linkIcon.position.z = middle.z;
+                const icon = link.__linkIconObj;
+                if (icon){
+                    copyCoords(icon.position, middle);
+                    iconAlign(icon, link);
                 }
 
                 edgePos.needsUpdate = true;

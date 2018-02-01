@@ -4,6 +4,16 @@ import TrackballControls from 'three-trackballcontrols';
 import ThreeForceGraph from '../three/threeForceGraph';
 import {coreGraphData}   from '../data/data';
 import { linkExtension } from './lyphs';
+import {
+    forceSimulation,
+    forceLink,
+    forceManyBody,
+    forceCollide,
+    forceX,
+    forceY,
+    forceZ,
+    forceRadial
+} from 'd3-force-3d';
 
 export class WebGLRenderService {
     scene    : THREE.Scene;
@@ -13,6 +23,7 @@ export class WebGLRenderService {
     raycaster: THREE.Raycaster;
     graph;
     planes = [];
+    nodeLabelVisible = true;
 
     init(container: HTMLElement) {
         if (this.renderer) {return;} //already initialized
@@ -22,7 +33,7 @@ export class WebGLRenderService {
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45, width / height);
-        this.camera.position.set(0, 500, 500);
+        this.camera.position.set(0, 100, 500);
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.renderer = new THREE.WebGLRenderer({antialias: true});
 
@@ -50,9 +61,7 @@ export class WebGLRenderService {
 
 
     animate() {
-        if (this.graph){
-            this.graph.tickFrame();
-        }
+        if (this.graph){ this.graph.tickFrame(); }
         this.controls.update();
         TWEEN.update();
         this.renderer.render(this.scene, this.camera);
@@ -74,18 +83,38 @@ export class WebGLRenderService {
         this.scene.add(gridHelper2);
         this.planes.push(gridHelper2);
 
+        this.togglePlanes();
         // let axisHelper = new THREE.AxisHelper( 510 );
         // this.scene.add( axisHelper );
     }
 
     createGraph() {
-        console.log("coreGraph", coreGraphData);
-        coreGraphData.links.forEach(link => link.color = "#888");
         //Create
+        const axisLength = 400;
+        const scaleFactor = axisLength * 0.01;
         this.graph = new ThreeForceGraph()
             .graphData(coreGraphData)
             .linkExtension(linkExtension)
+            .showNodeLabel(this.nodeLabelVisible)
+            .axisLength(axisLength)
             .linkExtensionParams({method: "3d"});
+
+        this.graph.d3Force("x", forceX().x(d => (d.layout && d.layout.x)? d.layout.x * scaleFactor: 0)
+            .strength(d => (d.radialDistance)? 0: 0.9)
+        );
+
+        this.graph.d3Force("y", forceY().y(d => (d.layout && d.layout.y)? d.layout.y * scaleFactor: 0)
+                .strength(d => (d.radialDistance)? 0: 0.9)
+        );
+
+        this.graph.d3Force("z", forceZ().z(d => (d.layout && d.layout.z)? d.layout.z * scaleFactor:
+                (d.coalescence)? 25 * scaleFactor: 0) //25%
+                .strength(d => (d.radialDistance && !d.coalescence)? 0: 0.9)
+        );
+
+        this.graph.d3Force("radial", forceRadial( d => { return (d.radialDistance || 0) * scaleFactor;})
+            .strength(d => (d.radialDistance && !d.coalescence)? 5: 0));
+
 
         this.scene.add(this.graph);
     }
@@ -96,6 +125,20 @@ export class WebGLRenderService {
 
     toggleLinkIcon(method){
         this.graph.linkExtensionParams({method: method});
+    }
+
+    toggleLyphs(){
+        if (this.graph.linkExtension()){
+            this.graph.linkExtension(null)
+        } else {
+            this.graph.linkExtension(linkExtension);
+        }
+    }
+
+    toggleLabels(){
+        this.nodeLabelVisible = !this.nodeLabelVisible;
+        this.graph.showNodeLabel(this.nodeLabelVisible);
+
     }
 
     toggleDimensions(numDimensions) {

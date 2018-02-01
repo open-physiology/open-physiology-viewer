@@ -12,8 +12,9 @@ const defaultLyph = {
 
 //Assign colors to lyphs (Note: original dataset modified, deepClone if necessary)
 const colors = schemePaired;
-Object.keys(lyphs).filter(id => !lyphs[id].color).forEach(id => {
-        lyphs[id].color = colors[id % colors.length]
+Object.keys(lyphs).filter(id => !lyphs[id].color)
+    .forEach((id, i) => {
+        lyphs[id].color = colors[i % colors.length]
     }
 );
 
@@ -29,60 +30,40 @@ function createLayerMaterials(lyphModel){
     return layerMaterials;
 }
 
+//Make lyphs smaller for small edges, but not too small, hence log scale...
+function lyphDimensions(link){
+    const scaleFactor = link.length? Math.log(link.length): 1;
+    const length    =  6 * scaleFactor;
+    const thickness =  2 * scaleFactor;
+    return {length, thickness};
+}
+
 //TODO add options to choose whether to fit lyph to given dimensions or set up a default layer size
-function lyph2d(id){
-    let lyphModel = lyphs[id] || defaultLyph;
-    let layerMaterials = createLayerMaterials(lyphModel);
-
-    let lyph = new THREE.Object3D();
-    const thickness = 10;
-    //add thickness to layers
-    let layerGeometry = new THREE.PlaneGeometry( 20, 10, 8 );
-    let i = 0;
-    Object.keys(layerMaterials).forEach(id => {
-        let mesh = new THREE.Mesh( layerGeometry, layerMaterials[id]);
-        mesh.translateY(thickness * i++);
-        lyph.add(mesh);
-    });
-
-    return lyph;
-}
-
-function lyph3d(id){
-    let lyphModel = lyphs[id] || defaultLyph;
-    let layerMaterials = createLayerMaterials(lyphModel);
-
-    let lyph = new THREE.Object3D();
-
-    const thickness = 5;
-    //add thickness to layers
-    let i = 1;
-    Object.keys(layerMaterials).forEach(id => {
-        let layer = createSolidCylinder(
-            [ thickness * i, thickness * i, 40, 10, 4],
-            [ thickness * (i + 1), thickness * (i + 1), 40, 10, 4], layerMaterials[id]);
-        lyph.add(layer);
-        i++;
-    });
-
-    return lyph;
-}
-
 function linkExtension(link, state){
     //Add lyphs and edge text
     if (link.lyph){
-        let lyph = (state.linkExtensionParams.method === "3d")? lyph3d(link.lyph): lyph2d(link.lyph);
+        const lyphModel = lyphs[link.lyph] || defaultLyph;
+        const layerMaterials = createLayerMaterials(lyphModel);
 
+        const lyph = new THREE.Object3D();
+        const {length, thickness} = lyphDimensions(link);
         if (state.linkExtensionParams.method === "3d"){
-            //Rotate lyph cylinder to follow the line
-            if (link.base !== "y" || state.numDimensions === 1) {
-                lyph.rotation.z = Math.PI / 2;
-            }
+            //3d - tubes
+            Object.keys(layerMaterials).forEach((id, i) => {
+                let layer = createSolidCylinder(
+                    [ thickness * i + 1, thickness * i + 1, length, 10, 4],
+                    [ thickness * (i + 1) + 1, thickness * (i + 1) + 1, length, 10, 4], layerMaterials[id]);
+                lyph.add(layer);
+            });
+            //lyph.rotation.z = Math.PI / 2;
         } else {
-            //Rotate lyph rectangle to follow the line
-            if (link.base === "y" && state.numDimensions > 1) {
-                lyph.rotation.z = Math.PI / 2;
-            }
+            //2d - rectangles
+            let layerGeometry = new THREE.PlaneGeometry( thickness, length, 8 );
+            Object.keys(layerMaterials).forEach((id, i) => {
+                let mesh = new THREE.Mesh( layerGeometry, layerMaterials[id]);
+                mesh.translateX(thickness * i);
+                lyph.add(mesh);
+            });
         }
         return lyph;
     }

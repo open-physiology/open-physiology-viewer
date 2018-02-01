@@ -1,7 +1,6 @@
 import {NgModule, Component} from '@angular/core';
 import {BrowserModule}       from '@angular/platform-browser';
 import {WebGLSceneModule}    from '../components/webGLScene';
-import {SVGSceneModule }     from '../components/svgScene';
 
 import '../libs/provide-rxjs.js';
 
@@ -10,8 +9,6 @@ import '../libs/provide-rxjs.js';
 	template: `<h1>ApiNATOMY</h1>
         <!--Three.js scene-->
         <webGLScene *ngIf="_view === 'WebGL'"></webGLScene>
-        <!--SVG scene-->
-        <svgScene *ngIf="_view === 'SVG'"></svgScene>        
 	`,
 	styles: [`
 		:host {
@@ -108,14 +105,14 @@ import '../libs/provide-rxjs.js';
 	`]
 })
 export class TestApp {
-	_view = "WebGL"; //Set to 'SVG' to see the SVG based prototype (does not work)
+	_view = "WebGL";
 }
 
 /**
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports: [ BrowserModule, WebGLSceneModule, SVGSceneModule ],
+	imports: [ BrowserModule, WebGLSceneModule ],
 	declarations: [ TestApp ],
     bootstrap: [TestApp]
 })

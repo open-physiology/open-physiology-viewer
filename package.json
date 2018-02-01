@@ -63,6 +63,8 @@
     "accessor-fn": "^1.2.2",
     "d3": "^4.12.2",
     "d3-force-3d": "^1.1.0",
+    "d3-force-attract": "^0.1.1",
+    "d3-force-magnetic": "^0.8.0",
     "es6-tween": "^5.0.5",
     "install": "^0.10.2",
     "jquery": "^3.2.1",

@@ -5,9 +5,14 @@ const THREE = window.THREE || three;
 
 const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : str;
 
-// Autoset attribute colorField by colorByAccessor property
-// If an object has already a color, don't set it
-// Objects can be nodes or links
+/**
+ * Autoset attribute colorField by colorByAccessor property
+ * If an object has already a color, don't set it
+ * Objects can be nodes or links
+ * @param objects
+ * @param colorByAccessor
+ * @param colorField
+ */
 function autoColorObjects(objects, colorByAccessor, colorField) {
     if (!colorByAccessor || typeof colorField !== 'string') return;
 
@@ -39,4 +44,22 @@ function createBezierSemicircle(startV, endV){
         endV.clone());
 }
 
-export { autoColorObjects, colorStr2Hex, createBezierSemicircle};
+function copyCoords(target, source){
+    if (!source || !target) return;
+    target.x = source.x;
+    target.y = source.y;
+    target.z = source.z;
+}
+
+function iconAlign(iconObj, link){
+    if (!iconObj) {return; }
+    let axis = new THREE.Vector3(0, 1, 0);
+    let vector = new THREE.Vector3(
+        link.target.x - link.source.x,
+        link.target.y - link.source.y,
+        link.target.z - link.source.z,
+    );
+    iconObj.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
+}
+
+export { autoColorObjects, colorStr2Hex, createBezierSemicircle, copyCoords, iconAlign};
