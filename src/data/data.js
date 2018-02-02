@@ -1,6 +1,7 @@
 const LINK_TYPES = {
   PATH: "path",
   LINK: "link",
+  AXIS: 'axis',
   COALESCENCE: "coalescence"
 };
 
@@ -89,7 +90,7 @@ const coreGraphData = {
         {   "id"  : "P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "layout": {"x":   90} }
     ],
     links : [
-        {  "id": 1, "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.LINK, "length": 100 },
+        {  "id": 1, "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
         {  "id": 2, "source": "t", "target": "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length": 30 , "lyph": 2 },
         {  "id": 3, "source": "a", "target": "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length": 30 , "lyph": 2 },
         {  "id": 4, "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.PATH, "length": 75 , "lyph": 3 },
@@ -102,16 +103,15 @@ const coreGraphData = {
 function generateLyphs(){
     //lyphs for omega trees
     let hosts = [4,5,6,7];
-    hosts.forEach((host, tree) => {
+    hosts.forEach((host) => {
         for (let i = 1; i < 6; i++){
             for (let j = 0; j < 2; j++) {
                 for (let k = 0; k < 3; k++){
                     let id = `${host}_${i}${j}_${k}`;
-                    let lyph = {
+                    lyphs[id] = {
                         "id": id,
                         "name": id
                     };
-                    lyphs[id] = lyph;
                 }
                 let parent = `${host}_${i}${j}_0`;
                 let layer1 = `${host}_${i}${j}_1`;

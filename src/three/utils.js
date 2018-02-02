@@ -1,9 +1,6 @@
 import { schemePaired } from 'd3-scale-chromatic';
-import tinyColor from 'tinycolor2';
 import * as three from 'three';
 const THREE = window.THREE || three;
-
-const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : str;
 
 /**
  * Autoset attribute colorField by colorByAccessor property
@@ -46,12 +43,12 @@ function createBezierSemicircle(startV, endV){
 
 function copyCoords(target, source){
     if (!source || !target) return;
-    target.x = source.x;
-    target.y = source.y;
-    target.z = source.z;
+    target.x = source.x || 0;
+    target.y = source.y || 0;
+    target.z = source.z || 0;
 }
 
-function iconAlign(iconObj, link){
+function alignIcon(iconObj, link){
     if (!iconObj) {return; }
     let axis = new THREE.Vector3(0, 1, 0);
     let vector = new THREE.Vector3(
@@ -62,4 +59,4 @@ function iconAlign(iconObj, link){
     iconObj.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
 }
 
-export { autoColorObjects, colorStr2Hex, createBezierSemicircle, copyCoords, iconAlign};
+export { autoColorObjects, createBezierSemicircle, copyCoords, alignIcon};

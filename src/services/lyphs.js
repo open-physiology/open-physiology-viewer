@@ -10,6 +10,8 @@ const defaultLyph = {
     "color": "#ccc"
 };
 
+//TODO convert to LyphModel class
+
 //Assign colors to lyphs (Note: original dataset modified, deepClone if necessary)
 const colors = schemePaired;
 Object.keys(lyphs).filter(id => !lyphs[id].color)
@@ -18,6 +20,8 @@ Object.keys(lyphs).filter(id => !lyphs[id].color)
     }
 );
 
+//TODO optimise - no need to create these materials again and again
+//TODO One material for all lyphs of the same color is probably enough
 function createLayerMaterials(lyphModel){
     let layerMaterials = {};
     if (lyphModel.layers) {
@@ -38,8 +42,8 @@ function lyphDimensions(link){
     return {length, thickness};
 }
 
-//TODO add options to choose whether to fit lyph to given dimensions or set up a default layer size
-function linkExtension(link, state){
+function linkExtension(link, params = {}){
+    params.method = params.method || "2d";
     //Add lyphs and edge text
     if (link.lyph){
         const lyphModel = lyphs[link.lyph] || defaultLyph;
@@ -47,7 +51,7 @@ function linkExtension(link, state){
 
         const lyph = new THREE.Object3D();
         const {length, thickness} = lyphDimensions(link);
-        if (state.linkExtensionParams.method === "3d"){
+        if (params.method === "3d"){
             //3d - tubes
             Object.keys(layerMaterials).forEach((id, i) => {
                 let layer = createSolidCylinder(
@@ -55,7 +59,6 @@ function linkExtension(link, state){
                     [ thickness * (i + 1) + 1, thickness * (i + 1) + 1, length, 10, 4], layerMaterials[id]);
                 lyph.add(layer);
             });
-            //lyph.rotation.z = Math.PI / 2;
         } else {
             //2d - rectangles
             let layerGeometry = new THREE.PlaneGeometry( thickness, length, 8 );
