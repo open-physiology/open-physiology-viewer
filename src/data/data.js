@@ -1,3 +1,5 @@
+import { schemePaired } from 'd3-scale-chromatic';
+
 const LINK_TYPES = {
   PATH: "path",
   LINK: "link",
@@ -183,6 +185,14 @@ function generateOmegaTrees() {
 
 generateLyphs();
 generateOmegaTrees();
+
+//Assign colors to lyphs (Note: original dataset modified, deepClone if necessary)
+const colors = schemePaired;
+Object.keys(lyphs).filter(id => !lyphs[id].color)
+    .forEach((id, i) => {
+            lyphs[id].color = colors[i % colors.length]
+        }
+    );
 
 console.log("Lyphs", lyphs);
 console.log("Graph", coreGraphData);

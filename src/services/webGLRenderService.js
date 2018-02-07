@@ -3,12 +3,8 @@ import * as TWEEN from 'es6-tween'
 import TrackballControls from 'three-trackballcontrols';
 import ThreeForceGraph from '../three/threeForceGraph';
 import {coreGraphData}   from '../data/data';
-import { linkExtension } from './lyphs';
+import { linkExtension } from './lyphModel';
 import {
-    forceSimulation,
-    forceLink,
-    forceManyBody,
-    forceCollide,
     forceX,
     forceY,
     forceZ,

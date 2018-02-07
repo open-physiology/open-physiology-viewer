@@ -57,10 +57,11 @@ export class MaterialFactory {
             this.meshBasicMaterials[color] = new THREE.MeshBasicMaterial({
                 color      : colorStr2Hex(color || this.defaultParams.color),
                 transparent: true,
-                opacity    : params.opacity || this.defaultParams.opacity
+                opacity    : params.opacity || this.defaultParams.opacity,
+                side       : THREE.DoubleSide
             });
         }
-        return this.meshLambertMaterials[color];
+        return this.meshBasicMaterials[color];
     }
 
     getMeshLambertMaterial(color, params = {}){

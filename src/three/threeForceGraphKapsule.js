@@ -3,6 +3,7 @@ import { SpriteText2D } from 'three-text2d';
 
 import {LINK_TYPES} from '../data/data';
 const THREE = window.THREE || three;
+const NUM_CURVE_POINTS = 50;
 
 import {
     forceSimulation,
@@ -15,7 +16,7 @@ import Kapsule from 'kapsule';
 import qwest from 'qwest';
 import accessorFn from 'accessor-fn';
 
-import { autoColorObjects, createBezierSemicircle, copyCoords, alignIcon } from './utils';
+import { autoColorObjects, bezierSemicircle, copyCoords, alignIcon } from './utils';
 import { MaterialFactory } from './materialFactory';
 
 //TODO handle drawing of domain-specific objects like omega trees outside
@@ -180,7 +181,7 @@ export default Kapsule({
                 geometry = new THREE.BufferGeometry();
                 edgeMaterial = state.materialRepo.getLineBasicMaterial(color);
                 if (link.type === LINK_TYPES.PATH){
-                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(50 * 3), 3));
+                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(NUM_CURVE_POINTS * 3), 3));
                 } else {
                     if (link.type !== LINK_TYPES.COALESCENCE) {
                         geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
@@ -242,9 +243,9 @@ export default Kapsule({
             let points, middle;
 
             if (link.type === LINK_TYPES.PATH) {
-                const curve = createBezierSemicircle(_start, _end);
+                const curve = bezierSemicircle(_start, _end);
                 middle = curve.getPoint(0.5);
-                points = curve.getPoints(49);
+                points = curve.getPoints(NUM_CURVE_POINTS - 1);
 
                 //Position omega tree roots
                 let hostedNodes = state.graphData.nodes.filter(node => (node.host === edge.__data.id) && node.isRoot);
