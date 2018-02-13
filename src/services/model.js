@@ -3,8 +3,8 @@ import {uniqueId as _uniqueId} from 'lodash';
 
 export class Model {
     id;
-    name    : "?";
-    color   : "#ccc" ;
+    name;
+    color;
     parent;
     external;
     viewObjects;
@@ -37,8 +37,8 @@ export class Model {
         const cls = modelClasses[json.class];
         const result       = new cls({modelsById});
         result.id          = json.id;
-        result.name        = json.name;
-        result.color       = json.color;
+        result.name        = json.name  || "?";
+        result.color       = json.color || "#888";
         result.parent      = json.parent;
         result.external    = json.external;
         result.material    = json.material;

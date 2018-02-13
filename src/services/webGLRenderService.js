@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import * as TWEEN from 'es6-tween'
 import TrackballControls from 'three-trackballcontrols';
-import ThreeForceGraph from '../three/threeForceGraph';
-import {coreGraphData}   from '../data/data';
-import { linkExtension } from './lyphModel';
+import ThreeForceGraph   from '../three/threeForceGraph';
+import { linkExtension } from '../three/linkExtension';
 import {
     forceX,
     forceY,
@@ -17,12 +16,15 @@ export class WebGLRenderService {
     renderer : THREE.WebGLRenderer;
     controls : TrackballControls;
     raycaster: THREE.Raycaster;
+    graphData = {};
     graph;
     planes = [];
     nodeLabelVisible = true;
 
-    init(container: HTMLElement) {
+    init(container: HTMLElement, graphData) {
         if (this.renderer) {return;} //already initialized
+
+        this.graphData = graphData;
 
         const width = window.innerWidth;
         const height = window.innerHeight - 90;
@@ -54,7 +56,6 @@ export class WebGLRenderService {
         this.createGraph();
         this.animate();
     }
-
 
     animate() {
         if (this.graph){ this.graph.tickFrame(); }
@@ -89,7 +90,7 @@ export class WebGLRenderService {
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
         this.graph = new ThreeForceGraph()
-            .graphData(coreGraphData)
+            .graphData(this.graphData)
             .linkExtension(linkExtension)
             .showNodeLabel(this.nodeLabelVisible)
             .axisLength(axisLength)
@@ -140,4 +141,11 @@ export class WebGLRenderService {
     toggleDimensions(numDimensions) {
         this.graph.numDimensions(numDimensions);
     };
+
+    setGraphData(newGraphData){
+        this.graphData = newGraphData;
+        if (this.graph) {
+            this.graph.graphData(this.graphData);
+        }
+    }
 }

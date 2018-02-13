@@ -1,5 +1,8 @@
 import {NgModule, Component, ViewChild, ElementRef} from '@angular/core';
 import {WebGLRenderService} from '../services/webGLRenderService';
+import {TestDataService}   from '../services/testDataService';
+import {KidneyDataService} from '../services/kidneyDataService';
+
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
 
@@ -30,13 +33,20 @@ import {FormsModule}  from '@angular/forms';
 })
 export class WebGLSceneComponent {
     @ViewChild('webGLScene') container: ElementRef;
+    _testDataService: TestDataService;
+    _kidneyDataService: KidneyDataService;
 
     constructor(renderService: WebGLRenderService) {
         this._renderService = renderService;
+        this._testDataService = new TestDataService();
+        this._kidneyDataService = new KidneyDataService();
+        //this._testDataService.init();
+        this._kidneyDataService.init();
     }
 
     ngAfterViewInit(){
-       this._renderService.init(this.container.nativeElement);
+       //Prepare data
+       this._renderService.init(this.container.nativeElement, this._kidneyDataService.graphData);
     }
 }
 

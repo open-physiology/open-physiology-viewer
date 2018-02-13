@@ -1,8 +1,8 @@
 import * as three from 'three';
-import { SpriteText2D } from 'three-text2d';
-
-import {LINK_TYPES} from '../data/data';
 const THREE = window.THREE || three;
+
+import { SpriteText2D } from 'three-text2d';
+import {LINK_TYPES} from '../services/utils';
 const NUM_CURVE_POINTS = 50;
 
 import {

@@ -67,6 +67,7 @@
     "install": "^0.10.2",
     "jquery": "^3.2.1",
     "jquery-mousewheel": "^3.1.13",
+    "json-loader": "^0.5.7",
     "kapsule": "^1.9.0",
     "lodash": "^4.17.4",
     "lodash-bound": "^1",
