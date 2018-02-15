@@ -1,11 +1,14 @@
 import { lyphs } from '../data/generated-lyphs.json';
-import { LINK_TYPES, OMEGA_LINK_LENGTH, coreGraphData, getLink, getNode, addColor, createLyphModels } from './utils';
+import { LINK_TYPES, coreGraphData, getLink, getNode, addColor, createLyphModels } from '../models/utils';
 import {cloneDeep} from 'lodash-bound';
+
+const OMEGA_LINK_LENGTH = 5; //% from axis length
 
 export class TestDataService {
 
     constructor(){
         this._graphData = coreGraphData::cloneDeep();
+        this._lyphs = lyphs::cloneDeep();
     }
 
     /**
@@ -53,9 +56,9 @@ export class TestDataService {
                 for (let j = 0; j < NUM_LEVELS - 1; j++) {//
                     for (let k = 0; k < NUM_LAYERS + 1; k++) {//Create host lyph and its two layers
                         let id = `${host}_${i+1}${j}_${k}`;
-                        lyphs.push({ "id": id, "name": id });
+                        this._lyphs.push({ "id": id, "name": id });
                     }
-                    lyphs.find(lyph => lyph.id === `${host}_${i+1}${j}_0`).layers = [
+                    this._lyphs.find(lyph => lyph.id === `${host}_${i+1}${j}_0`).layers = [
                         `${host}_${i+1}${j}_1`,
                         `${host}_${i+1}${j}_2`
                     ];
@@ -69,16 +72,20 @@ export class TestDataService {
             if (!hostLink) { return; }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
                 for (let j = 0; j < NUM_LEVELS; j++) {
-                    this._graphData.nodes.push({
-                        "id": `n${host}_${i+1}${j}`,
-                        "name": `n${host}_n${i+1}${j}`,
-                        "tree": tree + 1,
-                        "level": j,
-                        "host": host,
+                    let node = {
+                        "id"    : `n${host}_${i+1}${j}`,
+                        "name"  : `n${host}_${i+1}${j}`,
+                        "tree"  : tree + 1,
+                        "level" : j,
+                        "host"  : host,
                         "isRoot": (j === 0),
-                        "color": hosts[host].color,
-                        "radialDistance": hostLink.length + hosts[host].sign * OMEGA_LINK_LENGTH * j
-                    });
+                        "color" : hosts[host].color
+                    };
+                    if (j === NUM_LEVELS - 1){
+                        node["radialDistance"] = hostLink.length*(1 + 0.5 * hosts[host].sign)
+                    }
+                    this._graphData.nodes.push(node);
+
                 }
             }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
@@ -97,33 +104,38 @@ export class TestDataService {
         });
 
         //Coalescences
-        const coalescencePairs = [
-            {"node1": "n4_12", "node2": "n7_41"},
-            {"node1": "n4_11", "node2": "n7_42"},
-            {"node1": "n4_22", "node2": "n7_51"},
-            {"node1": "n4_21", "node2": "n7_52"},
-
-        ];
-        coalescencePairs.forEach(({node1, node2}) => {
-            getNode(node1).coalescence = node2;
-            getNode(node2).coalescence = node1;
-            this._graphData.links.push({
-                "source": node1,
-                "target": node2,
-                "length": 0,
-                "type": LINK_TYPES.COALESCENCE
-            });
-        });
-
+        // const coalescencePairs = [
+        //     {"node1": "n4_12", "node2": "n7_41"},
+        //     {"node1": "n4_11", "node2": "n7_42"},
+        //     {"node1": "n4_22", "node2": "n7_51"},
+        //     {"node1": "n4_21", "node2": "n7_52"},
+        //
+        // ];
+        // coalescencePairs.forEach(({node1, node2}) => {
+        //     getNode(node1).coalescence = node2;
+        //     getNode(node2).coalescence = node1;
+        //     this._graphData.links.push({
+        //         "source": node1,
+        //         "target": node2,
+        //         "length": 0,
+        //         "type": LINK_TYPES.COALESCENCE
+        //     });
+        // });
+        //
         addColor(this._graphData.links, "#888");
-        addColor(lyphs);
-        createLyphModels(this._graphData.links, lyphs);
+        addColor(this._lyphs);
+        createLyphModels(this._graphData.links, this._lyphs);
 
-        console.log("Lyphs", lyphs);
-        console.log("Graph", this._graphData);
+        console.log("Generated lyphs", this._lyphs);
+        console.log("Generated graph", this._graphData);
     }
 
     get graphData(){
         return this._graphData;
     }
+
+    get lyphs(){
+        return this._lyphs;
+    }
+
 }

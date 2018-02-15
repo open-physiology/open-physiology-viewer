@@ -1,5 +1,5 @@
 import { schemePaired } from 'd3-scale-chromatic';
-import {LyphModel} from './lyphModel';
+import { LyphModel } from './lyphModel';
 const colors = schemePaired;
 
 export const LINK_TYPES = {
@@ -8,8 +8,6 @@ export const LINK_TYPES = {
   AXIS: 'axis',
   COALESCENCE: "coalescence"
 };
-
-export const OMEGA_LINK_LENGTH = 4;
 
 export const coreGraphData = {
     nodes : [
@@ -33,6 +31,9 @@ export const coreGraphData = {
         {  "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
     ]
 };
+
+//Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
+coreGraphData.nodes.forEach(node  => node.core = true);
 
 export const getLink = id => coreGraphData.links.find(link => link.id === id);
 
@@ -59,3 +60,18 @@ export const createLyphModels = (links, lyphs) => {
         link.lyphModel = modelsById[link.lyph]
     });
 } ;
+
+export const avgDimension = (obj, property) => {
+    if (obj && obj[property]){
+        if (obj[property].min){
+            if (obj[property].max){
+                return (obj[property].min + obj[property].max) / 2
+            } else {
+                return obj[property].min;
+            }
+        } else {
+            return obj[property].max || 1;
+        }
+    }
+    return 1;
+};

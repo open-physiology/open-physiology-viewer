@@ -2,7 +2,7 @@ import * as three from 'three';
 const THREE = window.THREE || three;
 
 import { SpriteText2D } from 'three-text2d';
-import {LINK_TYPES} from '../services/utils';
+import {LINK_TYPES} from '../models/utils';
 const NUM_CURVE_POINTS = 50;
 
 import {
@@ -217,8 +217,6 @@ export default Kapsule({
 
         layout.force('link')
             .id(d => d[state.nodeId])
-            .distance(d =>  0.02 * d.length * state.axisLength) //TODO this should be done outside
-            .strength(1)
             .links(state.graphData.links);
 
         // Initial ticks before starting to render

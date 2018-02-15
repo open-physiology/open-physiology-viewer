@@ -9,6 +9,8 @@ import {
     forceZ,
     forceRadial
 } from 'd3-force-3d';
+import {TestDataService}   from './testDataService';
+import {KidneyDataService} from './kidneyDataService';
 
 export class WebGLRenderService {
     scene    : THREE.Scene;
@@ -16,15 +18,18 @@ export class WebGLRenderService {
     renderer : THREE.WebGLRenderer;
     controls : TrackballControls;
     raycaster: THREE.Raycaster;
-    graphData = {};
+    _graphData = {};
     graph;
     planes = [];
     nodeLabelVisible = true;
+    _kidneyDataService;
 
-    init(container: HTMLElement, graphData) {
+    init(container: HTMLElement) {
         if (this.renderer) {return;} //already initialized
 
-        this.graphData = graphData;
+        this._kidneyDataService = new KidneyDataService();
+        this._kidneyDataService.init();
+        this._graphData = this._kidneyDataService.graphData;
 
         const width = window.innerWidth;
         const height = window.innerHeight - 90;
@@ -90,27 +95,36 @@ export class WebGLRenderService {
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
         this.graph = new ThreeForceGraph()
-            .graphData(this.graphData)
+            .graphData(this._graphData)
             .linkExtension(linkExtension)
             .showNodeLabel(this.nodeLabelVisible)
             .axisLength(axisLength)
             .linkExtensionParams({method: "3d"});
 
         this.graph.d3Force("x", forceX().x(d => (d.layout && d.layout.x)? d.layout.x * scaleFactor: 0)
-            .strength(d => (d.radialDistance)? 0: 0.9)
+            .strength(d => (d.core)? 0.9: 0)
         );
 
         this.graph.d3Force("y", forceY().y(d => (d.layout && d.layout.y)? d.layout.y * scaleFactor: 0)
-                .strength(d => (d.radialDistance)? 0: 0.9)
+            .strength(d => (d.core)? 0.9: 0)
         );
 
         this.graph.d3Force("z", forceZ().z(d => (d.layout && d.layout.z)? d.layout.z * scaleFactor:
-                (d.coalescence)? 25 * scaleFactor: 0) //25%
-                .strength(d => (d.radialDistance && !d.coalescence)? 0: 0.9)
+            (d.coalescence)? 25 * scaleFactor: 0) //coalescing links pop above the z axis, 25% of the axis size
+            .strength(d => (d.core || d.coalescence)? 0.9: 0)
         );
 
-        this.graph.d3Force("radial", forceRadial( d => { return (d.radialDistance || 0) * scaleFactor;})
-            .strength(d => (d.radialDistance && !d.coalescence)? 5: 0));
+        this.graph.d3Force("radial", forceRadial( d => {
+            if (d.radialDistance){
+                console.log("Radial force", (d.radialDistance || 0) * scaleFactor, d.name)
+            }
+            return (d.radialDistance || 0) * scaleFactor;
+        })
+        .strength(d => (d.radialDistance)? 5: 0));
+
+        this.graph.d3Force("link")
+            .distance(d =>  0.02 * d.length * axisLength)
+            .strength(1);
 
 
         this.scene.add(this.graph);
@@ -142,10 +156,22 @@ export class WebGLRenderService {
         this.graph.numDimensions(numDimensions);
     };
 
-    setGraphData(newGraphData){
-        this.graphData = newGraphData;
+    toggleDataset(name){
+        if (name === "kidney"){
+            this.graphData = this._kidneyDataService.graphData;
+        } else {
+            if (!this._testDataService){
+                this._testDataService = new TestDataService();
+                this._testDataService.init();
+            }
+            this.graphData = this._testDataService.graphData;
+        }
+    }
+
+    set graphData(newGraphData){
+        this._graphData = newGraphData;
         if (this.graph) {
-            this.graph.graphData(this.graphData);
+            this.graph.graphData(this._graphData);
         }
     }
 }

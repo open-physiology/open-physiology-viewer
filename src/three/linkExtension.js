@@ -17,7 +17,6 @@ function lyphDimensions(link){
 }
 
 function borders(lyphType){
-    console.log(lyphType);
     switch (lyphType) {
         case "BAG" : return [true, true];
         case "CYST": return [true, false];
