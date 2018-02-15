@@ -35,10 +35,6 @@ export const coreGraphData = {
 //Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
 coreGraphData.nodes.forEach(node  => node.core = true);
 
-export const getLink = id => coreGraphData.links.find(link => link.id === id);
-
-export const getNode = id => coreGraphData.nodes.find(node => node.id === id);
-
 export const addColor = (array, defaultColor) =>
     array.filter(obj => !obj.color)
         .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });

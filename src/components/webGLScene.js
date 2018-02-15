@@ -12,7 +12,7 @@ import {FormsModule}  from '@angular/forms';
             Show:
             <input type="checkbox" name="show_planes" (change)="_renderService.togglePlanes()"/> Grid
             <input type="checkbox" name="show_lyphs"  (change)="_renderService.toggleLyphs()" checked/> Lyphs
-            <input type="checkbox" name="show_labels" (change)="_renderService.toggleLabels()" checked/> Labels
+            <input type="checkbox" name="show_labels" (change)="_renderService.toggleLabels()" checked/> Node labels
         </div>
         <div class="dataset_selector">
             Dataset:
@@ -27,6 +27,7 @@ import {FormsModule}  from '@angular/forms';
         <div class="dimensions_selector">
             Dimensions:
             <input type="radio" name="num_dimensions" (change)="_renderService.toggleDimensions(2)"/> 2D
+            <!--<input type="radio" name="num_dimensions" (change)="_renderService.toggleDimensions(2.5)"/> 2.5D-->
             <input type="radio" name="num_dimensions" (change)="_renderService.toggleDimensions(3)" checked/> 3D
         </div>
         <div id="webGLScene" #webGLScene></div>

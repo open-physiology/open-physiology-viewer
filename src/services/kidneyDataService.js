@@ -1,6 +1,7 @@
 import { lyphs } from '../data/kidney-lyphs.json';
-import { LINK_TYPES, coreGraphData, getLink, getNode, addColor, createLyphModels } from '../models/utils';
+import { LINK_TYPES } from '../models/utils';
 import {cloneDeep} from 'lodash-bound';
+import {DataService} from './dataService';
 
 const OMEGA_LINK_LENGTH = 3; //% from axis length
 
@@ -9,10 +10,10 @@ const OMEGA_LINK_LENGTH = 3; //% from axis length
  * Create omega trees and lyphs tfor Kidney scenario
  * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
  */
-export class KidneyDataService {
+export class KidneyDataService extends DataService{
 
     constructor(){
-        this._graphData = coreGraphData::cloneDeep();
+        super();
         this._lyphs = lyphs::cloneDeep();
     }
 
@@ -43,10 +44,9 @@ export class KidneyDataService {
             }
         };
 
-
         //Omega tree nodes
         Object.keys(hosts).forEach((host) => {
-            let hostLink = getLink(host);
+            let hostLink = this.getLink(host);
             hosts[host].trees.forEach((tree, i) => {
                 let lyphKeys = Object.keys(tree.lyphs);
                 lyphKeys.forEach((key, j) => {
@@ -55,11 +55,11 @@ export class KidneyDataService {
                         "name": key,
                         "tree": i,
                         "level": j + 1,
-                        "host": hostLink.id,
+                        "host": host,
                         "isRoot": (j === 0),
                         "color": hosts[host].color};
                     //if (j === lyphKeys.length - 1) {
-                        node["radialDistance"] = hostLink.length * (1 + 0.8 * hosts[host].sign * j / lyphKeys.length);
+                    //    node["radialDistance"] = hostLink.length * (1 + 0.8 * hosts[host].sign * j / lyphKeys.length);
                     //}
                     this._graphData.nodes.push(node);
                 });
@@ -82,7 +82,6 @@ export class KidneyDataService {
             })
         });
 
-        //TODO make less prone to code modification errors (e.g., change of node names)
         const CONNECTOR_COLOR = "#ff44ff";
         ["I", "J"].forEach(key => {
             this._graphData.nodes.push({
@@ -92,6 +91,8 @@ export class KidneyDataService {
                 }
             );
         });
+
+        //Connect leaves of two omega trees n5_0_6, n5_1_5
         const host = "5";
         const leaf1 = Object.keys(hosts[host].trees[0].lyphs).length - 1;
         const leaf2 = Object.keys(hosts[host].trees[1].lyphs).length - 1;
@@ -102,22 +103,26 @@ export class KidneyDataService {
                 "source": connector[i],
                 "target": connector[i + 1],
                 "level": i,
-                "length": OMEGA_LINK_LENGTH,
+                "length": OMEGA_LINK_LENGTH * 1.2,
                 "type": LINK_TYPES.LINK,
                 "lyph": connector_lyphs[i],
                 "color": CONNECTOR_COLOR
             });
         }
 
-        addColor(this._graphData.links, "#888");
-        addColor(this._lyphs);
-        createLyphModels(this._graphData.links, this._lyphs);
+        //Coalescences
+        this._coalescencePairs = [
+            //lyphs H~Q
+            {"node1": "n5_0_6", "node2": "n7_0_17"}, //H - Q
+            {"node1": "n5_0_6", "node2": "n7_0_16"}, //H - Q
 
-        console.log("Kidney lyphs", this._lyphs);
-        console.log("Kidney graph", this._graphData);
-    }
+            {"node1": "nI", "node2": "n7_0_14"},     //I - O
+            {"node1": "nI", "node2": "n7_0_13"},     //I - N
 
-    get graphData(){
-        return this._graphData;
+            {"node1": "nJ", "node2": "n7_0_14"},      //J - O
+            {"node1": "nJ", "node2": "n7_0_13"}      //J - N
+        ];
+
+        super.init();
     }
 }

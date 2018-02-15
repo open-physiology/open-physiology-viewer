@@ -1,13 +1,14 @@
 import { lyphs } from '../data/generated-lyphs.json';
-import { LINK_TYPES, coreGraphData, getLink, getNode, addColor, createLyphModels } from '../models/utils';
+import { LINK_TYPES } from '../models/utils';
 import {cloneDeep} from 'lodash-bound';
+import {DataService} from './dataService';
 
 const OMEGA_LINK_LENGTH = 5; //% from axis length
 
-export class TestDataService {
+export class TestDataService extends DataService{
 
     constructor(){
-        this._graphData = coreGraphData::cloneDeep();
+        super();
         this._lyphs = lyphs::cloneDeep();
     }
 
@@ -25,7 +26,7 @@ export class TestDataService {
             "6": "5",
             "7": "1"};
         Object.keys(mapping).forEach(linkID => {
-            getLink(linkID).lyph = mapping[linkID]
+            this.getLink(linkID).lyph = mapping[linkID]
         });
 
         const hosts = {
@@ -68,7 +69,7 @@ export class TestDataService {
 
         //Omega trees for demo layout, 5 trees per edge
         Object.keys(hosts).forEach((host, tree) => {
-            const hostLink = getLink(host);
+            const hostLink = this.getLink(host);
             if (!hostLink) { return; }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
                 for (let j = 0; j < NUM_LEVELS; j++) {
@@ -104,38 +105,13 @@ export class TestDataService {
         });
 
         //Coalescences
-        // const coalescencePairs = [
-        //     {"node1": "n4_12", "node2": "n7_41"},
-        //     {"node1": "n4_11", "node2": "n7_42"},
-        //     {"node1": "n4_22", "node2": "n7_51"},
-        //     {"node1": "n4_21", "node2": "n7_52"},
-        //
-        // ];
-        // coalescencePairs.forEach(({node1, node2}) => {
-        //     getNode(node1).coalescence = node2;
-        //     getNode(node2).coalescence = node1;
-        //     this._graphData.links.push({
-        //         "source": node1,
-        //         "target": node2,
-        //         "length": 0,
-        //         "type": LINK_TYPES.COALESCENCE
-        //     });
-        // });
-        //
-        addColor(this._graphData.links, "#888");
-        addColor(this._lyphs);
-        createLyphModels(this._graphData.links, this._lyphs);
+        this._coalescencePairs = [
+            {"node1": "n5_12", "node2": "n7_41"},
+            {"node1": "n5_11", "node2": "n7_42"},
+            {"node1": "n5_22", "node2": "n7_51"},
+            {"node1": "n5_21", "node2": "n7_52"}
+        ];
 
-        console.log("Generated lyphs", this._lyphs);
-        console.log("Generated graph", this._graphData);
+       super.init();
     }
-
-    get graphData(){
-        return this._graphData;
-    }
-
-    get lyphs(){
-        return this._lyphs;
-    }
-
 }

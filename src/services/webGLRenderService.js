@@ -115,9 +115,6 @@ export class WebGLRenderService {
         );
 
         this.graph.d3Force("radial", forceRadial( d => {
-            if (d.radialDistance){
-                console.log("Radial force", (d.radialDistance || 0) * scaleFactor, d.name)
-            }
             return (d.radialDistance || 0) * scaleFactor;
         })
         .strength(d => (d.radialDistance)? 5: 0));
@@ -125,7 +122,6 @@ export class WebGLRenderService {
         this.graph.d3Force("link")
             .distance(d =>  0.02 * d.length * axisLength)
             .strength(1);
-
 
         this.scene.add(this.graph);
     }

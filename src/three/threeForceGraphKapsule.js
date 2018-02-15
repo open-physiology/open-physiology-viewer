@@ -36,11 +36,9 @@ export default Kapsule({
                 if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
 
                 function eraseDimension(nodes, dim) {
-                    //TODO Introduce 2.5d
-                    nodes.filter(node => !node.coalescence).forEach(node => {
+                    nodes.filter(node => (numDim === 2) || ((numDim > 2) && !node.coalescence)).forEach(node => {
                         node[dim] = 0;          // position, set to 0 instead of deleting
                         delete node[`v${dim}`]; // velocity
-                        //TODO - maybe also set velocity to 0?
                     });
                 }
             }
