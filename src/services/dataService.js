@@ -1,6 +1,6 @@
-import { LINK_TYPES, coreGraphData, addColor, createLyphModels } from '../models/utils';
+import { coreGraphData, addColor, createLyphModels } from '../models/utils';
+import { LINK_TYPES } from '../models/linkModel';
 import {cloneDeep} from 'lodash-bound';
-
 
 /**
  * Create omega trees and lyphs tfor Kidney scenario

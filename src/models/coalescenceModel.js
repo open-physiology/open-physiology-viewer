@@ -1,22 +1,13 @@
 import { Model } from './model';
 import { assign } from 'lodash-bound';
 
-export class LyphModel extends Model {
-    axis;
-    layers;
-
-    toJSON() {
-        let res = super.toJSON();
-        res.layers = this.layers && this.layers.forEach(layer => layer.id);
-        res.axis   = this.axis && this.axis.id;
-        return res;
-    }
+export class CoalescenceModel extends Model {
+    nodes: [];
 
     static fromJSON(json, {modelClasses, modelsById} = {}) {
-        json.class = json.class || "Lyph";
+        json.class = json.class || "Coalescence";
         const result = super.fromJSON(json, {modelClasses, modelsById});
         result::assign(json); //TODO use pick to choose only valid properties
         return result;
     }
 }
-

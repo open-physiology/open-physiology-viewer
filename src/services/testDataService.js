@@ -1,7 +1,10 @@
 import { lyphs } from '../data/generated-lyphs.json';
-import { LINK_TYPES } from '../models/utils';
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
+import { modelClasses, modelsById } from '../models/utils';
+import { NodeModel } from '../models/nodeModel';
+import { LinkModel, LINK_TYPES } from '../models/linkModel';
+import { LyphModel } from '../models/lyphModel';
 
 const OMEGA_LINK_LENGTH = 5; //% from axis length
 
@@ -57,7 +60,7 @@ export class TestDataService extends DataService{
                 for (let j = 0; j < NUM_LEVELS - 1; j++) {//
                     for (let k = 0; k < NUM_LAYERS + 1; k++) {//Create host lyph and its two layers
                         let id = `${host}_${i+1}${j}_${k}`;
-                        this._lyphs.push({ "id": id, "name": id });
+                        this._lyphs.push({ "id": id, "name": id});
                     }
                     this._lyphs.find(lyph => lyph.id === `${host}_${i+1}${j}_0`).layers = [
                         `${host}_${i+1}${j}_1`,
@@ -73,16 +76,17 @@ export class TestDataService extends DataService{
             if (!hostLink) { return; }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
                 for (let j = 0; j < NUM_LEVELS; j++) {
-                    let node = {
+                    let node = NodeModel.fromJSON({
                         "id"    : `n${host}_${i+1}${j}`,
                         "name"  : `n${host}_${i+1}${j}`,
-                        "tree"  : tree + 1,
-                        "level" : j,
+                        //"tree"  : tree + 1, //TODO save in Tree
+                        //"level" : j,
                         "host"  : host,
                         "isRoot": (j === 0),
                         "color" : hosts[host].color
-                    };
+                    }, {modelClasses, modelsById});
                     if (j === NUM_LEVELS - 1){
+                        //TODO rename radialDistance => layout.r
                         node["radialDistance"] = hostLink.length*(1 + 0.5 * hosts[host].sign)
                     }
                     this._graphData.nodes.push(node);
@@ -91,15 +95,15 @@ export class TestDataService extends DataService{
             }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
                 for (let j = 0; j < NUM_LEVELS - 1; j++) {
-                    this._graphData.links.push({
+                    this._graphData.links.push(LinkModel.fromJSON({
                         "source": `n${host}_${i+1}${j}`,
                         "target": `n${host}_${i+1}${j + 1}`,
-                        "level": j,
+                        "level": j, //TODO remove
                         "length": OMEGA_LINK_LENGTH,
                         "type": LINK_TYPES.LINK,
                         "lyph": `${host}_${i+1}${j}_0`,
                         "color": hosts[host].color
-                    });
+                    }, {modelClasses, modelsById}));
                 }
             }
         });

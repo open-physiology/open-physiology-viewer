@@ -1,12 +1,22 @@
 import { schemePaired } from 'd3-scale-chromatic';
-import { LyphModel } from './lyphModel';
 const colors = schemePaired;
 
-export const LINK_TYPES = {
-  PATH: "path",
-  LINK: "link",
-  AXIS: 'axis',
-  COALESCENCE: "coalescence"
+import { LyphModel } from './lyphModel';
+import { NodeModel } from './nodeModel';
+import { LinkModel, LINK_TYPES } from './linkModel';
+import { TreeModel }  from './treeModel';
+import { GraphModel } from './graphModel';
+import { CoalescenceModel } from './coalescenceModel';
+
+export const modelsById = {};
+
+export const modelClasses = {
+    "Lyph" : LyphModel,
+    "Node" : NodeModel,
+    "Link" : LinkModel,
+    "Tree" : TreeModel,
+    "Graph": GraphModel,
+    "Coalescence": CoalescenceModel
 };
 
 export const coreGraphData = {
@@ -39,17 +49,14 @@ export const addColor = (array, defaultColor) =>
     array.filter(obj => !obj.color)
         .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
 
-const modelClasses = {"Lyph": LyphModel};
-const modelsById = {};
-
 export const createLyphModels = (links, lyphs) => {
     lyphs.forEach(lyph => {
         lyph.class = "Lyph";
-        modelsById[lyph.id] = LyphModel.fromJSON(lyph, {modelClasses, modelsById: modelsById});
+        modelsById[lyph.id] = LyphModel.fromJSON(lyph, {modelClasses, modelsById});
     });
     lyphs.filter(lyph => lyph.layers).forEach(lyph => {
         lyph.layerModels = lyph.layers.map(layer => modelsById[layer]);
-        modelsById[lyph.id] = LyphModel.fromJSON(lyph, {modelClasses, modelsById: modelsById});
+        modelsById[lyph.id] = LyphModel.fromJSON(lyph, {modelClasses, modelsById});
     });
 
     links.forEach(link => {

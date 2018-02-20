@@ -2,7 +2,7 @@ import * as three from 'three';
 const THREE = window.THREE || three;
 
 import { SpriteText2D } from 'three-text2d';
-import {LINK_TYPES} from '../models/utils';
+import {LINK_TYPES} from '../models/linkModel';
 const NUM_CURVE_POINTS = 50;
 
 import {
@@ -36,7 +36,8 @@ export default Kapsule({
                 if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
 
                 function eraseDimension(nodes, dim) {
-                    nodes.filter(node => (numDim === 2) || ((numDim > 2) && !node.coalescence)).forEach(node => {
+                    nodes//.filter(node => !node.coalescence)
+                        .forEach(node => {
                         node[dim] = 0;          // position, set to 0 instead of deleting
                         delete node[`v${dim}`]; // velocity
                     });
@@ -142,7 +143,8 @@ export default Kapsule({
         const colorAccessor = accessorFn(state.nodeColor);
         const sphereGeometries = {}; // indexed by node value
 
-        state.graphData.nodes.forEach(node => {
+        //Draw all graph nodes, except for control nodes
+        state.graphData.nodes.filter(node => !node.controls).forEach(node => {
             const customObj = customNodeObjectAccessor(node);
 
             let obj;
@@ -181,7 +183,7 @@ export default Kapsule({
                 if (link.type === LINK_TYPES.PATH){
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(NUM_CURVE_POINTS * 3), 3));
                 } else {
-                    if (link.type !== LINK_TYPES.COALESCENCE) {
+                    if (link.type === LINK_TYPES.LINK || link.type === LINK_TYPES.AXIS) {
                         geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
                     }
                 }
@@ -318,6 +320,22 @@ export default Kapsule({
                 copyCoords(edge.geometry.vertices[1], link['target']);
                 edge.geometry.verticesNeedUpdate = true;
                 edge.geometry.computeLineDistances();
+            });
+
+            //Update containers
+            state.graphData.links.filter(link => link.type === LINK_TYPES.CONTAINER).forEach(link => {
+                const source = link['source'];
+                const target = link['target'];
+                let controls = state.graphData.nodes.filter(node => (target.controls || []).includes(node.id));
+                let middle = new THREE.Vector3(0, 0, 0);
+                controls.forEach(p => {middle.x += p.x; middle.y += p.y; middle.z += p.z});
+                middle = middle.multiplyScalar(1.0 / (controls.length || 1));
+                copyCoords(target, middle.clone().sub(new THREE.Vector3(source.x, source.y, source.z)).multiplyScalar(2));
+                const icon = link.__linkIconObj;
+                if (icon){
+                    copyCoords(icon.position, middle);
+                    alignIcon(icon, link);
+                }
             });
         }
     }

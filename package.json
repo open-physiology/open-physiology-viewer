@@ -76,6 +76,7 @@
     "rxjs": "5",
     "three": "^0.86.0",
     "three-js-csg": "^72.0.0",
+    "three-orbit-controls": "^82.1.0",
     "three-stats": "^1.0.1",
     "three-subdivision-modifier": "^1.0.5",
     "three-text2d": "^0.3.4",

@@ -11,13 +11,16 @@ import {
 } from 'd3-force-3d';
 import {TestDataService}   from './testDataService';
 import {KidneyDataService} from './kidneyDataService';
+import {LINK_TYPES} from '../models/linkModel';
+
+const OrbitControls = require('three-orbit-controls')(THREE);
 
 export class WebGLRenderService {
     scene    : THREE.Scene;
     camera   : THREE.PerspectiveCamera;
     renderer : THREE.WebGLRenderer;
-    controls : TrackballControls;
-    raycaster: THREE.Raycaster;
+    controls;
+    raycaster;
     _graphData = {};
     graph;
     planes = [];
@@ -31,22 +34,22 @@ export class WebGLRenderService {
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
 
-        const width = window.innerWidth;
-        const height = window.innerHeight - 90;
+        const width = window.innerWidth * 0.75;
+        const height = window.innerHeight ;
 
-        this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45, width / height);
         this.camera.position.set(0, 100, 500);
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.renderer = new THREE.WebGLRenderer({antialias: true});
 
+        this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(width, height);
         this.renderer.setClearColor(0xffffff);
         container.appendChild(this.renderer.domElement);
 
-        this.controls = new TrackballControls(this.camera, container);
+        //this.controls = new TrackballControls(this.camera, container);
+        this.controls = new OrbitControls(this.camera, container);
 
+        this.scene = new THREE.Scene();
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
         this.scene.add(ambientLight);
@@ -55,6 +58,8 @@ export class WebGLRenderService {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
+        this.resizeCanvasToDisplaySize(true);
+
         this.raycaster = new THREE.Raycaster();
 
         this.createPlanes();
@@ -62,7 +67,22 @@ export class WebGLRenderService {
         this.animate();
     }
 
+    resizeCanvasToDisplaySize(force) {
+        const canvas = this.renderer.domElement;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        if (force || canvas.width !== width ||canvas.height !== height) {
+            // you must pass false here or three.js sadly fights the browser
+            this.renderer.setSize(width, height, false);
+            this.camera.aspect = width / height;
+            this.camera.updateProjectionMatrix();
+
+            // set render target sizes here
+        }
+    }
+
     animate() {
+        this.resizeCanvasToDisplaySize();
         if (this.graph){ this.graph.tickFrame(); }
         this.controls.update();
         TWEEN.update();
@@ -120,8 +140,8 @@ export class WebGLRenderService {
         .strength(d => (d.radialDistance)? 5: 0));
 
         this.graph.d3Force("link")
-            .distance(d =>  0.02 * d.length * axisLength)
-            .strength(1);
+            .distance(d => 0.02 * d.length * axisLength)
+            .strength(d => (d.type === LINK_TYPES.CONTAINER)? 0: 1);
 
         this.scene.add(this.graph);
     }
