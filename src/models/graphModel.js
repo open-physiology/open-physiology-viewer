@@ -6,10 +6,10 @@ export class GraphModel extends Model {
     links: [];
     coalescences: [];
 
-    static fromJSON(json, {modelClasses, modelsById} = {}) {
+    static fromJSON(json, modelClasses = {}) {
         json.class = json.class || "Graph";
-        const result = super.fromJSON(json, {modelClasses, modelsById});
-        result::assign(json); //TODO use pick to choose only valid properties
+        const result = super.fromJSON(json, modelClasses);
+        result::assign(json); //TODO pick only valid properties
         return result;
     }
 }

@@ -1,10 +1,9 @@
 import { lyphs } from '../data/generated-lyphs.json';
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
-import { modelClasses, modelsById } from '../models/utils';
-import { NodeModel } from '../models/nodeModel';
+import { modelClasses } from '../models/utils';
+import { NodeModel, NODE_TYPES } from '../models/nodeModel';
 import { LinkModel, LINK_TYPES } from '../models/linkModel';
-import { LyphModel } from '../models/lyphModel';
 
 const OMEGA_LINK_LENGTH = 5; //% from axis length
 
@@ -21,6 +20,8 @@ export class TestDataService extends DataService{
      * Coalescences are defined on some trees
      */
     init() {
+        super.init();
+
         //Assign lyphs to the core graph edges
         const mapping = {
             "2": "2",
@@ -80,17 +81,16 @@ export class TestDataService extends DataService{
                         "id"    : `n${host}_${i+1}${j}`,
                         "name"  : `n${host}_${i+1}${j}`,
                         //"tree"  : tree + 1, //TODO save in Tree
-                        //"level" : j,
                         "host"  : host,
+                        "type"  : NODE_TYPES.OMEGA,
                         "isRoot": (j === 0),
-                        "color" : hosts[host].color
-                    }, {modelClasses, modelsById});
+                        "color" : hosts[host].color,
+                        "layout": {}
+                    }, modelClasses);
                     if (j === NUM_LEVELS - 1){
-                        //TODO rename radialDistance => layout.r
-                        node["radialDistance"] = hostLink.length*(1 + 0.5 * hosts[host].sign)
+                        node["layout"].r = hostLink.length*(1 + 0.5 * hosts[host].sign)
                     }
                     this._graphData.nodes.push(node);
-
                 }
             }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
@@ -103,7 +103,7 @@ export class TestDataService extends DataService{
                         "type": LINK_TYPES.LINK,
                         "lyph": `${host}_${i+1}${j}_0`,
                         "color": hosts[host].color
-                    }, {modelClasses, modelsById}));
+                    }, modelClasses));
                 }
             }
         });
@@ -116,6 +116,6 @@ export class TestDataService extends DataService{
             {"node1": "n5_21", "node2": "n7_52"}
         ];
 
-       super.init();
+       super.afterInit();
     }
 }

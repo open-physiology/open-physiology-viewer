@@ -60,24 +60,12 @@ export function copyCoords(target, source){
     target.z = source.z || 0;
 }
 
-export function alignIcon(iconObj, link){
-    if (!iconObj) {return; }
-    let axis = new THREE.Vector3(0, 1, 0);
-    let vector = new THREE.Vector3(
-        link.target.x - link.source.x,
-        link.target.y - link.source.y,
-        link.target.z - link.source.z,
-    );
-    iconObj.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
-}
-
 export function geometryDifference(smallGeom, largeGeom, material){
     let smallBSP = new ThreeBSP(smallGeom);
     let largeBSP = new ThreeBSP(largeGeom);
     let intersectionBSP = largeBSP.subtract(smallBSP);
     return intersectionBSP.toMesh( material );
 }
-
 
 /**
  * Cylinder constructor parameters:

@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import * as TWEEN from 'es6-tween'
-import TrackballControls from 'three-trackballcontrols';
 import ThreeForceGraph   from '../three/threeForceGraph';
-import { linkExtension } from '../three/linkExtension';
 import {
     forceX,
     forceY,
@@ -12,6 +10,7 @@ import {
 import {TestDataService}   from './testDataService';
 import {KidneyDataService} from './kidneyDataService';
 import {LINK_TYPES} from '../models/linkModel';
+import {NODE_TYPES} from '../models/nodeModel';
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 
@@ -22,10 +21,11 @@ export class WebGLRenderService {
     controls;
     raycaster;
     _graphData = {};
+    _kidneyDataService;
+    _testDataService;
+
     graph;
     planes = [];
-    nodeLabelVisible = true;
-    _kidneyDataService;
 
     init(container: HTMLElement) {
         if (this.renderer) {return;} //already initialized
@@ -115,29 +115,25 @@ export class WebGLRenderService {
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
         this.graph = new ThreeForceGraph()
-            .graphData(this._graphData)
-            .linkExtension(linkExtension)
-            .showNodeLabel(this.nodeLabelVisible)
-            .axisLength(axisLength)
-            .linkExtensionParams({method: "3d"});
+            .graphData(this._graphData);
 
         this.graph.d3Force("x", forceX().x(d => (d.layout && d.layout.x)? d.layout.x * scaleFactor: 0)
-            .strength(d => (d.core)? 0.9: 0)
+            .strength(d => (d.type === NODE_TYPES.CORE)? 0.9: 0)
         );
 
         this.graph.d3Force("y", forceY().y(d => (d.layout && d.layout.y)? d.layout.y * scaleFactor: 0)
-            .strength(d => (d.core)? 0.9: 0)
+            .strength(d => (d.type === NODE_TYPES.CORE)? 0.9: 0)
         );
 
         this.graph.d3Force("z", forceZ().z(d => (d.layout && d.layout.z)? d.layout.z * scaleFactor:
             (d.coalescence)? 25 * scaleFactor: 0) //coalescing links pop above the z axis, 25% of the axis size
-            .strength(d => (d.core || d.coalescence)? 0.9: 0)
+            .strength(d => (d.type === NODE_TYPES.CORE || d.coalescence)? 0.9: 0)
         );
 
         this.graph.d3Force("radial", forceRadial( d => {
-            return (d.radialDistance || 0) * scaleFactor;
+            return ((d.layout && d.layout.r)? d.layout.r: 0) * scaleFactor;
         })
-        .strength(d => (d.radialDistance)? 5: 0));
+        .strength(d => (d.layout && d.layout.r)? 5: 0));
 
         this.graph.d3Force("link")
             .distance(d => 0.02 * d.length * axisLength)
@@ -146,26 +142,38 @@ export class WebGLRenderService {
         this.scene.add(this.graph);
     }
 
+    set graphData(newGraphData){
+        this._graphData = newGraphData;
+        if (this.graph) {
+            this.graph.graphData(this._graphData);
+        }
+    }
+
+
+    //Toggle scene elements
+
     togglePlanes(){
         this.planes.forEach(plane => {plane.visible = !plane.visible});
     }
 
-    toggleLinkIcon(method){
-        this.graph.linkExtensionParams({method: method});
+    toggleLyphs(value){
+        this.graph.showIcon(value);
     }
 
-    toggleLyphs(){
-        if (this.graph.linkExtension()){
-            this.graph.linkExtension(null)
-        } else {
-            this.graph.linkExtension(linkExtension);
-        }
+    toggleLyphIcon(value){
+        this.graph.method(value);
     }
 
-    toggleLabels(){
-        this.nodeLabelVisible = !this.nodeLabelVisible;
-        this.graph.showNodeLabel(this.nodeLabelVisible);
+    toggleNodeLabels(value){
+        this.graph.showNodeLabel(value);
+    }
 
+    toggleLinkLabels(value){
+        this.graph.showLinkLabel(value);
+    }
+
+    toggleLyphLabels(value){
+        this.graph.showIconLabel(value);
     }
 
     toggleDimensions(numDimensions) {
@@ -184,10 +192,11 @@ export class WebGLRenderService {
         }
     }
 
-    set graphData(newGraphData){
-        this._graphData = newGraphData;
-        if (this.graph) {
-            this.graph.graphData(this._graphData);
+    updateLabelContent(target, property){
+        switch(target){
+            case 'node': { this.graph.nodeLabel(property); return; }
+            case 'link': { this.graph.linkLabel(property); return; }
+            case 'lyph': { this.graph.iconLabel(property); }
         }
     }
 }

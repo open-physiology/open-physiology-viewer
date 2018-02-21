@@ -1,6 +1,6 @@
 import { lyphs } from '../data/kidney-lyphs.json';
-import { modelClasses, modelsById } from '../models/utils';
-import { NodeModel } from '../models/nodeModel';
+import { modelClasses } from '../models/utils';
+import { NodeModel, NODE_TYPES } from '../models/nodeModel';
 import { LinkModel, LINK_TYPES } from '../models/linkModel';
 
 import {cloneDeep} from 'lodash-bound';
@@ -21,6 +21,7 @@ export class KidneyDataService extends DataService{
     }
 
     init(){
+        super.init();
         //Assign lyphs to the core graph edges
         //Kidney id = 1, attached to Gut'
         //this._graphData.links[6].lyph = 1;
@@ -60,14 +61,14 @@ export class KidneyDataService extends DataService{
                         "host"     : host,
                         "isRoot"   : (j === 0),
                         "color"    : hosts[host].color
-                    },  {modelClasses, modelsById});
+                    },  modelClasses);
                     //TODO save a root in the treeModel
                     //TODO Make sure the data below is kept in the treeModel
                     // let node = {
                     //     "tree"  : i,
                     //     "level" : j + 1,
                     //if (j === lyphKeys.length - 1) {
-                    //    node["radialDistance"] = hostLink.length * (1 + 0.8 * hosts[host].sign * j / lyphKeys.length);
+                    //    node["layout"].r = hostLink.length * (1 + 0.8 * hosts[host].sign * j / lyphKeys.length);
                     //}
                     this._graphData.nodes.push(node);
                 });
@@ -78,6 +79,7 @@ export class KidneyDataService extends DataService{
                 Object.keys(tree.lyphs).forEach((key, j) => {
                     if (j === NUM_LEVELS - 1) { return; }
                     let link = LinkModel.fromJSON({
+                        "id": (this._graphData.links.length + 1).toString(),
                         "source": `${host}${i}${j}`,
                         "target": `${host}${i}${j + 1}`,
                         "level": j,
@@ -85,9 +87,8 @@ export class KidneyDataService extends DataService{
                         "type": LINK_TYPES.LINK,
                         "lyph": tree.lyphs[key],
                         "color": hosts[host].color
-                    }, {modelClasses, modelsById});
+                    }, modelClasses);
                     this._graphData.links.push(link);
-                    //"level": j,
                 });
             })
         });
@@ -99,7 +100,7 @@ export class KidneyDataService extends DataService{
                     "name" : `57${i}`,
                     "external"  : key,
                     "color": CONNECTOR_COLOR},
-                {modelClasses, modelsById})
+                modelClasses)
             );
         });
 
@@ -108,6 +109,7 @@ export class KidneyDataService extends DataService{
         const connector_lyphs = ["77", "63", "105", "66"];
         for (let i = 0 ; i < connector.length - 1; i++){
             this._graphData.links.push(LinkModel.fromJSON({
+                "id": (this._graphData.links.length + 1).toString(),
                 "source": connector[i],
                 "target": connector[i + 1],
                 "level": i,
@@ -115,7 +117,7 @@ export class KidneyDataService extends DataService{
                 "type": LINK_TYPES.LINK,
                 "lyph": connector_lyphs[i],
                 "color": CONNECTOR_COLOR
-            }, {modelClasses, modelsById}));
+            }, modelClasses));
         }
 
         //Coalescences
@@ -131,18 +133,20 @@ export class KidneyDataService extends DataService{
         this._graphData.nodes.push(NodeModel.fromJSON({
                 "id"   : "k",
                 "name" : "k",
+                "type" : NODE_TYPES.CONTROL,
                 "controls" : ["506", "570", "7017", "7016", "7014", "7013"]
-            }, {modelClasses, modelsById})
+            }, modelClasses)
         );
 
         this._graphData.links.push(LinkModel.fromJSON({
+            "id": (this._graphData.links.length + 1).toString(),
             "source": "a",
             "target": "k",
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
             "lyph"  : "1", //Kidney
-        }, {modelClasses, modelsById}));
+        }, modelClasses));
 
-        super.init();
+        super.afterInit();
     }
 }

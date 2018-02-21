@@ -1,9 +1,6 @@
-import * as three from 'three';
-const THREE = window.THREE || three;
-
 import { SpriteText2D } from 'three-text2d';
 import {LINK_TYPES} from '../models/linkModel';
-const NUM_CURVE_POINTS = 50;
+import {NODE_TYPES} from '../models/nodeModel';
 
 import {
     forceSimulation,
@@ -13,16 +10,13 @@ import {
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
-import qwest from 'qwest';
-import accessorFn from 'accessor-fn';
 
-import { autoColorObjects, bezierSemicircle, copyCoords, alignIcon } from './utils';
+import { copyCoords } from './utils';
 import { MaterialFactory } from './materialFactory';
 
 //TODO handle drawing of domain-specific objects like omega trees outside
 export default Kapsule({
     props: {
-        jsonUrl: {},
         graphData: {
             default: {
                 nodes: [],
@@ -36,8 +30,7 @@ export default Kapsule({
                 if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
 
                 function eraseDimension(nodes, dim) {
-                    nodes//.filter(node => !node.coalescence)
-                        .forEach(node => {
+                    nodes.forEach(node => {
                         node[dim] = 0;          // position, set to 0 instead of deleting
                         delete node[`v${dim}`]; // velocity
                     });
@@ -46,20 +39,19 @@ export default Kapsule({
         },
         nodeRelSize    : { default: 4 }, // volume per val unit
         nodeId         : { default: 'id' },
-        nodeVal        : { default: 'val' },
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
-        nodeColor      : { default: 'color' },
-        nodeAutoColorBy: {},
-        nodeThreeObject: {},
-        linkSource     : { default: 'source' },
-        linkTarget     : { default: 'target' },
-        linkColor      : { default: 'color' },
-        nodeLabel      : { default: 'name'},
-        linkLabel      : { default: 'name'},
+        linkResolution : { default: 50},
+        showIcon       : { default: true},
+        method         : { default: '2d'},
         showNodeLabel  : { default: true},
-        linkAutoColorBy: {},
-        linkExtension  : {},
-        linkExtensionParams: {},
+        showLinkLabel  : { default: false},
+        showIconLabel  : { default: false},
+        nodeLabel      : { default: 'id'},
+        linkLabel      : { default: 'id'},
+        iconLabel      : { default: 'id'},
+        fontParams     : { default: {
+            font: '12px Arial', fillStyle: '#888', antialias: true }
+        },
         opacity        : { default: 0.5 },
         axisLength     : { default: 400 },
         d3AlphaDecay   : { default: 0.045 },
@@ -110,98 +102,18 @@ export default Kapsule({
             console.info('force-graph loading', state.graphData.nodes.length + ' nodes', state.graphData.links.length + ' links');
         }
 
-        if (!state.fetchingJson && state.jsonUrl && !state.graphData.nodes.length && !state.graphData.links.length) {
-            // (Re-)load data
-            state.fetchingJson = true;
-            qwest.get(state.jsonUrl).then((_, json) => {
-                state.fetchingJson = false;
-                state.graphData = json;
-                state._rerender();  // Force re-update
-            });
-        }
-
-        if (state.nodeAutoColorBy !== null) {
-            // Auto add color to uncolored nodes
-            autoColorObjects(state.graphData.nodes, accessorFn(state.nodeAutoColorBy), state.nodeColor);
-        }
-        if (state.linkAutoColorBy !== null) {
-            // Auto add color to uncolored links
-            autoColorObjects(state.graphData.links, accessorFn(state.linkAutoColorBy), state.linkColor);
-        }
-
-        // parse links
-        state.graphData.links.forEach(link => {
-            link.source = link[state.linkSource];
-            link.target = link[state.linkTarget];
-        });
-
         // Add WebGL objects
         while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place
 
-        const customNodeObjectAccessor = accessorFn(state.nodeThreeObject);
-        const valAccessor = accessorFn(state.nodeVal);
-        const colorAccessor = accessorFn(state.nodeColor);
-        const sphereGeometries = {}; // indexed by node value
-
         //Draw all graph nodes, except for control nodes
-        state.graphData.nodes.filter(node => !node.controls).forEach(node => {
-            const customObj = customNodeObjectAccessor(node);
-
-            let obj;
-            if (customObj) {
-                obj = customObj.clone();
-            } else { // Default object (sphere mesh)
-                const val = valAccessor(node) || 1;
-                if (!sphereGeometries.hasOwnProperty(val)) {
-                    sphereGeometries[val] = new THREE.SphereGeometry(Math.cbrt(val) * state.nodeRelSize, state.nodeResolution, state.nodeResolution);
-                }
-                const color = colorAccessor(node);
-                obj = new THREE.Mesh(sphereGeometries[val], state.materialRepo.getMeshLambertMaterial(color));
-            }
-
-            obj.__graphObjType = 'node'; // Add object type
-            obj.__data = node; // Attach node data
-            state.graphScene.add(node.__threeObj = obj);
-
-            let objLabel = new SpriteText2D(node[state.nodeLabel], { font: '12px Arial', fillStyle: '#888', antialias: true });
-            state.graphScene.add(node.__threeObjLabel = objLabel);
+        state.graphData.nodes.filter(node => node.type !== NODE_TYPES.CONTROL).forEach(node => {
+            node.createViewObjects(state);
+            Object.values(node.viewObjects).forEach(obj => state.graphScene.add(obj));
         });
 
-        const edgeColorAccessor = accessorFn(state.linkColor);
-
         state.graphData.links.forEach(link => {
-            const color = edgeColorAccessor(link);
-            let geometry, edgeMaterial;
-
-            if (link.type === LINK_TYPES.AXIS){
-                geometry = new THREE.Geometry();
-                edgeMaterial = state.materialRepo.getLineDashedMaterial(color);
-                geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
-            } else {
-                geometry = new THREE.BufferGeometry();
-                edgeMaterial = state.materialRepo.getLineBasicMaterial(color);
-                if (link.type === LINK_TYPES.PATH){
-                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(NUM_CURVE_POINTS * 3), 3));
-                } else {
-                    if (link.type === LINK_TYPES.LINK || link.type === LINK_TYPES.AXIS) {
-                        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-                    }
-                }
-            }
-
-            let edge = new THREE.Line(geometry, edgeMaterial);
-            edge.__graphObjType = 'link'; // Add object type
-            edge.__data = link;    // Attach link data
-            edge.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
-            state.graphScene.add(link.__edgeObj = edge);
-
-            //Add lyphs and edge text
-            if (state.linkExtension){
-                let linkIcon = state.linkExtension(link, state.linkExtensionParams);
-                if (linkIcon){
-                    state.graphScene.add(link.__linkIconObj = linkIcon);
-                }
-            }
+            link.createViewObjects(state);
+            Object.values(link.viewObjects).forEach(obj=> state.graphScene.add(obj));
         });
 
         // Feed data to force-directed layout
@@ -227,115 +139,35 @@ export default Kapsule({
         state.onFrame = layoutTick;
         state.onFinishLoading();
 
-        function drawSolidLine(link){
-            const edge = link.__edgeObj;
-            if (!edge) return;
-            const start = link['source'], end = link['target'],
-                edgePos = edge.geometry.attributes.position;
-            if (!edgePos) return;
-
-            //adjust coordinates for correct computations in 2d and 1d
-            const _start = new THREE.Vector3(start.x, start.y, start.z || 0);
-            const _end   = new THREE.Vector3(end.x, end.y, end.z || 0);
-
-            let points, middle;
-
-            if (link.type === LINK_TYPES.PATH) {
-                const curve = bezierSemicircle(_start, _end);
-                middle = curve.getPoint(0.5);
-                points = curve.getPoints(NUM_CURVE_POINTS - 1);
-
-                //Position omega tree roots
-                let hostedNodes = state.graphData.nodes.filter(node => (node.host === edge.__data.id) && node.isRoot);
-                if (hostedNodes.length > 0) {
-                    const delta = ((hostedNodes.length % 2) === 1) ? 0.4 : 0;
-                    const offset = 1 / (hostedNodes.length + 1 + delta);
-                    hostedNodes.forEach((root, i) => {
-                        const rootObj = root.__threeObj;
-                        if (!rootObj) {
-                            return;
-                        }
-                        const pos = curve.getPoint(offset * (i + 1));
-                        copyCoords(rootObj.position, pos);
-                        copyCoords(root, pos);
-                    });
-                }
-            } else {
-                points = [_start, _end];
-                middle = _start.clone().add(_end).multiplyScalar(0.5);
-            }
-
-            for (let i = 0; i < points.length; i++){
-                edgePos.array[3*i  ] = points[i].x;
-                edgePos.array[3*i+1] = points[i].y;
-                edgePos.array[3*i+2] = points[i].z;
-            }
-
-            const icon = link.__linkIconObj;
-            if (icon){
-                copyCoords(icon.position, middle);
-                alignIcon(icon, link);
-            }
-
-            edgePos.needsUpdate = true;
-            edge.geometry.computeBoundingSphere();
-        }
-
         function layoutTick() {
             if (++cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
-                state.onFrame = null; // Stop ticking graph
-            } else {
-                layout['tick'](); // Tick it
-            }
+                // Stop ticking graph
+                state.onFrame = null;
+            } else { layout['tick'](); }
 
             // Update nodes position
             state.graphData.nodes.forEach(node => {
-                const obj = node.__threeObj;
-                if (!obj) return;
-                copyCoords(obj.position, node);
-
-                const objLabel = node.__threeObjLabel;
-                if (objLabel) {
-                    objLabel.visible = state.showNodeLabel;
-                    copyCoords(objLabel.position, obj.position);
-                    objLabel.position.addScalar(15); //TODO replace to node radius
-                }
+                node.updateViewObjects(state)
             });
 
             // Update links position for paths, compute positions of omega nodes
             state.graphData.links.filter(link => link.type === LINK_TYPES.PATH).forEach(link => {
-                drawSolidLine(link);
-            });
+                link.updateViewObjects(state)}
+            );
 
             // Update links position for straight solid links
             state.graphData.links.filter(link => link.type === LINK_TYPES.LINK).forEach(link => {
-                drawSolidLine(link);
+                link.updateViewObjects(state)
             });
 
             //Update axis
             state.graphData.links.filter(link => link.type === LINK_TYPES.AXIS).forEach(link => {
-                const edge = link.__edgeObj;
-                if (!edge) return;
-                copyCoords(edge.geometry.vertices[0], link['source']);
-                copyCoords(edge.geometry.vertices[1], link['target']);
-                edge.geometry.verticesNeedUpdate = true;
-                edge.geometry.computeLineDistances();
+                link.updateViewObjects(state)
             });
 
             //Update containers
             state.graphData.links.filter(link => link.type === LINK_TYPES.CONTAINER).forEach(link => {
-                const source = link['source'];
-                const target = link['target'];
-                let controls = state.graphData.nodes.filter(node => (target.controls || []).includes(node.id));
-                let middle = new THREE.Vector3(0, 0, 0);
-                controls.forEach(p => {middle.x += p.x; middle.y += p.y; middle.z += p.z});
-                middle = middle.multiplyScalar(1.0 / (controls.length || 1));
-                copyCoords(target, middle.clone().sub(new THREE.Vector3(source.x, source.y, source.z)).multiplyScalar(2));
-                const icon = link.__linkIconObj;
-                if (icon){
-                    copyCoords(icon.position, middle);
-                    alignIcon(icon, link);
-                }
+                link.updateViewObjects(state)
             });
         }
     }

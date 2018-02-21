@@ -9,8 +9,8 @@ import {FormsModule}  from '@angular/forms';
         <div class="view_selector">
             Show:
             <input type="checkbox" name="show_planes" (change)="_renderService.togglePlanes()"/> Grid
-            <input type="checkbox" name="show_lyphs"  (change)="_renderService.toggleLyphs()" checked/> Lyphs
-            <input type="checkbox" name="show_labels" (change)="_renderService.toggleLabels()" checked/> Node labels
+            <input type="checkbox" name="show_lyphs" (change)="_renderService.toggleLyphs()" checked/> Lyphs
+            <input type="checkbox" name="show_labels" (change)="_renderService.toggleNodeLabels()" checked/> Node labels
         </div>
         <div class="dataset_selector">
             Dataset:
@@ -19,8 +19,8 @@ import {FormsModule}  from '@angular/forms';
         </div>
         <div class="icon_selector">
             Lyph icon:
-            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLinkIcon('2d')"/> 2D
-            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLinkIcon('3d')" checked/> 3D
+            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('2d')"/> 2D
+            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('3d')" checked/> 3D
         </div>
         <div class="dimensions_selector">
             Dimensions:
