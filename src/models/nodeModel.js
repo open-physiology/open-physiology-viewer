@@ -35,20 +35,26 @@ export class NodeModel extends Model {
         return result;
     }
 
+    /**
+     * Create visual objects to represent the model according to the user preferences
+     * @param state
+     */
     createViewObjects(state) {
         if (!this.viewObjects["main"]) {
             let geometry = new THREE.SphereGeometry(Math.cbrt(this.val || 1) * state.nodeRelSize,
                 state.nodeResolution, state.nodeResolution);
             let obj = new THREE.Mesh(geometry, state.materialRepo.getMeshLambertMaterial(this.color));
-            obj.__data = this; // Attach node data
+            // Attach node data
+            obj.__data = this;
             this.viewObjects["main"] = obj;
         }
 
-        if (!this.labelObjects) {
-            this.labelObjects = {};
-            ['id', 'name', 'external'].filter(label => this[label]).forEach(label =>
-                this.labelObjects[label] = new SpriteText2D(this[label], state.fontParams));
+        this.labelObjects = this.labelObjects || {};
+
+        if (!this.labelObjects[state.nodeLabel] && this[state.nodeLabel]) {
+            this.labelObjects[state.nodeLabel] = new SpriteText2D(this[state.nodeLabel], state.fontParams);
         }
+
         if (this.labelObjects[state.nodeLabel]){
             this.viewObjects["label"] = this.labelObjects[state.nodeLabel];
         } else {
@@ -56,16 +62,24 @@ export class NodeModel extends Model {
         }
     }
 
+    /**
+     * Update type and positions of view objects in response to the graph state change
+     * @param state
+     */
     updateViewObjects(state){
-        const obj = this.viewObjects["main"];
-        if (!obj) return;
-        copyCoords(obj.position, this);
+        if (!this.viewObjects["main"]
+            || (!this.labelObjects[state.iconLabel] && this[state.nodeLabel])
+        ){ this.createViewObjects(state); }
 
-        const objLabel = this.viewObjects["label"];
-        if (objLabel) {
-            objLabel.visible = state.showNodeLabel;
-            copyCoords(objLabel.position, obj.position);
-            objLabel.position.addScalar(15);
+        copyCoords(this.viewObjects["main"].position, this);
+
+        if (this.labelObjects[state.nodeLabel]){
+            this.viewObjects['label'] = this.labelObjects[state.nodeLabel];
+            this.viewObjects["label"].visible = state.showNodeLabel;
+            copyCoords(this.viewObjects["label"].position, this.viewObjects["main"].position);
+            this.viewObjects["label"].position.addScalar(15);
+        } else {
+            delete this.viewObjects['label'];
         }
     }
 

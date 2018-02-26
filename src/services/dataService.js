@@ -61,6 +61,7 @@ export class DataService {
     }
 
     afterInit(){
+        //Create links for coalescence pairs to hold nodes aligned
         this._coalescencePairs.forEach(({node1, node2}) => {
             this.getNode(node1).coalescence = node2;
             this.getNode(node2).coalescence = node1;
@@ -73,18 +74,27 @@ export class DataService {
             }, modelClasses));
         });
 
+        //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#888");
         addColor(this._lyphs);
 
+        //Create lyph models from their json definitions
         this._lyphs = this._lyphs.map(lyph => {
             lyph.class = "Lyph";
             return LyphModel.fromJSON(lyph, modelClasses);
         });
 
+        //Replace layer ids with lyph models
         this._lyphs.filter(lyph => lyph.layers).forEach(lyph => {
             lyph.layers = lyph.layers.map(layer => {return this._lyphs.find(lyph => lyph.id === layer)});
         });
 
+        //Replace content id with lyph model
+        this._lyphs.filter(lyph => lyph.content).forEach(lyph => {
+            lyph.content = this._lyphs.find(lyph => lyph.id === lyph.content);
+        });
+
+        //for each link, replace lyph id's with lyph model
         this._graphData.links.forEach(link => {
             link.lyph = this._lyphs.find(lyph => lyph.id === link.lyph);
         });

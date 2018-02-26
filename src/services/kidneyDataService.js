@@ -57,7 +57,6 @@ export class KidneyDataService extends DataService{
                     let node = NodeModel.fromJSON({
                         "id"       : `${host}${i}${j}`,
                         "name"     : `${host}${i}${j}`,
-                        "external" : key,
                         "host"     : host,
                         "isRoot"   : (j === 0),
                         "color"    : hosts[host].color
@@ -82,7 +81,8 @@ export class KidneyDataService extends DataService{
                         "id": (this._graphData.links.length + 1).toString(),
                         "source": `${host}${i}${j}`,
                         "target": `${host}${i}${j + 1}`,
-                        "level": j,
+                        //"level": j,
+                        "external" : key,
                         "length": OMEGA_LINK_LENGTH,
                         "type": LINK_TYPES.LINK,
                         "lyph": tree.lyphs[key],
@@ -93,29 +93,29 @@ export class KidneyDataService extends DataService{
             })
         });
 
+        //Connect leaves of two omega trees between nodes 506 and 515
+        const connector       = ["506", "570", "571", "515"];
+        const connector_lyphs = [{"H": "77"}, {"I": "63"}, {"J": "105"}];
+
         const CONNECTOR_COLOR = "#ff44ff";
         ["I", "J"].forEach((key, i) => {
             this._graphData.nodes.push(NodeModel.fromJSON({
                     "id"   : `57${i}`,
                     "name" : `57${i}`,
-                    "external"  : key,
-                    "color": CONNECTOR_COLOR},
-                modelClasses)
+                    "color": CONNECTOR_COLOR}, modelClasses)
             );
         });
 
-        //Connect leaves of two omega trees 506, 515
-        const connector       = ["506", "570", "571", "515"];
-        const connector_lyphs = ["77", "63", "105", "66"];
         for (let i = 0 ; i < connector.length - 1; i++){
             this._graphData.links.push(LinkModel.fromJSON({
                 "id": (this._graphData.links.length + 1).toString(),
                 "source": connector[i],
                 "target": connector[i + 1],
-                "level": i,
+                //"level": i,
+                "external" : Object.keys(connector_lyphs[i])[0],
                 "length": OMEGA_LINK_LENGTH * 1.2,
                 "type": LINK_TYPES.LINK,
-                "lyph": connector_lyphs[i],
+                "lyph": Object.values(connector_lyphs[i])[0],
                 "color": CONNECTOR_COLOR
             }, modelClasses));
         }
@@ -123,13 +123,13 @@ export class KidneyDataService extends DataService{
         //Coalescences
         this._coalescencePairs = [
             //lyphs H~Q
-            {"node1": "506", "node2": "7017"}, //H - Q
-            {"node1": "570", "node2": "7016"}, //H - Q
-            {"node1": "571", "node2": "7014"}, //J - O
-            {"node1": "515", "node2": "7013"}  //J - N
+            {"node1": "506", "node2": "7017"},
+            {"node1": "570", "node2": "7016"},
+            {"node1": "571", "node2": "7014"},
+            {"node1": "515", "node2": "7013"}
         ];
 
-        //TODO add link from center to center of mass for a coalescence group
+        //Add link from center to the center of mass for a coalescence group
         this._graphData.nodes.push(NodeModel.fromJSON({
                 "id"   : "k",
                 "name" : "k",

@@ -2,8 +2,6 @@ import { schemePaired } from 'd3-scale-chromatic';
 import * as three from 'three';
 const THREE = window.THREE || three;
 const ThreeBSP = require('three-js-csg')(THREE);
-//const SubdivisionModifier = require('three-subdivision-modifier'); //Can be used to get a shape with rounded corners
-//const modifier = new SubdivisionModifier( 1 ); // Number of subdivisions
 
 /**
  * Autoset attribute colorField by colorByAccessor property
@@ -60,6 +58,12 @@ export function copyCoords(target, source){
     target.z = source.z || 0;
 }
 
+/**
+ * Computes difference between two geometries
+ * @param smallGeom - inner geometry
+ * @param largeGeom - outer geometry
+ * @param material  - geometry material
+ */
 export function geometryDifference(smallGeom, largeGeom, material){
     let smallBSP = new ThreeBSP(smallGeom);
     let largeBSP = new ThreeBSP(largeGeom);
@@ -68,17 +72,31 @@ export function geometryDifference(smallGeom, largeGeom, material){
 }
 
 /**
- * Cylinder constructor parameters:
- * inner & outer arrays: [radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight, top, bottom]
+ * Draws layer of a lyph in 3d
+ * @param $thickness - axial border distance from the rotational axis
+ * @param $height    - axial border height
+ * @param $radius    - radius for the circle for closed border
+ * @param $top       - boolean value indicating whether top axial border is closed
+ * @param $bottom    - boolean value indicating whether bottom axial border is closed
+ * @param thickness  - non-axial border distance from the rotational axis
+ * @param height     - non-axial border height
+ * @param radius     - radius for the circle for closed border
+ * @param top        - boolean value indicating whether top non-axial border is closed
+ * @param bottom     - boolean value indicating whether bottom non-axial border is closed
+ * @param material   - geometry material
+ * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  */
 export function d3Lyph([$thickness, $height, $radius, $top, $bottom],
                        [ thickness,  height,  radius,  top,  bottom], material){
 
     const a = 0.5;
     const b = 0.5 * (1 - a) ;
-    let $tube      = new THREE.CylinderGeometry($thickness, $thickness, a * $height, 10, 4);
+    //Cylinder constructor parameters: [radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight]
+    //Closed borders are approximated by cylinders with smaller diameters for speed
+
+    let $tube      = new THREE.CylinderGeometry( $thickness, $thickness, a * $height, 10, 4);
     let $cupTop    = new THREE.CylinderGeometry( $top? $thickness - $radius: $thickness, $thickness, b * $height, 10, 4);
-    let $cupBottom = new THREE.CylinderGeometry($thickness, $bottom? $thickness - $radius: $thickness, b * $height, 10, 4);
+    let $cupBottom = new THREE.CylinderGeometry( $thickness, $bottom? $thickness - $radius: $thickness, b * $height, 10, 4);
 
     let tube       = new THREE.CylinderGeometry( thickness,  thickness,  a * height, 10, 4);
     let cupTop     = new THREE.CylinderGeometry( top? thickness - radius: thickness,  thickness,  b * height, 10, 4);
@@ -90,6 +108,14 @@ export function d3Lyph([$thickness, $height, $radius, $top, $bottom],
     return geometryDifference(smallGeometry, largeGeometry, material);
 }
 
+/**
+ * Helper function to produce a merged layer geometry given a tube shape and two cups representing open or closed borders
+ * @param tube       - core layer tube
+ * @param cupTop     - top border
+ * @param cupBottom  - bottom border
+ * @param offset     - distance to shift cups wrt the tube center
+ * @returns {Geometry|SEA3D.Geometry|*|THREE.Geometry}
+ */
 function mergedGeometry(tube, cupTop, cupBottom, offset){
     let singleGeometry = new THREE.Geometry();
     let tubeMesh       = new THREE.Mesh(tube);
@@ -114,6 +140,7 @@ export function d2Lyph(inner, outer, material){
  * Draw rounded rectangle shape
  * @returns {ShapeGeometry|*}
  */
+//TODO rename
 function semiRoundedRect([$thickness, $height, $radius, $top, $bottom],
                          [ thickness,  height,  radius,  top,  bottom]) {
     const shape = new THREE.Shape();
@@ -161,6 +188,17 @@ function semiRoundedRect([$thickness, $height, $radius, $top, $bottom],
     }
     shape.lineTo( 0, 0);
     return new THREE.ShapeBufferGeometry(shape);
+}
+
+export function align(axis, obj){
+    if (!obj || !axis) { return; }
+    let y = new THREE.Vector3(0, 1, 0);
+    let vector = new THREE.Vector3(
+        axis.target.x - axis.source.x,
+        axis.target.y - axis.source.y,
+        axis.target.z - axis.source.z,
+    );
+    obj.quaternion.setFromUnitVectors(y, vector.clone().normalize());
 }
 
 //Experiment with tube geometry to draw thick edges

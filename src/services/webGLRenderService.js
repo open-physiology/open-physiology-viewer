@@ -20,12 +20,13 @@ export class WebGLRenderService {
     renderer : THREE.WebGLRenderer;
     controls;
     raycaster;
+    mouse;
     _graphData = {};
     _kidneyDataService;
     _testDataService;
 
     graph;
-    planes = [];
+    helpers = {};
 
     init(container: HTMLElement) {
         if (this.renderer) {return;} //already initialized
@@ -58,12 +59,17 @@ export class WebGLRenderService {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-        this.resizeCanvasToDisplaySize(true);
 
         this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2(0, 0);
 
-        this.createPlanes();
+        window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
+        window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
+
+        this.resizeCanvasToDisplaySize(true);
+        this.createHelpers();
         this.createGraph();
+        console.log("Graph scene contains objects:", this.graph.children.length);
         this.animate();
     }
 
@@ -86,11 +92,21 @@ export class WebGLRenderService {
         if (this.graph){ this.graph.tickFrame(); }
         this.controls.update();
         TWEEN.update();
+
+        //this.raycaster.setFromCamera( this.mouse, this.camera );
+        //let intersects = this.raycaster.intersectObjects( this.graph.children );
+        //console.log("Raycaster intersects", intersects);
+
+        //for ( let i = 0; i < intersects.length; i++ ) {
+        //    console.log(intersects[ i ].object.__data);
+            //intersects[ i ].object.material.color.set( 0xff0000 );
+        //}
+
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(_ => this.animate());
     }
 
-    createPlanes() {
+    createHelpers() {
         let gridColor = new THREE.Color(0xcccccc);
         let axisColor = new THREE.Color(0xaaaaaa);
 
@@ -98,16 +114,18 @@ export class WebGLRenderService {
         let gridHelper1 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
         gridHelper1.geometry.rotateX( Math.PI / 2 );
         this.scene.add(gridHelper1);
-        this.planes.push(gridHelper1);
+        this.helpers["x-y"] = gridHelper1;
 
         // x-z plane
         let gridHelper2 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
         this.scene.add(gridHelper2);
-        this.planes.push(gridHelper2);
+        this.helpers["x-z"] = gridHelper2;
 
-        this.togglePlanes();
-        // let axisHelper = new THREE.AxisHelper( 510 );
-        // this.scene.add( axisHelper );
+        let axisHelper = new THREE.AxisHelper( 510 );
+        this.scene.add( axisHelper );
+        this.helpers["axis"] = axisHelper;
+
+        this.togglePlanes(["x-y", "x-z", "axis"]);
     }
 
     createGraph() {
@@ -149,11 +167,65 @@ export class WebGLRenderService {
         }
     }
 
+    onKeyDown(evt){
+        let keyCode = evt.which;
+        if (evt.ctrlKey){
+            evt.preventDefault();
+            switch(keyCode){
+                case 37: // Left arrow
+                    break;
+                case 39: // Right arrow
+                    break;
+                case 40: // Down arrow
+                    this.zoom(-10);
+                    break;
+                case 38: // Up arrow
+                    this.zoom(10);
+            }
+        } else {
+            if (evt.shiftKey){
+                evt.preventDefault();
+                switch(keyCode){
+                    case 37: // Left arrow
+                        this.rotateScene(-10, 0);
+                        break;
+                    case 39: // Right arrow
+                        this.rotateScene(10, 0);
+                        break;
+                    case 40: // Down arrow
+                        this.rotateScene(0, 10);
+                        break;
+                    case 38: // Up arrow
+                        this.rotateScene(0, -10);
+                }
+            }
+        }
+    }
+
+
+    onMouseMove(evt) {
+        // calculate mouse position in normalized device coordinates
+        // (-1 to +1) for both components
+        this.mouse.x =   ( evt.clientX / window.innerWidth  ) * 2 - 1;
+        this.mouse.y = - ( evt.clientY / window.innerHeight ) * 2 + 1;
+    }
+
+
+    zoom(delta){
+        this.camera.position.z += delta;
+        this.camera.lookAt(this.scene.position);
+    }
+
+    rotateScene(deltaX, deltaY) {
+        this.camera.position.x += deltaX;
+        this.camera.position.y += deltaY;
+        this.camera.lookAt(this.scene.position);
+    }
 
     //Toggle scene elements
 
-    togglePlanes(){
-        this.planes.forEach(plane => {plane.visible = !plane.visible});
+    togglePlanes(keys){
+        keys.filter(key => this.helpers[key]).forEach(key => {this.helpers[key].visible = !this.helpers[key].visible});
     }
 
     toggleLyphs(value){
@@ -193,6 +265,7 @@ export class WebGLRenderService {
     }
 
     updateLabelContent(target, property){
+        console.log("Changing link", target, property);
         switch(target){
             case 'node': { this.graph.nodeLabel(property); return; }
             case 'link': { this.graph.linkLabel(property); return; }

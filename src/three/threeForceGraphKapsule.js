@@ -42,7 +42,7 @@ export default Kapsule({
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
         linkResolution : { default: 50},
         showIcon       : { default: true},
-        method         : { default: '2d'},
+        method         : { default: '3d'},
         showNodeLabel  : { default: true},
         showLinkLabel  : { default: false},
         showIconLabel  : { default: false},

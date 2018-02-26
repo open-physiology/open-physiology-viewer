@@ -1,6 +1,6 @@
 import {NgModule, Component, ViewChild, ElementRef} from '@angular/core';
 import {WebGLRenderService} from '../services/webGLRenderService';
-import {ControlPanelModule}    from '../components/controlPanel';
+import {StopPropagation} from './stopPropagation';
 
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
@@ -12,15 +12,16 @@ import {FormsModule}  from '@angular/forms';
             <section class="w3-threequarter">
                 <div id="webGLScene" #webGLScene></div>
             </section>
-            <section class="w3-quarter">
+            <section stop-propagation class="w3-quarter">
                 <section class="w3-content w3-padding-left">
 
                     <fieldset>
-                        <legend>Show:</legend>
-                        <input type="checkbox" name="planes" (change)="_renderService.togglePlanes()"/> Grid
-                        <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                    </fieldset>
-
+                        <legend>Dataset:</legend>
+                        <input type="radio" name="dataset" (change)="_renderService.toggleDataset('test')"/> Generated
+                        <input type="radio" name="dataset" (change)="_renderService.toggleDataset('kidney')" checked/>
+                        Kidney
+                    </fieldset>                    
+                    
                     <fieldset>
                         <legend>Labels:</legend>
                         <input type="checkbox" name="node_label" (change)="toggleNodeLabels()" checked/> Node
@@ -58,18 +59,17 @@ import {FormsModule}  from '@angular/forms';
                         </fieldset>
                     </fieldset>
 
-                    <fieldset>
-                        <legend>Dataset:</legend>
-                        <input type="radio" name="dataset" (change)="_renderService.toggleDataset('test')"/> Generated
-                        <input type="radio" name="dataset" (change)="_renderService.toggleDataset('kidney')" checked/>
-                        Kidney
-                    </fieldset>
 
-                    <fieldset [disabled]="!_showLyphs">
-                        <legend>Lyph icon:</legend>
-                        <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('2d')"/> 2D
-                        <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('3d')"
-                               checked/> 3D
+                    <fieldset>
+                        <legend>Lyphs:</legend>
+                        <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
+
+                        <fieldset [disabled]="!_showLyphs">
+                            <legend>Lyph icon:</legend>
+                            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('2d')"/> 2D
+                            <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('3d')"
+                                   checked/> 3D
+                        </fieldset>
                     </fieldset>
 
                     <fieldset>
@@ -78,6 +78,14 @@ import {FormsModule}  from '@angular/forms';
                         <input type="radio" name="num_dimensions" (change)="_renderService.toggleDimensions(3)"
                                checked/> 3D
                     </fieldset>
+
+                    <fieldset>
+                        <legend>Helpers:</legend>
+                        <input type="checkbox" name="planes" (change)="_renderService.togglePlanes(['x-y'])"/> Grid x-y
+                        <input type="checkbox" name="planes" (change)="_renderService.togglePlanes(['x-z'])"/> Grid x-z
+                        <input type="checkbox" name="planes" (change)="_renderService.togglePlanes(['axis'])"/> Axis
+                    </fieldset>
+                    
                 </section>
             </section>
         </section>
@@ -131,7 +139,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports     : [CommonModule, FormsModule],
-    declarations: [WebGLSceneComponent],
+    declarations: [WebGLSceneComponent, StopPropagation],
     providers   : [WebGLRenderService],
     exports     : [WebGLSceneComponent]
 })

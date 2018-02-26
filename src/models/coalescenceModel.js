@@ -2,7 +2,7 @@ import { Model } from './model';
 import { assign } from 'lodash-bound';
 
 export class CoalescenceModel extends Model {
-    nodes: [];
+    links: [];
 
     static fromJSON(json, modelClasses = {}) {
         json.class = json.class || "Coalescence";

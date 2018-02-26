@@ -4,7 +4,7 @@ import { assign } from 'lodash-bound';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
-import { d3Lyph, d2Lyph, bezierSemicircle, copyCoords } from '../three/utils';
+import { align, bezierSemicircle, copyCoords } from '../three/utils';
 
 export const LINK_TYPES = {
     PATH: "path",
@@ -47,22 +47,17 @@ export class LinkModel extends Model {
         return -1; //TODO implement
     }
 
-    get iconSize(){
+    get lyphSize(){
         const scaleFactor = this.length? Math.log(this.length): 1;
+        if (this.type === LINK_TYPES.CONTAINER){
+            return {length: 12 * scaleFactor, thickness: 4 * scaleFactor};
+        }
         return {length: 6 * scaleFactor, thickness: 2 * scaleFactor};
     }
 
-    alignIcon(obj){
-        if (!obj) {return; }
-        let axis = new THREE.Vector3(0, 1, 0);
-        let vector = new THREE.Vector3(
-            this.target.x - this.source.x,
-            this.target.y - this.source.y,
-            this.target.z - this.source.z,
-        );
-        obj.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
+    alignLyph(obj){
+        return align(this, obj);
     }
-
 
     /**
      * Create a three.js object
@@ -71,6 +66,7 @@ export class LinkModel extends Model {
     createViewObjects(state){
         if (this.type === LINK_TYPES.COALESCENCE) {return; }
 
+        //Link
         if (!this.viewObjects["main"]) {
             let geometry, material;
             if (this.type === LINK_TYPES.AXIS) {
@@ -94,70 +90,22 @@ export class LinkModel extends Model {
             this.viewObjects["main"] = obj;
         }
 
-        if (!this.labelObjects) {
-            this.labelObjects = {};
-            ['id', 'name', 'external'].filter(label => this[label]).forEach(label =>
-                this.labelObjects[label] = new SpriteText2D(this[label], state.fontParams));
+        //Link label
+        this.labelObjects = this.labelObjects || {};
+        if (!this.labelObjects[state.linkLabel] && this[state.linkLabel]){
+            this.labelObjects[state.linkLabel] = new SpriteText2D(this[state.linkLabel], state.fontParams);
         }
         if (this.labelObjects[state.linkLabel]){
             this.viewObjects["label"] = this.labelObjects[state.linkLabel];
         } else {
-             delete this.viewObjects["label"];
+            delete this.viewObjects["label"];
         }
 
-        this.createLyphViewObjects(state);
-    }
-
-    /**
-     *
-     * @param state
-     * @returns {*}
-     */
-    createLyphViewObjects(state){
-        if (!this.lyph)  { return; }
-        const method = state.method || '2d';
-
-        if (!this.lyph.viewObjects[method]){
-            if (!this.lyph.layers){ return; }
-
-            const lyphObj = new THREE.Object3D();
-            const {length, thickness} = this.iconSize;
-            this.lyph.layers.forEach((layer, i) => {
-                if (!layer.material) {
-                    layer.material = state.materialRepo.getMeshBasicMaterial(layer.color, {side: THREE.DoubleSide});
-                }
-                let layerObj;
-                if (method === "3d"){
-                    layerObj = d3Lyph(
-                        [ thickness * i + 1,       length,         thickness / 2, ...layer.borders],
-                        [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.borders],
-                        layer.material);
-                } else {
-                    layerObj = d2Lyph(
-                        [thickness * i, length,         thickness / 2, ...layer.borders],
-                        [thickness,     length + i * 2, thickness / 2, ...layer.borders],
-                        layer.material
-                    );
-                    layerObj.translateX(thickness * i);
-                }
-                lyphObj.add(layerObj);
-
-            });
-            this.lyph.viewObjects[method] = lyphObj;
-        }
-
-        this.viewObjects['icon'] = this.lyph.viewObjects[method];
-
-        if (!this.lyph.labelObjects) {
-            this.lyph.labelObjects = {};
-            ['id', 'name', 'external'].filter(label => this.lyph[label]).forEach(label =>
-                this.lyph.labelObjects[label] = new SpriteText2D(this.lyph[label], state.fontParams));
-        }
-
-        if (this.lyph.labelObjects[state.iconLabel]){
+        //Icon (lyph)
+        if (this.lyph) {
+            this.lyph.createViewObjects(Object.assign(state, {axis: this}));
+            this.viewObjects['icon'] = this.lyph.viewObjects['main'];
             this.viewObjects["iconLabel"] = this.lyph.labelObjects[state.iconLabel];
-        } else {
-            delete this.viewObjects["iconLabel"];
         }
     }
 
@@ -166,9 +114,13 @@ export class LinkModel extends Model {
      * @param hostedNodes
      */
     updateViewObjects(state){
-        const linkObj    = this.viewObjects["main"];
-        if (!linkObj)    { return;}
+        if (!this.viewObjects["main"] ||
+            (!this.labelObjects[state.linkLabel] && this[state.linkLabel])){
+            this.createViewObjects();
+        }
 
+        const linkObj = this.viewObjects["main"];
+        if (!linkObj) { return; } //No visible link
         let middle, linkPos;
         const _start = new THREE.Vector3(this.source.x, this.source.y, this.source.z || 0);
         const _end = new THREE.Vector3(this.target.x, this.target.y, this.target.z || 0);
@@ -228,25 +180,35 @@ export class LinkModel extends Model {
             }
         }
 
-        const objLabel = this.viewObjects["label"];
-        if (objLabel) {
-            objLabel.visible = state.showLinkLabel;
-            copyCoords(objLabel.position, middle);
-            objLabel.position.addScalar(5);
+        if (this.viewObjects["label"]) {
+            this.viewObjects["label"].visible = state.showLinkLabel;
+            copyCoords(this.viewObjects["label"].position, middle);
+            this.viewObjects["label"].position.addScalar(5);
+        } else {
+            delete this.viewObjects["label"];
         }
 
-        const objIcon = this.viewObjects['icon'];
-        if (objIcon){
-            objIcon.visible = state.showIcon;
-            copyCoords(objIcon.position, middle);
-            this.alignIcon(objIcon);
-        }
+        if (this.lyph){
+            this.lyph.updateViewObjects(state);
+            this.viewObjects['icon'] = this.lyph.viewObjects["main"];
+            this.viewObjects['iconLabel'] = this.lyph.viewObjects["label"];
 
-        const objIconLabel = this.viewObjects["iconLabel"];
-        if (objIconLabel){
-            objIconLabel.visible = state.showIconLabel;
-            copyCoords(objIconLabel.position, middle);
-            objIconLabel.position.addScalar(-5);
+            if (this.viewObjects['icon']){
+                this.viewObjects['icon'].visible = state.showIcon;
+                copyCoords(this.viewObjects['icon'].position, middle);
+                this.alignLyph(this.viewObjects['icon']);
+            }
+
+            if (this.viewObjects["iconLabel"]){
+                this.viewObjects["iconLabel"].visible = state.showIconLabel;
+                copyCoords(this.viewObjects["iconLabel"].position, middle);
+                this.viewObjects["iconLabel"].position.addScalar(-5);
+            } else {
+                delete this.viewObjects["iconLabel"];
+            }
+        } else {
+            delete this.viewObjects['icon'];
+            delete this.viewObjects["iconLabel"];
         }
 
         if (linkPos){

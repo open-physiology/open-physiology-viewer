@@ -98,7 +98,7 @@ export class TestDataService extends DataService{
                     this._graphData.links.push(LinkModel.fromJSON({
                         "source": `n${host}_${i+1}${j}`,
                         "target": `n${host}_${i+1}${j + 1}`,
-                        "level": j, //TODO remove
+                        //"level": j,
                         "length": OMEGA_LINK_LENGTH,
                         "type": LINK_TYPES.LINK,
                         "lyph": `${host}_${i+1}${j}_0`,
