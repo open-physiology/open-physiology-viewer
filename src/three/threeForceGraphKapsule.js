@@ -1,4 +1,3 @@
-import { SpriteText2D } from 'three-text2d';
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from '../models/nodeModel';
 
@@ -10,8 +9,6 @@ import {
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
-
-import { copyCoords } from './utils';
 import { MaterialFactory } from './materialFactory';
 
 //TODO handle drawing of domain-specific objects like omega trees outside
@@ -52,7 +49,7 @@ export default Kapsule({
         fontParams     : { default: {
             font: '12px Arial', fillStyle: '#888', antialias: true }
         },
-        opacity        : { default: 0.5 },
+        opacity        : { default: 0.3 },
         axisLength     : { default: 400 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },

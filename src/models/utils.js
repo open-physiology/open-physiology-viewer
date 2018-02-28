@@ -1,6 +1,6 @@
 import { LyphModel } from './lyphModel';
 import { NodeModel } from './nodeModel';
-import { LinkModel, LINK_TYPES } from './linkModel';
+import { LinkModel } from './linkModel';
 import { TreeModel }  from './treeModel';
 import { GraphModel } from './graphModel';
 import { CoalescenceModel } from './coalescenceModel';
@@ -13,4 +13,6 @@ export const modelClasses = {
     "Graph": GraphModel,
     "Coalescence": CoalescenceModel
 };
+
+
 

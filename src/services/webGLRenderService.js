@@ -28,6 +28,7 @@ export class WebGLRenderService {
     graph;
     helpers = {};
 
+
     init(container: HTMLElement) {
         if (this.renderer) {return;} //already initialized
 
@@ -130,31 +131,27 @@ export class WebGLRenderService {
 
     createGraph() {
         //Create
-        const axisLength = 400;
-        const scaleFactor = axisLength * 0.01;
         this.graph = new ThreeForceGraph()
             .graphData(this._graphData);
 
-        this.graph.d3Force("x", forceX().x(d => (d.layout && d.layout.x)? d.layout.x * scaleFactor: 0)
-            .strength(d => (d.type === NODE_TYPES.CORE)? 0.9: 0)
+        this.graph.d3Force("x", forceX().x(d => ('x' in d.layout)? d.layout.x: 0)
+            .strength(d => ('x' in d.layout)? 1: 0)
         );
 
-        this.graph.d3Force("y", forceY().y(d => (d.layout && d.layout.y)? d.layout.y * scaleFactor: 0)
-            .strength(d => (d.type === NODE_TYPES.CORE)? 0.9: 0)
+        this.graph.d3Force("y", forceY().y(d => ('y' in d.layout)? d.layout.y: 0)
+            .strength(d => ('y' in d.layout)? 1: 0)
         );
 
-        this.graph.d3Force("z", forceZ().z(d => (d.layout && d.layout.z)? d.layout.z * scaleFactor:
-            (d.coalescence)? 25 * scaleFactor: 0) //coalescing links pop above the z axis, 25% of the axis size
-            .strength(d => (d.type === NODE_TYPES.CORE || d.coalescence)? 0.9: 0)
+        this.graph.d3Force("z", forceZ().z(d => ('z' in d.layout)? d.layout.z: 0)
+            .strength(d => ('z' in d.layout)? 1: 0)
         );
 
         this.graph.d3Force("radial", forceRadial( d => {
-            return ((d.layout && d.layout.r)? d.layout.r: 0) * scaleFactor;
-        })
-        .strength(d => (d.layout && d.layout.r)? 5: 0));
+            return (('r' in d.layout)? d.layout.r: 0);
+        }).strength(d => ('r' in d.layout)? 5: 0));
 
         this.graph.d3Force("link")
-            .distance(d => 0.02 * d.length * axisLength)
+            .distance(d => d.length)
             .strength(d => (d.type === LINK_TYPES.CONTAINER)? 0: 1);
 
         this.scene.add(this.graph);
@@ -210,7 +207,6 @@ export class WebGLRenderService {
         this.mouse.y = - ( evt.clientY / window.innerHeight ) * 2 + 1;
     }
 
-
     zoom(delta){
         this.camera.position.z += delta;
         this.camera.lookAt(this.scene.position);
@@ -265,7 +261,6 @@ export class WebGLRenderService {
     }
 
     updateLabelContent(target, property){
-        console.log("Changing link", target, property);
         switch(target){
             case 'node': { this.graph.nodeLabel(property); return; }
             case 'link': { this.graph.linkLabel(property); return; }

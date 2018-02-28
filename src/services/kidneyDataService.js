@@ -123,10 +123,10 @@ export class KidneyDataService extends DataService{
         //Coalescences
         this._coalescencePairs = [
             //lyphs H~Q
-            {"node1": "506", "node2": "7017"},
-            {"node1": "570", "node2": "7016"},
-            {"node1": "571", "node2": "7014"},
-            {"node1": "515", "node2": "7013"}
+            // {"node1": "506", "node2": "7017"},
+            // {"node1": "570", "node2": "7016"},
+            // {"node1": "571", "node2": "7014"},
+            // {"node1": "515", "node2": "7013"}
         ];
 
         //Add link from center to the center of mass for a coalescence group
@@ -134,7 +134,7 @@ export class KidneyDataService extends DataService{
                 "id"   : "k",
                 "name" : "k",
                 "type" : NODE_TYPES.CONTROL,
-                "controls" : ["506", "570", "7017", "7016", "7014", "7013"]
+                "controls" : ["S", "P", "R"]
             }, modelClasses)
         );
 
@@ -144,7 +144,14 @@ export class KidneyDataService extends DataService{
             "target": "k",
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
-            "lyph"  : "1", //Kidney
+            //"lyph"  : "1", //Kidney
+            "lyph"  : "5", //Kidney lobus
+
+            //TODO move this to the lyph definition
+            "boundaryNodes" : ["506", "515", "7013"],
+            "boundaryNodeBorders" : ["3", "3", "3"],
+            "internalLyphs" : ["105", "63", "77", "24", "27", "30", "33"]
+
         }, modelClasses));
 
         super.afterInit();

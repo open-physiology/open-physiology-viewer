@@ -13,6 +13,7 @@ export class MaterialFactory {
     meshLambertMaterials = {};
     lineBasicMaterials   = {};
     lineDashedMaterials  = {};
+    specialMaterials     = {};
 
     /**
      * Constructor of the material factory class
@@ -26,6 +27,18 @@ export class MaterialFactory {
     }
 
     //TODO define default values for all material properties
+
+    getSpecialMaterial(color, params){
+        if (!this.specialMaterials.hasOwnProperty(color)) {
+            this.specialMaterials[color] = new THREE.MeshBasicMaterial({
+                color      : colorStr2Hex(color || this.defaultParams.color),
+                transparent: true,
+                opacity    : params.opacity || this.defaultParams.opacity,
+                side       : THREE.DoubleSide
+            });
+        }
+        return this.specialMaterials[color];
+    }
 
     getLineBasicMaterial(color, params = {}) {
         if (!this.lineBasicMaterials.hasOwnProperty(color)) {

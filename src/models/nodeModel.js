@@ -40,6 +40,7 @@ export class NodeModel extends Model {
      * @param state
      */
     createViewObjects(state) {
+        //Nodes
         if (!this.viewObjects["main"]) {
             let geometry = new THREE.SphereGeometry(Math.cbrt(this.val || 1) * state.nodeRelSize,
                 state.nodeResolution, state.nodeResolution);
@@ -49,6 +50,7 @@ export class NodeModel extends Model {
             this.viewObjects["main"] = obj;
         }
 
+        //Labels
         this.labelObjects = this.labelObjects || {};
 
         if (!this.labelObjects[state.nodeLabel] && this[state.nodeLabel]) {
@@ -67,12 +69,16 @@ export class NodeModel extends Model {
      * @param state
      */
     updateViewObjects(state){
+        //Node
         if (!this.viewObjects["main"]
             || (!this.labelObjects[state.iconLabel] && this[state.nodeLabel])
         ){ this.createViewObjects(state); }
 
+        //TODO move code to reposition dependent nodes here?
+
         copyCoords(this.viewObjects["main"].position, this);
 
+        //Labels
         if (this.labelObjects[state.nodeLabel]){
             this.viewObjects['label'] = this.labelObjects[state.nodeLabel];
             this.viewObjects["label"].visible = state.showNodeLabel;

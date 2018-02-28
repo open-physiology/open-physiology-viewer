@@ -33,15 +33,15 @@ export class DataService {
     init(){
         const coreGraphData = {
             nodes : [
-                {   "id"  : "c", "name": "c",      "val" : 10, "color": "#D2691E", "graph": "A", "layout": {"x":  100} },
-                {   "id"  : "n", "name": "n",      "val" : 10, "color": "#D2691E", "graph": "A", "layout": {"x": -100} },
-                {   "id"  : "t", "name": "t",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x":  -60} },
-                {   "id"  : "a", "name": "a",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x":    0}},
-                {   "id"  : "h", "name": "h",      "val" : 10, "color": "#444444", "graph": "B", "layout": {"x":   60} },
-                {   "id"  : "R", "name": "R",      "val" : 10, "color": "#ff0000", "graph": "C", "layout": {"y":   75, "z": -25} },
-                {   "id"  : "L", "name": "L",      "val" : 10, "color": "#7B68EE", "graph": "C", "layout": {"y":  -75, "z": 25} },
-                {   "id"  : "S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "layout": {"x":  -90} } ,
-                {   "id"  : "P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "layout": {"x":   90} }
+                {   "id"  : "c", "name": "c",      "val" : 10, "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
+                {   "id"  : "n", "name": "n",      "val" : 10, "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
+                {   "id"  : "t", "name": "t",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
+                {   "id"  : "a", "name": "a",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
+                {   "id"  : "h", "name": "h",      "val" : 10, "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
+                {   "id"  : "R", "name": "R",      "val" : 10, "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y": 75, "z":-25} },
+                {   "id"  : "L", "name": "L",      "val" : 10, "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y":-75, "z": 25} },
+                {   "id"  : "S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
+                {   "id"  : "P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
                 {  "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
@@ -70,7 +70,8 @@ export class DataService {
                 "source": node1,
                 "target": node2,
                 "length": 0,
-                "type": LINK_TYPES.COALESCENCE
+                "type": LINK_TYPES.COALESCENCE,
+                "layout": {"z": 25}
             }, modelClasses));
         });
 
@@ -98,6 +99,23 @@ export class DataService {
         this._graphData.links.forEach(link => {
             link.lyph = this._lyphs.find(lyph => lyph.id === link.lyph);
         });
+
+        //place empty layout object to simplify checking for constraints
+        this._graphData.nodes.forEach(node => {
+            node.layout = node.layout || {};
+        });
+
+
+        const axisLength = 400;
+        const scaleFactor = axisLength * 0.01;
+
+        //Map initial positional constraints to match the scaled image
+        this._graphData.nodes.forEach(node => {
+            Object.keys(node.layout).forEach(key => {node.layout[key] *= scaleFactor; })
+        });
+
+        this._graphData.links.filter(link => link.length)
+            .forEach(link => {link.length *= 2 * scaleFactor});
 
         console.log("Lyphs", this._lyphs);
         console.log("Graph", this._graphData);

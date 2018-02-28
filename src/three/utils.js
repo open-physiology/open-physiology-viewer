@@ -132,17 +132,14 @@ function mergedGeometry(tube, cupTop, cupBottom, offset){
 }
 
 export function d2Lyph(inner, outer, material){
-    let layerGeometry = semiRoundedRect( inner, outer);
+
+    let shape = d2LyphShape(inner, outer);
+    let layerGeometry = new THREE.ShapeBufferGeometry(shape);
     return new THREE.Mesh( layerGeometry, material);
 }
 
-/**
- * Draw rounded rectangle shape
- * @returns {ShapeGeometry|*}
- */
-//TODO rename
-function semiRoundedRect([$thickness, $height, $radius, $top, $bottom],
-                         [ thickness,  height,  radius,  top,  bottom]) {
+export function d2LyphShape([$thickness, $height, $radius, $top, $bottom],
+                            [ thickness,  height,  radius,  top,  bottom]){
     const shape = new THREE.Shape();
     shape.moveTo( 0, 0);
     //draw top of the preceding layer geometry
@@ -187,18 +184,12 @@ function semiRoundedRect([$thickness, $height, $radius, $top, $bottom],
         }
     }
     shape.lineTo( 0, 0);
-    return new THREE.ShapeBufferGeometry(shape);
+    return shape;
 }
 
 export function align(axis, obj){
     if (!obj || !axis) { return; }
-    let y = new THREE.Vector3(0, 1, 0);
-    let vector = new THREE.Vector3(
-        axis.target.x - axis.source.x,
-        axis.target.y - axis.source.y,
-        axis.target.z - axis.source.z,
-    );
-    obj.quaternion.setFromUnitVectors(y, vector.clone().normalize());
+    obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
 }
 
 //Experiment with tube geometry to draw thick edges
@@ -211,5 +202,21 @@ export function testSpline(curve){
     }));
 
     return mesh;
+}
+
+export function getBoundingBox(mesh) {
+    if (!mesh.geometry){ return null; }
+    mesh.geometry.computeBoundingBox();
+    return mesh.geometry.boundingBox
+}
+
+export function getCenterPoint(mesh) {
+    if (!mesh.geometry){ return null; }
+    if (!mesh.geometry.boundingBox) {
+        mesh.geometry.computeBoundingBox();
+    }
+    let center = mesh.geometry.boundingBox.getCenter();
+    mesh.localToWorld(center);
+    return center;
 }
 
