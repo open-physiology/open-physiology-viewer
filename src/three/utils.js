@@ -73,6 +73,8 @@ export function geometryDifference(smallGeom, largeGeom, material){
 
 /**
  * Draws layer of a lyph in 3d
+ * Closed borders are drawn as cylinders as sphere approximation is quite slow
+ * //TODO make a version to use spheres, maybe will work ok on fast machines (use CSG union?)
  * @param $thickness - axial border distance from the rotational axis
  * @param $height    - axial border height
  * @param $radius    - radius for the circle for closed border
@@ -86,8 +88,8 @@ export function geometryDifference(smallGeom, largeGeom, material){
  * @param material   - geometry material
  * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  */
-export function d3Lyph([$thickness, $height, $radius, $top, $bottom],
-                       [ thickness,  height,  radius,  top,  bottom], material){
+export function d3Layer([$thickness, $height, $radius, $top, $bottom],
+                        [ thickness,  height,  radius,  top,  bottom], material){
 
     const a = 0.5;
     const b = 0.5 * (1 - a) ;
@@ -131,15 +133,20 @@ function mergedGeometry(tube, cupTop, cupBottom, offset){
     return singleGeometry;
 }
 
-export function d2Lyph(inner, outer, material){
-
-    let shape = d2LyphShape(inner, outer);
+export function d2Layer(inner, outer, material){
+    let shape = d2LayerShape(inner, outer);
     let layerGeometry = new THREE.ShapeBufferGeometry(shape);
     return new THREE.Mesh( layerGeometry, material);
 }
 
-export function d2LyphShape([$thickness, $height, $radius, $top, $bottom],
-                            [ thickness,  height,  radius,  top,  bottom]){
+export function d2Lyph(outer, material){
+    let shape = d2LyphShape(outer);
+    let layerGeometry = new THREE.ShapeBufferGeometry(shape);
+    return new THREE.Mesh( layerGeometry, material);
+}
+
+export function d2LayerShape([$thickness, $height, $radius, $top, $bottom],
+                             [ thickness,  height,  radius,  top,  bottom]){
     const shape = new THREE.Shape();
     shape.moveTo( 0, 0);
     //draw top of the preceding layer geometry
@@ -163,7 +170,7 @@ export function d2LyphShape([$thickness, $height, $radius, $top, $bottom],
         shape.lineTo( thickness,  height / 2);
     }
 
-    //bottom of the current layer
+    //side and part of the bottom of the current layer
     if (bottom){
         shape.lineTo( thickness, -height / 2 + radius);
         shape.quadraticCurveTo( thickness, -height / 2, thickness - radius, -height / 2);
@@ -187,6 +194,73 @@ export function d2LyphShape([$thickness, $height, $radius, $top, $bottom],
     return shape;
 }
 
+/**
+ * A simpler way to draw lyph silhouette (no need to know previous layer)
+ * @param thickness
+ * @param height
+ * @param radius
+ * @param top
+ * @param bottom
+ * @returns {Shape|*}
+ */
+export function d2LyphShape([thickness,  height,  radius,  top,  bottom]){
+    const shape = new THREE.Shape();
+
+    //Axial border
+    shape.moveTo( 0, - height / 2);
+    shape.lineTo( 0,   height / 2);
+    //Top radial border
+    if (top){
+        shape.lineTo( thickness - radius, height / 2);
+        shape.quadraticCurveTo( thickness,  height / 2, thickness,  height / 2 - radius);
+    } else {
+        shape.lineTo( thickness,  height / 2);
+    }
+    //Non-axial border
+    if (bottom){
+        shape.lineTo( thickness, - height / 2 + radius);
+        shape.quadraticCurveTo( thickness, -height / 2, thickness - radius, -height / 2);
+    } else {
+        shape.lineTo( thickness, -height / 2);
+    }
+    //Finish Bottom radial border
+    shape.lineTo( 0, - height / 2);
+    return shape;
+}
+
+export function d2LyphBorders([thickness,  height,  radius,  top,  bottom]){
+    let borders = [0,1,2,3].map(x => new THREE.Shape());
+
+    //Axial border
+    borders[0].moveTo( 0, - height / 2);
+    borders[0].lineTo( 0,   height / 2);
+
+    borders[1].moveTo(0,   height / 2);
+    //Top radial border
+    if (top){
+        borders[1].lineTo( thickness - radius, height / 2);
+        borders[1].quadraticCurveTo( thickness,  height / 2, thickness,  height / 2 - radius);
+        borders[2].moveTo( thickness,  height / 2 - radius);
+    } else {
+        borders[1].lineTo( thickness,  height / 2);
+        borders[2].moveTo( thickness,  height / 2);
+    }
+    //Non-axial border
+    if (bottom){
+        borders[2].lineTo( thickness, - height / 2 + radius);
+        borders[2].quadraticCurveTo( thickness, -height / 2, thickness - radius, -height / 2);
+        borders[3].moveTo( thickness - radius, -height / 2);
+    } else {
+        borders[2].lineTo( thickness, -height / 2);
+        borders[3].moveTo( thickness, -height / 2);
+    }
+
+    //Finish Bottom radial border
+    borders[3].lineTo( 0, - height / 2);
+    return borders;
+}
+
+
 export function align(axis, obj){
     if (!obj || !axis) { return; }
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
@@ -200,7 +274,6 @@ export function testSpline(curve){
         opacity: 0.9,
         transparent: true
     }));
-
     return mesh;
 }
 

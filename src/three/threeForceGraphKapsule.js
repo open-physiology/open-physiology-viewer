@@ -38,16 +38,17 @@ export default Kapsule({
         nodeId         : { default: 'id' },
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
         linkResolution : { default: 50},
-        showIcon       : { default: true},
+        showLyphs      : { default: true},
+        showLayers     : { default: true},
         method         : { default: '3d'},
         showNodeLabel  : { default: true},
         showLinkLabel  : { default: false},
-        showIconLabel  : { default: false},
+        showLyphLabel  : { default: false},
         nodeLabel      : { default: 'id'},
         linkLabel      : { default: 'id'},
         iconLabel      : { default: 'id'},
         fontParams     : { default: {
-            font: '12px Arial', fillStyle: '#888', antialias: true }
+            font: '10px Arial', fillStyle: '#888', antialias: true }
         },
         opacity        : { default: 0.3 },
         axisLength     : { default: 400 },
@@ -86,9 +87,7 @@ export default Kapsule({
     init(threeObj, state) {
         // Main three object to manipulate
         state.graphScene = threeObj;
-        state.materialRepo = new MaterialFactory({
-            opacity: state.opacity
-        });
+        state.materialRepo = new MaterialFactory({ transparent: true, opacity: state.opacity });
     },
 
     update(state) {

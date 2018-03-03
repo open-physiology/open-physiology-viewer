@@ -44,7 +44,10 @@ export class NodeModel extends Model {
         if (!this.viewObjects["main"]) {
             let geometry = new THREE.SphereGeometry(Math.cbrt(this.val || 1) * state.nodeRelSize,
                 state.nodeResolution, state.nodeResolution);
-            let obj = new THREE.Mesh(geometry, state.materialRepo.getMeshLambertMaterial(this.color));
+            if (!this.material){
+                this.material = state.materialRepo.createMeshLambertMaterial({color: this.color});
+            }
+            let obj = new THREE.Mesh(geometry, this.material);
             // Attach node data
             obj.__data = this;
             this.viewObjects["main"] = obj;

@@ -63,10 +63,6 @@ export class LinkModel extends Model {
         return {length: 6 * scaleFactor, thickness: 2 * scaleFactor};
     }
 
-    align(obj){
-        return align(this, obj);
-    }
-
     /**
      * Create a three.js object
      * @returns {Raycaster.params.Line|Line|SEA3D.Line|*}
@@ -76,14 +72,18 @@ export class LinkModel extends Model {
 
         //Link
         if (!this.viewObjects["main"]) {
-            let geometry, material;
+            let geometry;
             if (this.type === LINK_TYPES.AXIS) {
                 geometry = new THREE.Geometry();
-                material = state.materialRepo.getLineDashedMaterial(this.color);
+                if (!this.material) {
+                    this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
+                }
                 geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
             } else {
                 geometry = new THREE.BufferGeometry();
-                material = state.materialRepo.getLineBasicMaterial(this.color);
+                if (!this.material) {
+                    this.material = state.materialRepo.createLineBasicMaterial({color: this.color});
+                }
                 if (this.type === LINK_TYPES.PATH) {
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
                 } else {
@@ -92,7 +92,7 @@ export class LinkModel extends Model {
                     }
                 }
             }
-            let obj = new THREE.Line(geometry, material);
+            let obj = new THREE.Line(geometry, this.material);
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
             this.viewObjects["main"] = obj;
@@ -130,36 +130,36 @@ export class LinkModel extends Model {
             //lyph
             let lyphObj = this.viewObjects['icon'];
             if (lyphObj){
-                lyphObj.visible = state.showIcon;
+                lyphObj.visible = state.showLyphs;
                 copyCoords(lyphObj.position, newPosition);
-                this.align(lyphObj);
+                align(this, lyphObj);
             } else {
-
+                delete this.viewObjects['icon'];
             }
 
             //position nodes on lyph border
-            if (this.lyph.borderObjects["2d"]){
+            if (this.lyph.borderObjects){
                 if (this.boundaryNodes){
-                    //Get spaced points on the border to place boundary nodes
-                    let NUM_POINTS = 4 * this.boundaryNodes.length;
-                    let points = this.lyph.borderObjects["2d"].getSpacedPoints(NUM_POINTS).map(p => new THREE.Vector3(p.x, p.y, 0));
-                    let arrow = new THREE.ArrowHelper(this.direction, newPosition);
-                    points.forEach(p => {
-                        p.add(newPosition);
-                        p.applyQuaternion(arrow.quaternion);
-                    });
 
-                    let boundaryNodes = state.graphData.nodes.filter(node => this.boundaryNodes.includes(node.id));
-                    ["0", "1", "2", "3"].forEach((borderNum, j) => {
-                        let nodesOnBorder = boundaryNodes.filter((node, i) => (this.boundaryNodeBorders[i] || 0) === borderNum);
-                        nodesOnBorder.forEach((node, i) => {
-                            let pos = points[boundaryNodes.length * j + i];
-                            copyCoords(node, pos);
-                            const nodeObj = node.viewObjects["main"];
-                            if (!nodeObj) { return; }
-                            copyCoords(nodeObj.position, pos);
-                        });
-                    });
+                    //let quaternion = new THREE.Quaternion();
+                    //quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), this.direction);
+                    let quaternion = this.lyph.lyphObjects[state.method].quaternion;
+
+                    let boundaryNodes =  this.boundaryNodes.map(id => state.graphData.nodes.find(node => node.id === id))
+                        .filter(node => !!node);
+                    for (let j = 0; j < 4; j++){
+                        let nodesOnBorder = boundaryNodes.filter((node, i) =>
+                            (this.boundaryNodeBorders[i] || 0) === j);
+                        if (nodesOnBorder.length > 0){
+                            let points = this.lyph.borderObjects[j].getSpacedPoints(nodesOnBorder.length)
+                                .map(p => new THREE.Vector3(p.x, p.y, 0));
+                            points.forEach(p => {
+                                p.applyQuaternion(quaternion);
+                                p.add(newPosition);
+                            });
+                            nodesOnBorder.forEach((node, i) => { copyCoords(node, points[i]); });
+                        }
+                    }
                 }
             }
             if (this.internalLyphs){
@@ -177,7 +177,7 @@ export class LinkModel extends Model {
             //Lyph label
             let lyphLabelObj = this.viewObjects["iconLabel"];
             if (lyphLabelObj){
-                lyphLabelObj.visible = state.showIconLabel;
+                lyphLabelObj.visible = state.showLyphLabel;
                 copyCoords(lyphLabelObj.position, newPosition);
                 lyphLabelObj.position.addScalar(-5);
             } else {
@@ -245,9 +245,6 @@ export class LinkModel extends Model {
                     hostedNodes.forEach((node, i) => {
                         const pos = curve.getPoint(offset * (i + 1));
                         copyCoords(node, pos);
-                        const nodeObj = node.viewObjects["main"];
-                        if (!nodeObj) { return; }
-                        copyCoords(nodeObj.position, pos);
                     });
                 }
                 break;

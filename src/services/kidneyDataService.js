@@ -148,8 +148,8 @@ export class KidneyDataService extends DataService{
             "lyph"  : "5", //Kidney lobus
 
             //TODO move this to the lyph definition
-            "boundaryNodes" : ["506", "515", "7013"],
-            "boundaryNodeBorders" : ["3", "3", "3"],
+            "boundaryNodes" : ["7013", "506", "515"],
+            "boundaryNodeBorders" : [3, 3, 3],
             "internalLyphs" : ["105", "63", "77", "24", "27", "30", "33"]
 
         }, modelClasses));

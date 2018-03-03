@@ -63,7 +63,9 @@ import {FormsModule}  from '@angular/forms';
                     <fieldset>
                         <legend>Lyphs:</legend>
                         <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-
+                        <input [disabled]="!_showLyphs" 
+                               type="checkbox" name="layers" (change)="toggleLayers()" checked/> Layers
+                        
                         <fieldset [disabled]="!_showLyphs">
                             <legend>Lyph icon:</legend>
                             <input type="radio" name="linkIcon_view" (change)="_renderService.toggleLyphIcon('2d')"/> 2D
@@ -101,7 +103,8 @@ export class WebGLSceneComponent {
 
     constructor(renderService: WebGLRenderService) {
         this._renderService = renderService;
-        this._showLyphs = true;
+        this._showLyphs  = true;
+        this._showLayers = true;
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
@@ -134,6 +137,10 @@ export class WebGLSceneComponent {
         this._renderService.toggleLyphLabels(this._showLyphLabels);
     }
 
+    toggleLayers(){
+        this._showLayers = !this._showLayers;
+        this._renderService.toggleLayers(this._showLayers);
+    }
 
 }
 

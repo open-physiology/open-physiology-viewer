@@ -2,8 +2,9 @@ import { modelClasses} from '../models/utils';
 import { LinkModel, LINK_TYPES }    from '../models/linkModel';
 import { NodeModel, NODE_TYPES }    from '../models/nodeModel';
 import { LyphModel }    from '../models/lyphModel';
-import { schemePaired } from 'd3-scale-chromatic';
-const colors = schemePaired;
+import { schemePaired, schemeDark2} from 'd3-scale-chromatic';
+
+const colors = [...schemePaired, schemeDark2];
 
 const addColor = (array, defaultColor) =>
     array.filter(obj => !obj.color)
@@ -76,7 +77,7 @@ export class DataService {
         });
 
         //Color links and lyphs which do not have assigned colors yet
-        addColor(this._graphData.links, "#888");
+        addColor(this._graphData.links, "#000");
         addColor(this._lyphs);
 
         //Create lyph models from their json definitions

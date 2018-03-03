@@ -3,9 +3,7 @@ const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
-import { d3Lyph, d2Lyph, d2LyphShape, align} from '../three/utils';
-
-import { LinkModel } from './linkModel';
+import { d3Layer, d2LayerShape, d2LyphShape, d2LyphBorders, align} from '../three/utils';
 
 const avgDimension = (obj, property) => {
     if (obj && obj[property]){
@@ -64,44 +62,41 @@ export class LyphModel extends Model {
             //const lyphObj = new THREE.Object3D();
             let numLayers = (this.layers || [this]).length;
             let lyphThickness = numLayers * thickness;
-            let lyphShape = d2LyphShape(
-                [0,             length,                 lyphThickness / 2, ...this.borderTypes],
-                [lyphThickness, length + 2 * numLayers, lyphThickness / 2, ...this.borderTypes]);
+            let lyphShape = d2LyphShape([lyphThickness, length + 2 * numLayers, lyphThickness / 2, ...this.borderTypes]);
             let lyphGeometry = new THREE.ShapeBufferGeometry(lyphShape);
             if (!this.material) {
-                this.material = state.materialRepo.getSpecialMaterial(this.color, {side: THREE.DoubleSide});
+                this.material = state.materialRepo.createMeshBasicMaterial({color: this.color});
                 this.material.visible = false; //Do not show overlaying lyph shape
             }
             let lyphObj = new THREE.Mesh( lyphGeometry, this.material);
-
-            //TODO replace borderObjects with border.visibleObjects;
-            this.borderObjects = this.borderObjects || {};
-            this.borderObjects["2d"]  = lyphShape;
             this.lyphObjects[state.method] = lyphObj;
+
+            //this.borderObject = lyphShape;
+            //TODO place borderObjects to border.visibleObjects;
+            this.borderObjects  = d2LyphBorders([lyphThickness, length + 2 * numLayers, lyphThickness / 2, ...this.borderTypes]);
 
             //Layers
             (this.layers || []).forEach((layer, i) => {
                 if (!layer.material) {
-                    layer.material = state.materialRepo.getMeshBasicMaterial(layer.color, {side: THREE.DoubleSide});
+                    layer.material = state.materialRepo.createMeshBasicMaterial({color: layer.color});
                 }
                 let layerObj;
                 if (state.method === "3d"){
-                    layerObj = d3Lyph(
+                    layerObj = d3Layer(
                         [ thickness * i + 1,       length,         thickness / 2, ...layer.borderTypes],
                         [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.borderTypes],
                         layer.material);
                 } else {
                     //we do not call d2Lyph directly as we need to keep the border shape as well
-                    let layerShape = d2LyphShape(
+                    let layerShape = d2LayerShape(
                         [ thickness * i, length,         thickness / 2, ...layer.borderTypes],
                         [ thickness,     length + i * 2, thickness / 2, ...layer.borderTypes]);
                     let layerGeometry = new THREE.ShapeBufferGeometry(layerShape);
                     layerObj = new THREE.Mesh( layerGeometry, layer.material);
-
                     layerObj.translateX(thickness * i);
 
-                    layer.borderObjects = layer.borderObjects || {};
-                    layer.borderObjects["2d"] = layerShape;
+                    layer.borderObject = layerShape;
+                    //TODO save also border array?
 
                     //Draw inside content
                     if (layer.content){
@@ -139,6 +134,11 @@ export class LyphModel extends Model {
         }
 
         this.viewObjects['main']  = this.lyphObjects[state.method];
+
+        this.material.visible = !state.showLayers;
+        (this.viewObjects['main'].children || []).forEach(child =>
+            {child.visible = state.showLayers;});
+
         if (this.labelObjects[state.iconLabel]){
             this.viewObjects['label'] = this.labelObjects[state.iconLabel];
         } else {

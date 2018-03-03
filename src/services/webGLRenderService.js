@@ -10,7 +10,6 @@ import {
 import {TestDataService}   from './testDataService';
 import {KidneyDataService} from './kidneyDataService';
 import {LINK_TYPES} from '../models/linkModel';
-import {NODE_TYPES} from '../models/nodeModel';
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 
@@ -19,7 +18,6 @@ export class WebGLRenderService {
     camera   : THREE.PerspectiveCamera;
     renderer : THREE.WebGLRenderer;
     controls;
-    raycaster;
     mouse;
     _graphData = {};
     _kidneyDataService;
@@ -36,17 +34,17 @@ export class WebGLRenderService {
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
 
-        const width = window.innerWidth * 0.75;
-        const height = window.innerHeight ;
-
-        this.camera = new THREE.PerspectiveCamera(45, width / height);
-        this.camera.position.set(0, 100, 500);
+        this.width  = window.innerWidth * 0.75;
+        this.height = window.innerHeight ;
 
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(width, height);
+        this.renderer.setSize(this.width, this.height);
         this.renderer.setClearColor(0xffffff);
         container.appendChild(this.renderer.domElement);
+
+        this.camera = new THREE.PerspectiveCamera(45, this.width /  this.height);
+        this.camera.position.set(0, 100, 500);
 
         //this.controls = new TrackballControls(this.camera, container);
         this.controls = new OrbitControls(this.camera, container);
@@ -60,8 +58,6 @@ export class WebGLRenderService {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-
-        this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2(0, 0);
 
         window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
@@ -76,32 +72,27 @@ export class WebGLRenderService {
 
     resizeCanvasToDisplaySize(force) {
         const canvas = this.renderer.domElement;
-        const width = canvas.clientWidth;
+        const width  = canvas.clientWidth;
         const height = canvas.clientHeight;
-        if (force || canvas.width !== width ||canvas.height !== height) {
+        console.log("Size", width, height);
+        if (force || canvas.width !== this.width ||canvas.height !== this.height) {
             // you must pass false here or three.js sadly fights the browser
-            this.renderer.setSize(width, height, false);
-            this.camera.aspect = width / height;
+            this.width  = width;
+            this.height = height;
+            this.renderer.setSize(this.width, this.height, false);
+            this.camera.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();
-
-            // set render target sizes here
         }
     }
 
     animate() {
         this.resizeCanvasToDisplaySize();
-        if (this.graph){ this.graph.tickFrame(); }
+        if (this.graph){
+            this.graph.tickFrame();
+            this.highlightSelected();
+        }
         this.controls.update();
         TWEEN.update();
-
-        //this.raycaster.setFromCamera( this.mouse, this.camera );
-        //let intersects = this.raycaster.intersectObjects( this.graph.children );
-        //console.log("Raycaster intersects", intersects);
-
-        //for ( let i = 0; i < intersects.length; i++ ) {
-        //    console.log(intersects[ i ].object.__data);
-            //intersects[ i ].object.material.color.set( 0xff0000 );
-        //}
 
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(_ => this.animate());
@@ -157,6 +148,59 @@ export class WebGLRenderService {
         this.scene.add(this.graph);
     }
 
+    highlightSelected(){
+        let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
+        vector.unproject( this.camera );
+
+        let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+
+        let intersects = ray.intersectObjects( this.graph.children );
+        if ( intersects.length > 0 ){
+            // if the closest object intersected is not the currently stored intersection object
+            if ( intersects[ 0 ].object !== this.INTERSECTED ){
+                // restore previous intersection object (if it exists) to its original color
+                if ( this.INTERSECTED ){
+                    this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+                    (this.INTERSECTED.children || []).forEach(child => {
+                        if (child.visible && child.material){
+                            child.material.color.setHex( child.currentHex );
+                        }
+                    })
+                }
+                // store reference to closest object as current intersection object
+                this.INTERSECTED = intersects[ 0 ].object;
+
+                // store color of closest object (for later restoration)
+                this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
+                (this.INTERSECTED.children || []).forEach(child => {
+                    if (child.visible && child.material){
+                        child.currentHex = child.material.color.getHex();
+                    }
+                });
+
+                // set a new color for closest object
+                this.INTERSECTED.material.color.setHex( 0xff0000 );
+                (this.INTERSECTED.children || []).forEach(child => {
+                    if (child.visible && child.material){
+                        child.material.color.setHex( 0xff0000 );
+                    }
+                })
+            }
+        }
+        else {
+            // restore previous intersection object (if it exists) to its original color
+            if ( this.INTERSECTED ) {
+                this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
+                (this.INTERSECTED.children || []).forEach(child => {
+                    if (child.visible && child.material){
+                        child.material.color.setHex( child.currentHex );
+                    }
+                })
+            }
+            this.INTERSECTED = null;
+        }
+    }
+
     set graphData(newGraphData){
         this._graphData = newGraphData;
         if (this.graph) {
@@ -203,8 +247,8 @@ export class WebGLRenderService {
     onMouseMove(evt) {
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
-        this.mouse.x =   ( evt.clientX / window.innerWidth  ) * 2 - 1;
-        this.mouse.y = - ( evt.clientY / window.innerHeight ) * 2 + 1;
+        this.mouse.x =   ( evt.clientX / this.width  ) * 2 - 1;
+        this.mouse.y = - ( evt.clientY / this.height ) * 2 + 1;
     }
 
     zoom(delta){
@@ -225,7 +269,11 @@ export class WebGLRenderService {
     }
 
     toggleLyphs(value){
-        this.graph.showIcon(value);
+        this.graph.showLyphs(value);
+    }
+
+    toggleLayers(value){
+        this.graph.showLayers(value);
     }
 
     toggleLyphIcon(value){
@@ -241,7 +289,7 @@ export class WebGLRenderService {
     }
 
     toggleLyphLabels(value){
-        this.graph.showIconLabel(value);
+        this.graph.showLyphLabel(value);
     }
 
     toggleDimensions(numDimensions) {

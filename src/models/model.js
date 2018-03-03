@@ -24,8 +24,6 @@ export class Model {
         const cls = modelClasses[json.class];
         const res       = new cls(json.id);
         res::assign(json::pick('id', 'name', 'class', 'color', 'external'));
-        res.color = res.color || "#888";
-
         res.viewObjects = res.viewObjects || {};
         return res;
     }
