@@ -1,4 +1,4 @@
-import {NgModule, Component, ViewChild, ElementRef} from '@angular/core';
+import {NgModule, Component, ViewChild, ElementRef, Output, EventEmitter} from '@angular/core';
 import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
@@ -19,6 +19,7 @@ import {TestDataService}   from '../services/testDataService';
 import {KidneyDataService} from '../services/kidneyDataService';
 
 import {LINK_TYPES} from '../models/linkModel';
+import {ModelInfoPanel} from './modelInfo';
 
 @Component({
     selector: 'webGLScene',
@@ -29,7 +30,6 @@ import {LINK_TYPES} from '../models/linkModel';
             </section>
             <section stop-propagation class="w3-quarter">
                 <section class="w3-content w3-padding-left">
-
                     <fieldset>
                         <legend>Dataset:</legend>
                         <input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated
@@ -104,6 +104,9 @@ import {LINK_TYPES} from '../models/linkModel';
                     </fieldset>
                     
                 </section>
+                <section class="w3-content w3-padding-left">
+                    <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
+                </section>
             </section>
         </section>
     `,
@@ -123,9 +126,16 @@ export class WebGLSceneComponent {
     _graphData = {};
     _kidneyDataService;
     _testDataService;
+    _highlighted;
 
     graph;
     helpers = {};
+
+    /**
+     * @emits highlightedItemChange - the highlighted item changed
+     */
+    @Output() highlightedItemChange = new EventEmitter();
+
 
     constructor() {
         this._showLyphs  = true;
@@ -181,8 +191,7 @@ export class WebGLSceneComponent {
         const canvas = this.renderer.domElement;
         const width  = canvas.clientWidth;
         const height = canvas.clientHeight;
-        console.log("Size", width, height);
-        if (force || canvas.width !== this.width ||canvas.height !== this.height) {
+        if (force || canvas.width !== width || canvas.height !== height) {
             // you must pass false here or three.js sadly fights the browser
             this.width  = width;
             this.height = height;
@@ -264,47 +273,50 @@ export class WebGLSceneComponent {
         let intersects = ray.intersectObjects( this.graph.children );
         if ( intersects.length > 0 ){
             // if the closest object intersected is not the currently stored intersection object
-            if ( intersects[ 0 ].object !== this.INTERSECTED ){
+            if ( intersects[ 0 ].object !== this._highlighted ){
                 // restore previous intersection object (if it exists) to its original color
-                if ( this.INTERSECTED ){
-                    this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
-                    (this.INTERSECTED.children || []).forEach(child => {
+                if ( this._highlighted ){
+                    this._highlighted.material.color.setHex( this._highlighted.currentHex );
+                    (this._highlighted.children || []).forEach(child => {
                         if (child.visible && child.material){
                             child.material.color.setHex( child.currentHex );
                         }
                     })
                 }
                 // store reference to closest object as current intersection object
-                this.INTERSECTED = intersects[ 0 ].object;
+                this._highlighted = intersects[ 0 ].object;
 
                 // store color of closest object (for later restoration)
-                this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
-                (this.INTERSECTED.children || []).forEach(child => {
+                this._highlighted.currentHex = this._highlighted.material.color.getHex();
+                (this._highlighted.children || []).forEach(child => {
                     if (child.visible && child.material){
                         child.currentHex = child.material.color.getHex();
                     }
                 });
 
                 // set a new color for closest object
-                this.INTERSECTED.material.color.setHex( 0xff0000 );
-                (this.INTERSECTED.children || []).forEach(child => {
+                this._highlighted.material.color.setHex( 0xff0000 );
+                (this._highlighted.children || []).forEach(child => {
                     if (child.visible && child.material){
                         child.material.color.setHex( 0xff0000 );
                     }
-                })
+                });
+
+                this.highlightedItemChange.emit(this._highlighted);
             }
         }
         else {
             // restore previous intersection object (if it exists) to its original color
-            if ( this.INTERSECTED ) {
-                this.INTERSECTED.material.color.setHex(this.INTERSECTED.currentHex);
-                (this.INTERSECTED.children || []).forEach(child => {
+            if ( this._highlighted ) {
+                this._highlighted.material.color.setHex(this._highlighted.currentHex);
+                (this._highlighted.children || []).forEach(child => {
                     if (child.visible && child.material){
                         child.material.color.setHex( child.currentHex );
                     }
                 })
             }
-            this.INTERSECTED = null;
+            this._highlighted = null;
+            this.highlightedItemChange.emit(this._highlighted);
         }
     }
 
@@ -432,7 +444,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports     : [CommonModule, FormsModule],
-    declarations: [WebGLSceneComponent, StopPropagation],
+    declarations: [WebGLSceneComponent, ModelInfoPanel, StopPropagation],
     exports     : [WebGLSceneComponent]
 })
 export class WebGLSceneModule {}

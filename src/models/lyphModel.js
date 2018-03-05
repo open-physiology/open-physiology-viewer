@@ -69,6 +69,7 @@ export class LyphModel extends Model {
                 this.material.visible = false; //Do not show overlaying lyph shape
             }
             let lyphObj = new THREE.Mesh( lyphGeometry, this.material);
+            lyphObj.__data = this;
             this.lyphObjects[state.method] = lyphObj;
 
             //this.borderObject = lyphShape;
