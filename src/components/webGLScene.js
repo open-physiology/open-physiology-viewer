@@ -26,10 +26,10 @@ import {ModelInfoPanel} from './modelInfo';
     template: `
         <section class="w3-row">
             <section class="w3-threequarter">
-                <div id="webGLScene" #webGLScene></div>
+                <canvas #canvas></canvas>
             </section>
             <section stop-propagation class="w3-quarter">
-                <section class="w3-content w3-padding-left">
+                <section class="w3-content">
                     <fieldset>
                         <legend>Dataset:</legend>
                         <input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated
@@ -104,20 +104,20 @@ import {ModelInfoPanel} from './modelInfo';
                     </fieldset>
                     
                 </section>
-                <section class="w3-content w3-padding-left">
+                <section class="w3-content w3-padding-top">
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
                 </section>
             </section>
         </section>
     `,
     styles: [`
-        #webGLScene {
-            width: 100%
+        canvas {
+            width:  100%;
         }
     `]
 })
 export class WebGLSceneComponent {
-    @ViewChild('webGLScene') container: ElementRef;
+    @ViewChild('canvas') canvas: ElementRef;
     scene    : THREE.Scene;
     camera   : THREE.PerspectiveCamera;
     renderer : THREE.WebGLRenderer;
@@ -152,20 +152,14 @@ export class WebGLSceneComponent {
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
 
-        this.width  = window.innerWidth * 0.75;
-        this.height = window.innerHeight ;
-
-        this.renderer = new THREE.WebGLRenderer({antialias: true});
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(this.width, this.height);
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
-        this.container.nativeElement.appendChild(this.renderer.domElement);
 
-        this.camera = new THREE.PerspectiveCamera(45, this.width /  this.height);
+        this.camera = new THREE.PerspectiveCamera(70, 1, 1, 1000);
         this.camera.position.set(0, 100, 500);
 
         //this.controls = new TrackballControls(this.camera, container);
-        this.controls = new OrbitControls(this.camera, this.container.nativeElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.scene = new THREE.Scene();
         // Lights
@@ -189,12 +183,10 @@ export class WebGLSceneComponent {
 
     resizeCanvasToDisplaySize(force) {
         const canvas = this.renderer.domElement;
-        const width  = canvas.clientWidth;
-        const height = canvas.clientHeight;
-        if (force || canvas.width !== width || canvas.height !== height) {
+        if (force || canvas.width !==  canvas.clientWidth || canvas.height !== canvas.clientHeight) {
             // you must pass false here or three.js sadly fights the browser
-            this.width  = width;
-            this.height = height;
+            this.width  = canvas.clientWidth;
+            this.height = canvas.clientHeight;
             this.renderer.setSize(this.width, this.height, false);
             this.camera.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();

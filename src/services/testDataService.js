@@ -30,7 +30,7 @@ export class TestDataService extends DataService{
             "6": "5",
             "7": "1"};
         Object.keys(mapping).forEach(linkID => {
-            this.getLink(linkID).lyph = mapping[linkID]
+            this.getLink(linkID).conveyingLyph = mapping[linkID]
         });
 
         const hosts = {
@@ -60,8 +60,7 @@ export class TestDataService extends DataService{
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
                 for (let j = 0; j < NUM_LEVELS - 1; j++) {//
                     for (let k = 0; k < NUM_LAYERS + 1; k++) {//Create host lyph and its two layers
-                        let id = `${host}_${i+1}${j}_${k}`;
-                        this._lyphs.push({ "id": id, "name": id});
+                        this._lyphs.push({ "id": `${host}_${i+1}${j}_${k}`});
                     }
                     this._lyphs.find(lyph => lyph.id === `${host}_${i+1}${j}_0`).layers = [
                         `${host}_${i+1}${j}_1`,
@@ -79,7 +78,6 @@ export class TestDataService extends DataService{
                 for (let j = 0; j < NUM_LEVELS; j++) {
                     let node = NodeModel.fromJSON({
                         "id"    : `n${host}_${i+1}${j}`,
-                        "name"  : `n${host}_${i+1}${j}`,
                         //"tree"  : tree + 1, //TODO save in Tree
                         "host"  : host,
                         "type"  : NODE_TYPES.OMEGA,
@@ -101,7 +99,7 @@ export class TestDataService extends DataService{
                         //"level": j,
                         "length": OMEGA_LINK_LENGTH,
                         "type": LINK_TYPES.LINK,
-                        "lyph": `${host}_${i+1}${j}_0`,
+                        "conveyingLyph": `${host}_${i+1}${j}_0`,
                         "color": hosts[host].color
                     }, modelClasses));
                 }

@@ -98,7 +98,7 @@ export class DataService {
 
         //for each link, replace lyph id's with lyph model
         this._graphData.links.forEach(link => {
-            link.lyph = this._lyphs.find(lyph => lyph.id === link.lyph);
+            link.conveyingLyph = this._lyphs.find(lyph => lyph.id === link.conveyingLyph);
         });
 
         //place empty layout object to simplify checking for constraints

@@ -18,14 +18,21 @@ export class LinkModel extends Model {
     source;
     target;
     length;
-    lyph;   //Rename to conveyingLyph
+    conveyingLyph;   //Rename to conveyingLyph
     type;
+
+    constructor(id) {
+        super(id);
+
+        this.fields.text.push('length', 'type');
+        this.fields.objects.push('source', 'target', 'conveyingLyph');
+    }
 
     toJSON() {
         let res = super.toJSON();
         res.source = this.source && this.source.id;
         res.target = this.target && this.target.id;
-        res.lyph   = this.lyph && this.lyph.id;
+        res.conveyingLyph = this.conveyingLyph && this.conveyingLyph.id;
         res.type   = this.type;
         res.length = this.length;
         return res;
@@ -110,11 +117,11 @@ export class LinkModel extends Model {
         }
 
         //Icon (lyph)
-        if (this.lyph) {
-            this.lyph.createViewObjects(Object.assign(state, {axis: this}));
-            this.viewObjects['icon']      = this.lyph.viewObjects['main'];
-            if (this.lyph.viewObjects["label"]){
-                this.viewObjects["iconLabel"] = this.lyph.viewObjects["label"];
+        if (this.conveyingLyph) {
+            this.conveyingLyph.createViewObjects(Object.assign(state, {axis: this}));
+            this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
+            if (this.conveyingLyph.viewObjects["label"]){
+                this.viewObjects["iconLabel"] = this.conveyingLyph.viewObjects["label"];
             } else {
                 delete this.viewObjects["iconLabel"];
             }
@@ -122,10 +129,10 @@ export class LinkModel extends Model {
     }
 
     updateLyphObjects(state, newPosition){
-        if (this.lyph){
-            this.lyph.updateViewObjects(state);
-            this.viewObjects['icon'] = this.lyph.viewObjects["main"];
-            this.viewObjects['iconLabel'] = this.lyph.viewObjects["label"];
+        if (this.conveyingLyph){
+            this.conveyingLyph.updateViewObjects(state);
+            this.viewObjects['icon'] = this.conveyingLyph.viewObjects["main"];
+            this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
             //lyph
             let lyphObj = this.viewObjects['icon'];
@@ -138,12 +145,12 @@ export class LinkModel extends Model {
             }
 
             //position nodes on lyph border
-            if (this.lyph.borderObjects){
+            if (this.conveyingLyph.borderObjects){
                 if (this.boundaryNodes){
 
                     //let quaternion = new THREE.Quaternion();
                     //quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), this.direction);
-                    let quaternion = this.lyph.lyphObjects[state.method].quaternion;
+                    let quaternion = this.conveyingLyph.lyphObjects[state.method].quaternion;
 
                     let boundaryNodes =  this.boundaryNodes.map(id => state.graphData.nodes.find(node => node.id === id))
                         .filter(node => !!node);
@@ -151,7 +158,7 @@ export class LinkModel extends Model {
                         let nodesOnBorder = boundaryNodes.filter((node, i) =>
                             (this.boundaryNodeBorders[i] || 0) === j);
                         if (nodesOnBorder.length > 0){
-                            let points = this.lyph.borderObjects[j].getSpacedPoints(nodesOnBorder.length)
+                            let points = this.conveyingLyph.borderObjects[j].getSpacedPoints(nodesOnBorder.length)
                                 .map(p => new THREE.Vector3(p.x, p.y, 0));
                             points.forEach(p => {
                                 p.applyQuaternion(quaternion);
@@ -163,9 +170,9 @@ export class LinkModel extends Model {
                 }
             }
             if (this.internalLyphs){
-                const fociCenter = getCenterPoint(this.lyph.lyphObjects[state.method]) || newPosition;
+                const fociCenter = getCenterPoint(this.conveyingLyph.lyphObjects[state.method]) || newPosition;
                 state.graphData.links
-                    .filter(link =>  link.lyph && this.internalLyphs.includes(link.lyph.id))
+                    .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
                     .forEach(link => {
                         copyCoords(link.source.layout, fociCenter);
                         copyCoords(link.target.layout, fociCenter);
@@ -195,7 +202,7 @@ export class LinkModel extends Model {
      */
     updateViewObjects(state){
         if (!this.viewObjects["main"]
-            || (this.lyph && !this.lyph.lyphObjects[state.method])
+            || (this.conveyingLyph && !this.conveyingLyph.lyphObjects[state.method])
             || (!this.labelObjects[state.linkLabel] && this[state.linkLabel])){
             this.createViewObjects(state);
         }

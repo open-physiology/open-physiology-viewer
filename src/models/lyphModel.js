@@ -25,6 +25,14 @@ export class LyphModel extends Model {
     layers;
     topology;
 
+    constructor(id) {
+        super(id);
+
+        this.fields.text.push ('topology');
+        this.fields.objects.push('axis');
+        this.fields.lists.push('layers');
+    }
+
     toJSON() {
         let res = super.toJSON();
         res.layers   = this.layers && this.layers.forEach(layer => layer.id);

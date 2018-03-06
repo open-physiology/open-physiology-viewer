@@ -18,6 +18,12 @@ export class NodeModel extends Model {
     type;
     val;    //Currently used to compute radius
 
+    constructor(id) {
+        super(id);
+
+        this.fields.text.push ('host', 'type');
+    }
+
     toJSON() {
         let res = super.toJSON();
         res.host     = this.host;

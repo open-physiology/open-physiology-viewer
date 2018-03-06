@@ -7,7 +7,7 @@ import '../libs/provide-rxjs.js';
 @Component({
 	selector: 'test-app',
 	template: `<!--Three.js scene-->
-		<webGLScene *ngIf="_view === 'WebGL'"></webGLScene>
+		<webGLScene></webGLScene>
 	`,
 	styles: [`
 		:host {
@@ -18,9 +18,7 @@ import '../libs/provide-rxjs.js';
 		}
 	`]
 })
-export class TestApp {
-	_view = "WebGL";
-}
+export class TestApp {}
 
 /**
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!

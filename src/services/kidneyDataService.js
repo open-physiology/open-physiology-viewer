@@ -22,12 +22,6 @@ export class KidneyDataService extends DataService{
 
     init(){
         super.init();
-        //Assign lyphs to the core graph edges
-        //Kidney id = 1, attached to Gut'
-        //this._graphData.links[6].lyph = 1;
-        //Layers of Kidney: capsule – 4, parencyma – 3, hilum – 2,
-        //Inside parencyma: lobus – 5, layers of lobus: medula – 7, cortex - 6
-
         const hosts = {
             "5": {
                 "color": "#4444ff",
@@ -56,19 +50,15 @@ export class KidneyDataService extends DataService{
                 lyphKeys.forEach((key, j) => {
                     let node = NodeModel.fromJSON({
                         "id"       : `${host}${i}${j}`,
-                        "name"     : `${host}${i}${j}`,
                         "host"     : host,
                         "isRoot"   : (j === 0),
                         "color"    : hosts[host].color
                     },  modelClasses);
-                    //TODO save a root in the treeModel
+                    //TODO save root in the treeModel
                     //TODO Make sure the data below is kept in the treeModel
-                    // let node = {
                     //     "tree"  : i,
-                    //     "level" : j + 1,
-                    //if (j === lyphKeys.length - 1) {
-                    //    node["layout"].r = hostLink.length * (1 + 0.8 * hosts[host].sign * j / lyphKeys.length);
-                    //}
+                    //     "level" : j + 1
+
                     this._graphData.nodes.push(node);
                 });
             });
@@ -85,7 +75,7 @@ export class KidneyDataService extends DataService{
                         "external" : key,
                         "length": OMEGA_LINK_LENGTH,
                         "type": LINK_TYPES.LINK,
-                        "lyph": tree.lyphs[key],
+                        "conveyingLyph": tree.lyphs[key],
                         "color": hosts[host].color
                     }, modelClasses);
                     this._graphData.links.push(link);
@@ -101,7 +91,6 @@ export class KidneyDataService extends DataService{
         ["I", "J"].forEach((key, i) => {
             this._graphData.nodes.push(NodeModel.fromJSON({
                     "id"   : `57${i}`,
-                    "name" : `57${i}`,
                     "color": CONNECTOR_COLOR}, modelClasses)
             );
         });
@@ -115,7 +104,7 @@ export class KidneyDataService extends DataService{
                 "external" : Object.keys(connector_lyphs[i])[0],
                 "length": OMEGA_LINK_LENGTH * 1.2,
                 "type": LINK_TYPES.LINK,
-                "lyph": Object.values(connector_lyphs[i])[0],
+                "conveyingLyph": Object.values(connector_lyphs[i])[0],
                 "color": CONNECTOR_COLOR
             }, modelClasses));
         }
@@ -132,7 +121,6 @@ export class KidneyDataService extends DataService{
         //Add link from center to the center of mass for a coalescence group
         this._graphData.nodes.push(NodeModel.fromJSON({
                 "id"   : "k",
-                "name" : "k",
                 "type" : NODE_TYPES.CONTROL,
                 "controls" : ["S", "P", "R"]
             }, modelClasses)
@@ -144,8 +132,8 @@ export class KidneyDataService extends DataService{
             "target": "k",
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
-            //"lyph"  : "1", //Kidney
-            "lyph"  : "5", //Kidney lobus
+            //"conveyingLyph"  : "1", //Kidney
+            "conveyingLyph"  : "5", //Kidney lobus
 
             //TODO move this to the lyph definition
             "boundaryNodes" : ["7013", "506", "515"],
