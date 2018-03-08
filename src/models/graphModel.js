@@ -4,7 +4,7 @@ import { assign } from 'lodash-bound';
 export class GraphModel extends Model {
     nodes: [];
     links: [];
-    coalescences: [];
+    //coalescences: [];
 
     static fromJSON(json, modelClasses = {}) {
         json.class = json.class || "Graph";

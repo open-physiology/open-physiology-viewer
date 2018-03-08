@@ -78,7 +78,7 @@ export class TestDataService extends DataService{
                 for (let j = 0; j < NUM_LEVELS; j++) {
                     let node = NodeModel.fromJSON({
                         "id"    : `n${host}_${i+1}${j}`,
-                        //"tree"  : tree + 1, //TODO save in Tree
+                        //"tree"  : tree + 1, //TODO save in Tree (each node can be in many trees)
                         "host"  : host,
                         "type"  : NODE_TYPES.OMEGA,
                         "isRoot": (j === 0),
