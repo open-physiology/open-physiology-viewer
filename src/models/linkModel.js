@@ -4,7 +4,7 @@ import { assign } from 'lodash-bound';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
-import { align, bezierSemicircle, copyCoords, getBoundingBox, getCenterPoint } from '../three/utils';
+import { align, bezierSemicircle, copyCoords} from '../three/utils';
 
 export const LINK_TYPES = {
     PATH: "path",
@@ -110,89 +110,17 @@ export class LinkModel extends Model {
         if (!this.labelObjects[state.linkLabel] && this[state.linkLabel]){
             this.labelObjects[state.linkLabel] = new SpriteText2D(this[state.linkLabel], state.fontParams);
         }
-        if (this.labelObjects[state.linkLabel]){
-            this.viewObjects["label"] = this.labelObjects[state.linkLabel];
-        } else {
-            delete this.viewObjects["label"];
-        }
+
+        this.viewObjects["label"] = this.labelObjects[state.linkLabel];
+        if (!this.viewObjects["label"]){ delete this.viewObjects["label"]; }
 
         //Icon (lyph)
         if (this.conveyingLyph) {
             this.conveyingLyph.createViewObjects(Object.assign(state, {axis: this}));
             this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
-            if (this.conveyingLyph.viewObjects["label"]){
-                this.viewObjects["iconLabel"] = this.conveyingLyph.viewObjects["label"];
-            } else {
-                delete this.viewObjects["iconLabel"];
-            }
-        }
-    }
 
-    updateLyphObjects(state, newPosition){
-        if (this.conveyingLyph){
-            this.conveyingLyph.updateViewObjects(state);
-            this.viewObjects['icon'] = this.conveyingLyph.viewObjects["main"];
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
-
-            //lyph
-            let lyphObj = this.viewObjects['icon'];
-            if (lyphObj){
-                lyphObj.visible = state.showLyphs;
-                copyCoords(lyphObj.position, newPosition);
-                align(this, lyphObj);
-            } else {
-                delete this.viewObjects['icon'];
-            }
-
-            //position nodes on lyph border
-            if (this.conveyingLyph.borderObjects){
-                if (this.boundaryNodes){
-
-                    //let quaternion = new THREE.Quaternion();
-                    //quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), this.direction);
-                    let quaternion = this.conveyingLyph.lyphObjects[state.method].quaternion;
-
-                    let boundaryNodes =  this.boundaryNodes.map(id => state.graphData.nodes.find(node => node.id === id))
-                        .filter(node => !!node);
-                    for (let j = 0; j < 4; j++){
-                        let nodesOnBorder = boundaryNodes.filter((node, i) =>
-                            (this.boundaryNodeBorders[i] || 0) === j);
-                        if (nodesOnBorder.length > 0){
-                            let points = this.conveyingLyph.borderObjects[j].getSpacedPoints(nodesOnBorder.length)
-                                .map(p => new THREE.Vector3(p.x, p.y, 0));
-                            points.forEach(p => {
-                                p.applyQuaternion(quaternion);
-                                p.add(newPosition);
-                            });
-                            nodesOnBorder.forEach((node, i) => { copyCoords(node, points[i]); });
-                        }
-                    }
-                }
-            }
-            if (this.internalLyphs){
-                const fociCenter = getCenterPoint(this.conveyingLyph.lyphObjects[state.method]) || newPosition;
-                state.graphData.links
-                    .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
-                    .forEach(link => {
-                        copyCoords(link.source.layout, fociCenter);
-                        copyCoords(link.target.layout, fociCenter);
-                    });
-
-                //TODO force internal nodes to stay inside of the container lyph instead of just attracting to its center
-            }
-
-            //Lyph label
-            let lyphLabelObj = this.viewObjects["iconLabel"];
-            if (lyphLabelObj){
-                lyphLabelObj.visible = state.showLyphLabel;
-                copyCoords(lyphLabelObj.position, newPosition);
-                lyphLabelObj.position.addScalar(-5);
-            } else {
-                delete this.viewObjects["iconLabel"];
-            }
-        } else {
-            delete this.viewObjects['icon'];
-            delete this.viewObjects["iconLabel"];
+            if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
         }
     }
 
@@ -281,8 +209,17 @@ export class LinkModel extends Model {
             delete this.viewObjects["label"];
         }
 
-        this.updateLyphObjects(state, middle);
+        if (this.conveyingLyph){
+            this.conveyingLyph.updateViewObjects(state, middle);
+            this.viewObjects['icon'] = this.conveyingLyph.viewObjects["main"];
 
+            this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+            if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
+
+        } else {
+            delete this.viewObjects['icon'];
+            delete this.viewObjects["iconLabel"];
+        }
 
         if (linkPos){
             linkPos.needsUpdate = true;

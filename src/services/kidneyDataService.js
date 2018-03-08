@@ -56,7 +56,7 @@ export class KidneyDataService extends DataService{
                     },  modelClasses);
                     //TODO save root in the treeModel
                     //TODO Make sure the data below is kept in the treeModel
-                    //     "tree"  : i,
+                    //     "tree"  : ,
                     //     "level" : j + 1
 
                     this._graphData.nodes.push(node);
@@ -132,15 +132,15 @@ export class KidneyDataService extends DataService{
             "target": "k",
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
-            //"conveyingLyph"  : "1", //Kidney
-            "conveyingLyph"  : "5", //Kidney lobus
-
-            //TODO move this to the lyph definition
-            "boundaryNodes" : ["7013", "506", "515"],
-            "boundaryNodeBorders" : [3, 3, 3],
-            "internalLyphs" : ["105", "63", "77", "24", "27", "30", "33"]
-
+            "conveyingLyph"  : "1", //Kidney
+            //"conveyingLyph"  : "5", //Kidney lobus
         }, modelClasses));
+
+        //TODO replace to "5" KidneyLobus
+        let containerLyph = this._lyphs.find(lyph => lyph.id === "1");
+        containerLyph["boundaryNodes"]       = ["7013", "506", "515"];
+        containerLyph["boundaryNodeBorders"] = [3, 3, 3];
+        containerLyph["internalLyphs"]       = ["105", "63", "77", "24", "27", "30", "33"];
 
         super.afterInit();
     }

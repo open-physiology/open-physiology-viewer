@@ -3,7 +3,7 @@ const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
-import { d3Layer, d2LayerShape, d2LyphShape, d2LyphBorders, align} from '../three/utils';
+import { d3Layer, d2LayerShape, d2LyphShape, d2LyphBorders, align, copyCoords, getCenterPoint } from '../three/utils';
 
 const avgDimension = (obj, property) => {
     if (obj && obj[property]){
@@ -105,19 +105,23 @@ export class LyphModel extends Model {
                     layerObj.translateX(thickness * i);
 
                     layer.borderObject = layerShape;
-                    //TODO save also border array?
+                    //TODO save also array of borders?
 
-                    //Draw inside content
-                    if (layer.content){
-                        //TODO assign lyph axis to be the layer's border
-                        //TODO Create axis for the layer content lyph
-                   }
                     layer.lyphsObjects = layer.lyphsObjects || {};
                     layer.lyphsObjects[state.method] = layerObj;
                 }
                 lyphObj.add(layerObj);
-            });
 
+                if (layer.content){
+                    layer.borderObjects  = d2LyphBorders([lyphThickness, length + 2 * numLayers, lyphThickness / 2, ...layer.borderTypes]);
+                    //be default, content lyphs rotate around border #3...
+                    //TODO rewrite to derive rotational axis from data
+                    //layer.borderObjects[3];
+                    //layer.createViewObjects(Object.assign(state, {axis: this}));
+
+                }
+
+            });
         }
         this.viewObjects['main']  = this.lyphObjects[state.method];
 
@@ -136,20 +140,60 @@ export class LyphModel extends Model {
 
     }
 
-    updateViewObjects(state){
+    updateViewObjects(state, newPosition){
         if (!this.lyphObjects[state.method] ||
             !(this.labelObjects[state.iconLabel] && this[state.iconLabel])){
             this.createViewObjects(state);
         }
-
         this.viewObjects['main']  = this.lyphObjects[state.method];
 
+        if (this.lyphObjects[state.method]){
+            this.lyphObjects[state.method].visible = state.showLyphs;
+            copyCoords(this.lyphObjects[state.method].position, newPosition);
+            align(this.axis, this.lyphObjects[state.method]);
+        }
+        //position nodes on lyph border
+        if (this.borderObjects){
+            if (this.boundaryNodes){
+                let quaternion = this.lyphObjects[state.method].quaternion;
+
+                let boundaryNodes =  this.boundaryNodes.map(id => state.graphData.nodes.find(node => node.id === id))
+                    .filter(node => !!node);
+                for (let j = 0; j < 4; j++){
+                    let nodesOnBorder = boundaryNodes.filter((node, i) =>
+                    (this.boundaryNodeBorders[i] || 0) === j);
+                    if (nodesOnBorder.length > 0){
+                        let points = this.borderObjects[j].getSpacedPoints(nodesOnBorder.length)
+                            .map(p => new THREE.Vector3(p.x, p.y, 0));
+                        points.forEach(p => {
+                            p.applyQuaternion(quaternion);
+                            p.add(newPosition);
+                        });
+                        nodesOnBorder.forEach((node, i) => { copyCoords(node, points[i]); });
+                    }
+                }
+            }
+        }
+        if (this.internalLyphs){
+            const fociCenter = getCenterPoint(this.lyphObjects[state.method]) || newPosition;
+            state.graphData.links
+                .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
+                .forEach(link => {
+                    copyCoords(link.source.layout, fociCenter);
+                    copyCoords(link.target.layout, fociCenter);
+                });
+
+            //TODO force internal nodes to stay inside of the container lyph instead of just attracting to its center
+        }
+
         this.material.visible = !state.showLayers;
-        (this.viewObjects['main'].children || []).forEach(child =>
-            {child.visible = state.showLayers;});
+        (this.viewObjects['main'].children || []).forEach(child => {child.visible = state.showLayers;});
 
         if (this.labelObjects[state.iconLabel]){
             this.viewObjects['label'] = this.labelObjects[state.iconLabel];
+            this.viewObjects['label'].visible = state.showLyphLabel;
+            copyCoords(this.viewObjects['label'].position, newPosition);
+            this.viewObjects['label'].position.addScalar(-5);
         } else {
             delete this.viewObjects['label'];
         }

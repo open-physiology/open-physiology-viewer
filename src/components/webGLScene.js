@@ -4,7 +4,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
 
 import * as THREE from 'three';
-import * as TWEEN from 'es6-tween'
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
     forceX,
@@ -200,7 +199,6 @@ export class WebGLSceneComponent {
             this.highlightSelected();
         }
         this.controls.update();
-        TWEEN.update();
 
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(_ => this.animate());
