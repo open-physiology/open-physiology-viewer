@@ -27,7 +27,7 @@ module.exports = {
         new CopyWebpackPlugin([
             { from: 'test-app/index.html', to: 'test-app/index.html' },
             { from: 'test-app/favicon.ico', to: 'test-app/favicon.ico' },
-			{ from: 'styles', to: 'styles'}
+			{ from: 'test-app/styles', to: 'test-app/styles'}
         ]),
         new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core(\\|\/)/,

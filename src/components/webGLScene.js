@@ -13,6 +13,8 @@ import {
     forceRadial
 } from 'd3-force-3d';
 const OrbitControls = require('three-orbit-controls')(THREE);
+var WindowResize = require('three-window-resize')
+
 
 //TODO dataset toggle group should be external ideally and supply data services in constructor of this component
 import {TestDataService}   from '../services/testDataService';
@@ -25,7 +27,7 @@ import {ModelInfoPanel} from './modelInfo';
     selector: 'webGLScene',
     template: `
         <section class="w3-row">
-            <section class="w3-threequarter">
+            <section id="canvasContainer" class="w3-threequarter">
                 <canvas #canvas></canvas>
             </section>
             <section stop-propagation class="w3-quarter">
@@ -35,8 +37,9 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated
                         <input type="radio" name="dataset" (change)="toggleDataset('kidney')" checked/>
                         Kidney
-                    </fieldset>                    
-                    
+                    </fieldset>
+
+
                     <fieldset>
                         <legend>Labels:</legend>
                         <input type="checkbox" name="node_label" (change)="toggleNodeLabels()" checked/> Node
@@ -78,9 +81,9 @@ import {ModelInfoPanel} from './modelInfo';
                     <fieldset>
                         <legend>Lyphs:</legend>
                         <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                        <input [disabled]="!_showLyphs" 
+                        <input [disabled]="!_showLyphs"
                                type="checkbox" name="layers" (change)="toggleLayers()" checked/> Layers
-                        
+
                         <fieldset [disabled]="!_showLyphs">
                             <legend>Lyph icon:</legend>
                             <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')"/> 2D
@@ -102,7 +105,7 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
                         <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
-                    
+
                 </section>
                 <section class="w3-content w3-padding-top">
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
@@ -113,6 +116,8 @@ import {ModelInfoPanel} from './modelInfo';
     styles: [`
         canvas {
             width:  100%;
+            height:  100%;
+
         }
     `]
 })
@@ -121,8 +126,12 @@ export class WebGLSceneComponent {
     scene    : THREE.Scene;
     camera   : THREE.PerspectiveCamera;
     renderer : THREE.WebGLRenderer;
+    canvasContainer;
     controls;
     mouse;
+    windowResize;
+    width;
+    height;
     _graphData = {};
     _kidneyDataService;
     _testDataService;
@@ -152,16 +161,26 @@ export class WebGLSceneComponent {
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
 
+        this.canvasContainer = document.getElementById('canvasContainer');
+        this.width = this.canvasContainer.clientWidth;
+        this.height = this.canvasContainer.clientHeight;
+
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 
-        this.camera = new THREE.PerspectiveCamera(70, 1, 1, 1000);
+        this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
         this.camera.position.set(0, 100, 500);
 
         //this.controls = new TrackballControls(this.camera, container);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.scene = new THREE.Scene();
+
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+
+        // For resizing
+
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
         this.scene.add(ambientLight);
@@ -174,22 +193,28 @@ export class WebGLSceneComponent {
 
         window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
         window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
+        // this.windowResize = new WindowResize(this.renderer, this.camera)
 
-        this.resizeCanvasToDisplaySize(true);
+        this.resizeCanvasToDisplaySize();
         this.createHelpers();
         this.createGraph();
         this.animate();
     }
 
     resizeCanvasToDisplaySize(force) {
+
         const canvas = this.renderer.domElement;
-        if (force || canvas.width !==  canvas.clientWidth || canvas.height !== canvas.clientHeight) {
-            // you must pass false here or three.js sadly fights the browser
-            this.width  = canvas.clientWidth;
-            this.height = canvas.clientHeight;
-            this.renderer.setSize(this.width, this.height, false);
-            this.camera.aspect = this.width / this.height;
+        const width  = this.canvasContainer.clientWidth;
+        const height = this.canvasContainer.clientHeight;
+
+        const dimension = function(){ return { width, height } }
+
+        if (force || canvas.width !== width || canvas.height !== height) {
+            this.windowResize = new WindowResize(this.renderer, this.camera, dimension);
+            this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
+            window.dispatchEvent(new Event('resize'));
+            
         }
     }
 
