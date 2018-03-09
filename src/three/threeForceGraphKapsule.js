@@ -1,6 +1,3 @@
-import {LINK_TYPES} from '../models/linkModel';
-import {NODE_TYPES} from '../models/nodeModel';
-
 import {
     forceSimulation,
     forceLink,
@@ -11,14 +8,13 @@ import {
 import Kapsule from 'kapsule';
 import { MaterialFactory } from './materialFactory';
 
-//TODO handle drawing of domain-specific objects like omega trees outside
+import {GraphModel} from '../models/graphModel';
+import { modelClasses } from '../models/utils';
+
 export default Kapsule({
     props: {
         graphData: {
-            default: {
-                nodes: [],
-                links: []
-            },
+            default: GraphModel.fromJSON({nodes: [], links: []}, modelClasses),
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
         numDimensions: {
@@ -98,19 +94,10 @@ export default Kapsule({
             console.info('force-graph loading', state.graphData.nodes.length + ' nodes', state.graphData.links.length + ' links');
         }
 
-        // Add WebGL objects
         while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place
 
-        //Draw all graph nodes, except for control nodes
-        state.graphData.nodes.filter(node => node.type !== NODE_TYPES.CONTROL).forEach(node => {
-            node.createViewObjects(state);
-            Object.values(node.viewObjects).forEach(obj => state.graphScene.add(obj));
-        });
-
-        state.graphData.links.forEach(link => {
-            link.createViewObjects(state);
-            Object.values(link.viewObjects).forEach(obj=> state.graphScene.add(obj));
-        });
+        // Add WebGL objects
+        state.graphData.createViewObjects(state);
 
         // Feed data to force-directed layout
         let layout;
@@ -141,30 +128,7 @@ export default Kapsule({
                 state.onFrame = null;
             } else { layout['tick'](); }
 
-            // Update nodes position
-            state.graphData.nodes.forEach(node => {
-                node.updateViewObjects(state)
-            });
-
-            // Update links position for paths, compute positions of omega nodes
-            state.graphData.links.filter(link => link.type === LINK_TYPES.PATH).forEach(link => {
-                link.updateViewObjects(state)}
-            );
-
-            // Update links position for straight solid links
-            state.graphData.links.filter(link => link.type === LINK_TYPES.LINK).forEach(link => {
-                link.updateViewObjects(state)
-            });
-
-            //Update axis
-            state.graphData.links.filter(link => link.type === LINK_TYPES.AXIS).forEach(link => {
-                link.updateViewObjects(state)
-            });
-
-            //Update containers
-            state.graphData.links.filter(link => link.type === LINK_TYPES.CONTAINER).forEach(link => {
-                link.updateViewObjects(state)
-            });
+            state.graphData.updateViewObjects(state);
         }
     }
 });

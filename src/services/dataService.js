@@ -1,7 +1,9 @@
 import { modelClasses} from '../models/utils';
 import { LinkModel, LINK_TYPES }    from '../models/linkModel';
 import { NodeModel, NODE_TYPES }    from '../models/nodeModel';
-import { LyphModel }    from '../models/lyphModel';
+import { LyphModel } from '../models/lyphModel';
+import { GraphModel } from '../models/graphModel';
+
 import { schemePaired, schemeDark2} from 'd3-scale-chromatic';
 
 const colors = [...schemePaired, schemeDark2];
@@ -18,7 +20,7 @@ export class DataService {
     entitiesById = {};
 
     constructor(){
-        this._graphData = {};
+        this._graphData = GraphModel.fromJSON({}, modelClasses);
         this._lyphs = [];
         this._coalescencePairs = [];
     }
