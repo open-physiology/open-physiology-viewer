@@ -127,7 +127,7 @@ export class KidneyDataService extends DataService{
         );
 
         this._graphData.links.push(LinkModel.fromJSON({
-            "id": (this._graphData.links.length + 1).toString(),
+            "id"    : (this._graphData.links.length + 1).toString(),
             "source": "a",
             "target": "k",
             "length": 50,
@@ -136,9 +136,9 @@ export class KidneyDataService extends DataService{
             //"conveyingLyph"  : "5", //Kidney lobus
         }, modelClasses));
 
-        let containerLyph = this._lyphs.find(lyph => lyph.id === "1");
+        let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
         containerLyph["boundaryNodes"]       = ["7013", "506", "515"];
-        containerLyph["boundaryNodeBorders"] = [3, 3, 3];
+        containerLyph["boundaryNodeBorders"] = [1, 1, 1];
         containerLyph["internalLyphs"]       = ["105", "63", "77", "24", "27", "30", "33"];
 
         super.afterInit();

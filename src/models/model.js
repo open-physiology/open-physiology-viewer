@@ -11,7 +11,6 @@ export class Model {
     viewObjects; //Visualization of the model, e.g., WebGL/Three.js objects
     material;    //Material for the model visualizations
 
-
     constructor(id) {
         this.id = id;
         this.viewObjects = {};

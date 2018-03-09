@@ -32,9 +32,7 @@ export class GraphModel extends Model {
 
     updateViewObjects(state){
         // Update nodes position
-        this.nodes.forEach(node => {
-            node.updateViewObjects(state)
-        });
+        this.nodes.forEach(node => { node.updateViewObjects(state) });
 
         // Update links position for paths, compute positions of omega nodes
         this.links.filter(link => link.type === LINK_TYPES.PATH).forEach(link => {

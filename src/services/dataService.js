@@ -109,7 +109,6 @@ export class DataService {
             node.layout = node.layout || {};
         });
 
-
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
 
