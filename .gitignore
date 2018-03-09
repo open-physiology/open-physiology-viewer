@@ -1,6 +1,13 @@
 # Created by https://www.gitignore.io/api/node,webstorm
 # and then slightly modified
 
+### mac ##
+.DS_Store
+
+## dist folder
+dist
+
+
 ### Node ###
 # Logs
 logs
