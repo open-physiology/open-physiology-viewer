@@ -14,5 +14,18 @@ export const modelClasses = {
     "Coalescence": CoalescenceModel
 };
 
-
+export function avgDimension(obj, property){
+    if (obj && obj[property]){
+        if (obj[property].min){
+            if (obj[property].max){
+                return (obj[property].min + obj[property].max) / 2
+            } else {
+                return obj[property].min;
+            }
+        } else {
+            return obj[property].max || 1;
+        }
+    }
+    return 1;
+}
 

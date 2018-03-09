@@ -93,7 +93,8 @@ export class DataService {
 
         //Replace content id with lyph model
         this._lyphs.filter(lyph => lyph.content).forEach(lyph => {
-            lyph.content = this._lyphs.find(lyph => lyph.id === lyph.content);
+            lyph.content = this._lyphs.find(x => x.id === lyph.content);
+            console.log("Lyph with content overriden", lyph.id, lyph.content);
         });
 
         //for each link, replace lyph id's with lyph model

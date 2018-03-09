@@ -266,6 +266,14 @@ export function align(axis, obj){
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
 }
 
+export function direction(source, target){
+    return (new THREE.Vector3(
+        target.x - source.x,
+        target.y - source.y,
+        target.z - source.z
+    )).normalize();
+}
+
 //Experiment with tube geometry to draw thick edges
 export function testSpline(curve){
     let numPoints = 100;

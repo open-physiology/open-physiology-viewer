@@ -40,7 +40,7 @@ export default Kapsule({
         linkResolution : { default: 50},
         showLyphs      : { default: true},
         showLayers     : { default: true},
-        method         : { default: '3d'},
+        method         : { default: '2d'},
         showNodeLabel  : { default: true},
         showLinkLabel  : { default: false},
         showLyphLabel  : { default: false},

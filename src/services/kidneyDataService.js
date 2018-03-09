@@ -136,7 +136,6 @@ export class KidneyDataService extends DataService{
             //"conveyingLyph"  : "5", //Kidney lobus
         }, modelClasses));
 
-        //TODO replace to "5" KidneyLobus
         let containerLyph = this._lyphs.find(lyph => lyph.id === "1");
         containerLyph["boundaryNodes"]       = ["7013", "506", "515"];
         containerLyph["boundaryNodeBorders"] = [3, 3, 3];

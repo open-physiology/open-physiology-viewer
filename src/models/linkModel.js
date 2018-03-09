@@ -4,7 +4,7 @@ import { assign } from 'lodash-bound';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
-import { align, bezierSemicircle, copyCoords} from '../three/utils';
+import { direction, bezierSemicircle, copyCoords} from '../three/utils';
 
 export const LINK_TYPES = {
     PATH: "path",
@@ -55,11 +55,7 @@ export class LinkModel extends Model {
     // }
 
     get direction(){
-        return (new THREE.Vector3(
-            this.target.x - this.source.x,
-            this.target.y - this.source.y,
-            this.target.z - this.source.z
-        )).normalize();
+        return direction(this.source, this.target.x);
     }
 
     get lyphSize(){
@@ -116,7 +112,8 @@ export class LinkModel extends Model {
 
         //Icon (lyph)
         if (this.conveyingLyph) {
-            this.conveyingLyph.createViewObjects(Object.assign(state, {axis: this}));
+            this.conveyingLyph.axis = this;
+            this.conveyingLyph.createViewObjects(state);
             this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
 
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
@@ -209,8 +206,10 @@ export class LinkModel extends Model {
             delete this.viewObjects["label"];
         }
 
+        this.center = middle;
+
         if (this.conveyingLyph){
-            this.conveyingLyph.updateViewObjects(state, middle);
+            this.conveyingLyph.updateViewObjects(state);
             this.viewObjects['icon'] = this.conveyingLyph.viewObjects["main"];
 
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];

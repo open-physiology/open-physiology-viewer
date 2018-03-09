@@ -50,7 +50,6 @@
     "webpack-dev-server": "^2.4.5"
   },
   "dependencies": {
-    "3d-force-graph": "^1.18.0",
     "@angular/animations": "^4.0.0",
     "@angular/common": "^4.0.0",
     "@angular/compiler": "^4.0.0",
@@ -60,9 +59,10 @@
     "@angular/platform-browser": "^4.0.0",
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
+    "@types/three": "^0.89.12",
     "accessor-fn": "^1.2.2",
-    "d3": "^4.12.2",
     "d3-force-3d": "^1.1.0",
+    "d3-scale-chromatic": "^1.2.0",
     "es6-tween": "^5.0.5",
     "install": "^0.10.2",
     "jquery": "^3.2.1",
@@ -72,7 +72,6 @@
     "lodash": "^4.17.4",
     "lodash-bound": "^1",
     "npm": "^5.6.0",
-    "qwest": "^4.5.0",
     "rxjs": "5",
     "three": "^0.86.0",
     "three-js-csg": "^72.0.0",
@@ -80,8 +79,6 @@
     "three-stats": "^1.0.1",
     "three-text2d": "^0.3.4",
     "tinycolor2": "^1.4.1",
-    "tween.js": "^16.6.0",
-    "utilities": "open-physiology/utilities",
     "zone.js": "^0.8.4"
   }
 }

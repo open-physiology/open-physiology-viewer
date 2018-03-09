@@ -82,9 +82,8 @@ import {ModelInfoPanel} from './modelInfo';
                         
                         <fieldset [disabled]="!_showLyphs">
                             <legend>Lyph icon:</legend>
-                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')"/> 2D
-                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"
-                                   checked/> 3D
+                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D
+                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D
                         </fieldset>
                     </fieldset>
 
