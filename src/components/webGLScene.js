@@ -211,8 +211,9 @@ export class WebGLSceneComponent {
             this.windowResize = new WindowResize(this.renderer, this.camera, dimension);
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
+            this.width = this.canvasContainer.clientWidth;
+            this.height = this.canvasContainer.clientHeight;
             window.dispatchEvent(new Event('resize'));
-            
         }
     }
 
@@ -375,7 +376,6 @@ export class WebGLSceneComponent {
             }
         }
     }
-
 
     onMouseMove(evt) {
         // calculate mouse position in normalized device coordinates
