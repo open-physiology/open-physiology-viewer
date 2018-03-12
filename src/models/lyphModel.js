@@ -129,7 +129,9 @@ export class LyphModel extends Model {
                             lyphSize: {thickness: 0.33 * length, length: thickness}
                         };
                         layer.content.axis = contentLyphAxis;
-                        layer.content.parent = layer;
+                        //'content' and 'container' are the opposites for the "Contains" relationship
+                        //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
+                        layer.content.container = layer;
                         layer.content.createViewObjects(state);
                         const contentLyph = layer.content.lyphObjects[state.method];
                         layerObj.add(contentLyph);
@@ -188,14 +190,15 @@ export class LyphModel extends Model {
                         let points = this.borderObjects[j].getSpacedPoints(nodesOnBorder.length)
                             .map(p => new THREE.Vector3(p.x, p.y, 0));
                         points.forEach(p => {
-                            //Shape transformation is affected also by the parent lyph/layer
-                            if (this.parent){
-                                let pQuaternion = this.parent.lyphObjects[state.method].quaternion;
+                            //Shape transformation is affected also by the container lyph/layer
+                            if (this.container){
+                                let pQuaternion = this.container.lyphObjects[state.method].quaternion;
                                 p.applyQuaternion(pQuaternion);
                             }
                             p.applyQuaternion(quaternion);
-                            if (this.parent){
-                                p.add(this.parent.center);
+
+                            if (this.container){
+                                p.add(this.container.center);
                             }
                             p.add(this.center);
                         });

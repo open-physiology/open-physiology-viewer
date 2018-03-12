@@ -55,7 +55,7 @@ export class LinkModel extends Model {
     // }
 
     get direction(){
-        return direction(this.source, this.target.x);
+        return direction(this.source, this.target);
     }
 
     get lyphSize(){
