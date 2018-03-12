@@ -132,13 +132,13 @@ export class KidneyDataService extends DataService{
             "target": "k",
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
-            "conveyingLyph"  : "1", //Kidney
-            //"conveyingLyph"  : "5", //Kidney lobus
+            //"conveyingLyph"  : "1", //Kidney
+            "conveyingLyph"  : "5", //Kidney lobus
         }, modelClasses));
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
         containerLyph["boundaryNodes"]       = ["7013", "506", "515"];
-        containerLyph["boundaryNodeBorders"] = [1, 1, 1];
+        containerLyph["boundaryNodeBorders"] = [3, 3, 3];
         containerLyph["internalLyphs"]       = ["105", "63", "77", "24", "27", "30", "33"];
 
         super.afterInit();

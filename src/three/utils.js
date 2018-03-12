@@ -274,6 +274,19 @@ export function direction(source, target){
     )).normalize();
 }
 
+export function translate(object, offset, direction) {
+    if (offset <= 0) return false;
+    if (!(object instanceof THREE.Object3D)) return false;
+    if (!(direction instanceof THREE.Vector3)) return false;
+
+    direction.normalize();
+    object.position.x += offset * direction.x;
+    object.position.y += offset * direction.y;
+    object.position.z += offset * direction.z;
+
+    return true;
+}
+
 //Experiment with tube geometry to draw thick edges
 export function testSpline(curve){
     let numPoints = 100;

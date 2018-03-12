@@ -3,7 +3,8 @@ const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
-import { d3Layer, d2Layer, d2Lyph, d2LyphBorders, align, direction, copyCoords, getCenterPoint } from '../three/utils';
+import { d3Layer, d2Layer, d2Lyph, d2LyphBorders, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
+import { LINK_TYPES } from './linkModel';
 
 export class LyphModel extends Model {
     axis; //TODO there can be several axes for coalescing lyphs
@@ -44,13 +45,27 @@ export class LyphModel extends Model {
 
     get center(){
         //lyph's center = the center of its rotational axis
-        if (this.axis) {return this.axis.center; }
-        //if there is no axis, return the global position of the visualization object
         let res = new THREE.Vector3();
+
+        if (this.axis) {
+            res = this.axis.center;
+            if (this.offset) {
+                translate(res, this.offset, this.parent.axis);
+            }
+            return res;
+        }
+        //if there is no axis, return the global position of the visualization object
         if (this.viewObjects["main"]){
             res.setFromMatrixPosition( this.viewObjects["main"].matrixWorld );
         }
         return res;
+    }
+
+    get polygonOffsetFactor(){
+        if (this.container) {
+            return this.container.material.polygonOffsetFactor - 2;
+        }
+        return (this.axis && this.axis.type !== LINK_TYPES.CONTAINER)? -3: 0;
     }
 
     /**
@@ -68,7 +83,10 @@ export class LyphModel extends Model {
             this.width = numLayers * thickness;
             this.height = length;
             if (!this.material) {
-                this.material = state.materialRepo.createMeshBasicMaterial({color: this.color});
+                this.material = state.materialRepo.createMeshBasicMaterial({
+                    color: this.color,
+                    polygonOffsetFactor: this.polygonOffsetFactor
+                });
                 this.material.visible = false; //Do not show overlaying lyph shape
             }
             let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, this.width / 2, ...this.borderTypes], this.material);
@@ -81,7 +99,8 @@ export class LyphModel extends Model {
             //Layers
             (this.layers || []).forEach((layer, i) => {
                 if (!layer.material) {
-                    layer.material = state.materialRepo.createMeshBasicMaterial({color: layer.color});
+                    layer.material = state.materialRepo.createMeshBasicMaterial({color: layer.color,
+                        polygonOffsetFactor: this.material.polygonOffsetFactor - 1});
                 }
                 layer.width  = thickness;
                 layer.height = length;
@@ -133,6 +152,9 @@ export class LyphModel extends Model {
                         //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
                         layer.content.container = layer;
                         layer.content.createViewObjects(state);
+                        //TODO assign layer its own axis which is a parallel line to the link
+                        layer.parent = this;
+                        layer.offset = new THREE.Vector3(thickness * i, 0, 0);
                         const contentLyph = layer.content.lyphObjects[state.method];
                         layerObj.add(contentLyph);
                     }
@@ -197,9 +219,7 @@ export class LyphModel extends Model {
                             }
                             p.applyQuaternion(quaternion);
 
-                            if (this.container){
-                                p.add(this.container.center);
-                            }
+                            if (this.container){ p.add(this.container.center); }
                             p.add(this.center);
                         });
                         nodesOnBorder.forEach((node, i) => { copyCoords(node, points[i]); });

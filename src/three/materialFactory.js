@@ -8,7 +8,7 @@ const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : 
  * A class that creates various types of reusable three.js materials of required color
  */
 export class MaterialFactory {
-    defaultParams = {}; //TODO define default values for all material properties
+    defaultParams = {};
 
     /**
      * Constructor of the material factory class
@@ -16,45 +16,46 @@ export class MaterialFactory {
      */
     constructor(params = {}) {
         this.defaultParams = params;
-        if (!this.defaultParams["color"]){
-            this.defaultParams["color"] = "#666";
+        if (this.defaultParams.color === undefined){
+            this.defaultParams.color = "#666";
         }
+        if (this.defaultParams.polygonOffset === undefined) {
+            this.defaultParams.polygonOffset = true;
+        }
+        if (this.defaultParams.polygonOffsetUnits === undefined){
+            this.defaultParams.polygonOffsetUnits = 1;
+        }
+        if (this.defaultParams.polygonOffsetFactor === undefined){
+            this.defaultParams.polygonOffsetFactor = this.defaultParams.polygonOffsetFactor || 0;
+        }
+        this.defaultParams.side = this.defaultParams.side || THREE.DoubleSide;
+
     }
 
     createLineBasicMaterial(params = {}) {
-        return new THREE.LineBasicMaterial({
-            color      : colorStr2Hex(params.color || this.defaultParams.color),
-            transparent: params.transparent || this.defaultParams.transparent,
-            opacity    : params.opacity || this.defaultParams.opacity
-        });
+        let p = Object.assign({}, this.defaultParams, params);
+        p.color = colorStr2Hex(p.color);
+        return new THREE.LineBasicMaterial(p);
     }
 
     createLineDashedMaterial(params = {}) {
-       return new THREE.LineDashedMaterial({
-            color      : colorStr2Hex(params.color || this.defaultParams.color),
-            transparent: params.transparent || this.defaultParams.transparent,
-            scale      : params.scale    || 1,
-            dashSize   : params.dashSize || 3,
-            gapSize    : params.gapSize  || 2,
-            opacity    : params.opacity  || this.defaultParams.opacity
-       });
+        let p = Object.assign({}, this.defaultParams, params);
+        p.color = colorStr2Hex(p.color);
+        p.scale    = p.scale    || 1;
+        p.gapSize  = p.gapSize  || 2;
+        p.dashSize = p.dashSize || 3;
+        return new THREE.LineDashedMaterial(p);
     }
 
     createMeshBasicMaterial(params = {}){
-        return new THREE.MeshBasicMaterial({
-            color      : colorStr2Hex(params.color || this.defaultParams.color),
-            transparent: params.transparent || this.defaultParams.transparent,
-            opacity    : params.opacity || this.defaultParams.opacity,
-            side       : params.side || THREE.DoubleSide
-        });
+        let p = Object.assign({}, this.defaultParams, params);
+        p.color = colorStr2Hex(p.color);
+        return new THREE.MeshBasicMaterial(p);
     }
 
     createMeshLambertMaterial(params = {}){
-        return new THREE.MeshLambertMaterial({
-            color      : colorStr2Hex(params.color || this.defaultParams.color),
-            transparent: params.transparent || this.defaultParams.transparent,
-            opacity    : params.opacity || this.defaultParams.opacity,
-            side       : params.side || THREE.DoubleSide
-        });
+        let p = Object.assign({}, this.defaultParams, params);
+        p.color = colorStr2Hex(p.color);
+        return new THREE.MeshLambertMaterial(p);
     }
 }

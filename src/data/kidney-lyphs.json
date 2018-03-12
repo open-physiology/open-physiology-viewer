@@ -64,7 +64,7 @@
     {
       "id":"5",
       "name": "Kidney lobus",
-      "topology": "BAG2",
+      "topology": "BAG",
       "thickness": {
         "min": "2",
         "max": "2"
@@ -82,7 +82,7 @@
     {
       "id":"6",
       "name": "Cortex of kidney lobus",
-      "topology": "BAG2",
+      "topology": "BAG",
       "thickness": {
         "min": "2",
         "max": "2"
@@ -95,7 +95,7 @@
     {
       "id":"7",
       "name": "Medulla of kidney lobus",
-      "topology": "BAG2",
+      "topology": "BAG",
       "thickness": {
         "min": "2",
         "max": "2"
