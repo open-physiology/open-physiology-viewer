@@ -29,12 +29,12 @@ export class MaterialFactory {
             this.defaultParams.polygonOffsetFactor = this.defaultParams.polygonOffsetFactor || 0;
         }
         this.defaultParams.side = this.defaultParams.side || THREE.DoubleSide;
-
     }
 
     createLineBasicMaterial(params = {}) {
         let p = Object.assign({}, this.defaultParams, params);
         p.color = colorStr2Hex(p.color);
+        p.linewidth = p.linewidth || 3;
         return new THREE.LineBasicMaterial(p);
     }
 

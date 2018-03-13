@@ -18,7 +18,7 @@ export default Kapsule({
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
         numDimensions: {
-            default: 3,
+            default: 2,
             onChange(numDim, state) {
                 if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
 
@@ -35,7 +35,7 @@ export default Kapsule({
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
         linkResolution : { default: 50},
         showLyphs      : { default: true},
-        showLayers     : { default: true},
+        showLayers     : { default: false}, //TODO replace with true
         method         : { default: '2d'},
         showNodeLabel  : { default: true},
         showLinkLabel  : { default: false},
@@ -47,7 +47,6 @@ export default Kapsule({
             font: '10px Arial', fillStyle: '#888', antialias: true }
         },
         opacity        : { default: 0.3 },
-        axisLength     : { default: 400 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
@@ -67,7 +66,7 @@ export default Kapsule({
             return this;
         },
         tickFrame: function(state) {
-            if(state.onFrame) state.onFrame();
+            if (state.onFrame) { state.onFrame(); }
             return this;
         }
     },
@@ -115,7 +114,7 @@ export default Kapsule({
             .links(state.graphData.links);
 
         // Initial ticks before starting to render
-        for (let i=0; i < state.warmupTicks; i++) { layout['tick'](); }
+        for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }
 
         let cntTicks = 0;
         const startTickTime = new Date();

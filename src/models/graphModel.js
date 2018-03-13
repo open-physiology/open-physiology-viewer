@@ -17,7 +17,6 @@ export class GraphModel extends Model {
     }
 
     createViewObjects(state){
-
         //Draw all graph nodes, except for control nodes
         this.nodes.filter(node => node.type !== NODE_TYPES.CONTROL).forEach(node => {
             node.createViewObjects(state);
@@ -26,12 +25,12 @@ export class GraphModel extends Model {
 
         this.links.forEach(link => {
             link.createViewObjects(state);
-            Object.values(link.viewObjects).forEach(obj=> state.graphScene.add(obj));
+            Object.values(link.viewObjects).forEach(obj => state.graphScene.add(obj));
         });
     }
 
     updateViewObjects(state){
-        // Update nodes position
+        // Update nodes positions
         this.nodes.forEach(node => { node.updateViewObjects(state) });
 
         // Update links position for paths, compute positions of omega nodes

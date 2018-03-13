@@ -6,9 +6,10 @@ import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
 
 export const NODE_TYPES = {
+    FIXED  : "fixed",
     CORE   : "core",
     CONTROL: "control",
-    OMEGA: 'omega'
+    OMEGA  : 'omega'
 };
 
 export class NodeModel extends Model {
@@ -51,7 +52,11 @@ export class NodeModel extends Model {
             let geometry = new THREE.SphereGeometry(Math.cbrt(this.val || 1) * state.nodeRelSize,
                 state.nodeResolution, state.nodeResolution);
             if (!this.material){
-                this.material = state.materialRepo.createMeshLambertMaterial({color: this.color});
+                this.material = state.materialRepo.createMeshLambertMaterial({
+                    color: this.color,
+                    //TODO pass the correct offsetFactor for node in 'state', computed for a given graph (nodes have to be placed on top of container lyphs)
+                    polygonOffsetFactor: -4 //Draw nodes in front of lyphs
+                });
             }
             let obj = new THREE.Mesh(geometry, this.material);
             // Attach node data
@@ -83,8 +88,10 @@ export class NodeModel extends Model {
             || (!this.labelObjects[state.iconLabel] && this[state.nodeLabel])
         ){ this.createViewObjects(state); }
 
-        //TODO move code to reposition dependent nodes here?
-
+        //Replace node coordinates with given ones
+        if (this.type === NODE_TYPES.FIXED){
+            copyCoords(this, this.layout);
+        }
         copyCoords(this.viewObjects["main"].position, this);
 
         //Labels

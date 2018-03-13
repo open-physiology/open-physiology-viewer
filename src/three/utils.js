@@ -288,14 +288,8 @@ export function translate(object, offset, direction) {
 }
 
 //Experiment with tube geometry to draw thick edges
-export function testSpline(curve){
-    let numPoints = 100;
-    let tube = new THREE.TubeGeometry(curve, numPoints, 0.5, 20, false);
-    let mesh = new THREE.Mesh(tube, new THREE.MeshNormalMaterial({
-        opacity: 0.9,
-        transparent: true
-    }));
-    return mesh;
+export function thickLine(curve, material){
+    return  new THREE.Mesh(new THREE.TubeGeometry(curve, 100, 0.5, 20, false), material);
 }
 
 export function getBoundingBox(mesh) {

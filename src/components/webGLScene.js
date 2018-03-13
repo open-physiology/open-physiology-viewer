@@ -3,7 +3,35 @@ import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
 
+Object.unfreeze = function (o) {
+    let oo = undefined;
+    if (o instanceof Array) {
+        oo = [];
+        let clone = function (v) { oo.push(v) };
+        o.forEach(clone)
+    }
+    else if (o instanceof String) {
+        oo = new String(o).toString()
+    }
+    else if (typeof o == 'object') {
+        oo = {}
+        for (let property in o) {
+            oo[property] = o[property]
+        }
+    }
+    return oo
+};
+
 import * as THREE from 'three';
+
+// window.THREE = Object.unfreeze(require('three'));
+// require('three/examples/js/renderers/Projector');
+// require('three/examples/js/renderers/CanvasRenderer');
+// require('three/examples/js/controls/OrbitControls');
+
+const OrbitControls = require('three-orbit-controls')(THREE);
+
+
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
     forceX,
@@ -11,9 +39,8 @@ import {
     forceZ,
     forceRadial
 } from 'd3-force-3d';
-const OrbitControls = require('three-orbit-controls')(THREE);
-var WindowResize = require('three-window-resize')
 
+const WindowResize = require('three-window-resize');
 
 //TODO dataset toggle group should be external ideally and supply data services in constructor of this component
 import {TestDataService}   from '../services/testDataService';
@@ -37,7 +64,6 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="radio" name="dataset" (change)="toggleDataset('kidney')" checked/>
                         Kidney
                     </fieldset>
-
 
                     <fieldset>
                         <legend>Labels:</legend>
@@ -81,7 +107,7 @@ import {ModelInfoPanel} from './modelInfo';
                         <legend>Lyphs:</legend>
                         <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
                         <input [disabled]="!_showLyphs"
-                               type="checkbox" name="layers" (change)="toggleLayers()" checked/> Layers
+                               type="checkbox" name="layers" (change)="toggleLayers()"/> Layers
 
                         <fieldset [disabled]="!_showLyphs">
                             <legend>Lyph icon:</legend>
@@ -92,9 +118,8 @@ import {ModelInfoPanel} from './modelInfo';
 
                     <fieldset>
                         <legend>Dimensions:</legend>
-                        <input type="radio" name="num_dimensions" (change)="toggleDimensions(2)"/> 2D
-                        <input type="radio" name="num_dimensions" (change)="toggleDimensions(3)"
-                               checked/> 3D
+                        <input type="radio" name="num_dimensions" (change)="toggleDimensions(2)" checked/> 2D
+                        <input type="radio" name="num_dimensions" (change)="toggleDimensions(3)"/> 3D
                     </fieldset>
 
                     <fieldset>
@@ -103,11 +128,13 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
                         <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
-
+                    <!--<button class="w3-button w3-right w3-lightgray" (onclick)="restart()">Restart</button>-->
                 </section>
+
                 <section class="w3-content w3-padding-top">
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
                 </section>
+                
             </section>
         </section>
     `,
@@ -121,9 +148,9 @@ import {ModelInfoPanel} from './modelInfo';
 })
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
-    scene    : THREE.Scene;
-    camera   : THREE.PerspectiveCamera;
-    renderer : THREE.WebGLRenderer;
+    scene;
+    camera;
+    renderer;
     canvasContainer;
     controls;
     mouse;
@@ -146,7 +173,7 @@ export class WebGLSceneComponent {
 
     constructor() {
         this._showLyphs  = true;
-        this._showLayers = true;
+        this._showLayers = false; //true; //TODO uncomment for WebGL renderer
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
@@ -164,6 +191,7 @@ export class WebGLSceneComponent {
         this.height = this.canvasContainer.clientHeight;
 
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+        //this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 
         this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
@@ -279,6 +307,14 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
+
+    restart(){
+        this.graph.numDimensions(1); //TODO replace with proper simulation restart
+        console.log("I was called!");
+        this.graph.numDimensions(2); //TODO replace with proper simulation restart
+    }
+
+
     highlightSelected(){
         let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
         vector.unproject( this.camera );
@@ -309,11 +345,14 @@ export class WebGLSceneComponent {
                     }
                 });
 
+                //const highlightColor = 0.5 * 0xffffff;
+                const highlightColor = 0xff0000;
+
                 // set a new color for closest object
-                this._highlighted.material.color.setHex( 0xff0000 );
+                this._highlighted.material.color.setHex( highlightColor );
                 (this._highlighted.children || []).forEach(child => {
                     if (child.visible && child.material){
-                        child.material.color.setHex( 0xff0000 );
+                        child.material.color.setHex( highlightColor );
                     }
                 });
 
@@ -453,7 +492,6 @@ export class WebGLSceneComponent {
             case 'lyph': { this.graph.iconLabel(property); }
         }
     }
-
 }
 
 @NgModule({

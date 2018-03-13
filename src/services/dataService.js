@@ -58,7 +58,8 @@ export class DataService {
         };
 
         //Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
-        coreGraphData.nodes.forEach(node  => node.type = NODE_TYPES.CORE);
+        //Node "a" must always stay in the center
+        coreGraphData.nodes.forEach(node  => (node.id === "a")? node.type = NODE_TYPES.FIXED: node.type = NODE_TYPES.CORE);
         this._graphData.nodes = coreGraphData.nodes.map(node => NodeModel.fromJSON(node, modelClasses));
         this._graphData.links = coreGraphData.links.map(node => LinkModel.fromJSON(node, modelClasses));
     }

@@ -99,8 +99,10 @@ export class LyphModel extends Model {
             //Layers
             (this.layers || []).forEach((layer, i) => {
                 if (!layer.material) {
-                    layer.material = state.materialRepo.createMeshBasicMaterial({color: layer.color,
-                        polygonOffsetFactor: this.material.polygonOffsetFactor - 1});
+                    layer.material = state.materialRepo.createMeshBasicMaterial({
+                        color: layer.color,
+                        polygonOffsetFactor: this.material.polygonOffsetFactor - 1
+                    });
                 }
                 layer.width  = thickness;
                 layer.height = length;

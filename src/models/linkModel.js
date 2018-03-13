@@ -79,13 +79,17 @@ export class LinkModel extends Model {
             if (this.type === LINK_TYPES.AXIS) {
                 geometry = new THREE.Geometry();
                 if (!this.material) {
+                    //axis can stay behind any other visual objects
                     this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
                 }
                 geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
             } else {
                 geometry = new THREE.BufferGeometry();
                 if (!this.material) {
-                    this.material = state.materialRepo.createLineBasicMaterial({color: this.color});
+                    this.material = state.materialRepo.createLineBasicMaterial({
+                        color: this.color,
+                        polygonOffsetFactor: -4
+                    });
                 }
                 if (this.type === LINK_TYPES.PATH) {
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
