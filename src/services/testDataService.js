@@ -30,7 +30,7 @@ export class TestDataService extends DataService{
             "6": "5",
             "7": "1"};
         Object.keys(mapping).forEach(linkID => {
-            this.getLink(linkID).conveyingLyph = mapping[linkID]
+            this._graphData.getLinkByID(linkID).conveyingLyph = mapping[linkID]
         });
 
         const hosts = {
@@ -72,7 +72,7 @@ export class TestDataService extends DataService{
 
         //Omega trees for demo layout, 5 trees per edge
         Object.keys(hosts).forEach((host, tree) => {
-            const hostLink = this.getLink(host);
+            const hostLink = this._graphData.getLinkByID(host);
             if (!hostLink) { return; }
             for (let i = 0; i < NUM_OMEGA_TREES; i++) {
                 for (let j = 0; j < NUM_LEVELS; j++) {

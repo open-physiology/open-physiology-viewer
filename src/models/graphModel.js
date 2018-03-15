@@ -16,6 +16,14 @@ export class GraphModel extends Model {
         return result;
     }
 
+    getNodeByID(id){
+        return this.nodes.find(node => node.id === id);
+    }
+
+    getLinkByID(id) {
+        return this.links.find(link => link.id === id);
+    }
+
     createViewObjects(state){
         //Draw all graph nodes, except for control nodes
         this.nodes.filter(node => node.type !== NODE_TYPES.CONTROL).forEach(node => {

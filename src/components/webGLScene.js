@@ -22,12 +22,11 @@ Object.unfreeze = function (o) {
     return oo
 };
 
-import * as THREE from 'three';
+//import * as THREE from 'three';
 
-// window.THREE = Object.unfreeze(require('three'));
-// require('three/examples/js/renderers/Projector');
-// require('three/examples/js/renderers/CanvasRenderer');
-// require('three/examples/js/controls/OrbitControls');
+window.THREE = Object.unfreeze(require('three'));
+require('three/examples/js/renderers/Projector');
+require('three/examples/js/renderers/CanvasRenderer');
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 
@@ -58,12 +57,12 @@ import {ModelInfoPanel} from './modelInfo';
             </section>
             <section stop-propagation class="w3-quarter">
                 <section class="w3-content">
-                    <fieldset>
-                        <legend>Dataset:</legend>
-                        <input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated
-                        <input type="radio" name="dataset" (change)="toggleDataset('kidney')" checked/>
-                        Kidney
-                    </fieldset>
+                    <!--<fieldset>-->
+                        <!--<legend>Dataset:</legend>-->
+                        <!--<input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated-->
+                        <!--<input type="radio" name="dataset" (change)="toggleDataset('kidney')" checked/>-->
+                        <!--Kidney-->
+                    <!--</fieldset>-->
 
                     <fieldset>
                         <legend>Labels:</legend>
@@ -103,24 +102,24 @@ import {ModelInfoPanel} from './modelInfo';
                     </fieldset>
 
 
-                    <fieldset>
-                        <legend>Lyphs:</legend>
-                        <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                        <input [disabled]="!_showLyphs"
-                               type="checkbox" name="layers" (change)="toggleLayers()"/> Layers
+                    <!--<fieldset>-->
+                        <!--<legend>Lyphs:</legend>-->
+                        <!--<input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs-->
+                        <!--<input [disabled]="!_showLyphs"-->
+                               <!--type="checkbox" name="layers" (change)="toggleLayers()"/> Layers-->
 
-                        <fieldset [disabled]="!_showLyphs">
-                            <legend>Lyph icon:</legend>
-                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D
-                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D
-                        </fieldset>
-                    </fieldset>
+                        <!--<fieldset [disabled]="!_showLyphs">-->
+                            <!--<legend>Lyph icon:</legend>-->
+                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D-->
+                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D-->
+                        <!--</fieldset>-->
+                    <!--</fieldset>-->
 
-                    <fieldset>
-                        <legend>Dimensions:</legend>
-                        <input type="radio" name="num_dimensions" (change)="toggleDimensions(2)" checked/> 2D
-                        <input type="radio" name="num_dimensions" (change)="toggleDimensions(3)"/> 3D
-                    </fieldset>
+                    <!--<fieldset>-->
+                        <!--<legend>Dimensions:</legend>-->
+                        <!--<input type="radio" name="num_dimensions" (change)="toggleDimensions(2)" checked/> 2D-->
+                        <!--<input type="radio" name="num_dimensions" (change)="toggleDimensions(3)"/> 3D-->
+                    <!--</fieldset>-->
 
                     <fieldset>
                         <legend>Helpers:</legend>
@@ -128,7 +127,12 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
                         <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
-                    <!--<button class="w3-button w3-right w3-lightgray" (onclick)="restart()">Restart</button>-->
+                </section>
+
+                <section class="w3-padding-top" style="padding-right: 3px;">
+                    <button class="w3-button w3-card w3-right w3-light-grey" (click)="update()">Update</button>
+                </section>
+                <section class="w3-clear">
                 </section>
 
                 <section class="w3-content w3-padding-top">
@@ -142,8 +146,8 @@ import {ModelInfoPanel} from './modelInfo';
         canvas {
             width:  100%;
             height:  100%;
-
         }
+        button:focus {outline:0 !important;}
     `]
 })
 export class WebGLSceneComponent {
@@ -177,6 +181,7 @@ export class WebGLSceneComponent {
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
+        this._numDimensions = 2;
     }
 
     ngAfterViewInit(){
@@ -190,8 +195,8 @@ export class WebGLSceneComponent {
         this.width = this.canvasContainer.clientWidth;
         this.height = this.canvasContainer.clientHeight;
 
-        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
-        //this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
+        //this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+        this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 
         this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
@@ -307,13 +312,9 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
-
-    restart(){
-        this.graph.numDimensions(1); //TODO replace with proper simulation restart
-        console.log("I was called!");
-        this.graph.numDimensions(2); //TODO replace with proper simulation restart
+    update(){
+        this.graph.numDimensions(this._numDimensions);
     }
-
 
     highlightSelected(){
         let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
@@ -470,6 +471,7 @@ export class WebGLSceneComponent {
     }
 
     toggleDimensions(numDimensions) {
+        this._numDimensions = numDimensions;
         this.graph.numDimensions(numDimensions);
     };
 

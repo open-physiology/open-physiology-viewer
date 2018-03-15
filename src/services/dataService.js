@@ -25,14 +25,6 @@ export class DataService {
         this._coalescencePairs = [];
     }
 
-    getLink(id) {
-        return this._graphData.links.find(link => link.id === id);
-    }
-
-    getNode(id) {
-        return this._graphData.nodes.find(node => node.id === id);
-    }
-
     init(){
         const coreGraphData = {
             nodes : [
@@ -67,8 +59,8 @@ export class DataService {
     afterInit(){
         //Create links for coalescence pairs to hold nodes aligned
         this._coalescencePairs.forEach(({node1, node2}) => {
-            this.getNode(node1).coalescence = node2;
-            this.getNode(node2).coalescence = node1;
+            this._graphData.getNodeByID(node1).coalescence = node2;
+            this._graphData.getNodeByID(node2).coalescence = node1;
             this._graphData.links.push(LinkModel.fromJSON({
                 "id"    : (this._graphData.links.length + 1).toString(),
                 "source": node1,

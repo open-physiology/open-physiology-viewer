@@ -179,7 +179,7 @@ export class LinkModel extends Model {
                     const delta = ((hostedNodes.length % 2) === 1) ? 0.4 : 0;
                     const offset = 1 / (hostedNodes.length + 1 + delta);
                     hostedNodes.forEach((node, i) => {
-                        const pos = curve.getPoint(offset * (i + 1));
+                        const pos = curve.getPoint(node.offset? node.offset: offset * (i + 1));
                         copyCoords(node, pos);
                     });
                 }

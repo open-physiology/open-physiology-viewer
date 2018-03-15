@@ -10,7 +10,7 @@ import { MaterialFactory } from './materialFactory';
 
 import {GraphModel} from '../models/graphModel';
 import { modelClasses } from '../models/utils';
-//TODO handle drawing of domain-specific objects like omega trees outside
+
 export default Kapsule({
     props: {
         graphData: {

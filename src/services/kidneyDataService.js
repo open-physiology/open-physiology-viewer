@@ -44,7 +44,7 @@ export class KidneyDataService extends DataService{
 
         //Omega tree nodes
         Object.keys(hosts).forEach((host) => {
-            //let hostLink = this.getLink(host);
+            //let hostLink = this._graphData.getLinkByID(host);
             hosts[host].trees.forEach((tree, i) => {
                 let lyphKeys = Object.keys(tree.lyphs);
                 lyphKeys.forEach((key, j) => {
@@ -54,6 +54,22 @@ export class KidneyDataService extends DataService{
                         "isRoot"   : (j === 0),
                         "color"    : hosts[host].color
                     },  modelClasses);
+
+                    if (node.isRoot){
+                        //explicitly define position of the root node on the hosting link:
+                        // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
+                        // To bypass the central node, shift the root close to L
+                        if (node.id === "500"){
+                            node.offset = 0.25;
+                        }
+                        if (node.id === "510"){
+                            node.offset = 0.75;
+                        }
+                        if (node.id === "700"){
+                            node.offset = 0.25;
+                        }
+                    }
+
                     //TODO save root in the treeModel
                     //TODO Make sure the data below is kept in the treeModel
                     //     "tree"  : ,
@@ -122,7 +138,7 @@ export class KidneyDataService extends DataService{
         this._graphData.nodes.push(NodeModel.fromJSON({
                 "id"   : "k",
                 "type" : NODE_TYPES.CONTROL,
-                "controls" : ["S", "P", "R"]
+                "controls" : ["a", "510", "R"]
             }, modelClasses)
         );
 
