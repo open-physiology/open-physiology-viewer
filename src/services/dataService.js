@@ -33,8 +33,8 @@ export class DataService {
                 {   "id"  : "t", "name": "t",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
                 {   "id"  : "a", "name": "a",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
                 {   "id"  : "h", "name": "h",      "val" : 10, "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
-                {   "id"  : "R", "name": "R",      "val" : 10, "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y": 75, "z":-25} },
-                {   "id"  : "L", "name": "L",      "val" : 10, "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y":-75, "z": 25} },
+                {   "id"  : "R", "name": "R",      "val" : 10, "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
+                {   "id"  : "L", "name": "L",      "val" : 10, "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
                 {   "id"  : "S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
                 {   "id"  : "P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
             ],

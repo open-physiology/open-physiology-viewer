@@ -5,15 +5,22 @@ import { Model } from './model';
 import { assign } from 'lodash-bound';
 import { d3Layer, d2Layer, d2Lyph, d2LyphBorders, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
 import { LINK_TYPES } from './linkModel';
+import { BorderModel } from './borderModel';
 
 export class LyphModel extends Model {
-    axis; //TODO there can be several axes for coalescing lyphs
+    //TODO there can be several axes for coalescing lyphs
+    axis;
     layers;
     topology;
+    borders = [];
+
+    //Visualization model
+    lyphObjects;
+    borderObjects;
+    labelObjects;
 
     constructor(id) {
         super(id);
-
         this.fields.text.push ('topology');
         this.fields.objects.push('axis');
         this.fields.lists.push('layers');
@@ -24,6 +31,7 @@ export class LyphModel extends Model {
         res.layers   = this.layers && this.layers.forEach(layer => layer.id);
         res.axis     = this.axis && this.axis.id;
         res.topology = this.topology;
+        res.border   = this.border.toJSON();
         return res;
     }
 
@@ -31,14 +39,24 @@ export class LyphModel extends Model {
         json.class = json.class || "Lyph";
         const result = super.fromJSON(json, modelClasses);
         result::assign(json); //TODO pick only valid properties
+
+        //Create lyph's border
+        if (!result.border){
+            result.border = {
+                id:   "b_" + result.id, //derive border id from lyph's id
+                type: result.topology
+            };
+        }
+        result.border = BorderModel.fromJSON(result.border, modelClasses);
+
         return result;
     }
 
     get borderTypes(){
         switch (this.topology) {
-            case "BAG"  : return [true, false];
+            case "BAG"  : return [true,  false];
             case "BAG2" : return [false, true];
-            case "CYST" : return [true, true];
+            case "CYST" : return [true,  true];
         }
         return [false, false];
     }
@@ -93,76 +111,75 @@ export class LyphModel extends Model {
             lyphObj.__data = this;
             this.lyphObjects[state.method] = lyphObj;
 
-            //TODO place borderObjects to border.viewObjects;
+
             this.borderObjects  = d2LyphBorders([this.width, this.height + 2 * numLayers, this.width / 2, ...this.borderTypes]);
 
             //Layers
-            // (this.layers || []).forEach((layer, i) => {
-            //     if (!layer.material) {
-            //         layer.material = state.materialRepo.createMeshBasicMaterial({
-            //             color: layer.color,
-            //             polygonOffsetFactor: this.material.polygonOffsetFactor - 1
-            //         });
-            //     }
-            //     layer.width  = thickness;
-            //     layer.height = length;
-            //
-            //     let layerObj;
-            //     if (state.method === "3d"){
-            //         layerObj = d3Layer(
-            //             [ thickness * i + 1,       length,         thickness / 2, ...layer.borderTypes],
-            //             [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.borderTypes],
-            //             layer.material);
-            //     } else {
-            //         //we do not call d2Lyph directly as we need to keep the border shape as well
-            //         layerObj = d2Layer(
-            //             [ thickness * i, length,         thickness / 2, ...layer.borderTypes],
-            //             [ thickness,     length + i * 2, thickness / 2, ...layer.borderTypes],
-            //             layer.material);
-            //         layerObj.translateX(thickness * i);
-            //     }
-            //     layerObj.__data = layer;
-            //     layer.lyphObjects = layer.lyphObjects || {};
-            //     layer.lyphObjects[state.method] = layerObj;
-            //     layer.viewObjects["main"] = layer.lyphObjects[state.method];
-            //
-            //     //We want straight parts of the borders for positioning lyphs
-            //     //d2LyphBorders includes rounded corners for bags or cysts
-            //     //to get straight lines, pass ...[false, false] instead of layer.borderTypes
-            //     //TODO BorderModel should allow us to choose relevant parts of borders without this trick
-            //     layer.borderObjects  = d2LyphBorders([thickness, length + i * 2, thickness / 2, false, false]);
-            //     //...layer.borderTypes]);
-            //
-            //     if (layer.content){
-            //
-            //         //TODO rewrite to derive rotational axis from data
-            //         if (layer.borderObjects[3]){
-            //             //be default, content lyphs rotate around border #3, i.e., layer.borderObjects[3]
-            //             let source = layer.borderObjects[3].getPoint(0);
-            //             let target = layer.borderObjects[3].getPoint(1);
-            //
-            //             //TODO create a border class and make it a rotational axis
-            //             let contentLyphAxis = {
-            //                 source: source,
-            //                 target: target,
-            //                 direction: direction(source, target),
-            //                 center: (source.clone().add(target)).multiplyScalar(0.5),
-            //                 lyphSize: {thickness: 0.33 * length, length: thickness}
-            //             };
-            //             layer.content.axis = contentLyphAxis;
-            //             //'content' and 'container' are the opposites for the "Contains" relationship
-            //             //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
-            //             layer.content.container = layer;
-            //             layer.content.createViewObjects(state);
-            //             //TODO assign layer its own axis which is a parallel line to the link
-            //             layer.parent = this;
-            //             layer.offset = new THREE.Vector3(thickness * i, 0, 0);
-            //             const contentLyph = layer.content.lyphObjects[state.method];
-            //             layerObj.add(contentLyph);
-            //         }
-            //     }
-            //     lyphObj.add(layerObj);
-            // });
+            (this.layers || []).forEach((layer, i) => {
+                if (!layer.material) {
+                    layer.material = state.materialRepo.createMeshBasicMaterial({
+                        color: layer.color,
+                        polygonOffsetFactor: this.material.polygonOffsetFactor - 1
+                    });
+                }
+                layer.width  = thickness;
+                layer.height = length;
+
+                let layerObj;
+                if (state.method === "3d"){
+                    layerObj = d3Layer(
+                        [ thickness * i + 1,       length,         thickness / 2, ...layer.borderTypes],
+                        [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.borderTypes],
+                        layer.material);
+                } else {
+                    //we do not call d2Lyph directly as we need to keep the border shape as well
+                    layerObj = d2Layer(
+                        [ thickness * i, length,         thickness / 2, ...layer.borderTypes],
+                        [ thickness,     length + i * 2, thickness / 2, ...layer.borderTypes],
+                        layer.material);
+                    layerObj.translateX(thickness * i);
+                }
+                layerObj.__data = layer;
+                layer.lyphObjects = layer.lyphObjects || {};
+                layer.lyphObjects[state.method] = layerObj;
+                layer.viewObjects["main"] = layer.lyphObjects[state.method];
+
+                //We want straight parts of the borders for positioning lyphs
+                //d2LyphBorders includes rounded corners for bags or cysts
+                //to get straight lines, pass ...[false, false] instead of layer.borderTypes
+                //TODO BorderModel should allow us to choose relevant parts of borders without this trick
+                layer.borderObjects  = d2LyphBorders([thickness, length + i * 2, thickness / 2, false, false]);
+                //...layer.borderTypes]);
+
+                if (layer.content){
+                    //TODO rewrite to derive rotational axis from data
+                    if (layer.borderObjects[3]){
+                        //be default, content lyphs rotate around border #3, i.e., layer.borderObjects[3]
+                        let source = layer.borderObjects[3].getPoint(0);
+                        let target = layer.borderObjects[3].getPoint(1);
+
+                        //TODO create a border class and make it a rotational axis
+                        let contentLyphAxis = {
+                            source: source,
+                            target: target,
+                            direction: direction(source, target),
+                            center: (source.clone().add(target)).multiplyScalar(0.5),
+                            lyphSize: {thickness: 0.33 * length, length: thickness}
+                        };
+                        layer.content.axis = contentLyphAxis;
+                        //'content' and 'container' are the opposites for the "Contains" relationship
+                        //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
+                        layer.content.container = layer;
+                        layer.content.createViewObjects(state);
+                        //TODO assign layer its own axis which is a parallel line to the link
+                        layer.parent = this;
+                        layer.offset = new THREE.Vector3(thickness * i, 0, 0);
+                        const contentLyph = layer.content.lyphObjects[state.method];
+                        layerObj.add(contentLyph);
+                    }
+                }
+                lyphObj.add(layerObj);
+            });
         }
         this.viewObjects['main']  = this.lyphObjects[state.method];
 
@@ -182,7 +199,6 @@ export class LyphModel extends Model {
 
     updateViewObjects(state){
         if (!this.axis) {return; }
-
         if (!this.lyphObjects[state.method] ||
             !(this.labelObjects[state.iconLabel] && this[state.iconLabel])){
             this.createViewObjects(state);
@@ -237,6 +253,24 @@ export class LyphModel extends Model {
                 .forEach(link => {
                     copyCoords(link.source.layout, fociCenter);
                     copyCoords(link.target.layout, fociCenter);
+
+                    //Project links with innerLyphs to the container lyph plane
+
+                    //if (state.method === "2d"){
+                        let plane = new THREE.Plane();
+                        let _start = new THREE.Vector3(this.axis.source.x, this.axis.source.y, this.axis.source.z || 0);
+                        let _end = new THREE.Vector3(this.axis.target.x, this.axis.target.y, this.axis.target.z || 0);
+                        plane.setFromCoplanarPoints(_start, _end, fociCenter);
+
+                        let _linkStart = new THREE.Vector3(link.source.x, link.source.y, link.source.z || 0);
+                        let _linkEnd = new THREE.Vector3(link.target.x, link.target.y, link.target.z || 0);
+
+                        _linkStart  = plane.projectPoint ( _linkStart);
+                        _linkEnd = plane.projectPoint ( _linkEnd );
+
+                        copyCoords(link.source, _linkStart);
+                        copyCoords(link.target, _linkEnd);
+                    //}
                 });
 
             //TODO force internal nodes to stay inside of the container lyph instead of just attracting to its center

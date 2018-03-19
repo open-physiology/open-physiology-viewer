@@ -18,7 +18,7 @@ export default Kapsule({
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
         numDimensions: {
-            default: 2,
+            default: 3,
             onChange(numDim, state) {
                 if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
 

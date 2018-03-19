@@ -181,7 +181,7 @@ export class WebGLSceneComponent {
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
-        this._numDimensions = 2;
+        this._numDimensions = 3;
     }
 
     ngAfterViewInit(){

@@ -1,16 +1,19 @@
-import { LyphModel } from './lyphModel';
-import { NodeModel } from './nodeModel';
-import { LinkModel } from './linkModel';
-import { TreeModel }  from './treeModel';
-import { GraphModel } from './graphModel';
+import { LyphModel }   from './lyphModel';
+import { BorderModel, BorderLinkModel } from './borderModel';
+import { NodeModel }   from './nodeModel';
+import { LinkModel }   from './linkModel';
+import { TreeModel }   from './treeModel';
+import { GraphModel }  from './graphModel';
 import { CoalescenceModel } from './coalescenceModel';
 
 export const modelClasses = {
-    "Lyph" : LyphModel,
-    "Node" : NodeModel,
-    "Link" : LinkModel,
-    "Tree" : TreeModel,
-    "Graph": GraphModel,
+    "Lyph"  : LyphModel,
+    "Node"  : NodeModel,
+    "Link"  : LinkModel,
+    "BorderLink": BorderLinkModel,
+    "Border": BorderModel,
+    "Tree"  : TreeModel,
+    "Graph" : GraphModel,
     "Coalescence": CoalescenceModel
 };
 

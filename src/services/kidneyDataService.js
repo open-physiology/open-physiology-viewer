@@ -125,9 +125,8 @@ export class KidneyDataService extends DataService{
             }, modelClasses));
         }
 
-        //Coalescences
+        //Coalescences, lyphs H~Q
         this._coalescencePairs = [
-            //lyphs H~Q
             // {"node1": "506", "node2": "7017"},
             // {"node1": "570", "node2": "7016"},
             // {"node1": "571", "node2": "7014"},
@@ -136,16 +135,27 @@ export class KidneyDataService extends DataService{
 
         //Add link from center to the center of mass for a coalescence group
         this._graphData.nodes.push(NodeModel.fromJSON({
-                "id"   : "k",
-                "type" : NODE_TYPES.CONTROL,
-                "controls" : ["a", "510", "R"]
+                "id"     : "k",
+                "name"   : "k",
+                "type"   : NODE_TYPES.FIXED,
+                "hidden": true,
+                "layout" : {x: 0, y: 0, z: 25}
+            }, modelClasses)
+        );
+        this._graphData.nodes.push(NodeModel.fromJSON({
+                "id"     : "l",
+                "type"   : NODE_TYPES.FIXED,
+                "hidden" : true,
+                "layout" : {x: 0, y: 70, z: 25},
+                //"type" : NODE_TYPES.CONTROL
+                //"controlNodes" : ["510", "R", "a"]
             }, modelClasses)
         );
 
         this._graphData.links.push(LinkModel.fromJSON({
             "id"    : (this._graphData.links.length + 1).toString(),
-            "source": "a",
-            "target": "k",
+            "source": "k",
+            "target": "l",
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
             //"conveyingLyph"  : "1", //Kidney

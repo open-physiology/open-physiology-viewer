@@ -8,7 +8,8 @@ export class Model {
     color;
     external;    //Reference to an external resource, currently is used to backtrack models vs original documents/mock-ups
 
-    viewObjects; //Visualization of the model, e.g., WebGL/Three.js objects
+    //Visualization model
+    viewObjects; //WebGL/Three.js objects
     material;    //Material for the model visualizations
 
     constructor(id) {
@@ -28,6 +29,7 @@ export class Model {
     }
 
     static fromJSON(json, modelClasses = {}) {
+        //TODO add validation
         const cls = modelClasses[json.class];
         const res       = new cls(json.id);
         res::assign(json::pick('id', 'name', 'class', 'color', 'external'));

@@ -58,6 +58,10 @@ export class LinkModel extends Model {
         return direction(this.source, this.target);
     }
 
+    /**
+     * Defines size of the conveying lyph based on the length of the link
+     * @returns {{length: number, thickness: number}}
+     */
     get lyphSize(){
         const scaleFactor = this.length? Math.log(this.length): 1;
         if (this.type === LINK_TYPES.CONTAINER){
@@ -67,8 +71,8 @@ export class LinkModel extends Model {
     }
 
     /**
-     * Create a three.js object
-     * @returns {Raycaster.params.Line|Line|SEA3D.Line|*}
+     * Create WebGL objects to visualize the link, labels and its conveying lyph
+     * @param state - layout parameters
      */
     createViewObjects(state){
         if (this.type === LINK_TYPES.COALESCENCE) {return; }
@@ -126,8 +130,8 @@ export class LinkModel extends Model {
     }
 
     /**
-     *
-     * @param state
+     * Update the position of the link and realign its conveying lyph
+     * @param state - layout parameters
      */
     updateViewObjects(state){
         if (!this.viewObjects["main"]
@@ -135,42 +139,25 @@ export class LinkModel extends Model {
             || (!this.labelObjects[state.linkLabel] && this[state.linkLabel])){
             this.createViewObjects(state);
         }
-
         const linkObj = this.viewObjects["main"];
-        if (!linkObj) { return; } //No visible link
 
-        let points, middle, linkPos;
         let _start = new THREE.Vector3(this.source.x, this.source.y, this.source.z || 0);
         let _end = new THREE.Vector3(this.target.x, this.target.y, this.target.z || 0);
+        let points = [_start, _end];
+        this.center = _start.clone().add(_end).multiplyScalar(0.5);
 
         switch(this.type){
             case LINK_TYPES.AXIS: {
+                if (!linkObj) { return; }
                 copyCoords(linkObj.geometry.vertices[0], this.source);
                 copyCoords(linkObj.geometry.vertices[1], this.target);
                 linkObj.geometry.verticesNeedUpdate = true;
                 linkObj.geometry.computeLineDistances();
-                middle = _start.clone().add(_end).multiplyScalar(0.5);
-                break;
-            }
-            case LINK_TYPES.CONTAINER: {
-                //CONTAINER
-                let controls = state.graphData.nodes.filter(node => (this.target.controls || []).includes(node.id));
-
-                middle = new THREE.Vector3(0, 0, 0);
-                controls.forEach(p => {middle.x += p.x; middle.y += p.y; middle.z += p.z});
-                middle = middle.multiplyScalar(1.0 / (controls.length || 1));
-                copyCoords(this.target, middle.clone().sub(_start).multiplyScalar(2));
-
-                //For testing, draw container link
-                // _start = new THREE.Vector3(this.source.x, this.source.y, this.source.z || 0);
-                // _end = new THREE.Vector3(this.target.x, this.target.y, this.target.z || 0);
-                // points = [_start, _end];
-
                 break;
             }
             case LINK_TYPES.PATH: {
                 const curve = bezierSemicircle(_start, _end);
-                middle = curve.getPoint(0.5);
+                this.center = curve.getPoint(0.5);
                 points = curve.getPoints(state.linkResolution - 1);
 
                 //Position omega tree roots
@@ -185,48 +172,39 @@ export class LinkModel extends Model {
                 }
                 break;
             }
-            case LINK_TYPES.LINK: {
-                points = [_start, _end];
-                middle = _start.clone().add(_end).multiplyScalar(0.5);
-                break;
-            }
-        }
-        //Update buffered geometries (LINK or PATH)
-        if (points){
-            linkPos = linkObj.geometry.attributes.position;
-            for (let i = 0; i < points.length; i++) {
-                linkPos.array[3 * i] = points[i].x;
-                linkPos.array[3 * i + 1] = points[i].y;
-                linkPos.array[3 * i + 2] = points[i].z;
-            }
         }
 
         let labelObj = this.viewObjects["label"];
         if (labelObj) {
             labelObj.visible = state.showLinkLabel;
-            copyCoords(labelObj.position, middle);
+            copyCoords(labelObj.position, this.center);
             labelObj.position.addScalar(5);
         } else {
             delete this.viewObjects["label"];
         }
 
-        this.center = middle;
-
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);
             this.viewObjects['icon'] = this.conveyingLyph.viewObjects["main"];
-
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
             if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
-
         } else {
             delete this.viewObjects['icon'];
             delete this.viewObjects["iconLabel"];
         }
 
-        if (linkPos){
-            linkPos.needsUpdate = true;
-            linkObj.geometry.computeBoundingSphere();
+        //Update buffered geometries
+        if (linkObj && linkObj.geometry.attributes){
+            let linkPos = linkObj.geometry.attributes.position;
+            if (linkPos){
+                for (let i = 0; i < points.length; i++) {
+                    linkPos.array[3 * i] = points[i].x;
+                    linkPos.array[3 * i + 1] = points[i].y;
+                    linkPos.array[3 * i + 2] = points[i].z;
+                }
+                linkPos.needsUpdate = true;
+                linkObj.geometry.computeBoundingSphere();
+            }
         }
     }
 }

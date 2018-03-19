@@ -25,8 +25,9 @@ export class GraphModel extends Model {
     }
 
     createViewObjects(state){
-        //Draw all graph nodes, except for control nodes
-        this.nodes.filter(node => node.type !== NODE_TYPES.CONTROL).forEach(node => {
+        //Draw all graph nodes, except for invisible nodes (node.type === CONTROL)
+        //TODO it may be useful to draw control nodes, so there may be needed a separate attribute for visibility
+        this.nodes.filter(node => !node.hidden).forEach(node => {
             node.createViewObjects(state);
             Object.values(node.viewObjects).forEach(obj => state.graphScene.add(obj));
         });
