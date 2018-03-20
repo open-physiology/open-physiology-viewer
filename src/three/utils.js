@@ -260,7 +260,6 @@ export function d2LyphBorders([thickness,  height,  radius,  top,  bottom]){
     return borders;
 }
 
-
 export function align(axis, obj){
     if (!obj || !axis) { return; }
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);

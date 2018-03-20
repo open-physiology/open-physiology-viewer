@@ -55,6 +55,9 @@ export class LinkModel extends Model {
     // }
 
     get direction(){
+        if (this.reversed){
+            return direction(this.target, this.source);
+        }
         return direction(this.source, this.target);
     }
 
@@ -75,6 +78,8 @@ export class LinkModel extends Model {
      * @param state - layout parameters
      */
     createViewObjects(state){
+
+        //Do not visualize coalescence links
         if (this.type === LINK_TYPES.COALESCENCE) {return; }
 
         //Link

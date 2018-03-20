@@ -12,6 +12,9 @@ export const NODE_TYPES = {
     OMEGA  : 'omega'
 };
 
+/**
+ * ApiNATOMY node
+ */
 export class NodeModel extends Model {
     host;
     isRoot; //TODO remove when treeModel is completed
@@ -21,8 +24,9 @@ export class NodeModel extends Model {
 
     constructor(id) {
         super(id);
-
         this.fields.text.push ('host', 'type');
+        this.val = this.val || 1; // Defines default radius
+
     }
 
     toJSON() {
@@ -49,7 +53,7 @@ export class NodeModel extends Model {
     createViewObjects(state) {
         //Nodes
         if (!this.viewObjects["main"]) {
-            let geometry = new THREE.SphereGeometry(Math.cbrt(this.val || 1) * state.nodeRelSize,
+            let geometry = new THREE.SphereGeometry(this.val * state.nodeRelSize,
                 state.nodeResolution, state.nodeResolution);
             if (!this.material){
                 this.material = state.materialRepo.createMeshLambertMaterial({
@@ -112,7 +116,7 @@ export class NodeModel extends Model {
             this.viewObjects['label'] = this.labelObjects[state.nodeLabel];
             this.viewObjects["label"].visible = state.showNodeLabel;
             copyCoords(this.viewObjects["label"].position, this.viewObjects["main"].position);
-            this.viewObjects["label"].position.addScalar(15);
+            this.viewObjects["label"].position.addScalar(5 + this.val * state.nodeRelSize);
         } else {
             delete this.viewObjects['label'];
         }

@@ -24,6 +24,11 @@ export class GraphModel extends Model {
         return this.links.find(link => link.id === id);
     }
 
+    getLinkByLyphID(lyphID) {
+        return this.links.find(link => link.conveyingLyph &&
+            (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
+    }
+
     createViewObjects(state){
         //Draw all graph nodes, except for invisible nodes (node.type === CONTROL)
         //TODO it may be useful to draw control nodes, so there may be needed a separate attribute for visibility

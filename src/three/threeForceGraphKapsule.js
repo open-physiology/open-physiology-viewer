@@ -30,7 +30,7 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize    : { default: 4 }, // volume per val unit
+        nodeRelSize    : { default: 3 }, // volume per val unit
         nodeId         : { default: 'id' },
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
         linkResolution : { default: 50},

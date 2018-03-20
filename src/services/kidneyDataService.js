@@ -1,13 +1,12 @@
 import { lyphs } from '../data/kidney-lyphs.json';
+import { trees } from '../data/kidney-mapping.json';
+
 import { modelClasses } from '../models/utils';
 import { NodeModel, NODE_TYPES } from '../models/nodeModel';
 import { LinkModel, LINK_TYPES } from '../models/linkModel';
 
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
-
-const OMEGA_LINK_LENGTH = 3; //% from axis length
-
 
 /**
  * Create omega trees and lyphs tfor Kidney scenario
@@ -27,21 +26,22 @@ export class KidneyDataService extends DataService{
                 "color": "#4444ff",
                 "sign" : -1,
                 "trees": [
-                    {"lyphs": {"B" : "99", "C" : "114", "D" : "51", "E" : "54", "F" : "57", "G" : "60", "H" : "77"}},
-                    {"lyphs": {"P" : "102", "O" : "107", "N" : "75", "M" : "72", "L" : "69", "K" : "66"}}
+                    {"lyphs": trees["Vascular"]["Arterial"]},
+                    {"lyphs": trees["Vascular"]["Venous"]}
                 ]
             },
             "7": {
                 "color": "#ff4444",
                 "sign" : 1,
-                "trees": [
-                    {"lyphs": {"B" : "108", "C": "111", "D": "81", "E": "84", "F": "87", "F'": "90", "G" : "93", "H": "94",
-                        "I" : "48", "J": "45", "K": "42", "L": "39", "M": "36", "N" : "33", "O": "30", "P": "27", "Q": "24", "end": "0"}
-                    }
-                ]
+                "trees": [ {"lyphs": trees["Urinary"]} ]
+                //TODO test to see if we still need "end" node
             }
         };
 
+        //Add an extra node to correctly end the Urinary tree
+        hosts["7"].trees[0].lyphs["end"] = 0;
+
+        const offsets = {"500": 0.25, "510": 0.65, "700": 0.25};
         //Omega tree nodes
         Object.keys(hosts).forEach((host) => {
             //let hostLink = this._graphData.getLinkByID(host);
@@ -55,21 +55,12 @@ export class KidneyDataService extends DataService{
                         "color"    : hosts[host].color
                     },  modelClasses);
 
-                    if (node.isRoot){
-                        //explicitly define position of the root node on the hosting link:
-                        // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
-                        // To bypass the central node, shift the root close to L
-                        if (node.id === "500"){
-                            node.offset = 0.25;
-                        }
-                        if (node.id === "510"){
-                            node.offset = 0.75;
-                        }
-                        if (node.id === "700"){
-                            node.offset = 0.25;
-                        }
+                    // explicitly define position of the root node on the hosting link:
+                    // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
+                    // To bypass the central node, shift the root close to L
+                    if (node.isRoot && offsets[node.id]){
+                        node.offset = offsets[node.id];
                     }
-
                     //TODO save root in the treeModel
                     //TODO Make sure the data below is kept in the treeModel
                     //     "tree"  : ,
@@ -84,15 +75,15 @@ export class KidneyDataService extends DataService{
                 Object.keys(tree.lyphs).forEach((key, j) => {
                     if (j === NUM_LEVELS - 1) { return; }
                     let link = LinkModel.fromJSON({
-                        "id": (this._graphData.links.length + 1).toString(),
-                        "source": `${host}${i}${j}`,
-                        "target": `${host}${i}${j + 1}`,
+                        "id"       : (this._graphData.links.length + 1).toString(),
+                        "source"   : `${host}${i}${j}`,
+                        "target"   : `${host}${i}${j + 1}`,
                         //"level": j,
                         "external" : key,
-                        "length": OMEGA_LINK_LENGTH,
-                        "type": LINK_TYPES.LINK,
-                        "conveyingLyph": tree.lyphs[key],
-                        "color": hosts[host].color
+                        "length"   : 2, //(host === "5")? 3: 2, //Urinary links shorter
+                        "type"     : LINK_TYPES.LINK,
+                        "conveyingLyph" : tree.lyphs[key],
+                        "color"         : hosts[host].color
                     }, modelClasses);
                     this._graphData.links.push(link);
                 });
@@ -100,9 +91,6 @@ export class KidneyDataService extends DataService{
         });
 
         //Connect leaves of two omega trees between nodes 506 and 515
-        const connector       = ["506", "570", "571", "515"];
-        const connector_lyphs = [{"H": "77"}, {"I": "63"}, {"J": "105"}];
-
         const CONNECTOR_COLOR = "#ff44ff";
         ["I", "J"].forEach((key, i) => {
             this._graphData.nodes.push(NodeModel.fromJSON({
@@ -111,27 +99,32 @@ export class KidneyDataService extends DataService{
             );
         });
 
+        const connector = ["505", "570", "571", "515"];
+        const connectorLabels = Object.keys(trees["Connector"]);
+        const connectorLyphs  = Object.values(trees["Connector"]);
+
         for (let i = 0 ; i < connector.length - 1; i++){
             this._graphData.links.push(LinkModel.fromJSON({
-                "id": (this._graphData.links.length + 1).toString(),
-                "source": connector[i],
-                "target": connector[i + 1],
+                "id"           : (this._graphData.links.length + 1).toString(),
+                "source"       : connector[i],
+                "target"       : connector[i + 1],
                 //"level": i,
-                "external" : Object.keys(connector_lyphs[i])[0],
-                "length": OMEGA_LINK_LENGTH * 1.2,
-                "type": LINK_TYPES.LINK,
-                "conveyingLyph": Object.values(connector_lyphs[i])[0],
-                "color": CONNECTOR_COLOR
+                "external"     : connectorLabels[i],
+                "length"       : 4,
+                "type"         : LINK_TYPES.LINK,
+                "conveyingLyph": connectorLyphs[i],
+                "color"        : CONNECTOR_COLOR
             }, modelClasses));
         }
 
-        //Coalescences, lyphs H~Q
-        this._coalescencePairs = [
-            // {"node1": "506", "node2": "7017"},
-            // {"node1": "570", "node2": "7016"},
-            // {"node1": "571", "node2": "7014"},
-            // {"node1": "515", "node2": "7013"}
-        ];
+        //Coalescences defined by node alignment
+        // this._coalescences = [
+        //     {"node1": "570", "node2": "7014"},
+        //     {"node1": "571", "node2": "7015"}
+        // ];
+
+        //Coalescences defined by lyph alignment
+        this._coalescences = [ ["78", "24"] ];
 
         //Add link from center to the center of mass for a coalescence group
         this._graphData.nodes.push(NodeModel.fromJSON({
@@ -147,7 +140,7 @@ export class KidneyDataService extends DataService{
                 "type"   : NODE_TYPES.FIXED,
                 "hidden" : true,
                 "layout" : {x: 0, y: 70, z: 25},
-                //"type" : NODE_TYPES.CONTROL
+                //"type" : NODE_TYPES.CONTROL //Determine node position based on other nodes
                 //"controlNodes" : ["510", "R", "a"]
             }, modelClasses)
         );
@@ -163,9 +156,15 @@ export class KidneyDataService extends DataService{
         }, modelClasses));
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
-        containerLyph["boundaryNodes"]       = ["7013", "506", "515"];
-        containerLyph["boundaryNodeBorders"] = [3, 3, 3];
         containerLyph["internalLyphs"]       = ["105", "63", "77", "24", "27", "30", "33"];
+
+        //TODO place nodes on lyph border
+        containerLyph["boundaryNodes"]       = ["7013", "505", "515"];
+        containerLyph["boundaryNodeBorders"] = [3, 3, 3];
+        //TODO process the following definition instead of above statements
+        // containerLyph.border = {
+        //     "0": {}, "1": {}, "2": {}, "3": {nodes: ["7013", "505", "515"]}
+        // };
 
         super.afterInit();
     }

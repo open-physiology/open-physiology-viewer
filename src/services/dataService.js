@@ -22,21 +22,21 @@ export class DataService {
     constructor(){
         this._graphData = GraphModel.fromJSON({}, modelClasses);
         this._lyphs = [];
-        this._coalescencePairs = [];
+        this._coalescences = [];
     }
 
     init(){
         const coreGraphData = {
             nodes : [
-                {   "id"  : "c", "name": "c",      "val" : 10, "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
-                {   "id"  : "n", "name": "n",      "val" : 10, "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
-                {   "id"  : "t", "name": "t",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
-                {   "id"  : "a", "name": "a",      "val" : 10, "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
-                {   "id"  : "h", "name": "h",      "val" : 10, "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
-                {   "id"  : "R", "name": "R",      "val" : 10, "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
-                {   "id"  : "L", "name": "L",      "val" : 10, "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
-                {   "id"  : "S", "name": "\u03A3", "val" : 10, "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
-                {   "id"  : "P", "name": "\u03C0", "val" : 10, "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
+                {   "id"  : "c", "name": "c",       "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
+                {   "id"  : "n", "name": "n",       "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
+                {   "id"  : "t", "name": "t",       "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
+                {   "id"  : "a", "name": "a",       "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
+                {   "id"  : "h", "name": "h",       "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
+                {   "id"  : "R", "name": "R",       "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
+                {   "id"  : "L", "name": "L",       "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
+                {   "id"  : "S", "name": "\u03A3",  "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
+                {   "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
                 {  "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
@@ -48,6 +48,8 @@ export class DataService {
                 {  "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
             ]
         };
+        //Make core nodes bigger
+        coreGraphData.nodes.forEach(node => {node.val = 3; });
 
         //Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
         //Node "a" must always stay in the center
@@ -58,17 +60,43 @@ export class DataService {
 
     afterInit(){
         //Create links for coalescence pairs to hold nodes aligned
-        this._coalescencePairs.forEach(({node1, node2}) => {
-            this._graphData.getNodeByID(node1).coalescence = node2;
-            this._graphData.getNodeByID(node2).coalescence = node1;
-            this._graphData.links.push(LinkModel.fromJSON({
-                "id"    : (this._graphData.links.length + 1).toString(),
-                "source": node1,
-                "target": node2,
-                "length": 0,
-                "type": LINK_TYPES.COALESCENCE,
-                "layout": {"z": 25}
-            }, modelClasses));
+
+        //Coalescence defined by node alignment
+        // this._coalescences.forEach(({node1, node2}) => {
+        //     //Change direction of one of the coalescing links so that the lyph is drawn on another side)
+        //     this._graphData.links.filter(link => link.source === node2).forEach(link => {
+        //         link.reversed = true;
+        //     });
+        //
+        //     this._graphData.links.push(LinkModel.fromJSON({
+        //         "id"    : (this._graphData.links.length + 1).toString(),
+        //         "source": node1,
+        //         "target": node2,
+        //         "length": 0,
+        //         "type": LINK_TYPES.COALESCENCE
+        //     }, modelClasses));
+        // });
+
+        //Coalescence defined by lyph alignment
+        this._coalescences.forEach(lyphs => {
+
+            let coalescingLinks  = lyphs.map(lyph => this._graphData.getLinkByLyphID(lyph)); //always finds only
+
+            coalescingLinks.forEach((link1, i) => {
+                coalescingLinks.forEach((link2, j) => {
+                    if (i === j) { return; }
+                    ["source", "target"].forEach(end => {
+                        this._graphData.links.push(LinkModel.fromJSON({
+                            "id"    : (this._graphData.links.length + 1).toString(),
+                            "source": link1[end],
+                            "target": link2[end],
+                            "length": 0,
+                            "type": LINK_TYPES.COALESCENCE
+                        }, modelClasses));
+                    });
+                    if (j % 2 === 1){ link2.reversed = true; }
+               })
+            });
         });
 
         //Color links and lyphs which do not have assigned colors yet
@@ -89,7 +117,6 @@ export class DataService {
         //Replace content id with lyph model
         this._lyphs.filter(lyph => lyph.content).forEach(lyph => {
             lyph.content = this._lyphs.find(x => x.id === lyph.content);
-            console.log("Lyph with content overriden", lyph.id, lyph.content);
         });
 
         //for each link, replace lyph id's with lyph model

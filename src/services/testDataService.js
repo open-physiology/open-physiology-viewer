@@ -106,14 +106,6 @@ export class TestDataService extends DataService{
             }
         });
 
-        //Coalescences
-        this._coalescencePairs = [
-            {"node1": "n5_12", "node2": "n7_41"},
-            {"node1": "n5_11", "node2": "n7_42"},
-            {"node1": "n5_22", "node2": "n7_51"},
-            {"node1": "n5_21", "node2": "n7_52"}
-        ];
-
        super.afterInit();
     }
 }
