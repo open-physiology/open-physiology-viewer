@@ -240,7 +240,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         }
 
         footer{
-            margin-top: 1vh;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
         }
 	`]
 })
