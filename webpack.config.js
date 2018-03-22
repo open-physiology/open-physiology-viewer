@@ -32,11 +32,14 @@ module.exports = {
         new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core(\\|\/)/,
 		    path.resolve(__dirname, '../src'), {}
-		),
-        new webpack.ContextReplacementPlugin(
-            /power-assert-formatter[\\\/]lib/,
-            path.resolve('./src'),
-            {}
-        )
+			),
+			new webpack.ContextReplacementPlugin(
+			    /power-assert-formatter[\\\/]lib/,
+			    path.resolve('./src'),
+			    {}
+			),
+			new webpack.ProvidePlugin({
+				'THREE': 'three'
+			})
     ]
 };

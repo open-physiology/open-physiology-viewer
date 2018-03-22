@@ -306,4 +306,3 @@ export function getCenterPoint(mesh) {
     mesh.localToWorld(center);
     return center;
 }
-

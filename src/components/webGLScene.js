@@ -22,11 +22,12 @@ Object.unfreeze = function (o) {
     return oo
 };
 
-//import * as THREE from 'three';
-
 window.THREE = Object.unfreeze(require('three'));
-require('three/examples/js/renderers/Projector');
-require('three/examples/js/renderers/CanvasRenderer');
+// require('three/examples/js/renderers/Projector');
+
+// require('three/examples/js/renderers/Projector');
+
+// require('three/examples/js/renderers/CanvasRenderer');
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 
@@ -138,7 +139,7 @@ import {ModelInfoPanel} from './modelInfo';
                 <section class="w3-content w3-padding-top">
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
                 </section>
-                
+
             </section>
         </section>
     `,
@@ -181,7 +182,7 @@ export class WebGLSceneComponent {
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
-        this._numDimensions = 3;
+        this._numDimensions = 2;
     }
 
     ngAfterViewInit(){
@@ -195,8 +196,10 @@ export class WebGLSceneComponent {
         this.width = this.canvasContainer.clientWidth;
         this.height = this.canvasContainer.clientHeight;
 
-        //this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
-        this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
+        // Switch here for WebGL to Canvas
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+        // this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
+
         this.renderer.setClearColor(0xffffff);
 
         this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
@@ -210,7 +213,6 @@ export class WebGLSceneComponent {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
 
-        // For resizing
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
