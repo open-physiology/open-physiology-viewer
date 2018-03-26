@@ -9,7 +9,7 @@ export const NODE_TYPES = {
     FIXED  : "fixed",
     CORE   : "core",
     CONTROL: "control",
-    OMEGA  : 'omega'
+    OMEGA  : 'omega' //TODO do not use NODE_TYPES for semantic classification of nodes, refactor to separate concerns
 };
 
 /**

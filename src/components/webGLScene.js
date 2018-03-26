@@ -39,6 +39,9 @@ import {
     forceRadial
 } from 'd3-force-3d';
 
+
+//import forceBounded from "../three/boundedForce";
+
 const WindowResize = require('three-window-resize');
 
 //TODO dataset toggle group should be external ideally and supply data services in constructor of this component
@@ -46,6 +49,10 @@ import {TestDataService}   from '../services/testDataService';
 import {KidneyDataService} from '../services/kidneyDataService';
 
 import {LINK_TYPES} from '../models/linkModel';
+import {NODE_TYPES} from "../models/nodeModel";
+import {GraphModel} from "../models/graphModel";
+import {modelClasses} from "../models/utils";
+
 import {ModelInfoPanel} from './modelInfo';
 
 @Component({
@@ -122,11 +129,19 @@ import {ModelInfoPanel} from './modelInfo';
                     <!--</fieldset>-->
 
                     <fieldset>
+                        <legend>Show:</legend>
+                        <input type="checkbox" name="switch" (change)="toggleOmegaTrees()"/> Omega trees
+                        <input type="checkbox" name="switch" (change)="toggleCoalescences()"/> Coalescences
+                        <input type="checkbox" name="switch" (change)="toggleContainerLyphs()"/> Container lyphs
+                    </fieldset>
+
+                    <fieldset>
                         <legend>Helpers:</legend>
                         <input type="checkbox" name="planes" (change)="togglePlanes(['x-y'])"/> Grid x-y
                         <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
                         <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
+
                 </section>
 
                 <section class="w3-padding-top" style="padding-right: 3px;">
@@ -181,6 +196,11 @@ export class WebGLSceneComponent {
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
+        this._hideLinks = {
+            hideTrees       : true,
+            hideCoalescences: true,
+            hideContainers  : true
+        };
         this._numDimensions = 3;
     }
 
@@ -189,7 +209,10 @@ export class WebGLSceneComponent {
 
         this._kidneyDataService = new KidneyDataService();
         this._kidneyDataService.init();
+
         this._graphData = this._kidneyDataService.graphData;
+        //We start from switched off omega threes and container lyphs
+        this._graphData.toggleLinks(this._hideLinks);
 
         this.canvasContainer = document.getElementById('canvasContainer');
         this.width = this.canvasContainer.clientWidth;
@@ -290,20 +313,27 @@ export class WebGLSceneComponent {
             .graphData(this._graphData);
 
         this.graph.d3Force("x", forceX().x(d => ('x' in d.layout)? d.layout.x: 0)
-            .strength(d => ('x' in d.layout)? 1: 0)
+            .strength(d => ('x' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5) : 0)
         );
 
         this.graph.d3Force("y", forceY().y(d => ('y' in d.layout)? d.layout.y: 0)
-            .strength(d => ('y' in d.layout)? 1: 0)
+            .strength(d => ('y' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5): 0)
         );
 
         this.graph.d3Force("z", forceZ().z(d => ('z' in d.layout)? d.layout.z: 0)
-            .strength(d => ('z' in d.layout)? 1: 0)
+            .strength(d => ('z' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5): 0)
         );
 
-        this.graph.d3Force("radial", forceRadial( d => {
-            return (('r' in d.layout)? d.layout.r: 0);
-        }).strength(d => ('r' in d.layout)? 5: 0));
+        // this.graph.d3Force("radial", forceRadial( d => {
+        //     return (('r' in d.layout)? d.layout.r: 0);
+        // }).strength(d => ('r' in d.layout)? 5: 0));
+
+        // this.graph.d3Force("bounded", forceBounded( d => {return (('r' in d.layout)? d.layout.r: 0);})
+        //     .x(d => ('container' in d.layout)? d.layout.container.x: 0)
+        //     .y(d => ('container' in d.layout)? d.layout.container.y: 0)
+        //     .z(d => ('container' in d.layout)? d.layout.container.z: 0)
+        //     .strength(d => ('r' in d.layout)? 1: 0)
+        // );
 
         this.graph.d3Force("link")
             .distance(d => d.length)
@@ -324,6 +354,9 @@ export class WebGLSceneComponent {
 
         let intersects = ray.intersectObjects( this.graph.children );
         if ( intersects.length > 0 ){
+            if (intersects[ 0 ].object.__data && intersects[ 0 ].object.__data.id === "5"){
+                return;
+            }
             // if the closest object intersected is not the currently stored intersection object
             if ( intersects[ 0 ].object !== this._highlighted ){
                 // restore previous intersection object (if it exists) to its original color
@@ -375,11 +408,13 @@ export class WebGLSceneComponent {
         }
     }
 
+    get graphData(){
+        return this._graphData;
+    }
+
     set graphData(newGraphData){
         this._graphData = newGraphData;
-        if (this.graph) {
-            this.graph.graphData(this._graphData);
-        }
+        if (this.graph) { this.graph.graphData(this._graphData); }
     }
 
     onKeyDown(evt){
@@ -485,6 +520,24 @@ export class WebGLSceneComponent {
             }
             this.graphData = this._testDataService.graphData;
         }
+    }
+
+    toggleOmegaTrees(){
+        this._hideLinks.hideTrees = !this._hideLinks.hideTrees;
+        this._graphData.toggleLinks(this._hideLinks);
+        if (this.graph) { this.graph.graphData(this._graphData); }
+    }
+
+    toggleCoalescences(){
+        this._hideLinks.hideCoalescences = !this._hideLinks.hideCoalescences;
+        this._graphData.toggleLinks(this._hideLinks);
+        if (this.graph) { this.graph.graphData(this._graphData); }
+    }
+
+    toggleContainerLyphs(){
+        this._hideLinks.hideContainers = !this._hideLinks.hideContainers;
+        this._graphData.toggleLinks(this._hideLinks);
+        if (this.graph) { this.graph.graphData(this._graphData); }
     }
 
     updateLabelContent(target, property){

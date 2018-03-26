@@ -59,27 +59,8 @@ export class DataService {
     }
 
     afterInit(){
-        //Create links for coalescence pairs to hold nodes aligned
-
-        //Coalescence defined by node alignment
-        // this._coalescences.forEach(({node1, node2}) => {
-        //     //Change direction of one of the coalescing links so that the lyph is drawn on another side)
-        //     this._graphData.links.filter(link => link.source === node2).forEach(link => {
-        //         link.reversed = true;
-        //     });
-        //
-        //     this._graphData.links.push(LinkModel.fromJSON({
-        //         "id"    : (this._graphData.links.length + 1).toString(),
-        //         "source": node1,
-        //         "target": node2,
-        //         "length": 0,
-        //         "type": LINK_TYPES.COALESCENCE
-        //     }, modelClasses));
-        // });
-
-        //Coalescence defined by lyph alignment
+        //Coalescence defined as groups of lyphs
         this._coalescences.forEach(lyphs => {
-
             let coalescingLinks  = lyphs.map(lyph => this._graphData.getLinkByLyphID(lyph)); //always finds only
 
             coalescingLinks.forEach((link1, i) => {
@@ -90,11 +71,13 @@ export class DataService {
                             "id"    : (this._graphData.links.length + 1).toString(),
                             "source": link1[end],
                             "target": link2[end],
-                            "length": 0,
+                            "length": 0.1,
                             "type": LINK_TYPES.COALESCENCE
                         }, modelClasses));
                     });
-                    if (j % 2 === 1){ link2.reversed = true; }
+                    // if (i % 2 === 1){
+                    //     link2.reversed = true;
+                    // }
                })
             });
         });
@@ -118,6 +101,17 @@ export class DataService {
         this._lyphs.filter(lyph => lyph.content).forEach(lyph => {
             lyph.content = this._lyphs.find(x => x.id === lyph.content);
         });
+
+        // this._lyphs.forEach(lyph => {
+        //     //Make lyphs aware about their coalescences
+        //     //TODO this works ok only for one coalescence group per lyph
+        //     this._coalescences.forEach(lyphs => {
+        //         if (lyphs.includes(lyph.id)){
+        //             lyph.coalescences = lyphs.map(lyphID => this._lyphs.find(x => x.id === lyphID));
+        //         }}
+        //     );
+        // });
+
 
         //for each link, replace lyph id's with lyph model
         this._graphData.links.forEach(link => {

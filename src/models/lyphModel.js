@@ -3,7 +3,7 @@ const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
-import { d3Layer, d2Layer, d2Lyph, d2LyphBorders, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
+import { boundToRectangle, d3Layer, d2Layer, d2Lyph, d2LyphBorders, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
 import { LINK_TYPES } from './linkModel';
 import { BorderModel } from './borderModel';
 
@@ -24,6 +24,7 @@ export class LyphModel extends Model {
         this.fields.text.push ('topology');
         this.fields.objects.push('axis');
         this.fields.lists.push('layers');
+        //this.fields.lists.push('coalescences');
     }
 
     toJSON() {
@@ -251,11 +252,17 @@ export class LyphModel extends Model {
             state.graphData.links
                 .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
                 .forEach(link => {
-                    copyCoords(link.source.layout, fociCenter);
-                    copyCoords(link.target.layout, fociCenter);
+                    // copyCoords(link.source.layout, fociCenter);
+                    // copyCoords(link.target.layout, fociCenter);
+                    //If we need to clean these layout constraints, set some flag
+                    // link.source.layout.reason = "container";
+                    // link.target.layout.reason = "container";
+                    let dx = 2 * link.lyphSize.thickness;
+
+                    boundToRectangle(link.source, fociCenter, this.width/2 - dx, this.height);
+                    boundToRectangle(link.target, fociCenter, this.width/2 - dx, this.height);
 
                     //Project links with innerLyphs to the container lyph plane
-
                     //if (state.method === "2d"){
                         let plane = new THREE.Plane();
                         let _start = new THREE.Vector3(this.axis.source.x, this.axis.source.y, this.axis.source.z || 0);

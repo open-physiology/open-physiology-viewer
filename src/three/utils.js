@@ -58,6 +58,11 @@ export function copyCoords(target, source){
     target.z = source.z || 0;
 }
 
+export function boundToRectangle(point, center, width, height){
+    point.x = Math.max(Math.min(point.x, center.x + width/2) , center.x - width/2 );
+    point.y = Math.max(Math.min(point.y, center.y + height/2), center.y - height/2);
+}
+
 /**
  * Computes difference between two geometries
  * @param smallGeom - inner geometry
@@ -287,7 +292,7 @@ export function translate(object, offset, direction) {
 }
 
 //Experiment with tube geometry to draw thick edges
-export function thickLine(curve, material){
+export function tubeMesh(curve, material){
     return  new THREE.Mesh(new THREE.TubeGeometry(curve, 100, 0.5, 20, false), material);
 }
 

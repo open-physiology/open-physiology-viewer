@@ -30,6 +30,7 @@ export class Model {
 
     static fromJSON(json, modelClasses = {}) {
         //TODO add validation
+
         const cls = modelClasses[json.class];
         const res       = new cls(json.id);
         res::assign(json::pick('id', 'name', 'class', 'color', 'external'));
