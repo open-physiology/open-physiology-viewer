@@ -95,7 +95,7 @@ export class LinkModel extends Model {
                 if (!this.material) {
                 //     //axis can stay behind any other visual objects
                 //     // this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
-                  this.material = new THREE.LineMaterial({ color: this.color, linewidth: 0.002, dashed:true });
+                  this.material = new THREE.LineMaterial({ color: this.color, linewidth: 0.002, dashed:true, gapSize: 0.1, dashSize: 0.05 });
                 }
                 // if (!this.material) {
                 // }
@@ -114,7 +114,7 @@ export class LinkModel extends Model {
 
                 if (this.type === LINK_TYPES.PATH) {
                     // geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
-                    positions =new Float32Array(state.linkResolution * 3);
+                    positions = new Float32Array(state.linkResolution * 3);
 
                 } else {
                     if (this.type === LINK_TYPES.LINK) {
@@ -125,9 +125,7 @@ export class LinkModel extends Model {
                 }
             }
 
-
             let obj = new THREE.Line2(geometry, this.material);
-    				obj.scale.set( 1, 1, 1 );
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
             this.viewObjects["main"] = obj;
@@ -218,6 +216,9 @@ export class LinkModel extends Model {
             delete this.viewObjects["iconLabel"];
         }
 
+        if (this.type == LINK_TYPES.LINK) {
+          console.log(linkObj);
+        }
         //Update buffered geometries
         if (linkObj && linkObj.geometry.attributes){
             let linkPos = linkObj.geometry.attributes.position;
@@ -226,6 +227,7 @@ export class LinkModel extends Model {
 
             // If statement to troubleshoot by line type.
             // if (this.type == LINK_TYPES.AXIS) {
+            // if (this.type !== LINK_TYPES.PATH) {
 
               if (linkPos){
                   // console.log("pre position: ", linkObj)
@@ -236,21 +238,15 @@ export class LinkModel extends Model {
                       newPoints[3 * i + 1] = points[i].y;
                       newPoints[3 * i + 2] = points[i].z;
                   }
-                  //
-                  // console.log("post position: ", linkObj)
-                  // console.log("post position points: ", newPoints)
+
+
                   linkPos.needsUpdate = true;
                   linkObj.geometry.setPositions(newPoints);
-                  // linkObj.computeLineDistances();
-                  // console.log(linkObj);
-                  // linkObj.geometry.computeBoundingSphere();
 
-                  // console.log("post position: ", linkObj)
-
-              // }
+                  if (this.type == LINK_TYPES.AXIS) {
+                    linkObj.computeLineDistances();
+                  }
             }
-
-            // }
 
         }
 
