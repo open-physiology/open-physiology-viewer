@@ -8,6 +8,11 @@ import { LinkModel, LINK_TYPES } from '../models/linkModel';
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
 
+import {interpolateReds, interpolateGreens, interpolatePurples, interpolateBlues,
+    interpolatePiYG, interpolateRdPu,
+    interpolateOranges} from 'd3-scale-chromatic';
+
+
 /**
  * Create omega trees and lyphs tfor Kidney scenario
  * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
@@ -23,7 +28,7 @@ export class KidneyDataService extends DataService{
         super.init();
         const hosts = {
             "5": {
-                "color": "#4444ff",
+                "color": "#ff4444",
                 "sign" : -1,
                 "trees": [
                     {"lyphs": trees["Vascular"]["Arterial"]},
@@ -31,11 +36,29 @@ export class KidneyDataService extends DataService{
                 ]
             },
             "7": {
-                "color": "#ff4444",
+                "color": "#4444ff",
                 "sign" : 1,
                 "trees": [ {"lyphs": trees["Urinary"]} ]
             }
         };
+
+        const colorLyphs = (lyphs, colorFn) => {
+            lyphs.forEach((lyphID, i) =>{
+                let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
+                lyph.color = colorFn(0.25 + i / (1.25 * lyphs.length));
+            });
+        };
+
+        //Recolor vascular tree lyphs to shades of red and red/purple
+        colorLyphs(Object.values(trees["Vascular"]["Arterial"]), interpolateReds);
+        colorLyphs(Object.values(trees["Vascular"]["Venous"]), interpolateRdPu);
+        //Recolor urinary lyphs to the shades of green (or purple)
+        colorLyphs(Object.values(trees["Urinary"]), interpolateGreens);
+
+        //Recolor connector lyphs in the shades of ornage
+        const connectorLyphs  = Object.values(trees["Connector"]);
+        colorLyphs(connectorLyphs, interpolateOranges);
+
 
         //Add an extra node to correctly end the Urinary tree
         hosts["7"].trees[0].lyphs["end1"] = 0;
@@ -104,7 +127,6 @@ export class KidneyDataService extends DataService{
 
         const connector = ["505", "570", "571", "572", "515"];
         const connectorLabels = Object.keys(trees["Connector"]);
-        const connectorLyphs  = Object.values(trees["Connector"]);
 
         for (let i = 0 ; i < connector.length - 1; i++){
             this._graphData.links.push(LinkModel.fromJSON({
@@ -149,10 +171,11 @@ export class KidneyDataService extends DataService{
             "length": 50,
             "type"  : LINK_TYPES.CONTAINER,
             //"conveyingLyph"  : "1", //Kidney
-            "conveyingLyph"  : "5", //Kidney lobus
+            "conveyingLyph"  : "5" //Kidney lobus
         }, modelClasses));
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
+        containerLyph.inactive = true  // Hack to exclude this entity from being highlighted
         //Deduce these lyphs from mapping
         containerLyph["internalLyphs"]       = ["60", "105", "63", "78", "24", "27", "30", "33"];
 

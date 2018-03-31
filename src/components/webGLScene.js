@@ -354,9 +354,7 @@ export class WebGLSceneComponent {
 
         let intersects = ray.intersectObjects( this.graph.children );
         if ( intersects.length > 0 ){
-            if (intersects[ 0 ].object.__data && intersects[ 0 ].object.__data.id === "5"){
-                return;
-            }
+            if (intersects[ 0 ].object.__data && intersects[ 0 ].object.__data.inactive){ return; }
             // if the closest object intersected is not the currently stored intersection object
             if ( intersects[ 0 ].object !== this._highlighted ){
                 // restore previous intersection object (if it exists) to its original color
