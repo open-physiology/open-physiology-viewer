@@ -61,7 +61,7 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 
 			if ( raycaster.ray.intersectsSphere( sphere ) === false ) return;
 
-			//inverseMatrix.getInverse( matrixWorld ); //different version?
+			// inverseMatrix.getInverse( matrixWorld );
 			inverseMatrix.copy(matrixWorld).invert();
 			ray.copy( raycaster.ray ).applyMatrix4( inverseMatrix );
 

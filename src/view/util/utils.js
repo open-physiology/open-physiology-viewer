@@ -4,7 +4,6 @@ import {MaterialFactory} from './materialFactory';
 import { defaults } from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 import { GeometryFactory } from './geometryFactory';
-//const ThreeBSP = require('three-js-csg')(THREE);
 import {CSG} from 'three-csg-ts';
 
 /**
@@ -56,9 +55,9 @@ export function copyCoords(target, source){
  * @param cupBottom  - bottom border
  * @param offset     - distance to shift cups wrt the tube center
  * @param params     - material parameters
- * @returns {Geometry|SEA3D.Geometry|*|GeometryFactory.instance().createGeometry} - {Mesh}
+ * @returns {Mesh}
  */
-export function mergedGeometry(tube, cupTop, cupBottom, offset){
+export function mergeGeometry(tube, cupTop, cupBottom, offset, params){
     let material = MaterialFactory.createMeshBasicMaterial(params);
     let singleGeometry = GeometryFactory.instance().createGeometry();
     let tubeMesh       = GeometryFactory.instance().createMesh(tube, material);
