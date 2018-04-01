@@ -3,34 +3,8 @@ import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
 
-Object.unfreeze = function (o) {
-    let oo = undefined;
-    if (o instanceof Array) {
-        oo = [];
-        let clone = function (v) { oo.push(v) };
-        o.forEach(clone)
-    }
-    else if (o instanceof String) {
-        oo = new String(o).toString()
-    }
-    else if (typeof o == 'object') {
-        oo = {}
-        for (let property in o) {
-            oo[property] = o[property]
-        }
-    }
-    return oo
-};
-
-window.THREE = Object.unfreeze(require('three'));
-// require('three/examples/js/renderers/Projector');
-
-// require('three/examples/js/renderers/Projector');
-
-// require('three/examples/js/renderers/CanvasRenderer');
-
+import * as THREE from 'three';
 const OrbitControls = require('three-orbit-controls')(THREE);
-
 
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
@@ -41,6 +15,7 @@ import {
 } from 'd3-force-3d';
 
 const WindowResize = require('three-window-resize');
+import {MeshLine, MeshLineMaterial} from 'three.meshline';
 
 //TODO dataset toggle group should be external ideally and supply data services in constructor of this component
 import {TestDataService}   from '../services/testDataService';
@@ -231,7 +206,22 @@ export class WebGLSceneComponent {
         this.resizeCanvasToDisplaySize();
         this.createHelpers();
         this.createGraph();
+        this.test(); //TODO remove
         this.animate();
+    }
+
+    //TODO apply this method in linkModel.js
+    test(){
+        let geometry = new THREE.Geometry();
+        geometry.vertices = [new THREE.Vector3(-100, 0, 0), new THREE.Vector3(100, 0, 0)];
+        let line = new MeshLine();
+        line.setGeometry( geometry );
+        let material = new MeshLineMaterial({
+            color: new THREE.Color(0xff0000),
+            lineWidth: 3
+        });
+        let mesh = new THREE.Mesh( line.geometry, material ); // this syntax could definitely be improved!
+        this.scene.add( mesh );
     }
 
     resizeCanvasToDisplaySize(force) {
@@ -240,7 +230,7 @@ export class WebGLSceneComponent {
         const width  = this.canvasContainer.clientWidth;
         const height = this.canvasContainer.clientHeight;
 
-        const dimension = function(){ return { width, height } }
+        const dimension = function(){ return { width, height } };
 
         if (force || canvas.width !== width || canvas.height !== height) {
             this.windowResize = new WindowResize(this.renderer, this.camera, dimension);
@@ -259,7 +249,6 @@ export class WebGLSceneComponent {
             this.highlightSelected();
         }
         this.controls.update();
-
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(_ => this.animate());
     }
@@ -315,7 +304,9 @@ export class WebGLSceneComponent {
     }
 
     update(){
-        this.graph.numDimensions(this._numDimensions);
+        if (this.graph){
+            this.graph.numDimensions(this._numDimensions);
+        }
     }
 
     highlightSelected(){

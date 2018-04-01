@@ -6,14 +6,6 @@ const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { direction, bezierSemicircle, copyCoords} from '../three/utils';
 
-require('../three/lines/LineSegments2');
-require('../three/lines/LineSegmentsGeometry');
-require('../three/lines/LineMaterial');
-
-require('../three/lines/LineGeometry');
-require('../three/lines/Line2');
-
-
 export const LINK_TYPES = {
     PATH: "path",
     LINK: "link",
@@ -54,7 +46,6 @@ export class LinkModel extends Model {
     }
 
     // /**
-    //  *
     //  * @param tree
     //  * @returns {number} link's level in the tree
     //  */
@@ -86,46 +77,33 @@ export class LinkModel extends Model {
         if (this.type === LINK_TYPES.COALESCENCE) {return; }
 
         //Link
-        var positions;
         if (!this.viewObjects["main"]) {
             let geometry;
             if (this.type === LINK_TYPES.AXIS) {
-                // geometry = new THREE.Geometry();
-                geometry = new THREE.LineSegmentsGeometry();
+                geometry = new THREE.Geometry();
                 if (!this.material) {
-                //     //axis can stay behind any other visual objects
-                //     // this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
-                  this.material = new THREE.LineMaterial({ color: this.color, linewidth: 0.002, dashed:true, gapSize: 0.1, dashSize: 0.05 });
+                    //axis can stay behind any other visual objects (default polygonOffsetFactor)
+                    this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
                 }
-                // if (!this.material) {
-                // }
                 geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
-
-
             } else {
-                // geometry = new THREE.BufferGeometry();
-                geometry = new THREE.LineGeometry();
-
+                geometry = new THREE.BufferGeometry();
                 if (!this.material) {
-                    // this.material = state.materialRepo.createLineBasicMaterial({
-                    this.material = new THREE.LineMaterial({ color: this.color, linewidth: 0.002, dashed:false})
+                    this.material = state.materialRepo.createLineBasicMaterial({
+                        color: this.color,
+                        polygonOffsetFactor: -4
+                    });
                 }
-                // this.material = new THREE.LineMaterial({ color: this.color, linewidth: 0.002, dashed:true})
-
                 if (this.type === LINK_TYPES.PATH) {
-                    // geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
-                    positions = new Float32Array(state.linkResolution * 3);
-
+                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
                 } else {
                     if (this.type === LINK_TYPES.LINK) {
-                        // geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-                        positions = new Float32Array(2 * 3);
-
+                        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
                     }
                 }
             }
+            let obj = new THREE.Line(geometry, this.material);
 
-            let obj = new THREE.Line2(geometry, this.material);
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
             this.viewObjects["main"] = obj;
@@ -174,8 +152,7 @@ export class LinkModel extends Model {
                 copyCoords(linkObj.geometry.vertices[0], this.source);
                 copyCoords(linkObj.geometry.vertices[1], this.target);
                 linkObj.geometry.verticesNeedUpdate = true;
-                // console.log("before computelinedistances: ", linkObj)
-                // linkObj.geometry.computeLineDistances();
+                linkObj.geometry.computeLineDistances();
                 break;
             }
             case LINK_TYPES.PATH: {
@@ -216,40 +193,18 @@ export class LinkModel extends Model {
             delete this.viewObjects["iconLabel"];
         }
 
-        if (this.type == LINK_TYPES.LINK) {
-          console.log(linkObj);
-        }
         //Update buffered geometries
         if (linkObj && linkObj.geometry.attributes){
             let linkPos = linkObj.geometry.attributes.position;
-            // console.log("linkObj.geometry.attributes.position: ", linkObj.geometry.attributes.position)
-            var newPoints = linkPos.array.slice();
-
-            // If statement to troubleshoot by line type.
-            // if (this.type == LINK_TYPES.AXIS) {
-            // if (this.type !== LINK_TYPES.PATH) {
-
-              if (linkPos){
-                  // console.log("pre position: ", linkObj)
-                  // console.log("pre position points: ", points)
-
-                  for (let i = 0; i < points.length; i++) {
-                      newPoints[3 * i] = points[i].x;
-                      newPoints[3 * i + 1] = points[i].y;
-                      newPoints[3 * i + 2] = points[i].z;
-                  }
-
-
-                  linkPos.needsUpdate = true;
-                  linkObj.geometry.setPositions(newPoints);
-
-                  if (this.type == LINK_TYPES.AXIS) {
-                    linkObj.computeLineDistances();
-                  }
+            if (linkPos){
+                for (let i = 0; i < points.length; i++) {
+                    linkPos.array[3 * i] = points[i].x;
+                    linkPos.array[3 * i + 1] = points[i].y;
+                    linkPos.array[3 * i + 2] = points[i].z;
+                }
+                linkPos.needsUpdate = true;
+                linkObj.geometry.computeBoundingSphere();
             }
-
         }
-
-
     }
 }
