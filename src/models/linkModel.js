@@ -5,6 +5,8 @@ import * as three from 'three';
 const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { direction, bezierSemicircle, copyCoords} from '../three/utils';
+import {MeshLine, MeshLineMaterial} from 'three.meshline';
+
 
 export const LINK_TYPES = {
     PATH: "path",
@@ -75,10 +77,12 @@ export class LinkModel extends Model {
      */
     createViewObjects(state){
         if (this.type === LINK_TYPES.COALESCENCE) {return; }
+        let positions;
 
         //Link
         if (!this.viewObjects["main"]) {
             let geometry;
+            let obj;
             if (this.type === LINK_TYPES.AXIS) {
                 geometry = new THREE.Geometry();
                 if (!this.material) {
@@ -86,23 +90,43 @@ export class LinkModel extends Model {
                     this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
                 }
                 geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
+                obj = new THREE.Line(geometry, this.material);
+
             } else {
                 geometry = new THREE.BufferGeometry();
+                let lineWidthVal = 1;
                 if (!this.material) {
-                    this.material = state.materialRepo.createLineBasicMaterial({
-                        color: this.color,
-                        polygonOffsetFactor: -4
+                    // this.material = state.materialRepo.createLineBasicMaterial({
+                    //     color: this.color,
+                    //     polygonOffsetFactor: -4
+                    // });
+                    this.material = new MeshLineMaterial({
+                        color: new THREE.Color(this.color),
+                        lineWidth: lineWidthVal
                     });
                 }
+
                 if (this.type === LINK_TYPES.PATH) {
-                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
+                    positions = new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3);
+                    // positions = new Float32Array(state.linkResolution * 3);
+                    geometry.addAttribute('position', positions);
+
                 } else {
                     if (this.type === LINK_TYPES.LINK) {
-                        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
+                        positions = new THREE.BufferAttribute(new Float32Array(2 * 3), 3);
+                        geometry.addAttribute('position', positions);
+
                     }
                 }
+                geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
+
+                let line = new MeshLine();
+                line.setGeometry( geometry );
+
+                obj = new THREE.Mesh(line.geometry, this.material);
             }
-            let obj = new THREE.Line(geometry, this.material);
+
+            obj = new THREE.Line(geometry, this.material);
 
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
@@ -192,18 +216,32 @@ export class LinkModel extends Model {
             delete this.viewObjects['icon'];
             delete this.viewObjects["iconLabel"];
         }
+        // console.log("linkObj: ", linkObj)
 
         //Update buffered geometries
+
+        let newPoints;
         if (linkObj && linkObj.geometry.attributes){
             let linkPos = linkObj.geometry.attributes.position;
+
             if (linkPos){
+
+
                 for (let i = 0; i < points.length; i++) {
                     linkPos.array[3 * i] = points[i].x;
                     linkPos.array[3 * i + 1] = points[i].y;
                     linkPos.array[3 * i + 2] = points[i].z;
                 }
+
                 linkPos.needsUpdate = true;
+                linkObj.geometry.verticesNeedUpdate = true;
+                //
+
                 linkObj.geometry.computeBoundingSphere();
+
+                // console.log(linkPos);
+                // throw new Error();
+
             }
         }
     }
