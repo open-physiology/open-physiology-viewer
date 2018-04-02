@@ -497,15 +497,89 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
-    resetCamera(positionPoint, lookupPoint) {
-        let position = [0, -100, 120 * this.scaleFactor];
-        let lookup =  [0, 0, 1];
-        ["x", "y", "z"].forEach((dim, i) => {
-            if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
-                lookup[i] = lookupPoint[dim];
+    update(){
+        if (this.graph){
+            this.graph.numDimensions(this._numDimensions);
+        }
+    }
+
+    highlightSelected(){
+        let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
+        vector.unproject( this.camera );
+
+        let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+
+        let intersects = ray.intersectObjects( this.graph.children );
+        if ( intersects.length > 0 ){
+            // if the closest object intersected is not the currently stored intersection object
+            if ( intersects[ 0 ].object !== this._highlighted ){
+                // restore previous intersection object (if it exists) to its original color
+                if ( this._highlighted ){
+                    if (this._highlighted.material.type !== "MeshLineMaterial" ){
+                      this._highlighted.material.color.setHex( this._highlighted.currentHex );
+                    } else {
+                      this._highlighted.material.uniforms.color.value.setHex( this._highlighted.currentHex );
+
+                    }
+                    (this._highlighted.children || []).forEach(child => {
+                        if (child.visible && child.material){
+                            child.material.color.setHex( child.currentHex );
+                        }
+                    })
+                }
+                // store reference to closest object as current intersection object
+                this._highlighted = intersects[ 0 ].object;
+
+                // store color of closest object (for later restoration)
+                // console.log("this._highlighted.material.color: ", this._highlighted.material)
+
+                const highlightColor = 0xff0000;
+
+                // MeshlineMaterial has color defined in a different structure
+                if (this._highlighted.material.type !== "MeshLineMaterial" ){
+
+                  this._highlighted.currentHex = this._highlighted.material.color.getHex();
+                  this._highlighted.material.color.setHex( highlightColor );
+
+                } else {
+
+                    this._highlighted.currentHex = this._highlighted.material.uniforms.color.value.getHex();
+                    this._highlighted.material.uniforms.color.value.setHex( highlightColor );
+
+                }
+                  (this._highlighted.children || []).forEach(child => {
+                      if (child.visible && child.material){
+                          child.currentHex = child.material.color.getHex();
+                      }
+                  });
+
+                // set a new color for closest object
+                (this._highlighted.children || []).forEach(child => {
+                    if (child.visible && child.material){
+                      if (this._highlighted.material.type !== "MeshLineMaterial" ){
+                          child.material.color.setHex( highlightColor );
+                        } else {
+                          this._highlighted.material.uniforms.color.value.setHex( highlightColor );
+                        }
+                    }
+                });
+
+                this.highlightedItemChange.emit(this._highlighted);
             }
-            if (positionPoint && positionPoint.hasOwnProperty(dim)) {
-                position[i] = positionPoint[dim];
+        }
+        else {
+            // restore previous intersection object (if it exists) to its original color
+            if ( this._highlighted ) {
+                if (this._highlighted.material.type !== "MeshLineMaterial" ){
+                  this._highlighted.material.color.setHex(this._highlighted.currentHex);
+                } else {
+                  this._highlighted.material.uniforms.color.value.setHex( this._highlighted.currentHex );
+                }
+                (this._highlighted.children || []).forEach(child => {
+                    if (child.visible && child.material){
+                        child.material.color.setHex( child.currentHex );
+                    }
+                })
             }
         })
         this.camera.position.set(...position);
