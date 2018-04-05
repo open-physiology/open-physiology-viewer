@@ -1,4 +1,4 @@
-import {NgModule, Component, ViewChild, ElementRef, Output, EventEmitter} from '@angular/core';
+import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
@@ -43,11 +43,6 @@ import {
 //import forceBounded from "../three/boundedForce";
 
 const WindowResize = require('three-window-resize');
-
-//TODO dataset toggle group should be external ideally and supply data services in constructor of this component
-import {TestDataService}   from '../services/testDataService';
-import {KidneyDataService} from '../services/kidneyDataService';
-
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from "../models/nodeModel";
 import {GraphModel} from "../models/graphModel";
@@ -64,13 +59,6 @@ import {ModelInfoPanel} from './modelInfo';
             </section>
             <section stop-propagation class="w3-quarter">
                 <section class="w3-content">
-                    <!--<fieldset>-->
-                        <!--<legend>Dataset:</legend>-->
-                        <!--<input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated-->
-                        <!--<input type="radio" name="dataset" (change)="toggleDataset('kidney')" checked/>-->
-                        <!--Kidney-->
-                    <!--</fieldset>-->
-
                     <fieldset>
                         <legend>Labels:</legend>
                         <input type="checkbox" name="node_label" (change)="toggleNodeLabels()" checked/> Node
@@ -176,19 +164,27 @@ export class WebGLSceneComponent {
     windowResize;
     width;
     height;
-    _graphData = {};
-    _kidneyDataService;
-    _testDataService;
     _highlighted;
 
     graph;
     helpers = {};
+
+    @Input('graphData') set graphData(newGraphData) {
+        if (this._graphData !== newGraphData) {
+            this._graphData = newGraphData;
+            if (this.graph) { this.graph.graphData(this._graphData); }
+        }
+    }
 
     /**
      * @emits highlightedItemChange - the highlighted item changed
      */
     @Output() highlightedItemChange = new EventEmitter();
 
+
+    get graphData(){
+        return this._graphData;
+    }
 
     constructor() {
         this._showLyphs  = true;
@@ -206,11 +202,6 @@ export class WebGLSceneComponent {
 
     ngAfterViewInit(){
         if (this.renderer) {return;} //already initialized
-
-        this._kidneyDataService = new KidneyDataService();
-        this._kidneyDataService.init();
-
-        this._graphData = this._kidneyDataService.graphData;
         //We start from switched off omega threes and container lyphs
         this._graphData.toggleLinks(this._hideLinks);
 
@@ -310,7 +301,7 @@ export class WebGLSceneComponent {
     createGraph() {
         //Create
         this.graph = new ThreeForceGraph()
-            .graphData(this._graphData);
+            .graphData(this._graphData || {});
 
         this.graph.d3Force("x", forceX().x(d => ('x' in d.layout)? d.layout.x: 0)
             .strength(d => ('x' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5) : 0)
@@ -406,15 +397,6 @@ export class WebGLSceneComponent {
         }
     }
 
-    get graphData(){
-        return this._graphData;
-    }
-
-    set graphData(newGraphData){
-        this._graphData = newGraphData;
-        if (this.graph) { this.graph.graphData(this._graphData); }
-    }
-
     onKeyDown(evt){
         let keyCode = evt.which;
         if (evt.ctrlKey){
@@ -507,18 +489,6 @@ export class WebGLSceneComponent {
         this._numDimensions = numDimensions;
         this.graph.numDimensions(numDimensions);
     };
-
-    toggleDataset(name){
-        if (name === "kidney"){
-            this.graphData = this._kidneyDataService.graphData;
-        } else {
-            if (!this._testDataService){
-                this._testDataService = new TestDataService();
-                this._testDataService.init();
-            }
-            this.graphData = this._testDataService.graphData;
-        }
-    }
 
     toggleOmegaTrees(){
         this._hideLinks.hideTrees = !this._hideLinks.hideTrees;
