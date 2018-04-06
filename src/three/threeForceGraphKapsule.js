@@ -75,7 +75,6 @@ export default Kapsule({
         simulation: forceSimulation()
             .force('link', forceLink())
             .force('charge', forceManyBody())
-            .force('collide', forceCollide(15))
         .stop()
     }),
 
@@ -131,7 +130,3 @@ export default Kapsule({
         }
     }
 });
-
-
-
-

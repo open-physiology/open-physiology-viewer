@@ -77,12 +77,10 @@ export class LinkModel extends Model {
      */
     createViewObjects(state){
         if (this.type === LINK_TYPES.COALESCENCE) {return; }
-        let positions;
-
+        let obj;
         //Link
         if (!this.viewObjects["main"]) {
             let geometry;
-            let obj;
             if (this.type === LINK_TYPES.AXIS) {
                 geometry = new THREE.Geometry();
                 if (!this.material) {
@@ -93,40 +91,41 @@ export class LinkModel extends Model {
                 obj = new THREE.Line(geometry, this.material);
 
             } else {
-                geometry = new THREE.BufferGeometry();
-                let lineWidthVal = 1;
+
                 if (!this.material) {
-                    // this.material = state.materialRepo.createLineBasicMaterial({
-                    //     color: this.color,
-                    //     polygonOffsetFactor: -4
-                    // });
-                    this.material = new MeshLineMaterial({
-                        color: new THREE.Color(this.color),
-                        lineWidth: lineWidthVal
-                    });
+                    this.material = new THREE.MeshBasicMaterial({
+                        color: this.color,
+                        polygonOffsetFactor: -4
+
+                      });
+
                 }
 
-                if (this.type === LINK_TYPES.PATH) {
-                    positions = new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3);
-                    // positions = new Float32Array(state.linkResolution * 3);
-                    geometry.addAttribute('position', positions);
+                let lineWidth = 2;
+                let longitudinalSegments = 2;
+                let radialSegments = 8;
+                let closed = true;
 
-                } else {
-                    if (this.type === LINK_TYPES.LINK) {
-                        positions = new THREE.BufferAttribute(new Float32Array(2 * 3), 3);
-                        geometry.addAttribute('position', positions);
+                var path = new THREE.SplineCurve3([
+                  new THREE.Vector3(0,0,0),
+                  new THREE.Vector3(0,0,0),
+                ]);
 
-                    }
-                }
-                geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
+                var geometry = new THREE.TubeGeometry( path, longitudinalSegments, lineWidth, radialSegments, closed );
 
-                let line = new MeshLine();
-                line.setGeometry( geometry );
+                // if (this.type === LINK_TYPES.PATH) {
+                //     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
+                // } else {
+                //     if (this.type === LINK_TYPES.LINK) {
+                //         geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(3 * 4), 3));
+                //     }
+                //     // geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0,0,0)];
+                // }
 
-                obj = new THREE.Mesh(line.geometry, this.material);
+                var buffGeom = new THREE.BufferGeometry().fromGeometry( geometry );
+                obj = new THREE.Mesh(buffGeom, this.material);
+
             }
-
-            obj = new THREE.Line(geometry, this.material);
 
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
@@ -216,33 +215,31 @@ export class LinkModel extends Model {
             delete this.viewObjects['icon'];
             delete this.viewObjects["iconLabel"];
         }
-        // console.log("linkObj: ", linkObj)
 
         //Update buffered geometries
-
-        let newPoints;
-        if (linkObj && linkObj.geometry.attributes){
-            let linkPos = linkObj.geometry.attributes.position;
-
-            if (linkPos){
-
-
-                for (let i = 0; i < points.length; i++) {
-                    linkPos.array[3 * i] = points[i].x;
-                    linkPos.array[3 * i + 1] = points[i].y;
-                    linkPos.array[3 * i + 2] = points[i].z;
-                }
-
-                linkPos.needsUpdate = true;
-                linkObj.geometry.verticesNeedUpdate = true;
-                //
-
-                linkObj.geometry.computeBoundingSphere();
-
-                // console.log(linkPos);
-                // throw new Error();
-
-            }
+        if ((this.type === LINK_TYPES.LINK) || (this.type === LINK_TYPES.PATH)){
+          if (linkObj && linkObj.geometry.attributes){
+            var newGeom = this.getTubeGeom(points);
+            linkObj.geometry = newGeom;
+          }
         }
+      }
+
+    getTubeGeom(points){
+      var vecs = [];
+
+      for (var i = 0; i < points.length; i++){
+        vecs.push(new THREE.Vector3(points[i].x, points[i].y, points[i].z));
+      }
+
+      var path = new THREE.CatmullRomCurve3( vecs );
+
+      let lineWidth = 1.5;
+      let longitudinalSegments = 100;
+      let radialSegments = 8;
+      let closed = false;
+
+      var geometry = new THREE.TubeGeometry( path, longitudinalSegments, lineWidth, radialSegments, closed );
+      return new THREE.BufferGeometry().fromGeometry(geometry);
     }
 }
