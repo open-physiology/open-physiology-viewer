@@ -1,4 +1,4 @@
-import {modelClasses} from "../model";
+import {$Field, modelClasses} from "../model";
 import {copyCoords, extractCoords, getPoint} from "./util/utils";
 
 const {Chain, Node} = modelClasses;
@@ -11,9 +11,14 @@ Chain.prototype.update = function(){
     start = extractCoords(start);
     end   = extractCoords(end);
     if (start && end) {
+        if (this.startFromLeaf){
+            let tmp = end;
+            end = start;
+            start = tmp;
+        }
         let curve = this.wiredTo ? this.wiredTo.getCurve(start, end) : null;
         let length = (curve && curve.getLength) ? curve.getLength() : end.distanceTo(start);
-        if (length < 10) {
+        if (length < 5) {
             return;
         }
         this.length = length;
@@ -24,7 +29,8 @@ Chain.prototype.update = function(){
             this.levels[i].length = this.length / this.levels.length;
             const lyph = this.levels[i].conveyingLyph;
             if (lyph) {
-                lyph.updateSize();
+                const size = lyph.sizeFromAxis;
+                [$Field.width, $Field.height].forEach(prop => lyph[prop] = size[prop]);
             }
             let node = this.levels[i].target;
             if (node && !node.anchoredTo) {
