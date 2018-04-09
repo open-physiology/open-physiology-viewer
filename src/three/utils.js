@@ -2,6 +2,8 @@ import { schemePaired } from 'd3-scale-chromatic';
 import * as three from 'three';
 const THREE = window.THREE || three;
 const ThreeBSP = require('three-js-csg')(THREE);
+let MeshLine = require( 'three.meshline' );
+
 
 /**
  * Autoset attribute colorField by colorByAccessor property
@@ -286,11 +288,6 @@ export function translate(object, offset, direction) {
     return true;
 }
 
-//Experiment with tube geometry to draw thick edges
-export function thickLine(curve, material){
-    return  new THREE.Mesh(new THREE.TubeGeometry(curve, 100, 0.5, 20, false), material);
-}
-
 export function getBoundingBox(mesh) {
     if (!mesh.geometry){ return null; }
     mesh.geometry.computeBoundingBox();
@@ -305,4 +302,46 @@ export function getCenterPoint(mesh) {
     let center = mesh.geometry.boundingBox.getCenter();
     mesh.localToWorld(center);
     return center;
+}
+
+export function getTubeGeom(points, nLongitudinalSegments, lineWidth, radialSegments, closed){
+    let vecs = [];
+
+    for (let i = 0; i < points.length; i++){
+      vecs.push(new THREE.Vector3(points[i].x, points[i].y, points[i].z));
+    }
+
+    let path = new THREE.CatmullRomCurve3( vecs );
+
+    let geometry = new THREE.TubeGeometry( path, nLongitudinalSegments, lineWidth, radialSegments, closed );
+
+    return new THREE.BufferGeometry().fromGeometry(geometry);
+
+}
+
+export function getLineGeometry(points) {
+
+    let vecs = [];
+    let geometry = new THREE.Geometry();
+
+    for (let i = 0; i < points.length; i++){
+      vecs.push(new THREE.Vector3(points[i].x, points[i].y, points[i].z));
+    }
+    geometry.vertices = vecs;
+    let line = new MeshLine.MeshLine();
+    line.setGeometry( geometry );
+
+    return line.geometry;
+
+    return new THREE.BufferGeometry().fromGeometry( line.geometry );
+}
+
+export function pointsAsVec(points){
+    let vecs = [];
+
+    for (let i = 0; i < points.length; i++){
+      vecs.push(new THREE.Vector3(points[i].x, points[i].y, points[i].z));
+    }
+
+    return vecs;
 }

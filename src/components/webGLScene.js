@@ -15,6 +15,8 @@ import {
 } from 'd3-force-3d';
 
 const WindowResize = require('three-window-resize');
+let FPSCounter = require('three-fps-counter')(THREE);
+
 import {MeshLine, MeshLineMaterial} from 'three.meshline';
 
 //TODO dataset toggle group should be external ideally and supply data services in constructor of this component
@@ -23,6 +25,8 @@ import {KidneyDataService} from '../services/kidneyDataService';
 
 import {LINK_TYPES} from '../models/linkModel';
 import {ModelInfoPanel} from './modelInfo';
+
+
 
 @Component({
     selector: 'webGLScene',
@@ -103,6 +107,16 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
                         <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
+                    <fieldset>
+                        <legend>Link Geometry:</legend>
+                        <input type="radio" name="linkGeometry"
+                                     (change)="toggleLinkGeometry('TUBE')" checked/> Tube
+                        <input type="radio" name="linkGeometry"
+                               (change)="toggleLinkGeometry('MESHLINE')"/> MeshLine
+                             <input type="radio" name="linkGeometry"
+                                    (change)="toggleLinkGeometry('LINE')"/> Line
+
+                    </fieldset>
                 </section>
 
                 <section class="w3-padding-top" style="padding-right: 3px;">
@@ -144,6 +158,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers = {};
+    graphicParams;
 
     /**
      * @emits highlightedItemChange - the highlighted item changed
@@ -161,6 +176,8 @@ export class WebGLSceneComponent {
     }
 
     ngAfterViewInit(){
+        // this.graphicParams = require('../config/graphicParams.json');
+
         if (this.renderer) {return;} //already initialized
 
         this._kidneyDataService = new KidneyDataService();
@@ -189,6 +206,7 @@ export class WebGLSceneComponent {
         this.camera.updateProjectionMatrix();
 
 
+
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
         this.scene.add(ambientLight);
@@ -207,8 +225,10 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         // this.test(); //TODO remove
+        this.fpsCounter = new FPSCounter( this.renderer );
 
         this.animate();
+
     }
 
 
@@ -239,6 +259,7 @@ export class WebGLSceneComponent {
         }
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
+        this.fpsCounter.render();
         window.requestAnimationFrame(_ => this.animate());
     }
 
@@ -290,6 +311,12 @@ export class WebGLSceneComponent {
             .strength(d => (d.type === LINK_TYPES.CONTAINER)? 0: 1);
 
         this.scene.add(this.graph);
+    }
+
+    deleteGraph(){
+      this.scene.remove(this.graph);
+      delete this.graph;
+
     }
 
     update(){
@@ -442,7 +469,6 @@ export class WebGLSceneComponent {
     }
 
     //Toggle scene elements
-
     togglePlanes(keys){
         keys.filter(key => this.helpers[key]).forEach(key => {this.helpers[key].visible = !this.helpers[key].visible});
     }
@@ -469,6 +495,13 @@ export class WebGLSceneComponent {
     toggleLinkLabels(){
         this._showLinkLabels = !this._showLinkLabels;
         this.graph.showLinkLabel(this._showLinkLabels);
+    }
+
+    toggleLinkGeometry( linkGeometry ){
+      this.deleteGraph();
+      this.createGraph();
+      this.graph.linkGeometry(linkGeometry);
+
     }
 
     toggleLyphLabels(){

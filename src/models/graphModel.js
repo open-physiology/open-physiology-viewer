@@ -7,6 +7,7 @@ import {NODE_TYPES} from './nodeModel';
 export class GraphModel extends Model {
     nodes: [];
     links: [];
+
     //coalescences: [];
 
     static fromJSON(json, modelClasses = {}) {
@@ -46,6 +47,11 @@ export class GraphModel extends Model {
     updateViewObjects(state){
         // Update nodes positions
         this.nodes.forEach(node => { node.updateViewObjects(state) });
+
+        // Update link geometryType
+        this.links.forEach(link => {
+            link.updateViewObjects(state)}
+        );
 
         // Update links position for paths, compute positions of omega nodes
         this.links.filter(link => link.type === LINK_TYPES.PATH).forEach(link => {

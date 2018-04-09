@@ -42,6 +42,7 @@ export default Kapsule({
         showLyphLabel  : { default: false},
         nodeLabel      : { default: 'id'},
         linkLabel      : { default: 'id'},
+        linkGeometry   : { default: 'TUBE'},
         iconLabel      : { default: 'id'},
         fontParams     : { default: {
             font: '10px Arial', fillStyle: '#888', antialias: true }
