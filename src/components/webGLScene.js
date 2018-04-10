@@ -376,6 +376,42 @@ export class WebGLSceneComponent {
         }
     }
 
+    processQuery(){
+        let config = {
+            parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
+            baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
+        };
+        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
+        dialogRef.afterClosed().subscribe(result => {
+            if (result && result.response){
+                this.queryCounter++;
+                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
+                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
+                const nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
+                const links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
+                const lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
+                if (nodes.length || links.length || lyphs.length) {
+                    this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
+                } else {
+                    this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
+                }
+            }
+        })
+    }
+
+    exportJSON(){
+        if (this._graphData){
+            let result = JSON.stringify(this._graphData.toJSON(3, {
+                [$Field.border]   : 3,
+                [$Field.borders]  : 3,
+                [$Field.villus]   : 3,
+                [$Field.scaffolds]: 5
+            }), null, 2);
+            const blob = new Blob([result], {type: 'application/json'});
+            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
+        }
+    }
+
     exportResourceMapLD(){
         if (this._graphData){
             let result = JSON.stringify(this._graphData.entitiesToJSONLD(), null, 2);

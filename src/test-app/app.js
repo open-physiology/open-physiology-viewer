@@ -347,7 +347,29 @@ export class TestApp {
         }
     }
 
-    applyScaffold(modelA, modelB){
+    removeDisconnectedObjects(model, joinModel) {
+
+        let connected = joinModel.chains
+                        .map((c) => c.wiredTo)
+                        .concat(model.anchors
+                        .map((c) => c.hostedBy))
+                        .concat(joinModel.chains
+                        .map((c) => c.hostedBy))
+                        .filter((c) => c !== undefined); 
+                        
+  
+        let disconnectedModel = Object.assign(model, 
+          { 
+            regions: model.regions.filter((r) => connected.indexOf(r.id) > -1 )
+          , wires: model.wires.filter((r) => connected.indexOf(r.id) > -1 )
+          }
+        );
+        
+        return disconnectedModel;
+  
+      }
+
+      applyScaffold(modelA, modelB){
         const applyScaffold = (model, scaffold) => {
             model.scaffolds = model.scaffolds || [];
             if (!model.scaffolds.find(s => s.id === scaffold.id)){
@@ -357,28 +379,30 @@ export class TestApp {
             }
             this.model = model;
         };
-
+  
         if (isScaffold(modelA)){
             applyScaffold(modelB, modelA);
         } else {
             applyScaffold(modelA, modelB);
         }
-    }
-
+    } 
+  
     join(newModel) {
         if (this._model.id === newModel.id){
             throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
         if (isScaffold(this._model) !== isScaffold(newModel)){
-            this.applyScaffold(this._model, newModel);
+          this.model = this.removeDisconnectedObjects(this._model, newModel);
+          this.applyScaffold(this._model, newModel);         
         } else {
-            let jointModel = joinModels(this._model, newModel, this._flattenGroups);
-            jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
-            this.model = jointModel;
-            this._flattenGroups = true;
+          this.model = this.removeDisconnectedObjects(this._model, newModel);
+          let jointModel = joinModels(this._model, newModel, this._flattenGroups);
+          jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+          this.model = jointModel;
+          this._flattenGroups = true;
         }
     }
-
+    
     merge(newModel) {
         if (isScaffold(this._model) !== isScaffold(newModel)){
             this.applyScaffold(this._model, newModel);
