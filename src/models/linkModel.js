@@ -122,12 +122,10 @@ export class LinkModel extends Model {
 
     if (this.type === LINK_TYPES.AXIS) {
       this.geometry = new THREE.Geometry();
-      if (!this.material) {
         //axis can stay behind any other visual objects (default polygonOffsetFactor)
         this.material = state.materialRepo.createLineDashedMaterial({
           color: this.color
         });
-      }
       this.geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
       obj = new THREE.Line(this.geometry, this.material);
 
@@ -157,12 +155,10 @@ export class LinkModel extends Model {
         obj = new THREE.Line2(this.geometry, this.material);
 
       } else if (state.linkGeometry === 'TUBE') {
-        if (!this.material) {
-          this.material = new THREE.MeshBasicMaterial({
-            color: this.color,
-            polygonOffsetFactor: -4
-          });
-        }
+        this.material = new THREE.MeshBasicMaterial({
+          color: this.color,
+          polygonOffsetFactor: -4
+        });
         this.radialSegments = 3; // Increase this to make linewidth rounder. Min of 3.
         this.closed = false;
 
