@@ -1,35 +1,10 @@
 import { Model } from './model';
+import { BorderLinkModel, BORDER_LINK_TYPES } from './borderLinkModel';
 import { assign } from 'lodash-bound';
 
-export const BORDER_LINK_TYPES = {
-    RADIAL      : "radial",
-    LONGITUDINAL: "longitudinal"
-};
-
-export class BorderLinkModel extends Model {
-    type;
-    parentBorder;
-
-    //define border shape to use as rotational axis
-    source;
-    target;
-    length;
-
-    toJSON() {
-        let res = super.toJSON();
-        res.type   = this.type;
-        res.parentBorder   = this.parentBorder && this.parentBorder.id;
-        return res;
-    }
-
-    static fromJSON(json, modelClasses = {}) {
-        json.class = json.class || "BorderLink";
-        const result = super.fromJSON(json, modelClasses);
-        result::assign(json); //TODO pick only valid properties
-        return result;
-    }
-}
-
+/**
+ * Complete lyph border
+ */
 export class BorderModel extends Model {
     borderLinks;
     type;
@@ -71,11 +46,15 @@ export class BorderModel extends Model {
     }
 
     createViewObjects(state){
-
+        (this.borderLinks || []).forEach(border =>
+            border.createViewObjects(state)
+        )
     }
 
     updateViewObjects(state){
-
+        (this.borderLinks || []).forEach(border =>
+            border.updateViewObjects(state)
+        )
     }
 
 }

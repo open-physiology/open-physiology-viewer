@@ -123,7 +123,7 @@ export class DataService {
             node.layout = node.layout || {};
         });
 
-        const axisLength = 400;
+        const axisLength = 300;
         const scaleFactor = axisLength * 0.01;
 
         //Map initial positional constraints to match the scaled image
