@@ -265,11 +265,14 @@ export class LyphModel extends Model {
                         let _linkStart = new THREE.Vector3(link.source.x, link.source.y, link.source.z || 0);
                         let _linkEnd = new THREE.Vector3(link.target.x, link.target.y, link.target.z || 0);
 
-                        _linkStart  = plane.projectPoint ( _linkStart);
-                        _linkEnd = plane.projectPoint ( _linkEnd );
+                        plane.projectPoint(link.source, _linkStart);
+                        plane.projectPoint(link.target, _linkEnd);
 
-                        copyCoords(link.source, _linkStart);
-                        copyCoords(link.target, _linkEnd);
+                        // _linkStart  = plane.projectPoint(_linkStart);
+                        // _linkEnd = plane.projectPoint(_linkEnd);
+                        //
+                        // copyCoords(link.source, _linkStart);
+                        // copyCoords(link.target, _linkEnd);
                     //}
                 });
 

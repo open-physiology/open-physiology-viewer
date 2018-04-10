@@ -115,6 +115,8 @@ import {ModelInfoPanel} from './modelInfo';
                                (change)="toggleLinkGeometry('MESHLINE')"/> MeshLine
                              <input type="radio" name="linkGeometry"
                                     (change)="toggleLinkGeometry('LINE')"/> Line
+                                    <input type="radio" name="linkGeometry"
+                                           (change)="toggleLinkGeometry('LINE2')"/> Line2
 
                     </fieldset>
                 </section>

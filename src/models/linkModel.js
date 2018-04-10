@@ -15,8 +15,23 @@ import {
   bezierSemicircle,
   copyCoords,
   getTubeGeom,
-  getLineGeometry
+  getMeshLineGeometry
 } from '../three/utils';
+
+import {
+  LineSegments2
+} from '../three/lines/LineSegments2.js';
+import {
+  LineGeometry
+} from '../three/lines/LineGeometry.js';
+import {
+  Line2
+} from '../three/lines/Line2.js';
+import {
+  LineMaterial
+} from '../three/lines/LineMaterial.js';
+
+
 
 let MeshLine = require('three.meshline');
 
@@ -100,94 +115,97 @@ export class LinkModel extends Model {
     }
     let obj;
 
-    console.log("In create link ", state.linkGeometry);
-    console.log("this.viewObjects[main] ", this.viewObjects["main"]);
-
     this.viewObjects = {};
-    //Link
-    // if (!this.viewObjects["main"]) {
-      this.lineWidth = 1.5;
+
+    this.lineWidth = 1.5;
 
 
-      if (this.type === LINK_TYPES.AXIS) {
-        this.geometry = new THREE.Geometry();
-        if (!this.material) {
-          //axis can stay behind any other visual objects (default polygonOffsetFactor)
-          this.material = state.materialRepo.createLineDashedMaterial({
-            color: this.color
-          });
+    if (this.type === LINK_TYPES.AXIS) {
+      this.geometry = new THREE.Geometry();
+      if (!this.material) {
+        //axis can stay behind any other visual objects (default polygonOffsetFactor)
+        this.material = state.materialRepo.createLineDashedMaterial({
+          color: this.color
+        });
+      }
+      this.geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
+      obj = new THREE.Line(this.geometry, this.material);
+
+    } else {
+
+      if (state.linkGeometry === 'LINE') {
+        this.geometry = new THREE.BufferGeometry();
+        this.material = state.materialRepo.createLineBasicMaterial({
+          color: this.color,
+          polygonOffsetFactor: -4
+        });
+        if (this.type === LINK_TYPES.PATH) {
+          this.geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
+        } else {
+          if (this.type === LINK_TYPES.LINK) {
+            this.geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
+          }
         }
-        this.geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
         obj = new THREE.Line(this.geometry, this.material);
+      } else if (state.linkGeometry === 'LINE2') {
+        this.geometry = new THREE.LineGeometry();
+        this.material = new THREE.LineMaterial({
+          color: this.color,
+          linewidth: 0.002 * this.lineWidth
+        });
 
-      } else {
+        obj = new THREE.Line2(this.geometry, this.material);
 
-        if (state.linkGeometry === 'LINE') {
-          this.geometry = new THREE.BufferGeometry();
-           if (!this.material) {
-               this.material = state.materialRepo.createLineBasicMaterial({
-                   color: this.color,
-                   polygonOffsetFactor: -4
-               });
-           }
-          if (this.type === LINK_TYPES.PATH) {
-            this.geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
-          } else {
-            if (this.type === LINK_TYPES.LINK) {
-              this.geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-            }
-          }
-          obj = new THREE.Line(this.geometry, this.material);
-
-        } else if (state.linkGeometry === 'TUBE') {
-          if (!this.material) {
-            this.material = new THREE.MeshBasicMaterial({
-              color: this.color,
-              polygonOffsetFactor: -4
-            });
-          }
-          this.radialSegments = 3; // Increase this to make linewidth rounder. Min of 3.
-          this.closed = false;
-
-          if (this.type == LINK_TYPES.PATH) {
-            this.nLongitudinalSegments = 50; // For longtiduinally rounded lines
-          } else {
-            this.nLongitudinalSegments = 1; // Straight lines only need 1 segment
-          }
-
-          let path = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, 0, 0),
-          ]);
-
-          this.geometry = new THREE.TubeGeometry(path, this.nLongitudinalSegments, this.lineWidth, this.radialSegments, this.closed);
-
-          this.geometry = new THREE.BufferGeometry().fromGeometry(this.geometry);
-          obj = new THREE.Mesh(this.geometry, this.material);
-
-        } else if (state.linkGeometry === 'MESHLINE') {
-          this.geometry = new THREE.Geometry();
-
-          let path = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, 0, 0),
-          ]);
-
-          this.meshLineMaterial = new MeshLine.MeshLineMaterial({
-            color: new THREE.Color(this.color),
-            lineWidth: this.lineWidth
+      } else if (state.linkGeometry === 'TUBE') {
+        if (!this.material) {
+          this.material = new THREE.MeshBasicMaterial({
+            color: this.color,
+            polygonOffsetFactor: -4
           });
-          this.material = this.meshLineMaterial;
+        }
+        this.radialSegments = 3; // Increase this to make linewidth rounder. Min of 3.
+        this.closed = false;
 
-          this.geometry = new THREE.BufferGeometry().fromGeometry(this.geometry);
-          obj = new THREE.Mesh(this.geometry, this.material);
+        if (this.type == LINK_TYPES.PATH) {
+          this.nLongitudinalSegments = 50; // For longtiduinally rounded lines
+        } else {
+          this.nLongitudinalSegments = 1; // Straight lines only need 1 segment
         }
 
+        let path = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0, 0, 0),
+        ]);
+
+        this.geometry = new THREE.TubeGeometry(path, this.nLongitudinalSegments, this.lineWidth, this.radialSegments, this.closed);
+
+        this.geometry = new THREE.BufferGeometry().fromGeometry(this.geometry);
+        obj = new THREE.Mesh(this.geometry, this.material);
+
+      } else if (state.linkGeometry === 'MESHLINE') {
+        this.geometry = new THREE.Geometry();
+
+        let path = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0, 0, 0),
+        ]);
+
+        this.meshLineMaterial = new MeshLine.MeshLineMaterial({
+          color: new THREE.Color(this.color),
+          lineWidth: this.lineWidth
+        });
+        this.material = this.meshLineMaterial;
+
+        this.geometry = new THREE.BufferGeometry().fromGeometry(this.geometry);
+        obj = new THREE.Mesh(this.geometry, this.material);
       }
 
-      obj.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
-      obj.__data = this; // Attach link data
-      this.viewObjects["main"] = obj;
+    }
+
+    obj.renderOrder = 10; // Prevent visual glitches of dark lines on top of nodes by rendering them last
+    obj.__data = this; // Attach link data
+
+    this.viewObjects["main"] = obj;
 
     //Link label
     this.labelObjects = this.labelObjects || {};
@@ -239,7 +257,7 @@ export class LinkModel extends Model {
           copyCoords(linkObj.geometry.vertices[0], this.source);
           copyCoords(linkObj.geometry.vertices[1], this.target);
           linkObj.geometry.verticesNeedUpdate = true;
-          linkObj.geometry.computeLineDistances();
+          linkObj.computeLineDistances();
           break;
         }
       case LINK_TYPES.PATH:
@@ -292,7 +310,7 @@ export class LinkModel extends Model {
           linkObj.geometry = newGeom;
 
         } else if (state.linkGeometry === 'MESHLINE') {
-          newGeom = getLineGeometry(points);
+          newGeom = getMeshLineGeometry(points);
 
           linkObj.geometry = newGeom;
 
@@ -303,8 +321,8 @@ export class LinkModel extends Model {
             });
             linkObj.material = this.meshLineMaterial;
           }
+
         } else if (state.linkGeometry === 'LINE') {
-          // linkObj.geometry.attributes.position.array = [];
           let linkPos = linkObj.geometry.attributes.position;
 
           for (let i = 0; i < points.length; i++) {
@@ -314,9 +332,22 @@ export class LinkModel extends Model {
           }
           linkPos.needsUpdate = true;
           linkObj.geometry.computeBoundingSphere();
+        } else if (state.linkGeometry === 'LINE2') {
+          let linkPos = linkObj.geometry.attributes.position;
+          let newPoints = [];
+
+          for (let i = 0; i < points.length; i++) {
+            newPoints.push(points[i].x, points[i].y, points[i].z);
+          }
+
+          linkPos.needsUpdate = true;
+          linkObj.geometry.setPositions(newPoints);
+
         }
         linkObj.geometry.attributes.position.dynamic = true;
+
       }
+
 
     }
 

@@ -1,5 +1,13 @@
 import { schemePaired } from 'd3-scale-chromatic';
 import * as three from 'three';
+
+import {
+  LineSegmentsGeometry
+} from '../three/lines/LineSegmentsGeometry.js';
+import {
+  LineGeometry
+} from '../three/lines/LineGeometry.js';
+
 const THREE = window.THREE || three;
 const ThreeBSP = require('three-js-csg')(THREE);
 let MeshLine = require( 'three.meshline' );
@@ -315,33 +323,21 @@ export function getTubeGeom(points, nLongitudinalSegments, lineWidth, radialSegm
 
     let geometry = new THREE.TubeGeometry( path, nLongitudinalSegments, lineWidth, radialSegments, closed );
 
-    return new THREE.BufferGeometry().fromGeometry(geometry);
-
+    return new THREE.BufferGeometry().fromGeometry( geometry );
 }
 
-export function getLineGeometry(points) {
+export function getMeshLineGeometry(points) {
 
-    let vecs = [];
-    let geometry = new THREE.Geometry();
 
+    let vecs =[];
     for (let i = 0; i < points.length; i++){
       vecs.push(new THREE.Vector3(points[i].x, points[i].y, points[i].z));
     }
+
+    let geometry = new THREE.Geometry();
     geometry.vertices = vecs;
     let line = new MeshLine.MeshLine();
     line.setGeometry( geometry );
 
     return line.geometry;
-
-    return new THREE.BufferGeometry().fromGeometry( line.geometry );
-}
-
-export function pointsAsVec(points){
-    let vecs = [];
-
-    for (let i = 0; i < points.length; i++){
-      vecs.push(new THREE.Vector3(points[i].x, points[i].y, points[i].z));
-    }
-
-    return vecs;
 }

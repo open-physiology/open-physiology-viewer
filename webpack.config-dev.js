@@ -33,6 +33,9 @@ module.exports = {
             /power-assert-formatter[\\\/]lib/,
             path.resolve('./src'),
             {}
-        )
+        ),
+				new webpack.ProvidePlugin({
+		      THREE: 'three'
+		    })				
 	]
 };
