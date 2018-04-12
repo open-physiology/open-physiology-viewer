@@ -34,8 +34,9 @@ export default Kapsule({
         nodeId         : { default: 'id' },
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
         linkResolution : { default: 50},
+        linkMethod     : { default: 'Line2'}, //link rendering method
         showLyphs      : { default: true},
-        showLayers     : { default: false}, //TODO replace with true
+        showLayers     : { default: true}, //TODO replace with true
         method         : { default: '2d'},
         showNodeLabel  : { default: true},
         showLinkLabel  : { default: false},

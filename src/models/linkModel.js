@@ -102,38 +102,29 @@ export class LinkModel extends Model {
                 obj = new THREE.Line(geometry, this.material);
 
             } else {
-                // Line 1. //TODO delete
-                // geometry = new THREE.BufferGeometry();
-                // if (!this.material) {
-                //     this.material = state.materialRepo.createLineBasicMaterial({
-                //         color: this.color,
-                //         polygonOffsetFactor: -4
-                //     });
-                // }
-                // if (this.type === LINK_TYPES.PATH) {
-                //     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(state.linkResolution * 3), 3));
-                // } else {
-                //     if (this.type === LINK_TYPES.LINK) {
-                //         geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-                //     }
-                // }
-                // obj = new THREE.Line(geometry, this.material);
-
-
-                // New Line 2 method
-                geometry = new THREE.LineGeometry();
-                this.material = new THREE.LineMaterial({
-                  color: this.color,
-                  linewidth: 0.003
-                });
-
-                this.material = new THREE.LineMaterial({
-                  color: this.color,
-                  linewidth: 0.003,
-                });
-
-                obj = new THREE.Line2(geometry, this.material);
-
+                if (state.linkMethod === 'Line2'){
+                    // Line 2 method: draws thick lines
+                    geometry = new THREE.LineGeometry();
+                    if (!this.material) {
+                        this.material = new THREE.LineMaterial({
+                            color: this.color,
+                            linewidth: 0.002
+                        });
+                    }
+                    obj = new THREE.Line2(geometry, this.material);
+                } else {
+                    // Draw lines
+                    geometry = new THREE.BufferGeometry();
+                    if (!this.material) {
+                        this.material = state.materialRepo.createLineBasicMaterial({
+                            color: this.color,
+                            polygonOffsetFactor: -4
+                        });
+                    }
+                    let size = (this.type === LINK_TYPES.PATH)? state.linkResolution: 2;
+                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
+                    obj = new THREE.Line(geometry, this.material);
+                }
             }
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
@@ -225,33 +216,27 @@ export class LinkModel extends Model {
         }
 
         //Update buffered geometries
+        //Do not visualize container links
+        if (this.type === LINK_TYPES.CONTAINER)   {return; }
+
         if (linkObj && linkObj.geometry.attributes){
-            let linkPos = linkObj.geometry.attributes.position;
-            if (linkPos){
-
-              if (this.type !== 'container'){
-
-                // Original Line method
-                // for (let i = 0; i < points.length; i++) {
-                //     linkPos.array[3 * i] = points[i].x;
-                //     linkPos.array[3 * i + 1] = points[i].y;
-                //     linkPos.array[3 * i + 2] = points[i].z;
-                // }
-                // linkPos.needsUpdate = true;
-                // linkObj.geometry.computeBoundingSphere();
-
-                // New Line 2 method
-                let newPoints = [];
-
+            if (state.linkMethod === 'Line2'){
+                let coordArray = [];
                 for (let i = 0; i < points.length; i++) {
-                  newPoints.push(points[i].x, points[i].y, points[i].z);
+                    coordArray.push(points[i].x, points[i].y, points[i].z);
                 }
-
-                linkPos.needsUpdate = true;
-                linkObj.geometry.setPositions(newPoints);
-
-                linkObj.geometry.attributes.position.dynamic = true;
-              }
+                linkObj.geometry.setPositions(coordArray);
+            } else {
+                let linkPos = linkObj.geometry.attributes.position;
+                if (linkPos){
+                    for (let i = 0; i < points.length; i++) {
+                        linkPos.array[3 * i] = points[i].x;
+                        linkPos.array[3 * i + 1] = points[i].y;
+                        linkPos.array[3 * i + 2] = points[i].z;
+                    }
+                    linkPos.needsUpdate = true;
+                    linkObj.geometry.computeBoundingSphere();
+                }
             }
         }
     }

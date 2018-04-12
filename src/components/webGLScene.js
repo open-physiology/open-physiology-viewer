@@ -3,39 +3,16 @@ import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
 
-// Object.unfreeze = function (o) {
-//     let oo = undefined;
-//     if (o instanceof Array) {
-//         oo = [];
-//         let clone = function (v) { oo.push(v) };
-//         o.forEach(clone)
-//     }
-//     else if (o instanceof String) {
-//         oo = new String(o).toString()
-//     }
-//     else if (typeof o == 'object') {
-//         oo = {}
-//         for (let property in o) {
-//             oo[property] = o[property]
-//         }
-//     }
-//     return oo
-// };
-
 import * as THREE from 'three';
 
-// window.THREE = Object.unfreeze(require('three'));
-
-
 const OrbitControls = require('three-orbit-controls')(THREE);
-
 
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
     forceX,
     forceY,
     forceZ,
-    forceRadial
+    //forceRadial
 } from 'd3-force-3d';
 
 
@@ -96,18 +73,18 @@ import {ModelInfoPanel} from './modelInfo';
                     </fieldset>
 
 
-                    <!--<fieldset>-->
-                        <!--<legend>Lyphs:</legend>-->
-                        <!--<input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs-->
-                        <!--<input [disabled]="!_showLyphs"-->
-                               <!--type="checkbox" name="layers" (change)="toggleLayers()"/> Layers-->
+                    <fieldset>
+                        <legend>Lyphs:</legend>
+                        <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
+                        <input [disabled]="!_showLyphs"
+                               type="checkbox" name="layers" (change)="toggleLayers()" checked/> Layers
 
-                        <!--<fieldset [disabled]="!_showLyphs">-->
-                            <!--<legend>Lyph icon:</legend>-->
-                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D-->
-                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D-->
-                        <!--</fieldset>-->
-                    <!--</fieldset>-->
+                        <fieldset [disabled]="!_showLyphs">
+                            <legend>Lyph icon:</legend>
+                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D
+                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D
+                        </fieldset>
+                    </fieldset>
 
                     <!--<fieldset>-->
                         <!--<legend>Dimensions:</legend>-->
@@ -187,7 +164,7 @@ export class WebGLSceneComponent {
 
     constructor() {
         this._showLyphs  = true;
-        this._showLayers = true; //true; //TODO uncomment for WebGL renderer
+        this._showLayers = true;
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
@@ -251,7 +228,7 @@ export class WebGLSceneComponent {
         const width  = this.canvasContainer.clientWidth;
         const height = this.canvasContainer.clientHeight;
 
-        const dimension = function(){ return { width, height } }
+        const dimension = function(){ return { width, height } };
 
         if (force || canvas.width !== width || canvas.height !== height) {
             this.windowResize = new WindowResize(this.renderer, this.camera, dimension);
@@ -344,6 +321,7 @@ export class WebGLSceneComponent {
 
         let intersects = ray.intersectObjects( this.graph.children );
         if ( intersects.length > 0 ){
+            console.log("Highlighted", intersects);
             if (intersects[ 0 ].object.__data && intersects[ 0 ].object.__data.inactive){ return; }
             // if the closest object intersected is not the currently stored intersection object
             if ( intersects[ 0 ].object !== this._highlighted ){
