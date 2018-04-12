@@ -1,5 +1,6 @@
 import { LyphModel }   from './lyphModel';
-import { BorderModel, BorderLinkModel } from './borderModel';
+import { BorderModel} from './borderModel';
+import { BorderLinkModel} from './borderLinkModel';
 import { NodeModel }   from './nodeModel';
 import { LinkModel }   from './linkModel';
 import { TreeModel }   from './treeModel';
