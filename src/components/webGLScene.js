@@ -3,30 +3,29 @@ import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule}  from '@angular/forms';
 
-Object.unfreeze = function (o) {
-    let oo = undefined;
-    if (o instanceof Array) {
-        oo = [];
-        let clone = function (v) { oo.push(v) };
-        o.forEach(clone)
-    }
-    else if (o instanceof String) {
-        oo = new String(o).toString()
-    }
-    else if (typeof o == 'object') {
-        oo = {}
-        for (let property in o) {
-            oo[property] = o[property]
-        }
-    }
-    return oo
-};
+// Object.unfreeze = function (o) {
+//     let oo = undefined;
+//     if (o instanceof Array) {
+//         oo = [];
+//         let clone = function (v) { oo.push(v) };
+//         o.forEach(clone)
+//     }
+//     else if (o instanceof String) {
+//         oo = new String(o).toString()
+//     }
+//     else if (typeof o == 'object') {
+//         oo = {}
+//         for (let property in o) {
+//             oo[property] = o[property]
+//         }
+//     }
+//     return oo
+// };
 
-//import * as THREE from 'three';
+import * as THREE from 'three';
 
-window.THREE = Object.unfreeze(require('three'));
-require('three/examples/js/renderers/Projector');
-require('three/examples/js/renderers/CanvasRenderer');
+// window.THREE = Object.unfreeze(require('three'));
+
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 
@@ -141,7 +140,7 @@ import {ModelInfoPanel} from './modelInfo';
                 <section class="w3-content w3-padding-top">
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
                 </section>
-                
+
             </section>
         </section>
     `,
@@ -188,7 +187,7 @@ export class WebGLSceneComponent {
 
     constructor() {
         this._showLyphs  = true;
-        this._showLayers = false; //true; //TODO uncomment for WebGL renderer
+        this._showLayers = true; //true; //TODO uncomment for WebGL renderer
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
@@ -209,8 +208,8 @@ export class WebGLSceneComponent {
         this.width = this.canvasContainer.clientWidth;
         this.height = this.canvasContainer.clientHeight;
 
-        //this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
-        this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+
         this.renderer.setClearColor(0xffffff);
 
         this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
