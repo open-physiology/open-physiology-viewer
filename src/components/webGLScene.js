@@ -15,10 +15,6 @@ import {
     //forceRadial
 } from 'd3-force-3d';
 
-import { Raycaster } from '../three/lines/Line2Raycaster.js';
-
-
-
 //import forceBounded from "../three/boundedForce";
 
 const WindowResize = require('three-window-resize');
