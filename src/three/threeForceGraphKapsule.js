@@ -132,7 +132,3 @@ export default Kapsule({
         }
     }
 });
-
-
-
-

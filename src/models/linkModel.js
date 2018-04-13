@@ -105,22 +105,22 @@ export class LinkModel extends Model {
                 if (state.linkMethod === 'Line2'){
                     // Line 2 method: draws thick lines
                     geometry = new THREE.LineGeometry();
-                    if (!this.material) {
-                        this.material = new THREE.LineMaterial({
-                            color: this.color,
-                            linewidth: 0.002
-                        });
-                    }
+                    this.material = new THREE.LineMaterial({
+                        color: this.color,
+                        linewidth: 0.002,
+                        polygonOffsetFactor: -4,
+                        polygonOffset: true,
+                        transparent: true
+
+                    });
                     obj = new THREE.Line2(geometry, this.material);
                 } else {
                     // Draw lines
                     geometry = new THREE.BufferGeometry();
-                    if (!this.material) {
-                        this.material = state.materialRepo.createLineBasicMaterial({
-                            color: this.color,
-                            polygonOffsetFactor: -4
-                        });
-                    }
+                    this.material = state.materialRepo.createLineBasicMaterial({
+                        color: this.color,
+                        polygonOffsetFactor: -4
+                    });
                     let size = (this.type === LINK_TYPES.PATH)? state.linkResolution: 2;
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
                     obj = new THREE.Line(geometry, this.material);
@@ -175,6 +175,7 @@ export class LinkModel extends Model {
                 copyCoords(linkObj.geometry.vertices[1], this.target);
                 linkObj.geometry.verticesNeedUpdate = true;
                 linkObj.geometry.computeLineDistances();
+
                 break;
             }
             case LINK_TYPES.PATH: {
@@ -226,6 +227,7 @@ export class LinkModel extends Model {
                     coordArray.push(points[i].x, points[i].y, points[i].z);
                 }
                 linkObj.geometry.setPositions(coordArray);
+
             } else {
                 let linkPos = linkObj.geometry.attributes.position;
                 if (linkPos){
@@ -236,6 +238,7 @@ export class LinkModel extends Model {
                     }
                     linkPos.needsUpdate = true;
                     linkObj.geometry.computeBoundingSphere();
+
                 }
             }
         }

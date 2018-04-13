@@ -15,6 +15,9 @@ import {
     //forceRadial
 } from 'd3-force-3d';
 
+import { Raycaster } from '../three/lines/Line2Raycaster.js';
+
+
 
 //import forceBounded from "../three/boundedForce";
 
@@ -317,19 +320,23 @@ export class WebGLSceneComponent {
         let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
         vector.unproject( this.camera );
 
-        let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+        let ray = new Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+
 
         let intersects = ray.intersectObjects( this.graph.children );
+        // console.log("HOILOIGHT: ", intersects);
         if ( intersects.length > 0 ){
-            console.log("Highlighted", intersects);
             if (intersects[ 0 ].object.__data && intersects[ 0 ].object.__data.inactive){ return; }
             // if the closest object intersected is not the currently stored intersection object
             if ( intersects[ 0 ].object !== this._highlighted ){
                 // restore previous intersection object (if it exists) to its original color
+
                 if ( this._highlighted ){
+
                     this._highlighted.material.color.setHex( this._highlighted.currentHex );
                     (this._highlighted.children || []).forEach(child => {
                         if (child.visible && child.material){
+
                             child.material.color.setHex( child.currentHex );
                         }
                     })
@@ -340,7 +347,10 @@ export class WebGLSceneComponent {
                 // store color of closest object (for later restoration)
                 this._highlighted.currentHex = this._highlighted.material.color.getHex();
                 (this._highlighted.children || []).forEach(child => {
+
+
                     if (child.visible && child.material){
+
                         child.currentHex = child.material.color.getHex();
                     }
                 });
@@ -351,6 +361,8 @@ export class WebGLSceneComponent {
                 // set a new color for closest object
                 this._highlighted.material.color.setHex( highlightColor );
                 (this._highlighted.children || []).forEach(child => {
+
+
                     if (child.visible && child.material){
                         child.material.color.setHex( highlightColor );
                     }
@@ -375,6 +387,7 @@ export class WebGLSceneComponent {
     }
 
     onKeyDown(evt){
+
         let keyCode = evt.which;
         if (evt.ctrlKey){
             evt.preventDefault();
@@ -483,6 +496,7 @@ export class WebGLSceneComponent {
         this._hideLinks.hideContainers = !this._hideLinks.hideContainers;
         this._graphData.toggleLinks(this._hideLinks);
         if (this.graph) { this.graph.graphData(this._graphData); }
+
     }
 
     updateLabelContent(target, property){
