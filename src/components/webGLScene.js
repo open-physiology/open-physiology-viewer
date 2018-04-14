@@ -316,7 +316,7 @@ export class WebGLSceneComponent {
         let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
         vector.unproject( this.camera );
 
-        let ray = new Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+        let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
 
 
         let intersects = ray.intersectObjects( this.graph.children );

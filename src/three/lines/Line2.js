@@ -67,7 +67,7 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 						var b = i + 1;
 
 						vStart.fromArray( instanceStart, a * 3 );
-						vEnd.fromArray( instanceEnd, b * 3 );
+						vEnd.fromArray( instanceStart, b * 3 );
 
 						var distSq = ray.distanceSqToSegment( vStart, vEnd, interRay, interSegment );
 
