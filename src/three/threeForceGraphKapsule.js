@@ -36,7 +36,7 @@ export default Kapsule({
         linkResolution : { default: 50},
         linkMethod     : { default: 'Line2'}, //link rendering method
         showLyphs      : { default: true},
-        showLayers     : { default: true}, //TODO replace with true
+        showLayers     : { default: true},
         method         : { default: '2d'},
         showNodeLabel  : { default: true},
         showLinkLabel  : { default: false},

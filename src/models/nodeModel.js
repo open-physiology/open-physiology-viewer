@@ -24,7 +24,7 @@ export class NodeModel extends Model {
 
     constructor(id) {
         super(id);
-        this.fields.text.push ('host', 'type');
+        this.fields.text.push ('host', 'type', 'x', 'y', 'z');
         this.val = this.val || 1; // Defines default radius
 
     }

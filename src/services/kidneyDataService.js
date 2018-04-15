@@ -175,18 +175,11 @@ export class KidneyDataService extends DataService{
         }, modelClasses));
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
-        containerLyph.inactive = true  // Hack to exclude this entity from being highlighted
-        //Deduce these lyphs from mapping
-        containerLyph["internalLyphs"]       = ["60", "105", "63", "78", "24", "27", "30", "33"];
+        containerLyph.inactive      = true;  // Exclude this entity from being highlighted
+        containerLyph.internalLyphs = ["60", "105", "63", "78", "24", "27", "30", "33"]; //Deduce these lyphs from mapping
 
-        //TODO place nodes on lyph border
-        containerLyph["boundaryNodes"]       = ["7013", "505", "515"];
-        containerLyph["boundaryNodeBorders"] = [3, 3, 3];
-        //TODO process the following definition instead of above statements
-        containerLyph.border = {
-            "0": {}, "1": {}, "2": {}, "3": {nodes: ["7013", "505", "515"]}
-        };
-
+        containerLyph.border = {};
+        containerLyph.border.borders = [{}, {}, {}, {nodes: ["7013", "505", "515"]}];
         super.afterInit();
     }
 }

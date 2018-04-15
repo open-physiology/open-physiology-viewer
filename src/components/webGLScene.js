@@ -318,21 +318,17 @@ export class WebGLSceneComponent {
 
         let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
 
-
         let intersects = ray.intersectObjects( this.graph.children );
-        // console.log("HOILOIGHT: ", intersects);
         if ( intersects.length > 0 ){
-            if (intersects[ 0 ].object.__data && intersects[ 0 ].object.__data.inactive){ return; }
+            if (!intersects[ 0 ].object.__data || intersects[ 0 ].object.__data.inactive){ return; }
             // if the closest object intersected is not the currently stored intersection object
             if ( intersects[ 0 ].object !== this._highlighted ){
+
                 // restore previous intersection object (if it exists) to its original color
-
                 if ( this._highlighted ){
-
                     this._highlighted.material.color.setHex( this._highlighted.currentHex );
                     (this._highlighted.children || []).forEach(child => {
                         if (child.visible && child.material){
-
                             child.material.color.setHex( child.currentHex );
                         }
                     })

@@ -111,7 +111,6 @@ export class LinkModel extends Model {
                         polygonOffsetFactor: -4,
                         polygonOffset: true,
                         transparent: true
-
                     });
                     obj = new THREE.Line2(geometry, this.material);
                 } else {

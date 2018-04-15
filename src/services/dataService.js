@@ -123,7 +123,7 @@ export class DataService {
             node.layout = node.layout || {};
         });
 
-        const axisLength = 300;
+        const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
 
         //Map initial positional constraints to match the scaled image
@@ -134,7 +134,7 @@ export class DataService {
         this._graphData.links.filter(link => link.length)
             .forEach(link => {link.length *= 2 * scaleFactor});
 
-        console.log("Lyphs", this._lyphs);
+        //console.log("Lyphs", this._lyphs);
         console.log("Graph", this._graphData);
     }
 

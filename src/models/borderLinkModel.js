@@ -33,10 +33,8 @@ export class BorderLinkModel extends Model {
     }
 
     createViewObjects(state){
-
     }
 
     updateViewObjects(state){
-
     }
 }

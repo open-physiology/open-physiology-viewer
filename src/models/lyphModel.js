@@ -3,20 +3,170 @@ const THREE = window.THREE || three;
 import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
-import { boundToRectangle, d3Layer, d2Layer, d2Lyph, d2LyphBorders, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
+import { boundToRectangle, mergedGeometry, geometryDifference, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
 import { LINK_TYPES } from './linkModel';
 import { BorderModel } from './borderModel';
 
+/**
+ * Draws layer of a lyph in 3d. Closed borders are drawn as cylinders because sphere approximation is quite slow
+ * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
+ * $thickness is axial border distance from the rotational axis
+ * $height is axial border height
+ * $radius is the radius for the circle for closed border
+ * $top is a boolean value indicating whether top axial border is closed
+ * $bottom is a boolean value indicating whether bottom axial border is closed
+ * @param outer = [thickness,  height,  radius,  top,  bottom], where
+ * thickness is non-axial border distance from the rotational axis
+ * height is non-axial border height
+ * radius is the radius for the circle for closed border
+ * top is a boolean value indicating whether top non-axial border is closed
+ * bottom is a boolean value indicating whether bottom non-axial border is closed
+ * @param material - object material
+ * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
+ */
+function d3Layer(inner, outer, material){
+    const [$thickness, $height, $radius, $top, $bottom] = inner;
+    const [ thickness,  height,  radius,  top,  bottom] = outer;
+    const a = 0.5;
+    const b = 0.5 * (1 - a) ;
+    //Cylinder constructor parameters: [radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight]
+    //Closed borders are approximated by cylinders with smaller diameters for speed
+
+    let $tube      = new THREE.CylinderGeometry( $thickness, $thickness, a * $height, 10, 4);
+    let $cupTop    = new THREE.CylinderGeometry( $top? $thickness - $radius: $thickness, $thickness, b * $height, 10, 4);
+    let $cupBottom = new THREE.CylinderGeometry( $thickness, $bottom? $thickness - $radius: $thickness, b * $height, 10, 4);
+
+    let tube       = new THREE.CylinderGeometry( thickness,  thickness,  a * height, 10, 4);
+    let cupTop     = new THREE.CylinderGeometry( top? thickness - radius: thickness,  thickness,  b * height, 10, 4);
+    let cupBottom  = new THREE.CylinderGeometry( thickness, bottom? thickness - radius: thickness,  b * height, 10, 4);
+
+    let smallGeometry = mergedGeometry($tube, $cupTop, $cupBottom, (a + b) * 0.5 * $height);
+    let largeGeometry = mergedGeometry(tube,   cupTop,  cupBottom, (a + b) * 0.5 * height);
+
+    return geometryDifference(smallGeometry, largeGeometry, material);
+}
+
+/**
+ * Draws layer of a lyph in 2d.
+ * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
+ * $thickness is axial border distance from the rotational axis
+ * $height is axial border height
+ * $radius is the radius for the circle for closed border
+ * $top is a boolean value indicating whether top axial border is closed
+ * $bottom is a boolean value indicating whether bottom axial border is closed
+ * @param outer = [thickness,  height,  radius,  top,  bottom], where
+ * thickness is non-axial border distance from the rotational axis
+ * height is non-axial border height
+ * radius is the radius for the circle for closed border
+ * top is a boolean value indicating whether top non-axial border is closed
+ * bottom is a boolean value indicating whether bottom non-axial border is closed
+ * @param material - object material
+ * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
+ */
+function d2Layer(inner, outer, material){
+    const [$thickness, $height, $radius, $top, $bottom] = inner;
+    const [ thickness,  height,  radius,  top,  bottom] = outer;
+    const shape = new THREE.Shape();
+    shape.moveTo( 0, 0);
+    //draw top of the preceding layer geometry
+    if ($thickness) {
+        if ($top){
+            shape.lineTo( 0, $height / 2 - $radius);
+            shape.quadraticCurveTo( 0, $height / 2, -$radius,  $height / 2);
+        } else {
+            shape.lineTo( 0, $height / 2);
+        }
+        shape.lineTo( -$thickness, $height / 2);
+        shape.lineTo( -$thickness, height / 2);
+    }
+
+    //top of the current layer
+    shape.lineTo( 0, height / 2);
+    if (top){
+        shape.lineTo( thickness - radius, height / 2);
+        shape.quadraticCurveTo( thickness,  height / 2, thickness,  height / 2 - radius);
+    } else {
+        shape.lineTo( thickness,  height / 2);
+    }
+
+    //side and part of the bottom of the current layer
+    if (bottom){
+        shape.lineTo( thickness, -height / 2 + radius);
+        shape.quadraticCurveTo( thickness, -height / 2, thickness - radius, -height / 2);
+    } else {
+        shape.lineTo( thickness, -height / 2);
+    }
+    shape.lineTo( 0, - height/2);
+
+    //draw bottom of the preceding layer geometry
+    if ($thickness){
+        shape.lineTo( -$thickness, -height / 2);
+        shape.lineTo( -$thickness, -$height / 2);
+        if ($bottom){
+            shape.lineTo( -$radius, -$height / 2);
+            shape.quadraticCurveTo( 0, -$height / 2, 0,  -$height / 2 + $radius);
+        } else {
+            shape.lineTo( 0, -$height / 2);
+        }
+    }
+    shape.lineTo( 0, 0);
+    let layerGeometry = new THREE.ShapeBufferGeometry(shape);
+    return new THREE.Mesh( layerGeometry, material);
+}
+
+
+/**
+ * Draw lyph shape without repeating the shape of the previous layer
+ * @param outer = [thickness,  height,  radius,  top,  bottom], where
+ * thickness is non-axial border distance from the rotational axis
+ * height is non-axial border height
+ * radius is the radius for the circle for closed border
+ * top is a boolean value indicating whether top non-axial border is closed
+ * bottom is a boolean value indicating whether bottom non-axial border is closed
+ * @param material - object material
+ * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
+ */
+function d2Lyph(outer, material){
+    const [thickness,  height,  radius,  top,  bottom] = outer;
+    const shape = new THREE.Shape();
+
+    //Axial border
+    shape.moveTo( 0, - height / 2);
+    shape.lineTo( 0,   height / 2);
+    //Top radial border
+    if (top){
+        shape.lineTo( thickness - radius, height / 2);
+        shape.quadraticCurveTo( thickness,  height / 2, thickness,  height / 2 - radius);
+    } else {
+        shape.lineTo( thickness,  height / 2);
+    }
+    //Non-axial border
+    if (bottom){
+        shape.lineTo( thickness, - height / 2 + radius);
+        shape.quadraticCurveTo( thickness, -height / 2, thickness - radius, -height / 2);
+    } else {
+        shape.lineTo( thickness, -height / 2);
+    }
+    //Finish Bottom radial border
+    shape.lineTo( 0, - height / 2);
+    let layerGeometry = new THREE.ShapeBufferGeometry(shape);
+    return new THREE.Mesh( layerGeometry, material);
+}
+
+
+
+/**
+ * Class that creates visualization objects of lyphs
+ */
 export class LyphModel extends Model {
     //TODO there can be several axes for coalescing lyphs
     axis;
     layers;
     topology;
-    borders = [];
+    border;
 
     //Visualization model
     lyphObjects;
-    borderObjects;
     labelObjects;
 
     constructor(id) {
@@ -42,19 +192,15 @@ export class LyphModel extends Model {
         result::assign(json); //TODO pick only valid properties
 
         //Create lyph's border
-        if (!result.border){
-            result.border = {
-                id:   "b_" + result.id, //derive border id from lyph's id
-                type: result.topology
-            };
-        }
-        result.border = BorderModel.fromJSON(result.border, modelClasses);
-
+        result.border             = result.border || {};
+        result.border.id          = result.border.id || "b_" + result.id; //derive border id from lyph's id
+        result.border.borderTypes = result.border.borderTypes || [false,...this.radialBorderTypes(result.topology), false];
+        result.border             = BorderModel.fromJSON(result.border, modelClasses);
         return result;
     }
 
-    get borderTypes(){
-        switch (this.topology) {
+    static radialBorderTypes(topology){
+        switch (topology) {
             case "BAG"  : return [true,  false];
             case "BAG2" : return [false, true];
             case "CYST" : return [true,  true];
@@ -81,7 +227,7 @@ export class LyphModel extends Model {
     }
 
     get polygonOffsetFactor(){
-        if (this.container) {
+        if (this.container && this.container.material) {
             return this.container.material.polygonOffsetFactor - 2;
         }
         return (this.axis && this.axis.type !== LINK_TYPES.CONTAINER)? -3: 0;
@@ -99,20 +245,23 @@ export class LyphModel extends Model {
 
         if (!this.lyphObjects[state.method]){
             let numLayers = (this.layers || [this]).length;
-            this.width = numLayers * thickness;
+            this.width  = numLayers * thickness;
             this.height = length;
             if (!this.material) {
+                //console.log("Lyph material", this.color);
                 this.material = state.materialRepo.createMeshBasicMaterial({
                     color: this.color,
                     polygonOffsetFactor: this.polygonOffsetFactor
                 });
                 this.material.visible = false; //Do not show overlaying lyph shape
             }
-            let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, this.width / 2, ...this.borderTypes], this.material);
+
+            let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, thickness / 2, ...this.border.radialTypes, this.material]);
             lyphObj.__data = this;
             this.lyphObjects[state.method] = lyphObj;
 
-            this.borderObjects  = d2LyphBorders([this.width, this.height + 2 * numLayers, this.width / 2, ...this.borderTypes]);
+            this.border.parentLyph  = this;
+            this.border.createViewObjects(state);
 
             //Layers
             (this.layers || []).forEach((layer, i) => {
@@ -125,17 +274,20 @@ export class LyphModel extends Model {
                 layer.width  = thickness;
                 layer.height = length;
 
+                layer.border.parentLyph  = layer;
+                layer.border.createViewObjects(state);
+
                 let layerObj;
                 if (state.method === "3d"){
                     layerObj = d3Layer(
-                        [ thickness * i + 1,       length,         thickness / 2, ...layer.borderTypes],
-                        [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.borderTypes],
+                        [ thickness * i + 1,       length,         thickness / 2, ...layer.border.radialTypes],
+                        [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.border.radialTypes],
                         layer.material);
                 } else {
                     //we do not call d2Lyph directly as we need to keep the border shape as well
                     layerObj = d2Layer(
-                        [ thickness * i, length,         thickness / 2, ...layer.borderTypes],
-                        [ thickness,     length + i * 2, thickness / 2, ...layer.borderTypes],
+                        [ thickness * i, length,         thickness / 2, ...layer.border.radialTypes],
+                        [ thickness,     length + i * 2, thickness / 2, ...layer.border.radialTypes],
                         layer.material);
                     layerObj.translateX(thickness * i);
                 }
@@ -144,19 +296,15 @@ export class LyphModel extends Model {
                 layer.lyphObjects[state.method] = layerObj;
                 layer.viewObjects["main"] = layer.lyphObjects[state.method];
 
-                //We want straight parts of the borders for positioning lyphs
-                //d2LyphBorders includes rounded corners for bags or cysts
-                //to get straight lines, pass ...[false, false] instead of layer.borderTypes
-                //TODO BorderModel should allow us to choose relevant parts of borders without this trick
-                layer.borderObjects  = d2LyphBorders([thickness, length + i * 2, thickness / 2, false, false]);
-                //...layer.borderTypes]);
-
+                //Draw nested lyphs
+                //TODO assign content to border and process in borderModel
                 if (layer.content){
                     //TODO rewrite to derive rotational axis from data
-                    if (layer.borderObjects[3]){
+                    let borderObjects  = layer.border.viewObjects["shape"];
+                    if (borderObjects[3]){
                         //be default, content lyphs rotate around border #3, i.e., layer.borderObjects[3]
-                        let source = layer.borderObjects[3].getPoint(0);
-                        let target = layer.borderObjects[3].getPoint(1);
+                        let source = borderObjects[3].getPoint(0);
+                        let target = borderObjects[3].getPoint(1);
 
                         //TODO create a border class and make it a rotational axis
                         let contentLyphAxis = {
@@ -203,52 +351,28 @@ export class LyphModel extends Model {
         }
         this.viewObjects['main']  = this.lyphObjects[state.method];
 
+        //update lyph
         if (this.lyphObjects[state.method]){
             this.lyphObjects[state.method].visible = state.showLyphs;
             copyCoords(this.lyphObjects[state.method].position, this.center);
             align(this.axis, this.lyphObjects[state.method]);
         }
 
-        //align inner content of layers
-        (this.layers || []).filter(layer => layer.content).forEach(layer => {
-            layer.content.updateViewObjects(state);
-        });
+        //update border
+        this.border.updateViewObjects(state);
 
-        //position nodes on lyph border
-        //TODO generalise to work recursively
-        if (this.borderObjects){
-            if (this.boundaryNodes){
-                let quaternion = this.lyphObjects[state.method].quaternion;
+        //update layers
+        (this.layers || []).filter(layer => layer.content).forEach(layer => { layer.content.updateViewObjects(state); });
 
-                let boundaryNodes =  this.boundaryNodes.map(id => state.graphData.nodes.find(node => node.id === id))
-                    .filter(node => !!node);
-                for (let j = 0; j < 4; j++){
-                    let nodesOnBorder = boundaryNodes.filter((node, i) => (this.boundaryNodeBorders[i] || 0) === j);
-                    if (nodesOnBorder.length > 0){
-                        let points = this.borderObjects[j].getSpacedPoints(nodesOnBorder.length + 1)
-                            .map(p => new THREE.Vector3(p.x, p.y, 0));
-                        points.forEach(p => {
-                            //Shape transformation is affected also by the container lyph/layer
-                            if (this.container){
-                                let pQuaternion = this.container.lyphObjects[state.method].quaternion;
-                                p.applyQuaternion(pQuaternion);
-                            }
-                            p.applyQuaternion(quaternion);
-
-                            if (this.container){ p.add(this.container.center); }
-                            p.add(this.center);
-                        });
-
-                        nodesOnBorder.forEach((node, i) => { copyCoords(node, points[i + 1]); });
-                    }
-                }
-            }
-        }
+        //update inner content
         if (this.internalLyphs){
             const fociCenter = getCenterPoint(this.lyphObjects[state.method]) || this.center;
             state.graphData.links
                 .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
                 .forEach(link => {
+                    if (link.conveyingLyph.material){
+                        link.conveyingLyph.material.polygonOffsetFactor = this.material.polygonOffsetFactor - 1;
+                    }
                     // copyCoords(link.source.layout, fociCenter);
                     // copyCoords(link.target.layout, fociCenter);
                     //If we need to clean these layout constraints, set some flag
@@ -276,8 +400,6 @@ export class LyphModel extends Model {
                         copyCoords(link.target, _linkEnd);
                     //}
                 });
-
-            //TODO force internal nodes to stay inside of the container lyph instead of just attracting to its center
         }
 
         this.material.visible = !state.showLayers;
@@ -291,7 +413,6 @@ export class LyphModel extends Model {
         } else {
             delete this.viewObjects['label'];
         }
-
     }
 }
 
