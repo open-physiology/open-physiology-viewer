@@ -111,7 +111,8 @@ function d2Layer(inner, outer, material){
     }
     shape.lineTo( 0, 0);
     let layerGeometry = new THREE.ShapeBufferGeometry(shape);
-    return new THREE.Mesh( layerGeometry, material);
+
+    return new THREE.Mesh( layerGeometry, material );
 }
 
 
@@ -127,12 +128,15 @@ function d2Layer(inner, outer, material){
  * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  */
 function d2Lyph(outer, material){
-    const [thickness,  height,  radius,  top,  bottom] = outer;
+    let [thickness,  height,  radius,  top,  bottom] = outer;
+    let [$thickness,  $height,  $radius,  $top,  $bottom] = outer;
+
     const shape = new THREE.Shape();
 
     //Axial border
     shape.moveTo( 0, - height / 2);
     shape.lineTo( 0,   height / 2);
+
     //Top radial border
     if (top){
         shape.lineTo( thickness - radius, height / 2);
@@ -140,17 +144,21 @@ function d2Lyph(outer, material){
     } else {
         shape.lineTo( thickness,  height / 2);
     }
+
     //Non-axial border
     if (bottom){
         shape.lineTo( thickness, - height / 2 + radius);
         shape.quadraticCurveTo( thickness, -height / 2, thickness - radius, -height / 2);
     } else {
-        shape.lineTo( thickness, -height / 2);
+        shape.lineTo( thickness, - height / 2);
     }
+
     //Finish Bottom radial border
     shape.lineTo( 0, - height / 2);
-    let layerGeometry = new THREE.ShapeBufferGeometry(shape);
-    return new THREE.Mesh( layerGeometry, material);
+
+    let lyphGeometry = new THREE.ShapeBufferGeometry(shape);
+
+    return new THREE.Mesh( lyphGeometry, material);
 }
 
 
@@ -248,15 +256,15 @@ export class LyphModel extends Model {
             this.width  = numLayers * thickness;
             this.height = length;
             if (!this.material) {
-                //console.log("Lyph material", this.color);
+
                 this.material = state.materialRepo.createMeshBasicMaterial({
                     color: this.color,
-                    polygonOffsetFactor: this.polygonOffsetFactor
+                    polygonOffsetFactor: this.polygonOffsetFactor - 2
                 });
-                this.material.visible = false; //Do not show overlaying lyph shape
+                // this.material.visible = true; //Do not show overlaying lyph shape
             }
 
-            let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, thickness / 2, ...this.border.radialTypes, this.material]);
+            let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, thickness / 2, ...this.border.radialTypes], this.material);
             lyphObj.__data = this;
             this.lyphObjects[state.method] = lyphObj;
 
@@ -266,10 +274,12 @@ export class LyphModel extends Model {
             //Layers
             (this.layers || []).forEach((layer, i) => {
                 if (!layer.material) {
+
                     layer.material = state.materialRepo.createMeshBasicMaterial({
                         color: layer.color,
-                        polygonOffsetFactor: this.material.polygonOffsetFactor - 1
+                        polygonOffsetFactor: this.material.polygonOffsetFactor - 2
                     });
+
                 }
                 layer.width  = thickness;
                 layer.height = length;
@@ -295,6 +305,7 @@ export class LyphModel extends Model {
                 layer.lyphObjects = layer.lyphObjects || {};
                 layer.lyphObjects[state.method] = layerObj;
                 layer.viewObjects["main"] = layer.lyphObjects[state.method];
+
 
                 //Draw nested lyphs
                 //TODO assign content to border and process in borderModel
@@ -402,7 +413,7 @@ export class LyphModel extends Model {
                 });
         }
 
-        this.material.visible = !state.showLayers;
+        // this.material.visible = !state.showLayers;
         (this.viewObjects['main'].children || []).forEach(child => {child.visible = state.showLayers;});
 
         if (this.labelObjects[state.iconLabel]){
@@ -415,4 +426,3 @@ export class LyphModel extends Model {
         }
     }
 }
-
