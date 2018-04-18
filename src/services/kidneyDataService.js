@@ -1,5 +1,5 @@
 import { lyphs } from '../data/kidney-lyphs.json';
-import { trees } from '../data/kidney-mapping.json';
+import { ependymal, trees } from '../data/kidney-mapping.json';
 
 import { modelClasses } from '../models/utils';
 import { NodeModel, NODE_TYPES } from '../models/nodeModel';
@@ -26,6 +26,13 @@ export class KidneyDataService extends DataService{
 
     init(){
         super.init();
+
+        //Assign central nervous system lyphs to corresponding edges
+        Object.keys(ependymal).forEach(linkID => {
+            this._graphData.getLinkByID(linkID).conveyingLyph = ependymal[linkID]
+        });
+
+        //Create Urinary tract and Cardiovascular system omega trees
         const hosts = {
             "5": {
                 "color": "#ff4444",

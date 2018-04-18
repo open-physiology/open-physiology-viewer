@@ -28,24 +28,27 @@ export class DataService {
     init(){
         const coreGraphData = {
             nodes : [
-                {   "id"  : "c", "name": "c",       "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
-                {   "id"  : "n", "name": "n",       "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
-                {   "id"  : "t", "name": "t",       "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
-                {   "id"  : "a", "name": "a",       "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
-                {   "id"  : "h", "name": "h",       "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
-                {   "id"  : "R", "name": "R",       "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
-                {   "id"  : "L", "name": "L",       "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
-                {   "id"  : "S", "name": "\u03A3",  "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
-                {   "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
+                { "id"  : "c", "name": "c",       "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
+                { "id"  : "n", "name": "n",       "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
+
+                { "id"  : "t", "name": "t",       "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
+                { "id"  : "a", "name": "a",       "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
+                { "id"  : "h", "name": "h",       "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
+
+                { "id"  : "R", "name": "R",       "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
+                { "id"  : "L", "name": "L",       "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
+                { "id"  : "S", "name": "\u03A3",  "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
+                { "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
-                {  "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
-                {  "id": "2", "source": "t", "target": "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
-                {  "id": "3", "source": "a", "target": "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
-                {  "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.PATH, "length":  75 },
-                {  "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": LINK_TYPES.PATH, "length":  75 },
-                {  "id": "6", "source": "S", "target": "P", "name": "Gut",       "type": LINK_TYPES.PATH, "length":  90 },
-                {  "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
+                { "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
+                // {  "id": "2", "source": "t", "target": "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
+                // {  "id": "3", "source": "a", "target": "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
+
+                { "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.PATH, "length":  75 },
+                { "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": LINK_TYPES.PATH, "length":  75 },
+                { "id": "6", "source": "S", "target": "P", "name": "Gut",       "type": LINK_TYPES.PATH, "length":  90 },
+                { "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
             ]
         };
         //Make core nodes bigger
@@ -54,6 +57,45 @@ export class DataService {
         //Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
         //Node "a" must always stay in the center
         coreGraphData.nodes.forEach(node  => (node.id === "a")? node.type = NODE_TYPES.FIXED: node.type = NODE_TYPES.CORE);
+
+        // Split t-a and a-h links to 7 edges
+        const ependymal = {
+            nodes: [
+                //t-a
+                { "id" : "t1" }, { "id" : "t2" },
+                //a-h
+                { "id" : "h1" }, { "id" : "h2" }, { "id" : "h3" },
+                //a-g
+                { "id" : "g1", layout: {"x": 0, "z": 0} },
+                { "id" :  "g", layout: {"x": 0, "y":  -30, "z":  0} }
+            ],
+            links: [
+                //t-a
+                { "id": "2a", "source":  "t", "target": "t1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10 },
+                { "id": "2b", "source": "t1", "target": "t2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10 },
+                { "id": "2c", "source": "t2", "target":  "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10 },
+                //a-h
+                { "id": "3a", "source":  "a", "target": "h1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
+                { "id": "3b", "source": "h1", "target": "h2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
+                { "id": "3c", "source": "h2", "target": "h3", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
+                { "id": "3d", "source": "h3", "target":  "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
+                //a-g
+                { "id": "3e", "source":  "a", "target": "g1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
+                { "id": "3f", "source": "g1", "target":  "g", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 }
+            ]
+        };
+
+        ependymal.nodes.forEach(node => {
+            if (!node.layout) {
+                node.layout = {"y": 0, "z": 0};
+            }
+            coreGraphData.nodes.push(node);
+        });
+        ependymal.links.forEach((link, i) => {
+            coreGraphData.links.push(link);
+            if (i < 7) {link.reversed = true; } //turn lyphs up
+        });
+
         this._graphData.nodes = coreGraphData.nodes.map(node => NodeModel.fromJSON(node, modelClasses));
         this._graphData.links = coreGraphData.links.map(node => LinkModel.fromJSON(node, modelClasses));
     }

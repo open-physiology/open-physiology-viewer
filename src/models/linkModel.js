@@ -73,10 +73,19 @@ export class LinkModel extends Model {
      */
     get lyphSize(){
         const scaleFactor = this.length? Math.log(this.length): 1;
+        let res = {length: 6 * scaleFactor, thickness: 2 * scaleFactor};
+
         if (this.type === LINK_TYPES.CONTAINER){
-            return {length: 24 * scaleFactor, thickness: 8 * scaleFactor};
+            res.length    *= 4;
+            res.thickness *= 4;
         }
-        return {length: 6 * scaleFactor, thickness: 2 * scaleFactor};
+
+        //TODO introduce a proper way to distingush trees/subgraphs and parameters to derive lyph size from
+        if (this.name === "Ependymal"){
+            res.thickness *=   3;
+            res.length    *= 1.5;
+        }
+        return res;
     }
 
     /**
