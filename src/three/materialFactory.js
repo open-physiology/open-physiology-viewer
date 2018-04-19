@@ -50,7 +50,6 @@ export class MaterialFactory {
     createMeshBasicMaterial(params = {}){
         let p = Object.assign({}, this.defaultParams, params);
         p.color = colorStr2Hex(p.color);
-        p.transparent = false;
         return new THREE.MeshBasicMaterial(p);
     }
 

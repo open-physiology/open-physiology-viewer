@@ -117,7 +117,7 @@ export class LinkModel extends Model {
                     this.material = new THREE.LineMaterial({
                         color: this.color,
                         linewidth: 0.002,
-                        polygonOffsetFactor: -4,
+                        polygonOffsetFactor: -10,
                         polygonOffset: true,
                         transparent: true
                     });
@@ -127,7 +127,7 @@ export class LinkModel extends Model {
                     geometry = new THREE.BufferGeometry();
                     this.material = state.materialRepo.createLineBasicMaterial({
                         color: this.color,
-                        polygonOffsetFactor: -4
+                        polygonOffsetFactor: -10
                     });
                     let size = (this.type === LINK_TYPES.PATH)? state.linkResolution: 2;
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
