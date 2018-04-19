@@ -1,5 +1,5 @@
 import { Model } from './model';
-//import { BorderLinkModel, BORDER_LINK_TYPES } from './borderLinkModel';
+//import { LinkModel, LINK_TYPES } from './linkModel';
 import { assign } from 'lodash-bound';
 import { copyCoords } from '../three/utils';
 
@@ -9,7 +9,7 @@ function d2LyphBorders([thickness,  height,  radius,  top,  bottom]){
     //Axial border
     borders[0].moveTo( 0, - height / 2);
     borders[0].lineTo( 0,   height / 2);
-    borders[1].moveTo(0,   height / 2);
+    borders[1].moveTo( 0,   height / 2);
     //Top radial border
     if (top){
         borders[1].lineTo( thickness - radius, height / 2);
@@ -39,17 +39,15 @@ function d2LyphBorders([thickness,  height,  radius,  top,  bottom]){
  */
 export class BorderModel extends Model {
     borders;
-    borderTypes; //Array of border types
-    parentLyph;  //owner of the border
-    width;
-    height;
+    borderTypes;   //Array of border types
+    borderInLyph;  //Owner of the border
+
     //TODO BorderModel should provide versions of borders with or without curves for closed borders
 
     toJSON() {
         let res = super.toJSON();
-        res.parentLyph  = this.parentLyph && this.parentLyph.id;
-        res.borderTypes = this.borderTypes;
-        //res.borders = (this.borders || []).map(border => border.toJSON());
+        res.borderInLyph = this.borderInLyph && this.borderInLyph.id;
+        res.borderTypes  = this.borderTypes;
         return res;
     }
 
@@ -65,27 +63,22 @@ export class BorderModel extends Model {
     }
 
     createViewObjects(state){
-         if (this.parentLyph){
-             this.width = this.parentLyph.width;
-             this.height = this.parentLyph.height + 2 * (this.parentLyph.layers || [this.parentLyph]).length;
+         if (this.borderInLyph){
+             let width = this.borderInLyph.width;
+             let height = this.borderInLyph.height + 2 * (this.borderInLyph.layers || [this.borderInLyph]).length;
 
-             //TODO refactor to create border links using BorderLinkModel
-
-             //to get straight lines, pass false instead of actual radial border types
-             let borderObjects = d2LyphBorders( [this.width, this.height, this.width / 2, false, false]); //...this.radialTypes]);
+             //TODO refactor to create border links using LinkModel
+             this.viewObjects["shape"] = d2LyphBorders( [width, height, width / 2, ...this.radialTypes]);
 
              //Make sure we always have 4 border objects regardless of data input
              this.borders = this.borders || [];
              for (let i = this.borders.length; i < 4; i++){ this.borders.push({}); }
 
              //Store border shapes
-             borderObjects.forEach((obj, i) => {
+             this.viewObjects["shape"].forEach((obj, i) => {
                  this.borders[i].viewObjects = this.borders[i].viewObjects || {};
                  this.borders[i].viewObjects["shape"] = obj; //We will use "main" to store actual border lines
              });
-
-             //TODO replace with one Object3 with 4 children
-             this.viewObjects["shape"] = borderObjects;
 
              //Replace node ids on border with actual nodes
              (this.borders || []).forEach(border => {
@@ -99,20 +92,20 @@ export class BorderModel extends Model {
 
     updateViewObjects(state){
         (this.borders || []).forEach((border, i) => {
-            //TODO after switching to BorderLinkModel, call updateViewObjects
+            //TODO after switching to LinkModel, call updateViewObjects
 
             //position nodes on lyph border
             if (border.nodes){
                 let points = border.viewObjects["shape"].getSpacedPoints(border.nodes.length + 1)
                     .map(p => new THREE.Vector3(p.x, p.y, 0));
                 points.forEach(p => {
-                    let currentLyph = this.parentLyph;
+                    let currentLyph = this.borderInLyph;
                     let transformChain = [];
                     let centerChain    = [];
                     //Shape depends on the quaternion and position of the container lyph/layers,
                     //hence apply all transformations recursively
                     while (currentLyph){
-                        transformChain.push(currentLyph.lyphObjects[state.method].quaternion);
+                        transformChain.push(currentLyph.viewObjects["lyphs"][state.method].quaternion);
                         centerChain.push(currentLyph.center);
                         currentLyph = currentLyph.container;
                     }

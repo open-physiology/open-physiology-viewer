@@ -11,13 +11,14 @@ export class Model {
     //Visualization model
     viewObjects; //WebGL/Three.js objects
     material;    //Material for the model visualizations
+    infoFields;      //Info infoFields
 
     constructor(id) {
         this.id = id;
         this.viewObjects = {};
 
-        //TODO - perhaps create a class to manage fields definition (lazy version of manifest?)
-        this.fields = {
+        //TODO - perhaps create a class to manage infoFields definition (lazy version of manifest?)
+        this.infoFields = {
             text   : ['id', 'class', 'name', 'external'],
             objects: [],
             lists  : []

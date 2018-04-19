@@ -340,20 +340,16 @@ export class WebGLSceneComponent {
                 this._highlighted.currentHex = this._highlighted.material.color.getHex();
                 (this._highlighted.children || []).forEach(child => {
 
-
                     if (child.visible && child.material){
-
                         child.currentHex = child.material.color.getHex();
                     }
                 });
 
-                //const highlightColor = 0.5 * 0xffffff;
                 const highlightColor = 0xff0000;
 
                 // set a new color for closest object
                 this._highlighted.material.color.setHex( highlightColor );
                 (this._highlighted.children || []).forEach(child => {
-
 
                     if (child.visible && child.material){
                         child.material.color.setHex( highlightColor );

@@ -32,6 +32,8 @@ export class KidneyDataService extends DataService{
             this._graphData.getLinkByID(linkID).conveyingLyph = ependymal[linkID]
         });
 
+        //TODO color ependymal graph lyphs to match the mock-up
+
         //Create Urinary tract and Cardiovascular system omega trees
         const hosts = {
             "5": {
@@ -183,10 +185,17 @@ export class KidneyDataService extends DataService{
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
         containerLyph.inactive      = true;  // Exclude this entity from being highlighted
-        containerLyph.internalLyphs = ["60", "105", "63", "78", "24", "27", "30", "33"]; //Deduce these lyphs from mapping
+        //TODO generalize content of a lyph: it can contain any entities: nodes, links, floating lyphs...
+        containerLyph.internalLyphs = ["60", "105", "63", "78", "24", "27", "30", "33"]; //TODO Deduce these lyphs from mapping
 
         containerLyph.border = {};
         containerLyph.border.borders = [{}, {}, {}, {nodes: ["7013", "505", "515"]}];
+
+        //Refactored content assignment: to border instead of lyph
+        // containerLyph = this._lyphs.find(lyph => lyph.id === "3");
+        // containerLyph.border = {};
+        // containerLyph.border.borders = [{}, {}, {}, {conveyingLyph: "5"}];
+
         super.afterInit();
     }
 }

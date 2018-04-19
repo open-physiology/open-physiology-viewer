@@ -4,8 +4,9 @@ import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
 import { boundToRectangle, mergedGeometry, geometryDifference, align, direction, translate, copyCoords, getCenterPoint } from '../three/utils';
-import { LINK_TYPES } from './linkModel';
+import { LinkModel, LINK_TYPES } from './linkModel';
 import { BorderModel } from './borderModel';
+import { modelClasses } from './utils';
 
 /**
  * Draws layer of a lyph in 3d. Closed borders are drawn as cylinders because sphere approximation is quite slow
@@ -129,7 +130,6 @@ function d2Layer(inner, outer, material){
  */
 function d2Lyph(outer, material){
     let [thickness,  height,  radius,  top,  bottom] = outer;
-    let [$thickness,  $height,  $radius,  $top,  $bottom] = outer;
 
     const shape = new THREE.Shape();
 
@@ -158,7 +158,7 @@ function d2Lyph(outer, material){
 
     let lyphGeometry = new THREE.ShapeBufferGeometry(shape);
 
-    return new THREE.Mesh( lyphGeometry, material);
+    return new THREE.Mesh( lyphGeometry, material); //Problem: we cannot get the lyph shape anymore
 }
 
 
@@ -173,16 +173,12 @@ export class LyphModel extends Model {
     topology;
     border;
 
-    //Visualization model
-    lyphObjects;
-    labelObjects;
-
     constructor(id) {
         super(id);
-        this.fields.text.push ('topology');
-        this.fields.objects.push('axis');
-        this.fields.lists.push('layers');
-        //this.fields.lists.push('coalescences');
+        this.infoFields.text.push ('topology');
+        this.infoFields.objects.push('axis');
+        this.infoFields.lists.push('layers');
+        //this.infoFields.lists.push('coalescences');
     }
 
     toJSON() {
@@ -223,7 +219,7 @@ export class LyphModel extends Model {
         if (this.axis) {
             res = this.axis.center;
             if (this.offset) {
-                translate(res, this.offset, this.parent.axis);
+                translate(res, this.offset, this.layerInLyph.axis);
             }
             return res;
         }
@@ -241,6 +237,10 @@ export class LyphModel extends Model {
         return (this.axis && this.axis.type !== LINK_TYPES.CONTAINER)? -3: 0;
     }
 
+    createLyphLayer(state, precedessor){
+
+    }
+
     /**
      * Create view model for the class instance
      * @param state - layout settings
@@ -249,9 +249,9 @@ export class LyphModel extends Model {
         if (!this.axis) { return; }
 
         let {thickness, length} = this.axis.lyphSize;
-        this.lyphObjects = this.lyphObjects || {};
+        this.viewObjects["lyphs"] = this.viewObjects["lyphs"] || {};
 
-        if (!this.lyphObjects[state.method]){
+        if (!this.viewObjects["lyphs"][state.method]){
             let numLayers = (this.layers || [this]).length;
             this.width  = numLayers * thickness;
             this.height = length;
@@ -266,13 +266,15 @@ export class LyphModel extends Model {
 
             let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, thickness / 2, ...this.border.radialTypes], this.material);
             lyphObj.__data = this;
-            this.lyphObjects[state.method] = lyphObj;
+            this.viewObjects["lyphs"][state.method] = lyphObj;
 
-            this.border.parentLyph  = this;
+            this.border.borderInLyph  = this;
             this.border.createViewObjects(state);
 
+            let prev = null;
             //Layers
             (this.layers || []).forEach((layer, i) => {
+
                 if (!layer.material) {
 
                     layer.material = state.materialRepo.createMeshBasicMaterial({
@@ -284,7 +286,7 @@ export class LyphModel extends Model {
                 layer.width  = thickness;
                 layer.height = length;
 
-                layer.border.parentLyph  = layer;
+                layer.border.borderInLyph  = layer;
                 layer.border.createViewObjects(state);
 
                 let layerObj;
@@ -295,6 +297,7 @@ export class LyphModel extends Model {
                         layer.material);
                 } else {
                     //we do not call d2Lyph directly as we need to keep the border shape as well
+                    //TODO correct the lyph shapes wrt the the border type
                     layerObj = d2Layer(
                         [ thickness * i, length,         thickness / 2, ...layer.border.radialTypes],
                         [ thickness,     length + i * 2, thickness / 2, ...layer.border.radialTypes],
@@ -302,10 +305,9 @@ export class LyphModel extends Model {
                     layerObj.translateX(thickness * i);
                 }
                 layerObj.__data = layer;
-                layer.lyphObjects = layer.lyphObjects || {};
-                layer.lyphObjects[state.method] = layerObj;
-                layer.viewObjects["main"] = layer.lyphObjects[state.method];
-
+                layer.viewObjects["lyphs"] = layer.viewObjects["lyphs"] || {};
+                layer.viewObjects["lyphs"][state.method] = layerObj;
+                layer.viewObjects["main"] = layer.viewObjects["lyphs"][state.method];
 
                 //Draw nested lyphs
                 //TODO assign content to border and process in borderModel
@@ -318,37 +320,36 @@ export class LyphModel extends Model {
                         let target = borderObjects[3].getPoint(1);
 
                         //TODO create a border class and make it a rotational axis
-                        let contentLyphAxis = {
+                        let contentLyphAxis = LinkModel.fromJSON({
                             source: source,
                             target: target,
-                            direction: direction(source, target),
-                            center: (source.clone().add(target)).multiplyScalar(0.5),
-                            lyphSize: {thickness: 0.33 * length, length: thickness}
-                        };
+                            linkInLyph: this,
+                            center: (source.clone().add(target)).multiplyScalar(0.5)
+                        }, modelClasses);
                         layer.content.axis = contentLyphAxis;
                         //'content' and 'container' are the opposites for the "Contains" relationship
                         //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
                         layer.content.container = layer;
                         layer.content.createViewObjects(state);
                         //TODO assign layer its own axis which is a parallel line to the link
-                        layer.parent = this;
+                        layer.layerInLyph = this;
                         layer.offset = new THREE.Vector3(thickness * i, 0, 0);
-                        const contentLyph = layer.content.lyphObjects[state.method];
+                        const contentLyph = layer.content.viewObjects["lyphs"][state.method];
                         layerObj.add(contentLyph);
                     }
                 }
                 lyphObj.add(layerObj);
             });
         }
-        this.viewObjects['main']  = this.lyphObjects[state.method];
+        this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
         //Labels
-        this.labelObjects = this.labelObjects || {};
-        if (!this.labelObjects[state.iconLabel] && this[state.iconLabel]){
-            this.labelObjects[state.iconLabel] = new SpriteText2D(this[state.iconLabel], state.fontParams);
+        this.labels = this.labels || {};
+        if (!this.labels[state.iconLabel] && this[state.iconLabel]){
+            this.labels[state.iconLabel] = new SpriteText2D(this[state.iconLabel], state.fontParams);
         }
-        if (this.labelObjects[state.iconLabel]) {
-            this.viewObjects['label'] = this.labelObjects[state.iconLabel];
+        if (this.labels[state.iconLabel]) {
+            this.viewObjects['label'] = this.labels[state.iconLabel];
         } else {
             delete this.viewObjects['label'];
         }
@@ -356,17 +357,17 @@ export class LyphModel extends Model {
 
     updateViewObjects(state){
         if (!this.axis) {return; }
-        if (!this.lyphObjects[state.method] ||
-            !(this.labelObjects[state.iconLabel] && this[state.iconLabel])){
+        if (!this.viewObjects["lyphs"][state.method] ||
+            !(this.labels[state.iconLabel] && this[state.iconLabel])){
             this.createViewObjects(state);
         }
-        this.viewObjects['main']  = this.lyphObjects[state.method];
+        this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
         //update lyph
-        if (this.lyphObjects[state.method]){
-            this.lyphObjects[state.method].visible = state.showLyphs;
-            copyCoords(this.lyphObjects[state.method].position, this.center);
-            align(this.axis, this.lyphObjects[state.method]);
+        if (this.viewObjects["lyphs"][state.method]){
+            this.viewObjects["lyphs"][state.method].visible = state.showLyphs;
+            copyCoords(this.viewObjects["lyphs"][state.method].position, this.center);
+            align(this.axis, this.viewObjects["lyphs"][state.method]);
         }
 
         //update border
@@ -377,7 +378,7 @@ export class LyphModel extends Model {
 
         //update inner content
         if (this.internalLyphs){
-            const fociCenter = getCenterPoint(this.lyphObjects[state.method]) || this.center;
+            const fociCenter = getCenterPoint(this.viewObjects["lyphs"][state.method]) || this.center;
             state.graphData.links
                 .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
                 .forEach(link => {
@@ -416,8 +417,8 @@ export class LyphModel extends Model {
         // this.material.visible = !state.showLayers;
         (this.viewObjects['main'].children || []).forEach(child => {child.visible = state.showLayers;});
 
-        if (this.labelObjects[state.iconLabel]){
-            this.viewObjects['label'] = this.labelObjects[state.iconLabel];
+        if (this.labels[state.iconLabel]){
+            this.viewObjects['label'] = this.labels[state.iconLabel];
             this.viewObjects['label'].visible = state.showLyphLabel;
             copyCoords(this.viewObjects['label'].position, this.center);
             this.viewObjects['label'].position.addScalar(-5);

@@ -1,7 +1,7 @@
-import { Model } from './model';
+import { GraphModel } from './graphModel';
 import { assign } from 'lodash-bound';
 
-export class TreeModel extends Model {
+export class TreeModel extends GraphModel {
     root;
 
     static fromJSON(json, modelClasses = {}) {

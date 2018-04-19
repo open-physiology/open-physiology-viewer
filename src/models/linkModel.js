@@ -17,21 +17,22 @@ export const LINK_TYPES = {
     LINK: "link",
     AXIS: 'axis',
     COALESCENCE: "coalescence",
-    CONTAINER: "container"
+    CONTAINER  : "container",
+    BORDER     : "border"
 };
 
 export class LinkModel extends Model {
     source;
     target;
     length;
-    conveyingLyph;   //Rename to conveyingLyph
+    conveyingLyph;
     type;
 
     constructor(id) {
         super(id);
 
-        this.fields.text.push('length', 'type');
-        this.fields.objects.push('source', 'target', 'conveyingLyph');
+        this.infoFields.text.push('length', 'type');
+        this.infoFields.objects.push('source', 'target', 'conveyingLyph');
     }
 
     toJSON() {
@@ -80,6 +81,11 @@ export class LinkModel extends Model {
             res.thickness *= 4;
         }
 
+        if (this.type === LINK_TYPES.BORDER){
+            res.thickness = 0.33 * this.length;
+            res.length = this.linkInLyph.axis.lyphSize.length;
+        }
+
         //TODO introduce a proper way to distingush trees/subgraphs and parameters to derive lyph size from
         if (this.name === "Ependymal"){
             res.thickness *=   3;
@@ -117,7 +123,7 @@ export class LinkModel extends Model {
                     this.material = new THREE.LineMaterial({
                         color: this.color,
                         linewidth: 0.002,
-                        polygonOffsetFactor: -10,
+                        polygonOffsetFactor: -100,
                         polygonOffset: true,
                         transparent: true
                     });
@@ -127,7 +133,7 @@ export class LinkModel extends Model {
                     geometry = new THREE.BufferGeometry();
                     this.material = state.materialRepo.createLineBasicMaterial({
                         color: this.color,
-                        polygonOffsetFactor: -10
+                        polygonOffsetFactor: -100
                     });
                     let size = (this.type === LINK_TYPES.PATH)? state.linkResolution: 2;
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
@@ -140,12 +146,12 @@ export class LinkModel extends Model {
         }
 
         //Link label
-        this.labelObjects = this.labelObjects || {};
-        if (!this.labelObjects[state.linkLabel] && this[state.linkLabel]){
-            this.labelObjects[state.linkLabel] = new SpriteText2D(this[state.linkLabel], state.fontParams);
+        this.labels = this.labels || {};
+        if (!this.labels[state.linkLabel] && this[state.linkLabel]){
+            this.labels[state.linkLabel] = new SpriteText2D(this[state.linkLabel], state.fontParams);
         }
 
-        this.viewObjects["label"] = this.labelObjects[state.linkLabel];
+        this.viewObjects["label"] = this.labels[state.linkLabel];
         if (!this.viewObjects["label"]){ delete this.viewObjects["label"]; }
 
         //Icon (lyph)
@@ -165,8 +171,8 @@ export class LinkModel extends Model {
      */
     updateViewObjects(state){
         if (!this.viewObjects["main"]
-            || (this.conveyingLyph && !this.conveyingLyph.lyphObjects[state.method])
-            || (!this.labelObjects[state.linkLabel] && this[state.linkLabel])){
+            || (this.conveyingLyph && !this.conveyingLyph.viewObjects["lyphs"][state.method])
+            || (!this.labels[state.linkLabel] && this[state.linkLabel])){
             this.createViewObjects(state);
         }
         const linkObj = this.viewObjects["main"];

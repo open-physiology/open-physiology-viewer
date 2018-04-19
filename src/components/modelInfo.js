@@ -4,15 +4,15 @@ import {Component, Input} from '@angular/core';
     selector: 'modelInfoPanel',
     template: `
         <section class="w3-container w3-border">
-            <!--Text fields-->
-            <section *ngFor="let property of model.fields?.text || []">
+            <!--Text infoFields-->
+            <section *ngFor="let property of model.infoFields?.text || []">
                 <section class="w3-half">
                     <label class="w3-label">{{property}}: </label>
                     {{model[property] || "?"}}
                 </section>
             </section>
             <!--Objects-->
-            <section *ngFor="let property of model.fields?.objects || []">
+            <section *ngFor="let property of model.infoFields?.objects || []">
                 <section class="w3-half">
                     <label class="w3-label">{{property}}: </label>
                     {{model[property]?.id || "?"}} - {{model[property]?.name || "?"}} 
@@ -21,7 +21,7 @@ import {Component, Input} from '@angular/core';
             </section>
             <section class="w3-clear"></section>
             <!--Lists-->
-            <section *ngFor="let property of model.fields?.lists || []">
+            <section *ngFor="let property of model.infoFields?.lists || []">
                 <section>
                     <label class="w3-label">{{property}}: </label>
                     <section *ngIf="model[property]">

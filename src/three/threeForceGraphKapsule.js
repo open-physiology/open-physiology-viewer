@@ -33,7 +33,7 @@ export default Kapsule({
         nodeRelSize    : { default: 3 }, // volume per val unit
         nodeId         : { default: 'id' },
         nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
-        linkResolution : { default: 50},
+        linkResolution : { default: 50 },
         linkMethod     : { default: 'Line2'}, //link rendering method
         showLyphs      : { default: true},
         showLayers     : { default: true},
@@ -47,7 +47,7 @@ export default Kapsule({
         fontParams     : { default: {
             font: '10px Arial', fillStyle: '#888', antialias: true }
         },
-        opacity        : { default: 0.3 },
+        opacity        : { default: 0.6 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render

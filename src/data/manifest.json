@@ -1,0 +1,162 @@
+{
+  "types": {
+    "Entity": {
+      "abstract": "true",
+      "properties"  : {
+        "id": {
+          "type": "String",
+          "modality": "1"
+        },
+        "name": {
+          "type": "String",
+          "modality": "0..1"
+        },
+        "class": {
+          "type": "String:Type",
+          "modality": "1"
+        },
+        "color": {
+          "type": "String:Color",
+          "modality": "0..1",
+          "default": "#ccc"
+        },
+        "external": {
+          "type": "String:ID",
+          "modality": "0..1"
+        },
+        "viewObjects": {
+          "type": "Object:Map",
+          "modality": "0..1"
+        },
+        "material": {
+          "type": "Object:Visual",
+          "modality": "0..1"
+        },
+        "labels": {
+          "type": "Object:Map"
+        },
+        "infoFields": {
+          "type": "Object:Map",
+          "modality": "0..1",
+          "value": {
+            "text"   : ["id", "class", "name", "external"],
+            "objects": [],
+            "lists"  : []
+          }
+        }
+      }
+    },
+    "Node"  : {
+      "extends": "Entity",
+      "properties" : {
+        "host"  : { "type": "String:ID|Link", "modality": "0..1" },
+        "isRoot": { "type": "Boolean", "modality": "0..1" },
+        "layout": { "type": "Object:Map", "modality": "0..1" },
+        "type"  : { "type": "String:Enum", "modality": "1" },
+        "val"   : { "type": "Number", "modality": "0..1" , "default": 3},
+        "infoFields": {
+          "extends": "Entity:infoFields",
+          "modality": "0..1",
+          "default": {"text": ["host", "type", "x", "y", "z"]}
+        },
+        "x": {"type": "Number", "modality": "0..1" },
+        "y": {"type": "Number", "modality": "0..1" },
+        "z": {"type": "Number", "modality": "0..1" },
+        "offset": {"type": "Number", "modality": "0..1"}
+      }
+    },
+    "Link"  : {
+      "extends": "Entity",
+      "properties" : {
+        "source": {"type": "Node", "modality": "1" },
+        "target": {"type": "Node", "modality": "1" },
+        "length": {"type": "Number", "modality": "1", "default": 1 },
+        "conveyingLyph": {"type": "String:ID|Lyph"},
+        "type": {"type": "String:Enum"},
+        "infoFields": {
+          "extends": "Entity:infoFields",
+          "default": {
+            "text": ["length", "type"],
+            "objects": ["source", "target", "conveyingLyph"]
+          }
+        },
+        "direction": {"type": "Function", "readonly": true},
+        "lyphSize" : {"type": "Function", "readonly": true}
+      }
+    },
+    "Lyph"  : {
+      "extends": "Entity",
+      "properties" : {
+        "axis"    : {"type": "String:ID|Link", "modality": "0..1"},
+        "layers"  : {"type": "String:ID|Lyph", "modality": "0..*"},
+        "topology": {},
+        "border"  : {},
+        "infoFields": {
+          "extends" : "Entity:infoFields",
+          "default" :{
+            "text": ["topology"],
+            "objects": ["axis"],
+            "lists": ["layers"]
+          }
+        },
+        "content"  : {"type": "", "modality": "0..1"},
+        "container": {"type": "Lyph", "modality": "0..1"},
+        "offset"  : {"type": "Number", "modality": "0..1"}
+      }
+    },
+    "Border": {
+      "extends": "Entity",
+      "properties" : {
+        "borders": {},
+        "borderTypes": {},
+        "borderInLyph": {}
+
+      }
+    },
+    "Graph" : {
+      "extends": "Entity",
+      "properties": {
+        "nodes": {"type": "Node", "modality": "0..*"},
+        "links": {"type": "Link", "modality": "0..*"}
+      }
+    },
+    "Tree"  : {
+      "extends": "Graph",
+      "properties": {
+        "root": {"type": "Node", "modality": "1"}
+      }
+    }
+  },
+  "relationships": [
+    {
+      "types"   : ["Link", "Node"],
+      "keys"    : ["source", "host"],
+      "modality": ["1", "0..1"]
+    },
+    {
+      "types": ["Link", "Node"],
+      "keys" : ["target", "host"],
+      "modality": ["1", "0..1"]
+    },
+    {
+      "types": ["Link", "Lyph"],
+      "keys" : ["conveyingLyph", "axis"],
+      "modality": ["1..2", "0..1"]
+    },
+    {
+      "types": ["Lyph", "Lyph"],
+      "keys" : ["layers", "layerInLyph"],
+      "modality": ["0..*", "0..*"]
+    },
+    {
+      "types": ["Lyph", "Border"],
+      "keys" : ["border", "borderInLyph"],
+      "modality": ["1", "1"]
+    },
+    {
+      "types": ["Lyph", "Lyph"],
+      "keys" : ["content", "container"],
+      "modality": ["0..1", "0..1"]
+    }
+  ]
+}

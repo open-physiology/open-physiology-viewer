@@ -21,10 +21,11 @@ export class NodeModel extends Model {
     layout; //Positioning constraints
     type;
     val;    //Currently used to compute radius
+    x; y; z;
 
     constructor(id) {
         super(id);
-        this.fields.text.push ('host', 'type', 'x', 'y', 'z');
+        this.infoFields.text.push ('host', 'type', 'x', 'y', 'z');
         this.val = this.val || 1; // Defines default radius
 
     }
@@ -68,14 +69,14 @@ export class NodeModel extends Model {
         }
 
         //Labels
-        this.labelObjects = this.labelObjects || {};
+        this.labels = this.labels || {};
 
-        if (!this.labelObjects[state.nodeLabel] && this[state.nodeLabel]) {
-            this.labelObjects[state.nodeLabel] = new SpriteText2D(this[state.nodeLabel], state.fontParams);
+        if (!this.labels[state.nodeLabel] && this[state.nodeLabel]) {
+            this.labels[state.nodeLabel] = new SpriteText2D(this[state.nodeLabel], state.fontParams);
         }
 
-        if (this.labelObjects[state.nodeLabel]){
-            this.viewObjects["label"] = this.labelObjects[state.nodeLabel];
+        if (this.labels[state.nodeLabel]){
+            this.viewObjects["label"] = this.labels[state.nodeLabel];
         } else {
             delete this.viewObjects["label"];
         }
@@ -87,7 +88,7 @@ export class NodeModel extends Model {
      */
     updateViewObjects(state){
         //Node
-        if (!this.viewObjects["main"] || (!this.labelObjects[state.iconLabel] && this[state.nodeLabel])){
+        if (!this.viewObjects["main"] || (!this.labels[state.iconLabel] && this[state.nodeLabel])){
             this.createViewObjects(state);
         }
 
@@ -112,8 +113,8 @@ export class NodeModel extends Model {
         copyCoords(this.viewObjects["main"].position, this);
 
         //Labels
-        if (this.labelObjects[state.nodeLabel]){
-            this.viewObjects['label'] = this.labelObjects[state.nodeLabel];
+        if (this.labels[state.nodeLabel]){
+            this.viewObjects['label'] = this.labels[state.nodeLabel];
             this.viewObjects["label"].visible = state.showNodeLabel;
             copyCoords(this.viewObjects["label"].position, this.viewObjects["main"].position);
             this.viewObjects["label"].position.addScalar(5 + this.val * state.nodeRelSize);
