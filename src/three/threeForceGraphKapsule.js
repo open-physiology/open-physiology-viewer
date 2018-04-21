@@ -47,7 +47,7 @@ export default Kapsule({
         fontParams     : { default: {
             font: '10px Arial', fillStyle: '#888', antialias: true }
         },
-        opacity        : { default: 0.6 },
+        opacity        : { default: 0.3 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render

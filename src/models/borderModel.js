@@ -64,11 +64,9 @@ export class BorderModel extends Model {
 
     createViewObjects(state){
          if (this.borderInLyph){
-             let width = this.borderInLyph.width;
-             let height = this.borderInLyph.height + 2 * (this.borderInLyph.layers || [this.borderInLyph]).length;
-
              //TODO refactor to create border links using LinkModel
-             this.viewObjects["shape"] = d2LyphBorders( [width, height, width / 2, ...this.radialTypes]);
+             this.viewObjects["shape"] = d2LyphBorders(
+                 [this.borderInLyph.width, this.borderInLyph.height, this.borderInLyph.width / 2, ...this.radialTypes]);
 
              //Make sure we always have 4 border objects regardless of data input
              this.borders = this.borders || [];
@@ -92,7 +90,7 @@ export class BorderModel extends Model {
 
     updateViewObjects(state){
         (this.borders || []).forEach((border, i) => {
-            //TODO after switching to LinkModel, call updateViewObjects
+            //TODO after switching to LinkModel, just call updateViewObjects
 
             //position nodes on lyph border
             if (border.nodes){
@@ -105,7 +103,7 @@ export class BorderModel extends Model {
                     //Shape depends on the quaternion and position of the container lyph/layers,
                     //hence apply all transformations recursively
                     while (currentLyph){
-                        transformChain.push(currentLyph.viewObjects["lyphs"][state.method].quaternion);
+                        transformChain.push(currentLyph.viewObjects["main"].quaternion);
                         centerChain.push(currentLyph.center);
                         currentLyph = currentLyph.container;
                     }

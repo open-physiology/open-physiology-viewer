@@ -25,6 +25,9 @@ import { modelClasses } from './utils';
  * @param material - object material
  * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  */
+//Sample call:
+// d3Layer([ layer.width * i + 1,       layer.height, thickness / 2, ...layer.border.radialTypes],
+//         [ layer.width * (i + 1) + 1, layer.height, thickness / 2, ...layer.border.radialTypes], layer.material);
 function d3Layer(inner, outer, material){
     const [$thickness, $height, $radius, $top, $bottom] = inner;
     const [ thickness,  height,  radius,  top,  bottom] = outer;
@@ -74,11 +77,11 @@ function d2Layer(inner, outer, material){
         if ($top){
             shape.lineTo( 0, $height / 2 - $radius);
             shape.quadraticCurveTo( 0, $height / 2, -$radius,  $height / 2);
+            shape.lineTo( -$thickness, $height / 2);
+            shape.lineTo( -$thickness, height / 2);
         } else {
-            shape.lineTo( 0, $height / 2);
+            shape.lineTo( 0, height / 2);
         }
-        shape.lineTo( -$thickness, $height / 2);
-        shape.lineTo( -$thickness, height / 2);
     }
 
     //top of the current layer
@@ -101,13 +104,13 @@ function d2Layer(inner, outer, material){
 
     //draw bottom of the preceding layer geometry
     if ($thickness){
-        shape.lineTo( -$thickness, -height / 2);
-        shape.lineTo( -$thickness, -$height / 2);
         if ($bottom){
+            shape.lineTo(-$thickness, -height / 2);
+            shape.lineTo(-$thickness, -$height / 2);
             shape.lineTo( -$radius, -$height / 2);
             shape.quadraticCurveTo( 0, -$height / 2, 0,  -$height / 2 + $radius);
         } else {
-            shape.lineTo( 0, -$height / 2);
+            shape.lineTo( 0, -height / 2);
         }
     }
     shape.lineTo( 0, 0);
@@ -212,33 +215,23 @@ export class LyphModel extends Model {
         return [false, false];
     }
 
+    //lyph's center = the center of its rotational axis
     get center(){
-        //lyph's center = the center of its rotational axis
         let res = new THREE.Vector3();
-
         if (this.axis) {
             res = this.axis.center;
-            if (this.offset) {
-                translate(res, this.offset, this.layerInLyph.axis);
-            }
-            return res;
-        }
-        //if there is no axis, return the global position of the visualization object
-        if (this.viewObjects["main"]){
-            res.setFromMatrixPosition( this.viewObjects["main"].matrixWorld );
+            //layers have the same axis at their host lyph
+            if (this.layerInLyph) { translate(res, this.offset, this.axis); }
         }
         return res;
     }
 
     get polygonOffsetFactor(){
-        if (this.container && this.container.material) {
-            return this.container.material.polygonOffsetFactor - 2;
-        }
-        return (this.axis && this.axis.type !== LINK_TYPES.CONTAINER)? -3: 0;
-    }
-
-    createLyphLayer(state, precedessor){
-
+        let res = 0;
+        if (this.container)   { res = this.container.polygonOffsetFactor - 1; }
+        if (this.layerInLyph) { res = Math.min(res, this.layerInLyph.polygonOffsetFactor - 1); }
+        if (this.externalLyph) { res = Math.min(res, this.externalLyph.polygonOffsetFactor - 1); }
+        return res;
     }
 
     /**
@@ -246,102 +239,91 @@ export class LyphModel extends Model {
      * @param state - layout settings
      */
     createViewObjects(state){
+        //Cannot draw a lyph without axis
         if (!this.axis) { return; }
 
-        let {thickness, length} = this.axis.lyphSize;
+        //Either use given dimensions or set from axis
+        this.width  = this.width  || this.axis.lyphSize.width;
+        this.height = this.height || this.axis.lyphSize.height;
+
         this.viewObjects["lyphs"] = this.viewObjects["lyphs"] || {};
 
         if (!this.viewObjects["lyphs"][state.method]){
             let numLayers = (this.layers || [this]).length;
-            this.width  = numLayers * thickness;
-            this.height = length;
             if (!this.material) {
-
                 this.material = state.materialRepo.createMeshBasicMaterial({
                     color: this.color,
-                    polygonOffsetFactor: this.polygonOffsetFactor - 2
+                    polygonOffsetFactor: this.polygonOffsetFactor
                 });
-                // this.material.visible = true; //Do not show overlaying lyph shape
             }
 
-            let lyphObj = d2Lyph([this.width, this.height + 2 * numLayers, thickness / 2, ...this.border.radialTypes], this.material);
+            let thickness = this.width / numLayers;
+            let lyphObj =
+                this.prev? d2Layer(
+                    [ this.width, this.height, thickness / 2, ...this.border.radialTypes],
+                    [ this.prev.width, this.prev.height, thickness / 2, ...this.prev.border.radialTypes],
+                    this.material)
+                    : d2Lyph([this.width, this.height, thickness / 2, ...this.border.radialTypes], this.material);
             lyphObj.__data = this;
             this.viewObjects["lyphs"][state.method] = lyphObj;
 
             this.border.borderInLyph  = this;
             this.border.createViewObjects(state);
 
-            let prev = null;
             //Layers
             (this.layers || []).forEach((layer, i) => {
-
-                if (!layer.material) {
-
-                    layer.material = state.materialRepo.createMeshBasicMaterial({
-                        color: layer.color,
-                        polygonOffsetFactor: this.material.polygonOffsetFactor - 2
-                    });
-
-                }
+                //TODO think if we need to clone axis for layer
+                layer.axis = this.axis;
                 layer.width  = thickness;
-                layer.height = length;
-
-                layer.border.borderInLyph  = layer;
-                layer.border.createViewObjects(state);
-
-                let layerObj;
-                if (state.method === "3d"){
-                    layerObj = d3Layer(
-                        [ thickness * i + 1,       length,         thickness / 2, ...layer.border.radialTypes],
-                        [ thickness * (i + 1) + 1, length + i * 2, thickness / 2, ...layer.border.radialTypes],
-                        layer.material);
-                } else {
-                    //we do not call d2Lyph directly as we need to keep the border shape as well
-                    //TODO correct the lyph shapes wrt the the border type
-                    layerObj = d2Layer(
-                        [ thickness * i, length,         thickness / 2, ...layer.border.radialTypes],
-                        [ thickness,     length + i * 2, thickness / 2, ...layer.border.radialTypes],
-                        layer.material);
-                    layerObj.translateX(thickness * i);
+                layer.height = this.height;
+                layer.layerInLyph = this;
+                layer.offset = thickness * i;
+                if (i > 0) {
+                    layer.prev      = this.layers[i - 1];
+                    layer.prev.next = this.layers[i];
                 }
-                layerObj.__data = layer;
-                layer.viewObjects["lyphs"] = layer.viewObjects["lyphs"] || {};
-                layer.viewObjects["lyphs"][state.method] = layerObj;
-                layer.viewObjects["main"] = layer.viewObjects["lyphs"][state.method];
+
+                layer.createViewObjects(state);
+                let layerObj = layer.viewObjects["main"];
+                layerObj.translateX(thickness * i);
 
                 //Draw nested lyphs
                 //TODO assign content to border and process in borderModel
-                if (layer.content){
-                    //TODO rewrite to derive rotational axis from data
-                    let borderObjects  = layer.border.viewObjects["shape"];
-                    if (borderObjects[3]){
-                        //be default, content lyphs rotate around border #3, i.e., layer.borderObjects[3]
-                        let source = borderObjects[3].getPoint(0);
-                        let target = borderObjects[3].getPoint(1);
-
-                        //TODO create a border class and make it a rotational axis
-                        let contentLyphAxis = LinkModel.fromJSON({
-                            source: source,
-                            target: target,
-                            linkInLyph: this,
-                            center: (source.clone().add(target)).multiplyScalar(0.5)
-                        }, modelClasses);
-                        layer.content.axis = contentLyphAxis;
-                        //'content' and 'container' are the opposites for the "Contains" relationship
-                        //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
-                        layer.content.container = layer;
-                        layer.content.createViewObjects(state);
-                        //TODO assign layer its own axis which is a parallel line to the link
-                        layer.layerInLyph = this;
-                        layer.offset = new THREE.Vector3(thickness * i, 0, 0);
-                        const contentLyph = layer.content.viewObjects["lyphs"][state.method];
-                        layerObj.add(contentLyph);
-                    }
-                }
+                // if (layer.content){
+                //     //TODO rewrite to derive rotational axis from data
+                //     let borderObjects  = layer.border.viewObjects["shape"];
+                //     if (borderObjects[3]){
+                //         //be default, content lyphs rotate around border #3, i.e., layer.borderObjects[3]
+                //         let source = borderObjects[3].getPoint(0);
+                //         let target = borderObjects[3].getPoint(1);
+                //
+                //         //TODO create a border class and make it a rotational axis
+                //         let contentLyphAxis = LinkModel.fromJSON({
+                //             source: source,
+                //             target: target,
+                //             linkInLyph: this,
+                //             center: (source.clone().add(target)).multiplyScalar(0.5)
+                //         }, modelClasses);
+                //         layer.content.axis = contentLyphAxis;
+                //         //'content' and 'container' are the opposites for the "Contains" relationship
+                //         //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
+                //         layer.content.container = layer;
+                //         layer.content.createViewObjects(state);
+                //
+                //         //TODO assign layer its own axis which is a parallel line to the link
+                //         layer.layerInLyph = this;
+                //         layer.offset = new THREE.Vector3(thickness * i, 0, 0);
+                //         const contentLyph = layer.content.viewObjects["lyphs"][state.method];
+                //         layerObj.add(contentLyph);
+                //     }
+                // }
                 lyphObj.add(layerObj);
             });
         }
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
+
+        //Do not create labels for lyphs
+        if (this.layerInLyph || this.externalLyph){ return; }
 
         //Labels
         this.labels = this.labels || {};
@@ -357,73 +339,78 @@ export class LyphModel extends Model {
 
     updateViewObjects(state){
         if (!this.axis) {return; }
-        if (!this.viewObjects["lyphs"][state.method] ||
-            !(this.labels[state.iconLabel] && this[state.iconLabel])){
+        if (!this.viewObjects["lyphs"][state.method]){
             this.createViewObjects(state);
         }
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
-        //update lyph
-        if (this.viewObjects["lyphs"][state.method]){
-            this.viewObjects["lyphs"][state.method].visible = state.showLyphs;
-            copyCoords(this.viewObjects["lyphs"][state.method].position, this.center);
-            align(this.axis, this.viewObjects["lyphs"][state.method]);
+        let skip = this.layerInLyph || this.externalLyph;
+
+        if (!skip) {//update label
+            if (!(this.labels[state.iconLabel] && this[state.iconLabel])) {
+                this.createViewObjects(state);
+            }
+        }
+        if (!this.layerInLyph){
+            //update lyph
+            this.viewObjects["main"].visible = state.showLyphs;
+            copyCoords(this.viewObjects["main"].position, this.center);
+            align(this.axis, this.viewObjects["main"]);
         }
 
         //update border
         this.border.updateViewObjects(state);
 
         //update layers
-        (this.layers || []).filter(layer => layer.content).forEach(layer => { layer.content.updateViewObjects(state); });
+        (this.layers || []).forEach(layer => { layer.updateViewObjects(state); });
 
         //update inner content
         if (this.internalLyphs){
-            const fociCenter = getCenterPoint(this.viewObjects["lyphs"][state.method]) || this.center;
+            const fociCenter = getCenterPoint(this.viewObjects["main"]);
+            // const fociCenter = this.center;
+            //const fociCenter = new THREE.Vector3().setFromMatrixPosition( this.viewObjects["main"].matrixWorld );
             state.graphData.links
                 .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
                 .forEach(link => {
-                    if (link.conveyingLyph.material){
-                        link.conveyingLyph.material.polygonOffsetFactor = this.material.polygonOffsetFactor - 1;
-                    }
                     // copyCoords(link.source.layout, fociCenter);
                     // copyCoords(link.target.layout, fociCenter);
                     //If we need to clean these layout constraints, set some flag
                     // link.source.layout.reason = "container";
                     // link.target.layout.reason = "container";
-                    let dx = 2 * link.lyphSize.thickness;
-
-                    boundToRectangle(link.source, fociCenter, this.width/2 - dx, this.height);
-                    boundToRectangle(link.target, fociCenter, this.width/2 - dx, this.height);
+                    let dx = link.conveyingLyph? link.conveyingLyph.width: 0;
+                    boundToRectangle(link.source, fociCenter, this.width - dx, this.height);
+                    boundToRectangle(link.target, fociCenter, this.width - dx, this.height);
 
                     //Project links with innerLyphs to the container lyph plane
-                    //if (state.method === "2d"){
-                        let plane = new THREE.Plane();
-                        let _start = new THREE.Vector3(this.axis.source.x, this.axis.source.y, this.axis.source.z || 0);
-                        let _end = new THREE.Vector3(this.axis.target.x, this.axis.target.y, this.axis.target.z || 0);
-                        plane.setFromCoplanarPoints(_start, _end, fociCenter);
+                    //if (state.method !== "2d"){ return; }
+                    let plane = new THREE.Plane();
+                    let _start = new THREE.Vector3(this.axis.source.x, this.axis.source.y, this.axis.source.z || 0);
+                    let _end = new THREE.Vector3(this.axis.target.x, this.axis.target.y, this.axis.target.z || 0);
+                    plane.setFromCoplanarPoints(_start, _end, fociCenter);
 
-                        let _linkStart = new THREE.Vector3(link.source.x, link.source.y, link.source.z || 0);
-                        let _linkEnd = new THREE.Vector3(link.target.x, link.target.y, link.target.z || 0);
+                    let _linkStart = new THREE.Vector3(link.source.x, link.source.y, link.source.z || 0);
+                    let _linkEnd = new THREE.Vector3(link.target.x, link.target.y, link.target.z || 0);
 
-                        _linkStart  = plane.projectPoint ( _linkStart);
-                        _linkEnd = plane.projectPoint ( _linkEnd );
+                    _linkStart  = plane.projectPoint ( _linkStart);
+                    _linkEnd = plane.projectPoint ( _linkEnd );
 
-                        copyCoords(link.source, _linkStart);
-                        copyCoords(link.target, _linkEnd);
-                    //}
+                    copyCoords(link.source, _linkStart);
+                    copyCoords(link.target, _linkEnd);
                 });
         }
 
-        // this.material.visible = !state.showLayers;
         (this.viewObjects['main'].children || []).forEach(child => {child.visible = state.showLayers;});
 
-        if (this.labels[state.iconLabel]){
-            this.viewObjects['label'] = this.labels[state.iconLabel];
-            this.viewObjects['label'].visible = state.showLyphLabel;
-            copyCoords(this.viewObjects['label'].position, this.center);
-            this.viewObjects['label'].position.addScalar(-5);
-        } else {
-            delete this.viewObjects['label'];
+        //Layers and inner lyphs have no labels
+        if (!skip) {
+            if (this.labels[state.iconLabel]){
+                this.viewObjects['label'] = this.labels[state.iconLabel];
+                this.viewObjects['label'].visible = state.showLyphLabel;
+                copyCoords(this.viewObjects['label'].position, this.center);
+                this.viewObjects['label'].position.addScalar(-5);
+            } else {
+                delete this.viewObjects['label'];
+            }
         }
     }
 }

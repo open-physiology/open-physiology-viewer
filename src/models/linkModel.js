@@ -70,26 +70,26 @@ export class LinkModel extends Model {
 
     /**
      * Defines size of the conveying lyph based on the length of the link
-     * @returns {{length: number, thickness: number}}
+     * @returns {{height: number, width: number}}
      */
     get lyphSize(){
         const scaleFactor = this.length? Math.log(this.length): 1;
-        let res = {length: 6 * scaleFactor, thickness: 2 * scaleFactor};
+        let res = {height: 6 * scaleFactor, width: 6 * scaleFactor};
 
         if (this.type === LINK_TYPES.CONTAINER){
-            res.length    *= 4;
-            res.thickness *= 4;
+            res.height *= 4;
+            res.width  *= 4;
         }
 
         if (this.type === LINK_TYPES.BORDER){
-            res.thickness = 0.33 * this.length;
-            res.length = this.linkInLyph.axis.lyphSize.length;
+            res.height = this.length;
+            res.width  = this.length;
         }
 
         //TODO introduce a proper way to distingush trees/subgraphs and parameters to derive lyph size from
         if (this.name === "Ependymal"){
-            res.thickness *=   3;
-            res.length    *= 1.5;
+            res.width  *= 3;
+            res.height *= 1.5;
         }
         return res;
     }
@@ -120,12 +120,10 @@ export class LinkModel extends Model {
                 if (state.linkMethod === 'Line2'){
                     // Line 2 method: draws thick lines
                     geometry = new THREE.LineGeometry();
-                    this.material = new THREE.LineMaterial({
+                    this.material = state.materialRepo.createLine2Material({
                         color: this.color,
                         linewidth: 0.002,
-                        polygonOffsetFactor: -100,
-                        polygonOffset: true,
-                        transparent: true
+                        polygonOffsetFactor: -100
                     });
                     obj = new THREE.Line2(geometry, this.material);
                 } else {

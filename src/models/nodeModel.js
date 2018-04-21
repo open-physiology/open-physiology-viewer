@@ -9,7 +9,8 @@ export const NODE_TYPES = {
     FIXED  : "fixed",
     CORE   : "core",
     CONTROL: "control",
-    OMEGA  : 'omega' //TODO do not use NODE_TYPES for semantic classification of nodes, refactor to separate concerns
+    OMEGA  : 'omega',
+    BORDER : "border"
 };
 
 /**
@@ -27,7 +28,6 @@ export class NodeModel extends Model {
         super(id);
         this.infoFields.text.push ('host', 'type', 'x', 'y', 'z');
         this.val = this.val || 1; // Defines default radius
-
     }
 
     toJSON() {
@@ -59,7 +59,7 @@ export class NodeModel extends Model {
             if (!this.material){
                 this.material = state.materialRepo.createMeshLambertMaterial({
                     color: this.color,
-                    polygonOffsetFactor: -4 //Draw nodes in front of lyphs
+                    polygonOffsetFactor: -100 //Draw nodes in front of lyphs
                 });
             }
             let obj = new THREE.Mesh(geometry, this.material);
@@ -69,6 +69,7 @@ export class NodeModel extends Model {
         }
 
         //Labels
+        if (this.skipLabel) { return; }
         this.labels = this.labels || {};
 
         if (!this.labels[state.nodeLabel] && this[state.nodeLabel]) {
@@ -88,7 +89,8 @@ export class NodeModel extends Model {
      */
     updateViewObjects(state){
         //Node
-        if (!this.viewObjects["main"] || (!this.labels[state.iconLabel] && this[state.nodeLabel])){
+        if (!this.viewObjects["main"] ||
+            (!this.skipLabel && !this.labels[state.iconLabel] && this[state.nodeLabel])){
             this.createViewObjects(state);
         }
 
@@ -111,6 +113,8 @@ export class NodeModel extends Model {
             }
         }
         copyCoords(this.viewObjects["main"].position, this);
+
+        if (this.skipLabel) { return; }
 
         //Labels
         if (this.labels[state.nodeLabel]){

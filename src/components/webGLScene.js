@@ -78,11 +78,11 @@ import {ModelInfoPanel} from './modelInfo';
                         <input [disabled]="!_showLyphs"
                                type="checkbox" name="layers" (change)="toggleLayers()" checked/> Layers
 
-                        <fieldset [disabled]="!_showLyphs">
-                            <legend>Lyph icon:</legend>
-                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D
-                            <input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D
-                        </fieldset>
+                        <!--<fieldset [disabled]="!_showLyphs">-->
+                            <!--<legend>Lyph icon:</legend>-->
+                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D-->
+                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D-->
+                        <!--</fieldset>-->
                     </fieldset>
 
                     <!--<fieldset>-->

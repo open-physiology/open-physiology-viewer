@@ -81,7 +81,7 @@
           }
         },
         "direction": {"type": "Function", "readonly": true},
-        "lyphSize" : {"type": "Function", "readonly": true}
+        "reversed" : {"type": "Boolean", "default": false}
       }
     },
     "Lyph"  : {
@@ -89,6 +89,7 @@
       "properties" : {
         "axis"    : {"type": "String:ID|Link", "modality": "0..1"},
         "layers"  : {"type": "String:ID|Lyph", "modality": "0..*"},
+        "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"}, //Revise
         "topology": {},
         "border"  : {},
         "infoFields": {
@@ -99,9 +100,13 @@
             "lists": ["layers"]
           }
         },
-        "content"  : {"type": "", "modality": "0..1"},
-        "container": {"type": "Lyph", "modality": "0..1"},
-        "offset"  : {"type": "Number", "modality": "0..1"}
+        //TODO revise to move this to border or generalize content: lyphs can contain inside links, nodes or lyphs
+//        "content"  : {"type": "", "modality": "0..1"},
+//        "container": {"type": "Lyph", "modality": "0..1"},
+        "width"    : {"type": "Number"},
+        "height"   : {"type": "Number"},
+        "offset"   : {"type": "Number", "modality": "0..1"},
+        "internalLyphs": {"type": "Lyph", "modality": "0..*"}
       }
     },
     "Border": {
@@ -146,7 +151,7 @@
     {
       "types": ["Lyph", "Lyph"],
       "keys" : ["layers", "layerInLyph"],
-      "modality": ["0..*", "0..*"]
+      "modality": ["0..*", "0..1"] //Revise
     },
     {
       "types": ["Lyph", "Border"],
@@ -157,6 +162,11 @@
       "types": ["Lyph", "Lyph"],
       "keys" : ["content", "container"],
       "modality": ["0..1", "0..1"]
+    }
+    {
+      "types": ["Lyph", "Lyph"],
+      "keys" : ["internalLyphs", "externalLyph"],
+      "modality": ["0..*", "0..1"]
     }
   ]
 }

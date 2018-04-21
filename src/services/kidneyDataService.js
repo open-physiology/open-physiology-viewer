@@ -8,8 +8,7 @@ import { LinkModel, LINK_TYPES } from '../models/linkModel';
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
 
-import {interpolateReds, interpolateGreens, interpolatePurples, interpolateBlues,
-    interpolatePiYG, interpolateRdPu,
+import {interpolateReds, interpolateGreens, interpolatePurples, interpolateRdPu,
     interpolateOranges} from 'd3-scale-chromatic';
 
 
@@ -27,12 +26,70 @@ export class KidneyDataService extends DataService{
     init(){
         super.init();
 
+        const colorLyphs = (lyphs, colorFn, reversed = false) => {
+            lyphs.forEach((lyphID, i) =>{
+                let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
+                lyph.color = colorFn(((reversed)? 0.75 - i : 0.25 + i ) / (1.25 * lyphs.length));
+            });
+        };
+
         //Assign central nervous system lyphs to corresponding edges
         Object.keys(ependymal).forEach(linkID => {
-            this._graphData.getLinkByID(linkID).conveyingLyph = ependymal[linkID]
+            this._graphData.getLinkByID(linkID).conveyingLyph = ependymal[linkID];
+            let ependymalLyph = this._lyphs.find(lyph => lyph.id === ependymal[linkID]);
+            //Recolor the lyph and its layers to match the mock-up
+            ependymalLyph.color = "#aaa";
+            colorLyphs(ependymalLyph.layers, interpolatePurples);
         });
 
-        //TODO color ependymal graph lyphs to match the mock-up
+        this._lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
+
+            lyph.internalLyphs.forEach(innerLyph => {
+                //Bi-directional relationship
+                let innerLyphObj = this._lyphs.find(lyph => lyph.id === innerLyph);
+                if (innerLyphObj) { innerLyphObj.externalLyph = lyph; }
+
+                if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
+                ["s", "t"].forEach(prefix => {
+                    let node = NodeModel.fromJSON({
+                        "id": `${prefix}${innerLyph}`,
+                        "host": this._graphData.getLinkByLyphID(innerLyph),
+                        "type": NODE_TYPES.BORDER,
+                        "color" : "#ccc",
+                        "val"   : 0.1,
+                        "skipLabel": true
+                        //"hidden": true
+                    }, modelClasses);
+                    this._graphData.nodes.push(node);
+                });
+                let link = LinkModel.fromJSON({
+                    "id"       : (this._graphData.links.length + 1).toString(),
+                    "source"   : this._graphData.getNodeByID(`s${innerLyph}`),
+                    "target"   : this._graphData.getNodeByID(`t${innerLyph}`),
+                    "length"   : 2,
+                    "type"     : LINK_TYPES.BORDER,
+                    "color"    : "#ccc",
+                    "conveyingLyph" : innerLyph
+                }, modelClasses);
+                this._graphData.links.push(link);
+            })
+        });
+
+        //TODO create node in the center
+        //Form links for lyph mapping: ["198", "199", "200"] - "202" - "203" - ["204", "205"] - "206" - "197"
+        // [["198", "204"], ["199", "197"], ["200", "203"], ["200", "206"], ["202", "205"]].forEach(
+        //     ([s,t]) => {
+        //         let link = LinkModel.fromJSON({
+        //             "id"       : (this._graphData.links.length + 1).toString(),
+        //             "source"   : this._graphData.getNodeByID(`t${s}`),
+        //             "target"   : this._graphData.getNodeByID(`s${t}`),
+        //             "length"   : 100,
+        //             "color"    : "#aaa",
+        //             "type"     : LINK_TYPES.LINK
+        //         }, modelClasses);
+        //         this._graphData.links.push(link);
+        //     }
+        // );
 
         //Create Urinary tract and Cardiovascular system omega trees
         const hosts = {
@@ -49,13 +106,6 @@ export class KidneyDataService extends DataService{
                 "sign" : 1,
                 "trees": [ {"lyphs": trees["Urinary"]} ]
             }
-        };
-
-        const colorLyphs = (lyphs, colorFn) => {
-            lyphs.forEach((lyphID, i) =>{
-                let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
-                lyph.color = colorFn(0.25 + i / (1.25 * lyphs.length));
-            });
         };
 
         //Recolor vascular tree lyphs to shades of red and red/purple
@@ -185,8 +235,6 @@ export class KidneyDataService extends DataService{
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
         containerLyph.inactive      = true;  // Exclude this entity from being highlighted
-        //TODO generalize content of a lyph: it can contain any entities: nodes, links, floating lyphs...
-        containerLyph.internalLyphs = ["60", "105", "63", "78", "24", "27", "30", "33"]; //TODO Deduce these lyphs from mapping
 
         containerLyph.border = {};
         containerLyph.border.borders = [{}, {}, {}, {nodes: ["7013", "505", "515"]}];
@@ -197,5 +245,6 @@ export class KidneyDataService extends DataService{
         // containerLyph.border.borders = [{}, {}, {}, {conveyingLyph: "5"}];
 
         super.afterInit();
+
     }
 }

@@ -28,37 +28,42 @@ export class DataService {
     init(){
         const coreGraphData = {
             nodes : [
+                //c-n
                 { "id"  : "c", "name": "c",       "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
                 { "id"  : "n", "name": "n",       "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
-
+                //t-a, a-h
                 { "id"  : "t", "name": "t",       "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
                 { "id"  : "a", "name": "a",       "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
                 { "id"  : "h", "name": "h",       "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
-
+                //R-L
                 { "id"  : "R", "name": "R",       "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
                 { "id"  : "L", "name": "L",       "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
+                //S-P
                 { "id"  : "S", "name": "\u03A3",  "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
                 { "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
+                //c-n
                 { "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
+                //t-a, a-h
                 // {  "id": "2", "source": "t", "target": "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
                 // {  "id": "3", "source": "a", "target": "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
-
+                //R-L
                 { "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.PATH, "length":  75 },
                 { "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": LINK_TYPES.PATH, "length":  75 },
+                //S-T
                 { "id": "6", "source": "S", "target": "P", "name": "Gut",       "type": LINK_TYPES.PATH, "length":  90 },
                 { "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
             ]
         };
         //Make core nodes bigger
-        coreGraphData.nodes.forEach(node => {node.val = 3; });
+        coreGraphData.nodes.forEach(node => { node.val = 3; });
 
         //Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
         //Node "a" must always stay in the center
         coreGraphData.nodes.forEach(node  => (node.id === "a")? node.type = NODE_TYPES.FIXED: node.type = NODE_TYPES.CORE);
 
-        // Split t-a and a-h links to 7 edges
+        //Demo2: split t-a and a-h links to 7 edges
         const ependymal = {
             nodes: [
                 //t-a
@@ -85,10 +90,10 @@ export class DataService {
             ]
         };
 
+        //Add ependymal links to the modelgraph)
         ependymal.nodes.forEach(node => {
-            if (!node.layout) {
-                node.layout = {"y": 0, "z": 0};
-            }
+            //Force ependymal nodes to stick to the x axis
+            if (!node.layout) { node.layout = {"y": 0, "z": 0}; }
             coreGraphData.nodes.push(node);
         });
         ependymal.links.forEach((link, i) => {

@@ -119,6 +119,9 @@ export class GraphModel extends Model {
         this._links.forEach(link => {
             link.createViewObjects(state);
             Object.values(link.viewObjects).forEach(obj => state.graphScene.add(obj));
+            if (link.type === LINK_TYPES.BORDER){
+                link.viewObjects["main"].material.visible = false;
+            }
         });
     }
 
@@ -126,24 +129,13 @@ export class GraphModel extends Model {
         // Update nodes positions
         this._nodes.forEach(node => { node.updateViewObjects(state) });
 
-        // Update links position for paths, compute positions of omega nodes
-        this._links.filter(link => link.type === LINK_TYPES.PATH).forEach(link => {
-            link.updateViewObjects(state)}
+        //Update links in certain order
+        [LINK_TYPES.PATH, LINK_TYPES.LINK, LINK_TYPES.BORDER, LINK_TYPES.AXIS, LINK_TYPES.CONTAINER].forEach(
+            linkType => {
+                this._links.filter(link => link.type === linkType).forEach(link => {
+                    link.updateViewObjects(state);
+                });
+            }
         );
-
-        // Update links position for straight solid links
-        this._links.filter(link => link.type === LINK_TYPES.LINK).forEach(link => {
-            link.updateViewObjects(state)
-        });
-
-        //Update axis
-        this._links.filter(link => link.type === LINK_TYPES.AXIS).forEach(link => {
-            link.updateViewObjects(state)
-        });
-
-        //Update containers
-        this._links.filter(link => link.type === LINK_TYPES.CONTAINER).forEach(link => {
-            link.updateViewObjects(state)
-        });
     }
 }

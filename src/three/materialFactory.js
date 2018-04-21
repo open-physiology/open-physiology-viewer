@@ -31,6 +31,13 @@ export class MaterialFactory {
         this.defaultParams.side = this.defaultParams.side || THREE.DoubleSide;
     }
 
+    createLine2Material(params = {}){
+        let p = Object.assign({}, this.defaultParams, params);
+        p.color = colorStr2Hex(p.color);
+        p.linewidth = p.linewidth || 0.002;
+        return new THREE.LineMaterial(p);
+    }
+
     createLineBasicMaterial(params = {}) {
         let p = Object.assign({}, this.defaultParams, params);
         p.color = colorStr2Hex(p.color);
