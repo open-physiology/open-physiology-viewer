@@ -208,15 +208,19 @@ export class WebGLSceneComponent {
         this.scene.add(pointLight);
 
         this.mouse = new THREE.Vector2(0, 0);
-
-        window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
-        window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
-        // this.windowResize = new WindowResize(this.renderer, this.camera)
-
+        this.createEventListeners(); // keyboard / mouse events
         this.resizeCanvasToDisplaySize();
         this.createHelpers();
         this.createGraph();
         this.animate();
+    }
+
+
+    createEventListeners(){
+      window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
+      window.addEventListener( 'mousedown', evt => this.onMouseDown(evt), false );
+
+      window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
     }
 
     resizeCanvasToDisplaySize(force) {
@@ -241,7 +245,6 @@ export class WebGLSceneComponent {
         this.resizeCanvasToDisplaySize();
         if (this.graph){
             this.graph.tickFrame();
-            this.highlightSelected();
         }
         this.controls.update();
 
@@ -318,21 +321,25 @@ export class WebGLSceneComponent {
 
                 // restore previous intersection object (if it exists) to its original color
                 if ( this._highlighted ){
-                    this._highlighted.material.color.setHex( this._highlighted.currentHex );
-                    (this._highlighted.children || []).forEach(child => {
-                        if (child.visible && child.material){
-                            child.material.color.setHex( child.currentHex );
-                        }
-                    })
+                  this._highlighted.material.color.setHex( this._highlighted.currentHex );
+                  (this._highlighted.children || []).forEach(child => {
+                      // if (child.visible && child.material){   ||| not sure if the visible part is necessary
+                      if (child.material){
+                          child.material.color.setHex( child.currentHex );
+                      }
+                  })
                 }
                 // store reference to closest object as current intersection object
                 this._highlighted = intersects[ 0 ].object;
 
+                // store reference to object type to check for highlight type. E.g. "LyphModel"
+                this._highlighted.objName = intersects[0].object.__data.constructor.name;
+
                 // store color of closest object (for later restoration)
                 this._highlighted.currentHex = this._highlighted.material.color.getHex();
                 (this._highlighted.children || []).forEach(child => {
-
-                    if (child.visible && child.material){
+                  // if (child.visible && child.material){    ||| not sure if the visible part is necessary
+                    if (child.material){
                         child.currentHex = child.material.color.getHex();
                     }
                 });
@@ -343,7 +350,8 @@ export class WebGLSceneComponent {
                 this._highlighted.material.color.setHex( highlightColor );
                 (this._highlighted.children || []).forEach(child => {
 
-                    if (child.visible && child.material){
+                    // if (child.visible && child.material){    ||| not sure if the visible part is necessary
+                    if (child.material){
                         child.material.color.setHex( highlightColor );
                     }
                 });
@@ -356,13 +364,26 @@ export class WebGLSceneComponent {
             if ( this._highlighted ) {
                 this._highlighted.material.color.setHex(this._highlighted.currentHex);
                 (this._highlighted.children || []).forEach(child => {
-                    if (child.visible && child.material){
+                    if (child.material){
                         child.material.color.setHex( child.currentHex );
                     }
                 })
             }
             this._highlighted = null;
             this.highlightedItemChange.emit(this._highlighted);
+        }
+    }
+
+    hideHighlighted()
+    {
+      if (this._highlighted){
+          (this._highlighted.children || []).forEach(child => {
+              child.visible = false;
+              // console.log("hiding child: ", child);
+          });
+
+          // console.log("hiding parent: ", this._highlighted);
+          this._highlighted.visible = false;
         }
     }
 
@@ -402,11 +423,27 @@ export class WebGLSceneComponent {
         }
     }
 
+
+    // Handle user input controls, eg, keyboard and mouse events
+
+    // Handle mouse move
     onMouseMove(evt) {
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         this.mouse.x =   ( evt.clientX / this.width  ) * 2 - 1;
         this.mouse.y = - ( evt.clientY / this.height ) * 2 + 1;
+
+        this.highlightSelected();
+
+    }
+
+    // Handle mouse click
+    onMouseDown(evt) {
+      if (this._highlighted){
+        if (this._highlighted.objName == "LyphModel"){
+          this.hideHighlighted();
+        }
+      }
     }
 
     zoom(delta){

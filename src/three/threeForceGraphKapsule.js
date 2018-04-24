@@ -51,8 +51,8 @@ export default Kapsule({
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks  : { default: Infinity },
-        cooldownTime   : { default: 20000 }, // ms
+        cooldownTicks  : { default: 1000 },
+        cooldownTime   : { default: 2000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading      : { default: () => {}, triggerUpdate: false },
         onFinishLoading: { default: () => {}, triggerUpdate: false }
     },
