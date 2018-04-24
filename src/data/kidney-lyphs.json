@@ -2201,7 +2201,8 @@
       "length": {
         "min": "2",
         "max": "2"
-      }
+      },
+      "internalLyphs": ["99007"]
     },
     {
       "id":"147",
@@ -2260,7 +2261,7 @@
         "min": "2",
         "max": "2"
       },
-      "internalLyphs": ["202"]
+      "internalLyphs": ["202","99004"]
     },
     {
       "id":"152",
@@ -2901,7 +2902,8 @@
         "min": "2",
         "max": "2"
       },
-      "external": "FMA:83140"
+      "external": "FMA:83140",
+      "internalLyphs": ["99010"]
     },
     {
       "id":"198",
@@ -2943,7 +2945,8 @@
         "min": "1",
         "max": "2"
       },
-      "external": "FMA:256541"
+      "external": "FMA:256541",
+      "internalLyphs": ["99001"]
     },
     {
       "id":"201",
@@ -3040,7 +3043,204 @@
         "min": "0",
         "max": "2"
       }
+    },
+    {
+      "id":"99001",
+      "name": "neuron_end_grey_matter",
+      "topology": "BAG",
+      "thickness": {
+        "min": "2",
+        "max": "2"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "layers": [
+        "99002",
+        "99003"
+      ]
+    },
+    {
+      "id":"99002",
+      "name": "cytosol layer of neuron_end_grey_matter",
+      "topology": "BAG",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99003",
+      "name": "plasma membrane layer of neuron_end_grey_matter",
+      "topology": "BAG",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99004",
+      "name": "neuron_mid_medulla",
+      "topology": "TUBE",
+      "thickness": {
+        "min": "2",
+        "max": "2"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "layers": [
+        "99005",
+        "99006"
+      ]
+    },
+    {
+      "id":"99005",
+      "name": "cytosol layer of neuron_mid_medulla",
+      "topology": "TUBE",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99006",
+      "name": "plasma membrane layer of neuron_mid_medulla",
+      "topology": "TUBE",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99007",
+      "name": "neuron_mid_pons",
+      "topology": "TUBE",
+      "thickness": {
+        "min": "2",
+        "max": "2"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "layers": [
+        "99008",
+        "99009"
+      ]
+    },
+    {
+      "id":"99008",
+      "name": "cytosol layer of neuron_mid_pons",
+      "topology": "TUBE",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99009",
+      "name": "plasma membrane layer of neuron_mid_pons",
+      "topology": "TUBE",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99010",
+      "name": "neuron_end_granular_tissue_cerebellum",
+      "topology": "BAG",
+      "thickness": {
+        "min": "2",
+        "max": "2"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "layers": [
+        "99011",
+        "99012"
+      ]
+    },
+    {
+      "id":"99011",
+      "name": "cytosol layer of neuron_end_granular_tissue_cerebellum",
+      "topology": "BAG",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
+    },
+    {
+      "id":"99012",
+      "name": "plasma membrane layer of neuron_end_granular_tissue_cerebellum",
+      "topology": "BAG",
+      "thickness": {
+        "min": "6",
+        "max": "6"
+      },
+      "length": {
+        "min": "5",
+        "max": "5"
+      },
+      "materials": [
+        "9"
+      ]
     }
+
   ],
   "materials": [
     {

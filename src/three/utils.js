@@ -34,11 +34,6 @@ export function copyCoords(target, source){
     target.z = source.z || 0;
 }
 
-export function boundToRectangle(point, center, width, height){
-    point.x = Math.max(Math.min(point.x, center.x + width/2) , center.x - width/2 );
-    point.y = Math.max(Math.min(point.y, center.y + height/2), center.y - height/2);
-}
-
 /**
  * Computes difference between two geometries
  * @param smallGeom - inner geometry

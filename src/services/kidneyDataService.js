@@ -11,7 +11,6 @@ import {DataService} from './dataService';
 import {interpolateReds, interpolateGreens, interpolatePurples, interpolateRdPu,
     interpolateOranges} from 'd3-scale-chromatic';
 
-
 /**
  * Create omega trees and lyphs tfor Kidney scenario
  * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
@@ -76,20 +75,28 @@ export class KidneyDataService extends DataService{
         });
 
         //TODO create node in the center
-        //Form links for lyph mapping: ["198", "199", "200"] - "202" - "203" - ["204", "205"] - "206" - "197"
-        // [["198", "204"], ["199", "197"], ["200", "203"], ["200", "206"], ["202", "205"]].forEach(
-        //     ([s,t]) => {
-        //         let link = LinkModel.fromJSON({
-        //             "id"       : (this._graphData.links.length + 1).toString(),
-        //             "source"   : this._graphData.getNodeByID(`t${s}`),
-        //             "target"   : this._graphData.getNodeByID(`s${t}`),
-        //             "length"   : 100,
-        //             "color"    : "#aaa",
-        //             "type"     : LINK_TYPES.LINK
-        //         }, modelClasses);
-        //         this._graphData.links.push(link);
-        //     }
-        // );
+        //Form links to join neural system lyphs:
+        //["198", "199", "200"] - "202" - "203" - ["204", "205"] - "206" - "197"
+        [["198", "204"], ["199", "197"], ["200", "203"], ["200", "206"], ["202", "205"]].forEach(
+            ([s,t]) => {
+                let link = LinkModel.fromJSON({
+                    "id"       : (this._graphData.links.length + 1).toString(),
+                    "source"   : this._graphData.getNodeByID(`t${s}`),
+                    "target"   : this._graphData.getNodeByID(`s${t}`),
+                    "length"   : 100,
+                    "color"    : "#aaa",
+                    "type"     : LINK_TYPES.LINK,
+                    "strength" : 0
+                }, modelClasses);
+                this._graphData.links.push(link);
+            }
+        );
+
+        //three contiguous edges that link these four innermost (cytosol) layers of lyphs representing neurons:
+        // {99011, 99008, 99005, 99002}
+        // The neuron lyphs are embedded in the parenchymal layers of spinal cord, via medulla and pons,
+        // to cerebellum. The two terminal nodes are, as specified, embedded in those parenchymal cysts you've added.
+
 
         //Create Urinary tract and Cardiovascular system omega trees
         const hosts = {
@@ -167,7 +174,8 @@ export class KidneyDataService extends DataService{
                         "length"   : (host === "5")? 2: 1, //Urinary links shorter
                         "type"     : LINK_TYPES.LINK,
                         "conveyingLyph" : tree.lyphs[key],
-                        "color"         : hosts[host].color
+                        "color"         : hosts[host].color,
+                        "linkMethod"    : "Line2"
                     }, modelClasses);
                     this._graphData.links.push(link);
                 });
@@ -197,7 +205,8 @@ export class KidneyDataService extends DataService{
                 "length"       : 1,
                 "type"         : LINK_TYPES.LINK,
                 "conveyingLyph": connectorLyphs[i],
-                "color"        : CONNECTOR_COLOR
+                "color"        : CONNECTOR_COLOR,
+                "linkMethod"    : "Line2"
             }, modelClasses));
         }
 

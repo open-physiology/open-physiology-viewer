@@ -117,7 +117,7 @@ export class LinkModel extends Model {
                 obj = new THREE.Line(geometry, this.material);
 
             } else {
-                if (state.linkMethod === 'Line2'){
+                if (this.linkMethod === 'Line2'){
                     // Line 2 method: draws thick lines
                     geometry = new THREE.LineGeometry();
                     this.material = state.materialRepo.createLine2Material({
@@ -233,7 +233,7 @@ export class LinkModel extends Model {
         if (this.type === LINK_TYPES.CONTAINER)   {return; }
 
         if (linkObj && linkObj.geometry.attributes){
-            if (state.linkMethod === 'Line2'){
+            if (this.linkMethod === 'Line2'){
                 let coordArray = [];
                 for (let i = 0; i < points.length; i++) {
                     coordArray.push(points[i].x, points[i].y, points[i].z);

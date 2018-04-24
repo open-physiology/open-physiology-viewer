@@ -102,7 +102,10 @@ export class DataService {
         });
 
         this._graphData.nodes = coreGraphData.nodes.map(node => NodeModel.fromJSON(node, modelClasses));
-        this._graphData.links = coreGraphData.links.map(node => LinkModel.fromJSON(node, modelClasses));
+        this._graphData.links = coreGraphData.links.map(link => {
+            if (link.type !== LINK_TYPES.AXIS) { link.linkMethod = "Line2" };
+            return LinkModel.fromJSON(link, modelClasses)
+        });
     }
 
     afterInit(){

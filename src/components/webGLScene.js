@@ -15,8 +15,6 @@ import {
     //forceRadial
 } from 'd3-force-3d';
 
-//import forceBounded from "../three/boundedForce";
-
 const WindowResize = require('three-window-resize');
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from "../models/nodeModel";
@@ -290,20 +288,14 @@ export class WebGLSceneComponent {
             .strength(d => ('z' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5): 0)
         );
 
+        this.graph.d3Force("link")
+            .distance(d => d.length)
+            .strength(d => (d.strength? d.strength:
+                (d.type === LINK_TYPES.CONTAINER)? 0: 1));
+
         // this.graph.d3Force("radial", forceRadial( d => {
         //     return (('r' in d.layout)? d.layout.r: 0);
         // }).strength(d => ('r' in d.layout)? 5: 0));
-
-        // this.graph.d3Force("bounded", forceBounded( d => {return (('r' in d.layout)? d.layout.r: 0);})
-        //     .x(d => ('container' in d.layout)? d.layout.container.x: 0)
-        //     .y(d => ('container' in d.layout)? d.layout.container.y: 0)
-        //     .z(d => ('container' in d.layout)? d.layout.container.z: 0)
-        //     .strength(d => ('r' in d.layout)? 1: 0)
-        // );
-
-        this.graph.d3Force("link")
-            .distance(d => d.length)
-            .strength(d => (d.type === LINK_TYPES.CONTAINER)? 0: 1);
 
         this.scene.add(this.graph);
     }
