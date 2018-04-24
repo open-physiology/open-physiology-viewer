@@ -58,13 +58,19 @@ export class LyphModel extends Model {
         return [false, false];
     }
 
+    hasLayer(layerID){
+        return (this.layers || []).find(layer => (layer === layerID || layer.id === layerID))
+    }
+
     //lyph's center = the center of its rotational axis
     get center(){
         let res = new THREE.Vector3();
         if (this.axis) {
             res = this.axis.center;
             //layers have the same axis at their host lyph
-            if (this.layerInLyph) { translate(res, this.offset, this.axis); }
+            if (this.layerInLyph) {
+                translate(res, this.offset, this.axis);
+            }
         }
         return res;
     }
@@ -362,54 +368,60 @@ export class LyphModel extends Model {
             align(this.axis, this.viewObjects["main"]);
         }
 
-        //update border
-        this.border.updateViewObjects(state);
-
         //update layers
         (this.layers || []).forEach(layer => { layer.updateViewObjects(state); });
 
         //update inner content
-        if (this.internalLyphs){
+        if (this.internalLyphs || this.internalNode){
             const fociCenter = getCenterPoint(this.viewObjects["main"]);
-            //const fociCenter = this.center;
-            //const fociCenter = new THREE.Vector3().setFromMatrixPosition( this.viewObjects["main"].matrixWorld );
-            state.graphData.links
-                .filter(link =>  link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
-                .forEach(link => {
-                    // copyCoords(link.source.layout, fociCenter);
-                    // copyCoords(link.target.layout, fociCenter);
+            const h = Math.sqrt(this.width * this.width + this.height * this.height) / 2;
 
-                    //If we need to clean these layout constraints, set some flag
-                    // link.source.layout.reason = "container";
-                    // link.target.layout.reason = "container";
+            if (this.internalLyphs) {
+                state.graphData.links
+                    .filter(link => link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
+                    .forEach(link => {
+                        // copyCoords(link.source.layout, fociCenter);
+                        // copyCoords(link.target.layout, fociCenter);
 
-                    //Roughly confine the links to avoid extreme link jumping
-                    //Regardless of the rotation, the area is bounded to the center +/- hypotenuse / 2
-                    let h = Math.sqrt(this.width*this.width + this.height * this.height) / 2;
-                    boundToRectangle(link.source, fociCenter, h, h);
-                    boundToRectangle(link.target, fociCenter, h, h);
+                        //If we need to clean these layout constraints, set some flag
+                        // link.source.layout.reason = "container";
+                        // link.target.layout.reason = "container";
 
-                    //Push the link to the tilted lyph rectangle
-                    boundToPolygon({source: link.source, target: link.target}, this.border.borderLinks);
+                        //Roughly confine the links to avoid extreme link jumping
+                        //Regardless of the rotation, the area is bounded to the center +/- hypotenuse / 2
+                        boundToRectangle(link.source, fociCenter, h, h);
+                        boundToRectangle(link.target, fociCenter, h, h);
 
-                    //Project links with innerLyphs to the container lyph plane
-                    let plane = new THREE.Plane();
-                    let _start = new THREE.Vector3(this.axis.source.x, this.axis.source.y, this.axis.source.z || 0);
-                    let _end = new THREE.Vector3(this.axis.target.x, this.axis.target.y, this.axis.target.z || 0);
-                    plane.setFromCoplanarPoints(_start, _end, fociCenter);
+                        //Push the link to the tilted lyph rectangle
+                        boundToPolygon({source: link.source, target: link.target}, this.border.borderLinks);
 
-                    let _linkStart = new THREE.Vector3(link.source.x, link.source.y, link.source.z || 0);
-                    let _linkEnd = new THREE.Vector3(link.target.x, link.target.y, link.target.z || 0);
+                        //Project links with innerLyphs to the container lyph plane
+                        let plane = new THREE.Plane();
+                        let _start = new THREE.Vector3(this.axis.source.x, this.axis.source.y, this.axis.source.z || 0);
+                        let _end = new THREE.Vector3(this.axis.target.x, this.axis.target.y, this.axis.target.z || 0);
+                        plane.setFromCoplanarPoints(_start, _end, fociCenter);
 
-                    _linkStart  = plane.projectPoint ( _linkStart);
-                    _linkEnd = plane.projectPoint ( _linkEnd );
-                    _linkStart.z += 1;
-                    _linkEnd.z += 1;
+                        let _linkStart = new THREE.Vector3(link.source.x, link.source.y, link.source.z || 0);
+                        let _linkEnd = new THREE.Vector3(link.target.x, link.target.y, link.target.z || 0);
 
-                    copyCoords(link.source, _linkStart);
-                    copyCoords(link.target, _linkEnd);
-                });
+                        _linkStart = plane.projectPoint(_linkStart);
+                        _linkEnd = plane.projectPoint(_linkEnd);
+                        _linkStart.z += 1;
+                        _linkEnd.z += 1;
+
+                        copyCoords(link.source, _linkStart);
+                        copyCoords(link.target, _linkEnd);
+                    });
+            }
+            if (this.internalNode) {
+                //boundToRectangle(this.internalNode, fociCenter, h, h);
+                copyCoords(this.internalNode, this.center);
+                //copyCoords(this.internalNode.layout, fociCenter);
+            }
         }
+
+        //update border
+        this.border.updateViewObjects(state);
 
         (this.viewObjects['main'].children || []).forEach(child => {child.visible = state.showLayers;});
 

@@ -46,7 +46,11 @@ export class KidneyDataService extends DataService{
             lyph.internalLyphs.forEach(innerLyph => {
                 //Bi-directional relationship
                 let innerLyphObj = this._lyphs.find(lyph => lyph.id === innerLyph);
-                if (innerLyphObj) { innerLyphObj.externalLyph = lyph; }
+                if (innerLyphObj) {
+                    innerLyphObj.externalLyph = lyph;
+                } else {
+                    console.log("Lyph not found", innerLyph);
+                }
 
                 if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
                 ["s", "t"].forEach(prefix => {
@@ -57,7 +61,6 @@ export class KidneyDataService extends DataService{
                         "color" : "#ccc",
                         "val"   : 0.1,
                         "skipLabel": true
-                        //"hidden": true
                     }, modelClasses);
                     this._graphData.nodes.push(node);
                 });
@@ -76,13 +79,29 @@ export class KidneyDataService extends DataService{
 
         //TODO create node in the center
         //Form links to join neural system lyphs:
-        //["198", "199", "200"] - "202" - "203" - ["204", "205"] - "206" - "197"
-        [["198", "204"], ["199", "197"], ["200", "203"], ["200", "206"], ["202", "205"]].forEach(
+        [["198", "204"],
+            ["199", "99011"], ["99011", "99008"], ["99008","99005"], ["99005", "99002"], ["99002", "197"],
+            ["200", "203"], ["200", "206"], ["202", "205"]].forEach(
             ([s,t]) => {
+                [s, t].forEach((host, i) => {
+                    let hostObj = this._lyphs.find(lyph => lyph.id === host);
+                    if (!hostObj) { console.log("Lyph not found", host); return; }
+                    let centerNode = hostObj.internalNode || NodeModel.fromJSON({
+                            "id"    : `center${host}`,
+                            "host"  : hostObj,
+                            "type"  : NODE_TYPES.CENTER,
+                            "color" : "#000",
+                            "val"   : 0.5,
+                            "skipLabel": true
+                        }, modelClasses);
+                    hostObj.internalNode = centerNode;
+                    this._graphData.nodes.push(centerNode);
+                });
+
                 let link = LinkModel.fromJSON({
                     "id"       : (this._graphData.links.length + 1).toString(),
-                    "source"   : this._graphData.getNodeByID(`t${s}`),
-                    "target"   : this._graphData.getNodeByID(`s${t}`),
+                    "source"   : this._graphData.getNodeByID(`center${s}`),
+                    "target"   : this._graphData.getNodeByID(`center${t}`),
                     "length"   : 100,
                     "color"    : "#aaa",
                     "type"     : LINK_TYPES.LINK,
@@ -91,12 +110,6 @@ export class KidneyDataService extends DataService{
                 this._graphData.links.push(link);
             }
         );
-
-        //three contiguous edges that link these four innermost (cytosol) layers of lyphs representing neurons:
-        // {99011, 99008, 99005, 99002}
-        // The neuron lyphs are embedded in the parenchymal layers of spinal cord, via medulla and pons,
-        // to cerebellum. The two terminal nodes are, as specified, embedded in those parenchymal cysts you've added.
-
 
         //Create Urinary tract and Cardiovascular system omega trees
         const hosts = {

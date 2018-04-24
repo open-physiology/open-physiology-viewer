@@ -24,8 +24,14 @@ export class GraphModel extends Model {
     }
 
     getLinkByLyphID(lyphID) {
-        return this._links.find(link => link.conveyingLyph &&
+        let res = this._links.find(link => link.conveyingLyph &&
             (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
+        if (!res) {
+            //For lyphs which are layers, return parent's link (does not work for ID's)
+            res = this._links.find(link => link.conveyingLyph
+                && link.conveyingLyph.hasLayer && link.conveyingLyph.hasLayer(lyphID))
+        }
+        return res;
     }
 
     //TODO these should be methods of the model, not graph
@@ -52,11 +58,11 @@ export class GraphModel extends Model {
         if (!this._allLinks) { this._allLinks = this._links; }
         if (!this._allNodes) { this._allNodes = this._nodes; }
 
-        const isOmegaLink = (link) =>  link.source.type === NODE_TYPES.OMEGA;
-        const isOmegaNode = (node) =>  node.type === NODE_TYPES.OMEGA;
-        const isCoalescenceLink = (link) =>  link.type === LINK_TYPES.COALESCENCE;
-        const isContainerLink = (link) => link.type === LINK_TYPES.CONTAINER;
-        const isContainerNode = (node) => node.hidden; //TODO refactor, at the moment all hidden nodes belong to container links
+        const isOmegaLink       = (link) => link.source.type === NODE_TYPES.OMEGA;
+        const isOmegaNode       = (node) => node.type === NODE_TYPES.OMEGA;
+        const isCoalescenceLink = (link) => link.type === LINK_TYPES.COALESCENCE;
+        const isContainerLink   = (link) => link.type === LINK_TYPES.CONTAINER;
+        const isContainerNode   = (node) => node.hidden; //TODO refactor, at the moment all hidden nodes belong to container links
 
         const reviseLinks = () => {
             this._links = this._allLinks.filter(link => !this._hiddenLinks.find(lnk => lnk.id === link.id));
