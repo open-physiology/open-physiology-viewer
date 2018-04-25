@@ -29,25 +29,22 @@ export class DataService {
         const coreGraphData = {
             nodes : [
                 //c-n
-                { "id"  : "c", "name": "c",       "color": "#D2691E", "graph": "A", "layout": {"x": 100, "y":  0, "z":  0} },
-                { "id"  : "n", "name": "n",       "color": "#D2691E", "graph": "A", "layout": {"x":-100, "y":  0, "z":  0} },
+                { "id"  : "c", "name": "c",       "color": "#D2691E", "group": "A", "layout": {"x": 100, "y":  0, "z":  0} },
+                { "id"  : "n", "name": "n",       "color": "#D2691E", "group": "A", "layout": {"x":-100, "y":  0, "z":  0} },
                 //t-a, a-h
-                { "id"  : "t", "name": "t",       "color": "#808080", "graph": "B", "layout": {"x": -60, "y":  0, "z":  0} },
-                { "id"  : "a", "name": "a",       "color": "#808080", "graph": "B", "layout": {"x":   0, "y":  0, "z":  0} },
-                { "id"  : "h", "name": "h",       "color": "#444444", "graph": "B", "layout": {"x":  60, "y":  0, "z":  0} },
+                { "id"  : "t", "name": "t",       "color": "#808080", "group": "B", "layout": {"x": -60, "y":  0, "z":  0} },
+                { "id"  : "a", "name": "a",       "color": "#808080", "group": "B", "layout": {"x":   0, "y":  0, "z":  0} },
+                { "id"  : "h", "name": "h",       "color": "#444444", "group": "B", "layout": {"x":  60, "y":  0, "z":  0} },
                 //R-L
-                { "id"  : "R", "name": "R",       "color": "#7B68EE", "graph": "C", "layout": {"x":   0, "y": 75, "z":  0} },
-                { "id"  : "L", "name": "L",       "color": "#ff0000", "graph": "C", "layout": {"x":   0, "y":-75, "z":  0} },
+                { "id"  : "R", "name": "R",       "color": "#7B68EE", "group": "C", "layout": {"x":   0, "y": 75, "z":  0} },
+                { "id"  : "L", "name": "L",       "color": "#ff0000", "group": "C", "layout": {"x":   0, "y":-75, "z":  0} },
                 //S-P
-                { "id"  : "S", "name": "\u03A3",  "color": "#006400", "graph": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
-                { "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "graph": "D", "layout": {"x":  90, "y":  0, "z":  0} }
+                { "id"  : "S", "name": "\u03A3",  "color": "#006400", "group": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
+                { "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "group": "D", "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
                 //c-n
                 { "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
-                //t-a, a-h
-                // {  "id": "2", "source": "t", "target": "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
-                // {  "id": "3", "source": "a", "target": "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  30 },
                 //R-L
                 { "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.PATH, "length":  75 },
                 { "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": LINK_TYPES.PATH, "length":  75 },
@@ -67,12 +64,12 @@ export class DataService {
         const ependymal = {
             nodes: [
                 //t-a
-                { "id" : "t1" }, { "id" : "t2" },
+                { "id" : "t1", "group": "B" }, { "id" : "t2", "group": "B" },
                 //a-h
-                { "id" : "h1" }, { "id" : "h2" }, { "id" : "h3" },
+                { "id" : "h1", "group": "B" }, { "id" : "h2", "group": "B" }, { "id" : "h3", "group": "B" },
                 //a-g
-                { "id" : "g1", layout: {"x": 0, "z": 0} },
-                { "id" :  "g", layout: {"x": 0, "y":  -30, "z":  0} }
+                { "id" : "g1", "group": "B", layout: {"x": 0, "z": 0} },
+                { "id" :  "g", "group": "B", layout: {"x": 0, "y":  -30, "z":  0} }
             ],
             links: [
                 //t-a
@@ -98,7 +95,9 @@ export class DataService {
         });
         ependymal.links.forEach((link, i) => {
             coreGraphData.links.push(link);
-            if (i < 7) {link.reversed = true; } //turn lyphs up
+            if (i < 7) {//turn lyphs up
+                link.reversed = true;
+            }
         });
 
         this._graphData.nodes = coreGraphData.nodes.map(node => NodeModel.fromJSON(node, modelClasses));
@@ -125,12 +124,21 @@ export class DataService {
                             "type": LINK_TYPES.COALESCENCE
                         }, modelClasses));
                     });
-                    // if (i % 2 === 1){
-                    //     link2.reversed = true;
-                    // }
+                    // if (i % 2 === 1){ link2.reversed = true; }
                })
             });
         });
+
+        // this._lyphs.forEach(lyph => {
+        //     //Make lyphs aware about their coalescences
+        //     //TODO this works ok only for one coalescence group per lyph
+        //     this._coalescences.forEach(lyphs => {
+        //         if (lyphs.includes(lyph.id)){
+        //             lyph.coalescences = lyphs.map(lyphID => this._lyphs.find(x => x.id === lyphID));
+        //         }}
+        //     );
+        // });
+
 
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
@@ -151,17 +159,6 @@ export class DataService {
         this._lyphs.filter(lyph => lyph.content).forEach(lyph => {
             lyph.content = this._lyphs.find(x => x.id === lyph.content);
         });
-
-        // this._lyphs.forEach(lyph => {
-        //     //Make lyphs aware about their coalescences
-        //     //TODO this works ok only for one coalescence group per lyph
-        //     this._coalescences.forEach(lyphs => {
-        //         if (lyphs.includes(lyph.id)){
-        //             lyph.coalescences = lyphs.map(lyphID => this._lyphs.find(x => x.id === lyphID));
-        //         }}
-        //     );
-        // });
-
 
         //for each link, replace lyph id's with lyph model
         this._graphData.links.forEach(link => {

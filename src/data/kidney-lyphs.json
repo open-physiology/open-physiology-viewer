@@ -1913,7 +1913,7 @@
     {
       "id":"122",
       "name": "forebrain",
-      "topology": "BAG",
+      "topology": "BAG2",
       "thickness": {
         "min": "1",
         "max": "2"
@@ -1932,7 +1932,7 @@
     {
       "id":"123",
       "name": "csf layer of forebrain",
-      "topology": "BAG",
+      "topology": "BAG2",
       "thickness": {
         "min": "2",
         "max": "3"
@@ -1945,7 +1945,7 @@
     {
       "id":"124",
       "name": "ependymal layer of forebrain",
-      "topology": "BAG",
+      "topology": "BAG2",
       "thickness": {
         "min": "3",
         "max": "4"
@@ -1958,7 +1958,7 @@
     {
       "id":"125",
       "name": "parenchymal layer of forebrain",
-      "topology": "BAG",
+      "topology": "BAG2",
       "thickness": {
         "min": "1",
         "max": "2"

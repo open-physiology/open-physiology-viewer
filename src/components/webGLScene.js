@@ -94,6 +94,7 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="checkbox" name="switch" (change)="toggleOmegaTrees()"/> Omega trees
                         <input type="checkbox" name="switch" (change)="toggleCoalescences()"/> Coalescences
                         <input type="checkbox" name="switch" (change)="toggleContainerLyphs()"/> Container lyphs
+                        <input type="checkbox" name="switch" (change)="toggleNeuronLyphs()"/> Neuron lyphs
                     </fieldset>
 
                     <fieldset>
@@ -168,7 +169,8 @@ export class WebGLSceneComponent {
         this._hideLinks = {
             hideTrees       : true,
             hideCoalescences: true,
-            hideContainers  : true
+            hideContainers  : true,
+            hideNeurons     : true
         };
         this._numDimensions = 3;
     }
@@ -513,7 +515,12 @@ export class WebGLSceneComponent {
         this._hideLinks.hideContainers = !this._hideLinks.hideContainers;
         this._graphData.toggleLinks(this._hideLinks);
         if (this.graph) { this.graph.graphData(this._graphData); }
+    }
 
+    toggleNeuronLyphs(){
+        this._hideLinks.hideNeurons = !this._hideLinks.hideNeurons;
+        this._graphData.toggleLinks(this._hideLinks);
+        if (this.graph) { this.graph.graphData(this._graphData); }
     }
 
     updateLabelContent(target, property){

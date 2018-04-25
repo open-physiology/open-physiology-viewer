@@ -27,7 +27,7 @@ export class NodeModel extends Model {
 
     constructor(id) {
         super(id);
-        this.infoFields.text.push ('host', 'type', 'x', 'y', 'z');
+        this.infoFields.text.push ('host', 'type');
         this.val = this.val || 1; // Defines default radius
     }
 

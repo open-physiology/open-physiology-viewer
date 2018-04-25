@@ -28,10 +28,21 @@ export function bezierSemicircle(startV, endV){
  * @param source
  */
 export function copyCoords(target, source){
-    if (!source || !target) return;
+    if (!target) { return; }
+    if (!source) { return; }
     target.x = source.x || 0;
     target.y = source.y || 0;
     target.z = source.z || 0;
+}
+
+/**
+ * Create a vector from an object that contains coordinate fields (x,y,z)
+ * @param source
+ * @returns {THREE.Vector3}
+ */
+export function extractCoords(source){
+    if (!source) { return; }
+    return new THREE.Vector3(source.x || 0, source.y || 0, source.z || 0);
 }
 
 /**
@@ -81,19 +92,6 @@ export function direction(source, target){
         target.y - source.y,
         target.z - source.z
     )).normalize();
-}
-
-export function translate(object, offset, direction) {
-    if (offset <= 0) return false;
-    if (!(object instanceof THREE.Object3D)) return false;
-    if (!(direction instanceof THREE.Vector3)) return false;
-
-    direction.normalize();
-    object.position.x += offset * direction.x;
-    object.position.y += offset * direction.y;
-    object.position.z += offset * direction.z;
-
-    return true;
 }
 
 export function getCenterPoint(mesh) {

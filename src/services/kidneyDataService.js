@@ -8,7 +8,7 @@ import { LinkModel, LINK_TYPES } from '../models/linkModel';
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
 
-import {interpolateReds, interpolateGreens, interpolatePurples, interpolateRdPu,
+import {interpolateReds, interpolateGreens, interpolateBlues, interpolateRdPu,
     interpolateOranges} from 'd3-scale-chromatic';
 
 /**
@@ -25,89 +25,106 @@ export class KidneyDataService extends DataService{
     init(){
         super.init();
 
-        const colorLyphs = (lyphs, colorFn, reversed = false) => {
+        const colorLyphs = (lyphs, colorFn) => {
             lyphs.forEach((lyphID, i) =>{
                 let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
-                lyph.color = colorFn(((reversed)? 0.75 - i : 0.25 + i ) / (1.25 * lyphs.length));
+                lyph.color = colorFn(0.25 + i / lyphs.length);
+            });
+        };
+
+        const colorLyphsExt = (lyphs, colorFn, numColors, reversed = false) => {
+            lyphs.forEach((lyphID, i) =>{
+                let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
+                lyph.color = colorFn(((reversed)? 0.75 - i / numColors : 0.25 + i / numColors));
             });
         };
 
         //Assign central nervous system lyphs to corresponding edges
+        let maxLayers = 0;
         Object.keys(ependymal).forEach(linkID => {
-            this._graphData.getLinkByID(linkID).conveyingLyph = ependymal[linkID];
+            let link = this._graphData.getLinkByID(linkID);
+            link.conveyingLyph = ependymal[linkID];
             let ependymalLyph = this._lyphs.find(lyph => lyph.id === ependymal[linkID]);
-            //Recolor the lyph and its layers to match the mock-up
             ependymalLyph.color = "#aaa";
-            colorLyphs(ependymalLyph.layers, interpolatePurples);
+            link.lyphScale = { width: 1.5 * ependymalLyph.layers.length, height: 2 };
+            maxLayers = Math.max(maxLayers, ependymalLyph.layers.length);
         });
+        Object.keys(ependymal).forEach(linkID => {
+            let ependymalLyph = this._lyphs.find(lyph => lyph.id === ependymal[linkID]);
+            colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
+        });
+
 
         this._lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
 
-            lyph.internalLyphs.forEach(innerLyph => {
+            lyph.internalLyphs.forEach(innerLyphID => {
                 //Bi-directional relationship
-                let innerLyphObj = this._lyphs.find(lyph => lyph.id === innerLyph);
-                if (innerLyphObj) {
-                    innerLyphObj.externalLyph = lyph;
-                } else {
-                    console.log("Lyph not found", innerLyph);
+                let innerLyph = this._lyphs.find(lyph => lyph.id === innerLyphID);
+                if (innerLyph) {
+                    innerLyph.externalLyph = lyph;
+                    innerLyph.group = "Neuron";
                 }
 
                 if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
-                ["s", "t"].forEach(prefix => {
-                    let node = NodeModel.fromJSON({
-                        "id": `${prefix}${innerLyph}`,
-                        "host": this._graphData.getLinkByLyphID(innerLyph),
-                        "type": NODE_TYPES.BORDER,
-                        "color" : "#ccc",
-                        "val"   : 0.1,
+                let [sNode, tNode] = ["s", "t"].map(prefix =>
+                    NodeModel.fromJSON({
+                        "id"       : `${prefix}${innerLyphID}`,
+                        "name"     : `${prefix}${innerLyphID}`,
+                        "type"     : NODE_TYPES.BORDER,
+                        "color"    : "#ccc",
+                        "val"      : 0.1,
                         "skipLabel": true
-                    }, modelClasses);
-                    this._graphData.nodes.push(node);
-                });
+                    }, modelClasses));
+                this._graphData.nodes.push(sNode);
+                this._graphData.nodes.push(tNode);
+
                 let link = LinkModel.fromJSON({
-                    "id"       : (this._graphData.links.length + 1).toString(),
-                    "source"   : this._graphData.getNodeByID(`s${innerLyph}`),
-                    "target"   : this._graphData.getNodeByID(`t${innerLyph}`),
-                    "length"   : 2,
-                    "type"     : LINK_TYPES.BORDER,
-                    "color"    : "#ccc",
-                    "conveyingLyph" : innerLyph
+                    "id"            : (this._graphData.links.length + 1).toString(),
+                    "source"        : sNode,
+                    "target"        : tNode,
+                    "length"        : 1.5,
+                    "type"          : LINK_TYPES.BORDER,
+                    "color"         : "#ccc",
+                    "conveyingLyph" : innerLyphID
                 }, modelClasses);
+                link.group = "Neuron";
+                sNode.host = tNode.host = link;
+
                 this._graphData.links.push(link);
             })
         });
 
         //TODO create node in the center
         //Form links to join neural system lyphs:
-        [["198", "204"],
-            ["199", "99011"], ["99011", "99008"], ["99008","99005"], ["99005", "99002"], ["99002", "197"],
+        [["198", "204"], ["199", "99011"], ["99011", "99008"], ["99008","99005"], ["99005", "99002"], ["99002", "197"],
             ["200", "203"], ["200", "206"], ["202", "205"]].forEach(
             ([s,t]) => {
-                [s, t].forEach((host, i) => {
-                    let hostObj = this._lyphs.find(lyph => lyph.id === host);
-                    if (!hostObj) { console.log("Lyph not found", host); return; }
-                    let centerNode = hostObj.internalNode || NodeModel.fromJSON({
-                            "id"    : `center${host}`,
-                            "host"  : hostObj,
-                            "type"  : NODE_TYPES.CENTER,
-                            "color" : "#000",
-                            "val"   : 0.5,
-                            "skipLabel": true
-                        }, modelClasses);
-                    hostObj.internalNode = centerNode;
-                    this._graphData.nodes.push(centerNode);
+                [s, t].forEach(containerLyphID => {
+                    let containerLyph = this._lyphs.find(lyph => lyph.id === containerLyphID);
+                    if (!containerLyph.internalNodes){
+                        let centerNode = NodeModel.fromJSON({
+                                "id"    : `center${containerLyphID}`,
+                                "externalLyph" : containerLyph,
+                                "type"  : NODE_TYPES.CENTER,
+                                "color" : "#666",
+                                "val"   : 0.5,
+                                "skipLabel": true
+                            }, modelClasses);
+                        containerLyph.internalNodes = [centerNode];
+                        this._graphData.nodes.push(centerNode);
+                    }
                 });
 
-                let link = LinkModel.fromJSON({
-                    "id"       : (this._graphData.links.length + 1).toString(),
-                    "source"   : this._graphData.getNodeByID(`center${s}`),
-                    "target"   : this._graphData.getNodeByID(`center${t}`),
-                    "length"   : 100,
-                    "color"    : "#aaa",
-                    "type"     : LINK_TYPES.LINK,
-                    "strength" : 0
-                }, modelClasses);
-                this._graphData.links.push(link);
+                // let link = LinkModel.fromJSON({
+                //     "id"       : (this._graphData.links.length + 1).toString(),
+                //     "source"   : this._graphData.getNodeByID(`center${s}`),
+                //     "target"   : this._graphData.getNodeByID(`center${t}`),
+                //     "length"   : 100,
+                //     "color"    : "#aaa",
+                //     "type"     : LINK_TYPES.LINK,
+                //     "strength" : 0
+                // }, modelClasses);
+                // this._graphData.links.push(link);
             }
         );
 
@@ -115,34 +132,25 @@ export class KidneyDataService extends DataService{
         const hosts = {
             "5": {
                 "color": "#ff4444",
-                "sign" : -1,
                 "trees": [
                     {"lyphs": trees["Vascular"]["Arterial"]},
-                    {"lyphs": trees["Vascular"]["Venous"]}
-                ]
-            },
+                    {"lyphs": trees["Vascular"]["Venous"]} ]},
             "7": {
                 "color": "#4444ff",
-                "sign" : 1,
-                "trees": [ {"lyphs": trees["Urinary"]} ]
-            }
+                "trees": [ {"lyphs": trees["Urinary"]} ]}
         };
 
         //Recolor vascular tree lyphs to shades of red and red/purple
         colorLyphs(Object.values(trees["Vascular"]["Arterial"]), interpolateReds);
-        colorLyphs(Object.values(trees["Vascular"]["Venous"]), interpolateRdPu);
+        colorLyphs(Object.values(trees["Vascular"]["Venous"])  , interpolateRdPu);
         //Recolor urinary lyphs to the shades of green (or purple)
-        colorLyphs(Object.values(trees["Urinary"]), interpolateGreens);
-
+        colorLyphs(Object.values(trees["Urinary"])  , interpolateGreens);
         //Recolor connector lyphs in the shades of ornage
-        const connectorLyphs  = Object.values(trees["Connector"]);
-        colorLyphs(connectorLyphs, interpolateOranges);
-
+        colorLyphs(Object.values(trees["Connector"]), interpolateOranges);
 
         //Add an extra node to correctly end the Urinary tree
         hosts["7"].trees[0].lyphs["end1"] = 0;
         hosts["5"].trees[0].lyphs["end2"] = 0;
-        //hosts["5"].trees[1].lyphs["end3"] = 0;
 
         const offsets = {"500": 0.25, "510": 0.65, "700": 0.25};
         //Omega tree nodes
@@ -159,17 +167,10 @@ export class KidneyDataService extends DataService{
                         "color"    : hosts[host].color
                     },  modelClasses);
 
-                    // explicitly define position of the root node on the hosting link:
+                    // Explicitly define position of the root node on the hosting link:
                     // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
                     // To bypass the central node, shift the root close to L
-                    if (node.isRoot && offsets[node.id]){
-                        node.offset = offsets[node.id];
-                    }
-                    //TODO save root in the treeModel
-                    //TODO Make sure the data below is kept in the treeModel
-                    //     "tree"  : ,
-                    //     "level" : j + 1
-
+                    if (node.isRoot && offsets[node.id]){ node.offset = offsets[node.id]; }
                     this._graphData.nodes.push(node);
                 });
             });
@@ -179,13 +180,12 @@ export class KidneyDataService extends DataService{
                 Object.keys(tree.lyphs).forEach((key, j) => {
                     if (j === NUM_LEVELS - 1) { return; }
                     let link = LinkModel.fromJSON({
-                        "id"       : (this._graphData.links.length + 1).toString(),
-                        "source"   : this._graphData.getNodeByID(`${host}${i}${j}`),
-                        "target"   : this._graphData.getNodeByID(`${host}${i}${j + 1}`),
-                        //"level": j,
-                        "external" : key,
-                        "length"   : (host === "5")? 2: 1, //Urinary links shorter
-                        "type"     : LINK_TYPES.LINK,
+                        "id"            : (this._graphData.links.length + 1).toString(),
+                        "source"        : this._graphData.getNodeByID(`${host}${i}${j}`),
+                        "target"        : this._graphData.getNodeByID(`${host}${i}${j + 1}`),
+                        "external"      : key,
+                        "length"        : (host === "5")? 2: 1, //Urinary links shorter
+                        "type"          : LINK_TYPES.LINK,
                         "conveyingLyph" : tree.lyphs[key],
                         "color"         : hosts[host].color,
                         "linkMethod"    : "Line2"
@@ -206,6 +206,7 @@ export class KidneyDataService extends DataService{
         });
 
         const connector = ["505", "570", "571", "572", "515"];
+        const connectorLyphs  = Object.values(trees["Connector"]);
         const connectorLabels = Object.keys(trees["Connector"]);
 
         for (let i = 0 ; i < connector.length - 1; i++){
@@ -213,13 +214,12 @@ export class KidneyDataService extends DataService{
                 "id"           : (this._graphData.links.length + 1).toString(),
                 "source"       : this._graphData.getNodeByID(connector[i]),
                 "target"       : this._graphData.getNodeByID(connector[i + 1]),
-                //"level": i,
                 "external"     : connectorLabels[i],
                 "length"       : 1,
                 "type"         : LINK_TYPES.LINK,
                 "conveyingLyph": connectorLyphs[i],
                 "color"        : CONNECTOR_COLOR,
-                "linkMethod"    : "Line2"
+                "linkMethod"   : "Line2"
             }, modelClasses));
         }
 
@@ -227,46 +227,38 @@ export class KidneyDataService extends DataService{
         this._coalescences = [ ["78", "24"] ];
 
         //Add link from center to the center of mass for a coalescence group
-        this._graphData.nodes.push(NodeModel.fromJSON({
-                "id"     : "k",
-                "name"   : "k",
-                "type"   : NODE_TYPES.FIXED,
-                "hidden": true,
-                "layout" : {x: 0, y: 0, z: 25}
-            }, modelClasses)
-        );
-        this._graphData.nodes.push(NodeModel.fromJSON({
-                "id"     : "l",
+        let [nodeK, nodeL] = ["k", "l"].map((name, i) =>
+            NodeModel.fromJSON({
+                "id"     : name,
+                "name"   : name,
                 "type"   : NODE_TYPES.FIXED,
                 "hidden" : true,
-                "layout" : {x: 0, y: 70, z: 25},
-                //"type" : NODE_TYPES.CONTROL //Determine node position based on other nodes
-                //"controlNodes" : ["510", "R", "a"]
+                "layout" : {x: 0, y: (i === 0)? 0: 70, z: 25}
             }, modelClasses)
         );
+        this._graphData.nodes.push(nodeK);
+        this._graphData.nodes.push(nodeL);
 
-        this._graphData.links.push(LinkModel.fromJSON({
-            "id"    : (this._graphData.links.length + 1).toString(),
-            "source": this._graphData.getNodeByID("k"),
-            "target": this._graphData.getNodeByID("l"),
-            "length": 50,
-            "type"  : LINK_TYPES.CONTAINER,
+        let containerLink = LinkModel.fromJSON({
+            "id"        : (this._graphData.links.length + 1).toString(),
+            "source"    : nodeK,
+            "target"    : nodeL,
+            "type"      : LINK_TYPES.CONTAINER,
+            "length"    : 50,
+            "lyphScale" : 4,
             //"conveyingLyph"  : "1", //Kidney
             "conveyingLyph"  : "5" //Kidney lobus
-        }, modelClasses));
+        }, modelClasses);
+        this._graphData.links.push(containerLink);
+        nodeK.host = nodeL.host = containerLink;
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
-        containerLyph.inactive      = true;  // Exclude this entity from being highlighted
+        containerLyph.inactive = true;  // Exclude this entity from being highlighted
+        containerLyph.border = { borders: [{}, {}, {}, {nodes: ["7013", "505", "515"]}]};
 
-        containerLyph.border = {};
-        containerLyph.border.borders = [{}, {}, {}, {nodes: ["7013", "505", "515"]}];
-
-        //Refactored content assignment: to border instead of lyph
-        // containerLyph = this._lyphs.find(lyph => lyph.id === "3");
-        // containerLyph.border = {};
-        // containerLyph.border.borders = [{}, {}, {}, {conveyingLyph: "5"}];
+        // Assign inner content to the container lyph border
+        // this._lyphs.find(lyph => lyph.id === "3").border = {borders: [{}, {}, {}, {conveyingLyph: "5"}]};
 
         super.afterInit();
-
     }
 }

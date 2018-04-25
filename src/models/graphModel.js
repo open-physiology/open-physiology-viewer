@@ -54,7 +54,7 @@ export class GraphModel extends Model {
         return this._nodes;
     }
 
-    toggleLinks({hideTrees, hideCoalescences, hideContainers}){
+    toggleLinks({hideTrees, hideCoalescences, hideContainers, hideNeurons}){
         if (!this._allLinks) { this._allLinks = this._links; }
         if (!this._allNodes) { this._allNodes = this._nodes; }
 
@@ -62,7 +62,9 @@ export class GraphModel extends Model {
         const isOmegaNode       = (node) => node.type === NODE_TYPES.OMEGA;
         const isCoalescenceLink = (link) => link.type === LINK_TYPES.COALESCENCE;
         const isContainerLink   = (link) => link.type === LINK_TYPES.CONTAINER;
-        const isContainerNode   = (node) => node.hidden; //TODO refactor, at the moment all hidden nodes belong to container links
+        const isContainerNode   = (node) => node.host && isContainerLink(node.host);
+        const isNeuronLink      = (link) => link.group === "Neuron";
+        const isNeuronNode      = (node) => node.host && isNeuronLink(node.host) || node.externalLyph;
 
         const reviseLinks = () => {
             this._links = this._allLinks.filter(link => !this._hiddenLinks.find(lnk => lnk.id === link.id));
@@ -72,45 +74,19 @@ export class GraphModel extends Model {
         this._hiddenLinks = [];
         this._hiddenNodes = [];
 
-        if (hideTrees){
-            this._allLinks.filter(link => isOmegaLink(link) && !this._hiddenLinks.find(lnk => lnk.id === link.id))
-                .forEach(link => this._hiddenLinks.push(link));
-            this._allNodes.filter(node=> isOmegaNode(node) && !this._hiddenNodes.find(n => n.id === node.id))
-                .forEach(node => this._hiddenNodes.push(node));
-        }
+        this._allLinks.filter(link => (
+            hideTrees        && isOmegaLink(link) ||
+            hideCoalescences && isCoalescenceLink(link) ||
+            hideContainers   && isContainerLink(link) ||
+            hideNeurons      && isNeuronLink(link)
+        ) && !this._hiddenLinks.find(lnk => lnk.id === link.id)).forEach(link => this._hiddenLinks.push(link));
 
-        if (hideCoalescences){
-            this._allLinks.filter(link => isCoalescenceLink(link) && !this._hiddenLinks.find(lnk => lnk.id === link.id))
-                .forEach(link => this._hiddenLinks.push(link));
-        }
-
-        if (hideContainers){
-            this._allLinks.filter(link => isContainerLink(link) && !this._hiddenLinks.find(lnk => lnk.id === link.id))
-                .forEach(link => this._hiddenLinks.push(link));
-            this._allNodes.filter(node=> isContainerNode(node) && !this._hiddenNodes.find(n => n.id === node.id))
-                .forEach(node => this._hiddenNodes.push(node));
-
-            //     //Clean layout set for internal lyphs
-        //     //TODO simplify after bi-directional relationships are defined
-        //     // this._containerLinks
-        //     //     .filter(link => link.conveyingLyph && link.conveyingLyph.internalLyphs)
-        //     //     .forEach(lyphID => {
-        //     //         let lnk = this.getLinkByLyphID(lyphID);
-        //     //         if (lnk.source.layout) { delete lnk.source.layout;}
-        //     //         if (lnk.target.layout) { delete lnk.target.layout;
-        //     //         }
-        //     //     })
-        //
-        //     //Alternatively, clean all layout constraints imposed by containers
-        //     // this.links.forEach(link => {
-        //     //     ["source", "target"].forEach(end => {
-        //     //         if (link[end].layout && link[end].layout.reason === "container"){
-        //     //             delete link[end].layout;
-        //     //         }
-        //     //     })
-        //     // });
-        //
-        }
+        this._allNodes.filter(node=> (
+            hideTrees        && isOmegaNode(node) ||
+            hideContainers   && isContainerNode(node) ||
+            hideNeurons      && isNeuronNode(node)
+        )
+        && !this._hiddenNodes.find(n => n.id === node.id)).forEach(node => this._hiddenNodes.push(node));
 
         reviseLinks();
     }

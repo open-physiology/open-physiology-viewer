@@ -31,23 +31,6 @@ export class BorderModel extends Model {
         return [this.borderTypes[1], this.borderTypes[2]];
     }
 
-    translate(p0){
-        let p = p0.clone();
-        let currentLyph = this.borderInLyph;
-        let transformChain = [];
-        let centerChain    = [];
-        //Shape depends on the quaternion and position of the container lyph/layers,
-        //hence apply all transformations recursively
-        while (currentLyph){
-            transformChain.push(currentLyph.viewObjects["main"].quaternion);
-            centerChain.push(currentLyph.center);
-            currentLyph = currentLyph.container;
-        }
-        transformChain.forEach(q => p.applyQuaternion(q));
-        centerChain.forEach((q, i) => p.add(q));
-        return p;
-    }
-
     get borderNodes(){
         let res = [];
         (this.borders || []).filter(border => border.nodes)
@@ -73,7 +56,7 @@ export class BorderModel extends Model {
             this._borderLinks = d2LyphBorderLinks(this.borderInLyph.width, this.borderInLyph.height);
         }
         return this._borderLinks.map(({source, target}) => {
-            return {source: this.translate(source), target: this.translate(target)
+                return {source: this.borderInLyph.translate(source), target: this.borderInLyph.translate(target)
             }
         });
     }
@@ -142,7 +125,7 @@ export class BorderModel extends Model {
                 //position nodes on the lyph border (exact shape, use 'borderLinks' to place nodes on straight line)
                 let points = border.viewObjects["shape"].getSpacedPoints(border.nodes.length + 1)
                     .map(p => new THREE.Vector3(p.x, p.y, 0));
-                points = points.map(p => this.translate(p));
+                points = points.map(p => this.borderInLyph.translate(p));
                 border.nodes.forEach((nodeID, i) => {
                     let node = state.graphData.nodes.find(node => node.id === nodeID);
                     if (node) { copyCoords(node, points[i + 1]); }

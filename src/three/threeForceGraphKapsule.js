@@ -75,8 +75,8 @@ export default Kapsule({
     stateInit: () => ({
         simulation: forceSimulation()
             .force('link', forceLink())
-            .force('charge', forceManyBody(5))
-            .force('collide', forceCollide(15))
+            .force('charge', forceManyBody(d => d.charge? d.charge: 0))
+            .force('collide', forceCollide(d => d.collide? d.collide: 0))
         .stop()
     }),
 

@@ -53,7 +53,6 @@ export class LinkModel extends Model {
     }
 
     // /**
-    //  *
     //  * @param tree
     //  * @returns {number} link's level in the tree
     //  */
@@ -73,23 +72,20 @@ export class LinkModel extends Model {
      * @returns {{height: number, width: number}}
      */
     get lyphSize(){
-        const scaleFactor = this.length? Math.log(this.length): 1;
-        let res = {height: 6 * scaleFactor, width: 6 * scaleFactor};
-
-        if (this.type === LINK_TYPES.CONTAINER){
-            res.height *= 4;
-            res.width  *= 4;
-        }
-
         if (this.type === LINK_TYPES.BORDER){
-            res.height = this.length;
-            res.width  = this.length;
+            return {height: this.length, width: this.length};
         }
 
-        //TODO introduce a proper way to distingush trees/subgraphs and parameters to derive lyph size from
-        if (this.name === "Ependymal"){
-            res.width  *= 3;
-            res.height *= 1.5;
+        const scaleFactor = (this.length? Math.log(this.length): 1) * 5;
+        let res = {height: scaleFactor, width: scaleFactor};
+        if (this.lyphScale){
+            if (this.lyphScale.width && this.lyphScale.height){
+                res.width *= this.lyphScale.width;
+                res.height *= this.lyphScale.height;
+            } else {
+                res.width  *= this.lyphScale || 1;
+                res.height *= this.lyphScale || 1;
+            }
         }
         return res;
     }

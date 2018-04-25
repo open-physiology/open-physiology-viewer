@@ -43,10 +43,12 @@ export function boundToPolygon(link, boundaryLinks){
                 link.source.x = res.x;
                 link.source.y = res.y;
             }
-            if (!targetIn){
-                link.target.x = res.x;
-                link.target.y = res.y;
-            }
+            //else {
+                if (!targetIn){
+                    link.target.x = res.x;
+                    link.target.y = res.y;
+                }
+            //}
         }
     }
 }
