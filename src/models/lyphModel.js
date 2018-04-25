@@ -177,7 +177,7 @@ export class LyphModel extends Model {
          * @param material - object material
          * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
          */
-        function d2Layer(inner, outer, material){
+        function d2Layer(inner, outer, material, borderMaterial){
             const [$thickness, $height, $radius, $top, $bottom] = inner;
             const [ thickness,  height,  radius,  top,  bottom] = outer;
             const shape = new THREE.Shape();
@@ -225,8 +225,20 @@ export class LyphModel extends Model {
             }
             shape.lineTo( 0, 0);
             let layerGeometry = new THREE.ShapeBufferGeometry(shape);
+            let layerMesh = new THREE.Mesh( layerGeometry, material );
 
-            return new THREE.Mesh( layerGeometry, material );
+            // Draw layer borders
+            // first get points
+            let lineBorderPoints = shape.getPoints();
+            let lineBorderGeometry = new THREE.Geometry();
+
+            lineBorderPoints.forEach(point => {
+              point.z = 0;
+              lineBorderGeometry.vertices.push(point);
+            });
+
+            let layerBorder = new THREE.Line(lineBorderGeometry, borderMaterial);
+            return [layerMesh, layerBorder]
         }
 
         /**
@@ -240,7 +252,7 @@ export class LyphModel extends Model {
          * @param material - object material
          * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
          */
-        function d2Lyph(outer, material){
+        function d2Lyph(outer, material, borderMaterial){
             let [thickness,  height,  radius,  top,  bottom] = outer;
 
             const shape = new THREE.Shape();
@@ -269,8 +281,21 @@ export class LyphModel extends Model {
             shape.lineTo( 0, - height / 2);
 
             let lyphGeometry = new THREE.ShapeBufferGeometry(shape);
+            let lyphMesh = new THREE.Mesh( lyphGeometry, material); //Problem: we cannot get the lyph shape anymore
 
-            return new THREE.Mesh( lyphGeometry, material); //Problem: we cannot get the lyph shape anymore
+            // Draw layer borders
+            // first get points
+            let lineBorderPoints = shape.getPoints();
+            let lineBorderGeometry = new THREE.Geometry();
+
+            lineBorderPoints.forEach(point => {
+              point.z = 0;
+              lineBorderGeometry.vertices.push(point);
+            });
+
+            let lyphBorder = new THREE.Line(lineBorderGeometry, borderMaterial);
+
+            return [lyphMesh, lyphBorder]
         }
 
         //Cannot draw a lyph without axis
@@ -291,18 +316,30 @@ export class LyphModel extends Model {
                     color: this.color,
                     polygonOffsetFactor: this.polygonOffsetFactor
                 });
+
             }
+
+            this.borderMaterial = state.materialRepo.createLineBasicMaterial({
+                color: this.color,
+                linewidth: 3,
+                opacity: 1
+            });
 
             //Base width of one layer
             let thickness = this.width / numLayers;
             //The shape of the lyph depends on its position in its parent lyph as layer
-            let lyphObj = this.prev? d2Layer(
+            let [lyphObj, lyphBorder] = this.prev? d2Layer(
                     [ this.width, this.height, thickness / 2, ...this.border.radialTypes],
                     [ this.prev.width, this.prev.height, thickness / 2, ...this.prev.border.radialTypes],
-                    this.material)
-                : d2Lyph([this.width, this.height, thickness / 2, ...this.border.radialTypes], this.material);
+                    this.material, this.borderMaterial)
+                : d2Lyph([this.width, this.height, thickness / 2, ...this.border.radialTypes], this.material, this.borderMaterial);
 
             lyphObj.__data = this;
+
+            if (lyphBorder){
+              lyphObj.add( lyphBorder );
+            }
+
             this.viewObjects["lyphs"][state.method] = lyphObj;
 
             this.border.borderInLyph  = this;

@@ -334,8 +334,31 @@ export class WebGLSceneComponent {
                 // store reference to closest object as current intersection object
                 this._highlighted = intersects[ 0 ].object;
 
-                // store reference to object type to check for highlight type. E.g. "LyphModel"
-                this._highlighted.objName = intersects[0].object.__data.constructor.name;
+                if (intersects[0].object.__data){
+
+                  // store reference to object type to check for highlight type. E.g. "LyphModel"
+                  this._highlighted.objName = intersects[0].object.__data.constructor.name;
+
+                  // check if lyphmodel, then make highlight object a layer
+                  if (this._highlighted.objName == "LyphModel"){
+                      // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
+
+                      let layerMeshes = [];
+                      // Get layer meshes within lyph
+                      if (intersects[0].object.__data.layers){
+                        intersects[0].object.__data.layers.forEach(layer => { layerMeshes.push(layer.viewObjects.lyphs["2d"]) });
+
+                        // Find layer with which mouse is hovering over.
+                        let layerIntersects = ray.intersectObjects( layerMeshes );
+
+                        // If layer was found, make it the highlighted item
+                        if (layerIntersects.length > 0){
+                          this._highlighted = layerIntersects[0].object;
+                        }
+                      }
+                  }
+
+                }
 
                 // store color of closest object (for later restoration)
                 this._highlighted.currentHex = this._highlighted.material.color.getHex();
