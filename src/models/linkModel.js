@@ -1,4 +1,5 @@
 import { Model } from './model';
+import { NodeModel } from './nodeModel';
 import { assign } from 'lodash-bound';
 
 import * as three from 'three';
@@ -22,8 +23,6 @@ export const LINK_TYPES = {
 };
 
 export class LinkModel extends Model {
-    source;
-    target;
     length;
     conveyingLyph;
     type;
@@ -50,6 +49,24 @@ export class LinkModel extends Model {
         const result = super.fromJSON(json, modelClasses);
         result::assign(json); //TODO pick only valid properties
         return result;
+    }
+
+    get source() {
+        return this._source;
+    }
+
+    set source(node){
+        this.syncRelationship("source", node, this._source);
+        this._source = node;
+    }
+
+    get target() {
+        return this._target;
+    }
+
+    set target(node){
+        this.syncRelationship("target", node, this._target);
+        this._target = node;
     }
 
     // /**

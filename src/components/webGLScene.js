@@ -91,10 +91,11 @@ import {ModelInfoPanel} from './modelInfo';
 
                     <fieldset>
                         <legend>Show:</legend>
-                        <input type="checkbox" name="switch" (change)="toggleOmegaTrees()"/> Omega trees
-                        <input type="checkbox" name="switch" (change)="toggleCoalescences()"/> Coalescences
-                        <input type="checkbox" name="switch" (change)="toggleContainerLyphs()"/> Container lyphs
-                        <input type="checkbox" name="switch" (change)="toggleNeuronLyphs()"/> Neuron lyphs
+                        <input type="checkbox" name="switch" (change)="toggleGroup('hideTrees')"/> Omega trees
+                        <input type="checkbox" name="switch" (change)="toggleGroup('hideCoalescences')"/> Coalescences
+                        <input type="checkbox" name="switch" (change)="toggleGroup('hideContainers')"/> Container lyphs
+                        <input type="checkbox" name="switch" (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
+                        <input type="checkbox" name="switch" (change)="toggleGroup('hideNeurons')" [disabled]="_hideNeural"/> Neurons
                     </fieldset>
 
                     <fieldset>
@@ -166,6 +167,7 @@ export class WebGLSceneComponent {
         this._showNodeLabels = true;
         this._showLinkLabels = false;
         this._showLyphLabels = false;
+        this._hideNeural     = false;
         this._hideLinks = {
             hideTrees       : true,
             hideCoalescences: true,
@@ -301,8 +303,8 @@ export class WebGLSceneComponent {
         // this.graph.d3Force("radial", forceRadial( d => {
         //     return (('r' in d.layout)? d.layout.r: 0);
         // }).strength(d => ('r' in d.layout)? 5: 0));
-
         this.scene.add(this.graph);
+        this.toggleNeuralLyphs();
     }
 
     update(){
@@ -522,27 +524,16 @@ export class WebGLSceneComponent {
         this.graph.numDimensions(numDimensions);
     };
 
-    toggleOmegaTrees(){
-        this._hideLinks.hideTrees = !this._hideLinks.hideTrees;
+    toggleGroup(hideGroup){
+        this._hideLinks[hideGroup] = !this._hideLinks[hideGroup];
         this._graphData.toggleLinks(this._hideLinks);
         if (this.graph) { this.graph.graphData(this._graphData); }
     }
 
-    toggleCoalescences(){
-        this._hideLinks.hideCoalescences = !this._hideLinks.hideCoalescences;
-        this._graphData.toggleLinks(this._hideLinks);
-        if (this.graph) { this.graph.graphData(this._graphData); }
-    }
-
-    toggleContainerLyphs(){
-        this._hideLinks.hideContainers = !this._hideLinks.hideContainers;
-        this._graphData.toggleLinks(this._hideLinks);
-        if (this.graph) { this.graph.graphData(this._graphData); }
-    }
-
-    toggleNeuronLyphs(){
-        this._hideLinks.hideNeurons = !this._hideLinks.hideNeurons;
-        this._graphData.toggleLinks(this._hideLinks);
+    toggleNeuralLyphs(){
+        this._hideNeural = !this._hideNeural;
+        this._graphData.links.filter(link => link.name === "Ependymal")
+            .forEach(link => link.conveyingLyph.hidden = this._hideNeural);
         if (this.graph) { this.graph.graphData(this._graphData); }
     }
 

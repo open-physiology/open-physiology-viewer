@@ -29,18 +29,18 @@ export class DataService {
         const coreGraphData = {
             nodes : [
                 //c-n
-                { "id"  : "c", "name": "c",       "color": "#D2691E", "group": "A", "layout": {"x": 100, "y":  0, "z":  0} },
-                { "id"  : "n", "name": "n",       "color": "#D2691E", "group": "A", "layout": {"x":-100, "y":  0, "z":  0} },
+                { "id"  : "c", "name": "c",      "color": "#D2691E", "group": "A", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": 100, "y":  0, "z":  0} },
+                { "id"  : "n", "name": "n",      "color": "#D2691E", "group": "A", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":-100, "y":  0, "z":  0} },
                 //t-a, a-h
-                { "id"  : "t", "name": "t",       "color": "#808080", "group": "B", "layout": {"x": -60, "y":  0, "z":  0} },
-                { "id"  : "a", "name": "a",       "color": "#808080", "group": "B", "layout": {"x":   0, "y":  0, "z":  0} },
-                { "id"  : "h", "name": "h",       "color": "#444444", "group": "B", "layout": {"x":  60, "y":  0, "z":  0} },
+                { "id"  : "t", "name": "t",      "color": "#808080", "group": "B", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": -60, "y":  0, "z":  0} },
+                { "id"  : "a", "name": "a",      "color": "#808080", "group": "B", "val": 3, "type": NODE_TYPES.FIXED, "layout": {"x":   0, "y":  0, "z":  0} },
+                { "id"  : "h", "name": "h",      "color": "#444444", "group": "B", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":  60, "y":  0, "z":  0} },
                 //R-L
-                { "id"  : "R", "name": "R",       "color": "#7B68EE", "group": "C", "layout": {"x":   0, "y": 75, "z":  0} },
-                { "id"  : "L", "name": "L",       "color": "#ff0000", "group": "C", "layout": {"x":   0, "y":-75, "z":  0} },
+                { "id"  : "R", "name": "R",      "color": "#7B68EE", "group": "C", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":   0, "y": 75, "z":  0} },
+                { "id"  : "L", "name": "L",      "color": "#ff0000", "group": "C", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":   0, "y":-75, "z":  0} },
                 //S-P
-                { "id"  : "S", "name": "\u03A3",  "color": "#006400", "group": "D", "layout": {"x": -90, "y":  0, "z":  0} } ,
-                { "id"  : "P", "name": "\u03C0",  "color": "#0000CD", "group": "D", "layout": {"x":  90, "y":  0, "z":  0} }
+                { "id"  : "S", "name": "\u03A3", "color": "#006400", "group": "D", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": -90, "y":  0, "z":  0} } ,
+                { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "group": "D", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
                 //c-n
@@ -53,52 +53,39 @@ export class DataService {
                 { "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
             ]
         };
-        //Make core nodes bigger
-        coreGraphData.nodes.forEach(node => { node.val = 3; });
-
-        //Set a marker to distinguish core graph nodes from other nodes that will be added later to the graph
-        //Node "a" must always stay in the center
-        coreGraphData.nodes.forEach(node  => (node.id === "a")? node.type = NODE_TYPES.FIXED: node.type = NODE_TYPES.CORE);
-
         //Demo2: split t-a and a-h links to 7 edges
         const ependymal = {
             nodes: [
                 //t-a
-                { "id" : "t1", "group": "B" }, { "id" : "t2", "group": "B" },
+                { "id" : "t1", "group": "B", "layout": {"y": 0, "z": 0} },
+                { "id" : "t2", "group": "B", "layout": {"y": 0, "z": 0} },
                 //a-h
-                { "id" : "h1", "group": "B" }, { "id" : "h2", "group": "B" }, { "id" : "h3", "group": "B" },
+                { "id" : "h1", "group": "B", "layout": {"y": 0, "z": 0} },
+                { "id" : "h2", "group": "B", "layout": {"y": 0, "z": 0} },
+                { "id" : "h3", "group": "B", "layout": {"y": 0, "z": 0} },
                 //a-g
-                { "id" : "g1", "group": "B", layout: {"x": 0, "z": 0} },
-                { "id" :  "g", "group": "B", layout: {"x": 0, "y":  -30, "z":  0} }
+                { "id" : "g1", "group": "B", "layout": {"x": 0, "z": 0} },
+                { "id" :  "g", "group": "B", "layout": {"x": 0, "y":  -30, "z":  0} }
             ],
             links: [
                 //t-a
-                { "id": "2a", "source":  "t", "target": "t1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10 },
-                { "id": "2b", "source": "t1", "target": "t2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10 },
-                { "id": "2c", "source": "t2", "target":  "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10 },
+                { "id": "2a", "source":  "t", "target": "t1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10, "reversed": true },
+                { "id": "2b", "source": "t1", "target": "t2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10, "reversed": true },
+                { "id": "2c", "source": "t2", "target":  "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10, "reversed": true },
                 //a-h
-                { "id": "3a", "source":  "a", "target": "h1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
-                { "id": "3b", "source": "h1", "target": "h2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
-                { "id": "3c", "source": "h2", "target": "h3", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
-                { "id": "3d", "source": "h3", "target":  "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
+                { "id": "3a", "source":  "a", "target": "h1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
+                { "id": "3b", "source": "h1", "target": "h2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
+                { "id": "3c", "source": "h2", "target": "h3", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
+                { "id": "3d", "source": "h3", "target":  "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
                 //a-g
                 { "id": "3e", "source":  "a", "target": "g1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
                 { "id": "3f", "source": "g1", "target":  "g", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 }
             ]
         };
 
-        //Add ependymal links to the modelgraph)
-        ependymal.nodes.forEach(node => {
-            //Force ependymal nodes to stick to the x axis
-            if (!node.layout) { node.layout = {"y": 0, "z": 0}; }
-            coreGraphData.nodes.push(node);
-        });
-        ependymal.links.forEach((link, i) => {
-            coreGraphData.links.push(link);
-            if (i < 7) {//turn lyphs up
-                link.reversed = true;
-            }
-        });
+        //Add ependymal links to the model graph
+        ependymal.nodes.forEach(node => { coreGraphData.nodes.push(node); });
+        ependymal.links.forEach((link, i) => { coreGraphData.links.push(link); });
 
         this._graphData.nodes = coreGraphData.nodes.map(node => NodeModel.fromJSON(node, modelClasses));
         this._graphData.links = coreGraphData.links.map(link => {
@@ -106,6 +93,7 @@ export class DataService {
             return LinkModel.fromJSON(link, modelClasses)
         });
     }
+
 
     afterInit(){
         //Coalescence defined as groups of lyphs
@@ -124,31 +112,16 @@ export class DataService {
                             "type": LINK_TYPES.COALESCENCE
                         }, modelClasses));
                     });
-                    // if (i % 2 === 1){ link2.reversed = true; }
                })
             });
         });
-
-        // this._lyphs.forEach(lyph => {
-        //     //Make lyphs aware about their coalescences
-        //     //TODO this works ok only for one coalescence group per lyph
-        //     this._coalescences.forEach(lyphs => {
-        //         if (lyphs.includes(lyph.id)){
-        //             lyph.coalescences = lyphs.map(lyphID => this._lyphs.find(x => x.id === lyphID));
-        //         }}
-        //     );
-        // });
-
 
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
         addColor(this._lyphs);
 
         //Create lyph models from their json definitions
-        this._lyphs = this._lyphs.map(lyph => {
-            lyph.class = "Lyph";
-            return LyphModel.fromJSON(lyph, modelClasses);
-        });
+        this._lyphs = this._lyphs.map(lyph => LyphModel.fromJSON(lyph, modelClasses));
 
         //Replace layer ids with lyph models
         this._lyphs.filter(lyph => lyph.layers).forEach(lyph => {
@@ -156,32 +129,23 @@ export class DataService {
         });
 
         //Replace content id with lyph model
-        this._lyphs.filter(lyph => lyph.content).forEach(lyph => {
-            lyph.content = this._lyphs.find(x => x.id === lyph.content);
-        });
+        this._lyphs.filter(lyph => lyph.content).forEach(lyph => lyph.content = this._lyphs.find(x => x.id === lyph.content));
 
         //for each link, replace lyph id's with lyph model
-        this._graphData.links.forEach(link => {
-            link.conveyingLyph = this._lyphs.find(lyph => lyph.id === link.conveyingLyph);
-        });
+        this._graphData.links.forEach(link => link.conveyingLyph = this._lyphs.find(lyph => lyph.id === link.conveyingLyph));
 
         //place empty layout object to simplify checking for constraints
-        this._graphData.nodes.forEach(node => {
-            node.layout = node.layout || {};
-        });
+        this._graphData.nodes.forEach(node => node.layout = node.layout || {} );
 
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
 
         //Map initial positional constraints to match the scaled image
-        this._graphData.nodes.forEach(node => {
-            Object.keys(node.layout).forEach(key => {node.layout[key] *= scaleFactor; })
-        });
+        this._graphData.nodes.forEach(node =>
+            Object.keys(node.layout).forEach(key => {node.layout[key] *= scaleFactor; }));
 
-        this._graphData.links.filter(link => link.length)
-            .forEach(link => {link.length *= 2 * scaleFactor});
+        this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor);
 
-        //console.log("Lyphs", this._lyphs);
         console.log("Graph", this._graphData);
     }
 

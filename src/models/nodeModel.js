@@ -29,6 +29,7 @@ export class NodeModel extends Model {
         super(id);
         this.infoFields.text.push ('host', 'type');
         this.val = this.val || 1; // Defines default radius
+        this.links = [];
     }
 
     toJSON() {
@@ -43,9 +44,18 @@ export class NodeModel extends Model {
 
     static fromJSON(json, modelClasses = {}) {
         json.class = json.class || "Node";
+        json.links = json.links || []; //TODO replace with Set?
         const result = super.fromJSON(json, modelClasses);
         result::assign(json); //TODO pick only valid properties
         return result;
+    }
+
+    get sourceInLinks(){
+        return this.links.filter(link => link.source && link.source.id === this.id);
+    }
+
+    get targetInLinks(){
+        return this.links.filter(link => link.target && link.target.id === this.id);
     }
 
     /**

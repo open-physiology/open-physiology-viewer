@@ -34,8 +34,6 @@ export class GraphModel extends Model {
         return res;
     }
 
-    //TODO these should be methods of the model, not graph
-
     set links(newLinks){
         this._links = newLinks;
         this._allLinks = this._links;
@@ -54,17 +52,23 @@ export class GraphModel extends Model {
         return this._nodes;
     }
 
+    //TODO simplify - define groups and hide based on where an item is in the group
     toggleLinks({hideTrees, hideCoalescences, hideContainers, hideNeurons}){
         if (!this._allLinks) { this._allLinks = this._links; }
         if (!this._allNodes) { this._allNodes = this._nodes; }
 
-        const isOmegaLink       = (link) => link.source.type === NODE_TYPES.OMEGA;
-        const isOmegaNode       = (node) => node.type === NODE_TYPES.OMEGA;
-        const isCoalescenceLink = (link) => link.type === LINK_TYPES.COALESCENCE;
-        const isContainerLink   = (link) => link.type === LINK_TYPES.CONTAINER;
-        const isContainerNode   = (node) => node.host && isContainerLink(node.host);
-        const isNeuronLink      = (link) => link.group === "Neuron";
-        const isNeuronNode      = (node) => node.host && isNeuronLink(node.host) || node.externalLyph;
+        const isOmegaLink       = link => link.source.type === NODE_TYPES.OMEGA;
+        const isOmegaNode       = node => node.type === NODE_TYPES.OMEGA;
+
+        const isCoalescenceLink = link => link.type === LINK_TYPES.COALESCENCE;
+        const isContainerLink   = link => link.type === LINK_TYPES.CONTAINER;
+
+        const isNeuronLyph      = lyph => lyph && (
+            (lyph.groups||[]).some(group => group.name === "Neurons") || isNeuronLyph(lyph.layerInLyph));
+        const isNeuronLink      = link => isNeuronLyph(link.conveyingLyph) ||
+            link.source.belongsToLyph || link.target.belongsToLyph;
+        const isNeuronNode      = node => (node.links.length === node.links.every(link => isNeuronLink(link)).length)
+            || node.belongsToLyph; //Only neurons have inner nodes at the moment
 
         const reviseLinks = () => {
             this._links = this._allLinks.filter(link => !this._hiddenLinks.find(lnk => lnk.id === link.id));
@@ -74,17 +78,14 @@ export class GraphModel extends Model {
         this._hiddenLinks = [];
         this._hiddenNodes = [];
 
-        this._allLinks.filter(link => (
-            hideTrees        && isOmegaLink(link) ||
-            hideCoalescences && isCoalescenceLink(link) ||
-            hideContainers   && isContainerLink(link) ||
-            hideNeurons      && isNeuronLink(link)
+        this._allLinks.filter(link => ( hideTrees && isOmegaLink(link)
+            || hideCoalescences && isCoalescenceLink(link)
+            || hideContainers   && isContainerLink(link)
+            || hideNeurons      && isNeuronLink(link)
         ) && !this._hiddenLinks.find(lnk => lnk.id === link.id)).forEach(link => this._hiddenLinks.push(link));
 
-        this._allNodes.filter(node=> (
-            hideTrees        && isOmegaNode(node) ||
-            hideContainers   && isContainerNode(node) ||
-            hideNeurons      && isNeuronNode(node)
+        this._allNodes.filter(node => ( hideTrees && isOmegaNode(node)
+            || hideNeurons    && isNeuronNode(node)
         )
         && !this._hiddenNodes.find(n => n.id === node.id)).forEach(node => this._hiddenNodes.push(node));
 

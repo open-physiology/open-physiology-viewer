@@ -57,7 +57,7 @@
         "infoFields": {
           "extends": "Entity:infoFields",
           "modality": "0..1",
-          "default": {"text": ["host", "type", "x", "y", "z"]}
+          "default": {"text": ["host", "type"]}
         },
         "x": {"type": "Number", "modality": "0..1" },
         "y": {"type": "Number", "modality": "0..1" },
@@ -89,7 +89,7 @@
       "properties" : {
         "axis"    : {"type": "String:ID|Link", "modality": "0..1"},
         "layers"  : {"type": "String:ID|Lyph", "modality": "0..*"},
-        "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"}, //Revise
+        "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"},
         "topology": {},
         "border"  : {},
         "infoFields": {
@@ -100,9 +100,6 @@
             "lists": ["layers"]
           }
         },
-        //TODO revise to move this to border or generalize content: lyphs can contain inside links, nodes or lyphs
-//        "content"  : {"type": "", "modality": "0..1"},
-//        "container": {"type": "Lyph", "modality": "0..1"},
         "width"    : {"type": "Number"},
         "height"   : {"type": "Number"},
         "offset"   : {"type": "Number", "modality": "0..1"},
@@ -135,13 +132,13 @@
   "relationships": [
     {
       "types"   : ["Link", "Node"],
-      "keys"    : ["source", "host"],
-      "modality": ["1", "0..1"]
+      "keys"    : ["source", "links"],
+      "modality": ["1", "0..*"]
     },
     {
-      "types": ["Link", "Node"],
-      "keys" : ["target", "host"],
-      "modality": ["1", "0..1"]
+      "types"   : ["Link", "Node"],
+      "keys"    : ["target", "links"],
+      "modality": ["1", "0..*"]
     },
     {
       "types": ["Link", "Lyph"],
@@ -151,7 +148,7 @@
     {
       "types": ["Lyph", "Lyph"],
       "keys" : ["layers", "layerInLyph"],
-      "modality": ["0..*", "0..1"] //Revise
+      "modality": ["0..*", "0..1"]
     },
     {
       "types": ["Lyph", "Border"],
@@ -162,11 +159,11 @@
       "types": ["Lyph", "Lyph"],
       "keys" : ["content", "container"],
       "modality": ["0..1", "0..1"]
-    }
+    },
     {
       "types": ["Lyph", "Lyph"],
-      "keys" : ["internalLyphs", "externalLyph"],
-      "modality": ["0..*", "0..1"]
+      "keys" : ["belongsToLyph", "internalLyphs"],
+      "modality": ["0..1", "0..*"]
     }
   ]
 }

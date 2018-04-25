@@ -91,7 +91,7 @@ export class LyphModel extends Model {
         let res = 0;
         if (this.container)    { res = this.container.polygonOffsetFactor - 1; }
         if (this.layerInLyph)  { res = Math.min(res, this.layerInLyph.polygonOffsetFactor - 1); }
-        if (this.externalLyph) { res = Math.min(res, this.externalLyph.polygonOffsetFactor - 1); }
+        if (this.belongsToLyph) { res = Math.min(res, this.belongsToLyph.polygonOffsetFactor - 1); }
         return res;
     }
 
@@ -399,7 +399,7 @@ export class LyphModel extends Model {
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
         //Do not create labels for lyphs
-        if (this.layerInLyph || this.externalLyph){ return; }
+        if (this.layerInLyph || this.belongsToLyph){ return; }
 
         //Labels
         this.labels = this.labels || {};
@@ -420,7 +420,7 @@ export class LyphModel extends Model {
         }
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
-        let skip = this.layerInLyph || this.externalLyph;
+        let skip = this.layerInLyph || this.belongsToLyph;
 
         if (!skip) {//update label
             if (!(this.labels[state.iconLabel] && this[state.iconLabel])) {
@@ -429,7 +429,7 @@ export class LyphModel extends Model {
         }
         if (!this.layerInLyph){
             //update lyph
-            this.viewObjects["main"].visible = state.showLyphs;
+            this.viewObjects["main"].visible = (!this.hidden) && state.showLyphs;
             copyCoords(this.viewObjects["main"].position, this.center);
             align(this.axis, this.viewObjects["main"]);
         }
@@ -442,35 +442,6 @@ export class LyphModel extends Model {
             const fociCenter = getCenterPoint(this.viewObjects["main"]);
 
             if (this.internalLyphs ) {
-                //Create fixed grid for inner content border nodes
-                // if (this.border){
-                //     //position nodes on the lyph border (exact shape, use 'borderLinks' to place nodes on straight line)
-                //     let points = [];
-                //     let n = this.internalLyphs.length || 1;
-                //     let p = this.border.borderLinks[0].source.clone();
-                //     points.push(p);
-                //     for (let i = 1; i <= n; i++){
-                //         let s1 = this.border.borderLinks[0].source;
-                //         let t1 = this.border.borderLinks[0].target;
-                //         let s2 = this.border.borderLinks[3].source;
-                //         let t2 = this.border.borderLinks[3].target;
-                //         let dy = direction(s1, t1).multiplyScalar( i / n);
-                //         let dx = direction(s2, t2).multiplyScalar( i / n);
-                //         console.log(this.id, "dx", "dy", dx, dy);
-                //         let p1 = p.clone().add(dx).add(dy);
-                //         points.push(p1);
-                //         p = p1;
-                //     }
-                //
-                //     console.log(this.id, points);
-                //     state.graphData.links
-                //         .filter(link => link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
-                //         .forEach((link, i) => {
-                //             copyCoords(link.source, points[i]);
-                //             copyCoords(link.target, points[i + 1]);
-                //         });
-                // }
-
                 state.graphData.links
                     .filter(link => link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id))
                     .forEach((link, i) => {
