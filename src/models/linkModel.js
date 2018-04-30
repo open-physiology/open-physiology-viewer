@@ -45,9 +45,6 @@ export class LinkModel extends Model {
     }
 
     static fromJSON(json, modelClasses = {}) {
-        function handler(key, value, oldValue){
-            console.log("SETTER", key, value, oldValue);
-        }
         json.class = json.class || "Link";
         let result = super.fromJSON(json, modelClasses);
         result::assign(json); //TODO pick only valid properties
