@@ -79,7 +79,7 @@ export class KidneyDataService extends DataService{
                     "id"            : (this._graphData.links.length + 1).toString(),
                     "source"        : sNode,
                     "target"        : tNode,
-                    "length"        : 1.5,
+                    "length"        : 2,
                     "type"          : LINK_TYPES.BORDER,
                     "color"         : "#ccc",
                     "conveyingLyph" : innerLyphID
@@ -93,8 +93,9 @@ export class KidneyDataService extends DataService{
         });
 
         //Form links to join neural system lyphs:
-        [   ["199", "99011"], ["99011", "99008"], ["99008","99005"], ["99005", "99002"], ["99002", "197"]
-            //["198", "204"],["200", "203"], ["200", "206"], ["202", "205"]
+        [   //["199", "99011"],
+            ["99011", "99008"], ["99008","99005"], ["99005", "99002"]
+            //, ["99002", "197"], ["198", "204"],["200", "203"], ["200", "206"], ["202", "205"]
         ]
             .forEach(
             ([s,t]) => {
@@ -183,7 +184,7 @@ export class KidneyDataService extends DataService{
                         "source"        : this._graphData.getNodeByID(`${host}${i}${j}`),
                         "target"        : this._graphData.getNodeByID(`${host}${i}${j + 1}`),
                         "external"      : key,
-                        "length"        : (host === "5")? 2: 1, //Urinary links shorter
+                        "length"        : 2,
                         "type"          : LINK_TYPES.LINK,
                         "conveyingLyph" : tree.lyphs[key],
                         "color"         : hosts[host].color,

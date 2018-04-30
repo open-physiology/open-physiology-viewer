@@ -16,6 +16,7 @@ export const modelClasses = {
     "Coalescence": CoalescenceModel
 };
 
+
 /**
  * Temporary - push a point to a rectangle (not tilted)
  * @param point
@@ -40,15 +41,20 @@ export function boundToPolygon(link, boundaryLinks){
         let res = getBoundaryPoint(link, boundaryLinks);
         if (res){
             if (!sourceIn){
+                //We first drag the source node to the rectangle,
+                //The target node should be dragged to it by the link force
                 link.source.x = res.x;
                 link.source.y = res.y;
             }
-            //else {
+            else {
+                //If we place both source and target to the same point, they will repel
+                //So we push the target node to the rectangle only after the source node is already there
+                //I think it helps to reduce edge jumping, but optionally  we can remove the above 'else' statement
                 if (!targetIn){
                     link.target.x = res.x;
                     link.target.y = res.y;
                 }
-            //}
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
-import { Model } from './model';
-import { NodeModel } from './nodeModel';
+import { Model, tracePropAccess } from './model';
 import { assign } from 'lodash-bound';
 
 import * as three from 'three';
@@ -26,10 +25,11 @@ export class LinkModel extends Model {
     length;
     conveyingLyph;
     type;
+    source;
+    target;
 
     constructor(id) {
         super(id);
-
         this.infoFields.text.push('length', 'type');
         this.infoFields.objects.push('source', 'target', 'conveyingLyph');
     }
@@ -38,35 +38,23 @@ export class LinkModel extends Model {
         let res = super.toJSON();
         res.source = this.source && this.source.id;
         res.target = this.target && this.target.id;
-        res.conveyingLyph = this.conveyingLyph && this.conveyingLyph.id;
         res.type   = this.type;
         res.length = this.length;
+        res.conveyingLyph = this.conveyingLyph && this.conveyingLyph.id;
         return res;
     }
 
     static fromJSON(json, modelClasses = {}) {
+        function handler(key, value, oldValue){
+            console.log("SETTER", key, value, oldValue);
+        }
         json.class = json.class || "Link";
-        const result = super.fromJSON(json, modelClasses);
+        let result = super.fromJSON(json, modelClasses);
         result::assign(json); //TODO pick only valid properties
+
+        //Auto-update object on the other side of a bidirectional relationship
+        result = tracePropAccess(result, ['source', 'target']);
         return result;
-    }
-
-    get source() {
-        return this._source;
-    }
-
-    set source(node){
-        this.syncRelationship("source", node, this._source);
-        this._source = node;
-    }
-
-    get target() {
-        return this._target;
-    }
-
-    set target(node){
-        this.syncRelationship("target", node, this._target);
-        this._target = node;
     }
 
     // /**
