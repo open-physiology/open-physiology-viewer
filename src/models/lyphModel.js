@@ -1,10 +1,9 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { SpriteText2D } from 'three-text2d';
 import { Model } from './model';
 import { assign } from 'lodash-bound';
-import { mergedGeometry, geometryDifference, align, direction, extractCoords, copyCoords, getCenterPoint } from '../three/utils';
-import { LinkModel, LINK_TYPES } from './linkModel';
+import { mergedGeometry, geometryDifference, align,
+    extractCoords, copyCoords, getCenterPoint} from '../three/utils';
 import { BorderModel } from './borderModel';
 import { modelClasses, boundToPolygon, boundToRectangle } from './utils';
 
@@ -336,9 +335,7 @@ export class LyphModel extends Model {
 
             lyphObj.__data = this;
 
-            if (lyphBorder){
-              lyphObj.add( lyphBorder );
-            }
+            if (lyphBorder){ lyphObj.add( lyphBorder ); }
 
             this.viewObjects["lyphs"][state.method] = lyphObj;
 
@@ -395,23 +392,22 @@ export class LyphModel extends Model {
                 // }
                 lyphObj.add(layerObj);
             });
+
+            (this.internalNodes || []).forEach(node => {
+                if (!state.graphData.getNodeByID(node.id)){
+                    //Internal node is not in the global graph
+                    node.createViewObjects(state);
+                    lyphObj.add(node.viewObjects["main"]);
+                }
+            })
         }
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
         //Do not create labels for lyphs
         if (this.layerInLyph || this.belongsToLyph){ return; }
 
-        //Labels
-        this.labels = this.labels || {};
-        if (!this.labels[state.iconLabel] && this[state.iconLabel]){
-            this.labels[state.iconLabel] = new SpriteText2D(this[state.iconLabel], state.fontParams);
-        }
-        if (this.labels[state.iconLabel]) {
-            this.viewObjects['label'] = this.labels[state.iconLabel];
-        } else {
-            delete this.viewObjects['label'];
-        }
-    }
+        this.createLabels(state.iconLabel, state.fontParams);
+     }
 
     updateViewObjects(state){
         if (!this.axis) {return; }
@@ -420,9 +416,8 @@ export class LyphModel extends Model {
         }
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
-        let skip = this.layerInLyph || this.belongsToLyph;
 
-        if (!skip) {//update label
+        if (!this.layerInLyph && !this.belongsToLyph) {//update label
             if (!(this.labels[state.iconLabel] && this[state.iconLabel])) {
                 this.createViewObjects(state);
             }
@@ -489,13 +484,9 @@ export class LyphModel extends Model {
                         }
                     });
             }
+
             (this.internalNodes || []).forEach(node => {
-                if (!(node instanceof modelClasses.Node)){
-                    //TODO map node ID's to the graph nodes
-                }
                 copyCoords(node, fociCenter);
-                //Create central attraction force
-                //copyCoords(node.layout, fociCenter);
             });
         }
 
@@ -505,15 +496,8 @@ export class LyphModel extends Model {
         (this.viewObjects['main'].children || []).forEach(child => {child.visible = state.showLayers;});
 
         //Layers and inner lyphs have no labels
-        if (!skip) {
-            if (this.labels[state.iconLabel]){
-                this.viewObjects['label'] = this.labels[state.iconLabel];
-                this.viewObjects['label'].visible = state.showLyphLabel;
-                copyCoords(this.viewObjects['label'].position, this.center);
-                this.viewObjects['label'].position.addScalar(-5);
-            } else {
-                delete this.viewObjects['label'];
-            }
-        }
+        if (this.layerInLyph || this.belongsToLyph) { return ; }
+
+        this.updateLabels(state.iconLabel, state.showLyphLabel, this.center.clone().addScalar(-5));
     }
 }

@@ -60,7 +60,12 @@ export class KidneyDataService extends DataService{
             lyph.internalLyphs.forEach(innerLyphID => {
                 //Bi-directional relationship
                 let innerLyph = this._lyphs.find(lyph => lyph.id === innerLyphID);
-                if (innerLyph) { innerLyph.belongsToLyph = lyph; }
+                if (innerLyph) {
+                    innerLyph.belongsToLyph = lyph;
+                } else {
+                    console.log("Did not find lyph", innerLyphID);
+                    return;
+                }
 
                 if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
 
@@ -93,9 +98,8 @@ export class KidneyDataService extends DataService{
         });
 
         //Form links to join neural system lyphs:
-        [   //["199", "99011"],
+        [   //["199", "99011"], ["99002", "197"], ["198", "204"],["200", "203"], ["200", "206"], ["202", "205"]
             ["99011", "99008"], ["99008","99005"], ["99005", "99002"]
-            //, ["99002", "197"], ["198", "204"],["200", "203"], ["200", "206"], ["202", "205"]
         ]
             .forEach(
             ([s,t]) => {
@@ -124,7 +128,7 @@ export class KidneyDataService extends DataService{
                     "type"     : LINK_TYPES.LINK,
                     "strength" : 0
                 }, modelClasses);
-                this._graphData.links.push(link);
+                 this._graphData.links.push(link);
             }
         );
 

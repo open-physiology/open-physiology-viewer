@@ -247,9 +247,7 @@ export class WebGLSceneComponent {
 
     animate() {
         this.resizeCanvasToDisplaySize();
-        if (this.graph){
-            this.graph.tickFrame();
-        }
+        if (this.graph) { this.graph.tickFrame(); }
         this.controls.update();
 
         this.renderer.render(this.scene, this.camera);

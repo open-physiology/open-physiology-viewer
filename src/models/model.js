@@ -1,5 +1,7 @@
 import {pick, assign} from 'lodash-bound';
 import {relationships} from '../data/manifest.json';
+import { SpriteText2D } from 'three-text2d';
+import { copyCoords } from '../three/utils';
 
 /**
  * Intercepts setters for given properties to update bidirectional relationships
@@ -75,6 +77,32 @@ export class Model {
                 const index = oldValue[r.keys[1]].indexOf(entity2 => entity2.id === this.id);
                 oldValue[r.keys[1]].splice(index, 1);
             }
+        }
+    }
+
+    createLabels(labelKey, fontParams){
+        if (this.skipLabel) { return; }
+        this.labels = this.labels || {};
+
+        if (!this.labels[labelKey] && this[labelKey]) {
+            this.labels[labelKey] = new SpriteText2D(this[labelKey], fontParams);
+        }
+
+        if (this.labels[labelKey]){
+            this.viewObjects["label"] = this.labels[labelKey];
+        } else {
+            delete this.viewObjects["label"];
+        }
+    }
+
+    updateLabels(labelKey, visibility, position){
+        if (this.skipLabel) { return; }
+        if (this.labels[labelKey]){
+            this.viewObjects['label'] = this.labels[labelKey];
+            this.viewObjects["label"].visible = visibility;
+            copyCoords(this.viewObjects["label"].position, position);
+        } else {
+            delete this.viewObjects['label'];
         }
     }
 

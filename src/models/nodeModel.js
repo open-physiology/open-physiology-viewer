@@ -2,7 +2,6 @@ import { Model } from './model';
 import { assign } from 'lodash-bound';
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
 
 export const NODE_TYPES = {
@@ -80,18 +79,7 @@ export class NodeModel extends Model {
         }
 
         //Labels
-        if (this.skipLabel) { return; }
-        this.labels = this.labels || {};
-
-        if (!this.labels[state.nodeLabel] && this[state.nodeLabel]) {
-            this.labels[state.nodeLabel] = new SpriteText2D(this[state.nodeLabel], state.fontParams);
-        }
-
-        if (this.labels[state.nodeLabel]){
-            this.viewObjects["label"] = this.labels[state.nodeLabel];
-        } else {
-            delete this.viewObjects["label"];
-        }
+        this.createLabels(state.nodeLabel, state.fontParams);
     }
 
     /**
@@ -125,17 +113,8 @@ export class NodeModel extends Model {
         }
         copyCoords(this.viewObjects["main"].position, this);
 
-        if (this.skipLabel) { return; }
-
-        //Labels
-        if (this.labels[state.nodeLabel]){
-            this.viewObjects['label'] = this.labels[state.nodeLabel];
-            this.viewObjects["label"].visible = state.showNodeLabel;
-            copyCoords(this.viewObjects["label"].position, this.viewObjects["main"].position);
-            this.viewObjects["label"].position.addScalar(5 + this.val * state.nodeRelSize);
-        } else {
-            delete this.viewObjects['label'];
-        }
+        this.updateLabels(state.nodeLabel, state.showNodeLabel,
+            this.viewObjects["main"].position.clone().addScalar(5 + this.val * state.nodeRelSize));
     }
 
     //A node can be a root of a given tree

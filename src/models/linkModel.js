@@ -3,14 +3,13 @@ import { assign } from 'lodash-bound';
 
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { SpriteText2D } from 'three-text2d';
 import { direction, bezierSemicircle, copyCoords} from '../three/utils';
 
-import { LineSegments2 } from '../three/lines/LineSegments2.js';
+import { LineSegments2 }        from '../three/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from '../three/lines/LineSegmentsGeometry.js';
-import { Line2 } from '../three/lines/Line2.js';
-import { LineGeometry } from '../three/lines/LineGeometry.js';
-import { LineMaterial } from '../three/lines/LineMaterial.js';
+import { Line2 }                from '../three/lines/Line2.js';
+import { LineGeometry }         from '../three/lines/LineGeometry.js';
+import { LineMaterial }         from '../three/lines/LineMaterial.js';
 
 export const LINK_TYPES = {
     PATH: "path",
@@ -32,6 +31,7 @@ export class LinkModel extends Model {
         super(id);
         this.infoFields.text.push('length', 'type');
         this.infoFields.objects.push('source', 'target', 'conveyingLyph');
+        //[this.source, this.target] = tracePropAccess(this, ['source', 'target']);
     }
 
     toJSON() {
@@ -47,10 +47,8 @@ export class LinkModel extends Model {
     static fromJSON(json, modelClasses = {}) {
         json.class = json.class || "Link";
         let result = super.fromJSON(json, modelClasses);
-        result::assign(json); //TODO pick only valid properties
-
-        //Auto-update object on the other side of a bidirectional relationship
         result = tracePropAccess(result, ['source', 'target']);
+        result::assign(json);
         return result;
     }
 
@@ -142,13 +140,7 @@ export class LinkModel extends Model {
         }
 
         //Link label
-        this.labels = this.labels || {};
-        if (!this.labels[state.linkLabel] && this[state.linkLabel]){
-            this.labels[state.linkLabel] = new SpriteText2D(this[state.linkLabel], state.fontParams);
-        }
-
-        this.viewObjects["label"] = this.labels[state.linkLabel];
-        if (!this.viewObjects["label"]){ delete this.viewObjects["label"]; }
+        this.createLabels(state.linkLabel, state.fontParams);
 
         //Icon (lyph)
         if (this.conveyingLyph) {
@@ -207,14 +199,7 @@ export class LinkModel extends Model {
             }
         }
 
-        let labelObj = this.viewObjects["label"];
-        if (labelObj) {
-            labelObj.visible = state.showLinkLabel;
-            copyCoords(labelObj.position, this.center);
-            labelObj.position.addScalar(5);
-        } else {
-            delete this.viewObjects["label"];
-        }
+        this.updateLabels(state.linkLabel, state.showLinkLabel, this.center.clone().addScalar(5));
 
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);
