@@ -87,7 +87,7 @@
     "Lyph"  : {
       "extends": "Entity",
       "properties" : {
-        "axis"    : {"type": "String:ID|Link", "modality": "0..1"},
+        "axis"    : {"type": "String:ID|Link", "modality": "1"},
         "layers"  : {"type": "String:ID|Lyph", "modality": "0..*"},
         "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"},
         "topology": {},

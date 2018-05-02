@@ -86,7 +86,7 @@ export function align(axis, obj){
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
 }
 
-export function direction(source, target){
+export function direction({source, target}){
     return (new THREE.Vector3(
         target.x - source.x,
         target.y - source.y,

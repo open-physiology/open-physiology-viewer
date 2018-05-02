@@ -38,31 +38,48 @@ export class BorderModel extends Model {
         return new Set(res);
     }
 
+    /**
+     * Creates links (objects with fields 'source' and 'target') to define sides of the lyph rectangle
+     * @returns {Array}
+     */
     get borderLinks(){
-        function d2LyphBorderLinks(width, height){
+        /**
+         * Creates links (objects with fields 'source' and 'target') to define
+         * sides of the lyph rectangle in the center of coordinates
+         * @param width  - lyph/layer width
+         * @param height - lyph/layer height
+         * @param offset - layer offset
+         * @returns {Array}
+         */
+        function d2LyphBorderLinks({width, height, offset = 0}){
             let borders = new Array(4);
-            borders[0] = { source: new THREE.Vector3(0,     -height / 2, 0),
-                target: new THREE.Vector3(0,      height / 2, 0)};
-            borders[1] = { source: borders[0].target.clone(),
-                target: new THREE.Vector3(width,  height / 2, 0)};
-            borders[2] = { source: borders[1].target.clone(),
-                target: new THREE.Vector3(width, -height / 2, 0)};
-            borders[3] = { source: borders[2].target.clone(),
-                target: new THREE.Vector3(0,     -height / 2, 0)};
+            borders[0] = {
+                source: new THREE.Vector3(offset, -height / 2, 0),
+                target: new THREE.Vector3(offset, height / 2, 0)};
+            borders[1] = {
+                source: borders[0].target.clone(),
+                target: new THREE.Vector3(width + offset, height / 2, 0)};
+            borders[2] = {
+                source: borders[1].target.clone(),
+                target: new THREE.Vector3(width + offset, -height / 2, 0)};
+            borders[3] = {
+                source: borders[2].target.clone(),
+                target: new THREE.Vector3(offset, -height / 2, 0)};
             return borders;
         }
+        this._borderLinks = this._borderLinks || d2LyphBorderLinks(this.borderInLyph);
 
-        if (!this._borderLinks){
-            this._borderLinks = d2LyphBorderLinks(this.borderInLyph.width, this.borderInLyph.height);
-        }
+        //Translate to the current location of the lyph/layer
         return this._borderLinks.map(({source, target}) => {
-                return {source: this.borderInLyph.translate(source), target: this.borderInLyph.translate(target)
+            return {
+                source: this.borderInLyph.translate(source),
+                target: this.borderInLyph.translate(target)
             }
         });
     }
 
     createViewObjects(state){
-
+        //TODO test & revise to correctly handle layer offset (as in borderLinks)
         /**
          * Create shapes of lyph borders
          * @param width

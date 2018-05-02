@@ -10,7 +10,8 @@ export const NODE_TYPES = {
     CONTROL: "control",
     OMEGA  : 'omega',
     BORDER : "border",
-    CENTER : "center"
+    CENTER : "center",
+    INTERNAL: "internal"
 };
 
 /**

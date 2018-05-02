@@ -62,9 +62,9 @@ export class LinkModel extends Model {
 
     get direction(){
         if (this.reversed){
-            return direction(this.target, this.source);
+            return direction({source: this.target, target: this.source});
         }
-        return direction(this.source, this.target);
+        return direction({source: this.source, target: this.target});
     }
 
     /**
