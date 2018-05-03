@@ -1,5 +1,5 @@
-import {pick, assign} from 'lodash-bound';
-import {relationships} from '../data/manifest.json';
+import { merge, isObject, entries, pick, assign, cloneDeep } from 'lodash-bound';
+import { types, relationships} from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
 
@@ -21,27 +21,28 @@ export function tracePropAccess(obj, propKeys) {
     });
 }
 
-export class Model {
-    id;
-    name;
-    class;
-    color;
-    external;    //Reference to an external resource, currently is used to backtrack models vs original documents/mock-ups
+const initValue = (specObj) => specObj.default
+    ? (specObj::isObject()
+        ? specObj.default::cloneDeep()
+        : specObj.default)
+    : (specObj.type
+        ? specObj.type.startsWith("String")
+            ? ""
+            : specObj.type.startsWith("Boolean")
+                ? false
+                : specObj.type.startsWith("Number")
+                    ? 0
+                    :null
+        :null);
 
-    //Visualization model
-    viewObjects; //WebGL/Three.js objects
-    material;    //Material for the model visualizations
-    infoFields;      //Info infoFields
 
+export class Entity {
     constructor(id) {
+        this::assign(...types.Entity.properties::entries().map(([key, value]) => ({[key]: initValue(value)})));
         this.id = id;
-        this.viewObjects = {};
-
-        //TODO - perhaps create a class to manage infoFields definition (lazy version of manifest?)
-        this.infoFields = {
-            text   : ['id', 'class', 'name', 'external'],
-            objects: [],
-            lists  : []
+        const className = this.constructor.name;
+        if (types[className]){
+            this::merge(...types[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)})));
         }
     }
 
@@ -50,12 +51,18 @@ export class Model {
     }
 
     static fromJSON(json, modelClasses = {}) {
-        //TODO add validation
+        json.class = json.class || this.name;
+        const cls = this || modelClasses[json.class];
 
-        const cls = modelClasses[json.class];
+        if (!cls){
+            throw "Cannot creat an object of an unknown class!";
+        }
+
         const res = new cls(json.id);
-        res::assign(json::pick('id', 'name', 'class', 'color', 'external'));
-        res.viewObjects = res.viewObjects || {};
+
+        //TODO add validation: pick properties from manifest & filter others with warning
+        res::assign(json);
+
         return res;
     }
 

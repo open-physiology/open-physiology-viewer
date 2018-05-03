@@ -8,13 +8,12 @@ import {
 import Kapsule from 'kapsule';
 import { MaterialFactory } from './materialFactory';
 
-import {GraphModel} from '../models/graphModel';
-import { modelClasses } from '../models/utils';
+import {Graph} from '../models/graphModel';
 
 export default Kapsule({
     props: {
         graphData: {
-            default: GraphModel.fromJSON({nodes: [], links: []}, modelClasses),
+            default: Graph.fromJSON({nodes: [], links: []}),
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
         numDimensions: {

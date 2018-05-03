@@ -1,51 +1,25 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { Model } from './model';
-import { assign } from 'lodash-bound';
+import { Entity } from './entityModel';
 import { mergedGeometry, geometryDifference, align, direction,
     extractCoords, copyCoords, getCenterPoint} from '../three/utils';
-import { BorderModel } from './borderModel';
+import { Border } from './borderModel';
 import { LINK_TYPES } from './linkModel';
-import { modelClasses, boundToPolygon, boundToRectangle } from './utils';
+import { boundToPolygon, boundToRectangle } from './utils';
 
 
 /**
  * Class that creates visualization objects of lyphs
  */
-export class LyphModel extends Model {
-    //TODO there can be several axes for coalescing lyphs
-    axis;
-    layers;
-    topology;
-    border;
-
-    constructor(id) {
-        super(id);
-        this.infoFields.text.push ('topology');
-        this.infoFields.objects.push('axis', 'belongsToLyph');
-        this.infoFields.lists.push('layers');
-        //this.infoFields.lists.push('coalescences');
-    }
-
-    toJSON() {
-        let res = super.toJSON();
-        res.layers   = this.layers && this.layers.forEach(layer => layer.id);
-        res.axis     = this.axis && this.axis.id;
-        res.topology = this.topology;
-        res.border   = this.border.toJSON();
-        return res;
-    }
+export class Lyph extends Entity {
 
     static fromJSON(json, modelClasses = {}) {
-        json.class = json.class || "Lyph";
         const result = super.fromJSON(json, modelClasses);
-        result::assign(json); //TODO pick only valid properties
 
         //Create lyph's border
-        result.border             = result.border || {};
         result.border.id          = result.border.id || "b_" + result.id; //derive border id from lyph's id
         result.border.borderTypes = result.border.borderTypes || [false,...this.radialBorderTypes(result.topology), false];
-        result.border             = BorderModel.fromJSON(result.border, modelClasses);
+        result.border             = Border.fromJSON(result.border);
         return result;
     }
 
@@ -360,7 +334,7 @@ export class LyphModel extends Model {
                 //             target: target,
                 //             linkInLyph: this,
                 //             center: (source.clone().add(target)).multiplyScalar(0.5)
-                //         }, modelClasses);
+                //         });
                 //         layer.content.axis = contentLyphAxis;
                 //         //'content' and 'container' are the opposites for the "Contains" relationship
                 //         //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other

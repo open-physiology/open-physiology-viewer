@@ -1,31 +1,14 @@
-import { Model } from './model';
-//import { LinkModel, LINK_TYPES } from './linkModel';
+import { Entity } from './entityModel';
 import { assign } from 'lodash-bound';
 import { copyCoords } from '../three/utils';
 
 /**
  * Complete lyph border
  */
-export class BorderModel extends Model {
+export class Border extends Entity {
     borders;
     borderTypes;   //Array of border types
     borderInLyph;  //Owner of the border
-
-    //TODO BorderModel should provide versions of borders with or without curves for closed borders
-
-    toJSON() {
-        let res = super.toJSON();
-        res.borderInLyph = this.borderInLyph && this.borderInLyph.id;
-        res.borderTypes  = this.borderTypes;
-        return res;
-    }
-
-    static fromJSON(json, modelClasses = {}) {
-        json.class = json.class || "Border";
-        const result = super.fromJSON(json, modelClasses);
-        result::assign(json); //TODO pick only valid properties
-        return result;
-    }
 
     get radialTypes(){
         return [this.borderTypes[1], this.borderTypes[2]];

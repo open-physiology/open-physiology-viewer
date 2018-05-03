@@ -18,8 +18,7 @@ import {
 const WindowResize = require('three-window-resize');
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from "../models/nodeModel";
-import {GraphModel} from "../models/graphModel";
-import {modelClasses} from "../models/utils";
+import {Lyph} from "../models/lyphModel";
 
 import {ModelInfoPanel} from './modelInfo';
 
@@ -222,8 +221,7 @@ export class WebGLSceneComponent {
 
     createEventListeners(){
       window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
-      window.addEventListener( 'mousedown', evt => this.onMouseDown(evt), false );
-
+      //window.addEventListener( 'mousedown', evt => this.onMouseDown(evt), false );
       window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
     }
 
@@ -247,7 +245,7 @@ export class WebGLSceneComponent {
 
     animate() {
         this.resizeCanvasToDisplaySize();
-        if (this.graph) { this.graph.tickFrame(); }
+        if (this.graph) { this.graph.tickFrame();}
         this.controls.update();
 
         this.renderer.render(this.scene, this.camera);
@@ -335,13 +333,8 @@ export class WebGLSceneComponent {
                 this._highlighted = intersects[ 0 ].object;
 
                 if (intersects[0].object.__data){
-
-                  // store reference to object type to check for highlight type. E.g. "LyphModel"
-                  this._highlighted.objName = intersects[0].object.__data.constructor.name;
-
                   // check if lyphmodel, then make highlight object a layer
-                  if (this._highlighted.objName == "LyphModel"){
-                      // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
+                  if (this._highlighted.__data.constructor.name === Lyph.name){
 
                       let layerMeshes = [];
                       // Get layer meshes within lyph
@@ -399,15 +392,12 @@ export class WebGLSceneComponent {
         }
     }
 
-    hideHighlighted()
-    {
+    hideHighlighted(){
       if (this._highlighted){
           (this._highlighted.children || []).forEach(child => {
               child.visible = false;
-              // console.log("hiding child: ", child);
           });
 
-          // console.log("hiding parent: ", this._highlighted);
           this._highlighted.visible = false;
         }
     }
@@ -464,11 +454,10 @@ export class WebGLSceneComponent {
 
     // Handle mouse click
     onMouseDown(evt) {
-      if (this._highlighted){
-        if (this._highlighted.objName == "LyphModel"){
-          this.hideHighlighted();
-        }
-      }
+        //NK - I do not see why we need this - it is ok to highlight the lyph itself too
+       // if (this._highlighted && this._highlighted.__data.constructor.name === Lyph.name){
+       //     this.hideHighlighted();
+       // }
     }
 
     zoom(delta){

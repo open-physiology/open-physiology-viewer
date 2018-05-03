@@ -1,4 +1,4 @@
-import { Model } from './model';
+import { Entity } from './entityModel';
 import { assign } from 'lodash-bound';
 import * as three from 'three';
 const THREE = window.THREE || three;
@@ -17,38 +17,7 @@ export const NODE_TYPES = {
 /**
  * ApiNATOMY node
  */
-export class NodeModel extends Model {
-    host;
-    isRoot; //TODO remove when treeModel is completed
-    layout; //Positioning constraints
-    type;
-    val;    //Currently used to compute radius
-    x; y; z;
-
-    constructor(id) {
-        super(id);
-        this.infoFields.text.push ('host', 'type');
-        this.val = this.val || 1; // Defines default radius
-        this.links = [];
-    }
-
-    toJSON() {
-        let res = super.toJSON();
-        res.host     = this.host;
-        res.isRoot   = this.isRoot;
-        res.layout   = this.layout;
-        res.type     = this.type;
-        res.val      = this.val;
-        return res;
-    }
-
-    static fromJSON(json, modelClasses = {}) {
-        json.class = json.class || "Node";
-        json.links = json.links || []; //TODO replace with Set?
-        const result = super.fromJSON(json, modelClasses);
-        result::assign(json); //TODO pick only valid properties
-        return result;
-    }
+export class Node extends Entity {
 
     get sourceInLinks(){
         return this.links.filter(link => link.source && link.source.id === this.id);
@@ -116,19 +85,5 @@ export class NodeModel extends Model {
 
         this.updateLabels(state.nodeLabel, state.showNodeLabel,
             this.viewObjects["main"].position.clone().addScalar(5 + this.val * state.nodeRelSize));
-    }
-
-    //A node can be a root of a given tree
-    // isRoot(tree){
-    //     let node = tree.nodes.find(node => node.id === this.id) || {id: undefined} ;
-    //     return node.id === tree.root;
-    // }
-
-    /**
-     * @param tree
-     * @returns {number} node's level in the tree
-     */
-    level(tree){
-        return -1;
     }
 }

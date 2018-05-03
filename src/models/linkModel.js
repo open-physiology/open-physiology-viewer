@@ -1,4 +1,4 @@
-import { Model, tracePropAccess } from './model';
+import { Entity, tracePropAccess } from './entityModel';
 import { assign } from 'lodash-bound';
 
 import * as three from 'three';
@@ -20,38 +20,7 @@ export const LINK_TYPES = {
     BORDER     : "border"
 };
 
-export class LinkModel extends Model {
-    length;
-    conveyingLyph;
-    type;
-    source;
-    target;
-
-    constructor(id) {
-        super(id);
-        this.infoFields.text.push('length', 'type');
-        this.infoFields.objects.push('source', 'target', 'conveyingLyph');
-        //[this.source, this.target] = tracePropAccess(this, ['source', 'target']);
-    }
-
-    toJSON() {
-        let res = super.toJSON();
-        res.source = this.source && this.source.id;
-        res.target = this.target && this.target.id;
-        res.type   = this.type;
-        res.length = this.length;
-        res.conveyingLyph = this.conveyingLyph && this.conveyingLyph.id;
-        return res;
-    }
-
-    static fromJSON(json, modelClasses = {}) {
-        json.class = json.class || "Link";
-        let result = super.fromJSON(json, modelClasses);
-        result = tracePropAccess(result, ['source', 'target']);
-        result::assign(json);
-        return result;
-    }
-
+export class Link extends Entity {
     // /**
     //  * @param tree
     //  * @returns {number} link's level in the tree
@@ -146,8 +115,10 @@ export class LinkModel extends Model {
         if (this.conveyingLyph) {
             this.conveyingLyph.axis = this;
             this.conveyingLyph.createViewObjects(state);
+            // Note: we do not make conveying lyphs children of links to include them to the scene
+            // because we want to have them in the main scene for highlighting
+            // TODO Revise the highlighting to be able to highlight any inner object
             this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
-
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
             if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
         }

@@ -1,19 +1,12 @@
-import { Model } from './model';
-import { assign } from 'lodash-bound';
+import { Entity } from './entityModel';
+import { values } from 'lodash-bound';
 import {LINK_TYPES} from './linkModel';
 import {NODE_TYPES} from './nodeModel';
 
-export class GraphModel extends Model {
+export class Graph extends Entity {
     _nodes: [];
     _links: [];
-    //coalescences: [];
-
-    static fromJSON(json, modelClasses = {}) {
-        json.class = json.class || "Graph";
-        const result = super.fromJSON(json, modelClasses);
-        result::assign(json); //TODO pick only valid properties
-        return result;
-    }
+    _lyphs: [];
 
     getNodeByID(id){
         return this._nodes.find(node => node.id === id);
@@ -96,12 +89,12 @@ export class GraphModel extends Model {
         //Draw all graph nodes, except for invisible nodes (node.type === CONTROL)
         this._nodes.filter(node => !node.hidden).forEach(node => {
             node.createViewObjects(state);
-            Object.values(node.viewObjects).forEach(obj => state.graphScene.add(obj));
+            node.viewObjects::values().forEach(obj => state.graphScene.add(obj));
         });
 
         this._links.forEach(link => {
             link.createViewObjects(state);
-            Object.values(link.viewObjects).forEach(obj => state.graphScene.add(obj));
+            link.viewObjects::values().forEach(obj => state.graphScene.add(obj));
             if (link.type === LINK_TYPES.BORDER){
                 link.viewObjects["main"].material.visible = false;
             }

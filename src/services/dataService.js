@@ -1,9 +1,8 @@
-import { modelClasses} from '../models/utils';
-import { LinkModel, LINK_TYPES }    from '../models/linkModel';
-import { NodeModel, NODE_TYPES }    from '../models/nodeModel';
-import { LyphModel } from '../models/lyphModel';
-import { GraphModel } from '../models/graphModel';
-
+import { Link, LINK_TYPES }    from '../models/linkModel';
+import { Node, NODE_TYPES }    from '../models/nodeModel';
+import { Lyph } from '../models/lyphModel';
+import { Graph } from '../models/graphModel';
+import { assign, keys } from 'lodash-bound';
 import { schemePaired, schemeDark2} from 'd3-scale-chromatic';
 
 const colors = [...schemePaired, schemeDark2];
@@ -20,7 +19,7 @@ export class DataService {
     entitiesById = {};
 
     constructor(){
-        this._graphData = GraphModel.fromJSON({}, modelClasses);
+        this._graphData = Graph.fromJSON({});
         this._lyphs = [];
         this._coalescences = [];
     }
@@ -87,10 +86,10 @@ export class DataService {
         ependymal.nodes.forEach(node => { coreGraphData.nodes.push(node); });
         ependymal.links.forEach((link, i) => { coreGraphData.links.push(link); });
 
-        this._graphData.nodes = coreGraphData.nodes.map(node => NodeModel.fromJSON(node, modelClasses));
+        this._graphData.nodes = coreGraphData.nodes.map(node => Node.fromJSON(node::assign({"charge": 5})));
         this._graphData.links = coreGraphData.links.map(link => {
-            if (link.type !== LINK_TYPES.AXIS) { link.linkMethod = "Line2" };
-            return LinkModel.fromJSON(link, modelClasses)
+            if (link.type !== LINK_TYPES.AXIS) { link.linkMethod = "Line2" }
+            return Link.fromJSON(link)
         });
     }
 
@@ -104,13 +103,13 @@ export class DataService {
                 coalescingLinks.forEach((link2, j) => {
                     if (i === j) { return; }
                     ["source", "target"].forEach(end => {
-                        this._graphData.links.push(LinkModel.fromJSON({
+                        this._graphData.links.push(Link.fromJSON({
                             "id"    : (this._graphData.links.length + 1).toString(),
                             "source": link1[end],
                             "target": link2[end],
                             "length": 0.1,
                             "type": LINK_TYPES.COALESCENCE
-                        }, modelClasses));
+                        }));
                     });
                })
             });
@@ -121,7 +120,7 @@ export class DataService {
         addColor(this._lyphs);
 
         //Create lyph models from their json definitions
-        this._lyphs = this._lyphs.map(lyph => LyphModel.fromJSON(lyph, modelClasses));
+        this._lyphs = this._lyphs.map(lyph => Lyph.fromJSON(lyph));
 
         //Replace layer ids with lyph models
         this._lyphs.filter(lyph => lyph.layers).forEach(lyph => {
@@ -142,10 +141,9 @@ export class DataService {
 
         //Map initial positional constraints to match the scaled image
         this._graphData.nodes.forEach(node =>
-            Object.keys(node.layout).forEach(key => {node.layout[key] *= scaleFactor; }));
+            node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
 
         this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor);
-
         console.log("Graph", this._graphData);
     }
 

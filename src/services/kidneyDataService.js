@@ -1,9 +1,9 @@
 import { lyphs } from '../data/kidney-lyphs.json';
 import { ependymal, trees } from '../data/kidney-mapping.json';
 
-import { modelClasses } from '../models/utils';
-import { NodeModel, NODE_TYPES } from '../models/nodeModel';
-import { LinkModel, LINK_TYPES } from '../models/linkModel';
+import { Node, NODE_TYPES } from '../models/nodeModel';
+import { Link, LINK_TYPES } from '../models/linkModel';
+import { entries, keys, values} from 'lodash-bound';
 
 import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
@@ -41,16 +41,16 @@ export class KidneyDataService extends DataService{
 
         //Assign central nervous system lyphs to corresponding edges
         let maxLayers = 0;
-        Object.keys(ependymal).forEach(linkID => {
+        ependymal::entries().forEach(([linkID, lyphID]) => {
             let link = this._graphData.getLinkByID(linkID);
             link.conveyingLyph = ependymal[linkID];
-            let ependymalLyph = this._lyphs.find(lyph => lyph.id === ependymal[linkID]);
+            let ependymalLyph = this._lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph.color = "#aaa";
             link.lyphScale = { width: 1.5 * ependymalLyph.layers.length, height: 2 };
             maxLayers = Math.max(maxLayers, ependymalLyph.layers.length);
         });
-        Object.keys(ependymal).forEach(linkID => {
-            let ependymalLyph = this._lyphs.find(lyph => lyph.id === ependymal[linkID]);
+        ependymal::entries().forEach(([linkID, lyphID]) => {
+            let ependymalLyph = this._lyphs.find(lyph => lyph.id === lyphID);
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
         });
 
@@ -65,17 +65,17 @@ export class KidneyDataService extends DataService{
                 if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
 
                 let [sNode, tNode] = ["s", "t"].map(prefix =>
-                    NodeModel.fromJSON({
+                    Node.fromJSON({
                         "id"       : `${prefix}${innerLyphID}`,
                         "name"     : `${prefix}${innerLyphID}`,
                         "type"     : NODE_TYPES.BORDER,
                         "color"    : "#ccc",
                         "val"      : 0.1,
                         "skipLabel": true
-                    }, modelClasses));
+                    }));
                 [sNode, tNode].forEach(node => this._graphData.nodes.push(node));
 
-                let link = LinkModel.fromJSON({
+                let link = Link.fromJSON({
                     "id"            : (this._graphData.links.length + 1).toString(),
                     "source"        : sNode,
                     "target"        : tNode,
@@ -83,7 +83,7 @@ export class KidneyDataService extends DataService{
                     "type"          : LINK_TYPES.BORDER,
                     "color"         : "#ccc",
                     "conveyingLyph" : innerLyphID
-                }, modelClasses);
+                });
 
                 //TODO create model for a selected group of entities
                 innerLyph.groups = [{"name": "Neurons", "class": "Group"}];
@@ -98,20 +98,20 @@ export class KidneyDataService extends DataService{
                 let [sNode, tNode] = [s, t].map(containerLyphID => {
                     let containerLyph = this._lyphs.find(lyph => lyph.id === containerLyphID);
                     if (containerLyph.internalNodes){ return containerLyph.internalNodes[0]; }
-                    let centerNode = NodeModel.fromJSON({
+                    let centerNode = Node.fromJSON({
                         "id"    : `center${containerLyphID}`,
                         "belongsToLyph" : containerLyph,
                         "type"  : NODE_TYPES.CENTER,
                         "color" : "#666",
                         "val"   : 0.5,
                         "skipLabel": true
-                    }, modelClasses);
+                    });
                     containerLyph.internalNodes = [centerNode];
                     this._graphData.nodes.push(centerNode);
                     return centerNode;
                 });
 
-                let link = LinkModel.fromJSON({
+                let link = Link.fromJSON({
                     "id"       : (this._graphData.links.length + 1).toString(),
                     "source"   : sNode,
                     "target"   : tNode,
@@ -119,13 +119,7 @@ export class KidneyDataService extends DataService{
                     "color"    : "#aaa",
                     "type"     : LINK_TYPES.LINK,
                     "strength" : 0
-                }, modelClasses);
-
-                //TODO remove after relationship proxy is written and tested
-                // sNode.links = sNode.links || [];
-                // tNode.links = tNode.links || [];
-                // sNode.links.push(link);
-                // tNode.links.push(link);
+                });
 
                 this._graphData.links.push(link);
             }
@@ -144,12 +138,12 @@ export class KidneyDataService extends DataService{
         };
 
         //Recolor vascular tree lyphs to shades of red and red/purple
-        colorLyphs(Object.values(trees["Vascular"]["Arterial"]), interpolateReds);
-        colorLyphs(Object.values(trees["Vascular"]["Venous"])  , interpolateRdPu);
+        colorLyphs(trees["Vascular"]["Arterial"]::values(), interpolateReds);
+        colorLyphs(trees["Vascular"]["Venous"]::values()  , interpolateRdPu);
         //Recolor urinary lyphs to the shades of green (or purple)
-        colorLyphs(Object.values(trees["Urinary"])  , interpolateGreens);
+        colorLyphs(trees["Urinary"]::values(), interpolateGreens);
         //Recolor connector lyphs in the shades of ornage
-        colorLyphs(Object.values(trees["Connector"]), interpolateOranges);
+        colorLyphs(trees["Connector"]::values(), interpolateOranges);
 
         //Add an extra node to correctly end the Urinary tree
         hosts["7"].trees[0].lyphs["end1"] = 0;
@@ -157,18 +151,17 @@ export class KidneyDataService extends DataService{
 
         const offsets = {"500": 0.25, "510": 0.65, "700": 0.25};
         //Omega tree nodes
-        Object.keys(hosts).forEach((host) => {
+        hosts::keys().forEach((host) => {
             //let hostLink = this._graphData.getLinkByID(host);
             hosts[host].trees.forEach((tree, i) => {
-                let lyphKeys = Object.keys(tree.lyphs);
-                lyphKeys.forEach((key, j) => {
-                    let node = NodeModel.fromJSON({
+                tree.lyphs::keys().forEach((key, j) => {
+                    let node = Node.fromJSON({
                         "id"       : `${host}${i}${j}`,
                         "host"     : host,
                         "isRoot"   : (j === 0),
                         "type"     : NODE_TYPES.OMEGA,
                         "color"    : hosts[host].color
-                    },  modelClasses);
+                    });
 
                     // Explicitly define position of the root node on the hosting link:
                     // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
@@ -179,10 +172,10 @@ export class KidneyDataService extends DataService{
             });
             //Create links for generated omega tree
             hosts[host].trees.forEach((tree, i) => {
-                const NUM_LEVELS = Object.keys(tree.lyphs).length;
-                Object.keys(tree.lyphs).forEach((key, j) => {
+                const NUM_LEVELS = tree.lyphs::keys().length;
+                tree.lyphs::keys().forEach((key, j) => {
                     if (j === NUM_LEVELS - 1) { return; }
-                    let link = LinkModel.fromJSON({
+                    let link = Link.fromJSON({
                         "id"            : (this._graphData.links.length + 1).toString(),
                         "source"        : this._graphData.getNodeByID(`${host}${i}${j}`),
                         "target"        : this._graphData.getNodeByID(`${host}${i}${j + 1}`),
@@ -192,7 +185,7 @@ export class KidneyDataService extends DataService{
                         "conveyingLyph" : tree.lyphs[key],
                         "color"         : hosts[host].color,
                         "linkMethod"    : "Line2"
-                    }, modelClasses);
+                    });
                     this._graphData.links.push(link);
                 });
             })
@@ -201,19 +194,19 @@ export class KidneyDataService extends DataService{
         //Connect leaves of two omega trees between nodes 506 and 515
         const CONNECTOR_COLOR = "#ff44ff";
         ["H", "I", "J"].forEach((key, i) => {
-            this._graphData.nodes.push(NodeModel.fromJSON({
+            this._graphData.nodes.push(Node.fromJSON({
                 "id"   : `57${i}`,
                 "type" : NODE_TYPES.OMEGA,
-                "color": CONNECTOR_COLOR}, modelClasses)
+                "color": CONNECTOR_COLOR})
             );
         });
 
         const connector = ["505", "570", "571", "572", "515"];
-        const connectorLyphs  = Object.values(trees["Connector"]);
-        const connectorLabels = Object.keys(trees["Connector"]);
+        const connectorLyphs  = trees["Connector"]::values();
+        const connectorLabels = trees["Connector"]::keys();
 
         for (let i = 0 ; i < connector.length - 1; i++){
-            this._graphData.links.push(LinkModel.fromJSON({
+            this._graphData.links.push(Link.fromJSON({
                 "id"           : (this._graphData.links.length + 1).toString(),
                 "source"       : this._graphData.getNodeByID(connector[i]),
                 "target"       : this._graphData.getNodeByID(connector[i + 1]),
@@ -223,7 +216,7 @@ export class KidneyDataService extends DataService{
                 "conveyingLyph": connectorLyphs[i],
                 "color"        : CONNECTOR_COLOR,
                 "linkMethod"   : "Line2"
-            }, modelClasses));
+            }));
         }
 
         //Coalescences defined as lyph groups
@@ -231,17 +224,17 @@ export class KidneyDataService extends DataService{
 
         //Add link from center to the center of mass for a coalescence group
         let [kNode, lNode] = ["k", "l"].map((name, i) =>
-            NodeModel.fromJSON({
+            Node.fromJSON({
                 "id"     : name,
                 "name"   : name,
                 "type"   : NODE_TYPES.FIXED,
                 "hidden" : true,
                 "layout" : {x: 0, y: (i === 0)? 0: 70, z: 25}
-            }, modelClasses)
+            })
         );
         [kNode, lNode].forEach(node => this._graphData.nodes.push(node));
 
-        let containerLink = LinkModel.fromJSON({
+        let containerLink = Link.fromJSON({
             "id"        : (this._graphData.links.length + 1).toString(),
             "source"    : kNode,
             "target"    : lNode,
@@ -249,7 +242,7 @@ export class KidneyDataService extends DataService{
             "length"    : 50,
             "lyphScale" : 4,
             "conveyingLyph"  : "5" // "1"
-        }, modelClasses);
+        });
         this._graphData.links.push(containerLink);
 
         let containerLyph = this._lyphs.find(lyph => lyph.id === "5");

@@ -87,6 +87,9 @@ export function align(axis, obj){
 }
 
 export function direction({source, target}){
+    if (!source || !target) {
+        return null;
+    }
     return (new THREE.Vector3(
         target.x - source.x,
         target.y - source.y,

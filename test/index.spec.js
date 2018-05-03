@@ -16,7 +16,7 @@ describe("the open-physiology-viewer", () => {
 	});
 	
 	it("can test things", () => {
-		expect(true).to.be.truthy;
+		//expect(false).to.be.truthy;
 	});
 
 	afterEach(() => {

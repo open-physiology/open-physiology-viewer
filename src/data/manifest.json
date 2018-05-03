@@ -18,7 +18,7 @@
         "color": {
           "type": "String:Color",
           "modality": "0..1",
-          "default": "#ccc"
+          "default": "#666"
         },
         "external": {
           "type": "String:ID",
@@ -26,19 +26,21 @@
         },
         "viewObjects": {
           "type": "Object:Map",
-          "modality": "0..1"
+          "modality": "0..1",
+          "default": {}
         },
         "material": {
           "type": "Object:Visual",
           "modality": "0..1"
         },
         "labels": {
-          "type": "Object:Map"
+          "type": "Object:Map",
+          "default": {}
         },
         "infoFields": {
           "type": "Object:Map",
           "modality": "0..1",
-          "value": {
+          "default": {
             "text"   : ["id", "class", "name", "external"],
             "objects": [],
             "lists"  : []
@@ -53,7 +55,8 @@
         "isRoot": { "type": "Boolean", "modality": "0..1" },
         "layout": { "type": "Object:Map", "modality": "0..1" },
         "type"  : { "type": "String:Enum", "modality": "1" },
-        "val"   : { "type": "Number", "modality": "0..1" , "default": 3},
+        "val"   : { "type": "Number", "modality": "0..1" , "default": 1},
+        "links" : { "type": "Object:Map", "modality": "0..*", "default": []},
         "infoFields": {
           "extends": "Entity:infoFields",
           "modality": "0..1",
@@ -62,13 +65,16 @@
         "x": {"type": "Number", "modality": "0..1" },
         "y": {"type": "Number", "modality": "0..1" },
         "z": {"type": "Number", "modality": "0..1" },
-        "offset": {"type": "Number", "modality": "0..1"}
+        "offset" : {"type": "Number", "modality": "0..1"},
+
+        "charge" : {"type": "Number", "modality": "0..1", "default": 0},
+        "collide": {"type": "Number", "modality": "0..1", "default": 0}
       }
     },
     "Link"  : {
       "extends": "Entity",
       "properties" : {
-        "source": {"type": "Node", "modality": "1" },
+        "source": {"type": "Node", "modality": "1"},
         "target": {"type": "Node", "modality": "1" },
         "length": {"type": "Number", "modality": "1", "default": 1 },
         "conveyingLyph": {"type": "String:ID|Lyph"},
@@ -91,7 +97,7 @@
         "layers"  : {"type": "String:ID|Lyph", "modality": "0..*"},
         "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"},
         "topology": {},
-        "border"  : {},
+        "border"  : {"type": "Object:Map", "modality": "1", "default": {}},
         "infoFields": {
           "extends" : "Entity:infoFields",
           "default" :{
