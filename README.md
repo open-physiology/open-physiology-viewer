@@ -8,7 +8,10 @@ Physiology deals with the body in terms of anatomical compartments that delineat
 * a method to build knowledge representations of physiology processes in terms of  biophysical entities and physical operations over these entities.
 
 The current project aims at visualizing ApiNATOMY schematic physiology processes in 3d. It will provide a lyph-based graph viewer that will become part of the [NIH-SPARC](https://commonfund.nih.gov/sparc) [MAP-CORE](https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432) toolset.
-This [demo](http://open-physiology.org/demo/open-physiology-viewer/kidney/app/index.html) shows an early prototype featuring a  Kidney Lobus scenario (presented at the [SPARC Annual Awardee Meeting](https://ww2.eventrebels.com/er/EventHomePage/CustomPage.jsp?ActivityID=24712&ItemID=86668) in April 5-7, 2018).
+This [demo](http://open-physiology.org/demo/open-physiology-viewer/kidney/app/index.html) shows 
+an early prototype featuring a Kidney Lobus scenario (presented at the [SPARC Annual Awardee Meeting](https://ww2.eventrebels.com/er/EventHomePage/CustomPage.jsp?ActivityID=24712&ItemID=86668) in April 5-7, 2018).
+A more elaborated [demo](http://open-physiology.org/demo/open-physiology-viewer/neural/index.html)
+displays parts of neural system (May 3, 2018). 
 
 ## Build instructions
 * Install  [Node.js](https://nodejs.org/).    
