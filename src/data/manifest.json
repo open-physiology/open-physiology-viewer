@@ -58,9 +58,9 @@
         "val"   : { "type": "Number", "modality": "0..1" , "default": 1},
         "links" : { "type": "Object:Map", "modality": "0..*", "default": []},
         "infoFields": {
-          "extends": "Entity:infoFields",
+          "extends" : "Entity:infoFields",
           "modality": "0..1",
-          "default": {"text": ["host", "type"]}
+          "default" : {}
         },
         "x": {"type": "Number", "modality": "0..1" },
         "y": {"type": "Number", "modality": "0..1" },

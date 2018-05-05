@@ -180,7 +180,7 @@ export class KidneyDataService extends DataService{
                         "source"        : this._graphData.getNodeByID(`${host}${i}${j}`),
                         "target"        : this._graphData.getNodeByID(`${host}${i}${j + 1}`),
                         "external"      : key,
-                        "length"        : 2,
+                        "length"        : (host==="5")? 2: 1,
                         "type"          : LINK_TYPES.LINK,
                         "conveyingLyph" : tree.lyphs[key],
                         "color"         : hosts[host].color,

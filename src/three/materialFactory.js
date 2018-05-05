@@ -34,7 +34,7 @@ export class MaterialFactory {
     createLine2Material(params = {}){
         let p = Object.assign({}, this.defaultParams, params);
         p.color = colorStr2Hex(p.color);
-        p.linewidth = p.linewidth || 0.002;
+        p.linewidth = p.linewidth || 0.003;
         return new THREE.LineMaterial(p);
     }
 

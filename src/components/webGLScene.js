@@ -25,104 +25,101 @@ import {ModelInfoPanel} from './modelInfo';
 @Component({
     selector: 'webGLScene',
     template: `
-        <section class="w3-row">
-            <section id="canvasContainer" class="w3-threequarter">
-                <canvas #canvas></canvas>
+        <section id="viewPanel" class="w3-row">
+            <section id="canvasContainer" class="w3-twothird">
+                <section class="w3-padding-right">
+                    <canvas #canvas class="w3-card w3-round"></canvas>
+                </section>
             </section>
-            <section stop-propagation class="w3-quarter">
-                <section class="w3-content">
-                    <fieldset>
-                        <legend>Labels:</legend>
-                        <input type="checkbox" name="node_label" (change)="toggleNodeLabels()" checked/> Node
-                        <input type="checkbox" name="link_label" (change)="toggleLinkLabels()"/> Link
-                        <input type="checkbox" name="lyph_label" (change)="toggleLyphLabels()"/> Lyph
+            <section id="settingsPanel" stop-propagation class="w3-third">
+                <section class="w3-padding">
+                    <section class="w3-bar w3-grey">
+                        <span class="w3-bar-item">Control Panel</span>
+                        <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="update()">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </section>
 
-                        <fieldset [disabled]="!_showNodeLabels">
-                            <legend>Node label:</legend>
-                            <input type="radio" name="node_label"
+                    <fieldset class="w3-card w3-round w3-margin">
+                        <legend>Labels</legend>
+                        <input type="checkbox" class="w3-check" name="node_label" (change)="toggleNodeLabels()" checked/> Node
+                        <input type="checkbox" class="w3-check" name="link_label" (change)="toggleLinkLabels()"/> Link
+                        <input type="checkbox" class="w3-check" name="lyph_label" (change)="toggleLyphLabels()"/> Lyph
+
+                        <fieldset *ngIf="_showNodeLabels" class="w3-round">
+                            <legend>Node label</legend>
+                            <input type="radio" class="w3-radio" name="node_label"
                                    (change)="updateLabelContent('node', 'id')" checked/> Id
-                            <input type="radio" name="node_label"
+                            <input type="radio" class="w3-radio" name="node_label"
                                    (change)="updateLabelContent('node', 'name')"/> Name
-                            <input type="radio" name="node_label"
+                            <input type="radio" class="w3-radio" name="node_label"
                                    (change)="updateLabelContent('node', 'external')"/> External
                         </fieldset>
 
-                        <fieldset [disabled]="!_showLinkLabels">
-                            <legend>Link label:</legend>
-                            <input type="radio" name="link_label"
+                        <fieldset *ngIf="_showLinkLabels" class="w3-round">
+                            <legend>Link label</legend>
+                            <input type="radio" class="w3-radio" name="link_label"
                                    (change)="updateLabelContent('link', 'id')" checked/> Id
-                            <input type="radio" name="link_label"
+                            <input type="radio" class="w3-radio" name="link_label"
                                    (change)="updateLabelContent('link', 'name')"/> Name
-                            <input type="radio" name="link_label"
+                            <input type="radio" class="w3-radio" name="link_label"
                                    (change)="updateLabelContent('link', 'external')"/> External
                         </fieldset>
 
-                        <fieldset [disabled]="!_showLyphLabels">
-                            <legend>Lyph label:</legend>
-                            <input type="radio" name="lyph_label"
+                        <fieldset *ngIf="_showLyphLabels" class="w3-round">
+                            <legend>Lyph label</legend>
+                            <input type="radio" class="w3-radio" name="lyph_label"
                                    (change)="updateLabelContent('lyph', 'id')" checked/> Id
-                            <input type="radio" name="lyph_label"
+                            <input type="radio" class="w3-radio" name="lyph_label"
                                    (change)="updateLabelContent('lyph', 'name')"/> Name
-                            <input type="radio" name="lyph_label"
+                            <input type="radio" class="w3-radio" name="lyph_label"
                                    (change)="updateLabelContent('lyph', 'external')"/> External
                         </fieldset>
                     </fieldset>
 
-
-                    <fieldset>
-                        <legend>Lyphs:</legend>
-                        <input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                        <input [disabled]="!_showLyphs"
-                               type="checkbox" name="layers" (change)="toggleLayers()" checked/> Layers
-
-                        <!--<fieldset [disabled]="!_showLyphs">-->
-                            <!--<legend>Lyph icon:</legend>-->
-                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D-->
-                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D-->
-                        <!--</fieldset>-->
+                    <fieldset class="w3-card w3-round w3-margin">
+                        <legend>Layout</legend>
+                        <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
+                        <span *ngIf="_showLyphs" >
+                            <input type="checkbox" class="w3-check" name="layers" (change)="toggleLayers()"
+                                   [checked]="_showLayers"/> Layers
+                        </span>
+                        <br/>
+                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideTrees')"/> Omega trees
+                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideCoalescences')"/> Coalescences
+                        <br/>
+                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideContainers')"/> Container lyphs
+                        <br/>
+                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
+                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideNeurons')"/> Neurons
                     </fieldset>
 
-                    <!--<fieldset>-->
-                        <!--<legend>Dimensions:</legend>-->
-                        <!--<input type="radio" name="num_dimensions" (change)="toggleDimensions(2)" checked/> 2D-->
-                        <!--<input type="radio" name="num_dimensions" (change)="toggleDimensions(3)"/> 3D-->
-                    <!--</fieldset>-->
-
-                    <fieldset>
-                        <legend>Show:</legend>
-                        <input type="checkbox" name="switch" (change)="toggleGroup('hideTrees')"/> Omega trees
-                        <input type="checkbox" name="switch" (change)="toggleGroup('hideCoalescences')"/> Coalescences
-                        <input type="checkbox" name="switch" (change)="toggleGroup('hideContainers')"/> Container lyphs
-                        <input type="checkbox" name="switch" (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
-                        <input type="checkbox" name="switch" (change)="toggleGroup('hideNeurons')" [disabled]="_hideNeural"/> Neurons
+                    <fieldset class="w3-card w3-round w3-margin">
+                        <legend>Helpers</legend>
+                        <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid x-y
+                        <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-z'])"/> Grid x-z
+                        <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
 
-                    <fieldset>
-                        <legend>Helpers:</legend>
-                        <input type="checkbox" name="planes" (change)="togglePlanes(['x-y'])"/> Grid x-y
-                        <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
-                        <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
-                    </fieldset>
-
-                </section>
-
-                <section class="w3-padding-top" style="padding-right: 3px;">
-                    <button class="w3-button w3-card w3-right w3-light-grey" (click)="update()">Update</button>
-                </section>
-                <section class="w3-clear">
-                </section>
-
-                <section class="w3-content w3-padding-top">
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
+
                 </section>
 
             </section>
         </section>
     `,
     styles: [`
-        canvas {
-            width:  100%;
-            height:  100%;
+        :host >>> fieldset { 
+            border:1px solid grey;
+            margin-top: 2px;
+        }
+
+        :host >>> legend {
+            padding: 0.2em 0.5em;
+            border:1px solid grey;
+            color:grey;
+            font-size:90%;
+            text-align:right;
         }
         button:focus {outline:0 !important;}
     `]
@@ -155,7 +152,6 @@ export class WebGLSceneComponent {
      */
     @Output() highlightedItemChange = new EventEmitter();
 
-
     get graphData(){
         return this._graphData;
     }
@@ -180,24 +176,21 @@ export class WebGLSceneComponent {
         if (this.renderer) {return;} //already initialized
         //We start from switched off omega threes and container lyphs
         this._graphData.toggleLinks(this._hideLinks);
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+        this.renderer.setClearColor(0xffffff);
 
         this.canvasContainer = document.getElementById('canvasContainer');
-        this.width = this.canvasContainer.clientWidth;
+        this.width  = this.canvasContainer.clientWidth;
         this.height = this.canvasContainer.clientHeight;
-
-        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
-
-        this.renderer.setClearColor(0xffffff);
 
         this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
         this.camera.position.set(0, 100, 500);
+        this.camera.aspect = this.width / this.height;
 
         //this.controls = new TrackballControls(this.camera, container);
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.scene = new THREE.Scene();
-
-        this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
 
         // For resizing
@@ -231,14 +224,14 @@ export class WebGLSceneComponent {
         const width  = this.canvasContainer.clientWidth;
         const height = this.canvasContainer.clientHeight;
 
-        const dimension = function(){ return { width, height } };
+        const dimension = () => ({ width, height });
 
         if (force || canvas.width !== width || canvas.height !== height) {
             this.windowResize = new WindowResize(this.renderer, this.camera, dimension);
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
-            this.width = this.canvasContainer.clientWidth;
-            this.height = this.canvasContainer.clientHeight;
+            // this.width  = this.canvasContainer.clientWidth;
+            // this.height = this.canvasContainer.clientHeight;
             window.dispatchEvent(new Event('resize'));
         }
     }
@@ -443,13 +436,10 @@ export class WebGLSceneComponent {
 
     // Handle mouse move
     onMouseMove(evt) {
-        // calculate mouse position in normalized device coordinates
-        // (-1 to +1) for both components
-        this.mouse.x =   ( evt.clientX / this.width  ) * 2 - 1;
-        this.mouse.y = - ( evt.clientY / this.height ) * 2 + 1;
-
+        let rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ( ( evt.clientX - rect.left ) / ( rect.width - rect.left ) ) * 2 - 1;
+        this.mouse.y = - ( ( evt.clientY - rect.top ) / ( rect.bottom - rect.top) ) * 2 + 1;
         this.highlightSelected();
-
     }
 
     // Handle mouse click

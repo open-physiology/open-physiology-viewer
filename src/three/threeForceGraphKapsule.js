@@ -31,7 +31,7 @@ export default Kapsule({
         },
         nodeRelSize    : { default: 3 }, // volume per val unit
         nodeId         : { default: 'id' },
-        nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
+        nodeResolution : { default: 16 }, // how many slice segments in the sphere's circumference
         linkResolution : { default: 50 },
         linkMethod     : { default: 'Line2'}, //link rendering method
         showLyphs      : { default: true},

@@ -8,8 +8,17 @@ module.exports = [
 		test: /\.json$/,
 		loader: 'json-loader'
 	},
-	{
-		test: /icons[\/\\]\w+\.png$/,
-		loader: 'url-loader?limit=20000'
-	}
+    {
+    	test: /\.css$/,
+		loader: "style-loader!css-loader?importLoaders=1"
+    },
+    {
+    	test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+		loader: "url-loader"
+	},
+    {
+    	test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+		loader: "url-loader"
+    }
+
 ];

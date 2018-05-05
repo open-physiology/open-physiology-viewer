@@ -3,7 +3,8 @@ import {Component, Input} from '@angular/core';
 @Component({
     selector: 'modelInfoPanel',
     template: `
-        <section class="w3-container w3-border">
+        <fieldset class="w3-card w3-round w3-margin">
+            <legend>Highlighted</legend>
             <!--Text infoFields-->
             <section *ngFor="let property of model.infoFields?.text || []">
                 <section class="w3-half">
@@ -31,7 +32,7 @@ import {Component, Input} from '@angular/core';
                     </section>
                 </section>
             </section>
-        </section>
+        </fieldset>
     `
 })
 export class ModelInfoPanel {

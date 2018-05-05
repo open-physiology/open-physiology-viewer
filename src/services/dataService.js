@@ -68,14 +68,14 @@ export class DataService {
             ],
             links: [
                 //t-a
-                { "id": "2a", "source":  "t", "target": "t1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10, "reversed": true },
-                { "id": "2b", "source": "t1", "target": "t2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10, "reversed": true },
-                { "id": "2c", "source": "t2", "target":  "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  10, "reversed": true },
+                { "id": "2a", "source":  "t", "target": "t1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
+                { "id": "2b", "source": "t1", "target": "t2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
+                { "id": "2c", "source": "t2", "target":  "a", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
                 //a-h
-                { "id": "3a", "source":  "a", "target": "h1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
-                { "id": "3b", "source": "h1", "target": "h2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
-                { "id": "3c", "source": "h2", "target": "h3", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
-                { "id": "3d", "source": "h3", "target":  "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7, "reversed": true },
+                { "id": "3a", "source":  "a", "target": "h1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  5, "reversed": true },
+                { "id": "3b", "source": "h1", "target": "h2", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  5, "reversed": true },
+                { "id": "3c", "source": "h2", "target": "h3", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  5, "reversed": true },
+                { "id": "3d", "source": "h3", "target":  "h", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  5, "reversed": true },
                 //a-g
                 { "id": "3e", "source":  "a", "target": "g1", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 },
                 { "id": "3f", "source": "g1", "target":  "g", "name": "Ependymal", "type": LINK_TYPES.LINK, "length":  7 }
