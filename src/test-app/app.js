@@ -20,10 +20,9 @@ import 'font-awesome/css/font-awesome.css';
             <span class="w3-bar-item" title="Source code">
 				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"></i></a>
 			</span>
-            <span class="w3-bar-item w3-right" title="Project funding">
-				NIH-SPARC MAP-CORE 
+            <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
-					<i class="fa fa-external-link w3-margin-left"></i>
+					<i class="fa fa-external-link"></i>
 				</a>
 			</span>
             <span class="w3-bar-item w3-right" title="Learn more">
@@ -33,7 +32,7 @@ import 'font-awesome/css/font-awesome.css';
 		
 		<section style="margin-top:40px;"></section>
 	    <webGLScene [graphData]="_graphData"></webGLScene>
-		<section style="margin-bottom:10px;"></section>
+		<section class="w3-clear" style="margin-bottom:10px;"></section>
 	
 	       <!-- Footer -->
 		<footer class="w3-container w3-grey">

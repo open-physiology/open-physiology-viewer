@@ -32,7 +32,7 @@ import {ModelInfoPanel} from './modelInfo';
                 </section>
             </section>
             <section id="settingsPanel" stop-propagation class="w3-third">
-                <section class="w3-padding">
+                <section class="w3-padding-small">
                     <section class="w3-bar w3-grey">
                         <span class="w3-bar-item">Control Panel</span>
                         <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="update()">
@@ -40,7 +40,7 @@ import {ModelInfoPanel} from './modelInfo';
                         </button>
                     </section>
 
-                    <fieldset class="w3-card w3-round w3-margin">
+                    <fieldset class="w3-card w3-round">
                         <legend>Labels</legend>
                         <input type="checkbox" class="w3-check" name="node_label" (change)="toggleNodeLabels()" checked/> Node
                         <input type="checkbox" class="w3-check" name="link_label" (change)="toggleLinkLabels()"/> Link
@@ -77,7 +77,7 @@ import {ModelInfoPanel} from './modelInfo';
                         </fieldset>
                     </fieldset>
 
-                    <fieldset class="w3-card w3-round w3-margin">
+                    <fieldset class="w3-card w3-round">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
                         <span *ngIf="_showLyphs" >
@@ -94,7 +94,7 @@ import {ModelInfoPanel} from './modelInfo';
                         <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideNeurons')"/> Neurons
                     </fieldset>
 
-                    <fieldset class="w3-card w3-round w3-margin">
+                    <fieldset class="w3-card w3-round">
                         <legend>Helpers</legend>
                         <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid x-y
                         <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-z'])"/> Grid x-z
@@ -111,7 +111,7 @@ import {ModelInfoPanel} from './modelInfo';
     styles: [`
         :host >>> fieldset { 
             border:1px solid grey;
-            margin-top: 2px;
+            margin: 2px;
         }
 
         :host >>> legend {
