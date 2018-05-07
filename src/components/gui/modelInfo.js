@@ -16,7 +16,7 @@ import {Component, Input} from '@angular/core';
             <section *ngFor="let property of model.infoFields?.objects || []">
                 <section class="w3-half">
                     <label class="w3-label">{{property}}: </label>
-                    {{model[property]?.id || "?"}} - {{model[property]?.name || "?"}} 
+                    {{model[property]?.id || "?"}} - {{model[property]?.name || "?"}}
                     {{"(" + (model[property]?.class || "?") + ")"}}
                 </section>
             </section>

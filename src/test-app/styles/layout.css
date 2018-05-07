@@ -9,3 +9,7 @@ html, body{
 .w3-row{
   height: 100%;
 }
+
+.hide{
+  display: none;
+}

@@ -1,9 +1,11 @@
-import {NgModule, Component} from '@angular/core';
+import { NgModule, Component } from '@angular/core';
 import {BrowserModule}       from '@angular/platform-browser';
 import {WebGLSceneModule}    from '../components/webGLScene';
 
 import '../libs/provide-rxjs.js';
 import {KidneyDataService} from '../services/kidneyDataService';
+import {OntologyNameDataService} from '../services/ontologyNameDataService';
+
 import 'font-awesome/css/font-awesome.css';
 
 @Component({
@@ -29,11 +31,11 @@ import 'font-awesome/css/font-awesome.css';
 				<a href="http://open-physiology.org/"><i class="fa fa-home"></i></a>
             </span>
         </header>
-		
+
 		<section style="margin-top:40px;"></section>
-	    <webGLScene [graphData]="_graphData"></webGLScene>
+	    <webGLScene [graphData]="_graphData" [ontologyNames]="_ontologyNames"></webGLScene>
 		<section class="w3-clear" style="margin-bottom:10px;"></section>
-	
+
 	       <!-- Footer -->
 		<footer class="w3-container w3-grey">
             <span class="w3-right">
@@ -43,18 +45,22 @@ import 'font-awesome/css/font-awesome.css';
 				<i class="fa fa-envelope w3-padding-small"></i>bernard.de.bono@gmail.com
 			</span>
         </footer>
-
 	`
 })
 export class TestApp {
     _kidneyDataService;
     _graphData;
+		_ontologyNames;
 
     constructor(){
         this._kidneyDataService = new KidneyDataService();
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
+
+				this._ontologyNameDataService = new OntologyNameDataService(this._graphData);
+				this._ontologyNames = this._ontologyNameDataService._ontologyNames;
     }
+
 }
 
 /**
