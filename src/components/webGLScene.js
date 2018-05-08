@@ -31,8 +31,6 @@ import { SelectNameSearchBar } from './gui/selectNameSearchBar';
 @Component({
     selector: 'webGLScene',
     template: `
-
-
         <section id="viewPanel" class="w3-row">
             <section id="canvasContainer" class="w3-twothird">
                 <section class="w3-padding-right">
@@ -103,8 +101,8 @@ import { SelectNameSearchBar } from './gui/selectNameSearchBar';
                         <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin">
-                        <legend>Select Name:</legend>
-                        <selectNameSearchBar [selectedName]="_selectedName" [namesAvailable]="_namesAvailable" (selectedBySearchEvent)="handleSelectedLyphEvent($event)"></selectNameSearchBar>
+                        <legend>Select Name</legend>
+                        <selectNameSearchBar [selectedName]="_selectedName" [namesAvailable]="_namesAvailable" (selectedBySearchEvent)="handleSelectedLyphEvent($event)" (highlightedByHoverEvent)="handleSearchHighlighted($event)" (unhighlightedByUnhoverEvent)="handleSearchUnhighlighted($event)"></selectNameSearchBar>
                     </fieldset>
                     <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
                 </section>
@@ -174,7 +172,7 @@ export class WebGLSceneComponent {
     }
 
     constructor() {
-      this._showLyphs  = true;
+       this._showLyphs  = true;
        this._showLayers = true;
        this._showNodeLabels = true;
        this._showLinkLabels = false;
@@ -235,7 +233,6 @@ export class WebGLSceneComponent {
     createEventListeners(){
       window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
       window.addEventListener( 'mousedown', evt => this.onMouseDown(evt), false );
-
       window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
     }
 
@@ -321,8 +318,42 @@ export class WebGLSceneComponent {
         this.graph.numDimensions(this._numDimensions);
     }
 
+
+    // Handle incoming Events
+    // after selecting a 'name' from drop bar -- find in graph and highlight
+    handleSelectedLyphEvent( namedItem ) {
+      console.log("handleSelectedLyphEvent: ", namedItem);
+      let lyphToHighlight = this.getLyphByName( namedItem );
+      if (namedItem != this._selectedName){
+        if (lyphToHighlight){
+          this._selectedName = namedItem
+          console.log("this._selectedName: ", this._selectedName);
+          this._selectedLyph = lyphToHighlight;
+          this.unhighlightThenHighlight( lyphToHighlight );
+        }
+      }
+    }
+
+    handleSearchUnhighlighted( hoveredName ){
+      let objectToUnhighlight = this.getLyphByName( hoveredName );
+
+      if (objectToUnhighlight) this.unhighlightObject( objectToUnhighlight );
+
+    }
+
+    handleSearchHighlighted( unhoveredName ){
+      if (unhoveredName != this.highlightedName){
+        let highlightColor = 0xff0000;
+        let objToHighlight = this.getLyphByName( unhoveredName );
+
+        if (objToHighlight) this.highlightObject( objToHighlight, highlightColor );
+      }
+
+    }
+
+
     getLyphByName(name){
-      let useLayer;
+      let useLayer; // in the instance the sort lyph is a layer
       let lyphToSelect = this.graph.children.filter(child =>
       {
         if (child.__data){
@@ -339,13 +370,14 @@ export class WebGLSceneComponent {
           }
         }
       });
-      if (lyphToSelect[0]) return lyphToSelect[0];
+      if (lyphToSelect[0]) return lyphToSelect[0]; // return lyph if it was a whole lyph
 
-      if (useLayer) return useLayer;
+      if (useLayer) return useLayer; // return lyph if it was a layer
 
       return undefined;
     }
 
+    // Also search internally for internal layers
     getMousedOverObject(  ){
       let mousedOverObject = null;
       let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
@@ -369,42 +401,45 @@ export class WebGLSceneComponent {
 
             // check if lyphmodel, then make highlight object a layer
             if (mousedOverObject.objName == Lyph.name){
-                // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
+              // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
 
-                let layerMeshes = [];
-                // Get layer meshes within lyph
-                if (intersects[0].object.__data.layers){
-                  intersects[0].object.__data.layers.forEach(layer => { layerMeshes.push(layer.viewObjects.lyphs["2d"]) });
+              let layerMeshes = [];
+              // Get layer meshes within lyph
+              if (intersects[0].object.__data.layers){
+                intersects[0].object.__data.layers.forEach(layer => { layerMeshes.push(layer.viewObjects.lyphs["2d"]) });
 
-                  // Find layer with which mouse is hovering over.
-                  let layerIntersects = ray.intersectObjects( layerMeshes );
+                // Find layer with which mouse is hovering over.
+                let layerIntersects = ray.intersectObjects( layerMeshes );
 
-                  // If layer was found, make it the highlighted item
-                  if (layerIntersects.length > 0){
-                    mousedOverObject = layerIntersects[0].object;
-                  }
+                // If layer was found, make it the highlighted item
+                if (layerIntersects.length > 0){
+                  mousedOverObject = layerIntersects[0].object;
                 }
+              }
             }
           }
-
       }
       return mousedOverObject;
     }
-
-
 
     // Highlight a webgl object
     highlightObject( objectToHighlight, highlightColor){
 
       // store color of closest object (for later restoration)
-      objectToHighlight.currentHex = objectToHighlight.material.color.getHex();
-      (objectToHighlight.children || []).forEach(child => {
-        // if (child.visible && child.material){    ||| not sure if the visible part is necessary
-          if (child.material){
-              child.currentHex = child.material.color.getHex();
+      if ( objectToHighlight ){
+        if ( objectToHighlight.__data ){
+          if ( objectToHighlight.__data.name != this._selectedName ){
+            objectToHighlight.currentHex = objectToHighlight.material.color.getHex();
+            (objectToHighlight.children || []).forEach(child => {
+              // if (child.visible && child.material){    ||| not sure if the visible part is necessary
+                if (child.material){
+                    child.currentHex = child.material.color.getHex();
 
+                }
+            });
           }
-      });
+        }
+      }
 
 
       // set a new color for closest object
@@ -418,6 +453,8 @@ export class WebGLSceneComponent {
       });
 
       this.highlightedItemChange.emit(objectToHighlight);
+
+      this.highlightedName = objectToHighlight.__data.name;
 
       return objectToHighlight;
 
@@ -456,21 +493,11 @@ export class WebGLSceneComponent {
     // }
 
 
-    // after selected a 'name' from drop bar -- find in graph and highlight
-    handleSelectedLyphEvent( namedItem ) {
 
-      let lyphToHighlight = this.getLyphByName( namedItem );
-      if (lyphToHighlight){
-        this._selectedName = namedItem;
-        this._selectedLyph = lyphToHighlight;
-        this.unhighlightThenHighlight( lyphToHighlight );
-      }
-    }
 
 
     // handle unhighlighting and highlighting
     unhighlightThenHighlight( objToHighlight ){
-      // check whether we have a 'selected item' and change highlight color accordingly.
       let highlightColor = 0xff0000;
 
       // First unhighlight previously highlighted
@@ -491,6 +518,7 @@ export class WebGLSceneComponent {
         this._highlighted = this.unhighlightObject( this._highlighted );
 
         // To handle "selected" lyphs green colouring
+        // check whether we have a 'selected item' and change highlight color accordingly.
         if (this._selectedLyph && objToHighlight.__data) {
           if (this._selectedLyph.__data){
             if (this._selectedLyph.__data.name == objToHighlight.__data.name) {
@@ -501,9 +529,7 @@ export class WebGLSceneComponent {
 
         this._highlighted = this.highlightObject( objToHighlight, highlightColor);
       }
-
     }
-
 
     // Handle user input controls, eg, keyboard and mouse events
     // Handle mouse move
@@ -550,39 +576,40 @@ export class WebGLSceneComponent {
 
     onKeyDown(evt){
 
-        let keyCode = evt.which;
-        if (evt.ctrlKey){
-            evt.preventDefault();
-            switch(keyCode){
-                case 37: // Left arrow
-                    break;
-                case 39: // Right arrow
-                    break;
-                case 40: // Down arrow
-                    this.zoom(-10);
-                    break;
-                case 38: // Up arrow
-                    this.zoom(10);
-            }
-        } else {
-            if (evt.shiftKey){
-                // I comment this out so that I can do cmd+shft+R (Hard refresh) during coding
-                // evt.preventDefault();
-                switch(keyCode){
-                    case 37: // Left arrow
-                        this.rotateScene(-10, 0);
-                        break;
-                    case 39: // Right arrow
-                        this.rotateScene(10, 0);
-                        break;
-                    case 40: // Down arrow
-                        this.rotateScene(0, 10);
-                        break;
-                    case 38: // Up arrow
-                        this.rotateScene(0, -10);
-                }
-            }
-        }
+      let keyCode = evt.which;
+      if (evt.ctrlKey){
+          evt.preventDefault();
+          switch(keyCode){
+              case 37: // Left arrow
+                  break;
+              case 39: // Right arrow
+                  break;
+              case 40: // Down arrow
+                  this.zoom(-10);
+                  break;
+              case 38: // Up arrow
+                  this.zoom(10);
+          }
+      } else {
+          if (evt.shiftKey){
+              // I comment this out so that I can do cmd+shft+R (Hard refresh) during coding
+              // evt.preventDefault();
+              switch(keyCode){
+                  case 37: // Left arrow
+                      this.rotateScene(-10, 0);
+                      break;
+                  case 39: // Right arrow
+                      this.rotateScene(10, 0);
+                      break;
+                  case 40: // Down arrow
+                      this.rotateScene(0, 10);
+                      break;
+                  case 38: // Up arrow
+                      this.rotateScene(0, -10);
+              }
+          }
+      }
+
     }
 
     zoom(delta){

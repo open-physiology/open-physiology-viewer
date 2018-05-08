@@ -8,7 +8,7 @@ import {map} from 'rxjs/operators/map';
   selector: 'selectNameSearchBar',
   template: `<input id="searchBar" type="text" [formControl]="inputTextName" (focus)="showOptions()" (mouseenter)="showOptions()" (mouseenter)="hideOptions()" (focusout)="hideOptions()" [value]="selectedName" />
              <div class="dropDownContent" (mouseenter)="showOptions()" (mouseleave)="hideOptions()">
-              <button *ngFor="let option of filterednames | async" (click)="selectName(option)" (mouseenter)="disableFocusOut(option)" (mouseleave)="enableFocusOut(option)">{{option}}</button>
+              <button *ngFor="let option of filterednames | async" (click)="clickName(option)" (mouseenter)="highlightHoveredName(option)" (mouseleave)="unhighlightUnhoveredName(option)">{{option}}</button>
              </div>`,
         styles: [`
               #searchBar{
@@ -36,20 +36,22 @@ export class SelectNameSearchBar {
   @Input() namesAvailable;
   @Input() selectedName;
 
+  @Output() unhighlightedByUnhoverEvent = new EventEmitter();
+  @Output() highlightedByHoverEvent = new EventEmitter();
   @Output() selectedBySearchEvent = new EventEmitter();
 
   inputTextName: FormControl = new FormControl();
   filterednames: Observable<string[]>;
   dropDownListDiv;
   allowHide;
-  option = "";
+  // option = "";
 
   constructor() {
+    this.disableOnHover = false;
   }
 
   ngOnInit() {
     this.dropDownListDiv = document.getElementsByClassName("dropDownContent")[0];
-    // this.searchBox = document.getElementsById("searchBar");
 
     this.filterednames = this.inputTextName.valueChanges.pipe(
       startWith(''),
@@ -61,18 +63,20 @@ export class SelectNameSearchBar {
   }
 
   filter(val: string): string[] {
-    return this.namesAvailable.filter(name => name.toLowerCase().indexOf(val.toLowerCase()) === 0);
+    return this.namesAvailable.filter( name => name.toLowerCase().indexOf(val.toLowerCase()) === 0 );
   }
 
-  selectName(selectedName){
-    this.selectedName = selectedName;
-    this.option = selectedName;
+  clickName( anOption ){
+    this.disableOnHover = true;
+    this.selectedName = anOption;
+    // this.option = anOption;
     this.enableFocusOut();
     this.hideOptions();
-    this.triggerSelectedEvent();
+    this.selectedBySearchEvent.next( this.selectedName );
   }
 
   showOptions(){
+    this.disableOnHover = false;
     this.dropDownListDiv.classList.remove("hide");
   }
 
@@ -90,9 +94,22 @@ export class SelectNameSearchBar {
     this.allowHide = true;
   }
 
-  triggerSelectedEvent(){
-    this.selectedBySearchEvent.next( this.selectedName );
+  highlightHoveredName( hoveredName ){
+    if (!this.disableOnHover){
+      this.disableFocusOut();
+      this.hoveredName = hoveredName;
+      this.highlightedByHoverEvent.next( hoveredName );
+    }
   }
+
+  unhighlightUnhoveredName( unhoveredName ){
+    if (!this.disableOnHover){
+
+      this.enableFocusOut();
+      this.unhighlightedByUnhoverEvent.next( unhoveredName );
+    }
+  }
+
 
 
 }

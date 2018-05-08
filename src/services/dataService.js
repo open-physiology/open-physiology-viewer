@@ -12,7 +12,7 @@ const addColor = (array, defaultColor) =>
         .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
 
 /**
- * Create omega trees and lyphs tfor Kidney scenario
+ * Create omega trees and lyphs for Kidney scenario
  * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
  */
 export class DataService {
