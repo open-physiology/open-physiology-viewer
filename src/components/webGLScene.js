@@ -27,12 +27,11 @@ import {Lyph} from "../models/lyphModel";
 import { ModelInfoPanel } from './gui/modelInfo';
 import { SelectNameSearchBar } from './gui/selectNameSearchBar';
 
+//TODO for NK: revise Control Panel code to be more flexible (i.e., accept list of options to display, hide/show entity groups)
 
 @Component({
     selector: 'webGLScene',
     template: `
-
-
         <section id="viewPanel" class="w3-row">
             <section id="canvasContainer" class="w3-twothird">
                 <section class="w3-padding-right">
@@ -321,17 +320,20 @@ export class WebGLSceneComponent {
         this.graph.numDimensions(this._numDimensions);
     }
 
+    //TODO for Terry: THIS SHOULD NOT BE HERE!
     getLyphByName(name){
       let useLayer;
       let lyphToSelect = this.graph.children.filter(child =>
       {
         if (child.__data){
+            //TODO: do not use == operator without good reason, write a comment if you need == instead of ===
           if (child.__data.constructor.name == Lyph.name){
             if (child.__data.name == name) {
               return child;
             } else {
             if (child.__data.layers){
                 child.__data.layers.forEach(layer => {
+                  //TODO: always use {} in conditional statements
                   if (layer.viewObjects.lyphs["2d"].__data.name == name) useLayer = layer.viewObjects.lyphs["2d"];
                 });
               }
