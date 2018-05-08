@@ -44,7 +44,7 @@ export default Kapsule({
         linkLabel      : { default: 'id'},
         iconLabel      : { default: 'id'},
         fontParams     : { default: {
-            font: '10px Arial', fillStyle: '#888', antialias: true }
+            font: '12px Arial', fillStyle: '#000', antialias: true }
         },
         opacity        : { default: 0.6 },
         d3AlphaDecay   : { default: 0.045 },

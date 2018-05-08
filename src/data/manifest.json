@@ -24,6 +24,7 @@
           "type": "String:ID",
           "modality": "0..1"
         },
+        "inGroups": {"type":"Group", "modality": "0..*"},
         "viewObjects": {
           "type": "Object:Map",
           "modality": "0..1",
@@ -52,19 +53,21 @@
       "extends": "Entity",
       "properties" : {
         "host"  : { "type": "String:ID|Link", "modality": "0..1" },
-        "isRoot": { "type": "Boolean", "modality": "0..1" },
-        "layout": { "type": "Object:Map", "modality": "0..1" },
-        "type"  : { "type": "String:Enum", "modality": "1" },
-        "val"   : { "type": "Number", "modality": "0..1" , "default": 1},
-        "links" : { "type": "Object:Map", "modality": "0..*", "default": []},
+        "isRoot": { "type": "Boolean",        "modality": "0..1" },
+        "layout": { "type": "Object:Map",     "modality": "0..1" },
+        "type"  : { "type": "String:Enum",    "modality": "0..1" },
+        "links" : { "type": "String:ID|Link", "modality": "0..*", "default": []},
+
         "infoFields": {
           "extends" : "Entity:infoFields",
           "modality": "0..1",
           "default" : {}
         },
+
         "x": {"type": "Number", "modality": "0..1" },
         "y": {"type": "Number", "modality": "0..1" },
         "z": {"type": "Number", "modality": "0..1" },
+        "val"   : { "type": "Number", "modality": "0..1", "default": 1},
         "offset" : {"type": "Number", "modality": "0..1"},
 
         "charge" : {"type": "Number", "modality": "0..1", "default": 0},
@@ -74,11 +77,11 @@
     "Link"  : {
       "extends": "Entity",
       "properties" : {
-        "source": {"type": "Node", "modality": "1"},
-        "target": {"type": "Node", "modality": "1" },
-        "length": {"type": "Number", "modality": "1", "default": 1 },
-        "conveyingLyph": {"type": "String:ID|Lyph"},
-        "type": {"type": "String:Enum"},
+        "source": {"type": "String:ID|Node", "modality": "1"},
+        "target": {"type": "String:ID|Node", "modality": "1" },
+        "length": {"type": "Number",         "modality": "1", "default": 1 },
+        "conveyingLyph": {"type": "String:ID|Lyph", "modality": "0..1"},
+        "type"         : {"type": "String:Enum",    "modality": "1"},
         "infoFields": {
           "extends": "Entity:infoFields",
           "default": {
@@ -93,11 +96,11 @@
     "Lyph"  : {
       "extends": "Entity",
       "properties" : {
-        "axis"    : {"type": "String:ID|Link", "modality": "1"},
-        "layers"  : {"type": "String:ID|Lyph", "modality": "0..*"},
+        "axis"        : {"type": "String:ID|Link", "modality": "1"},
+        "layers"      : {"type": "String:ID|Lyph", "modality": "0..*"},
         "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"},
         "topology": {},
-        "border"  : {"type": "Object:Map", "modality": "1", "default": {}},
+        "border"  : {"type": "Border", "modality": "1", "default": {}},
         "infoFields": {
           "extends" : "Entity:infoFields",
           "default" :{
@@ -115,10 +118,15 @@
     "Border": {
       "extends": "Entity",
       "properties" : {
-        "borders": {},
-        "borderTypes": {},
-        "borderInLyph": {}
-
+        "borders"     : {"type": "Object", "modality": "4"},
+        "borderTypes" : {"type": "String", "modality": "0..1"},
+        "borderInLyph": {"type": "String:ID|Lyph", "modality": "1"}
+      }
+    },
+    "Group" : {
+      "extends": "Entity",
+      "properties": {
+        "entities": {"type": "Entity", "modality": "0..*"}
       }
     },
     "Graph" : {
@@ -136,6 +144,11 @@
     }
   },
   "relationships": [
+    {
+      "types"   : ["Entity", "Group"],
+      "keys"    : ["inGroups", "entities"],
+      "modality": ["0..*", "0..*"]
+    },
     {
       "types"   : ["Link", "Node"],
       "keys"    : ["source", "links"],

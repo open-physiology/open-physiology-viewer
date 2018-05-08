@@ -1,15 +1,17 @@
-import { Lyph }   from './lyphModel';
-import { Border} from './borderModel';
 import { Node }   from './nodeModel';
 import { Link }   from './linkModel';
+import { Lyph }   from './lyphModel';
+import { Border } from './borderModel';
+import { Group }  from './groupModel';
 import { Tree }   from './treeModel';
 import { Graph }  from './graphModel';
 
 export const modelClasses = {
-    "Lyph"  : Lyph,
     "Node"  : Node,
     "Link"  : Link,
+    "Lyph"  : Lyph,
     "Border": Border,
+    "Group" : Group,
     "Tree"  : Tree,
     "Graph" : Graph
 };

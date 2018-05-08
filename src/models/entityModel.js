@@ -46,10 +46,6 @@ export class Entity {
         }
     }
 
-    toJSON() {
-        return this::pick('id', 'name', 'class', 'color','external');
-    }
-
     static fromJSON(json, modelClasses = {}) {
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];

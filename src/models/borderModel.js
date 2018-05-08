@@ -6,9 +6,7 @@ import { copyCoords } from '../three/utils';
  * Complete lyph border
  */
 export class Border extends Entity {
-    borders;
-    borderTypes;   //Array of border types
-    borderInLyph;  //Owner of the border
+    //properties copied from manifest by Entity constructor
 
     get radialTypes(){
         return [this.borderTypes[1], this.borderTypes[2]];

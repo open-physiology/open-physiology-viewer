@@ -4,18 +4,19 @@ import * as three from 'three';
 const THREE = window.THREE || three;
 import { copyCoords } from '../three/utils';
 
+/**
+ * Recognized set of node visualization options (optional)
+ * @type {{CORE: string, FIXED: string, CONTROL: string}}
+ */
 export const NODE_TYPES = {
-    FIXED  : "fixed",
-    CORE   : "core",
-    CONTROL: "control",
-    OMEGA  : 'omega',
-    BORDER : "border",
-    CENTER : "center",
-    INTERNAL: "internal"
+    CORE    : "core",      //node with given position constraints, satisfied by force-directed layout
+    FIXED   : "fixed",     //node with fixed position, given position overrules forces
+    CONTROL : "control",   //node that is placed to the center of mass of given nodes (controlNodes)
+    OMEGA   : 'omega'      //node in the tree TODO remove, create trees/groups
 };
 
 /**
- * ApiNATOMY node
+ * The class to visualize nodes in the process graphs
  */
 export class Node extends Entity {
 

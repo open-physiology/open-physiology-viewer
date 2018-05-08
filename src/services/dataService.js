@@ -43,13 +43,13 @@ export class DataService {
             ],
             links : [
                 //c-n
-                { "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.AXIS, "length": 100 },
+                { "id": "1", "source": "c", "target": "n", "name": "",          "type": LINK_TYPES.DASHED, "length": 100 },
                 //R-L
-                { "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.PATH, "length":  75 },
-                { "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": LINK_TYPES.PATH, "length":  75 },
+                { "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": LINK_TYPES.SEMICIRCLE, "length":  75 },
+                { "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": LINK_TYPES.SEMICIRCLE, "length":  75 },
                 //S-T
-                { "id": "6", "source": "S", "target": "P", "name": "Gut",       "type": LINK_TYPES.PATH, "length":  90 },
-                { "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.PATH, "length":  90 }
+                { "id": "6", "source": "S", "target": "P", "name": "Gut",       "type": LINK_TYPES.SEMICIRCLE, "length":  90 },
+                { "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": LINK_TYPES.SEMICIRCLE, "length":  90 }
             ]
         };
         //Demo2: split t-a and a-h links to 7 edges
@@ -88,7 +88,7 @@ export class DataService {
 
         this._graphData.nodes = coreGraphData.nodes.map(node => Node.fromJSON(node::assign({"charge": 5})));
         this._graphData.links = coreGraphData.links.map(link => {
-            if (link.type !== LINK_TYPES.AXIS) { link.linkMethod = "Line2" }
+            if (link.type !== LINK_TYPES.DASHED) { link.linkMethod = "Line2" }
             return Link.fromJSON(link)
         });
     }
@@ -108,7 +108,7 @@ export class DataService {
                             "source": link1[end],
                             "target": link2[end],
                             "length": 0.1,
-                            "type": LINK_TYPES.COALESCENCE
+                            "type": LINK_TYPES.FORCE
                         }));
                     });
                })

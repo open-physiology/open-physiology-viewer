@@ -6,7 +6,6 @@ import {NODE_TYPES} from './nodeModel';
 export class Graph extends Entity {
     _nodes: [];
     _links: [];
-    _lyphs: [];
 
     getNodeByID(id){
         return this._nodes.find(node => node.id === id);
@@ -53,11 +52,11 @@ export class Graph extends Entity {
         const isOmegaLink       = link => link.source.type === NODE_TYPES.OMEGA;
         const isOmegaNode       = node => node.type === NODE_TYPES.OMEGA;
 
-        const isCoalescenceLink = link => link.type === LINK_TYPES.COALESCENCE;
+        const isCoalescenceLink = link => link.type === LINK_TYPES.FORCE;
         const isContainerLink   = link => link.type === LINK_TYPES.CONTAINER;
 
         const isNeuronLyph      = lyph => lyph && (
-            (lyph.groups||[]).some(group => group.name === "Neurons") || isNeuronLyph(lyph.layerInLyph));
+            (lyph.inGroups||[]).some(group => group.name === "Neurons") || isNeuronLyph(lyph.layerInLyph));
         const isNeuronLink      = link => isNeuronLyph(link.conveyingLyph) ||
             link.source.belongsToLyph || link.target.belongsToLyph;
         const isNeuronNode      = node => (node.links.length === node.links.every(link => isNeuronLink(link)).length)
@@ -95,7 +94,7 @@ export class Graph extends Entity {
         this._links.forEach(link => {
             link.createViewObjects(state);
             link.viewObjects::values().forEach(obj => state.graphScene.add(obj));
-            if (link.type === LINK_TYPES.BORDER){
+            if (link.type === LINK_TYPES.INVISIBLE){
                 link.viewObjects["main"].material.visible = false;
             }
         });
@@ -106,7 +105,7 @@ export class Graph extends Entity {
         this._nodes.forEach(node => { node.updateViewObjects(state) });
 
         //Update links in certain order
-        [LINK_TYPES.PATH, LINK_TYPES.LINK, LINK_TYPES.BORDER, LINK_TYPES.AXIS, LINK_TYPES.CONTAINER].forEach(
+        [LINK_TYPES.SEMICIRCLE, LINK_TYPES.LINK, LINK_TYPES.INVISIBLE, LINK_TYPES.DASHED, LINK_TYPES.CONTAINER].forEach(
             linkType => {
                 this._links.filter(link => link.type === linkType).forEach(link => {
                     link.updateViewObjects(state);

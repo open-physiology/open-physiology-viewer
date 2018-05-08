@@ -11,24 +11,27 @@ import { Line2 }                from '../three/lines/Line2.js';
 import { LineGeometry }         from '../three/lines/LineGeometry.js';
 import { LineMaterial }         from '../three/lines/LineMaterial.js';
 
+/**
+ * Recognized set of link visualization options
+ * @type {{LINK: string, SEMICIRCLE: string, DASHED: string, FORCE: string, CONTAINER: string, INVISIBLE: string}}
+ */
 export const LINK_TYPES = {
-    PATH: "path",
-    LINK: "link",
-    AXIS: 'axis',
-    COALESCENCE: "coalescence",
-    CONTAINER  : "container",
-    BORDER     : "border"
+    LINK       : "link",       //solid straight line
+    DASHED     : "dashed",     //dashed straight line
+    SEMICIRCLE : "semicircle", //solid line in the form of a semicircle
+    CONTAINER  : "container",  //link with visual object (which may be hidden), not affected by graph forces (i.e., with fixed position)
+    FORCE      : "force",      //link without visual object, works as force to attract or repel nodes
+    INVISIBLE  : "invisible"   //link with hidden visual object affected by graph forces (i.e., dynamically positioned)
 };
 
+/**
+ * The class to visualize processes (graph edges)
+ */
 export class Link extends Entity {
-    // /**
-    //  * @param tree
-    //  * @returns {number} link's level in the tree
-    //  */
-    // level(tree){
-    //     return -1; //TODO implement
-    // }
-
+    /**
+     * Get link's direction
+     * @returns {THREE.Vector3} - a vector defining link direction
+     */
     get direction(){
         if (this.reversed){
             return direction({source: this.target, target: this.source});
@@ -41,7 +44,7 @@ export class Link extends Entity {
      * @returns {{height: number, width: number}}
      */
     get lyphSize(){
-        if (this.type === LINK_TYPES.BORDER){
+        if (this.type === LINK_TYPES.INVISIBLE){
             return {height: this.length, width: this.length};
         }
 
@@ -65,14 +68,14 @@ export class Link extends Entity {
      */
     createViewObjects(state){
 
-        //Do not visualize coalescence links
-        if (this.type === LINK_TYPES.COALESCENCE) {return; }
+        //Do not visualize force-only links
+        if (this.type === LINK_TYPES.FORCE) {return; }
 
         //Link
         if (!this.viewObjects["main"]) {
             let geometry;
             let obj;
-            if (this.type === LINK_TYPES.AXIS) {
+            if (this.type === LINK_TYPES.DASHED) {
                 geometry = new THREE.Geometry();
                 if (!this.material) {
                     //axis can stay behind any other visual objects
@@ -97,7 +100,7 @@ export class Link extends Entity {
                         color: this.color,
                         polygonOffsetFactor: -100
                     });
-                    let size = (this.type === LINK_TYPES.PATH)? state.linkResolution: 2;
+                    let size = (this.type === LINK_TYPES.SEMICIRCLE)? state.linkResolution: 2;
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
                     obj = new THREE.Line(geometry, this.material);
                 }
@@ -116,7 +119,6 @@ export class Link extends Entity {
             this.conveyingLyph.createViewObjects(state);
             // Note: we do not make conveying lyphs children of links to include them to the scene
             // because we want to have them in the main scene for highlighting
-            // TODO Revise the highlighting to be able to highlight any inner object
             this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
             if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
@@ -141,7 +143,7 @@ export class Link extends Entity {
         this.center = _start.clone().add(_end).multiplyScalar(0.5);
 
         switch(this.type){
-            case LINK_TYPES.AXIS: {
+            case LINK_TYPES.DASHED: {
                 if (!linkObj) { return; }
                 copyCoords(linkObj.geometry.vertices[0], this.source);
                 copyCoords(linkObj.geometry.vertices[1], this.target);
@@ -150,7 +152,7 @@ export class Link extends Entity {
 
                 break;
             }
-            case LINK_TYPES.PATH: {
+            case LINK_TYPES.SEMICIRCLE: {
                 const curve = bezierSemicircle(_start, _end);
                 this.center = curve.getPoint(0.5);
                 points = curve.getPoints(state.linkResolution - 1);
@@ -182,7 +184,7 @@ export class Link extends Entity {
         }
 
         //Update buffered geometries
-        //Do not visualize container links
+        //Do not update positions of container links
         if (this.type === LINK_TYPES.CONTAINER)   {return; }
 
         if (linkObj && linkObj.geometry.attributes){

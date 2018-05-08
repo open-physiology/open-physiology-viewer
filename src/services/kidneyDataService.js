@@ -1,15 +1,15 @@
 import { lyphs } from '../data/kidney-lyphs.json';
 import { ependymal, trees } from '../data/kidney-mapping.json';
 
+import { entries, keys, values, cloneDeep} from 'lodash-bound';
+import {interpolateReds, interpolateGreens, interpolateBlues, interpolateRdPu, interpolateOranges} from 'd3-scale-chromatic';
+
 import { Node, NODE_TYPES } from '../models/nodeModel';
 import { Link, LINK_TYPES } from '../models/linkModel';
-import { entries, keys, values} from 'lodash-bound';
+import { Group } from '../models/groupModel';
 
-import {cloneDeep} from 'lodash-bound';
 import {DataService} from './dataService';
 
-import {interpolateReds, interpolateGreens, interpolateBlues, interpolateRdPu,
-    interpolateOranges} from 'd3-scale-chromatic';
 
 /**
  * Create omega trees and lyphs tfor Kidney scenario
@@ -68,7 +68,6 @@ export class KidneyDataService extends DataService{
                     Node.fromJSON({
                         "id"       : `${prefix}${innerLyphID}`,
                         "name"     : `${prefix}${innerLyphID}`,
-                        "type"     : NODE_TYPES.BORDER,
                         "color"    : "#ccc",
                         "val"      : 0.1,
                         "skipLabel": true
@@ -80,13 +79,13 @@ export class KidneyDataService extends DataService{
                     "source"        : sNode,
                     "target"        : tNode,
                     "length"        : 2,
-                    "type"          : LINK_TYPES.BORDER,
+                    "type"          : LINK_TYPES.INVISIBLE,
                     "color"         : "#ccc",
                     "conveyingLyph" : innerLyphID
                 });
 
-                //TODO create model for a selected group of entities
-                innerLyph.groups = [{"name": "Neurons", "class": "Group"}];
+                let neuronGroup = Group.fromJSON({"id": "g1", "name": "Neurons"});
+                innerLyph.inGroups = [neuronGroup];
 
                 this._graphData.links.push(link);
             })
@@ -101,7 +100,6 @@ export class KidneyDataService extends DataService{
                     let centerNode = Node.fromJSON({
                         "id"    : `center${containerLyphID}`,
                         "belongsToLyph" : containerLyph,
-                        "type"  : NODE_TYPES.CENTER,
                         "color" : "#666",
                         "val"   : 0.5,
                         "skipLabel": true
@@ -220,6 +218,7 @@ export class KidneyDataService extends DataService{
         }
 
         //Coalescences defined as lyph groups
+        //TODO define coalescences as groups of lyphs
         this._coalescences = [ ["78", "24"] ];
 
         //Add link from center to the center of mass for a coalescence group
