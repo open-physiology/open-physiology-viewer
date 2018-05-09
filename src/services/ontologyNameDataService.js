@@ -5,13 +5,13 @@ export class OntologyNameDataService {
 
     constructor(graphData){
       console.log("graphData: ", graphData);
-      this._ontologyNames = this.traverse_whole_graph_for_names(graphData);
+      this._ontologyNames = this.traverseGraphForNames(graphData);
 
       console.log("this.ontologyNames: ", this.ontologyNames);
     }
 
 
-    traverse_whole_graph_for_names( graphData ){
+    traverseGraphForNames( graphData ){
       // first level graph names
       let firstLevelGraphNames = graphData._allLinks.filter(link => (link.name!=undefined && link.name!=null && link.name!=""))
         .map(function (item){
