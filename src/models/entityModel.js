@@ -1,4 +1,4 @@
-import { merge, isObject, entries, pick, assign, cloneDeep } from 'lodash-bound';
+import { merge, isObject, entries, pick, keys, assign, cloneDeep } from 'lodash-bound';
 import { types, relationships} from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
@@ -35,28 +35,29 @@ const initValue = (specObj) => specObj.default
                     :null
         :null);
 
+const getObjSpec = className => types[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
+
 
 export class Entity {
     constructor(id) {
-        this::assign(...types.Entity.properties::entries().map(([key, value]) => ({[key]: initValue(value)})));
+        this::assign(...getObjSpec("Entity"));
         this.id = id;
         const className = this.constructor.name;
         if (types[className]){
-            this::merge(...types[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)})));
+            this::merge(...getObjSpec(className));
         }
     }
 
     static fromJSON(json, modelClasses = {}) {
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];
-
-        if (!cls){
-            throw "Cannot creat an object of an unknown class!";
-        }
-
         const res = new cls(json.id);
 
-        //TODO add validation: pick properties from manifest & filter others with warning
+        //spec
+        // let specKeys = getObjSpec(cls.name);
+        // let difference = new Set( json::keys().filter(x => !specKeys.find((key, value) => key === x) ));
+        // console.log(difference);
+
         res::assign(json);
 
         return res;
@@ -64,10 +65,7 @@ export class Entity {
 
     //TODO write a test
     syncRelationship(key, value, oldValue){
-        let r = relationships.find(r =>
-            r.types[0] === this.class &&
-            r.keys[0]=== key);
-
+        let r = relationships.find(r => r.types[0] === this.class && r.keys[0]=== key);
         if (!r) { return; }
 
         if (r.modality[1].indexOf("*") > -1 ){

@@ -45,7 +45,7 @@ import { SelectNameSearchBar } from './gui/selectNameSearchBar';
                             <i class="fa fa-refresh"></i>
                         </button>
                     </section>
-                    <fieldset class="w3-card w3-round w3-margin">
+                    <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <input type="checkbox" class="w3-check" name="node_label" (change)="toggleNodeLabels()" checked/> Node
                         <input type="checkbox" class="w3-check" name="link_label" (change)="toggleLinkLabels()"/> Link
@@ -78,7 +78,7 @@ import { SelectNameSearchBar } from './gui/selectNameSearchBar';
                                    (change)="updateLabelContent('lyph', 'external')"/> External
                         </fieldset>
                     </fieldset>
-                    <fieldset class="w3-card w3-round w3-margin">
+                    <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
                         <span *ngIf="_showLyphs" >
@@ -94,13 +94,13 @@ import { SelectNameSearchBar } from './gui/selectNameSearchBar';
                         <input type="checkbox" name="switch" class="w3-check" (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
                         <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideNeurons')"/> Neurons
                     </fieldset>
-                    <fieldset class="w3-card w3-round w3-margin">
+                    <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
                         <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid x-y
                         <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-z'])"/> Grid x-z
                         <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
-                    <fieldset class="w3-card w3-round w3-margin-small">
+                    <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Select Name:</legend>
                         <selectNameSearchBar [selectedName]="_selectedName" [namesAvailable]="_namesAvailable" (selectedBySearchEvent)="handleSelectedLyphEvent($event)"></selectNameSearchBar>
                     </fieldset>
