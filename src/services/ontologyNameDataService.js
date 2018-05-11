@@ -4,12 +4,8 @@ export class OntologyNameDataService {
     _ontologyNames;
 
     constructor(graphData){
-      console.log("graphData: ", graphData);
       this._ontologyNames = this.traverseGraphForNames(graphData);
-
-      console.log("this.ontologyNames: ", this.ontologyNames);
     }
-
 
     traverseGraphForNames( graphData ){
       // first level graph names

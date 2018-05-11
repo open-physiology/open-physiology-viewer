@@ -36,6 +36,7 @@
         },
         "labels": {
           "type": "Object:Map",
+          "modality": "0..1",
           "default": {}
         },
         "infoFields": {
@@ -54,7 +55,7 @@
       "properties" : {
         "host"  : { "type": "String:ID|Link", "modality": "0..1" },
         "isRoot": { "type": "Boolean",        "modality": "0..1" },
-        "layout": { "type": "Object:Map",     "modality": "0..1" },
+        "layout": { "type": "Object:Map",     "modality": "0..1", "default": {} },
         "type"  : { "type": "String:Enum",    "modality": "0..1" },
         "links" : { "type": "String:ID|Link", "modality": "0..*", "default": []},
 
@@ -64,12 +65,12 @@
           "default" : {}
         },
 
+        "val"    : { "type": "Number", "modality": "0..1", "default": 1},
+        "offset" : {"type": "Number", "modality": "0..1"},
+
         "x": {"type": "Number", "modality": "0..1" },
         "y": {"type": "Number", "modality": "0..1" },
         "z": {"type": "Number", "modality": "0..1" },
-        "val"   : { "type": "Number", "modality": "0..1", "default": 1},
-        "offset" : {"type": "Number", "modality": "0..1"},
-
         "charge" : {"type": "Number", "modality": "0..1", "default": 0},
         "collide": {"type": "Number", "modality": "0..1", "default": 0}
       }
@@ -99,20 +100,24 @@
         "axis"        : {"type": "String:ID|Link", "modality": "1"},
         "layers"      : {"type": "String:ID|Lyph", "modality": "0..*"},
         "layerInLyph" : {"type": "String:ID|Lyph", "modality": "0..1"},
-        "topology": {},
-        "border"  : {"type": "Border", "modality": "1", "default": {}},
-        "infoFields": {
-          "extends" : "Entity:infoFields",
-          "default" :{
-            "text": ["topology"],
-            "objects": ["axis"],
-            "lists": ["layers"]
+        "topology"    : {"type": "String", "modality": "0..1"},
+        "border"      : {"type": "Border", "modality": "1", "default": {}},
+        "infoFields"  : {
+          "extends"   : "Entity:infoFields",
+          "default"   : {
+            "text"    : ["topology"],
+            "objects" : ["axis"],
+            "lists"   : ["layers"]
           }
         },
-        "width"    : {"type": "Number"},
-        "height"   : {"type": "Number"},
-        "offset"   : {"type": "Number", "modality": "0..1"},
-        "internalLyphs": {"type": "Lyph", "modality": "0..*"}
+        "thickness"     : {"type": "Number", "modality": "0..1"},
+        "length"        : {"type": "Number", "modality": "0..1"},
+        "width"         : {"type": "Number", "modality": "0..1"},
+        "height"        : {"type": "Number", "modality": "0..1"},
+        "offset"        : {"type": "Number", "modality": "0..1"},
+        "internalLyphs" : {"type": "String:ID|Lyph", "modality": "0..*"},
+        "internalNodes" : {"type": "String:ID|Node", "modality": "0..*"},
+        "belongsToLyph" : {"type": "String:ID|Lyph", "modality": "0..*"}
       }
     },
     "Border": {
@@ -126,20 +131,21 @@
     "Group" : {
       "extends": "Entity",
       "properties": {
-        "entities": {"type": "Entity", "modality": "0..*"}
+        "entities": {"type": "String:ID|Entity", "modality": "0..*"}
       }
     },
     "Graph" : {
       "extends": "Entity",
       "properties": {
-        "nodes": {"type": "Node", "modality": "0..*"},
-        "links": {"type": "Link", "modality": "0..*"}
+        "nodes": {"type": "String:ID|Node", "modality": "0..*"},
+        "links": {"type": "String:ID|Link", "modality": "0..*"},
+        "lyphs": {"type": "String:ID|Lyph", "modality": "0..*"}
       }
     },
     "Tree"  : {
       "extends": "Graph",
       "properties": {
-        "root": {"type": "Node", "modality": "1"}
+        "root": {"type": "String:ID|Node", "modality": "1"}
       }
     }
   },
@@ -176,12 +182,12 @@
     },
     {
       "types": ["Lyph", "Lyph"],
-      "keys" : ["content", "container"],
-      "modality": ["0..1", "0..1"]
+      "keys" : ["belongsToLyph", "internalLyphs"],
+      "modality": ["0..1", "0..*"]
     },
     {
-      "types": ["Lyph", "Lyph"],
-      "keys" : ["belongsToLyph", "internalLyphs"],
+      "types": ["Lyph", "Node"],
+      "keys" : ["belongsToLyph", "internalNodes"],
       "modality": ["0..1", "0..*"]
     }
   ]

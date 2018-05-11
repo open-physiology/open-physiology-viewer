@@ -156,9 +156,10 @@ export class KidneyDataService extends DataService{
                     let node = Node.fromJSON({
                         "id"       : `${host}${i}${j}`,
                         "host"     : host,
-                        "isRoot"   : (j === 0),
-                        "type"     : NODE_TYPES.OMEGA,
-                        "color"    : hosts[host].color
+                        //"belongsTo" : host,
+                        "isRoot"    : (j === 0),
+                        "type"      : NODE_TYPES.OMEGA,
+                        "color"     : hosts[host].color
                     });
 
                     // Explicitly define position of the root node on the hosting link:
@@ -240,7 +241,7 @@ export class KidneyDataService extends DataService{
             "type"      : LINK_TYPES.CONTAINER,
             "length"    : 50,
             "lyphScale" : 4,
-            "conveyingLyph"  : "5" // "1"
+            "conveyingLyph" : "5"
         });
         this._graphData.links.push(containerLink);
 
@@ -249,7 +250,9 @@ export class KidneyDataService extends DataService{
         containerLyph.border = { borders: [{}, {}, {}, {nodes: ["7013", "505", "515"]}]};
 
         // Assign inner content to the container lyph border
-        // this._lyphs.find(lyph => lyph.id === "3").border = {borders: [{}, {}, {}, {conveyingLyph: "5"}]};
+        // let containerHost = this._lyphs.find(lyph => lyph.id === "3");
+        // containerHost.border = { borders: [ {}, {}, {}, { conveyingLyph: "5" }]};
+        // containerLyph.belongsToLyph = containerHost;
 
         super.afterInit();
     }

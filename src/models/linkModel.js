@@ -205,7 +205,6 @@ export class Link extends Entity {
                     }
                     linkPos.needsUpdate = true;
                     linkObj.geometry.computeBoundingSphere();
-
                 }
             }
         }

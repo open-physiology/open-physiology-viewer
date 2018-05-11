@@ -1,7 +1,7 @@
 import { Entity } from './entityModel';
-import { assign } from 'lodash-bound';
 import { copyCoords } from '../three/utils';
-
+import { Link, LINK_TYPES } from './linkModel';
+import { Node } from './nodeModel';
 /**
  * Complete lyph border
  */
@@ -24,34 +24,7 @@ export class Border extends Entity {
      * @returns {Array}
      */
     get borderLinks(){
-        /**
-         * Creates links (objects with fields 'source' and 'target') to define
-         * sides of the lyph rectangle in the center of coordinates
-         * @param width  - lyph/layer width
-         * @param height - lyph/layer height
-         * @param offset - layer offset
-         * @returns {Array}
-         */
-        function d2LyphBorderLinks({width, height, offset = 0}){
-            let borders = new Array(4);
-            borders[0] = {
-                source: new THREE.Vector3(offset, -height / 2, 0),
-                target: new THREE.Vector3(offset, height / 2, 0)};
-            borders[1] = {
-                source: borders[0].target.clone(),
-                target: new THREE.Vector3(width + offset, height / 2, 0)};
-            borders[2] = {
-                source: borders[1].target.clone(),
-                target: new THREE.Vector3(width + offset, -height / 2, 0)};
-            borders[3] = {
-                source: borders[2].target.clone(),
-                target: new THREE.Vector3(offset, -height / 2, 0)};
-            return borders;
-        }
-        this._borderLinks = this._borderLinks || d2LyphBorderLinks(this.borderInLyph);
-
-        //Translate to the current location of the lyph/layer
-        return this._borderLinks.map(({source, target}) => {
+        return (this._borderLinks||[]).map(({source, target}) => {
             return {
                 source: this.borderInLyph.translate(source),
                 target: this.borderInLyph.translate(target)
@@ -101,12 +74,38 @@ export class Border extends Entity {
             return borders;
         }
 
+        /**
+         * Creates links (objects with fields 'source' and 'target') to define
+         * sides of the lyph rectangle in the center of coordinates
+         * @param width  - lyph/layer width
+         * @param height - lyph/layer height
+         * @param offset - layer offset
+         * @returns {Array}
+         */
+        function d2LyphBorderLinks({width, height, offset = 0}){
+            let borders = new Array(4);
+            borders[0] = {
+                source: new THREE.Vector3(offset, -height / 2, 0),
+                target: new THREE.Vector3(offset, height / 2, 0)};
+            borders[1] = {
+                source: borders[0].target.clone(),
+                target: new THREE.Vector3(width + offset, height / 2, 0)};
+            borders[2] = {
+                source: borders[1].target.clone(),
+                target: new THREE.Vector3(width + offset, -height / 2, 0)};
+            borders[3] = {
+                source: borders[2].target.clone(),
+                target: new THREE.Vector3(offset, -height / 2, 0)};
+            return borders;
+        }
+
         //Cannot create borders if host lyph is not defined
         if (!this.borderInLyph){ return; }
 
         //Make sure we always have 4 border objects regardless of data input
         this.borders = this.borders || [];
         for (let i = this.borders.length; i < 4; i++){ this.borders.push({}); }
+        //Assign IDs if not given
 
         //Create and store border shapes
         this.viewObjects["shape"] = d2LyphBorders(
@@ -115,20 +114,57 @@ export class Border extends Entity {
              this.borders[i].viewObjects = this.borders[i].viewObjects || {};
              this.borders[i].viewObjects["shape"] = obj; //We will use "main" to store actual border lines
         });
+
+        this._borderLinks = d2LyphBorderLinks(this.borderInLyph);
+        this.links = new Array(4);
+        this.borders.forEach((border, i) => {
+            if (border.conveyingLyph) {
+                let id = `${this.id}`;
+                //Turn border into a link if we need to draw its nested content (conveying lyph)
+                let s = Node.fromJSON({"id": `s_${id}`});
+                let t = Node.fromJSON({"id": `t_${id}`});
+                this.links[i] = Link.fromJSON({
+                    "id"    : `lnk_${id}`,
+                    "source": s,
+                    "target": t,
+                    "type"  : LINK_TYPES.INVISIBLE,
+                    "length": this._borderLinks[i].target.distanceTo(this._borderLinks[i].source),
+                    "conveyingLyph" : state.graphData.getLyphByID(border.conveyingLyph)
+                });
+
+                this.links[i].createViewObjects(state);
+            }
+        });
     }
 
     updateViewObjects(state){
-        (this.borders || []).forEach((border, i) => {
+        (this.borders || []).forEach(border => {
             if (border.nodes) {
                 //position nodes on the lyph border (exact shape, use 'borderLinks' to place nodes on straight line)
                 let points = border.viewObjects["shape"].getSpacedPoints(border.nodes.length + 1)
                     .map(p => new THREE.Vector3(p.x, p.y, 0));
                 points = points.map(p => this.borderInLyph.translate(p));
                 border.nodes.forEach((nodeID, i) => {
-                    let node = state.graphData.nodes.find(node => node.id === nodeID);
+                    let node = state.graphData.getNodeByID(nodeID);
                     if (node) { copyCoords(node, points[i + 1]); }
                 });
             }
         });
+
+        (this.links || []).forEach((lnk, i) => {
+            if (lnk) {
+                let tmp = this.borderLinks[i];
+                copyCoords(lnk.source, tmp.source);
+                copyCoords(lnk.target, tmp.target);
+                lnk.source.z += 1;
+                lnk.target.z += 1;
+                lnk.updateViewObjects(state);
+
+                //Add border conveyingLyph to the scene
+                state.graphScene.add(this.links[i].conveyingLyph.viewObjects["main"]);
+            }
+        })
+
+
     }
 }

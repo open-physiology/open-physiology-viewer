@@ -296,6 +296,8 @@ export class Lyph extends Entity {
             if (lyphBorder){ lyphObj.add( lyphBorder ); }
 
             this.viewObjects["lyphs"][state.method] = lyphObj;
+            //This will be needed to create nested items
+            this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
             this.border.borderInLyph  = this;
             this.border.createViewObjects(state);
@@ -303,7 +305,7 @@ export class Lyph extends Entity {
             //Layers
             (this.layers || []).forEach((layer, i) => {
                 //TODO think if we need to clone axis for layer
-                layer.axis = this.axis;
+                layer.axis   = this.axis;
                 layer.width  = thickness;
                 layer.height = this.height;
                 layer.layerInLyph = this;
@@ -317,37 +319,6 @@ export class Lyph extends Entity {
                 let layerObj = layer.viewObjects["main"];
                 layerObj.translateX(layer.offset);
                 layerObj.translateZ(1);
-
-                //Draw nested lyphs
-                //TODO assign content to border and process in borderModel
-                // if (layer.content){
-                //     //TODO rewrite to derive rotational axis from data
-                //     let borderObjects  = layer.border.viewObjects["shape"];
-                //     if (borderObjects[3]){
-                //         //be default, content lyphs rotate around border #3, i.e., layer.borderObjects[3]
-                //         let source = borderObjects[3].getPoint(0);
-                //         let target = borderObjects[3].getPoint(1);
-                //
-                //         //TODO create a border class and make it a rotational axis
-                //         let contentLyphAxis = LinkModel.fromJSON({
-                //             source: source,
-                //             target: target,
-                //             linkInLyph: this,
-                //             center: (source.clone().add(target)).multiplyScalar(0.5)
-                //         });
-                //         layer.content.axis = contentLyphAxis;
-                //         //'content' and 'container' are the opposites for the "Contains" relationship
-                //         //TODO create a uniform mechanism to check at construction that both entities in a relationship refer each other
-                //         layer.content.container = layer;
-                //         layer.content.createViewObjects(state);
-                //
-                //         //TODO assign layer its own axis which is a parallel line to the link
-                //         layer.layerInLyph = this;
-                //         layer.offset = new THREE.Vector3(thickness * i, 0, 0);
-                //         const contentLyph = layer.content.viewObjects["lyphs"][state.method];
-                //         layerObj.add(contentLyph);
-                //     }
-                // }
                 lyphObj.add(layerObj);
             });
 
@@ -365,10 +336,11 @@ export class Lyph extends Entity {
                     // });
                 }
             })
+        } else {
+            this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
         }
-        this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
-        //Do not create labels for lyphs
+        //Do not create labels for layers and nested lyphs
         if (this.layerInLyph || this.belongsToLyph){ return; }
 
         this.createLabels(state.iconLabel, state.fontParams);
@@ -413,6 +385,7 @@ export class Lyph extends Entity {
                 internalLinks.forEach((link, i) => {
                     const delta = 5;
 
+                    //TODO revise for the case container is nested
                     if (this.axis.type === LINK_TYPES.CONTAINER) {//Global force pushes content on top of lyph
                         if (Math.abs(this.axis.target.z - this.axis.source.z) <= delta) {
                             //Faster way to get projection for lyphs parallel to x-y plane

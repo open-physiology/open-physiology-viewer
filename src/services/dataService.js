@@ -28,18 +28,18 @@ export class DataService {
         const coreGraphData = {
             nodes : [
                 //c-n
-                { "id"  : "c", "name": "c",      "color": "#D2691E", "group": "A", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": 100, "y":  0, "z":  0} },
-                { "id"  : "n", "name": "n",      "color": "#D2691E", "group": "A", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":-100, "y":  0, "z":  0} },
+                { "id"  : "c", "name": "c",      "color": "#D2691E", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": 100, "y":  0, "z":  0} },
+                { "id"  : "n", "name": "n",      "color": "#D2691E", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":-100, "y":  0, "z":  0} },
                 //t-a, a-h
-                { "id"  : "t", "name": "t",      "color": "#808080", "group": "B", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": -60, "y":  0, "z":  0} },
-                { "id"  : "a", "name": "a",      "color": "#808080", "group": "B", "val": 3, "type": NODE_TYPES.FIXED, "layout": {"x":   0, "y":  0, "z":  0} },
-                { "id"  : "h", "name": "h",      "color": "#444444", "group": "B", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":  60, "y":  0, "z":  0} },
+                { "id"  : "t", "name": "t",      "color": "#808080", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": -60, "y":  0, "z":  0} },
+                { "id"  : "a", "name": "a",      "color": "#808080", "val": 3, "type": NODE_TYPES.FIXED, "layout": {"x":   0, "y":  0, "z":  0} },
+                { "id"  : "h", "name": "h",      "color": "#444444", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":  60, "y":  0, "z":  0} },
                 //R-L
-                { "id"  : "R", "name": "R",      "color": "#7B68EE", "group": "C", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":   0, "y": 75, "z":  0} },
-                { "id"  : "L", "name": "L",      "color": "#ff0000", "group": "C", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":   0, "y":-75, "z":  0} },
+                { "id"  : "R", "name": "R",      "color": "#7B68EE", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":   0, "y": 75, "z":  0} },
+                { "id"  : "L", "name": "L",      "color": "#ff0000", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":   0, "y":-75, "z":  0} },
                 //S-P
-                { "id"  : "S", "name": "\u03A3", "color": "#006400", "group": "D", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": -90, "y":  0, "z":  0} } ,
-                { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "group": "D", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":  90, "y":  0, "z":  0} }
+                { "id"  : "S", "name": "\u03A3", "color": "#006400", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x": -90, "y":  0, "z":  0} } ,
+                { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "val": 3, "type": NODE_TYPES.CORE, "layout": {"x":  90, "y":  0, "z":  0} }
             ],
             links : [
                 //c-n
@@ -56,15 +56,15 @@ export class DataService {
         const ependymal = {
             nodes: [
                 //t-a
-                { "id" : "t1", "group": "B", "layout": {"y": 0, "z": 0} },
-                { "id" : "t2", "group": "B", "layout": {"y": 0, "z": 0} },
+                { "id" : "t1", "layout": {"y": 0, "z": 0} },
+                { "id" : "t2", "layout": {"y": 0, "z": 0} },
                 //a-h
-                { "id" : "h1", "group": "B", "layout": {"y": 0, "z": 0} },
-                { "id" : "h2", "group": "B", "layout": {"y": 0, "z": 0} },
-                { "id" : "h3", "group": "B", "layout": {"y": 0, "z": 0} },
+                { "id" : "h1", "layout": {"y": 0, "z": 0} },
+                { "id" : "h2", "layout": {"y": 0, "z": 0} },
+                { "id" : "h3", "layout": {"y": 0, "z": 0} },
                 //a-g
-                { "id" : "g1", "group": "B", "layout": {"x": 0, "z": 0} },
-                { "id" :  "g", "group": "B", "layout": {"x": 0, "y":  -30, "z":  0} }
+                { "id" : "g1", "layout": {"x": 0, "z": 0} },
+                { "id" :  "g", "layout": {"x": 0, "y":  -30, "z":  0} }
             ],
             links: [
                 //t-a
@@ -86,7 +86,9 @@ export class DataService {
         ependymal.nodes.forEach(node => { coreGraphData.nodes.push(node); });
         ependymal.links.forEach((link, i) => { coreGraphData.links.push(link); });
 
-        this._graphData.nodes = coreGraphData.nodes.map(node => Node.fromJSON(node::assign({"charge": 5})));
+        this._graphData.nodes = coreGraphData.nodes.map(node =>
+            Node.fromJSON(node::assign({"charge": 5}))
+        );
         this._graphData.links = coreGraphData.links.map(link => {
             if (link.type !== LINK_TYPES.DASHED) { link.linkMethod = "Line2" }
             return Link.fromJSON(link)
@@ -95,6 +97,12 @@ export class DataService {
 
 
     afterInit(){
+        //Color links and lyphs which do not have assigned colors yet
+        addColor(this._graphData.links, "#000");
+        addColor(this._lyphs);
+
+
+
         //Coalescence defined as groups of lyphs
         this._coalescences.forEach(lyphs => {
             let coalescingLinks  = lyphs.map(lyph => this._graphData.getLinkByLyphID(lyph)); //always finds only
@@ -115,35 +123,31 @@ export class DataService {
             });
         });
 
-        //Color links and lyphs which do not have assigned colors yet
-        addColor(this._graphData.links, "#000");
-        addColor(this._lyphs);
+        //TODO move ID to Object mapping to the model (set property interceptors)
 
         //Create lyph models from their json definitions
-        this._lyphs = this._lyphs.map(lyph => Lyph.fromJSON(lyph));
+        this._graphData.lyphs = this._lyphs.map(lyph => Lyph.fromJSON(lyph));
 
         //Replace layer ids with lyph models
-        this._lyphs.filter(lyph => lyph.layers).forEach(lyph => {
-            lyph.layers = lyph.layers.map(layer => {return this._lyphs.find(lyph => lyph.id === layer)});
+        this._graphData.lyphs.filter(lyph => lyph.layers).forEach(lyph => {
+            lyph.layers = lyph.layers.map(layer => {return this._graphData.getLyphByID(layer)});
         });
 
-        //Replace content id with lyph model
-        this._lyphs.filter(lyph => lyph.content).forEach(lyph => lyph.content = this._lyphs.find(x => x.id === lyph.content));
-
         //for each link, replace lyph id's with lyph model
-        this._graphData.links.forEach(link => link.conveyingLyph = this._lyphs.find(lyph => lyph.id === link.conveyingLyph));
+        this._graphData.links.forEach(link =>
+            link.conveyingLyph = this._graphData.getLyphByID(link.conveyingLyph));
 
-        //place empty layout object to simplify checking for constraints
-        this._graphData.nodes.forEach(node => node.layout = node.layout || {} );
+        /*Map initial positional constraints to match the scaled image*/
 
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
 
-        //Map initial positional constraints to match the scaled image
         this._graphData.nodes.forEach(node =>
             node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
 
-        this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor);
+        this._graphData.links.filter(link =>
+            link.length).forEach(link => link.length *= 2 * scaleFactor);
+
         console.log("Graph", this._graphData);
     }
 

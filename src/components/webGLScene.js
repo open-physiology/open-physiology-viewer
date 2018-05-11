@@ -1,5 +1,5 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
-import {StopPropagation} from './stopPropagation';
+//import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
@@ -18,15 +18,10 @@ import {
 const WindowResize = require('three-window-resize');
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from "../models/nodeModel";
-import {GraphModel} from "../models/graphModel";
-import {modelClasses} from "../models/utils";
-
 import {Lyph} from "../models/lyphModel";
-
 
 import { ModelInfoPanel } from './gui/modelInfo';
 import { SelectNameSearchBar } from './gui/selectNameSearchBar';
-
 
 @Component({
     selector: 'webGLScene',
@@ -155,11 +150,9 @@ export class WebGLSceneComponent {
     }
 
     @Input('ontologyNames') set ontologyNames( newOntologyNames ) {
-
         if (this._namesAvailable !== newOntologyNames) {
             this._namesAvailable = newOntologyNames.map(function (item){ return item.name; });
         }
-        console.log("this._namesAvailable: ", this._namesAvailable);
     }
 
     @Output() selectedByClickEvent = new EventEmitter();
@@ -290,6 +283,8 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
+        //TODO Perhaps create a GlobalModel class that handles the graph and extra entities (i.e., all lyphs)
+
         //Create
         this.graph = new ThreeForceGraph()
             .graphData(this._graphData || {});
@@ -326,141 +321,139 @@ export class WebGLSceneComponent {
     // Handle incoming Events
     // after selecting a 'name' from drop bar -- find in graph and highlight
     handleSelectedLyphEvent( namedItem ) {
-      console.log("handleSelectedLyphEvent: ", namedItem);
       let lyphToHighlight = this.getLyphByName( namedItem );
-      if (namedItem != this._selectedName){
+      if (namedItem !== this._selectedName){
         if (lyphToHighlight){
-          this._selectedName = namedItem
-          console.log("this._selectedName: ", this._selectedName);
+          this._selectedName = namedItem;
           this._selectedLyph = lyphToHighlight;
           this.unhighlightThenHighlight( lyphToHighlight );
         }
       }
     }
 
-    handleSearchUnhighlighted( hoveredName ){
-      let objectToUnhighlight = this.getLyphByName( hoveredName );
+    // handleSearchUnhighlighted( hoveredName ){
+    //   let objectToUnhighlight = this.getLyphByName( hoveredName );
+    //   if (objectToUnhighlight) {
+    //       this.unhighlightObject( objectToUnhighlight );
+    //   }
+    // }
 
-      if (objectToUnhighlight) this.unhighlightObject( objectToUnhighlight );
-
-    }
-
-    handleSearchHighlighted( unhoveredName ){
-      if (unhoveredName != this.highlightedName){
-        let highlightColor = 0xff0000;
-        let objToHighlight = this.getLyphByName( unhoveredName );
-
-        if (objToHighlight) this.highlightObject( objToHighlight, highlightColor );
-      }
-
-    }
+    // handleSearchHighlighted( unhoveredName ){
+    //   if (unhoveredName !== this.highlightedName){
+    //     let highlightColor = 0xff0000;
+    //     let objToHighlight = this.getLyphByName( unhoveredName );
+    //
+    //     if (objToHighlight) {
+    //         this.highlightObject( objToHighlight, highlightColor );
+    //     }
+    //   }
+    // }
 
 
     getLyphByName(name){
-      let useLayer; // in the instance the sort lyph is a layer
-      let lyphToSelect = this.graph.children.filter(child =>
-      {
-        if (child.__data){
-          if (child.__data.constructor.name == Lyph.name){
-            if (child.__data.name == name) {
-              return child;
-            } else {
-            if (child.__data.layers){
-                child.__data.layers.forEach(layer => {
-                  if (layer.viewObjects.lyphs["2d"].__data.name == name) useLayer = layer.viewObjects.lyphs["2d"];
-                });
-              }
+        let useLayer = undefined; // in the instance the sort lyph is a layer
+        let lyphToSelect = this.graph.children.filter(child => {
+            if (child.__data && child.__data.constructor.name === Lyph.name) {
+                if (child.__data.name === name) {
+                    return child;
+                } else {
+                    if (child.__data.layers) {
+                        child.__data.layers.forEach(layer => {
+                            if (layer.viewObjects.lyphs["2d"].__data.name === name) {
+                                useLayer = layer.viewObjects.lyphs["2d"];
+                            }
+                        });
+                    }
+                }
             }
-          }
-        }
-      });
-      if (lyphToSelect[0]) return lyphToSelect[0]; // return lyph if it was a whole lyph
-
-      if (useLayer) return useLayer; // return lyph if it was a layer
-
-      return undefined;
+        });
+        return lyphToSelect[0] || useLayer;
     }
 
     // Also search internally for internal layers
     getMousedOverObject(  ){
-      let mousedOverObject = null;
-      let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
-      vector.unproject( this.camera );
+        let mousedOverObject = null;
+        let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
+        vector.unproject(this.camera);
 
-      let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+        let ray = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize());
 
-      let intersects = ray.intersectObjects( this.graph.children );
+        let intersects = ray.intersectObjects(this.graph.children);
 
-      if ( intersects.length > 0 ){
-        if (!intersects[ 0 ].object.__data || intersects[ 0 ].object.__data.inactive){ return; }
-        // if the closest object intersected is not the currently stored intersection object
-
-          // store reference to closest object as current intersection object
-          mousedOverObject = intersects[ 0 ].object;
-
-          if (intersects[0].object.__data){
-
-            // store reference to object type to check for highlight type. E.g. Lyph.name
-            mousedOverObject.objName = intersects[0].object.__data.constructor.name;
-
-            // check if lyphmodel, then make highlight object a layer
-            if (mousedOverObject.objName == Lyph.name){
-              // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
-
-              let layerMeshes = [];
-              // Get layer meshes within lyph
-              if (intersects[0].object.__data.layers){
-                intersects[0].object.__data.layers.forEach(layer => { layerMeshes.push(layer.viewObjects.lyphs["2d"]) });
-
-                // Find layer with which mouse is hovering over.
-                let layerIntersects = ray.intersectObjects( layerMeshes );
-
-                // If layer was found, make it the highlighted item
-                if (layerIntersects.length > 0){
-                  mousedOverObject = layerIntersects[0].object;
-                }
-              }
+        if (intersects.length > 0) {
+            if (!intersects[0].object.__data || intersects[0].object.__data.inactive) {
+                return;
             }
-          }
-      }
-      return mousedOverObject;
+            // if the closest object intersected is not the currently stored intersection object
+
+            // store reference to closest object as current intersection object
+            mousedOverObject = intersects[0].object;
+
+            if (intersects[0].object.__data) {
+
+                // store reference to object type to check for highlight type. E.g. Lyph.name
+                mousedOverObject.objName = intersects[0].object.__data.constructor.name;
+
+                // check if lyphmodel, then make highlight object a layer
+                if (mousedOverObject.objName == Lyph.name) {
+                    // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
+
+                    let layerMeshes = [];
+                    // Get layer meshes within lyph
+                    if (intersects[0].object.__data.layers) {
+                        intersects[0].object.__data.layers.forEach(layer => {
+                            layerMeshes.push(layer.viewObjects.lyphs["2d"])
+                        });
+
+                        // Find layer with which mouse is hovering over.
+                        let layerIntersects = ray.intersectObjects(layerMeshes);
+
+                        // If layer was found, make it the highlighted item
+                        if (layerIntersects.length > 0) {
+                            mousedOverObject = layerIntersects[0].object;
+                        }
+                    }
+                }
+            }
+        }
+        return mousedOverObject;
     }
 
     // Highlight a webgl object
     highlightObject( objectToHighlight, highlightColor){
 
-      // store color of closest object (for later restoration)
-      if ( objectToHighlight ){
-        if ( objectToHighlight.__data ){
-          if ( objectToHighlight.__data.name != this._selectedName ){
-            objectToHighlight.currentHex = objectToHighlight.material.color.getHex();
-            (objectToHighlight.children || []).forEach(child => {
-              // if (child.visible && child.material){    ||| not sure if the visible part is necessary
-                if (child.material){
-                    child.currentHex = child.material.color.getHex();
+        // store color of closest object (for later restoration)
+        if (objectToHighlight) {
+            if (objectToHighlight.__data) {
+                if (objectToHighlight.__data.name != this._selectedName) {
+                    objectToHighlight.currentHex = objectToHighlight.material.color.getHex();
+                    (objectToHighlight.children || []).forEach(child => {
+                        // if (child.visible && child.material){    ||| not sure if the visible part is necessary
+                        if (child.material) {
+                            child.currentHex = child.material.color.getHex();
 
+                        }
+                    });
                 }
-            });
-          }
+            }
         }
-      }
 
 
-      // set a new color for closest object
-      objectToHighlight.material.color.setHex( highlightColor );
-      (objectToHighlight.children || []).forEach(child => {
+        // set a new color for closest object
+        objectToHighlight.material.color.setHex(highlightColor);
+        (objectToHighlight.children || []).forEach(child => {
 
-          // if (child.visible && child.material){    ||| not sure if the visible part is necessary
-          if (child.material){
-              child.material.color.setHex( highlightColor );
-          }
-      });
+            // if (child.visible && child.material){    ||| not sure if the visible part is necessary
+            if (child.material) {
+                child.material.color.setHex(highlightColor);
+            }
+        });
 
-      this.highlightedItemChange.emit(objectToHighlight);
+        this.highlightedItemChange.emit(objectToHighlight);
 
-      this.highlightedName = objectToHighlight.__data.name;
+        this.highlightedName = objectToHighlight.__data.name;
 
-      return objectToHighlight;
+        return objectToHighlight;
 
     }
 

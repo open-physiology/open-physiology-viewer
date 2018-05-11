@@ -35,6 +35,10 @@ const initValue = (specObj) => specObj.default
                     :null
         :null);
 
+/**
+ * Returns recognized class properties from the specification
+ * @param className
+ */
 const getObjSpec = className => types[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
 
 
@@ -54,11 +58,15 @@ export class Entity {
         const res = new cls(json.id);
 
         //spec
-        // let specKeys = getObjSpec(cls.name);
-        // let difference = new Set( json::keys().filter(x => !specKeys.find((key, value) => key === x) ));
-        // console.log(difference);
+        let difference = json::keys().filter(x => !res::keys().find(y => y === x));
+        if (difference.length > 0){
+            console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference);
+        }
 
         res::assign(json);
+
+        //TODO unify: host, internalLyphs, internalNodes, belongsToLyph, content, container, linkInLyph
+        //TODO for 'offset' property, use a uniform system to determine inner nodes positions
 
         return res;
     }
