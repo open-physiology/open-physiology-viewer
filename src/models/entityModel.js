@@ -60,7 +60,7 @@ export class Entity {
         //spec
         let difference = json::keys().filter(x => !res::keys().find(y => y === x));
         if (difference.length > 0){
-            console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference);
+            console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
         }
 
         res::assign(json);

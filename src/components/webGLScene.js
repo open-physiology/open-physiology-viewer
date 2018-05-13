@@ -2,7 +2,7 @@ import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter}
 //import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-
+import {keys} from 'lodash-bound';
 import * as THREE from 'three';
 
 const OrbitControls = require('three-orbit-controls')(THREE);
@@ -17,11 +17,11 @@ import {
 
 const WindowResize = require('three-window-resize');
 import {LINK_TYPES} from '../models/linkModel';
-import {NODE_TYPES} from "../models/nodeModel";
-import {Lyph} from "../models/lyphModel";
+import {NODE_TYPES} from '../models/nodeModel';
+import {Lyph} from '../models/lyphModel';
 
-import { ModelInfoPanel } from './gui/modelInfo';
-import { SelectNameSearchBar } from './gui/selectNameSearchBar';
+import {ModelInfoPanel} from './gui/modelInfo';
+import {SelectNameSearchBar} from './gui/selectNameSearchBar';
 
 @Component({
     selector: 'webGLScene',
@@ -42,102 +42,113 @@ import { SelectNameSearchBar } from './gui/selectNameSearchBar';
                     </section>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
-                        <input type="checkbox" class="w3-check" name="node_label" (change)="toggleNodeLabels()" checked/> Node
-                        <input type="checkbox" class="w3-check" name="link_label" (change)="toggleLinkLabels()"/> Link
-                        <input type="checkbox" class="w3-check" name="lyph_label" (change)="toggleLyphLabels()"/> Lyph
-                        <fieldset *ngIf="_showNodeLabels" class="w3-round">
-                            <legend>Node label</legend>
-                            <input type="radio" class="w3-radio" name="node_label"
-                                   (change)="updateLabelContent('node', 'id')" checked/> Id
-                            <input type="radio" class="w3-radio" name="node_label"
-                                   (change)="updateLabelContent('node', 'name')"/> Name
-                            <input type="radio" class="w3-radio" name="node_label"
-                                   (change)="updateLabelContent('node', 'external')"/> External
-                        </fieldset>
-                        <fieldset *ngIf="_showLinkLabels" class="w3-round">
-                            <legend>Link label</legend>
-                            <input type="radio" class="w3-radio" name="link_label"
-                                   (change)="updateLabelContent('link', 'id')" checked/> Id
-                            <input type="radio" class="w3-radio" name="link_label"
-                                   (change)="updateLabelContent('link', 'name')"/> Name
-                            <input type="radio" class="w3-radio" name="link_label"
-                                   (change)="updateLabelContent('link', 'external')"/> External
-                        </fieldset>
-                        <fieldset *ngIf="_showLyphLabels" class="w3-round">
-                            <legend>Lyph label</legend>
-                            <input type="radio" class="w3-radio" name="lyph_label"
-                                   (change)="updateLabelContent('lyph', 'id')" checked/> Id
-                            <input type="radio" class="w3-radio" name="lyph_label"
-                                   (change)="updateLabelContent('lyph', 'name')"/> Name
-                            <input type="radio" class="w3-radio" name="lyph_label"
-                                   (change)="updateLabelContent('lyph', 'external')"/> External
-                        </fieldset>
+                        <span *ngFor="let labelClass of _labelClasses">
+                            <input type="checkbox" class="w3-check"
+                                   [name]="labelClass"
+                                   [checked]="_showLabels[labelClass]"
+                                   (change)="toggleLabels(labelClass)"/> {{labelClass}}
+                        </span>
+                        <span *ngFor="let labelClass of _labelClasses">
+                            <fieldset *ngIf="_showLabels[labelClass]" class="w3-card w3-round w3-margin-small">
+                                <legend>{{labelClass}} label</legend>
+                                <span *ngFor="let labelProp of _labelProps">
+                                    <input type="radio" class="w3-radio"
+                                           [name]="labelClass"
+                                           [checked]="_labels[labelClass] === labelProp"
+                                           (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
+                                </span>
+                            </fieldset>
+                        </span>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                        <span *ngIf="_showLyphs" >
-                            <input type="checkbox" class="w3-check" name="layers" (change)="toggleLayers()"
-                                   [checked]="_showLayers"/> Layers
+                        <span *ngIf="_showLyphs">
+                            <input type="checkbox" class="w3-check" name="layers"
+                                   (change)="toggleLayers()" [checked]="_showLayers"/> Layers
                         </span>
                         <br/>
-                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideTrees')"/> Omega trees
-                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideCoalescences')"/> Coalescences
+                        <input type="checkbox" name="switch" class="w3-check"
+                               (change)="toggleGroup('hideTrees')"/> Omega trees
+                        <input type="checkbox" name="switch" class="w3-check"
+                               (change)="toggleGroup('hideCoalescences')"/> Coalescences
                         <br/>
-                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideContainers')"/> Container lyphs
+                        <input type="checkbox" name="switch" class="w3-check"
+                               (change)="toggleGroup('hideContainers')"/> Container lyphs
                         <br/>
-                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
-                        <input type="checkbox" name="switch" class="w3-check" (change)="toggleGroup('hideNeurons')"/> Neurons
+                        <input type="checkbox" name="switch" class="w3-check"
+                               (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
+                        <input type="checkbox" name="switch" class="w3-check"
+                               (change)="toggleGroup('hideNeurons')"/> Neurons
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
-                        <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid x-y
-                        <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['x-z'])"/> Grid x-z
-                        <input type="checkbox" name="planes"  class="w3-check" (change)="togglePlanes(['axis'])"/> Axis
+                        <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid
+                        x-y
+                        <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['x-z'])"/> Grid
+                        x-z
+                        <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['axis'])"/> Axis
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small-small">
-                        <legend>Select Name:</legend>
-                        <selectNameSearchBar [selectedName]="_selectedName" [namesAvailable]="_namesAvailable" (selectedBySearchEvent)="handleSelectedLyphEvent($event)"></selectNameSearchBar>
+                        <legend>Select lyph</legend>
+                        <selectNameSearchBar [selectedName]="_selectedLyphName" [namesAvailable]="_namesAvailable"
+                                             (selectedBySearchEvent)="selectBySearchEventHandler($event)"></selectNameSearchBar>
                     </fieldset>
-                    <modelInfoPanel *ngIf="!!_highlighted && !!_highlighted.__data" [model] = _highlighted.__data></modelInfoPanel>
+                    <fieldset *ngIf="!!_selected && !!_selected.__data" class="w3-card w3-round w3-margin-small">
+                        <legend>Selected</legend>
+                        <modelInfoPanel [model]=_selected.__data></modelInfoPanel>
+                    </fieldset>
+                    <fieldset *ngIf="!!_highlighted && !!_highlighted.__data" class="w3-card w3-round w3-margin-small">
+                        <legend>Highlighted</legend>
+                            <modelInfoPanel [model]=_highlighted.__data></modelInfoPanel>
+                    </fieldset>
                 </section>
             </section>
         </section>
     `,
-  styles: [`
-        #viewPanel{
-          z-index: 5;
+    styles: [`
+        #viewPanel {
+            z-index: 5;
         }
 
         :host >>> fieldset {
-            border:1px solid grey;
+            border: 1px solid grey;
             margin: 2px;
         }
 
         :host >>> legend {
             padding: 0.2em 0.5em;
-            border:1px solid grey;
-            color:grey;
-            font-size:90%;
-            text-align:right;
+            border: 1px solid grey;
+            color: grey;
+            font-size: 90%;
+            text-align: right;
         }
-        button:focus {outline:0 !important;}
+
+        button:focus {
+            outline: 0 !important;
+        }
     `]
 })
 export class WebGLSceneComponent {
-  @ViewChild('canvas') canvas: ElementRef;
-  scene;
-  camera;
-  renderer;
-  canvasContainer;
-  controls;
-  mouse;
-  windowResize;
-  width;
-  height;
-  _highlighted;
-  _namesAvailable;
-  _selectedName;
+    @ViewChild('canvas') canvas: ElementRef;
+    scene;
+    camera;
+    renderer;
+    canvasContainer;
+    controls;
+    mouse;
+    windowResize;
+    width;
+    height;
+
+    _highlighted = null;
+    _selected    = null;
+
+    _namesAvailable;
+    _selectedLyphName = "";
+
+    highlightColor = 0xff0000;
+    selectColor    = 0x00ff00;
 
     graph;
     helpers = {};
@@ -145,92 +156,96 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            if (this.graph) { this.graph.graphData(this._graphData); }
+            if (this.graph) {
+                this.graph.graphData(this._graphData);
+            }
         }
     }
 
-    @Input('ontologyNames') set ontologyNames( newOntologyNames ) {
+    @Input('ontologyNames') set ontologyNames(newOntologyNames) {
         if (this._namesAvailable !== newOntologyNames) {
-            this._namesAvailable = newOntologyNames.map(function (item){ return item.name; });
+            this._namesAvailable = newOntologyNames.map(function (item) {
+                return item.name;
+            });
         }
     }
-
-    @Output() selectedByClickEvent = new EventEmitter();
-
 
     /**
      * @emits highlightedItemChange - the highlighted item changed
      */
     @Output() highlightedItemChange = new EventEmitter();
 
+    /**
+     * @emits selectedItemChange - the selected item changed
+     */
+    @Output() selectedItemChange = new EventEmitter();
 
-    get graphData(){
+    get graphData() {
         return this._graphData;
     }
 
     constructor() {
-       this._showLyphs  = true;
-       this._showLayers = true;
-       this._showNodeLabels = true;
-       this._showLinkLabels = false;
-       this._showLyphLabels = false;
-       this._hideNeural     = false;
-       this._hideLinks = {
-           hideTrees       : true,
-           hideCoalescences: true,
-           hideContainers  : true,
-           hideNeurons     : true
-       };
-       this._numDimensions = 3;
-       this.mousedOverObject = null;
-       this._highlighted = null;
-       this._selectedName = "";
+        this._showLyphs = true;
+        this._showLayers = true;
+        this._showLabels = {
+            "Node": true,
+            "Link": false,
+            "Lyph": false
+        };
+        this._labelClasses = this._showLabels::keys();
+        this._labelProps   = ["id", "name", "external"];
+        this._labels       = {Node: "id", Link: "id", Lyph: "id"};
+
+        this._hideNeural = false;
+        this._hideLinks = {
+            hideTrees: true,
+            hideCoalescences: true,
+            hideContainers: true,
+            hideNeurons: true
+        };
     }
 
-    ngAfterViewInit(){
-      if (this.renderer) {return;} //already initialized
-      //We start from switched off omega threes and container lyphs
-      this._graphData.toggleLinks(this._hideLinks);
-      this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
-      this.renderer.setClearColor(0xffffff);
+    ngAfterViewInit() {
+        if (this.renderer) {  return; }
 
-      this.canvasContainer = document.getElementById('canvasContainer');
-      this.width  = this.canvasContainer.clientWidth;
-      this.height = this.canvasContainer.clientHeight;
+        //We start from switched off omega threes and container lyphs
+        this._graphData.toggleLinks(this._hideLinks);
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+        this.renderer.setClearColor(0xffffff);
 
-      this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 100);
-      this.camera.position.set(0, 100, 500);
-      this.camera.aspect = this.width / this.height;
+        this.canvasContainer = document.getElementById('canvasContainer');
+        let width = this.canvasContainer.clientWidth;
+        let height = this.canvasContainer.clientHeight;
 
-      //this.controls = new TrackballControls(this.camera, container);
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.camera = new THREE.PerspectiveCamera(70, width / height, 100);
+        this.camera.position.set(0, 100, 500);
+        this.camera.aspect = width / height;
 
-      this.scene = new THREE.Scene();
-      this.camera.updateProjectionMatrix();
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-      // For resizing
+        this.scene = new THREE.Scene();
+        this.camera.updateProjectionMatrix();
 
-      // Lights
-      const ambientLight = new THREE.AmbientLight(0xcccccc);
-      this.scene.add(ambientLight);
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xcccccc);
+        this.scene.add(ambientLight);
 
-      const pointLight = new THREE.PointLight(0xffffff);
-      pointLight.position.set(300, 0, 300);
-      this.scene.add(pointLight);
+        const pointLight = new THREE.PointLight(0xffffff);
+        pointLight.position.set(300, 0, 300);
+        this.scene.add(pointLight);
 
-      this.mouse = new THREE.Vector2(0, 0);
-      this.createEventListeners(); // keyboard / mouse events
-      this.resizeCanvasToDisplaySize();
-      this.createHelpers();
-      this.createGraph();
-      this.animate();
+        this.mouse = new THREE.Vector2(0, 0);
+        this.createEventListeners(); // keyboard / mouse events
+        this.resizeCanvasToDisplaySize();
+        this.createHelpers();
+        this.createGraph();
+        this.animate();
     }
 
-
-    createEventListeners(){
-      window.addEventListener( 'mousemove', evt => this.onMouseMove(evt), false );
-      window.addEventListener( 'mousedown', evt => this.onMouseDown(evt), false );
-      window.addEventListener( 'keydown',   evt => this.onKeyDown(evt)  , false );
+    createEventListeners() {
+        window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
+        window.addEventListener('mousedown', evt => this.onMouseDown(evt), false );
+        window.addEventListener('keydown'  , evt => this.onKeyDown(evt), false);
     }
 
     resizeCanvasToDisplaySize(force) {
@@ -239,21 +254,23 @@ export class WebGLSceneComponent {
         const width  = this.canvasContainer.clientWidth;
         const height = this.canvasContainer.clientHeight;
 
-        const dimension = function(){ return { width, height } };
+        const dimensions = function(){
+            return { width, height }
+        };
 
         if (force || canvas.width !== width || canvas.height !== height) {
-            this.windowResize = new WindowResize(this.renderer, this.camera, dimension);
+            this.windowResize = new WindowResize(this.renderer, this.camera, dimensions);
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
-            this.width = this.canvasContainer.clientWidth;
-            this.height = this.canvasContainer.clientHeight;
             window.dispatchEvent(new Event('resize'));
         }
     }
 
     animate() {
         this.resizeCanvasToDisplaySize();
-        if (this.graph) { this.graph.tickFrame(); }
+        if (this.graph) {
+            this.graph.tickFrame();
+        }
         this.controls.update();
 
         this.renderer.render(this.scene, this.camera);
@@ -266,7 +283,7 @@ export class WebGLSceneComponent {
 
         // x-y plane
         let gridHelper1 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
-        gridHelper1.geometry.rotateX( Math.PI / 2 );
+        gridHelper1.geometry.rotateX(Math.PI / 2);
         this.scene.add(gridHelper1);
         this.helpers["x-y"] = gridHelper1;
 
@@ -275,8 +292,8 @@ export class WebGLSceneComponent {
         this.scene.add(gridHelper2);
         this.helpers["x-z"] = gridHelper2;
 
-        let axisHelper = new THREE.AxisHelper( 510 );
-        this.scene.add( axisHelper );
+        let axisHelper = new THREE.AxisHelper(510);
+        this.scene.add(axisHelper);
         this.helpers["axis"] = axisHelper;
 
         this.togglePlanes(["x-y", "x-z", "axis"]);
@@ -289,327 +306,173 @@ export class WebGLSceneComponent {
         this.graph = new ThreeForceGraph()
             .graphData(this._graphData || {});
 
-        this.graph.d3Force("x", forceX().x(d => ('x' in d.layout)? d.layout.x: 0)
-            .strength(d => ('x' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5) : 0)
+        this.graph.d3Force("x", forceX().x(d => ('x' in d.layout) ? d.layout.x : 0)
+            .strength(d => ('x' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
         );
 
-        this.graph.d3Force("y", forceY().y(d => ('y' in d.layout)? d.layout.y: 0)
-            .strength(d => ('y' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5): 0)
+        this.graph.d3Force("y", forceY().y(d => ('y' in d.layout) ? d.layout.y : 0)
+            .strength(d => ('y' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
         );
 
-        this.graph.d3Force("z", forceZ().z(d => ('z' in d.layout)? d.layout.z: 0)
-            .strength(d => ('z' in d.layout)? ((d.type === NODE_TYPES.CORE)? 1: 0.5): 0)
+        this.graph.d3Force("z", forceZ().z(d => ('z' in d.layout) ? d.layout.z : 0)
+            .strength(d => ('z' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
         );
 
         this.graph.d3Force("link")
             .distance(d => d.length)
-            .strength(d => (d.strength? d.strength:
-                (d.type === LINK_TYPES.CONTAINER)? 0: 1));
+            .strength(d => (d.strength ? d.strength :
+                (d.type === LINK_TYPES.CONTAINER) ? 0 : 1));
 
-        // this.graph.d3Force("radial", forceRadial( d => {
-        //     return (('r' in d.layout)? d.layout.r: 0);
-        // }).strength(d => ('r' in d.layout)? 5: 0));
         this.scene.add(this.graph);
         this.toggleNeuralLyphs();
     }
 
-    update(){
-        this.graph.numDimensions(this._numDimensions);
-    }
-
-
-    // Handle incoming Events
-    // after selecting a 'name' from drop bar -- find in graph and highlight
-    handleSelectedLyphEvent( namedItem ) {
-      let lyphToHighlight = this.getLyphByName( namedItem );
-      if (namedItem !== this._selectedName){
-        if (lyphToHighlight){
-          this._selectedName = namedItem;
-          this._selectedLyph = lyphToHighlight;
-          this.unhighlightThenHighlight( lyphToHighlight );
+    update() {
+        //TODO trigger update in some other way as dimension does not change anymore
+        if (this.graph){
+            this.graph.numDimensions(3);
         }
-      }
-    }
-
-    // handleSearchUnhighlighted( hoveredName ){
-    //   let objectToUnhighlight = this.getLyphByName( hoveredName );
-    //   if (objectToUnhighlight) {
-    //       this.unhighlightObject( objectToUnhighlight );
-    //   }
-    // }
-
-    // handleSearchHighlighted( unhoveredName ){
-    //   if (unhoveredName !== this.highlightedName){
-    //     let highlightColor = 0xff0000;
-    //     let objToHighlight = this.getLyphByName( unhoveredName );
-    //
-    //     if (objToHighlight) {
-    //         this.highlightObject( objToHighlight, highlightColor );
-    //     }
-    //   }
-    // }
-
-
-    getLyphByName(name){
-        let useLayer = undefined; // in the instance the sort lyph is a layer
-        let lyphToSelect = this.graph.children.filter(child => {
-            if (child.__data && child.__data.constructor.name === Lyph.name) {
-                if (child.__data.name === name) {
-                    return child;
-                } else {
-                    if (child.__data.layers) {
-                        child.__data.layers.forEach(layer => {
-                            if (layer.viewObjects.lyphs["2d"].__data.name === name) {
-                                useLayer = layer.viewObjects.lyphs["2d"];
-                            }
-                        });
-                    }
-                }
-            }
-        });
-        return lyphToSelect[0] || useLayer;
     }
 
     // Also search internally for internal layers
-    getMousedOverObject(  ){
-        let mousedOverObject = null;
+    getMousedOverObject() {
         let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
         vector.unproject(this.camera);
-
         let ray = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize());
 
         let intersects = ray.intersectObjects(this.graph.children);
-
         if (intersects.length > 0) {
-            if (!intersects[0].object.__data || intersects[0].object.__data.inactive) {
-                return;
-            }
-            // if the closest object intersected is not the currently stored intersection object
-
-            // store reference to closest object as current intersection object
-            mousedOverObject = intersects[0].object;
-
-            if (intersects[0].object.__data) {
-
-                // store reference to object type to check for highlight type. E.g. Lyph.name
-                mousedOverObject.objName = intersects[0].object.__data.constructor.name;
-
-                // check if lyphmodel, then make highlight object a layer
-                if (mousedOverObject.objName == Lyph.name) {
-                    // console.log("intersects[0].object.__data.layers: ", intersects[0].object.__data.layers);
-
-                    let layerMeshes = [];
-                    // Get layer meshes within lyph
-                    if (intersects[0].object.__data.layers) {
-                        intersects[0].object.__data.layers.forEach(layer => {
-                            layerMeshes.push(layer.viewObjects.lyphs["2d"])
-                        });
-
-                        // Find layer with which mouse is hovering over.
-                        let layerIntersects = ray.intersectObjects(layerMeshes);
-
-                        // If layer was found, make it the highlighted item
-                        if (layerIntersects.length > 0) {
-                            mousedOverObject = layerIntersects[0].object;
-                        }
-                    }
+            if (!intersects[0].object.__data || intersects[0].object.__data.inactive) { return; }
+            //Refine selection to layers
+            if (intersects[0].object.__data.layers) {
+                let layerMeshes = intersects[0].object.__data.layers.map(layer => layer.viewObjects["main"]);
+                let layerIntersects = ray.intersectObjects(layerMeshes);
+                if (layerIntersects.length > 0) {
+                    return layerIntersects[0].object;
                 }
             }
+            return intersects[0].object;
         }
-        return mousedOverObject;
     }
 
-    // Highlight a webgl object
-    highlightObject( objectToHighlight, highlightColor){
-
-        // store color of closest object (for later restoration)
-        if (objectToHighlight) {
-            if (objectToHighlight.__data) {
-                if (objectToHighlight.__data.name != this._selectedName) {
-                    objectToHighlight.currentHex = objectToHighlight.material.color.getHex();
-                    (objectToHighlight.children || []).forEach(child => {
-                        // if (child.visible && child.material){    ||| not sure if the visible part is necessary
-                        if (child.material) {
-                            child.currentHex = child.material.color.getHex();
-
-                        }
-                    });
-                }
-            }
+    set highlighted(obj) {
+        if (this.highlighted === obj){ return; }
+        if (this.highlighted !== this.selected){
+            this.unhighlight(this._highlighted);
+        } else {
+            this.highlight(this.selected, this.selectColor, false);
         }
-
-
-        // set a new color for closest object
-        objectToHighlight.material.color.setHex(highlightColor);
-        (objectToHighlight.children || []).forEach(child => {
-
-            // if (child.visible && child.material){    ||| not sure if the visible part is necessary
-            if (child.material) {
-                child.material.color.setHex(highlightColor);
-            }
-        });
-
-        this.highlightedItemChange.emit(objectToHighlight);
-
-        this.highlightedName = objectToHighlight.__data.name;
-
-        return objectToHighlight;
-
+        this.highlight(obj, this.highlightColor, obj !== this._selected);
+        this._highlighted = obj;
+        this.highlightedItemChange.emit(obj);
     }
 
-    // Unhighlight a webgl object
-    unhighlightObject( objectToUnhighlight ){
+    get highlighted(){
+        return this._highlighted;
+    }
+
+    set selected(obj){
+        if (this.selected === obj){ return; }
+        this.unhighlight(this._selected);
+        this.highlight(obj, this.selectColor, obj !== this.highlighted);
+        this._selected = obj;
+        this._selectedLyphName = obj && obj.__data && (obj.__data.constructor.name === Lyph.name)? obj.__data.name: "";
+        this.selectedItemChange.emit(obj);
+    }
+
+    get selected(){
+        return this._selected;
+    }
+
+    highlight(obj, color, rememberColor = true){
+        if (obj && obj.material) {
+            // store color of closest object (for later restoration)
+            if (rememberColor){
+                obj.currentHex = obj.material.color.getHex();
+                (obj.children || []).filter(child => child.material).forEach(child => {
+                    child.currentHex = child.material.color.getHex();
+                });
+            }
+
+            // set a new color for closest object
+            obj.material.color.setHex(color);
+            (obj.children || []).filter(child => child.material).forEach(child => {
+                child.material.color.setHex(color);
+            });
+        }
+    }
+
+    unhighlight(obj){
         // restore previous intersection object (if it exists) to its original color
-        if ( objectToUnhighlight ) {
-            objectToUnhighlight.material.color.setHex(objectToUnhighlight.currentHex);
-            (objectToUnhighlight.children || []).forEach(child => {
-                if (child.material){
-                    child.material.color.setHex( child.currentHex );
-
-                }
+        if (obj){
+            if (obj.material && obj.currentHex){
+                obj.material.color.setHex( obj.currentHex );
+            }
+            (obj.children || []).filter(child => child.material && child.currentHex).forEach(child => {
+                child.material.color.setHex( child.currentHex );
             })
         }
-        objectToUnhighlight = null;
-        this.highlightedItemChange.emit( objectToUnhighlight );
-
-        return objectToUnhighlight;
     }
 
-
-    // hideHighlighted()
-    // {
-    //   if (this._highlighted){
-    //       (this._highlighted.children || []).forEach(child => {
-    //           child.visible = false;
-    //           // console.log("hiding child: ", child);
-    //       });
-    //
-    //       // console.log("hiding parent: ", this._highlighted);
-    //       this._highlighted.visible = false;
-    //     }
-    // }
-
-
-
-
-
-    // handle unhighlighting and highlighting
-    unhighlightThenHighlight( objToHighlight ){
-      let highlightColor = 0xff0000;
-
-      // First unhighlight previously highlighted
-      if (this._highlighted){
-        if ( this._highlighted.__data ){
-          if ( this._highlighted.__data.name != this._selectedName ){
-            // unhighlight selected
-            this._highlighted = this.unhighlightObject( this._highlighted );
-
-          }
-        } else {
-          this._highlighted = this.unhighlightObject( this._highlighted );
+    selectBySearchEventHandler(name) {
+        if (this.graph && (name !== this._selectedLyphName)) {
+            let lyph = this._graphData.getLyphByName(name);
+            this.selected = lyph? lyph.viewObjects["main"]: null;
         }
-      }
-
-      // Highlight object
-      if (objToHighlight){
-        this._highlighted = this.unhighlightObject( this._highlighted );
-
-        // To handle "selected" lyphs green colouring
-        // check whether we have a 'selected item' and change highlight color accordingly.
-        if (this._selectedLyph && objToHighlight.__data) {
-          if (this._selectedLyph.__data){
-            if (this._selectedLyph.__data.name == objToHighlight.__data.name) {
-              highlightColor = 0x00ff00;
-            }
-          }
-        }
-
-        this._highlighted = this.highlightObject( objToHighlight, highlightColor);
-      }
     }
 
-    // Handle user input controls, eg, keyboard and mouse events
-    // Handle mouse move
-    onMouseMove(evt) {
-      // calculate mouse position in normalized device coordinates
-      // (-1 to +1) for both components
-      let rect = this.renderer.domElement.getBoundingClientRect();
-      this.mouse.x = ( ( evt.clientX - rect.left ) / ( rect.width - rect.left ) ) * 2 - 1;
-      this.mouse.y = - ( ( evt.clientY - rect.top ) / ( rect.bottom - rect.top) ) * 2 + 1;
-
-      this.mousedOverObject = this.getMousedOverObject( );
-
-      // handle highlighting
-      this.unhighlightThenHighlight( this.mousedOverObject );
-
-    }
-
-
-    getLyphClickedOn(){
-      let lyphClickedOn;
-      if (this._highlighted){
-        if (this._highlighted.__data.constructor.name == Lyph.name){
-          if (this._highlighted.__data.name){
-            lyphClickedOn = this._highlighted.__data.name;
-            this._selectedLyph = this._highlighted;
-            this.unhighlightThenHighlight( this._selectedLyph );
-
-          }
-        }
-      }
-      return lyphClickedOn;
-    }
-
-
-    // Handle mouse click
     onMouseDown(evt) {
-
-      // Check if a lyph is being selected.
-      let lyphClickedOn = this.getLyphClickedOn();
-      if (lyphClickedOn){
-        this._selectedName = lyphClickedOn;
-      }
+        this.selected = this.getMousedOverObject();
     }
 
-    onKeyDown(evt){
+    onMouseMove(evt) {
+        // calculate mouse position in normalized device coordinates
+        let rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ( ( evt.clientX - rect.left ) / ( rect.width - rect.left ) ) * 2 - 1;
+        this.mouse.y = -( ( evt.clientY - rect.top ) / ( rect.bottom - rect.top) ) * 2 + 1;
 
-      let keyCode = evt.which;
-      if (evt.ctrlKey){
-          evt.preventDefault();
-          switch(keyCode){
-              case 37: // Left arrow
-                  break;
-              case 39: // Right arrow
-                  break;
-              case 40: // Down arrow
-                  this.zoom(-10);
-                  break;
-              case 38: // Up arrow
-                  this.zoom(10);
-          }
-      } else {
-          if (evt.shiftKey){
-              // I comment this out so that I can do cmd+shft+R (Hard refresh) during coding
-              // evt.preventDefault();
-              switch(keyCode){
-                  case 37: // Left arrow
-                      this.rotateScene(-10, 0);
-                      break;
-                  case 39: // Right arrow
-                      this.rotateScene(10, 0);
-                      break;
-                  case 40: // Down arrow
-                      this.rotateScene(0, 10);
-                      break;
-                  case 38: // Up arrow
-                      this.rotateScene(0, -10);
-              }
-          }
-      }
+        this.highlighted = this.getMousedOverObject();
+    }
+
+    onKeyDown(evt) {
+
+        let keyCode = evt.which;
+        if (evt.ctrlKey) {
+            evt.preventDefault();
+            switch (keyCode) {
+                case 37: // Left arrow
+                    break;
+                case 39: // Right arrow
+                    break;
+                case 40: // Down arrow
+                    this.zoom(-10);
+                    break;
+                case 38: // Up arrow
+                    this.zoom(10);
+            }
+        } else {
+            if (evt.shiftKey) {
+                // I comment this out so that I can do cmd+shft+R (Hard refresh) during coding
+                // evt.preventDefault();
+                switch (keyCode) {
+                    case 37: // Left arrow
+                        this.rotateScene(-10, 0);
+                        break;
+                    case 39: // Right arrow
+                        this.rotateScene(10, 0);
+                        break;
+                    case 40: // Down arrow
+                        this.rotateScene(0, 10);
+                        break;
+                    case 38: // Up arrow
+                        this.rotateScene(0, -10);
+                }
+            }
+        }
 
     }
 
-    zoom(delta){
+    zoom(delta) {
         this.camera.position.z += delta;
         this.camera.lookAt(this.scene.position);
     }
@@ -620,73 +483,61 @@ export class WebGLSceneComponent {
         this.camera.lookAt(this.scene.position);
     }
 
-    //Toggle scene elements
+    /* Toggle scene elements */
 
-    togglePlanes(keys){
-        keys.filter(key => this.helpers[key]).forEach(key => {this.helpers[key].visible = !this.helpers[key].visible});
+    togglePlanes(keys) {
+        keys.filter(key => this.helpers[key]).forEach(key => {
+            this.helpers[key].visible = !this.helpers[key].visible
+        });
     }
 
-    toggleLyphs(){
+    toggleLyphs() {
         this._showLyphs = !this._showLyphs;
         this.graph.showLyphs(this._showLyphs);
     }
 
-    toggleLayers(){
+    toggleLayers() {
         this._showLayers = !this._showLayers;
         this.graph.showLayers(this._showLayers);
     }
 
-    toggleLyphIcon(value){
+    toggleLyphIcon(value) {
         this.graph.method(value);
     }
 
-    toggleNodeLabels(){
-        this._showNodeLabels = !this._showNodeLabels;
-        this.graph.showNodeLabel(this._showNodeLabels);
+    toggleLabels(labelClass) {
+        this._showLabels[labelClass] = !this._showLabels[labelClass];
+        this.graph.showLabels(this._showLabels);
     }
 
-    toggleLinkLabels(){
-        this._showLinkLabels = !this._showLinkLabels;
-        this.graph.showLinkLabel(this._showLinkLabels);
+    updateLabelContent(target, property) {
+        this._labels[target] = property;
+        this.graph.labels(this._labels);
     }
 
-    toggleLyphLabels(){
-        this._showLyphLabels = !this._showLyphLabels;
-        this.graph.showLyphLabel(this._showLyphLabels);
-    }
-
-    toggleDimensions(numDimensions) {
-        this._numDimensions = numDimensions;
-        this.graph.numDimensions(numDimensions);
-    };
-
-    toggleGroup(hideGroup){
+    toggleGroup(hideGroup) {
         this._hideLinks[hideGroup] = !this._hideLinks[hideGroup];
         this._graphData.toggleLinks(this._hideLinks);
-        if (this.graph) { this.graph.graphData(this._graphData); }
+        if (this.graph) {
+            this.graph.graphData(this._graphData);
+        }
     }
 
-    toggleNeuralLyphs(){
+    toggleNeuralLyphs() {
         this._hideNeural = !this._hideNeural;
         this._graphData.links.filter(link => link.name === "Ependymal")
             .forEach(link => link.conveyingLyph.hidden = this._hideNeural);
-        if (this.graph) { this.graph.graphData(this._graphData); }
-    }
-
-    updateLabelContent(target, property){
-        switch(target){
-            case 'node': { this.graph.nodeLabel(property); return; }
-            case 'link': { this.graph.linkLabel(property); return; }
-            case 'lyph': { this.graph.iconLabel(property); }
+        if (this.graph) {
+            this.graph.graphData(this._graphData);
         }
     }
 }
 
 @NgModule({
-    imports     : [ CommonModule, FormsModule, ReactiveFormsModule ],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule],
     // I comment out stop propagation so that I can do cmd+shft+R (Hard refresh) during coding
-    // declarations: [ WebGLSceneComponent, ModelInfoPanel, SelectNameSearchBar, StopPropagation ],
-    declarations: [ WebGLSceneComponent, ModelInfoPanel, SelectNameSearchBar ],
-    exports     : [ WebGLSceneComponent ]
+    declarations: [WebGLSceneComponent, ModelInfoPanel, SelectNameSearchBar /*StopPropagation */],
+    exports: [WebGLSceneComponent]
 })
-export class WebGLSceneModule {}
+export class WebGLSceneModule {
+}

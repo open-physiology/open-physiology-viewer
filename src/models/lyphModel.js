@@ -343,7 +343,7 @@ export class Lyph extends Entity {
         //Do not create labels for layers and nested lyphs
         if (this.layerInLyph || this.belongsToLyph){ return; }
 
-        this.createLabels(state.iconLabel, state.fontParams);
+        this.createLabels(state.labels[this.constructor.name], state.fontParams);
      }
 
     /**
@@ -359,7 +359,7 @@ export class Lyph extends Entity {
 
 
         if (!this.layerInLyph && !this.belongsToLyph) {//update label
-            if (!(this.labels[state.iconLabel] && this[state.iconLabel])) {
+            if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
                 this.createViewObjects(state);
             }
         }
@@ -450,6 +450,6 @@ export class Lyph extends Entity {
         //Layers and inner lyphs have no labels
         if (this.layerInLyph || this.belongsToLyph) { return ; }
 
-        this.updateLabels(state.iconLabel, state.showLyphLabel, this.center.clone().addScalar(-5));
+        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(-5));
     }
 }

@@ -111,7 +111,7 @@ export class Link extends Entity {
         }
 
         //Link label
-        this.createLabels(state.linkLabel, state.fontParams);
+        this.createLabels(state.labels[this.constructor.name], state.fontParams);
 
         //Icon (lyph)
         if (this.conveyingLyph) {
@@ -132,7 +132,7 @@ export class Link extends Entity {
     updateViewObjects(state){
         if (!this.viewObjects["main"]
             || (this.conveyingLyph && !this.conveyingLyph.viewObjects["lyphs"][state.method])
-            || (!this.labels[state.linkLabel] && this[state.linkLabel])){
+            || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])){
             this.createViewObjects(state);
         }
         const linkObj = this.viewObjects["main"];
@@ -171,7 +171,7 @@ export class Link extends Entity {
             }
         }
 
-        this.updateLabels(state.linkLabel, state.showLinkLabel, this.center.clone().addScalar(5));
+        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
 
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);

@@ -50,7 +50,7 @@ export class Node extends Entity {
         }
 
         //Labels
-        this.createLabels(state.nodeLabel, state.fontParams);
+        this.createLabels(state.labels[this.constructor.name], state.fontParams);
     }
 
     /**
@@ -60,7 +60,7 @@ export class Node extends Entity {
     updateViewObjects(state){
         //Node
         if (!this.viewObjects["main"] ||
-            (!this.skipLabel && !this.labels[state.iconLabel] && this[state.nodeLabel])){
+            (!this.skipLabel && !this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])){
             this.createViewObjects(state);
         }
 
@@ -84,7 +84,7 @@ export class Node extends Entity {
         }
         copyCoords(this.viewObjects["main"].position, this);
 
-        this.updateLabels(state.nodeLabel, state.showNodeLabel,
+        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
             this.viewObjects["main"].position.clone().addScalar(5 + this.val * state.nodeRelSize));
     }
 }

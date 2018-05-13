@@ -19,6 +19,10 @@ export class Graph extends Entity {
         return (this.lyphs||[]).find(lyph => lyph.id === id);
     }
 
+    getLyphByName(name) {
+        return this.lyphs.find(lyph => lyph.name === name);
+    }
+
     getLinkByLyphID(lyphID) {
         let res = this._links.find(link => link.conveyingLyph &&
             (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));

@@ -37,12 +37,8 @@ export default Kapsule({
         showLyphs      : { default: true},
         showLayers     : { default: true},
         method         : { default: '2d'},
-        showNodeLabel  : { default: true},
-        showLinkLabel  : { default: false},
-        showLyphLabel  : { default: false},
-        nodeLabel      : { default: 'id'},
-        linkLabel      : { default: 'id'},
-        iconLabel      : { default: 'id'},
+        showLabels     : { default: {Node: true}},
+        labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id'}},
         fontParams     : { default: {
             font: '12px Arial', fillStyle: '#000', antialias: true }
         },
