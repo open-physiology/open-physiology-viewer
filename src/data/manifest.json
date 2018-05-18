@@ -137,9 +137,10 @@
     "Graph" : {
       "extends": "Entity",
       "properties": {
-        "nodes": {"type": "String:ID|Node", "modality": "0..*"},
-        "links": {"type": "String:ID|Link", "modality": "0..*"},
-        "lyphs": {"type": "String:ID|Lyph", "modality": "0..*"}
+        "nodes" : {"type": "String:ID|Node",  "modality": "0..*"},
+        "links" : {"type": "String:ID|Link",  "modality": "0..*"},
+        "lyphs" : {"type": "String:ID|Lyph",  "modality": "0..*"},
+        "groups": {"type": "String:ID|Group", "modality": "0..*"}
       }
     },
     "Tree"  : {

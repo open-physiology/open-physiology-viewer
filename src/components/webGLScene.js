@@ -68,18 +68,10 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                                    (change)="toggleLayers()" [checked]="_showLayers"/> Layers
                         </span>
                         <br/>
-                        <input type="checkbox" name="switch" class="w3-check"
-                               (change)="toggleGroup('hideTrees')"/> Omega trees
-                        <input type="checkbox" name="switch" class="w3-check"
-                               (change)="toggleGroup('hideCoalescences')"/> Coalescences
-                        <br/>
-                        <input type="checkbox" name="switch" class="w3-check"
-                               (change)="toggleGroup('hideContainers')"/> Container lyphs
-                        <br/>
-                        <input type="checkbox" name="switch" class="w3-check"
-                               (change)="toggleNeuralLyphs('hideNeural')"/> Neural system
-                        <input type="checkbox" name="switch" class="w3-check"
-                               (change)="toggleGroup('hideNeurons')"/> Neurons
+                        <span *ngFor="let group of graphData.groups">
+                            <input type="checkbox" name="switch" class="w3-check"
+                                   (change)="toggleGroup(group)"/> {{group.name}}
+                        </span>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
@@ -138,8 +130,6 @@ export class WebGLSceneComponent {
     controls;
     mouse;
     windowResize;
-    width;
-    height;
 
     _highlighted = null;
     _selected    = null;
@@ -156,9 +146,9 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            if (this.graph) {
-                this.graph.graphData(this._graphData);
-            }
+            this._hideGroups = new Set([...this._graphData.groups]);
+            this._graphData.hideGroups([...this._hideGroups]);
+            if (this.graph) { this.graph.graphData(this._graphData); }
         }
     }
 
@@ -197,19 +187,15 @@ export class WebGLSceneComponent {
         this._labels       = {Node: "id", Link: "id", Lyph: "id"};
 
         this._hideNeural = false;
-        this._hideLinks = {
-            hideTrees: true,
-            hideCoalescences: true,
-            hideContainers: true,
-            hideNeurons: true
-        };
+        this._hideGroups = new Set();
     }
 
     ngAfterViewInit() {
         if (this.renderer) {  return; }
 
         //We start from switched off omega threes and container lyphs
-        this._graphData.toggleLinks(this._hideLinks);
+        //this._graphData.toggleLinks(this._hideLinks);
+
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 
@@ -324,13 +310,13 @@ export class WebGLSceneComponent {
                 (d.type === LINK_TYPES.CONTAINER) ? 0 : 1));
 
         this.scene.add(this.graph);
-        this.toggleNeuralLyphs();
     }
 
     update() {
         //TODO trigger update in some other way as dimension does not change anymore
         if (this.graph){
-            this.graph.numDimensions(3);
+            this.graph.graphData(this._graphData);
+            //this.graph.numDimensions(3);
         }
     }
 
@@ -516,20 +502,13 @@ export class WebGLSceneComponent {
     }
 
     toggleGroup(hideGroup) {
-        this._hideLinks[hideGroup] = !this._hideLinks[hideGroup];
-        this._graphData.toggleLinks(this._hideLinks);
-        if (this.graph) {
-            this.graph.graphData(this._graphData);
+        if (this._hideGroups.has(hideGroup)){
+            this._hideGroups.delete(hideGroup);
+        } else {
+            this._hideGroups.add(hideGroup);
         }
-    }
-
-    toggleNeuralLyphs() {
-        this._hideNeural = !this._hideNeural;
-        this._graphData.links.filter(link => link.name === "Ependymal")
-            .forEach(link => link.conveyingLyph.hidden = this._hideNeural);
-        if (this.graph) {
-            this.graph.graphData(this._graphData);
-        }
+        this._graphData.hideGroups([...this._hideGroups]);
+        if (this.graph) { this.graph.graphData(this._graphData); }
     }
 }
 

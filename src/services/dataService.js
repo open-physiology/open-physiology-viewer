@@ -12,16 +12,15 @@ const addColor = (array, defaultColor) =>
         .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
 
 /**
- * Create omega trees and lyphs for Kidney scenario
- * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
+ * Create a core body graph for ApiNATOMY lyph viewer
  */
 export class DataService {
     entitiesById = {};
 
     constructor(){
         this._graphData = Graph.fromJSON({});
+        this._graphData.groups = [];
         this._lyphs = [];
-        this._coalescences = [];
     }
 
     init(){
@@ -83,11 +82,11 @@ export class DataService {
         };
 
         //Add ependymal links to the model graph
-        ependymal.nodes.forEach(node => { coreGraphData.nodes.push(node); });
-        ependymal.links.forEach((link, i) => { coreGraphData.links.push(link); });
+        ependymal.nodes.forEach(node => coreGraphData.nodes.push(node));
+        ependymal.links.forEach(link => coreGraphData.links.push(link));
 
         this._graphData.nodes = coreGraphData.nodes.map(node =>
-            Node.fromJSON(node::assign({"charge": 5}))
+            Node.fromJSON(node::assign({"charge": 10}))
         );
         this._graphData.links = coreGraphData.links.map(link => {
             if (link.type !== LINK_TYPES.DASHED) { link.linkMethod = "Line2" }
@@ -100,28 +99,6 @@ export class DataService {
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
         addColor(this._lyphs);
-
-
-
-        //Coalescence defined as groups of lyphs
-        this._coalescences.forEach(lyphs => {
-            let coalescingLinks  = lyphs.map(lyph => this._graphData.getLinkByLyphID(lyph)); //always finds only
-
-            coalescingLinks.forEach((link1, i) => {
-                coalescingLinks.forEach((link2, j) => {
-                    if (i === j) { return; }
-                    ["source", "target"].forEach(end => {
-                        this._graphData.links.push(Link.fromJSON({
-                            "id"    : (this._graphData.links.length + 1).toString(),
-                            "source": link1[end],
-                            "target": link2[end],
-                            "length": 0.1,
-                            "type": LINK_TYPES.FORCE
-                        }));
-                    });
-               })
-            });
-        });
 
         //TODO move ID to Object mapping to the model (set property interceptors)
 
@@ -137,6 +114,7 @@ export class DataService {
         this._graphData.links.forEach(link =>
             link.conveyingLyph = this._graphData.getLyphByID(link.conveyingLyph));
 
+
         /*Map initial positional constraints to match the scaled image*/
 
         const axisLength = 400;
@@ -148,7 +126,6 @@ export class DataService {
         this._graphData.links.filter(link =>
             link.length).forEach(link => link.length *= 2 * scaleFactor);
 
-        console.log("Graph", this._graphData);
     }
 
     get graphData(){

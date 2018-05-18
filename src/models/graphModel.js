@@ -52,44 +52,34 @@ export class Graph extends Entity {
         return this._nodes;
     }
 
-    //TODO simplify - define groups and hide based on where an item is in the group
-    toggleLinks({hideTrees, hideCoalescences, hideContainers, hideNeurons}){
+    hideGroups(groups){
         if (!this._allLinks) { this._allLinks = this._links; }
         if (!this._allNodes) { this._allNodes = this._nodes; }
-
-        const isOmegaLink       = link => link.source.type === NODE_TYPES.OMEGA;
-        const isOmegaNode       = node => node.type === NODE_TYPES.OMEGA;
-
-        const isCoalescenceLink = link => link.type === LINK_TYPES.FORCE;
-        const isContainerLink   = link => link.type === LINK_TYPES.CONTAINER;
-
-        const isNeuronLyph      = lyph => lyph && (
-            (lyph.inGroups||[]).some(group => group.name === "Neurons") || isNeuronLyph(lyph.layerInLyph));
-        const isNeuronLink      = link => isNeuronLyph(link.conveyingLyph) ||
-            link.source.belongsToLyph || link.target.belongsToLyph;
-        const isNeuronNode      = node => (node.links.length === node.links.every(link => isNeuronLink(link)).length)
-            || node.belongsToLyph; //Only neurons have inner nodes at the moment
-
-        const reviseLinks = () => {
-            this._links = this._allLinks.filter(link => !this._hiddenLinks.find(lnk => lnk.id === link.id));
-            this._nodes = this._allNodes.filter(node => !this._hiddenNodes.find(n => n.id === node.id));
-        };
 
         this._hiddenLinks = [];
         this._hiddenNodes = [];
 
-        this._allLinks.filter(link => ( hideTrees && isOmegaLink(link)
-            || hideCoalescences && isCoalescenceLink(link)
-            || hideContainers   && isContainerLink(link)
-            || hideNeurons      && isNeuronLink(link)
-        ) && !this._hiddenLinks.find(lnk => lnk.id === link.id)).forEach(link => this._hiddenLinks.push(link));
+        //Remove hidden links from the current graph link set
+        this._allLinks.filter(link => (groups||[]).find(group => group.belongsTo(link))
+                && !this._hiddenLinks.find(lnk => lnk.id === link.id))
+            .forEach(link => this._hiddenLinks.push(link));
 
-        this._allNodes.filter(node => ( hideTrees && isOmegaNode(node)
-            || hideNeurons    && isNeuronNode(node)
-        )
-        && !this._hiddenNodes.find(n => n.id === node.id)).forEach(node => this._hiddenNodes.push(node));
+        //Remove hidden nodes from the current graph node set
+        this._allNodes.filter(node => (groups||[]).find(group => group.belongsTo(node))
+                && !this._hiddenNodes.find(n => n.id === node.id))
+            .forEach(node => this._hiddenNodes.push(node));
 
-        reviseLinks();
+        this._links = this._allLinks.filter(link => !this._hiddenLinks.find(lnk => lnk.id === link.id));
+        this._nodes = this._allNodes.filter(node => !this._hiddenNodes.find(n => n.id === node.id));
+
+        //If a lyph in a group to hide but its axis is not, make it invisible
+        this._links.filter(link => link.conveyingLyph).forEach(link => {
+            if ((groups||[]).find(group => group.belongsTo(link.conveyingLyph))){
+                link.conveyingLyph.hidden = true;
+            } else {
+                delete link.conveyingLyph.hidden;
+            }
+        })
     }
 
     createViewObjects(state){

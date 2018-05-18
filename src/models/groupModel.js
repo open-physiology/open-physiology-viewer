@@ -5,6 +5,10 @@ import { Entity } from './entityModel';
  */
 export class Group extends Entity {
     //properties copied from manifest by Entity constructor
+
+    belongsTo(entity){
+        return this.entities.find(e => (e === entity) || (e.id === entity.id && e.class === entity.class));
+    }
 }
 
 //TODO Do we need dependencies? Use case: do not show group of neurons if neural system group is off

@@ -11,8 +11,7 @@ import { copyCoords } from '../three/utils';
 export const NODE_TYPES = {
     CORE    : "core",      //node with given position constraints, satisfied by force-directed layout
     FIXED   : "fixed",     //node with fixed position, given position overrules forces
-    CONTROL : "control",   //node that is placed to the center of mass of given nodes (controlNodes)
-    OMEGA   : 'omega'      //node in the tree TODO remove, create trees/groups
+    CONTROL : "control"    //node that is placed to the center of mass of given nodes (controlNodes)
 };
 
 /**

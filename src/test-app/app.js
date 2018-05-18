@@ -56,9 +56,8 @@ export class TestApp {
         this._kidneyDataService = new KidneyDataService();
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
-
-				this._ontologyNameDataService = new OntologyNameDataService(this._graphData);
-				this._ontologyNames = this._ontologyNameDataService._ontologyNames;
+        this._ontologyNameDataService = new OntologyNameDataService(this._graphData);
+		this._ontologyNames = this._ontologyNameDataService._ontologyNames;
     }
 
 }
