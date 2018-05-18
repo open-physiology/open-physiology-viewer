@@ -1,28 +1,48 @@
+import { coreGraph, ependymalGraph } from '../data/core-graph.json';
 import { lyphs } from '../data/kidney-lyphs.json';
 import { ependymal, trees } from '../data/kidney-mapping.json';
 
-import { entries, keys, values, cloneDeep} from 'lodash-bound';
-import {interpolateReds, interpolateGreens, interpolateBlues, interpolateRdPu, interpolateOranges} from 'd3-scale-chromatic';
+import { assign, entries, keys, values, cloneDeep} from 'lodash-bound';
+import { schemePaired, schemeDark2,
+    interpolateReds, interpolateGreens, interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
+import { Graph } from '../models/graphModel';
 
 import { Node, NODE_TYPES } from '../models/nodeModel';
 import { Link, LINK_TYPES } from '../models/linkModel';
 import { Group } from '../models/groupModel';
+import { Lyph }  from '../models/lyphModel';
 
-import {DataService} from './dataService';
+const colors = [...schemePaired, schemeDark2];
+
+const addColor = (array, defaultColor) =>
+    array.filter(obj => !obj.color)
+        .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
+
 
 /**
  * Create omega trees and lyphs tfor Kidney scenario
  * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
  */
-export class KidneyDataService extends DataService{
+export class KidneyDataService{
 
     constructor(){
-        super();
+        this._graphData = Graph.fromJSON({});
+        this._graphData.groups = [];
         this._lyphs = lyphs::cloneDeep();
     }
 
     init(){
-        super.init();
+        //Add ependymal links to the model graph
+        ependymalGraph.nodes.forEach(node => coreGraph.nodes.push(node));
+        ependymalGraph.links.forEach(link => coreGraph.links.push(link));
+
+        this._graphData.nodes = coreGraph.nodes.map(node =>
+            Node.fromJSON(node::assign({"charge": 10}))
+        );
+        this._graphData.links = coreGraph.links.map(link => {
+            if (link.type !== LINK_TYPES.DASHED) { link.linkMethod = "Line2" }
+            return Link.fromJSON(link)
+        });
 
         const colorLyphs = (lyphs, colorFn) => {
             lyphs.forEach((lyphID, i) =>{
@@ -320,6 +340,40 @@ export class KidneyDataService extends DataService{
             this._graphData.groups.push(group)
         );
 
-        super.afterInit();
+        //Color links and lyphs which do not have assigned colors yet
+        addColor(this._graphData.links, "#000");
+        addColor(this._lyphs);
+
+
+        //TODO move ID to Object mapping to the model (set property interceptors)
+        //Create lyph models from their json definitions
+        this._graphData.lyphs = this._lyphs.map(lyph => Lyph.fromJSON(lyph));
+
+        //Replace layer ids with lyph models
+        this._graphData.lyphs.filter(lyph => lyph.layers).forEach(lyph => {
+            lyph.layers = lyph.layers.map(layer => {return this._graphData.getLyphByID(layer)});
+        });
+
+        //for each link, replace lyph id's with lyph model
+        this._graphData.links.forEach(link =>
+            link.conveyingLyph = this._graphData.getLyphByID(link.conveyingLyph));
+
+        /*Map initial positional constraints to match the scaled image*/
+
+        const axisLength = 400;
+        const scaleFactor = axisLength * 0.01;
+
+        this._graphData.nodes.forEach(node =>
+            node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
+
+        this._graphData.links.filter(link =>
+            link.length).forEach(link => link.length *= 2 * scaleFactor);    }
+
+    get graphData(){
+        return this._graphData;
+    }
+
+    set graphData(newGraphData){
+        this._graphData = newGraphData;
     }
 }
