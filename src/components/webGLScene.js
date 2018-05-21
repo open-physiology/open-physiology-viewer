@@ -154,6 +154,27 @@ export class WebGLSceneComponent {
         }
     }
 
+    @Input('highlighted') set highlighted(obj) {
+        if (this.highlighted === obj){ return; }
+        if (this.highlighted !== this.selected){
+            this.unhighlight(this._highlighted);
+        } else {
+            this.highlight(this.selected, this.selectColor, false);
+        }
+        this.highlight(obj, this.highlightColor, obj !== this._selected);
+        this._highlighted = obj;
+        this.highlightedItemChange.emit(obj);
+    }
+
+    @Input('selected') set selected(obj){
+        if (this.selected === obj){ return; }
+        this.unhighlight(this._selected);
+        this.highlight(obj, this.selectColor, obj !== this.highlighted);
+        this._selected = obj;
+        this._selectedLyphName = obj && obj.__data && (obj.__data.constructor.name === Lyph.name)? obj.__data.name: "";
+        this.selectedItemChange.emit(obj);
+    }
+
     /**
      * @emits highlightedItemChange - the highlighted item changed
      */
@@ -176,11 +197,10 @@ export class WebGLSceneComponent {
             "Link": false,
             "Lyph": false
         };
-        this._labelClasses = this._showLabels::keys();
+        this._labelClasses = (this._showLabels)::keys();
         this._labelProps   = ["id", "name", "external"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id"};
 
-        this._hideNeural = false;
         this._hideGroups = new Set();
     }
 
@@ -280,8 +300,6 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
-        //TODO Perhaps create a GlobalModel class that handles the graph and extra entities (i.e., all lyphs)
-
         //Create
         this.graph = new ThreeForceGraph()
             .graphData(this._graphData || {});
@@ -307,10 +325,8 @@ export class WebGLSceneComponent {
     }
 
     update() {
-        //TODO trigger update in some other way as dimension does not change anymore
         if (this.graph){
             this.graph.graphData(this._graphData);
-            //this.graph.numDimensions(3);
         }
     }
 
@@ -335,29 +351,8 @@ export class WebGLSceneComponent {
         }
     }
 
-    set highlighted(obj) {
-        if (this.highlighted === obj){ return; }
-        if (this.highlighted !== this.selected){
-            this.unhighlight(this._highlighted);
-        } else {
-            this.highlight(this.selected, this.selectColor, false);
-        }
-        this.highlight(obj, this.highlightColor, obj !== this._selected);
-        this._highlighted = obj;
-        this.highlightedItemChange.emit(obj);
-    }
-
     get highlighted(){
         return this._highlighted;
-    }
-
-    set selected(obj){
-        if (this.selected === obj){ return; }
-        this.unhighlight(this._selected);
-        this.highlight(obj, this.selectColor, obj !== this.highlighted);
-        this._selected = obj;
-        this._selectedLyphName = obj && obj.__data && (obj.__data.constructor.name === Lyph.name)? obj.__data.name: "";
-        this.selectedItemChange.emit(obj);
     }
 
     get selected(){
@@ -401,7 +396,7 @@ export class WebGLSceneComponent {
         }
     }
 
-    onMouseDown(evt) {
+    onMouseDown(_) {
         this.selected = this.getMousedOverObject();
     }
 
