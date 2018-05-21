@@ -148,15 +148,9 @@ export class WebGLSceneComponent {
             this._graphData = newGraphData;
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
-            if (this.graph) { this.graph.graphData(this._graphData); }
-        }
-    }
+            this._namesAvailable = this._graphData.lyphs.map(lyph => lyph.name);
 
-    @Input('ontologyNames') set ontologyNames(newOntologyNames) {
-        if (this._namesAvailable !== newOntologyNames) {
-            this._namesAvailable = newOntologyNames.map(function (item) {
-                return item.name;
-            });
+            if (this.graph) { this.graph.graphData(this._graphData); }
         }
     }
 

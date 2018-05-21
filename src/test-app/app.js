@@ -4,7 +4,6 @@ import {WebGLSceneModule}    from '../components/webGLScene';
 
 import '../libs/provide-rxjs.js';
 import {KidneyDataService} from '../services/kidneyDataService';
-import {OntologyNameDataService} from '../services/ontologyNameDataService';
 
 import 'font-awesome/css/font-awesome.css';
 
@@ -33,7 +32,7 @@ import 'font-awesome/css/font-awesome.css';
         </header>
 
 		<section style="margin-top:40px;"></section>
-	    <webGLScene [graphData]="_graphData" [ontologyNames]="_ontologyNames"></webGLScene>
+	    <webGLScene [graphData]="_graphData"></webGLScene>
 		<section class="w3-clear" style="margin-bottom:10px;"></section>
 
 	       <!-- Footer -->
@@ -50,14 +49,11 @@ import 'font-awesome/css/font-awesome.css';
 export class TestApp {
     _kidneyDataService;
     _graphData;
-		_ontologyNames;
 
     constructor(){
         this._kidneyDataService = new KidneyDataService();
         this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
-        this._ontologyNameDataService = new OntologyNameDataService(this._graphData);
-		this._ontologyNames = this._ontologyNameDataService._ontologyNames;
     }
 
 }
