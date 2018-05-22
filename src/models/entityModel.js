@@ -52,7 +52,7 @@ export class Entity {
         }
     }
 
-    static fromJSON(json, modelClasses = {}) {
+    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];
         const res = new cls(json.id);
@@ -64,6 +64,12 @@ export class Entity {
         }
 
         res::assign(json);
+
+        if (entitiesByID){
+            //Recursively replace ID's with references to the model classes
+            let refFields = types[this.name].properties::entries().filter(([key, value]) => value.type && value.type.startsWith("String:ID|"));
+            console.log("Entities to instantiate:", refFields);
+        }
 
         //TODO unify: host, internalLyphs, internalNodes, belongsToLyph, content, container, linkInLyph
         //TODO for 'offset' property, use a uniform system to determine inner nodes positions

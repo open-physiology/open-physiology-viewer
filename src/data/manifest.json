@@ -47,7 +47,8 @@
             "objects": [],
             "lists"  : []
           }
-        }
+        },
+        "hidden": {"type": "Boolean", "modality": "0..1"}
       }
     },
     "Node"  : {
@@ -67,6 +68,7 @@
 
         "val"    : { "type": "Number", "modality": "0..1", "default": 1},
         "offset" : {"type": "Number", "modality": "0..1"},
+        "belongsToLyph" : {"type": "String:ID|Lyph", "modality": "0..*"},
 
         "x": {"type": "Number", "modality": "0..1" },
         "y": {"type": "Number", "modality": "0..1" },
@@ -90,8 +92,9 @@
             "objects": ["source", "target", "conveyingLyph"]
           }
         },
-        "direction": {"type": "Function", "readonly": true},
-        "reversed" : {"type": "Boolean", "default": false}
+        "direction": {"type": "Function", "readonly": true,  "modality": "0..1"},
+        "reversed" : {"type": "Boolean", "default": false,   "modality": "0..1"},
+        "linkMethod": {"type": "String:Enum", "default": "", "modality": "0..1"}
       }
     },
     "Lyph"  : {

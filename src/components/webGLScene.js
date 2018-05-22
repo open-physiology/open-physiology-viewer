@@ -321,6 +321,7 @@ export class WebGLSceneComponent {
             .strength(d => (d.strength ? d.strength :
                 (d.type === LINK_TYPES.CONTAINER) ? 0 : 1));
 
+        this.graph.showLabels(this._showLabels);
         this.scene.add(this.graph);
     }
 
@@ -482,7 +483,9 @@ export class WebGLSceneComponent {
 
     toggleLabels(labelClass) {
         this._showLabels[labelClass] = !this._showLabels[labelClass];
-        this.graph.showLabels(this._showLabels);
+        if (this.graph){
+            this.graph.showLabels(this._showLabels);
+        }
     }
 
     updateLabelContent(target, property) {

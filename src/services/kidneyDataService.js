@@ -24,9 +24,10 @@ const addColor = (array, defaultColor) =>
  * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
  */
 export class KidneyDataService{
+    _entitiesByID = {};
 
     constructor(){
-        this._graphData = Graph.fromJSON({});
+        this._graphData = Graph.fromJSON({}, {}, this._entitiesByID);
         this._graphData.groups = [];
         this._lyphs = lyphs::cloneDeep();
     }

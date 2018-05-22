@@ -80,7 +80,7 @@
     "three-js-csg": "^72.0.0",
     "three-orbit-controls": "^82.1.0",
     "three-stats": "^1.0.1",
-    "three-text2d": "^0.3.4",
+    "three-text2d": "^0.4.1",
     "three-window-resize": "^1.0.4",
     "tinycolor2": "^1.4.1",
     "zone.js": "^0.8.4"

@@ -13,8 +13,8 @@ import { boundToPolygon, boundToRectangle } from './utils';
  */
 export class Lyph extends Entity {
 
-    static fromJSON(json, modelClasses = {}) {
-        const result = super.fromJSON(json, modelClasses);
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
+        const result = super.fromJSON(json, modelClasses, entitiesByID);
 
         //Create lyph's border
         result.border.id          = result.border.id || "b_" + result.id; //derive border id from lyph's id
