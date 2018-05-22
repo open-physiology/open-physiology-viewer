@@ -102,7 +102,8 @@ export function getCenterPoint(mesh) {
     if (!mesh.geometry.boundingBox) {
         mesh.geometry.computeBoundingBox();
     }
-    let center = mesh.geometry.boundingBox.getCenter();
+    let center = new THREE.Vector3();
+    mesh.geometry.boundingBox.getCenter(center);
     mesh.localToWorld(center);
     return center;
 }
