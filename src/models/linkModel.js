@@ -148,8 +148,7 @@ export class Link extends Entity {
                 copyCoords(linkObj.geometry.vertices[0], this.source);
                 copyCoords(linkObj.geometry.vertices[1], this.target);
                 linkObj.geometry.verticesNeedUpdate = true;
-                linkObj.geometry.computeLineDistances();
-
+                linkObj.computeLineDistances();
                 break;
             }
             case LINK_TYPES.SEMICIRCLE: {
