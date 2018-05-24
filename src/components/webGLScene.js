@@ -292,9 +292,9 @@ export class WebGLSceneComponent {
         this.scene.add(gridHelper2);
         this.helpers["x-z"] = gridHelper2;
 
-        let axisHelper = new THREE.AxisHelper(510);
-        this.scene.add(axisHelper);
-        this.helpers["axis"] = axisHelper;
+        let axesHelper = new THREE.AxesHelper(510);
+        this.scene.add(axesHelper);
+        this.helpers["axis"] = axesHelper;
 
         this.togglePlanes(["x-y", "x-z", "axis"]);
     }

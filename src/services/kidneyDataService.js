@@ -11,6 +11,7 @@ import { Node, NODE_TYPES } from '../models/nodeModel';
 import { Link, LINK_TYPES } from '../models/linkModel';
 import { Group } from '../models/groupModel';
 import { Lyph }  from '../models/lyphModel';
+import {modelClasses} from '../models/utils';
 
 const colors = [...schemePaired, schemeDark2];
 
@@ -27,71 +28,97 @@ export class KidneyDataService{
     _entitiesByID = {};
 
     constructor(){
-        this._graphData = Graph.fromJSON({}, {}, this._entitiesByID);
-        this._graphData.groups = [];
-        this._lyphs = lyphs::cloneDeep();
-    }
+        let neuralGroup = {
+            "id"       : "g1",
+            "name"     : "Neural system",
+            "entities" : []
+        };
 
-    init(){
+        let neuronGroup = {
+            "id"       : "g2",
+            "name"     : "Neurons",
+            "entities" : []
+        };
+
+        let omegaGroup = {
+            "id": "g3",
+            "name": "Omega trees",
+            "entities": []
+        };
+
+        let coalescenceGroup = {
+            "id"       : "g4",
+            "name"     : "Coalescences",
+            "entities" : []
+        };
+
+        let containerGroup = {
+            "id"       : "g5",
+            "name"     : "Containers",
+            "entities" : []
+        };
+
+        this._graphData = {
+            nodes : [...coreGraph.nodes, ...ependymalGraph.nodes]::cloneDeep(),
+            links : [...coreGraph.links, ...ependymalGraph.links]::cloneDeep(),
+            lyphs : lyphs::cloneDeep(),
+            groups: [omegaGroup, containerGroup, coalescenceGroup, neuralGroup, neuronGroup]
+        };
+
         //Add ependymal links to the model graph
-        ependymalGraph.nodes.forEach(node => coreGraph.nodes.push(node));
-        ependymalGraph.links.forEach(link => coreGraph.links.push(link));
+        // ependymalGraph.nodes.forEach(node => this._graphData.nodes.push(node));
+        // ependymalGraph.links.forEach(link => this._graphData.links.push(link));
 
-        this._graphData.nodes = coreGraph.nodes.map(node =>
-            Node.fromJSON(node::assign({"charge": 10}))
-        );
-        this._graphData.links = coreGraph.links.map(link => {
+        this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
+        this._graphData.links = this._graphData.links.map(link => {
             if (link.type !== LINK_TYPES.DASHED) { link.linkMethod = "Line2" }
-            return Link.fromJSON(link)
+            return link
         });
 
         const colorLyphs = (lyphs, colorFn) => {
             lyphs.forEach((lyphID, i) =>{
-                let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
+                let lyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
                 lyph.color = colorFn(0.25 + i / lyphs.length);
             });
         };
 
         const colorLyphsExt = (lyphs, colorFn, numColors, reversed = false) => {
             lyphs.forEach((lyphID, i) =>{
-                let lyph = this._lyphs.find(lyph => lyph.id === lyphID);
+                let lyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
                 lyph.color = colorFn(((reversed)? 0.75 - i / numColors : 0.25 + i / numColors));
             });
         };
 
-         //Assign central nervous system lyphs to corresponding edges
+        //Copy existing entities to a map to enable nested model instantiation
+        this._graphData::values().forEach(array => array.forEach(e => this._entitiesByID[e.id] = e));
+        this._graphData = Graph.fromJSON(this._graphData, modelClasses, this._entitiesByID);
+
+
+        //TODO: refactor the node/link generation code below so that model classes are created by Graph.fromJSON(...)
+
+        //Assign central nervous system lyphs to corresponding edges
         let maxLayers = 0;
         ependymal::entries().forEach(([linkID, lyphID]) => {
             let link = this._graphData.getLinkByID(linkID);
             link.conveyingLyph = ependymal[linkID];
-            let ependymalLyph = this._lyphs.find(lyph => lyph.id === lyphID);
+            let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph.color = "#aaa";
             link.lyphScale = { width: 1.5 * ependymalLyph.layers.length, height: 2 };
             maxLayers = Math.max(maxLayers, ependymalLyph.layers.length);
         });
 
-        let neuralGroup = Group.fromJSON({
-            "id"       : "g1",
-            "name"     : "Neural system",
-            "entities" : []
-        });
         ependymal::entries().forEach(([linkID, lyphID]) => {
-            let ependymalLyph = this._lyphs.find(lyph => lyph.id === lyphID);
+            let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
             neuralGroup.entities.push(ependymalLyph);
         });
 
-        let neuronGroup = Group.fromJSON({
-            "id"       : "g2",
-            "name"     : "Neurons",
-            "entities" : []
-        });
 
-        this._lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
+        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
 
             lyph.internalLyphs.forEach(innerLyphID => {
                 //Bi-directional relationship
-                let innerLyph = this._lyphs.find(lyph => lyph.id === innerLyphID);
+                let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
                 if (innerLyph) { innerLyph.belongsToLyph = lyph; }
 
                 if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
@@ -131,7 +158,7 @@ export class KidneyDataService{
         [["99011", "99008"], ["99008","99005"], ["99005", "99002"]].forEach(
             ([s,t]) => {
                 let [sNode, tNode] = [s, t].map(containerLyphID => {
-                    let containerLyph = this._lyphs.find(lyph => lyph.id === containerLyphID);
+                    let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === containerLyphID);
                     if (containerLyph.internalNodes){ return containerLyph.internalNodes[0]; }
                     let centerNode = Node.fromJSON({
                         "id"    : `center${containerLyphID}`,
@@ -184,11 +211,6 @@ export class KidneyDataService{
         hosts["7"].trees[0].lyphs["end1"] = 0;
         hosts["5"].trees[0].lyphs["end2"] = 0;
 
-        let omegaGroup = Group.fromJSON({
-            "id": "g3",
-            "name": "Omega trees",
-            "entities": []
-        });
 
         const offsets = {"500": 0.25, "510": 0.65, "700": 0.25};
         //Omega tree nodes
@@ -265,14 +287,6 @@ export class KidneyDataService{
             omegaGroup.entities.push(link);
         }
 
-
-        //Coalescences defined as lyph groups
-        let coalescenceGroup = Group.fromJSON({
-            "id"       : "g4",
-            "name"     : "Coalescences",
-            "entities" : []
-        });
-
         //Coalescence defined as groups of lyphs
         [ ["78", "24"] ].forEach(lyphs => {
             let coalescingLinks  = lyphs.map(lyph => this._graphData.getLinkByLyphID(lyph)); //always finds only
@@ -293,12 +307,6 @@ export class KidneyDataService{
                     });
                 })
             });
-        });
-
-        let containerGroup = Group.fromJSON({
-            "id"       : "g5",
-            "name"     : "Containers",
-            "entities" : []
         });
 
         //Add link from center to the center of mass for a container link
@@ -328,27 +336,22 @@ export class KidneyDataService{
         this._graphData.links.push(containerLink);
         containerGroup.entities.push(containerLink);
 
-        let containerLyph = this._lyphs.find(lyph => lyph.id === "5");
+        let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === "5");
         containerLyph.inactive = true;  // Exclude this entity from being highlighted
         containerLyph.border = { borders: [{}, {}, {}, {nodes: ["7013", "505", "515"]}]};
 
         // Assign inner content to the container lyph border
-        // let containerHost = this._lyphs.find(lyph => lyph.id === "3");
-        // containerHost.border = { borders: [ {}, {}, {}, { conveyingLyph: "5" }]};
-        // containerLyph.belongsToLyph = containerHost;
-
-        [omegaGroup, containerGroup, coalescenceGroup, neuralGroup, neuronGroup].forEach(group =>
-            this._graphData.groups.push(group)
-        );
+        let containerHost = this._graphData.lyphs.find(lyph => lyph.id === "3");
+        containerHost.border = { borders: [ {}, {}, {}, { conveyingLyph: "5" }]};
+        containerLyph.belongsToLyph = containerHost;
 
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
-        addColor(this._lyphs);
-
+        addColor(this._graphData.lyphs);
 
         //TODO move ID to Object mapping to the model (set property interceptors)
         //Create lyph models from their json definitions
-        this._graphData.lyphs = this._lyphs.map(lyph => Lyph.fromJSON(lyph));
+        this._graphData.lyphs = this._graphData.lyphs.map(lyph => Lyph.fromJSON(lyph));
 
         //Replace layer ids with lyph models
         this._graphData.lyphs.filter(lyph => lyph.layers).forEach(lyph => {
@@ -360,21 +363,13 @@ export class KidneyDataService{
             link.conveyingLyph = this._graphData.getLyphByID(link.conveyingLyph));
 
         /*Map initial positional constraints to match the scaled image*/
-
         const axisLength = 400;
         const scaleFactor = axisLength * 0.01;
 
-        this._graphData.nodes.forEach(node =>
-            node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
-
-        this._graphData.links.filter(link =>
-            link.length).forEach(link => link.length *= 2 * scaleFactor);    }
+        this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
+        this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor); }
 
     get graphData(){
         return this._graphData;
-    }
-
-    set graphData(newGraphData){
-        this._graphData = newGraphData;
     }
 }

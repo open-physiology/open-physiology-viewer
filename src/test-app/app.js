@@ -52,7 +52,6 @@ export class TestApp {
 
     constructor(){
         this._kidneyDataService = new KidneyDataService();
-        this._kidneyDataService.init();
         this._graphData = this._kidneyDataService.graphData;
     }
 

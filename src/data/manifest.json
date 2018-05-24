@@ -48,7 +48,9 @@
             "lists"  : []
           }
         },
-        "hidden": {"type": "Boolean", "modality": "0..1"}
+        "hidden": {"type": "Boolean", "modality": "0..1"},
+        "inactive": {"type": "Boolean", "modality": "0..1"},
+        "skipLabel": {"type": "Boolean", "modality": "0..1"}
       }
     },
     "Node"  : {
@@ -92,9 +94,11 @@
             "objects": ["source", "target", "conveyingLyph"]
           }
         },
-        "direction": {"type": "Function", "readonly": true,  "modality": "0..1"},
-        "reversed" : {"type": "Boolean", "default": false,   "modality": "0..1"},
-        "linkMethod": {"type": "String:Enum", "default": "", "modality": "0..1"}
+        "direction" : {"type": "Function", "readonly": true,  "modality": "0..1"},
+        "reversed"  : {"type": "Boolean", "default": false,   "modality": "0..1"},
+        "linkMethod": {"type": "String:Enum", "default": "", "modality": "0..1"},
+        "strength"  : {"type": "Number", "modality": "0..1"},
+        "lyphScale" : {"type": "Object:Map", "modality": "0..1"}
       }
     },
     "Lyph"  : {

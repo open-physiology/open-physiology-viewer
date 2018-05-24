@@ -59,16 +59,57 @@ export class Entity {
 
         //spec
         let difference = json::keys().filter(x => !res::keys().find(y => y === x));
-        if (difference.length > 0){
+        if (difference.length > 0) {
             console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
+            if (this.name === "Graph") {
+                console.log("Graph expects the following parameters:", res::keys());
+            }
         }
 
         res::assign(json);
 
+        function createObj(value, spec) {
+            let type = spec.type.substr(spec.type.indexOf("|") + 1);
+            let objValue = undefined;
+            if (typeof value === "string") {
+                if (entitiesByID[value]) {
+                    objValue = entitiesByID[value];
+                } else {
+                    console.warn("Cannot instantiate an object with unknown ID:", value);
+                    return objValue;
+                }
+            }
+            if (modelClasses[type]) {
+                objValue = objValue || value;
+                if (spec.abstract){ type = value.class; }
+                if (!(objValue instanceof modelClasses[type])) {
+                    console.log("Creating object given JSON:", objValue);
+                    objValue = modelClasses[type].fromJSON(objValue);
+                }
+            } else {
+                console.warn(`Cannot create object of unknown class: `, type);
+            }
+            return objValue;
+        }
+
         if (entitiesByID){
-            //Recursively replace ID's with references to the model classes
+            //Replace ID's with references to the model classes
             let refFields = types[this.name].properties::entries().filter(([key, value]) => value.type && value.type.startsWith("String:ID|"));
-            console.log("Entities to instantiate:", refFields);
+            refFields.forEach(([key, spec]) => {
+                if (Array.isArray(res[key])){
+                    if (spec.modality.indexOf("*") < 0){
+                        console.warn("Model parameter does not expect multiple values: ", key, res[key]);
+                        return;
+                    }
+                    res[key] = res[key].map(value => createObj(value, spec) || value);
+                } else {
+                    res[key] = createObj(res[key], spec) || res[key];
+                    if (spec.modality.indexOf("*") > 0){
+                        //The spec allows multiple values, replace object with array of objects
+                        res[key] = [res[key]];
+                    }
+                }
+            })
         }
 
         //TODO unify: host, internalLyphs, internalNodes, belongsToLyph, content, container, linkInLyph
