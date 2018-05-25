@@ -6,33 +6,6 @@ export class Graph extends Entity {
     _nodes: [];
     _links: [];
 
-    getNodeByID(id){
-        return this._nodes.find(node => node.id === id);
-    }
-
-    getLinkByID(id) {
-        return this._links.find(link => link.id === id);
-    }
-
-    getLyphByID(id) {
-        return (this.lyphs||[]).find(lyph => lyph.id === id);
-    }
-
-    getLyphByName(name) {
-        return this.lyphs.find(lyph => lyph.name === name);
-    }
-
-    getLinkByLyphID(lyphID) {
-        let res = this._links.find(link => link.conveyingLyph &&
-            (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
-        if (!res) {
-            //For lyphs which are layers, return parent's link (does not work for ID's)
-            res = this._links.find(link => link.conveyingLyph
-                && link.conveyingLyph.hasLayer && link.conveyingLyph.hasLayer(lyphID))
-        }
-        return res;
-    }
-
     set links(newLinks){
         this._links = newLinks;
         this._allLinks = this._links;

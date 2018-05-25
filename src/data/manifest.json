@@ -48,8 +48,8 @@
             "lists"  : []
           }
         },
-        "hidden": {"type": "Boolean", "modality": "0..1"},
-        "inactive": {"type": "Boolean", "modality": "0..1"},
+        "hidden"   : {"type": "Boolean", "modality": "0..1"},
+        "inactive" : {"type": "Boolean", "modality": "0..1"},
         "skipLabel": {"type": "Boolean", "modality": "0..1"}
       }
     },
@@ -94,11 +94,12 @@
             "objects": ["source", "target", "conveyingLyph"]
           }
         },
-        "direction" : {"type": "Function", "readonly": true,  "modality": "0..1"},
-        "reversed"  : {"type": "Boolean", "default": false,   "modality": "0..1"},
-        "linkMethod": {"type": "String:Enum", "default": "", "modality": "0..1"},
-        "strength"  : {"type": "Number", "modality": "0..1"},
-        "lyphScale" : {"type": "Object:Map", "modality": "0..1"}
+        "direction"  : {"type": "Function", "readonly": true,  "modality": "0..1"},
+        "reversed"   : {"type": "Boolean", "default": false,   "modality": "0..1"},
+        "linkMethod" : {"type": "String:Enum", "default": "", "modality": "0..1"},
+        "strength"   : {"type": "Number", "modality": "0..1"},
+        "lyphScale"  : {"type": "Object:Map", "modality": "0..1"},
+        "hostedNodes": {"type": "String:ID|Node", "modality": "0..*"}
       }
     },
     "Lyph"  : {
@@ -124,7 +125,10 @@
         "offset"        : {"type": "Number", "modality": "0..1"},
         "internalLyphs" : {"type": "String:ID|Lyph", "modality": "0..*"},
         "internalNodes" : {"type": "String:ID|Node", "modality": "0..*"},
-        "belongsToLyph" : {"type": "String:ID|Lyph", "modality": "0..*"}
+        "belongsToLyph" : {"type": "String:ID|Lyph", "modality": "0..*"},
+
+        "materials"     : {"type": "Undefined", "modality": "0..*"},
+        "subtypes"      : {"type": "Undefined", "modality": "0..*"}
       }
     },
     "Border": {
@@ -172,6 +176,11 @@
       "types"   : ["Link", "Node"],
       "keys"    : ["target", "links"],
       "modality": ["1", "0..*"]
+    },
+    {
+      "types": ["Link", "Node"],
+      "keys" : ["hostedNodes", "host"],
+      "modality": ["0..*", "0..1"]
     },
     {
       "types": ["Link", "Lyph"],

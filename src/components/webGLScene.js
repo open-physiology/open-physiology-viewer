@@ -18,7 +18,6 @@ import {
 const WindowResize = require('three-window-resize');
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from '../models/nodeModel';
-import {Lyph} from '../models/lyphModel';
 
 import {ModelInfoPanel} from './gui/modelInfo';
 import {SelectNameSearchBar} from './gui/selectNameSearchBar';
@@ -139,6 +138,7 @@ export class WebGLSceneComponent {
 
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
+    defaultColor   = 0x000000;
 
     graph;
     helpers = {};
@@ -171,7 +171,7 @@ export class WebGLSceneComponent {
         this.unhighlight(this._selected);
         this.highlight(obj, this.selectColor, obj !== this.highlighted);
         this._selected = obj;
-        this._selectedLyphName = obj && obj.__data && (obj.__data.constructor.name === Lyph.name)? obj.__data.name: "";
+        this._selectedLyphName = obj && obj.__data && (obj.__data.constructor.name === "Lyph")? obj.__data.name: "";
         this.selectedItemChange.emit(obj);
     }
 
@@ -381,18 +381,18 @@ export class WebGLSceneComponent {
     unhighlight(obj){
         // restore previous intersection object (if it exists) to its original color
         if (obj){
-            if (obj.material && obj.currentHex){
-                obj.material.color.setHex( obj.currentHex );
+            if (obj.material){
+                obj.material.color.setHex( obj.currentHex || this.defaultColor);
             }
             (obj.children || []).filter(child => child.material && child.currentHex).forEach(child => {
-                child.material.color.setHex( child.currentHex );
+                child.material.color.setHex( child.currentHex || this.defaultColor);
             })
         }
     }
 
     selectBySearchEventHandler(name) {
         if (this.graph && (name !== this._selectedLyphName)) {
-            let lyph = this._graphData.getLyphByName(name);
+            let lyph = this._graphData.lyphs(lyph => lyph.name === name);
             this.selected = lyph? lyph.viewObjects["main"]: null;
         }
     }

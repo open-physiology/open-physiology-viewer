@@ -61,16 +61,14 @@ export class Entity {
         let difference = json::keys().filter(x => !res::keys().find(y => y === x));
         if (difference.length > 0) {
             console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
-            if (this.name === "Graph") {
-                console.log("Graph expects the following parameters:", res::keys());
-            }
+            //TODO remove warning for properties with private names: nodes -> _nodes, links -> _links, etc.
         }
 
         res::assign(json);
 
-        function createObj(value, spec) {
-            let type = spec.type.substr(spec.type.indexOf("|") + 1);
-            let objValue = undefined;
+        const createObj = (value, spec) => {
+            let type = spec.type.substr(spec.type.indexOf("|") + 1).trim();
+            let objValue = value;
             if (typeof value === "string") {
                 if (entitiesByID[value]) {
                     objValue = entitiesByID[value];
@@ -79,29 +77,45 @@ export class Entity {
                     return objValue;
                 }
             }
+            if (types[type] && types[type].abstract){ return objValue; }
+
             if (modelClasses[type]) {
-                objValue = objValue || value;
-                if (spec.abstract){ type = value.class; }
                 if (!(objValue instanceof modelClasses[type])) {
-                    console.log("Creating object given JSON:", objValue);
-                    objValue = modelClasses[type].fromJSON(objValue);
+                    //console.log("Creating object given JSON:", spec, value);
+                    if (!(entitiesByID[objValue.id] instanceof modelClasses[type])) {
+                        objValue = modelClasses[type].fromJSON(objValue, modelClasses, entitiesByID);
+                        entitiesByID[objValue.id] = objValue;
+                    } else {
+                        objValue = entitiesByID[objValue.id]
+                    }
                 }
             } else {
-                console.warn(`Cannot create object of unknown class: `, type);
+                console.error(`Cannot create object of unknown class: `, spec, value);
             }
             return objValue;
-        }
+        };
 
         if (entitiesByID){
+            //Exclude just created entity from being ever created again in the following recursion
+            if (!res.id) {
+                console.warn("An entity without ID has been found: ", res);
+            } else {
+                if (!entitiesByID[res.id]){
+                    console.info("Added new entity to the global map: ", res.id);
+                }
+                entitiesByID[res.id] = res; //Update the entity map
+            }
+
             //Replace ID's with references to the model classes
             let refFields = types[this.name].properties::entries().filter(([key, value]) => value.type && value.type.startsWith("String:ID|"));
             refFields.forEach(([key, spec]) => {
+                if (!res[key]){ return; }
                 if (Array.isArray(res[key])){
                     if (spec.modality.indexOf("*") < 0){
                         console.warn("Model parameter does not expect multiple values: ", key, res[key]);
                         return;
                     }
-                    res[key] = res[key].map(value => createObj(value, spec) || value);
+                    res[key] = res[key].map(value => createObj(value, spec) ||  value);
                 } else {
                     res[key] = createObj(res[key], spec) || res[key];
                     if (spec.modality.indexOf("*") > 0){

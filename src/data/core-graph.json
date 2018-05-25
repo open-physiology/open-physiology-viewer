@@ -12,52 +12,52 @@
       { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "val": 3, "type": "core", "layout": {"x":  90, "y":  0, "z":  0} }
     ],
     "links" : [
-      { "id": "1", "source": "c", "target": "n", "name": "",          "type": "dashed", "length": 100 },
-      { "id": "4", "source": "R", "target": "L", "name": "Pulmonary", "type": "semicircle", "length":  75 },
-      { "id": "5", "source": "L", "target": "R", "name": "Systemic",  "type": "semicircle", "length":  75 },
-      { "id": "6", "source": "S", "target": "P", "name": "Gut",       "type": "semicircle", "length":  90 },
-      { "id": "7", "source": "P", "target": "S", "name": "Gut'",      "type": "semicircle", "length":  90 }
+      { "id": "cn", "source": "c", "target": "n", "name": "",          "type": "dashed", "length": 100 },
+      { "id": "RL", "source": "R", "target": "L", "name": "Pulmonary", "type": "semicircle", "length":  75 },
+      { "id": "LR", "source": "L", "target": "R", "name": "Systemic",  "type": "semicircle", "length":  75 },
+      { "id": "SP", "source": "S", "target": "P", "name": "Gut",       "type": "semicircle", "length":  90 },
+      { "id": "PS", "source": "P", "target": "S", "name": "Gut'",      "type": "semicircle", "length":  90 }
     ]
   },
   "ependymalGraph" : {
     "nodes": [
       {
-        "id": "t1",
+        "id": "ta1",
         "layout": {
           "y": 0,
           "z": 0
         }
       },
       {
-        "id": "t2",
+        "id": "ta2",
         "layout": {
           "y": 0,
           "z": 0
         }
       },
       {
-        "id": "h1",
+        "id": "ah1",
         "layout": {
           "y": 0,
           "z": 0
         }
       },
       {
-        "id": "h2",
+        "id": "ah2",
         "layout": {
           "y": 0,
           "z": 0
         }
       },
       {
-        "id": "h3",
+        "id": "ah3",
         "layout": {
           "y": 0,
           "z": 0
         }
       },
       {
-        "id": "g1",
+        "id": "ag1",
         "layout": {
           "x": 0,
           "z": 0
@@ -76,7 +76,7 @@
       {
         "id": "2a",
         "source": "t",
-        "target": "t1",
+        "target": "ta1",
         "name": "Ependymal",
         "type": "link",
         "length": 7,
@@ -84,8 +84,8 @@
       },
       {
         "id": "2b",
-        "source": "t1",
-        "target": "t2",
+        "source": "ta1",
+        "target": "ta2",
         "name": "Ependymal",
         "type": "link",
         "length": 7,
@@ -93,7 +93,7 @@
       },
       {
         "id": "2c",
-        "source": "t2",
+        "source": "ta2",
         "target": "a",
         "name": "Ependymal",
         "type": "link",
@@ -103,7 +103,7 @@
       {
         "id": "3a",
         "source": "a",
-        "target": "h1",
+        "target": "ah1",
         "name": "Ependymal",
         "type": "link",
         "length": 5,
@@ -111,8 +111,8 @@
       },
       {
         "id": "3b",
-        "source": "h1",
-        "target": "h2",
+        "source": "ah1",
+        "target": "ah2",
         "name": "Ependymal",
         "type": "link",
         "length": 5,
@@ -120,8 +120,8 @@
       },
       {
         "id": "3c",
-        "source": "h2",
-        "target": "h3",
+        "source": "ah2",
+        "target": "ah3",
         "name": "Ependymal",
         "type": "link",
         "length": 5,
@@ -129,7 +129,7 @@
       },
       {
         "id": "3d",
-        "source": "h3",
+        "source": "ah3",
         "target": "h",
         "name": "Ependymal",
         "type": "link",
@@ -139,14 +139,14 @@
       {
         "id": "3e",
         "source": "a",
-        "target": "g1",
+        "target": "ag1",
         "name": "Ependymal",
         "type": "link",
         "length": 7
       },
       {
         "id": "3f",
-        "source": "g1",
+        "source": "ag1",
         "target": "g",
         "name": "Ependymal",
         "type": "link",

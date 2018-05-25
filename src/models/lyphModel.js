@@ -1,8 +1,7 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import { Entity } from './entityModel';
-import { mergedGeometry, geometryDifference, align, direction,
-    extractCoords, copyCoords, getCenterPoint} from '../three/utils';
+import { mergedGeometry, geometryDifference, align, extractCoords, copyCoords, getCenterPoint} from '../three/utils';
 import { Border } from './borderModel';
 import { LINK_TYPES } from './linkModel';
 import { boundToPolygon, boundToRectangle } from './utils';
@@ -30,10 +29,6 @@ export class Lyph extends Entity {
             case "CYST" : return [true,  true];
         }
         return [false, false];
-    }
-
-    hasLayer(layerID){
-        return (this.layers || []).find(layer => (layer === layerID || layer.id === layerID))
     }
 
     //lyph's center = the center of its rotational axis
@@ -323,7 +318,7 @@ export class Lyph extends Entity {
             });
 
             (this.internalNodes || []).forEach(node => {
-                if (!state.graphData.getNodeByID(node.id)){
+                if (!state.graphData.nodes.find(n => n.id === node.id)){
                     //Internal node is not in the global graph
                     node.createViewObjects(state);
                     lyphObj.add(node.viewObjects["main"]);
@@ -378,8 +373,7 @@ export class Lyph extends Entity {
             const fociCenter = getCenterPoint(this.viewObjects["main"]);
 
             if (this.internalLyphs ) {
-                let internalLinks = state.graphData.links
-                    .filter(link => link.conveyingLyph && this.internalLyphs.includes(link.conveyingLyph.id));
+                let internalLinks = this.internalLyphs.filter(lyph => lyph.axis).map(lyph => lyph.axis);
                 let N = internalLinks.length;
 
                 internalLinks.forEach((link, i) => {

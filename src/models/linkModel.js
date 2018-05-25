@@ -1,6 +1,4 @@
-import { Entity, tracePropAccess } from './entityModel';
-import { assign } from 'lodash-bound';
-
+import { Entity } from './entityModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import { direction, bezierSemicircle, copyCoords} from '../three/utils';
@@ -157,7 +155,8 @@ export class Link extends Entity {
                 points = curve.getPoints(state.linkResolution - 1);
 
                 //Position omega tree roots
-                let hostedNodes = state.graphData.nodes.filter(node => (node.host === this.id) && node.isRoot);
+                let hostedNodes = this.hostedNodes
+                    || state.graphData.nodes.filter(node => (node.host === this) && node.isRoot);
                 if (hostedNodes.length > 0) {
                     const delta = ((hostedNodes.length % 2) === 1) ? 0.4 : 0;
                     const offset = 1 / (hostedNodes.length + 1 + delta);

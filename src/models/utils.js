@@ -1,7 +1,7 @@
 import { Node }   from './nodeModel';
-import { Link }   from './linkModel';
-import { Lyph }   from './lyphModel';
 import { Border } from './borderModel';
+import { Lyph }   from './lyphModel';
+import { Link }   from './linkModel';
 import { Group }  from './groupModel';
 import { Tree }   from './treeModel';
 import { Graph }  from './graphModel';
