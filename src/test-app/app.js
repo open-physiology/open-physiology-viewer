@@ -3,7 +3,7 @@ import {BrowserModule}       from '@angular/platform-browser';
 import {WebGLSceneModule}    from '../components/webGLScene';
 
 import '../libs/provide-rxjs.js';
-import {KidneyDataService} from '../services/kidneyDataService';
+import { DataService } from '../services/dataService';
 
 import 'font-awesome/css/font-awesome.css';
 
@@ -47,13 +47,13 @@ import 'font-awesome/css/font-awesome.css';
 	`
 })
 export class TestApp {
-    _kidneyDataService;
+    _dataService;
     _graphData;
 
     constructor(){
-        this._kidneyDataService = new KidneyDataService();
-        this._kidneyDataService.init();
-        this._graphData = this._kidneyDataService.graphData;
+        this._dataService = new DataService();
+        this._dataService.init();
+        this._graphData = this._dataService.graphData;
     }
 
 }

@@ -1,2 +1,2 @@
 export {WebGLSceneModule} from './components/webGLScene.js';
-export {KidneyDataService} from './services/kidneyDataService.js'
+export {DataService} from './services/dataService.js'

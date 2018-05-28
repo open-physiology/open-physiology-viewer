@@ -1,11 +1,12 @@
 import { coreGraph, ependymalGraph } from '../data/core-graph.json';
+import { ependymal, omega } from '../data/lyph-mapping.json';
 import { lyphs } from '../data/kidney-lyphs.json';
-import { ependymal, omega } from '../data/kidney-mapping.json';
+import { lyphs as cardiacLyphs } from '../data/cardiac-lyphs';
 import { types } from '../data/manifest.json';
 
 import { assign, entries, keys, values, cloneDeep} from 'lodash-bound';
-import { schemePaired, schemeDark2,
-    interpolateReds, interpolateGreens, interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
+import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
+    interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
 import { Graph } from '../models/graphModel';
 import { NODE_TYPES } from '../models/nodeModel';
 import { LINK_TYPES } from '../models/linkModel';
@@ -14,10 +15,14 @@ import { modelClasses } from '../models/utils';
 const colors = [...schemePaired, schemeDark2];
 
 /**
- * Create omega trees and lyphs tfor Kidney scenario
- * https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
+ * A class that assembles ApiNATOMY model from available data sources:
+ * 1. Core graph definition
+ * 2. Nervous system
+ * 3. Kidney subsystems https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
+ * 4. Cardiac subsystems
+ * ...
  */
-export class KidneyDataService{
+export class DataService{
     _entitiesByID = {};
 
     constructor(){
@@ -54,11 +59,16 @@ export class KidneyDataService{
             "entities" : []
         };
 
+        /**
+         * Prepare core ApiNATOMY graph
+         * @type {{id: string, nodes: *, links: *, lyphs: *, groups: [*]}}
+         * @private
+         */
         this._graphData = {
             id: "graph1",
             nodes : [...coreGraph.nodes, ...ependymalGraph.nodes]::cloneDeep(),
             links : [...coreGraph.links, ...ependymalGraph.links]::cloneDeep(),
-            lyphs : lyphs::cloneDeep(),
+            lyphs : [...lyphs, ...cardiacLyphs]::cloneDeep(),
             groups: [omegaGroup, containerGroup, coalescenceGroup, neuralGroup, neuronGroup]
         };
 
@@ -110,9 +120,7 @@ export class KidneyDataService{
                 //Bi-directional relationship
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
                 if (innerLyph) { innerLyph.belongsToLyph = lyph; }
-
                 if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
-
                 let [sNode, tNode] = ["s", "t"].map(prefix => ({
                     "id"       : `${prefix}${innerLyphID}`,
                     "name"     : `${prefix}${innerLyphID}`,
@@ -198,13 +206,13 @@ export class KidneyDataService{
                 tree::keys().forEach((key, j) => {
                     let node = {
                         "id"       : `${host}${i}${j}`,
-                        "host"     : host,
-                        "isRoot"    : (j === 0),
                         "color"     : omega[host].color,
                         "charge"    : 5
                     };
-
-                    if (node.isRoot && offsets[node.id]){ node.offset = offsets[node.id]; }
+                    if (j === 0){
+                        node.host = host;
+                    }
+                    if (offsets[node.id]){ node.offset = offsets[node.id]; }
                     this._graphData.nodes.push(node);
                     omegaGroup.entities.push(node);
                 });
@@ -335,6 +343,63 @@ export class KidneyDataService{
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
         addColor(this._graphData.lyphs);
+
+
+        /* Cardiac system */
+        //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each
+        const addCardiacLink = (src, trg, conveyingLyph = undefined, reversed = false) => {
+            let link = {
+                "id"        : 'lnk' + (this._graphData.links.length + 1).toString(),
+                "source"    : src,
+                "target"    : trg,
+                "length"    : 3,
+                "color"     : "#aaa",
+                "type"      : LINK_TYPES.LINK,
+                "lyphScale" : { width: 3, height: 4 },
+                "reversed"  : reversed
+            };
+            if (conveyingLyph){
+                link.conveyingLyph = conveyingLyph;
+            }
+            this._graphData.links.push(link);
+        };
+
+        let NUM_LEVELS = 6;
+        let dt = 0.5 / NUM_LEVELS;
+        let cardiacLyphMapping = {
+            "R_1_MCS": "1000", //right ventricle = R.V.
+            "R_1_MCP": "1001", //right atrium    = R.A
+            "L_2_MCP": "1022", //root of aorta (trunk) = R.A.T.
+            "R_2_MCS": "1023", //root of pulmonary trunk = R.P.T
+            "L_1_MCP": "1010", //left ventricle = L.V.
+            "L_1_MCS": "1011", //left atrium    = L.A
+        };
+        ["R", "L"].forEach(prefix => {
+            ["MCP", "MCS"].forEach(suffix => {
+                let src = prefix, trg;
+                let host = suffix === "MCP"? "LR": "RL";
+                for (let i = 1; i < NUM_LEVELS; i++) {
+                    trg = `${prefix}_${i}_${suffix}`;
+                    let reversed = (prefix === "R" && host ==="LR" || prefix === "L" && host === "RL");
+                    this._graphData.nodes.push({
+                        "id"    : trg,
+                        "name"  : trg,
+                        "color" : "#ccc",
+                        "val"   : 0.5,
+                        "host"  : host,
+                        "offset": reversed? 1 - i * dt : i * dt,
+                        "skipLabel": true
+                    });
+                    addCardiacLink(src, trg, cardiacLyphMapping[trg], reversed);
+                    src = trg;
+                }
+                trg = suffix;
+                addCardiacLink(src, trg);
+            });
+        });
+
+
+        /* Generate complete model */
 
         //Copy existing entities to a map to enable nested model instantiation
         this._graphData::values().filter(prop => Array.isArray(prop)).forEach(array => array.forEach(e => {

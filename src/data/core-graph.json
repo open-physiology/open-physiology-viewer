@@ -9,7 +9,10 @@
       { "id"  : "R", "name": "R",      "color": "#7B68EE", "val": 3, "type": "core", "layout": {"x":   0, "y": 75, "z":  0} },
       { "id"  : "L", "name": "L",      "color": "#ff0000", "val": 3, "type": "core", "layout": {"x":   0, "y":-75, "z":  0} },
       { "id"  : "S", "name": "\u03A3", "color": "#006400", "val": 3, "type": "core", "layout": {"x": -90, "y":  0, "z":  0} } ,
-      { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "val": 3, "type": "core", "layout": {"x":  90, "y":  0, "z":  0} }
+      { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "val": 3, "type": "core", "layout": {"x":  90, "y":  0, "z":  0} },
+
+      { "id"  : "MCP", "name": "Microcirculation pulmonary", "color": "#CCC", "val": 2, "host": "LR", "offset": 0.5},
+      { "id"  : "MCS", "name": "Microcirculation systemic",  "color": "#CCC", "val": 2, "host": "RL", "offset": 0.5}
     ],
     "links" : [
       { "id": "cn", "source": "c", "target": "n", "name": "",          "type": "dashed", "length": 100 },

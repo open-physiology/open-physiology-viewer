@@ -156,7 +156,7 @@ export class Link extends Entity {
 
                 //Position omega tree roots
                 let hostedNodes = this.hostedNodes
-                    || state.graphData.nodes.filter(node => (node.host === this) && node.isRoot);
+                    || state.graphData.nodes.filter(node => node.host === this);
                 if (hostedNodes.length > 0) {
                     const delta = ((hostedNodes.length % 2) === 1) ? 0.4 : 0;
                     const offset = 1 / (hostedNodes.length + 1 + delta);

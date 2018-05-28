@@ -57,7 +57,6 @@
       "extends": "Entity",
       "properties" : {
         "host"  : { "type": "String:ID|Link", "modality": "0..1" },
-        "isRoot": { "type": "Boolean",        "modality": "0..1" },
         "layout": { "type": "Object:Map",     "modality": "0..1", "default": {} },
         "type"  : { "type": "String:Enum",    "modality": "0..1" },
         "links" : { "type": "String:ID|Link", "modality": "0..*", "default": []},
