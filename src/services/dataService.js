@@ -347,6 +347,8 @@ export class DataService{
         addColor(this._graphData.lyphs);
 
 
+        //TODO create specification for link prototypes to generate axes for given lyphs
+
         /* Cardiac system */
         //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each
         const addCardiacLink = (src, trg, conveyingLyph = undefined, reversed = false) => {
@@ -368,6 +370,7 @@ export class DataService{
 
         let NUM_LEVELS = 6;
         let dt = 0.5 / NUM_LEVELS;
+        //TODO this goes to link-lyph mapping file
         let cardiacLyphMapping = {
             "R_1_MCS": "1000", //right ventricle = R.V.
             "R_1_MCP": "1001", //right atrium    = R.A
@@ -377,6 +380,7 @@ export class DataService{
             "L_1_MCS": "1011", //left atrium    = L.A
         };
 
+        //TODO generalize to derive layers from supertypes
         //Assign Miocardium, Endocardium and Blood layers to each of 6 cardiac lyphs
         let layers = ["999", "998", "997"].map(layerParentID => this._graphData.lyphs
             .find(lyph => lyph.id === layerParentID));

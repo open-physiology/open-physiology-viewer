@@ -1,6 +1,12 @@
 {
   "lyphs": [
     {
+      "id"      : "994",
+      "name"    : "Cardiac lyphs prototype",
+      "layers"  : ["999", "998", "997"],
+      "subtypes": ["1000", "1001", "1022", "1023", "1010", "1011"]
+    },
+    {
       "id"   : "995",
       "name" : "Right fibrous ring of heart",
       "topology" : "CYST",
