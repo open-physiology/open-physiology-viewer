@@ -1,6 +1,35 @@
 {
   "lyphs": [
     {
+      "id"   : "995",
+      "name" : "Right fibrous ring of heart",
+      "topology" : "CYST",
+      "color"    : "#F5F5DC",
+      "external" : "FMA:77125"
+    },
+    {
+      "id"   : "996",
+      "name" : "Left fibrous ring of heart",
+      "topology" : "CYST",
+      "color"    : "#F5F5DC",
+      "external" : "FMA:77124"
+    },
+    {
+      "id"   : "997",
+      "name" : "myocardium",
+      "color": "#87b263"
+    },
+    {
+      "id"   : "998",
+      "name" : "endocardium",
+      "color": "#6b7067"
+    },
+    {
+      "id"   : "999",
+      "name" : "blood",
+      "color": "#b22525"
+    },
+    {
       "id": "1000",
       "name": "right ventricle",
       "external": "FMA:7098"
@@ -33,172 +62,215 @@
     {
       "id": "1006",
       "name": "right fibrous ring",
-      "external": "FMA:77125"},
+      "external": "FMA:77125"
+    },
     {
       "id": "1007",
       "name": "right anterior papillary muscle",
-      "external": "FMA:7260"},
+      "external": "FMA:7260"
+    },
     {
       "id": "1008",
       "name": "right posterior papillary muscle",
-      "external": "FMA:7261"},
+      "external": "FMA:7261"
+    },
     {
       "id": "1009",
       "name": "right coronary outlet",
-      "external": "FMA:50039"},
+      "external": "FMA:50039"
+    },
     {
       "id": "1010",
       "name": "left ventricle",
-      "external": "FMA:7101"},
+      "external": "FMA:7101"
+    },
     {
       "id": "1011",
       "name": "left atrium",
-      "external": "FMA:7097"},
+      "external": "FMA:7097"
+    },
     {
       "id": "1012",
       "name": "left auricle/atrial appendage",
-      "external": "FMA:7219"},
+      "external": "FMA:7219"
+    },
     {
       "id": "1013",
       "name": "left inferior pulmonary vein",
-      "external": "FMA:49913"},
+      "external": "FMA:49913"
+    },
     {
       "id": "1014",
       "name": "left superior pulmonary vein",
-      "external": "FMA:49916"},
+      "external": "FMA:49916"
+    },
     {
       "id": "1015",
       "name": "left fibrous trigone",
-      "external": "FMA:9508"},
+      "external": "FMA:9508"
+    },
     {
       "id": "1016",
       "name": "left fibrous ring",
-      "external": "FMA:77124"},
+      "external": "FMA:77124"
+    },
     {
       "id": "1017",
       "name": "left anterior papillary muscle",
-      "external": "FMA:7264"},
+      "external": "FMA:7264"
+    },
     {
       "id": "1018",
       "name": "left posterior papillary muscle",
-      "external": "FMA:7266"},
+      "external": "FMA:7266"
+    },
     {
       "id": "1019",
       "name": "left coronary outlet",
-      "external": "FMA:50040"},
+      "external": "FMA:50040"
+    },
     {
       "id": "1020",
       "name": "apex of heart",
-      "external": "FMA:7164"},
+      "external": "FMA:7164"
+    },
     {
       "id": "1021",
       "name": "vortex of heart",
-      "external": "FMA:84628"},
+      "external": "FMA:84628"
+    },
     {
       "id": "1022",
       "name": "root of aorta",
-      "external": "FMA:3740"},
+      "external": "FMA:3740"
+    },
     {
       "id": "1023",
       "name": "root of pulmonary trunk",
-      "external": "FMA:8612"},
+      "external": "FMA:8612"
+    },
     {
       "id": "1024",
-      "name": "conus arteriosus (infundibulum)"},
+      "name": "conus arteriosus (infundibulum)"
+    },
     {
       "id": "1025",
       "name": "coronary sulcus",
-      "external": "FMA:7174"},
+      "external": "FMA:7174"
+    },
     {
       "id": "1026",
       "name": "anterior interventricular sulcus",
-      "external": "FMA:7177"},
+      "external": "FMA:7177"
+    },
     {
       "id": "1027",
       "name": "posterior interventricular sulcus",
-      "external": "FMA:7178"},
+      "external": "FMA:7178"
+    },
     {
       "id": "1028",
       "name": "inferior vena cava inlet",
-      "external": "FMA:10951"},
+      "external": "FMA:10951"
+    },
     {
       "id": "1029",
       "name": "superior vena cava inlet",
-      "external": "FMA:4720"},
+      "external": "FMA:4720"
+    },
     {
       "id": "1030",
       "name": "anterior cusp of pulmonary valve",
-      "external": "FMA:7249"},
+      "external": "FMA:7249"
+    },
     {
       "id": "1031",
       "name": "left cusp of pulmonary valve",
-      "external": "FMA:7247"},
+      "external": "FMA:7247"
+    },
     {
       "id": "1032",
       "name": "posterior cusp of pulmonary valve",
-      "external": "FMA:7250"},
+      "external": "FMA:7250"
+    },
     {
       "id": "1033",
       "name": "anterior cusp of aortic valve",
-      "external": "FMA:7253"},
+      "external": "FMA:7253"
+    },
     {
       "id": "1034",
       "name": "left cusp of aortic valve",
-      "external": "FMA:7251"},
+      "external": "FMA:7251"
+    },
     {
       "id": "1035",
       "name": "right cusp of aortic valve",
-      "external": "FMA:7252"},
+      "external": "FMA:7252"
+    },
     {
       "id": "1036",
       "name": "anterior cusp of tricuspid valve",
-      "external": "FMA:7238"},
+      "external": "FMA:7238"
+    },
     {
       "id": "1037",
       "name": "posterior cusp of tricuspid valve",
-      "external": "FMA:7239"},
+      "external": "FMA:7239"
+    },
     {
       "id": "1038",
       "name": "septal cusp of tricuspid valve",
-      "external": "FMA:7240"},
+      "external": "FMA:7240"
+    },
     {
       "id": "1039",
       "name": "anterior cusp of mitral valve",
-      "external": "FMA:7242"},
+      "external": "FMA:7242"
+    },
     {
       "id": "1040",
       "name": "posterior cusp of mitral valve",
-      "external": "FMA:7243"},
+      "external": "FMA:7243"
+    },
     {
       "id": "1041",
-      "name": "terminal crest"},
+      "name": "terminal crest"
+    },
     {
       "id": "1042",
       "name": "fossa ovalis",
-      "external": "FMA:9246"},
+      "external": "FMA:9246"
+    },
     {
       "id": "1043",
       "name": "interatrial septum",
-      "external": "FMA:7108"},
+      "external": "FMA:7108"
+    },
     {
       "id": "1044",
       "name": "interventricular septum",
-      "external": "FMA:7133"},
+      "external": "FMA:7133"
+    },
     {
       "id": "1045",
       "name": "Koch's triangle",
-      "external": "FMA:77435"},
+      "external": "FMA:77435"
+    },
     {
       "id": "1046",
       "name": "coronary sinus inlet",
-      "external": "FMA:4706"},
+      "external": "FMA:4706"
+    },
     {
       "id": "1047",
       "name": "SA node",
-      "external": "FMA:9477"},
+      "external": "FMA:9477"
+    },
     {
       "id": "1048",
       "name": "AV node",
-      "external": "FMA:9478"}
+      "external": "FMA:9478"
+    }
   ]
 }

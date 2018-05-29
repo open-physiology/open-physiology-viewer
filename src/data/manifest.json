@@ -126,8 +126,9 @@
         "internalNodes" : {"type": "String:ID|Node", "modality": "0..*"},
         "belongsToLyph" : {"type": "String:ID|Lyph", "modality": "0..*"},
 
-        "materials"     : {"type": "Undefined", "modality": "0..*"},
-        "subtypes"      : {"type": "Undefined", "modality": "0..*"}
+        "materials"     : {"type": "String:ID|Lyph", "modality": "0..*"},
+        "subtypes"      : {"type": "String:ID|Lyph", "modality": "0..*"},
+        "supertype"     : {"type": "String:ID|Lyph", "modality": "0..1"}
       }
     },
     "Border": {

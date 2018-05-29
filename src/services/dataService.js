@@ -113,14 +113,10 @@ export class DataService{
             neuralGroup.entities.push(ependymalLyph);
         });
 
-
-        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
-
+        const createInternalLyphs = (lyph, group = undefined) => {
             lyph.internalLyphs.forEach(innerLyphID => {
-                //Bi-directional relationship
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
                 if (innerLyph) { innerLyph.belongsToLyph = lyph; }
-                if (lyph.id === "5") {return; } // Kidney lobus content is part fo omega trees
                 let [sNode, tNode] = ["s", "t"].map(prefix => ({
                     "id"       : `${prefix}${innerLyphID}`,
                     "name"     : `${prefix}${innerLyphID}`,
@@ -130,7 +126,7 @@ export class DataService{
                 }));
                 [sNode, tNode].forEach(node => {
                     this._graphData.nodes.push(node);
-                    neuronGroup.entities.push(node);
+                    if (group){ group.entities.push(node); }
                 });
 
                 let link = {
@@ -144,10 +140,16 @@ export class DataService{
                 };
 
                 this._graphData.links.push(link);
-                neuronGroup.entities.push(innerLyph);
-                neuronGroup.entities.push(link);
+                if ( group ) {
+                    group.entities.push(innerLyph);
+                    group.entities.push(link);
+                }
             })
-        });
+        };
+
+        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph =>
+            createInternalLyphs(lyph, neuronGroup)
+        );
 
         //Form links to join neural system lyphs:
         [["99011", "99008"], ["99008","99005"], ["99005", "99002"]].forEach(
@@ -355,7 +357,7 @@ export class DataService{
                 "length"    : 3,
                 "color"     : "#aaa",
                 "type"      : LINK_TYPES.LINK,
-                "lyphScale" : { width: 3, height: 4 },
+                "lyphScale" : { width: 4, height: 4 },
                 "reversed"  : reversed
             };
             if (conveyingLyph){
@@ -374,6 +376,37 @@ export class DataService{
             "L_1_MCP": "1010", //left ventricle = L.V.
             "L_1_MCS": "1011", //left atrium    = L.A
         };
+
+        //Assign Miocardium, Endocardium and Blood layers to each of 6 cardiac lyphs
+        let layers = ["999", "998", "997"].map(layerParentID => this._graphData.lyphs
+            .find(lyph => lyph.id === layerParentID));
+        layers.forEach(lyph => lyph.subtypes = []);
+
+        cardiacLyphMapping::values().forEach(lyphID => {
+            let cLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
+            cLyph.layers = [];
+            layers.forEach(layerParent => {
+                let lyphLayer = {
+                    "id"       : `${layerParent.id}_${lyphID}`,
+                    "name"     : `${layerParent.name} in ${cLyph.name}`,
+                    "supertype": layerParent.id,
+                    "color"    : layerParent.color
+                };
+                this._graphData.lyphs.push(lyphLayer);
+                cLyph.layers.push(`${layerParent.id}_${lyphID}`);
+                layerParent.subtypes.push(`${layerParent.id}_${lyphID}`);
+                if (lyphLayer.id === "997_1000"){
+                    lyphLayer.internalLyphs = ["995"]; //Right Fibrous Ring
+                    createInternalLyphs(lyphLayer);
+                }
+                if (lyphLayer.id === "997_1010"){
+                    lyphLayer.internalLyphs = ["996"]; //Left Fibrous Ring.
+                    createInternalLyphs(lyphLayer);
+                }
+
+            });
+        });
+
         ["R", "L"].forEach(prefix => {
             ["MCP", "MCS"].forEach(suffix => {
                 let src = prefix, trg;
