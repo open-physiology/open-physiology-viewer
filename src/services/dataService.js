@@ -1,8 +1,7 @@
 import { coreGraph, ependymalGraph } from '../data/core-graph.json';
-import { ependymal, omega } from '../data/lyph-mapping.json';
-import { lyphs } from '../data/kidney-lyphs.json';
+import { ependymal, omega, cardiac as cardiacLyphMapping} from '../data/lyph-mapping.json';
+import { lyphs, materials } from '../data/kidney-lyphs.json';
 import { lyphs as cardiacLyphs } from '../data/cardiac-lyphs';
-import { types } from '../data/manifest.json';
 
 import { assign, entries, keys, values, cloneDeep} from 'lodash-bound';
 import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
@@ -13,6 +12,8 @@ import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/utils';
 
 const colors = [...schemePaired, schemeDark2];
+
+//TODO process materials
 
 /**
  * A class that assembles ApiNATOMY model from available data sources:
@@ -29,36 +30,6 @@ export class DataService{
     }
 
     init(){
-        let neuralGroup = {
-            "id"       : "g1",
-            "name"     : "Neural system",
-            "entities" : []
-        };
-
-        let neuronGroup = {
-            "id"       : "g2",
-            "name"     : "Neurons",
-            "entities" : []
-        };
-
-        let omegaGroup = {
-            "id": "g3",
-            "name": "Omega trees",
-            "entities": []
-        };
-
-        let coalescenceGroup = {
-            "id"       : "g4",
-            "name"     : "Coalescences",
-            "entities" : []
-        };
-
-        let containerGroup = {
-            "id"       : "g5",
-            "name"     : "Containers",
-            "entities" : []
-        };
-
         /**
          * Prepare core ApiNATOMY graph
          * @type {{id: string, nodes: *, links: *, lyphs: *, groups: [*]}}
@@ -68,8 +39,9 @@ export class DataService{
             id: "graph1",
             nodes : [...coreGraph.nodes, ...ependymalGraph.nodes]::cloneDeep(),
             links : [...coreGraph.links, ...ependymalGraph.links]::cloneDeep(),
+            materials: materials::cloneDeep(),
             lyphs : [...lyphs, ...cardiacLyphs]::cloneDeep(),
-            groups: [omegaGroup, containerGroup, coalescenceGroup, neuralGroup, neuronGroup]
+            groups: [...coreGraph.groups]::cloneDeep()
         };
 
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
@@ -110,7 +82,7 @@ export class DataService{
         ependymal::entries().forEach(([linkID, lyphID]) => {
             let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
-            neuralGroup.entities.push(ependymalLyph);
+            this._graphData.groups[0].entities.push(ependymalLyph);
         });
 
         const createInternalLyphs = (lyph, group = undefined) => {
@@ -148,7 +120,7 @@ export class DataService{
         };
 
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph =>
-            createInternalLyphs(lyph, neuronGroup)
+            createInternalLyphs(lyph, this._graphData.groups[1])
         );
 
         //Form links to join neural system lyphs:
@@ -164,7 +136,7 @@ export class DataService{
                         "val"   : 0.5,
                         "skipLabel": true
                     };
-                    neuronGroup.entities.push(centerNode);
+                    this._graphData.groups[1].entities.push(centerNode);
                     containerLyph.internalNodes = [centerNode];
                     this._graphData.nodes.push(centerNode);
                     return centerNode;
@@ -180,18 +152,16 @@ export class DataService{
                     "strength" : 0
                 };
                 this._graphData.links.push(link);
-                neuronGroup.entities.push(link);
+                this._graphData.groups[1].entities.push(link);
             }
         );
 
         //Create Urinary tract and Cardiovascular system omega trees
 
-        //Recolor vascular tree lyphs to shades of red and red/purple
+        //Recolor lyphs
         colorLyphs(omega["LR"].trees["Arterial"]::values(), interpolateReds);
         colorLyphs(omega["LR"].trees["Venous"]::values()  , interpolateRdPu);
-        //Recolor urinary lyphs to the shades of green (or purple)
         colorLyphs(omega["PS"].trees["Urinary"]::values(), interpolateGreens);
-        //Recolor connector lyphs in the shades of ornage
         colorLyphs(omega["Connector"]::values(), interpolateOranges);
 
         //Add an extra node to correctly end the Urinary tree
@@ -216,7 +186,7 @@ export class DataService{
                     }
                     if (offsets[node.id]){ node.offset = offsets[node.id]; }
                     this._graphData.nodes.push(node);
-                    omegaGroup.entities.push(node);
+                    this._graphData.groups[2].entities.push(node);
                 });
 
                 //TODO add all hosted nodes to the property of the link 'hostedNodes'
@@ -235,7 +205,7 @@ export class DataService{
                         "linkMethod"    : "Line2"
                     };
                     this._graphData.links.push(link);
-                    omegaGroup.entities.push(link);
+                    this._graphData.groups[2].entities.push(link);
                 });
             })
         });
@@ -246,7 +216,7 @@ export class DataService{
                 "id"   : `LRPS${i}`,
                 "color": CONNECTOR_COLOR };
             this._graphData.nodes.push(node);
-            omegaGroup.entities.push(node);
+            this._graphData.groups[2].entities.push(node);
         });
 
         const connector = ["LR05", "LRPS0", "LRPS1", "LRPS2", "LR15"];
@@ -266,7 +236,7 @@ export class DataService{
                 "linkMethod"   : "Line2"
             };
             this._graphData.links.push(link);
-            omegaGroup.entities.push(link);
+            this._graphData.groups[2].entities.push(link);
         }
 
         function getLinkByLyphID(links, lyphID) {
@@ -300,7 +270,7 @@ export class DataService{
                             "type": LINK_TYPES.FORCE
                         };
                         this._graphData.links.push(link);
-                        coalescenceGroup.entities.push(link);
+                        this._graphData.groups[3].entities.push(link);
                     });
                 })
             });
@@ -318,7 +288,7 @@ export class DataService{
         );
         [kNode, lNode].forEach(node => {
             this._graphData.nodes.push(node);
-            containerGroup.entities.push(node);
+            this._graphData.groups[4].entities.push(node);
         });
 
         let containerLink = {
@@ -331,7 +301,7 @@ export class DataService{
             "conveyingLyph" : "5"
         };
         this._graphData.links.push(containerLink);
-        containerGroup.entities.push(containerLink);
+        this._graphData.groups[4].entities.push(containerLink);
 
         let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === "5");
         containerLyph.inactive = true;  // Exclude this entity from being highlighted
@@ -350,6 +320,7 @@ export class DataService{
         //TODO create specification for link prototypes to generate axes for given lyphs
 
         /* Cardiac system */
+
         //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each
         const addCardiacLink = (src, trg, conveyingLyph = undefined, reversed = false) => {
             let link = {
@@ -370,15 +341,6 @@ export class DataService{
 
         let NUM_LEVELS = 6;
         let dt = 0.5 / NUM_LEVELS;
-        //TODO this goes to link-lyph mapping file
-        let cardiacLyphMapping = {
-            "R_1_MCS": "1000", //right ventricle = R.V.
-            "R_1_MCP": "1001", //right atrium    = R.A
-            "L_2_MCP": "1022", //root of aorta (trunk) = R.A.T.
-            "R_2_MCS": "1023", //root of pulmonary trunk = R.P.T
-            "L_1_MCP": "1010", //left ventricle = L.V.
-            "L_1_MCS": "1011", //left atrium    = L.A
-        };
 
         //TODO generalize to derive layers from supertypes
         //Assign Miocardium, Endocardium and Blood layers to each of 6 cardiac lyphs
@@ -391,10 +353,10 @@ export class DataService{
             cLyph.layers = [];
             layers.forEach(layerParent => {
                 let lyphLayer = {
-                    "id"       : `${layerParent.id}_${lyphID}`,
-                    "name"     : `${layerParent.name} in ${cLyph.name}`,
-                    "supertype": layerParent.id,
-                    "color"    : layerParent.color
+                    "id"        : `${layerParent.id}_${lyphID}`,
+                    "name"      : `${layerParent.name} in ${cLyph.name}`,
+                    "supertype" : layerParent.id,
+                    "color"     : layerParent.color
                 };
                 this._graphData.lyphs.push(lyphLayer);
                 cLyph.layers.push(`${layerParent.id}_${lyphID}`);
@@ -434,7 +396,6 @@ export class DataService{
                 addCardiacLink(src, trg);
             });
         });
-
 
         /* Generate complete model */
 

@@ -20,6 +20,33 @@
       { "id": "LR", "source": "L", "target": "R", "name": "Systemic",  "type": "semicircle", "length":  75 },
       { "id": "SP", "source": "S", "target": "P", "name": "Gut",       "type": "semicircle", "length":  90 },
       { "id": "PS", "source": "P", "target": "S", "name": "Gut'",      "type": "semicircle", "length":  90 }
+    ],
+    "groups": [
+      {
+        "id"       : "g1",
+        "name"     : "Neural system",
+        "entities" : []
+      },
+      {
+        "id"       : "g2",
+        "name"     : "Neurons",
+        "entities" : []
+      },
+      {
+        "id": "g3",
+        "name": "Omega trees",
+        "entities": []
+      },
+      {
+        "id"       : "g4",
+        "name"     : "Coalescences",
+        "entities" : []
+      },
+      {
+        "id"       : "g5",
+        "name"     : "Containers",
+        "entities" : []
+      }
     ]
   },
   "ependymalGraph" : {

@@ -5,10 +5,12 @@ import { Link }   from './linkModel';
 import { Group }  from './groupModel';
 import { Tree }   from './treeModel';
 import { Graph }  from './graphModel';
+import { Material } from './materialModel';
 
 export const modelClasses = {
     "Node"  : Node,
     "Link"  : Link,
+    "Material": Material,
     "Lyph"  : Lyph,
     "Border": Border,
     "Group" : Group,

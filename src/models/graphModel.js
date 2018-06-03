@@ -17,7 +17,7 @@ export class Graph extends Entity {
 
     set nodes (newNodes){
         this._nodes = newNodes;
-        this.allNodes = this._nodes;
+        this._allNodes = this._nodes;
     }
 
     get nodes(){

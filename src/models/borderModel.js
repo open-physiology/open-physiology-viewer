@@ -12,13 +12,6 @@ export class Border extends Entity {
         return [this.borderTypes[1], this.borderTypes[2]];
     }
 
-    get borderNodes(){
-        let res = [];
-        (this.borders || []).filter(border => border.nodes)
-            .forEach(border => res = [...res, border.nodes]);
-        return new Set(res);
-    }
-
     /**
      * Creates links (objects with fields 'source' and 'target') to define sides of the lyph rectangle
      * @returns {Array}

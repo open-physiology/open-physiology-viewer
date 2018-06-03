@@ -18,14 +18,6 @@ export const NODE_TYPES = {
  */
 export class Node extends Entity {
 
-    get sourceInLinks(){
-        return this.links.filter(link => link.source && link.source.id === this.id);
-    }
-
-    get targetInLinks(){
-        return this.links.filter(link => link.target && link.target.id === this.id);
-    }
-
     /**
      * Create visual objects to represent the model according to the user preferences
      * @param state

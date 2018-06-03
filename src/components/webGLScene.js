@@ -304,6 +304,7 @@ export class WebGLSceneComponent {
         this.graph = new ThreeForceGraph()
             .graphData(this._graphData || {});
 
+        //TODO check if setting strength is necessary
         this.graph.d3Force("x", forceX().x(d => ('x' in d.layout) ? d.layout.x : 0)
             .strength(d => ('x' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
         );

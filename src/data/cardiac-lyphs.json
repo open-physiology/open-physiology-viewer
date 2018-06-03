@@ -23,7 +23,21 @@
     {
       "id"   : "997",
       "name" : "myocardium",
-      "color": "#87b263"
+      "color": "#87b263",
+      "derived" : {
+        "layers": [
+          { "id": "1000",
+            "assign": {
+              "internalLyphs": ["995"]
+            }
+          },
+          { "id": "1010",
+            "assign": {
+              "internalLyphs": ["996"]
+            }
+          }
+        ]
+      }
     },
     {
       "id"   : "998",
