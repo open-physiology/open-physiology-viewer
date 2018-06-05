@@ -39,16 +39,12 @@ export class DataService{
             id: "graph1",
             nodes : [...coreGraph.nodes, ...ependymalGraph.nodes]::cloneDeep(),
             links : [...coreGraph.links, ...ependymalGraph.links]::cloneDeep(),
-            materials: materials::cloneDeep(),
             lyphs : [...lyphs, ...cardiacLyphs]::cloneDeep(),
-            groups: [...coreGraph.groups]::cloneDeep()
+            groups: [...coreGraph.groups]::cloneDeep(),
+            materials: materials::cloneDeep()
         };
 
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
-        this._graphData.links = this._graphData.links.map(link => {
-            if (link.type !== LINK_TYPES.DASHED) { link.linkMethod = "Line2" }
-            return link
-        });
 
         const addColor = (array, defaultColor) =>
             array.filter(obj => !obj.color)
@@ -406,6 +402,7 @@ export class DataService{
             }
             this._entitiesByID[e.id] = e;
         }));
+        //Schema validation
         this._graphData = Graph.fromJSON(this._graphData, modelClasses, this._entitiesByID);
 
         console.log("Graph data: ", this._graphData);

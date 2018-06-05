@@ -1,8 +1,8 @@
 {
+  "$schema": "http://json-schema.org/draft-06/schema#",
   "definitions": {
     "Entity": {
-      "$schema": "http://json-schema.org/draft-06/schema#",
-      "description": "Specification of ApiNATOMY abstract entity",
+      "description": "Generic abstract entity defines common properties for all elements in ApiNATOMY circuitboards",
       "type"    : "object",
       "abstract": "true",
       "properties"  : {
@@ -114,7 +114,7 @@
       "required": ["id", "class"]
     },
     "Node"  : {
-      "description": "Specification of ApiNATOMY graph node",
+      "description": "Graph node joins two or more links (processes)",
       "type"    : "object",
       "extends" : {
         "$ref": "#/definitions/Entity"
@@ -187,6 +187,7 @@
       }
     },
     "Link"  : {
+      "description": "Graph link schematically representing a (part of) physiological process",
       "extends" : {
         "$ref": "#/definitions/Entity"
       },
@@ -270,11 +271,13 @@
       "required": ["source", "target"]
     },
     "Material": {
+      "description": "Chemical elements and compounds",
       "extends" : {
         "$ref": "#/definitions/Entity"
       }
     },
     "Lyph"  : {
+      "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
       "extends" : {
         "$ref": "#/definitions/Entity"
       },
@@ -426,6 +429,7 @@
       "required": ["axis"]
     },
     "Border": {
+      "description": "Lyph border",
       "extends" : {
         "$ref": "#/definitions/Entity"
       },
@@ -477,13 +481,13 @@
         "borderInLyph": {
           "oneOf": [
             { "type": "string"},
-            { "$ref": "#definitions/Lyph"}
+            { "$ref": "#/definitions/Lyph"}
           ]
         }
       }
     },
     "Group" : {
-      "description": "Set of entities with common properties or behavior",
+      "description": "Group of entities with common properties and/or behavior",
       "extends" : {
         "$ref": "#/definitions/Entity"
       },
@@ -501,7 +505,7 @@
       }
     },
     "Graph" : {
-      "description": "Data model for the graph shown by the ApiNATOMY lyph viewer",
+      "description": "Data model for the force-directed graph shown by the ApiNATOMY lyph viewer",
       "extends" : {
         "$ref": "#/definitions/Entity"
       },
@@ -510,89 +514,39 @@
           "description": "Graph nodes",
           "type": "array",
           "items": {
-            "oneOf": [
-              {"type": "string"},
-              {"$ref": "#/definitions/Node"}
-            ]
+            "$ref": "#/definitions/Node"
           }
         },
         "links" : {
           "description": "Graph links",
           "type": "array",
           "items": {
-            "oneOf": [
-              {"type": "string"},
-              {"$ref": "#/definitions/Link"}
-            ]
+            "$ref": "#/definitions/Link"
           }
         },
-        "materials": {},
+        "materials": {
           "description": "All materials in the model",
           "type": "array",
           "items": {
-            "oneOf": [
-              {"type": "string"},
-              {"$ref": "#/definitions/Material"}
-            ]
-          },
+            "$ref": "#/definitions/Material"
+          }
+        },
         "lyphs" : {
           "description": "All lyphs in the model",
           "type": "array",
           "items": {
-            "oneOf": [
-              {"type": "string"},
-              {"$ref": "#/definitions/Lyph"}
-            ]
+            "$ref": "#/definitions/Lyph"
           }
         },
         "groups": {
           "description": "Groups of entities in the graph that can be hidden and shown again",
           "type": "array",
           "items": {
-            "oneOf": [
-              {"type": "string"},
-              {"$ref": "#/definitions/Group"}
-            ]
+            "$ref": "#/definitions/Group"
           }
         }
       }
     }
   },
-  "relationships": [
-    {
-      "types": ["Link", "Node"],
-      "keys" : ["hostedNodes", "host"],
-      "modality": ["0..*", "0..1"]
-    },
-    {
-      "types": ["Link", "Lyph"],
-      "keys" : ["conveyingLyph", "axis"],
-      "modality": ["0..1", "1..1"]
-    },
-    {
-      "types": ["Lyph", "Lyph"],
-      "keys" : ["layers", "layerInLyph"],
-      "modality": ["0..*", "0..1"]
-    },
-    {
-      "types": ["Lyph", "Border"],
-      "keys" : ["border", "borderInLyph"],
-      "modality": ["1", "1"]
-    },
-    {
-      "types": ["Lyph", "Lyph"],
-      "keys" : ["belongsToLyph", "internalLyphs"],
-      "modality": ["0..1", "0..*"]
-    },
-    {
-      "types": ["Lyph", "Node"],
-      "keys" : ["belongsToLyph", "internalNodes"],
-      "modality": ["0..1", "0..*"]
-    },
-    {
-      "types" : ["Lyph", "Lyph"],
-      "keys"  : ["subtypes", "supertype"],
-      "modality": ["0..*", "0..1"]
-    }
-  ]
+  "$ref": "#/definitions/Graph"
 }

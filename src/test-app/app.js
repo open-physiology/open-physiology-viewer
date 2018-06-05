@@ -32,7 +32,9 @@ import 'font-awesome/css/font-awesome.css';
         </header>
 
 		<section style="margin-top:40px;"></section>
-	    <webGLScene [graphData]="_graphData"></webGLScene>
+	    <webGLScene [graphData]="_graphData" [selected]="_selected" 
+					(selectedItemChange)="onSelectedItemChange($event)"
+                    (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
 		<section class="w3-clear" style="margin-bottom:10px;"></section>
 
 	       <!-- Footer -->
@@ -55,6 +57,19 @@ export class TestApp {
         this._dataService.init();
         this._graphData = this._dataService.graphData;
     }
+
+    ngAfterViewInit(){
+        let tmp =  this._graphData.lyphs.find(lyph => lyph.id === "999_1022");
+        this._selected = tmp.viewObjects["main"];
+    }
+
+    onSelectedItemChange(item){
+    		console.log("Selected item", item);
+	}
+
+	onHighlightedItemChange(item){
+        console.log("Highlighted item", item);
+	}
 
 }
 

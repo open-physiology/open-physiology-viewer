@@ -4,7 +4,7 @@
       { "id"  : "c", "name": "c",      "color": "#D2691E", "val": 3, "type": "core", "layout": {"x": 100, "y":  0, "z":  0} },
       { "id"  : "n", "name": "n",      "color": "#D2691E", "val": 3, "type": "core", "layout": {"x":-100, "y":  0, "z":  0} },
       { "id"  : "t", "name": "t",      "color": "#808080", "val": 3, "type": "core", "layout": {"x": -60, "y":  0, "z":  0} },
-      { "id"  : "a", "name": "a",      "color": "#808080", "val": 3, "type": "fixed", "layout": {"x":   0, "y":  0, "z":  0} },
+      { "id"  : "a", "name": "a",      "color": "#808080", "val": 3, "type": "fixed","layout": {"x":   0, "y":  0, "z":  0} },
       { "id"  : "h", "name": "h",      "color": "#444444", "val": 3, "type": "core", "layout": {"x":  60, "y":  0, "z":  0} },
       { "id"  : "R", "name": "R",      "color": "#7B68EE", "val": 3, "type": "core", "layout": {"x":   0, "y": 75, "z":  0} },
       { "id"  : "L", "name": "L",      "color": "#ff0000", "val": 3, "type": "core", "layout": {"x":   0, "y":-75, "z":  0} },
@@ -15,11 +15,11 @@
       { "id"  : "MCS", "name": "Microcirculation systemic",  "color": "#666", "val": 1, "host": "RL", "offset": 0.5}
     ],
     "links" : [
-      { "id": "cn", "source": "c", "target": "n", "name": "",          "type": "dashed", "length": 100 },
-      { "id": "RL", "source": "R", "target": "L", "name": "Pulmonary", "type": "semicircle", "length":  75 },
-      { "id": "LR", "source": "L", "target": "R", "name": "Systemic",  "type": "semicircle", "length":  75 },
-      { "id": "SP", "source": "S", "target": "P", "name": "Gut",       "type": "semicircle", "length":  90 },
-      { "id": "PS", "source": "P", "target": "S", "name": "Gut'",      "type": "semicircle", "length":  90 }
+      { "id": "cn", "source": "c", "target": "n", "name": "",          "type": "dashed",     "length": 100 },
+      { "id": "RL", "source": "R", "target": "L", "name": "Pulmonary", "type": "semicircle", "length":  75, "linkMethod": "Line2" },
+      { "id": "LR", "source": "L", "target": "R", "name": "Systemic",  "type": "semicircle", "length":  75, "linkMethod": "Line2" },
+      { "id": "SP", "source": "S", "target": "P", "name": "Gut",       "type": "semicircle", "length":  90, "linkMethod": "Line2" },
+      { "id": "PS", "source": "P", "target": "S", "name": "Gut'",      "type": "semicircle", "length":  90, "linkMethod": "Line2" }
     ],
     "groups": [
       {
@@ -110,7 +110,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 7,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "2b",
@@ -119,7 +120,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 7,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "2c",
@@ -128,7 +130,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 7,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "3a",
@@ -137,7 +140,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 5,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "3b",
@@ -146,7 +150,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 5,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "3c",
@@ -155,7 +160,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 5,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "3d",
@@ -164,7 +170,8 @@
         "name": "Ependymal",
         "type": "link",
         "length": 5,
-        "reversed": true
+        "reversed": true,
+        "linkMethod": "Line2"
       },
       {
         "id": "3e",
@@ -172,7 +179,8 @@
         "target": "ag1",
         "name": "Ependymal",
         "type": "link",
-        "length": 7
+        "length": 7,
+        "linkMethod": "Line2"
       },
       {
         "id": "3f",
@@ -180,7 +188,8 @@
         "target": "g",
         "name": "Ependymal",
         "type": "link",
-        "length": 7
+        "length": 7,
+        "linkMethod": "Line2"
       }
     ]
   }

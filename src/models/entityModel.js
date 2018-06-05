@@ -1,5 +1,5 @@
 import { merge, isObject, entries, pick, keys, assign, cloneDeep } from 'lodash-bound';
-import { definitions, relationships} from '../data/manifest.json';
+import { definitions } from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
 
@@ -160,22 +160,22 @@ export class Entity {
     }
 
     //TODO write a test
-    syncRelationship(key, value, oldValue){
-        let r = relationships.find(r => r.definitions[0] === this.class && r.keys[0]=== key);
-        if (!r) { return; }
-
-        if (r.type === "array" ){
-            //one to many relationship
-            if (value && (r.definitions[1] === value.class)){
-                if (!value[r.keys[1]]){ value[r.keys[1]] = []; }
-                if (!value[r.keys[1]].find(entity2 => entity2.id === this.id)){ value[r.keys[1]].push(this); }
-            }
-            if (oldValue && r.definitions[1] === oldValue.class){
-                const index = oldValue[r.keys[1]].indexOf(entity2 => entity2.id === this.id);
-                oldValue[r.keys[1]].splice(index, 1);
-            }
-        }
-    }
+    // syncRelationship(key, value, oldValue){
+    //     let r = relationships.find(r => r.definitions[0] === this.class && r.keys[0]=== key);
+    //     if (!r) { return; }
+    //
+    //     if (r.type === "array" ){
+    //         //one to many relationship
+    //         if (value && (r.definitions[1] === value.class)){
+    //             if (!value[r.keys[1]]){ value[r.keys[1]] = []; }
+    //             if (!value[r.keys[1]].find(entity2 => entity2.id === this.id)){ value[r.keys[1]].push(this); }
+    //         }
+    //         if (oldValue && r.definitions[1] === oldValue.class){
+    //             const index = oldValue[r.keys[1]].indexOf(entity2 => entity2.id === this.id);
+    //             oldValue[r.keys[1]].splice(index, 1);
+    //         }
+    //     }
+    // }
 
     createLabels(labelKey, fontParams){
         if (this.skipLabel) { return; }
