@@ -38,29 +38,6 @@ export class Link extends Entity {
     }
 
     /**
-     * Defines size of the conveying lyph based on the length of the link
-     * @returns {{height: number, width: number}}
-     */
-    get lyphSize(){
-        if (this.type === LINK_TYPES.INVISIBLE){
-            return {height: this.length, width: this.length};
-        }
-
-        const scaleFactor = (this.length? Math.log(this.length): 1) * 5;
-        let res = {height: scaleFactor, width: scaleFactor};
-        if (this.lyphScale){
-            if (this.lyphScale.width && this.lyphScale.height){
-                res.width *= this.lyphScale.width;
-                res.height *= this.lyphScale.height;
-            } else {
-                res.width  *= this.lyphScale || 1;
-                res.height *= this.lyphScale || 1;
-            }
-        }
-        return res;
-    }
-
-    /**
      * Create WebGL objects to visualize the link, labels and its conveying lyph
      * @param state - layout parameters
      */

@@ -68,21 +68,6 @@ export class Entity {
     }
 
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-        json.class = json.class || this.name;
-        const cls = this || modelClasses[json.class];
-        const res = new cls(json.id);
-
-        //spec
-        let specProperties = [];
-        const handler = (currName) => specProperties = [...specProperties, ...definitions[currName].properties::keys()];
-        recurseSchema(this.name, handler);
-
-        let difference = json::keys().filter(x => !specProperties.find(y => y === x));
-        if (difference.length > 0) {
-            console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
-        }
-
-        res::assign(json);
 
         const createObj = (value, spec) => {
             let objValue = value;
@@ -95,15 +80,19 @@ export class Entity {
                 }
             }
 
-            let classDef = spec["$ref"] || spec.oneOf.find(obj => obj["$ref"]);
+            let classDef = spec.$ref || spec.oneOf.find(obj => obj.$ref) || spec;
             if (!classDef){
                 console.warn("Cannot extract the object class: property specification does not imply a reference", spec, value);
                 return objValue;
             }
 
-            let type = classDef["$ref"].substr(classDef["$ref"].lastIndexOf("/") + 1).trim();
+            if (classDef.$ref){ classDef = classDef.$ref;}
 
-            if (definitions[type] && definitions[type].abstract){ return objValue; }
+            let type = classDef.substr(classDef.lastIndexOf("/") + 1).trim();
+
+            if (definitions[type] && definitions[type].abstract){
+                return objValue;
+            }
 
             if (modelClasses[type]) {
                 if (!(objValue instanceof modelClasses[type])) {
@@ -120,6 +109,23 @@ export class Entity {
             return objValue;
         };
 
+        json.class = json.class || this.name;
+        const cls = this || modelClasses[json.class];
+        const res = new cls(json.id);
+
+        //spec
+        let specProperties = [];
+        const handler = (currName) => specProperties = [...specProperties,
+            ...definitions[currName].properties::keys()];
+        recurseSchema(this.name, handler);
+
+        let difference = json::keys().filter(x => !specProperties.find(y => y === x));
+        if (difference.length > 0) {
+            console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
+        }
+
+        res::assign(json);
+
         if (entitiesByID){
             //Exclude just created entity from being ever created again in the following recursion
             if (!res.id) {
@@ -132,8 +138,8 @@ export class Entity {
             }
 
             //Replace ID's with references to the model classes
-            let refFields = definitions[this.name].properties::entries().filter(([key, value]) =>
-                value.oneOf || value.items && (value.items.oneOf));
+            let refFields = definitions[this.name].properties::entries().filter(([key, spec]) =>
+                spec.$ref || spec.oneOf || spec.items && (spec.items.$ref || spec.items.oneOf));
 
             //TODO note that references in fields that do not match this pattern (such as lyph.border.borders) remain untouched
             //TODO it may be a good idea to convert them to object references as well
@@ -156,6 +162,7 @@ export class Entity {
                 }
             })
         }
+
         return res;
     }
 

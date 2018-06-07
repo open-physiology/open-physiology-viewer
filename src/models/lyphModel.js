@@ -57,6 +57,17 @@ export class Lyph extends Entity {
         return res;
     }
 
+    /**
+     * Defines size of the conveying lyph based on the length of the link
+     * @returns {{height: number, width: number}}
+     */
+    get size(){
+        let res = {height: this.axis.length, width: this.axis.length};
+        res.width  *= this.scale.width / 100;
+        res.height *= this.scale.height / 100;
+        return res;
+    }
+
     translate(p0){
         let p = p0.clone();
         let transformedLyph = this.layerInLyph? this.layerInLyph: this;
@@ -258,8 +269,8 @@ export class Lyph extends Entity {
         if (!this.axis) { return; }
 
         //Either use given dimensions or set from axis
-        this.width  = this.width  || this.axis.lyphSize.width;
-        this.height = this.height || this.axis.lyphSize.height;
+        this.width  = this.width  || this.size.width;
+        this.height = this.height || this.size.height;
 
         //There may be several objects representing a lyph, i.e., "2d" and "3d"
         this.viewObjects["lyphs"] = this.viewObjects["lyphs"] || {};

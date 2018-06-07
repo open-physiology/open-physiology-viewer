@@ -1,9 +1,9 @@
 import { coreGraph, ependymalGraph } from '../data/core-graph.json';
-import { ependymal, omega, cardiac as cardiacLyphMapping} from '../data/lyph-mapping.json';
+import { omega, cardiac as cardiacLyphMapping} from '../data/lyph-mapping.json';
 import { lyphs, materials } from '../data/kidney-lyphs.json';
 import { lyphs as cardiacLyphs } from '../data/cardiac-lyphs';
 
-import { assign, entries, keys, values, cloneDeep} from 'lodash-bound';
+import { assign, keys, values, cloneDeep} from 'lodash-bound';
 import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
     interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
 import { Graph } from '../models/graphModel';
@@ -65,20 +65,15 @@ export class DataService{
         };
 
         //Assign central nervous system lyphs to corresponding edges
-        let maxLayers = 0;
-        ependymal::entries().forEach(([linkID, lyphID]) => {
-            let link            = this._graphData.links.find(link => link.id === linkID);
-            link.conveyingLyph  = ependymal[linkID];
+        let ependymal = this._graphData.groups[0].entities;
+        let numLayers =  ependymal.map(lyphID => (this._graphData.lyphs.find(lyph => lyph.id === lyphID).layers || []).length);
+        let maxLayers = Math.max(...numLayers);
+
+        ependymal.forEach(lyphID => {
             let ependymalLyph   = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph.color = "#aaa";
-            link.lyphScale      = { width: 1.5 * ependymalLyph.layers.length, height: 2 };
-            maxLayers           = Math.max(maxLayers, ependymalLyph.layers.length);
-        });
-
-        ependymal::entries().forEach(([linkID, lyphID]) => {
-            let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
+            ependymalLyph.scale = { width: 50 * ependymalLyph.layers.length, height: 95 };
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
-            this._graphData.groups[0].entities.push(ependymalLyph);
         });
 
         const createInternalLyphs = (lyph, group = undefined) => {
@@ -194,14 +189,16 @@ export class DataService{
                         "source"        : `${host}${i}${j}`,
                         "target"        : `${host}${i}${j + 1}`,
                         "external"      : key,
-                        "length"        : (host==="LR")? 3: 2,
+                        "length"        : 3,
                         "type"          : LINK_TYPES.LINK,
                         "conveyingLyph" : tree[key],
                         "color"         : omega[host].color,
                         "linkMethod"    : "Line2"
                     };
                     this._graphData.links.push(link);
-                    this._graphData.groups[2].entities.push(link);
+                    this._graphData.groups[2].entities.push(link.id);
+                    //this._graphData.groups[2].entities.push(tree[key]);
+
                 });
             })
         });
@@ -225,7 +222,7 @@ export class DataService{
                 "source"       : connector[i],
                 "target"       : connector[i + 1],
                 "external"     : connectorLabels[i],
-                "length"       : 2,
+                "length"       : 3,
                 "type"         : LINK_TYPES.LINK,
                 "conveyingLyph": connectorLyphs[i],
                 "color"        : CONNECTOR_COLOR,
@@ -292,8 +289,7 @@ export class DataService{
             "source"    : kNode,
             "target"    : lNode,
             "type"      : LINK_TYPES.CONTAINER,
-            "length"    : 50,
-            "lyphScale" : 4,
+            "length"    : 40,
             "conveyingLyph" : "5"
         };
         this._graphData.links.push(containerLink);
@@ -312,7 +308,6 @@ export class DataService{
         addColor(this._graphData.links, "#000");
         addColor(this._graphData.lyphs);
 
-
         //TODO create specification for link prototypes to generate axes for given lyphs
 
         /* Cardiac system */
@@ -323,10 +318,9 @@ export class DataService{
                 "id"        : 'lnk' + (this._graphData.links.length + 1).toString(),
                 "source"    : src,
                 "target"    : trg,
-                "length"    : 3,
+                "length"    : 7,
                 "color"     : "#aaa",
                 "type"      : LINK_TYPES.LINK,
-                "lyphScale" : { width: 4, height: 4 },
                 "reversed"  : reversed
             };
             if (conveyingLyph){
@@ -340,8 +334,8 @@ export class DataService{
 
         //TODO generalize to derive layers from supertypes
         //Assign Miocardium, Endocardium and Blood layers to each of 6 cardiac lyphs
-        let layers = ["999", "998", "997"].map(layerParentID => this._graphData.lyphs
-            .find(lyph => lyph.id === layerParentID));
+        let layers = ["999", "998", "997"].map(lyphID => this._graphData.lyphs
+            .find(lyph => lyph.id === lyphID));
         layers.forEach(lyph => lyph.subtypes = []);
 
         cardiacLyphMapping::values().forEach(lyphID => {

@@ -1,10 +1,20 @@
 import { Entity } from './entityModel';
 import { values } from 'lodash-bound';
 import { LINK_TYPES } from './linkModel';
+// import { Validator} from 'jsonschema';
+// import * as schema from '../data/manifest.json';
+// const v = new Validator();
 
 export class Graph extends Entity {
     _nodes: [];
     _links: [];
+
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
+        //TODO fails with maximum stack overflow exception - either try a different validator or change schema
+        //console.log(v.validate(json, schema));
+
+        return super.fromJSON(json, modelClasses, entitiesByID);
+    }
 
     set links(newLinks){
         this._links = newLinks;

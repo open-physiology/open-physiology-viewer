@@ -226,18 +226,10 @@
           "enum": ["link", "dashed", "semicircle", "container", "force", "invisible"]
         },
         "infoFields": {
-          "extends" : {
-            "$ref": "#/definitions/Entity/infoFields"
-          },
           "default": {
             "text": ["length", "type"],
             "objects": ["source", "target", "conveyingLyph"]
           }
-        },
-        "direction"  : {
-          "definition": "Vector that defines the direction of the link",
-          "type": "object",
-          "readOnly": true
         },
         "reversed"   : {
           "description": "When set to true, the link's direction is reversed; it is used to turn the link's conveying lyph by 180 degrees",
@@ -252,10 +244,6 @@
         "strength"   : {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
           "type": "number"
-        },
-        "lyphScale"  : {
-          "description": "Defines the size of the conveying lyph wrt its axis (link) length",
-          "type": "object"
         },
         "hostedNodes": {
           "description": "Nodes that are positioned on the link",
@@ -323,9 +311,6 @@
           "default": {}
         },
         "infoFields"  : {
-          "extends" : {
-            "$ref": "#/definitions/Entity/infoFields"
-          },
           "default"   : {
             "text"    : ["topology"],
             "objects" : ["axis"],
@@ -351,6 +336,18 @@
         "width"         : {
           "description": "Width of the visual object representing lyph",
           "type": "number"
+        },
+        "scale":{
+          "description": "Defines the size of the conveying lyph as percentage of its axis' (link) length",
+          "type": "object",
+          "properties": {
+            "width": "number",
+            "height": "number"
+          },
+          "default": {
+            "width": 80,
+            "height": 80
+          }
         },
         "height"        : {
           "description": "Height of the visual object representing lyph",
@@ -456,16 +453,6 @@
               }
             }
           },
-          "minItems": 4,
-          "maxItems": 4
-        },
-        "borderLinks": {
-          "description": "Links that correspond to lyph borders",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Link"
-          },
-          "readOnly": true,
           "minItems": 4,
           "maxItems": 4
         },
