@@ -1,9 +1,9 @@
 import { coreGraph, ependymalGraph } from '../data/core-graph.json';
-import { omega, cardiac as cardiacLyphMapping} from '../data/lyph-mapping.json';
-import { lyphs, materials } from '../data/kidney-lyphs.json';
+import { omega, cardiac} from '../data/links.json';
+import { lyphs as kidneyLyphs, materials } from '../data/kidney-lyphs.json';
 import { lyphs as cardiacLyphs } from '../data/cardiac-lyphs';
 
-import { assign, keys, values, cloneDeep} from 'lodash-bound';
+import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
 import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
     interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
 import { Graph } from '../models/graphModel';
@@ -32,19 +32,20 @@ export class DataService{
     init(){
         /**
          * Prepare core ApiNATOMY graph
-         * @type {{id: string, nodes: *, links: *, lyphs: *, groups: [*]}}
-         * @private
          */
         this._graphData = {
             id: "graph1",
             nodes : [...coreGraph.nodes, ...ependymalGraph.nodes]::cloneDeep(),
             links : [...coreGraph.links, ...ependymalGraph.links]::cloneDeep(),
-            lyphs : [...lyphs, ...cardiacLyphs]::cloneDeep(),
+            lyphs : [...kidneyLyphs, ...cardiacLyphs]::cloneDeep(),
             groups: [...coreGraph.groups]::cloneDeep(),
-            materials: materials::cloneDeep()
+            materials: materials::cloneDeep(),
         };
 
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
+
+        /////////////////////////////////////////////////////////////////////
+        //Helper functions
 
         const addColor = (array, defaultColor) =>
             array.filter(obj => !obj.color)
@@ -64,19 +65,22 @@ export class DataService{
             });
         };
 
-        //Assign central nervous system lyphs to corresponding edges
-        let ependymal = this._graphData.groups[0].entities;
-        let numLayers =  ependymal.map(lyphID => (this._graphData.lyphs.find(lyph => lyph.id === lyphID).layers || []).length);
-        let maxLayers = Math.max(...numLayers);
+        const getLinkByLyphID = (lyphID) => {
+            let res = this._graphData.links.find(link => link.conveyingLyph &&
+            (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
+            if (!res) {
+                const hasLayer = (lyph, layerID) => {
+                    return (lyph.layers || []).find(layer => (layer === layerID || layer.id === layerID))
+                };
+                //For lyphs which are layers, return parent's link (does not work for ID's)
+                res = this._graphData.links.find(link => link.conveyingLyph
+                && hasLayer(link.conveyingLyph) && hasLayer(link.conveyingLyph, lyphID))
+            }
+            return res;
+        };
 
-        ependymal.forEach(lyphID => {
-            let ependymalLyph   = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
-            ependymalLyph.color = "#aaa";
-            ependymalLyph.scale = { width: 50 * ependymalLyph.layers.length, height: 95 };
-            colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
-        });
-
-        const createInternalLyphs = (lyph, group = undefined) => {
+        const createInternalLyphs = (lyph) => {
+            let newEntities = [];
             lyph.internalLyphs.forEach(innerLyphID => {
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
                 if (innerLyph) { innerLyph.belongsToLyph = lyph; }
@@ -89,7 +93,7 @@ export class DataService{
                 }));
                 [sNode, tNode].forEach(node => {
                     this._graphData.nodes.push(node);
-                    if (group){ group.entities.push(node); }
+                    newEntities.push(node);
                 });
 
                 let link = {
@@ -101,17 +105,35 @@ export class DataService{
                     "color"         : "#ccc",
                     "conveyingLyph" : innerLyphID
                 };
-
                 this._graphData.links.push(link);
-                if ( group ) {
-                    group.entities.push(innerLyph);
-                    group.entities.push(link);
-                }
-            })
+                newEntities.push(innerLyph);
+                newEntities.push(link);
+            });
+            return newEntities;
         };
 
-        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph =>
-            createInternalLyphs(lyph, this._graphData.groups[1])
+        ////////////////////////////////////////////////////////////////////
+
+        /* Modify central nervous system lyphs appearance */
+
+        //TODO how to generalize? Apply custom function to the group?
+        let ependymal = this._graphData.groups[0].entities;
+        let maxLayers = Math.max(...ependymal.map(lyphID =>
+            (this._graphData.lyphs.find(lyph => lyph.id === lyphID).layers || []).length));
+
+        ependymal.forEach(lyphID => {
+            let ependymalLyph   = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
+            ependymalLyph::merge({
+                color: "#aaa",
+                scale: { width: 50 * ependymalLyph.layers.length, height: 95 }
+            });
+            colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
+        });
+
+        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
+                this._graphData.groups[1].entities =
+                    [...this._graphData.groups[1].entities, ...createInternalLyphs(lyph)];
+            }
         );
 
         //Form links to join neural system lyphs:
@@ -151,13 +173,13 @@ export class DataService{
 
         //Recolor lyphs
         colorLyphs(omega["LR"].trees["Arterial"]::values(), interpolateReds);
-        colorLyphs(omega["LR"].trees["Venous"]::values()  , interpolateRdPu);
-        colorLyphs(omega["PS"].trees["Urinary"]::values(), interpolateGreens);
+        colorLyphs(omega["LR"].trees["Venous"]  ::values(), interpolateRdPu);
+        colorLyphs(omega["PS"].trees["Urinary"] ::values(), interpolateGreens);
         colorLyphs(omega["Connector"]::values(), interpolateOranges);
 
         //Add an extra node to correctly end the Urinary tree
         omega["LR"].trees["Arterial"]["end1"] = 0;
-        omega["PS"].trees["Urinary"]["end2"] = 0;
+        omega["PS"].trees["Urinary"]["end2"]  = 0;
 
         // Explicitly define position of the root node on the hosting link:
         // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
@@ -172,15 +194,14 @@ export class DataService{
                         "color"     : omega[host].color,
                         "charge"    : 5
                     };
-                    if (j === 0){
-                        node.host = host;
-                    }
+                    if (j === 0){ node.host = host; }
                     if (offsets[node.id]){ node.offset = offsets[node.id]; }
                     this._graphData.nodes.push(node);
                     this._graphData.groups[2].entities.push(node);
                 });
 
                 //TODO add all hosted nodes to the property of the link 'hostedNodes'
+
                 const NUM_LEVELS = tree::keys().length;
                 tree::keys().forEach((key, j) => {
                     if (j === NUM_LEVELS - 1) { return; }
@@ -197,8 +218,6 @@ export class DataService{
                     };
                     this._graphData.links.push(link);
                     this._graphData.groups[2].entities.push(link.id);
-                    //this._graphData.groups[2].entities.push(tree[key]);
-
                 });
             })
         });
@@ -232,24 +251,9 @@ export class DataService{
             this._graphData.groups[2].entities.push(link);
         }
 
-        function getLinkByLyphID(links, lyphID) {
-            let res = links.find(link => link.conveyingLyph &&
-            (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
-            if (!res) {
-                const hasLayer = (lyph, layerID) => {
-                    return (lyph.layers || []).find(layer => (layer === layerID || layer.id === layerID))
-                };
-
-                //For lyphs which are layers, return parent's link (does not work for ID's)
-                res = links.find(link => link.conveyingLyph
-                && hasLayer(link.conveyingLyph) && hasLayer(link.conveyingLyph, lyphID))
-            }
-            return res;
-        }
-
         //Coalescence defined as groups of lyphs
         [ ["78", "24"] ].forEach(lyphs => {
-            let coalescingLinks  = lyphs.map(lyphID => getLinkByLyphID(this._graphData.links, lyphID));
+            let coalescingLinks  = lyphs.map(lyphID => getLinkByLyphID(lyphID));
 
             coalescingLinks.forEach((link1, i) => {
                 coalescingLinks.forEach((link2, j) => {
@@ -332,36 +336,50 @@ export class DataService{
         let NUM_LEVELS = 6;
         let dt = 0.5 / NUM_LEVELS;
 
-        //TODO generalize to derive layers from supertypes
-        //Assign Miocardium, Endocardium and Blood layers to each of 6 cardiac lyphs
-        let layers = ["999", "998", "997"].map(lyphID => this._graphData.lyphs
-            .find(lyph => lyph.id === lyphID));
-        layers.forEach(lyph => lyph.subtypes = []);
+        /*Find lyph templates, generate new layers and replicate template properties */
 
-        cardiacLyphMapping::values().forEach(lyphID => {
-            let cLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
-            cLyph.layers = [];
-            layers.forEach(layerParent => {
-                let lyphLayer = {
-                    "id"        : `${layerParent.id}_${lyphID}`,
-                    "name"      : `${layerParent.name} in ${cLyph.name}`,
-                    "supertype" : layerParent.id,
-                    "color"     : layerParent.color
-                };
-                this._graphData.lyphs.push(lyphLayer);
-                cLyph.layers.push(`${layerParent.id}_${lyphID}`);
-                layerParent.subtypes.push(`${layerParent.id}_${lyphID}`);
-                if (lyphLayer.id === "997_1000"){
-                    lyphLayer.internalLyphs = ["995"]; //Right Fibrous Ring
-                    createInternalLyphs(lyphLayer);
+        let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
+        templates.forEach(template => {
+            (template.subtypes || []).forEach(subtypeRef => {
+                let subtype = subtypeRef;
+                if (typeof subtype === "string") {
+                    subtype = this._graphData.lyphs.find(e => e.id === subtypeRef);
                 }
-                if (lyphLayer.id === "997_1010"){
-                    lyphLayer.internalLyphs = ["996"]; //Left Fibrous Ring.
-                    createInternalLyphs(lyphLayer);
-                }
+                if (subtype){
+                    subtype.layers = [];
+                    (template.layers|| []).forEach(layerRef => {
+                        let layerParent = layerRef;
+                        if (typeof layerRef === "string"){
+                            layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
+                        }
+                        if (!layerParent) {
+                            console.warn("Generation error: template layer object not found: ", layerRef);
+                            return;
+                        }
+                        let newID = `${layerParent.id}_${subtype.id}`;
+                        let lyphLayer = {
+                            "id"        : newID,
+                            "name"      : `${layerParent.name} in ${subtype.name}`,
+                            "supertype" : layerParent.id,
+                            "color"     : layerParent.color
+                        };
+                        this._graphData.lyphs.push(lyphLayer);
+                        //Copy defined properties to newly generated lyphs
+                        if (template.assign && template.assign[newID]){
+                            lyphLayer::merge(template.assign[newID]);
+                            createInternalLyphs(lyphLayer);
+                        }
 
-            });
+                        subtype.layers.push(newID);
+                        if (!layerParent.subtypes){ layerParent.subtypes = []; }
+                        layerParent.subtypes.push(newID);
+                    });
+                }
+            })
         });
+
+
+        //Omega trees for cardiac lyphs
 
         ["R", "L"].forEach(prefix => {
             ["MCP", "MCS"].forEach(suffix => {
@@ -379,7 +397,7 @@ export class DataService{
                         "offset": reversed? 1 - i * dt : i * dt,
                         "skipLabel": true
                     });
-                    addCardiacLink(src, trg, cardiacLyphMapping[trg], reversed);
+                    addCardiacLink(src, trg, cardiac[trg], reversed);
                     src = trg;
                 }
                 trg = suffix;

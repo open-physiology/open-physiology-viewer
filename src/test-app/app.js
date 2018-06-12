@@ -60,7 +60,9 @@ export class TestApp {
 
     ngAfterViewInit(){
         let tmp =  this._graphData.lyphs.find(lyph => lyph.id === "999_1022");
-        this._selected = tmp.viewObjects["main"];
+        if (tmp){
+            this._selected = tmp.viewObjects["main"];
+        }
     }
 
     onSelectedItemChange(item){

@@ -15,7 +15,16 @@
         "1023",
         "1010",
         "1011"
-      ]
+      ],
+      "assign": {
+         "997_1000": {
+            "internalLyphs": ["995"]
+         },
+         "997_1010": {
+            "internalLyphs": ["996"]
+        }
+      },
+      "isTemplate": true
     },
     {
       "id": "995",
@@ -34,27 +43,7 @@
     {
       "id": "997",
       "name": "myocardium",
-      "color": "#87b263",
-      "derived": {
-        "layers": [
-          {
-            "id": "1000",
-            "assign": {
-              "internalLyphs": [
-                "995"
-              ]
-            }
-          },
-          {
-            "id": "1010",
-            "assign": {
-              "internalLyphs": [
-                "996"
-              ]
-            }
-          }
-        ]
-      }
+      "color": "#87b263"
     },
     {
       "id": "998",
@@ -73,7 +62,8 @@
       "scale": {
         "width": 80,
         "height": 80
-      }
+      },
+      "supertype": "994"
     },
     {
       "id": "1001",

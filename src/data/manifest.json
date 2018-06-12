@@ -41,6 +41,14 @@
           },
           "uniqueItems": true
         },
+        "isTemplate": {
+          "description": "Indicates that the entity is used as template to generate other entities",
+          "type": "boolean"
+        },
+        "assign": {
+          "description": "A map that, for each generated entity ID, defines properties to assign to the dynamically created entity",
+          "type": "object"
+        },
         "viewObjects": {
           "description": "Visual objects (meshes) to represent this entity in the ApiNATOMY viewer",
           "type": "object",
@@ -383,10 +391,6 @@
             {"$ref": "#/definitions/Lyph"}
           ]
         },
-        "template" : {
-          "description": "Indicates whether the lyph is defined to generate other lyphs",
-          "type": "boolean"
-        },
         "materials" : {
           "description": "Materials in the lyph",
           "type": "array",
@@ -401,7 +405,7 @@
             ]
           }
         },
-        "subtypes" : {
+        "subtypes"  : {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
           "type": "array",
           "items": {
