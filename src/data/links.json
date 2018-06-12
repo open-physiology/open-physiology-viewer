@@ -44,5 +44,59 @@
             }
         },
         "Connector": {"G" : "60", "H": "78", "I": "63", "J": "105"}
+    },
+    "neural": {
+        "nodes": [
+            {
+                "id": "c99011",
+                "belongsToLyph": "99011",
+                "val": 0.5,
+                "skipLabel": true
+            },
+            {
+                "id": "c99008",
+                "belongsToLyph": "99008",
+                "val": 0.5,
+                "skipLabel": true
+            },
+            {
+                "id": "c99005",
+                "belongsToLyph": "99005",
+                "val": 0.5,
+                "skipLabel": true
+            },
+            {
+                "id": "c99002",
+                "belongsToLyph": "99002",
+                "val": 0.5,
+                "skipLabel": true
+            }
+        ],
+        "links": [
+            {
+                "id": "99011_99008",
+                "source": "c99011",
+                "target": "c99008",
+                "length": 100,
+                "color" : "#aaa",
+                "strength": 0
+            },
+            {
+                "id": "99008_99005",
+                "source": "c99008",
+                "target": "c99005",
+                "length": 100,
+                "color" : "#aaa",
+                "strength": 0
+            },
+            {
+                "id": "99005_99002",
+                "source": "c99005",
+                "target": "c99002",
+                "length": 100,
+                "color" : "#aaa",
+                "strength": 0
+            }
+        ]
     }
 }

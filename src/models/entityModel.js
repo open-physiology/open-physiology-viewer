@@ -129,7 +129,9 @@ export class Entity {
         if (entitiesByID){
             //Exclude just created entity from being ever created again in the following recursion
             if (!res.id) {
-                console.warn("An entity without ID has been found: ", res);
+                if (res.class !== "Border"){ //TODO why do borders miss ID?
+                    console.warn("An entity without ID has been found: ", res);
+                }
             } else {
                 if (!entitiesByID[res.id]){
                     console.info("Added new entity to the global map: ", res.id);

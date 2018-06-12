@@ -18,9 +18,6 @@ export class Lyph extends Entity {
         //Create lyph's border
         result.border.id          = result.border.id || "b_" + result.id; //derive border id from lyph's id
         result.border.borderTypes = result.border.borderTypes || [false,...this.radialBorderTypes(result.topology), false];
-        if (entitiesByID){
-
-        }
         result.border             = Border.fromJSON(result.border);
         return result;
     }

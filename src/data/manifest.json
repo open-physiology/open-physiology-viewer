@@ -231,7 +231,8 @@
         "type" : {
           "description": "Defines the appearance and behavior of the link in the model graph",
           "type": "string",
-          "enum": ["link", "dashed", "semicircle", "container", "force", "invisible"]
+          "enum": ["link", "dashed", "semicircle", "container", "force", "invisible"],
+          "default": "link"
         },
         "infoFields": {
           "default": {

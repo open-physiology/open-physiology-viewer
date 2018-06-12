@@ -1,5 +1,5 @@
 import { coreGraph, ependymalGraph } from '../data/core-graph.json';
-import { omega, cardiac} from '../data/links.json';
+import { omega, cardiac, neural} from '../data/links.json';
 import { lyphs as kidneyLyphs, materials } from '../data/kidney-lyphs.json';
 import { lyphs as cardiacLyphs } from '../data/cardiac-lyphs';
 
@@ -35,8 +35,8 @@ export class DataService{
          */
         this._graphData = {
             id: "graph1",
-            nodes : [...coreGraph.nodes, ...ependymalGraph.nodes]::cloneDeep(),
-            links : [...coreGraph.links, ...ependymalGraph.links]::cloneDeep(),
+            nodes : [...coreGraph.nodes, ...ependymalGraph.nodes, ...neural.nodes]::cloneDeep(),
+            links : [...coreGraph.links, ...ependymalGraph.links, ...neural.links]::cloneDeep(),
             lyphs : [...kidneyLyphs, ...cardiacLyphs]::cloneDeep(),
             groups: [...coreGraph.groups]::cloneDeep(),
             materials: materials::cloneDeep(),
@@ -80,7 +80,7 @@ export class DataService{
         };
 
         const createInternalLyphs = (lyph) => {
-            let newEntities = [];
+            let newGroupIDs = [];
             lyph.internalLyphs.forEach(innerLyphID => {
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
                 if (innerLyph) { innerLyph.belongsToLyph = lyph; }
@@ -93,7 +93,7 @@ export class DataService{
                 }));
                 [sNode, tNode].forEach(node => {
                     this._graphData.nodes.push(node);
-                    newEntities.push(node);
+                    newGroupIDs.push(node.id);
                 });
 
                 let link = {
@@ -106,10 +106,10 @@ export class DataService{
                     "conveyingLyph" : innerLyphID
                 };
                 this._graphData.links.push(link);
-                newEntities.push(innerLyph);
-                newEntities.push(link);
+                newGroupIDs.push(innerLyph.id);
+                newGroupIDs.push(link.id);
             });
-            return newEntities;
+            return newGroupIDs;
         };
 
         ////////////////////////////////////////////////////////////////////
@@ -130,44 +130,26 @@ export class DataService{
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
         });
 
+        //TODO only group entities defined by ID are converted to model objects, not objects
+        // - either fix or put it as schema requirement
+
+
+        //Include relevant entities to the neural system group
+        //TODO find better solution - the neural group should be specified in the file
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
+                if (lyph.id === "5") { return; }
                 this._graphData.groups[1].entities =
                     [...this._graphData.groups[1].entities, ...createInternalLyphs(lyph)];
             }
         );
 
-        //Form links to join neural system lyphs:
-        [["99011", "99008"], ["99008","99005"], ["99005", "99002"]].forEach(
-            ([s,t]) => {
-                let [sNode, tNode] = [s, t].map(containerLyphID => {
-                    let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === containerLyphID);
-                    if (containerLyph.internalNodes){ return containerLyph.internalNodes[0]; }
-                    let centerNode = {
-                        "id"    : `center${containerLyphID}`,
-                        "belongsToLyph" : containerLyph,
-                        "color" : "#666",
-                        "val"   : 0.5,
-                        "skipLabel": true
-                    };
-                    this._graphData.groups[1].entities.push(centerNode);
-                    containerLyph.internalNodes = [centerNode];
-                    this._graphData.nodes.push(centerNode);
-                    return centerNode;
-                });
+        neural.nodes.forEach(node => {
+            let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === node.belongsToLyph);
+            containerLyph.internalNodes = [node];
+            this._graphData.groups[1].entities.push(node.id);
+        });
+        neural.links.forEach( link => this._graphData.groups[1].entities.push(link.id));
 
-                let link = {
-                    "id"       : 'lnk' + (this._graphData.links.length + 1).toString(),
-                    "source"   : sNode,
-                    "target"   : tNode,
-                    "length"   : 100,
-                    "color"    : "#aaa",
-                    "type"     : LINK_TYPES.LINK,
-                    "strength" : 0
-                };
-                this._graphData.links.push(link);
-                this._graphData.groups[1].entities.push(link);
-            }
-        );
 
         //Create Urinary tract and Cardiovascular system omega trees
 
@@ -197,7 +179,7 @@ export class DataService{
                     if (j === 0){ node.host = host; }
                     if (offsets[node.id]){ node.offset = offsets[node.id]; }
                     this._graphData.nodes.push(node);
-                    this._graphData.groups[2].entities.push(node);
+                    this._graphData.groups[2].entities.push(node.id);
                 });
 
                 //TODO add all hosted nodes to the property of the link 'hostedNodes'
@@ -228,7 +210,7 @@ export class DataService{
                 "id"   : `LRPS${i}`,
                 "color": CONNECTOR_COLOR };
             this._graphData.nodes.push(node);
-            this._graphData.groups[2].entities.push(node);
+            this._graphData.groups[2].entities.push(node.id);
         });
 
         const connector = ["LR05", "LRPS0", "LRPS1", "LRPS2", "LR15"];
@@ -267,7 +249,7 @@ export class DataService{
                             "type": LINK_TYPES.FORCE
                         };
                         this._graphData.links.push(link);
-                        this._graphData.groups[3].entities.push(link);
+                        this._graphData.groups[3].entities.push(link.id);
                     });
                 })
             });
@@ -285,7 +267,7 @@ export class DataService{
         );
         [kNode, lNode].forEach(node => {
             this._graphData.nodes.push(node);
-            this._graphData.groups[4].entities.push(node);
+            this._graphData.groups[4].entities.push(node.id);
         });
 
         let containerLink = {
@@ -297,7 +279,7 @@ export class DataService{
             "conveyingLyph" : "5"
         };
         this._graphData.links.push(containerLink);
-        this._graphData.groups[4].entities.push(containerLink);
+        this._graphData.groups[4].entities.push(containerLink.id);
 
         let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === "5");
         containerLyph.inactive = true;  // Exclude this entity from being highlighted
