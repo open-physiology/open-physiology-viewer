@@ -79,7 +79,8 @@
                 "target": "c99008",
                 "length": 100,
                 "color" : "#aaa",
-                "strength": 0
+                "strength": 0,
+                "type": "path"
             },
             {
                 "id": "99008_99005",
@@ -87,7 +88,8 @@
                 "target": "c99005",
                 "length": 100,
                 "color" : "#aaa",
-                "strength": 0
+                "strength": 0,
+                "type": "path"
             },
             {
                 "id": "99005_99002",
@@ -95,7 +97,8 @@
                 "target": "c99002",
                 "length": 100,
                 "color" : "#aaa",
-                "strength": 0
+                "strength": 0,
+                "type": "path"
             }
         ]
     }

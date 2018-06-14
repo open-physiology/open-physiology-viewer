@@ -62,7 +62,9 @@ export default Kapsule({
             return this;
         },
         tickFrame: function(state) {
-            if (state.onFrame) { state.onFrame(); }
+            if (state.onFrame) {
+                state.onFrame();
+            }
             return this;
         }
     },

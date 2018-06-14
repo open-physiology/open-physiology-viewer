@@ -4,6 +4,7 @@ import { LINK_TYPES } from './linkModel';
 // import { Validator} from 'jsonschema';
 // import * as schema from '../data/manifest.json';
 // const v = new Validator();
+import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
 
 export class Graph extends Entity {
     _nodes: [];
@@ -84,8 +85,26 @@ export class Graph extends Entity {
         // Update nodes positions
         this._nodes.forEach(node => { node.updateViewObjects(state) });
 
+        //Edge bundling
+        const fBundling = ForceEdgeBundling()
+            .nodes(this._nodes)
+            .edges(this.links.filter(e => e.type === LINK_TYPES.PATH).map(edge => {
+                return {
+                    source: this._nodes.indexOf(edge.source),
+                    target: this._nodes.indexOf(edge.target)
+                };
+            }));
+        let res = fBundling();
+        (res || []).forEach(path => {
+            let lnk = this._links.find(e => e.source.id === path[0].id);
+            if (lnk){
+                //TODO interpolate y coordinate
+                lnk.path = path.map(p => {return {"x": p.x, "y": p.y, z: p.z || 0 }});
+            }
+        });
+
         //Update links in certain order
-        [LINK_TYPES.SEMICIRCLE, LINK_TYPES.LINK, LINK_TYPES.INVISIBLE, LINK_TYPES.DASHED, LINK_TYPES.CONTAINER].forEach(
+        [LINK_TYPES.SEMICIRCLE, LINK_TYPES.LINK, LINK_TYPES.INVISIBLE, LINK_TYPES.DASHED, LINK_TYPES.CONTAINER, LINK_TYPES.PATH].forEach(
             linkType => {
                 this._links.filter(link => link.type === linkType).forEach(link => {
                     link.updateViewObjects(state);

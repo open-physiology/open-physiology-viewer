@@ -26,9 +26,6 @@ const colors = [...schemePaired, schemeDark2];
 export class DataService{
     _entitiesByID = {};
 
-    constructor(){
-    }
-
     init(){
         /**
          * Prepare core ApiNATOMY graph
@@ -43,6 +40,9 @@ export class DataService{
         };
 
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
+
+        let groupsByName = {};
+        this._graphData.groups.forEach(g => groupsByName[g.name] = g);
 
         /////////////////////////////////////////////////////////////////////
         //Helper functions
@@ -117,12 +117,11 @@ export class DataService{
         /* Modify central nervous system lyphs appearance */
 
         //TODO how to generalize? Apply custom function to the group?
-        let ependymal = this._graphData.groups[0].entities;
-        let maxLayers = Math.max(...ependymal.map(lyphID =>
+        let maxLayers = Math.max(...groupsByName["Neural system"].entities.map(lyphID =>
             (this._graphData.lyphs.find(lyph => lyph.id === lyphID).layers || []).length));
 
-        ependymal.forEach(lyphID => {
-            let ependymalLyph   = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
+        groupsByName["Neural system"].entities.forEach(lyphID => {
+            let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph::merge({
                 color: "#aaa",
                 scale: { width: 50 * ependymalLyph.layers.length, height: 95 }
@@ -130,25 +129,20 @@ export class DataService{
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
         });
 
-        //TODO only group entities defined by ID are converted to model objects, not objects
-        // - either fix or put it as schema requirement
-
+        //TODO only group entities defined by ID are converted to model objects, not objects either fix or put it as schema requirement
 
         //Include relevant entities to the neural system group
-        //TODO find better solution - the neural group should be specified in the file
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
-                if (lyph.id === "5") { return; }
-                this._graphData.groups[1].entities =
-                    [...this._graphData.groups[1].entities, ...createInternalLyphs(lyph)];
-            }
-        );
+            if (lyph.id === "5") { return; }
+            groupsByName["Neurons"].entities = [...groupsByName["Neurons"].entities, ...createInternalLyphs(lyph)];
+        });
 
         neural.nodes.forEach(node => {
             let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === node.belongsToLyph);
             containerLyph.internalNodes = [node];
-            this._graphData.groups[1].entities.push(node.id);
+            groupsByName["Neurons"].entities.push(node.id);
         });
-        neural.links.forEach( link => this._graphData.groups[1].entities.push(link.id));
+        neural.links.forEach( link => groupsByName["Neurons"].entities.push(link.id));
 
 
         //Create Urinary tract and Cardiovascular system omega trees
@@ -179,7 +173,7 @@ export class DataService{
                     if (j === 0){ node.host = host; }
                     if (offsets[node.id]){ node.offset = offsets[node.id]; }
                     this._graphData.nodes.push(node);
-                    this._graphData.groups[2].entities.push(node.id);
+                    groupsByName["Omega trees"].entities.push(node.id);
                 });
 
                 //TODO add all hosted nodes to the property of the link 'hostedNodes'
@@ -199,7 +193,7 @@ export class DataService{
                         "linkMethod"    : "Line2"
                     };
                     this._graphData.links.push(link);
-                    this._graphData.groups[2].entities.push(link.id);
+                    groupsByName["Omega trees"].entities.push(link.id);
                 });
             })
         });
@@ -210,7 +204,7 @@ export class DataService{
                 "id"   : `LRPS${i}`,
                 "color": CONNECTOR_COLOR };
             this._graphData.nodes.push(node);
-            this._graphData.groups[2].entities.push(node.id);
+            groupsByName["Omega trees"].entities.push(node.id);
         });
 
         const connector = ["LR05", "LRPS0", "LRPS1", "LRPS2", "LR15"];
@@ -230,7 +224,7 @@ export class DataService{
                 "linkMethod"   : "Line2"
             };
             this._graphData.links.push(link);
-            this._graphData.groups[2].entities.push(link);
+            groupsByName["Omega trees"].entities.push(link);
         }
 
         //Coalescence defined as groups of lyphs
@@ -249,7 +243,7 @@ export class DataService{
                             "type": LINK_TYPES.FORCE
                         };
                         this._graphData.links.push(link);
-                        this._graphData.groups[3].entities.push(link.id);
+                        groupsByName["Coalescences"].entities.push(link.id);
                     });
                 })
             });
@@ -267,7 +261,7 @@ export class DataService{
         );
         [kNode, lNode].forEach(node => {
             this._graphData.nodes.push(node);
-            this._graphData.groups[4].entities.push(node.id);
+            groupsByName["Containers"].entities.push(node.id);
         });
 
         let containerLink = {
@@ -279,14 +273,14 @@ export class DataService{
             "conveyingLyph" : "5"
         };
         this._graphData.links.push(containerLink);
-        this._graphData.groups[4].entities.push(containerLink.id);
+        groupsByName["Containers"].entities.push(containerLink.id);
 
         let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === "5");
         containerLyph.inactive = true;  // Exclude this entity from being highlighted
-        containerLyph.border = { borders: [{}, {}, {}, {nodes: ["PS013", "LR05", "LR15"]}]};
+        containerLyph.border   = { borders: [{}, {}, {}, {nodes: ["PS013", "LR05", "LR15"]}]};
 
         // Assign inner content to the container lyph border
-        let containerHost = this._graphData.lyphs.find(lyph => lyph.id === "3");
+        let containerHost    = this._graphData.lyphs.find(lyph => lyph.id === "3");
         containerHost.border = { borders: [ {}, {}, {}, { conveyingLyph: "5" }]};
         containerLyph.belongsToLyph = containerHost;
 

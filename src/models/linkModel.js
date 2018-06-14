@@ -17,6 +17,7 @@ export const LINK_TYPES = {
     LINK       : "link",       //solid straight line
     DASHED     : "dashed",     //dashed straight line
     SEMICIRCLE : "semicircle", //solid line in the form of a semicircle
+    PATH       : "path",       //solid path (e.g., in the shape for the edge bundling)
     CONTAINER  : "container",  //link with visual object (which may be hidden), not affected by graph forces (i.e., with fixed position)
     FORCE      : "force",      //link without visual object, works as force to attract or repel nodes
     INVISIBLE  : "invisible"   //link with hidden visual object affected by graph forces (i.e., dynamically positioned)
@@ -142,6 +143,9 @@ export class Link extends Entity {
                         copyCoords(node, pos);
                     });
                 }
+                break;
+            }
+            case LINK_TYPES.PATH: {
                 break;
             }
         }
