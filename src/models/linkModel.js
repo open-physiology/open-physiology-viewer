@@ -76,7 +76,8 @@ export class Link extends Entity {
                         color: this.color,
                         polygonOffsetFactor: -100
                     });
-                    let size = (this.type === LINK_TYPES.SEMICIRCLE)? state.linkResolution: 2;
+                    let size = (this.type === LINK_TYPES.SEMICIRCLE)? state.linkResolution:
+                        (this.type === LINK_TYPES.PATH)? 66: 2; // Edge bunding breaks a link into 66 points
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
                     obj = new THREE.Line(geometry, this.material);
                 }
@@ -146,6 +147,7 @@ export class Link extends Entity {
                 break;
             }
             case LINK_TYPES.PATH: {
+                points = this.path;
                 break;
             }
         }

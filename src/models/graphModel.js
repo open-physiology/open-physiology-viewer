@@ -98,8 +98,11 @@ export class Graph extends Entity {
         (res || []).forEach(path => {
             let lnk = this._links.find(e => e.source.id === path[0].id);
             if (lnk){
-                //TODO interpolate y coordinate
-                lnk.path = path.map(p => {return {"x": p.x, "y": p.y, z: p.z || 0 }});
+                let dz = (path[path.length - 1].z - path[0].z) / path.length;
+                for (let i = 1; i < path.length - 1; i++){
+                    path[i].z = path[0].z + dz * i;
+                }
+                lnk.path = path;
             }
         });
 

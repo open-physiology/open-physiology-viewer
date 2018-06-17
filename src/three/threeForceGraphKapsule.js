@@ -29,10 +29,10 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize    : { default: 3 }, // volume per val unit
+        nodeRelSize    : { default: 3 },   // volume per val unit
         nodeId         : { default: 'id' },
-        nodeResolution : { default: 16 }, // how many slice segments in the sphere's circumference
-        linkResolution : { default: 50 },
+        nodeResolution : { default: 16 },  // how many slice segments in the sphere's circumference
+        linkResolution : { default: 50 },  // number of points on semicircle link
         linkMethod     : { default: 'Line2'}, //link rendering method
         showLyphs      : { default: true},
         showLayers     : { default: true},
