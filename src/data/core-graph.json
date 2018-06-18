@@ -23,16 +23,6 @@
     ],
     "groups": [
       {
-        "id"       : "g1",
-        "name"     : "Neural system",
-        "entities" : ["152", "147", "142", "137", "132", "127", "122", "157", "162"]
-      },
-      {
-        "id"       : "g2",
-        "name"     : "Neurons",
-        "entities" : []
-      },
-      {
         "id": "g3",
         "name": "Omega trees",
         "entities": []
@@ -199,6 +189,18 @@
         "length": 5,
         "linkMethod": "Line2",
         "conveyingLyph": "162"
+      }
+    ],
+    "groups": [
+      {
+        "id"       : "g1",
+        "name"     : "Neural system",
+        "entities" : ["152", "147", "142", "137", "132", "127", "122", "157", "162"]
+      },
+      {
+        "id"       : "g2",
+        "name"     : "Neurons",
+        "entities" : []
       }
     ]
   }

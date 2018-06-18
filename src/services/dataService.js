@@ -1,7 +1,6 @@
 import { coreGraph, ependymalGraph } from '../data/core-graph.json';
 import { omega, cardiac, neural} from '../data/links.json';
-import { lyphs as kidneyLyphs, materials } from '../data/kidney-lyphs.json';
-import { lyphs as cardiacLyphs } from '../data/cardiac-lyphs';
+import { lyphs, materials } from '../data/lyphs.json';
 
 import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
 import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
@@ -34,8 +33,8 @@ export class DataService{
             id: "graph1",
             nodes : [...coreGraph.nodes, ...ependymalGraph.nodes, ...neural.nodes]::cloneDeep(),
             links : [...coreGraph.links, ...ependymalGraph.links, ...neural.links]::cloneDeep(),
-            lyphs : [...kidneyLyphs, ...cardiacLyphs]::cloneDeep(),
-            groups: [...coreGraph.groups]::cloneDeep(),
+            lyphs : lyphs::cloneDeep(),
+            groups: [...coreGraph.groups, ...ependymalGraph.groups]::cloneDeep(),
             materials: materials::cloneDeep(),
         };
 
@@ -124,8 +123,10 @@ export class DataService{
             let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph::merge({
                 color: "#aaa",
-                scale: { width: 50 * ependymalLyph.layers.length, height: 95 }
+                scale: { width: 100 * ependymalLyph.layers.length, height: 95 }
             });
+            let outerLayer = this._graphData.lyphs.find(lyph => lyph.id === ependymalLyph.layers[ependymalLyph.layers.length - 1]);
+            if (outerLayer){ outerLayer.layerWidth = 60; }
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
         });
 
@@ -136,6 +137,8 @@ export class DataService{
             if (lyph.id === "5") { return; }
             groupsByName["Neurons"].entities = [...groupsByName["Neurons"].entities, ...createInternalLyphs(lyph)];
         });
+
+        //TODO put neuron nodes and links to the group in json file
 
         neural.nodes.forEach(node => {
             let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === node.belongsToLyph);

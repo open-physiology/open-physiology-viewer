@@ -321,7 +321,7 @@
         },
         "infoFields"  : {
           "default"   : {
-            "text"    : ["topology"],
+            "text"    : ["topology", "width"],
             "objects" : ["axis"],
             "lists"   : ["layers"]
           }
@@ -357,6 +357,10 @@
             "width": 80,
             "height": 80
           }
+        },
+        "layerWidth": {
+          "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
+          "type": "number"
         },
         "height"        : {
           "description": "Height of the visual object representing lyph",

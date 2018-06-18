@@ -217,7 +217,7 @@ export class Lyph extends Entity {
          * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
          */
         function d2Lyph(outer, material, borderMaterial){
-            let [thickness,  height,  radius,  top,  bottom] = outer;
+            let [thickness, height, radius, top, bottom] = outer;
 
             const shape = new THREE.Shape();
 
@@ -292,10 +292,10 @@ export class Lyph extends Entity {
             let thickness = this.width / numLayers;
             //The shape of the lyph depends on its position in its parent lyph as layer
             let [lyphObj, lyphBorder] = this.prev? d2Layer(
-                    [ this.width, this.height, thickness / 2, ...this.border.radialTypes],
-                    [ this.prev.width, this.prev.height, thickness / 2, ...this.prev.border.radialTypes],
-                    this.material, this.borderMaterial)
-                : d2Lyph([this.width, this.height, thickness / 2, ...this.border.radialTypes], this.material, this.borderMaterial);
+                    [ this.prev.width, this.prev.height, this.height / 4, ...this.prev.border.radialTypes],
+                    [ this.width, this.height, this.height / 4, ...this.border.radialTypes],
+                this.material, this.borderMaterial)
+                : d2Lyph([this.width, this.height, this.height / 4, ...this.border.radialTypes], this.material, this.borderMaterial);
 
             lyphObj.__data = this;
 
@@ -308,19 +308,27 @@ export class Lyph extends Entity {
             this.border.borderInLyph  = this;
             this.border.createViewObjects(state);
 
+            let resizedLayers = (this.layers || []).filter(layer => layer.layerWidth);
+            let layerTotalWidth = 0;
+            (resizedLayers||[]).forEach(layer => layerTotalWidth += layer.layerWidth);
+            let defaultWidth = (resizedLayers.length < numLayers)?
+                (100. - layerTotalWidth) / (numLayers - resizedLayers.length): 0;
+
+            let offset = 0;
+            for (let i = 1; i < (this.layers || []).length; i++){
+                let layer = this.layers[i];
+                layer.prev      = this.layers[i - 1];
+                layer.prev.next = this.layers[i];
+            }
             //Layers
             (this.layers || []).forEach((layer, i) => {
-                //TODO think if we need to clone axis for layer
                 layer.axis   = this.axis;
-                layer.width  = thickness;
+                if (!layer.layerWidth) { layer.layerWidth = defaultWidth; }
+                layer.width  = layer.layerWidth / 100 * this.width;
                 layer.height = this.height;
                 layer.layerInLyph = this;
-                layer.offset = thickness * i;
-                if (i > 0) {
-                    layer.prev      = this.layers[i - 1];
-                    layer.prev.next = this.layers[i];
-                }
-
+                layer.offset = offset;
+                offset += layer.width;
                 layer.createViewObjects(state);
                 let layerObj = layer.viewObjects["main"];
                 layerObj.translateX(layer.offset);
@@ -330,16 +338,9 @@ export class Lyph extends Entity {
 
             (this.internalNodes || []).forEach(node => {
                 if (!state.graphData.nodes.find(n => n.id === node.id)){
-                    //Internal node is not in the global graph
+                    //If internal node is not in the global graph, create visual objects for it
                     node.createViewObjects(state);
                     lyphObj.add(node.viewObjects["main"]);
-                    // (node.links||[]).forEach(lnk => {
-                    //     if (!lnk.included){
-                    //         lnk.createViewObjects(state);
-                    //         state.graphScene.add(lnk.viewObjects["main"]);
-                    //         lnk.included = true;
-                    //     }
-                    // });
                 }
             })
         } else {
@@ -364,12 +365,12 @@ export class Lyph extends Entity {
         this.viewObjects['main']  = this.viewObjects["lyphs"][state.method];
 
 
-        if (!this.layerInLyph && !this.belongsToLyph) {//update label
-            if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
-                this.createViewObjects(state);
+        if (!this.layerInLyph) {//update label
+            if (!this.belongsToLyph){
+                if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
+                    this.createViewObjects(state);
+                }
             }
-        }
-        if (!this.layerInLyph){
             //update lyph
             this.viewObjects["main"].visible = (!this.hidden) && state.showLyphs;
             copyCoords(this.viewObjects["main"].position, this.center);
