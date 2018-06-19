@@ -26,15 +26,23 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
     selector: 'webGLScene',
     template: `
         <section id="viewPanel" class="w3-row">
-            <section id="canvasContainer" class="w3-twothird">
+            <button *ngIf="!showPanel" 
+                class="w3-bar-item w3-button w3-hover-light-grey" style="position: fixed;
+                    top: 50px; right: 20px;" (click)="toggleSettingPanel()">
+                <i class="fa fa-bars"></i>
+            </button>
+            <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right">
                     <canvas #canvas class="w3-card w3-round"></canvas>
                 </section>
             </section>
-            <section id="settingsPanel" stop-propagation class="w3-third">
+            <section *ngIf="showPanel" id="settingsPanel" stop-propagation class="w3-third">
                 <section class="w3-padding">
                     <section class="w3-bar w3-grey">
                         <span class="w3-bar-item">Control Panel</span>
+                        <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="toggleSettingPanel()">
+                            <i class="fa fa-bars"></i>
+                        </button>
                         <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="update()">
                             <i class="fa fa-refresh"></i>
                         </button>
@@ -122,10 +130,12 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
 })
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
+    showPanel = true;
     scene;
     camera;
     renderer;
     canvasContainer;
+    settingsPanel;
     controls;
     mouse;
     windowResize;
@@ -214,6 +224,8 @@ export class WebGLSceneComponent {
         this.renderer.setClearColor(0xffffff);
 
         this.canvasContainer = document.getElementById('canvasContainer');
+        this.settingsPanel   = document.getElementById('settingsPanel');
+
         let width = this.canvasContainer.clientWidth;
         let height = this.canvasContainer.clientHeight;
 
@@ -330,6 +342,11 @@ export class WebGLSceneComponent {
         if (this.graph){
             this.graph.graphData(this._graphData);
         }
+    }
+
+    toggleSettingPanel() {
+        console.log("Toggling panel...");
+        this.showPanel = !this.showPanel;
     }
 
     // Also search internally for internal layers

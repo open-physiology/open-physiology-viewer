@@ -1,5 +1,5 @@
 {
-  "coreGraph": {
+  "core": {
     "nodes" : [
       { "id"  : "c", "name": "c",      "color": "#D2691E", "val": 3, "type": "core", "layout": {"x": 100, "y":  0, "z":  0} },
       { "id"  : "n", "name": "n",      "color": "#D2691E", "val": 3, "type": "core", "layout": {"x":-100, "y":  0, "z":  0} },
@@ -39,7 +39,7 @@
       }
     ]
   },
-  "ependymalGraph" : {
+  "ependymal" : {
     "nodes": [
       {
         "id": "ta1",
@@ -202,6 +202,73 @@
         "name"     : "Neurons",
         "entities" : []
       }
+    ]
+  },
+  "neural": {
+    "nodes": [
+      {
+        "id": "c99011",
+        "belongsToLyph": "99011",
+        "val": 0.5,
+        "skipLabel": true
+      },
+      {
+        "id": "c99008",
+        "belongsToLyph": "99008",
+        "val": 0.5,
+        "skipLabel": true
+      },
+      {
+        "id": "c99005",
+        "belongsToLyph": "99005",
+        "val": 0.5,
+        "skipLabel": true
+      },
+      {
+        "id": "c99002",
+        "belongsToLyph": "99002",
+        "val": 0.5,
+        "skipLabel": true
+      }
+    ],
+    "links": [
+      {
+        "id": "99011_99008",
+        "source": "c99011",
+        "target": "c99008",
+        "length": 100,
+        "color" : "#aaa",
+        "strength": 0,
+        "type": "path"
+      },
+      {
+        "id": "99008_99005",
+        "source": "c99008",
+        "target": "c99005",
+        "length": 100,
+        "color" : "#aaa",
+        "strength": 0,
+        "type": "path"
+      },
+      {
+        "id": "99005_99002",
+        "source": "c99005",
+        "target": "c99002",
+        "length": 100,
+        "color" : "#aaa",
+        "strength": 0,
+        "type": "path"
+      }
+    ]
+  },
+  "cardiac": {
+    "links": [
+      {"id": "lnkR_1_MCS", "conveyingLyph": "1000"},
+      {"id": "lnkR_1_MCP", "conveyingLyph": "1001"},
+      {"id": "lnkL_2_MCP", "conveyingLyph": "1022"},
+      {"id": "lnkR_2_MCS", "conveyingLyph": "1023"},
+      {"id": "lnkL_1_MCP", "conveyingLyph": "1010"},
+      {"id": "lnkL_1_MCS", "conveyingLyph": "1011"}
     ]
   }
 }

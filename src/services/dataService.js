@@ -1,5 +1,5 @@
-import { coreGraph, ependymalGraph } from '../data/core-graph.json';
-import { omega, cardiac, neural} from '../data/links.json';
+import { core, ependymal, neural, cardiac } from '../data/graph.json';
+import { omega } from '../data/links.json'; //TODO map the data from this file into ApiNATOMY model
 import { lyphs, materials } from '../data/lyphs.json';
 
 import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
@@ -31,10 +31,10 @@ export class DataService{
          */
         this._graphData = {
             id: "graph1",
-            nodes : [...coreGraph.nodes, ...ependymalGraph.nodes, ...neural.nodes]::cloneDeep(),
-            links : [...coreGraph.links, ...ependymalGraph.links, ...neural.links]::cloneDeep(),
+            nodes : [...core.nodes, ...ependymal.nodes, ...neural.nodes]::cloneDeep(),
+            links : [...core.links, ...ependymal.links, ...neural.links, ...cardiac.links]::cloneDeep(),
             lyphs : lyphs::cloneDeep(),
-            groups: [...coreGraph.groups, ...ependymalGraph.groups]::cloneDeep(),
+            groups: [...core.groups, ...ependymal.groups]::cloneDeep(),
             materials: materials::cloneDeep(),
         };
 
@@ -46,8 +46,7 @@ export class DataService{
         /////////////////////////////////////////////////////////////////////
         //Helper functions
 
-        const addColor = (array, defaultColor) =>
-            array.filter(obj => !obj.color)
+        const addColor = (array, defaultColor) => array.filter(obj => !obj.color)
                 .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
 
         const colorLyphs = (lyphs, colorFn) => {
@@ -165,6 +164,10 @@ export class DataService{
         const offsets = {"LR00": 0.25, "LR10": 0.65, "PS00": 0.25};
 
         //Omega tree nodes
+        //TODO revise to get omega tree subgraphs from our standard data format
+        //TODO partially specify links with conveying lyphs, merge with properties from templates
+        //TODO auto-create nodes for links without source and target
+
         ["LR", "PS"].forEach(host => {
             omega[host].trees::values().forEach((tree, i) => {
                 tree::keys().forEach((key, j) => {
@@ -296,9 +299,9 @@ export class DataService{
         /* Cardiac system */
 
         //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each
-        const addCardiacLink = (src, trg, conveyingLyph = undefined, reversed = false) => {
+        const addCardiacLink = (src, trg, reversed = false) => {
             let link = {
-                "id"        : 'lnk' + (this._graphData.links.length + 1).toString(),
+                "id"        : 'lnk' + trg,
                 "source"    : src,
                 "target"    : trg,
                 "length"    : 7,
@@ -306,10 +309,12 @@ export class DataService{
                 "type"      : LINK_TYPES.LINK,
                 "reversed"  : reversed
             };
-            if (conveyingLyph){
-                link.conveyingLyph = conveyingLyph;
+            let existing = this._graphData.links.find(lnk => lnk.id === link.id);
+            if (existing){
+                existing::merge(link);
+            } else {
+                this._graphData.links.push(link);
             }
-            this._graphData.links.push(link);
         };
 
         let NUM_LEVELS = 6;
@@ -376,7 +381,7 @@ export class DataService{
                         "offset": reversed? 1 - i * dt : i * dt,
                         "skipLabel": true
                     });
-                    addCardiacLink(src, trg, cardiac[trg], reversed);
+                    addCardiacLink(src, trg, reversed);
                     src = trg;
                 }
                 trg = suffix;

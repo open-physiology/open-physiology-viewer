@@ -308,19 +308,24 @@ export class Lyph extends Entity {
             this.border.borderInLyph  = this;
             this.border.createViewObjects(state);
 
+
+            //Layers
+
+            //Define proportion each layer takes
             let resizedLayers = (this.layers || []).filter(layer => layer.layerWidth);
             let layerTotalWidth = 0;
             (resizedLayers||[]).forEach(layer => layerTotalWidth += layer.layerWidth);
             let defaultWidth = (resizedLayers.length < numLayers)?
                 (100. - layerTotalWidth) / (numLayers - resizedLayers.length): 0;
 
-            let offset = 0;
+            //Link layers
             for (let i = 1; i < (this.layers || []).length; i++){
-                let layer = this.layers[i];
-                layer.prev      = this.layers[i - 1];
-                layer.prev.next = this.layers[i];
+                this.layers[i].prev      = this.layers[i - 1];
+                this.layers[i].prev.next = this.layers[i];
             }
-            //Layers
+
+            //Draw layers
+            let offset = 0;
             (this.layers || []).forEach((layer, i) => {
                 layer.axis   = this.axis;
                 if (!layer.layerWidth) { layer.layerWidth = defaultWidth; }

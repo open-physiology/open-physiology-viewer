@@ -1,4 +1,4 @@
-import { merge, isObject, entries, pick, keys, assign, cloneDeep } from 'lodash-bound';
+import { merge, isObject, entries, keys, assign, cloneDeep } from 'lodash-bound';
 import { definitions } from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
