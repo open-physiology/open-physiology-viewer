@@ -68,6 +68,9 @@ export class Lyph extends Entity {
     translate(p0){
         let p = p0.clone();
         let transformedLyph = this.layerInLyph? this.layerInLyph: this;
+        if (this.layerInLyph){
+            p.x += this.offset;
+        }
         p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
         p.add(transformedLyph.center);
 
@@ -397,7 +400,8 @@ export class Lyph extends Entity {
                     const delta = 5;
 
                     //TODO revise for the case container is nested
-                    if (this.axis.type === LINK_TYPES.CONTAINER) {//Global force pushes content on top of lyph
+                    if (this.axis.type === LINK_TYPES.CONTAINER) {
+                        //Global force pushes content on top of lyph
                         if (Math.abs(this.axis.target.z - this.axis.source.z) <= delta) {
                             //Faster way to get projection for lyphs parallel to x-y plane
                             link.source.z = this.axis.source.z + 1;
@@ -434,16 +438,17 @@ export class Lyph extends Entity {
                             boundToPolygon(link, this.border.borderLinks); //TODO find a better way to reset links violating boundaries
                         }
                     } else {
-                        let p = {
-                            source: extractCoords(this.border.borderLinks[0].source),
-                            target: extractCoords(this.border.borderLinks[0].target)
-                        };
-                        let offset = new THREE.Vector3(
-                            ( i / N - 0.5) * this.height + link.conveyingLyph.height / 2, 0, 4);
-                        p.source.add(offset);
-                        p.target.add(offset);
-                        copyCoords(link.source, p.source);
-                        copyCoords(link.target, p.target);
+                        let p = extractCoords(this.border.borderLinks[0].source);
+                        let p1 = extractCoords(this.border.borderLinks[0].target);
+                        let p2 = extractCoords(this.border.borderLinks[1].target);
+                        [p, p1, p2].forEach(p => p.z +=1 );
+                        let dX = p1.clone().sub(p);
+                        let dY = p2.clone().sub(p1);
+                        let offsetX1 = dX.clone().multiplyScalar(i / N);
+                        let offsetX2 = dX.clone().multiplyScalar((i + 1) / N);
+                        let offsetY = dY.clone().multiplyScalar(i / N);
+                        copyCoords(link.source, p.clone().add(offsetX1).add(offsetY));
+                        copyCoords(link.target, p.clone().add(offsetX2).add(offsetY));
                     }
                 });
             }

@@ -346,7 +346,7 @@
           "description": "Width of the visual object representing lyph",
           "type": "number"
         },
-        "scale":{
+        "scale"         : {
           "description": "Defines the size of the conveying lyph as percentage of its axis' (link) length",
           "type": "object",
           "properties": {

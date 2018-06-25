@@ -1,6 +1,5 @@
-import { core, ependymal, neural, cardiac } from '../data/graph.json';
+import { core, ependymal, neural, cardiac, spt } from '../data/graph.json';
 import { omega } from '../data/links.json'; //TODO map the data from this file into ApiNATOMY model
-import { lyphs, materials } from '../data/lyphs.json';
 
 import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
 import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
@@ -29,13 +28,31 @@ export class DataService{
         /**
          * Prepare core ApiNATOMY graph
          */
+
+        //Set visual parameters for neuron trees
+        spt.nodes = spt.nodes.map(e =>
+            e::merge({
+                "val": 0.5,
+                "color": "#666",
+                "layout": {"z": 0},
+                "skipLabel": true
+            }));
+
+        spt.links = spt.links.map(e =>
+            e::merge({
+                "linkMethod": "Line2",
+                "linewidth" : 0.001,
+                "length": 2,
+                "scale": {"width": 95, "height": 95}
+            }));
+
         this._graphData = {
             id: "graph1",
-            nodes : [...core.nodes, ...ependymal.nodes, ...neural.nodes]::cloneDeep(),
-            links : [...core.links, ...ependymal.links, ...neural.links, ...cardiac.links]::cloneDeep(),
-            lyphs : lyphs::cloneDeep(),
-            groups: [...core.groups, ...ependymal.groups]::cloneDeep(),
-            materials: materials::cloneDeep(),
+            nodes : [...core.nodes, ...ependymal.nodes, ...neural.nodes, ...spt.nodes]::cloneDeep(),
+            links : [...core.links, ...ependymal.links, ...neural.links, ...cardiac.links, ...spt.links]::cloneDeep(),
+            lyphs : [...core.lyphs, ...spt.lyphs]::cloneDeep(),
+            groups: [...core.groups, ...ependymal.groups, ...spt.groups]::cloneDeep(),
+            materials: [...core.materials]::cloneDeep()
         };
 
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
@@ -233,8 +250,9 @@ export class DataService{
             groupsByName["Omega trees"].entities.push(link);
         }
 
-        //Coalescence defined as groups of lyphs
-        [ ["78", "24"] ].forEach(lyphs => {
+        //Coalescing lyphs attract by means of invisible links
+        this._graphData.lyphs.filter(lyph => lyph.coalescesWith).forEach(lyph => {
+            let lyphs = [lyph.id, ...lyph.coalescesWith];
             let coalescingLinks  = lyphs.map(lyphID => getLinkByLyphID(lyphID));
 
             coalescingLinks.forEach((link1, i) => {
@@ -255,40 +273,6 @@ export class DataService{
             });
         });
 
-        //Add link from center to the center of mass for a container link
-        let [kNode, lNode] = ["k", "l"].map((name, i) =>
-            ({
-                "id"     : name,
-                "name"   : name,
-                "type"   : NODE_TYPES.FIXED,
-                "hidden" : true,
-                "layout" : {x: 0, y: (i === 0)? 0: 70, z: 25}
-            })
-        );
-        [kNode, lNode].forEach(node => {
-            this._graphData.nodes.push(node);
-            groupsByName["Containers"].entities.push(node.id);
-        });
-
-        let containerLink = {
-            "id"        : 'lnk' + (this._graphData.links.length + 1).toString(),
-            "source"    : kNode,
-            "target"    : lNode,
-            "type"      : LINK_TYPES.CONTAINER,
-            "length"    : 40,
-            "conveyingLyph" : "5"
-        };
-        this._graphData.links.push(containerLink);
-        groupsByName["Containers"].entities.push(containerLink.id);
-
-        let containerLyph = this._graphData.lyphs.find(lyph => lyph.id === "5");
-        containerLyph.inactive = true;  // Exclude this entity from being highlighted
-        containerLyph.border   = { borders: [{}, {}, {}, {nodes: ["PS013", "LR05", "LR15"]}]};
-
-        // Assign inner content to the container lyph border
-        let containerHost    = this._graphData.lyphs.find(lyph => lyph.id === "3");
-        containerHost.border = { borders: [ {}, {}, {}, { conveyingLyph: "5" }]};
-        containerLyph.belongsToLyph = containerHost;
 
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
@@ -297,6 +281,8 @@ export class DataService{
         //TODO create specification for link prototypes to generate axes for given lyphs
 
         /* Cardiac system */
+
+        //TODO create a cardiac system group
 
         //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each
         const addCardiacLink = (src, trg, reversed = false) => {
@@ -361,7 +347,6 @@ export class DataService{
                 }
             })
         });
-
 
         //Omega trees for cardiac lyphs
 

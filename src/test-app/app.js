@@ -65,13 +65,9 @@ export class TestApp {
         }
     }
 
-    onSelectedItemChange(item){
-    		console.log("Selected item", item);
-	}
+    onSelectedItemChange(item){}
 
-	onHighlightedItemChange(item){
-        console.log("Highlighted item", item);
-	}
+	onHighlightedItemChange(item){}
 
 }
 

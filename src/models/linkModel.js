@@ -66,6 +66,7 @@ export class Link extends Entity {
                     geometry = new THREE.LineGeometry();
                     this.material = state.materialRepo.createLine2Material({
                         color: this.color,
+                        linewidth: this.linewidth,
                         polygonOffsetFactor: -100
                     });
                     obj = new THREE.Line2(geometry, this.material);

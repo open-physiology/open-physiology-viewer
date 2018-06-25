@@ -41,8 +41,8 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                     <section class="w3-bar w3-grey">
                         <span class="w3-bar-item">Control Panel</span>
                         <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="toggleSettingPanel()">
-                            <i class="fa fa-bars"></i>
-                        </button>
+                            <i class="fa fa-window-minimize"></i>
+                        </button> 
                         <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="update()">
                             <i class="fa fa-refresh"></i>
                         </button>

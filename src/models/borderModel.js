@@ -76,6 +76,8 @@ export class Border extends Entity {
          * @returns {Array}
          */
         function d2LyphBorderLinks({width, height, offset = 0}){
+            offset = 0; //Currently the lyph's "translate" operation takes care of
+            // layer offset wrt its axis, so we do not need to shift borders here
             let borders = new Array(4);
             borders[0] = {
                 source: new THREE.Vector3(offset, -height / 2, 0),
