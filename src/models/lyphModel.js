@@ -466,6 +466,10 @@ export class Lyph extends Entity {
         //Layers and inner lyphs have no labels
         if (this.layerInLyph || this.belongsToLyph) { return ; }
 
+        if (!this.center){
+            console.log("I HAVE NO CENTER: ", this);
+        }
+
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(-5));
     }
 }

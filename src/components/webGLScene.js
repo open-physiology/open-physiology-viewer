@@ -26,26 +26,24 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
     selector: 'webGLScene',
     template: `
         <section id="viewPanel" class="w3-row">
-            <button *ngIf="!showPanel" 
-                class="w3-bar-item w3-button w3-hover-light-grey" style="position: fixed;
-                    top: 50px; right: 20px;" (click)="toggleSettingPanel()">
-                <i class="fa fa-bars"></i>
-            </button>
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
-                <section class="w3-padding-right">
+                <section class="w3-padding-right" style="position:relative;">
+                    <section class="w3-right" style="position:absolute; right: 4px; top: 4px;">
+                        <button class="w3-hover-light-grey" (click)="toggleSettingPanel()">
+                            <i *ngIf="showPanel"  class="fa fa-window-minimize"></i>
+                            <i *ngIf="!showPanel" class="fa fa-bars"></i>
+                        </button>
+                        <button class="w3-hover-light-grey"(click)="update()">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </section>
                     <canvas #canvas class="w3-card w3-round"></canvas>
                 </section>
             </section>
             <section *ngIf="showPanel" id="settingsPanel" stop-propagation class="w3-third">
-                <section class="w3-padding">
-                    <section class="w3-bar w3-grey">
-                        <span class="w3-bar-item">Control Panel</span>
-                        <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="toggleSettingPanel()">
-                            <i class="fa fa-window-minimize"></i>
-                        </button> 
-                        <button class="w3-bar-item w3-right w3-button w3-hover-light-grey" (click)="update()">
-                            <i class="fa fa-refresh"></i>
-                        </button>
+                <section class="w3-padding-small">
+                    <section class="w3-center w3-card w3-grey">
+                        <h4>Control panel</h4>
                     </section>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
@@ -345,7 +343,6 @@ export class WebGLSceneComponent {
     }
 
     toggleSettingPanel() {
-        console.log("Toggling panel...");
         this.showPanel = !this.showPanel;
     }
 

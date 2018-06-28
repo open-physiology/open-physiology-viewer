@@ -49,12 +49,12 @@
         "name": "kidney",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "1"
+          "min": 1,
+          "max": 1
         },
         "external": "FMA:7203",
         "layers": [
@@ -68,12 +68,12 @@
         "name": "renal hilum",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "1"
+          "min": 1,
+          "max": 1
         },
         "external": "FMA:15610"
       },
@@ -82,12 +82,12 @@
         "name": "renal parenchyma",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "1"
+          "min": 1,
+          "max": 1
         },
         "border": { "borders": [ {}, {}, {}, { "conveyingLyph": "5" }]}
       },
@@ -96,12 +96,12 @@
         "name": "renal capsule",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "1"
+          "min": 1,
+          "max": 1
         },
         "external": "FMA:66610"
       },
@@ -110,12 +110,12 @@
         "name": "kidney lobus",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:17881",
         "layers": [
@@ -145,12 +145,12 @@
         "name": "cortex of kidney lobus",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -158,24 +158,24 @@
         "name": "medulla of kidney lobus",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
         "id": "8",
         "name": "anatomical vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "layers": [
           "10",
@@ -190,12 +190,12 @@
         "id": "10",
         "name": "lumen of anatomical vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "subtypes": [
           "14",
@@ -209,12 +209,12 @@
         "id": "11",
         "name": "wall of anatomical vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "subtypes": [
           "16",
@@ -225,12 +225,12 @@
         "id": "12",
         "name": "urinary vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "1",
-          "max": "6"
+          "min": 1,
+          "max": 6
         },
         "layers": [
           "14",
@@ -260,12 +260,12 @@
         "id": "14",
         "name": "lumen of urinary vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "subtypes": [
           "31",
@@ -296,12 +296,12 @@
         "name": "epithelial cell",
         "topology": "CYST",
         "thickness": {
-          "min": "6",
-          "max": "7"
+          "min": 6,
+          "max": 7
         },
         "length": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "external": "FMA:66768"
       },
@@ -309,12 +309,12 @@
         "id": "16",
         "name": "wall of urinary vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "subtypes": [
           "32",
@@ -340,12 +340,12 @@
         "id": "17",
         "name": "blood vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "external": "FMA:63183",
         "layers": [
@@ -374,12 +374,12 @@
         "id": "19",
         "name": "lumen of blood vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "external": "FMA:312610",
         "subtypes": [
@@ -414,12 +414,12 @@
         "id": "21",
         "name": "wall of blood vessel",
         "thickness": {
-          "min": "1",
-          "max": "5"
+          "min": 1,
+          "max": 5
         },
         "length": {
-          "min": "0",
-          "max": "6"
+          "min": 0,
+          "max": 6
         },
         "external": "FMA:67473",
         "subtypes": [
@@ -445,12 +445,12 @@
         "name": "visceral bowman's capsule",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:74273",
         "layers": [
@@ -463,12 +463,12 @@
         "name": "lumen of visceral bowman's capsule",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -480,12 +480,12 @@
         "name": "wall of visceral bowman's capsule",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -493,12 +493,12 @@
         "name": "parietal bowman's capsule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:74272",
         "layers": [
@@ -511,12 +511,12 @@
         "name": "lumen of parietal  bowman's capsule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -528,12 +528,12 @@
         "name": "wall of parietal bowman's capsule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -541,12 +541,12 @@
         "name": "proximal convoluted tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17693",
         "layers": [
@@ -559,12 +559,12 @@
         "name": "lumen of proximal convoluted tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -576,12 +576,12 @@
         "name": "wall of proximal convoluted tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -589,12 +589,12 @@
         "name": "cortical proximal straight tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17716",
         "layers": [
@@ -607,12 +607,12 @@
         "name": "lumen of cortical proximal straight tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -624,12 +624,12 @@
         "name": "wall of cortical proximal straight tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -637,12 +637,12 @@
         "name": "medullary proximal straight tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17716",
         "layers": [
@@ -655,12 +655,12 @@
         "name": "lumen of medullary proximal straight tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -672,12 +672,12 @@
         "name": "wall of meduallry proximal straight tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -685,12 +685,12 @@
         "name": "descending thin limb of nephron",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17719",
         "layers": [
@@ -703,12 +703,12 @@
         "name": "lumen of descending thin limb of nephron",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -720,12 +720,12 @@
         "name": "wall of descending thin limb of nephron",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -733,12 +733,12 @@
         "name": "medullary thick ascending limb of nephron",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17720",
         "layers": [
@@ -751,12 +751,12 @@
         "name": "lumen of medullary thick ascending limb of nephron",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -768,12 +768,12 @@
         "name": "wall of medullary thick ascending limb of nephron",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -781,12 +781,12 @@
         "name": "cortical thick ascending limb",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17720",
         "layers": [
@@ -799,12 +799,12 @@
         "name": "lumen of cortical thick ascending limb",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -816,12 +816,12 @@
         "name": "wall of cortical thick ascending limb",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -829,12 +829,12 @@
         "name": "distal convoluted tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "external": "FMA:17721",
         "layers": [
@@ -847,12 +847,12 @@
         "name": "lumen of distal convoluted tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -864,12 +864,12 @@
         "name": "wall of distal convoluted tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -877,12 +877,12 @@
         "name": "interlobar artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:70496",
         "layers": [
@@ -895,12 +895,12 @@
         "name": "lumen of interlobar artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -912,12 +912,12 @@
         "name": "wall of interlobar artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -925,13 +925,13 @@
         "name": "arcuate artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "external": "FMA:70497",
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "55",
@@ -943,12 +943,12 @@
         "name": "lumen of arcuate artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -960,12 +960,12 @@
         "name": "wall of arcuate artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -973,12 +973,12 @@
         "name": "cortical artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:86339",
         "layers": [
@@ -991,12 +991,12 @@
         "name": "lumen of cortical artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1008,12 +1008,12 @@
         "name": "wall of cortical artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1021,12 +1021,12 @@
         "name": "afferent artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:77042",
         "layers": [
@@ -1039,12 +1039,12 @@
         "name": "lumen of afferent artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1056,12 +1056,12 @@
         "name": "wall of afferent artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1069,12 +1069,12 @@
         "name": "efferent artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:77043",
         "layers": [
@@ -1087,12 +1087,12 @@
         "name": "lumen of efferent artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1104,12 +1104,12 @@
         "name": "wall of efferent artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1117,12 +1117,12 @@
         "name": "stellate vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "67",
@@ -1134,12 +1134,12 @@
         "name": "lumen of stellate vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1151,12 +1151,12 @@
         "name": "wall of stellate vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1164,12 +1164,12 @@
         "name": "cortical vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "70",
@@ -1181,12 +1181,12 @@
         "name": "lumen of cortical vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1198,12 +1198,12 @@
         "name": "wall of cortical vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1211,12 +1211,12 @@
         "name": "arcuate vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "73",
@@ -1228,12 +1228,12 @@
         "name": "lumen of arcuate vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1245,12 +1245,12 @@
         "name": "wall of arcuate vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1258,12 +1258,12 @@
         "name": "interlobar vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:71631",
         "layers": [
@@ -1276,12 +1276,12 @@
         "name": "lumen of interlobar vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1293,12 +1293,12 @@
         "name": "wall of interlobar vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1306,12 +1306,12 @@
         "name": "glomerulus",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "external": "FMA:15624",
         "layers": [
@@ -1325,12 +1325,12 @@
         "name": "lumen of glomerulus",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1342,12 +1342,12 @@
         "name": "wall of glomerulus",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         }
       },
       {
@@ -1355,12 +1355,12 @@
         "name": "major calyx",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:15613",
         "layers": [
@@ -1373,12 +1373,12 @@
         "name": "lumen of major calyx",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1390,12 +1390,12 @@
         "name": "wall of major calyx",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1403,12 +1403,12 @@
         "name": "minor calyx",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:15614",
         "layers": [
@@ -1421,12 +1421,12 @@
         "name": "lumen of minor calyx",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1438,12 +1438,12 @@
         "name": "wall of minor calyx",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1451,12 +1451,12 @@
         "name": "inner medullary collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "external": "FMA:15628",
         "layers": [
@@ -1469,12 +1469,12 @@
         "name": "lumen of inner medullary collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1486,12 +1486,12 @@
         "name": "wall of inner medullary collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         }
       },
       {
@@ -1499,12 +1499,12 @@
         "name": "outer medullary collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "external": "FMA:15628",
         "layers": [
@@ -1517,12 +1517,12 @@
         "name": "lumen of outer medullary collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1534,12 +1534,12 @@
         "name": "wall of outer medullary collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         }
       },
       {
@@ -1547,12 +1547,12 @@
         "name": "cortical collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "external": "FMA:15628",
         "layers": [
@@ -1565,12 +1565,12 @@
         "name": "lumen of cortical collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1582,12 +1582,12 @@
         "name": "wall of cortical collecting duct",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         }
       },
       {
@@ -1595,12 +1595,12 @@
         "name": "connecting tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "layers": [
           "97",
@@ -1612,12 +1612,12 @@
         "name": "lumen of connecting tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1629,12 +1629,12 @@
         "name": "wall of connecting tubule",
         "topology": "TUBE",
         "thickness": {
-          "min": "5",
-          "max": "6"
+          "min": 5,
+          "max": 6
         },
         "length": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         }
       },
       {
@@ -1642,12 +1642,12 @@
         "name": "renal artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:14751",
         "layers": [
@@ -1660,12 +1660,12 @@
         "name": "lumen of renal artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1677,12 +1677,12 @@
         "name": "wall of renal artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1690,12 +1690,12 @@
         "name": "renal vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:14334",
         "layers": [
@@ -1708,12 +1708,12 @@
         "name": "lumen of renal vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1725,12 +1725,12 @@
         "name": "wall of renal vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1738,12 +1738,12 @@
         "name": "cortical peritubular capillary plexus",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "layers": [
           "106",
@@ -1755,12 +1755,12 @@
         "name": "lumen of cortical peritubular capillary plexus",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "materials": [
           "9",
@@ -1772,12 +1772,12 @@
         "name": "wall of cortical peritubular capillary plexus",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         }
       },
       {
@@ -1785,12 +1785,12 @@
         "name": "ureter",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:9704",
         "layers": [
@@ -1803,12 +1803,12 @@
         "name": "lumen of ureter",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1820,12 +1820,12 @@
         "name": "wall of ureter",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -1833,12 +1833,12 @@
         "name": "pelvis",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:15575",
         "layers": [
@@ -1851,12 +1851,12 @@
         "name": "lumen of pelvis",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1868,12 +1868,12 @@
         "name": "wall of pelvis",
         "topology": "TUBE",
         "thickness": {
-          "min": "4",
-          "max": "5"
+          "min": 4,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1881,12 +1881,12 @@
         "name": "segmental artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:70494",
         "layers": [
@@ -1899,12 +1899,12 @@
         "name": "lumen of segmental artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1916,12 +1916,12 @@
         "name": "wall of segmental artery",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1929,12 +1929,12 @@
         "name": "segmental vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "layers": [
           "118",
@@ -1946,12 +1946,12 @@
         "name": "lumen of segmental vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "materials": [
           "9",
@@ -1963,12 +1963,12 @@
         "name": "wall of segmental vein",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -1976,12 +1976,12 @@
         "name": "forebrain",
         "topology": "BAG2",
         "thickness": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "1"
+          "min": 1,
+          "max": 1
         },
         "external": "FMA:50801",
         "layers": [
@@ -1995,12 +1995,12 @@
         "name": "csf layer of forebrain",
         "topology": "BAG2",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2008,12 +2008,12 @@
         "name": "ependymal layer of forebrain",
         "topology": "BAG2",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2021,12 +2021,12 @@
         "name": "parenchymal layer of forebrain",
         "topology": "BAG2",
         "thickness": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "1"
+          "min": 1,
+          "max": 1
         },
         "internalLyphs": [
           "206"
@@ -2037,12 +2037,12 @@
         "name": "basal ganglia",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:84013",
         "layers": [
@@ -2056,12 +2056,12 @@
         "name": "csf layer of basal ganglia",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         }
       },
       {
@@ -2069,12 +2069,12 @@
         "name": "ependymal layer of basal ganglia",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         }
       },
       {
@@ -2082,12 +2082,12 @@
         "name": "parenchymal layer of basal ganglia",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2095,12 +2095,12 @@
         "name": "diencephalon",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:62001",
         "layers": [
@@ -2114,12 +2114,12 @@
         "name": "csf layer of diencephalon",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2127,12 +2127,12 @@
         "name": "ependymal layer of diencephalon",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2140,12 +2140,12 @@
         "name": "parenchymal layer of diencephalon",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "internalLyphs": [
           "204",
@@ -2157,12 +2157,12 @@
         "name": "midbrain",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:61993",
         "layers": [
@@ -2176,12 +2176,12 @@
         "name": "csf layer of midbrain",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2189,12 +2189,12 @@
         "name": "ependymal layer of midbrain",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2202,12 +2202,12 @@
         "name": "parenchymal layer of midbrain",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "internalLyphs": [
           "203"
@@ -2218,12 +2218,12 @@
         "name": "pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:67943",
         "layers": [
@@ -2237,12 +2237,12 @@
         "name": "csf layer of pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2250,12 +2250,12 @@
         "name": "ependymal layer of pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2263,12 +2263,12 @@
         "name": "parenchymal layer of pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "internalLyphs": [
           "99007"
@@ -2279,12 +2279,12 @@
         "name": "medulla oblongata",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:62004",
         "layers": [
@@ -2298,12 +2298,12 @@
         "name": "csf of medulla oblongata",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2311,12 +2311,12 @@
         "name": "ependymal layer of medulla oblongata",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2324,12 +2324,12 @@
         "name": "parenchymal layer of medulla oblongata",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "internalLyphs": [
           "202",
@@ -2341,12 +2341,12 @@
         "name": "spinal cord",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:7647",
         "layers": [
@@ -2360,12 +2360,12 @@
         "name": "csf layer of spinal cord",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2373,12 +2373,12 @@
         "name": "ependymal layer of spinal cord",
         "topology": "BAG",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2386,12 +2386,12 @@
         "name": "parenchymal layer of spinal cord",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "internalLyphs": [
           "198",
@@ -2407,12 +2407,12 @@
         "name": "cerebellum",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:67944",
         "layers": [
@@ -2426,12 +2426,12 @@
         "name": "csf layer of cerebellum",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2439,12 +2439,12 @@
         "name": "ependymal layer of cerebellum",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2452,12 +2452,12 @@
         "name": "parenchymal layer of cerebellum",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "internalLyphs": [
           "197"
@@ -2468,12 +2468,12 @@
         "name": "leptomeninges",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "0",
-          "max": "2"
+          "min": 0,
+          "max": 2
         },
         "external": "FMA:9591",
         "layers": [
@@ -2486,12 +2486,12 @@
         "name": "csf layer of leptomeninges",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "0",
-          "max": "2"
+          "min": 0,
+          "max": 2
         }
       },
       {
@@ -2499,12 +2499,12 @@
         "name": "eye",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:54448",
         "layers": [
@@ -2520,12 +2520,12 @@
         "name": "air layer of eye",
         "topology": "TUBE",
         "thickness": {
-          "min": "0",
-          "max": "2"
+          "min": 0,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2533,12 +2533,12 @@
         "name": "conjunctival layer of eye",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2546,12 +2546,12 @@
         "name": "fibrotunical layer of eye",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "3"
+          "min": 3,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2559,12 +2559,12 @@
         "name": "humoural layer of eye",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2572,12 +2572,12 @@
         "name": "retinal layer of eye",
         "topology": "TUBE",
         "thickness": {
-          "min": "3",
-          "max": "5"
+          "min": 3,
+          "max": 5
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         }
       },
       {
@@ -2585,12 +2585,12 @@
         "name": "skin",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         },
         "external": "FMA:7163",
         "layers": [
@@ -2604,12 +2604,12 @@
         "name": "air layer of skin",
         "topology": "TUBE",
         "thickness": {
-          "min": "0",
-          "max": "2"
+          "min": 0,
+          "max": 2
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         }
       },
       {
@@ -2617,12 +2617,12 @@
         "name": "epidermal layer of skin",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         },
         "external": "FMA:70596"
       },
@@ -2631,12 +2631,12 @@
         "name": "dermal layer of skin",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         },
         "external": "FMA:70323"
       },
@@ -2645,12 +2645,12 @@
         "name": "aorta",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         },
         "external": "FMA:3734",
         "layers": [
@@ -2663,12 +2663,12 @@
         "name": "wall of aorta",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         }
       },
       {
@@ -2676,12 +2676,12 @@
         "name": "lumen of aorta",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         }
       },
       {
@@ -2689,12 +2689,12 @@
         "name": "inferior vena cava",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         },
         "external": "FMA:10951",
         "layers": [
@@ -2707,12 +2707,12 @@
         "name": "wall of inferior vena cava",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         }
       },
       {
@@ -2720,12 +2720,12 @@
         "name": "lumen of inferior vena cava",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "0",
-          "max": "1"
+          "min": 0,
+          "max": 1
         }
       },
       {
@@ -2733,12 +2733,12 @@
         "name": "right side of heart",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:7165",
         "layers": [
@@ -2751,12 +2751,12 @@
         "name": "wall of right side of heart",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2764,12 +2764,12 @@
         "name": "lumen of right side of heart",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2777,12 +2777,12 @@
         "name": "left side of heart",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:7166",
         "layers": [
@@ -2795,12 +2795,12 @@
         "name": "wall of left side of heart",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2808,12 +2808,12 @@
         "name": "lumen of left side of heart",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2821,12 +2821,12 @@
         "name": "proximal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "layers": [
           "187",
@@ -2839,12 +2839,12 @@
         "name": "medullary cavity of proximal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2852,12 +2852,12 @@
         "name": "cortical layer of proximal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2865,12 +2865,12 @@
         "name": "periosteal layer of proximal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2878,12 +2878,12 @@
         "name": "distal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "layers": [
           "191",
@@ -2896,12 +2896,12 @@
         "name": "medullary cavity of distal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2909,12 +2909,12 @@
         "name": "cortical layer of distal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2922,12 +2922,12 @@
         "name": "periosteal layer of distal bone",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         }
       },
       {
@@ -2935,12 +2935,12 @@
         "name": "ligament",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:30319"
       },
@@ -2949,12 +2949,12 @@
         "name": "cartilage",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:37377"
       },
@@ -2963,12 +2963,12 @@
         "name": "skeletal muscle",
         "topology": "CYST",
         "thickness": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:14069"
       },
@@ -2977,12 +2977,12 @@
         "name": "granular tissue of cerebellar cortex",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:83140",
         "internalLyphs": [
@@ -2994,15 +2994,15 @@
         "name": "dorsal horn of spinal grey matter",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:256530",
-        "internalNodes": "1_T2",
+        "internalNodes": ["1_T2"],
         "border": {"borders": [{}, {}, {"nodes": ["1_N3"]}, {}]}
       },
       {
@@ -3010,12 +3010,12 @@
         "name": "clarke's column",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:77023"
       },
@@ -3024,12 +3024,12 @@
         "name": "ventral horn of spinal grey matter",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "1",
-          "max": "2"
+          "min": 1,
+          "max": 2
         },
         "external": "FMA:256541",
         "internalLyphs": [
@@ -3041,12 +3041,12 @@
         "name": "gracile nucleus",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "external": "FMA:72602"
       },
@@ -3055,12 +3055,12 @@
         "name": "external formation of nucleus ambiguus",
         "topology": "CYST",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         }
       },
       {
@@ -3068,12 +3068,12 @@
         "name": "superior colliculus",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "external": "FMA:62403"
       },
@@ -3082,12 +3082,12 @@
         "name": "ventral posterolateral nucleus of thalamus",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "external": "FMA:62200"
       },
@@ -3096,12 +3096,12 @@
         "name": "paraventricular nucleus of hypothalamus",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "length": {
-          "min": "2",
-          "max": "4"
+          "min": 2,
+          "max": 4
         },
         "external": "FMA:62320"
       },
@@ -3110,12 +3110,12 @@
         "name": "precentral gyrus",
         "topology": "CYST",
         "thickness": {
-          "min": "2",
-          "max": "3"
+          "min": 2,
+          "max": 3
         },
         "length": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "external": "FMA:61894"
       },
@@ -3124,12 +3124,12 @@
         "name": "pia-archanoid",
         "topology": "BAG",
         "thickness": {
-          "min": "3",
-          "max": "4"
+          "min": 3,
+          "max": 4
         },
         "length": {
-          "min": "0",
-          "max": "2"
+          "min": 0,
+          "max": 2
         }
       },
       {
@@ -3137,12 +3137,12 @@
         "name": "neuron_end_grey_matter",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "99002",
@@ -3154,12 +3154,12 @@
         "name": "cytosol layer of neuron_end_grey_matter",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3170,12 +3170,12 @@
         "name": "plasma membrane layer of neuron_end_grey_matter",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3186,12 +3186,12 @@
         "name": "neuron_mid_medulla",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "99005",
@@ -3203,12 +3203,12 @@
         "name": "cytosol layer of neuron_mid_medulla",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3219,12 +3219,12 @@
         "name": "plasma membrane layer of neuron_mid_medulla",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3235,12 +3235,12 @@
         "name": "neuron_mid_pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "99008",
@@ -3252,12 +3252,12 @@
         "name": "cytosol layer of neuron_mid_pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3268,12 +3268,12 @@
         "name": "plasma membrane layer of neuron_mid_pons",
         "topology": "TUBE",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3284,12 +3284,12 @@
         "name": "neuron_end_granular_tissue_cerebellum",
         "topology": "BAG",
         "thickness": {
-          "min": "2",
-          "max": "2"
+          "min": 2,
+          "max": 2
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "layers": [
           "99011",
@@ -3301,12 +3301,12 @@
         "name": "cytosol layer of neuron_end_granular_tissue_cerebellum",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"
@@ -3317,12 +3317,12 @@
         "name": "plasma membrane layer of neuron_end_granular_tissue_cerebellum",
         "topology": "BAG",
         "thickness": {
-          "min": "6",
-          "max": "6"
+          "min": 6,
+          "max": 6
         },
         "length": {
-          "min": "5",
-          "max": "5"
+          "min": 5,
+          "max": 5
         },
         "materials": [
           "9"

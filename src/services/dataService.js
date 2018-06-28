@@ -1,16 +1,16 @@
 import { core, ependymal, neural, cardiac, spt } from '../data/graph.json';
 import { omega } from '../data/links.json'; //TODO map the data from this file into ApiNATOMY model
 
+//import * as spt from '../data/spinothalamicGracile.json';
+
 import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
 import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
     interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
 import { Graph } from '../models/graphModel';
-import { NODE_TYPES } from '../models/nodeModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/utils';
 
-const colors = [...schemePaired, schemeDark2];
-
+const colors = [...schemePaired, ...schemeDark2];
 //TODO process materials
 
 /**
@@ -42,7 +42,11 @@ export class DataService{
             e::merge({
                 "linkMethod": "Line2",
                 "linewidth" : 0.001,
-                "length": 2,
+                "length": 2
+            }));
+
+        spt.lyphs = spt.lyphs.map(e =>
+            e::merge({
                 "scale": {"width": 95, "height": 95}
             }));
 
@@ -377,6 +381,7 @@ export class DataService{
         /* Generate complete model */
 
         //Copy existing entities to a map to enable nested model instantiation
+        this._entitiesByID[this._graphData.id] = this._graphData;
         this._graphData::values().filter(prop => Array.isArray(prop)).forEach(array => array.forEach(e => {
             if (this._entitiesByID[e.id]) {
                 console.error("Entity IDs are not unique: ", this._entitiesByID[e.id], e);
