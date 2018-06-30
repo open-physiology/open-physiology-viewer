@@ -45,6 +45,23 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                     <section class="w3-center w3-card w3-grey">
                         <h4>Control panel</h4>
                     </section>
+                    <fieldset *ngIf="!!_highlighted && !!_highlighted.__data" class="w3-card w3-round w3-margin-small">
+                        <legend>Highlighted</legend>
+                        <modelInfoPanel [model]=_highlighted.__data></modelInfoPanel>
+                    </fieldset>                    
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Layout</legend>
+                        <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
+                        <span *ngIf="_showLyphs">
+                            <input type="checkbox" class="w3-check" name="layers"
+                                   (change)="toggleLayers()" [checked]="_showLayers"/> Layers
+                        </span>
+                        <br/>
+                        <span *ngFor="let group of graphData.groups">
+                            <input type="checkbox" name="switch" class="w3-check"
+                                   (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name}}
+                        </span>
+                    </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
@@ -66,19 +83,6 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                         </span>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>Layout</legend>
-                        <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                        <span *ngIf="_showLyphs">
-                            <input type="checkbox" class="w3-check" name="layers"
-                                   (change)="toggleLayers()" [checked]="_showLayers"/> Layers
-                        </span>
-                        <br/>
-                        <span *ngFor="let group of graphData.groups">
-                            <input type="checkbox" name="switch" class="w3-check"
-                                   (change)="toggleGroup(group)"/> {{group.name}}
-                        </span>
-                    </fieldset>
-                    <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
                         <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid
                         x-y
@@ -95,12 +99,9 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                         <legend>Selected</legend>
                         <modelInfoPanel [model]=_selected.__data></modelInfoPanel>
                     </fieldset>
-                    <fieldset *ngIf="!!_highlighted && !!_highlighted.__data" class="w3-card w3-round w3-margin-small">
-                        <legend>Highlighted</legend>
-                            <modelInfoPanel [model]=_highlighted.__data></modelInfoPanel>
-                    </fieldset>
                 </section>
             </section>
+            <section #snackbar id="snackbar"></section>
         </section>
     `,
     styles: [`
@@ -123,12 +124,14 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
 
         button:focus {
             outline: 0 !important;
-        }
+        }        
     `]
 })
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
-    showPanel = true;
+    @ViewChild('snackbar') snackbar: ElementRef;
+
+    showPanel = false;
     scene;
     camera;
     renderer;
@@ -153,7 +156,7 @@ export class WebGLSceneComponent {
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
-            this._graphData = newGraphData;
+           this._graphData = newGraphData;
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
             this._namesAvailable = this._graphData.lyphs.map(lyph => lyph.name);
@@ -508,11 +511,15 @@ export class WebGLSceneComponent {
         this.graph.labels(this._labels);
     }
 
-    toggleGroup(hideGroup) {
-        if (this._hideGroups.has(hideGroup)){
-            this._hideGroups.delete(hideGroup);
+    showGroup(group){
+        return !this._hideGroups.has(group);
+    }
+
+    toggleGroup(group) {
+        if (this._hideGroups.has(group)){
+            this._hideGroups.delete(group);
         } else {
-            this._hideGroups.add(hideGroup);
+            this._hideGroups.add(group);
         }
         this._graphData.hideGroups([...this._hideGroups]);
         if (this.graph) { this.graph.graphData(this._graphData); }

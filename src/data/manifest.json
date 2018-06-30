@@ -570,7 +570,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "nodes": {
+              "hostedNodes": {
                 "description": "Nodes on the lyph border",
                 "type": "array",
                 "items": {

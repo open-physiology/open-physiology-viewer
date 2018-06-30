@@ -112,52 +112,45 @@ export class Border extends Entity {
 
         this._borderLinks = d2LyphBorderLinks(this.borderInLyph);
         this.links = new Array(4);
-        this.borders.forEach((border, i) => {
-            if (border.conveyingLyph) {
-                let id = `${this.id}`;
-                //Turn border into a link if we need to draw its nested content (conveying lyph)
-                let s = Node.fromJSON({"id": `s_${id}`});
-                let t = Node.fromJSON({"id": `t_${id}`});
-                this.links[i] = Link.fromJSON({
-                    "id"    : `lnk_${id}`,
-                    "source": s,
-                    "target": t,
-                    "type"  : LINK_TYPES.INVISIBLE,
-                    "length": this._borderLinks[i].target.distanceTo(this._borderLinks[i].source),
-                    "conveyingLyph" : (state.graphData.lyphs).find(lyph => lyph.id === border.conveyingLyph)
-                });
+        this.borders.filter(border => border.conveyingLyph).forEach((border, i) => {
+            let id = `${this.id}`;
+            //Turn border into a link if we need to draw its nested content (conveying lyph)
+            let s = Node.fromJSON({"id": `s_${id}`});
+            let t = Node.fromJSON({"id": `t_${id}`});
+            this.links[i] = Link.fromJSON({
+                "id"    : `lnk_${id}`,
+                "source": s,
+                "target": t,
+                "type"  : LINK_TYPES.INVISIBLE,
+                "length": this._borderLinks[i].target.distanceTo(this._borderLinks[i].source),
+                "conveyingLyph" : border.conveyingLyph
+            });
 
-                this.links[i].createViewObjects(state);
-            }
+            this.links[i].createViewObjects(state);
         });
     }
 
     updateViewObjects(state){
-        (this.borders || []).forEach(border => {
-            if (border.nodes) {
-                //position nodes on the lyph border (exact shape, use 'borderLinks' to place nodes on straight line)
-                let points = border.viewObjects["shape"].getSpacedPoints(border.nodes.length + 1)
-                    .map(p => new THREE.Vector3(p.x, p.y, 0));
-                points = points.map(p => this.borderInLyph.translate(p));
-                border.nodes.forEach((nodeID, i) => {
-                    let node = state.graphData.nodes.find(node => node.id === nodeID);
-                    if (node) { copyCoords(node, points[i + 1]); }
-                });
-            }
+        (this.borders || []).filter(border => border.hostedNodes).forEach(border => {
+            //position nodes on the lyph border (exact shape, use 'borderLinks' to place nodes on straight line)
+            let points = border.viewObjects["shape"].getSpacedPoints(border.hostedNodes.length + 1)
+                .map(p => new THREE.Vector3(p.x, p.y, 0));
+            points = points.map(p => this.borderInLyph.translate(p));
+            border.hostedNodes.filter(node => !!node).forEach((node, i) => {
+                copyCoords(node, points[i + 1]);
+            });
         });
 
-        (this.links || []).forEach((lnk, i) => {
-            if (lnk) {
-                let tmp = this.borderLinks[i];
-                copyCoords(lnk.source, tmp.source);
-                copyCoords(lnk.target, tmp.target);
-                lnk.source.z += 1;
-                lnk.target.z += 1;
-                lnk.updateViewObjects(state);
+        (this.links || []).filter(lnk => !!lnk).forEach((lnk, i) => {
+            let tmp = this.borderLinks[i];
+            copyCoords(lnk.source, tmp.source);
+            copyCoords(lnk.target, tmp.target);
+            lnk.source.z += 1;
+            lnk.target.z += 1;
+            lnk.updateViewObjects(state);
 
-                //Add border conveyingLyph to the scene
-                state.graphScene.add(this.links[i].conveyingLyph.viewObjects["main"]);
-            }
+            //Add border conveyingLyph to the scene
+            state.graphScene.add(this.links[i].conveyingLyph.viewObjects["main"]);
         })
 
 

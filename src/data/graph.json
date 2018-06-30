@@ -137,7 +137,7 @@
           "33"
         ],
         "inactive": true,
-        "border": { "borders": [{}, {}, {}, {"nodes": ["PS013", "LR05", "LR15"]}]},
+        "border": { "borders": [{}, {}, {}, {"hostedNodes": ["PS013", "LR05", "LR15"]}]},
         "belongsToLyph": "3"
       },
       {
@@ -2397,10 +2397,7 @@
           "198",
           "199",
           "200"
-        ],
-        "border": {
-          "borders": [{}, {}, {"nodes": ["1_N2"]}, {}]
-        }
+        ]
       },
       {
         "id": "157",
@@ -3001,9 +2998,7 @@
           "min": 1,
           "max": 2
         },
-        "external": "FMA:256530",
-        "internalNodes": ["1_T2"],
-        "border": {"borders": [{}, {}, {"nodes": ["1_N3"]}, {}]}
+        "external": "FMA:256530"
       },
       {
         "id": "199",
@@ -4015,60 +4010,6 @@
       }
     ]
   },
-  "neural": {
-    "nodes": [
-      {
-        "id": "c99011",
-        "belongsToLyph": "99011",
-        "val": 0.5,
-        "skipLabel": true
-      },
-      {
-        "id": "c99008",
-        "belongsToLyph": "99008",
-        "val": 0.5,
-        "skipLabel": true
-      },
-      {
-        "id": "c99005",
-        "belongsToLyph": "99005",
-        "val": 0.5,
-        "skipLabel": true
-      },
-      {
-        "id": "c99002",
-        "belongsToLyph": "99002",
-        "val": 0.5,
-        "skipLabel": true
-      }
-    ],
-    "links": [
-      {
-        "id": "99011_99008",
-        "source": "c99011",
-        "target": "c99008",
-        "length": 100,
-        "color" : "#aaa",
-        "strength": 0
-      },
-      {
-        "id": "99008_99005",
-        "source": "c99008",
-        "target": "c99005",
-        "length": 100,
-        "color" : "#aaa",
-        "strength": 0
-      },
-      {
-        "id": "99005_99002",
-        "source": "c99005",
-        "target": "c99002",
-        "length": 100,
-        "color" : "#aaa",
-        "strength": 0
-      }
-    ]
-  },
   "cardiac": {
     "links": [
       {"id": "lnkR_1_MCS", "conveyingLyph": "1000"},
@@ -4082,114 +4023,747 @@
   "spt": {
     "groups": [
       {
-        "id": "1a_",
-        "name": "Lower limb - Spinal Cord CNS entrance",
-        "entities": ["1a_V1", "1a_V2", "1_R1", "1_N1", "1_T1"]
+        "id": "TREE1",
+        "name": "Gracile tract 1st order sensory neuron Lower limb Spinal Cord Parenchyma layer CNS entrance neuron tree",
+        "entities": [
+          "V1",
+          "V2",
+          "V3",
+          "V4",
+          "V5",
+          "V6",
+          "V7",
+          "N1",
+          "N2",
+          "N3",
+          "N4",
+          "N5",
+          "N6",
+          "N7",
+          "N8"
+        ]
       },
       {
-        "id": "1b_",
-        "name": "Spinal Cord CNS entrance - Lower limb",
-        "entities": ["1_SomA", "1b_V1", "1b_V2", "1b_V3", "1_R1", "1_R2", "1_N2", "1_N3", "1_T2"]
+        "id": "TREE2",
+        "name": "Anterolateral Spinothalamic tract 1st order sensory neuron Skin Dorsal Root Ganglion neuron tree",
+        "entities": [
+          "V8",
+          "V9",
+          "V10",
+          "V11",
+          "V12",
+          "V13",
+          "V14",
+          "N9",
+          "N10",
+          "N11",
+          "N12",
+          "N13",
+          "N14",
+          "N15",
+          "N16"
+        ]
+      },
+      {
+        "id": "TREE3",
+        "name": "Anterolateral Spinothalamic tract 2nd order sensory neuron Dorsal horn Terminal Medulla Parenchyma layer Tubing neuron tree",
+        "entities": [
+          "V15",
+          "V16",
+          "V17",
+          "V18",
+          "V19",
+          "V20",
+          "V21",
+          "V22",
+          "N17",
+          "N18",
+          "N19",
+          "N20",
+          "N21",
+          "N22",
+          "N23",
+          "N24",
+          "N25"
+        ]
       }
-   ],
+    ],
     "links": [
       {
-        "id"    : "1a_V1",
-        "source": "1_R1",
-        "target": "1_N1",
-        "name"  : "Dorsal Root Ganglion Soma - Lower limb Neural Tubing edge",
-        "conveyingLyph": "1a_L1"
-      }, 
-      {
-        "id"    : "1a_V2",
-        "source": "1_N1",
-        "target": "1_T1",
-        "name"  : "Tubing - Terminal edge",
-        "conveyingLyph": "1a_L2"
+        "id": "V1",
+        "source": "N1",
+        "target": "N4",
+        "name": "Lower limb - Spinal Cord Parenchyma layer CNS entrance",
+        "conveyingLyph": "L6"
       },
       {
-        "id": "1_SomA",
-        "source": "1_R1",
-        "target": "1_R2",
-        "name"  : "Dorsal Root Ganglion Soma - Spinal Cord CNS entrance Tubing Neural edge",
-        "conveyingLyph": "1_LSomA"
+        "id": "V2",
+        "source": "N1",
+        "target": "N2",
+        "name": "Dorsal Root Ganglion Soma - Lower limb Neural Tubing link",
+        "conveyingLyph": "L5"
       },
       {
-        "id": "1b_V1",
-        "source": "1_R2",
-        "target": "1_N2",
-        "name"  : "Spinal Cord CNS entrance - Medulla edge",
-        "conveyingLyph": "1b_L1"
+        "id": "V3",
+        "source": "N2",
+        "target": "N3",
+        "name": "Tubing - Terminal link",
+        "conveyingLyph": "L1"
       },
       {
-        "id": "1b_V2",
-        "source": "1_N2",
-        "target": "1_N3",
-        "name": "Medulla - nucleus edge",
-        "conveyingLyph": "1b_L2"
+        "id": "V4",
+        "source": "N4",
+        "target": "N5",
+        "name": "Dorsal Root Ganglion Soma - Spinal Cord Parenchyma layer CNS entrance Tubing Neural link",
+        "conveyingLyph": "L10"
       },
       {
-        "id": "1b_V3",
-        "source": "1_N3",
-        "target": "1_T2",
-        "name": "V4 - Tubing - Terminal edge",
-        "conveyingLyph": "1b_L3"
+        "id": "V5",
+        "source": "N5",
+        "target": "N6",
+        "name": "Spinal Cord CNS entrance - Medulla link",
+        "conveyingLyph": "L11"
+      },
+      {
+        "id": "V6",
+        "source": "N6",
+        "target": "N7",
+        "name": "Medulla Parenchyma layer - nucleus link",
+        "conveyingLyph": "L12"
+      },
+      {
+        "id": "V7",
+        "source": "N7",
+        "target": "N8",
+        "name": "Tubing - Terminal link",
+        "conveyingLyph": "L13"
+      },
+      {
+        "id": "V8",
+        "source": "N9",
+        "target": "N12",
+        "name": "Skin - ",
+        "conveyingLyph": "L22"
+      },
+      {
+        "id": "V9",
+        "source": "N9",
+        "target": "N10",
+        "name": "Dorsal Root Ganglion Soma - Skin Neural Tubing link",
+        "conveyingLyph": "L21"
+      },
+      {
+        "id": "V10",
+        "source": "N10",
+        "target": "N11",
+        "name": "Tubing - Terminal link",
+        "conveyingLyph": "L17"
+      },
+      {
+        "id": "V11",
+        "source": "N12",
+        "target": "N13",
+        "name": "Soma - Neural Tubing link",
+        "conveyingLyph": "L26"
+      },
+      {
+        "id": "V12",
+        "source": "N13",
+        "target": "N14",
+        "name": "Dorsal Root Ganglion - Spinal Cord Parenchyma layer link",
+        "conveyingLyph": "L27"
+      },
+      {
+        "id": "V13",
+        "source": "N14",
+        "target": "N15",
+        "name": "Spinal Cord Parenchyma layer - Dorsal horn link",
+        "conveyingLyph": "L28"
+      },
+      {
+        "id": "V14",
+        "source": "N15",
+        "target": "N16",
+        "name": "Tubing - Terminal link",
+        "conveyingLyph": "L29"
+      },
+      {
+        "id": "V15",
+        "source": "N17",
+        "target": "N19",
+        "name": "Terminal - Medulla Parenchyma layer Tubing",
+        "conveyingLyph": "L37"
+      },
+      {
+        "id": "V16",
+        "source": "N17",
+        "target": "N18",
+        "name": "Soma - Neural Terminal link",
+        "conveyingLyph": "L33"
+      },
+      {
+        "id": "V17",
+        "source": "N19",
+        "target": "N20",
+        "name": "Dorsal horn Soma - Medulla Parenchyma layer Neural Tubing link",
+        "conveyingLyph": "L41"
+      },
+      {
+        "id": "V18",
+        "source": "N20",
+        "target": "N21",
+        "name": "Medulla - Pons link",
+        "conveyingLyph": "L42"
+      },
+      {
+        "id": "V19",
+        "source": "N21",
+        "target": "N22",
+        "name": "Pons - Midbrain link",
+        "conveyingLyph": "L43"
+      },
+      {
+        "id": "V20",
+        "source": "N22",
+        "target": "N23",
+        "name": "Midbrain - Thalamic complex link",
+        "conveyingLyph": "L44"
+      },
+      {
+        "id": "V21",
+        "source": "N23",
+        "target": "N24",
+        "name": "Thalamic complex Parenchyma layer - Ventral posterolateral nucleus link",
+        "conveyingLyph": "L45"
+      },
+      {
+        "id": "V22",
+        "source": "N24",
+        "target": "N25",
+        "name": "Tubing - Terminal link",
+        "conveyingLyph": "L46"
       }
-
     ],
     "nodes": [
       {
-        "id": "1_R1",
+        "id": "N1",
+        "source": "V1",
+        "target": "V2",
         "name": "Dorsal Root Ganglion Soma node"
-      }, {
-        "id": "1_N1",
+      },
+      {
+        "id": "N2",
+        "source": "V2",
+        "target": "V3",
         "name": "Lower limb Neural Tubing node"
-      }, {
-        "id": "1_T1",
+      },
+      {
+        "id": "N3",
+        "source": "V3",
+        "target": "",
         "name": "Terminal node"
       },
       {
-        "id": "1_R2",
-        "name": "Spinal Cord CNS entrance Tubing Neural node"
+        "id": "N4",
+        "source": "V1",
+        "target": "V4",
+        "name": "Dorsal Root Ganglion Soma node"
       },
       {
-        "id": "1_N2",
+        "id": "N5",
+        "source": "V4",
+        "target": "V5",
+        "name": "Spinal Cord Parenchyma layer CNS entrance Tubing Neural node"
+      },
+      {
+        "id": "N6",
+        "source": "V5",
+        "target": "V6",
         "name": "Medulla node"
       },
       {
-        "id": "1_N3",
-        "name": "Nucleus node"
+        "id": "N7",
+        "source": "V6",
+        "target": "V7",
+        "name": "nucleus node"
       },
       {
-        "id": "1_T2",
-        "name": "Terminal node",
-        "belongsToLyph": "198"
+        "id": "N8",
+        "source": "V7",
+        "target": "",
+        "name": "Terminal node"
+      },
+      {
+        "id": "N9",
+        "source": "V8",
+        "target": "V9",
+        "name": "Dorsal Root Ganglion Soma node"
+      },
+      {
+        "id": "N10",
+        "source": "V9",
+        "target": "V10",
+        "name": "Skin Neural Tubing node"
+      },
+      {
+        "id": "N11",
+        "source": "V10",
+        "target": "",
+        "name": "Terminal node"
+      },
+      {
+        "id": "N12",
+        "source": "V8",
+        "target": "V11",
+        "name": "Soma node"
+      },
+      {
+        "id": "N13",
+        "source": "V11",
+        "target": "V12",
+        "name": "Neural Tubing node"
+      },
+      {
+        "id": "N14",
+        "source": "V12",
+        "target": "V13",
+        "name": "Spinal Cord Parenchyma layer node"
+      },
+      {
+        "id": "N15",
+        "source": "V13",
+        "target": "V14",
+        "name": "Dorsal horn node"
+      },
+      {
+        "id": "N16",
+        "source": "V14",
+        "target": "",
+        "name": "Terminal node"
+      },
+      {
+        "id": "N17",
+        "source": "V15",
+        "target": "V16",
+        "name": "Soma node"
+      },
+      {
+        "id": "N18",
+        "source": "V16",
+        "target": "",
+        "name": "Neural Terminal node"
+      },
+      {
+        "id": "N19",
+        "source": "V15",
+        "target": "V17",
+        "name": "Dorsal horn Soma node"
+      },
+      {
+        "id": "N20",
+        "source": "V17",
+        "target": "V18",
+        "name": "Medulla Parenchyma layer Neural Tubing node"
+      },
+      {
+        "id": "N21",
+        "source": "V18",
+        "target": "V19",
+        "name": "Pons node"
+      },
+      {
+        "id": "N22",
+        "source": "V19",
+        "target": "V20",
+        "name": "Midbrain node"
+      },
+      {
+        "id": "N23",
+        "source": "V20",
+        "target": "V21",
+        "name": "Thalamic complex node"
+      },
+      {
+        "id": "N24",
+        "source": "V21",
+        "target": "V22",
+        "name": "Ventral posterolateral nucleus node"
+      },
+      {
+        "id": "N25",
+        "source": "V22",
+        "target": "",
+        "name": "Terminal node"
       }
     ],
     "lyphs": [
       {
-        "id": "1a_L1",
-        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph"
+        "id": "L1",
+        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG"
       },
       {
-        "id": "1a_L2",
-        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph"
+        "id": "L2",
+        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
       },
       {
-        "id": "1_LSomA",
-        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph"
+        "id": "L3",
+        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "topology": "BAG"
       },
       {
-        "id": "1b_L1",
-        "name": "Gracile tract of Spinal Cord - 1st order sensory neuron - CNS entrance Tubing Neural Lyph"
+        "id": "L4",
+        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
+        "topology": "BAG"
       },
       {
-        "id": "1b_L2",
-        "name": "Gracile tract of Medulla - 1st order sensory neuron - Neural Tubing Lyph"
+        "id": "L5",
+        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
       },
       {
-        "id": "1b_L3",
-        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph"
+        "id": "L6",
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L7",
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CT layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L8",
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - PLASMA MEMBRANE layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L9",
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CYTOSOL layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L10",
+        "name": "Gracile tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - CNS entrance Tubing Neural Lyph"
+      },
+      {
+        "id": "L11",
+        "name": "Gracile tract of Medulla - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L12",
+        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L13",
+        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG"
+      },
+      {
+        "id": "L14",
+        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L15",
+        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L16",
+        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L17",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG"
+      },
+      {
+        "id": "L18",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L19",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L20",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L21",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L22",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L23",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CT layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L24",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - PLASMA MEMBRANE layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L25",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CYTOSOL layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L26",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L27",
+        "name": "Anterolateral Spinothalamic tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L28",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L29",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG"
+      },
+      {
+        "id": "L30",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L31",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L32",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L33",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG"
+      },
+      {
+        "id": "L34",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L35",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L36",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L37",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L38",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph - CT layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L39",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph - PLASMA MEMBRANE layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L40",
+        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph - CYTOSOL layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L41",
+        "name": "Anterolateral Spinothalamic tract of Medulla - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L42",
+        "name": "Anterolateral Spinothalamic tract of Pons - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L43",
+        "name": "Anterolateral Spinothalamic tract of Midbrain - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L44",
+        "name": "Anterolateral Spinothalamic tract of Thalamic complex - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L45",
+        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L46",
+        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG"
+      },
+      {
+        "id": "L47",
+        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L48",
+        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L49",
+        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L50",
+        "name": "Ventral posterolateral nucleus"
+      },
+      {
+        "id": "L51",
+        "name": "Gracile nucleus"
+      },
+      {
+        "id": "L52",
+        "name": "Dorsal horn"
+      },
+      {
+        "id": "L53",
+        "name": "Gracile tract"
+      },
+      {
+        "id": "L54",
+        "name": "Anterolateral Spinothalamic tract"
+      },
+      {
+        "id": "L55",
+        "name": "Thalamic complex"
+      },
+      {
+        "id": "L56",
+        "name": "Thalamic complex - Parenchyma layer"
+      },
+      {
+        "id": "L57",
+        "name": "Thalamic complex - Ependymal layer"
+      },
+      {
+        "id": "L58",
+        "name": "Thalamic complex - CSF layer"
+      },
+      {
+        "id": "L59",
+        "name": "Medulla"
+      },
+      {
+        "id": "L60",
+        "name": "Medulla - Parenchyma layer"
+      },
+      {
+        "id": "L61",
+        "name": "Medulla - Ependymal layer"
+      },
+      {
+        "id": "L62",
+        "name": "Medulla - CSF layer"
+      },
+      {
+        "id": "L63",
+        "name": "Spinal Cord"
+      },
+      {
+        "id": "L64",
+        "name": "Spinal Cord - Parenchyma layer"
+      },
+      {
+        "id": "L65",
+        "name": "Spinal Cord - Ependymal layer"
+      },
+      {
+        "id": "L66",
+        "name": "Spinal Cord - CSF layer"
+      },
+      {
+        "id": "L67",
+        "name": "Skin"
+      },
+      {
+        "id": "L68",
+        "name": "Dorsal Root Ganglion"
+      },
+      {
+        "id": "L69",
+        "name": "Pons"
+      },
+      {
+        "id": "L70",
+        "name": "Pons - Parenchyma layer"
+      },
+      {
+        "id": "L71",
+        "name": "Pons - Ependymal layer"
+      },
+      {
+        "id": "L72",
+        "name": "Pons - CSF layer"
+      },
+      {
+        "id": "L73",
+        "name": "Midbrain"
+      },
+      {
+        "id": "L74",
+        "name": "Midbrain - Parenchyma layer"
+      },
+      {
+        "id": "L75",
+        "name": "Midbrain - Ependymal layer"
+      },
+      {
+        "id": "L76",
+        "name": "Midbrain - CSF layer"
+      },
+      {
+        "id": "L77",
+        "name": "Peripheral Nervous System"
+      },
+      {
+        "id": "L78",
+        "name": "Central Nervous System"
+      },
+      {
+        "id": "L79",
+        "name": "Lower limb"
+      },
+      {
+        "id": "L80",
+        "name": "Nervous System"
       }
     ]
   }
