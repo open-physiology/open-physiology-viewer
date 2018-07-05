@@ -48,7 +48,6 @@ export class Lyph extends Entity {
 
     get polygonOffsetFactor(){
         let res = 0;
-        if (this.container)    { res = this.container.polygonOffsetFactor - 1; }
         if (this.layerInLyph)  { res = Math.min(res, this.layerInLyph.polygonOffsetFactor - 1); }
         if (this.belongsToLyph) { res = Math.min(res, this.belongsToLyph.polygonOffsetFactor - 1); }
         return res;
@@ -74,8 +73,6 @@ export class Lyph extends Entity {
         p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
         p.add(transformedLyph.center);
 
-        //TODO Test for nested lyphs
-        if (transformedLyph.container){ p = transformedLyph.container.translate(p); }
         return p;
     }
 
@@ -400,7 +397,7 @@ export class Lyph extends Entity {
                     const delta = 5;
 
                     //TODO revise for the case container is nested
-                    if (this.axis.type === LINK_TYPES.CONTAINER) {
+                    if (this.isContainer) {
                         //Global force pushes content on top of lyph
                         if (Math.abs(this.axis.target.z - this.axis.source.z) <= delta) {
                             //Faster way to get projection for lyphs parallel to x-y plane

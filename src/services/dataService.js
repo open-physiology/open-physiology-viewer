@@ -149,11 +149,10 @@ export class DataService{
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
         });
 
-        //TODO only group entities defined by ID are converted to model objects, not objects either fix or put it as schema requirement
+        //TODO Note that only group entities defined by ID are converted to model objects
 
         //Include relevant entities to the neural system group
-        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
-            if (lyph.id === "5") { return; }
+        this._graphData.lyphs.filter(lyph => lyph.internalLyphs && !getLinkByLyphID(lyph.id)).forEach(lyph => {
             groupsByName["Neurons"].entities = [...groupsByName["Neurons"].entities, ...createInternalLyphs(lyph)];
         });
 
@@ -162,8 +161,6 @@ export class DataService{
         //TODO Remove-->
 
         //TODO replace with code that processes group assignments
-
-        console.log("interpolateReds", this["interpolateReds"]);
 
         //Recolor lyphs
         colorLyphs(omega["LR"].trees["Arterial"]::values(), interpolateReds);

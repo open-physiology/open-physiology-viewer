@@ -146,28 +146,6 @@
           "y": 70,
           "z": 25
         }
-      },
-      {
-        "id": "nSk1",
-        "name": "Skin source",
-        "type": "fixed",
-        "hidden": true,
-        "layout": {
-          "x": -25,
-          "y": -90,
-          "z": 25
-        }
-      },
-      {
-        "id": "nSk2",
-        "name": "Skin target",
-        "type": "fixed",
-        "hidden": true,
-        "layout": {
-          "x": 25,
-          "y": -90,
-          "z": 25
-        }
       }
     ],
     "links": [
@@ -213,7 +191,8 @@
         "name": "Gut'",
         "type": "semicircle",
         "length": 90,
-        "linkMethod": "Line2"
+        "linkMethod": "Line2",
+        "conveyingLyph": "170"
       },
       {
         "id": "k_l",
@@ -221,15 +200,8 @@
         "target": "l",
         "type": "container",
         "length": 40,
-        "conveyingLyph": "5"
-      },
-      {
-        "id": "skin",
-        "source": "nSk1",
-        "target": "nSk2",
-        "type": "container",
-        "length": 40,
-        "conveyingLyph": "170"
+        "conveyingLyph": "5",
+        "isContainer": true
       }
     ],
     "groups": [
@@ -2886,9 +2858,9 @@
         },
         "external": "FMA:7163",
         "layers": [
-          "171",
+          "173",
           "172",
-          "173"
+          "171"
         ],
         "border": {
           "borders": [
@@ -2906,9 +2878,10 @@
           "N11"
         ],
         "scale": {
-          "width": 50,
-          "height": 50
-        }
+          "width": 9,
+          "height": 9
+        },
+        "isContainer": true
       },
       {
         "id": "171",

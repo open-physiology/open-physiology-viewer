@@ -394,6 +394,10 @@
           ],
           "default": {}
         },
+        "isContainer": {
+          "description": "Defines whether the lyph works as container, i.e., other lyphs are projected on it",
+          "type": "boolean"
+        },
         "infoFields": {
           "default": {
             "text": [
