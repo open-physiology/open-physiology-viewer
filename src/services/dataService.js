@@ -57,12 +57,6 @@ export class DataService{
             materials: [...core.materials]::cloneDeep()
         };
 
-        //Connect spinothalamic tract to the nervous system - this can be done in graph.jon
-        this._graphData.lyphs.find(e => e.id === "198")::merge({
-            internalNodes:  ["N8"],
-            border: {borders: [{}, {}, {hostedNodes: ["N7"]}, {}]}
-        });
-
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
 
 
@@ -165,6 +159,12 @@ export class DataService{
 
         //Create Urinary tract and Cardiovascular system omega trees
 
+        //TODO Remove-->
+
+        //TODO replace with code that processes group assignments
+
+        console.log("interpolateReds", this["interpolateReds"]);
+
         //Recolor lyphs
         colorLyphs(omega["LR"].trees["Arterial"]::values(), interpolateReds);
         colorLyphs(omega["LR"].trees["Venous"]  ::values(), interpolateRdPu);
@@ -248,6 +248,9 @@ export class DataService{
             this._graphData.links.push(link);
             groupsByName["Omega trees"].entities.push(link);
         }
+
+        //TODO <--Remove
+
 
         //Coalescing lyphs attract by means of invisible links
         this._graphData.lyphs.filter(lyph => lyph.coalescesWith).forEach(lyph => {

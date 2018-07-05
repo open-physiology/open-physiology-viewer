@@ -1,30 +1,236 @@
 {
   "core": {
-    "nodes" : [
-      { "id"  : "c", "name": "c",      "color": "#D2691E", "val": 3, "type": "core", "layout": {"x": 100, "y":  0, "z":  0} },
-      { "id"  : "n", "name": "n",      "color": "#D2691E", "val": 3, "type": "core", "layout": {"x":-100, "y":  0, "z":  0} },
-      { "id"  : "t", "name": "t",      "color": "#808080", "val": 3, "type": "core", "layout": {"x": -60, "y":  0, "z":  0} },
-      { "id"  : "a", "name": "a",      "color": "#808080", "val": 3, "type": "fixed","layout": {"x":   0, "y":  0, "z":  0} },
-      { "id"  : "h", "name": "h",      "color": "#444444", "val": 3, "type": "core", "layout": {"x":  60, "y":  0, "z":  0} },
-      { "id"  : "R", "name": "R",      "color": "#7B68EE", "val": 3, "type": "core", "layout": {"x":   0, "y": 75, "z":  0} },
-      { "id"  : "L", "name": "L",      "color": "#ff0000", "val": 3, "type": "core", "layout": {"x":   0, "y":-75, "z":  0} },
-      { "id"  : "S", "name": "\u03A3", "color": "#006400", "val": 3, "type": "core", "layout": {"x": -90, "y":  0, "z":  0} } ,
-      { "id"  : "P", "name": "\u03C0", "color": "#0000CD", "val": 3, "type": "core", "layout": {"x":  90, "y":  0, "z":  0} },
-
-      { "id"  : "MCP", "name": "Microcirculation pulmonary", "color": "#666", "val": 1, "host": "LR", "offset": 0.5},
-      { "id"  : "MCS", "name": "Microcirculation systemic",  "color": "#666", "val": 1, "host": "RL", "offset": 0.5},
-
-      { "id"     : "k", "name"   : "k", "type"   : "fixed", "hidden" : true, "layout" : {"x": 0, "y": 0, "z": 25}},
-      { "id"     : "l", "name"   : ";", "type"   : "fixed", "hidden" : true, "layout" : {"x": 0, "y": 70, "z": 25}}
+    "nodes": [
+      {
+        "id": "c",
+        "name": "c",
+        "color": "#D2691E",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": 100,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "n",
+        "name": "n",
+        "color": "#D2691E",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": -100,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "t",
+        "name": "t",
+        "color": "#808080",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": -60,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "a",
+        "name": "a",
+        "color": "#808080",
+        "val": 3,
+        "type": "fixed",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "h",
+        "name": "h",
+        "color": "#444444",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": 60,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "R",
+        "name": "R",
+        "color": "#7B68EE",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": 0,
+          "y": 75,
+          "z": 0
+        }
+      },
+      {
+        "id": "L",
+        "name": "L",
+        "color": "#ff0000",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": 0,
+          "y": -75,
+          "z": 0
+        }
+      },
+      {
+        "id": "S",
+        "name": "Σ",
+        "color": "#006400",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": -90,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "P",
+        "name": "π",
+        "color": "#0000CD",
+        "val": 3,
+        "type": "core",
+        "layout": {
+          "x": 90,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "id": "MCP",
+        "name": "Microcirculation Pulmonary",
+        "color": "#666",
+        "val": 1,
+        "host": "LR",
+        "offset": 0.5
+      },
+      {
+        "id": "MCS",
+        "name": "Microcirculation Systemic",
+        "color": "#666",
+        "val": 1,
+        "host": "RL",
+        "offset": 0.5
+      },
+      {
+        "id": "k",
+        "name": "k",
+        "type": "fixed",
+        "hidden": true,
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "z": 25
+        }
+      },
+      {
+        "id": "l",
+        "name": ";",
+        "type": "fixed",
+        "hidden": true,
+        "layout": {
+          "x": 0,
+          "y": 70,
+          "z": 25
+        }
+      },
+      {
+        "id": "nSk1",
+        "name": "Skin source",
+        "type": "fixed",
+        "hidden": true,
+        "layout": {
+          "x": -25,
+          "y": -90,
+          "z": 25
+        }
+      },
+      {
+        "id": "nSk2",
+        "name": "Skin target",
+        "type": "fixed",
+        "hidden": true,
+        "layout": {
+          "x": 25,
+          "y": -90,
+          "z": 25
+        }
+      }
     ],
-    "links" : [
-      { "id": "cn", "source": "c", "target": "n", "name": "",          "type": "dashed",     "length": 100 },
-      { "id": "RL", "source": "R", "target": "L", "name": "Pulmonary", "type": "semicircle", "length":  75, "linkMethod": "Line2" },
-      { "id": "LR", "source": "L", "target": "R", "name": "Systemic",  "type": "semicircle", "length":  75, "linkMethod": "Line2" },
-      { "id": "SP", "source": "S", "target": "P", "name": "Gut",       "type": "semicircle", "length":  90, "linkMethod": "Line2" },
-      { "id": "PS", "source": "P", "target": "S", "name": "Gut'",      "type": "semicircle", "length":  90, "linkMethod": "Line2" },
-
-      { "id" : "k_l", "source" : "k", "target"    : "l", "type" : "container", "length" : 40, "conveyingLyph" : "5"}
+    "links": [
+      {
+        "id": "cn",
+        "source": "c",
+        "target": "n",
+        "name": "",
+        "type": "dashed",
+        "length": 100
+      },
+      {
+        "id": "RL",
+        "source": "R",
+        "target": "L",
+        "name": "Pulmonary",
+        "type": "semicircle",
+        "length": 75,
+        "linkMethod": "Line2"
+      },
+      {
+        "id": "LR",
+        "source": "L",
+        "target": "R",
+        "name": "Systemic",
+        "type": "semicircle",
+        "length": 75,
+        "linkMethod": "Line2"
+      },
+      {
+        "id": "SP",
+        "source": "S",
+        "target": "P",
+        "name": "Gut",
+        "type": "semicircle",
+        "length": 90,
+        "linkMethod": "Line2"
+      },
+      {
+        "id": "PS",
+        "source": "P",
+        "target": "S",
+        "name": "Gut'",
+        "type": "semicircle",
+        "length": 90,
+        "linkMethod": "Line2"
+      },
+      {
+        "id": "k_l",
+        "source": "k",
+        "target": "l",
+        "type": "container",
+        "length": 40,
+        "conveyingLyph": "5"
+      },
+      {
+        "id": "skin",
+        "source": "nSk1",
+        "target": "nSk2",
+        "type": "container",
+        "length": 40,
+        "conveyingLyph": "170"
+      }
     ],
     "groups": [
       {
@@ -33,14 +239,18 @@
         "entities": []
       },
       {
-        "id"       : "g4",
-        "name"     : "Coalescences",
-        "entities" : []
+        "id": "g4",
+        "name": "Coalescences",
+        "entities": []
       },
       {
-        "id"       : "g5",
-        "name"     : "Containers",
-        "entities" : ["k", "l", "k_l"]
+        "id": "g5",
+        "name": "Containers",
+        "entities": [
+          "k",
+          "l",
+          "k_l"
+        ]
       }
     ],
     "lyphs": [
@@ -65,7 +275,7 @@
       },
       {
         "id": "2",
-        "name": "renal hilum",
+        "name": "Renal Hilum",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -79,7 +289,7 @@
       },
       {
         "id": "3",
-        "name": "renal parenchyma",
+        "name": "Renal Parenchyma",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -89,11 +299,20 @@
           "min": 1,
           "max": 1
         },
-        "border": { "borders": [ {}, {}, {}, { "conveyingLyph": "5" }]}
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "conveyingLyph": "5"
+            }
+          ]
+        }
       },
       {
         "id": "4",
-        "name": "renal capsule",
+        "name": "Renal Capsule",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -107,7 +326,7 @@
       },
       {
         "id": "5",
-        "name": "kidney lobus",
+        "name": "Kidney Lobus",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -137,12 +356,25 @@
           "33"
         ],
         "inactive": true,
-        "border": { "borders": [{}, {}, {}, {"hostedNodes": ["PS013", "LR05", "LR15"]}]},
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "PS013",
+                "LR05",
+                "LR15"
+              ]
+            }
+          ]
+        },
         "belongsToLyph": "3"
       },
       {
         "id": "6",
-        "name": "cortex of kidney lobus",
+        "name": "Cortex of Kidney Lobus",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -155,7 +387,7 @@
       },
       {
         "id": "7",
-        "name": "medulla of kidney lobus",
+        "name": "Medulla of Kidney Lobus",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -168,7 +400,7 @@
       },
       {
         "id": "8",
-        "name": "anatomical vessel",
+        "name": "Anatomical Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -188,7 +420,7 @@
       },
       {
         "id": "10",
-        "name": "lumen of anatomical vessel",
+        "name": "Lumen of Anatomical Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -207,7 +439,7 @@
       },
       {
         "id": "11",
-        "name": "wall of anatomical vessel",
+        "name": "Wall of Anatomical Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -223,7 +455,7 @@
       },
       {
         "id": "12",
-        "name": "urinary vessel",
+        "name": "Urinary Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -258,7 +490,7 @@
       },
       {
         "id": "14",
-        "name": "lumen of urinary vessel",
+        "name": "Lumen of Urinary Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -293,7 +525,7 @@
       },
       {
         "id": "15",
-        "name": "epithelial cell",
+        "name": "Epithelial Cell",
         "topology": "CYST",
         "thickness": {
           "min": 6,
@@ -307,7 +539,7 @@
       },
       {
         "id": "16",
-        "name": "wall of urinary vessel",
+        "name": "Wall of Urinary Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -338,7 +570,7 @@
       },
       {
         "id": "17",
-        "name": "blood vessel",
+        "name": "Blood Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -372,7 +604,7 @@
       },
       {
         "id": "19",
-        "name": "lumen of blood vessel",
+        "name": "Lumen of Blood Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -406,13 +638,13 @@
       },
       {
         "id": "20",
-        "name": "endothelial cell",
+        "name": "Endothelial Cell",
         "topology": "CYST",
         "external": "FMA:66772"
       },
       {
         "id": "21",
-        "name": "wall of blood vessel",
+        "name": "Wall of Blood Vessel",
         "thickness": {
           "min": 1,
           "max": 5
@@ -442,7 +674,7 @@
       },
       {
         "id": "24",
-        "name": "visceral bowman's capsule",
+        "name": "Visceral Bowman's Capsule",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -460,7 +692,7 @@
       },
       {
         "id": "25",
-        "name": "lumen of visceral bowman's capsule",
+        "name": "Lumen of Visceral Bowman's Capsule",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -477,7 +709,7 @@
       },
       {
         "id": "26",
-        "name": "wall of visceral bowman's capsule",
+        "name": "Wall of Visceral Bowman's Capsule",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -490,7 +722,7 @@
       },
       {
         "id": "27",
-        "name": "parietal bowman's capsule",
+        "name": "Parietal Bowman's Capsule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -508,7 +740,7 @@
       },
       {
         "id": "28",
-        "name": "lumen of parietal  bowman's capsule",
+        "name": "Lumen of Parietal  Bowman's Capsule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -525,7 +757,7 @@
       },
       {
         "id": "29",
-        "name": "wall of parietal bowman's capsule",
+        "name": "Wall of Parietal Bowman's Capsule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -538,7 +770,7 @@
       },
       {
         "id": "30",
-        "name": "proximal convoluted tubule",
+        "name": "Proximal Convoluted Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -556,7 +788,7 @@
       },
       {
         "id": "31",
-        "name": "lumen of proximal convoluted tubule",
+        "name": "Lumen of Proximal Convoluted Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -573,7 +805,7 @@
       },
       {
         "id": "32",
-        "name": "wall of proximal convoluted tubule",
+        "name": "Wall of Proximal Convoluted Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -586,7 +818,7 @@
       },
       {
         "id": "33",
-        "name": "cortical proximal straight tubule",
+        "name": "Cortical Proximal Straight Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -604,7 +836,7 @@
       },
       {
         "id": "34",
-        "name": "lumen of cortical proximal straight tubule",
+        "name": "Lumen of Cortical Proximal Straight Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -621,7 +853,7 @@
       },
       {
         "id": "35",
-        "name": "wall of cortical proximal straight tubule",
+        "name": "Wall of Cortical Proximal Straight Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -634,7 +866,7 @@
       },
       {
         "id": "36",
-        "name": "medullary proximal straight tubule",
+        "name": "Medullary Proximal Straight Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -652,7 +884,7 @@
       },
       {
         "id": "37",
-        "name": "lumen of medullary proximal straight tubule",
+        "name": "Lumen of Medullary Proximal Straight Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -669,7 +901,7 @@
       },
       {
         "id": "38",
-        "name": "wall of meduallry proximal straight tubule",
+        "name": "Wall of Meduallry Proximal Straight Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -682,7 +914,7 @@
       },
       {
         "id": "39",
-        "name": "descending thin limb of nephron",
+        "name": "Descending Thin Limb of Nephron",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -700,7 +932,7 @@
       },
       {
         "id": "40",
-        "name": "lumen of descending thin limb of nephron",
+        "name": "Lumen of Descending Thin Limb Of Nephron",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -717,7 +949,7 @@
       },
       {
         "id": "41",
-        "name": "wall of descending thin limb of nephron",
+        "name": "Wall of Descending Thin Limb Of Nephron",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -730,7 +962,7 @@
       },
       {
         "id": "42",
-        "name": "medullary thick ascending limb of nephron",
+        "name": "Medullary Thick Ascending Limb of Nephron",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -748,7 +980,7 @@
       },
       {
         "id": "43",
-        "name": "lumen of medullary thick ascending limb of nephron",
+        "name": "Lumen of Medullary Thick Ascending Limb Of Nephron",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -765,7 +997,7 @@
       },
       {
         "id": "44",
-        "name": "wall of medullary thick ascending limb of nephron",
+        "name": "Wall of Medullary Thick Ascending Limb Of Nephron",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -778,7 +1010,7 @@
       },
       {
         "id": "45",
-        "name": "cortical thick ascending limb",
+        "name": "Cortical Thick Ascending Limb",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -796,7 +1028,7 @@
       },
       {
         "id": "46",
-        "name": "lumen of cortical thick ascending limb",
+        "name": "Lumen of Cortical Thick Ascending Limb",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -813,7 +1045,7 @@
       },
       {
         "id": "47",
-        "name": "wall of cortical thick ascending limb",
+        "name": "Wall of Cortical Thick Ascending Limb",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -826,7 +1058,7 @@
       },
       {
         "id": "48",
-        "name": "distal convoluted tubule",
+        "name": "Distal Convoluted Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -844,7 +1076,7 @@
       },
       {
         "id": "49",
-        "name": "lumen of distal convoluted tubule",
+        "name": "Lumen of Distal Convoluted Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -861,7 +1093,7 @@
       },
       {
         "id": "50",
-        "name": "wall of distal convoluted tubule",
+        "name": "Wall of Distal Convoluted Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -874,7 +1106,7 @@
       },
       {
         "id": "51",
-        "name": "interlobar artery",
+        "name": "Interlobar Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -892,7 +1124,7 @@
       },
       {
         "id": "52",
-        "name": "lumen of interlobar artery",
+        "name": "Lumen of Interlobar Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -909,7 +1141,7 @@
       },
       {
         "id": "53",
-        "name": "wall of interlobar artery",
+        "name": "Wall of Interlobar Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -922,7 +1154,7 @@
       },
       {
         "id": "54",
-        "name": "arcuate artery",
+        "name": "Arcuate Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -940,7 +1172,7 @@
       },
       {
         "id": "55",
-        "name": "lumen of arcuate artery",
+        "name": "Lumen of Arcuate Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -957,7 +1189,7 @@
       },
       {
         "id": "56",
-        "name": "wall of arcuate artery",
+        "name": "Wall of Arcuate Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -970,7 +1202,7 @@
       },
       {
         "id": "57",
-        "name": "cortical artery",
+        "name": "Cortical Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -988,7 +1220,7 @@
       },
       {
         "id": "58",
-        "name": "lumen of cortical artery",
+        "name": "Lumen of Cortical Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1005,7 +1237,7 @@
       },
       {
         "id": "59",
-        "name": "wall of cortical artery",
+        "name": "Wall of Cortical Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1018,7 +1250,7 @@
       },
       {
         "id": "60",
-        "name": "afferent artery",
+        "name": "Afferent Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1036,7 +1268,7 @@
       },
       {
         "id": "61",
-        "name": "lumen of afferent artery",
+        "name": "Lumen of Afferent Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1053,7 +1285,7 @@
       },
       {
         "id": "62",
-        "name": "wall of afferent artery",
+        "name": "Wall of Afferent Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1066,7 +1298,7 @@
       },
       {
         "id": "63",
-        "name": "efferent artery",
+        "name": "Efferent Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1084,7 +1316,7 @@
       },
       {
         "id": "64",
-        "name": "lumen of efferent artery",
+        "name": "Lumen of Efferent Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1101,7 +1333,7 @@
       },
       {
         "id": "65",
-        "name": "wall of efferent artery",
+        "name": "Wall of Efferent Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1114,7 +1346,7 @@
       },
       {
         "id": "66",
-        "name": "stellate vein",
+        "name": "Stellate Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1131,7 +1363,7 @@
       },
       {
         "id": "67",
-        "name": "lumen of stellate vein",
+        "name": "Lumen of Stellate Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1148,7 +1380,7 @@
       },
       {
         "id": "68",
-        "name": "wall of stellate vein",
+        "name": "Wall of Stellate Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1161,7 +1393,7 @@
       },
       {
         "id": "69",
-        "name": "cortical vein",
+        "name": "Cortical Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1178,7 +1410,7 @@
       },
       {
         "id": "70",
-        "name": "lumen of cortical vein",
+        "name": "Lumen of Cortical Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1195,7 +1427,7 @@
       },
       {
         "id": "71",
-        "name": "wall of cortical vein",
+        "name": "Wall of Cortical Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1208,7 +1440,7 @@
       },
       {
         "id": "72",
-        "name": "arcuate vein",
+        "name": "Arcuate Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1225,7 +1457,7 @@
       },
       {
         "id": "73",
-        "name": "lumen of arcuate vein",
+        "name": "Lumen of Arcuate Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1242,7 +1474,7 @@
       },
       {
         "id": "74",
-        "name": "wall of arcuate vein",
+        "name": "Wall of Arcuate Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1255,7 +1487,7 @@
       },
       {
         "id": "75",
-        "name": "interlobar vein",
+        "name": "Interlobar Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1273,7 +1505,7 @@
       },
       {
         "id": "76",
-        "name": "lumen of interlobar vein",
+        "name": "Lumen of Interlobar Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1290,7 +1522,7 @@
       },
       {
         "id": "77",
-        "name": "wall of interlobar vein",
+        "name": "Wall of Interlobar Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1318,11 +1550,13 @@
           "79",
           "80"
         ],
-        "coalescesWith": ["24"]
+        "coalescesWith": [
+          "24"
+        ]
       },
       {
         "id": "79",
-        "name": "lumen of glomerulus",
+        "name": "Lumen of Glomerulus",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1339,7 +1573,7 @@
       },
       {
         "id": "80",
-        "name": "wall of glomerulus",
+        "name": "Wall of Glomerulus",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1352,7 +1586,7 @@
       },
       {
         "id": "81",
-        "name": "major calyx",
+        "name": "Major Calyx",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1370,7 +1604,7 @@
       },
       {
         "id": "82",
-        "name": "lumen of major calyx",
+        "name": "Lumen of Major Calyx",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1387,7 +1621,7 @@
       },
       {
         "id": "83",
-        "name": "wall of major calyx",
+        "name": "Wall of Major Calyx",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1400,7 +1634,7 @@
       },
       {
         "id": "84",
-        "name": "minor calyx",
+        "name": "Minor Calyx",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1418,7 +1652,7 @@
       },
       {
         "id": "85",
-        "name": "lumen of minor calyx",
+        "name": "Lumen of Minor Calyx",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1435,7 +1669,7 @@
       },
       {
         "id": "86",
-        "name": "wall of minor calyx",
+        "name": "Wall of Minor Calyx",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1448,7 +1682,7 @@
       },
       {
         "id": "87",
-        "name": "inner medullary collecting duct",
+        "name": "Inner Medullary Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1466,7 +1700,7 @@
       },
       {
         "id": "88",
-        "name": "lumen of inner medullary collecting duct",
+        "name": "Lumen of Inner Medullary Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1483,7 +1717,7 @@
       },
       {
         "id": "89",
-        "name": "wall of inner medullary collecting duct",
+        "name": "Wall of Inner Medullary Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1496,7 +1730,7 @@
       },
       {
         "id": "90",
-        "name": "outer medullary collecting duct",
+        "name": "Outer Medullary Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1514,7 +1748,7 @@
       },
       {
         "id": "91",
-        "name": "lumen of outer medullary collecting duct",
+        "name": "Lumen of Outer Medullary Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1531,7 +1765,7 @@
       },
       {
         "id": "92",
-        "name": "wall of outer medullary collecting duct",
+        "name": "Wall of Outer Medullary Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1544,7 +1778,7 @@
       },
       {
         "id": "93",
-        "name": "cortical collecting duct",
+        "name": "Cortical Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1562,7 +1796,7 @@
       },
       {
         "id": "94",
-        "name": "lumen of cortical collecting duct",
+        "name": "Lumen of Cortical Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1579,7 +1813,7 @@
       },
       {
         "id": "95",
-        "name": "wall of cortical collecting duct",
+        "name": "Wall of Cortical Collecting Duct",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1592,7 +1826,7 @@
       },
       {
         "id": "96",
-        "name": "connecting tubule",
+        "name": "Connecting Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1609,7 +1843,7 @@
       },
       {
         "id": "97",
-        "name": "lumen of connecting tubule",
+        "name": "Lumen of Connecting Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1626,7 +1860,7 @@
       },
       {
         "id": "98",
-        "name": "wall of connecting tubule",
+        "name": "Wall of Connecting Tubule",
         "topology": "TUBE",
         "thickness": {
           "min": 5,
@@ -1639,7 +1873,7 @@
       },
       {
         "id": "99",
-        "name": "renal artery",
+        "name": "Renal Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -1657,7 +1891,7 @@
       },
       {
         "id": "100",
-        "name": "lumen of renal artery",
+        "name": "Lumen of Renal Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -1674,7 +1908,7 @@
       },
       {
         "id": "101",
-        "name": "wall of renal artery",
+        "name": "Wall of Renal Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -1687,7 +1921,7 @@
       },
       {
         "id": "102",
-        "name": "renal vein",
+        "name": "Renal Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -1705,7 +1939,7 @@
       },
       {
         "id": "103",
-        "name": "lumen of renal vein",
+        "name": "Lumen of Renal Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -1722,7 +1956,7 @@
       },
       {
         "id": "104",
-        "name": "wall of renal vein",
+        "name": "Wall of Renal Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -1735,7 +1969,7 @@
       },
       {
         "id": "105",
-        "name": "cortical peritubular capillary plexus",
+        "name": "Cortical Peritubular Capillary Plexus",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1752,7 +1986,7 @@
       },
       {
         "id": "106",
-        "name": "lumen of cortical peritubular capillary plexus",
+        "name": "Lumen of Cortical Peritubular Capillary Plexus",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1769,7 +2003,7 @@
       },
       {
         "id": "107",
-        "name": "wall of cortical peritubular capillary plexus",
+        "name": "Wall of Cortical Peritubular Capillary Plexus",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -1800,7 +2034,7 @@
       },
       {
         "id": "109",
-        "name": "lumen of ureter",
+        "name": "Lumen of Ureter",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1817,7 +2051,7 @@
       },
       {
         "id": "110",
-        "name": "wall of ureter",
+        "name": "Wall of Ureter",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1848,7 +2082,7 @@
       },
       {
         "id": "112",
-        "name": "lumen of pelvis",
+        "name": "Lumen of Pelvis",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1865,7 +2099,7 @@
       },
       {
         "id": "113",
-        "name": "wall of pelvis",
+        "name": "Wall of Pelvis",
         "topology": "TUBE",
         "thickness": {
           "min": 4,
@@ -1878,7 +2112,7 @@
       },
       {
         "id": "114",
-        "name": "segmental artery",
+        "name": "Segmental Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -1896,7 +2130,7 @@
       },
       {
         "id": "115",
-        "name": "lumen of segmental artery",
+        "name": "Lumen of Segmental Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -1913,7 +2147,7 @@
       },
       {
         "id": "116",
-        "name": "wall of segmental artery",
+        "name": "Wall of Segmental Artery",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -1926,7 +2160,7 @@
       },
       {
         "id": "117",
-        "name": "segmental vein",
+        "name": "Segmental Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -1943,7 +2177,7 @@
       },
       {
         "id": "118",
-        "name": "lumen of segmental vein",
+        "name": "Lumen of Segmental Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -1960,7 +2194,7 @@
       },
       {
         "id": "119",
-        "name": "wall of segmental vein",
+        "name": "Wall of Segmental Vein",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -1992,7 +2226,7 @@
       },
       {
         "id": "123",
-        "name": "csf layer of forebrain",
+        "name": "Forebrain - CSF layer",
         "topology": "BAG2",
         "thickness": {
           "min": 2,
@@ -2005,7 +2239,7 @@
       },
       {
         "id": "124",
-        "name": "ependymal layer of forebrain",
+        "name": "Forebrain - Ependymal layer",
         "topology": "BAG2",
         "thickness": {
           "min": 3,
@@ -2018,7 +2252,7 @@
       },
       {
         "id": "125",
-        "name": "parenchymal layer of forebrain",
+        "name": "Forebrain - Parenchyma layer",
         "topology": "BAG2",
         "thickness": {
           "min": 1,
@@ -2034,7 +2268,7 @@
       },
       {
         "id": "127",
-        "name": "basal ganglia",
+        "name": "Basal Ganglia",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2053,7 +2287,7 @@
       },
       {
         "id": "128",
-        "name": "csf layer of basal ganglia",
+        "name": "Basal Ganglia - CSF layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2066,7 +2300,7 @@
       },
       {
         "id": "129",
-        "name": "ependymal layer of basal ganglia",
+        "name": "Basal Ganglia - Ependymal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2079,7 +2313,7 @@
       },
       {
         "id": "130",
-        "name": "parenchymal layer of basal ganglia",
+        "name": "Basal Ganglia - Parenchyma layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2092,7 +2326,7 @@
       },
       {
         "id": "132",
-        "name": "diencephalon",
+        "name": "Thalamus",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2111,7 +2345,7 @@
       },
       {
         "id": "133",
-        "name": "csf layer of diencephalon",
+        "name": "Thalamus - CSF layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2124,7 +2358,7 @@
       },
       {
         "id": "134",
-        "name": "ependymal layer of diencephalon",
+        "name": "Thalamus - Ependymal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2137,7 +2371,7 @@
       },
       {
         "id": "135",
-        "name": "parenchymal layer of diencephalon",
+        "name": "Thalamus - Parenchyma layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2150,7 +2384,19 @@
         "internalLyphs": [
           "204",
           "205"
-        ]
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N23"
+              ]
+            }
+          ]
+        }
       },
       {
         "id": "137",
@@ -2173,7 +2419,7 @@
       },
       {
         "id": "138",
-        "name": "csf layer of midbrain",
+        "name": "Midbrain - CSF layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2186,7 +2432,7 @@
       },
       {
         "id": "139",
-        "name": "ependymal layer of midbrain",
+        "name": "Midbrain - Ependymal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2199,7 +2445,7 @@
       },
       {
         "id": "140",
-        "name": "parenchymal layer of midbrain",
+        "name": "Midbrain - Parenchyma layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2211,11 +2457,23 @@
         },
         "internalLyphs": [
           "203"
-        ]
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N22"
+              ]
+            }
+          ]
+        }
       },
       {
         "id": "142",
-        "name": "pons",
+        "name": "Pons",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2234,7 +2492,7 @@
       },
       {
         "id": "143",
-        "name": "csf layer of pons",
+        "name": "Pons - CSF layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2247,7 +2505,7 @@
       },
       {
         "id": "144",
-        "name": "ependymal layer of pons",
+        "name": "Pons - Ependymal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2260,7 +2518,7 @@
       },
       {
         "id": "145",
-        "name": "parenchymal layer of pons",
+        "name": "Pons - Parenchyma layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2272,11 +2530,23 @@
         },
         "internalLyphs": [
           "99007"
-        ]
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N21"
+              ]
+            }
+          ]
+        }
       },
       {
         "id": "147",
-        "name": "medulla oblongata",
+        "name": "Medulla",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2295,7 +2565,7 @@
       },
       {
         "id": "148",
-        "name": "csf of medulla oblongata",
+        "name": "Medulla - CSF layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2308,7 +2578,7 @@
       },
       {
         "id": "149",
-        "name": "ependymal layer of medulla oblongata",
+        "name": "Medulla - Ependymal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2321,7 +2591,7 @@
       },
       {
         "id": "150",
-        "name": "parenchymal layer of medulla oblongata",
+        "name": "Medulla - Parenchyma layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2332,13 +2602,26 @@
           "max": 2
         },
         "internalLyphs": [
+          "201",
           "202",
           "99004"
-        ]
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N20"
+              ]
+            }
+          ]
+        }
       },
       {
         "id": "152",
-        "name": "spinal cord",
+        "name": "Spinal Cord",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -2357,7 +2640,7 @@
       },
       {
         "id": "153",
-        "name": "csf layer of spinal cord",
+        "name": "Spinal Cord - CSF layer",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -2370,7 +2653,7 @@
       },
       {
         "id": "154",
-        "name": "ependymal layer of spinal cord",
+        "name": "Spinal Cord - Ependymal layer",
         "topology": "BAG",
         "thickness": {
           "min": 3,
@@ -2383,7 +2666,7 @@
       },
       {
         "id": "155",
-        "name": "parenchymal layer of spinal cord",
+        "name": "Spinal Cord - Parenchyma layer",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -2397,7 +2680,19 @@
           "198",
           "199",
           "200"
-        ]
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N14"
+              ]
+            }
+          ]
+        }
       },
       {
         "id": "157",
@@ -2420,7 +2715,7 @@
       },
       {
         "id": "158",
-        "name": "csf layer of cerebellum",
+        "name": "Cerebellum - CSF layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2433,7 +2728,7 @@
       },
       {
         "id": "159",
-        "name": "ependymal layer of cerebellum",
+        "name": "Cerebellum - Ependymal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2446,7 +2741,7 @@
       },
       {
         "id": "160",
-        "name": "parenchymal layer of cerebellum",
+        "name": "Cerebellum - Parenchyma layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2480,7 +2775,7 @@
       },
       {
         "id": "163",
-        "name": "csf layer of leptomeninges",
+        "name": "Leptomeninges - CSF layer",
         "topology": "BAG",
         "thickness": {
           "min": 2,
@@ -2514,7 +2809,7 @@
       },
       {
         "id": "165",
-        "name": "air layer of eye",
+        "name": "Eye - Air layer",
         "topology": "TUBE",
         "thickness": {
           "min": 0,
@@ -2527,7 +2822,7 @@
       },
       {
         "id": "166",
-        "name": "conjunctival layer of eye",
+        "name": "Eye - Conjunctival layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2540,7 +2835,7 @@
       },
       {
         "id": "167",
-        "name": "fibrotunical layer of eye",
+        "name": "Eye - Fibrotunical layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2553,7 +2848,7 @@
       },
       {
         "id": "168",
-        "name": "humoural layer of eye",
+        "name": "Eye - Humoural layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2566,7 +2861,7 @@
       },
       {
         "id": "169",
-        "name": "retinal layer of eye",
+        "name": "Eye - Retinal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 3,
@@ -2579,7 +2874,7 @@
       },
       {
         "id": "170",
-        "name": "skin",
+        "name": "Skin",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2594,11 +2889,30 @@
           "171",
           "172",
           "173"
-        ]
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N10"
+              ]
+            }
+          ]
+        },
+        "internalNodes": [
+          "N11"
+        ],
+        "scale": {
+          "width": 50,
+          "height": 50
+        }
       },
       {
         "id": "171",
-        "name": "air layer of skin",
+        "name": "Skin - Air layer",
         "topology": "TUBE",
         "thickness": {
           "min": 0,
@@ -2611,7 +2925,7 @@
       },
       {
         "id": "172",
-        "name": "epidermal layer of skin",
+        "name": "Skin - Epidermal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2625,7 +2939,7 @@
       },
       {
         "id": "173",
-        "name": "dermal layer of skin",
+        "name": "Skin - Dermal layer",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2657,7 +2971,7 @@
       },
       {
         "id": "175",
-        "name": "wall of aorta",
+        "name": "Wall of Aorta",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2670,7 +2984,7 @@
       },
       {
         "id": "176",
-        "name": "lumen of aorta",
+        "name": "Lumen of Aorta",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2683,7 +2997,7 @@
       },
       {
         "id": "177",
-        "name": "inferior vena cava",
+        "name": "Inferior Vena Cava",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2701,7 +3015,7 @@
       },
       {
         "id": "178",
-        "name": "wall of inferior vena cava",
+        "name": "Wall of Inferior Vena Cava",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2714,7 +3028,7 @@
       },
       {
         "id": "179",
-        "name": "lumen of inferior vena cava",
+        "name": "Lumen of Inferior Vena Cava",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2727,7 +3041,7 @@
       },
       {
         "id": "180",
-        "name": "right side of heart",
+        "name": "Right Side of Heart",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2745,7 +3059,7 @@
       },
       {
         "id": "181",
-        "name": "wall of right side of heart",
+        "name": "Wall of Right Side Of Heart",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2758,7 +3072,7 @@
       },
       {
         "id": "182",
-        "name": "lumen of right side of heart",
+        "name": "Lumen of Right Side Of Heart",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2771,7 +3085,7 @@
       },
       {
         "id": "183",
-        "name": "left side of heart",
+        "name": "Left Side of Heart",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2789,7 +3103,7 @@
       },
       {
         "id": "184",
-        "name": "wall of left side of heart",
+        "name": "Wall of Left Side Of Heart",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2802,7 +3116,7 @@
       },
       {
         "id": "185",
-        "name": "lumen of left side of heart",
+        "name": "Lumen of Left Side Of Heart",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -2815,7 +3129,7 @@
       },
       {
         "id": "186",
-        "name": "proximal bone",
+        "name": "Proximal Bone",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2833,7 +3147,7 @@
       },
       {
         "id": "187",
-        "name": "medullary cavity of proximal bone",
+        "name": "Medullary Cavity of Proximal Bone",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2846,7 +3160,7 @@
       },
       {
         "id": "188",
-        "name": "cortical layer of proximal bone",
+        "name": "Proximal Bone - Cortical layer",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2859,7 +3173,7 @@
       },
       {
         "id": "189",
-        "name": "periosteal layer of proximal bone",
+        "name": "Proximal Bone - Periosteal layer",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -2872,7 +3186,7 @@
       },
       {
         "id": "190",
-        "name": "distal bone",
+        "name": "Distal Bone",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2890,7 +3204,7 @@
       },
       {
         "id": "191",
-        "name": "medullary cavity of distal bone",
+        "name": "Medullary Cavity of Distal Bone",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2903,7 +3217,7 @@
       },
       {
         "id": "192",
-        "name": "cortical layer of distal bone",
+        "name": "Distal Bone - Cortical layer",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2916,7 +3230,7 @@
       },
       {
         "id": "193",
-        "name": "periosteal layer of distal bone",
+        "name": "Distal Bone - Periosteal layer",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -2957,7 +3271,7 @@
       },
       {
         "id": "196",
-        "name": "skeletal muscle",
+        "name": "Skeletal Muscle",
         "topology": "CYST",
         "thickness": {
           "min": 1,
@@ -2971,7 +3285,7 @@
       },
       {
         "id": "197",
-        "name": "granular tissue of cerebellar cortex",
+        "name": "Granular Tissue of Cerebellar Cortex",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -2988,7 +3302,7 @@
       },
       {
         "id": "198",
-        "name": "dorsal horn of spinal grey matter",
+        "name": "Dorsal Horn of Spinal Cord",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -2998,11 +3312,26 @@
           "min": 1,
           "max": 2
         },
-        "external": "FMA:256530"
+        "external": "FMA:256530",
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N15"
+              ]
+            }
+          ]
+        },
+        "internalNodes": [
+          "N19"
+        ]
       },
       {
         "id": "199",
-        "name": "clarke's column",
+        "name": "Clarke's Column",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -3016,7 +3345,7 @@
       },
       {
         "id": "200",
-        "name": "ventral horn of spinal grey matter",
+        "name": "Ventral Horn of Spinal Grey Matter",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -3033,7 +3362,7 @@
       },
       {
         "id": "201",
-        "name": "gracile nucleus",
+        "name": "Gracile Nucleus of Medulla",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -3043,11 +3372,26 @@
           "min": 2,
           "max": 3
         },
-        "external": "FMA:72602"
+        "external": "FMA:72602",
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N7"
+              ]
+            }
+          ]
+        },
+        "internalNodes": [
+          "N8"
+        ]
       },
       {
         "id": "202",
-        "name": "external formation of nucleus ambiguus",
+        "name": "External Formation of Nucleus Ambiguus",
         "topology": "CYST",
         "thickness": {
           "min": 3,
@@ -3060,7 +3404,7 @@
       },
       {
         "id": "203",
-        "name": "superior colliculus",
+        "name": "Superior Colliculus",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -3074,7 +3418,7 @@
       },
       {
         "id": "204",
-        "name": "ventral posterolateral nucleus of thalamus",
+        "name": "Ventral Posterolateral Nucleus of Thalamus",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -3084,11 +3428,26 @@
           "min": 2,
           "max": 4
         },
-        "external": "FMA:62200"
+        "external": "FMA:62200",
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N24"
+              ]
+            }
+          ]
+        },
+        "internalNodes": [
+          "N25"
+        ]
       },
       {
         "id": "205",
-        "name": "paraventricular nucleus of hypothalamus",
+        "name": "Paraventricular Nucleus of Hypothalamus",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -3102,7 +3461,7 @@
       },
       {
         "id": "206",
-        "name": "precentral gyrus",
+        "name": "Precentral Gyrus",
         "topology": "CYST",
         "thickness": {
           "min": 2,
@@ -3146,7 +3505,7 @@
       },
       {
         "id": "99002",
-        "name": "cytosol layer of neuron_end_grey_matter",
+        "name": "Neuron_end_grey_matter - Cytosol layer",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -3162,7 +3521,7 @@
       },
       {
         "id": "99003",
-        "name": "plasma membrane layer of neuron_end_grey_matter",
+        "name": "Neuron_end_grey_matter - Plasma Membrane layer",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -3195,7 +3554,7 @@
       },
       {
         "id": "99005",
-        "name": "cytosol layer of neuron_mid_medulla",
+        "name": "Neuron_mid_medulla - Cytosol layer",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -3211,7 +3570,7 @@
       },
       {
         "id": "99006",
-        "name": "plasma membrane layer of neuron_mid_medulla",
+        "name": "Neuron_mid_medulla - Plasma Membrane layer",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -3227,7 +3586,7 @@
       },
       {
         "id": "99007",
-        "name": "neuron_mid_pons",
+        "name": "neuron_mid_Pons",
         "topology": "TUBE",
         "thickness": {
           "min": 2,
@@ -3244,7 +3603,7 @@
       },
       {
         "id": "99008",
-        "name": "cytosol layer of neuron_mid_pons",
+        "name": "Neuron_mid_Pons - Cytosol layer",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -3260,7 +3619,7 @@
       },
       {
         "id": "99009",
-        "name": "plasma membrane layer of neuron_mid_pons",
+        "name": "Neuron_mid_Pons - Plasma Membrane layer",
         "topology": "TUBE",
         "thickness": {
           "min": 6,
@@ -3293,7 +3652,7 @@
       },
       {
         "id": "99011",
-        "name": "cytosol layer of neuron_end_granular_tissue_cerebellum",
+        "name": "Neuron_end_granular_tissue_cerebellum - Cytosol layer",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -3309,7 +3668,7 @@
       },
       {
         "id": "99012",
-        "name": "plasma membrane layer of neuron_end_granular_tissue_cerebellum",
+        "name": "Neuron_end_granular_tissue_cerebellum - Plasma Membrane layer",
         "topology": "BAG",
         "thickness": {
           "min": 6,
@@ -3325,7 +3684,7 @@
       },
       {
         "id": "994",
-        "name": "Cardiac lyphs prototype",
+        "name": "Cardiac Lyphs Prototype",
         "layers": [
           "999",
           "998",
@@ -3355,14 +3714,14 @@
       },
       {
         "id": "995",
-        "name": "Right fibrous ring of heart",
+        "name": "Right Fibrous Ring of Heart",
         "topology": "CYST",
         "color": "#F5F5DC",
         "external": "FMA:77125"
       },
       {
         "id": "996",
-        "name": "Left fibrous ring of heart",
+        "name": "Left Fibrous Ring of Heart",
         "topology": "CYST",
         "color": "#F5F5DC",
         "external": "FMA:77124"
@@ -3384,7 +3743,7 @@
       },
       {
         "id": "1000",
-        "name": "right ventricle",
+        "name": "Right Ventricle",
         "external": "FMA:7098",
         "scale": {
           "width": 80,
@@ -3394,7 +3753,7 @@
       },
       {
         "id": "1001",
-        "name": "right atrium",
+        "name": "Right Atrium",
         "external": "FMA:7096",
         "scale": {
           "width": 80,
@@ -3403,7 +3762,7 @@
       },
       {
         "id": "1002",
-        "name": "right auricle/atrial appendage",
+        "name": "Right Auricle/atrial Appendage",
         "external": "FMA:7218",
         "scale": {
           "width": 80,
@@ -3412,7 +3771,7 @@
       },
       {
         "id": "1003",
-        "name": "right inferior pulmonary vein",
+        "name": "Right Inferior Pulmonary Vein",
         "external": "FMA:49911",
         "scale": {
           "width": 80,
@@ -3421,12 +3780,12 @@
       },
       {
         "id": "1004",
-        "name": "right superior pulmonary vein",
+        "name": "Right Superior Pulmonary Vein",
         "external": "FMA:49914"
       },
       {
         "id": "1005",
-        "name": "right fibrous trigone",
+        "name": "Right Fibrous Trigone",
         "external": "FMA:9505",
         "scale": {
           "width": 80,
@@ -3435,7 +3794,7 @@
       },
       {
         "id": "1006",
-        "name": "right fibrous ring",
+        "name": "Right Fibrous Ring",
         "external": "FMA:77125",
         "scale": {
           "width": 80,
@@ -3444,7 +3803,7 @@
       },
       {
         "id": "1007",
-        "name": "right anterior papillary muscle",
+        "name": "Right Anterior Papillary Muscle",
         "external": "FMA:7260",
         "scale": {
           "width": 80,
@@ -3453,7 +3812,7 @@
       },
       {
         "id": "1008",
-        "name": "right posterior papillary muscle",
+        "name": "Right Posterior Papillary Muscle",
         "external": "FMA:7261",
         "scale": {
           "width": 80,
@@ -3462,7 +3821,7 @@
       },
       {
         "id": "1009",
-        "name": "right coronary outlet",
+        "name": "Right Coronary Outlet",
         "external": "FMA:50039",
         "scale": {
           "width": 80,
@@ -3471,7 +3830,7 @@
       },
       {
         "id": "1010",
-        "name": "left ventricle",
+        "name": "Left Ventricle",
         "external": "FMA:7101",
         "scale": {
           "width": 80,
@@ -3480,7 +3839,7 @@
       },
       {
         "id": "1011",
-        "name": "left atrium",
+        "name": "Left Atrium",
         "external": "FMA:7097",
         "scale": {
           "width": 80,
@@ -3489,7 +3848,7 @@
       },
       {
         "id": "1012",
-        "name": "left auricle/atrial appendage",
+        "name": "Left Auricle/atrial Appendage",
         "external": "FMA:7219",
         "scale": {
           "width": 80,
@@ -3498,7 +3857,7 @@
       },
       {
         "id": "1013",
-        "name": "left inferior pulmonary vein",
+        "name": "Left Inferior Pulmonary Vein",
         "external": "FMA:49913",
         "scale": {
           "width": 80,
@@ -3507,7 +3866,7 @@
       },
       {
         "id": "1014",
-        "name": "left superior pulmonary vein",
+        "name": "Left Superior Pulmonary Vein",
         "external": "FMA:49916",
         "scale": {
           "width": 80,
@@ -3516,7 +3875,7 @@
       },
       {
         "id": "1015",
-        "name": "left fibrous trigone",
+        "name": "Left Fibrous Trigone",
         "external": "FMA:9508",
         "scale": {
           "width": 80,
@@ -3525,7 +3884,7 @@
       },
       {
         "id": "1016",
-        "name": "left fibrous ring",
+        "name": "Left Fibrous Ring",
         "external": "FMA:77124",
         "scale": {
           "width": 80,
@@ -3534,7 +3893,7 @@
       },
       {
         "id": "1017",
-        "name": "left anterior papillary muscle",
+        "name": "Left Anterior Papillary Muscle",
         "external": "FMA:7264",
         "scale": {
           "width": 80,
@@ -3543,7 +3902,7 @@
       },
       {
         "id": "1018",
-        "name": "left posterior papillary muscle",
+        "name": "Left Posterior Papillary Muscle",
         "external": "FMA:7266",
         "scale": {
           "width": 80,
@@ -3552,7 +3911,7 @@
       },
       {
         "id": "1019",
-        "name": "left coronary outlet",
+        "name": "Left Coronary Outlet",
         "external": "FMA:50040",
         "scale": {
           "width": 80,
@@ -3561,7 +3920,7 @@
       },
       {
         "id": "1020",
-        "name": "apex of heart",
+        "name": "Apex of Heart",
         "external": "FMA:7164",
         "scale": {
           "width": 80,
@@ -3570,7 +3929,7 @@
       },
       {
         "id": "1021",
-        "name": "vortex of heart",
+        "name": "Vortex of Heart",
         "external": "FMA:84628",
         "scale": {
           "width": 80,
@@ -3579,7 +3938,7 @@
       },
       {
         "id": "1022",
-        "name": "root of aorta",
+        "name": "Root of Aorta",
         "external": "FMA:3740",
         "scale": {
           "width": 80,
@@ -3588,7 +3947,7 @@
       },
       {
         "id": "1023",
-        "name": "root of pulmonary trunk",
+        "name": "Root of Pulmonary Trunk",
         "external": "FMA:8612",
         "scale": {
           "width": 80,
@@ -3597,7 +3956,7 @@
       },
       {
         "id": "1024",
-        "name": "conus arteriosus (infundibulum)",
+        "name": "Conus Arteriosus (infundibulum)",
         "scale": {
           "width": 80,
           "height": 80
@@ -3605,7 +3964,7 @@
       },
       {
         "id": "1025",
-        "name": "coronary sulcus",
+        "name": "Coronary Sulcus",
         "external": "FMA:7174",
         "scale": {
           "width": 80,
@@ -3614,7 +3973,7 @@
       },
       {
         "id": "1026",
-        "name": "anterior interventricular sulcus",
+        "name": "Anterior Interventricular Sulcus",
         "external": "FMA:7177",
         "scale": {
           "width": 80,
@@ -3623,7 +3982,7 @@
       },
       {
         "id": "1027",
-        "name": "posterior interventricular sulcus",
+        "name": "Posterior Interventricular Sulcus",
         "external": "FMA:7178",
         "scale": {
           "width": 80,
@@ -3632,7 +3991,7 @@
       },
       {
         "id": "1028",
-        "name": "inferior vena cava inlet",
+        "name": "Inferior Vena Cava Inlet",
         "external": "FMA:10951",
         "scale": {
           "width": 80,
@@ -3641,7 +4000,7 @@
       },
       {
         "id": "1029",
-        "name": "superior vena cava inlet",
+        "name": "Superior Vena Cava Inlet",
         "external": "FMA:4720",
         "scale": {
           "width": 80,
@@ -3650,7 +4009,7 @@
       },
       {
         "id": "1030",
-        "name": "anterior cusp of pulmonary valve",
+        "name": "Anterior Cusp of Pulmonary Valve",
         "external": "FMA:7249",
         "scale": {
           "width": 80,
@@ -3659,7 +4018,7 @@
       },
       {
         "id": "1031",
-        "name": "left cusp of pulmonary valve",
+        "name": "Left Cusp of Pulmonary Valve",
         "external": "FMA:7247",
         "scale": {
           "width": 80,
@@ -3668,7 +4027,7 @@
       },
       {
         "id": "1032",
-        "name": "posterior cusp of pulmonary valve",
+        "name": "Posterior Cusp of Pulmonary Valve",
         "external": "FMA:7250",
         "scale": {
           "width": 80,
@@ -3677,7 +4036,7 @@
       },
       {
         "id": "1033",
-        "name": "anterior cusp of aortic valve",
+        "name": "Anterior Cusp of Aortic Valve",
         "external": "FMA:7253",
         "scale": {
           "width": 80,
@@ -3686,7 +4045,7 @@
       },
       {
         "id": "1034",
-        "name": "left cusp of aortic valve",
+        "name": "Left Cusp of Aortic Valve",
         "external": "FMA:7251",
         "scale": {
           "width": 80,
@@ -3695,7 +4054,7 @@
       },
       {
         "id": "1035",
-        "name": "right cusp of aortic valve",
+        "name": "Right Cusp of Aortic Valve",
         "external": "FMA:7252",
         "scale": {
           "width": 80,
@@ -3704,7 +4063,7 @@
       },
       {
         "id": "1036",
-        "name": "anterior cusp of tricuspid valve",
+        "name": "Anterior Cusp of Tricuspid Valve",
         "external": "FMA:7238",
         "scale": {
           "width": 80,
@@ -3713,7 +4072,7 @@
       },
       {
         "id": "1037",
-        "name": "posterior cusp of tricuspid valve",
+        "name": "Posterior Cusp of Tricuspid Valve",
         "external": "FMA:7239",
         "scale": {
           "width": 80,
@@ -3722,7 +4081,7 @@
       },
       {
         "id": "1038",
-        "name": "septal cusp of tricuspid valve",
+        "name": "Septal Cusp of Tricuspid Valve",
         "external": "FMA:7240",
         "scale": {
           "width": 80,
@@ -3731,7 +4090,7 @@
       },
       {
         "id": "1039",
-        "name": "anterior cusp of mitral valve",
+        "name": "Anterior Cusp of Mitral Valve",
         "external": "FMA:7242",
         "scale": {
           "width": 80,
@@ -3740,7 +4099,7 @@
       },
       {
         "id": "1040",
-        "name": "posterior cusp of mitral valve",
+        "name": "Posterior Cusp of Mitral Valve",
         "external": "FMA:7243",
         "scale": {
           "width": 80,
@@ -3749,7 +4108,7 @@
       },
       {
         "id": "1041",
-        "name": "terminal crest",
+        "name": "Terminal Crest",
         "scale": {
           "width": 80,
           "height": 80
@@ -3757,7 +4116,7 @@
       },
       {
         "id": "1042",
-        "name": "fossa ovalis",
+        "name": "Fossa Ovalis",
         "external": "FMA:9246",
         "scale": {
           "width": 80,
@@ -3766,7 +4125,7 @@
       },
       {
         "id": "1043",
-        "name": "interatrial septum",
+        "name": "Interatrial Septum",
         "external": "FMA:7108",
         "scale": {
           "width": 80,
@@ -3775,7 +4134,7 @@
       },
       {
         "id": "1044",
-        "name": "interventricular septum",
+        "name": "Interventricular Septum",
         "external": "FMA:7133",
         "scale": {
           "width": 80,
@@ -3784,7 +4143,7 @@
       },
       {
         "id": "1045",
-        "name": "Koch's triangle",
+        "name": "Koch's Triangle",
         "external": "FMA:77435",
         "scale": {
           "width": 80,
@@ -3793,7 +4152,7 @@
       },
       {
         "id": "1046",
-        "name": "coronary sinus inlet",
+        "name": "Coronary Sinus Inlet",
         "external": "FMA:4706",
         "scale": {
           "width": 80,
@@ -3802,7 +4161,7 @@
       },
       {
         "id": "1047",
-        "name": "SA node",
+        "name": "SA Node",
         "external": "FMA:9477",
         "scale": {
           "width": 80,
@@ -3811,7 +4170,7 @@
       },
       {
         "id": "1048",
-        "name": "AV node",
+        "name": "AV Node",
         "external": "FMA:9478",
         "scale": {
           "width": 80,
@@ -3822,11 +4181,11 @@
     "materials": [
       {
         "id": "9",
-        "name": "biological fluid"
+        "name": "Biological Fluid"
       },
       {
         "id": "13",
-        "name": "urinary fluid"
+        "name": "Urinary Fluid"
       },
       {
         "id": "18",
@@ -3835,7 +4194,7 @@
       },
       {
         "id": "22",
-        "name": "urinary filtrate",
+        "name": "Urinary Filtrate",
         "external": "FMA:280587"
       },
       {
@@ -3845,7 +4204,7 @@
       }
     ]
   },
-  "ependymal" : {
+  "ependymal": {
     "nodes": [
       {
         "id": "ta1",
@@ -3903,8 +4262,8 @@
         "id": "2a",
         "source": "t",
         "target": "ta1",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
         "reversed": true,
         "linkMethod": "Line2",
@@ -3914,10 +4273,10 @@
         "id": "2b",
         "source": "ta1",
         "target": "ta2",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
-        "reversed"  : true,
+        "reversed": true,
         "linkMethod": "Line2",
         "conveyingLyph": "147"
       },
@@ -3925,8 +4284,8 @@
         "id": "2c",
         "source": "ta2",
         "target": "a",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
         "reversed": true,
         "linkMethod": "Line2",
@@ -3936,8 +4295,8 @@
         "id": "3a",
         "source": "a",
         "target": "ah1",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
         "reversed": true,
         "linkMethod": "Line2",
@@ -3947,8 +4306,8 @@
         "id": "3b",
         "source": "ah1",
         "target": "ah2",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
         "reversed": true,
         "linkMethod": "Line2",
@@ -3969,8 +4328,8 @@
         "id": "3d",
         "source": "ah3",
         "target": "h",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
         "reversed": true,
         "linkMethod": "Line2",
@@ -3980,8 +4339,8 @@
         "id": "3e",
         "source": "a",
         "target": "ag1",
-        "name"  : "Ependymal",
-        "type"  : "link",
+        "name": "Ependymal",
+        "type": "link",
         "length": 5,
         "linkMethod": "Line2",
         "conveyingLyph": "157"
@@ -3999,32 +4358,60 @@
     ],
     "groups": [
       {
-        "id"       : "g1",
-        "name"     : "Neural system",
-        "entities" : ["152", "147", "142", "137", "132", "127", "122", "157", "162"]
+        "id": "g1",
+        "name": "Neural system",
+        "entities": [
+          "152",
+          "147",
+          "142",
+          "137",
+          "132",
+          "127",
+          "122",
+          "157",
+          "162"
+        ]
       },
       {
-        "id"       : "g2",
-        "name"     : "Neurons",
-        "entities" : []
+        "id": "g2",
+        "name": "Neurons",
+        "entities": []
       }
     ]
   },
   "cardiac": {
     "links": [
-      {"id": "lnkR_1_MCS", "conveyingLyph": "1000"},
-      {"id": "lnkR_1_MCP", "conveyingLyph": "1001"},
-      {"id": "lnkL_2_MCP", "conveyingLyph": "1022"},
-      {"id": "lnkR_2_MCS", "conveyingLyph": "1023"},
-      {"id": "lnkL_1_MCP", "conveyingLyph": "1010"},
-      {"id": "lnkL_1_MCS", "conveyingLyph": "1011"}
+      {
+        "id": "lnkR_1_MCS",
+        "conveyingLyph": "1000"
+      },
+      {
+        "id": "lnkR_1_MCP",
+        "conveyingLyph": "1001"
+      },
+      {
+        "id": "lnkL_2_MCP",
+        "conveyingLyph": "1022"
+      },
+      {
+        "id": "lnkR_2_MCS",
+        "conveyingLyph": "1023"
+      },
+      {
+        "id": "lnkL_1_MCP",
+        "conveyingLyph": "1010"
+      },
+      {
+        "id": "lnkL_1_MCS",
+        "conveyingLyph": "1011"
+      }
     ]
   },
   "spt": {
     "groups": [
       {
         "id": "TREE1",
-        "name": "Gracile tract 1st order sensory neuron Lower limb Spinal Cord Parenchyma layer CNS entrance neuron tree",
+        "name": "Gracile tract 1st order sensory neuron Lower Limb Spinal Cord Parenchyma layer CNS entrance neuron tree",
         "entities": [
           "V1",
           "V2",
@@ -4066,7 +4453,7 @@
       },
       {
         "id": "TREE3",
-        "name": "Anterolateral Spinothalamic tract 2nd order sensory neuron Dorsal horn Terminal Medulla Parenchyma layer Tubing neuron tree",
+        "name": "Anterolateral Spinothalamic tract 2nd order sensory neuron Dorsal Horn Spinal Cord Terminal Medulla Parenchyma layer Tubing neuron tree",
         "entities": [
           "V15",
           "V16",
@@ -4093,676 +4480,926 @@
         "id": "V1",
         "source": "N1",
         "target": "N4",
-        "name": "Lower limb - Spinal Cord Parenchyma layer CNS entrance",
-        "conveyingLyph": "L6"
+        "name": "Lower Limb - Spinal Cord Parenchyma layer CNS entrance",
+        "conveyingLyph": "L12"
       },
       {
         "id": "V2",
         "source": "N1",
         "target": "N2",
-        "name": "Dorsal Root Ganglion Soma - Lower limb Neural Tubing link",
-        "conveyingLyph": "L5"
+        "name": "Dorsal Root Ganglion Soma - Lower Limb Neural Tubing link",
+        "conveyingLyph": "L8"
       },
       {
         "id": "V3",
         "source": "N2",
         "target": "N3",
         "name": "Tubing - Terminal link",
-        "conveyingLyph": "L1"
+        "conveyingLyph": "L4"
       },
       {
         "id": "V4",
         "source": "N4",
         "target": "N5",
         "name": "Dorsal Root Ganglion Soma - Spinal Cord Parenchyma layer CNS entrance Tubing Neural link",
-        "conveyingLyph": "L10"
+        "conveyingLyph": "L16"
       },
       {
         "id": "V5",
         "source": "N5",
         "target": "N6",
         "name": "Spinal Cord CNS entrance - Medulla link",
-        "conveyingLyph": "L11"
+        "conveyingLyph": "L20"
       },
       {
         "id": "V6",
         "source": "N6",
         "target": "N7",
-        "name": "Medulla Parenchyma layer - nucleus link",
-        "conveyingLyph": "L12"
+        "name": "Parenchyma layer - Nucleus link",
+        "conveyingLyph": "L24"
       },
       {
         "id": "V7",
         "source": "N7",
         "target": "N8",
         "name": "Tubing - Terminal link",
-        "conveyingLyph": "L13"
+        "conveyingLyph": "L28"
       },
       {
         "id": "V8",
         "source": "N9",
         "target": "N12",
         "name": "Skin - ",
-        "conveyingLyph": "L22"
+        "conveyingLyph": "L40"
       },
       {
         "id": "V9",
         "source": "N9",
         "target": "N10",
         "name": "Dorsal Root Ganglion Soma - Skin Neural Tubing link",
-        "conveyingLyph": "L21"
+        "conveyingLyph": "L36"
       },
       {
         "id": "V10",
         "source": "N10",
         "target": "N11",
         "name": "Tubing - Terminal link",
-        "conveyingLyph": "L17"
+        "conveyingLyph": "L32"
       },
       {
         "id": "V11",
         "source": "N12",
         "target": "N13",
         "name": "Soma - Neural Tubing link",
-        "conveyingLyph": "L26"
+        "conveyingLyph": "L44"
       },
       {
         "id": "V12",
         "source": "N13",
         "target": "N14",
         "name": "Dorsal Root Ganglion - Spinal Cord Parenchyma layer link",
-        "conveyingLyph": "L27"
+        "conveyingLyph": "L48"
       },
       {
         "id": "V13",
         "source": "N14",
         "target": "N15",
-        "name": "Spinal Cord Parenchyma layer - Dorsal horn link",
-        "conveyingLyph": "L28"
+        "name": "Parenchyma layer - Dorsal Horn link",
+        "conveyingLyph": "L52"
       },
       {
         "id": "V14",
         "source": "N15",
         "target": "N16",
         "name": "Tubing - Terminal link",
-        "conveyingLyph": "L29"
+        "conveyingLyph": "L56"
       },
       {
         "id": "V15",
         "source": "N17",
         "target": "N19",
         "name": "Terminal - Medulla Parenchyma layer Tubing",
-        "conveyingLyph": "L37"
+        "conveyingLyph": "L64"
       },
       {
         "id": "V16",
         "source": "N17",
         "target": "N18",
         "name": "Soma - Neural Terminal link",
-        "conveyingLyph": "L33"
+        "conveyingLyph": "L60"
       },
       {
         "id": "V17",
         "source": "N19",
         "target": "N20",
-        "name": "Dorsal horn Soma - Medulla Parenchyma layer Neural Tubing link",
-        "conveyingLyph": "L41"
+        "name": "Dorsal Horn Spinal Cord Soma - Medulla Parenchyma layer Neural Tubing link",
+        "conveyingLyph": "L68"
       },
       {
         "id": "V18",
         "source": "N20",
         "target": "N21",
         "name": "Medulla - Pons link",
-        "conveyingLyph": "L42"
+        "conveyingLyph": "L72"
       },
       {
         "id": "V19",
         "source": "N21",
         "target": "N22",
         "name": "Pons - Midbrain link",
-        "conveyingLyph": "L43"
+        "conveyingLyph": "L76"
       },
       {
         "id": "V20",
         "source": "N22",
         "target": "N23",
-        "name": "Midbrain - Thalamic complex link",
-        "conveyingLyph": "L44"
+        "name": "Midbrain - Thalamus link",
+        "conveyingLyph": "L80"
       },
       {
         "id": "V21",
         "source": "N23",
         "target": "N24",
-        "name": "Thalamic complex Parenchyma layer - Ventral posterolateral nucleus link",
-        "conveyingLyph": "L45"
+        "name": "Parenchyma layer - Ventral Posterolateral Nucleus link",
+        "conveyingLyph": "L84"
       },
       {
         "id": "V22",
         "source": "N24",
         "target": "N25",
         "name": "Tubing - Terminal link",
-        "conveyingLyph": "L46"
+        "conveyingLyph": "L88"
       }
     ],
     "nodes": [
       {
         "id": "N1",
-        "source": "V1",
-        "target": "V2",
         "name": "Dorsal Root Ganglion Soma node"
       },
       {
         "id": "N2",
-        "source": "V2",
-        "target": "V3",
-        "name": "Lower limb Neural Tubing node"
+        "name": "Lower Limb Neural Tubing node"
       },
       {
         "id": "N3",
-        "source": "V3",
-        "target": "",
         "name": "Terminal node"
       },
       {
         "id": "N4",
-        "source": "V1",
-        "target": "V4",
         "name": "Dorsal Root Ganglion Soma node"
       },
       {
         "id": "N5",
-        "source": "V4",
-        "target": "V5",
         "name": "Spinal Cord Parenchyma layer CNS entrance Tubing Neural node"
       },
       {
         "id": "N6",
-        "source": "V5",
-        "target": "V6",
         "name": "Medulla node"
       },
       {
         "id": "N7",
-        "source": "V6",
-        "target": "V7",
-        "name": "nucleus node"
+        "name": "Nucleus node"
       },
       {
         "id": "N8",
-        "source": "V7",
-        "target": "",
         "name": "Terminal node"
       },
       {
         "id": "N9",
-        "source": "V8",
-        "target": "V9",
         "name": "Dorsal Root Ganglion Soma node"
       },
       {
         "id": "N10",
-        "source": "V9",
-        "target": "V10",
         "name": "Skin Neural Tubing node"
       },
       {
         "id": "N11",
-        "source": "V10",
-        "target": "",
         "name": "Terminal node"
       },
       {
         "id": "N12",
-        "source": "V8",
-        "target": "V11",
         "name": "Soma node"
       },
       {
         "id": "N13",
-        "source": "V11",
-        "target": "V12",
         "name": "Neural Tubing node"
       },
       {
         "id": "N14",
-        "source": "V12",
-        "target": "V13",
         "name": "Spinal Cord Parenchyma layer node"
       },
       {
         "id": "N15",
-        "source": "V13",
-        "target": "V14",
-        "name": "Dorsal horn node"
+        "name": "Dorsal Horn node"
       },
       {
         "id": "N16",
-        "source": "V14",
-        "target": "",
         "name": "Terminal node"
       },
       {
         "id": "N17",
-        "source": "V15",
-        "target": "V16",
         "name": "Soma node"
       },
       {
         "id": "N18",
-        "source": "V16",
-        "target": "",
         "name": "Neural Terminal node"
       },
       {
         "id": "N19",
-        "source": "V15",
-        "target": "V17",
-        "name": "Dorsal horn Soma node"
+        "name": "Dorsal Horn Spinal Cord Soma node"
       },
       {
         "id": "N20",
-        "source": "V17",
-        "target": "V18",
         "name": "Medulla Parenchyma layer Neural Tubing node"
       },
       {
         "id": "N21",
-        "source": "V18",
-        "target": "V19",
         "name": "Pons node"
       },
       {
         "id": "N22",
-        "source": "V19",
-        "target": "V20",
         "name": "Midbrain node"
       },
       {
         "id": "N23",
-        "source": "V20",
-        "target": "V21",
-        "name": "Thalamic complex node"
+        "name": "Thalamus node"
       },
       {
         "id": "N24",
-        "source": "V21",
-        "target": "V22",
-        "name": "Ventral posterolateral nucleus node"
+        "name": "Ventral Posterolateral Nucleus node"
       },
       {
         "id": "N25",
-        "source": "V22",
-        "target": "",
         "name": "Terminal node"
       }
     ],
     "lyphs": [
       {
         "id": "L1",
-        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph",
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Terminal Lyph - Cytosol layer",
         "topology": "BAG"
       },
       {
         "id": "L2",
-        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Terminal Lyph - Plasma Membrane layer",
         "topology": "BAG"
       },
       {
         "id": "L3",
-        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
         "topology": "BAG"
       },
       {
         "id": "L4",
-        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG",
+        "layers": [
+          "L1",
+          "L2",
+          "L3"
+        ]
       },
       {
         "id": "L5",
-        "name": "Gracile tract of Lower limb - 1st order sensory neuron - Neural Tubing Lyph",
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
         "topology": "TUBE"
       },
       {
         "id": "L6",
-        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph",
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
         "topology": "TUBE"
       },
       {
         "id": "L7",
-        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CT layer",
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
         "topology": "TUBE"
       },
       {
         "id": "L8",
-        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - PLASMA MEMBRANE layer",
-        "topology": "TUBE"
+        "name": "Gracile tract of Lower Limb - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L5",
+          "L6",
+          "L7"
+        ]
       },
       {
         "id": "L9",
-        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CYTOSOL layer",
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - Cytosol layer",
         "topology": "TUBE"
       },
       {
         "id": "L10",
-        "name": "Gracile tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - CNS entrance Tubing Neural Lyph"
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L11",
-        "name": "Gracile tract of Medulla - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph",
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CT layer",
         "topology": "TUBE"
       },
       {
         "id": "L12",
-        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Tubing Lyph",
-        "topology": "TUBE"
+        "name": "Gracile tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L9",
+          "L10",
+          "L11"
+        ]
       },
       {
         "id": "L13",
-        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph",
-        "topology": "BAG"
+        "name": "Gracile tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - CNS entrance Tubing Neural Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L14",
-        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - CNS entrance Tubing Neural Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L15",
-        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - CNS entrance Tubing Neural Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L16",
-        "name": "Gracile tract of Gracile nucleus - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - CNS entrance Tubing Neural Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L13",
+          "L14",
+          "L15"
+        ]
       },
       {
         "id": "L17",
-        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph",
-        "topology": "BAG"
+        "name": "Gracile tract of Medulla - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L18",
-        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Medulla - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L19",
-        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Medulla - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L20",
-        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
-        "topology": "BAG"
+        "name": "Gracile tract of Medulla - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L17",
+          "L18",
+          "L19"
+        ]
       },
       {
         "id": "L21",
-        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Tubing Lyph",
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
         "topology": "TUBE"
       },
       {
         "id": "L22",
-        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph",
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
         "topology": "TUBE"
       },
       {
         "id": "L23",
-        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CT layer",
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
         "topology": "TUBE"
       },
       {
         "id": "L24",
-        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - PLASMA MEMBRANE layer",
-        "topology": "TUBE"
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L21",
+          "L22",
+          "L23"
+        ]
       },
       {
         "id": "L25",
-        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CYTOSOL layer",
-        "topology": "TUBE"
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Terminal Lyph - Cytosol layer",
+        "topology": "BAG"
       },
       {
         "id": "L26",
-        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Neural Tubing Lyph",
-        "topology": "TUBE"
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Terminal Lyph - Plasma Membrane layer",
+        "topology": "BAG"
       },
       {
         "id": "L27",
-        "name": "Anterolateral Spinothalamic tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph",
-        "topology": "TUBE"
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
       },
       {
         "id": "L28",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Tubing Lyph",
-        "topology": "TUBE"
+        "name": "Gracile tract of Gracile Nucleus of Medulla - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG",
+        "layers": [
+          "L25",
+          "L26",
+          "L27"
+        ]
       },
       {
         "id": "L29",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - Cytosol layer",
         "topology": "BAG"
       },
       {
         "id": "L30",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - Plasma Membrane layer",
         "topology": "BAG"
       },
       {
         "id": "L31",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
         "topology": "BAG"
       },
       {
         "id": "L32",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 1st order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG",
+        "layers": [
+          "L29",
+          "L30",
+          "L31"
+        ]
       },
       {
         "id": "L33",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L34",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph - CT layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L35",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L36",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Skin - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L33",
+          "L34",
+          "L35"
+        ]
       },
       {
         "id": "L37",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - Cytosol layer",
         "topology": "TUBE"
       },
       {
         "id": "L38",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph - CT layer",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - Plasma Membrane layer",
         "topology": "TUBE"
       },
       {
         "id": "L39",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph - PLASMA MEMBRANE layer",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph - CT layer",
         "topology": "TUBE"
       },
       {
         "id": "L40",
-        "name": "Anterolateral Spinothalamic tract of Dorsal horn - 2nd order sensory neuron - Soma Lyph - CYTOSOL layer",
-        "topology": "TUBE"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Soma Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L37",
+          "L38",
+          "L39"
+        ]
       },
       {
         "id": "L41",
-        "name": "Anterolateral Spinothalamic tract of Medulla - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
         "topology": "TUBE"
       },
       {
         "id": "L42",
-        "name": "Anterolateral Spinothalamic tract of Pons - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
         "topology": "TUBE"
       },
       {
         "id": "L43",
-        "name": "Anterolateral Spinothalamic tract of Midbrain - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
         "topology": "TUBE"
       },
       {
         "id": "L44",
-        "name": "Anterolateral Spinothalamic tract of Thalamic complex - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
-        "topology": "TUBE"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Root Ganglion - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L41",
+          "L42",
+          "L43"
+        ]
       },
       {
         "id": "L45",
-        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Tubing Lyph",
+        "name": "Anterolateral Spinothalamic tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
         "topology": "TUBE"
       },
       {
         "id": "L46",
-        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L47",
-        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph - CT layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L48",
-        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph - PLASMA MEMBRANE layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Spinal Cord - Parenchyma layer - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L45",
+          "L46",
+          "L47"
+        ]
       },
       {
         "id": "L49",
-        "name": "Anterolateral Spinothalamic tract of Ventral posterolateral nucleus - 2nd order sensory neuron - Neural Terminal Lyph - CYTOSOL layer",
-        "topology": "BAG"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L50",
-        "name": "Ventral posterolateral nucleus"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L51",
-        "name": "Gracile nucleus"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L52",
-        "name": "Dorsal horn"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L49",
+          "L50",
+          "L51"
+        ]
       },
       {
         "id": "L53",
-        "name": "Gracile tract"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Terminal Lyph - Cytosol layer",
+        "topology": "BAG"
       },
       {
         "id": "L54",
-        "name": "Anterolateral Spinothalamic tract"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Terminal Lyph - Plasma Membrane layer",
+        "topology": "BAG"
       },
       {
         "id": "L55",
-        "name": "Thalamic complex"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
       },
       {
         "id": "L56",
-        "name": "Thalamic complex - Parenchyma layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 1st order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG",
+        "layers": [
+          "L53",
+          "L54",
+          "L55"
+        ]
       },
       {
         "id": "L57",
-        "name": "Thalamic complex - Ependymal layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Neural Terminal Lyph - Cytosol layer",
+        "topology": "BAG"
       },
       {
         "id": "L58",
-        "name": "Thalamic complex - CSF layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Neural Terminal Lyph - Plasma Membrane layer",
+        "topology": "BAG"
       },
       {
         "id": "L59",
-        "name": "Medulla"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
       },
       {
         "id": "L60",
-        "name": "Medulla - Parenchyma layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG",
+        "layers": [
+          "L57",
+          "L58",
+          "L59"
+        ]
       },
       {
         "id": "L61",
-        "name": "Medulla - Ependymal layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Soma Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L62",
-        "name": "Medulla - CSF layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Soma Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L63",
-        "name": "Spinal Cord"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Soma Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L64",
-        "name": "Spinal Cord - Parenchyma layer"
+        "name": "Anterolateral Spinothalamic tract of Dorsal Horn of Spinal Cord - 2nd order sensory neuron - Soma Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L61",
+          "L62",
+          "L63"
+        ]
       },
       {
         "id": "L65",
-        "name": "Spinal Cord - Ependymal layer"
+        "name": "Anterolateral Spinothalamic tract of Medulla - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L66",
-        "name": "Spinal Cord - CSF layer"
+        "name": "Anterolateral Spinothalamic tract of Medulla - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L67",
-        "name": "Skin"
+        "name": "Anterolateral Spinothalamic tract of Medulla - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L68",
-        "name": "Dorsal Root Ganglion"
+        "name": "Anterolateral Spinothalamic tract of Medulla - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L65",
+          "L66",
+          "L67"
+        ]
       },
       {
         "id": "L69",
-        "name": "Pons"
+        "name": "Anterolateral Spinothalamic tract of Pons - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L70",
-        "name": "Pons - Parenchyma layer"
+        "name": "Anterolateral Spinothalamic tract of Pons - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L71",
-        "name": "Pons - Ependymal layer"
+        "name": "Anterolateral Spinothalamic tract of Pons - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L72",
-        "name": "Pons - CSF layer"
+        "name": "Anterolateral Spinothalamic tract of Pons - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L69",
+          "L70",
+          "L71"
+        ]
       },
       {
         "id": "L73",
-        "name": "Midbrain"
+        "name": "Anterolateral Spinothalamic tract of Midbrain - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L74",
-        "name": "Midbrain - Parenchyma layer"
+        "name": "Anterolateral Spinothalamic tract of Midbrain - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L75",
-        "name": "Midbrain - Ependymal layer"
+        "name": "Anterolateral Spinothalamic tract of Midbrain - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L76",
-        "name": "Midbrain - CSF layer"
+        "name": "Anterolateral Spinothalamic tract of Midbrain - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L73",
+          "L74",
+          "L75"
+        ]
       },
       {
         "id": "L77",
-        "name": "Peripheral Nervous System"
+        "name": "Anterolateral Spinothalamic tract of Thalamus - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
       },
       {
         "id": "L78",
-        "name": "Central Nervous System"
+        "name": "Anterolateral Spinothalamic tract of Thalamus - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
       },
       {
         "id": "L79",
-        "name": "Lower limb"
+        "name": "Anterolateral Spinothalamic tract of Thalamus - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
       },
       {
         "id": "L80",
+        "name": "Anterolateral Spinothalamic tract of Thalamus - Parenchyma layer - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L77",
+          "L78",
+          "L79"
+        ]
+      },
+      {
+        "id": "L81",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Tubing Lyph - Cytosol layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L82",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Tubing Lyph - Plasma Membrane layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L83",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Tubing Lyph - CT layer",
+        "topology": "TUBE"
+      },
+      {
+        "id": "L84",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Tubing Lyph",
+        "topology": "TUBE",
+        "layers": [
+          "L81",
+          "L82",
+          "L83"
+        ]
+      },
+      {
+        "id": "L85",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Terminal Lyph - Cytosol layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L86",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Terminal Lyph - Plasma Membrane layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L87",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Terminal Lyph - CT layer",
+        "topology": "BAG"
+      },
+      {
+        "id": "L88",
+        "name": "Anterolateral Spinothalamic tract of Ventral Posterolateral Nucleus of Thalamus - 2nd order sensory neuron - Neural Terminal Lyph",
+        "topology": "BAG",
+        "layers": [
+          "L85",
+          "L86",
+          "L87"
+        ]
+      },
+      {
+        "id": "L92",
+        "name": "Gracile tract"
+      },
+      {
+        "id": "L93",
+        "name": "Anterolateral Spinothalamic tract"
+      },
+      {
+        "id": "L94",
+        "name": "Thalamus"
+      },
+      {
+        "id": "L96",
+        "name": "Thalamus - Ependymal layer"
+      },
+      {
+        "id": "L97",
+        "name": "Thalamus - CSF layer"
+      },
+      {
+        "id": "L98",
+        "name": "Medulla"
+      },
+      {
+        "id": "L100",
+        "name": "Medulla - Ependymal layer"
+      },
+      {
+        "id": "L101",
+        "name": "Medulla - CSF layer"
+      },
+      {
+        "id": "L102",
+        "name": "Spinal Cord"
+      },
+      {
+        "id": "L104",
+        "name": "Spinal Cord - Ependymal layer"
+      },
+      {
+        "id": "L105",
+        "name": "Spinal Cord - CSF layer"
+      },
+      {
+        "id": "L107",
+        "name": "Dorsal Root Ganglion",
+        "internalNodes": [
+          "N12"
+        ],
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N13"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "L108",
+        "name": "Pons"
+      },
+      {
+        "id": "L110",
+        "name": "Pons - Ependymal layer"
+      },
+      {
+        "id": "L111",
+        "name": "Pons - CSF layer"
+      },
+      {
+        "id": "L112",
+        "name": "Midbrain"
+      },
+      {
+        "id": "L114",
+        "name": "Midbrain - Ependymal layer"
+      },
+      {
+        "id": "L115",
+        "name": "Midbrain - CSF layer"
+      },
+      {
+        "id": "L116",
+        "name": "Peripheral Nervous System"
+      },
+      {
+        "id": "L117",
+        "name": "Central Nervous System"
+      },
+      {
+        "id": "L118",
+        "name": "Lower Limb",
+        "border": {
+          "borders": [
+            {},
+            {},
+            {},
+            {
+              "hostedNodes": [
+                "N2"
+              ]
+            }
+          ]
+        },
+        "internalNodes": [
+          "N3"
+        ]
+      },
+      {
+        "id": "L119",
         "name": "Nervous System"
       }
     ]
