@@ -394,10 +394,6 @@
           ],
           "default": {}
         },
-        "isContainer": {
-          "description": "Defines whether the lyph works as container, i.e., other lyphs are projected on it",
-          "type": "boolean"
-        },
         "infoFields": {
           "default": {
             "text": [
@@ -492,6 +488,20 @@
               },
               {
                 "$ref": "#/definitions/Node"
+              }
+            ]
+          }
+        },
+        "hostedLyphs": {
+          "description": "Lyphs that should be projected to the given lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
               }
             ]
           }

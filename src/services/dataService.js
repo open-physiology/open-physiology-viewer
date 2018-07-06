@@ -22,31 +22,27 @@ const colors = [...schemePaired, ...schemeDark2];
 export class DataService{
     _entitiesByID = {};
 
+    /**
+     * Prepare core ApiNATOMY graph
+     */
     init(){
-        /**
-         * Prepare core ApiNATOMY graph
-         */
 
         //Set visual parameters for neuron trees
         spt.nodes = spt.nodes.map(e =>
             e::merge({
                 "val": 0.5,
                 "color": "#666",
-                "layout": {"z": 0},
                 "skipLabel": true
             }));
 
         spt.links = spt.links.map(e =>
             e::merge({
                 "linkMethod": "Line2",
-                "linewidth" : 0.001,
-                "length": 2
+                "linewidth" : 0.002
             }));
 
         spt.lyphs = spt.lyphs.map(e =>
-            e::merge({
-                "scale": {"width": 95, "height": 95}
-            }));
+            e::merge({ "scale": {"width": 95, "height": 95} }));
 
         this._graphData = {
             id: "graph1",
@@ -58,7 +54,6 @@ export class DataService{
         };
 
         this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
-
 
         let groupsByName = {};
         this._graphData.groups.forEach(g => groupsByName[g.name] = g);
@@ -87,12 +82,11 @@ export class DataService{
             let res = this._graphData.links.find(link => link.conveyingLyph &&
             (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
             if (!res) {
-                const hasLayer = (lyph, layerID) => {
-                    return (lyph.layers || []).find(layer => (layer === layerID || layer.id === layerID))
-                };
-                //For lyphs which are layers, return parent's link (does not work for ID's)
-                res = this._graphData.links.find(link => link.conveyingLyph
-                && hasLayer(link.conveyingLyph) && hasLayer(link.conveyingLyph, lyphID))
+                const hasLayer = (lyph, layerID) =>
+                    (this._graphData.lyphs.find(e => e.id === lyph).layers||[])
+                        .find(layer => layer === layerID);
+                //For lyphs which are layers, return parent's link
+                res = this._graphData.links.find(link => link.conveyingLyph && hasLayer(link.conveyingLyph, lyphID));
             }
             return res;
         };
@@ -101,6 +95,7 @@ export class DataService{
             let newGroupIDs = [];
             lyph.internalLyphs.forEach(innerLyphID => {
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
+                innerLyph.scale = {"height": 100,"width": 50};
                 if (innerLyph) { innerLyph.belongsToLyph = lyph; }
                 let [sNode, tNode] = ["s", "t"].map(prefix => ({
                     "id"       : `${prefix}${innerLyphID}`,
@@ -114,11 +109,13 @@ export class DataService{
                     newGroupIDs.push(node.id);
                 });
 
+                let axis = getLinkByLyphID(lyph.id);
+
                 let link = {
                     "id"            : 'lnk' + (this._graphData.links.length + 1).toString(),
                     "source"        : sNode,
                     "target"        : tNode,
-                    "length"        : 2,
+                    "length"        : axis? axis.length * 0.8: 5,
                     "type"          : LINK_TYPES.INVISIBLE,
                     "color"         : "#ccc",
                     "conveyingLyph" : innerLyphID
@@ -142,17 +139,17 @@ export class DataService{
             let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph::merge({
                 color: "#aaa",
-                scale: { width: 100 * ependymalLyph.layers.length, height: 95 }
+                scale: { width: 100 * ependymalLyph.layers.length, height: 100 }
             });
             let outerLayer = this._graphData.lyphs.find(lyph => lyph.id === ependymalLyph.layers[ependymalLyph.layers.length - 1]);
-            if (outerLayer){ outerLayer.layerWidth = 60; }
+            if (outerLayer){ outerLayer.layerWidth = 80; }
             colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
         });
 
         //TODO Note that only group entities defined by ID are converted to model objects
 
         //Include relevant entities to the neural system group
-        this._graphData.lyphs.filter(lyph => lyph.internalLyphs && !getLinkByLyphID(lyph.id)).forEach(lyph => {
+        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
             groupsByName["Neurons"].entities = [...groupsByName["Neurons"].entities, ...createInternalLyphs(lyph)];
         });
 
