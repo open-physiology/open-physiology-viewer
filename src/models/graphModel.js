@@ -23,6 +23,14 @@ export class Graph extends Entity {
         return super.fromJSON(json, modelClasses, entitiesByID);
     }
 
+    get entities(){
+        return [...(this._allNodes||[]), ...(this._allLinks||[]), ...(this.lyphs||[])];
+    }
+
+    belongsTo(entity){
+        return this.entities.find(e => (e === entity) || (e.id === entity.id && e.class === entity.class));
+    }
+
     set links(newLinks){
         this._links = newLinks;
         this._allLinks = this._links;

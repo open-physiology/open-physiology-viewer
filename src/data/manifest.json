@@ -1,6 +1,42 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
   "definitions": {
+    "InterpolateColorScheme": {
+      "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
+      "type": "string",
+      "enum": [
+        "interpolateBrBG",
+        "interpolatePRGn",
+        "interpolatePiYG",
+        "interpolatePuOr",
+        "interpolateRdBu",
+        "interpolateRdGy",
+        "interpolateRdYlBu",
+        "interpolateRdYlGn",
+        "interpolateSpectral",
+        "interpolateBuGn",
+        "interpolateBuPu",
+        "interpolateGnBu",
+        "interpolateOrRd",
+        "interpolatePuBuGn",
+        "interpolatePuBu",
+        "interpolatePuRd",
+        "interpolateRdPu",
+        "interpolateYlGnBu",
+        "interpolateYlGn",
+        "interpolateYlOrBr",
+        "interpolateYlOrRd",
+        "interpolateBlues",
+        "interpolateGreens",
+        "interpolateGreys",
+        "interpolatePurples",
+        "interpolateReds",
+        "interpolateOranges",
+        "interpolateCubehelixDefault",
+        "interpolateRainbow",
+        "interpolateViridis"
+      ]
+    },
     "Entity": {
       "description": "Generic abstract entity defines common properties for all elements in ApiNATOMY circuitboards",
       "type": "object",
@@ -21,8 +57,7 @@
             "Lyph",
             "Link",
             "Node",
-            "Border",
-            "Group"
+            "Border"
           ]
         },
         "color": {
@@ -45,7 +80,7 @@
                 "type": "string"
               },
               {
-                "$ref": "#/definitions/Entity"
+                "$ref": "#/definitions/Graph"
               }
             ]
           },
@@ -560,7 +595,7 @@
           "description": "A set of lyphs to coalesce with",
           "type": "array",
           "items": {
-            "anyOf":[
+            "anyOf": [
               {
                 "type": "string"
               },
@@ -635,28 +670,6 @@
         }
       }
     },
-    "Group": {
-      "description": "Group of entities with common properties and/or behavior",
-      "extends": {
-        "$ref": "#/definitions/Entity"
-      },
-      "properties": {
-        "entities": {
-          "description": "Entities in the group",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Entity"
-              }
-            ]
-          }
-        }
-      }
-    },
     "Graph": {
       "description": "Data model for the force-directed graph shown by the ApiNATOMY lyph viewer",
       "extends": {
@@ -667,36 +680,75 @@
           "description": "Graph nodes",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Node"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
           }
         },
         "links": {
           "description": "Graph links",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Link"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
           }
         },
         "materials": {
           "description": "All materials in the model",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Material"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
           }
         },
         "lyphs": {
           "description": "All lyphs in the model",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Lyph"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
           }
         },
         "groups": {
           "description": "Groups of entities in the graph that can be hidden and shown again",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Group"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Graph"
+              }
+            ]
           }
+        },
+        "lyphColorScheme": {
+          "description": "Interpolation scheme to apply to group lyphs",
+          "$ref": "#/definitions/InterpolateColorScheme"
         }
       }
     }

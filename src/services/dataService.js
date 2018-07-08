@@ -1,14 +1,12 @@
-import { core, ependymal, cardiac, spt } from '../data/graph.json';
-import { omega } from '../data/links.json'; //TODO map the data from this file into ApiNATOMY model
+import { core, ependymal, omega, cardiac, spt } from '../data/graph.json';
 
 import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
-import { schemePaired, schemeDark2, interpolateReds, interpolateGreens,
-    interpolateBlues, interpolateRdPu, interpolateOranges } from 'd3-scale-chromatic';
+import * as colorSchemes from 'd3-scale-chromatic';
 import { Graph } from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/utils';
 
-const colors = [...schemePaired, ...schemeDark2];
+const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 //TODO process materials
 
 /**
@@ -17,6 +15,7 @@ const colors = [...schemePaired, ...schemeDark2];
  * 2. Nervous system
  * 3. Kidney subsystems https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
  * 4. Cardiac subsystems
+ * 5. Spinatholamic tracts
  * ...
  */
 export class DataService{
@@ -26,50 +25,11 @@ export class DataService{
      * Prepare core ApiNATOMY graph
      */
     init(){
-
-        //Set visual parameters for neuron trees
-        spt.nodes = spt.nodes.map(e =>
-            e::merge({
-                "val": 0.5,
-                "color": "#666",
-                "skipLabel": true
-            }));
-
-        spt.links = spt.links.map(e =>
-            e::merge({
-                "linkMethod": "Line2",
-                "linewidth" : 0.002
-            }));
-
-        spt.lyphs = spt.lyphs.map(e =>
-            e::merge({ "scale": {"width": 95, "height": 95} }));
-
-        this._graphData = {
-            id: "graph1",
-            nodes : [...core.nodes, ...ependymal.nodes, ...spt.nodes]::cloneDeep(),
-            links : [...core.links, ...ependymal.links, ...cardiac.links, ...spt.links]::cloneDeep(),
-            lyphs : [...core.lyphs, ...spt.lyphs]::cloneDeep(),
-            groups: [...core.groups, ...ependymal.groups, ...spt.groups]::cloneDeep(),
-            materials: [...core.materials]::cloneDeep()
-        };
-
-        this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
-
-        let groupsByName = {};
-        this._graphData.groups.forEach(g => groupsByName[g.name] = g);
-
         /////////////////////////////////////////////////////////////////////
         //Helper functions
 
         const addColor = (array, defaultColor) => array.filter(obj => !obj.color)
-                .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
-
-        const colorLyphs = (lyphs, colorFn) => {
-            lyphs.forEach((lyphID, i) =>{
-                let lyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
-                lyph.color = colorFn(0.25 + i / lyphs.length);
-            });
-        };
+            .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
 
         const colorLyphsExt = (lyphs, colorFn, numColors, reversed = false) => {
             lyphs.forEach((lyphID, i) =>{
@@ -91,8 +51,73 @@ export class DataService{
             return res;
         };
 
+        const assignGroupProperties = groups => {
+            groups.forEach(group => {
+                (group.assign||[])::keys().forEach(property => {
+                    if (group.assign[property] && this._graphData[property]) {
+                        group[property].map(id => this._graphData[property].find(e => e.id === id)).forEach(e =>
+                            e::merge(group.assign[property]));
+                    }
+                });
+                if (group.lyphColorScheme) {
+                    if (colorSchemes[group.lyphColorScheme]){
+                        let links = group.links.map(e => this._graphData.links.find(lnk => lnk.id === e));
+                        let lyphs = links.filter(lnk => lnk.conveyingLyph)
+                            .map(lnk => this._graphData.lyphs.find(lyph => lyph.id === lnk.conveyingLyph));
+                        lyphs.forEach((e, i) =>
+                            e.color = colorSchemes[group.lyphColorScheme](0.25 + i / lyphs.length)
+                        );
+                    } else { console.warn("Unrecognized color scheme: ", group.lyphColorScheme); }
+                }
+            });
+        };
+
+        ///////////////////////////////////////////////////////////////////////
+        //Assemble graph
+
+        //Set visual parameters for neuron trees
+        //TODO - move this to "assign" properties of groups/graphs
+        spt.nodes.forEach(e =>
+            e::merge({
+                "val": 0.5,
+                "color": "#666",
+                "skipLabel": true
+            }));
+
+        spt.links.forEach(e =>
+            e::merge({
+                "linkMethod": "Line2",
+                "linewidth" : 0.002
+            }));
+
+        spt.lyphs.forEach(e => e::merge({ "scale": {"width": 95, "height": 95} }));
+
+        //Omega trees - combine individual trees to one group
+        let omegaTree = core.groups.find(g => g.name === "Omega trees");
+        omegaTree.links = [].concat(...omega.groups.map(g => g.links));
+        omegaTree.nodes = [].concat(...omega.groups.map(g => g.nodes));
+
+        this._graphData = {
+            id: "graph1",
+            nodes : [...core.nodes, ...ependymal.nodes, ...omega.nodes, ...spt.nodes]::cloneDeep(),
+            links : [...core.links, ...ependymal.links, ...omega.links, ...cardiac.links, ...spt.links]::cloneDeep(),
+            lyphs : [...core.lyphs, ...spt.lyphs]::cloneDeep(),
+            groups: [...core.groups, ...ependymal.groups, ...spt.groups]::cloneDeep(),
+            materials: [...core.materials]::cloneDeep()
+        };
+
+
+        //Assign group properties
+        assignGroupProperties(omega.groups);
+        assignGroupProperties(this._graphData.groups);
+
+        this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
+
+        let groupsByName = {};
+        this._graphData.groups.forEach(g => groupsByName[g.name] = g);
+
         const createInternalLyphs = (lyph) => {
-            let newGroupIDs = [];
+            let newGroupIDs = {"nodes": [], "links": [], "lyphs": []};
             lyph.internalLyphs.forEach(innerLyphID => {
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
                 innerLyph.scale = {"height": 100,"width": 50};
@@ -106,7 +131,7 @@ export class DataService{
                 }));
                 [sNode, tNode].forEach(node => {
                     this._graphData.nodes.push(node);
-                    newGroupIDs.push(node.id);
+                    newGroupIDs.nodes.push(node.id);
                 });
 
                 let axis = getLinkByLyphID(lyph.id);
@@ -121,8 +146,8 @@ export class DataService{
                     "conveyingLyph" : innerLyphID
                 };
                 this._graphData.links.push(link);
-                newGroupIDs.push(innerLyph.id);
-                newGroupIDs.push(link.id);
+                newGroupIDs.lyphs.push(innerLyph.id);
+                newGroupIDs.links.push(link.id);
             });
             return newGroupIDs;
         };
@@ -132,10 +157,10 @@ export class DataService{
         /* Modify central nervous system lyphs appearance */
 
         //TODO how to generalize? Apply custom function to the group?
-        let maxLayers = Math.max(...groupsByName["Neural system"].entities.map(lyphID =>
+        let maxLayers = Math.max(...groupsByName["Neural system"].lyphs.map(lyphID =>
             (this._graphData.lyphs.find(lyph => lyph.id === lyphID).layers || []).length));
 
-        groupsByName["Neural system"].entities.forEach(lyphID => {
+        groupsByName["Neural system"].lyphs.forEach(lyphID => {
             let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
             ependymalLyph::merge({
                 color: "#aaa",
@@ -143,108 +168,15 @@ export class DataService{
             });
             let outerLayer = this._graphData.lyphs.find(lyph => lyph.id === ependymalLyph.layers[ependymalLyph.layers.length - 1]);
             if (outerLayer){ outerLayer.layerWidth = 80; }
-            colorLyphsExt(ependymalLyph.layers, interpolateBlues, maxLayers, true);
+            colorLyphsExt(ependymalLyph.layers, colorSchemes.interpolateBlues, maxLayers, true);
         });
-
-        //TODO Note that only group entities defined by ID are converted to model objects
 
         //Include relevant entities to the neural system group
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
-            groupsByName["Neurons"].entities = [...groupsByName["Neurons"].entities, ...createInternalLyphs(lyph)];
+            let newGroupIDs = createInternalLyphs(lyph);
+            groupsByName["Neurons"].links = [...groupsByName["Neurons"].links||[], ...newGroupIDs.links];
+            groupsByName["Neurons"].nodes = [...groupsByName["Neurons"].nodes||[], ...newGroupIDs.nodes];
         });
-
-        //Create Urinary tract and Cardiovascular system omega trees
-
-        //TODO Remove-->
-
-        //TODO replace with code that processes group assignments
-
-        //Recolor lyphs
-        colorLyphs(omega["LR"].trees["Arterial"]::values(), interpolateReds);
-        colorLyphs(omega["LR"].trees["Venous"]  ::values(), interpolateRdPu);
-        colorLyphs(omega["PS"].trees["Urinary"] ::values(), interpolateGreens);
-        colorLyphs(omega["Connector"]::values(), interpolateOranges);
-
-        //Add an extra node to correctly end the Urinary tree
-        omega["LR"].trees["Arterial"]["end1"] = 0;
-        omega["PS"].trees["Urinary"]["end2"]  = 0;
-
-        // Explicitly define position of the root node on the hosting link:
-        // fraction 0 <= x <= 1, where 0 corresponds to the source node and 1 to the target node
-        const offsets = {"LR00": 0.25, "LR10": 0.65, "PS00": 0.25};
-
-        //Omega tree nodes
-        //TODO revise to get omega tree subgraphs from our standard data format
-        //TODO partially specify links with conveying lyphs, merge with properties from templates
-        //TODO auto-create nodes for links without source and target
-
-        ["LR", "PS"].forEach(host => {
-            omega[host].trees::values().forEach((tree, i) => {
-                tree::keys().forEach((key, j) => {
-                    let node = {
-                        "id"       : `${host}${i}${j}`,
-                        "color"     : omega[host].color,
-                        "charge"    : 5
-                    };
-                    if (j === 0){ node.host = host; }
-                    if (offsets[node.id]){ node.offset = offsets[node.id]; }
-                    this._graphData.nodes.push(node);
-                    groupsByName["Omega trees"].entities.push(node.id);
-                });
-
-                //TODO add all hosted nodes to the property of the link 'hostedNodes'
-
-                const NUM_LEVELS = tree::keys().length;
-                tree::keys().forEach((key, j) => {
-                    if (j === NUM_LEVELS - 1) { return; }
-                    let link = {
-                        "id"            : 'lnk' + (this._graphData.links.length + 1).toString(),
-                        "source"        : `${host}${i}${j}`,
-                        "target"        : `${host}${i}${j + 1}`,
-                        "external"      : key,
-                        "length"        : 3,
-                        "type"          : LINK_TYPES.LINK,
-                        "conveyingLyph" : tree[key],
-                        "color"         : omega[host].color,
-                        "linkMethod"    : "Line2"
-                    };
-                    this._graphData.links.push(link);
-                    groupsByName["Omega trees"].entities.push(link.id);
-                });
-            })
-        });
-
-        const CONNECTOR_COLOR = "#ff44ff";
-        ["H", "I", "J"].forEach((key, i) => {
-            let node = {
-                "id"   : `LRPS${i}`,
-                "color": CONNECTOR_COLOR };
-            this._graphData.nodes.push(node);
-            groupsByName["Omega trees"].entities.push(node.id);
-        });
-
-        const connector = ["LR05", "LRPS0", "LRPS1", "LRPS2", "LR15"];
-        const connectorLyphs  = omega["Connector"]::values();
-        const connectorLabels = omega["Connector"]::keys();
-
-        for (let i = 0 ; i < connector.length - 1; i++){
-            let link = {
-                "id"           : 'lnk' + (this._graphData.links.length + 1).toString(),
-                "source"       : connector[i],
-                "target"       : connector[i + 1],
-                "external"     : connectorLabels[i],
-                "length"       : 3,
-                "type"         : LINK_TYPES.LINK,
-                "conveyingLyph": connectorLyphs[i],
-                "color"        : CONNECTOR_COLOR,
-                "linkMethod"   : "Line2"
-            };
-            this._graphData.links.push(link);
-            groupsByName["Omega trees"].entities.push(link);
-        }
-
-        //TODO <--Remove
-
 
         //Coalescing lyphs attract by means of invisible links
         this._graphData.lyphs.filter(lyph => lyph.coalescesWith).forEach(lyph => {
@@ -263,12 +195,11 @@ export class DataService{
                             "type": LINK_TYPES.FORCE
                         };
                         this._graphData.links.push(link);
-                        groupsByName["Coalescences"].entities.push(link.id);
+                        groupsByName["Coalescences"].links.push(link.id);
                     });
                 })
             });
         });
-
 
         //Color links and lyphs which do not have assigned colors yet
         addColor(this._graphData.links, "#000");
@@ -277,7 +208,6 @@ export class DataService{
         //TODO create specification for link prototypes to generate axes for given lyphs
 
         /* Cardiac system */
-
         //TODO create a cardiac system group
 
         //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each

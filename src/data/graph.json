@@ -185,15 +185,18 @@
     "groups": [{
       "id": "g3",
       "name": "Omega trees",
-      "entities": []
+      "nodes": [],
+      "links": []
     }, {
       "id": "g4",
       "name": "Coalescences",
-      "entities": []
+      "nodes": [],
+      "links": []
     }, {
       "id": "g5",
       "name": "Containers",
-      "entities": ["k", "l", "k_l"]
+      "nodes": ["k", "l"],
+      "links": ["k_l"]
     }],
     "lyphs": [{
       "id": "1",
@@ -274,7 +277,7 @@
       "inactive": true,
       "border": {
         "borders": [{}, {}, {}, {
-          "hostedNodes": ["PS013", "LR05", "LR15"]
+          "hostedNodes": ["nPS013", "nLR05", "nLR15"]
         }]
       },
       "belongsToLyph": "3"
@@ -3465,12 +3468,359 @@
     "groups": [{
       "id": "g1",
       "name": "Neural system",
-      "entities": ["152", "147", "142", "137", "132", "127", "122", "157", "162"]
+      "nodes": [],
+      "links": [],
+      "lyphs": ["152", "147", "142", "137", "132", "127", "122", "157", "162"]
     }, {
       "id": "g2",
       "name": "Neurons",
-      "entities": []
+      "nodes": [],
+      "links": []
     }]
+  },
+  "omega": {
+    "groups": [
+     {
+        "id": "Arterial",
+        "name": "Arterial",
+        "nodes": ["nLR00", "nLR01", "nLR02", "nLR03", "nLR04", "nLR05"],
+        "links": ["LR00", "LR01", "LR02", "LR03", "LR04"],
+        "assign": {
+          "nodes": {
+            "color": "#ff4444"
+          },
+          "links": {
+            "color": "#ff4444",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
+        },
+        "lyphColorScheme":  "interpolateReds"
+      },
+      {
+        "id": "Venous",
+        "name": "Venous",
+        "assign": {
+          "nodes": {
+            "color": "#ff4444"
+          },
+          "links": {
+            "color": "#ff4444",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
+        },
+        "lyphColorScheme": "interpolateRdPu",
+        "links": ["LR10", "LR11", "LR12", "LR13", "LR14", "LR15"],
+        "nodes": ["nLR10", "nLR11", "nLR12", "nLR13", "nLR14", "nLR15", "nLR16"]
+      },
+      {
+        "id": "Urinary",
+        "name": "Urinary",
+        "assign": {
+          "nodes": {
+            "color": "#4444ff"
+          },
+          "links": {
+            "color": "#4444ff",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
+        },
+        "lyphColorScheme": "interpolateGreens",
+        "links": ["PS00", "PS01", "PS02", "PS03", "PS04", "PS05", "PS06", "PS07", "PS08", "PS09", "PS010", "PS011","PS012", "PS013", "PS014", "PS015", "PS016"],
+        "nodes": ["nPS00", "nPS01", "nPS02", "nPS03", "nPS04", "nPS05", "nPS06", "nPS07", "nPS08", "nPS09", "nPS010", "nPS011","nPS012", "nPS013", "nPS014", "nPS015", "nPS016", "nPS017"]
+      },
+      {
+        "id": "Connector",
+        "name": "Connector",
+        "assign": {
+          "nodes": {
+            "color": "#ff44ff"
+          },
+          "links": {
+            "color": "#ff44ff",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
+        },
+        "lyphColorScheme": "interpolateOranges",
+        "links": [
+          "LRPS00",
+          "LRPS01",
+          "LRPS02",
+          "LRPS03"
+        ],
+        "nodes": [ "nLR05",
+          "nLR15",
+          "nLRPS00",
+          "nLRPS01",
+          "nLRPS02"
+        ]
+      }
+    ],
+    "nodes": [
+      {"id": "nLR00", "host": "LR", "offset": 0.25 },
+      {"id": "nLR01" },
+      {"id": "nLR02" },
+      {"id": "nLR03" },
+      {"id": "nLR04" },
+      {"id": "nLR05" },
+      {"id": "nLR10", "host": "LR", "offset": 0.65 },
+      {"id": "nLR11" },
+      {"id": "nLR12" },
+      {"id": "nLR13" },
+      {"id": "nLR14" },
+      {"id": "nLR15" },
+      {"id": "nLR16" },
+      {"id": "nPS00", "host": "PS", "offset": 0.25 },
+      {"id": "nPS01" },
+      {"id": "nPS02" },
+      {"id": "nPS03" },
+      {"id": "nPS04" },
+      {"id": "nPS05" },
+      {"id": "nPS06" },
+      {"id": "nPS07" },
+      {"id": "nPS08" },
+      {"id": "nPS09" },
+      {"id": "nPS010" },
+      {"id": "nPS011" },
+      {"id": "nPS012" },
+      {"id": "nPS013" },
+      {"id": "nPS014" },
+      {"id": "nPS015" },
+      {"id": "nPS016" },
+      {"id": "nPS017" },
+      {"id": "nLRPS00" },
+      {"id": "nLRPS01" },
+      {"id": "nLRPS02" }
+    ],
+    "links": [
+      {
+        "id": "LR00",
+        "source": "nLR00",
+        "target": "nLR01",
+        "external": "B",
+        "conveyingLyph": "99"
+      },
+      {
+        "id": "LR01",
+        "source": "nLR01",
+        "target": "nLR02",
+        "external": "C",
+        "conveyingLyph": "114"
+      },
+      {
+        "id": "LR02",
+        "source": "nLR02",
+        "target": "nLR03",
+        "external": "D",
+        "conveyingLyph": "51"
+      },
+      {
+        "id": "LR03",
+        "source": "nLR03",
+        "target": "nLR04",
+        "external": "E",
+        "conveyingLyph": "54"
+      },
+      {
+        "id": "LR04",
+        "source": "nLR04",
+        "target": "nLR05",
+        "external": "F",
+        "conveyingLyph": "57"
+      },
+      {
+        "id": "LR10",
+        "source": "nLR10",
+        "target": "nLR11",
+        "external": "P",
+        "conveyingLyph": "102"
+      },
+      {
+        "id": "LR11",
+        "source": "nLR11",
+        "target": "nLR12",
+        "external": "O",
+        "conveyingLyph": "117"
+      },
+      {
+        "id": "LR12",
+        "source": "nLR12",
+        "target": "nLR13",
+        "external": "N",
+        "conveyingLyph": "75"
+      },
+      {
+        "id": "LR13",
+        "source": "nLR13",
+        "target": "nLR14",
+        "external": "M",
+        "conveyingLyph": "72"
+      },
+      {
+        "id": "LR14",
+        "source": "nLR14",
+        "target": "nLR15",
+        "external": "L",
+        "conveyingLyph": "69"
+      },
+      {
+        "id": "LR15",
+        "source": "nLR15",
+        "target": "nLR16",
+        "external": "K",
+        "conveyingLyph": "66"
+      },
+      {
+        "id": "PS00",
+        "source": "nPS00",
+        "target": "nPS01",
+        "external": "B",
+        "conveyingLyph": "108"
+      },
+      {
+        "id": "PS01",
+        "source": "nPS01",
+        "target": "nPS02",
+        "external": "C",
+        "conveyingLyph": "111"
+      },
+      {
+        "id": "PS02",
+        "source": "nPS02",
+        "target": "nPS03",
+        "external": "D",
+        "conveyingLyph": "81"
+      },
+      {
+        "id": "PS03",
+        "source": "nPS03",
+        "target": "nPS04",
+        "external": "E",
+        "conveyingLyph": "84"
+      },
+      {
+        "id": "PS04",
+        "source": "nPS04",
+        "target": "nPS05",
+        "external": "F",
+        "conveyingLyph": "87"
+      },
+      {
+        "id": "PS05",
+        "source": "nPS05",
+        "target": "nPS06",
+        "external": "F'",
+        "conveyingLyph": "90"
+      },
+      {
+        "id": "PS06",
+        "source": "nPS06",
+        "target": "nPS07",
+        "external": "G",
+        "conveyingLyph": "93"
+      },
+      {
+        "id": "PS07",
+        "source": "nPS07",
+        "target": "nPS08",
+        "external": "H",
+        "conveyingLyph": "96"
+      },
+      {
+        "id": "PS08",
+        "source": "nPS08",
+        "target": "nPS09",
+        "external": "I",
+        "conveyingLyph": "48"
+      },
+      {
+        "id": "PS09",
+        "source": "nPS09",
+        "target": "nPS010",
+        "external": "J",
+        "conveyingLyph": "45"
+      },
+      {
+        "id": "PS010",
+        "source": "nPS010",
+        "target": "nPS011",
+        "external": "K",
+        "conveyingLyph": "42"
+      },
+      {
+        "id": "PS011",
+        "source": "nPS011",
+        "target": "nPS012",
+        "external": "L",
+        "conveyingLyph": "39"
+      },
+      {
+        "id": "PS012",
+        "source": "nPS012",
+        "target": "nPS013",
+        "external": "M",
+        "conveyingLyph": "36"
+      },
+      {
+        "id": "PS013",
+        "source": "nPS013",
+        "target": "nPS014",
+        "external": "N",
+        "conveyingLyph": "33"
+      },
+      {
+        "id": "PS014",
+        "source": "nPS014",
+        "target": "nPS015",
+        "external": "O",
+        "conveyingLyph": "30"
+      },
+      {
+        "id": "PS015",
+        "source": "nPS015",
+        "target": "nPS016",
+        "external": "P",
+        "conveyingLyph": "27"
+      },
+      {
+        "id": "PS016",
+        "source": "nPS016",
+        "target": "nPS017",
+        "external": "Q",
+        "conveyingLyph": "24"
+      },
+      {
+        "id": "LRPS00",
+        "source": "nLR05",
+        "target": "nLRPS00",
+        "external": "G",
+        "conveyingLyph": "60"
+      },
+      {
+        "id": "LRPS01",
+        "source": "nLRPS00",
+        "target": "nLRPS01",
+        "external": "H",
+        "conveyingLyph": "78"
+      },
+      {
+        "id": "LRPS02",
+        "source": "nLRPS01",
+        "target": "nLRPS02",
+        "external": "I",
+        "conveyingLyph": "63"
+      },
+      {
+        "id": "LRPS03",
+        "source": "nLRPS02",
+        "target": "nLR16",
+        "external": "J",
+        "conveyingLyph": "105"
+      }
+    ]
   },
   "cardiac": {
     "links": [{
@@ -3497,15 +3847,18 @@
     "groups": [{
       "id": "TREE1",
       "name": "Gracile tract 1st order sensory neuron Lower Limb Spinal Cord Parenchyma layer CNS entrance neuron tree",
-      "entities": ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8"]
+      "links": ["V1", "V2", "V3", "V4", "V5", "V6", "V7"],
+      "nodes": ["N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8"]
     }, {
       "id": "TREE2",
       "name": "Anterolateral Spinothalamic tract 1st order sensory neuron Skin Dorsal Root Ganglion neuron tree",
-      "entities": ["V8", "V9", "V10", "V11", "V12", "V13", "V14", "N9", "N10", "N11", "N12", "N13", "N14", "N15", "N16"]
+      "links": ["V8", "V9", "V10", "V11", "V12", "V13", "V14"],
+      "nodes": ["N9", "N10", "N11", "N12", "N13", "N14", "N15", "N16"]
     }, {
       "id": "TREE3",
       "name": "Anterolateral Spinothalamic tract 2nd order sensory neuron Dorsal Horn Spinal Cord Terminal Medulla Parenchyma layer Tubing neuron tree",
-      "entities": ["V15", "V16", "V17", "V18", "V19", "V20", "V21", "V22", "N17", "N18", "N19", "N20", "N21", "N22", "N23", "N24", "N25"]
+      "links": ["V15", "V16", "V17", "V18", "V19", "V20", "V21", "V22"],
+      "nodes": ["N17", "N18", "N19", "N20", "N21", "N22", "N23", "N24", "N25"]
     }],
     "links": [{
       "id": "V1",
