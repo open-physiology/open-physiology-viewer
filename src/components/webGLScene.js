@@ -231,7 +231,7 @@ export class WebGLSceneComponent {
         let height = this.canvasContainer.clientHeight;
 
         this.camera = new THREE.PerspectiveCamera(70, width / height, 100);
-        this.camera.position.set(0, 100, 500);
+        this.camera.position.set(0, 100, 1000);
         this.camera.aspect = width / height;
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);

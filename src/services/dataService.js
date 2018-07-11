@@ -1,4 +1,4 @@
-import { core, ependymal, omega, cardiac, spt } from '../data/graph.json';
+import { nodes, links, lyphs, groups, materials} from '../data/graph.json';
 
 import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
 import * as colorSchemes from 'd3-scale-chromatic';
@@ -55,8 +55,8 @@ export class DataService{
             groups.forEach(group => {
                 (group.assign||[])::keys().forEach(property => {
                     if (group.assign[property] && this._graphData[property]) {
-                        group[property].map(id => this._graphData[property].find(e => e.id === id)).forEach(e =>
-                            e::merge(group.assign[property]));
+                        (group[property]||[]).map(id => this._graphData[property]
+                            .find(e => e.id === id)).forEach(e => e::merge(group.assign[property]));
                     }
                 });
                 if (group.lyphColorScheme) {
@@ -73,45 +73,42 @@ export class DataService{
         };
 
         ///////////////////////////////////////////////////////////////////////
-        //Assemble graph
+        //Copy entities from subgroups
+        groups.filter(parent => parent.groups).forEach(group => {
+            ["nodes", "links", "lyphs"].forEach(property => {
+                group[property] = [...group[property]||[], ...[].concat(
+                    ...group.groups.map(subgroupID => {
+                        let g = groups.find(g => g.id === subgroupID);
+                        g.remove = true; //TODO introduce a property to decide whether to show the group on the panel
+                        if (g){ return g[property]||[]; } else {
+                            console.warn("Reference to unknown group found", subgroupID);
+                        } return [];
+                    })
+                )]
+            });
+            console.log("Assembled group: ", group);
+        });
 
-        //Set visual parameters for neuron trees
-        //TODO - move this to "assign" properties of groups/graphs
-        spt.nodes.forEach(e =>
-            e::merge({
-                "val": 0.5,
-                "color": "#666",
-                "skipLabel": true
-            }));
-
-        spt.links.forEach(e =>
-            e::merge({
-                "linkMethod": "Line2",
-                "linewidth" : 0.002
-            }));
-
-        spt.lyphs.forEach(e => e::merge({ "scale": {"width": 95, "height": 95} }));
-
-        //Omega trees - combine individual trees to one group
-        let omegaTree = core.groups.find(g => g.name === "Omega trees");
-        omegaTree.links = [].concat(...omega.groups.map(g => g.links));
-        omegaTree.nodes = [].concat(...omega.groups.map(g => g.nodes));
 
         this._graphData = {
             id: "graph1",
-            nodes : [...core.nodes, ...ependymal.nodes, ...omega.nodes, ...spt.nodes]::cloneDeep(),
-            links : [...core.links, ...ependymal.links, ...omega.links, ...cardiac.links, ...spt.links]::cloneDeep(),
-            lyphs : [...core.lyphs, ...spt.lyphs]::cloneDeep(),
-            groups: [...core.groups, ...ependymal.groups, ...spt.groups]::cloneDeep(),
-            materials: [...core.materials]::cloneDeep()
+            assign: {
+                nodes: {"charge": 10}
+            },
+            nodes    : [...nodes]::cloneDeep(),
+            links    : [...links]::cloneDeep(),
+            lyphs    : [...lyphs]::cloneDeep(),
+            groups   : [...groups]::cloneDeep(),
+            materials: [...materials]::cloneDeep()
         };
 
-
         //Assign group properties
-        assignGroupProperties(omega.groups);
+        assignGroupProperties([this._graphData]);
         assignGroupProperties(this._graphData.groups);
 
-        this._graphData.nodes = this._graphData.nodes.map(node => node::assign({"charge": 10}));
+        //Remove subgroups
+        this.graphData.groups = this.graphData.groups.filter(g => !g.remove);
+        this.graphData.groups.forEach(g => delete g.groups);
 
         let groupsByName = {};
         this._graphData.groups.forEach(g => groupsByName[g.name] = g);
@@ -166,7 +163,8 @@ export class DataService{
                 color: "#aaa",
                 scale: { width: 100 * ependymalLyph.layers.length, height: 100 }
             });
-            let outerLayer = this._graphData.lyphs.find(lyph => lyph.id === ependymalLyph.layers[ependymalLyph.layers.length - 1]);
+            let outerLayer = this._graphData.lyphs
+                .find(lyph => lyph.id === ependymalLyph.layers[ependymalLyph.layers.length - 1]);
             if (outerLayer){ outerLayer.layerWidth = 80; }
             colorLyphsExt(ependymalLyph.layers, colorSchemes.interpolateBlues, maxLayers, true);
         });
@@ -316,12 +314,21 @@ export class DataService{
         //     console.warn(e);
         // });
 
+        let conveyingLyphMap = {};
+        this._graphData.links.filter(lnk => lnk.conveyingLyph).forEach(lnk => {
+           if (!conveyingLyphMap[lnk.conveyingLyph]){
+               conveyingLyphMap[lnk.conveyingLyph] = lnk.conveyingLyph;
+           } else {
+               console.error("It is not allowed to use the same lyph as conveying lyph for multiple processes (links): ", lnk.conveyingLyph);
+           }
+        });
+
         this._graphData = Graph.fromJSON(this._graphData, modelClasses, this._entitiesByID);
 
         console.log("Graph data: ", this._graphData);
 
         /*Map initial positional constraints to match the scaled image*/
-        const axisLength = 400;
+        const axisLength = 1000;
         const scaleFactor = axisLength * 0.01;
 
         this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
