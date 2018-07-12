@@ -1,6 +1,6 @@
 import { nodes, links, lyphs, groups, materials} from '../data/graph.json';
 
-import { assign, keys, values, cloneDeep, merge} from 'lodash-bound';
+import { keys, values, cloneDeep, merge, mergeWith} from 'lodash-bound';
 import * as colorSchemes from 'd3-scale-chromatic';
 import { Graph } from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
@@ -56,7 +56,7 @@ export class DataService{
                 (group.assign||[])::keys().forEach(property => {
                     if (group.assign[property] && this._graphData[property]) {
                         (group[property]||[]).map(id => this._graphData[property]
-                            .find(e => e.id === id)).forEach(e => e::merge(group.assign[property]));
+                            .find(e => e.id === id)).forEach(e => e::mergeWith(group.assign[property], noOverwrite));
                     }
                 });
                 if (group.lyphColorScheme) {
@@ -70,6 +70,51 @@ export class DataService{
                     } else { console.warn("Unrecognized color scheme: ", group.lyphColorScheme); }
                 }
             });
+        };
+
+        const createInternalLyphs = (lyph) => {
+            let newGroupIDs = {"nodes": [], "links": [], "lyphs": []};
+            lyph.internalLyphs.forEach(innerLyphID => {
+                let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
+                if (innerLyph) {
+                    innerLyph::merge({
+                        scale: {"height": 100, "width": 50},
+                        belongsToLyph: lyph
+                    });
+                }
+                let [sNode, tNode] = ["s", "t"].map(prefix => ({
+                    "id"       : `${prefix}${innerLyphID}`,
+                    "name"     : `${prefix}${innerLyphID}`,
+                    "color"    : "#ccc",
+                    "val"      : 0.1,
+                    "skipLabel": true
+                }));
+                [sNode, tNode].forEach(node => {
+                    this._graphData.nodes.push(node);
+                    newGroupIDs.nodes.push(node.id);
+                });
+
+                let axis = getLinkByLyphID(lyph.id);
+
+                let link = {
+                    "id"            : `${sNode.id}_ ${tNode.id}`,
+                    "source"        : sNode,
+                    "target"        : tNode,
+                    "length"        : axis? axis.length * 0.8: 5,
+                    "type"          : LINK_TYPES.INVISIBLE,
+                    "color"         : "#ccc",
+                    "conveyingLyph" : innerLyphID
+                };
+                this._graphData.links.push(link);
+                newGroupIDs.lyphs.push(innerLyph.id);
+                newGroupIDs.links.push(link.id);
+            });
+            return newGroupIDs;
+        };
+
+        const noOverwrite = (objVal, srcVal) => {
+            if (objVal && objVal !== srcVal) { return objVal; }
+            return srcVal;
         };
 
         ///////////////////////////////////////////////////////////////////////
@@ -86,9 +131,7 @@ export class DataService{
                     })
                 )]
             });
-            console.log("Assembled group: ", group);
         });
-
 
         this._graphData = {
             id: "graph1",
@@ -113,44 +156,6 @@ export class DataService{
         let groupsByName = {};
         this._graphData.groups.forEach(g => groupsByName[g.name] = g);
 
-        const createInternalLyphs = (lyph) => {
-            let newGroupIDs = {"nodes": [], "links": [], "lyphs": []};
-            lyph.internalLyphs.forEach(innerLyphID => {
-                let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
-                innerLyph.scale = {"height": 100,"width": 50};
-                if (innerLyph) { innerLyph.belongsToLyph = lyph; }
-                let [sNode, tNode] = ["s", "t"].map(prefix => ({
-                    "id"       : `${prefix}${innerLyphID}`,
-                    "name"     : `${prefix}${innerLyphID}`,
-                    "color"    : "#ccc",
-                    "val"      : 0.1,
-                    "skipLabel": true
-                }));
-                [sNode, tNode].forEach(node => {
-                    this._graphData.nodes.push(node);
-                    newGroupIDs.nodes.push(node.id);
-                });
-
-                let axis = getLinkByLyphID(lyph.id);
-
-                let link = {
-                    "id"            : 'lnk' + (this._graphData.links.length + 1).toString(),
-                    "source"        : sNode,
-                    "target"        : tNode,
-                    "length"        : axis? axis.length * 0.8: 5,
-                    "type"          : LINK_TYPES.INVISIBLE,
-                    "color"         : "#ccc",
-                    "conveyingLyph" : innerLyphID
-                };
-                this._graphData.links.push(link);
-                newGroupIDs.lyphs.push(innerLyph.id);
-                newGroupIDs.links.push(link.id);
-            });
-            return newGroupIDs;
-        };
-
-        ////////////////////////////////////////////////////////////////////
-
         /* Modify central nervous system lyphs appearance */
 
         //TODO how to generalize? Apply custom function to the group?
@@ -159,13 +164,6 @@ export class DataService{
 
         groupsByName["Neural system"].lyphs.forEach(lyphID => {
             let ependymalLyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
-            ependymalLyph::merge({
-                color: "#aaa",
-                scale: { width: 100 * ependymalLyph.layers.length, height: 100 }
-            });
-            let outerLayer = this._graphData.lyphs
-                .find(lyph => lyph.id === ependymalLyph.layers[ependymalLyph.layers.length - 1]);
-            if (outerLayer){ outerLayer.layerWidth = 80; }
             colorLyphsExt(ependymalLyph.layers, colorSchemes.interpolateBlues, maxLayers, true);
         });
 
@@ -260,7 +258,7 @@ export class DataService{
                         this._graphData.lyphs.push(lyphLayer);
                         //Copy defined properties to newly generated lyphs
                         if (template.assign && template.assign[newID]){
-                            lyphLayer::merge(template.assign[newID]);
+                            lyphLayer::mergeWith(template.assign[newID], noOverwrite);
                             createInternalLyphs(lyphLayer);
                         }
 
@@ -274,6 +272,7 @@ export class DataService{
 
         //Omega trees for cardiac lyphs
 
+        //TODO this will be gone!
         ["R", "L"].forEach(prefix => {
             ["MCP", "MCS"].forEach(suffix => {
                 let src = prefix, trg;

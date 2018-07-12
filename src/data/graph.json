@@ -520,7 +520,7 @@
       "target": "ah3",
       "name": "Ependymal",
       "type": "link",
-      "length": 5,
+      "length": 3,
       "reversed": true,
       "linkMethod": "Line2",
       "conveyingLyph": "127"
@@ -531,7 +531,7 @@
       "target": "h",
       "name": "Ependymal",
       "type": "link",
-      "length": 5,
+      "length": 3,
       "reversed": true,
       "linkMethod": "Line2",
       "conveyingLyph": "122"
@@ -542,7 +542,7 @@
       "target": "ag1",
       "name": "Ependymal",
       "type": "link",
-      "length": 8,
+      "length": 9,
       "linkMethod": "Line2",
       "conveyingLyph": "157"
     },
@@ -552,7 +552,7 @@
       "target": "g",
       "name": "Ependymal",
       "type": "link",
-      "length": 8,
+      "length": 3,
       "linkMethod": "Line2",
       "conveyingLyph": "162"
     },
@@ -999,7 +999,13 @@
         "122",
         "157",
         "162"
-      ]
+      ],
+      "assign": {
+        "lyphs": {
+          "color": "#aaa",
+          "scale": { "width": 200, "height": 100 }
+        }
+      }
     },
     {
       "id": "neurons",
@@ -1241,6 +1247,16 @@
         "V21",
         "V22"
       ]
+    },
+    {"id": "largeOuterLayers",
+     "name": "Enlarged outer layers of neural system lyphs",
+     "lyphs": ["155", "150", "145", "140", "135", "160"],
+     "assign": {
+       "lyphs": {
+         "layerWidth": 75
+       }
+     },
+     "remove": true
     }
   ],
   "lyphs" : [

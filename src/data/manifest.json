@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
-  "definitions": {
+  "schemes": {
     "InterpolateColorScheme": {
       "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
       "type": "string",
@@ -36,7 +36,9 @@
         "interpolateRainbow",
         "interpolateViridis"
       ]
-    },
+    }
+  },
+  "definitions": {
     "Entity": {
       "description": "Generic abstract entity defines common properties for all elements in ApiNATOMY circuitboards",
       "type": "object",
@@ -746,9 +748,25 @@
             ]
           }
         },
+        "supergroups": {
+          "description": "Groups that contain the current group",
+          "type": "array",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Graph"
+            }
+          ]
+        },
         "lyphColorScheme": {
           "description": "Interpolation scheme to apply to group lyphs",
-          "$ref": "#/definitions/InterpolateColorScheme"
+          "$ref": "#/schemes/InterpolateColorScheme"
+        },
+        "remove": {
+          "description": "Temporary solution, marks auxiliary groups that are removed from the view graph",
+          "type": "boolean"
         }
       }
     }
