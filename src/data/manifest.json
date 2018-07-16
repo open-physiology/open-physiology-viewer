@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
   "schemes": {
-    "InterpolateColorScheme": {
+    "ColorScheme": {
       "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
       "type": "string",
       "enum": [
@@ -36,6 +36,20 @@
         "interpolateRainbow",
         "interpolateViridis"
       ]
+    },
+    "OffsetScheme": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number"
+        }
+      }
     }
   },
   "definitions": {
@@ -760,9 +774,28 @@
             }
           ]
         },
-        "lyphColorScheme": {
-          "description": "Interpolation scheme to apply to group lyphs",
-          "$ref": "#/schemes/InterpolateColorScheme"
+        "interpolate": {
+          "type": "object",
+          "properties": {
+            "lyphs": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "description": "Interpolation scheme to apply to a group of lyphs",
+                  "$ref": "#/schemes/ColorScheme"
+                }
+              }
+            },
+            "nodes": {
+              "type": "object",
+              "properties": {
+                "offset": {
+                  "description": "Interpolate offset on the host link for a group of nodes",
+                  "$ref": "#/schemes/OffsetScheme"
+                }
+              }
+            }
+          }
         },
         "remove": {
           "description": "Temporary solution, marks auxiliary groups that are removed from the view graph",

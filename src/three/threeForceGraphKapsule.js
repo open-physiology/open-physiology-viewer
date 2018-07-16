@@ -40,7 +40,7 @@ export default Kapsule({
         showLabels     : { default: {Node: true}},
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id'}},
         fontParams     : { default: {
-            font: '12px Arial', fillStyle: '#000', antialias: true }
+            font: '14px Arial', fillStyle: '#000', antialias: true }
         },
         opacity        : { default: 0.6 },
         d3AlphaDecay   : { default: 0.045 },

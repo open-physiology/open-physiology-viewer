@@ -556,30 +556,137 @@
       "linkMethod": "Line2",
       "conveyingLyph": "162"
     },
+
     {
       "id": "lnkR_1_MCS",
+      "source": "R",
+      "target": "R_1_MCS",
       "conveyingLyph": "1000"
     },
     {
-      "id": "lnkR_1_MCP",
-      "conveyingLyph": "1001"
-    },
-    {
-      "id": "lnkL_2_MCP",
-      "conveyingLyph": "1022"
-    },
-    {
       "id": "lnkR_2_MCS",
+      "source": "R_1_MCS",
+      "target": "R_2_MCS",
       "conveyingLyph": "1023"
     },
     {
+      "id": "lnkR_3_MCS",
+      "source": "R_2_MCS",
+      "target": "R_3_MCS"
+    },
+    {
+      "id": "lnkR_4_MCS",
+      "source": "R_3_MCS",
+      "target": "R_4_MCS"
+    },
+    {
+      "id": "lnkR_5_MCS",
+      "source": "R_4_MCS",
+      "target": "R_5_MCS"
+    },
+    {
+      "id": "lnkR_6_MCS",
+      "source": "R_5_MCS",
+      "target": "MCS"
+    },
+
+    {
+      "id": "lnkR_1_MCP",
+      "source": "R",
+      "target": "R_1_MCP",
+      "conveyingLyph": "1001"
+    },
+    {
+      "id": "lnkR_2_MCP",
+      "source": "R_1_MCP",
+      "target": "R_2_MCP"
+    },
+    {
+      "id": "lnkR_3_MCP",
+      "source": "R_2_MCP",
+      "target": "R_3_MCP"
+    },
+    {
+      "id": "lnkR_4_MCP",
+      "source": "R_3_MCP",
+      "target": "R_4_MCP"
+    },
+    {
+      "id": "lnkR_5_MCP",
+      "source": "R_4_MCP",
+      "target": "R_5_MCP"
+    },
+    {
+      "id": "lnkR_6_MCP",
+      "source": "R_5_MCP",
+      "target": "MCP"
+    },
+
+    {
       "id": "lnkL_1_MCP",
+      "source": "L",
+      "target": "L_1_MCP",
       "conveyingLyph": "1010"
     },
     {
+      "id": "lnkL_2_MCP",
+      "source": "L_1_MCP",
+      "target": "L_2_MCP",
+      "conveyingLyph": "1022"
+    },
+    {
+      "id": "lnkL_3_MCP",
+      "source": "L_2_MCP",
+      "target": "L_3_MCP"
+    },
+    {
+      "id": "lnkL_4_MCP",
+      "source": "L_3_MCP",
+      "target": "L_4_MCP"
+    },
+    {
+      "id": "lnkL_5_MCP",
+      "source": "L_4_MCP",
+      "target": "L_5_MCP"
+    },
+    {
+      "id": "lnkL_6_MCP",
+      "source": "L_5_MCP",
+      "target": "MCP"
+    },
+
+    {
       "id": "lnkL_1_MCS",
+      "source": "L",
+      "target": "L_1_MCS",
       "conveyingLyph": "1011"
     },
+    {
+      "id": "lnkL_2_MCS",
+      "source": "L_1_MCS",
+      "target": "L_2_MCS"
+    },
+    {
+      "id": "lnkL_3_MCS",
+      "source": "L_2_MCS",
+      "target": "L_3_MCS"
+    },
+    {
+      "id": "lnkL_4_MCS",
+      "source": "L_3_MCS",
+      "target": "L_4_MCS"
+    },
+    {
+      "id": "lnkL_5_MCS",
+      "source": "L_4_MCS",
+      "target": "L_5_MCS"
+    },
+    {
+      "id": "lnkL_6_MCS",
+      "source": "L_5_MCS",
+      "target": "MCS"
+    },
+
     {
       "id": "V1",
       "source": "N1",
@@ -1032,7 +1139,85 @@
         }
       }
     },
-
+    {"id": "cardiac",
+      "name": "Cardiac",
+      "groups": ["R_MCP", "R_MCS", "L_MCP", "L_MCS"],
+      "nodes" : [],
+      "lyphs" : ["995", "996"],
+      "assign": {
+        "links": {
+          "length"    : 7,
+          "color"     : "#aaa"
+        },
+        "nodes": {
+          "color"    : "#ccc",
+          "val"      : 0.5,
+          "skipLabel": true
+        }
+      }
+    },
+    {"id": "R_MCP",
+      "nodes": ["R_1_MCP", "R_2_MCP", "R_3_MCP", "R_4_MCP", "R_5_MCP"],
+      "links": ["lnkR_1_MCP", "lnkR_2_MCP", "lnkR_3_MCP", "lnkR_4_MCP", "lnkR_5_MCP", "lnkR_6_MCP"],
+      "assign": {
+        "nodes": {
+          "host": "LR"
+        },
+        "links": {
+          "reversed": true
+        }
+      },
+      "interpolate":{
+        "nodes": {
+          "offset": {"start": 1, "end": 0.5}
+        }
+      }
+    },
+    {"id": "L_MCP",
+      "nodes": ["L_1_MCP", "L_2_MCP", "L_3_MCP", "L_4_MCP", "L_5_MCP"],
+      "links": ["lnkL_1_MCP", "lnkL_2_MCP", "lnkL_3_MCP", "lnkL_4_MCP", "lnkL_5_MCP", "lnkL_6_MCP"],
+      "assign": {
+        "nodes": {
+          "host": "LR"
+        }
+      },
+      "interpolate":{
+        "nodes": {
+          "offset": {"start": 0, "end": 0.5}
+        }
+      }
+    },
+    {"id": "R_MCS",
+      "nodes": ["R_1_MCS", "R_2_MCS", "R_3_MCS", "R_4_MCS", "R_5_MCS"],
+      "links": ["lnkR_1_MCS", "lnkR_2_MCS", "lnkR_3_MCS", "lnkR_4_MCS", "lnkR_5_MCS", "lnkR_6_MCS"],
+      "assign": {
+        "nodes": {
+          "host": "RL"
+        }
+      },
+      "interpolate":{
+        "nodes": {
+          "offset": {"start": 0, "end": 0.5}
+        }
+      }
+    },
+    {"id": "L_MCS",
+      "nodes": ["L_1_MCS", "L_2_MCS", "L_3_MCS", "L_4_MCS", "L_5_MCS"],
+      "links": ["lnkL_1_MCS", "lnkL_2_MCS", "lnkL_3_MCS", "lnkL_4_MCS", "lnkL_5_MCS", "lnkL_6_MCS"],
+      "assign": {
+        "nodes": {
+          "host": "RL"
+        },
+        "links": {
+          "reversed": true
+        }
+      },
+      "interpolate":{
+        "nodes": {
+          "offset": {"start": 1, "end": 0.5}
+        }
+      }
+    },
     {
       "id": "arterial",
       "name": "Arterial",
@@ -1061,7 +1246,11 @@
           "linkMethod": "Line2"
         }
       },
-      "lyphColorScheme": "interpolateReds"
+      "interpolate": {
+        "lyphs": {
+          "color": "interpolateReds"
+        }
+      }
     },
     {
       "id": "venous",
@@ -1076,7 +1265,11 @@
           "linkMethod": "Line2"
         }
       },
-      "lyphColorScheme": "interpolateRdPu",
+      "interpolate": {
+        "lyphs": {
+          "color": "interpolateRdPu"
+        }
+      },
       "links": [
         "LR10",
         "LR11",
@@ -1108,7 +1301,11 @@
           "linkMethod": "Line2"
         }
       },
-      "lyphColorScheme": "interpolateGreens",
+      "interpolate": {
+        "lyphs": {
+          "color": "interpolateGreens"
+        }
+      },
       "links": [
         "PS00",
         "PS01",
@@ -1162,7 +1359,11 @@
           "linkMethod": "Line2"
         }
       },
-      "lyphColorScheme": "interpolateOranges",
+      "interpolate": {
+        "lyphs": {
+          "color": "interpolateOranges"
+        }
+      },
       "links": [
         "LRPS00",
         "LRPS01",

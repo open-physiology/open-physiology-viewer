@@ -7,7 +7,8 @@ import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/utils';
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
-//TODO process materials
+const colorSchemeOffset = 0.25; //Colors at the beginning and at the end of the color arrays are too dark or too light, so we skip some percentage
+const propertyList = ["nodes", "lyphs", "links"];
 
 /**
  * A class that assembles ApiNATOMY model from available data sources:
@@ -34,7 +35,7 @@ export class DataService{
         const colorLyphsExt = (lyphs, colorFn, numColors, reversed = false) => {
             lyphs.forEach((lyphID, i) =>{
                 let lyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
-                lyph.color = colorFn(((reversed)? 0.75 - i / numColors : 0.25 + i / numColors));
+                lyph.color = colorFn(((reversed)? 1 - colorSchemeOffset - i / numColors : colorSchemeOffset + i / numColors));
             });
         };
 
@@ -51,24 +52,60 @@ export class DataService{
             return res;
         };
 
-        const assignGroupProperties = groups => {
+        const generateEntitiesFromGroupRefs = groups => {
             groups.forEach(group => {
+                //generate node, link and lyph objects that are referred from a group but are not in the main graph
+                propertyList.forEach(property => {
+                    (group[property]||[]).forEach((id, i) => {
+                        let entity = this._graphData[property].find(e => e.id === id);
+                        if (entity === undefined){
+                            entity = {"id": id};
+                            this._graphData[property].push(entity);
+                        }
+                    })
+                });
+            });
+        };
+
+        const expandGroupSettings = groups => {
+            groups.forEach(group => {
+                //assign properties
                 (group.assign||[])::keys().forEach(property => {
                     if (group.assign[property] && this._graphData[property]) {
                         (group[property]||[]).map(id => this._graphData[property]
                             .find(e => e.id === id)).forEach(e => e::mergeWith(group.assign[property], noOverwrite));
                     }
                 });
-                if (group.lyphColorScheme) {
-                    if (colorSchemes[group.lyphColorScheme]){
-                        let links = group.links.map(e => this._graphData.links.find(lnk => lnk.id === e));
-                        let lyphs = links.filter(lnk => lnk.conveyingLyph)
-                            .map(lnk => this._graphData.lyphs.find(lyph => lyph.id === lnk.conveyingLyph));
-                        lyphs.forEach((e, i) =>
-                            e.color = colorSchemes[group.lyphColorScheme](0.25 + i / lyphs.length)
-                        );
-                    } else { console.warn("Unrecognized color scheme: ", group.lyphColorScheme); }
-                }
+                //interpolate properties
+                (group.interpolate||[])::keys().forEach(property => {
+                    if (group.interpolate[property] && this._graphData[property]) {
+                        //color scheme is applied to the conveying lyphs of the links in a group
+                        if (property === "lyphs") {
+                            if (group.interpolate[property].color && colorSchemes[group.interpolate[property].color]) {
+                                let links = group.links.map(e => this._graphData.links.find(lnk => lnk.id === e));
+                                let lyphs = links.filter(lnk => lnk.conveyingLyph)
+                                    .map(lnk => this._graphData.lyphs.find(lyph => lyph.id === lnk.conveyingLyph));
+                                lyphs.forEach((e, i) => e.color = colorSchemes[group.interpolate[property].color](colorSchemeOffset + i / lyphs.length));
+                            } else {
+                                console.warn("Unrecognized color scheme: ", group.interpolate[property].color);
+                            }
+                        }
+                        if (property === "nodes"){
+                            if (group.interpolate[property].offset){
+                                if ((group.nodes||[]).length > 0){
+                                    let nodes = group.nodes.map(e => this._graphData.nodes.find(node => node.id === e));
+                                    let spec = group.interpolate[property].offset;
+                                    spec::mergeWith({
+                                        "start": 0,
+                                        "end": 1,
+                                        "step": (spec.end - spec.start) / (nodes.length + 1)
+                                    }, noOverwrite);
+                                    nodes.forEach((node, i) => node.offset = spec.start + spec.step * ( i + 1 ) );
+                                }
+                            }
+                        }
+                    }
+                })
             });
         };
 
@@ -120,7 +157,7 @@ export class DataService{
         ///////////////////////////////////////////////////////////////////////
         //Copy entities from subgroups
         groups.filter(parent => parent.groups).forEach(group => {
-            ["nodes", "links", "lyphs"].forEach(property => {
+            propertyList.forEach(property => {
                 group[property] = [...group[property]||[], ...[].concat(
                     ...group.groups.map(subgroupID => {
                         let g = groups.find(g => g.id === subgroupID);
@@ -138,16 +175,18 @@ export class DataService{
             assign: {
                 nodes: {"charge": 10}
             },
-            nodes    : [...nodes]::cloneDeep(),
-            links    : [...links]::cloneDeep(),
-            lyphs    : [...lyphs]::cloneDeep(),
-            groups   : [...groups]::cloneDeep(),
+            nodes    : [...nodes]    ::cloneDeep(),
+            links    : [...links]    ::cloneDeep(),
+            lyphs    : [...lyphs]    ::cloneDeep(),
+            groups   : [...groups]   ::cloneDeep(),
             materials: [...materials]::cloneDeep()
         };
 
+        //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
+        generateEntitiesFromGroupRefs(this._graphData.groups);
         //Assign group properties
-        assignGroupProperties([this._graphData]);
-        assignGroupProperties(this._graphData.groups);
+        expandGroupSettings([this._graphData]);
+        expandGroupSettings(this._graphData.groups);
 
         //Remove subgroups
         this.graphData.groups = this.graphData.groups.filter(g => !g.remove);
@@ -207,15 +246,10 @@ export class DataService{
         //TODO create a cardiac system group
 
         //Generate 4 omega trees: R - MCP, L - MCP, R - MCS, L - MCS, 6 layers each
-        const addCardiacLink = (src, trg, reversed = false) => {
+        const createLink = (src, trg, reversed = false) => {
             let link = {
-                "id"        : 'lnk' + trg,
                 "source"    : src,
                 "target"    : trg,
-                "length"    : 7,
-                "color"     : "#aaa",
-                "type"      : LINK_TYPES.LINK,
-                "reversed"  : reversed
             };
             let existing = this._graphData.links.find(lnk => lnk.id === link.id);
             if (existing){
@@ -270,33 +304,7 @@ export class DataService{
             })
         });
 
-        //Omega trees for cardiac lyphs
-
-        //TODO this will be gone!
-        ["R", "L"].forEach(prefix => {
-            ["MCP", "MCS"].forEach(suffix => {
-                let src = prefix, trg;
-                let host = suffix === "MCP"? "LR": "RL";
-                for (let i = 1; i < NUM_LEVELS; i++) {
-                    trg = `${prefix}_${i}_${suffix}`;
-                    let reversed = (prefix === "R" && host ==="LR" || prefix === "L" && host === "RL");
-                    this._graphData.nodes.push({
-                        "id"    : trg,
-                        "name"  : trg,
-                        "color" : "#ccc",
-                        "val"   : 0.5,
-                        "host"  : host,
-                        "offset": reversed? 1 - i * dt : i * dt,
-                        "skipLabel": true
-                    });
-                    addCardiacLink(src, trg, reversed);
-                    src = trg;
-                }
-                trg = suffix;
-                addCardiacLink(src, trg);
-            });
-        });
-
+        /////////////////////////////////////////////////////////////////////////
         /* Generate complete model */
 
         //Copy existing entities to a map to enable nested model instantiation
@@ -307,6 +315,7 @@ export class DataService{
             }
             this._entitiesByID[e.id] = e;
         }));
+
         //Schema validation
 
         // graphEvent("event", (e) => {
@@ -322,9 +331,11 @@ export class DataService{
            }
         });
 
+        console.log("ApiNATOMY input model: ", this._graphData);
+
         this._graphData = Graph.fromJSON(this._graphData, modelClasses, this._entitiesByID);
 
-        console.log("Graph data: ", this._graphData);
+        console.log("ApiNATOMY graph: ", this._graphData);
 
         /*Map initial positional constraints to match the scaled image*/
         const axisLength = 1000;

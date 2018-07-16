@@ -409,65 +409,61 @@ export class Lyph extends Entity {
         //update inner content
         let fociCenter = (this.hostedLyphs || this.internalNodes)? getCenterPoint(this.viewObjects["main"]): null;
 
-        if (this.internalLyphs) {
-            let internalLinks = this.internalLyphs.filter(lyph => lyph.axis).map(lyph => lyph.axis);
-            if (internalLinks) {
-                internalLinks.forEach((link, i) => {
-                    let p = extractCoords(this.border.borderLinks[0].source);
-                    let p1 = extractCoords(this.border.borderLinks[0].target);
-                    let p2 = extractCoords(this.border.borderLinks[1].target);
-                    [p, p1, p2].forEach(p => p.z += 1);
-                    let dY = p2.clone().sub(p1);
-                    let offsetY = dY.clone().multiplyScalar(i / internalLinks.length);
-                    copyCoords(link.source, p.clone().add(offsetY));
-                    copyCoords(link.target, p1.clone().add(offsetY));
-                });
-            }
+        let internalLinks = (this.internalLyphs||[]).filter(lyph => lyph.axis).map(lyph => lyph.axis);
+        if (internalLinks) {
+            internalLinks.forEach((link, i) => {
+                let p = extractCoords(this.border.borderLinks[0].source);
+                let p1 = extractCoords(this.border.borderLinks[0].target);
+                let p2 = extractCoords(this.border.borderLinks[1].target);
+                [p, p1, p2].forEach(p => p.z += 1);
+                let dY = p2.clone().sub(p1);
+                let offsetY = dY.clone().multiplyScalar(i / internalLinks.length);
+                copyCoords(link.source, p.clone().add(offsetY));
+                copyCoords(link.target, p1.clone().add(offsetY));
+            });
         }
 
-        if (this.hostedLyphs) {
-            let hostedLinks = this.hostedLyphs.filter(lyph => lyph.axis).map(lyph => lyph.axis);
-            if (hostedLinks) {
-                const delta = 5;
-                hostedLinks.forEach((link) => {
-                    //Global force pushes content on top of lyph
-                    if (Math.abs(this.axis.target.z - this.axis.source.z) <= delta) {
-                        //Faster way to get projection for lyphs parallel to x-y plane
-                        link.source.z = this.axis.source.z + 1;
-                        link.target.z = this.axis.target.z + 1;
-                    } else {
-                        //Project links with innerLyphs to the container lyph plane
-                        let plane = new THREE.Plane();
-                        let _start = extractCoords(this.axis.source);
-                        let _end = extractCoords(this.axis.target);
-                        plane.setFromCoplanarPoints(_start, _end, fociCenter);
+        let hostedLinks = (this.hostedLyphs||[]).filter(lyph => lyph.axis).map(lyph => lyph.axis);
+        if (hostedLinks) {
+            const delta = 5;
+            hostedLinks.forEach((link) => {
+                //Global force pushes content on top of lyph
+                if (Math.abs(this.axis.target.z - this.axis.source.z) <= delta) {
+                    //Faster way to get projection for lyphs parallel to x-y plane
+                    link.source.z = this.axis.source.z + 1;
+                    link.target.z = this.axis.target.z + 1;
+                } else {
+                    //Project links with innerLyphs to the container lyph plane
+                    let plane = new THREE.Plane();
+                    let _start = extractCoords(this.axis.source);
+                    let _end = extractCoords(this.axis.target);
+                    plane.setFromCoplanarPoints(_start, _end, fociCenter);
 
-                        let _linkStart = extractCoords(link.source);
-                        let _linkEnd = extractCoords(link.target);
-                        [_linkStart, _linkEnd].forEach(node => {
-                            plane.projectPoint(node);
-                            node.z += 1;
-                        });
-                        copyCoords(link.source, _linkStart);
-                        copyCoords(link.target, _linkEnd);
-                    }
+                    let _linkStart = extractCoords(link.source);
+                    let _linkEnd = extractCoords(link.target);
+                    [_linkStart, _linkEnd].forEach(node => {
+                        plane.projectPoint(node);
+                        node.z += 1;
+                    });
+                    copyCoords(link.source, _linkStart);
+                    copyCoords(link.target, _linkEnd);
+                }
 
-                    if (Math.abs(this.axis.target.y - this.axis.source.y) <= delta) {
-                        //The lyph rectangle is almost straight, we can quickly bound the content
-                        boundToRectangle(link.source, fociCenter, this.width / 2, this.height / 2);
-                        boundToRectangle(link.target, fociCenter, this.width / 2, this.height / 2);
-                    } else {
-                        //Roughly confine the links to avoid extreme link jumping
-                        //Regardless of the rotation, the area is bounded to the center +/- hypotenuse / 2
-                        const h = Math.sqrt(this.width * this.width + this.height * this.height) / 2;
-                        boundToRectangle(link.source, fociCenter, h, h);
-                        boundToRectangle(link.target, fociCenter, h, h);
+                if (Math.abs(this.axis.target.y - this.axis.source.y) <= delta) {
+                    //The lyph rectangle is almost straight, we can quickly bound the content
+                    boundToRectangle(link.source, fociCenter, this.width / 2, this.height / 2);
+                    boundToRectangle(link.target, fociCenter, this.width / 2, this.height / 2);
+                } else {
+                    //Roughly confine the links to avoid extreme link jumping
+                    //Regardless of the rotation, the area is bounded to the center +/- hypotenuse / 2
+                    const h = Math.sqrt(this.width * this.width + this.height * this.height) / 2;
+                    boundToRectangle(link.source, fociCenter, h, h);
+                    boundToRectangle(link.target, fociCenter, h, h);
 
-                        //Push the link to the tilted lyph rectangle
-                        boundToPolygon(link, this.border.borderLinks); //TODO find a better way to reset links violating boundaries
-                    }
-                });
-            }
+                    //Push the link to the tilted lyph rectangle
+                    boundToPolygon(link, this.border.borderLinks); //TODO find a better way to reset links violating boundaries
+                }
+            });
         }
 
         (this.internalNodes || []).forEach(node => { copyCoords(node, fociCenter); });
