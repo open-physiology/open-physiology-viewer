@@ -218,9 +218,6 @@ export class WebGLSceneComponent {
     ngAfterViewInit() {
         if (this.renderer) {  return; }
 
-        //We start from switched off omega threes and container lyphs
-        //this._graphData.toggleLinks(this._hideLinks);
-
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 

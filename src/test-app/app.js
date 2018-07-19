@@ -1,11 +1,13 @@
-import { NgModule, Component } from '@angular/core';
-import {BrowserModule}       from '@angular/platform-browser';
-import {WebGLSceneModule}    from '../components/webGLScene';
-
+import { NgModule, Component, ViewChild, ElementRef } from '@angular/core';
+import { BrowserModule }       from '@angular/platform-browser';
+import { WebGLSceneModule }    from '../components/webGLScene';
+import FileSaver from 'file-saver';
+import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
 
 import 'font-awesome/css/font-awesome.css';
+import 'jsoneditor/dist/jsoneditor.min.css';
 
 @Component({
 	selector: 'test-app',
@@ -31,8 +33,31 @@ import 'font-awesome/css/font-awesome.css';
             </span>
         </header>
 
+		<section class="w3-sidebar w3-top w3-bar-block" style="width:auto; left: 0px; top: 40px;">
+            <input #fileInput
+                   [type]          = "'file'"
+                   [accept]        = "'.json'"
+                   [style.display] = "'none'"
+                   (change)        = "load(fileInput.files)"
+            />
+			<button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
+				<i class="fa fa-folder"></i>
+				</button>
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit model">
+                <i class="fa fa-edit"></i>
+            </button>
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide model">
+                <i class="fa fa-eye-slash"></i>
+            </button>
+        </section>
+
 		<section style="margin-top:40px;"></section>
-	    <webGLScene [graphData]="_graphData" [selected]="_selected" 
+		
+        <section [hidden] = "!_showJSONEditor" 
+				 #jsonEditor id="jsonEditor" class="w3-sidebar w3-animate-zoom" 
+				 style="margin-left:48px; width:calc(100% - 48px); opacity:0.95;"></section>
+
+    	<webGLScene [graphData]="_graphData" [selected]="_selected" 
 					(selectedItemChange)="onSelectedItemChange($event)"
                     (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
 		<section class="w3-clear" style="margin-bottom:10px;"></section>
@@ -51,19 +76,40 @@ import 'font-awesome/css/font-awesome.css';
 export class TestApp {
     _dataService;
     _graphData;
+    _showJSONEditor = false;
+    _json = {};
+    _editor;
+
+    @ViewChild('jsonEditor') _container: ElementRef;
 
     constructor(){
         this._dataService = new DataService();
-        this._dataService.init();
+        this._dataService.init({});
         this._graphData = this._dataService.graphData;
     }
 
     ngAfterViewInit(){
-        let tmp =  this._graphData.lyphs.find(lyph => lyph.id === "999_1022");
-        if (tmp){
-            this._selected = tmp.viewObjects["main"];
-        }
+        this._editor = new JSONEditor(this._container.nativeElement, {});
     }
+
+	load(files) {
+		const reader = new FileReader();
+		reader.onload = () => {
+            this._json = JSON.parse(reader.result);
+			this._dataService.init(this._json);
+            this._graphData = this._dataService.graphData;
+            this._editor.set(this._json);
+		};
+		reader.readAsText(files[0]);
+	}
+
+	openEditor(){
+        this._showJSONEditor = !this._showJSONEditor;
+	}
+
+	closeEditor(){
+        this._showJSONEditor = !this._showJSONEditor;
+	}
 
     onSelectedItemChange(item){}
 

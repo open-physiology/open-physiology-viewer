@@ -37,17 +37,48 @@
         "interpolateViridis"
       ]
     },
+    "GroupColorScheme": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "description": "Interpolation scheme to apply to a group of lyphs",
+          "$ref": "#/schemes/ColorScheme"
+        },
+        "length": {
+          "description": "Optional parameter to define number of colors from the color scheme, enables color matching for subtype lyph layers",
+          "type": "number"
+        },
+        "reversed": {
+          "description": "Boolean parameter that indicates whether to pick up colors from the color scheme in reverse order",
+          "type": "boolean"
+        },
+        "offset": {
+          "description": "Colors at the beginning and at the end of the color arrays are too dark or too light, so we skip some percentage",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
     "OffsetScheme": {
       "type": "object",
       "properties": {
         "start": {
-          "type": "number"
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 1
         },
         "end": {
-          "type": "number"
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 1
         },
         "step": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         }
       }
     }
@@ -62,7 +93,7 @@
           "description": "Unique entity identifier",
           "type": "string"
         },
-        "name": {
+        "name" : {
           "description": "Entity name",
           "type": "string"
         },
@@ -102,11 +133,7 @@
           },
           "uniqueItems": true
         },
-        "isTemplate": {
-          "description": "Indicates that the entity is used as template to generate other entities",
-          "type": "boolean"
-        },
-        "assign": {
+        "assign"    : {
           "description": "A map that, for each generated entity ID, defines properties to assign to the dynamically created entity",
           "type": "object"
         },
@@ -147,15 +174,15 @@
             "lists": []
           }
         },
-        "hidden": {
+        "hidden"    : {
           "description": "A flag to indicate that this entity should not be visualized",
           "type": "boolean"
         },
-        "inactive": {
+        "inactive"  : {
           "description": "A boolean flag to indicate that this entity should not be highlighted",
           "type": "boolean"
         },
-        "skipLabel": {
+        "skipLabel" : {
           "description": "A flag to indicate that this entity is visualized without the corresponding text label",
           "type": "boolean"
         }
@@ -513,7 +540,9 @@
         },
         "offset": {
           "description": "The distance to which the lyph is shifted wrt its axis, it is used to position layers within their hosting lyph",
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         },
         "internalLyphs": {
           "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
@@ -568,7 +597,7 @@
             }
           ]
         },
-        "materials": {
+        "materials" : {
           "description": "Materials in the lyph",
           "type": "array",
           "items": {
@@ -582,7 +611,11 @@
             ]
           }
         },
-        "subtypes": {
+        "isTemplate": {
+          "description": "Indicates that the entity is used as template to generate other entities",
+          "type": "boolean"
+        },
+        "subtypes"  : {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
           "type": "array",
           "items": {
@@ -596,7 +629,7 @@
             ]
           }
         },
-        "supertype": {
+        "supertype" : {
           "description": "Lyph which is an anatomical supertype of the given lyph",
           "anyOf": [
             {
@@ -778,13 +811,20 @@
           "type": "object",
           "properties": {
             "lyphs": {
-              "type": "object",
-              "properties": {
-                "color": {
-                  "description": "Interpolation scheme to apply to a group of lyphs",
-                  "$ref": "#/schemes/ColorScheme"
-                }
-              }
+              "description": "Color scheme for the lyphs in the group",
+              "$ref": "#/schemes/GroupColorScheme"
+            },
+            "lyphLayers": {
+              "description": "Color scheme for the layers of lyphs in the group",
+              "$ref": "#/schemes/GroupColorScheme"
+            },
+            "conveyingLyphs": {
+              "description": "Color scheme for the conveying lyphs of the links in the group",
+              "$ref": "#/schemes/GroupColorScheme"
+            },
+            "conveyingLyphLayers": {
+              "description": "Color scheme for the layers of conveying lyphs of the links in the group",
+              "$ref": "#/schemes/GroupColorScheme"
             },
             "nodes": {
               "type": "object",
@@ -794,7 +834,8 @@
                   "$ref": "#/schemes/OffsetScheme"
                 }
               }
-            }
+            },
+            "additionalProperties": false
           }
         },
         "remove": {

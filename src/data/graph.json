@@ -1070,15 +1070,11 @@
     {
       "id": "omega",
       "name": "Omega trees",
-      "nodes": [],
-      "links": [],
       "groups": ["arterial", "venous", "urinary", "connector"]
     },
     {
       "id": "coalescences",
-      "name": "Coalescences",
-      "nodes": [],
-      "links": []
+      "name": "Coalescences"
     },
     {
       "id": "contaners",
@@ -1094,8 +1090,6 @@
     {
       "id": "neural",
       "name": "Neural system",
-      "nodes": [],
-      "links": [],
       "lyphs": [
         "152",
         "147",
@@ -1112,13 +1106,20 @@
           "color": "#aaa",
           "scale": { "width": 200, "height": 100 }
         }
+      },
+      "interpolate": {
+        "lyphLayers": {
+          "color"   : "interpolateBlues",
+          "length"  : 3,
+          "offset"  : 0.25,
+          "reversed": true
+        }
       }
     },
     {
       "id": "neurons",
       "name": "Neurons",
-      "nodes": [],
-      "links": []
+      "lyphs": ["197", "198", "199", "200", "201", "202", "203", "204", "205", "206", "99001", "99004", "99007", "99010"]
     },
     {
       "id": "spt",
@@ -1142,7 +1143,6 @@
     {"id": "cardiac",
       "name": "Cardiac",
       "groups": ["R_MCP", "R_MCS", "L_MCP", "L_MCS"],
-      "nodes" : [],
       "lyphs" : ["995", "996"],
       "assign": {
         "links": {
@@ -1247,8 +1247,9 @@
         }
       },
       "interpolate": {
-        "lyphs": {
-          "color": "interpolateReds"
+        "conveyingLyphs": {
+          "color": "interpolateReds",
+          "offset": 0.25
         }
       }
     },
@@ -1266,8 +1267,9 @@
         }
       },
       "interpolate": {
-        "lyphs": {
-          "color": "interpolateRdPu"
+        "conveyingLyphs": {
+          "color": "interpolateRdPu",
+          "offset": 0.25
         }
       },
       "links": [
@@ -1302,8 +1304,9 @@
         }
       },
       "interpolate": {
-        "lyphs": {
-          "color": "interpolateGreens"
+        "conveyingLyphs": {
+          "color": "interpolateGreens",
+          "offset": 0.25
         }
       },
       "links": [
@@ -1360,8 +1363,9 @@
         }
       },
       "interpolate": {
-        "lyphs": {
-          "color": "interpolateOranges"
+        "conveyingLyphs": {
+          "conveyingLyphs": "interpolateOranges",
+          "offset": 0.25
         }
       },
       "links": [
