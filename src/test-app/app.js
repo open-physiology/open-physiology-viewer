@@ -43,11 +43,17 @@ import 'jsoneditor/dist/jsoneditor.min.css';
 			<button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
 				<i class="fa fa-folder"></i>
 				</button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit model">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit">
                 <i class="fa fa-edit"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide model">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide">
                 <i class="fa fa-eye-slash"></i>
+            </button>
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="preview()" title="Preview">
+                <i class="fa fa-check"></i>
+            </button>
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="save()" title="Export">
+                <i class="fa fa-save"></i>
             </button>
         </section>
 
@@ -77,7 +83,7 @@ export class TestApp {
     _dataService;
     _graphData;
     _showJSONEditor = false;
-    _json = {};
+    _model = {};
     _editor;
 
     @ViewChild('jsonEditor') _container: ElementRef;
@@ -95,21 +101,35 @@ export class TestApp {
 	load(files) {
 		const reader = new FileReader();
 		reader.onload = () => {
-            this._json = JSON.parse(reader.result);
-			this._dataService.init(this._json);
+            this._model = JSON.parse(reader.result);
+            this._editor.set(this._model);
+			this._dataService.init(this._model);
             this._graphData = this._dataService.graphData;
-            this._editor.set(this._json);
 		};
 		reader.readAsText(files[0]);
 	}
 
 	openEditor(){
-        this._showJSONEditor = !this._showJSONEditor;
+        this._showJSONEditor = true;
 	}
 
 	closeEditor(){
-        this._showJSONEditor = !this._showJSONEditor;
+        this._showJSONEditor = false;
 	}
+
+	preview(){
+        this._showJSONEditor = false;
+        this._model = this._editor.get();
+        this._dataService.init(this._model);
+        this._graphData = this._dataService.graphData;
+    }
+
+    save(){
+        this._model = this._editor.get();
+        let result = JSON.stringify(this._model, null, 4);
+        const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+        FileSaver.saveAs(blob, 'apinatomy-model.json');
+    }
 
     onSelectedItemChange(item){}
 
