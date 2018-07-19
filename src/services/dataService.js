@@ -14,8 +14,6 @@ import { modelClasses } from '../models/utils';
  * ...
  */
 export class DataService{
-    _entitiesByID = {};
-
     /**
      * Prepare core ApiNATOMY graph
      */
@@ -65,7 +63,7 @@ export class DataService{
             groups.forEach(group => {
                 //generate node, link and lyph objects that are referred from a group but are not in the main graph
                 propertyList.forEach(property => {
-                    (group[property]||[]).forEach((id, i) => {
+                    (group[property]||[]).forEach(id => {
                         let entity = this._graphData[property].find(e => e.id === id);
                         if (entity === undefined){
                             entity = {"id": id};
@@ -299,12 +297,14 @@ export class DataService{
         /* Generate complete model */
 
         //Copy existing entities to a map to enable nested model instantiation
-        this._entitiesByID[this._graphData.id] = this._graphData;
+        let entitiesByID = {};
+        
+        entitiesByID[this._graphData.id] = this._graphData;
         this._graphData::values().filter(prop => Array.isArray(prop)).forEach(array => array.forEach(e => {
-            if (this._entitiesByID[e.id]) {
-                console.error("Entity IDs are not unique: ", this._entitiesByID[e.id], e);
+            if (entitiesByID[e.id]) {
+                console.error("Entity IDs are not unique: ", entitiesByID[e.id], e);
             }
-            this._entitiesByID[e.id] = e;
+            entitiesByID[e.id] = e;
         }));
 
         let conveyingLyphMap = {};
@@ -319,7 +319,7 @@ export class DataService{
         console.log("ApiNATOMY input model: ", this._graphData);
 
         //Create an ApiNATOMY model
-        this._graphData = Graph.fromJSON(this._graphData, modelClasses, this._entitiesByID);
+        this._graphData = Graph.fromJSON(this._graphData, modelClasses, entitiesByID);
 
         console.log("ApiNATOMY graph: ", this._graphData);
 
