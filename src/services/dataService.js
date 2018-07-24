@@ -1,8 +1,9 @@
-import { keys, values, cloneDeep, merge, mergeWith} from 'lodash-bound';
-import * as colorSchemes from 'd3-scale-chromatic';
+import { keys, values, cloneDeep, merge, mergeWith, isObject} from 'lodash-bound';
 import { Graph } from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/utils';
+
+const JSONPath = require('JSONPath');
 
 /**
  * A class that assembles ApiNATOMY model from available data sources:
@@ -22,29 +23,7 @@ export class DataService{
         /////////////////////////////////////////////////////////////////////
         //Constant parameters and helper functions
         /////////////////////////////////////////////////////////////////////
-        const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
         const propertyList = ["nodes", "lyphs", "links"];
-
-        //assign random color to entities from the list if they dont have their own color
-        const addColor = (array, defaultColor) => array.filter(obj => !obj.color)
-            .forEach((obj, i) => { obj.color = defaultColor || colors[i % colors.length] });
-
-        const colorLyphGroup = (lyphs, {color, length, reversed = false, offset}) => {
-            if (!colorSchemes[color]) {
-                console.warn("Unrecognized color scheme: ", color);
-                return;
-            }
-            if (!length) { length = lyphs.length; }
-            if (!offset) { offset = 0; }
-            lyphs.forEach((lyphID, i) => {
-                let lyph = this._graphData.lyphs.find(lyph => lyph.id === lyphID);
-                if (!lyph){
-                    console.warn("Reference to lyph's ID not found", lyphID);
-                    return;
-                }
-                lyph.color = colorSchemes[color](((reversed)? 1 - offset - i / length : offset + i / length));
-            });
-        };
 
         const getLinkByLyphID = (lyphID) => {
             let res = this._graphData.links.find(link => link.conveyingLyph &&
@@ -71,52 +50,6 @@ export class DataService{
                         }
                     })
                 });
-            });
-        };
-
-        const expandGroupSettings = groups => {
-            groups.forEach(group => {
-                //assign properties
-                (group.assign||[])::keys().forEach(property => {
-                    if (group.assign[property] && this._graphData[property]) {
-                        (group[property]||[]).map(id => this._graphData[property]
-                            .find(e => e.id === id)).forEach(e => e::mergeWith(group.assign[property], noOverwrite));
-                    }
-                });
-                //interpolate properties
-                (group.interpolate||[])::keys().forEach(property => {
-                    //TODO replace with JSONPath processing?
-                    if (group.interpolate[property]) {
-                        if (property === "nodes"){
-                            if (group.interpolate[property].offset){
-                                if ((group.nodes||[]).length > 0){
-                                    let nodes = group.nodes.map(e => this._graphData.nodes.find(node => node.id === e));
-                                    let spec = group.interpolate[property].offset;
-                                    spec::mergeWith({
-                                        "start": 0,
-                                        "end": 1,
-                                        "step": (spec.end - spec.start) / (nodes.length + 1)
-                                    }, noOverwrite);
-                                    nodes.forEach((node, i) => node.offset = spec.start + spec.step * ( i + 1 ) );
-                                }
-                            }
-                        } else {
-                            //color scheme is applied to the conveying lyphs of the links in a group
-                            let lyphs = property.startsWith("conveying")?
-                                group.links.map(e => this._graphData.links.find(lnk => lnk.id === e))
-                                    .filter(lnk => !!lnk).map(lnk => lnk.conveyingLyph)
-                                : group.lyphs;
-
-                            if (property.endsWith("Layers")) {
-                                lyphs.map(e => this._graphData.lyphs.find(lyph => lyph.id === e))
-                                    .filter(lyph => !!lyph.layers).forEach(lyph =>
-                                        colorLyphGroup(lyph.layers, group.interpolate[property]))
-                            } else {
-                                colorLyphGroup(lyphs, group.interpolate[property]);
-                            }
-                        }
-                    }
-                })
             });
         };
 
@@ -199,14 +132,6 @@ export class DataService{
         //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
         generateEntitiesFromGroupRefs(this._graphData.groups);
 
-        //Assign group properties
-        expandGroupSettings([this._graphData]);
-        expandGroupSettings(this._graphData.groups);
-
-        //Remove subgroups
-        this.graphData.groups = this.graphData.groups.filter(g => !g.remove);
-        this.graphData.groups.forEach(g => delete g.groups);
-
         //Create nodes and links for internal lyphs, add them to the groups to which internal lyphs belong
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
             let newGroupIDs = createInternalLyphs(lyph);
@@ -245,10 +170,6 @@ export class DataService{
                 });
             });
         }
-
-        //Color links and lyphs which do not have assigned colors yet
-        addColor(this._graphData.links, "#000");
-        addColor(this._graphData.lyphs);
 
         /*Find lyph templates, generate new layers and replicate template properties */
 
@@ -316,11 +237,8 @@ export class DataService{
            }
         });
 
-        console.log("ApiNATOMY input model: ", this._graphData);
-
         //Create an ApiNATOMY model
         this._graphData = Graph.fromJSON(this._graphData, modelClasses, entitiesByID);
-
         console.log("ApiNATOMY graph: ", this._graphData);
 
         /*Map initial positional constraints to match the scaled image*/

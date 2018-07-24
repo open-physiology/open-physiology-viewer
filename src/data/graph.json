@@ -1107,14 +1107,17 @@
           "scale": { "width": 200, "height": 100 }
         }
       },
-      "interpolate": {
-        "lyphLayers": {
-          "color"   : "interpolateBlues",
-          "length"  : 3,
-          "offset"  : 0.25,
-          "reversed": true
+      "interpolate": [
+        {
+          "path": "$.lyphs[*].layers",
+          "color": {
+            "scheme": "interpolateBlues",
+            "length": 3,
+            "offset": 0.25,
+            "reversed": true
+          }
         }
-      }
+      ]
     },
     {
       "id": "neurons",
@@ -1156,9 +1159,23 @@
         }
       }
     },
-    {"id": "R_MCP",
-      "nodes": ["R_1_MCP", "R_2_MCP", "R_3_MCP", "R_4_MCP", "R_5_MCP"],
-      "links": ["lnkR_1_MCP", "lnkR_2_MCP", "lnkR_3_MCP", "lnkR_4_MCP", "lnkR_5_MCP", "lnkR_6_MCP"],
+    {
+      "id": "R_MCP",
+      "nodes": [
+        "R_1_MCP",
+        "R_2_MCP",
+        "R_3_MCP",
+        "R_4_MCP",
+        "R_5_MCP"
+      ],
+      "links": [
+        "lnkR_1_MCP",
+        "lnkR_2_MCP",
+        "lnkR_3_MCP",
+        "lnkR_4_MCP",
+        "lnkR_5_MCP",
+        "lnkR_6_MCP"
+      ],
       "assign": {
         "nodes": {
           "host": "LR"
@@ -1167,11 +1184,14 @@
           "reversed": true
         }
       },
-      "interpolate":{
-        "nodes": {
-          "offset": {"start": 1, "end": 0.5}
+      "interpolate": [
+        {
+          "offset": {
+            "start": 1,
+            "end": 0.5
+          }
         }
-      }
+      ]
     },
     {"id": "L_MCP",
       "nodes": ["L_1_MCP", "L_2_MCP", "L_3_MCP", "L_4_MCP", "L_5_MCP"],
@@ -1181,11 +1201,14 @@
           "host": "LR"
         }
       },
-      "interpolate":{
-        "nodes": {
-          "offset": {"start": 0, "end": 0.5}
+      "interpolate": [
+        {
+          "offset": {
+            "start": 0,
+            "end": 0.5
+          }
         }
-      }
+      ]
     },
     {"id": "R_MCS",
       "nodes": ["R_1_MCS", "R_2_MCS", "R_3_MCS", "R_4_MCS", "R_5_MCS"],
@@ -1195,11 +1218,13 @@
           "host": "RL"
         }
       },
-      "interpolate":{
-        "nodes": {
-          "offset": {"start": 0, "end": 0.5}
+      "interpolate": [
+        {
+          "offset": {
+            "start": 0, "end": 0.5
+          }
         }
-      }
+      ]
     },
     {"id": "L_MCS",
       "nodes": ["L_1_MCS", "L_2_MCS", "L_3_MCS", "L_4_MCS", "L_5_MCS"],
@@ -1212,11 +1237,11 @@
           "reversed": true
         }
       },
-      "interpolate":{
-        "nodes": {
+      "interpolate": [
+        {
           "offset": {"start": 1, "end": 0.5}
         }
-      }
+      ]
     },
     {
       "id": "arterial",
@@ -1246,12 +1271,15 @@
           "linkMethod": "Line2"
         }
       },
-      "interpolate": {
-        "conveyingLyphs": {
-          "color": "interpolateReds",
-          "offset": 0.25
+      "interpolate": [
+        {
+          "path": "$.links[*].conveyingLyph",
+          "color": {
+            "scheme": "interpolateReds",
+            "offset": 0.25
+          }
         }
-      }
+      ]
     },
     {
       "id": "venous",
@@ -1266,12 +1294,14 @@
           "linkMethod": "Line2"
         }
       },
-      "interpolate": {
-        "conveyingLyphs": {
-          "color": "interpolateRdPu",
-          "offset": 0.25
+      "interpolate": [{
+          "path": "$.links[*].conveyingLyph",
+          "color": {
+            "scheme": "interpolateRdPu",
+            "offset": 0.25
+          }
         }
-      },
+      ],
       "links": [
         "LR10",
         "LR11",
@@ -1303,12 +1333,15 @@
           "linkMethod": "Line2"
         }
       },
-      "interpolate": {
-        "conveyingLyphs": {
-          "color": "interpolateGreens",
-          "offset": 0.25
+      "interpolate": [
+        {
+          "path": "$.links[*].conveyingLyph",
+          "color": {
+            "scheme": "interpolateGreens",
+            "offset": 0.25
+          }
         }
-      },
+      ],
       "links": [
         "PS00",
         "PS01",
@@ -1362,12 +1395,15 @@
           "linkMethod": "Line2"
         }
       },
-      "interpolate": {
-        "conveyingLyphs": {
-          "conveyingLyphs": "interpolateOranges",
-          "offset": 0.25
-        }
-      },
+      "interpolate": [
+        {
+          "path": "$.links[*].conveyingLyph",
+          "color": {
+              "scheme": "interpolateOranges",
+              "offset": 0.25
+            }
+          }
+      ],
       "links": [
         "LRPS00",
         "LRPS01",

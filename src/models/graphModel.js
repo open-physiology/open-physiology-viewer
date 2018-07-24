@@ -1,92 +1,137 @@
 import { Entity } from './entityModel';
-import { values } from 'lodash-bound';
+import { keys, values, mergeWith, isObject} from 'lodash-bound';
 import { LINK_TYPES } from './linkModel';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/manifest.json';
 import { EventEmitter } from 'events';
+import * as colorSchemes from 'd3-scale-chromatic';
+const JSONPath = require('JSONPath');
 
 const validator = new Validator();
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
 
 export const graphEvent = new EventEmitter();
 
+const noOverwrite = (objVal, srcVal) => {
+    if (objVal && objVal !== srcVal) { return objVal; }
+    return srcVal;
+};
+const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
+const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
+    .forEach((e, i) => { e.color = defaultColor || colors[i % colors.length] });
+const colorGroupEntities = (entities, {scheme, length, reversed = false, offset}) => {
+    if (!colorSchemes[scheme]) {
+        console.warn("Unrecognized color scheme: ", scheme);
+        return;
+    }
+    if (!length) { length = entities.length; }
+    if (!offset) { offset = 0; }
+
+    const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
+    const assignColor = items => {
+        (items||[]).forEach((item, i) => {
+            if (!item::isObject()) {
+                console.warn("Cannot assign color to a non-object value");
+                return;
+            }
+            //If entity is an array, the schema is applied to each of it's items (e.g. to handle layers of lyphs in a group)
+            if (Array.isArray(item)){
+                assignColor(item);
+            } else {
+                item.color = getColor(i);
+            }
+        });
+    };
+    assignColor(entities);
+};
+const interpolateGroupProperties = (group) => {
+    (group.interpolate||[]).forEach(spec => {
+        let entities = spec.path? JSONPath({json: group, path: spec.path}): group.nodes || [];
+        if (spec.offset){
+            spec.offset::mergeWith({
+                "start": 0,
+                "end": 1,
+                "step": (spec.offset.end - spec.offset.start) / (entities.length + 1)
+            }, noOverwrite);
+            entities.forEach((e, i) => e.offset = spec.offset.start + spec.offset.step * ( i + 1 ) );
+        }
+        if (spec.color){
+            colorGroupEntities(entities, spec.color);
+        }
+    })
+};
+
 export class Graph extends Entity {
-    _nodes: [];
-    _links: [];
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
+
         let resVal = validator.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){
             //graphEvent.emit(resVal);
             console.warn(resVal);
         }
-        return super.fromJSON(json, modelClasses, entitiesByID);
+
+        //Group properties must be assigned before creating the model because IDs in the "assign" object are not replaced with references
+        const assignGroupProperties = (group) => {
+            (group.assign||[])::keys().forEach(property => {
+                if (group.assign[property] && json[property]) {
+                    (group[property]||[]).map(id => json[property]
+                        .find(e => e.id === id)).forEach(e => e::mergeWith(group.assign[property], noOverwrite));
+                }
+            });
+            (group.groups||[]).forEach(g => assignGroupProperties(g));
+        };
+
+        assignGroupProperties(json);
+        //Color links and lyphs which do not have assigned colors in the spec
+        addColor(json.links, "#000");
+        addColor(json.lyphs);
+
+        let res  = super.fromJSON(json, modelClasses, entitiesByID);
+        //Interpolation schemes do not contain IDs/references, so it is easier to process them in the expanded model
+        interpolateGroupProperties(res);
+
+        //Remove subgroups
+        res.groups = (res.groups||[]).filter(g => !g.remove);
+        (res.groups||[]).forEach(g => delete g.groups);
+
+        return res;
     }
 
     get entities(){
-        return [...(this._allNodes||[]), ...(this._allLinks||[]), ...(this.lyphs||[])];
+        return [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[])];
     }
 
     belongsTo(entity){
         return this.entities.find(e => (e === entity) || (e.id === entity.id && e.class === entity.class));
     }
 
-    set links(newLinks){
-        this._links = newLinks;
-        this._allLinks = this._links;
-    }
-
-    get links(){
-        return this._links;
-    }
-
-    set nodes (newNodes){
-        this._nodes = newNodes;
-        this._allNodes = this._nodes;
-    }
-
-    get nodes(){
-        return this._nodes;
-    }
-
     hideGroups(groups){
-        if (!this._allLinks) { this._allLinks = this._links; }
-        if (!this._allNodes) { this._allNodes = this._nodes; }
-
-        let hiddenLinks = [];
-        let hiddenNodes = [];
-
-        //Remove hidden links from the current graph link set
-        this._allLinks.filter(link => (groups||[]).find(group => group.belongsTo(link))
-                && !hiddenLinks.find(lnk => lnk.id === link.id))
-            .forEach(link => hiddenLinks.push(link));
-
-        //Remove hidden nodes from the current graph node set
-        this._allNodes.filter(node => (groups||[]).find(group => group.belongsTo(node))
-                && !hiddenNodes.find(n => n.id === node.id))
-            .forEach(node => hiddenNodes.push(node));
-
-        this._links = this._allLinks.filter(link => !hiddenLinks.find(lnk => lnk.id === link.id));
-        this._nodes = this._allNodes.filter(node => !hiddenNodes.find(n => n.id === node.id));
-
-        //If a lyph in a group to hide but its axis is not, make it invisible
-        this._links.filter(link => link.conveyingLyph).forEach(link => {
-            if ((groups||[]).find(group => group.belongsTo(link.conveyingLyph))){
-                link.conveyingLyph.hidden = true;
+        this.entities.forEach(entity => {
+            if ((groups || []).find(group => group.belongsTo(entity))) {
+                entity.hidden = true;
             } else {
-                delete link.conveyingLyph.hidden;
+                delete entity.hidden;
             }
-        })
+        });
+    }
+
+    get visibleNodes(){
+        return this.nodes.filter(e => !e.hidden);
+    }
+
+    get visibleLinks(){
+        return this.links.filter(e => !e.hidden);
     }
 
     createViewObjects(state){
         //Draw all graph nodes, except for invisible nodes (node.type === CONTROL)
-        this._nodes.filter(node => !node.hidden).forEach(node => {
+        this.visibleNodes.forEach(node => {
             node.createViewObjects(state);
             node.viewObjects::values().forEach(obj => state.graphScene.add(obj));
         });
 
-        this._links.forEach(link => {
+        this.visibleLinks.forEach(link => {
             link.createViewObjects(state);
             link.viewObjects::values().forEach(obj => state.graphScene.add(obj));
             if (link.type === LINK_TYPES.INVISIBLE){
@@ -97,20 +142,20 @@ export class Graph extends Entity {
 
     updateViewObjects(state){
         // Update nodes positions
-        this._nodes.forEach(node => { node.updateViewObjects(state) });
+        this.visibleNodes.forEach(node => { node.updateViewObjects(state) });
 
         //Edge bundling
         const fBundling = ForceEdgeBundling()
-            .nodes(this._nodes)
-            .edges(this.links.filter(e => e.type === LINK_TYPES.PATH).map(edge => {
+            .nodes(this.visibleNodes)
+            .edges(this.visibleLinks.filter(e => e.type === LINK_TYPES.PATH).map(edge => {
                 return {
-                    source: this._nodes.indexOf(edge.source),
-                    target: this._nodes.indexOf(edge.target)
+                    source: this.nodes.indexOf(edge.source),
+                    target: this.nodes.indexOf(edge.target)
                 };
             }));
         let res = fBundling();
         (res || []).forEach(path => {
-            let lnk = this._links.find(e => e.source.id === path[0].id);
+            let lnk = this.links.find(e => e.source.id === path[0].id);
             if (lnk){
                 let dz = (path[path.length - 1].z - path[0].z) / path.length;
                 for (let i = 1; i < path.length - 1; i++){
@@ -123,7 +168,7 @@ export class Graph extends Entity {
         //Update links in certain order
         [LINK_TYPES.SEMICIRCLE, LINK_TYPES.LINK, LINK_TYPES.INVISIBLE, LINK_TYPES.DASHED, LINK_TYPES.CONTAINER, LINK_TYPES.PATH].forEach(
             linkType => {
-                this._links.filter(link => link.type === linkType).forEach(link => {
+                this.visibleLinks.filter(link => link.type === linkType).forEach(link => {
                     link.updateViewObjects(state);
                 });
             }

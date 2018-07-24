@@ -38,14 +38,15 @@
       ]
     },
     "GroupColorScheme": {
+      "description": "Scheme to specify color interpolation for a group of entities",
       "type": "object",
       "properties": {
-        "color": {
-          "description": "Interpolation scheme to apply to a group of lyphs",
+        "scheme": {
+          "description": "Interpolation scheme to apply to a group of entities",
           "$ref": "#/schemes/ColorScheme"
         },
         "length": {
-          "description": "Optional parameter to define number of colors from the color scheme, enables color matching for subtype lyph layers",
+          "description": "Optional parameter to define number of colors from the color scheme",
           "type": "number"
         },
         "reversed": {
@@ -69,13 +70,13 @@
           "minimum": 0,
           "maximum": 1
         },
-        "end": {
+        "end"  : {
           "type": "number",
           "default": 1,
           "minimum": 0,
           "maximum": 1
         },
-        "step": {
+        "step" : {
           "type": "number",
           "minimum": 0,
           "maximum": 1
@@ -226,7 +227,6 @@
               "maximum": 100
             }
           },
-          "additionalProperties": true,
           "default": {}
         },
         "type": {
@@ -808,34 +808,22 @@
           ]
         },
         "interpolate": {
-          "type": "object",
-          "properties": {
-            "lyphs": {
-              "description": "Color scheme for the lyphs in the group",
-              "$ref": "#/schemes/GroupColorScheme"
-            },
-            "lyphLayers": {
-              "description": "Color scheme for the layers of lyphs in the group",
-              "$ref": "#/schemes/GroupColorScheme"
-            },
-            "conveyingLyphs": {
-              "description": "Color scheme for the conveying lyphs of the links in the group",
-              "$ref": "#/schemes/GroupColorScheme"
-            },
-            "conveyingLyphLayers": {
-              "description": "Color scheme for the layers of conveying lyphs of the links in the group",
-              "$ref": "#/schemes/GroupColorScheme"
-            },
-            "nodes": {
-              "type": "object",
-              "properties": {
-                "offset": {
-                  "description": "Interpolate offset on the host link for a group of nodes",
-                  "$ref": "#/schemes/OffsetScheme"
-                }
+          "description": "Parameters defining schemes to interpolate properties of group entities",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "description": "Optional JSONPath expression (by default, group's set of nodes is used as interpolation target)",
+                "type": "string"
+              },
+              "color": {
+                "ref": "#/schemes/GroupColorScheme"
+              },
+              "offset": {
+                "ref": "#/schemes/OffsetScheme"
               }
-            },
-            "additionalProperties": false
+            }
           }
         },
         "remove": {
