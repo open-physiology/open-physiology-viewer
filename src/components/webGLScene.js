@@ -156,7 +156,7 @@ export class WebGLSceneComponent {
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
-           this._graphData = newGraphData;
+            this._graphData = newGraphData;
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
             this._namesAvailable = this._graphData.lyphs.map(lyph => lyph.name);

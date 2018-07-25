@@ -187,7 +187,8 @@
           "description": "A flag to indicate that this entity is visualized without the corresponding text label",
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Node": {
       "description": "Graph node joins two or more links (processes)",

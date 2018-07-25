@@ -5,9 +5,13 @@ import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
+import * as schema from '../data/manifest.json';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
+
+//const Ajv = require('ajv');
+const ace = require('ace-builds');
 
 @Component({
 	selector: 'test-app',
@@ -95,18 +99,41 @@ export class TestApp {
     }
 
     ngAfterViewInit(){
-        this._editor = new JSONEditor(this._container.nativeElement, {});
+        this._editor = new JSONEditor(this._container.nativeElement, {
+            mode: 'code',
+            modes: ['code', 'tree', 'view'],
+            onError: function (err) {
+                alert(err.toString());
+            },
+            //ajv: Ajv({ allErrors: true, verbose: true }),
+            ace: ace,
+            schema: schema
+        });
     }
 
 	load(files) {
 		const reader = new FileReader();
 		reader.onload = () => {
-            this._model = JSON.parse(reader.result);
-            this._editor.set(this._model);
-			this._dataService.init(this._model);
-            this._graphData = this._dataService.graphData;
-		};
-		reader.readAsText(files[0]);
+            try {
+                this._model = JSON.parse(reader.result);
+            }
+            catch(err){
+                console.error("Cannot parse the input file: ", err)
+            }
+            try{
+                this._editor.set(this._model);
+                this._dataService.init(this._model);
+                this._graphData = this._dataService.graphData;
+            }
+            catch(err){
+                console.error("Cannot display the model: ", err);
+            }
+        };
+		try {
+            reader.readAsText(files[0]);
+        } catch (err){
+		    console.error("Failed to open the input file: ", err);
+        }
 	}
 
 	openEditor(){

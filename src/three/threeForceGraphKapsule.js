@@ -88,7 +88,16 @@ export default Kapsule({
         state.onLoading();
 
         if (state.graphData.nodes.length || state.graphData.links.length) {
-            console.info('force-graph loading', state.graphData.nodes.length + ' nodes', state.graphData.links.length + ' links');
+
+            //Exclude links with no ends
+            state.graphData.links = state.graphData.links.filter(link => (
+                state.graphData.nodes.find(node => node === link.source) &&
+                state.graphData.nodes.find(node => node === link.target)
+            ));
+
+            console.info('force-graph loading',
+                state.graphData.nodes.length + ' nodes',
+                state.graphData.links.length + ' links');
         }
 
         while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place

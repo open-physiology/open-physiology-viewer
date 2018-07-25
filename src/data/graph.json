@@ -218,7 +218,8 @@
     },
     {
       "id": "N6",
-      "name": "Medulla node"
+      "name": "Medulla node",
+      "offset": 0.25
     },
     {
       "id": "N7",
@@ -1130,8 +1131,9 @@
       "groups": ["TREE1", "TREE2", "TREE3"],
       "assign": {
         "nodes": {
-          "val": 0.5,
+          "val": 1,
           "color": "#666",
+          "layout": {"z": 0},
           "skipLabel": true
         },
         "links": {
@@ -3633,20 +3635,8 @@
         "204"
       ],
       "border": {
-        "borders": [
-          {},
-          {
-            "hostedNodes": [
-              "N23"
-            ]
-          },
-          {},
-          {}
-        ]
-      },
-      "hostedLyphs": [
-        "L80"
-      ]
+        "borders": [{}, {"hostedNodes": ["N23"]}, {}, {}]
+      }
     },
     {
       "id": "137",
@@ -3707,19 +3697,7 @@
       },
       "internalLyphs": [
         "203"
-      ],
-      "border": {
-        "borders": [
-          {},
-          {
-            "hostedNodes": [
-              "N22"
-            ]
-          },
-          {},
-          {}
-        ]
-      }
+      ]
     },
     {
       "id": "142",
@@ -3852,26 +3830,11 @@
         "max": 2
       },
       "internalLyphs": [
-        "201",
+        "99004",
         "202",
-        "99004"
+        "201"
       ],
-      "border": {
-        "borders": [
-          {},
-          {
-            "hostedNodes": [
-              "N20"
-            ]
-          },
-          {},
-          {}
-        ]
-      },
-      "hostedLyphs": [
-        "L20",
-        "L68"
-      ]
+      "border": {"borders": [{}, {"hostedNodes": ["N6"]}, {}, {}]}
     },
     {
       "id": "152",
@@ -3935,22 +3898,7 @@
         "198",
         "200"
       ],
-      "border": {
-        "borders": [
-          {},
-          {},
-          {},
-          {
-            "hostedNodes": [
-              "N14"
-            ]
-          }
-        ]
-      },
-      "hostedLyphs": [
-        "L16",
-        "L48"
-      ]
+      "border": {"borders": [{"hostedNodes": ["N5", "N14"]},{},{},{"hostedNodes": ["N20"]}]}
     },
     {
       "id": "157",
@@ -4152,12 +4100,12 @@
         "borders": [
           {},
           {},
-          {},
           {
             "hostedNodes": [
-              "N10"
+              "N9"
             ]
-          }
+          },
+          {}
         ]
       },
       "internalNodes": [
@@ -4166,11 +4114,7 @@
       "scale": {
         "width": 6,
         "height": 6
-      },
-      "hostedLyphs": [
-        "L32",
-        "L36"
-      ]
+      }
     },
     {
       "id": "171",
@@ -4575,26 +4519,19 @@
         "max": 2
       },
       "external": "FMA:256530",
+      "internalNodes": ["N16"],
       "border": {
         "borders": [
+          {"hostedNodes": [ "N15"]},
           {},
           {},
-          {},
-          {
-            "hostedNodes": [
-              "N15"
-            ]
-          }
+          {"hostedNodes": ["N19"]}
         ]
       },
       "hostedLyphs": [
-        "L52",
         "L56",
         "L60",
         "L64"
-      ],
-      "internalNodes": [
-        "N19"
       ]
     },
     {
@@ -4644,20 +4581,19 @@
       "border": {
         "borders": [
           {},
-          {},
-          {},
           {
             "hostedNodes": [
               "N7"
             ]
-          }
+          },
+          {},
+          {}
         ]
       },
       "internalNodes": [
         "N8"
       ],
       "hostedLyphs": [
-        "L24",
         "L28"
       ]
     },
@@ -4717,7 +4653,6 @@
         "N25"
       ],
       "hostedLyphs": [
-        "L84",
         "L88"
       ]
     },
@@ -6015,11 +5950,6 @@
       "id": "L107",
       "name": "Dorsal Root Ganglion",
       "topology": "CYST",
-      "hostedLyphs": [
-        "L12",
-        "L40",
-        "L44"
-      ],
       "internalNodes": [
         "N12"
       ],
@@ -6049,10 +5979,6 @@
       "id": "L118",
       "name": "Lower Limb",
       "topology": "BAG",
-      "hostedLyphs": [
-        "L4",
-        "L8"
-      ],
       "border": {
         "borders": [
           {},
