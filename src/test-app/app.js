@@ -6,6 +6,7 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
 import * as schema from '../data/manifest.json';
+import * as initModel from '../data/graph.json';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -94,7 +95,7 @@ export class TestApp {
 
     constructor(){
         this._dataService = new DataService();
-        this._dataService.init({});
+        this._dataService.init(initModel);
         this._graphData = this._dataService.graphData;
     }
 
