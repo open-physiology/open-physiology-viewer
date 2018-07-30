@@ -19,7 +19,7 @@ export default Kapsule({
         numDimensions: {
             default: 3,
             onChange(numDim, state) {
-                if (numDim < 3) { eraseDimension(state.graphData.nodes, 'z'); }
+                if (numDim < 3) { eraseDimension(state.graphData.visibleNodes, 'z'); }
 
                 function eraseDimension(nodes, dim) {
                     nodes.forEach(node => {
@@ -87,17 +87,11 @@ export default Kapsule({
         state.onFrame = null; // Pause simulation
         state.onLoading();
 
-        if (state.graphData.nodes.length || state.graphData.links.length) {
-
-            //Exclude links with no ends
-            state.graphData.links = state.graphData.links.filter(link => (
-                state.graphData.nodes.find(node => node === link.source) &&
-                state.graphData.nodes.find(node => node === link.target)
-            ));
+        if (state.graphData.visibleNodes.length || state.graphData.visibleLinks.length) {
 
             console.info('force-graph loading',
-                state.graphData.nodes.length + ' nodes',
-                state.graphData.links.length + ' links');
+                state.graphData.visibleNodes.length + ' nodes',
+                state.graphData.visibleLinks.length + ' links');
         }
 
         while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place
@@ -114,11 +108,11 @@ export default Kapsule({
             .alphaDecay(state.d3AlphaDecay)
             .velocityDecay(state.d3VelocityDecay)
             .numDimensions(state.numDimensions)
-            .nodes(state.graphData.nodes);
+            .nodes(state.graphData.visibleNodes);
 
         layout.force('link')
             .id(d => d[state.nodeId])
-            .links(state.graphData.links);
+            .links(state.graphData.visibleLinks);
 
         // Initial ticks before starting to render
         for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }

@@ -2,7 +2,6 @@ import { Node }   from './nodeModel';
 import { Border } from './borderModel';
 import { Lyph }   from './lyphModel';
 import { Link }   from './linkModel';
-import { Tree }   from './treeModel';
 import { Graph }  from './graphModel';
 import { Material } from './materialModel';
 
@@ -12,7 +11,6 @@ export const modelClasses = {
     "Material": Material,
     "Lyph"  : Lyph,
     "Border": Border,
-    "Tree"  : Tree,
     "Graph" : Graph
 };
 

@@ -1,4 +1,4 @@
-import { keys, values, cloneDeep, merge, mergeWith, isObject} from 'lodash-bound';
+import { keys, values, cloneDeep, merge, mergeWith, isArray} from 'lodash-bound';
 import { Graph } from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/utils';
@@ -221,7 +221,7 @@ export class DataService{
         let entitiesByID = {};
         
         entitiesByID[this._graphData.id] = this._graphData;
-        this._graphData::values().filter(prop => Array.isArray(prop)).forEach(array => array.forEach(e => {
+        this._graphData::values().filter(prop => prop::isArray()).forEach(array => array.forEach(e => {
             if (entitiesByID[e.id]) {
                 console.error("Entity IDs are not unique: ", entitiesByID[e.id], e);
             }

@@ -1,17 +1,18 @@
-import { NgModule, Component, ViewChild, ElementRef } from '@angular/core';
+import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }       from '@angular/platform-browser';
 import { WebGLSceneModule }    from '../components/webGLScene';
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
+import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/manifest.json';
 import * as initModel from '../data/graph.json';
+import {ToastyModule, ToastyService} from 'ng2-toasty';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 
-//const Ajv = require('ajv');
 const ace = require('ace-builds');
 
 @Component({
@@ -72,6 +73,7 @@ const ace = require('ace-builds');
 					(selectedItemChange)="onSelectedItemChange($event)"
                     (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
 		<section class="w3-clear" style="margin-bottom:10px;"></section>
+        <ng2-toasty></ng2-toasty>
 
 	       <!-- Footer -->
 		<footer class="w3-container w3-grey">
@@ -90,13 +92,16 @@ export class TestApp {
     _showJSONEditor = false;
     _model = {};
     _editor;
+    _toastyService;
 
     @ViewChild('jsonEditor') _container: ElementRef;
 
-    constructor(){
+    constructor(toastyService: ToastyService){
         this._dataService = new DataService();
-        this._dataService.init(initModel);
+        this._model = initModel;
+        this._dataService.init(this._model);
         this._graphData = this._dataService.graphData;
+        this._toastyService = toastyService;
     }
 
     ngAfterViewInit(){
@@ -106,10 +111,10 @@ export class TestApp {
             onError: function (err) {
                 alert(err.toString());
             },
-            //ajv: Ajv({ allErrors: true, verbose: true }),
             ace: ace,
             schema: schema
         });
+        this._editor.set(this._model);
     }
 
 	load(files) {
@@ -119,7 +124,7 @@ export class TestApp {
                 this._model = JSON.parse(reader.result);
             }
             catch(err){
-                console.error("Cannot parse the input file: ", err)
+                this._toastyService.error("Cannot parse the input file: ", err);
             }
             try{
                 this._editor.set(this._model);
@@ -127,13 +132,13 @@ export class TestApp {
                 this._graphData = this._dataService.graphData;
             }
             catch(err){
-                console.error("Cannot display the model: ", err);
+                this._toastyService.error("Cannot display the model: ", err);
             }
         };
 		try {
             reader.readAsText(files[0]);
         } catch (err){
-		    console.error("Failed to open the input file: ", err);
+            this._toastyService.error("Failed to open the input file: ", err);
         }
 	}
 
@@ -163,14 +168,22 @@ export class TestApp {
 
 	onHighlightedItemChange(item){}
 
+
 }
 
 /**
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports: [ BrowserModule, WebGLSceneModule ],
+	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot() ],
 	declarations: [ TestApp ],
-    bootstrap: [TestApp]
+    bootstrap: [TestApp],
+    providers: [
+        ToastyService,
+        {
+            provide: ErrorHandler,
+            useClass: GlobalErrorHandler
+        }
+    ]
 })
 export class TestAppModule {}

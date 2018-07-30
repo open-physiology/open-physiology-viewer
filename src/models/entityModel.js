@@ -1,25 +1,7 @@
-import { merge, isObject, entries, keys, assign, cloneDeep } from 'lodash-bound';
+import { merge, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
 import { definitions } from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
-
-/**
- * Intercepts setters for given properties to update bidirectional relationships
- * @param obj
- * @param propKeys
- * @returns {*}
- */
-export function tracePropAccess(obj, propKeys) {
-    const propKeySet = new Set(propKeys);
-    return new Proxy(obj, {
-        set(target, propKey, value, receiver) {
-            if (propKeySet.has(propKey)) {
-                if (obj.syncRelationship){ obj.syncRelationship(propKey, value, target[propKey]) }
-            }
-            return Reflect.set(target, propKey, value, receiver);
-        },
-    });
-}
 
 const initValue = (specObj) => specObj.default
     ? (specObj::isObject()
@@ -94,14 +76,9 @@ export class Entity {
                 console.warn("Cannot extract the object class: property specification does not imply a reference", spec, value);
                 return objValue;
             }
-
             if (classDef.$ref){ classDef = classDef.$ref;}
-
             let type = classDef.substr(classDef.lastIndexOf("/") + 1).trim();
-
-            if (definitions[type] && definitions[type].abstract){
-                return objValue;
-            }
+            if (definitions[type] && definitions[type].abstract){ return objValue; }
 
             if (modelClasses[type]) {
                 if (!(objValue instanceof modelClasses[type])) {
@@ -116,6 +93,73 @@ export class Entity {
                 console.error(`Cannot create object of unknown class: `, spec, value);
             }
             return objValue;
+        };
+
+        const replaceRefs = (res, [key, spec]) => {
+            if (!res[key]){ return; }
+            let typeSpec = spec.items || spec;
+            if (res[key]::isArray()){
+                if (spec.type !== "array"){
+                    console.warn("Model parameter does not expect multiple values: ", key, res[key]);
+                    return;
+                }
+                res[key] = res[key].map(value => createObj(value, typeSpec) ||  value);
+            } else {
+                res[key] = createObj(res[key], typeSpec) || res[key];
+                if (spec.type === "array"){
+                    //The spec allows multiple values, replace object with array of objects
+                    res[key] = [res[key]];
+                }
+            }
+        };
+
+        const syncRelationships = (res, [key, spec]) => {
+            if (!res[key]){ return; }
+            if (!res[key]::isObject()){
+                console.warn("Object ID has not been replaced with references", res[key]);
+                return;
+            }
+            let typeSpec = spec.items || spec;
+            if (typeSpec.relatedTo){
+                let key2 = typeSpec.relatedTo;
+                let otherClassDef = getClassDefinition(typeSpec);
+                if (!otherClassDef){
+                    console.error("Class not defined: ", typeSpec);
+                    return;
+                }
+                if (otherClassDef.$ref){ otherClassDef = otherClassDef.$ref;}
+                let otherClass = otherClassDef.substr(otherClassDef.lastIndexOf("/") + 1).trim();
+                let otherTypeSpec = definitions[otherClass].properties[key2];
+                if (!otherTypeSpec){
+                    console.error(`Property specification '${key2}' is not found in class:`, otherClass);
+                    return;
+                }
+
+                const syncProperty = (obj) => {
+                    if (otherTypeSpec.type === "array"){
+                        if (!obj[key2]) { obj[key2] = []; }
+                        if (!obj[key2]::isArray()){
+                            console.error(`Object's property '${key2}' should contain an array:`, obj);
+                            return;
+                        }
+                        if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
+                    } else {
+                        if (!obj[key2]) { obj[key2] = res; }
+                        else {
+                            if (obj[key2] !== res && obj[key2] !== res.id){
+                                console.warn(`First object's value of '${key}' should match second object's value of '${key2}'`,
+                                    res, obj[key2]);
+                            }
+                        }
+                    }
+                };
+
+                if (res[key]::isArray()){
+                    res[key].forEach(obj => syncProperty(obj))
+                } else {
+                    syncProperty(res[key]);
+                }
+            }
         };
 
         json.class = json.class || this.name;
@@ -136,40 +180,17 @@ export class Entity {
         res::assign(json);
 
         if (entitiesByID){
-
             //Exclude just created entity from being ever created again in the following recursion
             if (!res.id) {
-                if (res.class !== "Border"){ //TODO why do borders miss ID?
-                    console.warn("An entity without ID has been found: ", res);
-                }
+                if (res.class !== "Border"){ console.warn("An entity without ID has been found: ", res); }
             } else {
-                if (!entitiesByID[res.id]){
-                    console.info("Added new entity to the global map: ", res.id);
-                }
+                if (!entitiesByID[res.id]){ console.info("Added new entity to the global map: ", res.id); }
                 entitiesByID[res.id] = res; //Update the entity map
             }
 
-            //Replace ID's with references to the model classes
             let refFields = definitions[this.name].properties::entries().filter(([key, spec]) => isReference(spec));
 
-            const replaceRefs = (res, [key, spec]) => {
-                if (!res[key]){ return; }
-                let typeSpec = spec.items || spec;
-                if (Array.isArray(res[key])){
-                    if (spec.type !== "array"){
-                        console.warn("Model parameter does not expect multiple values: ", key, res[key]);
-                        return;
-                    }
-                    res[key] = res[key].map(value => createObj(value, typeSpec) ||  value);
-                } else {
-                    res[key] = createObj(res[key], typeSpec) || res[key];
-                    if (spec.type === "array"){
-                        //The spec allows multiple values, replace object with array of objects
-                        res[key] = [res[key]];
-                    }
-                }
-            };
-
+            //Replace ID's with model object references
             refFields.forEach(f => replaceRefs(res, f));
 
             //Replace nested objects, i.e., border = {borders: [...]};
@@ -181,28 +202,13 @@ export class Entity {
                 //Replace nested references, which are either in an array like "borders" or in an object
                 (refFields||[]).forEach(f => [...res[fKey]].forEach(item => replaceRefs(item, f)));
             });
+
+            //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
+            refFields.forEach(f => syncRelationships(res, f));
         }
 
         return res;
     }
-
-    //TODO write a test
-    // syncRelationship(key, value, oldValue){
-    //     let r = relationships.find(r => r.definitions[0] === this.class && r.keys[0]=== key);
-    //     if (!r) { return; }
-    //
-    //     if (r.type === "array" ){
-    //         //one to many relationship
-    //         if (value && (r.definitions[1] === value.class)){
-    //             if (!value[r.keys[1]]){ value[r.keys[1]] = []; }
-    //             if (!value[r.keys[1]].find(entity2 => entity2.id === this.id)){ value[r.keys[1]].push(this); }
-    //         }
-    //         if (oldValue && r.definitions[1] === oldValue.class){
-    //             const index = oldValue[r.keys[1]].indexOf(entity2 => entity2.id === this.id);
-    //             oldValue[r.keys[1]].splice(index, 1);
-    //         }
-    //     }
-    // }
 
     createLabels(labelKey, fontParams){
         if (this.skipLabel) { return; }

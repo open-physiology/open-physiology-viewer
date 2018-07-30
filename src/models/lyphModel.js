@@ -346,7 +346,6 @@ export class Lyph extends Entity {
                 }
                 layer.width = layer.layerWidth / 100 * this.width;
                 layer.height = this.height;
-                layer.layerInLyph = this;
                 layer.offset = offset;
                 offset += layer.width;
                 layer.createViewObjects(state);

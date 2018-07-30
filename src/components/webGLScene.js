@@ -101,7 +101,6 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                     </fieldset>
                 </section>
             </section>
-            <section #snackbar id="snackbar"></section>
         </section>
     `,
     styles: [`
@@ -129,7 +128,6 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
 })
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
-    @ViewChild('snackbar') snackbar: ElementRef;
 
     showPanel = false;
     scene;

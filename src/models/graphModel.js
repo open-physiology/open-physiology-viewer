@@ -1,5 +1,5 @@
 import { Entity } from './entityModel';
-import { keys, values, mergeWith, isObject} from 'lodash-bound';
+import { keys, values, mergeWith, isObject, isArray} from 'lodash-bound';
 import { LINK_TYPES } from './linkModel';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/manifest.json';
@@ -35,7 +35,7 @@ const colorGroupEntities = (entities, {scheme, length, reversed = false, offset}
                 return;
             }
             //If entity is an array, the schema is applied to each of it's items (e.g. to handle layers of lyphs in a group)
-            if (Array.isArray(item)){
+            if (item::isArray()){
                 assignColor(item);
             } else {
                 item.color = getColor(i);
@@ -121,7 +121,10 @@ export class Graph extends Entity {
     }
 
     get visibleLinks(){
-        return this.links.filter(e => !e.hidden);
+        return this.links.filter(e => !e.hidden &&
+            this.visibleNodes.find(e2 => e2 === e.source) &&
+            this.visibleNodes.find(e2 => e2 === e.target)
+        );
     }
 
     createViewObjects(state){

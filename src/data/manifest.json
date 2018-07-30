@@ -130,7 +130,8 @@
               {
                 "$ref": "#/definitions/Graph"
               }
-            ]
+            ],
+            "relatedTo": "groups"
           },
           "uniqueItems": true
         },
@@ -206,7 +207,8 @@
             {
               "$ref": "#/definitions/Link"
             }
-          ]
+          ],
+          "relatedTo": "hostedNodes"
         },
         "layout": {
           "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
@@ -260,19 +262,8 @@
             {
               "$ref": "#/definitions/Lyph"
             }
-          ]
-        },
-        "x": {
-          "description": "x-coordinate of the node's position in the force-directed graph",
-          "type": "number"
-        },
-        "y": {
-          "description": "y-coordinate of the node's position in the force-directed graph",
-          "type": "number"
-        },
-        "z": {
-          "description": "z-coordinate of the node's position in the force-directed graph",
-          "type": "number"
+          ],
+          "relatedTo": "internalLyphs"
         },
         "charge": {
           "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph",
@@ -330,7 +321,8 @@
             {
               "$ref": "#/definitions/Lyph"
             }
-          ]
+          ],
+          "relatedTo": "axis"
         },
         "type": {
           "description": "Defines the appearance and behavior of the link in the model graph",
@@ -392,7 +384,8 @@
               {
                 "$ref": "#/definitions/Node"
               }
-            ]
+            ],
+            "relatedTo": "host"
           }
         }
       },
@@ -422,7 +415,8 @@
             {
               "$ref": "#/definitions/Link"
             }
-          ]
+          ],
+          "relatedTo": "conveyingLyph"
         },
         "layers": {
           "description": "Lyph layers",
@@ -435,7 +429,8 @@
               {
                 "$ref": "#/definitions/Lyph"
               }
-            ]
+            ],
+            "relatedTo": "layerInLyph"
           },
           "uniqueItems": true
         },
@@ -448,7 +443,8 @@
             {
               "$ref": "#/definitions/Lyph"
             }
-          ]
+          ],
+          "relatedTo": "layers"
         },
         "topology": {
           "description": "Lyph topology defines its border shape",
@@ -471,6 +467,7 @@
               "$ref": "#/definitions/Border"
             }
           ],
+          "relatedTo": "borderInLyph",
           "default": {}
         },
         "infoFields": {
@@ -556,7 +553,8 @@
               {
                 "$ref": "#/definitions/Lyph"
               }
-            ]
+            ],
+            "relatedTo": "belongsToLyph"
           }
         },
         "internalNodes": {
@@ -627,7 +625,8 @@
               {
                 "$ref": "#/definitions/Lyph"
               }
-            ]
+            ],
+            "relatedTo": "supertype"
           }
         },
         "supertype" : {
@@ -639,7 +638,8 @@
             {
               "$ref": "#/definitions/Lyph"
             }
-          ]
+          ],
+          "relatedTo": "subtypes"
         },
         "coalescesWith": {
           "description": "A set of lyphs to coalesce with",

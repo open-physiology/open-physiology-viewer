@@ -135,12 +135,10 @@ export class Link extends Entity {
                 points = curve.getPoints(state.linkResolution - 1);
 
                 //Position omega tree roots
-                let hostedNodes = this.hostedNodes
-                    || state.graphData.nodes.filter(node => node.host === this);
-                if (hostedNodes.length > 0) {
-                    const delta = ((hostedNodes.length % 2) === 1) ? 0.4 : 0;
-                    const offset = 1 / (hostedNodes.length + 1 + delta);
-                    hostedNodes.forEach((node, i) => {
+                if (this.hostedNodes) {
+                    const delta = ((this.hostedNodes.length % 2) === 1) ? 0.4 : 0;
+                    const offset = 1 / (this.hostedNodes.length + 1 + delta);
+                    this.hostedNodes.forEach((node, i) => {
                         const pos = curve.getPoint(node.offset? node.offset: offset * (i + 1));
                         copyCoords(node, pos);
                     });
