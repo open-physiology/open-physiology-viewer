@@ -32,7 +32,11 @@ export function copyCoords(target, source){
     if (!source) { return; }
     target.x = source.x || 0;
     target.y = source.y || 0;
-    target.z = source.z || 0;
+
+    // target.z = source.z || 0;
+    target.z = 0;
+    source.z = 0;
+
 }
 
 /**
@@ -107,6 +111,3 @@ export function getCenterPoint(mesh) {
     mesh.localToWorld(center);
     return center;
 }
-
-
-
