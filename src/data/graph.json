@@ -1,6 +1,102 @@
 {
    "nodes": [
       {
+         "id": "c",
+         "name": "c",
+         "color": "#D2691E",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": 100,
+            "y": 0,
+            "z": 0
+         }
+      },
+      {
+         "id": "n",
+         "name": "n",
+         "color": "#D2691E",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": -100,
+            "y": 0,
+            "z": 0
+         }
+      },
+      {
+         "id": "t",
+         "name": "t",
+         "color": "#808080",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": -60,
+            "y": 0,
+            "z": 0
+         }
+      },
+      {
+         "id": "h",
+         "name": "h",
+         "color": "#444444",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": 60,
+            "y": 0,
+            "z": 0
+         }
+      },
+      {
+         "id": "R",
+         "name": "R",
+         "color": "#7B68EE",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": 0,
+            "y": 75,
+            "z": 0
+         }
+      },
+      {
+         "id": "L",
+         "name": "L",
+         "color": "#ff0000",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": 0,
+            "y": -75,
+            "z": 0
+         }
+      },
+      {
+         "id": "S",
+         "name": "Σ",
+         "color": "#006400",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": -90,
+            "y": 0,
+            "z": 0
+         }
+      },
+      {
+         "id": "P",
+         "name": "π",
+         "color": "#0000CD",
+         "val": 3,
+         "type": "core",
+         "layout": {
+            "x": 90,
+            "y": 0,
+            "z": 0
+         }
+      },
+      {
          "id": "N1",
          "name": "R1 -- Spinal Cord -- Medulla",
          "group_type": "CNS segment",
@@ -8,7 +104,7 @@
          "layout": {
             "z": 0,
             "x": -70,
-            "y": 50
+            "y": 0
          }
       },
       {
@@ -19,7 +115,7 @@
          "layout": {
             "z": 0,
             "x": -40,
-            "y": 50
+            "y": 0
          }
       },
       {
@@ -30,7 +126,7 @@
          "layout": {
             "z": 0,
             "x": -10,
-            "y": 50
+            "y": 0
          }
       },
       {
@@ -41,7 +137,7 @@
          "layout": {
             "z": 0,
             "x": 20,
-            "y": 50
+            "y": 0
          }
       },
       {
@@ -52,7 +148,7 @@
          "layout": {
             "z": 0,
             "x": 50,
-            "y": 50
+            "y": 0
          }
       },
       {
@@ -63,7 +159,7 @@
          "layout": {
             "z": 0,
             "x": 80,
-            "y": 50
+            "y": 0
          }
       },
       {
@@ -483,8 +579,8 @@
          "type": "invisible",
          "layout": {
             "z": 0,
-            "x": -70,
-            "y": -20
+            "x": -47,
+            "y": 56
          }
       },
       {
@@ -494,8 +590,8 @@
          "type": "invisible",
          "layout": {
             "z": 0,
-            "x": -70,
-            "y": -20
+            "x": -47,
+            "y": 56
          }
       },
       {
@@ -506,7 +602,7 @@
          "layout": {
             "z": 0,
             "x": -20,
-            "y": -20
+            "y": 50
          }
       },
       {
@@ -517,7 +613,7 @@
          "layout": {
             "z": 0,
             "x": -20,
-            "y": -20
+            "y": 50
          }
       },
       {
@@ -527,8 +623,8 @@
          "type": "invisible",
          "layout": {
             "z": 0,
-            "y": 5,
-            "x": -60
+            "y": 27,
+            "x": -40
          }
       },
       {
@@ -538,12 +634,61 @@
          "type": "invisible",
          "layout": {
             "z": 0,
-            "y": 5,
-            "x": -60
+            "y": 27,
+            "x": -40
          }
       }
    ],
    "links": [
+      {
+         "id": "cn",
+         "source": "c",
+         "target": "n",
+         "name": "",
+         "type": "dashed",
+         "length": 100,
+         "color": "#000"
+      },
+      {
+         "id": "RL",
+         "source": "R",
+         "target": "L",
+         "name": "Pulmonary",
+         "type": "semicircle",
+         "length": 75,
+         "linkMethod": "Line2",
+         "color": "#000"
+      },
+      {
+         "id": "LR",
+         "source": "L",
+         "target": "R",
+         "name": "Systemic",
+         "type": "semicircle",
+         "length": 75,
+         "linkMethod": "Line2",
+         "color": "#000"
+      },
+      {
+         "id": "SP",
+         "source": "S",
+         "target": "P",
+         "name": "Gut",
+         "type": "semicircle",
+         "length": 90,
+         "linkMethod": "Line2",
+         "color": "#000"
+      },
+      {
+         "id": "PS",
+         "source": "P",
+         "target": "S",
+         "name": "Gut'",
+         "type": "semicircle",
+         "length": 90,
+         "linkMethod": "Line2",
+         "color": "#000"
+      },
       {
          "id": "V1",
          "source": "N1",
@@ -552,7 +697,7 @@
          "group_type": "CNS segment",
          "conveyingLyph": "L102",
          "type": "link",
-         "length": 10
+         "length": 9
       },
       {
          "id": "V2",
@@ -562,7 +707,7 @@
          "group_type": "CNS segment",
          "conveyingLyph": "L98",
          "type": "link",
-         "length": 10
+         "length": 9
       },
       {
          "id": "V3",
@@ -572,7 +717,7 @@
          "group_type": "CNS segment",
          "conveyingLyph": "L108",
          "type": "link",
-         "length": 10
+         "length": 9
       },
       {
          "id": "V4",
@@ -582,7 +727,7 @@
          "group_type": "CNS segment",
          "conveyingLyph": "L112",
          "type": "link",
-         "length": 10
+         "length": 9
       },
       {
          "id": "V5",
@@ -592,7 +737,7 @@
          "group_type": "CNS segment",
          "conveyingLyph": "L94",
          "type": "link",
-         "length": 10
+         "length": 9
       },
       {
          "id": "V6",
@@ -1031,7 +1176,7 @@
          "conveyingLyph": "L106",
          "type": "invisible",
          "group_type": "Sensory organ",
-         "length": 5
+         "length": 7
       },
       {
          "id": "V40",
@@ -1041,7 +1186,7 @@
          "conveyingLyph": "L116",
          "type": "invisible",
          "group_type": "Musculoskeletal",
-         "length": 5
+         "length": 7
       },
       {
          "id": "V41",
@@ -2136,7 +2281,8 @@
          "internalNodes": [
             "N27"
          ],
-         "belongsToLyph": "L95"
+         "belongsToLyph": "L95",
+         "width": 130
       },
       {
          "id": "L90",
@@ -2163,7 +2309,8 @@
          "internalNodes": [
             "N37"
          ],
-         "belongsToLyph": "L99"
+         "belongsToLyph": "L99",
+         "width": 130
       },
       {
          "id": "L91",
@@ -2192,7 +2339,8 @@
          "internalNodes": [
             "N20"
          ],
-         "belongsToLyph": "L103"
+         "belongsToLyph": "L103",
+         "width": 130
       },
       {
          "id": "L92",
@@ -2226,7 +2374,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 200
+         "width": 360
       },
       {
          "id": "L95",
@@ -2286,7 +2434,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 200
+         "width": 360
       },
       {
          "id": "L99",
@@ -2344,7 +2492,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 200
+         "width": 360
       },
       {
          "id": "L103",
@@ -2457,7 +2605,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 200
+         "width": 360
       },
       {
          "id": "L109",
@@ -2513,7 +2661,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 200
+         "width": 360
       },
       {
          "id": "L113",

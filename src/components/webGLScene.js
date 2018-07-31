@@ -48,7 +48,7 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
                     <fieldset *ngIf="!!_highlighted && !!_highlighted.__data" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
                         <modelInfoPanel [model]=_highlighted.__data></modelInfoPanel>
-                    </fieldset>                    
+                    </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
@@ -124,14 +124,14 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
 
         button:focus {
             outline: 0 !important;
-        }        
+        }
     `]
 })
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
     @ViewChild('snackbar') snackbar: ElementRef;
 
-    showPanel = false;
+    showPanel = true;
     scene;
     camera;
     renderer;

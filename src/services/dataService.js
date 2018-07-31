@@ -85,6 +85,8 @@ export class DataService {
       });
     };
 
+
+
     const createInternalLyphs = (lyph) => {
       let newGroupIDs = {
         "nodes": [],
@@ -175,6 +177,9 @@ export class DataService {
       groups: [...groups]::cloneDeep(),
       materials: [...materials]::cloneDeep()
     };
+
+
+    console.log("ApiNATOMY graph --*-- PRE --*-- linking: ", JSON.stringify(this._graphData));
 
     //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
     // generateEntitiesFromGroupRefs(this._graphData.groups);
