@@ -2282,7 +2282,7 @@
             "N27"
          ],
          "belongsToLyph": "L95",
-         "width": 130
+         "width": 115
       },
       {
          "id": "L90",
@@ -2310,7 +2310,7 @@
             "N37"
          ],
          "belongsToLyph": "L99",
-         "width": 130
+         "width": 115
       },
       {
          "id": "L91",
@@ -2340,7 +2340,7 @@
             "N20"
          ],
          "belongsToLyph": "L103",
-         "width": 130
+         "width": 115
       },
       {
          "id": "L92",
@@ -2374,7 +2374,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 360
+         "width": 380
       },
       {
          "id": "L95",
@@ -2434,7 +2434,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 360
+         "width": 380
       },
       {
          "id": "L99",
@@ -2492,7 +2492,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 360
+         "width": 380
       },
       {
          "id": "L103",
@@ -2605,7 +2605,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 360
+         "width": 380
       },
       {
          "id": "L109",
@@ -2661,7 +2661,7 @@
          ],
          "internalLyphs": [],
          "belongsToLyph": "",
-         "width": 360
+         "width": 380
       },
       {
          "id": "L113",
