@@ -1,95 +1,103 @@
-import { Entity } from './entityModel';
+import { Entity, isReference, replaceReferences } from './entityModel';
 import { keys, values, mergeWith, isObject, isArray} from 'lodash-bound';
+import { definitions } from '../data/manifest.json';
 import { LINK_TYPES } from './linkModel';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/manifest.json';
-import { EventEmitter } from 'events';
 import * as colorSchemes from 'd3-scale-chromatic';
-const JSONPath = require('JSONPath');
+import {noOverwrite, JSONPath, assignPropertiesToJSONPath } from './utils.js';
 
 const validator = new Validator();
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
 
-export const graphEvent = new EventEmitter();
-
-const noOverwrite = (objVal, srcVal) => {
-    if (objVal && objVal !== srcVal) { return objVal; }
-    return srcVal;
-};
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
     .forEach((e, i) => { e.color = defaultColor || colors[i % colors.length] });
-const colorGroupEntities = (entities, {scheme, length, reversed = false, offset}) => {
-    if (!colorSchemes[scheme]) {
-        console.warn("Unrecognized color scheme: ", scheme);
-        return;
-    }
-    if (!length) { length = entities.length; }
-    if (!offset) { offset = 0; }
-
-    const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
-    const assignColor = items => {
-        (items||[]).forEach((item, i) => {
-            if (!item::isObject()) {
-                console.warn("Cannot assign color to a non-object value");
-                return;
-            }
-            //If entity is an array, the schema is applied to each of it's items (e.g. to handle layers of lyphs in a group)
-            if (item::isArray()){
-                assignColor(item);
-            } else {
-                item.color = getColor(i);
-            }
-        });
-    };
-    assignColor(entities);
-};
-const interpolateGroupProperties = (group) => {
-    (group.interpolate||[]).forEach(spec => {
-        let entities = spec.path? JSONPath({json: group, path: spec.path}): group.nodes || [];
-        if (spec.offset){
-            spec.offset::mergeWith({
-                "start": 0,
-                "end": 1,
-                "step": (spec.offset.end - spec.offset.start) / (entities.length + 1)
-            }, noOverwrite);
-            entities.forEach((e, i) => e.offset = spec.offset.start + spec.offset.step * ( i + 1 ) );
-        }
-        if (spec.color){
-            colorGroupEntities(entities, spec.color);
-        }
-    })
-};
 
 export class Graph extends Entity {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
 
-        let resVal = validator.validate(json, schema);
-        if (resVal.errors && resVal.errors.length > 0){
-            //graphEvent.emit(resVal);
-            console.warn(resVal);
-        }
+        const colorGroupEntities = (entities, {scheme, length, reversed = false, offset}) => {
+            if (!colorSchemes[scheme]) {
+                console.warn("Unrecognized color scheme: ", scheme);
+                return;
+            }
+            if (!length) { length = entities.length; }
+            if (!offset) { offset = 0; }
 
-        //Group properties must be assigned before creating the model because IDs in the "assign" object are not replaced with references
-        const assignGroupProperties = (group) => {
-            (group.assign||[])::keys().forEach(property => {
-                if (group.assign[property] && json[property]) {
-                    (group[property]||[]).map(id => json[property]
-                        .find(e => e.id === id)).forEach(e => e::mergeWith(group.assign[property], noOverwrite));
+            const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
+            const assignColor = items => {
+                (items||[]).forEach((item, i) => {
+                    if (!item::isObject()) {
+                        console.warn("Cannot assign color to a non-object value");
+                        return;
+                    }
+                    //If entity is an array, the schema is applied to each of it's items (e.g. to handle layers of lyphs in a group)
+                    if (item::isArray()){
+                        assignColor(item);
+                    } else {
+                        item.color = getColor(i);
+                    }
+                });
+            };
+            assignColor(entities);
+        };
+        const interpolateGroupProperties = (group) => {
+            (group.interpolate||[]).forEach(({path, offset, color}) => {
+                let entities = path? JSONPath({json: group, path: path}): group.nodes || [];
+                if (offset){
+                    offset::mergeWith({
+                        "start": 0,
+                        "end": 1,
+                        "step": (offset.end - offset.start) / (entities.length + 1)
+                    }, noOverwrite);
+                    entities.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
                 }
-            });
+                if (color){
+                    colorGroupEntities(entities, color);
+                }
+            })
+        };
+        const assignGroupProperties = (group) => {
+            if (group.assign) {
+                if (!group.assign::isArray()){
+                    console.warn("Cannot assign group properties: ", group.assign);
+                    return;
+                }
+                group.assign.forEach(({path, value}) => {
+
+                        assignPropertiesToJSONPath({path, value}, group, (e) => {
+                            //Replace references
+                            let needsUpdate = false;
+                            value::keys().forEach(key => {
+                                let spec = definitions[e.class];
+                                if (spec && spec.properties[key] && isReference(spec.properties[key])){
+                                    needsUpdate  = true;
+                                    return;
+                                }
+                            });
+                            if (needsUpdate){ replaceReferences(e, modelClasses, entitiesByID); }
+                        })
+                    }
+                );
+            }
             (group.groups||[]).forEach(g => assignGroupProperties(g));
         };
 
-        assignGroupProperties(json);
-        //Color links and lyphs which do not have assigned colors in the spec
-        addColor(json.links, "#000");
-        addColor(json.lyphs);
+        let resVal = validator.validate(json, schema);
+        if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
+
+        //Assign group properties
+        assignGroupProperties(res);
         //Interpolation schemes do not contain IDs/references, so it is easier to process them in the expanded model
         interpolateGroupProperties(res);
+
+        //Color links and lyphs which do not have assigned colors in the spec
+        addColor(res.links, "#000");
+        addColor(res.lyphs);
 
         //Remove subgroups
         res.groups = (res.groups||[]).filter(g => !g.remove);

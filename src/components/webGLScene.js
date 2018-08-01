@@ -1,5 +1,5 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
-//import {StopPropagation} from './stopPropagation';
+import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {keys} from 'lodash-bound';
@@ -151,6 +151,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers = {};
+    axisLength = 1000;
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
@@ -158,6 +159,11 @@ export class WebGLSceneComponent {
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
             this._namesAvailable = this._graphData.lyphs.map(lyph => lyph.name);
+
+            /*Map initial positional constraints to match the scaled image*/
+
+            this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {node.layout[key] *= this.axisLength * 0.01; }));
+            this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * this.axisLength * 0.01);
 
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
@@ -290,17 +296,17 @@ export class WebGLSceneComponent {
         let axisColor = new THREE.Color(0xaaaaaa);
 
         // x-y plane
-        let gridHelper1 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
+        let gridHelper1 = new THREE.GridHelper(2 * this.axisLength, 10, axisColor, gridColor);
         gridHelper1.geometry.rotateX(Math.PI / 2);
         this.scene.add(gridHelper1);
         this.helpers["x-y"] = gridHelper1;
 
         // x-z plane
-        let gridHelper2 = new THREE.GridHelper(1000, 10, axisColor, gridColor);
+        let gridHelper2 = new THREE.GridHelper(2 * this.axisLength, 10, axisColor, gridColor);
         this.scene.add(gridHelper2);
         this.helpers["x-z"] = gridHelper2;
 
-        let axesHelper = new THREE.AxesHelper(510);
+        let axesHelper = new THREE.AxesHelper(this.axisLength + 20);
         this.scene.add(axesHelper);
         this.helpers["axis"] = axesHelper;
 
@@ -523,8 +529,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
-    // I comment out stop propagation so that I can do cmd+shft+R (Hard refresh) during coding
-    declarations: [WebGLSceneComponent, ModelInfoPanel, SelectNameSearchBar /*StopPropagation */],
+    declarations: [WebGLSceneComponent, ModelInfoPanel, SelectNameSearchBar, StopPropagation ],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

@@ -17,6 +17,137 @@ const initValue = (specObj) => specObj.default
                     :null
         :null);
 
+
+const isNestedObject = (spec) => spec.type === "object" && spec.properties || spec.items && isNestedObject(spec.items);
+
+const getClassDefinition = (spec) => spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
+
+export const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
+
+export const replaceReferences = (res, modelClasses, entitiesByID) => {
+    const createObj = (value, spec) => {
+        let objValue = value;
+        if (typeof value === "string") {
+            if (entitiesByID[value]) {
+                objValue = entitiesByID[value];
+            } else {
+                console.warn("Cannot instantiate an object with unknown ID:", value, spec);
+                return objValue;
+            }
+        }
+
+        let classDef = getClassDefinition(spec);
+        if (!classDef){
+            console.warn("Cannot extract the object class: property specification does not imply a reference", spec, value);
+            return objValue;
+        }
+        if (classDef.$ref){ classDef = classDef.$ref;}
+        let type = classDef.substr(classDef.lastIndexOf("/") + 1).trim();
+        if (!definitions[type] || definitions[type].abstract){ return objValue; }
+
+        if (modelClasses[type]) {
+            if (!(objValue instanceof modelClasses[type])) {
+                if (!(entitiesByID[objValue.id] instanceof modelClasses[type])) {
+                    objValue = modelClasses[type].fromJSON(objValue, modelClasses, entitiesByID);
+                    entitiesByID[objValue.id] = objValue;
+                } else {
+                    objValue = entitiesByID[objValue.id]
+                }
+            }
+        } else {
+            console.error(`Cannot create object of unknown class: `, spec, value);
+        }
+        return objValue;
+    };
+
+    const replaceRefs = (res, [key, spec]) => {
+        if (!res[key]){ return; }
+        let typeSpec = spec.items || spec;
+        if (res[key]::isArray()){
+            if (spec.type !== "array"){
+                console.warn("Model parameter does not expect multiple values: ", key, res[key]);
+                return;
+            }
+            res[key] = res[key].map(value => createObj(value, typeSpec) ||  value);
+        } else {
+            res[key] = createObj(res[key], typeSpec) || res[key];
+            if (spec.type === "array"){
+                //The spec allows multiple values, replace object with array of objects
+                res[key] = [res[key]];
+            }
+        }
+    };
+
+    const syncRelationships = (res, [key, spec]) => {
+        if (!res[key]){ return; }
+        if (!res[key]::isObject()){
+            console.warn("Object ID has not been replaced with references", res[key]);
+            return;
+        }
+        let typeSpec = spec.items || spec;
+        if (typeSpec.relatedTo){
+            let key2 = typeSpec.relatedTo;
+            let otherClassDef = getClassDefinition(typeSpec);
+            if (!otherClassDef){
+                console.error("Class not defined: ", typeSpec);
+                return;
+            }
+            if (otherClassDef.$ref){ otherClassDef = otherClassDef.$ref;}
+            let otherClass = otherClassDef.substr(otherClassDef.lastIndexOf("/") + 1).trim();
+            let otherTypeSpec = definitions[otherClass].properties[key2];
+            if (!otherTypeSpec){
+                console.error(`Property specification '${key2}' is not found in class:`, otherClass);
+                return;
+            }
+
+            const syncProperty = (obj) => {
+                if (otherTypeSpec.type === "array"){
+                    if (!obj[key2]) { obj[key2] = []; }
+                    if (!obj[key2]::isArray()){
+                        console.error(`Object's property '${key2}' should contain an array:`, obj);
+                        return;
+                    }
+                    if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
+                } else {
+                    if (!obj[key2]) { obj[key2] = res; }
+                    else {
+                        if (obj[key2] !== res && obj[key2] !== res.id){
+                            console.warn(`First object's value of '${key}' should match second object's value of '${key2}'`,
+                                res, obj[key2]);
+                        }
+                    }
+                }
+            };
+
+            if (res[key]::isArray()){
+                res[key].forEach(obj => syncProperty(obj))
+            } else {
+                syncProperty(res[key]);
+            }
+        }
+    };
+
+    let refFields = definitions[res.class].properties::entries().filter(([key, spec]) => isReference(spec));
+
+    //Replace ID's with model object references
+    refFields.forEach(f => replaceRefs(res, f));
+
+    //Replace nested objects, i.e., border = {borders: [...]};
+    let nestedRefs = definitions[res.class].properties::entries().filter(([key, spec]) => isNestedObject(spec));
+    nestedRefs.forEach(([fKey, fSpec]) => {
+        if (!res[fKey]) {return; }
+        let properties = fSpec.items? fSpec.items.properties: fSpec.properties;
+        let refFields = properties::entries().filter(([pKey, pSpec]) => isReference(pSpec));
+        //Replace nested references, which are either in an array like "borders" or in an object
+        (refFields||[]).forEach(f => [...res[fKey]].forEach(item => replaceRefs(item, f)));
+    });
+
+    //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
+    refFields.forEach(f => syncRelationships(res, f));
+
+};
+
+
 /**
  * Returns recognized class properties from the specification
  * @param className
@@ -54,114 +185,6 @@ export class Entity {
 
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
 
-        const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
-
-        const isNestedObject = (spec) => spec.type === "object" && spec.properties || spec.items && isNestedObject(spec.items);
-
-        const getClassDefinition = (spec) => spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
-
-        const createObj = (value, spec) => {
-            let objValue = value;
-            if (typeof value === "string") {
-                if (entitiesByID[value]) {
-                    objValue = entitiesByID[value];
-                } else {
-                    console.warn("Cannot instantiate an object with unknown ID:", value, spec);
-                    return objValue;
-                }
-            }
-
-            let classDef = getClassDefinition(spec);
-            if (!classDef){
-                console.warn("Cannot extract the object class: property specification does not imply a reference", spec, value);
-                return objValue;
-            }
-            if (classDef.$ref){ classDef = classDef.$ref;}
-            let type = classDef.substr(classDef.lastIndexOf("/") + 1).trim();
-            if (definitions[type] && definitions[type].abstract){ return objValue; }
-
-            if (modelClasses[type]) {
-                if (!(objValue instanceof modelClasses[type])) {
-                    if (!(entitiesByID[objValue.id] instanceof modelClasses[type])) {
-                        objValue = modelClasses[type].fromJSON(objValue, modelClasses, entitiesByID);
-                        entitiesByID[objValue.id] = objValue;
-                    } else {
-                        objValue = entitiesByID[objValue.id]
-                    }
-                }
-            } else {
-                console.error(`Cannot create object of unknown class: `, spec, value);
-            }
-            return objValue;
-        };
-
-        const replaceRefs = (res, [key, spec]) => {
-            if (!res[key]){ return; }
-            let typeSpec = spec.items || spec;
-            if (res[key]::isArray()){
-                if (spec.type !== "array"){
-                    console.warn("Model parameter does not expect multiple values: ", key, res[key]);
-                    return;
-                }
-                res[key] = res[key].map(value => createObj(value, typeSpec) ||  value);
-            } else {
-                res[key] = createObj(res[key], typeSpec) || res[key];
-                if (spec.type === "array"){
-                    //The spec allows multiple values, replace object with array of objects
-                    res[key] = [res[key]];
-                }
-            }
-        };
-
-        const syncRelationships = (res, [key, spec]) => {
-            if (!res[key]){ return; }
-            if (!res[key]::isObject()){
-                console.warn("Object ID has not been replaced with references", res[key]);
-                return;
-            }
-            let typeSpec = spec.items || spec;
-            if (typeSpec.relatedTo){
-                let key2 = typeSpec.relatedTo;
-                let otherClassDef = getClassDefinition(typeSpec);
-                if (!otherClassDef){
-                    console.error("Class not defined: ", typeSpec);
-                    return;
-                }
-                if (otherClassDef.$ref){ otherClassDef = otherClassDef.$ref;}
-                let otherClass = otherClassDef.substr(otherClassDef.lastIndexOf("/") + 1).trim();
-                let otherTypeSpec = definitions[otherClass].properties[key2];
-                if (!otherTypeSpec){
-                    console.error(`Property specification '${key2}' is not found in class:`, otherClass);
-                    return;
-                }
-
-                const syncProperty = (obj) => {
-                    if (otherTypeSpec.type === "array"){
-                        if (!obj[key2]) { obj[key2] = []; }
-                        if (!obj[key2]::isArray()){
-                            console.error(`Object's property '${key2}' should contain an array:`, obj);
-                            return;
-                        }
-                        if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
-                    } else {
-                        if (!obj[key2]) { obj[key2] = res; }
-                        else {
-                            if (obj[key2] !== res && obj[key2] !== res.id){
-                                console.warn(`First object's value of '${key}' should match second object's value of '${key2}'`,
-                                    res, obj[key2]);
-                            }
-                        }
-                    }
-                };
-
-                if (res[key]::isArray()){
-                    res[key].forEach(obj => syncProperty(obj))
-                } else {
-                    syncProperty(res[key]);
-                }
-            }
-        };
-
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];
         const res = new cls(json.id);
@@ -188,23 +211,7 @@ export class Entity {
                 entitiesByID[res.id] = res; //Update the entity map
             }
 
-            let refFields = definitions[this.name].properties::entries().filter(([key, spec]) => isReference(spec));
-
-            //Replace ID's with model object references
-            refFields.forEach(f => replaceRefs(res, f));
-
-            //Replace nested objects, i.e., border = {borders: [...]};
-            let nestedRefs = definitions[this.name].properties::entries().filter(([key, spec]) => isNestedObject(spec));
-            nestedRefs.forEach(([fKey, fSpec]) => {
-                if (!res[fKey]) {return; }
-                let properties = fSpec.items? fSpec.items.properties: fSpec.properties;
-                let refFields = properties::entries().filter(([pKey, pSpec]) => isReference(pSpec));
-                //Replace nested references, which are either in an array like "borders" or in an object
-                (refFields||[]).forEach(f => [...res[fKey]].forEach(item => replaceRefs(item, f)));
-            });
-
-            //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
-            refFields.forEach(f => syncRelationships(res, f));
+            replaceReferences(res, modelClasses, entitiesByID);
         }
 
         return res;

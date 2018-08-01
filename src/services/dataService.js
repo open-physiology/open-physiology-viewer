@@ -1,9 +1,9 @@
-import { keys, values, cloneDeep, merge, mergeWith, isArray} from 'lodash-bound';
-import { Graph } from '../models/graphModel';
+import { values, cloneDeep, merge, mergeWith, isArray, isObject} from 'lodash-bound';
+import { Graph} from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
-import { modelClasses } from '../models/utils';
+import { modelClasses } from '../models/modelClasses';
 
-const JSONPath = require('JSONPath');
+import {assignPropertiesToJSONPath, noOverwrite} from '../models/utils';
 
 /**
  * A class that assembles ApiNATOMY model from available data sources:
@@ -18,7 +18,7 @@ export class DataService{
     /**
      * Prepare core ApiNATOMY graph
      */
-    init({ nodes = [], links = [], lyphs = [], groups = [], materials = []}){
+    init(inputModel){
 
         /////////////////////////////////////////////////////////////////////
         //Constant parameters and helper functions
@@ -39,6 +39,21 @@ export class DataService{
         };
 
         const generateEntitiesFromGroupRefs = groups => {
+            //Copy entities from subgroups
+            groups.filter(parent => parent.groups).forEach(group => {
+                propertyList.forEach(property => {
+                    group[property] = [...group[property]||[], ...[].concat(
+                        ...group.groups.map(subgroupID => {
+                            let g = groups.find(g => g.id === subgroupID);
+                            g.remove = true;
+                            if (g){ return g[property]||[]; } else {
+                                console.warn("Reference to unknown group found", subgroupID);
+                            } return [];
+                        })
+                    )]
+                });
+            });
+
             groups.forEach(group => {
                 //generate node, link and lyph objects that are referred from a group but are not in the main graph
                 propertyList.forEach(property => {
@@ -93,41 +108,25 @@ export class DataService{
             return newGroupIDs;
         };
 
-        const noOverwrite = (objVal, srcVal) => {
-            if (objVal && objVal !== srcVal) { return objVal; }
-            return srcVal;
-        };
-
-
         ///////////////////////////////////////////////////////////////////
 
-        //Copy entities from subgroups
-        groups.filter(parent => parent.groups).forEach(group => {
-            propertyList.forEach(property => {
-                group[property] = [...group[property]||[], ...[].concat(
-                    ...group.groups.map(subgroupID => {
-                        let g = groups.find(g => g.id === subgroupID);
-                        g.remove = true; //TODO introduce a property to decide whether to show the group on the panel
-                        if (g){ return g[property]||[]; } else {
-                            console.warn("Reference to unknown group found", subgroupID);
-                        } return [];
-                    })
-                )]
-            });
-        });
-
         //Create an expanded input model
-        this._graphData = {
-            id: "graph1",
-            assign: {
-                nodes: {"charge": 10}
-            },
-            nodes    : [...nodes]    ::cloneDeep(),
-            links    : [...links]    ::cloneDeep(),
-            lyphs    : [...lyphs]    ::cloneDeep(),
-            groups   : [...groups]   ::cloneDeep(),
-            materials: [...materials]::cloneDeep()
-        };
+        this._graphData = inputModel::cloneDeep()::mergeWith({
+            id: "mainModel",
+            assign: [
+                {
+                    "path": "$.nodes",
+                    "value": {"charge": 10}
+                }
+            ],
+            nodes: [],
+            links: [],
+            lyphs: [],
+            groups: [],
+            materials: []
+        }, noOverwrite);
+
+        delete this._graphData.default;
 
         //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
         generateEntitiesFromGroupRefs(this._graphData.groups);
@@ -175,43 +174,41 @@ export class DataService{
 
         let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
         templates.forEach(template => {
-            (template.subtypes || []).forEach(subtypeRef => {
-                let subtype = subtypeRef;
-                if (typeof subtype === "string") {
-                    subtype = this._graphData.lyphs.find(e => e.id === subtypeRef);
-                }
-                if (subtype){
-                    subtype.layers = [];
-                    (template.layers|| []).forEach(layerRef => {
-                        let layerParent = layerRef;
-                        if (typeof layerRef === "string"){
-                            layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
-                        }
-                        if (!layerParent) {
-                            console.warn("Generation error: template layer object not found: ", layerRef);
-                            return;
-                        }
-                        let newID = `${layerParent.id}_${subtype.id}`;
-                        let lyphLayer = {
-                            "id"        : newID,
-                            "name"      : `${layerParent.name} in ${subtype.name}`,
-                            "supertype" : layerParent.id,
-                            "color"     : layerParent.color
-                        };
-                        this._graphData.lyphs.push(lyphLayer);
-                        //Copy defined properties to newly generated lyphs
-                        //TODO replace with JSONPath processing
-                        if (template.assign && template.assign[newID]){
-                            lyphLayer::mergeWith(template.assign[newID], noOverwrite);
-                            createInternalLyphs(lyphLayer);
-                        }
+            let subtypes = template.subtypes.map(subtypeRef => this._graphData.lyphs.find(e => e.id === subtypeRef));
+            (subtypes || []).forEach(subtype => {
+                subtype.layers = [];
+                (template.layers|| []).forEach(layerRef => {
+                    let layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
+                    if (!layerParent) {
+                        console.warn("Generation error: template layer object not found: ", layerRef);
+                        return;
+                    }
+                    let newID = `${layerParent.id}_${subtype.id}`;
+                    let lyphLayer = {
+                        "id"        : newID,
+                        "name"      : `${layerParent.name} in ${subtype.name}`,
+                        "supertype" : layerParent.id,
+                        "color"     : layerParent.color
+                    };
+                    this._graphData.lyphs.push(lyphLayer);
+                    subtype.layers.push(lyphLayer);
+                });
+            });
 
-                        subtype.layers.push(newID);
-                        if (!layerParent.subtypes){ layerParent.subtypes = []; }
-                        layerParent.subtypes.push(newID);
-                    });
+            //Copy defined properties to newly generated lyphs
+            if (template.assign){
+                if (!template.assign::isArray()){
+                    console.warn("Cannot assign template properties: ", template.assign);
+                    return;
                 }
-            })
+                template.assign.forEach(({path, value}) =>
+                    assignPropertiesToJSONPath({path, value}, subtypes, (e) => {
+                        if (value.internalLyphs) {
+                            createInternalLyphs(e);
+                        }
+                    })
+                );
+            }
         });
 
         /////////////////////////////////////////////////////////////////////////
@@ -240,13 +237,6 @@ export class DataService{
         //Create an ApiNATOMY model
         this._graphData = Graph.fromJSON(this._graphData, modelClasses, entitiesByID);
         console.log("ApiNATOMY graph: ", this._graphData);
-
-        /*Map initial positional constraints to match the scaled image*/
-        const axisLength = 1000;
-        const scaleFactor = axisLength * 0.01;
-
-        this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {node.layout[key] *= scaleFactor; }));
-        this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor);
     }
 
     get graphData(){

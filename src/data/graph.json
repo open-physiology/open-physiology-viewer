@@ -1102,12 +1102,15 @@
         "157",
         "162"
       ],
-      "assign": {
-        "lyphs": {
-          "color": "#aaa",
-          "scale": { "width": 200, "height": 100 }
+      "assign": [
+        {
+          "path": "$.lyphs[*]",
+          "value": {
+            "color": "#aaa",
+            "scale": { "width": 200, "height": 100 }
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "path": "$.lyphs[*].layers",
@@ -1129,37 +1132,58 @@
       "id": "spt",
       "name": "Tracts",
       "groups": ["TREE1", "TREE2", "TREE3"],
-      "assign": {
-        "nodes": {
-          "val": 1,
-          "color": "#666",
-          "layout": {"z": 0},
-          "skipLabel": true
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "val": 1,
+            "color": "#666",
+            "layout": {
+              "z": 0
+            },
+            "skipLabel": true
+          }
         },
-        "links": {
-          "linkMethod": "Line2",
-          "linewidth" : 0.002
+        {
+          "path": "$.links[*]",
+          "value": {
+            "linkMethod": "Line2",
+            "linewidth": 0.002
+          }
         },
-        "lyphs": {
-          "scale": {"width": 95, "height": 95}
+        {
+           "path":"$.lyphs[*]",
+           "value": {
+             "scale": {
+               "width": 95,
+               "height": 95
+             }
+           }
         }
-      }
+      ]
+
     },
     {"id": "cardiac",
       "name": "Cardiac",
       "groups": ["R_MCP", "R_MCS", "L_MCP", "L_MCS"],
       "lyphs" : ["995", "996"],
-      "assign": {
-        "links": {
-          "length"    : 7,
-          "color"     : "#aaa"
+      "assign": [
+        {
+          "path": "$.links[*]",
+          "value": {
+            "length": 7,
+            "color": "#aaa"
+          }
         },
-        "nodes": {
-          "color"    : "#ccc",
-          "val"      : 0.5,
-          "skipLabel": true
+        {
+            "path": "$.nodes[*]",
+            "value": {
+              "color": "#ccc",
+              "val": 0.5,
+              "skipLabel": true
+            }
         }
-      }
+      ]
     },
     {
       "id": "R_MCP",
@@ -1178,14 +1202,20 @@
         "lnkR_5_MCP",
         "lnkR_6_MCP"
       ],
-      "assign": {
-        "nodes": {
-          "host": "LR"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "host": "LR"
+          }
         },
-        "links": {
-          "reversed": true
+        {
+          "path": "$.links[*]",
+          "value": {
+            "reversed": true
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "offset": {
@@ -1198,11 +1228,14 @@
     {"id": "L_MCP",
       "nodes": ["L_1_MCP", "L_2_MCP", "L_3_MCP", "L_4_MCP", "L_5_MCP"],
       "links": ["lnkL_1_MCP", "lnkL_2_MCP", "lnkL_3_MCP", "lnkL_4_MCP", "lnkL_5_MCP", "lnkL_6_MCP"],
-      "assign": {
-        "nodes": {
-          "host": "LR"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "host": "LR"
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "offset": {
@@ -1215,11 +1248,14 @@
     {"id": "R_MCS",
       "nodes": ["R_1_MCS", "R_2_MCS", "R_3_MCS", "R_4_MCS", "R_5_MCS"],
       "links": ["lnkR_1_MCS", "lnkR_2_MCS", "lnkR_3_MCS", "lnkR_4_MCS", "lnkR_5_MCS", "lnkR_6_MCS"],
-      "assign": {
-        "nodes": {
-          "host": "RL"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "host": "RL"
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "offset": {
@@ -1231,14 +1267,20 @@
     {"id": "L_MCS",
       "nodes": ["L_1_MCS", "L_2_MCS", "L_3_MCS", "L_4_MCS", "L_5_MCS"],
       "links": ["lnkL_1_MCS", "lnkL_2_MCS", "lnkL_3_MCS", "lnkL_4_MCS", "lnkL_5_MCS", "lnkL_6_MCS"],
-      "assign": {
-        "nodes": {
-          "host": "RL"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "host": "RL"
+          }
         },
-        "links": {
-          "reversed": true
+        {
+          "path": "$.links[*]",
+          "value": {
+            "reversed": true
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "offset": {"start": 1, "end": 0.5}
@@ -1263,16 +1305,21 @@
         "LR03",
         "LR04"
       ],
-      "assign": {
-        "nodes": {
-          "color": "#ff4444"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "color": "#ff4444"
+          }
         },
-        "links": {
-          "color": "#ff4444",
-          "length": 3,
-          "linkMethod": "Line2"
+        { "path": "$.links[*]",
+          "value": {
+            "color": "#ff4444",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "path": "$.links[*].conveyingLyph",
@@ -1286,16 +1333,22 @@
     {
       "id": "venous",
       "name": "Venous",
-      "assign": {
-        "nodes": {
-          "color": "#ff4444"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "color": "#ff4444"
+          }
         },
-        "links": {
-          "color": "#ff4444",
-          "length": 3,
-          "linkMethod": "Line2"
+        {
+          "path": "$.links[*]",
+          "value": {
+            "color": "#ff4444",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
         }
-      },
+      ],
       "interpolate": [{
           "path": "$.links[*].conveyingLyph",
           "color": {
@@ -1325,16 +1378,22 @@
     {
       "id": "urinary",
       "name": "Urinary",
-      "assign": {
-        "nodes": {
-          "color": "#4444ff"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "color": "#4444ff"
+          }
         },
-        "links": {
-          "color": "#4444ff",
-          "length": 3,
-          "linkMethod": "Line2"
+        {
+          "path": "$.links[*]",
+          "value": {
+            "color": "#4444ff",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "path": "$.links[*].conveyingLyph",
@@ -1387,16 +1446,22 @@
     {
       "id": "connector",
       "name": "Connector",
-      "assign": {
-        "nodes": {
-          "color": "#ff44ff"
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "color": "#ff44ff"
+          }
         },
-        "links": {
-          "color": "#ff44ff",
-          "length": 3,
-          "linkMethod": "Line2"
+        {
+          "path": "$.links[*]",
+          "value": {
+            "color": "#ff44ff",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
         }
-      },
+      ],
       "interpolate": [
         {
           "path": "$.links[*].conveyingLyph",
@@ -1494,11 +1559,14 @@
     {"id": "largeOuterLayers",
      "name": "Enlarged outer layers of neural system lyphs",
      "lyphs": ["155", "150", "145", "140", "135", "160"],
-     "assign": {
-       "lyphs": {
-         "layerWidth": 75
+     "assign": [
+       {
+         "path": "$.lyphs[*]",
+         "value": {
+           "layerWidth": 75
+         }
        }
-     },
+     ],
      "remove": true
     }
   ],
@@ -4909,18 +4977,24 @@
         "1010",
         "1011"
       ],
-      "assign": {
-        "997_1000": {
-          "internalLyphs": [
-            "995"
-          ]
+      "assign": [
+        {
+          "path": "$.[?(@.id=='1000')].layers[(@.length-1)]",
+          "value": {
+            "internalLyphs": [
+              "995"
+            ]
+          }
         },
-        "997_1010": {
-          "internalLyphs": [
-            "996"
-          ]
+        {
+          "path": "$.[?(@.id=='1010')].layers[(@.length-1)]",
+          "value": {
+            "internalLyphs": [
+              "996"
+            ]
+          }
         }
-      },
+      ],
       "isTemplate": true
     },
     {

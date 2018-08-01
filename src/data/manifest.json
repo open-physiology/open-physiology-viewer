@@ -82,6 +82,20 @@
           "maximum": 1
         }
       }
+    },
+    "JSONPathScheme": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "JSONPath expression to select entities",
+          "type": "string"
+        },
+        "value": {
+          "description": "A subset of entity properties to assign to all selected entities",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "definitions": {
@@ -112,8 +126,7 @@
           "description": "RGB color",
           "type": "string",
           "format": "rgbcolor",
-          "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)",
-          "default": "#666"
+          "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
         },
         "external": {
           "description": "Identifier of the entity in an external ontology such as FMA",
@@ -134,10 +147,6 @@
             "relatedTo": "groups"
           },
           "uniqueItems": true
-        },
-        "assign"    : {
-          "description": "A map that, for each generated entity ID, defines properties to assign to the dynamically created entity",
-          "type": "object"
         },
         "infoFields": {
           "description": "A set of properties shown in the info panel when entity is focused",
@@ -610,8 +619,15 @@
             ]
           }
         },
+        "assign": {
+          "description": "Defines properties to assign to lyph subtypes",
+          "type": "array",
+          "item": {
+            "$ref": "#/schemes/JSONPathScheme"
+          }
+        },
         "isTemplate": {
-          "description": "Indicates that the entity is used as template to generate other entities",
+          "description": "Indicates that the lyph defines layers for its subtypes",
           "type": "boolean"
         },
         "subtypes"  : {
@@ -655,6 +671,9 @@
             ]
           }
         }
+      },
+      "dependencies": {
+        "assign": ["subtypes"]
       }
     },
     "Border": {
@@ -808,6 +827,13 @@
             }
           ]
         },
+        "assign"     : {
+          "description": "Defines properties to assign to selected group entities",
+          "type": "array",
+          "item": {
+            "$ref": "#/schemes/JSONPathScheme"
+          }
+        },
         "interpolate": {
           "description": "Parameters defining schemes to interpolate properties of group entities",
           "type": "array",
@@ -815,14 +841,14 @@
             "type": "object",
             "properties": {
               "path": {
-                "description": "Optional JSONPath expression (by default, group's set of nodes is used as interpolation target)",
+                "description": "JSONPath expression to select group entities (default = '$.nodes[*]')",
                 "type": "string"
               },
               "color": {
-                "ref": "#/schemes/GroupColorScheme"
+                "$ref": "#/schemes/GroupColorScheme"
               },
               "offset": {
-                "ref": "#/schemes/OffsetScheme"
+                "$ref": "#/schemes/OffsetScheme"
               }
             }
           }

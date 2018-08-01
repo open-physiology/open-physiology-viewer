@@ -441,7 +441,7 @@ export class Lyph extends Entity {
                     let _linkStart = extractCoords(link.source);
                     let _linkEnd = extractCoords(link.target);
                     [_linkStart, _linkEnd].forEach(node => {
-                        plane.projectPoint(node);
+                        plane.projectPoint(node, node);
                         node.z += 1;
                     });
                     copyCoords(link.source, _linkStart);

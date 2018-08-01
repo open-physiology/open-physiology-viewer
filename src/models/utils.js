@@ -1,19 +1,29 @@
-import { Node }   from './nodeModel';
-import { Border } from './borderModel';
-import { Lyph }   from './lyphModel';
-import { Link }   from './linkModel';
-import { Graph }  from './graphModel';
-import { Material } from './materialModel';
+import {mergeWith, isObject, isArray} from 'lodash-bound';
 
-export const modelClasses = {
-    "Node"  : Node,
-    "Link"  : Link,
-    "Material": Material,
-    "Lyph"  : Lyph,
-    "Border": Border,
-    "Graph" : Graph
-};
+export const JSONPath = require('JSONPath');
 
+export function noOverwrite (objVal, srcVal){
+    if (objVal && objVal !== srcVal) { return objVal; }
+    return srcVal;
+}
+
+export function assignPropertiesToJSONPath({path, value}, parent, handler){
+    if (path && value){
+        try{
+            let entities = JSONPath({json: parent, path: path}) || [];
+            entities.forEach(e => {
+                if (e::isArray()){ //copy value to every object of the array
+                    e.filter(item => item::isObject()).forEach(item => item::mergeWith(value, noOverwrite))
+                } else {
+                    if (e::isObject()) { e::mergeWith(value); }
+                }
+                if (handler) { handler(e) }
+            });
+        } catch (err){
+            console.error(`Failed to assign properties to the JSON Path ${path} of:`, parent, err);
+        }
+    }
+}
 
 /**
  * Temporary - push a point to a rectangle (not tilted)
@@ -110,37 +120,6 @@ function getLineIntersection(line1, line2) {
     };
 }
 
-/**
- * Simple object check.
- * @param item
- * @returns {boolean}
- */
-export function isObject(item) {
-    return (item && typeof item === 'object' && !Array.isArray(item));
-}
-
-/**
- * Deep merge two objects.
- * @param target
- * @param ...sources
- */
-export function mergeDeep(target, ...sources) {
-    if (!sources.length) return target;
-    const source = sources.shift();
-
-    if (isObject(target) && isObject(source)) {
-        for (const key in source) {
-            if (isObject(source[key])) {
-                if (!target[key]) Object.assign(target, { [key]: {} });
-                mergeDeep(target[key], source[key]);
-            } else {
-                Object.assign(target, { [key]: source[key] });
-            }
-        }
-    }
-
-    return mergeDeep(target, ...sources);
-}
 
 
 
