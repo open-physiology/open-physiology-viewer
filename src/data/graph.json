@@ -279,10 +279,20 @@
     },
     {
       "id": "N21",
-      "name": "Pons node"
+      "name": "Pons node",
+      "charge": 0
+    },
+    {
+      "id": "N21b",
+      "name": "Pons node",
+      "charge": 0
     },
     {
       "id": "N22",
+      "name": "Midbrain node"
+    },
+    {
+      "id": "N22b",
       "name": "Midbrain node"
     },
     {
@@ -811,19 +821,36 @@
       "id": "V18",
       "source": "N20",
       "target": "N21",
-      "name": "Medulla - Pons link",
+      "name": "Medulla link",
       "conveyingLyph": "L72"
     },
     {
-      "id": "V19",
+      "id": "V18_V19",
       "source": "N21",
+      "target": "N21b",
+      "name": "Medulla - Pons link",
+      "type": "dashed",
+      "length": 0.01,
+      "strength": 1
+    },
+    {
+      "id": "V19",
+      "source": "N21b",
       "target": "N22",
-      "name": "Pons - Midbrain link",
+      "name": "Pons",
       "conveyingLyph": "L76"
     },
     {
-      "id": "V20",
+      "id": "V19_V20",
       "source": "N22",
+      "target": "N22b",
+      "name": "Pons - Midbrain link",
+      "type": "force",
+      "length": 0
+    },
+    {
+      "id": "V20",
+      "source": "N22b",
       "target": "N23",
       "name": "Midbrain - Diencephalon link",
       "conveyingLyph": "L80"
@@ -1540,7 +1567,9 @@
         "N19",
         "N20",
         "N21",
+        "N21b",
         "N22",
+        "N22b",
         "N23",
         "N24",
         "N25"
@@ -3765,7 +3794,19 @@
       },
       "internalLyphs": [
         "203"
-      ]
+      ],
+      "border": {
+        "borders": [
+          {},
+          {
+            "hostedNodes": [
+              "N22b"
+            ]
+          },
+          {},
+          {}
+        ]
+      }
     },
     {
       "id": "142",
@@ -3832,11 +3873,11 @@
           {},
           {
             "hostedNodes": [
-              "N21"
+              "N21b"
             ]
           },
           {},
-          {}
+          {"hostedNodes": ["N22"]}
         ]
       }
     },
@@ -3902,7 +3943,7 @@
         "202",
         "201"
       ],
-      "border": {"borders": [{}, {"hostedNodes": ["N6"]}, {}, {}]}
+      "border": {"borders": [{}, {"hostedNodes": ["N6"]}, {}, {"hostedNodes": ["N21"]}]}
     },
     {
       "id": "152",

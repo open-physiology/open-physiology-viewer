@@ -53,12 +53,13 @@ export class Lyph extends Entity {
 
     get polygonOffsetFactor() {
         let res = 0;
-        if (this.layerInLyph) {
-            res = Math.min(res, this.layerInLyph.polygonOffsetFactor - 1);
-        }
-        if (this.belongsToLyph) {
-            res = Math.min(res, this.belongsToLyph.polygonOffsetFactor - 1);
-        }
+        //Lyphs positioned on top of the give lyph should be rendered first
+        //This prevents blinking of polygons with equal z coordinates
+        ["layerInLyph", "belongsToLyph", "hostedByLyph"].forEach((prop, i) => {
+            if (this[prop]){
+                res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
+            }
+        });
         return res;
     }
 
@@ -469,7 +470,7 @@ export class Lyph extends Entity {
 
 
         //update border
-        this.border.updateViewObjects(state);
+        if (!this.hidden){ this.border.updateViewObjects(state); }
 
         (this.viewObjects['main'].children || []).forEach(child => {
             child.visible = state.showLayers;

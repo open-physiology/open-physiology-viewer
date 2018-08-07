@@ -1,11 +1,11 @@
-import { Entity, isReference, replaceReferences } from './entityModel';
+import { Entity } from './entityModel';
 import { keys, values, mergeWith, isObject, isArray} from 'lodash-bound';
 import { definitions } from '../data/manifest.json';
 import { LINK_TYPES } from './linkModel';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/manifest.json';
 import * as colorSchemes from 'd3-scale-chromatic';
-import {noOverwrite, JSONPath, assignPropertiesToJSONPath } from './utils.js';
+import {noOverwrite, JSONPath } from './utils.js';
 
 const validator = new Validator();
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
@@ -59,39 +59,12 @@ export class Graph extends Entity {
                 }
             })
         };
-        const assignGroupProperties = (group) => {
-            if (group.assign) {
-                if (!group.assign::isArray()){
-                    console.warn("Cannot assign group properties: ", group.assign);
-                    return;
-                }
-                group.assign.forEach(({path, value}) => {
-
-                        assignPropertiesToJSONPath({path, value}, group, (e) => {
-                            //Replace references
-                            let needsUpdate = false;
-                            value::keys().forEach(key => {
-                                let spec = definitions[e.class];
-                                if (spec && spec.properties[key] && isReference(spec.properties[key])){
-                                    needsUpdate  = true;
-                                    return;
-                                }
-                            });
-                            if (needsUpdate){ replaceReferences(e, modelClasses, entitiesByID); }
-                        })
-                    }
-                );
-            }
-            (group.groups||[]).forEach(g => assignGroupProperties(g));
-        };
 
         let resVal = validator.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
-        //Assign group properties
-        assignGroupProperties(res);
         //Interpolation schemes do not contain IDs/references, so it is easier to process them in the expanded model
         interpolateGroupProperties(res);
 

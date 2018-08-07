@@ -72,38 +72,49 @@ export class DataService{
             let newGroupIDs = {"nodes": [], "links": [], "lyphs": []};
             lyph.internalLyphs.forEach(innerLyphID => {
                 let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
-                if (innerLyph) {
-                    innerLyph::merge({
-                        scale: {"height": 100, "width": 50},
-                        belongsToLyph: lyph
-                    });
+                if (!innerLyph) {
+                    console.error("Could not find lyph definition for internal lyph ID: ", innerLyphID);
+                    return;
                 }
-                let [sNode, tNode] = ["s", "t"].map(prefix => ({
-                    "id"       : `${prefix}${innerLyphID}`,
-                    "name"     : `${prefix}${innerLyphID}`,
-                    "color"    : "#ccc",
-                    "val"      : 0.1,
-                    "skipLabel": true
-                }));
-                [sNode, tNode].forEach(node => {
-                    this._graphData.nodes.push(node);
-                    newGroupIDs.nodes.push(node.id);
+
+                innerLyph::merge({
+                    scale: {"height": 100, "width": 50},
+                    belongsToLyph: lyph
                 });
 
-                let axis = getLinkByLyphID(lyph.id);
+                let innerLyphAxis = getLinkByLyphID(innerLyph.id);
+                //Create link for inner lyphs if it does not exist
+                if (!innerLyphAxis){
+                    let [sNode, tNode] = ["s", "t"].map(prefix => ({
+                        "id"       : `${prefix}${innerLyphID}`,
+                        "name"     : `${prefix}${innerLyphID}`,
+                        "color"    : "#ccc",
+                        "val"      : 0.1,
+                        "skipLabel": true
+                    }));
 
-                let link = {
-                    "id"            : `${sNode.id}_ ${tNode.id}`,
-                    "source"        : sNode,
-                    "target"        : tNode,
-                    "length"        : axis? axis.length * 0.8: 5,
-                    "type"          : LINK_TYPES.INVISIBLE,
-                    "color"         : "#ccc",
-                    "conveyingLyph" : innerLyphID
-                };
-                this._graphData.links.push(link);
+                    [sNode, tNode].forEach(node => {
+                        this._graphData.nodes.push(node);
+                        newGroupIDs.nodes.push(node.id);
+                    });
+
+                    let axis = getLinkByLyphID(lyph.id);
+
+                    let link = {
+                        "id"            : `${sNode.id}_ ${tNode.id}`,
+                        "source"        : sNode,
+                        "target"        : tNode,
+                        "length"        : axis? axis.length * 0.8: 5,
+                        "type"          : LINK_TYPES.INVISIBLE,
+                        "color"         : "#ccc",
+                        "conveyingLyph" : innerLyphID
+                    };
+                    this._graphData.links.push(link);
+                    newGroupIDs.links.push(link.id);
+                } else {
+                    newGroupIDs.links.push(innerLyphAxis.id);
+                }
                 newGroupIDs.lyphs.push(innerLyph.id);
-                newGroupIDs.links.push(link.id);
             });
             return newGroupIDs;
         };
@@ -130,6 +141,42 @@ export class DataService{
 
         //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
         generateEntitiesFromGroupRefs(this._graphData.groups);
+
+        /*Find lyph templates, generate new layers and replicate template properties */
+        let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
+        templates.forEach(template => {
+            let subtypes = template.subtypes.map(subtypeRef => this._graphData.lyphs.find(e => e.id === subtypeRef));
+            (subtypes || []).forEach(subtype => {
+                subtype.layers = [];
+                (template.layers|| []).forEach(layerRef => {
+                    let layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
+                    if (!layerParent) {
+                        console.warn("Generation error: template layer object not found: ", layerRef);
+                        return;
+                    }
+                    let newID = `${layerParent.id}_${subtype.id}`;
+                    let lyphLayer = {
+                        "id"        : newID,
+                        "name"      : `${layerParent.name} in ${subtype.name}`,
+                        "supertype" : layerParent.id,
+                        "color"     : layerParent.color
+                    };
+                    this._graphData.lyphs.push(lyphLayer);
+                    subtype.layers.push(lyphLayer);
+                });
+            });
+
+            //Copy defined properties to newly generated lyphs
+            if (template.assign){
+                if (!template.assign::isArray()){
+                    console.warn("Cannot assign template properties: ", template.assign);
+                    return;
+                }
+                template.assign.forEach(({path, value}) =>
+                    assignPropertiesToJSONPath({path, value}, subtypes)
+                );
+            }
+        });
 
         //Create nodes and links for internal lyphs, add them to the groups to which internal lyphs belong
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
@@ -170,47 +217,6 @@ export class DataService{
             });
         }
 
-        /*Find lyph templates, generate new layers and replicate template properties */
-
-        let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
-        templates.forEach(template => {
-            let subtypes = template.subtypes.map(subtypeRef => this._graphData.lyphs.find(e => e.id === subtypeRef));
-            (subtypes || []).forEach(subtype => {
-                subtype.layers = [];
-                (template.layers|| []).forEach(layerRef => {
-                    let layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
-                    if (!layerParent) {
-                        console.warn("Generation error: template layer object not found: ", layerRef);
-                        return;
-                    }
-                    let newID = `${layerParent.id}_${subtype.id}`;
-                    let lyphLayer = {
-                        "id"        : newID,
-                        "name"      : `${layerParent.name} in ${subtype.name}`,
-                        "supertype" : layerParent.id,
-                        "color"     : layerParent.color
-                    };
-                    this._graphData.lyphs.push(lyphLayer);
-                    subtype.layers.push(lyphLayer);
-                });
-            });
-
-            //Copy defined properties to newly generated lyphs
-            if (template.assign){
-                if (!template.assign::isArray()){
-                    console.warn("Cannot assign template properties: ", template.assign);
-                    return;
-                }
-                template.assign.forEach(({path, value}) =>
-                    assignPropertiesToJSONPath({path, value}, subtypes, (e) => {
-                        if (value.internalLyphs) {
-                            createInternalLyphs(e);
-                        }
-                    })
-                );
-            }
-        });
-
         /////////////////////////////////////////////////////////////////////////
         /* Generate complete model */
 
@@ -227,6 +233,10 @@ export class DataService{
 
         let conveyingLyphMap = {};
         this._graphData.links.filter(lnk => lnk.conveyingLyph).forEach(lnk => {
+           if (lnk.conveyingLyph.isTemplate){
+               console.warn("It is not allowed to use templates as conveying lyphs: ", lnk.conveyingLyph);
+               delete lnk.conveyingLyph;
+           }
            if (!conveyingLyphMap[lnk.conveyingLyph]){
                conveyingLyphMap[lnk.conveyingLyph] = lnk.conveyingLyph;
            } else {

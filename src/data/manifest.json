@@ -70,13 +70,13 @@
           "minimum": 0,
           "maximum": 1
         },
-        "end"  : {
+        "end": {
           "type": "number",
           "default": 1,
           "minimum": 0,
           "maximum": 1
         },
-        "step" : {
+        "step": {
           "type": "number",
           "minimum": 0,
           "maximum": 1
@@ -108,7 +108,7 @@
           "description": "Unique entity identifier",
           "type": "string"
         },
-        "name" : {
+        "name": {
           "description": "Entity name",
           "type": "string"
         },
@@ -143,9 +143,9 @@
               {
                 "$ref": "#/definitions/Graph"
               }
-            ],
-            "relatedTo": "groups"
+            ]
           },
+          "relatedTo": "groups",
           "uniqueItems": true
         },
         "infoFields": {
@@ -185,17 +185,24 @@
             "lists": []
           }
         },
-        "hidden"    : {
+        "hidden": {
           "description": "A flag to indicate that this entity should not be visualized",
           "type": "boolean"
         },
-        "inactive"  : {
+        "inactive": {
           "description": "A boolean flag to indicate that this entity should not be highlighted",
           "type": "boolean"
         },
-        "skipLabel" : {
+        "skipLabel": {
           "description": "A flag to indicate that this entity is visualized without the corresponding text label",
           "type": "boolean"
+        },
+        "assign": {
+          "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
+          "type": "array",
+          "item": {
+            "$ref": "#/schemes/JSONPathScheme"
+          }
         }
       },
       "additionalProperties": false
@@ -261,18 +268,6 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1
-        },
-        "belongsToLyph": {
-          "description": "ID or reference to the lyph on which this node must be positioned",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "internalLyphs"
         },
         "charge": {
           "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph",
@@ -393,9 +388,10 @@
               {
                 "$ref": "#/definitions/Node"
               }
-            ],
-            "relatedTo": "host"
-          }
+            ]
+          },
+          "relatedTo": "host",
+          "uniqueItems": true
         }
       },
       "required": [
@@ -438,9 +434,9 @@
               {
                 "$ref": "#/definitions/Lyph"
               }
-            ],
-            "relatedTo": "layerInLyph"
+            ]
           },
+          "relatedTo": "layerInLyph",
           "uniqueItems": true
         },
         "layerInLyph": {
@@ -551,21 +547,6 @@
           "minimum": 0,
           "maximum": 1
         },
-        "internalLyphs": {
-          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ],
-            "relatedTo": "belongsToLyph"
-          }
-        },
         "internalNodes": {
           "description": "Nodes that should be positioned on the given lyph",
           "type": "array",
@@ -578,7 +559,35 @@
                 "$ref": "#/definitions/Node"
               }
             ]
-          }
+          },
+          "uniqueItems": true
+        },
+        "internalLyphs": {
+          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "belongsToLyph"
+        },
+        "belongsToLyph": {
+          "description": "ID or reference of the lyph on which this lyph must be permanently positioned",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "internalLyphs"
         },
         "hostedLyphs": {
           "description": "Lyphs that should be projected to the given lyph",
@@ -592,10 +601,11 @@
                 "$ref": "#/definitions/Lyph"
               }
             ]
-          }
+          },
+          "relatedTo": "hostedByLyph"
         },
-        "belongsToLyph": {
-          "description": "ID or reference to the lyph on which this lyph must be positioned",
+        "hostedByLyph": {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
           "anyOf": [
             {
               "type": "string"
@@ -603,9 +613,10 @@
             {
               "$ref": "#/definitions/Lyph"
             }
-          ]
+          ],
+          "relatedTo": "hostedLyphs"
         },
-        "materials" : {
+        "materials": {
           "description": "Materials in the lyph",
           "type": "array",
           "items": {
@@ -619,18 +630,11 @@
             ]
           }
         },
-        "assign": {
-          "description": "Defines properties to assign to lyph subtypes",
-          "type": "array",
-          "item": {
-            "$ref": "#/schemes/JSONPathScheme"
-          }
-        },
         "isTemplate": {
           "description": "Indicates that the lyph defines layers for its subtypes",
           "type": "boolean"
         },
-        "subtypes"  : {
+        "subtypes": {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
           "type": "array",
           "items": {
@@ -641,11 +645,11 @@
               {
                 "$ref": "#/definitions/Lyph"
               }
-            ],
-            "relatedTo": "supertype"
-          }
+            ]
+          },
+          "relatedTo": "supertype"
         },
-        "supertype" : {
+        "supertype": {
           "description": "Lyph which is an anatomical supertype of the given lyph",
           "anyOf": [
             {
@@ -671,9 +675,6 @@
             ]
           }
         }
-      },
-      "dependencies": {
-        "assign": ["subtypes"]
       }
     },
     "Border": {
@@ -826,13 +827,6 @@
               "$ref": "#/definitions/Graph"
             }
           ]
-        },
-        "assign"     : {
-          "description": "Defines properties to assign to selected group entities",
-          "type": "array",
-          "item": {
-            "$ref": "#/schemes/JSONPathScheme"
-          }
         },
         "interpolate": {
           "description": "Parameters defining schemes to interpolate properties of group entities",

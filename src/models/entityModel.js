@@ -2,6 +2,8 @@ import { merge, isObject, isArray, entries, keys, assign, cloneDeep } from 'loda
 import { definitions } from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
 import { copyCoords } from '../three/utils';
+import { assignPropertiesToJSONPath } from './utils.js';
+
 
 const initValue = (specObj) => specObj.default
     ? (specObj::isObject()
@@ -22,9 +24,9 @@ const isNestedObject = (spec) => spec.type === "object" && spec.properties || sp
 
 const getClassDefinition = (spec) => spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
 
-export const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
+const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
 
-export const replaceReferences = (res, modelClasses, entitiesByID) => {
+const replaceReferences = (res, modelClasses, entitiesByID) => {
     const createObj = (value, spec) => {
         let objValue = value;
         if (typeof value === "string") {
@@ -62,6 +64,8 @@ export const replaceReferences = (res, modelClasses, entitiesByID) => {
 
     const replaceRefs = (res, [key, spec]) => {
         if (!res[key]){ return; }
+        if (res[key].class && (res[key] instanceof modelClasses[res[key].class])) { return; }
+
         let typeSpec = spec.items || spec;
         if (res[key]::isArray()){
             if (spec.type !== "array"){
@@ -84,9 +88,9 @@ export const replaceReferences = (res, modelClasses, entitiesByID) => {
             console.warn("Object ID has not been replaced with references", res[key]);
             return;
         }
-        let typeSpec = spec.items || spec;
-        if (typeSpec.relatedTo){
-            let key2 = typeSpec.relatedTo;
+        let key2 = spec.relatedTo;
+        if (key2){
+            let typeSpec = spec.items || spec;
             let otherClassDef = getClassDefinition(typeSpec);
             if (!otherClassDef){
                 console.error("Class not defined: ", typeSpec);
@@ -142,11 +146,39 @@ export const replaceReferences = (res, modelClasses, entitiesByID) => {
         (refFields||[]).forEach(f => [...res[fKey]].forEach(item => replaceRefs(item, f)));
     });
 
+    assignPathProperties(res, modelClasses, entitiesByID);
+
     //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
     refFields.forEach(f => syncRelationships(res, f));
 
 };
 
+const assignPathProperties = (parent, modelClasses, entitiesByID) => {
+    //Do not process template assignment, this has been done at preprocessing stage
+    if (parent.isTemplate) { return; }
+
+    if (parent.assign) {
+        if (!parent.assign::isArray()){
+            console.warn("Cannot assign path properties: ", parent.assign);
+            return;
+        }
+        parent.assign.forEach(({path, value}) => {
+                assignPropertiesToJSONPath({path, value}, parent, (e) => {
+                    //Replace assigned references
+                    let needsUpdate = false;
+                    value::keys().forEach(key => {
+                        let spec = definitions[e.class];
+                        if (spec && spec.properties[key] && isReference(spec.properties[key])){
+                            needsUpdate  = true;
+                            return;
+                        }
+                    });
+                    if (needsUpdate){ replaceReferences(e, modelClasses, entitiesByID); }
+                })
+            }
+        );
+    }
+};
 
 /**
  * Returns recognized class properties from the specification
@@ -184,7 +216,7 @@ export class Entity {
     }
 
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-
+        //Do not expand templates
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];
         const res = new cls(json.id);
