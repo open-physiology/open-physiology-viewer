@@ -98,11 +98,11 @@ export class Graph extends Entity {
     }
 
     get visibleNodes(){
-        return this.nodes.filter(e => !e.hidden);
+        return this.nodes.filter(e => e.isVisible);
     }
 
     get visibleLinks(){
-        return this.links.filter(e => !e.hidden &&
+        return this.links.filter(e => e.isVisible &&
             this.visibleNodes.find(e2 => e2 === e.source) &&
             this.visibleNodes.find(e2 => e2 === e.target)
         );

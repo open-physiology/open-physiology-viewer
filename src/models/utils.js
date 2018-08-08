@@ -1,5 +1,4 @@
 import {mergeWith, isObject, isArray} from 'lodash-bound';
-
 export const JSONPath = require('JSONPath');
 
 export function noOverwrite (objVal, srcVal){
@@ -23,6 +22,19 @@ export function assignPropertiesToJSONPath({path, value}, parent, handler){
             console.error(`Failed to assign properties to the JSON Path ${path} of:`, parent, err);
         }
     }
+}
+
+/**
+ * Copy coordinates from source object to target
+ * @param target
+ * @param source
+ */
+export function copyCoords(target, source){
+    if (!target) { return; }
+    if (!source) { return; }
+    target.x = source.x || 0;
+    target.y = source.y || 0;
+    target.z = source.z || 0;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Entity } from './entityModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { copyCoords } from '../three/utils';
+import { copyCoords } from './utils';
 
 /**
  * Recognized set of node visualization options (optional)
@@ -17,6 +17,18 @@ export const NODE_TYPES = {
  * The class to visualize nodes in the process graphs
  */
 export class Node extends Entity {
+
+    /**
+     * Determines whether the node's position is constrained in the model
+     */
+    get isConstrained(){
+        return (this.type === NODE_TYPES.CORE ||
+             this.type === NODE_TYPES.FIXED   ||
+             this.type === NODE_TYPES.CONTROL ||
+            (this.host && this.host.isVisible) ||
+            (this.internalNodeInLyph && this.internalNodeInLyph.isVisible) ||
+            (this.hostedByBorder && this.hostedByBorder.isVisible));
+    }
 
     /**
      * Create visual objects to represent the model according to the user preferences

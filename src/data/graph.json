@@ -830,8 +830,8 @@
       "target": "N21b",
       "name": "Medulla - Pons link",
       "type": "dashed",
-      "length": 0.01,
-      "strength": 1
+      "length": 10,
+      "collapsible": true
     },
     {
       "id": "V19",
@@ -845,8 +845,9 @@
       "source": "N22",
       "target": "N22b",
       "name": "Pons - Midbrain link",
-      "type": "force",
-      "length": 0
+      "type": "dashed",
+      "length": 10,
+      "collapsible": true
     },
     {
       "id": "V20",
@@ -1716,7 +1717,7 @@
           }
         ]
       },
-      "belongsToLyph": "3"
+      "hostedByLyph": "3"
     },
     {
       "id": "6",

@@ -1,5 +1,5 @@
 import { Entity } from './entityModel';
-import { copyCoords } from '../three/utils';
+import { copyCoords } from './utils';
 import { Link, LINK_TYPES } from './linkModel';
 import { Node } from './nodeModel';
 /**
@@ -7,6 +7,18 @@ import { Node } from './nodeModel';
  */
 export class Border extends Entity {
     //properties copied from manifest by Entity constructor
+
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
+        const result = super.fromJSON(json, modelClasses, entitiesByID);
+        (result.borders || []).filter(border => border.hostedNodes).forEach(border => {
+            border.hostedNodes.forEach(node => node.hostedByBorder = result);
+        });
+        return result;
+    }
+
+    get isVisible(){
+        return super.isVisible && (this.borderInLyph? this.borderInLyph.isVisible: true);
+    }
 
     get radialTypes(){
         return [this.borderTypes[1], this.borderTypes[2]];
@@ -136,9 +148,7 @@ export class Border extends Entity {
             let points = border.viewObjects["shape"].getSpacedPoints(border.hostedNodes.length + 1)
                 .map(p => new THREE.Vector3(p.x, p.y, 0));
             points = points.map(p => this.borderInLyph.translate(p));
-            border.hostedNodes.filter(node => !!node).forEach((node, i) => {
-                copyCoords(node, points[i + 1]);
-            });
+            border.hostedNodes.forEach((node, i) => copyCoords(node, points[i + 1]));
         });
 
         (this.links || []).filter(lnk => !!lnk).forEach((lnk, i) => {

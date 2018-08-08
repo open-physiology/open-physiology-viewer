@@ -79,7 +79,7 @@ export class DataService{
 
                 innerLyph::merge({
                     scale: {"height": 100, "width": 50},
-                    belongsToLyph: lyph
+                    internalLyphInLyph: lyph
                 });
 
                 let innerLyphAxis = getLinkByLyphID(innerLyph.id);
@@ -120,6 +120,8 @@ export class DataService{
         };
 
         ///////////////////////////////////////////////////////////////////
+
+        //TODO issue warning about dashed lines with 0 length or override the value
 
         //Create an expanded input model
         this._graphData = inputModel::cloneDeep()::mergeWith({
@@ -205,7 +207,7 @@ export class DataService{
                                 "id"    : link1[end]+"_"+link2[end],
                                 "source": link1[end],
                                 "target": link2[end],
-                                "length": 0.1,
+                                "length": 0,
                                 "type": LINK_TYPES.FORCE
                             };
                             this._graphData.links.push(link);

@@ -1,9 +1,7 @@
 import { merge, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
 import { definitions } from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
-import { copyCoords } from '../three/utils';
-import { assignPropertiesToJSONPath } from './utils.js';
-
+import { assignPropertiesToJSONPath, copyCoords } from './utils.js';
 
 const initValue = (specObj) => specObj.default
     ? (specObj::isObject()
@@ -249,6 +247,10 @@ export class Entity {
         return res;
     }
 
+    get isVisible(){
+        return !this.hidden;
+    }
+
     createLabels(labelKey, fontParams){
         if (this.skipLabel) { return; }
         this.labels = this.labels || {};
@@ -264,11 +266,11 @@ export class Entity {
         }
     }
 
-    updateLabels(labelKey, visibility, position){
+    updateLabels(labelKey, isVisible, position){
         if (this.skipLabel) { return; }
         if (this.labels[labelKey]){
             this.viewObjects['label'] = this.labels[labelKey];
-            this.viewObjects["label"].visible = visibility;
+            this.viewObjects["label"].visible = isVisible;
             copyCoords(this.viewObjects["label"].position, position);
         } else {
             delete this.viewObjects['label'];

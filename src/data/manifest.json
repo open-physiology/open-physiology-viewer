@@ -226,6 +226,18 @@
           ],
           "relatedTo": "hostedNodes"
         },
+        "internalNodeInLyph":{
+          "description": "A lyph on which this node is positioned",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "internalNodes"
+        },
         "layout": {
           "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
           "type": "object",
@@ -316,6 +328,10 @@
           "maximum": 100,
           "default": 1
         },
+        "collapsible": {
+          "description": "Indicates that the link disappears when its end nodes are not both constrained",
+          "type": "boolean"
+        },
         "conveyingLyph": {
           "description": "Conveying lyph for the process represented by the link",
           "anyOf": [
@@ -329,7 +345,7 @@
           "relatedTo": "axis"
         },
         "type": {
-          "description": "Defines the appearance and behavior of the link in the model graph",
+          "description": "Defines the appearance and behavior of the link in the model graph.",
           "type": "string",
           "enum": [
             "link",
@@ -560,6 +576,7 @@
               }
             ]
           },
+          "relatedTo": "internalNodeInLyph",
           "uniqueItems": true
         },
         "internalLyphs": {
@@ -575,9 +592,9 @@
               }
             ]
           },
-          "relatedTo": "belongsToLyph"
+          "relatedTo": "internalLyphInLyph"
         },
-        "belongsToLyph": {
+        "internalLyphInLyph": {
           "description": "ID or reference of the lyph on which this lyph must be permanently positioned",
           "anyOf": [
             {

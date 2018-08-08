@@ -23,29 +23,6 @@ export function bezierSemicircle(startV, endV){
 }
 
 /**
- * Copy coordinates from source object to target
- * @param target
- * @param source
- */
-export function copyCoords(target, source){
-    if (!target) { return; }
-    if (!source) { return; }
-    target.x = source.x || 0;
-    target.y = source.y || 0;
-    target.z = source.z || 0;
-}
-
-/**
- * Create a vector from an object that contains coordinate fields (x,y,z)
- * @param source
- * @returns {THREE.Vector3}
- */
-export function extractCoords(source){
-    if (!source) { return; }
-    return new THREE.Vector3(source.x || 0, source.y || 0, source.z || 0);
-}
-
-/**
  * Computes difference between two geometries
  * @param smallGeom - inner geometry
  * @param largeGeom - outer geometry
@@ -81,6 +58,21 @@ export function mergedGeometry(tube, cupTop, cupBottom, offset){
     return singleGeometry;
 }
 
+/**
+ * Create a vector from an object that contains coordinate fields (x,y,z)
+ * @param source
+ * @returns {THREE.Vector3}
+ */
+export function extractCoords(source){
+    if (!source) { return; }
+    return new THREE.Vector3(source.x || 0, source.y || 0, source.z || 0);
+}
+
+/**
+ * Align an object along its axis
+ * @param axis
+ * @param obj
+ */
 export function align(axis, obj){
     if (!obj || !axis) { return; }
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);

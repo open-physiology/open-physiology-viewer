@@ -1,11 +1,9 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {Entity} from './entityModel';
-import {mergedGeometry, geometryDifference, align, extractCoords, copyCoords, getCenterPoint} from '../three/utils';
+import {mergedGeometry, geometryDifference, align, extractCoords, getCenterPoint} from '../three/utils';
 import {Border} from './borderModel';
-import {LINK_TYPES} from './linkModel';
-import {boundToPolygon, boundToRectangle} from './utils';
-
+import {boundToPolygon, boundToRectangle, copyCoords } from './utils';
 
 /**
  * Class that creates visualization objects of lyphs
@@ -34,6 +32,10 @@ export class Lyph extends Entity {
         return [false, false];
     }
 
+    get isVisible() {
+        return super.isVisible && (this.layerInLyph? this.layerInLyph.isVisible: true);
+    }
+
     //lyph's center = the center of its rotational axis
     get center() {
         let res = new THREE.Vector3();
@@ -55,7 +57,7 @@ export class Lyph extends Entity {
         let res = 0;
         //Lyphs positioned on top of the give lyph should be rendered first
         //This prevents blinking of polygons with equal z coordinates
-        ["layerInLyph", "belongsToLyph", "hostedByLyph"].forEach((prop, i) => {
+        ["layerInLyph", "internalLyphInLyph", "hostedByLyph"].forEach((prop, i) => {
             if (this[prop]){
                 res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
             }
@@ -311,9 +313,7 @@ export class Lyph extends Entity {
 
             lyphObj.__data = this;
 
-            if (lyphBorder) {
-                lyphObj.add(lyphBorder);
-            }
+            if (lyphBorder) { lyphObj.add(lyphBorder); }
 
             this.viewObjects["lyphs"][state.method] = lyphObj;
             //This will be needed to create nested items
@@ -321,7 +321,6 @@ export class Lyph extends Entity {
 
             this.border.borderInLyph = this;
             this.border.createViewObjects(state);
-
 
             //Layers
 
@@ -356,19 +355,12 @@ export class Lyph extends Entity {
                 lyphObj.add(layerObj);
             });
 
-            (this.internalNodes || []).forEach(node => {
-                if (!state.graphData.nodes.find(n => n.id === node.id)) {
-                    //If internal node is not in the global graph, create visual objects for it
-                    node.createViewObjects(state);
-                    lyphObj.add(node.viewObjects["main"]);
-                }
-            })
         } else {
             this.viewObjects['main'] = this.viewObjects["lyphs"][state.method];
         }
 
         //Do not create labels for layers and nested lyphs
-        if (this.layerInLyph || this.belongsToLyph) {
+        if (this.layerInLyph || this.internalLyphInLyph) {
             return;
         }
 
@@ -380,25 +372,25 @@ export class Lyph extends Entity {
      * @param state - view settings
      */
     updateViewObjects(state) {
-        if (!this.axis) {
-            return;
-        }
+        if (!this.axis) { return; }
+
         if (!this.viewObjects["lyphs"][state.method]) {
             this.createViewObjects(state);
         }
         this.viewObjects['main'] = this.viewObjects["lyphs"][state.method];
 
-
         if (!this.layerInLyph) {//update label
-            if (!this.belongsToLyph) {
+            if (!this.internalLyphInLyph) {
                 if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
                     this.createViewObjects(state);
                 }
             }
             //update lyph
-            this.viewObjects["main"].visible = (!this.hidden) && state.showLyphs;
+            this.viewObjects["main"].visible = this.isVisible && state.showLyphs;
             copyCoords(this.viewObjects["main"].position, this.center);
             align(this.axis, this.viewObjects["main"]);
+        } else {
+            this.viewObjects["main"].visible = state.showLayers;
         }
 
         //update layers
@@ -410,18 +402,16 @@ export class Lyph extends Entity {
         let fociCenter = (this.hostedLyphs || this.internalNodes)? getCenterPoint(this.viewObjects["main"]): null;
 
         let internalLinks = (this.internalLyphs||[]).filter(lyph => lyph.axis).map(lyph => lyph.axis);
-        if (internalLinks) {
-            internalLinks.forEach((link, i) => {
-                let p = extractCoords(this.border.borderLinks[0].source);
-                let p1 = extractCoords(this.border.borderLinks[0].target);
-                let p2 = extractCoords(this.border.borderLinks[1].target);
-                [p, p1, p2].forEach(p => p.z += 1);
-                let dY = p2.clone().sub(p1);
-                let offsetY = dY.clone().multiplyScalar(i / internalLinks.length);
-                copyCoords(link.source, p.clone().add(offsetY));
-                copyCoords(link.target, p1.clone().add(offsetY));
-            });
-        }
+        internalLinks.forEach((link, i) => {
+            let p  = extractCoords(this.border.borderLinks[0].source);
+            let p1 = extractCoords(this.border.borderLinks[0].target);
+            let p2 = extractCoords(this.border.borderLinks[1].target);
+            [p, p1, p2].forEach(p => p.z += 1);
+            let dY = p2.clone().sub(p1);
+            let offsetY = dY.clone().multiplyScalar(i / internalLinks.length);
+            copyCoords(link.source, p.clone().add(offsetY));
+            copyCoords(link.target, p1.clone().add(offsetY));
+        });
 
         let hostedLinks = (this.hostedLyphs||[]).filter(lyph => lyph.axis).map(lyph => lyph.axis);
         if (hostedLinks) {
@@ -466,18 +456,13 @@ export class Lyph extends Entity {
             });
         }
 
-        (this.internalNodes || []).forEach(node => { copyCoords(node, fociCenter); });
-
+        (this.internalNodes||[]).forEach(node => {copyCoords(node.layout, fociCenter);});
 
         //update border
-        if (!this.hidden){ this.border.updateViewObjects(state); }
-
-        (this.viewObjects['main'].children || []).forEach(child => {
-            child.visible = state.showLayers;
-        });
+        if (this.isVisible){ this.border.updateViewObjects(state); }
 
         //Layers and inner lyphs have no labels
-        if (this.layerInLyph || this.belongsToLyph) { return; }
+        if (this.layerInLyph || this.internalLyphInLyph) { return; }
 
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(-5));
     }

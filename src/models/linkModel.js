@@ -1,7 +1,8 @@
 import { Entity } from './entityModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { direction, bezierSemicircle, copyCoords} from '../three/utils';
+import { direction, bezierSemicircle} from '../three/utils';
+import { copyCoords} from './utils';
 
 import { LineSegments2 }        from '../three/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from '../three/lines/LineSegmentsGeometry.js';
@@ -14,13 +15,13 @@ import { LineMaterial }         from '../three/lines/LineMaterial.js';
  * @type {{LINK: string, SEMICIRCLE: string, DASHED: string, FORCE: string, CONTAINER: string, INVISIBLE: string}}
  */
 export const LINK_TYPES = {
-    LINK       : "link",       //solid straight line
-    DASHED     : "dashed",     //dashed straight line
-    SEMICIRCLE : "semicircle", //solid line in the form of a semicircle
-    PATH       : "path",       //solid path (e.g., in the shape for the edge bundling)
-    CONTAINER  : "container",  //link with visual object (which may be hidden), not affected by graph forces (i.e., with fixed position)
-    FORCE      : "force",      //link without visual object, works as force to attract or repel nodes
-    INVISIBLE  : "invisible"   //link with hidden visual object affected by graph forces (i.e., dynamically positioned)
+    LINK       : "link",        //solid straight line
+    DASHED     : "dashed",      //dashed straight line
+    SEMICIRCLE : "semicircle",  //solid line in the form of a semicircle
+    PATH       : "path",        //solid path (e.g., in the shape for the edge bundling)
+    CONTAINER  : "container",   //link with visual object (which may be hidden), not affected by graph forces (i.e., with fixed position)
+    FORCE      : "force",       //link without visual object, works as force to attract or repel nodes
+    INVISIBLE  : "invisible"   //link with hidden visual object affected by graph forces (i.e., dynamically positioned),
 };
 
 /**
@@ -119,6 +120,22 @@ export class Link extends Entity {
         let _end = new THREE.Vector3(this.target.x, this.target.y, this.target.z || 0);
         let points = [_start, _end];
         this.center = _start.clone().add(_end).multiplyScalar(0.5);
+
+        //Merge nodes of a collapsible link
+        if (this.collapsible){
+            if (!this.source.isConstrained) {
+                if (!this.target.isConstrained) {
+                    copyCoords(this.source, this.center);
+                    copyCoords(this.target, this.center);
+                } else {
+                    copyCoords(this.source, this.target);
+                }
+            } else {
+                if (!this.target.isConstrained) {
+                    copyCoords(this.target, this.source);
+                }
+            }
+        }
 
         switch(this.type){
             case LINK_TYPES.DASHED: {
