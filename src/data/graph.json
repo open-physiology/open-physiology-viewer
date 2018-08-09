@@ -1597,7 +1597,7 @@
          }
        }
      ],
-     "remove": true
+     "inactive": true
     }
   ],
   "lyphs" : [

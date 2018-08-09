@@ -26,8 +26,11 @@ export class Node extends Entity {
              this.type === NODE_TYPES.FIXED   ||
              this.type === NODE_TYPES.CONTROL ||
             (this.host && this.host.isVisible) ||
-            (this.internalNodeInLyph && this.internalNodeInLyph.isVisible) ||
-            (this.hostedByBorder && this.hostedByBorder.isVisible));
+            (this.internalNodeInLyph && this.internalNodeInLyph.isVisible));
+    }
+
+    get polygonOffsetFactor(){
+        return -100;
     }
 
     /**
@@ -42,7 +45,7 @@ export class Node extends Entity {
             if (!this.material){
                 this.material = state.materialRepo.createMeshLambertMaterial({
                     color: this.color,
-                    polygonOffsetFactor: -100 //Draw nodes in front of lyphs
+                    polygonOffsetFactor: this.polygonOffsetFactor
                 });
             }
             let obj = new THREE.Mesh(geometry, this.material);

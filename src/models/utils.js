@@ -1,4 +1,4 @@
-import {mergeWith, isObject, isArray} from 'lodash-bound';
+import {merge, isObject, isArray} from 'lodash-bound';
 export const JSONPath = require('JSONPath');
 
 export function noOverwrite (objVal, srcVal){
@@ -12,9 +12,9 @@ export function assignPropertiesToJSONPath({path, value}, parent, handler){
             let entities = JSONPath({json: parent, path: path}) || [];
             entities.forEach(e => {
                 if (e::isArray()){ //copy value to every object of the array
-                    e.filter(item => item::isObject()).forEach(item => item::mergeWith(value, noOverwrite))
+                    e.filter(item => item::isObject()).forEach(item => item::merge(value))
                 } else {
-                    if (e::isObject()) { e::mergeWith(value); }
+                    if (e::isObject()) { e::merge(value); }
                 }
                 if (handler) { handler(e) }
             });

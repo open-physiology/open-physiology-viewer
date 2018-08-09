@@ -190,7 +190,7 @@
           "type": "boolean"
         },
         "inactive": {
-          "description": "A boolean flag to indicate that this entity should not be highlighted",
+          "description": "A boolean flag to indicate that this entity should not be manipulated (i.e., highlighted or toggled)",
           "type": "boolean"
         },
         "skipLabel": {
@@ -202,6 +202,25 @@
           "type": "array",
           "item": {
             "$ref": "#/schemes/JSONPathScheme"
+          }
+        },
+        "interpolate": {
+          "description": "Parameters defining schemes to interpolate properties of entities in the JSON path",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "description": "JSONPath expression to select group entities (default = '$.nodes[*]')",
+                "type": "string"
+              },
+              "color": {
+                "$ref": "#/schemes/GroupColorScheme"
+              },
+              "offset": {
+                "$ref": "#/schemes/OffsetScheme"
+              }
+            }
           }
         }
       },
@@ -844,29 +863,6 @@
               "$ref": "#/definitions/Graph"
             }
           ]
-        },
-        "interpolate": {
-          "description": "Parameters defining schemes to interpolate properties of group entities",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "path": {
-                "description": "JSONPath expression to select group entities (default = '$.nodes[*]')",
-                "type": "string"
-              },
-              "color": {
-                "$ref": "#/schemes/GroupColorScheme"
-              },
-              "offset": {
-                "$ref": "#/schemes/OffsetScheme"
-              }
-            }
-          }
-        },
-        "remove": {
-          "description": "Temporary solution, marks auxiliary groups that are removed from the view graph",
-          "type": "boolean"
         }
       }
     }

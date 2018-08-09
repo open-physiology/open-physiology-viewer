@@ -45,7 +45,7 @@ export class DataService{
                     group[property] = [...group[property]||[], ...[].concat(
                         ...group.groups.map(subgroupID => {
                             let g = groups.find(g => g.id === subgroupID);
-                            g.remove = true;
+                            if (!g.hasOwnProperty("inactive")) { g.inactive = true; }
                             if (g){ return g[property]||[]; } else {
                                 console.warn("Reference to unknown group found", subgroupID);
                             } return [];
@@ -121,8 +121,6 @@ export class DataService{
 
         ///////////////////////////////////////////////////////////////////
 
-        //TODO issue warning about dashed lines with 0 length or override the value
-
         //Create an expanded input model
         this._graphData = inputModel::cloneDeep()::mergeWith({
             id: "mainModel",
@@ -138,8 +136,6 @@ export class DataService{
             groups: [],
             materials: []
         }, noOverwrite);
-
-        delete this._graphData.default;
 
         //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
         generateEntitiesFromGroupRefs(this._graphData.groups);
@@ -207,7 +203,7 @@ export class DataService{
                                 "id"    : link1[end]+"_"+link2[end],
                                 "source": link1[end],
                                 "target": link2[end],
-                                "length": 0,
+                                "length": 0.1,
                                 "type": LINK_TYPES.FORCE
                             };
                             this._graphData.links.push(link);

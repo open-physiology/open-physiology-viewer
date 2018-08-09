@@ -55,7 +55,7 @@ export class Lyph extends Entity {
 
     get polygonOffsetFactor() {
         let res = 0;
-        //Lyphs positioned on top of the give lyph should be rendered first
+        //Lyphs positioned on top of the given lyph should be rendered first
         //This prevents blinking of polygons with equal z coordinates
         ["layerInLyph", "internalLyphInLyph", "hostedByLyph"].forEach((prop, i) => {
             if (this[prop]){

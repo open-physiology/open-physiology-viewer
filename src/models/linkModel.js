@@ -39,6 +39,12 @@ export class Link extends Entity {
         return direction({source: this.source, target: this.target});
     }
 
+    get polygonOffsetFactor(){
+        let res = -100;
+        if (this.host){ res = this.host.polygonOffsetFactor - 1; }
+        return res;
+    }
+
     /**
      * Create WebGL objects to visualize the link, labels and its conveying lyph
      * @param state - layout parameters
@@ -68,7 +74,7 @@ export class Link extends Entity {
                     this.material = state.materialRepo.createLine2Material({
                         color: this.color,
                         linewidth: this.linewidth,
-                        polygonOffsetFactor: -100
+                        polygonOffsetFactor: this.polygonOffsetFactor
                     });
                     obj = new THREE.Line2(geometry, this.material);
                 } else {
@@ -76,7 +82,7 @@ export class Link extends Entity {
                     geometry = new THREE.BufferGeometry();
                     this.material = state.materialRepo.createLineBasicMaterial({
                         color: this.color,
-                        polygonOffsetFactor: -100
+                        polygonOffsetFactor: this.polygonOffsetFactor
                     });
                     let size = (this.type === LINK_TYPES.SEMICIRCLE)? state.linkResolution:
                         (this.type === LINK_TYPES.PATH)? 66: 2; // Edge bunding breaks a link into 66 points

@@ -1,7 +1,8 @@
-import { merge, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
+import { merge, mergeWith, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
 import { definitions } from '../data/manifest.json';
 import { SpriteText2D } from 'three-text2d';
-import { assignPropertiesToJSONPath, copyCoords } from './utils.js';
+import { assignPropertiesToJSONPath, copyCoords, noOverwrite, JSONPath } from './utils.js';
+import * as colorSchemes from 'd3-scale-chromatic';
 
 const initValue = (specObj) => specObj.default
     ? (specObj::isObject()
@@ -149,6 +150,8 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
     //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
     refFields.forEach(f => syncRelationships(res, f));
 
+    //Interpolation schemes do not contain IDs/references, so it is easier to process them in the expanded model
+    interpolatePathProperties(res);
 };
 
 const assignPathProperties = (parent, modelClasses, entitiesByID) => {
@@ -177,6 +180,50 @@ const assignPathProperties = (parent, modelClasses, entitiesByID) => {
         );
     }
 };
+
+const colorPathEntities = (entities, {scheme, length, reversed = false, offset}) => {
+    if (!colorSchemes[scheme]) {
+        console.warn("Unrecognized color scheme: ", scheme);
+        return;
+    }
+    if (!length) { length = entities.length; }
+    if (!offset) { offset = 0; }
+
+    const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
+    const assignColor = items => {
+        (items||[]).forEach((item, i) => {
+            if (!item::isObject()) {
+                console.warn("Cannot assign color to a non-object value");
+                return;
+            }
+            //If entity is an array, the schema is applied to each of it's items (e.g. to handle layers of lyphs in a group)
+            if (item::isArray()){
+                assignColor(item);
+            } else {
+                item.color = getColor(i);
+            }
+        });
+    };
+    assignColor(entities);
+};
+
+const interpolatePathProperties = (parent) => {
+    (parent.interpolate||[]).forEach(({path, offset, color}) => {
+        let entities = path? JSONPath({json: parent, path: path}): parent.nodes || [];
+        if (offset){
+            offset::mergeWith({
+                "start": 0,
+                "end": 1,
+                "step": (offset.end - offset.start) / (entities.length + 1)
+            }, noOverwrite);
+            entities.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
+        }
+        if (color){
+            colorPathEntities(entities, color);
+        }
+    })
+};
+
 
 /**
  * Returns recognized class properties from the specification
@@ -249,6 +296,10 @@ export class Entity {
 
     get isVisible(){
         return !this.hidden;
+    }
+
+    get polygonOffsetFactor() {
+        return 0;
     }
 
     createLabels(labelKey, fontParams){

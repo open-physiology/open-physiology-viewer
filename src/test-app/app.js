@@ -7,7 +7,7 @@ import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/manifest.json';
-import * as initModel from '../data/graph.json';
+import initModel from '../data/graph.json';
 import {ToastyModule, ToastyService} from 'ng2-toasty';
 
 import 'font-awesome/css/font-awesome.css';
