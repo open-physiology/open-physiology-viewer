@@ -87,6 +87,7 @@
     "three-text2d": "^0.4.1",
     "three-window-resize": "^1.0.4",
     "tinycolor2": "^1.4.1",
+    "winston": "^3.0.0",
     "zone.js": "^0.8.4"
   }
 }

@@ -1,5 +1,5 @@
 import { Entity } from './entityModel';
-import { values, isObject, isArray} from 'lodash-bound';
+import { values, isObject} from 'lodash-bound';
 import { definitions } from '../data/manifest.json';
 import { LINK_TYPES } from './linkModel';
 import { Validator} from 'jsonschema';

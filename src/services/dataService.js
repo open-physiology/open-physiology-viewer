@@ -1,4 +1,4 @@
-import { values, cloneDeep, merge, mergeWith, isArray, isObject} from 'lodash-bound';
+import { values, keys, cloneDeep, merge, mergeWith, isArray} from 'lodash-bound';
 import { Graph} from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
@@ -119,6 +119,43 @@ export class DataService{
             return newGroupIDs;
         };
 
+        const expandTemplates = () => {
+            let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
+            templates.forEach(template => {
+                let subtypes = template.subtypes.map(subtypeRef => this._graphData.lyphs.find(e => e.id === subtypeRef));
+                (subtypes || []).forEach(subtype => {
+                    subtype.layers = [];
+                    (template.layers|| []).forEach(layerRef => {
+                        let layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
+                        if (!layerParent) {
+                            console.warn("Generation error: template layer object not found: ", layerRef);
+                            return;
+                        }
+                        let newID = `${layerParent.id}_${subtype.id}`;
+                        let lyphLayer = {
+                            "id"        : newID,
+                            "name"      : `${layerParent.name} in ${subtype.name}`,
+                            "supertype" : layerParent.id,
+                            "color"     : layerParent.color
+                        };
+                        this._graphData.lyphs.push(lyphLayer);
+                        subtype.layers.push(lyphLayer);
+                    });
+                });
+
+                //Copy defined properties to newly generated lyphs
+                if (template.assign){
+                    if (!template.assign::isArray()){
+                        console.warn("Cannot assign template properties: ", template.assign);
+                        return;
+                    }
+                    template.assign.forEach(({path, value}) =>
+                        assignPropertiesToJSONPath({path, value}, subtypes)
+                    );
+                }
+            });
+        };
+
         ///////////////////////////////////////////////////////////////////
 
         //Create an expanded input model
@@ -141,40 +178,7 @@ export class DataService{
         generateEntitiesFromGroupRefs(this._graphData.groups);
 
         /*Find lyph templates, generate new layers and replicate template properties */
-        let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
-        templates.forEach(template => {
-            let subtypes = template.subtypes.map(subtypeRef => this._graphData.lyphs.find(e => e.id === subtypeRef));
-            (subtypes || []).forEach(subtype => {
-                subtype.layers = [];
-                (template.layers|| []).forEach(layerRef => {
-                    let layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
-                    if (!layerParent) {
-                        console.warn("Generation error: template layer object not found: ", layerRef);
-                        return;
-                    }
-                    let newID = `${layerParent.id}_${subtype.id}`;
-                    let lyphLayer = {
-                        "id"        : newID,
-                        "name"      : `${layerParent.name} in ${subtype.name}`,
-                        "supertype" : layerParent.id,
-                        "color"     : layerParent.color
-                    };
-                    this._graphData.lyphs.push(lyphLayer);
-                    subtype.layers.push(lyphLayer);
-                });
-            });
-
-            //Copy defined properties to newly generated lyphs
-            if (template.assign){
-                if (!template.assign::isArray()){
-                    console.warn("Cannot assign template properties: ", template.assign);
-                    return;
-                }
-                template.assign.forEach(({path, value}) =>
-                    assignPropertiesToJSONPath({path, value}, subtypes)
-                );
-            }
-        });
+        expandTemplates();
 
         //Create nodes and links for internal lyphs, add them to the groups to which internal lyphs belong
         this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
@@ -214,6 +218,63 @@ export class DataService{
                 });
             });
         }
+
+        const replaceBorderNodes = () => {
+            //Replicate border nodes and create collapsible links
+            let borderNodesByID = {};
+            let lyphsWithBorders = this._graphData.lyphs.filter(lyph => ((lyph.border || {}).borders||[]).find(b => b.hostedNodes))
+            lyphsWithBorders.forEach(lyph => {
+                lyph.border.borders.forEach(b => {
+                    (b.hostedNodes||[]).forEach(nodeID => {
+                        if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
+                        borderNodesByID[nodeID].push(lyph);
+                    });
+                })
+            });
+
+
+            borderNodesByID::keys().forEach(nodeID => {
+                if (borderNodesByID[nodeID].length > 1){
+                    //groups that contain the node
+                    let groups = this._graphData.groups.filter(g => (g.nodes||[]).includes(nodeID));
+
+                    //TODO how to decide whether to replace source or target?
+                    let prop = "target";
+
+                    let links = this._graphData.links.filter(e => e[prop] === nodeID);
+                    let prev = nodeID;
+                    let node = this._graphData.nodes.find(e => e.id === nodeID);
+                    if (!node){return;}
+                    for (let i = 1; i < borderNodesByID[nodeID].length; i++){
+                        let nodeClone = node::cloneDeep()::merge({
+                            "id": nodeID + `_${i}`
+                        });
+                        this._graphData.nodes.push(nodeClone);
+                        groups.forEach(g => g.nodes.push(nodeClone.id));
+                        links.forEach(lnk => {lnk[prop] = nodeClone.id});
+
+                        //lyph constraint - replace
+                        borderNodesByID[nodeID][i].border.borders.forEach(b => {
+                            let k = (b.hostedNodes||[]).indexOf(nodeID);
+                            if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
+                        });
+                        //create a collapsible link
+                        let lnk = {
+                            "id"    : `${prev}_${nodeClone.id}`,
+                            "source": `${prev}`,
+                            "target": `${nodeClone.id}`,
+                            "type"  : LINK_TYPES.DASHED,
+                            "length": 1,
+                            "collapsible": true
+                        };
+                        this._graphData.links.push(lnk);
+                        prev = nodeClone.id;
+                    }
+                }
+            });
+        };
+
+        replaceBorderNodes();
 
         /////////////////////////////////////////////////////////////////////////
         /* Generate complete model */

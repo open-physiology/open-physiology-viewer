@@ -283,16 +283,7 @@
       "charge": 0
     },
     {
-      "id": "N21b",
-      "name": "Pons node",
-      "charge": 0
-    },
-    {
       "id": "N22",
-      "name": "Midbrain node"
-    },
-    {
-      "id": "N22b",
       "name": "Midbrain node"
     },
     {
@@ -825,33 +816,15 @@
       "conveyingLyph": "L72"
     },
     {
-      "id": "V18_V19",
-      "source": "N21",
-      "target": "N21b",
-      "name": "Medulla - Pons link",
-      "type": "dashed",
-      "length": 10,
-      "collapsible": true
-    },
-    {
       "id": "V19",
-      "source": "N21b",
+      "source": "N21",
       "target": "N22",
       "name": "Pons",
       "conveyingLyph": "L76"
     },
     {
-      "id": "V19_V20",
-      "source": "N22",
-      "target": "N22b",
-      "name": "Pons - Midbrain link",
-      "type": "dashed",
-      "length": 10,
-      "collapsible": true
-    },
-    {
       "id": "V20",
-      "source": "N22b",
+      "source": "N22",
       "target": "N23",
       "name": "Midbrain - Diencephalon link",
       "conveyingLyph": "L80"
@@ -1568,9 +1541,7 @@
         "N19",
         "N20",
         "N21",
-        "N21b",
         "N22",
-        "N22b",
         "N23",
         "N24",
         "N25"
@@ -3801,11 +3772,13 @@
           {},
           {
             "hostedNodes": [
-              "N22b"
+              "N22"
             ]
           },
           {},
-          {}
+          {"hostedNodes": [
+            "N23"
+          ]}
         ]
       }
     },
@@ -3873,9 +3846,7 @@
         "borders": [
           {},
           {
-            "hostedNodes": [
-              "N21b"
-            ]
+            "hostedNodes": [ "N21"]
           },
           {},
           {"hostedNodes": ["N22"]}
@@ -3944,7 +3915,7 @@
         "202",
         "201"
       ],
-      "border": {"borders": [{}, {"hostedNodes": ["N6"]}, {}, {"hostedNodes": ["N21"]}]}
+      "border": {"borders": [{}, {"hostedNodes": ["N6", "N20"]}, {}, {"hostedNodes": ["N21"]}]}
     },
     {
       "id": "152",

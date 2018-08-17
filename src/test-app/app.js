@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
-import { BrowserModule }       from '@angular/platform-browser';
-import { WebGLSceneModule }    from '../components/webGLScene';
+import { BrowserModule }    from '@angular/platform-browser';
+import { WebGLSceneModule } from '../components/webGLScene';
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import '../libs/provide-rxjs.js';
@@ -8,10 +8,12 @@ import { DataService } from '../services/dataService';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/manifest.json';
 import initModel from '../data/graph.json';
-import {ToastyModule, ToastyService} from 'ng2-toasty';
+import {ToastyModule} from 'ng2-toasty';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
+import 'ng2-toasty/bundles/style-bootstrap.css';
+
 
 const ace = require('ace-builds');
 
@@ -92,25 +94,20 @@ export class TestApp {
     _showJSONEditor = false;
     _model = {};
     _editor;
-    _toastyService;
 
     @ViewChild('jsonEditor') _container: ElementRef;
 
-    constructor(toastyService: ToastyService){
+    constructor(){
         this._dataService = new DataService();
         this._model = initModel;
         this._dataService.init(this._model);
         this._graphData = this._dataService.graphData;
-        this._toastyService = toastyService;
     }
 
     ngAfterViewInit(){
         this._editor = new JSONEditor(this._container.nativeElement, {
             mode: 'code',
             modes: ['code', 'tree', 'view'],
-            onError: function (err) {
-                alert(err.toString());
-            },
             ace: ace,
             schema: schema
         });
@@ -124,7 +121,7 @@ export class TestApp {
                 this._model = JSON.parse(reader.result);
             }
             catch(err){
-                this._toastyService.error("Cannot parse the input file: ", err);
+                throw new Error("Cannot parse the input file: " + err);
             }
             try{
                 this._editor.set(this._model);
@@ -132,13 +129,13 @@ export class TestApp {
                 this._graphData = this._dataService.graphData;
             }
             catch(err){
-                this._toastyService.error("Cannot display the model: ", err);
+                throw new Error("Cannot display the model: " +  err);
             }
         };
 		try {
             reader.readAsText(files[0]);
         } catch (err){
-            this._toastyService.error("Failed to open the input file: ", err);
+            throw new Error("Failed to open the input file: " + err);
         }
 	}
 
@@ -179,7 +176,6 @@ export class TestApp {
 	declarations: [ TestApp ],
     bootstrap: [TestApp],
     providers: [
-        ToastyService,
         {
             provide: ErrorHandler,
             useClass: GlobalErrorHandler

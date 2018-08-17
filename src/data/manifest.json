@@ -737,7 +737,8 @@
                       "$ref": "#/definitions/Node"
                     }
                   ]
-                }
+                },
+                "uniqueItems": true
               },
               "conveyingLyph": {
                 "description": "Conveying lyph for the process on the border",
