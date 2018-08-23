@@ -6,7 +6,7 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
 import { GlobalErrorHandler } from '../services/errorHandler';
-import * as schema from '../data/manifest.json';
+import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
 import {ToastyModule} from 'ng2-toasty';
 

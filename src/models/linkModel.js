@@ -128,6 +128,7 @@ export class Link extends Entity {
         this.center = _start.clone().add(_end).multiplyScalar(0.5);
 
         //Merge nodes of a collapsible link
+        //TODO: add delta to decide whether lyphs are close enough to look like they share a border
         if (this.collapsible){
             if (!this.source.isConstrained) {
                 if (!this.target.isConstrained) {

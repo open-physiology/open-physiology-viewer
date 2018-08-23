@@ -1,6 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
-  "schemes": {
+  "title": "ApiNATOMY model",
+  "description": "The ApiNATOMY model schema provides a contract for the JSON-based input data accepted by the ApiNATOMY lyph viewer, a web application that draws schematic models of physiology.",
+  "definitions": {
     "ColorScheme": {
       "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
       "type": "string",
@@ -43,7 +45,7 @@
       "properties": {
         "scheme": {
           "description": "Interpolation scheme to apply to a group of entities",
-          "$ref": "#/schemes/ColorScheme"
+          "$ref": "#/definitions/ColorScheme"
         },
         "length": {
           "description": "Optional parameter to define number of colors from the color scheme",
@@ -84,6 +86,7 @@
       }
     },
     "JSONPathScheme": {
+      "description": "An object that allows modellers to select a certain set of entities via the JSONPath query format, and lists properties to assign to the entities that match the given query",
       "type": "object",
       "properties": {
         "path": {
@@ -96,11 +99,9 @@
         }
       },
       "additionalProperties": false
-    }
-  },
-  "definitions": {
+    },
     "Entity": {
-      "description": "Generic abstract entity defines common properties for all elements in ApiNATOMY circuitboards",
+      "description": "An abstract entity that defines common properties for all types of entities in the ApiNATOMY model.",
       "type": "object",
       "abstract": "true",
       "properties": {
@@ -132,24 +133,8 @@
           "description": "Identifier of the entity in an external ontology such as FMA",
           "type": "string"
         },
-        "inGroups": {
-          "description": "Groups that include this entity",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Graph"
-              }
-            ]
-          },
-          "relatedTo": "groups",
-          "uniqueItems": true
-        },
         "infoFields": {
-          "description": "A set of properties shown in the info panel when entity is focused",
+          "description": "A set of properties shown in the info panel when the entity is active, i.e., highlighted or selected",
           "type": "object",
           "properties": {
             "text": {
@@ -201,7 +186,7 @@
           "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
           "type": "array",
           "item": {
-            "$ref": "#/schemes/JSONPathScheme"
+            "$ref": "#/definitions/JSONPathScheme"
           }
         },
         "interpolate": {
@@ -215,10 +200,10 @@
                 "type": "string"
               },
               "color": {
-                "$ref": "#/schemes/GroupColorScheme"
+                "$ref": "#/definitions/GroupColorScheme"
               },
               "offset": {
-                "$ref": "#/schemes/OffsetScheme"
+                "$ref": "#/definitions/OffsetScheme"
               }
             }
           }
@@ -234,7 +219,7 @@
       },
       "properties": {
         "host": {
-          "description": "A link on which this node is positioned",
+          "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
           "anyOf": [
             {
               "type": "string"
@@ -245,8 +230,8 @@
           ],
           "relatedTo": "hostedNodes"
         },
-        "internalNodeInLyph":{
-          "description": "A lyph on which this node is positioned",
+        "internalNodeInLyph": {
+          "description": "A lyph on which this node is positioned (other side of 'internalNodes').",
           "anyOf": [
             {
               "type": "string"
@@ -313,7 +298,7 @@
       }
     },
     "Link": {
-      "description": "Graph link schematically representing a (part of) physiological process",
+      "description": "Graph link schematically representing a (part of) physiological process. ",
       "extends": {
         "$ref": "#/definitions/Entity"
       },
@@ -352,7 +337,7 @@
           "type": "boolean"
         },
         "conveyingLyph": {
-          "description": "Conveying lyph for the process represented by the link",
+          "description": "Conveying lyph for the process represented by the link (other side of 'axis')",
           "anyOf": [
             {
               "type": "string"
@@ -364,16 +349,16 @@
           "relatedTo": "axis"
         },
         "type": {
-          "description": "Defines the appearance and behavior of the link in the model graph.",
+          "description": "Defines the appearance and behavior of the link in the model graph: `link` is a straight solid  line, `dashed` is a straight dashed line, `semicrcle` defines a solid line that looks like half of a circle, `path` is a solid path with control points defined by the edge bundling algorithm, `container` is a link with a visual object not affected by the graph forces, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
             "link",
             "dashed",
             "semicircle",
+            "path",
             "container",
             "force",
-            "invisible",
-            "path"
+            "invisible"
           ],
           "default": "link"
         },
@@ -433,12 +418,6 @@
         "source",
         "target"
       ]
-    },
-    "Material": {
-      "description": "Chemical elements and compounds",
-      "extends": {
-        "$ref": "#/definitions/Entity"
-      }
     },
     "Lyph": {
       "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
@@ -714,19 +693,19 @@
       }
     },
     "Border": {
-      "description": "Lyph border",
+      "description": "Lyph border schematically models the inner and outer surfaces of a body part whose structure is   defined by the lyph. Each border consists of an array that defines two radial and two longitudinal borders. The inner longitudinal border is always parallel to the lyph's rotational axis.",
       "extends": {
         "$ref": "#/definitions/Entity"
       },
       "properties": {
         "borders": {
-          "description": "Lyph borders",
+          "description": "Lyph borders listed in the clockwise order starting from the inner longitudinal border. If this property is included to the input model, it must contain exactly four objects with the items as defined by the current schema type.",
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "hostedNodes": {
-                "description": "Nodes on the lyph border",
+                "description": "Nodes that are positioned on the given lyph border. If the same node is positioned on several lyph borders, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
                 "type": "array",
                 "items": {
                   "anyOf": [
@@ -741,7 +720,7 @@
                 "uniqueItems": true
               },
               "conveyingLyph": {
-                "description": "Conveying lyph for the process on the border",
+                "description": "Conveying lyph to model a nested organ or a process on the lyph border. Such a lyph uses the given border as its rotational axis (the corresponding link entity is auto-generated by the lyph viewer.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -757,7 +736,7 @@
           "maxItems": 4
         },
         "borderTypes": {
-          "description": "Types of borders: open (value = false) vs closed (value = true)",
+          "description": "Types of borders, open (value = false) versus closed (value = true), define lyph's topology: tube, bag or cyst.",
           "type": "array",
           "items": {
             "type": "boolean"
@@ -766,6 +745,7 @@
           "maxItems": 4
         },
         "borderInLyph": {
+          "description": "The ID or reference to the lyph object that owns this border.",
           "anyOf": [
             {
               "type": "string"
@@ -773,18 +753,25 @@
             {
               "$ref": "#/definitions/Lyph"
             }
-          ]
+          ],
+          "relatedTo": "borderInLyph"
         }
       }
     },
+    "Material": {
+      "description": "Biological materials, chemical elements and compounds",
+      "extends": {
+        "$ref": "#/definitions/Entity"
+      }
+    },
     "Graph": {
-      "description": "Data model for the force-directed graph shown by the ApiNATOMY lyph viewer",
+      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which depicture the structural composition of human body organs and/or subsystems, with related measurements and annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "extends": {
         "$ref": "#/definitions/Entity"
       },
       "properties": {
         "nodes": {
-          "description": "Graph nodes",
+          "description": "Graph nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -798,7 +785,7 @@
           }
         },
         "links": {
-          "description": "Graph links",
+          "description": "Graph links schematically represent structural elements of the human physiology relevant to the explanation of a certain physiological process: blood vessels, neural connections, pulmonary vessels, etc.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -811,22 +798,8 @@
             ]
           }
         },
-        "materials": {
-          "description": "All materials in the model",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          }
-        },
         "lyphs": {
-          "description": "All lyphs in the model",
+          "description": "This field lists all lyph definitions in the model. A Lyph provides a schematic explanation of an entity structure, i.e., tissue layers that consistite a certain organ. The lyph is depicted as a flat shape reflecting its topology (tube, bag or a cyst) and positioned along a conveying link, its axis. By rotating the lyph around its axis, we can create a tube (open, semi-closed or closed on both side) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neuron connection. Each lyph can be composed of other lyphs as its layers or inner elements, and elements that are positioned on its surface can be specified with the help of the lyph's border concept.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -839,8 +812,22 @@
             ]
           }
         },
+        "materials": {
+          "description": "Biological materials, chemical elements and compounds, used in the model",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          }
+        },
         "groups": {
-          "description": "Groups of entities in the graph that can be hidden and shown again",
+          "description": "Semantically meaningful groups of entities that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -852,18 +839,6 @@
               }
             ]
           }
-        },
-        "supergroups": {
-          "description": "Groups that contain the current group",
-          "type": "array",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Graph"
-            }
-          ]
         }
       }
     }

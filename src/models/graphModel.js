@@ -1,9 +1,8 @@
 import { Entity } from './entityModel';
 import { values, isObject} from 'lodash-bound';
-import { definitions } from '../data/manifest.json';
 import { LINK_TYPES } from './linkModel';
 import { Validator} from 'jsonschema';
-import * as schema from '../data/manifest.json';
+import * as schema from '../data/graphScheme.json';
 import * as colorSchemes from 'd3-scale-chromatic';
 
 const validator = new Validator();

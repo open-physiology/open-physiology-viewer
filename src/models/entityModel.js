@@ -1,5 +1,5 @@
 import { merge, mergeWith, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
-import { definitions } from '../data/manifest.json';
+import { definitions } from '../data/graphScheme.json';
 import { SpriteText2D } from 'three-text2d';
 import { assignPropertiesToJSONPath, copyCoords, noOverwrite, JSONPath } from './utils.js';
 import * as colorSchemes from 'd3-scale-chromatic';

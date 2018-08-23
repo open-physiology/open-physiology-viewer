@@ -219,6 +219,8 @@ export class DataService{
             });
         }
 
+        //Important: the effect of this procedure depends on the order in which lyphs that share border nodes are selected
+        //If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
         const replaceBorderNodes = () => {
             //Replicate border nodes and create collapsible links
             let borderNodesByID = {};
@@ -232,26 +234,23 @@ export class DataService{
                 })
             });
 
-
             borderNodesByID::keys().forEach(nodeID => {
                 if (borderNodesByID[nodeID].length > 1){
                     //groups that contain the node
                     let groups = this._graphData.groups.filter(g => (g.nodes||[]).includes(nodeID));
-
-                    //TODO how to decide whether to replace source or target?
-                    let prop = "target";
-
-                    let links = this._graphData.links.filter(e => e[prop] === nodeID);
-                    let prev = nodeID;
+                    //links affected by the border node constraints
+                    let links = this._graphData.links.filter(e => e.target === nodeID);
                     let node = this._graphData.nodes.find(e => e.id === nodeID);
+                    //Unknown nodes will be detected by validation later, no need for logging here
                     if (!node){return;}
-                    for (let i = 1; i < borderNodesByID[nodeID].length; i++){
+
+                    for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                         let nodeClone = node::cloneDeep()::merge({
                             "id": nodeID + `_${i}`
                         });
                         this._graphData.nodes.push(nodeClone);
                         groups.forEach(g => g.nodes.push(nodeClone.id));
-                        links.forEach(lnk => {lnk[prop] = nodeClone.id});
+                        links.forEach(lnk => {lnk.target = nodeClone.id});
 
                         //lyph constraint - replace
                         borderNodesByID[nodeID][i].border.borders.forEach(b => {
@@ -305,7 +304,7 @@ export class DataService{
 
         //Create an ApiNATOMY model
         this._graphData = Graph.fromJSON(this._graphData, modelClasses, entitiesByID);
-        console.log("ApiNATOMY graph: ", this._graphData);
+        console.info("ApiNATOMY graph: ", this._graphData);
     }
 
     get graphData(){

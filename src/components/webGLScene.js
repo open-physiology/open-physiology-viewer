@@ -5,22 +5,20 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {keys} from 'lodash-bound';
 import * as THREE from 'three';
 
-const OrbitControls = require('three-orbit-controls')(THREE);
-
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
     forceX,
     forceY,
-    forceZ,
-    //forceRadial
+    forceZ
 } from 'd3-force-3d';
-
-const WindowResize = require('three-window-resize');
 import {LINK_TYPES} from '../models/linkModel';
 import {NODE_TYPES} from '../models/nodeModel';
 
 import {ModelInfoPanel} from './gui/modelInfo';
 import {SelectNameSearchBar} from './gui/selectNameSearchBar';
+
+const OrbitControls = require('three-orbit-controls')(THREE);
+const WindowResize = require('three-window-resize');
 
 @Component({
     selector: 'webGLScene',
@@ -29,12 +27,12 @@ import {SelectNameSearchBar} from './gui/selectNameSearchBar';
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-right" style="position:absolute; right: 4px; top: 4px;">
-                        <button class="w3-hover-light-grey" (click)="toggleSettingPanel()">
-                            <i *ngIf="showPanel"  class="fa fa-window-minimize"></i>
-                            <i *ngIf="!showPanel" class="fa fa-bars"></i>
-                        </button>
                         <button class="w3-hover-light-grey"(click)="update()">
                             <i class="fa fa-refresh"></i>
+                        </button>
+                        <button class="w3-hover-light-grey" (click)="toggleSettingPanel()">
+                            <i *ngIf="showPanel"  class="fa fa-angle-right"></i>
+                            <i *ngIf="!showPanel" class="fa fa-angle-left"></i>
                         </button>
                     </section>
                     <canvas #canvas class="w3-card w3-round"></canvas>
@@ -205,6 +203,7 @@ export class WebGLSceneComponent {
     }
 
     constructor() {
+
         this._showLyphs = true;
         this._showLayers = true;
         this._showLabels = {

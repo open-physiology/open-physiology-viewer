@@ -6,7 +6,13 @@ import {Directive, HostListener} from "@angular/core";
 export class StopPropagation
 {
     @HostListener("window:keydown", ['$event'])
-    onKeyDown(event:KeyboardEvent) {
+    onKeyDown(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    @HostListener("mousemove", ['$event'])
+    onMouseMove(event) {
         event.preventDefault();
         event.stopPropagation();
     }

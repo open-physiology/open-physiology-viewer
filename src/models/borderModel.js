@@ -4,12 +4,11 @@ const THREE = window.THREE || three;
 import { copyCoords } from './utils';
 import { Link, LINK_TYPES } from './linkModel';
 import { Node } from './nodeModel';
+
 /**
- * Complete lyph border
+ * Lyph border
  */
 export class Border extends Entity {
-    //properties copied from manifest by Entity constructor
-
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         const result = super.fromJSON(json, modelClasses, entitiesByID);
         (result.borders || []).filter(border => border.hostedNodes)
