@@ -78,6 +78,12 @@ export function align(axis, obj){
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
 }
 
+/**
+ * Computes a vector between two 3d points
+ * @param source
+ * @param target
+ * @returns {null}
+ */
 export function direction({source, target}){
     if (!source || !target) {
         return null;
@@ -89,6 +95,11 @@ export function direction({source, target}){
     )).normalize();
 }
 
+/**
+ * Computes coordinates of the central point of the given mesh
+ * @param mesh
+ * @returns {*}
+ */
 export function getCenterPoint(mesh) {
     if (!mesh.geometry){ return null; }
     if (!mesh.geometry.boundingBox) {

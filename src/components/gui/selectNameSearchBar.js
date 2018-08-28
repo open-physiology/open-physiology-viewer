@@ -1,15 +1,18 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 import {startWith} from 'rxjs/operators/startWith';
 import {map} from 'rxjs/operators/map';
 
 @Component({
   selector: 'selectNameSearchBar',
-  template: `<input id="searchBar" type="text" [formControl]="inputTextName" (click)="showOptions()" (focus)="showOptions()" (mouseenter)="showOptions()" (mouseenter)="hideOptions()" (focusout)="hideOptions()" [value]="selectedName" />
-             <div id="dropDownContent" (mouseenter)="showOptions()" (mouseleave)="hideOptions()">
-              <a href="#" *ngFor="let option of filterednames | async" (click)="clickName(option)" (mouseenter)="highlightHoveredName(option)" (mouseleave)="unhighlightUnhoveredName(option)" title="{{option}}">{{option}}</a><br />
-             </div>`,
+  template: `<input id="searchBar" type="text" [formControl]="inputTextName" (click)="showOptions()"
+                    (focus)="showOptions()" (mouseenter)="showOptions()" (mouseenter)="hideOptions()"
+                    (focusout)="hideOptions()" [value]="selectedName"/>
+  <div id="dropDownContent" (mouseenter)="showOptions()" (mouseleave)="hideOptions()">
+      <a href="#" *ngFor="let option of filteredNames | async" (click)="clickName(option)"
+         (mouseenter)="highlightHoveredName(option)" (mouseleave)="unhighlightUnhoveredName(option)" title="{{option}}">{{option}}</a><br/>
+  </div>`,
         styles: [`
             #searchBar{
               width: 100%;
@@ -50,7 +53,7 @@ export class SelectNameSearchBar {
   @Output() selectedBySearchEvent = new EventEmitter();
 
   inputTextName: FormControl = new FormControl();
-  filterednames: Observable<string[]>;
+  filteredNames: Observable<string[]>;
   dropDownListDiv;
   allowHide;
 
@@ -61,7 +64,7 @@ export class SelectNameSearchBar {
   ngOnInit() {
     this.dropDownListDiv = document.getElementById("dropDownContent");
 
-    this.filterednames = this.inputTextName.valueChanges.pipe(
+    this.filteredNames = this.inputTextName.valueChanges.pipe(
       startWith(''),
       map(val => this.filter(val))
     );
@@ -113,14 +116,12 @@ export class SelectNameSearchBar {
   highlightHoveredName( hoveredName ){
     if (!this.disableOnHover){
       this.disableFocusOut();
-      this.hoveredName = hoveredName;
       this.highlightedByHoverEvent.next( hoveredName );
     }
   }
 
   unhighlightUnhoveredName( unhoveredName ){
     if (!this.disableOnHover){
-
       this.enableFocusOut();
       this.unhighlightedByUnhoverEvent.next( unhoveredName );
     }

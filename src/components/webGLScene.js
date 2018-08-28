@@ -27,7 +27,7 @@ const WindowResize = require('three-window-resize');
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-right" style="position:absolute; right: 4px; top: 4px;">
-                        <button class="w3-hover-light-grey"(click)="update()">
+                        <button class="w3-hover-light-grey" (click)="update()">
                             <i class="fa fa-refresh"></i>
                         </button>
                         <button class="w3-hover-light-grey" (click)="toggleSettingPanel()">
@@ -410,7 +410,7 @@ export class WebGLSceneComponent {
 
     selectBySearchEventHandler(name) {
         if (this.graph && (name !== this._selectedLyphName)) {
-            let lyph = this._graphData.lyphs(lyph => lyph.name === name);
+            let lyph = this._graphData.lyphs.find(lyph => lyph.name === name);
             this.selected = lyph? lyph.viewObjects["main"]: null;
         }
     }

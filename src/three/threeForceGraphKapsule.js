@@ -6,10 +6,12 @@ import {
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
-import { MaterialFactory } from './materialFactory';
-
+import {MaterialFactory} from './materialFactory';
 import {Graph} from '../models/graphModel';
 
+/**
+ * A closure-based component for the force-directed 3d graph layout
+ */
 export default Kapsule({
     props: {
         graphData: {

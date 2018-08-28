@@ -4,16 +4,9 @@ const THREE = window.THREE || three;
 import tinyColor from 'tinycolor2';
 const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : str;
 
-/**
- * A class that creates various types of reusable three.js materials of required color
- */
 export class MaterialFactory {
     defaultParams = {};
 
-    /**
-     * Constructor of the material factory class
-     * @param params - common params for all classes
-     */
     constructor(params = {}) {
         this.defaultParams = params;
         if (this.defaultParams.color === undefined){

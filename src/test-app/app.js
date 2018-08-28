@@ -3,7 +3,6 @@ import { BrowserModule }    from '@angular/platform-browser';
 import { WebGLSceneModule } from '../components/webGLScene';
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
-import '../libs/provide-rxjs.js';
 import { DataService } from '../services/dataService';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/graphScheme.json';

@@ -1,6 +1,13 @@
 import { Group } from 'three';
 import ForceGraph from './threeForceGraphKapsule.js';
 
+/**
+ * A closure-based component for the force-directed 3d graph layout
+ * @param kapsule
+ * @param baseClass
+ * @param initKapsuleWithSelf
+ * @returns {FromKapsule}
+ */
 function fromKapsule(kapsule, baseClass = Object, initKapsuleWithSelf = false) {
 
     class FromKapsule extends baseClass {
