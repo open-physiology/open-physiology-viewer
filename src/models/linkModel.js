@@ -41,7 +41,7 @@ export class Link extends Entity {
 
     get polygonOffsetFactor(){
         let res = -100;
-        if (this.host){ res = this.host.polygonOffsetFactor - 1; }
+        if (this.linkOnBorder){ res = this.linkOnBorder.polygonOffsetFactor - 1; }
         return res;
     }
 

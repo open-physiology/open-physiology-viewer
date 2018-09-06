@@ -19,13 +19,21 @@ const initValue = (specObj) => specObj.default
         :null);
 
 
-const isNestedObject = (spec) => spec.type === "object" && spec.properties || spec.items && isNestedObject(spec.items);
+const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spec.items && isNestedObj(spec.items);
 
 const getClassDefinition = (spec) => spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
+
+const getClassName = (spec) => {
+    let classDef = getClassDefinition(spec);
+    if (!classDef) { return; }
+    if (classDef.$ref){ classDef = classDef.$ref;}
+    return classDef.substr(classDef.lastIndexOf("/") + 1).trim();
+};
 
 const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
 
 const replaceReferences = (res, modelClasses, entitiesByID) => {
+
     const createObj = (value, spec) => {
         let objValue = value;
         if (typeof value === "string") {
@@ -37,32 +45,33 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
             }
         }
 
-        let classDef = getClassDefinition(spec);
-        if (!classDef){
+        let clsName = getClassName(spec);
+        if (!clsName){
             console.warn("Cannot extract the object class: property specification does not imply a reference", spec, value);
             return objValue;
         }
-        if (classDef.$ref){ classDef = classDef.$ref;}
-        let type = classDef.substr(classDef.lastIndexOf("/") + 1).trim();
-        if (!definitions[type] || definitions[type].abstract){ return objValue; }
 
-        if (modelClasses[type]) {
-            if (!(objValue instanceof modelClasses[type])) {
-                if (!(entitiesByID[objValue.id] instanceof modelClasses[type])) {
-                    objValue = modelClasses[type].fromJSON(objValue, modelClasses, entitiesByID);
+        if (!definitions[clsName] || definitions[clsName].abstract){ return objValue; }
+
+        if (modelClasses[clsName]) {
+            if (!(objValue instanceof modelClasses[clsName])) {
+                if (!(entitiesByID[objValue.id] instanceof modelClasses[clsName])) {
+                    objValue = modelClasses[clsName].fromJSON(objValue, modelClasses, entitiesByID);
                     entitiesByID[objValue.id] = objValue;
                 } else {
                     objValue = entitiesByID[objValue.id]
                 }
             }
         } else {
-            console.error(`Cannot create object of unknown class: `, spec, value);
+            //If the object does not need to be instantiated, we leave it unchanged but replace its inner references
+            let refFields = definitions[clsName].properties::entries().filter(([key, spec]) => isReference(spec));
+            (refFields||[]).forEach(f => replaceRefs(objValue, f));
         }
         return objValue;
     };
 
     const replaceRefs = (res, [key, spec]) => {
-        if (!res[key]){ return; }
+        if (!res[key] || spec.readOnly){ return; }
         if (res[key].class && (res[key] instanceof modelClasses[res[key].class])) { return; }
 
         let typeSpec = spec.items || spec;
@@ -90,16 +99,15 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
         let key2 = spec.relatedTo;
         if (key2){
             let typeSpec = spec.items || spec;
-            let otherClassDef = getClassDefinition(typeSpec);
-            if (!otherClassDef){
+            let otherClassName = getClassName(typeSpec);
+            if (!otherClassName) {
                 console.error("Class not defined: ", typeSpec);
                 return;
             }
-            if (otherClassDef.$ref){ otherClassDef = otherClassDef.$ref;}
-            let otherClass = otherClassDef.substr(otherClassDef.lastIndexOf("/") + 1).trim();
-            let otherTypeSpec = definitions[otherClass].properties[key2];
+
+            let otherTypeSpec = definitions[otherClassName].properties[key2];
             if (!otherTypeSpec){
-                console.error(`Property specification '${key2}' is not found in class:`, otherClass);
+                console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
                 return;
             }
 
@@ -134,16 +142,6 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
 
     //Replace ID's with model object references
     refFields.forEach(f => replaceRefs(res, f));
-
-    //Replace nested objects, i.e., border = {borders: [...]};
-    let nestedRefs = definitions[res.class].properties::entries().filter(([key, spec]) => isNestedObject(spec));
-    nestedRefs.forEach(([fKey, fSpec]) => {
-        if (!res[fKey]) {return; }
-        let properties = fSpec.items? fSpec.items.properties: fSpec.properties;
-        let refFields = properties::entries().filter(([pKey, pSpec]) => isReference(pSpec));
-        //Replace nested references, which are either in an array like "borders" or in an object
-        (refFields||[]).forEach(f => [...res[fKey]].forEach(item => replaceRefs(item, f)));
-    });
 
     assignPathProperties(res, modelClasses, entitiesByID);
 

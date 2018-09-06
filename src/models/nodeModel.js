@@ -8,9 +8,8 @@ import { copyCoords } from './utils';
  * @type {{CORE: string, FIXED: string, CONTROL: string}}
  */
 export const NODE_TYPES = {
-    CORE    : "core",      //node with given position constraints, satisfied by force-directed layout
-    FIXED   : "fixed",     //node with fixed position, given position overrules forces
-    CONTROL : "control"    //node that is placed to the center of mass of given nodes (controlNodes)
+    CORE    : "core",     //node with given position constraints, satisfied by force-directed layout
+    FIXED   : "fixed"     //node with fixed position, given position overrules forces
 };
 
 /**
@@ -24,7 +23,7 @@ export class Node extends Entity {
     get isConstrained(){
         return (this.type === NODE_TYPES.CORE ||
              this.type === NODE_TYPES.FIXED   ||
-             this.type === NODE_TYPES.CONTROL ||
+            (this.controlNodes && this.controlNodes.length > 0) ||
             (this.host && this.host.isVisible) ||
             (this.internalNodeInLyph && this.internalNodeInLyph.isVisible));
     }
@@ -69,23 +68,18 @@ export class Node extends Entity {
             this.createViewObjects(state);
         }
 
-        switch(this.type){
-            case NODE_TYPES.FIXED: {
-                //Replace node coordinates with given ones
-                copyCoords(this, this.layout);
-                break;
-            }
-            case NODE_TYPES.CONTROL: {
-                //Redefine position of the control node
-                if (this.controlNodes){
-                    let middle = new THREE.Vector3(0, 0, 0);
-                    this.controlNodes.forEach(p => {middle.x += p.x; middle.y += p.y; middle.z += p.z});
-                    middle = middle.multiplyScalar(1.0 / (this.controlNodes.length || 1));
-                    copyCoords(this, middle.clone().multiplyScalar(2)); //double the distance from center
-                }
-                break;
-            }
+        if (this.type === NODE_TYPES.FIXED) {
+            //Replace node coordinates with given ones
+            copyCoords(this, this.layout);
         }
+
+        if (this.controlNodes){
+            let middle = new THREE.Vector3(0, 0, 0);
+            this.controlNodes.forEach(p => {middle.x += p.x; middle.y += p.y; middle.z += p.z});
+            middle = middle.multiplyScalar(1.0 / (this.controlNodes.length || 1));
+            copyCoords(this, middle.clone().multiplyScalar(2)); //double the distance from center
+        }
+
         copyCoords(this.viewObjects["main"].position, this);
 
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],

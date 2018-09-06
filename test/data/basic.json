@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "k",
+      "name": "k",
+      "type": "fixed",
+      "hidden": true,
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "z": 25
+      }
+    },
+    {
+      "id": "l",
+      "name": ";",
+      "type": "fixed",
+      "hidden": true,
+      "layout": {
+        "x": 0, "y": 70, "z": 25
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "k_l",
+      "source": "k",
+      "target": "l",
+      "length": 40,
+      "conveyingLyph": "5"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "5",
+      "name": "Kidney Lobus",
+      "topology": "BAG",
+      "thickness": {
+        "min": 2,
+        "max": 2
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "external": "FMA:17881",
+      "layers": [
+        "7",
+        "6"
+      ],
+      "scale": {
+        "width": 50,
+        "height": 50
+      }
+    },
+    {
+      "id": "6",
+      "name": "Cortex of Kidney Lobus",
+      "topology": "BAG",
+      "thickness": {
+        "min": 2,
+        "max": 2
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      }
+    },
+    {
+      "id": "7",
+      "name": "Medulla of Kidney Lobus",
+      "topology": "BAG",
+      "thickness": {
+        "min": 2,
+        "max": 2
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      }
+    }
+  ]
+}

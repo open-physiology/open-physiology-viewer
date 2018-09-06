@@ -1,0 +1,414 @@
+{
+  "nodes": [
+    {
+      "id": "a",
+      "name": "a",
+      "color": "#808080",
+      "val": 10,
+      "type": "fixed",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "c",
+      "name": "c",
+      "color": "#D2691E",
+      "val": 5,
+      "layout": {
+        "x": 100,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "n",
+      "name": "n",
+      "color": "#D2691E",
+      "val": 5,
+      "layout": {
+        "x": -100,
+        "y": 0,
+        "z": 0
+      }
+    },
+    {
+      "id": "L",
+      "name": "L",
+      "color": "#ff0000",
+      "val": 10,
+      "layout": {
+        "x": 0,
+        "y": -75,
+        "z": 0
+      }
+    },
+    {
+      "id": "R",
+      "name": "R",
+      "color": "#7B68EE",
+      "val": 10,
+      "layout": {
+        "x": 0,
+        "y": 75,
+        "z": 0
+      }
+    },
+    {
+      "id": "nLR00",
+      "host": "LR",
+      "offset": 0.25
+    },
+    {
+      "id": "nLR01",
+      "skipLabel": true
+    },
+    {
+      "id": "nLR02",
+      "skipLabel": true
+    },
+    {
+      "id": "nLR03",
+      "skipLabel": true
+    },
+    {
+      "id": "nLR04",
+      "skipLabel": true
+    },
+    {
+      "id": "nLR05",
+      "skipLabel": true
+    }
+  ],
+  "links": [
+    {
+      "id"        : "RL",
+      "source"    : "R",
+      "target"    : "L",
+      "name"      : "Pulmonary",
+      "type"      : "semicircle",
+      "length"    : 75,
+      "linkMethod": "Line2"
+    },
+    {
+      "id"        : "LR",
+      "name"      : "Systemic",
+      "source"    : "L",
+      "target"    : "R",
+      "type"      : "semicircle",
+      "length"    : 75,
+      "linkMethod": "Line2"
+    },
+    {
+      "id": "cn",
+      "source": "c",
+      "target": "n",
+      "type": "dashed",
+      "length": 100
+    },
+    {
+      "id": "LR00",
+      "source": "nLR00",
+      "target": "nLR01",
+      "external": "B",
+      "conveyingLyph": "99"
+    },
+    {
+      "id": "LR01",
+      "source": "nLR01",
+      "target": "nLR02",
+      "external": "C",
+      "conveyingLyph": "114"
+    },
+    {
+      "id": "LR02",
+      "source": "nLR02",
+      "target": "nLR03",
+      "external": "D",
+      "conveyingLyph": "51"
+    },
+    {
+      "id": "LR03",
+      "source": "nLR03",
+      "target": "nLR04",
+      "external": "E",
+      "conveyingLyph": "54"
+    },
+    {
+      "id": "LR04",
+      "source": "nLR04",
+      "target": "nLR05",
+      "external": "F",
+      "conveyingLyph": "57"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "51",
+      "name": "Interlobar Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "external": "FMA:70496",
+      "layers": [
+        "52",
+        "53"
+      ]
+    },
+    {
+      "id": "52",
+      "name": "Lumen of Interlobar Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      }
+    },
+    {
+      "id": "53",
+      "name": "Wall of Interlobar Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      }
+    },
+    {
+      "id": "54",
+      "name": "Arcuate Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "external": "FMA:70497",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "55",
+        "56"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Lumen of Arcuate Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      }
+    },
+    {
+      "id": "56",
+      "name": "Wall of Arcuate Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      }
+    },
+    {
+      "id": "57",
+      "name": "Cortical Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "external": "FMA:86339",
+      "layers": [
+        "58",
+        "59"
+      ]
+    },
+    {
+      "id": "58",
+      "name": "Lumen of Cortical Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      }
+    },
+    {
+      "id": "59",
+      "name": "Wall of Cortical Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "length": {
+        "min": 5,
+        "max": 5
+      }
+    },
+    {
+      "id": "99",
+      "name": "Renal Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 2,
+        "max": 3
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "external": "FMA:14751",
+      "layers": [
+        "100",
+        "101"
+      ]
+    },
+    {
+      "id": "100",
+      "name": "Lumen of Renal Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 2,
+        "max": 3
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      }
+    },
+    {
+      "id": "101",
+      "name": "Wall of Renal Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 2,
+        "max": 3
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      }
+    },
+    {
+      "id": "114",
+      "name": "Segmental Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "external": "FMA:70494",
+      "layers": [
+        "115",
+        "116"
+      ]
+    },
+    {
+      "id": "115",
+      "name": "Lumen of Segmental Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      }
+    },
+    {
+      "id": "116",
+      "name": "Wall of Segmental Artery",
+      "topology": "TUBE",
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "length": {
+        "min": 2,
+        "max": 2
+      }
+    }
+  ],
+  "groups": [
+    {
+      "id": "arterial",
+      "name": "Arterial",
+      "nodes": [
+        "nLR00",
+        "nLR01",
+        "nLR02",
+        "nLR03",
+        "nLR04",
+        "nLR05"
+      ],
+      "links": [
+        "LR00",
+        "LR01",
+        "LR02",
+        "LR03",
+        "LR04"
+      ],
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "color": "#ff4444"
+          }
+        },
+        { "path": "$.links[*]",
+          "value": {
+            "color": "#ff4444",
+            "length": 3,
+            "linkMethod": "Line2"
+          }
+        }
+      ],
+      "interpolate": [
+        {
+          "path": "$.links[*].conveyingLyph",
+          "color": {
+            "scheme": "interpolateReds",
+            "offset": 0.25
+          }
+        }
+      ]
+    }
+  ]
+}

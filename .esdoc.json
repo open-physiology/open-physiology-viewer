@@ -19,7 +19,8 @@
           "files": [
             "./manual/overview.md",
             "./manual/model.md",
-            "./manual/usage.md"
+            "./manual/usage.md",
+            "./manual/examples.md"
           ]
         }
       }

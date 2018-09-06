@@ -4,6 +4,7 @@ const THREE = window.THREE || three;
 import { copyCoords } from './utils';
 import { Link, LINK_TYPES } from './linkModel';
 import { Node } from './nodeModel';
+import {isObject} from 'lodash-bound';
 
 /**
  * Lyph border
@@ -12,7 +13,14 @@ export class Border extends Entity {
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         const result = super.fromJSON(json, modelClasses, entitiesByID);
         (result.borders || []).filter(border => border.hostedNodes)
-            .forEach(border => border.hostedNodes.forEach(node => node.host = result));
+            .forEach(border =>
+                    border.hostedNodes.forEach(node => {
+                        if (!node::isObject()){
+                            console.error("Border content not instantiated", node); return;
+                        }
+                        node.host = result
+                    })
+            );
         return result;
     }
 
@@ -128,7 +136,11 @@ export class Border extends Entity {
 
         this._borderLinks = d2LyphBorderLinks(this.borderInLyph);
         this.links = new Array(4);
-        this.borders.filter(border => border.conveyingLyph).forEach((border, i) => {
+
+        //TODO create a BorderPart class
+        this.borders.forEach((border, i) => {
+            //Important: do not filter the borders array to retain the right border number
+            if (!border.conveyingLyph) { return; }
             let id = `${this.id}`;
             //Turn border into a link if we need to draw its nested content (conveying lyph)
             let s = Node.fromJSON({"id": `s_${id}`});
@@ -140,7 +152,7 @@ export class Border extends Entity {
                 "type"  : LINK_TYPES.INVISIBLE,
                 "length": this._borderLinks[i].target.distanceTo(this._borderLinks[i].source),
                 "conveyingLyph" : border.conveyingLyph,
-                "host"  : border  //link's host
+                "linkOnBorder"  : border  //Save the border as the link's host
             });
 
             this.links[i].createViewObjects(state);
@@ -158,7 +170,9 @@ export class Border extends Entity {
             })
         });
 
-        (this.links || []).filter(lnk => !!lnk).forEach((lnk, i) => {
+        (this.links || []).forEach((lnk, i) => {
+            //Important: do not filter the links array to retain the right border number
+            if (!lnk) { return; }
             let tmp = this.borderLinks[i];
             copyCoords(lnk.source, tmp.source);
             copyCoords(lnk.target, tmp.target);
