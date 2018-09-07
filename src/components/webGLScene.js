@@ -2,7 +2,7 @@ import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter}
 import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {keys} from 'lodash-bound';
+import {keys, values} from 'lodash-bound';
 import * as THREE from 'three';
 
 import ThreeForceGraph   from '../three/threeForceGraph';
@@ -82,11 +82,10 @@ const WindowResize = require('three-window-resize');
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
-                        <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['x-y'])"/> Grid
-                        x-y
-                        <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['x-z'])"/> Grid
-                        x-z
-                        <input type="checkbox" name="planes" class="w3-check" (change)="togglePlanes(['axis'])"/> Axis
+                        <span *ngFor="let helper of helperKeys">
+                            <input type="checkbox" name="planes" class="w3-check" (change)="togglePlane(helper)" 
+                               [checked]="showPlane(helper)"/> {{helper}}
+                        </span>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Select lyph</legend>
@@ -298,18 +297,17 @@ export class WebGLSceneComponent {
         let gridHelper1 = new THREE.GridHelper(2 * this.axisLength, 10, axisColor, gridColor);
         gridHelper1.geometry.rotateX(Math.PI / 2);
         this.scene.add(gridHelper1);
-        this.helpers["x-y"] = gridHelper1;
+        this.helpers["Grid x-y"] = gridHelper1;
 
         // x-z plane
         let gridHelper2 = new THREE.GridHelper(2 * this.axisLength, 10, axisColor, gridColor);
         this.scene.add(gridHelper2);
-        this.helpers["x-z"] = gridHelper2;
+        this.helpers["Grid x-z"] = gridHelper2;
 
         let axesHelper = new THREE.AxesHelper(this.axisLength + 20);
         this.scene.add(axesHelper);
-        this.helpers["axis"] = axesHelper;
-
-        this.togglePlanes(["x-y", "x-z", "axis"]);
+        this.helpers["Axis"] = axesHelper;
+        this.helpers::values().forEach(value => value.visible = false);
     }
 
     createGraph() {
@@ -479,10 +477,16 @@ export class WebGLSceneComponent {
 
     /* Toggle scene elements */
 
-    togglePlanes(keys) {
-        keys.filter(key => this.helpers[key]).forEach(key => {
-            this.helpers[key].visible = !this.helpers[key].visible
-        });
+    get helperKeys(){
+        return this.helpers::keys();
+    }
+
+    showPlane(key){
+        return this.helpers[key].visible;
+    }
+
+    togglePlane(key) {
+        this.helpers[key].visible = !this.helpers[key].visible
     }
 
     toggleLyphs() {
@@ -493,10 +497,6 @@ export class WebGLSceneComponent {
     toggleLayers() {
         this._showLayers = !this._showLayers;
         this.graph.showLayers(this._showLayers);
-    }
-
-    toggleLyphIcon(value) {
-        this.graph.method(value);
     }
 
     toggleLabels(labelClass) {

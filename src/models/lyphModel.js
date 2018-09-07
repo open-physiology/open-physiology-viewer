@@ -79,9 +79,7 @@ export class Lyph extends Entity {
     translate(p0) {
         let p = p0.clone();
         let transformedLyph = this.layerInLyph ? this.layerInLyph : this;
-        if (this.layerInLyph) {
-            p.x += this.offset;
-        }
+        if (this.layerInLyph) { p.x += this.offset; }
         p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
         p.add(transformedLyph.center);
 
@@ -339,7 +337,7 @@ export class Lyph extends Entity {
 
             //Draw layers
             let offset = 0;
-            (this.layers || []).forEach((layer, i) => {
+            (this.layers || []).forEach(layer => {
                 layer.axis = this.axis;
                 if (!layer.layerWidth) {
                     layer.layerWidth = defaultWidth;

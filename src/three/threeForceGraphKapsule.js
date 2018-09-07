@@ -31,14 +31,14 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize    : { default: 3 },   // volume per val unit
+        nodeRelSize    : { default: 3 },      // volume per val unit
         nodeId         : { default: 'id' },
-        nodeResolution : { default: 16 },  // how many slice segments in the sphere's circumference
-        linkResolution : { default: 50 },  // number of points on semicircle link
-        linkMethod     : { default: 'Line2'}, //link rendering method
+        nodeResolution : { default: 16 },     // how many slice segments in the sphere's circumference
+        linkResolution : { default: 50 },     // number of points on semicircle link
+        linkMethod     : { default: 'Line2'}, // link rendering method
         showLyphs      : { default: true},
         showLayers     : { default: true},
-        method         : { default: '2d'},
+        method         : { default: '2d'},    // the 3d lyph mode is not currently supported due to no demand
         showLabels     : { default: {Node: true}},
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id'}},
         fontParams     : { default: {
@@ -47,7 +47,7 @@ export default Kapsule({
         opacity        : { default: 0.6 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
-        warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
+        warmupTicks    : { default: 0 },    // how many times to tick the force engine at init before starting to render
         cooldownTicks  : { default: 1000 },
         cooldownTime   : { default: 2000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading      : { default: () => {}, triggerUpdate: false },

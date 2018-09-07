@@ -2,28 +2,28 @@
   "source": "./src",
   "destination": "./docs",
   "plugins": [
-    {
+     {
       "name": "esdoc-standard-plugin",
-      "option": {
-        "brand": {
-          "title": "ApiNATOMY Lyph Viewer",
-          "description": "Graphical layouts for physiology models",
-          "repository": "https://github.com/open-physiology/open-physiology-viewer",
-          "site": "http://open-physiology.org",
-          "author": "http://www.nkokash.com/"
-        },
-        "manual": {
-          "index": "./manual/index.md",
-          "globalIndex": true,
-          "asset": "./manual/asset",
-          "files": [
-            "./manual/overview.md",
-            "./manual/model.md",
-            "./manual/usage.md",
-            "./manual/examples.md"
-          ]
-        }
-      }
-    }
+       "option": {
+         "brand": {
+           "title": "ApiNATOMY Lyph Viewer",
+           "description": "Graphical layouts for physiology models",
+           "repository": "https://github.com/open-physiology/open-physiology-viewer",
+           "site": "http://open-physiology.org",
+           "author": "http://www.nkokash.com/"
+         },
+         "manual": {
+           "index": "./manual/index.md",
+           "globalIndex": true,
+           "asset": "./manual/asset",
+           "files": [
+             "./manual/overview.md",
+             "./manual/usage.md",
+             "./manual/model.md",
+             "./manual/examples.md"
+           ]
+         }
+       }
+     }
   ]
 }

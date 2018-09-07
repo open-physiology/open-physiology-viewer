@@ -1,12 +1,13 @@
-# Data model
-
-The ApiNATOMY input data is a JSON model that matches the [ApiNATOMY JSON Schema](
-../schema/index.html). The schema provides a contract between the input data and the lyph viewer component. In the nutshell, the input model is an object that 
- contains sets of entities which are either 
- nodes, links, lyphs, materials or groups which contain subsets of these entities. 
- Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology. 
+# [JSON Schema](../schema/index.html)
+ The ApiNATOMY input data is a JSON model that matches the [ApiNATOMY JSON Schema](../schema/index.html). The schema provides a contract between the input data and the lyph viewer component. Follow the link above to see the bootprint of the schema.
  
- In the rest of this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. 
+# Data Model
+ In the nutshell, the lyph viewer expects as input a JSON object that 
+  contains sets of entities which are either 
+  nodes, links, lyphs, materials or groups which contain subsets of these entities. 
+  Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology. 
+  
+ In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. 
 
 ## Entity
  All ApiNATOMY modelling elements have a common ancestor, an abstract entity that defines common properties present in all objects of the model.
@@ -205,11 +206,11 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  The property `hostedNodes` may contain a set of nodes that are positioned on the link.
  This set should never include the link's source and target nodes.
-   
+ 
 ## Lyph 
  Lyphs in the ApiNATOMY lyph viewer are shown as 2d rectangles either with straight or rounded corners. A lyph defines the layered tissue material that constitutes a body conduit vessel (a duct, canal, or other tube that contains or conveys a body fluid) when it is rotated around its axis. 
  
- The shape of the lyph is defined by its `topology`. The topology value `TUBE` represents a conduit with two open ends which, when joint to other tubes, can form a longer tube conduit. The values of `BAG` and `BAG2` represent ducts with one closed (not passable) end. Finally, the topology value `CYST` denotes a duct with two closed ends. 
+ The shape of the lyph is defined by its `topology`. The topology value `TUBE` represents a conduit with two open ends. The values of `BAG` and `BAG2` represent a conduit with one closed end. Finally, the topology value `CYST` represents a conduit with both ends closed (a capsule). 
  
  ```json
  {
@@ -240,12 +241,47 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  <img src="asset/lyph.png" height="300px" caption = "Drawing lyphs">
  
- The center of the axial border of the lyph (see [Lyph border](#lyph-border)) always coincides with the center of its axis. The lyph's dimensions depend on its axis and can be controlled via the `scale` parameter. In this example, the lyph's length and height are half the length of the link's length (50%). 
+ The center of the axial border of the lyph (see [Lyph border](#lyph-border)) always coincides with the center of its axis. The lyph's dimensions depend on its axis and can be controlled via the `scale` parameter. In this example, the lyph's length and height are half the length of the link's length (50%). If you do not want a lyph size to depend on the length of its axis, assign explicit values to the properties `width` and `height`.
+ Lyph's properties `thickness` and `length` refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs. 
+   
+ The lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph's layers are specified in the property `layers` which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field `layerInLyph`. Similarly to other bi-directional relationships, it is sufficient to specify only one part of it in the model, the related property is inferred automatically.
+ By default, all layers get the equal area within the main lyph. Since all layers have the same height as the hosting lyph, the area they occupy depend on the width designated to each layer. The percentage of the width of the main lyph's width a layer occupies can be controlled via the `layerWidth` parameter. For instance, the code below, set the outer layers of all lyphs in the neural system group (see the example in the [Entity](#entity) section) to occupy 75% of their total width.
+ ```json
+  {
+     "id"    : "largeOuterLayers",
+     "name"  : "Enlarged outer layers of neural system lyphs",
+     "lyphs" : ["155", "150", "145", "140", "135", "160"],
+     "assign": [
+       {
+         "path" : "$.lyphs[*]",
+         "value": {
+           "layerWidth": 75
+         }
+       }
+     ]
+  }
+ ```
  
- As mentioned, the lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph's layers are specified in the property `layers` which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field `layerInLyph`. Similarly to other bi-directional relationships, it os sufficient to specify only one part of it in the model, the related property is inferred automatically. 
+ The property `internalNodes` may contain a set of nodes that have to be positioned on the lyph. Such nodes will be projected on the lyph's surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph's axis inside of the lyph, the force-directed layout method will not converge.
  
- Lyph's properties `thickness` and `length` refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs.
-  
+ The property `internalLyphs` is used to define the inner content of the lyph, i.e., neurons within the neural system parts. The related property, `internalLyphInLyph`, will indicate to which lyph the given lyph belongs. 
+ 
+ Just like any other lyph, internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them in a line along the radial axis of the container lyph.  
+ 
+ It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders. 
+ 
+ To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the `hostedLyphs` property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.
+ 
+  ```json
+       {
+         "id"         : "5",
+         "name"       : "Kidney Lobus",
+         "topology"   : "BAG",
+         "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
+       }
+   ```
+  <img src="asset/hostedLyphs.png" height="300px" alt = "Lyph on border">
+ 
  ### Lyph border
  
  The lyph's topology is closely related to the notion of the lyph `border`. In the 2d view, a lyph border is its perimeter line, in 3d view, it is a surface area of the conduit defined by the lyph. 
@@ -254,25 +290,35 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
     
  On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph's inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph's rectangle. The axial border is always aligned with the lyph's axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property `borders` which is always an array of 4 objects. 
  
- It is possible to place nodes and other lyphs on any of 4 border segments. 
+ It is possible to place nodes and other lyphs on any of the border segments. 
+ The `hostedNodes` property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the `hostedLyphs` property):
+  
+  ```json
+     {
+       "id"      : "5",
+       "name"    : "Kidney Lobus",
+       "topology": "BAG",
+       "border"  : {
+         "borders": [ {}, {}, {}, { "hostedNodes": [ "nPS013", "nLR05", "nLR15" ] } ]
+       }
+     }
+  ```
+
+ Similarly, in the next snippet, the model indicates that the 4th (2nd radial) border must convey the lyph with `id = "5"`.
  
  ```json
-  {
-      "lyphs": [
-         {
-           "id"      : "3",
-           "name"    : "Renal Parenchyma",
-           "topology": "BAG",
-           "border"  : {
-             "borders": [ {}, {}, {}, { "conveyingLyph": "5" } ]
-           },
-           "axis"    : "k_l"
-         }
-      ]
-  }
+     {
+       "id"      : "3",
+       "name"    : "Renal Parenchyma",
+       "topology": "BAG",
+       "border"  : {
+         "borders": [ {}, {}, {}, { "conveyingLyph": "5" } ]
+       }
+     }
   ```
+ <img src="asset/lyphOnBorder.png" height="300px" alt = "Lyph on border"> 
  
- <img src="asset/lyphOnBorder.png" height="300px" alt = "Lyph on border">
+ Here one may observe that the conveyed lyph is using the container lyph's border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with lyph borders conveying lyphs.   
       
 ## Material
  The ApiNATOMY model can contain definitions of materials, e.g.:

@@ -37,7 +37,16 @@
 <div data-ice="manual">
     <ul class="manual-toc">
       
-    <li data-ice="manualNav" class="indent-h1" data-link="manual/model.html"><a href="manual/model.html" data-ice="link">Data model</a></li>
+    <li data-ice="manualNav" class="indent-h1" data-link="manual/usage.html"><a href="manual/usage.html" data-ice="link">Usage</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/usage.html"><a href="manual/usage.html#build-instructions" data-ice="link">Build instructions</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/usage.html"><a href="manual/usage.html#lyph-viewer-as-a-widget" data-ice="link">Lyph viewer as a widget</a></li>
+</ul>
+  </div>
+<div data-ice="manual">
+    <ul class="manual-toc">
+      
+    <li data-ice="manualNav" class="indent-h1" data-link="manual/model.html"><a href="manual/model.html#-a-href-----schema-index-html--json-schema--a-" data-ice="link">JSON Schema</a></li>
+<li data-ice="manualNav" class="indent-h1" data-link="manual/model.html"><a href="manual/model.html#data-model" data-ice="link">Data Model</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#entity" data-ice="link">Entity</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#node" data-ice="link">Node</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#link" data-ice="link">Link</a></li>
@@ -45,14 +54,6 @@
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#lyph-border" data-ice="link">Lyph border</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#material" data-ice="link">Material</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#group" data-ice="link">Group</a></li>
-</ul>
-  </div>
-<div data-ice="manual">
-    <ul class="manual-toc">
-      
-    <li data-ice="manualNav" class="indent-h1" data-link="manual/usage.html"><a href="manual/usage.html" data-ice="link">Usage</a></li>
-<li data-ice="manualNav" class="indent-h2" data-link="manual/usage.html"><a href="manual/usage.html#build-instructions" data-ice="link">Build instructions</a></li>
-<li data-ice="manualNav" class="indent-h2" data-link="manual/usage.html"><a href="manual/usage.html#lyph-viewer-as-a-widget" data-ice="link">Lyph viewer as a widget</a></li>
 </ul>
   </div>
 <div data-ice="manual">
@@ -97,10 +98,32 @@ The lyph viewer is a graphical component that consists of</p><ul>
     </div>
 <div class="manual-card-wrap" data-ice="cards">
       <div class="manual-card">
-        <div data-ice="card"><h1>Data model</h1><p>The ApiNATOMY input data is a JSON model that matches the <a href="./manual/../schema/index.html">ApiNATOMY JSON Schema</a>. The schema provides a contract between the input data and the lyph viewer component. In the nutshell, the input model is an object that 
- contains sets of entities which are either 
- nodes, links, lyphs, materials or groups which contain subsets of these entities. 
- Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology. </p><p> In the rest of this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. </p><h2>Entity</h2><p> All ApiNATOMY modelling elements have a common ancestor, an abstract entity that defines common properties present in all objects of the model.</p><p> All entities come with basic properties such as <code>id</code> and <code>name</code> to identify the physiological element, and <code>color</code> to display the corresponding visual object in the viewer. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case. </p><p> Each object has a read-only property <code>class</code> (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as <code>Node</code>, <code>Link</code>, <code>Lyph</code>, <code>Material</code> or <code>Group</code>. The property <code>external</code> may be used to keep a reference to an external data source that defines or describes the entity, i.e., the <a href="http://si.washington.edu/projects/fma">Foundational Model of Anatomy (FMA)</a> ontology. </p><p> The property <code>infoFields</code> lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of the certain type, but may also be overridden for individual objects. For example, the following value of the <code>infoFields</code> property of a lyph object</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
+        <div data-ice="card"><h1>Usage</h1><h2>Build instructions</h2><ul>
+<li>Install  <a href="https://nodejs.org/">Node.js</a>.    </li>
+<li>Clone (or download and unzip) the project to your file system: <code>git clone https://github.com/open-physiology/open-physiology-viewer.git</code></li>
+<li>Go into the project directory: <code>cd ./open-physiology-viewer</code></li>
+<li>Install build dependencies: <code>npm install</code></li>
+<li><p>Run the build script: <code>npm run build</code></p>
+<p>The compiled code is in the <code>open-physiology/dist/</code> folder. After that you should be able to open a demo app <code>test-app/index.html</code> in your browser.</p>
+</li>
+</ul><h2>Lyph viewer as a widget</h2><p> A lyph viewer is available as a stand-alone module that can be used in other applications as a graphical widget. For integrating the viewer with other applications, include  <code>open-physiology-viewer.js</code> to your build and import:</p><ul>
+<li><code>DataService</code> - a class that prepares the user input in the form of a serialized JSON file to be used by the lyph viewer. Here we auto-create entities for shorthand models that were not defined explicitly, expand lyph templates, process JSONPath queries and replace all IDs with object references.</li>
+<li><code>WebGLSceneModule</code> - the module that provides the Angular2 component <code>WebGLSceneComponent</code>. The component currently accepts 3 parameters: <ul>
+<li><code>graphData</code> - an ApiNATOMY model in the deserialized JSON format (as returned by the <code>DataService</code>).</li>
+<li><code>highlighted</code> - a reference to a graphical object to highlight. Each graphical object can be accessed from the ApiNATOMY entity object via its property <code>viewObjects[&apos;main&apos;]</code> which returns a reference to a WebGL object that represents this entity in the viewer.</li>
+<li><code>selected</code> - a reference to a graphical object to be selected. </li>
+</ul>
+</li>
+</ul></div>
+        <a data-ice="link" href="manual/usage.html"></a>
+      </div>
+    </div>
+<div class="manual-card-wrap" data-ice="cards">
+      <div class="manual-card">
+        <div data-ice="card"><h1>Data Model</h1><p> In the nutshell, the lyph viewer expects as input a JSON object that 
+  contains sets of entities which are either 
+  nodes, links, lyphs, materials or groups which contain subsets of these entities. 
+  Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology. </p><p> In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. </p><h2>Entity</h2><p> All ApiNATOMY modelling elements have a common ancestor, an abstract entity that defines common properties present in all objects of the model.</p><p> All entities come with basic properties such as <code>id</code> and <code>name</code> to identify the physiological element, and <code>color</code> to display the corresponding visual object in the viewer. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case. </p><p> Each object has a read-only property <code>class</code> (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as <code>Node</code>, <code>Link</code>, <code>Lyph</code>, <code>Material</code> or <code>Group</code>. The property <code>external</code> may be used to keep a reference to an external data source that defines or describes the entity, i.e., the <a href="http://si.washington.edu/projects/fma">Foundational Model of Anatomy (FMA)</a> ontology. </p><p> The property <code>infoFields</code> lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of the certain type, but may also be overridden for individual objects. For example, the following value of the <code>infoFields</code> property of a lyph object</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
        &quot;infoFields&quot;: {
          &quot;text&quot;   : [ &quot;id&quot;, &quot;name&quot;, &quot;topology&quot; ],
          &quot;objects&quot;: [ &quot;axis&quot; ],
@@ -211,7 +234,7 @@ The lyph viewer is a graphical component that consists of</p><ul>
  The <code>invisible</code> links can either be defined explicitly in the model or auto-generated if a lyph that is an <code>internalLyph</code> of some other lyph is not conveyed by any user-defined link in the model. </p><p> The property <code>linkMethod</code> can be set to <code>Line2</code> to indicate that the link should be drawn as a thick line. This property was introduced to overcome a well-known WebGL <a href="https://mattdesl.svbtle.com/drawing-lines-is-hard">issue</a> with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property <code>linewidth</code> can be used to specify how thick such links should be (its default value is 0.003).  </p><p> The property <code>length</code> defines the desired distance between the link ends in terms of the percentage from the maximal allowed length (which is equal to the main axis length in the lyph viewer). The link force from the <a href="https://github.com/vasturiano/d3-force-3d#links">d3-force-3d</a> module pushes the link&apos;s source and target nodes together or apart according to the desired distance. More details about these parameters can be found in the documentation of the module. </p><p> A link of any type can be set to be <code>collapsible</code>. A collapsible link exists only if its ends are constrained by the visible entities in the view, i.e., the link&apos;s source and target nodes must be inside of visible lyphs, on separate lyph borders or are hosted by other visible links. If this is not the case, the source and target nodes of the collapsible link are attracted to each other until they collide to look like a single node. </p><p> Collapsible links are auto-generated for the models where one node is constrained by two or more different entities meaning that it should be placed to several different locations. This functionality allows modellers to include the same semantic entity to various subsystems in the model, even if these subsystems are split by some space for readability. The auto-generated collapsible links are of type <code>dashed</code> to emphasize that the link is an auxiliary line that helps to locate duplicates of the same node.</p><p> Each link object must refer to its <code>source</code> and <code>target</code> nodes. 
  Although we never draw arrows, all links in the ApiNATOMY graph are directed links.
  It is possible to change the direction of the link without overriding the <code>source</code> and <code>target</code> properties. If the boolean property <code>reversed</code> is set to <code>true</code>, its direction vector starts in the <code>target</code> node and ends in the <code>source</code> node, this is useful if we want to turn the lyph it conveys by 180 degrees. </p><p> A link may have a conveying lyph which is set via its property <code>conveyingLyph</code>. The lyph conveyed by the link is placed to its center and uses the link as its rotational axis. The size of the lyph in the lyph viewer depends on the link&apos;s length, a more detailed of the size computation is given in the <a href="#lyph">Lyph</a> section. Hence, one can define the same relationship from the other entity&apos;s perspective: by assigning the link&apos;s ID to the lyph&apos;s property <code>axis</code>. </p><p> The property <code>hostedNodes</code> may contain a set of nodes that are positioned on the link.
- This set should never include the link&apos;s source and target nodes.</p><h2>Lyph</h2><p> Lyphs in the ApiNATOMY lyph viewer are shown as 2d rectangles either with straight or rounded corners. A lyph defines the layered tissue material that constitutes a body conduit vessel (a duct, canal, or other tube that contains or conveys a body fluid) when it is rotated around its axis. </p><p> The shape of the lyph is defined by its <code>topology</code>. The topology value <code>TUBE</code> represents a conduit with two open ends which, when joint to other tubes, can form a longer tube conduit. The values of <code>BAG</code> and <code>BAG2</code> represent ducts with one closed (not passable) end. Finally, the topology value <code>CYST</code> denotes a duct with two closed ends. </p><pre><code class="lang-json"><code class="source-code prettyprint"> {
+ This set should never include the link&apos;s source and target nodes.</p><h2>Lyph</h2><p> Lyphs in the ApiNATOMY lyph viewer are shown as 2d rectangles either with straight or rounded corners. A lyph defines the layered tissue material that constitutes a body conduit vessel (a duct, canal, or other tube that contains or conveys a body fluid) when it is rotated around its axis. </p><p> The shape of the lyph is defined by its <code>topology</code>. The topology value <code>TUBE</code> represents a conduit with two open ends. The values of <code>BAG</code> and <code>BAG2</code> represent a conduit with one closed end. Finally, the topology value <code>CYST</code> represents a conduit with both ends closed (a capsule). </p><pre><code class="lang-json"><code class="source-code prettyprint"> {
  &quot;lyphs&quot;: [
      {
        &quot;id&quot;      : &quot;5&quot;,
@@ -234,20 +257,45 @@ The lyph viewer is a graphical component that consists of</p><ul>
      }
    ]
  }</code>
-</code></pre><p> In addition to the nodes and links created in the previous sections and a new link <code>k_l</code> with source node <code>k</code> and target node <code>l</code>, the code above produces a bag with two layers conveyed by the <code>k_l</code> link.</p><p> <img src="./manual/asset/lyph.png" height="300px" caption="Drawing lyphs"></p><p> The center of the axial border of the lyph (see <a href="#lyph-border">Lyph border</a>) always coincides with the center of its axis. The lyph&apos;s dimensions depend on its axis and can be controlled via the <code>scale</code> parameter. In this example, the lyph&apos;s length and height are half the length of the link&apos;s length (50%). </p><p> As mentioned, the lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph&apos;s layers are specified in the property <code>layers</code> which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field <code>layerInLyph</code>. Similarly to other bi-directional relationships, it os sufficient to specify only one part of it in the model, the related property is inferred automatically. </p><p> Lyph&apos;s properties <code>thickness</code> and <code>length</code> refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs.</p><h3>Lyph border</h3><p> The lyph&apos;s topology is closely related to the notion of the lyph <code>border</code>. In the 2d view, a lyph border is its perimeter line, in 3d view, it is a surface area of the conduit defined by the lyph. </p><p> The lyph border is an object that extends <code>Entity</code> and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. A lyph can refer to its border via its <code>border</code> field.  However, practically, lyph borders do not make much sense without their hosting lyphs. Hence, we auto-generate lyph borders for all lyphs in the model and merge inline objects defining border content within a lyph with the generated object. The modeller should only specify entities hosted by the lyph&apos;s border if the model implies the anatomical relationships among the corresponding concepts.</p><p> On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph&apos;s inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph&apos;s rectangle. The axial border is always aligned with the lyph&apos;s axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property <code>borders</code> which is always an array of 4 objects. </p><p> It is possible to place nodes and other lyphs on any of 4 border segments. </p><pre><code class="lang-json"><code class="source-code prettyprint">  {
-      &quot;lyphs&quot;: [
-         {
-           &quot;id&quot;      : &quot;3&quot;,
-           &quot;name&quot;    : &quot;Renal Parenchyma&quot;,
-           &quot;topology&quot;: &quot;BAG&quot;,
-           &quot;border&quot;  : {
-             &quot;borders&quot;: [ {}, {}, {}, { &quot;conveyingLyph&quot;: &quot;5&quot; } ]
-           },
-           &quot;axis&quot;    : &quot;k_l&quot;
+</code></pre><p> In addition to the nodes and links created in the previous sections and a new link <code>k_l</code> with source node <code>k</code> and target node <code>l</code>, the code above produces a bag with two layers conveyed by the <code>k_l</code> link.</p><p> <img src="./manual/asset/lyph.png" height="300px" caption="Drawing lyphs"></p><p> The center of the axial border of the lyph (see <a href="#lyph-border">Lyph border</a>) always coincides with the center of its axis. The lyph&apos;s dimensions depend on its axis and can be controlled via the <code>scale</code> parameter. In this example, the lyph&apos;s length and height are half the length of the link&apos;s length (50%). If you do not want a lyph size to depend on the length of its axis, assign explicit values to the properties <code>width</code> and <code>height</code>.
+ Lyph&apos;s properties <code>thickness</code> and <code>length</code> refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs. </p><p> The lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph&apos;s layers are specified in the property <code>layers</code> which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field <code>layerInLyph</code>. Similarly to other bi-directional relationships, it is sufficient to specify only one part of it in the model, the related property is inferred automatically.
+ By default, all layers get the equal area within the main lyph. Since all layers have the same height as the hosting lyph, the area they occupy depend on the width designated to each layer. The percentage of the width of the main lyph&apos;s width a layer occupies can be controlled via the <code>layerWidth</code> parameter. For instance, the code below, set the outer layers of all lyphs in the neural system group (see the example in the <a href="#entity">Entity</a> section) to occupy 75% of their total width.</p><pre><code class="lang-json"><code class="source-code prettyprint">  {
+     &quot;id&quot;    : &quot;largeOuterLayers&quot;,
+     &quot;name&quot;  : &quot;Enlarged outer layers of neural system lyphs&quot;,
+     &quot;lyphs&quot; : [&quot;155&quot;, &quot;150&quot;, &quot;145&quot;, &quot;140&quot;, &quot;135&quot;, &quot;160&quot;],
+     &quot;assign&quot;: [
+       {
+         &quot;path&quot; : &quot;$.lyphs[*]&quot;,
+         &quot;value&quot;: {
+           &quot;layerWidth&quot;: 75
          }
-      ]
+       }
+     ]
   }</code>
-</code></pre><p> <img src="./manual/asset/lyphOnBorder.png" height="300px" alt="Lyph on border"></p><h2>Material</h2><p> The ApiNATOMY model can contain definitions of materials, e.g.:</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
+</code></pre><p> The property <code>internalNodes</code> may contain a set of nodes that have to be positioned on the lyph. Such nodes will be projected on the lyph&apos;s surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph&apos;s axis inside of the lyph, the force-directed layout method will not converge.</p><p> The property <code>internalLyphs</code> is used to define the inner content of the lyph, i.e., neurons within the neural system parts. The related property, <code>internalLyphInLyph</code>, will indicate to which lyph the given lyph belongs. </p><p> Just like any other lyph, internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them in a line along the radial axis of the container lyph.  </p><p> It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders. </p><p> To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the <code>hostedLyphs</code> property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.</p><pre><code class="lang-json"><code class="source-code prettyprint">       {
+         &quot;id&quot;         : &quot;5&quot;,
+         &quot;name&quot;       : &quot;Kidney Lobus&quot;,
+         &quot;topology&quot;   : &quot;BAG&quot;,
+         &quot;hostedLyphs&quot;: [ &quot;60&quot;, &quot;105&quot;, &quot;63&quot;, &quot;78&quot;, &quot;24&quot;, &quot;27&quot;, &quot;30&quot;, &quot;33&quot; ]
+       }</code>
+</code></pre><p>  <img src="./manual/asset/hostedLyphs.png" height="300px" alt="Lyph on border"></p><h3>Lyph border</h3><p> The lyph&apos;s topology is closely related to the notion of the lyph <code>border</code>. In the 2d view, a lyph border is its perimeter line, in 3d view, it is a surface area of the conduit defined by the lyph. </p><p> The lyph border is an object that extends <code>Entity</code> and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. A lyph can refer to its border via its <code>border</code> field.  However, practically, lyph borders do not make much sense without their hosting lyphs. Hence, we auto-generate lyph borders for all lyphs in the model and merge inline objects defining border content within a lyph with the generated object. The modeller should only specify entities hosted by the lyph&apos;s border if the model implies the anatomical relationships among the corresponding concepts.</p><p> On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph&apos;s inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph&apos;s rectangle. The axial border is always aligned with the lyph&apos;s axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property <code>borders</code> which is always an array of 4 objects. </p><p> It is possible to place nodes and other lyphs on any of the border segments. 
+ The <code>hostedNodes</code> property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the <code>hostedLyphs</code> property):</p><pre><code class="lang-json"><code class="source-code prettyprint">     {
+       &quot;id&quot;      : &quot;5&quot;,
+       &quot;name&quot;    : &quot;Kidney Lobus&quot;,
+       &quot;topology&quot;: &quot;BAG&quot;,
+       &quot;border&quot;  : {
+         &quot;borders&quot;: [ {}, {}, {}, { &quot;hostedNodes&quot;: [ &quot;nPS013&quot;, &quot;nLR05&quot;, &quot;nLR15&quot; ] } ]
+       }
+     }</code>
+</code></pre><p> Similarly, in the next snippet, the model indicates that the 4th (2nd radial) border must convey the lyph with <code>id = &quot;5&quot;</code>.</p><pre><code class="lang-json"><code class="source-code prettyprint">     {
+       &quot;id&quot;      : &quot;3&quot;,
+       &quot;name&quot;    : &quot;Renal Parenchyma&quot;,
+       &quot;topology&quot;: &quot;BAG&quot;,
+       &quot;border&quot;  : {
+         &quot;borders&quot;: [ {}, {}, {}, { &quot;conveyingLyph&quot;: &quot;5&quot; } ]
+       }
+     }</code>
+</code></pre><p> <img src="./manual/asset/lyphOnBorder.png" height="300px" alt="Lyph on border"> </p><p> Here one may observe that the conveyed lyph is using the container lyph&apos;s border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with lyph borders conveying lyphs.   </p><h2>Material</h2><p> The ApiNATOMY model can contain definitions of materials, e.g.:</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
       &quot;materials&quot;: [
            {
               &quot;id&quot;  : &quot;9&quot;,
@@ -266,29 +314,7 @@ The lyph viewer is a graphical component that consists of</p><ul>
         &quot;materials&quot;: [ &quot;9&quot;, &quot;13&quot; ]
     }</code>
 </code></pre><p> Materials of a lyph can be displayed on the information panel if the <code>infoFields</code> property of the lyph is configured to show them.</p><h2>Group</h2></div>
-        <a data-ice="link" href="manual/model.html"></a>
-      </div>
-    </div>
-<div class="manual-card-wrap" data-ice="cards">
-      <div class="manual-card">
-        <div data-ice="card"><h1>Usage</h1><h2>Build instructions</h2><ul>
-<li>Install  <a href="https://nodejs.org/">Node.js</a>.    </li>
-<li>Clone (or download and unzip) the project to your file system: <code>git clone https://github.com/open-physiology/open-physiology-viewer.git</code></li>
-<li>Go into the project directory: <code>cd ./open-physiology-viewer</code></li>
-<li>Install build dependencies: <code>npm install</code></li>
-<li><p>Run the build script: <code>npm run build</code></p>
-<p>The compiled code is in the <code>open-physiology/dist/</code> folder. After that you should be able to open a demo app <code>test-app/index.html</code> in your browser.</p>
-</li>
-</ul><h2>Lyph viewer as a widget</h2><p> A lyph viewer is available as a stand-alone module that can be used in other applications as a graphical widget. For integrating the viewer with other applications, include  <code>open-physiology-viewer.js</code> to your build and import:</p><ul>
-<li><code>DataService</code> - a class that prepares the user input in the form of a serialized JSON file to be used by the lyph viewer. Here we auto-create entities for shorthand models that were not defined explicitly, expand lyph templates, process JSONPath queries and replace all IDs with object references.</li>
-<li><code>WebGLSceneModule</code> - the module that provides the Angular2 component <code>WebGLSceneComponent</code>. The component currently accepts 3 parameters: <ul>
-<li><code>graphData</code> - an ApiNATOMY model in the deserialized JSON format (as returned by the <code>DataService</code>).</li>
-<li><code>highlighted</code> - a reference to a graphical object to highlight. Each graphical object can be accessed from the ApiNATOMY entity object via its property <code>viewObjects[&apos;main&apos;]</code> which returns a reference to a WebGL object that represents this entity in the viewer.</li>
-<li><code>selected</code> - a reference to a graphical object to be selected. </li>
-</ul>
-</li>
-</ul></div>
-        <a data-ice="link" href="manual/usage.html"></a>
+        <a data-ice="link" href="manual/model.html#data-model"></a>
       </div>
     </div>
 <div class="manual-card-wrap" data-ice="cards">
