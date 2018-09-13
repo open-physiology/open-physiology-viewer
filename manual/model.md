@@ -87,7 +87,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
           "name"  : "a",
           "color" : "#808080",
           "val"   : 10,
-          "type"  : "fixed",
+          "fixed" : true,
           "layout": { "x" : 0, "y" : 0, "z" : 0 }
         },
         {
@@ -125,7 +125,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
  In the above example, four nodes are positioned along `x` and `y` axes. The value of each coordinate is expected to be between -100 and 100, these numbers refer to the percentage of the lengths from the center of coordinates. The actual coordinates are then computed depending on the internal scaling factor. 
 
- The node `a` is placed to the center of coordinates. It is marked as `fixed` by setting its `type` property. Positions of fixed nodes are set to coincide with the desired positions in the `layout` property. For other types of nodes, the layout only defines the position the node is attracted to while its actual position `(x, y, z)` may be influenced by various factors, i.e., global forces in the graph, rigidity of the links, positions of other nodes, etc. Note that assigning (`x`, `y`, `z`) coordinates for the node in the model is ineffective as these properties are overridden by our graph layout algorithm and the initial settings will simply be ignored. The tool issues the corresponding warning if an unexpected property is present in the model. 
+ The node `a` is placed to the center of coordinates. It is marked as `fixed`. Positions of fixed nodes are set to coincide with the desired positions in the `layout` property. For other types of nodes, the layout only defines the position the node is attracted to while its actual position `(x, y, z)` may be influenced by various factors, i.e., global forces in the graph, rigidity of the links, positions of other nodes, etc. Note that assigning (`x`, `y`, `z`) coordinates for the node in the model is ineffective as these properties are overridden by our graph layout algorithm and the initial settings will simply be ignored. The tool issues the corresponding warning if an unexpected property is present in the model. 
 
  It is important to retain in the model the containment and spacial adjacency relationships among entities. Several properties of a node object are used to constraint the positions of the node on a link, within a lyph or on its surface. It is also possible to define the desired position of a node in the graphical layout based on the positions of other nodes.
  
@@ -187,8 +187,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  Among other link types supported by the lyph viewer are `path` to draw graph edges bundled together, and `container` links to draw links not effected by force-directed layout. 
  
- There are also two auxiliary link types: `force` links to attract or repel nodes, and `invisible` links which are never displayed themselves but serve as axes for the lyphs they convey. The `force` links have no corresponding visual objects and currently only serve the purpose of binding together nodes of the links that convey coalescing lyphs. The user does not need to define such links, they are auto-generated for lyphs with `coalescesWith` relationships.
- The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model. 
+ There are also two auxiliary link types: `invisible` links which are never displayed themselves but serve as axes for the lyphs they convey. The `force` links have no corresponding visual objects and currently only serve the purpose of binding together selected nodes. The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model. 
           
  The property `linkMethod` can be set to `Line2` to indicate that the link should be drawn as a thick line. This property was introduced to overcome a well-known WebGL [issue](https://mattdesl.svbtle.com/drawing-lines-is-hard) with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property `linewidth` can be used to specify how thick such links should be (its default value is 0.003).  
  
@@ -197,7 +196,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  A link of any type can be set to be `collapsible`. A collapsible link exists only if its ends are constrained by the visible entities in the view, i.e., the link's source and target nodes must be inside of visible lyphs, on separate lyph borders or are hosted by other visible links. If this is not the case, the source and target nodes of the collapsible link are attracted to each other until they collide to look like a single node. 
  
  Collapsible links are auto-generated for the models where one node is constrained by two or more different entities meaning that it should be placed to several different locations. This functionality allows modellers to include the same semantic entity to various subsystems in the model, even if these subsystems are split by some space for readability. The auto-generated collapsible links are of type `dashed` to emphasize that the link is an auxiliary line that helps to locate duplicates of the same node.
-   
+ 
+ The screenshots below show the link chain representing the anterolateral apinothalamic tract in isolation and in combination with the neural system group. Observe that in the latter case the tract's nodes are bound to the neural system lyph borders with thin dashed transitions among pairs of replicated node instances. 
+ 
+ <img src="asset/collapsible1.png" height="300px" caption = "Unconstrained collapsible links">
+ 
+ <img src="asset/collapsible2.png" height="300px" caption = "Constrained collapsible links">
+    
  Each link object must refer to its `source` and `target` nodes. 
  Although we never draw arrows, all links in the ApiNATOMY graph are directed links.
  It is possible to change the direction of the link without overriding the `source` and `target` properties. If the boolean property `reversed` is set to `true`, its direction vector starts in the `target` node and ends in the `source` node, this is useful if we want to turn the lyph it conveys by 180 degrees. 
@@ -281,6 +286,67 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
        }
    ```
   <img src="asset/hostedLyphs.png" height="300px" alt = "Lyph on border">
+  
+  A list of materials used in a lyph is available via its field `materials`, i.e.,:
+    ```json
+      {
+          "id"       : "112",
+          "name"     : "Lumen of Pelvis",
+          "topology" : "TUBE",
+          "materials": [ "9", "13" ]
+      }
+    ```
+ 
+ Often a model requires many lyphs with the same layer structure. To simplify the creation of sets of such lyphs, we introduced a notion of the lyph template. A lyph with property `isTemplate` set to true, serves as a prototype for all lyphs in its property `subtypes`: such lyphs inherit their layers from the their `supertype`. 
+ In the example below, six lyphs are defined as subtypes of a generic cardiac lyph which works as a template to define their layer structure.
+ 
+ ```json
+ {
+    "lyphs": [
+         {
+           "id"        : "994",
+           "name"      : "Cardiac Lyphs Prototype",
+           "layers"    : [ "999", "998", "997" ],
+           "isTemplate": true,
+           "subtypes"  : [ "1000", "1001", "1022", "1023", "1010", "1011" ]
+         },
+         {
+           "id"   : "1000",
+           "name" : "Right Ventricle"
+         },
+         {
+           "id"   : "1010",
+           "name" : "Left Ventricle"
+         }
+    ] 
+ }
+ ``` 
+ <img src="asset/cardiac.png" height="300px" alt = "Lyph templates">
+ 
+ Note that inheriting layer structure from the lyph template differs from assigning layers explicitly to all subtype lyphs, either individually or via the group's `assign` property. A lyph with the same ID cannot be used as a layer in two different  lyphs, that would imply that the same graphical object should appear in two different positions, and its dimensions and other context-dependent properties may vary as well. The code above instead implies that we replicate each of three template layers six times, i.e., 18 new lyphs are auto-generated and added to the model for the specification above.  
+ 
+ It is possible to customize some of the `subtype` - `layer` pairs with the help of the context-dependent queries. For example, the code below
+
+  ```json
+  {//...
+     "assign": [
+       {
+         "path": "$.[?(@.id=='1000')].layers[(@.length-1)]",
+         "value": { "internalLyphs": [ "995" ] }
+       },
+       {
+         "path": "$.[?(@.id=='1010')].layers[(@.length-1)]",
+         "value": { "internalLyphs": [ "996" ] }
+       }
+     ]
+  }
+  ```  
+  assigns `internalLyphs` to two outer most layers of lyphs `1000` and `1010` while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.
+
+   The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`. 
+     
+   Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.      
+
  
  ### Lyph border
  
@@ -337,18 +403,42 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
    }
  ```
 
- At the moment, we do not include material objects into the graph schematics. A list of materials used in a lyph is available via its field `materials`, i.e.,:
-  ```json
-    {
-        "id"       : "112",
-        "name"     : "Lumen of Pelvis",
-        "topology" : "TUBE",
-        "materials": [ "9", "13" ]
-    }
-  ```
- Materials of a lyph can be displayed on the information panel if the `infoFields` property of the lyph is configured to show them.
+ At the moment, we do not include material objects into the graph schematics.  Materials of a lyph can be displayed on the information panel if the `infoFields` property of the lyph is configured to show them.
 
 ## Group
-
+ A group is a subset of entities from the ApiNATOMY model (which can also be seen as a  group) that have a common semantic meaning and/or a distinct set of visual characteristics. A group can include `nodes`, `links`, `lyphs`, `materials`, and other `groups` (subgroups) via the properties with the corresponding names.
+ 
+ In the example below, we define a group of blood vessels by joining two subgroups, arterial and venous vessels.
+ 
+ ```json
+    {
+      "groups": [
+        {
+          "id"    : "omega",
+          "name"  : "Blood vessels",
+          "groups": ["arterial", "venous"]
+        },
+        {
+          "id"   : "arterial",
+          "name" : "Arterial",
+          "nodes": [ "nLR00", "nLR01", "nLR02", "nLR03", "nLR04", "nLR05" ],
+          "links": [ "LR00", "LR01", "LR02", "LR03", "LR04" ]
+        },
+        {
+          "id"   : "venous",
+          "name" : "Venous",
+          "nodes": [ "nLR10", "nLR11", "nLR12", "nLR13", "nLR14", "nLR15", "nLR16" ],
+          "links": [ "LR10", "LR11", "LR12", "LR13", "LR14", "LR15" ]
+        }
+      ]
+    }
+ ```
+ 
+ In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.  
+    
+    
+ 
+ 
+  
  
 

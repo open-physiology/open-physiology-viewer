@@ -38,7 +38,8 @@ export default Kapsule({
         linkMethod     : { default: 'Line2'}, // link rendering method
         showLyphs      : { default: true},
         showLayers     : { default: true},
-        method         : { default: '2d'},    // the 3d lyph mode is not currently supported due to no demand
+        showCoalescences : { default: false},
+        method         : { default: '2d'},    // the 3d lyph objects are not anymore supported due to low
         showLabels     : { default: {Node: true}},
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id'}},
         fontParams     : { default: {
@@ -47,7 +48,7 @@ export default Kapsule({
         opacity        : { default: 0.6 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
-        warmupTicks    : { default: 0 },    // how many times to tick the force engine at init before starting to render
+        warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
         cooldownTicks  : { default: 1000 },
         cooldownTime   : { default: 2000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading      : { default: () => {}, triggerUpdate: false },
@@ -74,8 +75,8 @@ export default Kapsule({
     stateInit: () => ({
         simulation: forceSimulation()
             .force('link', forceLink())
-            .force('charge', forceManyBody(d => d.charge? d.charge: 0))
-            .force('collide', forceCollide(d => d.collide? d.collide: 0))
+            .force('charge', forceManyBody(d => d.charge || 0))
+            .force('collide', forceCollide(d => d.collide || 0))
         .stop()
     }),
 

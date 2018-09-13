@@ -312,13 +312,9 @@
           },
           "default": {}
         },
-        "type": {
-          "description": "Node type can be used to control the behavior of the node in the force-directed layout",
-          "type": "string",
-          "enum": [
-            "core",
-            "fixed"
-          ]
+        "fixed": {
+          "description": "Fixed nodes are positioned to the desired location",
+          "type": "boolean"
         },
         "val": {
           "description": "A value that defines the size of the node",
@@ -340,7 +336,7 @@
         "collide": {
           "description": "Defines the radius for the collision force in the force-directed layout. The collision force treats nodes as circles with a given radius, rather than points, and prevents nodes from overlapping.",
           "type": "number",
-          "default": 0
+          "default": 5
         }
       }
     },
@@ -602,7 +598,7 @@
             }
           },
           "default": {
-            "width": 80,
+            "width" : 40,
             "height": 80
           }
         },
@@ -737,7 +733,8 @@
                 "$ref": "#/definitions/Lyph"
               }
             ]
-          }
+          },
+          "relatedTo": "coalescesWith"
         }
       }
     },

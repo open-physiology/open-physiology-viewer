@@ -1,11 +1,13 @@
 import {merge, isObject, isArray} from 'lodash-bound';
 export const JSONPath = require('JSONPath');
 
-export function noOverwrite (objVal, srcVal){
-    if (objVal && objVal !== srcVal) { return objVal; }
-    return srcVal;
-}
-
+/**
+ * Assign properties for the entities in JSON path
+ * @param path    - JSON path
+ * @param value   - value to assign
+ * @param parent  - parent (root) object
+ * @param handler - custom handler for each modified object
+ */
 export function assignPropertiesToJSONPath({path, value}, parent, handler){
     if (path && value){
         try{
@@ -30,8 +32,8 @@ export function assignPropertiesToJSONPath({path, value}, parent, handler){
  * @param source
  */
 export function copyCoords(target, source){
-    if (!target) { return; }
     if (!source) { return; }
+    if (!target) { return; }
     target.x = source.x || 0;
     target.y = source.y || 0;
     target.z = source.z || 0;

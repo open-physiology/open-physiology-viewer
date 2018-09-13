@@ -1,8 +1,8 @@
 import { Entity } from './entityModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { direction, bezierSemicircle} from '../three/utils';
-import { copyCoords} from './utils';
+import { direction, bezierSemicircle, extractCoords } from '../three/utils';
+import { copyCoords } from './utils';
 
 import { LineSegments2 }        from '../three/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from '../three/lines/LineSegmentsGeometry.js';

@@ -12,7 +12,6 @@ import {
     forceZ
 } from 'd3-force-3d';
 import {LINK_TYPES} from '../models/linkModel';
-import {NODE_TYPES} from '../models/nodeModel';
 
 import {ModelInfoPanel} from './gui/modelInfo';
 import {SelectNameSearchBar} from './gui/selectNameSearchBar';
@@ -46,7 +45,7 @@ const WindowResize = require('three-window-resize');
                     <fieldset *ngIf="!!_highlighted && !!_highlighted.__data" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
                         <modelInfoPanel [model]=_highlighted.__data></modelInfoPanel>
-                    </fieldset>                    
+                    </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
@@ -54,6 +53,9 @@ const WindowResize = require('three-window-resize');
                             <input type="checkbox" class="w3-check" name="layers"
                                    (change)="toggleLayers()" [checked]="_showLayers"/> Layers
                         </span>
+                        <input type="checkbox" class="w3-check" name="coalescences"
+                               (change)="toggleCoalescences()" [checked]="_showCoalescences"/> Coalescences
+
                         <br/>
                         <span *ngFor="let group of graphData.groups">
                             <input type="checkbox" name="switch" class="w3-check"
@@ -83,8 +85,8 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
                         <span *ngFor="let helper of helperKeys">
-                            <input type="checkbox" name="planes" class="w3-check" (change)="togglePlane(helper)" 
-                               [checked]="showPlane(helper)"/> {{helper}}
+                            <input type="checkbox" name="planes" class="w3-check" (change)="togglePlane(helper)"
+                                   [checked]="showPlane(helper)"/> {{helper}}
                         </span>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small-small">
@@ -120,7 +122,7 @@ const WindowResize = require('three-window-resize');
 
         button:focus {
             outline: 0 !important;
-        }        
+        }
     `]
 })
 export class WebGLSceneComponent {
@@ -159,7 +161,8 @@ export class WebGLSceneComponent {
 
             /*Map initial positional constraints to match the scaled image*/
 
-            this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {node.layout[key] *= this.axisLength * 0.01; }));
+            this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {
+                node.layout[key] *= this.axisLength * 0.01; }));
             this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * this.axisLength * 0.01);
 
             if (this.graph) { this.graph.graphData(this._graphData); }
@@ -205,6 +208,7 @@ export class WebGLSceneComponent {
 
         this._showLyphs = true;
         this._showLayers = true;
+        this._showCoalescences = false;
         this._showLabels = {
             "Node": true,
             "Link": false,
@@ -315,21 +319,20 @@ export class WebGLSceneComponent {
         this.graph = new ThreeForceGraph()
             .graphData(this._graphData || {});
 
-        //TODO check if setting strength is necessary
-        this.graph.d3Force("x", forceX().x(d => ('x' in d.layout) ? d.layout.x : 0)
-            .strength(d => ('x' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
-        );
+        const forceVal = (d, key) => {
+            return (d.foci ? d.foci[key]: (key in d.layout) ? d.layout[key] : 0);
+        };
 
-        this.graph.d3Force("y", forceY().y(d => ('y' in d.layout) ? d.layout.y : 0)
-            .strength(d => ('y' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
-        );
+        const forceStrength = (d, key) => {
+            return (key in d.layout) ? 1 : d.foci? 1: 0
+        };
 
-        this.graph.d3Force("z", forceZ().z(d => ('z' in d.layout) ? d.layout.z : 0)
-            .strength(d => ('z' in d.layout) ? ((d.type === NODE_TYPES.CORE) ? 1 : 0.5) : 0)
-        );
+        this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));
+        this.graph.d3Force("y", forceY().y(d => forceVal(d, "y")).strength(d => forceStrength(d, "y")));
+        this.graph.d3Force("z", forceZ().z(d => forceVal(d, "z")).strength(d => forceStrength(d, "z")));
 
         this.graph.d3Force("link")
-            .distance(d => d.length)
+            .distance(d => d.length )
             .strength(d => (d.strength ? d.strength :
                 (d.type === LINK_TYPES.CONTAINER) ? 0 : 1));
 
@@ -349,6 +352,7 @@ export class WebGLSceneComponent {
 
     // Also search internally for internal layers
     getMousedOverObject() {
+        if (!this.graph) { return; }
         let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
         vector.unproject(this.camera);
         let ray = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize());
@@ -496,7 +500,16 @@ export class WebGLSceneComponent {
 
     toggleLayers() {
         this._showLayers = !this._showLayers;
-        this.graph.showLayers(this._showLayers);
+        if (this.graph) {
+            this.graph.showLayers(this._showLayers);
+        }
+    }
+
+    toggleCoalescences() {
+        this._showCoalescences = !this._showCoalescences;
+        if (this.graph) {
+            this.graph.showCoalescences(this._showCoalescences);
+        }
     }
 
     toggleLabels(labelClass) {
@@ -508,7 +521,7 @@ export class WebGLSceneComponent {
 
     updateLabelContent(target, property) {
         this._labels[target] = property;
-        this.graph.labels(this._labels);
+        if (this.graph){ this.graph.labels(this._labels); }
     }
 
     showGroup(group){

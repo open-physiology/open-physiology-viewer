@@ -442,8 +442,7 @@
       "name": "Gut'",
       "type": "semicircle",
       "length": 90,
-      "linkMethod": "Line2",
-      "conveyingLyph": "170"
+      "linkMethod": "Line2"
     },
     {
       "id": "k_l",
@@ -1115,18 +1114,12 @@
     {
       "id": "neurons",
       "name": "Neurons",
-      "lyphs": ["197", "198", "199", "200", "201", "202", "203", "204", "205", "206", "99001", "99004", "99007", "99010"],
-      "assign": [
-        {
-          "path": "$.lyphs[*]",
-          "scale": {"width": 30, "height": 100}
-        }
-      ]
+      "lyphs": ["197", "198", "199", "200", "201", "202", "203", "204", "205", "206", "99001", "99004", "99007", "99010"]
     },
     {
       "id": "spt",
       "name": "Tracts",
-      "groups": ["TREE1", "TREE2", "TREE3"],
+      "groups": ["TREE3"],
       "assign": [
         {
           "path": "$.nodes[*]",
@@ -1179,6 +1172,41 @@
             }
         }
       ]
+    },
+    {
+      "id": "spt1",
+      "name": "Other",
+      "groups": ["TREE1", "TREE2"],
+      "assign": [
+        {
+          "path": "$.nodes[*]",
+          "value": {
+            "val": 1,
+            "color": "#666",
+            "layout": {
+              "z": 0
+            },
+            "skipLabel": true
+          }
+        },
+        {
+          "path": "$.links[*]",
+          "value": {
+            "linkMethod": "Line2",
+            "linewidth": 0.002
+          }
+        },
+        {
+          "path":"$.lyphs[*]",
+          "value": {
+            "scale": {
+              "width": 95,
+              "height": 95
+            }
+          }
+        }
+      ]
+
     },
     {
       "id": "R_MCP",
@@ -3909,7 +3937,7 @@
         "202",
         "201"
       ],
-      "border": {"borders": [{}, {"hostedNodes": ["N6", "N20"]}, {}, {"hostedNodes": ["N21"]}]}
+      "border": {"borders": [{}, {"hostedNodes": ["N20"]}, {}, {"hostedNodes": ["N21"]}]}
     },
     {
       "id": "152",
@@ -6099,15 +6127,6 @@
       "id": "23",
       "name": "urine",
       "external": "FMA:12274"
-    }
-  ],
-  "assign": [
-    {
-      "path": "$.nodes[*]",
-      "value": {
-        "charge" : 20,
-        "collide": 15
-      }
     }
   ]
 }

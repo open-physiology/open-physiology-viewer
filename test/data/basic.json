@@ -3,7 +3,7 @@
     {
       "id": "k",
       "name": "k",
-      "type": "fixed",
+      "fixed": true,
       "hidden": true,
       "layout": {
         "x": 0,
@@ -14,7 +14,7 @@
     {
       "id": "l",
       "name": ";",
-      "type": "fixed",
+      "fixed": true,
       "hidden": true,
       "layout": {
         "x": 0, "y": 70, "z": 25

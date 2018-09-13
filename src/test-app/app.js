@@ -132,7 +132,7 @@ export class TestApp {
             }
         };
 		try {
-            reader.readAsText(files[0]);
+		    if (files[0]){ reader.readAsText(files[0]); }
         } catch (err){
             throw new Error("Failed to open the input file: " + err);
         }

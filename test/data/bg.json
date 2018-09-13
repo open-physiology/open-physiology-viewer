@@ -1,0 +1,343 @@
+{
+  "nodes": [
+    {
+      "id": "A"
+    },
+    {
+      "id": "B"
+    },
+    {
+      "id": "C"
+    },
+    {
+      "id": "D"
+    },
+    {
+      "id": "E"
+    },
+    {
+      "id": "F"
+    },
+    {
+      "id": "G"
+    },
+    {
+      "id": "H"
+    },
+    {
+      "id": "J"
+    },
+    {
+      "id": "K"
+    },
+    {
+      "id": "L"
+    },
+    {
+      "id": "M"
+    },
+    {
+      "id": "N"
+    },
+    {
+      "id": "O"
+    },
+    {
+      "id": "P"
+    },
+    {
+      "id": "Q"
+    },
+    {
+      "id": "R"
+    },
+    {
+      "id": "S"
+    },
+    {
+      "id": "e1_a",
+      "layout": {"x": -30, "y": 20},
+      "skipLabel": true
+    },
+    {
+      "id": "e1_b",
+      "layout": {"x": -20, "y": 20},
+      "skipLabel": true
+    },
+    {
+      "id": "e2_a",
+      "layout": {"x": 20, "y": 20},
+      "skipLabel": true
+    },
+    {
+      "id": "e2_b",
+      "layout": {"x": 30, "y": 20},
+      "skipLabel": true
+    },
+    {
+      "id": "e3_a",
+      "layout": {"y": 0},
+      "skipLabel": true
+    },
+    {
+      "id": "e3_b",
+      "layout": {"y": 0},
+      "skipLabel": true
+    },
+    {
+      "id": "e4_a",
+      "layout": {"y": -20},
+      "skipLabel": true
+    },
+    {
+      "id": "e4_b",
+      "layout": {"y": -20},
+      "skipLabel": true
+    },
+    {
+      "id": "e5_a",
+      "layout": {"x": 30, "y": -10},
+      "skipLabel": true
+    },
+    {
+      "id": "e5_b",
+      "layout": {"x": 40, "y": -10},
+      "skipLabel": true
+    }
+  ],
+  "links": [
+    {
+      "id": "ab",
+      "source": "A",
+      "target": "B",
+      "conveyingLyph": "AB"
+    },
+    {
+      "id": "cd",
+      "source": "C",
+      "target": "D",
+      "conveyingLyph": "CD"
+    },
+    {
+      "id": "ef",
+      "source": "E",
+      "target": "F",
+      "conveyingLyph": "EF"
+    },
+    {
+      "id": "gh",
+      "source": "G",
+      "target": "H",
+      "conveyingLyph": "GH"
+    },
+    {
+      "id": "jk",
+      "source": "J",
+      "target": "K",
+      "conveyingLyph": "JK"
+    },
+    {
+      "id": "lm",
+      "source": "L",
+      "target": "M",
+      "conveyingLyph": "LM"
+    },
+    {
+      "id": "no",
+      "source": "N",
+      "target": "O",
+      "conveyingLyph": "NO"
+    },
+    {
+      "id": "pq",
+      "source": "P",
+      "target": "Q",
+      "conveyingLyph": "PQ"
+    },
+    {
+      "id": "rs",
+      "source": "R",
+      "target": "S",
+      "conveyingLyph": "RS"
+    },
+    {
+      "id": "bc",
+      "source": "B",
+      "target": "C",
+      "type": "dashed"
+    },
+    {
+      "id": "gf",
+      "source": "G",
+      "target": "F",
+      "type": "dashed"
+    },
+    {
+      "id": "kl",
+      "source": "K",
+      "target": "L",
+      "type": "dashed"
+    },
+    {
+      "id": "op",
+      "source": "O",
+      "target": "P",
+      "type": "dashed"
+    },
+    {
+      "id": "qr",
+      "source": "Q",
+      "target": "R",
+      "type": "dashed"
+    },
+    {
+      "id": "e1",
+      "source": "e1_b",
+      "target": "e1_a",
+      "conveyingLyph": "m1",
+      "length": 10
+    },
+    {
+      "id": "e2",
+      "source": "e2_b",
+      "target": "e2_a",
+      "conveyingLyph": "m2",
+      "length": 10
+    },
+    {
+      "id": "e3",
+      "source": "e3_b",
+      "target": "e3_a",
+      "conveyingLyph": "m3",
+      "length": 10
+    },
+    {
+      "id": "e4",
+      "source": "e4_a",
+      "target": "e4_b",
+      "conveyingLyph": "m4",
+      "length": 10
+    },
+    {
+      "id": "e5",
+      "source": "e5_b",
+      "target": "e5_a",
+      "conveyingLyph": "m5",
+      "length": 10
+    }
+  ],
+  "lyphs": [
+    {
+      "id"        : "bg0",
+      "layers"    : ["bg1", "bg2", "bg3"],
+      "isTemplate": true,
+      "subtypes"  : ["AB", "CD", "EF", "GH", "JK", "LM", "NO", "PQ", "RS"]
+
+    },
+    {
+      "id"     : "bg1",
+      "color"  : "#00aeef"
+    },
+    {
+      "id"     : "bg2",
+      "color"  : "#6c6d70"
+    }, {
+      "id"     : "bg3",
+      "color"  : "#8bc63e"
+    },
+    {
+      "id": "AB"
+    },
+    {
+      "id": "CD",
+      "coalescesWith": ["JK", "GH"]
+    },
+    {
+      "id": "EF",
+      "coalescesWith": ["NO"]
+    },
+    {
+      "id": "GH"
+    },
+    {
+      "id": "JK"
+    },
+    {
+      "id": "LM",
+      "coalescesWith": ["RS"]
+    },
+    {
+      "id": "NO"
+    },
+    {
+      "id": "PQ"
+    },
+    {
+      "id": "RS"
+    },
+    {
+      "id"        : "m",
+      "subtypes"  : ["m1", "m2", "m3", "m4", "m5"],
+      "assign": [
+        {
+          "path": "$.subtypes[*]",
+          "value": {
+            "color": "#bcbdc0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "m1",
+      "internalNodes": ["A"],
+      "border": {
+        "borders": [{},{"hostedNodes": ["B"]},{},{}]
+      }
+    },
+    {
+      "id": "m2",
+      "internalNodes": ["E", "N"],
+      "border": {
+        "borders": [{},{},{},{"hostedNodes": ["O","F"]}]
+      }
+    },
+    {
+      "id": "m3",
+      "internalNodes": ["D", "H", "J"],
+      "border": {
+        "borders": [{},{"hostedNodes": ["C"]},{},{"hostedNodes": ["G", "K"]}]
+      }
+    },
+    {
+      "id": "m4",
+      "internalNodes": ["M", "S"],
+      "border": {
+        "borders": [{},{},{},{"hostedNodes": ["L","R"]}]
+      }
+    },
+    {
+      "id": "m5",
+      "border": {
+        "borders": [{},{"hostedNodes": ["Q"]},{},{"hostedNodes": ["P"]}]
+      }
+    }
+  ],
+  "assign": [
+    {
+      "path": "$.nodes[*]",
+      "value": {
+        "layout": {
+          "z": 0
+        },
+        "charge": 10
+      }
+    },
+    {
+      "path": "$.links[?(@.conveyingLyph && @.conveyingLyph.supertype && @.conveyingLyph.supertype.id == 'bg0')]",
+      "value": {
+        "length": 2,
+        "linkMethod": "Line2"
+      }
+    }
+  ]
+}

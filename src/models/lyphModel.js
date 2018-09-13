@@ -1,7 +1,7 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {Entity} from './entityModel';
-import {mergedGeometry, geometryDifference, align, extractCoords, getCenterPoint} from '../three/utils';
+import {mergedGeometry, geometryDifference, align, angle, direction, extractCoords, getCenterPoint} from '../three/utils';
 import {Border} from './borderModel';
 import {boundToPolygon, boundToRectangle, copyCoords } from './utils';
 
@@ -14,6 +14,7 @@ export class Lyph extends Entity {
         const result = super.fromJSON(json, modelClasses, entitiesByID);
 
         //Create lyph's border
+        result.border = result.border || {};
         result.border.id = result.border.id || "b_" + result.id; //derive border id from lyph's id
         result.border.borderTypes = result.border.borderTypes || [false, ...this.radialBorderTypes(result.topology), false];
         result.border = Border.fromJSON(result.border);
@@ -71,8 +72,10 @@ export class Lyph extends Entity {
      */
     get size() {
         let res = {height: this.axis.length, width: this.axis.length};
-        res.width *= this.scale.width / 100;
-        res.height *= this.scale.height / 100;
+        if (this.scale){
+            res.width *= this.scale.width / 100;
+            res.height *= this.scale.height / 100;
+        }
         return res;
     }
 
@@ -363,6 +366,15 @@ export class Lyph extends Entity {
         }
 
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
+
+        //Store model parameters that are altered by the algorithm
+        ["source", "target"].forEach(key => {
+            (this.coalescesWith||[]).forEach(coalescingLyph => {
+                if ( coalescingLyph.axis[key].collide){
+                    coalescingLyph.axis[key]._collide = coalescingLyph.axis[key].collide
+                }
+            });
+        })
     }
 
     /**
@@ -449,8 +461,17 @@ export class Lyph extends Entity {
                     boundToRectangle(link.target, fociCenter, h, h);
 
                     //Push the link to the tilted lyph rectangle
-                    boundToPolygon(link, this.border.borderLinks); //TODO find a better way to reset links violating boundaries
+                    //TODO find a better way to reset links violating boundaries
+                    boundToPolygon(link, this.border.borderLinks);
                 }
+
+                //One node on the border while another is not
+                // if (link.source.host && !link.target.host){
+                // }
+                // if (link.target.host && !link.source.host){
+                //
+                // }
+
             });
         }
 
@@ -458,6 +479,51 @@ export class Lyph extends Entity {
 
         //update border
         if (this.isVisible){ this.border.updateViewObjects(state); }
+
+        if (this.coalescesWith && this.coalescesWith.length > 0) {
+            let avg = {};
+
+            const restore = (node) => {
+                delete node.foci;
+                if (node._collide){
+                    node.collide = node._collide;
+                } else {
+                    delete node.collide;
+                }
+            };
+
+            ["source", "target"].forEach(key => {
+                avg[key] = new THREE.Vector3();
+                this.coalescesWith.forEach(coalescingLyph => {
+                    if (state.showCoalescences){
+                        if (!coalescingLyph.axis[key].host){
+                            coalescingLyph.axis[key].foci = extractCoords(this.axis[key]);
+                            coalescingLyph.axis[key].collide = this.width;
+                            avg[key].add(coalescingLyph.axis[key]);
+                        }
+                    } else {
+                        restore(coalescingLyph.axis[key]);
+                    }
+                });
+                if (state.showCoalescences) {
+                    if (!this.axis[key].host) {
+                        avg[key].multiplyScalar(1. / this.coalescesWith.length);
+                        this.axis[key].foci = avg[key];
+                    }
+                } else {
+                    restore(this.axis[key]);
+                }
+            });
+
+            // if (state.showCoalescences){
+            //     let v1 = direction(this.border.borderLinks[1]);
+            //     let v2 = direction({source: this.axis.target, target: avg.target});
+            //     let theta = angle(v1, v2);
+            //     let q = new THREE.Quaternion();
+            //     q.setFromAxisAngle( this.axis.direction, theta);
+            //     this.viewObjects["main"].applyQuaternion(q);
+            // }
+        }
 
         //Layers and inner lyphs have no labels
         if (this.layerInLyph || this.internalLyphInLyph) { return; }

@@ -78,6 +78,11 @@ export function align(axis, obj){
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
 }
 
+export function angle(v1, v2){
+   let dot = v1.dot(v2);
+   return Math.acos( dot / (v1.length() * v2.length()) );
+}
+
 /**
  * Computes a vector between two 3d points
  * @param source

@@ -1,23 +1,8 @@
-import { merge, mergeWith, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
+import { merge, defaults, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
 import { definitions } from '../data/graphScheme.json';
 import { SpriteText2D } from 'three-text2d';
-import { assignPropertiesToJSONPath, copyCoords, noOverwrite, JSONPath } from './utils.js';
+import { assignPropertiesToJSONPath, copyCoords, JSONPath } from './utils.js';
 import * as colorSchemes from 'd3-scale-chromatic';
-
-const initValue = (specObj) => specObj.default
-    ? (specObj::isObject()
-        ? specObj.default::cloneDeep()
-        : specObj.default)
-    : (specObj.type
-        ? specObj.type.startsWith("string")
-            ? ""
-            : specObj.type.startsWith("boolean")
-                ? false
-                : specObj.type.startsWith("number")
-                    ? 0
-                    :null
-        :null);
-
 
 const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spec.items && isNestedObj(spec.items);
 
@@ -209,11 +194,11 @@ const interpolatePathProperties = (parent) => {
     (parent.interpolate||[]).forEach(({path, offset, color}) => {
         let entities = path? JSONPath({json: parent, path: path}): parent.nodes || [];
         if (offset){
-            offset::mergeWith({
+            offset::defaults({
                 "start": 0,
                 "end": 1,
                 "step": (offset.end - offset.start) / (entities.length + 1)
-            }, noOverwrite);
+            });
             entities.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
         }
         if (color){
@@ -227,7 +212,20 @@ const interpolatePathProperties = (parent) => {
  * Returns recognized class properties from the specification
  * @param className
  */
-const getSchemaProperties = className => definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
+const getSchemaProperties = (className) => {
+    const getDefault = (specObj) => specObj.type ?
+            specObj.type == "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
+        : null;
+    const initValue = (specObj) => {
+        return specObj.default?
+            (specObj.default::isObject()
+                ? specObj.default::cloneDeep()
+                : specObj.default )
+            : getDefault(specObj);
+    };
+
+    return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
+};
 
 /**
  * Recursively applies a given operation to the classes in schema definitions
@@ -252,9 +250,8 @@ const initProperties = {"viewObjects": {}, "labels": {}};
 export class Entity {
     constructor(id) {
         this.id = id;
-        const className = this.constructor.name;
-        const handler = (currName) => this::merge(...getSchemaProperties(currName));
-        recurseSchema(className, handler);
+        const handler = (currName) => this::merge(...getSchemaProperties(currName, false));
+        recurseSchema(this.constructor.name, handler);
         this::merge(initProperties);
     }
 

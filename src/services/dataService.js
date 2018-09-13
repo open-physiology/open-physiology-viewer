@@ -1,9 +1,9 @@
-import { values, keys, cloneDeep, merge, mergeWith, isArray} from 'lodash-bound';
+import { values, keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
 import { Graph} from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 
-import {assignPropertiesToJSONPath, noOverwrite} from '../models/utils';
+import {assignPropertiesToJSONPath } from '../models/utils';
 
 /**
  * A class that assembles ApiNATOMY model from available data sources:
@@ -75,11 +75,6 @@ export class DataService{
                     console.error("Could not find lyph definition for internal lyph ID: ", innerLyphID);
                     return;
                 }
-
-                innerLyph::merge({
-                    scale: {"height": 100, "width": 50},
-                    internalLyphInLyph: lyph
-                });
 
                 let innerLyphAxis = getLinkByLyphID(innerLyph.id);
                 //Create link for inner lyphs if it does not exist
@@ -158,7 +153,7 @@ export class DataService{
         ///////////////////////////////////////////////////////////////////
 
         //Create an expanded input model
-        this._graphData = inputModel::cloneDeep()::mergeWith({
+        this._graphData = inputModel::cloneDeep()::defaults({
             id: "mainModel",
             assign: [
                 {
@@ -171,7 +166,7 @@ export class DataService{
             lyphs: [],
             groups: [],
             materials: []
-        }, noOverwrite);
+        });
 
         //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
         generateEntitiesFromGroupRefs(this._graphData.groups);
@@ -191,32 +186,6 @@ export class DataService{
                     });
                 })
         });
-
-        //Coalescing lyphs attract by means of invisible links
-        let coalescenceGroup = this._graphData.groups.find(g => g.id === "coalescences");
-        if (coalescenceGroup){
-            this._graphData.lyphs.filter(lyph => lyph.coalescesWith).forEach(lyph => {
-                let lyphs = [lyph.id, ...lyph.coalescesWith];
-                let coalescingLinks  = lyphs.map(lyphID => getLinkByLyphID(lyphID));
-                coalescingLinks.forEach((link1, i) => {
-                    coalescingLinks.forEach((link2, j) => {
-                        if (i === j) { return; }
-                        ["source", "target"].forEach(end => {
-                            let link = {
-                                "id"    : link1[end]+"_"+link2[end],
-                                "source": link1[end],
-                                "target": link2[end],
-                                "length": 0.1,
-                                "type": LINK_TYPES.FORCE
-                            };
-                            this._graphData.links.push(link);
-                            if (!coalescenceGroup.links){ coalescenceGroup.links = []; }
-                            coalescenceGroup.links.push(link.id);
-                        });
-                    })
-                });
-            });
-        }
 
         //Important: the effect of this procedure depends on the order in which lyphs that share border nodes are selected
         //If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
@@ -282,6 +251,7 @@ export class DataService{
         
         entitiesByID[this._graphData.id] = this._graphData;
         this._graphData::values().filter(prop => prop::isArray()).forEach(array => array.forEach(e => {
+            if (!e.id) { return; }
             if (entitiesByID[e.id]) {
                 console.error("Entity IDs are not unique: ", entitiesByID[e.id], e);
             }

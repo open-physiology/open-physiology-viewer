@@ -5,7 +5,7 @@
       "name": "a",
       "color": "#808080",
       "val": 10,
-      "type": "fixed",
+      "fixed": true,
       "layout": {
         "x": 0,
         "y": 0,
