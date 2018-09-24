@@ -8,6 +8,10 @@ const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spe
 
 const getClassDefinition = (spec) => spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
 
+/**
+ * Extracts class name from the schema definition
+ * @param spec - schema definition
+ */
 const getClassName = (spec) => {
     let classDef = getClassDefinition(spec);
     if (!classDef) { return; }
@@ -15,28 +19,91 @@ const getClassName = (spec) => {
     return classDef.substr(classDef.lastIndexOf("/") + 1).trim();
 };
 
+/**
+ * Selects schema definitions which contain as an option a reference to a model object
+ * @param spec - schema definition
+ */
 const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
 
+/**
+ * Auto-complete the model with bidirectional references
+ * @param res  - input model
+ * @param key  - property to auto-complete
+ * @param spec - property specification
+ */
+const syncRelationships = (res, [key, spec]) => {
+    if (!res[key]){ return; }
+    if (!res[key]::isObject()){
+        console.warn("Object ID has not been replaced with references", res[key]);
+        return;
+    }
+    let key2 = spec.relatedTo;
+    if (key2){
+        let typeSpec = spec.items || spec;
+        let otherClassName = getClassName(typeSpec);
+        if (!otherClassName) {
+            console.error("Class not defined: ", typeSpec);
+            return;
+        }
+
+        let otherTypeSpec = definitions[otherClassName].properties[key2];
+        if (!otherTypeSpec){
+            console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
+            return;
+        }
+
+        const syncProperty = (obj) => {
+            if (otherTypeSpec.type === "array"){
+                if (!obj[key2]) { obj[key2] = []; }
+                if (!obj[key2]::isArray()){
+                    console.error(`Object's property '${key2}' should contain an array:`, obj);
+                    return;
+                }
+                if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
+            } else {
+                if (!obj[key2]) { obj[key2] = res; }
+                else {
+                    if (obj[key2] !== res && obj[key2] !== res.id){
+                        console.warn(`First object's value of '${key}' should match second object's value of '${key2}'`,
+                            res, obj[key2]);
+                    }
+                }
+            }
+        };
+
+        if (res[key]::isArray()){
+            res[key].forEach(obj => syncProperty(obj))
+        } else {
+            syncProperty(res[key]);
+        }
+    }
+};
+
+/**
+ * Replace IDs with objec references
+ * @param res - input model
+ * @param modelClasses - recognized entity classes
+ * @param entitiesByID - map of all entities
+ */
 const replaceReferences = (res, modelClasses, entitiesByID) => {
 
     const createObj = (value, spec) => {
         let objValue = value;
-        if (typeof value === "string") {
-            if (entitiesByID[value]) {
-                objValue = entitiesByID[value];
-            } else {
-                console.warn("Cannot instantiate an object with unknown ID:", value, spec);
-                return objValue;
-            }
-        }
-
         let clsName = getClassName(spec);
         if (!clsName){
-            console.warn("Cannot extract the object class: property specification does not imply a reference", spec, value);
+            console.warn("Cannot extract the object class: property specification does not imply a reference",
+                spec, value);
             return objValue;
         }
 
         if (!definitions[clsName] || definitions[clsName].abstract){ return objValue; }
+        if (typeof value === "string") {
+            if (!entitiesByID[value]) {
+                entitiesByID[value] = {"id": value};
+                console.info(`Auto-created new ${clsName} for ID: `, value);
+            }
+            objValue = entitiesByID[value];
+        }
 
         if (modelClasses[clsName]) {
             if (!(objValue instanceof modelClasses[clsName])) {
@@ -75,65 +142,18 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
         }
     };
 
-    const syncRelationships = (res, [key, spec]) => {
-        if (!res[key]){ return; }
-        if (!res[key]::isObject()){
-            console.warn("Object ID has not been replaced with references", res[key]);
-            return;
-        }
-        let key2 = spec.relatedTo;
-        if (key2){
-            let typeSpec = spec.items || spec;
-            let otherClassName = getClassName(typeSpec);
-            if (!otherClassName) {
-                console.error("Class not defined: ", typeSpec);
-                return;
-            }
-
-            let otherTypeSpec = definitions[otherClassName].properties[key2];
-            if (!otherTypeSpec){
-                console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
-                return;
-            }
-
-            const syncProperty = (obj) => {
-                if (otherTypeSpec.type === "array"){
-                    if (!obj[key2]) { obj[key2] = []; }
-                    if (!obj[key2]::isArray()){
-                        console.error(`Object's property '${key2}' should contain an array:`, obj);
-                        return;
-                    }
-                    if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
-                } else {
-                    if (!obj[key2]) { obj[key2] = res; }
-                    else {
-                        if (obj[key2] !== res && obj[key2] !== res.id){
-                            console.warn(`First object's value of '${key}' should match second object's value of '${key2}'`,
-                                res, obj[key2]);
-                        }
-                    }
-                }
-            };
-
-            if (res[key]::isArray()){
-                res[key].forEach(obj => syncProperty(obj))
-            } else {
-                syncProperty(res[key]);
-            }
-        }
-    };
-
     let refFields = definitions[res.class].properties::entries().filter(([key, spec]) => isReference(spec));
 
-    //Replace ID's with model object references
+    //Replace IDs with model object references
     refFields.forEach(f => replaceRefs(res, f));
 
+    //Assign dynamic group properties to all relevant entities
     assignPathProperties(res, modelClasses, entitiesByID);
 
     //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
     refFields.forEach(f => syncRelationships(res, f));
 
-    //Interpolation schemes do not contain IDs/references, so it is easier to process them in the expanded model
+    //Interpolation schemes do not contain IDs/references, we process them in the expanded model
     interpolatePathProperties(res);
 };
 
@@ -255,6 +275,13 @@ export class Entity {
         this::merge(initProperties);
     }
 
+    /**
+     * Create Entity model from the JSON specification
+     * @param json - input model
+     * @param modelClasses - recognized classes
+     * @param entitiesByID - map of all model entities
+     * @returns {Entity} - Entity model
+     */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
         //Do not expand templates
         json.class = json.class || this.name;
@@ -312,6 +339,12 @@ export class Entity {
         }
     }
 
+    /**
+     * Updates visual labels
+     * @param labelKey  - object property to use as label
+     * @param isVisible - a boolean flag to toggle the label
+     * @param position  - label's position wrt the visual object
+     */
     updateLabels(labelKey, isVisible, position){
         if (this.skipLabel) { return; }
         if (this.labels[labelKey]){

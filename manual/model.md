@@ -21,12 +21,12 @@
    {
        "infoFields": {
          "text"   : [ "id", "name", "topology" ],
-         "objects": [ "axis" ],
+         "objects": [ "conveyedBy" ],
          "lists"  : [ "layers" ]
        }
    }
  ```
- will instruct the viewer to show the lyph's `id`, `name`, and `topology` as simple text, the signature of the link representing its rotational `axis`, and a list of signatures for the lyph layers. 
+ will instruct the viewer to show the lyph's `id`, `name`, and `topology` as simple text, the signature of the link conveying the lyph, and a list of signatures for the lyph layers. 
   
  Each object can have auxiliary boolean parameters `hidden`, `inactive`, and `skipLabels` that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.
 
@@ -207,9 +207,9 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  Although we never draw arrows, all links in the ApiNATOMY graph are directed links.
  It is possible to change the direction of the link without overriding the `source` and `target` properties. If the boolean property `reversed` is set to `true`, its direction vector starts in the `target` node and ends in the `source` node, this is useful if we want to turn the lyph it conveys by 180 degrees. 
  
- A link may have a conveying lyph which is set via its property `conveyingLyph`. The lyph conveyed by the link is placed to its center and uses the link as its rotational axis. The size of the lyph in the lyph viewer depends on the link's length, a more detailed of the size computation is given in the [Lyph](#lyph) section. Hence, one can define the same relationship from the other entity's perspective: by assigning the link's ID to the lyph's property `axis`. 
+ A link may have a conveying lyph which is set via its property `conveyingLyph`. The lyph conveyed by the link is placed to its center and uses the link as its rotational axis. The size of the lyph in the lyph viewer depends on the link's length, a more detailed of the size computation is given in the [Lyph](#lyph) section. Hence, one can define the same relationship from the other entity's perspective: by assigning the link's ID to the lyph's property `conveydBy`. 
  
- The property `hostedNodes` may contain a set of nodes that are positioned on the link.
+ The property `hostedNodes` contains a set of nodes that are positioned on the link.
  This set should never include the link's source and target nodes.
  
 ## Lyph 
@@ -221,23 +221,23 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  {
  "lyphs": [
      {
-       "id"      : "5",
-       "name"    : "Kidney Lobus",
-       "topology": "BAG",
-       "external": "FMA:17881",
-       "layers"  : [ "7", "6"],
-       "scale"   : { "width": 50, "height": 50 },
-       "axis"    : "k_l"
+       "id"         : "5",
+       "name"       : "Kidney Lobus",
+       "topology"   : "BAG",
+       "external"   : "FMA:17881",
+       "layers"     : [ "7", "6"],
+       "scale"      : { "width": 50, "height": 50 },
+       "conveyedBy" : "k_l"
      },
      {
-       "id"   : "6",
-       "name" : "Cortex of Kidney Lobus",
-       "topology": "BAG"
+       "id"       : "6",
+       "name"     : "Cortex of Kidney Lobus",
+       "topology" : "BAG"
      },
      {
-       "id"   : "7",
-       "name" : "Medulla of Kidney Lobus",
-       "topology": "BAG"
+       "id"       : "7",
+       "name"     : "Medulla of Kidney Lobus",
+       "topology" : "BAG"
      }
    ]
  }

@@ -337,6 +337,65 @@
           "description": "Defines the radius for the collision force in the force-directed layout. The collision force treats nodes as circles with a given radius, rather than points, and prevents nodes from overlapping.",
           "type": "number",
           "default": 5
+        },
+        "sourceOf": {
+          "description": "Links that start in this node",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "source"
+        },
+        "targetOf": {
+          "description": "Links that end in this node",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "target"
+        },
+        "cloneOf": {
+          "description": "A node that was copied to create the current node. This field is used to link node clones to the original node. We clone nodes that are hosted by more than one lyph border.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "clones",
+          "readOnly": true
+        },
+        "clones": {
+          "description": "Nodes that are clones of the current node. This field is used to link the ndoe to all its clones. We clone nodes that are hosted by more than one lyph border.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          },
+          "relatedTo": "cloneOf",
+          "readOnly": true
         }
       }
     },
@@ -355,7 +414,8 @@
             {
               "$ref": "#/definitions/Node"
             }
-          ]
+          ],
+          "relatedTo": "sourceOf"
         },
         "target": {
           "description": "Target node of the link",
@@ -366,7 +426,8 @@
             {
               "$ref": "#/definitions/Node"
             }
-          ]
+          ],
+          "relatedTo": "targetOf"
         },
         "length": {
           "description": "The length of the link",
@@ -389,7 +450,7 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "axis"
+          "relatedTo": "conveyedBy"
         },
         "type": {
           "description": "Defines the appearance and behavior of the link in the model graph: `link` is a straight solid  line, `dashed` is a straight dashed line, `semicrcle` defines a solid line that looks like half of a circle, `path` is a solid path with control points defined by the edge bundling algorithm, `container` is a link with a visual object not affected by the graph forces, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
@@ -401,7 +462,8 @@
             "path",
             "container",
             "force",
-            "invisible"
+            "invisible",
+            "spline"
           ],
           "default": "link"
         },
@@ -487,8 +549,8 @@
           ],
           "default": "TUBE"
         },
-        "axis"  : {
-          "description": "Lyph's axis of rotation",
+        "conveyedBy"  : {
+          "description": "A link conveing the lyph",
           "anyOf": [
             {
               "type": "string"
@@ -546,12 +608,8 @@
               "topology",
               "width"
             ],
-            "objects": [
-              "axis"
-            ],
-            "lists": [
-              "layers"
-            ]
+            "objects": [ "conveyedBy" ],
+            "lists": [ "layers" ]
           }
         },
         "thickness": {
@@ -856,7 +914,25 @@
                 "$ref": "#/definitions/Graph"
               }
             ]
-          }
+          },
+          "relatedTo": "inGroups",
+          "default"  : []
+        },
+        "inGroups": {
+          "description": "A group that contains the current group",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Graph"
+              }
+            ]
+          },
+          "relatedTo": "groups",
+          "default"  : []
         }
       }
     }

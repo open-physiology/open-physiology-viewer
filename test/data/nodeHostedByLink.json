@@ -79,7 +79,8 @@
     },
     {
       "id": "nLR05",
-      "skipLabel": true
+      "skipLabel": true,
+      "host": "cn"
     }
   ],
   "links": [

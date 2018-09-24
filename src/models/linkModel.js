@@ -19,6 +19,7 @@ export const LINK_TYPES = {
     DASHED     : "dashed",      //dashed straight line
     SEMICIRCLE : "semicircle",  //solid line in the form of a semicircle
     PATH       : "path",        //solid path (e.g., in the shape for the edge bundling)
+    SPLINE     : "spline",       //solid curve line that uses other nodes to produce a smooth path
     CONTAINER  : "container",   //link with visual object (which may be hidden), not affected by graph forces (i.e., with fixed position)
     FORCE      : "force",       //link without visual object, works as force to attract or repel nodes
     INVISIBLE  : "invisible"   //link with hidden visual object affected by graph forces (i.e., dynamically positioned),
@@ -84,8 +85,8 @@ export class Link extends Entity {
                         color: this.color,
                         polygonOffsetFactor: this.polygonOffsetFactor
                     });
-                    let size = (this.type === LINK_TYPES.SEMICIRCLE)? state.linkResolution:
-                        (this.type === LINK_TYPES.PATH)? 66: 2; // Edge bunding breaks a link into 66 points
+                    let size = (this.type === LINK_TYPES.SEMICIRCLE || this.type === LINK_TYPES.SPLINE)? state.linkResolution
+                        : (this.type === LINK_TYPES.PATH)? 66: 2; // Edge bunding breaks a link into 66 points
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
                     obj = new THREE.Line(geometry, this.material);
                 }
@@ -100,7 +101,6 @@ export class Link extends Entity {
 
         //Icon (lyph)
         if (this.conveyingLyph) {
-            this.conveyingLyph.axis = this;
             this.conveyingLyph.createViewObjects(state);
             // Note: we do not make conveying lyphs children of links to include them to the scene
             // because we want to have them in the main scene for highlighting
@@ -122,57 +122,63 @@ export class Link extends Entity {
         }
         const linkObj = this.viewObjects["main"];
 
-        let _start = new THREE.Vector3(this.source.x, this.source.y, this.source.z || 0);
-        let _end = new THREE.Vector3(this.target.x, this.target.y, this.target.z || 0);
+        let _start = extractCoords(this.source);
+        let _end   = extractCoords(this.target);
+        let curve  = new THREE.Line3(_start, _end);
         let points = [_start, _end];
-        this.center = _start.clone().add(_end).multiplyScalar(0.5);
+
+        if (this.type === LINK_TYPES.DASHED) {
+            if (!linkObj) { return; }
+            copyCoords(linkObj.geometry.vertices[0], this.source);
+            copyCoords(linkObj.geometry.vertices[1], this.target);
+            linkObj.geometry.verticesNeedUpdate = true;
+            linkObj.computeLineDistances();
+        }
+
+        if (this.type === LINK_TYPES.SEMICIRCLE) {
+            curve = bezierSemicircle(_start, _end);
+            points = curve.getPoints(state.linkResolution - 1);
+        }
+
+        if (this.type === LINK_TYPES.SPLINE) {
+            let prev = this.source.targetOf && this.source.targetOf[0];
+            let post = this.target.sourceOf && this.target.sourceOf[0];
+            if (prev && post){
+                curve = new THREE.CatmullRomCurve3(extractCoords(prev), _start,  _end, extractCoords(post));
+                points = curve.getPoints(state.linkResolution - 1);
+            }
+        }
+
+        if (this.type === LINK_TYPES.PATH) {
+            curve  = new THREE.CatmullRomCurve3(this.path);
+            points = this.path;
+        }
+
+
+        this.center = (curve.getPoint)? curve.getPoint(0.5): _start.clone().add(_end).multiplyScalar(0.5);
 
         //Merge nodes of a collapsible link
-        //TODO: add delta to decide whether lyphs are close enough to look like they share a border
         if (this.collapsible){
-            if (!this.source.isConstrained) {
-                if (!this.target.isConstrained) {
-                    copyCoords(this.source, this.center);
-                    copyCoords(this.target, this.center);
-                } else {
+            if (!this.source.isConstrained && !this.target.isConstrained) {
+                copyCoords(this.source, this.center);
+                copyCoords(this.target, this.center);
+            } else {
+                if (!this.source.isConstrained) {
                     copyCoords(this.source, this.target);
                 }
-            } else {
                 if (!this.target.isConstrained) {
                     copyCoords(this.target, this.source);
                 }
             }
         }
 
-        switch(this.type){
-            case LINK_TYPES.DASHED: {
-                if (!linkObj) { return; }
-                copyCoords(linkObj.geometry.vertices[0], this.source);
-                copyCoords(linkObj.geometry.vertices[1], this.target);
-                linkObj.geometry.verticesNeedUpdate = true;
-                linkObj.computeLineDistances();
-                break;
-            }
-            case LINK_TYPES.SEMICIRCLE: {
-                const curve = bezierSemicircle(_start, _end);
-                this.center = curve.getPoint(0.5);
-                points = curve.getPoints(state.linkResolution - 1);
-
-                //Position omega tree roots
-                if (this.hostedNodes) {
-                    const delta = ((this.hostedNodes.length % 2) === 1) ? 0.4 : 0;
-                    const offset = 1 / (this.hostedNodes.length + 1 + delta);
-                    this.hostedNodes.forEach((node, i) => {
-                        const pos = curve.getPoint(node.offset? node.offset: offset * (i + 1));
-                        copyCoords(node, pos);
-                    });
-                }
-                break;
-            }
-            case LINK_TYPES.PATH: {
-                points = this.path;
-                break;
-            }
+        //Position omega tree roots
+        if (this.hostedNodes) {
+            const offset = 1 / (this.hostedNodes.length + 1);
+            this.hostedNodes.forEach((node, i) => {
+                const pos = curve.getPoint(node.offset? node.offset: offset * (i + 1));
+                copyCoords(node, pos);
+            });
         }
 
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
@@ -203,7 +209,7 @@ export class Link extends Entity {
                 let linkPos = linkObj.geometry.attributes.position;
                 if (linkPos){
                     for (let i = 0; i < points.length; i++) {
-                        linkPos.array[3 * i] = points[i].x;
+                        linkPos.array[3 * i]     = points[i].x;
                         linkPos.array[3 * i + 1] = points[i].y;
                         linkPos.array[3 * i + 2] = points[i].z;
                     }

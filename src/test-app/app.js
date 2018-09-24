@@ -13,8 +13,28 @@ import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import 'ng2-toasty/bundles/style-bootstrap.css';
 
-
 const ace = require('ace-builds');
+
+let errCount  = 0;
+let warnCount = 0;
+
+let consoleHolder = console;
+function debug(bool){
+    if(!bool){
+        consoleHolder = console;
+        console = {};
+        Object.keys(consoleHolder).forEach(function(key){
+            console[key] = function(){
+                //if (key === "error"){
+                    errCount++;
+                //}
+            };
+        })
+    }else{
+        console = consoleHolder;
+    }
+}
+debug(true);
 
 @Component({
 	selector: 'test-app',
@@ -98,9 +118,7 @@ export class TestApp {
 
     constructor(){
         this._dataService = new DataService();
-        this._model = initModel;
-        this._dataService.init(this._model);
-        this._graphData = this._dataService.graphData;
+        this.update(initModel);
     }
 
     ngAfterViewInit(){
@@ -123,9 +141,8 @@ export class TestApp {
                 throw new Error("Cannot parse the input file: " + err);
             }
             try{
+                this.update(this._model);
                 this._editor.set(this._model);
-                this._dataService.init(this._model);
-                this._graphData = this._dataService.graphData;
             }
             catch(err){
                 throw new Error("Cannot display the model: " +  err);
@@ -135,6 +152,11 @@ export class TestApp {
 		    if (files[0]){ reader.readAsText(files[0]); }
         } catch (err){
             throw new Error("Failed to open the input file: " + err);
+        }
+
+        if (errCount){
+            alert("Number of errors: " + errCount);
+            errCount = 0;
         }
 	}
 
@@ -148,9 +170,7 @@ export class TestApp {
 
 	preview(){
         this._showJSONEditor = false;
-        this._model = this._editor.get();
-        this._dataService.init(this._model);
-        this._graphData = this._dataService.graphData;
+        this.update(this._editor.get());
     }
 
     save(){
@@ -164,6 +184,11 @@ export class TestApp {
 
 	onHighlightedItemChange(item){}
 
+	update(model){
+        this._model = model;
+        this._dataService.init(this._model);
+        this._graphData = this._dataService.graphData;
+    }
 
 }
 

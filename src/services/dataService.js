@@ -1,5 +1,4 @@
 import { values, keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
-import { Graph} from '../models/graphModel';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 
@@ -22,97 +21,25 @@ export class DataService{
         /////////////////////////////////////////////////////////////////////
         //Constant parameters and helper functions
         /////////////////////////////////////////////////////////////////////
-        const propertyList = ["nodes", "lyphs", "links"];
 
-        const getLinkByLyphID = (lyphID) => {
-            let res = this._graphData.links.find(link => link.conveyingLyph &&
-            (link.conveyingLyph  === lyphID || link.conveyingLyph.id === lyphID));
-            if (!res) {
-                const hasLayer = (lyph, layerID) =>
-                    (this._graphData.lyphs.find(e => e.id === lyph).layers||[])
-                        .find(layer => layer === layerID);
-                //For lyphs which are layers, return parent's link
-                res = this._graphData.links.find(link => link.conveyingLyph && hasLayer(link.conveyingLyph, lyphID));
-            }
-            return res;
-        };
 
-        const generateEntitiesFromGroupRefs = groups => {
-            //Copy entities from subgroups
-            groups.filter(parent => parent.groups).forEach(group => {
-                propertyList.forEach(property => {
-                    group[property] = [...group[property]||[], ...[].concat(
-                        ...group.groups.map(subgroupID => {
-                            let g = groups.find(g => g.id === subgroupID);
-                            if (!g.hasOwnProperty("inactive")) { g.inactive = true; }
-                            if (g){ return g[property]||[]; } else {
-                                console.warn("Reference to unknown group found", subgroupID);
-                            } return [];
-                        })
-                    )]
-                });
-            });
-
-            groups.forEach(group => {
-                //generate node, link and lyph objects that are referred from a group but are not in the main graph
-                propertyList.forEach(property => {
-                    (group[property]||[]).forEach(id => {
-                        let entity = this._graphData[property].find(e => e.id === id);
-                        if (entity === undefined){
-                            entity = {"id": id};
-                            this._graphData[property].push(entity);
-                        }
-                    })
-                });
-            });
-        };
-
-        const createInternalLyphs = (lyph) => {
-            let newGroupIDs = {"nodes": [], "links": [], "lyphs": []};
-            lyph.internalLyphs.forEach(innerLyphID => {
-                let innerLyph = this._graphData.lyphs.find(lyph => lyph.id === innerLyphID);
-                if (!innerLyph) {
-                    console.error("Could not find lyph definition for internal lyph ID: ", innerLyphID);
-                    return;
+        //Create an expanded input model
+        this._graphData = inputModel::cloneDeep()::defaults({
+            id: "mainModel",
+            assign: [
+                {
+                    "path": "$.nodes",
+                    "value": {"charge": 10}
                 }
+            ],
+            nodes : [],
+            links : [],
+            lyphs : [],
+            groups: [],
+            materials: []
+        });
 
-                let innerLyphAxis = getLinkByLyphID(innerLyph.id);
-                //Create link for inner lyphs if it does not exist
-                if (!innerLyphAxis){
-                    let [sNode, tNode] = ["s", "t"].map(prefix => ({
-                        "id"       : `${prefix}${innerLyphID}`,
-                        "name"     : `${prefix}${innerLyphID}`,
-                        "color"    : "#ccc",
-                        "val"      : 0.1,
-                        "skipLabel": true
-                    }));
-
-                    [sNode, tNode].forEach(node => {
-                        this._graphData.nodes.push(node);
-                        newGroupIDs.nodes.push(node.id);
-                    });
-
-                    let axis = getLinkByLyphID(lyph.id);
-
-                    let link = {
-                        "id"            : `${sNode.id}_ ${tNode.id}`,
-                        "source"        : sNode,
-                        "target"        : tNode,
-                        "length"        : axis? axis.length * 0.8: 5,
-                        "type"          : LINK_TYPES.INVISIBLE,
-                        "color"         : "#ccc",
-                        "conveyingLyph" : innerLyphID
-                    };
-                    this._graphData.links.push(link);
-                    newGroupIDs.links.push(link.id);
-                } else {
-                    newGroupIDs.links.push(innerLyphAxis.id);
-                }
-                newGroupIDs.lyphs.push(innerLyph.id);
-            });
-            return newGroupIDs;
-        };
-
+        /*Find lyph templates, generate new layers and replicate template properties */
         const expandTemplates = () => {
             let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
             templates.forEach(template => {
@@ -149,50 +76,15 @@ export class DataService{
                 }
             });
         };
-
-        ///////////////////////////////////////////////////////////////////
-
-        //Create an expanded input model
-        this._graphData = inputModel::cloneDeep()::defaults({
-            id: "mainModel",
-            assign: [
-                {
-                    "path": "$.nodes",
-                    "value": {"charge": 10}
-                }
-            ],
-            nodes: [],
-            links: [],
-            lyphs: [],
-            groups: [],
-            materials: []
-        });
-
-        //Auto-generate links, nodes and lyphs for ID's in groups if they do not exist in the main graph
-        generateEntitiesFromGroupRefs(this._graphData.groups);
-
-        /*Find lyph templates, generate new layers and replicate template properties */
         expandTemplates();
-
-        //Create nodes and links for internal lyphs, add them to the groups to which internal lyphs belong
-        this._graphData.lyphs.filter(lyph => lyph.internalLyphs).forEach(lyph => {
-            let newGroupIDs = createInternalLyphs(lyph);
-            ["links", "nodes"].forEach(prop => {
-                newGroupIDs[prop].forEach(e => {
-                    this._graphData.groups.filter(g => (g.lyphs||[]).includes(lyph.id)).forEach(group => {
-                            if (!group[prop]){ group[prop] = []; }
-                           group[prop].push(e)
-                        });
-                    });
-                })
-        });
 
         //Important: the effect of this procedure depends on the order in which lyphs that share border nodes are selected
         //If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
+        //TODO add created nodes to relevant nested groups
         const replaceBorderNodes = () => {
             //Replicate border nodes and create collapsible links
             let borderNodesByID = {};
-            let lyphsWithBorders = this._graphData.lyphs.filter(lyph => ((lyph.border || {}).borders||[]).find(b => b.hostedNodes))
+            let lyphsWithBorders = this._graphData.lyphs.filter(lyph => ((lyph.border || {}).borders||[]).find(b => b.hostedNodes));
             lyphsWithBorders.forEach(lyph => {
                 lyph.border.borders.forEach(b => {
                     (b.hostedNodes||[]).forEach(nodeID => {
@@ -205,21 +97,22 @@ export class DataService{
             borderNodesByID::keys().forEach(nodeID => {
                 if (borderNodesByID[nodeID].length > 1){
                     //groups that contain the node
-                    let groups = this._graphData.groups.filter(g => (g.nodes||[]).includes(nodeID));
                     //links affected by the border node constraints
                     let links = this._graphData.links.filter(e => e.target === nodeID);
-                    let node = this._graphData.nodes.find(e => e.id === nodeID);
+                    let node  = this._graphData.nodes.find(e => e.id === nodeID);
                     //Unknown nodes will be detected by validation later, no need for logging here
                     if (!node){return;}
 
                     for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                         let nodeClone = node::cloneDeep()::merge({
-                            "id": nodeID + `_${i}`
+                            "id"     : nodeID + `_${i}`,
+                            "cloneOf": nodeID
                         });
-                        this._graphData.nodes.push(nodeClone);
-                        groups.forEach(g => g.nodes.push(nodeClone.id));
-                        links.forEach(lnk => {lnk.target = nodeClone.id});
+                        if (!node.clones){ node.clones = []; }
+                        node.clones.push(nodeClone.id);
 
+                        this._graphData.nodes.push(nodeClone);
+                        links.forEach(lnk => {lnk.target = nodeClone.id});
                         //lyph constraint - replace
                         borderNodesByID[nodeID][i].border.borders.forEach(b => {
                             let k = (b.hostedNodes||[]).indexOf(nodeID);
@@ -240,11 +133,11 @@ export class DataService{
                 }
             });
         };
-
         replaceBorderNodes();
 
         /////////////////////////////////////////////////////////////////////////
         /* Generate complete model */
+        /////////////////////////////////////////////////////////////////////////
 
         //Copy existing entities to a map to enable nested model instantiation
         let entitiesByID = {};
@@ -271,8 +164,40 @@ export class DataService{
            }
         });
 
+        //TODO warning if lyph coalesces with itself or misses axis
+
         //Create an ApiNATOMY model
-        this._graphData = Graph.fromJSON(this._graphData, modelClasses, entitiesByID);
+        this._graphData = modelClasses["Graph"].fromJSON(this._graphData, modelClasses, entitiesByID);
+
+        //Create force links to bind coalescing lyphs
+        let coalescenceGroup = this._graphData.groups.find(g => g.id === "coalescences");
+        if (!coalescenceGroup){
+            coalescenceGroup = modelClasses["Graph"].fromJSON({
+                    "id"      : "coalescences",
+                    "name"    : "Coalescences",
+                    "inactive": true
+            });
+            this._graphData.groups.push(coalescenceGroup);
+        }
+        coalescenceGroup.links = coalescenceGroup.links||[];
+
+        this._graphData.lyphs.filter(lyph => lyph.coalescesWith).forEach(lyph => {
+            lyph.coalescesWith.forEach(lyph2 => {
+                if (lyph === lyph2 || !lyph.axis || !lyph2.axis) { return; }
+                ["source", "target"].forEach(end => {
+                    let link = modelClasses["Link"].fromJSON({
+                        "id"    : end.charAt(0) + "_" + lyph.id + "_" + lyph2.id,
+                        "source": lyph.axis[end],
+                        "target": lyph2.axis[end],
+                        "length": 0.1,
+                        "type"  : LINK_TYPES.FORCE
+                    });
+                    this._graphData.links.push(link);
+                    coalescenceGroup.links.push(link);
+                });
+            })
+        });
+
         console.info("ApiNATOMY graph: ", this._graphData);
     }
 

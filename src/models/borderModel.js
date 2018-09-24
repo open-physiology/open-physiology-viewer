@@ -154,6 +154,7 @@ export class Border extends Entity {
                 "conveyingLyph" : border.conveyingLyph,
                 "linkOnBorder"  : border  //Save the border as the link's host
             });
+            border.conveyingLyph.conveyedBy = this.links[i];
 
             this.links[i].createViewObjects(state);
         });

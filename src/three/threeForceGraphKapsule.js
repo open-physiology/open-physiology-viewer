@@ -38,7 +38,6 @@ export default Kapsule({
         linkMethod     : { default: 'Line2'}, // link rendering method
         showLyphs      : { default: true},
         showLayers     : { default: true},
-        showCoalescences : { default: false},
         method         : { default: '2d'},    // the 3d lyph objects are not anymore supported due to low
         showLabels     : { default: {Node: true}},
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id'}},

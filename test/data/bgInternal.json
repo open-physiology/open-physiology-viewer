@@ -1,7 +1,8 @@
 {
   "nodes": [
     {
-      "id": "A"
+      "id": "A",
+      "offset": 0.1
     },
     {
       "id": "B"
@@ -10,10 +11,12 @@
       "id": "C"
     },
     {
-      "id": "D"
+      "id": "D",
+      "offset": 0.1
     },
     {
-      "id": "E"
+      "id": "E",
+      "offset": 0.1
     },
     {
       "id": "F"
@@ -22,10 +25,12 @@
       "id": "G"
     },
     {
-      "id": "H"
+      "id": "H",
+      "offset": 0.1
     },
     {
-      "id": "J"
+      "id": "J",
+      "offset": 0.1
     },
     {
       "id": "K"
@@ -34,10 +39,12 @@
       "id": "L"
     },
     {
-      "id": "M"
+      "id": "M",
+      "offset": 0.1
     },
     {
-      "id": "N"
+      "id": "N",
+      "offset": 0.1
     },
     {
       "id": "O"
@@ -52,7 +59,8 @@
       "id": "R"
     },
     {
-      "id": "S"
+      "id": "S",
+      "offset": 0.1
     },
     {
       "id": "e1_a",
@@ -114,8 +122,8 @@
     },
     {
       "id": "cd",
-      "source": "C",
-      "target": "D",
+      "source": "D",
+      "target": "C",
       "conveyingLyph": "CD"
     },
     {
@@ -132,21 +140,24 @@
     },
     {
       "id": "jk",
-      "source": "J",
-      "target": "K",
-      "conveyingLyph": "JK"
+      "source": "K",
+      "target": "J",
+      "conveyingLyph": "JK",
+      "reversed": true
     },
     {
       "id": "lm",
       "source": "L",
       "target": "M",
-      "conveyingLyph": "LM"
+      "conveyingLyph": "LM",
+      "reversed": true
     },
     {
       "id": "no",
-      "source": "N",
-      "target": "O",
-      "conveyingLyph": "NO"
+      "source": "O",
+      "target": "N",
+      "conveyingLyph": "NO",
+      "reversed": true
     },
     {
       "id": "pq",
@@ -164,7 +175,7 @@
       "id": "bc",
       "source": "B",
       "target": "C",
-      "type": "dashed"
+      "type": "spline"
     },
     {
       "id": "gf",
@@ -298,54 +309,36 @@
     },
     {
       "id": "m1",
-      "internalNodes": ["A"],
-      "border": {
-        "borders": [{},{"hostedNodes": ["B"]},{},{}]
-      }
+      "internalLyphs": ["AB"]
     },
     {
       "id": "m2",
-      "internalNodes": ["E", "N"],
-      "border": {
-        "borders": [{},{},{},{"hostedNodes": ["O","F"]}]
-      }
+      "internalLyphs": ["EF", "NO"]
     },
     {
       "id": "m3",
-      "internalNodes": ["D", "H", "J"],
-      "border": {
-        "borders": [{},{"hostedNodes": ["C"]},{},{"hostedNodes": ["G", "K"]}]
-      }
+      "internalLyphs": ["CD", "GH", "JK"]
     },
     {
       "id": "m4",
-      "internalNodes": ["M", "S"],
-      "border": {
-        "borders": [{},{},{},{"hostedNodes": ["L","R"]}]
-      }
+      "internalLyphs": ["RS", "LM"]
     },
     {
       "id": "m5",
-      "border": {
-        "borders": [{},{"hostedNodes": ["Q"]},{},{"hostedNodes": ["P"]}]
-      }
+      "internalLyphs": ["PQ"]
     }
   ],
   "assign": [
     {
       "path": "$.nodes[*]",
       "value": {
-        "layout": {
-          "z": 0
-        },
-        "charge": 10
+        "layout": { "z": 0 }
       }
     },
     {
       "path": "$.links[?(@.conveyingLyph && @.conveyingLyph.supertype && @.conveyingLyph.supertype.id == 'bg0')]",
       "value": {
-        "length": 2,
-        "linkMethod": "Line2"
+        "length": 2
       }
     }
   ]

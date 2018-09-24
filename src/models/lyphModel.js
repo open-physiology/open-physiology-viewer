@@ -11,14 +11,14 @@ import {boundToPolygon, boundToRectangle, copyCoords } from './utils';
 export class Lyph extends Entity {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-        const result = super.fromJSON(json, modelClasses, entitiesByID);
+        const res = super.fromJSON(json, modelClasses, entitiesByID);
 
         //Create lyph's border
-        result.border = result.border || {};
-        result.border.id = result.border.id || "b_" + result.id; //derive border id from lyph's id
-        result.border.borderTypes = result.border.borderTypes || [false, ...this.radialBorderTypes(result.topology), false];
-        result.border = Border.fromJSON(result.border);
-        return result;
+        res.border = res.border || {};
+        res.border.id = res.border.id || "b_" + res.id; //derive border id from lyph's id
+        res.border.borderTypes = res.border.borderTypes || [false, ...this.radialBorderTypes(res.topology), false];
+        res.border = Border.fromJSON(res.border);
+        return res;
     }
 
     static radialBorderTypes(topology) {
@@ -47,11 +47,14 @@ export class Lyph extends Entity {
             //and it can be placed in any plane passing through the axis!
             res = getCenterPoint(this.viewObjects["main"]);
         } else {
-            if (this.axis) {
-                res = this.axis.center;
-            }
+            res = this.axis.center;
         }
         return res;
+    }
+
+    get axis(){
+        if (this.conveyedBy) { return this.conveyedBy; }
+        if (this.layerInLyph) { return this.layerInLyph.axis; }
     }
 
     get polygonOffsetFactor() {
@@ -73,7 +76,7 @@ export class Lyph extends Entity {
     get size() {
         let res = {height: this.axis.length, width: this.axis.length};
         if (this.scale){
-            res.width *= this.scale.width / 100;
+            res.width  *= this.scale.width / 100;
             res.height *= this.scale.height / 100;
         }
         return res;
@@ -87,6 +90,13 @@ export class Lyph extends Entity {
         p.add(transformedLyph.center);
 
         return p;
+    }
+
+    rotate(theta){
+        if (!this.viewObjects["main"]) { return; }
+        let q = new THREE.Quaternion();
+        q.setFromAxisAngle( this.axis.direction, theta);
+        this.viewObjects["main"].applyQuaternion(q);
     }
 
     /**
@@ -341,10 +351,7 @@ export class Lyph extends Entity {
             //Draw layers
             let offset = 0;
             (this.layers || []).forEach(layer => {
-                layer.axis = this.axis;
-                if (!layer.layerWidth) {
-                    layer.layerWidth = defaultWidth;
-                }
+                if (!layer.layerWidth) { layer.layerWidth = defaultWidth; }
                 layer.width = layer.layerWidth / 100 * this.width;
                 layer.height = this.height;
                 layer.offset = offset;
@@ -366,15 +373,6 @@ export class Lyph extends Entity {
         }
 
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
-
-        //Store model parameters that are altered by the algorithm
-        ["source", "target"].forEach(key => {
-            (this.coalescesWith||[]).forEach(coalescingLyph => {
-                if ( coalescingLyph.axis[key].collide){
-                    coalescingLyph.axis[key]._collide = coalescingLyph.axis[key].collide
-                }
-            });
-        })
     }
 
     /**
@@ -417,10 +415,15 @@ export class Lyph extends Entity {
             let p1 = extractCoords(this.border.borderLinks[0].target);
             let p2 = extractCoords(this.border.borderLinks[1].target);
             [p, p1, p2].forEach(p => p.z += 1);
+            let dX = p1.clone().sub(p);
             let dY = p2.clone().sub(p1);
-            let offsetY = dY.clone().multiplyScalar(i / internalLinks.length);
-            copyCoords(link.source, p.clone().add(offsetY));
-            copyCoords(link.target, p1.clone().add(offsetY));
+            let delta = 0.05; //offset from the border
+            let offsetY = dY.clone().multiplyScalar(delta + i / (internalLinks.length + 2 * delta));
+            //offsetX is used to shift the internal lyph's axis link from the border
+            let sOffsetX = dX.clone().multiplyScalar(link.source.offset || 0);
+            let tOffsetX = dX.clone().multiplyScalar(link.target.offset || 0);
+            copyCoords(link.source, p.clone().add(sOffsetX).add(offsetY));
+            copyCoords(link.target, p1.clone().sub(tOffsetX).add(offsetY));
         });
 
         let hostedLinks = (this.hostedLyphs||[]).filter(lyph => lyph.axis).map(lyph => lyph.axis);
@@ -433,14 +436,14 @@ export class Lyph extends Entity {
                     link.source.z = this.axis.source.z + 1;
                     link.target.z = this.axis.target.z + 1;
                 } else {
-                    //Project links with innerLyphs to the container lyph plane
+                    //Project links with hosted lyphs to the container lyph plane
                     let plane = new THREE.Plane();
                     let _start = extractCoords(this.axis.source);
-                    let _end = extractCoords(this.axis.target);
+                    let _end   = extractCoords(this.axis.target);
                     plane.setFromCoplanarPoints(_start, _end, fociCenter);
 
                     let _linkStart = extractCoords(link.source);
-                    let _linkEnd = extractCoords(link.target);
+                    let _linkEnd   = extractCoords(link.target);
                     [_linkStart, _linkEnd].forEach(node => {
                         plane.projectPoint(node, node);
                         node.z += 1;
@@ -461,17 +464,8 @@ export class Lyph extends Entity {
                     boundToRectangle(link.target, fociCenter, h, h);
 
                     //Push the link to the tilted lyph rectangle
-                    //TODO find a better way to reset links violating boundaries
                     boundToPolygon(link, this.border.borderLinks);
                 }
-
-                //One node on the border while another is not
-                // if (link.source.host && !link.target.host){
-                // }
-                // if (link.target.host && !link.source.host){
-                //
-                // }
-
             });
         }
 
@@ -479,51 +473,6 @@ export class Lyph extends Entity {
 
         //update border
         if (this.isVisible){ this.border.updateViewObjects(state); }
-
-        if (this.coalescesWith && this.coalescesWith.length > 0) {
-            let avg = {};
-
-            const restore = (node) => {
-                delete node.foci;
-                if (node._collide){
-                    node.collide = node._collide;
-                } else {
-                    delete node.collide;
-                }
-            };
-
-            ["source", "target"].forEach(key => {
-                avg[key] = new THREE.Vector3();
-                this.coalescesWith.forEach(coalescingLyph => {
-                    if (state.showCoalescences){
-                        if (!coalescingLyph.axis[key].host){
-                            coalescingLyph.axis[key].foci = extractCoords(this.axis[key]);
-                            coalescingLyph.axis[key].collide = this.width;
-                            avg[key].add(coalescingLyph.axis[key]);
-                        }
-                    } else {
-                        restore(coalescingLyph.axis[key]);
-                    }
-                });
-                if (state.showCoalescences) {
-                    if (!this.axis[key].host) {
-                        avg[key].multiplyScalar(1. / this.coalescesWith.length);
-                        this.axis[key].foci = avg[key];
-                    }
-                } else {
-                    restore(this.axis[key]);
-                }
-            });
-
-            // if (state.showCoalescences){
-            //     let v1 = direction(this.border.borderLinks[1]);
-            //     let v2 = direction({source: this.axis.target, target: avg.target});
-            //     let theta = angle(v1, v2);
-            //     let q = new THREE.Quaternion();
-            //     q.setFromAxisAngle( this.axis.direction, theta);
-            //     this.viewObjects["main"].applyQuaternion(q);
-            // }
-        }
 
         //Layers and inner lyphs have no labels
         if (this.layerInLyph || this.internalLyphInLyph) { return; }

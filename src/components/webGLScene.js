@@ -54,12 +54,11 @@ const WindowResize = require('three-window-resize');
                                    (change)="toggleLayers()" [checked]="_showLayers"/> Layers
                         </span>
                         <input type="checkbox" class="w3-check" name="coalescences"
-                               (change)="toggleCoalescences()" [checked]="_showCoalescences"/> Coalescences
-
-                        <br/>
-                        <span *ngFor="let group of graphData.groups">
+                               (change)="toggleGroup(graphData.coalescenceGroup)" [checked]="showGroup(graphData.coalescenceGroup)"/> Coalescences
+                        <br/> 
+                        <span *ngFor="let group of graphData.activeGroups">
                             <input type="checkbox" name="switch" class="w3-check"
-                                   (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name}}
+                                   (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
                         </span>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
@@ -208,7 +207,6 @@ export class WebGLSceneComponent {
 
         this._showLyphs = true;
         this._showLayers = true;
-        this._showCoalescences = false;
         this._showLabels = {
             "Node": true,
             "Link": false,
@@ -217,7 +215,6 @@ export class WebGLSceneComponent {
         this._labelClasses = (this._showLabels)::keys();
         this._labelProps   = ["id", "name", "external"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id"};
-
         this._hideGroups = new Set();
     }
 
@@ -505,13 +502,6 @@ export class WebGLSceneComponent {
         }
     }
 
-    toggleCoalescences() {
-        this._showCoalescences = !this._showCoalescences;
-        if (this.graph) {
-            this.graph.showCoalescences(this._showCoalescences);
-        }
-    }
-
     toggleLabels(labelClass) {
         this._showLabels[labelClass] = !this._showLabels[labelClass];
         if (this.graph){
@@ -529,6 +519,7 @@ export class WebGLSceneComponent {
     }
 
     toggleGroup(group) {
+        if (!group) { return; }
         if (this._hideGroups.has(group)){
             this._hideGroups.delete(group);
         } else {
