@@ -123,7 +123,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
     };
 
     const replaceRefs = (res, [key, spec]) => {
-        if (!res[key] || spec.readOnly){ return; }
+        if (!res[key]){ return; }
         if (res[key].class && (res[key] instanceof modelClasses[res[key].class])) { return; }
 
         let typeSpec = spec.items || spec;

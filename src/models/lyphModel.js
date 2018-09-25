@@ -368,9 +368,7 @@ export class Lyph extends Entity {
         }
 
         //Do not create labels for layers and nested lyphs
-        if (this.layerInLyph || this.internalLyphInLyph) {
-            return;
-        }
+        if (this.layerInLyph || this.internalLyphInLyph) { return; }
 
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
     }

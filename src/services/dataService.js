@@ -109,7 +109,7 @@ export class DataService{
                             "cloneOf": nodeID
                         });
                         if (!node.clones){ node.clones = []; }
-                        node.clones.push(nodeClone.id);
+                        node.clones.push(nodeClone);
 
                         this._graphData.nodes.push(nodeClone);
                         links.forEach(lnk => {lnk.target = nodeClone.id});
@@ -143,13 +143,13 @@ export class DataService{
         let entitiesByID = {};
         
         entitiesByID[this._graphData.id] = this._graphData;
-        this._graphData::values().filter(prop => prop::isArray()).forEach(array => array.forEach(e => {
-            if (!e.id) { return; }
-            if (entitiesByID[e.id]) {
-                console.error("Entity IDs are not unique: ", entitiesByID[e.id], e);
-            }
-            entitiesByID[e.id] = e;
-        }));
+        ["nodes", "links", "lyphs", "groups"].forEach(prop => {
+            (this._graphData[prop]||[]).forEach(e => {
+                if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
+                if (entitiesByID[e.id]) { console.error("Entity IDs are not unique: ", entitiesByID[e.id], e); }
+                entitiesByID[e.id] = e;
+            })
+        });
 
         let conveyingLyphMap = {};
         this._graphData.links.filter(lnk => lnk.conveyingLyph).forEach(lnk => {

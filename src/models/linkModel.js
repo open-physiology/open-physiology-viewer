@@ -34,9 +34,6 @@ export class Link extends Entity {
      * @returns {THREE.Vector3} - a vector defining link direction
      */
     get direction(){
-        if (this.reversed){
-            return direction({source: this.target, target: this.source});
-        }
         return direction({source: this.source, target: this.target});
     }
 
@@ -85,7 +82,8 @@ export class Link extends Entity {
                         color: this.color,
                         polygonOffsetFactor: this.polygonOffsetFactor
                     });
-                    let size = (this.type === LINK_TYPES.SEMICIRCLE || this.type === LINK_TYPES.SPLINE)? state.linkResolution
+                    let size = (this.type === LINK_TYPES.SEMICIRCLE || this.type === LINK_TYPES.SPLINE)?
+                        state.linkResolution
                         : (this.type === LINK_TYPES.PATH)? 66: 2; // Edge bunding breaks a link into 66 points
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
                     obj = new THREE.Line(geometry, this.material);
@@ -141,10 +139,17 @@ export class Link extends Entity {
         }
 
         if (this.type === LINK_TYPES.SPLINE) {
-            let prev = this.source.targetOf && this.source.targetOf[0];
-            let post = this.target.sourceOf && this.target.sourceOf[0];
-            if (prev && post){
-                curve = new THREE.CatmullRomCurve3(extractCoords(prev), _start,  _end, extractCoords(post));
+            //Direction without normalization
+            let prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x!== this);
+            if (prev) {
+                prev = (this.source === prev.source)? _start.clone().sub(prev.direction) :_start.clone().add(prev.direction);
+            }
+            let next = (this.target.sourceOf || this.target.targetOf || []).find(x => x!== this);
+            if (next) {
+                next = (this.target === next.target)? _end.clone().add(next.direction) : _end.clone().sub(next.direction);
+            }
+            if (prev && next){
+                curve = new THREE.CubicBezierCurve3(_start, prev, next,  _end);
                 points = curve.getPoints(state.linkResolution - 1);
             }
         }

@@ -453,17 +453,17 @@
           "relatedTo": "conveyedBy"
         },
         "type": {
-          "description": "Defines the appearance and behavior of the link in the model graph: `link` is a straight solid  line, `dashed` is a straight dashed line, `semicrcle` defines a solid line that looks like half of a circle, `path` is a solid path with control points defined by the edge bundling algorithm, `container` is a link with a visual object not affected by the graph forces, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+          "description": "Defines the shape and behavior of the link in the model graph: `link` corresponds to a simple straight line, `semicircle` defines a line that looks like a semicircle, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `container` is a link with a visual object not affected by the graph forces, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
             "link",
-            "dashed",
             "semicircle",
+            "spline",
             "path",
             "container",
             "force",
             "invisible",
-            "spline"
+            "dashed"
           ],
           "default": "link"
         },
@@ -481,7 +481,7 @@
           }
         },
         "reversed": {
-          "description": "When set to true, the link's direction is reversed; it is used to turn the link's conveying lyph by 180 degrees",
+          "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
           "type": "boolean",
           "default": false
         },

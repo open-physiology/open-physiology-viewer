@@ -73,9 +73,11 @@ export function extractCoords(source){
  * @param axis
  * @param obj
  */
-export function align(axis, obj){
-    if (!obj || !axis) { return; }
-    obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis.direction);
+export function align(link, obj){
+    if (!obj || !link) { return; }
+    let axis = link.direction.normalize();
+    if (link.reversed){ axis.multiplyScalar(-1); }
+    obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis);
 }
 
 export function angle(v1, v2){
@@ -97,8 +99,10 @@ export function direction({source, target}){
         target.x - source.x,
         target.y - source.y,
         target.z - source.z
-    )).normalize();
+    ));
 }
+
+
 
 /**
  * Computes coordinates of the central point of the given mesh

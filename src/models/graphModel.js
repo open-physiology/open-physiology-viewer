@@ -168,17 +168,6 @@ export class Graph extends Entity {
             }
         });
 
-
         this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
-
-        //Update links in certain order depending on their type
-        // [LINK_TYPES.SEMICIRCLE, LINK_TYPES.LINK, LINK_TYPES.INVISIBLE, LINK_TYPES.DASHED, LINK_TYPES.PATH,
-        //     LINK_TYPES.CURVE, LINK_TYPES.CONTAINER].forEach(
-        //     linkType => {
-        //         this.visibleLinks.filter(link => link.type === linkType).forEach(link => {
-        //             link.updateViewObjects(state);
-        //         });
-        //     }
-        // );
     }
 }
