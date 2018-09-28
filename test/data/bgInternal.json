@@ -136,14 +136,14 @@
       "id": "gh",
       "source": "G",
       "target": "H",
-      "conveyingLyph": "GH"
+      "conveyingLyph": "GH",
+      "reversed": true
     },
     {
       "id": "jk",
       "source": "K",
       "target": "J",
-      "conveyingLyph": "JK",
-      "reversed": true
+      "conveyingLyph": "JK"
     },
     {
       "id": "lm",
@@ -317,7 +317,7 @@
     },
     {
       "id": "m3",
-      "internalLyphs": ["CD", "GH", "JK"]
+      "internalLyphs": ["CD", "JK", "GH"]
     },
     {
       "id": "m4",

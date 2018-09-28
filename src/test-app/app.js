@@ -1,6 +1,8 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
 import { WebGLSceneModule } from '../components/webGLScene';
+//import { ExportDialogModule, ExportDialog } from '../components/exportDialog';
+
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import { DataService } from '../services/dataService';
@@ -15,8 +17,7 @@ import 'ng2-toasty/bundles/style-bootstrap.css';
 
 const ace = require('ace-builds');
 
-let errCount  = 0;
-let warnCount = 0;
+let msgCount = {};
 
 let consoleHolder = console;
 function debug(bool){
@@ -25,9 +26,11 @@ function debug(bool){
         console = {};
         Object.keys(consoleHolder).forEach(function(key){
             console[key] = function(){
-                //if (key === "error"){
-                    errCount++;
-                //}
+                if (!msgCount[key]) {
+                    msgCount[key] = 0;
+                } else {
+                    msgCount[key]++;
+                }
             };
         })
     }else{
@@ -73,13 +76,16 @@ debug(true);
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit">
                 <i class="fa fa-edit"></i>
             </button>
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="export()" title="Export layout">
+                <i class="fa fa-image"></i>
+            </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide">
                 <i class="fa fa-eye-slash"></i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="preview()" title="Preview">
                 <i class="fa fa-check"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="save()" title="Export">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="save()" title="Export model">
                 <i class="fa fa-save"></i>
             </button>
         </section>
@@ -115,6 +121,8 @@ export class TestApp {
     _editor;
 
     @ViewChild('jsonEditor') _container: ElementRef;
+    //@ViewChild(ExportDialog) _mExport;
+
 
     constructor(){
         this._dataService = new DataService();
@@ -154,10 +162,11 @@ export class TestApp {
             throw new Error("Failed to open the input file: " + err);
         }
 
-        if (errCount){
-            alert("Number of errors: " + errCount);
-            errCount = 0;
+        if (msgCount["error"] || msgCount["warn"]){
+            throw new Error(`Detected ${msgCount["error"]} error(s), ${msgCount["warn"]} warning(s), 
+                may affect the model layout, check console messages for more detail!`);
         }
+        msgCount = {};
 	}
 
 	openEditor(){
@@ -180,6 +189,15 @@ export class TestApp {
         FileSaver.saveAs(blob, 'apinatomy-model.json');
     }
 
+    export(){
+        //this._mExport.open();
+        let ids = ["m1", "m2", "m3", "m4", "m5", "bc", "gf", "kl", "op", "qr"];
+
+        let result = JSON.stringify(this._dataService.export(ids), null, 2);
+        const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+        FileSaver.saveAs(blob, 'apinatomy-layout.json');
+    }
+
     onSelectedItemChange(item){}
 
 	onHighlightedItemChange(item){}
@@ -196,7 +214,7 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot() ],
+	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot()],
 	declarations: [ TestApp ],
     bootstrap: [TestApp],
     providers: [

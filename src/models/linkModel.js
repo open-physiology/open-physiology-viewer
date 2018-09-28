@@ -123,7 +123,7 @@ export class Link extends Entity {
         let _start = extractCoords(this.source);
         let _end   = extractCoords(this.target);
         let curve  = new THREE.Line3(_start, _end);
-        let points = [_start, _end];
+        this.points = [_start, _end];
 
         if (this.type === LINK_TYPES.DASHED) {
             if (!linkObj) { return; }
@@ -135,7 +135,7 @@ export class Link extends Entity {
 
         if (this.type === LINK_TYPES.SEMICIRCLE) {
             curve = bezierSemicircle(_start, _end);
-            points = curve.getPoints(state.linkResolution - 1);
+            this.points = curve.getPoints(state.linkResolution - 1);
         }
 
         if (this.type === LINK_TYPES.SPLINE) {
@@ -150,13 +150,13 @@ export class Link extends Entity {
             }
             if (prev && next){
                 curve = new THREE.CubicBezierCurve3(_start, prev, next,  _end);
-                points = curve.getPoints(state.linkResolution - 1);
+                this.points = curve.getPoints(state.linkResolution - 1);
             }
         }
 
         if (this.type === LINK_TYPES.PATH) {
             curve  = new THREE.CatmullRomCurve3(this.path);
-            points = this.path;
+            this.points = this.path;
         }
 
 
@@ -181,7 +181,8 @@ export class Link extends Entity {
         if (this.hostedNodes) {
             const offset = 1 / (this.hostedNodes.length + 1);
             this.hostedNodes.forEach((node, i) => {
-                const pos = curve.getPoint(node.offset? node.offset: offset * (i + 1));
+                let d_i = node.offset? node.offset: offset * (i + 1);
+                const pos = curve.getPoint? curve.getPoint(d_i): _start.clone().add(_end).multiplyScalar(d_i);
                 copyCoords(node, pos);
             });
         }
@@ -205,18 +206,18 @@ export class Link extends Entity {
         if (linkObj && linkObj.geometry.attributes){
             if (this.linkMethod === 'Line2'){
                 let coordArray = [];
-                for (let i = 0; i < points.length; i++) {
-                    coordArray.push(points[i].x, points[i].y, points[i].z);
+                for (let i = 0; i < this.points.length; i++) {
+                    coordArray.push(this.points[i].x, this.points[i].y, this.points[i].z);
                 }
                 linkObj.geometry.setPositions(coordArray);
 
             } else {
                 let linkPos = linkObj.geometry.attributes.position;
                 if (linkPos){
-                    for (let i = 0; i < points.length; i++) {
-                        linkPos.array[3 * i]     = points[i].x;
-                        linkPos.array[3 * i + 1] = points[i].y;
-                        linkPos.array[3 * i + 2] = points[i].z;
+                    for (let i = 0; i < this.points.length; i++) {
+                        linkPos.array[3 * i]     = this.points[i].x;
+                        linkPos.array[3 * i + 1] = this.points[i].y;
+                        linkPos.array[3 * i + 2] = this.points[i].z;
                     }
                     linkPos.needsUpdate = true;
                     linkObj.geometry.computeBoundingSphere();

@@ -1,4 +1,4 @@
-import { values, keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
+import { keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
 import { LINK_TYPES } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 
@@ -203,5 +203,28 @@ export class DataService{
 
     get graphData(){
         return this._graphData;
+    }
+
+    export(ids){
+        const getCoords = (obj) => ({"x": obj.x, "y": obj.y, "z": obj.z});
+
+        if (!this._graphData || !ids) { return; }
+        let res = {"regions": [], "connections": []};
+        (this._graphData.lyphs||[]).filter(e=> ids.includes(e.id)).forEach(lyph => {
+            res.regions.push({
+                "id"      : lyph.id,
+                "position": getCoords(lyph.center)
+            });
+        });
+
+        (this._graphData.links||[]).filter(e=> ids.includes(e.id)).forEach(link => {
+            res.connections.push({
+                "id"    : link.id,
+                "points": (link.points||[]).map(p => getCoords(p))
+            });
+        });
+
+        return res;
+
     }
 }
