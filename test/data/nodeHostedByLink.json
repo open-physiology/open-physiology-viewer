@@ -91,7 +91,7 @@
       "name"      : "Pulmonary",
       "type"      : "semicircle",
       "length"    : 75,
-      "linkMethod": "Line2"
+      "stroke": "thick"
     },
     {
       "id"        : "LR",
@@ -100,13 +100,13 @@
       "target"    : "R",
       "type"      : "semicircle",
       "length"    : 75,
-      "linkMethod": "Line2"
+      "stroke": "thick"
     },
     {
       "id": "cn",
       "source": "c",
       "target": "n",
-      "type": "dashed",
+      "stroke": "dashed",
       "length": 100
     },
     {
@@ -397,7 +397,7 @@
           "value": {
             "color": "#ff4444",
             "length": 3,
-            "linkMethod": "Line2"
+            "stroke": "thick"
           }
         }
       ],

@@ -35,7 +35,6 @@ export default Kapsule({
         nodeId         : { default: 'id' },
         nodeResolution : { default: 16 },     // how many slice segments in the sphere's circumference
         linkResolution : { default: 50 },     // number of points on semicircle link
-        linkMethod     : { default: 'Line2'}, // link rendering method
         showLyphs      : { default: true},
         showLayers     : { default: true},
         method         : { default: '2d'},    // the 3d lyph objects are not anymore supported due to low

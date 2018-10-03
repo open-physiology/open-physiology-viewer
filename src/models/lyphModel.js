@@ -470,7 +470,9 @@ export class Lyph extends Entity {
         (this.internalNodes||[]).forEach(node => {copyCoords(node.layout, fociCenter);});
 
         //update border
-        if (this.isVisible){ this.border.updateViewObjects(state); }
+        if (this.isVisible){
+            this.border.updateViewObjects(state);
+        }
 
         //Layers and inner lyphs have no labels
         if (this.layerInLyph || this.internalLyphInLyph) { return; }

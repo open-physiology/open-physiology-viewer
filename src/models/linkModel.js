@@ -15,14 +15,17 @@ import { LineMaterial }         from '../three/lines/LineMaterial.js';
  * @type {{LINK: string, SEMICIRCLE: string, DASHED: string, FORCE: string, CONTAINER: string, INVISIBLE: string}}
  */
 export const LINK_TYPES = {
-    LINK       : "link",        //solid straight line
-    DASHED     : "dashed",      //dashed straight line
-    SEMICIRCLE : "semicircle",  //solid line in the form of a semicircle
-    PATH       : "path",        //solid path (e.g., in the shape for the edge bundling)
-    SPLINE     : "spline",       //solid curve line that uses other nodes to produce a smooth path
-    CONTAINER  : "container",   //link with visual object (which may be hidden), not affected by graph forces (i.e., with fixed position)
-    FORCE      : "force",       //link without visual object, works as force to attract or repel nodes
-    INVISIBLE  : "invisible"   //link with hidden visual object affected by graph forces (i.e., dynamically positioned),
+    LINK       : "link",        //straight line
+    SEMICIRCLE : "semicircle",  //line in the form of a semicircle
+    PATH       : "path",        //path defined (e.g., in the shape for the edge bundling)
+    SPLINE     : "spline",      //solid curve line that uses other nodes to produce a smooth path
+    INVISIBLE  : "invisible",   //link with hidden visual geometry,
+    FORCE      : "force"        //link without visual geometry, works as force to attract or repel nodes
+};
+
+export const LINK_STROKE = {
+    DASHED     : "dashed",      //dashed line
+    THICK      : "thick"        //thick line
 };
 
 /**
@@ -54,41 +57,57 @@ export class Link extends Entity {
 
         //Link
         if (!this.viewObjects["main"]) {
-            let geometry;
-            let obj;
-            if (this.type === LINK_TYPES.DASHED) {
-                geometry = new THREE.Geometry();
-                if (!this.material) {
-                    //axis can stay behind any other visual objects
+            let geometry, obj;
+            if (!this.material) {
+                if (this.stroke === LINK_STROKE.DASHED) {
                     this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
-                }
-                geometry.vertices = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0)];
-                obj = new THREE.Line(geometry, this.material);
-
-            } else {
-                if (this.linkMethod === 'Line2'){
-                    // Line 2 method: draws thick lines
-                    geometry = new THREE.LineGeometry();
-                    this.material = state.materialRepo.createLine2Material({
-                        color: this.color,
-                        linewidth: this.linewidth,
-                        polygonOffsetFactor: this.polygonOffsetFactor
-                    });
-                    obj = new THREE.Line2(geometry, this.material);
                 } else {
-                    // Draw lines
-                    geometry = new THREE.BufferGeometry();
-                    this.material = state.materialRepo.createLineBasicMaterial({
-                        color: this.color,
-                        polygonOffsetFactor: this.polygonOffsetFactor
-                    });
-                    let size = (this.type === LINK_TYPES.SEMICIRCLE || this.type === LINK_TYPES.SPLINE)?
-                        state.linkResolution
-                        : (this.type === LINK_TYPES.PATH)? 66: 2; // Edge bunding breaks a link into 66 points
-                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
-                    obj = new THREE.Line(geometry, this.material);
+                    //Thick lines
+                    if (this.stroke === LINK_STROKE.THICK) {
+                        // Line 2 method: draws thick lines
+                        this.material = state.materialRepo.createLine2Material({
+                            color: this.color,
+                            linewidth: this.linewidth,
+                            polygonOffsetFactor: this.polygonOffsetFactor
+                        });
+                    } else {
+                        //Normal lines
+                        this.material = state.materialRepo.createLineBasicMaterial({
+                            color: this.color,
+                            polygonOffsetFactor: this.polygonOffsetFactor
+                        });
+                    }
                 }
             }
+
+            if (this.stroke === LINK_STROKE.THICK) {
+                geometry = new THREE.LineGeometry();
+                obj = new THREE.Line2(geometry, this.material);
+            } else {
+                //Thick lines
+                if (this.stroke === LINK_STROKE.DASHED) {
+                    geometry = new THREE.Geometry();
+                } else {
+                    geometry = new THREE.BufferGeometry();
+                }
+                obj = new THREE.Line(geometry, this.material);
+            }
+            let size = (this.type === LINK_TYPES.SEMICIRCLE || this.type === LINK_TYPES.SPLINE)
+                ? state.linkResolution
+                : (this.type === LINK_TYPES.PATH)
+                    ? 66 // Edge bunding breaks a link into 66 points
+                    : 2;
+            if (this.stroke === LINK_STROKE.DASHED) {
+                //Dashed lines cannot be drawn with buffered geometry?
+                geometry.vertices = new Array(size);
+                for (let i = 0; i < size; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
+            } else {
+                //Buffered geometry
+                if (this.stroke !== LINK_STROKE.THICK){
+                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
+                }
+            }
+
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
             this.viewObjects["main"] = obj;
@@ -125,14 +144,6 @@ export class Link extends Entity {
         let curve  = new THREE.Line3(_start, _end);
         this.points = [_start, _end];
 
-        if (this.type === LINK_TYPES.DASHED) {
-            if (!linkObj) { return; }
-            copyCoords(linkObj.geometry.vertices[0], this.source);
-            copyCoords(linkObj.geometry.vertices[1], this.target);
-            linkObj.geometry.verticesNeedUpdate = true;
-            linkObj.computeLineDistances();
-        }
-
         if (this.type === LINK_TYPES.SEMICIRCLE) {
             curve = bezierSemicircle(_start, _end);
             this.points = curve.getPoints(state.linkResolution - 1);
@@ -158,7 +169,6 @@ export class Link extends Entity {
             curve  = new THREE.CatmullRomCurve3(this.path);
             this.points = this.path;
         }
-
 
         this.center = (curve.getPoint)? curve.getPoint(0.5): _start.clone().add(_end).multiplyScalar(0.5);
 
@@ -191,7 +201,7 @@ export class Link extends Entity {
 
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);
-            this.viewObjects['icon'] = this.conveyingLyph.viewObjects["main"];
+            this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
             if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
         } else {
@@ -200,27 +210,32 @@ export class Link extends Entity {
         }
 
         //Update buffered geometries
-        //Do not update positions of container links
-        if (this.type === LINK_TYPES.CONTAINER)   {return; }
+        //Do not update links with fixed node positions
+        if (this.type === LINK_TYPES.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
 
-        if (linkObj && linkObj.geometry.attributes){
-            if (this.linkMethod === 'Line2'){
+        if (linkObj) {
+            if (this.stroke === LINK_STROKE.THICK){
                 let coordArray = [];
                 for (let i = 0; i < this.points.length; i++) {
                     coordArray.push(this.points[i].x, this.points[i].y, this.points[i].z);
                 }
                 linkObj.geometry.setPositions(coordArray);
-
             } else {
-                let linkPos = linkObj.geometry.attributes.position;
-                if (linkPos){
-                    for (let i = 0; i < this.points.length; i++) {
-                        linkPos.array[3 * i]     = this.points[i].x;
-                        linkPos.array[3 * i + 1] = this.points[i].y;
-                        linkPos.array[3 * i + 2] = this.points[i].z;
+                if (linkObj && this.stroke === LINK_STROKE.DASHED) {
+                    linkObj.geometry.setFromPoints(this.points);
+                    linkObj.geometry.verticesNeedUpdate = true;
+                    linkObj.computeLineDistances();
+                } else {
+                    let linkPos = linkObj.geometry.attributes && linkObj.geometry.attributes.position;
+                    if (linkPos) {
+                        for (let i = 0; i < this.points.length; i++) {
+                            linkPos.array[3 * i] = this.points[i].x;
+                            linkPos.array[3 * i + 1] = this.points[i].y;
+                            linkPos.array[3 * i + 2] = this.points[i].z;
+                        }
+                        linkPos.needsUpdate = true;
+                        linkObj.geometry.computeBoundingSphere();
                     }
-                    linkPos.needsUpdate = true;
-                    linkObj.geometry.computeBoundingSphere();
                 }
             }
         }

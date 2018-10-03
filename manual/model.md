@@ -151,7 +151,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 ## Link 
  Links connect graph nodes and perform a number of functions in the ApiNATOMY framework, most notably, they model process flow and serve as rotational axes to position and scale conveying vessels and body elements at various scales (organs, tissues, cells, etc.).
 
- By default, all links are drawn as straight solid lines, this corresponds to the `type=link` setting. To apply another visualization method, we set the link's `type` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `type="semicircle"` produces a spline that resembles a semicircle while `type="dashed"` corresponds to a straight dashed line. 
+ By default, all links are drawn as straight lines, this corresponds to the `type=link` setting. To apply another visualization method, we set the link's `type` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `type="semicircle"` produces a spline that resembles a semicircle: 
+ 
  ```json
   {
     "links": [
@@ -162,7 +163,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
            "target"    : "L",
            "type"      : "semicircle",
            "length"    : 75,
-           "linkMethod": "Line2"
+           "stroke"    : "thick"
          },
          {
            "id"        : "LR",
@@ -171,13 +172,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
            "target"    : "R",
            "type"      : "semicircle",
            "length"    : 75,
-           "linkMethod": "Line2"
+           "stroke"    : "thick"
          },
          {
            "id"     : "cn",
            "source" : "c",
            "target" : "n",
-           "type"   : "dashed",
+           "stroke" : "dashed",
            "length" : 100
          }
        ]
@@ -185,11 +186,11 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  ```
  <img src="asset/links.png" height="300px" caption = "Drawing links">
  
- Among other link types supported by the lyph viewer are `path` to draw graph edges bundled together, and `container` links to draw links not effected by force-directed layout. 
+ Among other link types supported by the lyph viewer are `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e). 
  
  There are also two auxiliary link types: `invisible` links which are never displayed themselves but serve as axes for the lyphs they convey. The `force` links have no corresponding visual objects and currently only serve the purpose of binding together selected nodes. The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model. 
-          
- The property `linkMethod` can be set to `Line2` to indicate that the link should be drawn as a thick line. This property was introduced to overcome a well-known WebGL [issue](https://mattdesl.svbtle.com/drawing-lines-is-hard) with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property `linewidth` can be used to specify how thick such links should be (its default value is 0.003).  
+ 
+ The property `stroke` set to `dashed` yields a dashed line while its value `thick` indicates that the link should be drawn as a thick line. This option was introduced to overcome a well-known WebGL [issue](https://mattdesl.svbtle.com/drawing-lines-is-hard) with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property `linewidth` can be used to specify how thick such links should be (its default value is 0.003).  
  
  The property `length` defines the desired distance between the link ends in terms of the percentage from the maximal allowed length (which is equal to the main axis length in the lyph viewer). The link force from the [d3-force-3d](https://github.com/vasturiano/d3-force-3d#links) module pushes the link's source and target nodes together or apart according to the desired distance. More details about these parameters can be found in the documentation of the module. 
  

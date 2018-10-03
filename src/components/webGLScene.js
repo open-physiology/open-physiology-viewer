@@ -331,7 +331,7 @@ export class WebGLSceneComponent {
         this.graph.d3Force("link")
             .distance(d => d.length )
             .strength(d => (d.strength ? d.strength :
-                (d.type === LINK_TYPES.CONTAINER) ? 0 : 1));
+                (d.source && d.source.fixed && d.target && d.target.fixed) ? 0 : 1));
 
         this.graph.showLabels(this._showLabels);
         this.scene.add(this.graph);

@@ -405,7 +405,7 @@
       "source": "c",
       "target": "n",
       "name": "",
-      "type": "dashed",
+      "stroke": "dashed",
       "length": 100
     },
     {
@@ -415,7 +415,7 @@
       "name": "Pulmonary",
       "type": "semicircle",
       "length": 75,
-      "linkMethod": "Line2"
+      "stroke": "thick"
     },
     {
       "id": "LR",
@@ -424,7 +424,7 @@
       "name": "Systemic",
       "type": "semicircle",
       "length": 75,
-      "linkMethod": "Line2"
+      "stroke": "thick"
     },
     {
       "id": "SP",
@@ -433,7 +433,7 @@
       "name": "Gut",
       "type": "semicircle",
       "length": 90,
-      "linkMethod": "Line2"
+      "stroke": "thick"
     },
     {
       "id": "PS",
@@ -442,14 +442,14 @@
       "name": "Gut'",
       "type": "semicircle",
       "length": 90,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "170"
     },
     {
-      "id": "k_l",
+      "id"    : "k_l",
       "source": "k",
       "target": "l",
-      "type": "container",
+      "type"  : "invisible",
       "length": 40,
       "conveyingLyph": "5"
     },
@@ -461,7 +461,7 @@
       "type": "link",
       "length": 9,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "152"
     },
     {
@@ -472,7 +472,7 @@
       "type": "link",
       "length": 9,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "147"
     },
     {
@@ -483,7 +483,7 @@
       "type": "link",
       "length": 9,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "142"
     },
     {
@@ -494,7 +494,7 @@
       "type": "link",
       "length": 9,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "137"
     },
     {
@@ -505,7 +505,7 @@
       "type": "link",
       "length": 9,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "132"
     },
     {
@@ -516,7 +516,7 @@
       "type": "link",
       "length": 3,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "127"
     },
     {
@@ -527,7 +527,7 @@
       "type": "link",
       "length": 3,
       "reversed": true,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "122"
     },
     {
@@ -537,7 +537,7 @@
       "name": "Ependymal",
       "type": "link",
       "length": 9,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "157"
     },
     {
@@ -547,7 +547,7 @@
       "name": "Ependymal",
       "type": "link",
       "length": 3,
-      "linkMethod": "Line2",
+      "stroke": "thick",
       "conveyingLyph": "162"
     },
     {
@@ -1093,7 +1093,7 @@
               "value": {
                 "color": "#ff4444",
                 "length": 3,
-                "linkMethod": "Line2"
+                "stroke": "thick"
               }
             }
           ],
@@ -1122,7 +1122,7 @@
               "value": {
                 "color": "#ff4444",
                 "length": 3,
-                "linkMethod": "Line2"
+                "stroke": "thick"
               }
             }
           ],
@@ -1167,7 +1167,7 @@
               "value": {
                 "color": "#4444ff",
                 "length": 3,
-                "linkMethod": "Line2"
+                "stroke": "thick"
               }
             }
           ],
@@ -1235,7 +1235,7 @@
               "value": {
                 "color": "#ff44ff",
                 "length": 3,
-                "linkMethod": "Line2"
+                "stroke": "thick"
               }
             }
           ],
@@ -1295,6 +1295,12 @@
           "value": {
             "color": "#aaa",
             "scale": { "width": 200, "height": 100 }
+          }
+        },
+        {
+          "path": "$.lyphs[*].layers[(@.length-1)]",
+          "value": {
+            "layerWidth": 75
           }
         }
       ],
@@ -1412,7 +1418,7 @@
         {
           "path": "$.groups[*].links[*]",
           "value": {
-            "linkMethod": "Line2",
+            "stroke": "thick",
             "linewidth": 0.002
           }
         },
@@ -1550,19 +1556,6 @@
             }
         }
       ]
-    },
-    {"id": "largeOuterLayers",
-     "name": "Enlarged outer layers of neural system lyphs",
-     "lyphs": ["155", "150", "145", "140", "135", "160"],
-     "assign": [
-       {
-         "path": "$.lyphs[*]",
-         "value": {
-           "layerWidth": 75
-         }
-       }
-     ],
-     "inactive": true
     }
   ],
   "lyphs" : [

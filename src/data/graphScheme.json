@@ -453,17 +453,15 @@
           "relatedTo": "conveyedBy"
         },
         "type": {
-          "description": "Defines the shape and behavior of the link in the model graph: `link` corresponds to a simple straight line, `semicircle` defines a line that looks like a semicircle, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `container` is a link with a visual object not affected by the graph forces, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
             "link",
             "semicircle",
             "spline",
             "path",
-            "container",
             "force",
-            "invisible",
-            "dashed"
+            "invisible"
           ],
           "default": "link"
         },
@@ -485,16 +483,17 @@
           "type": "boolean",
           "default": false
         },
-        "linkMethod": {
-          "description": "Name of the custom written shader to draw lines (needed to overcome WebGL issue with thick lines)",
+        "stroke": {
+          "description": "Property that defined appearance of the link: `dashed` corresponds to a dashed line while `thick` is an indication for the tool to use a special shader to draw thick lines",
           "type": "string",
           "enum": [
-            "Line2"
+            "dashed",
+            "thick"
           ],
           "default": ""
         },
         "linewidth": {
-          "description": "Link width for lines that are drawn using custom shader, makes sense when linkMethod is set to Line2",
+          "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
           "type": "number",
           "default": "0.003"
         },
@@ -529,7 +528,7 @@
         "target"
       ],
       "dependencies": {
-        "linewidth": ["linkMethod"]
+        "linewidth": ["stroke"]
       }
     },
     "Lyph": {

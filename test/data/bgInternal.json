@@ -175,31 +175,36 @@
       "id": "bc",
       "source": "B",
       "target": "C",
-      "type": "spline"
+      "type": "spline",
+      "stroke": "dashed"
     },
     {
       "id": "gf",
       "source": "G",
       "target": "F",
-      "type": "spline"
+      "type": "spline",
+      "stroke": "dashed"
     },
     {
       "id": "kl",
       "source": "K",
       "target": "L",
-      "type": "spline"
+      "type": "spline",
+      "stroke": "dashed"
     },
     {
       "id": "op",
       "source": "O",
       "target": "P",
-      "type": "spline"
+      "type": "spline",
+      "stroke": "dashed"
     },
     {
       "id": "qr",
       "source": "Q",
       "target": "R",
-      "type": "spline"
+      "type": "spline",
+      "stroke": "dashed"
     },
     {
       "id": "e1",
@@ -340,6 +345,20 @@
       "value": {
         "length": 2
       }
+    }
+  ],
+  "groups": [
+    {
+      "id"   : "bondGraph",
+      "name" : "Bond graph",
+      "links": ["bc", "gf", "kl", "op", "qr"],
+      "lyphs": ["m1", "m2", "m3", "m4", "m5"]
+    },
+    {
+      "id"    : "inner",
+      "name"  : "Conveying lyphs",
+      "links" : ["ab", "cd", "ef", "gh", "jk", "lm", "no", "pq", "rs"],
+      "nodes" : ["A", "H", "J", "D", "M", "S", "N", "E"]
     }
   ]
 }

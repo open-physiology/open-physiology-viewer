@@ -73,7 +73,13 @@ export class Graph extends Entity {
 
         //Add auto-created clones of boundary nodes to relevant groups
         (res.nodes||[]).filter(node => node.clones).forEach(node => {
-                node.clones.forEach(clone => res.nodes.push(clone));
+                node.clones.forEach(clone => {
+                    res.nodes.push(clone);
+                    if (clone.host) {
+                        clone.host.hostedNodes = clone.host.hostedNodes || [];
+                        clone.host.hostedNodes.push(clone);
+                    }
+                });
             }
         );
 
@@ -85,7 +91,13 @@ export class Graph extends Entity {
     }
 
     get entities(){
-        return [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[])];
+        let entities = [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[])];
+        (this.nodes||[]).forEach(lyph => {
+            [...(lyph.layers||[]), ...(lyph.internalNodes||[]), (lyph.internalLyphs||[])].forEach(x => {
+                if (!entities.find(e => e.id === x.id)){ entities.push(x); }
+            })
+        });
+        return entities;
     }
 
     belongsTo(entity){

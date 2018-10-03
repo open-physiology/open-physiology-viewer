@@ -1,5 +1,5 @@
 import { keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
-import { LINK_TYPES } from '../models/linkModel';
+import { LINK_TYPES, LINK_STROKE } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 
 import {assignPropertiesToJSONPath } from '../models/utils';
@@ -80,7 +80,6 @@ export class DataService{
 
         //Important: the effect of this procedure depends on the order in which lyphs that share border nodes are selected
         //If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
-        //TODO add created nodes to relevant nested groups
         const replaceBorderNodes = () => {
             //Replicate border nodes and create collapsible links
             let borderNodesByID = {};
@@ -123,7 +122,7 @@ export class DataService{
                             "id"    : `${prev}_${nodeClone.id}`,
                             "source": `${prev}`,
                             "target": `${nodeClone.id}`,
-                            "type"  : LINK_TYPES.DASHED,
+                            "stroke": LINK_STROKE.DASHED,
                             "length": 1,
                             "collapsible": true
                         };
@@ -206,25 +205,35 @@ export class DataService{
     }
 
     export(ids){
-        const getCoords = (obj) => ({"x": obj.x, "y": obj.y, "z": obj.z});
+        const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
 
         if (!this._graphData || !ids) { return; }
-        let res = {"regions": [], "connections": []};
-        (this._graphData.lyphs||[]).filter(e=> ids.includes(e.id)).forEach(lyph => {
+        let res = {"regions": [], "potentials": [], "connections": []};
+        (this._graphData.lyphs||[]).filter(e=> ids.includes(e.id) || (e.axis && ids.includes(e.axis.id))).forEach(lyph => {
             res.regions.push({
                 "id"      : lyph.id,
                 "position": getCoords(lyph.center)
             });
         });
 
+        (this._graphData.nodes||[]).filter(e => ids.includes(e.id) ||
+            (e.sourceOf || []).find(lnk => ids.includes(lnk.id)) ||
+            (e.targetOf || []).find(lnk => ids.includes(lnk.id))).forEach(node => {
+            res.potentials.push({
+                "id"       : node.id,
+                "position" : getCoords(node)
+            });
+        });
+
         (this._graphData.links||[]).filter(e=> ids.includes(e.id)).forEach(link => {
             res.connections.push({
-                "id"    : link.id,
-                "points": (link.points||[]).map(p => getCoords(p))
+                "id"     : link.id,
+                "source" : link.source.id,
+                "target" : link.target.id,
+                "points" : (link.points||[]).map(p => getCoords(p))
             });
         });
 
         return res;
-
     }
 }

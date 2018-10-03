@@ -8,22 +8,23 @@ export class GlobalErrorHandler implements ErrorHandler {
     }
 
     handleError(error) {
+        console.error(error);
         this.publishToast(error, "An unexpected error occured: " + error);
     }
 
-    publishToast(error: any, msg?: string) {
+    publishToast(error, msg) {
         let title = "Error " + (error.statusCode ? error.statusCode : '');
         let message = msg ? msg : '' + error.body ? error.body : '';
 
         // Create the instance of ToastOptions
         let toastOptions: ToastOptions = {
-            title: title,
-            msg: message,
-            showClose: true,
-            timeout: 5000,
-            theme: 'bootstrap',
-            onAdd: (toast: ToastData) => {},
-            onRemove: (toast: ToastData) => {}
+            title     : title,
+            msg       : message,
+            showClose : true,
+            timeout   : 5000,
+            theme     : 'bootstrap',
+            onAdd     : (toast: ToastData) => {},
+            onRemove  : (toast: ToastData) => {}
         };
         this._toastyService.error(toastOptions);
     }

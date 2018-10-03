@@ -1,7 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
 import { WebGLSceneModule } from '../components/webGLScene';
-//import { ExportDialogModule, ExportDialog } from '../components/exportDialog';
 
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
@@ -10,10 +9,12 @@ import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
 import {ToastyModule} from 'ng2-toasty';
+import {NgxSmartModalModule, NgxSmartModalService} from 'ngx-smart-modal';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import 'ng2-toasty/bundles/style-bootstrap.css';
+import 'ngx-smart-modal/ngx-smart-modal.css';
 
 const ace = require('ace-builds');
 
@@ -111,6 +112,24 @@ debug(true);
 				<i class="fa fa-envelope w3-padding-small"></i>bernard.de.bono@gmail.com
 			</span>
         </footer>
+
+        <ngx-smart-modal #myModal identifier="myModal">
+            <div>
+                <div class="w3-container w3-light-gray">
+                    <h4>Export bond graph layout?</h4>
+                </div>
+                <div class="w3-content w3-padding">
+                    <b>Include entities: </b>
+                    <p> {{bondGraphMsg }} </p>
+                </div>
+                <div class="w3-container w3-light-gray">
+                    <div class="w3-right">
+                        <button (click)="exportCancel()">Cancel</button>
+                        <button (click)="exportConfirm()">OK</button>
+                    </div>
+                </div>
+            </div>
+        </ngx-smart-modal>
 	`
 })
 export class TestApp {
@@ -121,10 +140,10 @@ export class TestApp {
     _editor;
 
     @ViewChild('jsonEditor') _container: ElementRef;
-    //@ViewChild(ExportDialog) _mExport;
+    @ViewChild('myModal') _myModal;
 
-
-    constructor(){
+    constructor(modalService: NgxSmartModalService){
+        this._modalService = modalService;
         this._dataService = new DataService();
         this.update(initModel);
     }
@@ -189,11 +208,27 @@ export class TestApp {
         FileSaver.saveAs(blob, 'apinatomy-model.json');
     }
 
-    export(){
-        //this._mExport.open();
-        let ids = ["m1", "m2", "m3", "m4", "m5", "bc", "gf", "kl", "op", "qr"];
+    export() {
+        this._modalService.getModal('myModal').open();
+    }
 
-        let result = JSON.stringify(this._dataService.export(ids), null, 2);
+    get bondGraphGroup() {
+        if (!this._graphData) {return []; }
+        let bondGroup = (this._graphData.groups||[]).find(e => e.id.startsWith("bond"));
+        return bondGroup? (bondGroup.entities||[]).map(e => e.id): [];
+    }
+
+    get bondGraphMsg() {
+        return this.bondGraphGroup.join(', ');
+    }
+
+    exportCancel(){
+        this._myModal.close();
+    }
+
+    exportConfirm(){
+        this._myModal.close();
+        let result = JSON.stringify(this._dataService.export(this.bondGraphGroup), null, 2);
         const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
         FileSaver.saveAs(blob, 'apinatomy-layout.json');
     }
@@ -214,7 +249,7 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot()],
+	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot(), NgxSmartModalModule.forRoot()],
 	declarations: [ TestApp ],
     bootstrap: [TestApp],
     providers: [

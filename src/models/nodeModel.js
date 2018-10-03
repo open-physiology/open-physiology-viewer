@@ -12,11 +12,12 @@ export class Node extends Entity {
      * Determines whether the node's position is constrained in the model
      */
     get isConstrained() {
-        let res = (this.fixed && this.layout) ||
+        return ((this.fixed && this.layout) ||
          (this.controlNodes && this.controlNodes.length > 0) ||
          (this.host && this.host.isVisible) ||
-         (this.internalNodeInLyph && this.internalNodeInLyph.isVisible);
-        return res;
+         (this.internalNodeInLyph && this.internalNodeInLyph.isVisible))
+            ? true
+            : false;
     }
 
     get polygonOffsetFactor() {
@@ -59,9 +60,7 @@ export class Node extends Entity {
             this.createViewObjects(state);
         }
 
-        if (this.fixed) {
-            copyCoords(this, this.foci || this.layout);
-        }
+        if (this.fixed) { copyCoords(this, this.foci || this.layout); }
 
         if (this.controlNodes) {
             let middle = new THREE.Vector3(0, 0, 0);
