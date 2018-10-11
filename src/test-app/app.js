@@ -15,30 +15,12 @@ import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import 'ng2-toasty/bundles/style-bootstrap.css';
 import 'ngx-smart-modal/ngx-smart-modal.css';
+import { debug } from '../models/utils';
 
 const ace = require('ace-builds');
 
 let msgCount = {};
-
-let consoleHolder = console;
-function debug(bool){
-    if(!bool){
-        consoleHolder = console;
-        console = {};
-        Object.keys(consoleHolder).forEach(function(key){
-            console[key] = function(){
-                if (!msgCount[key]) {
-                    msgCount[key] = 0;
-                } else {
-                    msgCount[key]++;
-                }
-            };
-        })
-    }else{
-        console = consoleHolder;
-    }
-}
-debug(true);
+debug(true, msgCount);
 
 @Component({
 	selector: 'test-app',

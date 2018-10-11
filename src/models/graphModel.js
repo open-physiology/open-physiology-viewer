@@ -93,7 +93,7 @@ export class Graph extends Entity {
     get entities(){
         let entities = [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[])];
         (this.nodes||[]).forEach(lyph => {
-            [...(lyph.layers||[]), ...(lyph.internalNodes||[]), (lyph.internalLyphs||[])].forEach(x => {
+            [...(lyph.layers||[]), ...(lyph.internalNodes||[]), ...(lyph.internalLyphs||[])].forEach(x => {
                 if (!entities.find(e => e.id === x.id)){ entities.push(x); }
             })
         });

@@ -1332,28 +1332,28 @@
       "name": "Tracts",
       "groups": [
         {
-        "id": "TREE1",
-        "name": "Gracile tract 1st order sensory neuron Lower Limb Spinal Cord Parenchyma layer CNS entrance neuron tree",
-        "nodes": [
-          "N1",
-          "N2",
-          "N3",
-          "N4",
-          "N5",
-          "N6",
-          "N7",
-          "N8"
-        ],
-        "links": [
-          "V1",
-          "V2",
-          "V3",
-          "V4",
-          "V5",
-          "V6",
-          "V7"
-        ]
-      },
+          "id": "TREE1",
+          "name": "Gracile tract 1st order sensory neuron Lower Limb Spinal Cord Parenchyma layer CNS entrance neuron tree",
+          "nodes": [
+            "N1",
+            "N2",
+            "N3",
+            "N4",
+            "N5",
+            "N6",
+            "N7",
+            "N8"
+          ],
+          "links": [
+            "V1",
+            "V2",
+            "V3",
+            "V4",
+            "V5",
+            "V6",
+            "V7"
+          ]
+        },
         {
           "id": "TREE2",
           "name": "Anterolateral Spinothalamic tract 1st order sensory neuron Skin Dorsal Root Ganglion neuron tree",

@@ -108,6 +108,16 @@ export class Link extends Entity {
                 }
             }
 
+            if (this.arrow){
+                let arrowHelper = new THREE.ArrowHelper(this.source, this.target, 2, this.material.color);
+                obj.add(arrowHelper);
+            }
+
+            if (this.type === LINK_TYPES.SPLINE) {
+                this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x!== this);
+                this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x!== this);
+            }
+
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
             obj.__data = this;     // Attach link data
             this.viewObjects["main"] = obj;
@@ -150,16 +160,12 @@ export class Link extends Entity {
         }
 
         if (this.type === LINK_TYPES.SPLINE) {
-            //Direction without normalization
-            let prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x!== this);
-            if (prev) {
-                prev = (this.source === prev.source)? _start.clone().sub(prev.direction) :_start.clone().add(prev.direction);
-            }
-            let next = (this.target.sourceOf || this.target.targetOf || []).find(x => x!== this);
-            if (next) {
-                next = (this.target === next.target)? _end.clone().add(next.direction) : _end.clone().sub(next.direction);
-            }
-            if (prev && next){
+            if (this.prev && this.next) {
+                const controlPoint = (key1, key2, p) => (this[key1] === this[key2][key1])
+                    ? p.clone().sub(this[key2].direction)
+                    : p.clone().add(this[key2].direction);
+                let prev = controlPoint("source", "prev", _start);
+                let next = controlPoint("target", "next", _end);
                 curve = new THREE.CubicBezierCurve3(_start, prev, next,  _end);
                 this.points = curve.getPoints(state.linkResolution - 1);
             }

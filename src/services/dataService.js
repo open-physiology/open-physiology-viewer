@@ -197,7 +197,7 @@ export class DataService{
             })
         });
 
-        console.info("ApiNATOMY graph: ", this._graphData);
+        //console.info("ApiNATOMY graph: ", this._graphData);
     }
 
     get graphData(){
