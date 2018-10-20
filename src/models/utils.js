@@ -26,6 +26,7 @@ export function debug(bool, msgCount = {}){
     }
 }
 
+
 /**
  * Assign properties for the entities in JSON path
  * @param path    - JSON path
@@ -59,9 +60,11 @@ export function assignPropertiesToJSONPath({path, value}, parent, handler){
 export function copyCoords(target, source){
     if (!source) { return; }
     if (!target) { return; }
-    target.x = source.x || 0;
-    target.y = source.y || 0;
-    target.z = source.z || 0;
+    ["x", "y", "z"].forEach(dim => {
+        if (source.hasOwnProperty(dim)) {
+            target[dim] = source[dim] || 0
+        }
+    });
 }
 
 /**

@@ -6,7 +6,6 @@ import {
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
-import {MaterialFactory} from './materialFactory';
 import {Graph} from '../models/graphModel';
 
 /**
@@ -34,16 +33,14 @@ export default Kapsule({
         nodeRelSize    : { default: 3 },      // volume per val unit
         nodeId         : { default: 'id' },
         nodeResolution : { default: 16 },     // how many slice segments in the sphere's circumference
-        linkResolution : { default: 50 },     // number of points on semicircle link
+        linkResolution : { default: 30 },     // number of points on curved link
         showLyphs      : { default: true},
         showLayers     : { default: true},
-        method         : { default: '2d'},    // the 3d lyph objects are not anymore supported due to low
         showLabels     : { default: {Node: true}},
-        labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id'}},
+        labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         fontParams     : { default: {
             font: '28px Arial', fillStyle: '#000', antialias: true }
         },
-        opacity        : { default: 0.6 },
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
@@ -81,7 +78,6 @@ export default Kapsule({
     init(threeObj, state) {
         // Main three object to manipulate
         state.graphScene = threeObj;
-        state.materialRepo = new MaterialFactory({ transparent: true, opacity: state.opacity });
     },
 
     update(state) {

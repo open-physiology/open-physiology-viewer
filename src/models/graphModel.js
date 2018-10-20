@@ -1,6 +1,6 @@
 import { Entity } from './entityModel';
-import { values, isObject, unionBy} from 'lodash-bound';
-import { Link, LINK_TYPES } from './linkModel';
+import { keys, values, isObject, unionBy, isNumber} from 'lodash-bound';
+import { Link, LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
@@ -53,7 +53,7 @@ export class Graph extends Entity {
                     "source": sNode,
                     "target": tNode,
                     "length": container && container.axis? container.axis.length * 0.8 : 5,
-                    "type": LINK_TYPES.INVISIBLE,
+                    "geometry": LINK_GEOMETRY.INVISIBLE,
                     "color": "#ccc",
                     "conveyingLyph": lyph
                 });
@@ -86,18 +86,33 @@ export class Graph extends Entity {
         //Color links and lyphs which do not have assigned colors in the spec
         addColor(res.links, "#000");
         addColor(res.lyphs);
+        addColor(res.regions, "#c0c0c0");
+
+        (res.regions||[]).filter(region => !region.points).forEach((region, i) => {
+
+        });
 
         return res;
     }
 
     get entities(){
-        let entities = [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[])];
+        let entities = [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[]),...(this.regions||[])];
         (this.nodes||[]).forEach(lyph => {
             [...(lyph.layers||[]), ...(lyph.internalNodes||[]), ...(lyph.internalLyphs||[])].forEach(x => {
                 if (!entities.find(e => e.id === x.id)){ entities.push(x); }
             })
         });
         return entities;
+    }
+
+    scale(axisLength){
+        const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
+                p[key] *= axisLength * 0.01;
+            });
+        (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
+        (this.links||[]).filter(link => link.length).forEach(link => link.length *= 2 * axisLength * 0.01);
+        (this.regions||[]).filter(region => region.points).forEach(region =>
+           region.points.forEach(p => scalePoint(p)));
     }
 
     belongsTo(entity){
@@ -125,6 +140,10 @@ export class Graph extends Entity {
         return (this.groups||[]).filter(e => !e.inactive);
     }
 
+    get visibleRegions(){
+        return (this.regions||[]).filter(e => e.isVisible);
+    }
+
     get visibleNodes(){
         return (this.nodes||[]).filter(e => e.isVisible);
     }
@@ -141,7 +160,6 @@ export class Graph extends Entity {
     }
 
     createViewObjects(state){
-        //Draw all graph nodes, except for invisible nodes (node.type === CONTROL)
         this.visibleNodes.forEach(node => {
             node.createViewObjects(state);
             node.viewObjects::values().forEach(obj => state.graphScene.add(obj));
@@ -150,9 +168,14 @@ export class Graph extends Entity {
         this.visibleLinks.forEach(link => {
             link.createViewObjects(state);
             link.viewObjects::values().forEach(obj => state.graphScene.add(obj));
-            if (link.type === LINK_TYPES.INVISIBLE){
+            if (link.geometry === LINK_GEOMETRY.INVISIBLE){
                 link.viewObjects["main"].material.visible = false;
             }
+        });
+
+        this.visibleRegions.forEach(region => {
+            region.createViewObjects(state);
+            region.viewObjects::values().forEach(obj => state.graphScene.add(obj));
         });
 
     }
@@ -164,7 +187,7 @@ export class Graph extends Entity {
         //Edge bundling
         const fBundling = ForceEdgeBundling()
             .nodes(this.visibleNodes)
-            .edges(this.visibleLinks.filter(e => e.type === LINK_TYPES.PATH).map(edge => {
+            .edges(this.visibleLinks.filter(e => e.geometry === LINK_GEOMETRY.PATH).map(edge => {
                 return {
                     source: this.nodes.indexOf(edge.source),
                     target: this.nodes.indexOf(edge.target)
@@ -181,5 +204,7 @@ export class Graph extends Entity {
         });
 
         this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
+
+        this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
     }
 }

@@ -2,6 +2,8 @@ import {Entity} from './entityModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {copyCoords} from './utils';
+import { MaterialFactory } from '../three/materialFactory';
+import { getCenterOfMass } from '../three/utils';
 
 /**
  * The class to visualize nodes in the process graphs
@@ -33,15 +35,13 @@ export class Node extends Entity {
         if (!this.viewObjects["main"]) {
             let geometry = new THREE.SphereGeometry(this.val * state.nodeRelSize,
                 state.nodeResolution, state.nodeResolution);
-            if (!this.material) {
-                this.material = state.materialRepo.createMeshLambertMaterial({
-                    color: this.color,
-                    polygonOffsetFactor: this.polygonOffsetFactor
-                });
-            }
-            let obj = new THREE.Mesh(geometry, this.material);
+            let material = MaterialFactory.createMeshLambertMaterial({
+                color: this.color,
+                polygonOffsetFactor: this.polygonOffsetFactor
+            });
+            let obj = new THREE.Mesh(geometry, material);
             // Attach node data
-            obj.__data = this;
+            obj.userData = this;
             this.viewObjects["main"] = obj;
         }
 
@@ -63,14 +63,7 @@ export class Node extends Entity {
         if (this.fixed) { copyCoords(this, this.foci || this.layout); }
 
         if (this.controlNodes) {
-            let middle = new THREE.Vector3(0, 0, 0);
-            this.controlNodes.forEach(p => {
-                middle.x += p.x;
-                middle.y += p.y;
-                middle.z += p.z
-            });
-            middle = middle.multiplyScalar(1.0 / (this.controlNodes.length || 1));
-            copyCoords(this, middle.clone().multiplyScalar(2)); //double the distance from center
+            copyCoords(this, getCenterOfMass(this.controlNodes).multiplyScalar(2)); //double the distance from center
         }
 
         copyCoords(this.viewObjects["main"].position, this);

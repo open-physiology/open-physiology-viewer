@@ -1,5 +1,5 @@
 import { keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
-import { LINK_TYPES, LINK_STROKE } from '../models/linkModel';
+import { LINK_GEOMETRY, LINK_STROKE } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 
 import {assignPropertiesToJSONPath } from '../models/utils';
@@ -189,7 +189,7 @@ export class DataService{
                         "source": lyph.axis[end],
                         "target": lyph2.axis[end],
                         "length": 0.1,
-                        "type"  : LINK_TYPES.FORCE
+                        "geometry"  : LINK_GEOMETRY.FORCE
                     });
                     this._graphData.links.push(link);
                     coalescenceGroup.links.push(link);
@@ -197,7 +197,7 @@ export class DataService{
             })
         });
 
-        //console.info("ApiNATOMY graph: ", this._graphData);
+        console.info("ApiNATOMY graph: ", this._graphData);
     }
 
     get graphData(){

@@ -11,7 +11,6 @@ import {
     forceY,
     forceZ
 } from 'd3-force-3d';
-import {LINK_TYPES} from '../models/linkModel';
 
 import {ModelInfoPanel} from './gui/modelInfo';
 import {SelectNameSearchBar} from './gui/selectNameSearchBar';
@@ -42,9 +41,9 @@ const WindowResize = require('three-window-resize');
                     <section class="w3-center w3-card w3-grey">
                         <h4>Control panel</h4>
                     </section>
-                    <fieldset *ngIf="!!_highlighted && !!_highlighted.__data" class="w3-card w3-round w3-margin-small">
+                    <fieldset *ngIf="!!_highlighted && !!_highlighted.userData" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
-                        <modelInfoPanel [model]=_highlighted.__data></modelInfoPanel>
+                        <modelInfoPanel [model]=_highlighted.userData></modelInfoPanel>
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
@@ -55,7 +54,9 @@ const WindowResize = require('three-window-resize');
                         </span>
                         <input type="checkbox" class="w3-check" name="coalescences"
                                (change)="toggleGroup(graphData.coalescenceGroup)" [checked]="showGroup(graphData.coalescenceGroup)"/> Coalescences
-                        <br/> 
+                    </fieldset>
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Groups</legend>
                         <span *ngFor="let group of graphData.activeGroups">
                             <input type="checkbox" name="switch" class="w3-check"
                                    (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
@@ -93,9 +94,9 @@ const WindowResize = require('three-window-resize');
                         <selectNameSearchBar [selectedName]="_selectedLyphName" [namesAvailable]="_namesAvailable"
                                              (selectedBySearchEvent)="selectBySearchEventHandler($event)"></selectNameSearchBar>
                     </fieldset>
-                    <fieldset *ngIf="!!_selected && !!_selected.__data" class="w3-card w3-round w3-margin-small">
+                    <fieldset *ngIf="!!_selected && !!_selected.userData" class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
-                        <modelInfoPanel [model]=_selected.__data></modelInfoPanel>
+                        <modelInfoPanel [model]=_selected.userData></modelInfoPanel>
                     </fieldset>
                 </section>
             </section>
@@ -160,9 +161,7 @@ export class WebGLSceneComponent {
 
             /*Map initial positional constraints to match the scaled image*/
 
-            this._graphData.nodes.forEach(node => node.layout::keys().forEach(key => {
-                node.layout[key] *= this.axisLength * 0.01; }));
-            this._graphData.links.filter(link => link.length).forEach(link => link.length *= 2 * this.axisLength * 0.01);
+            this._graphData.scale(this.axisLength);
 
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
@@ -185,7 +184,7 @@ export class WebGLSceneComponent {
         this.unhighlight(this._selected);
         this.highlight(obj, this.selectColor, obj !== this.highlighted);
         this._selected = obj;
-        this._selectedLyphName = obj && obj.__data && (obj.__data.constructor.name === "Lyph")? obj.__data.name: "";
+        this._selectedLyphName = obj && obj.userData && (obj.userData.constructor.name === "Lyph")? obj.userData.name: "";
         this.selectedItemChange.emit(obj);
     }
 
@@ -208,13 +207,14 @@ export class WebGLSceneComponent {
         this._showLyphs = true;
         this._showLayers = true;
         this._showLabels = {
-            "Node": true,
-            "Link": false,
-            "Lyph": false
+            "Node"  : true,
+            "Link"  : false,
+            "Lyph"  : false,
+            "Region": false
         };
-        this._labelClasses = (this._showLabels)::keys();
+        this._labelClasses = this._showLabels::keys();
         this._labelProps   = ["id", "name", "external"];
-        this._labels       = {Node: "id", Link: "id", Lyph: "id"};
+        this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
         this._hideGroups = new Set();
     }
 
@@ -356,10 +356,10 @@ export class WebGLSceneComponent {
 
         let intersects = ray.intersectObjects(this.graph.children);
         if (intersects.length > 0) {
-            if (!intersects[0].object.__data || intersects[0].object.__data.inactive) { return; }
+            if (!intersects[0].object.userData || intersects[0].object.userData.inactive) { return; }
             //Refine selection to layers
-            if (intersects[0].object.__data.layers) {
-                let layerMeshes = intersects[0].object.__data.layers.map(layer => layer.viewObjects["main"]);
+            if (intersects[0].object.userData.layers) {
+                let layerMeshes = intersects[0].object.userData.layers.map(layer => layer.viewObjects["main"]);
                 let layerIntersects = ray.intersectObjects(layerMeshes);
                 if (layerIntersects.length > 0) {
                     return layerIntersects[0].object;
@@ -401,7 +401,7 @@ export class WebGLSceneComponent {
             if (obj.material){
                 obj.material.color.setHex( obj.currentHex || this.defaultColor);
             }
-            (obj.children || []).filter(child => child.material && child.currentHex).forEach(child => {
+            (obj.children || []).filter(child => child.material).forEach(child => {
                 child.material.color.setHex( child.currentHex || this.defaultColor);
             })
         }

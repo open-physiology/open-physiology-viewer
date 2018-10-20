@@ -1,45 +1,36 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
+import {clone, merge} from 'lodash-bound';
+import tinycolor from 'tinycolor2';
 
-import tinyColor from 'tinycolor2';
-const colorStr2Hex = str => isNaN(str) ? parseInt(tinyColor(str).toHex(), 16) : str;
+const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : str;
+
+const defaultParams = {
+    transparent: true,
+    opacity : 0.6,
+    side    : THREE.DoubleSide,
+    color   : "#666",
+    polygonOffsetUnits : 1,
+    polygonOffset      : true,
+    polygonOffsetFactor: 0
+};
 
 export class MaterialFactory {
-    defaultParams = {};
-
-    constructor(params = {}) {
-        this.defaultParams = params;
-        if (this.defaultParams.color === undefined){
-            this.defaultParams.color = "#666";
-        }
-        if (this.defaultParams.polygonOffset === undefined) {
-            this.defaultParams.polygonOffset = true;
-        }
-        if (this.defaultParams.polygonOffsetUnits === undefined){
-            this.defaultParams.polygonOffsetUnits = 1;
-        }
-        if (this.defaultParams.polygonOffsetFactor === undefined){
-            this.defaultParams.polygonOffsetFactor = this.defaultParams.polygonOffsetFactor || 0;
-        }
-        this.defaultParams.side = this.defaultParams.side || THREE.DoubleSide;
-    }
-
-    createLine2Material(params = {}){
-        let p = Object.assign({}, this.defaultParams, params);
-        p.color = colorStr2Hex(p.color);
+    static createLine2Material(params = {}){
+        let p       = defaultParams::clone()::merge(params);
+        p.color     = colorStr2Hex(p.color);
         p.linewidth = p.linewidth || 0.003;
         return new THREE.LineMaterial(p);
     }
 
-    createLineBasicMaterial(params = {}) {
-        let p = Object.assign({}, this.defaultParams, params);
-        p.color = colorStr2Hex(p.color);
-        p.linewidth = p.linewidth || 3;
+    static createLineBasicMaterial(params = {}) {
+        let p       = defaultParams::clone()::merge(params);
+        p.color     = colorStr2Hex(p.color);
         return new THREE.LineBasicMaterial(p);
     }
 
-    createLineDashedMaterial(params = {}) {
-        let p = Object.assign({}, this.defaultParams, params);
+    static createLineDashedMaterial(params = {}) {
+        let p = defaultParams::clone()::merge(params);
         p.color = colorStr2Hex(p.color);
         p.scale    = p.scale    || 1;
         p.gapSize  = p.gapSize  || 2;
@@ -47,14 +38,14 @@ export class MaterialFactory {
         return new THREE.LineDashedMaterial(p);
     }
 
-    createMeshBasicMaterial(params = {}){
-        let p = Object.assign({}, this.defaultParams, params);
+    static createMeshBasicMaterial(params = {}){
+        let p   = defaultParams::clone()::merge(params);
         p.color = colorStr2Hex(p.color);
         return new THREE.MeshBasicMaterial(p);
     }
 
-    createMeshLambertMaterial(params = {}){
-        let p = Object.assign({}, this.defaultParams, params);
+    static createMeshLambertMaterial(params = {}){
+        let p   = defaultParams::clone()::merge(params);
         p.color = colorStr2Hex(p.color);
         return new THREE.MeshLambertMaterial(p);
     }

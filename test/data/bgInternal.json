@@ -64,52 +64,52 @@
     },
     {
       "id": "e1_a",
-      "layout": {"x": -30, "y": 20},
-      "skipLabel": true
-    },
-    {
-      "id": "e1_b",
       "layout": {"x": -20, "y": 20},
       "skipLabel": true
     },
     {
+      "id": "e1_b",
+      "layout": {"x": -40, "y": 20},
+      "skipLabel": true
+    },
+    {
       "id": "e2_a",
-      "layout": {"x": 20, "y": 20},
+      "layout": {"x": 40, "y": 20},
       "skipLabel": true
     },
     {
       "id": "e2_b",
-      "layout": {"x": 30, "y": 20},
+      "layout": {"x": 20, "y": 20},
       "skipLabel": true
     },
     {
       "id": "e3_a",
-      "layout": {"y": 0},
+      "layout": {"x": 10, "y": 0},
       "skipLabel": true
     },
     {
       "id": "e3_b",
-      "layout": {"y": 0},
+      "layout": {"x": -10, "y": 0},
       "skipLabel": true
     },
     {
       "id": "e4_a",
-      "layout": {"y": -20},
+      "layout": {"x": 10, "y": -20},
       "skipLabel": true
     },
     {
       "id": "e4_b",
-      "layout": {"y": -20},
+      "layout": {"x": -10, "y": -20},
       "skipLabel": true
     },
     {
       "id": "e5_a",
-      "layout": {"x": 30, "y": -10},
+      "layout": {"x": 40, "y": -10},
       "skipLabel": true
     },
     {
       "id": "e5_b",
-      "layout": {"x": 40, "y": -10},
+      "layout": {"x": 20, "y": -10},
       "skipLabel": true
     }
   ],
@@ -128,8 +128,8 @@
     },
     {
       "id": "ef",
-      "source": "E",
-      "target": "F",
+      "source": "F",
+      "target": "E",
       "conveyingLyph": "EF"
     },
     {
@@ -175,61 +175,60 @@
       "id": "bc",
       "source": "B",
       "target": "C",
-      "type": "spline",
+      "geometry": "spline",
       "stroke": "dashed"
     },
     {
       "id": "gf",
-      "source": "G",
-      "target": "F",
-      "type": "spline",
+      "source": "F",
+      "target": "G",
+      "geometry": "spline",
       "stroke": "dashed"
     },
     {
       "id": "kl",
-      "source": "K",
-      "target": "L",
-      "type": "spline",
+      "source": "L",
+      "target": "K",
+      "geometry": "spline",
       "stroke": "dashed"
     },
     {
       "id": "op",
       "source": "O",
       "target": "P",
-      "type": "spline",
+      "geometry": "spline",
       "stroke": "dashed"
     },
     {
       "id": "qr",
       "source": "Q",
       "target": "R",
-      "type": "spline",
+      "geometry": "spline",
       "stroke": "dashed"
     },
     {
       "id": "e1",
-      "source": "e1_b",
-      "target": "e1_a",
+      "source": "e1_a",
+      "target": "e1_b",
       "conveyingLyph": "m1",
       "length": 10,
-      "type": "invisible"
+      "geometry": "invisible"
     },
     {
       "id": "e2",
-      "source": "e2_b",
-      "target": "e2_a",
+      "source": "e2_a",
+      "target": "e2_b",
       "conveyingLyph": "m2",
       "length": 10,
-      "type": "invisible"
-
+      "geometry": "invisible"
     },
     {
       "id": "e3",
-      "source": "e3_b",
-      "target": "e3_a",
+      "source": "e3_a",
+      "target": "e3_b",
       "conveyingLyph": "m3",
       "length": 10,
-      "type": "invisible"
+      "geometry": "invisible"
 
     },
     {
@@ -238,16 +237,16 @@
       "target": "e4_b",
       "conveyingLyph": "m4",
       "length": 10,
-      "type": "invisible"
+      "geometry": "invisible"
 
     },
     {
       "id": "e5",
-      "source": "e5_b",
-      "target": "e5_a",
+      "source": "e5_a",
+      "target": "e5_b",
       "conveyingLyph": "m5",
       "length": 10,
-      "type": "invisible"
+      "geometry": "invisible"
 
     }
   ],
@@ -345,20 +344,6 @@
       "value": {
         "length": 2
       }
-    }
-  ],
-  "groups": [
-    {
-      "id"   : "bondGraph",
-      "name" : "Bond graph",
-      "links": ["bc", "gf", "kl", "op", "qr"],
-      "lyphs": ["m1", "m2", "m3", "m4", "m5"]
-    },
-    {
-      "id"    : "inner",
-      "name"  : "Conveying lyphs",
-      "links" : ["ab", "cd", "ef", "gh", "jk", "lm", "no", "pq", "rs"],
-      "nodes" : ["A", "H", "J", "D", "M", "S", "N", "E"]
     }
   ]
 }

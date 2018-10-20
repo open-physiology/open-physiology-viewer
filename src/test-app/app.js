@@ -9,7 +9,7 @@ import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
 import {ToastyModule} from 'ng2-toasty';
-import {NgxSmartModalModule, NgxSmartModalService} from 'ngx-smart-modal';
+//import {NgxSmartModalModule, NgxSmartModalService} from 'ngx-smart-modal';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -59,9 +59,9 @@ debug(true, msgCount);
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit">
                 <i class="fa fa-edit"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="export()" title="Export layout">
-                <i class="fa fa-image"></i>
-            </button>
+            <!--<button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="export()" title="Export layout">-->
+                <!--<i class="fa fa-image"></i>-->
+            <!--</button>-->
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide">
                 <i class="fa fa-eye-slash"></i>
             </button>
@@ -95,23 +95,23 @@ debug(true, msgCount);
 			</span>
         </footer>
 
-        <ngx-smart-modal #myModal identifier="myModal">
-            <div>
-                <div class="w3-container w3-light-gray">
-                    <h4>Export bond graph layout?</h4>
-                </div>
-                <div class="w3-content w3-padding">
-                    <b>Include entities: </b>
-                    <p> {{bondGraphMsg }} </p>
-                </div>
-                <div class="w3-container w3-light-gray">
-                    <div class="w3-right">
-                        <button (click)="exportCancel()">Cancel</button>
-                        <button (click)="exportConfirm()">OK</button>
-                    </div>
-                </div>
-            </div>
-        </ngx-smart-modal>
+        <!--<ngx-smart-modal #myModal identifier="myModal">-->
+            <!--<div>-->
+                <!--<div class="w3-container w3-light-gray">-->
+                    <!--<h4>Export bond graph layout?</h4>-->
+                <!--</div>-->
+                <!--<div class="w3-content w3-padding">-->
+                    <!--<b>Include entities: </b>-->
+                    <!--<p> {{bondGraphMsg }} </p>-->
+                <!--</div>-->
+                <!--<div class="w3-container w3-light-gray">-->
+                    <!--<div class="w3-right">-->
+                        <!--<button (click)="exportCancel()">Cancel</button>-->
+                        <!--<button (click)="exportConfirm()">OK</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</ngx-smart-modal>-->
 	`
 })
 export class TestApp {
@@ -122,14 +122,13 @@ export class TestApp {
     _editor;
 
     @ViewChild('jsonEditor') _container: ElementRef;
-    @ViewChild('myModal') _myModal;
+    //@ViewChild('myModal') _myModal;
 
-    constructor(modalService: NgxSmartModalService){
-        this._modalService = modalService;
+    constructor(){ //(modalService: NgxSmartModalService){
+        //this._modalService = modalService;
         this._dataService = new DataService();
         this.update(initModel);
     }
-
     ngAfterViewInit(){
         this._editor = new JSONEditor(this._container.nativeElement, {
             mode: 'code',
@@ -141,26 +140,23 @@ export class TestApp {
     }
 
 	load(files) {
-		const reader = new FileReader();
+        const reader = new FileReader();
 		reader.onload = () => {
             try {
                 this._model = JSON.parse(reader.result);
-            }
-            catch(err){
-                throw new Error("Cannot parse the input file: " + err);
-            }
-            try{
                 this.update(this._model);
                 this._editor.set(this._model);
-            }
-            catch(err){
-                throw new Error("Cannot display the model: " +  err);
+            } catch(err){
+                throw new Error("Cannot load the model: " +  err);
             }
         };
-		try {
-		    if (files[0]){ reader.readAsText(files[0]); }
-        } catch (err){
-            throw new Error("Failed to open the input file: " + err);
+
+        if (files && files[0]){
+            try {
+                reader.readAsText(files[0]);
+            } catch (err){
+                throw new Error("Failed to open the input file: " + err);
+            }
         }
 
         if (msgCount["error"] || msgCount["warn"]){
@@ -190,9 +186,9 @@ export class TestApp {
         FileSaver.saveAs(blob, 'apinatomy-model.json');
     }
 
-    export() {
-        this._modalService.getModal('myModal').open();
-    }
+    // export() {
+    //     this._modalService.getModal('myModal').open();
+    // }
 
     get bondGraphGroup() {
         if (!this._graphData) {return []; }
@@ -231,7 +227,7 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot(), NgxSmartModalModule.forRoot()],
+	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot()], //, NgxSmartModalModule.forRoot()
 	declarations: [ TestApp ],
     bootstrap: [TestApp],
     providers: [

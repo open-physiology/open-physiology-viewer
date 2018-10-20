@@ -404,7 +404,6 @@
       "id": "cn",
       "source": "c",
       "target": "n",
-      "name": "",
       "stroke": "dashed",
       "length": 100
     },
@@ -413,7 +412,7 @@
       "source": "R",
       "target": "L",
       "name": "Pulmonary",
-      "type": "semicircle",
+      "geometry": "rectangle",
       "length": 75,
       "stroke": "thick"
     },
@@ -422,7 +421,7 @@
       "source": "L",
       "target": "R",
       "name": "Systemic",
-      "type": "semicircle",
+      "geometry": "rectangle",
       "length": 75,
       "stroke": "thick"
     },
@@ -431,7 +430,7 @@
       "source": "S",
       "target": "P",
       "name": "Gut",
-      "type": "semicircle",
+      "geometry": "rectangle",
       "length": 90,
       "stroke": "thick"
     },
@@ -440,7 +439,7 @@
       "source": "P",
       "target": "S",
       "name": "Gut'",
-      "type": "semicircle",
+      "geometry": "rectangle",
       "length": 90,
       "stroke": "thick",
       "conveyingLyph": "170"
@@ -449,7 +448,7 @@
       "id"    : "k_l",
       "source": "k",
       "target": "l",
-      "type"  : "invisible",
+      "geometry" : "invisible",
       "length": 40,
       "conveyingLyph": "5"
     },
@@ -458,7 +457,7 @@
       "source": "t",
       "target": "ta1",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 9,
       "reversed": true,
       "stroke": "thick",
@@ -469,7 +468,7 @@
       "source": "ta1",
       "target": "ta2",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 9,
       "reversed": true,
       "stroke": "thick",
@@ -480,7 +479,7 @@
       "source": "ta2",
       "target": "a",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 9,
       "reversed": true,
       "stroke": "thick",
@@ -491,7 +490,7 @@
       "source": "a",
       "target": "ah1",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 9,
       "reversed": true,
       "stroke": "thick",
@@ -502,7 +501,7 @@
       "source": "ah1",
       "target": "ah2",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 9,
       "reversed": true,
       "stroke": "thick",
@@ -513,7 +512,7 @@
       "source": "ah2",
       "target": "ah3",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 3,
       "reversed": true,
       "stroke": "thick",
@@ -524,7 +523,7 @@
       "source": "ah3",
       "target": "h",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 3,
       "reversed": true,
       "stroke": "thick",
@@ -535,7 +534,7 @@
       "source": "a",
       "target": "ag1",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 9,
       "stroke": "thick",
       "conveyingLyph": "157"
@@ -545,7 +544,7 @@
       "source": "ag1",
       "target": "g",
       "name": "Ependymal",
-      "type": "link",
+      "geometry": "link",
       "length": 3,
       "stroke": "thick",
       "conveyingLyph": "162"
@@ -1060,6 +1059,11 @@
     }
   ],
   "groups": [
+    { "id": "regions",
+      "name": "Regions",
+      "regions": [
+        "prt1", "prt2","prt3", "prt4", "prt5","prt6", "prt7", "prt8","prt9","prt10","prt11", "prt12", "prt13", "prt14", "prt15"]
+    },
     {
       "id": "omega",
       "name": "Omega trees",
@@ -1539,6 +1543,8 @@
         }
       ],
       "lyphs" : ["995", "996"],
+      "links" : ["LR", "RL"],
+      "nodes" : ["L", "R"],
       "assign": [
         {
           "path": "$.groups[*].links[*]",
@@ -6067,6 +6073,83 @@
       "internalNodes": [
         "N3"
       ]
+    }
+  ],
+  "regions": [
+    {
+      "id"   : "prt1",
+      "name" : "Reproductive",
+      "points": [{"x": -100, "y": 0}, {"x": -100, "y": 50}, {"x": -65, "y": 50}, {"x": -65, "y": 0}]
+    },
+    {
+      "id"   : "prt2",
+      "name" : "Colon",
+      "points": [{"x": -100, "y": 50}, {"x": -100, "y": 100}, {"x": -65, "y": 100}, {"x": -65, "y": 50}]
+    },
+    {
+      "id"   : "prt3",
+      "name" : "Jejunoileum",
+      "points": [{"x": -65, "y": 50}, {"x": -65, "y": 100}, {"x": -30, "y": 100}, {"x": -30, "y": 50}]
+    },
+    {
+      "id"   : "prt4",
+      "name" : "Liver, Pancreas Duodenum",
+      "points": [{"x": -30, "y": 50}, {"x": -30, "y": 100}, {"x": 0, "y": 100}, {"x": 0, "y": 50}]
+    },
+    {
+      "id"   : "prt5",
+      "name" : "Stomach",
+      "points": [{"x": 0, "y": 50}, {"x": 0, "y": 100}, {"x": 30, "y": 100}, {"x": 30, "y": 50}]
+    },
+    {
+      "id"   : "prt6",
+      "name" : "Esophagus",
+      "points": [{"x": 30, "y": 50}, {"x": 30, "y": 100}, {"x": 65, "y": 100}, {"x": 65, "y": 50}]
+    },
+    {
+      "id"   : "prt7",
+      "name" : "Oral Cavity",
+      "points": [{"x": 65, "y": 50}, {"x": 65, "y": 100}, {"x": 100, "y": 100}, {"x": 100, "y": 50}]
+    },
+    {
+      "id"   : "prt8",
+      "name" : "Lungs",
+      "points": [{"x": 65, "y": 0}, {"x": 65, "y": 50}, {"x": 100, "y": 50}, {"x": 100, "y": 0}]
+    },
+    {
+      "id"   : "prt9",
+      "name" : "Eyes, Ears, Nose",
+      "points": [{"x": 65, "y": -50}, {"x": 65, "y": 0}, {"x": 100, "y": 0}, {"x": 100, "y": -50}]
+    },
+    {
+      "id"   : "prt10",
+      "name" : "Cranium",
+      "points": [{"x": 65, "y": -100}, {"x": 65, "y": -50}, {"x": 100, "y": -50}, {"x": 100, "y": -100}]
+    },
+    {
+      "id"   : "prt11",
+      "name" : "Neck",
+      "points": [{"x": 20, "y": -100}, {"x": 20, "y": -50}, {"x": 65, "y": -50}, {"x": 65, "y": -100}]
+    },
+    {
+      "id"   : "prt12",
+      "name" : "Thorax",
+      "points": [{"x": -20, "y": -100}, {"x": -20, "y": -50}, {"x": 20, "y": -50}, {"x": 20, "y": -100}]
+    },
+    {
+      "id"   : "prt13",
+      "name" : "Abdomen",
+      "points": [{"x": -65, "y": -100}, {"x": -65, "y": -50}, {"x": -20, "y": -50}, {"x": -20, "y": -100}]
+    },
+    {
+      "id"   : "prt14",
+      "name" : "Pelvis",
+      "points": [{"x": -100, "y": -100}, {"x": -100, "y": -50}, {"x": -65, "y": -50}, {"x": -65, "y": -100}]
+    },
+    {
+      "id"   : "prt15",
+      "name" : "Urinary",
+      "points": [{"x": -100, "y": -50}, {"x": -100, "y": 0}, {"x": -65, "y": 0}, {"x": -65, "y": -50}]
     }
   ],
   "materials": [

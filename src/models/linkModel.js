@@ -1,7 +1,9 @@
 import { Entity } from './entityModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
-import { direction, bezierSemicircle, extractCoords } from '../three/utils';
+import { direction, bezierSemicircle, rectangleCurve, extractCoords, align } from '../three/utils';
+import { MaterialFactory } from '../three/materialFactory';
+
 import { copyCoords } from './utils';
 
 import { LineSegments2 }        from '../three/lines/LineSegments2.js';
@@ -11,12 +13,13 @@ import { LineGeometry }         from '../three/lines/LineGeometry.js';
 import { LineMaterial }         from '../three/lines/LineMaterial.js';
 
 /**
- * Recognized set of link visualization options
- * @type {{LINK: string, SEMICIRCLE: string, DASHED: string, FORCE: string, CONTAINER: string, INVISIBLE: string}}
+ * Recognized set of link geometries
+ * @type {{LINK: string, SEMICIRCLE: string, PATH: string, SPLINE: string, INVISIBLE: string, FORCE: string}}
  */
-export const LINK_TYPES = {
+export const LINK_GEOMETRY = {
     LINK       : "link",        //straight line
     SEMICIRCLE : "semicircle",  //line in the form of a semicircle
+    RECTANGLE  : "rectangle",   //rectangular line with rounded corners
     PATH       : "path",        //path defined (e.g., in the shape for the edge bundling)
     SPLINE     : "spline",      //solid curve line that uses other nodes to produce a smooth path
     INVISIBLE  : "invisible",   //link with hidden visual geometry,
@@ -28,18 +31,12 @@ export const LINK_STROKE = {
     THICK      : "thick"        //thick line
 };
 
+const getPoint = (curve, s, t, d_i) => (curve.getPoint)? curve.getPoint(d_i): s.clone().add(t).multiplyScalar(d_i);
+
 /**
  * The class to visualize processes (graph edges)
  */
 export class Link extends Entity {
-    /**
-     * Get link's direction
-     * @returns {THREE.Vector3} - a vector defining link direction
-     */
-    get direction(){
-        return direction({source: this.source, target: this.target});
-    }
-
     get polygonOffsetFactor(){
         let res = -100;
         if (this.linkOnBorder){ res = this.linkOnBorder.polygonOffsetFactor - 1; }
@@ -53,36 +50,35 @@ export class Link extends Entity {
     createViewObjects(state){
 
         //Do not visualize force-only links
-        if (this.type === LINK_TYPES.FORCE) {return; }
+        if (this.geometry === LINK_GEOMETRY.FORCE) {return; }
 
         //Link
         if (!this.viewObjects["main"]) {
             let geometry, obj;
-            if (!this.material) {
-                if (this.stroke === LINK_STROKE.DASHED) {
-                    this.material = state.materialRepo.createLineDashedMaterial({color: this.color});
+            let material;
+            if (this.stroke === LINK_STROKE.DASHED) {
+                material = MaterialFactory.createLineDashedMaterial({color: this.color});
+            } else {
+                //Thick lines
+                if (this.stroke === LINK_STROKE.THICK) {
+                    // Line 2 method: draws thick lines
+                    material = MaterialFactory.createLine2Material({
+                        color: this.color,
+                        linewidth: this.linewidth,
+                        polygonOffsetFactor: this.polygonOffsetFactor
+                    });
                 } else {
-                    //Thick lines
-                    if (this.stroke === LINK_STROKE.THICK) {
-                        // Line 2 method: draws thick lines
-                        this.material = state.materialRepo.createLine2Material({
-                            color: this.color,
-                            linewidth: this.linewidth,
-                            polygonOffsetFactor: this.polygonOffsetFactor
-                        });
-                    } else {
-                        //Normal lines
-                        this.material = state.materialRepo.createLineBasicMaterial({
-                            color: this.color,
-                            polygonOffsetFactor: this.polygonOffsetFactor
-                        });
-                    }
+                    //Normal lines
+                    material = MaterialFactory.createLineBasicMaterial({
+                        color: this.color,
+                        polygonOffsetFactor: this.polygonOffsetFactor
+                    });
                 }
             }
 
             if (this.stroke === LINK_STROKE.THICK) {
                 geometry = new THREE.LineGeometry();
-                obj = new THREE.Line2(geometry, this.material);
+                obj = new THREE.Line2(geometry, material);
             } else {
                 //Thick lines
                 if (this.stroke === LINK_STROKE.DASHED) {
@@ -90,11 +86,11 @@ export class Link extends Entity {
                 } else {
                     geometry = new THREE.BufferGeometry();
                 }
-                obj = new THREE.Line(geometry, this.material);
+                obj = new THREE.Line(geometry, material);
             }
-            let size = (this.type === LINK_TYPES.SEMICIRCLE || this.type === LINK_TYPES.SPLINE)
+            let size = (this.geometry === LINK_GEOMETRY.SEMICIRCLE || this.geometry === LINK_GEOMETRY.SPLINE)
                 ? state.linkResolution
-                : (this.type === LINK_TYPES.PATH)
+                : (this.geometry === LINK_GEOMETRY.PATH)
                     ? 66 // Edge bunding breaks a link into 66 points
                     : 2;
             if (this.stroke === LINK_STROKE.DASHED) {
@@ -109,17 +105,17 @@ export class Link extends Entity {
             }
 
             if (this.arrow){
-                let arrowHelper = new THREE.ArrowHelper(this.source, this.target, 2, this.material.color);
+                let arrowHelper = new THREE.ArrowHelper(this.source, this.target, 2, material.color);
                 obj.add(arrowHelper);
             }
 
-            if (this.type === LINK_TYPES.SPLINE) {
+            if (this.geometry === LINK_GEOMETRY.SPLINE) {
                 this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x!== this);
                 this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x!== this);
             }
 
             obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
-            obj.__data = this;     // Attach link data
+            obj.userData = this;     // Attach link data
             this.viewObjects["main"] = obj;
         }
 
@@ -141,42 +137,41 @@ export class Link extends Entity {
      * Update the position of the link and realign its conveying lyph
      * @param state - layout parameters
      */
-    updateViewObjects(state){
-        if (!this.viewObjects["main"]
-            || (this.conveyingLyph && !this.conveyingLyph.viewObjects["lyphs"][state.method])
-            || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])){
+    updateViewObjects(state) {
+        if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
             this.createViewObjects(state);
         }
         const linkObj = this.viewObjects["main"];
 
         let _start = extractCoords(this.source);
         let _end   = extractCoords(this.target);
-        let curve  = new THREE.Line3(_start, _end);
-        this.points = [_start, _end];
 
-        if (this.type === LINK_TYPES.SEMICIRCLE) {
-            curve = bezierSemicircle(_start, _end);
-            this.points = curve.getPoints(state.linkResolution - 1);
+        let curve = new THREE.Line3(_start, _end);
+        switch (this.geometry) {
+            case LINK_GEOMETRY.SEMICIRCLE:
+                curve = bezierSemicircle(_start, _end);
+                break;
+            case LINK_GEOMETRY.RECTANGLE :
+                curve = rectangleCurve(_start, _end);
+                break;
+            case LINK_GEOMETRY.PATH      :
+                curve = new THREE.CatmullRomCurve3(this.path);
+                break;
+            case LINK_GEOMETRY.SPLINE    :
+                let prev = this.prev ? direction(this.prev.center, _start).multiplyScalar(2) : null;
+                let next = this.next ? direction(this.next.center, _end).multiplyScalar(2) : null;
+                if (prev) {
+                    curve = next
+                        ? new THREE.CubicBezierCurve3(_start, _start.clone().add(prev), _end.clone().add(next), _end)
+                        : new THREE.QuadraticBezierCurve3(_start, _start.clone().add(prev), _end);
+                } else {
+                    if (next) {
+                        curve = new THREE.QuadraticBezierCurve3(_start, _end.clone().add(next), _end);
+                    }
+                }
         }
-
-        if (this.type === LINK_TYPES.SPLINE) {
-            if (this.prev && this.next) {
-                const controlPoint = (key1, key2, p) => (this[key1] === this[key2][key1])
-                    ? p.clone().sub(this[key2].direction)
-                    : p.clone().add(this[key2].direction);
-                let prev = controlPoint("source", "prev", _start);
-                let next = controlPoint("target", "next", _end);
-                curve = new THREE.CubicBezierCurve3(_start, prev, next,  _end);
-                this.points = curve.getPoints(state.linkResolution - 1);
-            }
-        }
-
-        if (this.type === LINK_TYPES.PATH) {
-            curve  = new THREE.CatmullRomCurve3(this.path);
-            this.points = this.path;
-        }
-
-        this.center = (curve.getPoint)? curve.getPoint(0.5): _start.clone().add(_end).multiplyScalar(0.5);
+        this.points = curve.getPoints? curve.getPoints(state.linkResolution - 1): [_start, _end];
+        this.center = getPoint(curve, _start, _end, 0.5);
 
         //Merge nodes of a collapsible link
         if (this.collapsible){
@@ -194,14 +189,21 @@ export class Link extends Entity {
         }
 
         //Position omega tree roots
-        if (this.hostedNodes) {
-            const offset = 1 / (this.hostedNodes.length + 1);
-            this.hostedNodes.forEach((node, i) => {
-                let d_i = node.offset? node.offset: offset * (i + 1);
-                const pos = curve.getPoint? curve.getPoint(d_i): _start.clone().add(_end).multiplyScalar(d_i);
-                copyCoords(node, pos);
-            });
-        }
+        (this.hostedNodes||[]).forEach((node, i) => {
+            let d_i = node.offset? node.offset: 1 / (this.hostedNodes.length + 1) * (i + 1);
+            const pos = getPoint(curve, _start, _end, d_i);
+            copyCoords(node, pos);
+        });
+
+        //Position associated regions
+        (this.hostedRegions||[]).forEach((region, i) => {
+            let offset = region.offset? region.offset: 1 / (this.hostedRegions.length);
+            region.center = getPoint(curve, _start, _end, offset * (i + 0.5));
+            let p1 = getPoint(curve, _start, _end, offset * i);
+            let p2 = getPoint(curve, _start, _end, offset * (i + 1));
+            let axis = {"source": p1, "target": p2};
+            align(axis, region.viewObjects["main"]);
+        });
 
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
 
@@ -217,7 +219,7 @@ export class Link extends Entity {
 
         //Update buffered geometries
         //Do not update links with fixed node positions
-        if (this.type === LINK_TYPES.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
+        if (this.geometry === LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
 
         if (linkObj) {
             if (this.stroke === LINK_STROKE.THICK){

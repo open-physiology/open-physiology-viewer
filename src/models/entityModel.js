@@ -324,6 +324,17 @@ export class Entity {
         return 0;
     }
 
+    toggleBorder(){
+        if (!this.viewObjects || !this.viewObjects['main']) { return; }
+        if (this.viewObjects['border']){
+            if (this.viewObjects['main'].children.find(this.viewObjects['border'])){
+                this.viewObjects['main'].children.remove(this.viewObjects['border']);
+            } else {
+                this.viewObjects['main'].add(this.viewObjects['border']);
+            }
+        }
+    }
+
     createLabels(labelKey, fontParams){
         if (this.skipLabel) { return; }
         this.labels = this.labels || {};

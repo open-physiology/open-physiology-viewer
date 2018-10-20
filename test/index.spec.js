@@ -1,6 +1,4 @@
 import {
-	chai,
-	sinon,
 	describe,
 	it,
 	beforeEach,
@@ -8,7 +6,6 @@ import {
 	expect,
 } from './test.helper';
 
-import { values } from 'lodash-bound';
 import { DataService }  from '../src/services/dataService';
 import initModel        from '../src/data/graph.json';
 import { modelClasses } from '../src/models/modelClasses';

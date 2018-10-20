@@ -14,9 +14,9 @@
   
  All entities come with basic properties such as `id` and `name` to identify the physiological element, and `color` to display the corresponding visual object in the viewer. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case. 
  
- Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Material` or `Group`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology. 
+ Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Reion`, `Material` or `Group`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology. 
   
- The property `infoFields` lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of the certain type, but may also be overridden for individual objects. For example, the following value of the `infoFields` property of a lyph object
+ The property `infoFields` lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the `infoFields` property of a lyph object
  ```json
    {
        "infoFields": {
@@ -151,7 +151,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 ## Link 
  Links connect graph nodes and perform a number of functions in the ApiNATOMY framework, most notably, they model process flow and serve as rotational axes to position and scale conveying vessels and body elements at various scales (organs, tissues, cells, etc.).
 
- By default, all links are drawn as straight lines, this corresponds to the `type=link` setting. To apply another visualization method, we set the link's `type` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `type="semicircle"` produces a spline that resembles a semicircle: 
+ By default, all links are drawn as straight lines, this corresponds to the `geometry=link` setting. To apply another visualization method, we set the link's `geometry` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `geometry="semicircle"` produces a spline that resembles a semicircle: 
  
  ```json
   {
@@ -161,8 +161,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
            "name"      : "Pulmonary",
            "source"    : "R",
            "target"    : "L",
-           "type"      : "semicircle",
            "length"    : 75,
+           "geometry"  : "semicircle",
            "stroke"    : "thick"
          },
          {
@@ -170,23 +170,23 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
            "name"      : "Systemic",
            "source"    : "L",
            "target"    : "R",
-           "type"      : "semicircle",
            "length"    : 75,
+           "geometry"  : "semicircle",
            "stroke"    : "thick"
          },
          {
            "id"     : "cn",
            "source" : "c",
            "target" : "n",
-           "stroke" : "dashed",
-           "length" : 100
+           "length" : 100,
+           "stroke" : "dashed"
          }
        ]
     }
  ```
  <img src="asset/links.png" height="300px" caption = "Drawing links">
  
- Among other link types supported by the lyph viewer are `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e). 
+ Among other link geometries supported by the lyph viewer are `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e). 
  
  There are also two auxiliary link types: `invisible` links which are never displayed themselves but serve as axes for the lyphs they convey. The `force` links have no corresponding visual objects and currently only serve the purpose of binding together selected nodes. The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model. 
  
@@ -196,7 +196,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  A link of any type can be set to be `collapsible`. A collapsible link exists only if its ends are constrained by the visible entities in the view, i.e., the link's source and target nodes must be inside of visible lyphs, on separate lyph borders or are hosted by other visible links. If this is not the case, the source and target nodes of the collapsible link are attracted to each other until they collide to look like a single node. 
  
- Collapsible links are auto-generated for the models where one node is constrained by two or more different entities meaning that it should be placed to several different locations. This functionality allows modellers to include the same semantic entity to various subsystems in the model, even if these subsystems are split by some space for readability. The auto-generated collapsible links are of type `dashed` to emphasize that the link is an auxiliary line that helps to locate duplicates of the same node.
+ Collapsible links are auto-generated for the models where one node is constrained by two or more different entities meaning that it should be placed to several different locations. This functionality allows modellers to include the same semantic entity to various subsystems in the model, even if these subsystems are split by some space for readability. The auto-generated collapsible links are `dashed` to emphasize that the link is an auxiliary line that helps to locate duplicates of the same node.
  
  The screenshots below show the link chain representing the anterolateral apinothalamic tract in isolation and in combination with the neural system group. Observe that in the latter case the tract's nodes are bound to the neural system lyph borders with thin dashed transitions among pairs of replicated node instances. 
  
@@ -332,11 +332,11 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
   {//...
      "assign": [
        {
-         "path": "$.[?(@.id=='1000')].layers[(@.length-1)]",
+         "path" : "$.[?(@.id=='1000')].layers[(@.length-1)]",
          "value": { "internalLyphs": [ "995" ] }
        },
        {
-         "path": "$.[?(@.id=='1010')].layers[(@.length-1)]",
+         "path" : "$.[?(@.id=='1010')].layers[(@.length-1)]",
          "value": { "internalLyphs": [ "996" ] }
        }
      ]
@@ -420,16 +420,16 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
           "groups": ["arterial", "venous"]
         },
         {
-          "id"   : "arterial",
-          "name" : "Arterial",
-          "nodes": [ "nLR00", "nLR01", "nLR02", "nLR03", "nLR04", "nLR05" ],
-          "links": [ "LR00", "LR01", "LR02", "LR03", "LR04" ]
+          "id"    : "arterial",
+          "name"  : "Arterial",
+          "nodes" : [ "nLR00", "nLR01", "nLR02", "nLR03", "nLR04", "nLR05" ],
+          "links" : [ "LR00", "LR01", "LR02", "LR03", "LR04" ]
         },
         {
-          "id"   : "venous",
-          "name" : "Venous",
-          "nodes": [ "nLR10", "nLR11", "nLR12", "nLR13", "nLR14", "nLR15", "nLR16" ],
-          "links": [ "LR10", "LR11", "LR12", "LR13", "LR14", "LR15" ]
+          "id"    : "venous",
+          "name"  : "Venous",
+          "nodes" : [ "nLR10", "nLR11", "nLR12", "nLR13", "nLR14", "nLR15", "nLR16" ],
+          "links" : [ "LR10", "LR11", "LR12", "LR13", "LR14", "LR15" ]
         }
       ]
     }

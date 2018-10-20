@@ -3,6 +3,35 @@
   "title": "ApiNATOMY model",
   "description": "The ApiNATOMY model schema provides a contract for the JSON-based input data accepted by the ApiNATOMY lyph viewer, a web application that draws schematic models of physiology.",
   "definitions": {
+    "Point2Scheme": {
+      "description": "Coordinates of a 2d point",
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        },
+        "y": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        }
+      }
+    },
+    "Point3Scheme": {
+      "description": "Coordinates of a 3d point",
+      "extends": {
+        "$ref": "#/definitions/Point2Scheme"
+      },
+      "properties": {
+        "z": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        }
+      }
+    },
     "ColorScheme": {
       "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
       "type": "string",
@@ -150,6 +179,7 @@
           "type": "string",
           "enum": [
             "Lyph",
+            "Region",
             "Link",
             "Node",
             "Border",
@@ -292,24 +322,7 @@
         },
         "layout": {
           "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
-          "type": "object",
-          "properties": {
-            "x": {
-              "type": "number",
-              "minimum": -100,
-              "maximum": 100
-            },
-            "y": {
-              "type": "number",
-              "minimum": -100,
-              "maximum": 100
-            },
-            "z": {
-              "type": "number",
-              "minimum": -100,
-              "maximum": 100
-            }
-          },
+          "$ref": "#/definitions/Point3Scheme",
           "default": {}
         },
         "fixed": {
@@ -452,12 +465,14 @@
           ],
           "relatedTo": "conveyedBy"
         },
-        "type": {
-          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+        "geometry": {
+          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
             "link",
             "semicircle",
+            "rectangle",
+            "rect",
             "spline",
             "path",
             "force",
@@ -517,6 +532,22 @@
           "relatedTo": "host",
           "uniqueItems": true
         },
+        "hostedRegions": {
+          "description": "Regions that are associated with the given link.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          },
+          "relatedTo": "host",
+          "uniqueItems": true
+        },
         "linkOnBorder": {
           "description": "Reference to the lyph border part if the link is created to host the border's conveying lyph",
           "$ref": "#/definitions/BorderPart",
@@ -529,6 +560,39 @@
       ],
       "dependencies": {
         "linewidth": ["stroke"]
+      }
+    },
+    "Region": {
+      "description": "Area occupied by bordy part of subsystem",
+      "extends": {
+        "$ref": "#/definitions/Entity"
+      },
+      "properties": {
+        "points": {
+          "description": "Points defining the region border shape",
+          "type"  : "array",
+          "items" : {
+            "$ref" : "#/definitions/Point2Scheme"
+          },
+          "default": [
+            {"x": -10, "y": -10},
+            {"x": -10, "y":  10},
+            {"x":  10, "y":  10},
+            {"x":  10, "y": -10}
+          ]
+        },
+        "host": {
+          "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Link"
+            }
+          ],
+          "relatedTo": "hostedRegions"
+        }
       }
     },
     "Lyph": {
@@ -599,7 +663,7 @@
             }
           ],
           "relatedTo": "borderInLyph",
-          "default": {}
+          "default"  : {}
         },
         "infoFields": {
           "default": {
@@ -811,7 +875,7 @@
           "maxItems": 4
         },
         "borderTypes": {
-          "description": "Types of borders, open (value = false) versus closed (value = true), define lyph's topology: tube, bag or cyst.",
+          "description": "Lyph border types, open (value = false) versus closed (value = true), define lyph's topology: tube, bag or cyst.",
           "type": "array",
           "items": {
             "type": "boolean"
@@ -829,7 +893,8 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "border"
+          "relatedTo": "border",
+          "readOnly" : true
         }
       }
     },
@@ -883,6 +948,20 @@
               },
               {
                 "$ref": "#/definitions/Lyph"
+              }
+            ]
+          }
+        },
+        "regions": {
+          "description": "Body organs, systems or surfaces not modelled as lyphs",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Region"
               }
             ]
           }

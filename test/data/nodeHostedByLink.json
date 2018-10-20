@@ -89,7 +89,7 @@
       "source"    : "R",
       "target"    : "L",
       "name"      : "Pulmonary",
-      "type"      : "semicircle",
+      "geometry"  : "semicircle",
       "length"    : 75,
       "stroke": "thick"
     },
@@ -98,7 +98,7 @@
       "name"      : "Systemic",
       "source"    : "L",
       "target"    : "R",
-      "type"      : "semicircle",
+      "geometry"  : "semicircle",
       "length"    : 75,
       "stroke": "thick"
     },

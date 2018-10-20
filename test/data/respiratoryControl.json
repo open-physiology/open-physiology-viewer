@@ -1,0 +1,1357 @@
+﻿{
+    "groups": [
+        {
+            "id": "g1",
+            "name": "NTS",
+            "nodes": [
+                "32",
+                "33",
+                "38"
+            ]
+        },
+        {
+            "id": "g2",
+            "name": "BotC",
+            "nodes": [
+                "4",
+                "5",
+                "6",
+                "12",
+                "14",
+                "20",
+                "30"
+            ],
+            "links": [
+                "lnk5",
+                "lnk6",
+                "lnk14",
+                "lnk44",
+                "lnk49",
+                "lnk56",
+                "lnk59",
+                "lnk62",
+                "lnk63"
+            ]
+        },
+        {
+            "id": "g3",
+            "name": "VRG",
+            "nodes": [
+                "3",
+                "7",
+                "16"
+            ],
+            "links": [
+                "lnk36",
+                "lnk40"
+            ]
+        },
+        {
+            "id": "g4",
+            "name": "PRG",
+            "nodes": [
+                "9",
+                "10",
+                "17",
+                "18",
+                "23",
+                "39"
+            ],
+            "links": [
+                "lnk110",
+                "lnk113",
+                "lnk114",
+                "lnk147",
+                "lnk148",
+                "lnk150",
+                "lnk151",
+                "lnk162",
+                "lnk165"
+            ]
+        },
+        {
+            "id": "g5",
+            "name": "Nucleus Ambiguus",
+            "nodes": [
+                "15",
+                "21"
+            ]
+        },
+        {
+            "id": "g6",
+            "name": "VRC",
+            "nodes": [
+                "8"
+            ]
+        },
+        {
+            "id": "g7",
+            "name": "pre-BotC",
+            "nodes": [
+                "1",
+                "2",
+                "11"
+            ],
+            "links": [
+                "lnk1",
+                "lnk3",
+                "lnk34"
+            ]
+        },
+        {
+            "id": "g8",
+            "name": "Spine",
+            "nodes": [
+                "19",
+                "22",
+                "24",
+                "25"
+            ]
+        },
+        {
+            "id": "g9",
+            "name": "Lung",
+            "nodes": [
+                "31",
+                "34",
+                "40"
+            ]
+        },
+        {
+            "id": "g10",
+            "name": "Raphe9",
+            "nodes": [
+                "26",
+                "27",
+                "28",
+                "29",
+                "36",
+                "37"
+            ],
+            "links": [
+                "lnk70",
+                "lnk71",
+                "lnk120",
+                "lnk121",
+                "lnk123",
+                "lnk126",
+                "lnk127"
+            ]
+        },
+        {
+            "id": "g11",
+            "name": "Brainstem Respiratory Network"
+        }
+    ],
+    "links": [
+        {
+            "source": "1",
+            "target": "2",
+            "type": "ex_1",
+            "id": "lnk1"
+        },
+        {
+            "source": "1",
+            "target": "3",
+            "type": "ex_1",
+            "id": "lnk2"
+        },
+        {
+            "source": "1",
+            "target": "1",
+            "type": "ex_1",
+            "id": "lnk3"
+        },
+        {
+            "source": "4",
+            "target": "1",
+            "type": "inh_22",
+            "id": "lnk4"
+        },
+        {
+            "source": "4",
+            "target": "5",
+            "type": "inh_4",
+            "id": "lnk5"
+        },
+        {
+            "source": "4",
+            "target": "6",
+            "type": "inh_4",
+            "id": "lnk6"
+        },
+        {
+            "source": "4",
+            "target": "7",
+            "type": "inh_4",
+            "id": "lnk7"
+        },
+        {
+            "source": "4",
+            "target": "2",
+            "type": "inh_4",
+            "id": "lnk8"
+        },
+        {
+            "source": "4",
+            "target": "8",
+            "type": "inh_4",
+            "id": "lnk9"
+        },
+        {
+            "source": "4",
+            "target": "3",
+            "type": "inh_4",
+            "id": "lnk10"
+        },
+        {
+            "source": "4",
+            "target": "9",
+            "type": "ex_13",
+            "id": "lnk11"
+        },
+        {
+            "source": "4",
+            "target": "10",
+            "type": "ex_13",
+            "id": "lnk12"
+        },
+        {
+            "source": "4",
+            "target": "11",
+            "type": "inh_4",
+            "id": "lnk13"
+        },
+        {
+            "source": "4",
+            "target": "12",
+            "type": "inh_4",
+            "id": "lnk14"
+        },
+        {
+            "source": "4",
+            "target": "13",
+            "type": "inh_22",
+            "id": "lnk15"
+        },
+        {
+            "source": "2",
+            "target": "5",
+            "type": "inh_7",
+            "id": "lnk16"
+        },
+        {
+            "source": "2",
+            "target": "4",
+            "type": "inh_25",
+            "id": "lnk17"
+        },
+        {
+            "source": "2",
+            "target": "3",
+            "type": "inh_25",
+            "id": "lnk18"
+        },
+        {
+            "source": "2",
+            "target": "6",
+            "type": "inh_7",
+            "id": "lnk19"
+        },
+        {
+            "source": "2",
+            "target": "7",
+            "type": "inh_25",
+            "id": "lnk20"
+        },
+        {
+            "source": "2",
+            "target": "14",
+            "type": "inh_25",
+            "id": "lnk21"
+        },
+        {
+            "source": "2",
+            "target": "15",
+            "type": "ex_1",
+            "id": "lnk22"
+        },
+        {
+            "source": "2",
+            "target": "16",
+            "type": "inh_7",
+            "id": "lnk23"
+        },
+        {
+            "source": "2",
+            "target": "17",
+            "type": "ex_13",
+            "id": "lnk24"
+        },
+        {
+            "source": "2",
+            "target": "18",
+            "type": "ex_13",
+            "id": "lnk25"
+        },
+        {
+            "source": "2",
+            "target": "18",
+            "type": "inh_7",
+            "id": "lnk26"
+        },
+        {
+            "source": "2",
+            "target": "9",
+            "type": "inh_4",
+            "id": "lnk27"
+        },
+        {
+            "source": "2",
+            "target": "10",
+            "type": "inh_7",
+            "id": "lnk28"
+        },
+        {
+            "source": "2",
+            "target": "19",
+            "type": "inh_7",
+            "id": "lnk29"
+        },
+        {
+            "source": "2",
+            "target": "20",
+            "type": "inh_4",
+            "id": "lnk30"
+        },
+        {
+            "source": "2",
+            "target": "12",
+            "type": "inh_4",
+            "id": "lnk31"
+        },
+        {
+            "source": "2",
+            "target": "21",
+            "type": "inh_4",
+            "id": "lnk32"
+        },
+        {
+            "source": "2",
+            "target": "22",
+            "type": "inh_7",
+            "id": "lnk33"
+        },
+        {
+            "source": "2",
+            "target": "2",
+            "type": "inh_25",
+            "id": "lnk34"
+        },
+        {
+            "source": "2",
+            "target": "13",
+            "type": "inh_7",
+            "id": "lnk35"
+        },
+        {
+            "source": "3",
+            "target": "3",
+            "type": "ex_1",
+            "id": "lnk36"
+        },
+        {
+            "source": "3",
+            "target": "10",
+            "type": "inh_7",
+            "id": "lnk37"
+        },
+        {
+            "source": "3",
+            "target": "8",
+            "type": "ex_1",
+            "id": "lnk38"
+        },
+        {
+            "source": "3",
+            "target": "15",
+            "type": "ex_1",
+            "id": "lnk39"
+        },
+        {
+            "source": "3",
+            "target": "7",
+            "type": "ex_1",
+            "id": "lnk40"
+        },
+        {
+            "source": "3",
+            "target": "18",
+            "type": "ex_13",
+            "id": "lnk41"
+        },
+        {
+            "source": "3",
+            "target": "9",
+            "type": "inh_4",
+            "id": "lnk42"
+        },
+        {
+            "source": "3",
+            "target": "11",
+            "type": "ex_28",
+            "id": "lnk43"
+        },
+        {
+            "source": "5",
+            "target": "4",
+            "type": "inh_4",
+            "id": "lnk44"
+        },
+        {
+            "source": "5",
+            "target": "2",
+            "type": "inh_4",
+            "id": "lnk45"
+        },
+        {
+            "source": "5",
+            "target": "3",
+            "type": "inh_4",
+            "id": "lnk46"
+        },
+        {
+            "source": "5",
+            "target": "7",
+            "type": "inh_4",
+            "id": "lnk47"
+        },
+        {
+            "source": "5",
+            "target": "8",
+            "type": "inh_4",
+            "id": "lnk48"
+        },
+        {
+            "source": "5",
+            "target": "6",
+            "type": "inh_10",
+            "id": "lnk49"
+        },
+        {
+            "source": "5",
+            "target": "23",
+            "type": "ex_13",
+            "id": "lnk50"
+        },
+        {
+            "source": "5",
+            "target": "18",
+            "type": "inh_7",
+            "id": "lnk51"
+        },
+        {
+            "source": "5",
+            "target": "11",
+            "type": "inh_4",
+            "id": "lnk52"
+        },
+        {
+            "source": "5",
+            "target": "24",
+            "type": "inh_4",
+            "id": "lnk53"
+        },
+        {
+            "source": "5",
+            "target": "25",
+            "type": "inh_4",
+            "id": "lnk54"
+        },
+        {
+            "source": "5",
+            "target": "21",
+            "type": "inh_4",
+            "id": "lnk55"
+        },
+        {
+            "source": "6",
+            "target": "5",
+            "type": "inh_10",
+            "id": "lnk56"
+        },
+        {
+            "source": "6",
+            "target": "2",
+            "type": "inh_4",
+            "id": "lnk57"
+        },
+        {
+            "source": "6",
+            "target": "3",
+            "type": "inh_4",
+            "id": "lnk58"
+        },
+        {
+            "source": "6",
+            "target": "4",
+            "type": "inh_4",
+            "id": "lnk59"
+        },
+        {
+            "source": "6",
+            "target": "8",
+            "type": "inh_4",
+            "id": "lnk60"
+        },
+        {
+            "source": "6",
+            "target": "7",
+            "type": "inh_4",
+            "id": "lnk61"
+        },
+        {
+            "source": "6",
+            "target": "14",
+            "type": "inh_4",
+            "id": "lnk62"
+        },
+        {
+            "source": "6",
+            "target": "20",
+            "type": "inh_22",
+            "id": "lnk63"
+        },
+        {
+            "source": "6",
+            "target": "21",
+            "type": "inh_7",
+            "id": "lnk64"
+        },
+        {
+            "source": "6",
+            "target": "11",
+            "type": "inh_4",
+            "id": "lnk65"
+        },
+        {
+            "source": "6",
+            "target": "24",
+            "type": "inh_4",
+            "id": "lnk66"
+        },
+        {
+            "source": "6",
+            "target": "25",
+            "type": "inh_4",
+            "id": "lnk67"
+        },
+        {
+            "source": "6",
+            "target": "15",
+            "type": "inh_4",
+            "id": "lnk68"
+        },
+        {
+            "source": "7",
+            "target": "2",
+            "type": "inh_7",
+            "id": "lnk69"
+        },
+        {
+            "source": "26",
+            "target": "27",
+            "type": "ex_1",
+            "id": "lnk70"
+        },
+        {
+            "source": "28",
+            "target": "29",
+            "type": "ex_1",
+            "id": "lnk71"
+        },
+        {
+            "source": "8",
+            "target": "25",
+            "type": "ex_1",
+            "id": "lnk72"
+        },
+        {
+            "source": "8",
+            "target": "24",
+            "type": "ex_1",
+            "id": "lnk73"
+        },
+        {
+            "source": "30",
+            "target": "9",
+            "type": "inh_7",
+            "id": "lnk74"
+        },
+        {
+            "source": "30",
+            "target": "10",
+            "type": "inh_7",
+            "id": "lnk75"
+        },
+        {
+            "source": "30",
+            "target": "18",
+            "type": "ex_13",
+            "id": "lnk76"
+        },
+        {
+            "source": "13",
+            "target": "12",
+            "type": "inh_22",
+            "id": "lnk77"
+        },
+        {
+            "source": "13",
+            "target": "16",
+            "type": "inh_22",
+            "id": "lnk78"
+        },
+        {
+            "source": "13",
+            "target": "11",
+            "type": "inh_22",
+            "id": "lnk79"
+        },
+        {
+            "source": "13",
+            "target": "20",
+            "type": "inh_4",
+            "id": "lnk80"
+        },
+        {
+            "source": "13",
+            "target": "8",
+            "type": "inh_4",
+            "id": "lnk81"
+        },
+        {
+            "source": "13",
+            "target": "15",
+            "type": "inh_4",
+            "id": "lnk82"
+        },
+        {
+            "source": "31",
+            "target": "32",
+            "type": "ex_1",
+            "id": "lnk83"
+        },
+        {
+            "source": "31",
+            "target": "33",
+            "type": "ex_1",
+            "id": "lnk84"
+        },
+        {
+            "source": "10",
+            "target": "1",
+            "type": "ex_1",
+            "id": "lnk85"
+        },
+        {
+            "source": "33",
+            "target": "23",
+            "type": "pre-ex_13",
+            "id": "lnk86"
+        },
+        {
+            "source": "33",
+            "target": "11",
+            "type": "inh_4",
+            "id": "lnk87"
+        },
+        {
+            "source": "33",
+            "target": "2",
+            "type": "inh_4",
+            "id": "lnk88"
+        },
+        {
+            "source": "33",
+            "target": "18",
+            "type": "pre-ex_13",
+            "id": "lnk89"
+        },
+        {
+            "source": "33",
+            "target": "17",
+            "type": "pre-ex_13",
+            "id": "lnk90"
+        },
+        {
+            "source": "33",
+            "target": "34",
+            "type": "inh_4",
+            "id": "lnk91"
+        },
+        {
+            "source": "33",
+            "target": "9",
+            "type": "pre-ex_13",
+            "id": "lnk92"
+        },
+        {
+            "source": "33",
+            "target": "10",
+            "type": "pre-ex_13",
+            "id": "lnk93"
+        },
+        {
+            "source": "32",
+            "target": "4",
+            "type": "ex_1",
+            "id": "lnk94"
+        },
+        {
+            "source": "32",
+            "target": "7",
+            "type": "ex_1",
+            "id": "lnk95"
+        },
+        {
+            "source": "32",
+            "target": "3",
+            "type": "ex_1",
+            "id": "lnk96"
+        },
+        {
+            "source": "32",
+            "target": "14",
+            "type": "ex_1",
+            "id": "lnk97"
+        },
+        {
+            "source": "32",
+            "target": "11",
+            "type": "ex_1",
+            "id": "lnk98"
+        },
+        {
+            "source": "14",
+            "target": "27",
+            "type": "inh_4",
+            "id": "lnk99"
+        },
+        {
+            "source": "14",
+            "target": "8",
+            "type": "inh_4",
+            "id": "lnk100"
+        },
+        {
+            "source": "14",
+            "target": "9",
+            "type": "ex_13",
+            "id": "lnk101"
+        },
+        {
+            "source": "14",
+            "target": "18",
+            "type": "ex_13",
+            "id": "lnk102"
+        },
+        {
+            "source": "14",
+            "target": "18",
+            "type": "inh_7",
+            "id": "lnk103"
+        },
+        {
+            "source": "14",
+            "target": "9",
+            "type": "inh_4",
+            "id": "lnk104"
+        },
+        {
+            "source": "14",
+            "target": "10",
+            "type": "ex_13",
+            "id": "lnk105"
+        },
+        {
+            "source": "14",
+            "target": "10",
+            "type": "inh_7",
+            "id": "lnk106"
+        },
+        {
+            "source": "14",
+            "target": "21",
+            "type": "inh_4",
+            "id": "lnk107"
+        },
+        {
+            "source": "14",
+            "target": "3",
+            "type": "inh_4",
+            "id": "lnk108"
+        },
+        {
+            "source": "14",
+            "target": "11",
+            "type": "pre-ex_28",
+            "id": "lnk109"
+        },
+        {
+            "source": "9",
+            "target": "17",
+            "type": "inh_4",
+            "id": "lnk110"
+        },
+        {
+            "source": "9",
+            "target": "7",
+            "type": "ex_1",
+            "id": "lnk111"
+        },
+        {
+            "source": "9",
+            "target": "4",
+            "type": "ex_1",
+            "id": "lnk112"
+        },
+        {
+            "source": "17",
+            "target": "9",
+            "type": "ex_1",
+            "id": "lnk113"
+        },
+        {
+            "source": "17",
+            "target": "10",
+            "type": "ex_1",
+            "id": "lnk114"
+        },
+        {
+            "source": "17",
+            "target": "7",
+            "type": "ex_1",
+            "id": "lnk115"
+        },
+        {
+            "source": "17",
+            "target": "14",
+            "type": "ex_1",
+            "id": "lnk116"
+        },
+        {
+            "source": "20",
+            "target": "21",
+            "type": "ex_19",
+            "id": "lnk117"
+        },
+        {
+            "source": "35",
+            "target": "4",
+            "type": "inh_4",
+            "id": "lnk118"
+        },
+        {
+            "source": "12",
+            "target": "16",
+            "type": "ex_19",
+            "id": "lnk119"
+        },
+        {
+            "source": "26",
+            "target": "36",
+            "type": "inh_4",
+            "id": "lnk120"
+        },
+        {
+            "source": "26",
+            "target": "37",
+            "type": "inh_4",
+            "id": "lnk121"
+        },
+        {
+            "source": "26",
+            "target": "16",
+            "type": "inh_22",
+            "id": "lnk122"
+        },
+        {
+            "source": "27",
+            "target": "29",
+            "type": "ex_1",
+            "id": "lnk123"
+        },
+        {
+            "source": "27",
+            "target": "14",
+            "type": "ex_19",
+            "id": "lnk124"
+        },
+        {
+            "source": "27",
+            "target": "4",
+            "type": "ex_19",
+            "id": "lnk125"
+        },
+        {
+            "source": "29",
+            "target": "27",
+            "type": "inh_4",
+            "id": "lnk126"
+        },
+        {
+            "source": "37",
+            "target": "36",
+            "type": "inh_4",
+            "id": "lnk127"
+        },
+        {
+            "source": "37",
+            "target": "14",
+            "type": "inh_22",
+            "id": "lnk128"
+        },
+        {
+            "source": "37",
+            "target": "4",
+            "type": "inh_22",
+            "id": "lnk129"
+        },
+        {
+            "source": "37",
+            "target": "20",
+            "type": "inh_22",
+            "id": "lnk130"
+        },
+        {
+            "source": "38",
+            "target": "8",
+            "type": "ex_1",
+            "id": "lnk131"
+        },
+        {
+            "source": "38",
+            "target": "3",
+            "type": "ex_1",
+            "id": "lnk132"
+        },
+        {
+            "source": "38",
+            "target": "2",
+            "type": "ex_1",
+            "id": "lnk133"
+        },
+        {
+            "source": "38",
+            "target": "11",
+            "type": "ex_1",
+            "id": "lnk134"
+        },
+        {
+            "source": "38",
+            "target": "6",
+            "type": "ex_1",
+            "id": "lnk135"
+        },
+        {
+            "source": "38",
+            "target": "5",
+            "type": "ex_1",
+            "id": "lnk136"
+        },
+        {
+            "source": "38",
+            "target": "7",
+            "type": "inh_4",
+            "id": "lnk137"
+        },
+        {
+            "source": "38",
+            "target": "10",
+            "type": "ex_1",
+            "id": "lnk138"
+        },
+        {
+            "source": "38",
+            "target": "9",
+            "type": "ex_1",
+            "id": "lnk139"
+        },
+        {
+            "source": "38",
+            "target": "18",
+            "type": "ex_1",
+            "id": "lnk140"
+        },
+        {
+            "source": "38",
+            "target": "23",
+            "type": "ex_1",
+            "id": "lnk141"
+        },
+        {
+            "source": "38",
+            "target": "17",
+            "type": "ex_1",
+            "id": "lnk142"
+        },
+        {
+            "source": "38",
+            "target": "20",
+            "type": "ex_19",
+            "id": "lnk143"
+        },
+        {
+            "source": "38",
+            "target": "12",
+            "type": "ex_1",
+            "id": "lnk144"
+        },
+        {
+            "source": "38",
+            "target": "13",
+            "type": "ex_1",
+            "id": "lnk145"
+        },
+        {
+            "source": "38",
+            "target": "15",
+            "type": "ex_1",
+            "id": "lnk146"
+        },
+        {
+            "source": "23",
+            "target": "9",
+            "type": "inh_4",
+            "id": "lnk147"
+        },
+        {
+            "source": "23",
+            "target": "10",
+            "type": "inh_4",
+            "id": "lnk148"
+        },
+        {
+            "source": "23",
+            "target": "2",
+            "type": "inh_4",
+            "id": "lnk149"
+        },
+        {
+            "source": "39",
+            "target": "18",
+            "type": "ex_1",
+            "id": "lnk150"
+        },
+        {
+            "source": "39",
+            "target": "18",
+            "type": "inh_4",
+            "id": "lnk151"
+        },
+        {
+            "source": "39",
+            "target": "1",
+            "type": "ex_1",
+            "id": "lnk152"
+        },
+        {
+            "source": "39",
+            "target": "7",
+            "type": "ex_1",
+            "id": "lnk153"
+        },
+        {
+            "source": "39",
+            "target": "3",
+            "type": "ex_1",
+            "id": "lnk154"
+        },
+        {
+            "source": "39",
+            "target": "5",
+            "type": "ex_1",
+            "id": "lnk155"
+        },
+        {
+            "source": "39",
+            "target": "6",
+            "type": "ex_1",
+            "id": "lnk156"
+        },
+        {
+            "source": "39",
+            "target": "4",
+            "type": "ex_1",
+            "id": "lnk157"
+        },
+        {
+            "source": "39",
+            "target": "14",
+            "type": "ex_1",
+            "id": "lnk158"
+        },
+        {
+            "source": "39",
+            "target": "30",
+            "type": "inh_4",
+            "id": "lnk159"
+        },
+        {
+            "source": "16",
+            "target": "19",
+            "type": "ex_1",
+            "id": "lnk160"
+        },
+        {
+            "source": "16",
+            "target": "22",
+            "type": "ex_1",
+            "id": "lnk161"
+        },
+        {
+            "source": "18",
+            "target": "9",
+            "type": "ex_1",
+            "id": "lnk162"
+        },
+        {
+            "source": "18",
+            "target": "7",
+            "type": "ex_1",
+            "id": "lnk163"
+        },
+        {
+            "source": "18",
+            "target": "3",
+            "type": "ex_1",
+            "id": "lnk164"
+        },
+        {
+            "source": "18",
+            "target": "10",
+            "type": "ex_1",
+            "id": "lnk165"
+        },
+        {
+            "source": "11",
+            "target": "14",
+            "type": "inh_4",
+            "id": "lnk166"
+        },
+        {
+            "source": "11",
+            "target": "20",
+            "type": "inh_4",
+            "id": "lnk167"
+        },
+        {
+            "source": "11",
+            "target": "16",
+            "type": "inh_4",
+            "id": "lnk168"
+        },
+        {
+            "source": "11",
+            "target": "21",
+            "type": "inh_4",
+            "id": "lnk169"
+        },
+        {
+            "source": "11",
+            "target": "12",
+            "type": "inh_4",
+            "id": "lnk170"
+        },
+        {
+            "source": "34",
+            "target": "35",
+            "type": "ex_1",
+            "id": "lnk171"
+        },
+        {
+            "source": "40",
+            "target": "21",
+            "type": "ex_1",
+            "id": "lnk172"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "1",
+            "name": "I-Driver"
+        },
+        {
+            "id": "2",
+            "name": "I-Dec"
+        },
+        {
+            "id": "3",
+            "name": "I-Aug"
+        },
+        {
+            "id": "4",
+            "name": "E-Dec-Phasic"
+        },
+        {
+            "id": "5",
+            "name": "E-Aug-early"
+        },
+        {
+            "id": "6",
+            "name": "E-Aug-late"
+        },
+        {
+            "id": "7",
+            "name": "VRC-IE"
+        },
+        {
+            "id": "8",
+            "name": "I-Aug-BS"
+        },
+        {
+            "id": "9",
+            "name": "rostral IE-pons"
+        },
+        {
+            "id": "10",
+            "name": "caudal IE-pons"
+        },
+        {
+            "id": "11",
+            "name": "I-Dec_2"
+        },
+        {
+            "id": "12",
+            "name": "E-Aug (+)"
+        },
+        {
+            "id": "13",
+            "name": "E-Aug-Cough (-)"
+        },
+        {
+            "id": "14",
+            "name": "E-Dec-Tonic"
+        },
+        {
+            "id": "15",
+            "name": "ILM"
+        },
+        {
+            "id": "16",
+            "name": "E-Aug-BS (+)"
+        },
+        {
+            "id": "17",
+            "name": "EI-pons"
+        },
+        {
+            "id": "18",
+            "name": "I-pons"
+        },
+        {
+            "id": "19",
+            "name": "Lumbar"
+        },
+        {
+            "id": "20",
+            "name": "E-Dec-pre-ELM"
+        },
+        {
+            "id": "21",
+            "name": "ELM"
+        },
+        {
+            "id": "22",
+            "name": "Lumbar-HT"
+        },
+        {
+            "id": "23",
+            "name": "E-pons"
+        },
+        {
+            "id": "24",
+            "name": "Phrenic"
+        },
+        {
+            "id": "25",
+            "name": "Phrenic-HT"
+        },
+        {
+            "id": "26",
+            "name": "Raphe8"
+        },
+        {
+            "id": "27",
+            "name": "Raphe29"
+        },
+        {
+            "id": "28",
+            "name": "Raphe28"
+        },
+        {
+            "id": "29",
+            "name": "Raphe30"
+        },
+        {
+            "id": "30",
+            "name": "NRM-BotC"
+        },
+        {
+            "id": "31",
+            "name": "Lung PSRs"
+        },
+        {
+            "id": "32",
+            "name": "Pump (+)"
+        },
+        {
+            "id": "33",
+            "name": "Pump (-)"
+        },
+        {
+            "id": "34",
+            "name": "Lung Def_1s"
+        },
+        {
+            "id": "35",
+            "name": "Def 2nd (-)"
+        },
+        {
+            "id": "36",
+            "name": "Raphe31"
+        },
+        {
+            "id": "37",
+            "name": "Raphe32"
+        },
+        {
+            "id": "38",
+            "name": "Cough 2nd order (+)"
+        },
+        {
+            "id": "39",
+            "name": "NRM-pons"
+        },
+        {
+            "id": "40",
+            "name": "Lung DIS_1s"
+        }
+    ],
+   "assign": [
+        {
+            "path": "$.nodes[*]",
+            "value": {
+                "val"    : 3,
+                "color"  : "#000"
+            }
+        },
+        {
+            "path": "$.links[*]",
+            "value": {
+                "length": 30
+            }
+        }
+    ]
+}
