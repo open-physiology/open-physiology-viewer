@@ -12,6 +12,8 @@ import { Line2 }                from '../three/lines/Line2.js';
 import { LineGeometry }         from '../three/lines/LineGeometry.js';
 import { LineMaterial }         from '../three/lines/LineMaterial.js';
 
+const arrowLength = 40;
+
 /**
  * Recognized set of link geometries
  * @type {{LINK: string, SEMICIRCLE: string, PATH: string, SPLINE: string, INVISIBLE: string, FORCE: string}}
@@ -104,9 +106,12 @@ export class Link extends Entity {
                 }
             }
 
-            if (this.arrow){
-                let arrowHelper = new THREE.ArrowHelper(this.source, this.target, 2, material.color);
-                obj.add(arrowHelper);
+            if (this.directed){
+                let dir    = direction(this.source, this.target);
+                let arrow  = new THREE.ArrowHelper(dir.normalize(), extractCoords(this.target),
+                        arrowLength, material.color.getHex(),
+                        arrowLength, arrowLength * 0.75);
+                obj.add(arrow);
             }
 
             if (this.geometry === LINK_GEOMETRY.SPLINE) {
@@ -141,7 +146,7 @@ export class Link extends Entity {
         if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
             this.createViewObjects(state);
         }
-        const linkObj = this.viewObjects["main"];
+        const obj = this.viewObjects["main"];
 
         let _start = extractCoords(this.source);
         let _end   = extractCoords(this.target);
@@ -211,30 +216,44 @@ export class Link extends Entity {
             this.conveyingLyph.updateViewObjects(state);
             this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
             this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
-            if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
+            if (!this.viewObjects['iconLabel']) {delete this.viewObjects['iconLabel'];}
         } else {
             delete this.viewObjects['icon'];
             delete this.viewObjects["iconLabel"];
+        }
+
+
+        if (this.directed && obj.children[0]){
+            if (obj.children[0] instanceof THREE.ArrowHelper){
+                let arrow  = obj.children[0];
+                let dir = direction(this.source, this.target);
+                let length = curve? curve.getLength(): dir.length();
+                let t = arrowLength / length;
+                if (curve){ dir = curve.getTangent(1 - t); }
+                let pos = getPoint(curve, _start, _end, 1 - t);
+                arrow.position.set(pos.x, pos.y, pos.z);
+                arrow.setDirection(dir.normalize());
+            }
         }
 
         //Update buffered geometries
         //Do not update links with fixed node positions
         if (this.geometry === LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
 
-        if (linkObj) {
+        if (obj) {
             if (this.stroke === LINK_STROKE.THICK){
                 let coordArray = [];
                 for (let i = 0; i < this.points.length; i++) {
                     coordArray.push(this.points[i].x, this.points[i].y, this.points[i].z);
                 }
-                linkObj.geometry.setPositions(coordArray);
+                obj.geometry.setPositions(coordArray);
             } else {
-                if (linkObj && this.stroke === LINK_STROKE.DASHED) {
-                    linkObj.geometry.setFromPoints(this.points);
-                    linkObj.geometry.verticesNeedUpdate = true;
-                    linkObj.computeLineDistances();
+                if (obj && this.stroke === LINK_STROKE.DASHED) {
+                    obj.geometry.setFromPoints(this.points);
+                    obj.geometry.verticesNeedUpdate = true;
+                    obj.computeLineDistances();
                 } else {
-                    let linkPos = linkObj.geometry.attributes && linkObj.geometry.attributes.position;
+                    let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                     if (linkPos) {
                         for (let i = 0; i < this.points.length; i++) {
                             linkPos.array[3 * i] = this.points[i].x;
@@ -242,7 +261,7 @@ export class Link extends Entity {
                             linkPos.array[3 * i + 2] = this.points[i].z;
                         }
                         linkPos.needsUpdate = true;
-                        linkObj.geometry.computeBoundingSphere();
+                        obj.geometry.computeBoundingSphere();
                     }
                 }
             }

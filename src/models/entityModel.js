@@ -6,14 +6,13 @@ import * as colorSchemes from 'd3-scale-chromatic';
 
 const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spec.items && isNestedObj(spec.items);
 
-const getClassDefinition = (spec) => spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
 
 /**
  * Extracts class name from the schema definition
  * @param spec - schema definition
  */
 const getClassName = (spec) => {
-    let classDef = getClassDefinition(spec);
+    let classDef = spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
     if (!classDef) { return; }
     if (classDef.$ref){ classDef = classDef.$ref;}
     return classDef.substr(classDef.lastIndexOf("/") + 1).trim();
@@ -345,6 +344,7 @@ export class Entity {
 
         if (this.labels[labelKey]){
             this.viewObjects["label"] = this.labels[labelKey];
+            this.viewObjects["label"].visible = this.isVisible;
         } else {
             delete this.viewObjects["label"];
         }

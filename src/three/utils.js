@@ -5,6 +5,73 @@ import {merge} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 
 /**
+ * Create shapes of lyph borders
+ * @param width
+ * @param height
+ * @param radius
+ * @param top
+ * @param bottom
+ * @returns {Array}
+ */
+export function d2LyphBorders([width,  height,  radius,  top,  bottom]){
+    let borders = [0,1,2,3].map(x => new THREE.Shape());
+
+    //Axial border
+    borders[0].moveTo( 0, - height / 2);
+    borders[0].lineTo( 0,   height / 2);
+    borders[1].moveTo( 0,   height / 2);
+    //Top radial border
+    if (top){
+        borders[1].lineTo( width - radius, height / 2);
+        borders[1].quadraticCurveTo( width,  height / 2, width,  height / 2 - radius);
+        borders[2].moveTo( width,  height / 2 - radius);
+    } else {
+        borders[1].lineTo( width,  height / 2);
+        borders[2].moveTo( width,  height / 2);
+    }
+    //Non-axial border
+    if (bottom){
+        borders[2].lineTo( width, - height / 2 + radius);
+        borders[2].quadraticCurveTo( width, -height / 2, width - radius, -height / 2);
+        borders[3].moveTo( width - radius, -height / 2);
+    } else {
+        borders[2].lineTo( width, -height / 2);
+        borders[3].moveTo( width, -height / 2);
+    }
+
+    //Finish Bottom radial border
+    borders[3].lineTo( 0, - height / 2);
+    return borders;
+}
+
+/**
+ * Creates links (objects with fields 'source' and 'target') to define
+ * sides of the lyph rectangle in the center of coordinates
+ * @param width  - lyph/layer width
+ * @param height - lyph/layer height
+ * @param offset - layer offset
+ * @returns {Array}
+ */
+export function d2LyphBorderLinks({width, height, offset = 0}){
+    offset = 0; //Currently the lyph's "translate" operation takes care of
+    // layer offset wrt its axis, so we do not need to shift borders here
+    let borders = new Array(4);
+    borders[0] = {
+        source: new THREE.Vector3(offset, -height / 2, 0),
+        target: new THREE.Vector3(offset,  height / 2, 0)};
+    borders[1] = {
+        source: borders[0].target.clone(),
+        target: new THREE.Vector3(width + offset, height / 2, 0)};
+    borders[2] = {
+        source: borders[1].target.clone(),
+        target: new THREE.Vector3(width + offset, -height / 2, 0)};
+    borders[3] = {
+        source: borders[2].target.clone(),
+        target: new THREE.Vector3(offset, -height / 2, 0)};
+    return borders;
+}
+
+/**
  * Draws layer of a lyph in 2d.
  * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
  * $thickness is axial border distance from the rotational axis

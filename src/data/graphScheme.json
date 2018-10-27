@@ -472,7 +472,6 @@
             "link",
             "semicircle",
             "rectangle",
-            "rect",
             "spline",
             "path",
             "force",
@@ -492,6 +491,11 @@
               "conveyingLyph"
             ]
           }
+        },
+        "directed": {
+          "description": "When set to true, defines a directed edge with arrow at the end",
+          "type": "boolean",
+          "default": false
         },
         "reversed": {
           "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
@@ -593,6 +597,19 @@
           ],
           "relatedTo": "hostedRegions"
         }
+      },
+      "border": {
+        "description": "Properties that apply to the region's border",
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "#/definitions/Border"
+          }
+        ],
+        "relatedTo": "host",
+        "default"  : {}
       }
     },
     "Lyph": {
@@ -662,7 +679,7 @@
               "$ref": "#/definitions/Border"
             }
           ],
-          "relatedTo": "borderInLyph",
+          "relatedTo": "host",
           "default"  : {}
         },
         "infoFields": {
@@ -866,31 +883,23 @@
       },
       "properties": {
         "borders": {
-          "description": "Lyph borders listed in the clockwise order starting from the inner longitudinal border. If this property is included to the input model, it must contain exactly four objects with the items as defined by the current schema type.",
+          "description": "Lyph or region borders listed in the clockwise order (starting from the inner longitudinal border in lyph). If this property is included to the input model, it must contain as many objects as there are border sides.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/BorderPart"
-          },
-          "minItems": 4,
-          "maxItems": 4
+          }
         },
-        "borderTypes": {
-          "description": "Lyph border types, open (value = false) versus closed (value = true), define lyph's topology: tube, bag or cyst.",
-          "type": "array",
-          "items": {
-            "type": "boolean"
-          },
-          "minItems": 4,
-          "maxItems": 4
-        },
-        "borderInLyph": {
-          "description": "The ID or reference to the lyph object that owns this border.",
+        "host": {
+          "description": "The ID or reference to the lyph or region object that owns this border. This property is set internally and should not be assigned.",
           "anyOf": [
             {
               "type": "string"
             },
             {
               "$ref": "#/definitions/Lyph"
+            },
+            {
+              "$ref": "#/definitions/Region"
             }
           ],
           "relatedTo": "border",

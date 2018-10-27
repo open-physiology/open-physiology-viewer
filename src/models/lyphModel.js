@@ -16,12 +16,11 @@ export class Lyph extends Entity {
         //Create lyph's border
         res.border = res.border || {};
         res.border.id = res.border.id || "b_" + res.id; //derive border id from lyph's id
-        res.border.borderTypes = res.border.borderTypes || [false, ...this.radialBorderTypes(res.topology), false];
         res.border = Border.fromJSON(res.border);
         return res;
     }
 
-    static radialBorderTypes(topology) {
+    radialTypes(topology) {
         switch (topology) {
             case "BAG"  :
                 return [true, false];
@@ -112,16 +111,15 @@ export class Lyph extends Entity {
      * @param state - layout settings
      */
     createViewObjects(state) {
-
         //Cannot draw a lyph without axis
         if (!this.axis) { return; }
 
-        //Either use given dimensions or set from axis
-        this.width  = this.width  || this.size.width;
-        this.height = this.height || this.size.height;
-
         //Create a lyph object
         if (!this.viewObjects["main"]) {
+            //Either use given dimensions or set from axis
+            this.width  = this.width  || this.size.width;
+            this.height = this.height || this.size.height;
+
             let numLayers = (this.layers || [this]).length;
 
             let params = {
@@ -133,16 +131,16 @@ export class Lyph extends Entity {
             let lyphObj = createMeshWithBorder(
                 this.prev
                     ? d2LayerShape(
-                        [this.prev.width, this.prev.height, this.height / 4, ...this.prev.border.radialTypes],
-                        [this.width, this.height, this.height / 4, ...this.border.radialTypes])
-                    : d2LyphShape([this.width, this.height, this.height / 4, ...this.border.radialTypes]),
+                        [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
+                        [this.width, this.height, this.height / 4, ...this.radialTypes])
+                    : d2LyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
                 params);
 
 
             lyphObj.userData = this;
             this.viewObjects['main'] = lyphObj;
 
-            this.border.borderInLyph = this;
+            this.border.host = this;
             this.border.createViewObjects(state);
 
             //Layers
@@ -179,10 +177,7 @@ export class Lyph extends Entity {
         }
 
         //Do not create labels for layers and nested lyphs
-        if (this.layerInLyph || this.internalLyphInLyph) {
-            return;
-        }
-
+        if (this.layerInLyph || this.internalLyphInLyph) { return; }
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
     }
 
@@ -212,9 +207,7 @@ export class Lyph extends Entity {
         }
 
         //update layers
-        (this.layers || []).forEach(layer => {
-            layer.updateViewObjects(state);
-        });
+        (this.layers || []).forEach(layer => { layer.updateViewObjects(state); });
 
         //update inner content
         let fociCenter = (this.hostedLyphs || this.internalNodes) ? getCenterPoint(this.viewObjects["main"]) : null;
@@ -275,16 +268,13 @@ export class Lyph extends Entity {
                     const h = Math.sqrt(this.width * this.width + this.height * this.height) / 2;
                     boundToRectangle(link.source, fociCenter, h, h);
                     boundToRectangle(link.target, fociCenter, h, h);
-
                     //Push the link to the tilted lyph rectangle
                     boundToPolygon(link, this.border.borderLinks);
                 }
             });
         }
 
-        (this.internalNodes || []).forEach(node => {
-            copyCoords(node.layout, fociCenter);
-        });
+        (this.internalNodes || []).forEach(node => { copyCoords(node.layout, fociCenter); });
 
         //update border
         if (this.isVisible) {

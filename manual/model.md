@@ -349,13 +349,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
    Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.      
 
  
- ### Lyph border
+ ### Border
  
- The lyph's topology is closely related to the notion of the lyph `border`. In the 2d view, a lyph border is its perimeter line, in 3d view, it is a surface area of the conduit defined by the lyph. 
+ A flat shape such as lyph or region has a border. The border is an object that extends `Entity` and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its `border` field.  
  
- The lyph border is an object that extends `Entity` and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. A lyph can refer to its border via its `border` field.  However, practically, lyph borders do not make much sense without their hosting lyphs. Hence, we auto-generate lyph borders for all lyphs in the model and merge inline objects defining border content within a lyph with the generated object. The modeller should only specify entities hosted by the lyph's border if the model implies the anatomical relationships among the corresponding concepts.
-    
- On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph's inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph's rectangle. The axial border is always aligned with the lyph's axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property `borders` which is always an array of 4 objects. 
+ Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the anatomical relationships among the corresponding concepts.
+
+ The lyph's border is closely related to its topology. The topology defines the types of its `radial` borders: `false` represents a border with open flow while `true` corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph's inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph's rectangle. The axial border is always aligned with the lyph's axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property `borders` which is always an array of 4 objects. 
  
  It is possible to place nodes and other lyphs on any of the border segments. 
  The `hostedNodes` property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the `hostedLyphs` property):
@@ -385,7 +385,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
   ```
  <img src="asset/lyphOnBorder.png" height="300px" alt = "Lyph on border"> 
  
- Here one may observe that the conveyed lyph is using the container lyph's border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with lyph borders conveying lyphs.   
+ Here one may observe that the conveyed lyph is using the container lyph's border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with border parts and convey nested lyphs.   
       
 ## Material
  The ApiNATOMY model can contain definitions of materials, e.g.:
