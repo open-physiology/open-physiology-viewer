@@ -2,7 +2,6 @@ import * as three from 'three';
 const THREE = window.THREE || three;
 import {Entity} from './entityModel';
 import {copyCoords} from './utils';
-import {Border} from './borderModel';
 import {extractCoords, createMeshWithBorder, getCenterOfMass} from '../three/utils';
 
 /**
@@ -11,12 +10,7 @@ import {extractCoords, createMeshWithBorder, getCenterOfMass} from '../three/uti
 export class Region extends Entity {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-        const res = super.fromJSON(json, modelClasses, entitiesByID);
-        //Create region's border
-        res.border    = res.border || {};
-        res.border.id = res.border.id || "b_" + res.id; //derive border id from lyph's id
-        res.border    = Border.fromJSON(res.border);
-        return res;
+        return super.fromJSON(json, modelClasses, entitiesByID, true);
     }
 
     get polygonOffsetFactor() {
@@ -26,6 +20,13 @@ export class Region extends Entity {
         }
         return res;
     }
+
+    translate(p0) {
+        if (!p0 || !this.viewObjects["main"]) { return p0; }
+        let p = p0.clone();
+        return p;
+    }
+
 
     /**
      * Create view model for the class instance
@@ -53,6 +54,8 @@ export class Region extends Entity {
             });
             obj.userData = this;
             this.viewObjects['main'] = obj;
+
+            this.border.createViewObjects(state);
         }
 
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
@@ -70,7 +73,7 @@ export class Region extends Entity {
             copyCoords(linkObj.position, this.center);
         }
 
-        //Update buffer geometry
+        // Update buffer geometry
         // let linkPos = linkObj.geometry.attributes && linkObj.geometry.attributes.position;
         // if (linkPos) {
         //     for (let i = 0; i < this.points.length; i++) {
@@ -81,6 +84,9 @@ export class Region extends Entity {
         //     linkPos.needsUpdate = true;
         //     linkObj.geometry.computeBoundingSphere();
         // }
+
+        this.border.updateViewObjects(state);
+
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
 
     }

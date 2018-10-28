@@ -34,13 +34,25 @@
       }
     },
     {
-      "id": "a",
-      "name": "a",
+      "id": "a1",
+      "name": "a1",
       "color": "#808080",
-      "val": 3,
+      "val": 2,
       "fixed": true,
       "layout": {
-        "x": 0,
+        "x": -30,
+        "y": -20,
+        "z": 0
+      }
+    },
+    {
+      "id": "a2",
+      "name": "a2",
+      "color": "#808080",
+      "val": 2,
+      "fixed": true,
+      "layout": {
+        "x":  20,
         "y": -20,
         "z": 0
       }
@@ -99,6 +111,35 @@
         "y": 0,
         "z": 0
       }
+    },
+    {
+      "id": "n1",
+      "host" : "SP",
+      "offset": 0.9
+    },
+    {
+      "id": "n2"
+    },
+    {
+      "id": "n3"
+    },
+    {
+      "id": "n4"
+    },
+    {
+      "id": "n5"
+    },
+    {
+      "id": "n6"
+    },
+    {
+      "id": "n7"
+    },
+    {
+      "id": "n8"
+    },
+    {
+      "id": "n9"
     }
   ],
   "links" : [
@@ -148,33 +189,198 @@
       "length": 90,
       "stroke": "thick",
       "color" : "#166b40"
+    },
+    {
+      "id"    : "ns1",
+      "source": "t",
+      "target": "a1",
+      "length": 20,
+      "stroke": "thick",
+      "color" : "#45c0b9",
+      "conveyingLyph": "m1"
+    },
+    {
+      "id"    : "ns2",
+      "source": "a1",
+      "target": "a2",
+      "length": 20,
+      "stroke": "thick",
+      "color" : "#45c0b9",
+      "conveyingLyph": "m2"
+    },
+    {
+      "id"    : "ns3",
+      "source": "a2",
+      "target": "h",
+      "length": 20,
+      "stroke": "thick",
+      "color" : "#45c0b9",
+      "conveyingLyph": "m3"
+    },
+    {
+      "id" : "e1",
+      "source" : "n1",
+      "target" : "n2",
+      "conveyingLyph": "l1"
+    },
+    {
+      "id" : "e2",
+      "source" : "n2",
+      "target" : "n3",
+      "conveyingLyph": "l2"
+    },
+    {
+      "id" : "e3",
+      "source" : "n3",
+      "target" : "n4",
+      "conveyingLyph": "l3"
+    },
+    {
+      "id" : "e4",
+      "source" : "n4",
+      "target" : "n5",
+      "conveyingLyph": "l4"
+    },
+    {
+      "id" : "e5",
+      "source" : "n5",
+      "target" : "n6",
+      "conveyingLyph": "l5"
+    },
+    {
+      "id" : "e6",
+      "source" : "n6",
+      "target" : "n7",
+      "conveyingLyph": "l6"
+    },
+    {
+      "id" : "e7",
+      "source" : "n7",
+      "target" : "n8",
+      "conveyingLyph": "l7"
+    },
+    {
+      "id" : "e8",
+      "source" : "n8",
+      "target" : "n9",
+      "conveyingLyph": "l8"
     }
   ],
   "groups": [
-    { "id": "regions",
-      "name": "Regions",
-      "regions": [ "cns", "cs",
+    { "id"     : "regions",
+      "name"   : "Regions",
+      "regions": [ "spinal", "Rh", "cs",
         "prt1", "prt2","prt3", "prt4", "prt5","prt6", "prt7", "prt8","prt9","prt10",
         "prt11", "prt12", "prt13", "prt14", "prt15"]
     },
     {
-      "id": "lungs",
-      "name": "Lungs"
+      "id"   : "neural",
+      "name" : "Neural",
+      "nodes": ["t", "h", "a1", "a2"],
+      "links": ["ns1", "ns2", "ns3"],
+      "assign": [
+        {
+          "path": "$.links[*].conveyingLyph",
+          "value": {
+            "color" : "#eee"
+          }
+        }
+      ]
+    },
+    {
+      "id"   : "lungs",
+      "name" : "Lungs",
+      "nodes": ["n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9"],
+      "links": ["e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8"],
+      "assign": [
+        {
+          "path": "$.links[*]",
+          "value": {
+            "length": 5,
+            "color" : "#166b40"
+          }
+        },
+        {
+          "path": "$.links[*].conveyingLyph",
+          "value": {
+            "color" : "#eee"
+          }
+        }
+      ]
     }
   ],
   "lyphs" : [
+    {
+      "id" : "layer1",
+      "color" : "#8bc63e"
+    },
+    {
+      "id" : "layer2",
+      "color" : "#716557",
+      "layerWidth": 75
+    },
+    {
+      "id"         : "lungs_template",
+      "layers"     : ["layer1", "layer2"],
+      "subtypes"   : ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8"],
+      "isTemplate" : true
+    },
+    {
+      "id"     : "l1",
+      "name"   : "Larynx"
+    },
+    {
+      "id"   : "l4",
+      "name" : "Airway"
+    },
+    {
+      "id"   : "l7",
+      "external" : "g9"
+    },
+    {
+      "id"   : "m_layer1",
+      "color": "#bcbdc0"
+    },
+    {
+      "id"   : "m_layer2",
+      "color": "#6c6d70",
+      "layerWidth": 75
+    },
+    {
+      "id"        : "m",
+      "layers"    : ["m_layer1", "m_layer2"],
+      "isTemplate": true,
+      "subtypes"  : ["m1","m2", "m3"]
+    },
+    {
+      "id"      : "m1",
+      "name"    : "Lung",
+      "external": "g9"
+    },
+    {
+      "id": "m2"
+    },
+    {
+      "id": "m3"
+    }
   ],
   "regions": [
     {
       "id"    : "cs",
-      "name"  : "Cardiac system",
+      "name"  : "Cardiac System",
       "points": [{"x": -75, "y": 20}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 20}],
       "color" : "#fbb03f"
     },
     {
-      "id"   : "cns",
-      "name" : "Central Nervous System",
-      "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
+      "id"   : "spinal",
+      "name" : "Spinal Cord",
+      "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": -25, "y": -15}, {"x": -25, "y": -50}],
+      "color": "#f4ed2f"
+    },
+    {
+      "id"   : "Rh",
+      "name" : "Rhombencephalon",
+      "points" : [{"x": -25, "y": -50}, {"x": -25, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
       "color": "#f4ed2f"
     },
     {
@@ -215,7 +421,10 @@
     {
       "id"   : "prt8",
       "name" : "Lungs",
-      "points": [{"x": 75, "y": 0}, {"x": 75, "y": 50}, {"x": 100, "y": 50}, {"x": 100, "y": 0}]
+      "points": [{"x": -20, "y": 0}, {"x": -20, "y": 50}, {"x": 100, "y": 50}, {"x": 100, "y": 0}],
+      "border": {
+        "borders": [{"hostedNodes": ["n9"]}, {}, {}, {}]
+      }
     },
     {
       "id"   : "prt9",

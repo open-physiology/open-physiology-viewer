@@ -2,7 +2,6 @@ import {merge, isObject, isArray} from 'lodash-bound';
 export const JSONPath = require('JSONPath');
 
 let consoleHolder = console;
-
 /**
  * Helper function to toggle console logging
  * @param bool - boolean flag that indicates whether to print log messages to the console
@@ -25,7 +24,6 @@ export function debug(bool, msgCount = {}){
         console = consoleHolder;
     }
 }
-
 
 /**
  * Assign properties for the entities in JSON path
@@ -161,6 +159,8 @@ function getLineIntersection(line1, line2) {
         y: line1.source.y + (a * (line1.target.y - line1.source.y))
     };
 }
+
+
 
 
 

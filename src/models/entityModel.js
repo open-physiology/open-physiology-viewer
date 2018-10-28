@@ -1,11 +1,10 @@
 import { merge, defaults, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
-import { definitions } from '../data/graphScheme.json';
+import { definitions }  from '../data/graphScheme.json';
 import { SpriteText2D } from 'three-text2d';
 import { assignPropertiesToJSONPath, copyCoords, JSONPath } from './utils.js';
 import * as colorSchemes from 'd3-scale-chromatic';
 
 const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spec.items && isNestedObj(spec.items);
-
 
 /**
  * Extracts class name from the schema definition
@@ -183,6 +182,14 @@ const assignPathProperties = (parent, modelClasses, entitiesByID) => {
     }
 };
 
+/**
+ * Assigns colors to a number of entities
+ * @param entities - list of entities
+ * @param scheme   - interpolation scheme
+ * @param length   - length of the value array taken from the scheme
+ * @param reversed - if true, indicates that the values must be taken from the color array in the reversed order
+ * @param offset   - relative length of the color array to skip before starting to take values
+ */
 const colorPathEntities = (entities, {scheme, length, reversed = false, offset}) => {
     if (!colorSchemes[scheme]) {
         console.warn("Unrecognized color scheme: ", scheme);
@@ -198,7 +205,7 @@ const colorPathEntities = (entities, {scheme, length, reversed = false, offset})
                 console.warn("Cannot assign color to a non-object value");
                 return;
             }
-            //If entity is an array, the schema is applied to each of it's items (e.g. to handle layers of lyphs in a group)
+            //If entity is an array, the schema is applied to each of it's items
             if (item::isArray()){
                 assignColor(item);
             } else {
@@ -209,6 +216,10 @@ const colorPathEntities = (entities, {scheme, length, reversed = false, offset})
     assignColor(entities);
 };
 
+/**
+ * Assigns properties that can be set using interpolation functions allowed by the schema
+ * @param parent
+ */
 const interpolatePathProperties = (parent) => {
     (parent.interpolate||[]).forEach(({path, offset, color}) => {
         let entities = path? JSONPath({json: parent, path: path}): parent.nodes || [];
@@ -225,7 +236,6 @@ const interpolatePathProperties = (parent) => {
         }
     })
 };
-
 
 /**
  * Returns recognized class properties from the specification
@@ -266,6 +276,9 @@ const recurseSchema = (className, handler) => {
 
 const initProperties = {"viewObjects": {}, "labels": {}};
 
+/**
+ * Common methods for all entity models
+ */
 export class Entity {
     constructor(id) {
         this.id = id;
@@ -281,7 +294,7 @@ export class Entity {
      * @param entitiesByID - map of all model entities
      * @returns {Entity} - Entity model
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+    static fromJSON(json, modelClasses = {}, entitiesByID = null, border = false) {
         //Do not expand templates
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];
@@ -310,6 +323,13 @@ export class Entity {
             }
 
             replaceReferences(res, modelClasses, entitiesByID);
+        }
+
+        if (border){
+            res.border      = res.border || {};
+            res.border.id   = res.border.id || "b_" + res.id;
+            res.border      = modelClasses["Border"].fromJSON(res.border);
+            res.border.host = res;
         }
 
         return res;

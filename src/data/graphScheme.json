@@ -596,20 +596,20 @@
             }
           ],
           "relatedTo": "hostedRegions"
+        },
+        "border": {
+          "description": "Properties that apply to the region's border",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Border"
+            }
+          ],
+          "relatedTo": "host",
+          "default"  : {}
         }
-      },
-      "border": {
-        "description": "Properties that apply to the region's border",
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "$ref": "#/definitions/Border"
-          }
-        ],
-        "relatedTo": "host",
-        "default"  : {}
       }
     },
     "Lyph": {
@@ -692,7 +692,7 @@
             "lists": [ "layers" ]
           }
         },
-        "thickness": {
+        "thickness" : {
           "description": "Anatomical lyph thickness defined in the form of power of 1/10",
           "type": "object",
           "properties": {

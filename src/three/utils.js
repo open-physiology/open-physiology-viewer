@@ -13,7 +13,7 @@ import tinycolor from 'tinycolor2';
  * @param bottom
  * @returns {Array}
  */
-export function d2LyphBorders([width,  height,  radius,  top,  bottom]){
+export function lyphBorders([width,  height,  radius,  top,  bottom]){
     let borders = [0,1,2,3].map(x => new THREE.Shape());
 
     //Axial border
@@ -44,31 +44,42 @@ export function d2LyphBorders([width,  height,  radius,  top,  bottom]){
     return borders;
 }
 
+export function polygonBorders(points){
+    let borders = [];
+    for (let i = 1; i < (points||[]).length; i++){
+        borders.push(new THREE.Shape([points[i - 1], points[i]]));
+    }
+    return borders;
+}
+
 /**
- * Creates links (objects with fields 'source' and 'target') to define
- * sides of the lyph rectangle in the center of coordinates
- * @param width  - lyph/layer width
- * @param height - lyph/layer height
- * @param offset - layer offset
+ * Creates links for polygon sides
+ * @param points
  * @returns {Array}
  */
-export function d2LyphBorderLinks({width, height, offset = 0}){
-    offset = 0; //Currently the lyph's "translate" operation takes care of
-    // layer offset wrt its axis, so we do not need to shift borders here
-    let borders = new Array(4);
-    borders[0] = {
-        source: new THREE.Vector3(offset, -height / 2, 0),
-        target: new THREE.Vector3(offset,  height / 2, 0)};
-    borders[1] = {
-        source: borders[0].target.clone(),
-        target: new THREE.Vector3(width + offset, height / 2, 0)};
-    borders[2] = {
-        source: borders[1].target.clone(),
-        target: new THREE.Vector3(width + offset, -height / 2, 0)};
-    borders[3] = {
-        source: borders[2].target.clone(),
-        target: new THREE.Vector3(offset, -height / 2, 0)};
+export function polygonBorderLinks(points){
+    let borders = [];
+    for (let i = 1; i < (points||[]).length; i++){
+        borders.push({"source": points[i - 1], "target": points[i]});
+    }
     return borders;
+}
+
+/**
+ * Creates links for te lyph rectangle defined by width and height
+ * @param width
+ * @param height
+ * @param offset
+ * @returns {Array}
+ */
+export function lyphBorderLinks({width, height, offset = 0}){
+    let points = [
+        new THREE.Vector3(offset, -height / 2, 0),
+        new THREE.Vector3(offset,  height / 2, 0),
+        new THREE.Vector3(width + offset, height / 2, 0),
+        new THREE.Vector3(width + offset, -height / 2, 0)];
+    points.push(points[0].clone());
+    return polygonBorderLinks(points);
 }
 
 /**
@@ -87,7 +98,7 @@ export function d2LyphBorderLinks({width, height, offset = 0}){
  * bottom is a boolean value indicating whether bottom non-axial border is closed
  * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  */
-export function d2LayerShape(inner, outer) {
+export function layerShape(inner, outer) {
     const [$thickness, $height, $radius, $top, $bottom] = inner;
     const [thickness, height, radius, top, bottom] = outer;
     const shape = new THREE.Shape();
@@ -147,7 +158,7 @@ export function d2LayerShape(inner, outer) {
  * bottom is a boolean value indicating whether bottom non-axial border is closed
  * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  */
-export function d2LyphShape(outer) {
+export function lyphShape(outer) {
     let [thickness, height, radius, top, bottom] = outer;
 
     const shape = new THREE.Shape();

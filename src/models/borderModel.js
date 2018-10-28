@@ -6,24 +6,29 @@ import { Link, LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Lyph } from './lyphModel';
 import { isObject } from 'lodash-bound';
-import {d2LyphBorders, d2LyphBorderLinks} from '../three/utils';
+import {lyphBorders, lyphBorderLinks, polygonBorders, polygonBorderLinks} from '../three/utils';
 
 /**
  * Lyph or region border
  */
 export class Border extends Entity {
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-        const result = super.fromJSON(json, modelClasses, entitiesByID);
-        (result.borders || []).filter(border => border.hostedNodes)
-            .forEach(border =>
-                    border.hostedNodes.forEach(node => {
-                        if (!node::isObject()){
-                            console.error("Border content not instantiated", node); return;
-                        }
-                        node.host = result
-                    })
-            );
-        return result;
+        const res = super.fromJSON(json, modelClasses, entitiesByID);
+        (res.borders || []).forEach(border => {
+            (border.hostedNodes||[]).forEach(node => {
+                if (!node::isObject()){
+                    console.error("Border content not instantiated", node);
+                } else {
+                    node.host = res
+                }
+            });
+            if (border.conveyingLyph){
+                if (!border.conveyingLyph::isObject()){
+                    console.error("Border content not instantiated", border.conveyingLyph);
+                }
+            }
+        });
+        return res;
     }
 
     get isVisible(){
@@ -52,28 +57,31 @@ export class Border extends Entity {
         this.borders = this.borders || [];
         this.links   = new Array(this.borders.length);
 
+        //We use "shape" to store shapes, "main" can be used to store actual border lines (THREE.Line) if needed
+
         //Create lyph borders
         if (this.host instanceof Lyph){
             for (let i = this.borders.length; i < 4; i++){ this.borders.push({}); }
-            this.viewObjects["shape"] = d2LyphBorders([
-                this.host.width, this.host.height,
-                this.host.width / 2, ...this.host.radialTypes]);
-            this._borderLinks = d2LyphBorderLinks(this.host); //TODO generalize to work with regions (polygons)
+            this.viewObjects["shape"] =
+                lyphBorders([this.host.width, this.host.height, this.host.width / 2, ...this.host.radialTypes]);
+            this._borderLinks         = lyphBorderLinks(this.host);
+        } else {
+            for (let i = this.borders.length; i < (this.host.points||[]).length; i++){ this.borders.push({}); }
+            this.viewObjects["shape"] = polygonBorders(this.host.points);
+            this._borderLinks         = polygonBorderLinks(this.host.points);
         }
 
         (this.viewObjects["shape"]||[]).forEach((obj, i) => {
-             this.borders[i].viewObjects = this.borders[i].viewObjects || {};
-             this.borders[i].viewObjects["shape"] = obj; //Reserve "main" to store actual border lines
+             this.borders[i].viewObjects          = this.borders[i].viewObjects || {};
+             this.borders[i].viewObjects["shape"] = obj;
         });
 
-        //TODO create a BorderPart class?
         this.borders.forEach((border, i) => {
             //Important: do not filter the borders array to retain the right border number
             if (!border.conveyingLyph) { return; }
             let id = `${this.id}`;
             //Turn border into a link if we need to draw its nested content (conveying lyph)
-            let s = Node.fromJSON({"id": `s_${id}`});
-            let t = Node.fromJSON({"id": `t_${id}`});
+            let [s, t] = ["s", "t"].map(prefix => Node.fromJSON({"id": `${prefix}_${id}`}));
             this.links[i] = Link.fromJSON({
                 "id"    : `lnk_${id}`,
                 "source": s,

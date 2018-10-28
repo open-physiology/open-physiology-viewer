@@ -1,4 +1,4 @@
-import { keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
+import { pick, keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
 import { LINK_GEOMETRY, LINK_STROKE } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 
@@ -43,8 +43,13 @@ export class DataService{
         const expandTemplates = () => {
             let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
             templates.forEach(template => {
-                let subtypes = template.subtypes.map(subtypeRef => this._graphData.lyphs.find(e => e.id === subtypeRef));
+                let subtypes = template.subtypes.map(subtypeRef =>
+                    this._graphData.lyphs.find(e => e.id === subtypeRef) || { "id": subtypeRef, "new" : true });
                 (subtypes || []).forEach(subtype => {
+                    if (subtype.new) { //add auto-create subtype lyphs to the graph lyphs
+                        delete subtype.new;
+                        this._graphData.lyphs.push(subtype);
+                    }
                     subtype.layers = [];
                     (template.layers|| []).forEach(layerRef => {
                         let layerParent = this._graphData.lyphs.find(e => e.id === layerRef);
@@ -56,9 +61,10 @@ export class DataService{
                         let lyphLayer = {
                             "id"        : newID,
                             "name"      : `${layerParent.name} in ${subtype.name}`,
-                            "supertype" : layerParent.id,
-                            "color"     : layerParent.color
+                            "supertype" : layerParent.id
                         };
+                        //TODO get all properties from schema which are not relationships?
+                        lyphLayer::merge(layerParent::pick(["color", "layerWidth"]));
                         this._graphData.lyphs.push(lyphLayer);
                         subtype.layers.push(lyphLayer);
                     });
