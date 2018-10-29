@@ -775,6 +775,11 @@
           },
           "relatedTo": "internalLyphInLyph"
         },
+        "internalLyphColumns": {
+          "description": "Defines number of columns in the grid layout for the internal lyphs",
+          "type": "number",
+          "default": 1
+        },
         "internalLyphInLyph": {
           "description": "ID or reference of the lyph on which this lyph must be permanently positioned",
           "anyOf": [

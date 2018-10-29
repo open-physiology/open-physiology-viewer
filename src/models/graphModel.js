@@ -31,44 +31,44 @@ export class Graph extends Entity {
 
         //Inherit objects from subgroups
         (res.groups||[]).forEach(group => {
-            ["nodes", "lyphs", "links"].forEach(property => {
+            ["nodes", "links", "lyphs", "regions"].forEach(property => {
                 res[property] = (res[property]||[])::unionBy(group[property], "id");
             });
         });
 
         const createAxis = (lyph) => {
-            if (!lyph.conveyedBy) {
-                let container = lyph.internalLyphInLyph;
-                let [sNode, tNode] = ["s", "t"].map(prefix => (
-                    modelClasses["Node"].fromJSON({
-                        "id": `${prefix}${lyph.id}`,
-                        "name": `${prefix}${lyph.id}`,
-                        "color": "#ccc",
-                        "val": 0.1,
-                        "skipLabel": true
-                    })));
-
-                let link = modelClasses["Link"].fromJSON({
-                    "id": `${sNode.id}_ ${tNode.id}`,
-                    "source": sNode,
-                    "target": tNode,
-                    "length": container && container.axis? container.axis.length * 0.8 : 5,
-                    "geometry": LINK_GEOMETRY.INVISIBLE,
+            let container = lyph.internalLyphInLyph;
+            let [sNode, tNode] = ["s", "t"].map(prefix => (
+                modelClasses["Node"].fromJSON({
+                    "id"   : `${prefix}${lyph.id}`,
+                    "name" : `${prefix}${lyph.id}`,
                     "color": "#ccc",
-                    "conveyingLyph": lyph
-                });
-                lyph.conveyedBy = sNode.sourceIn = tNode.targetIn = link;
-            }
+                    "val"  : 0.1,
+                    "skipLabel": true
+                })));
+
+            let link = modelClasses["Link"].fromJSON({
+                "id"      : `${sNode.id}_ ${tNode.id}`,
+                "source"  : sNode,
+                "target"  : tNode,
+                "length"  : container && container.axis? container.axis.length * 0.8 : 5,
+                "geometry": LINK_GEOMETRY.INVISIBLE,
+                "color"   : "#ccc",
+                "conveyingLyph": lyph
+            });
+            lyph.conveyedBy = sNode.sourceIn = tNode.targetIn = link;
         };
-        //Add auto-created links and nodes for internal lyphs to relevant groups
+
+        const addLinkToGroup = (link) => {
+            if (!res.links) {res.links = [];}
+            if (!res.nodes) {res.nodes = [];}
+            res.links.push(link);
+            [link.source, link.target].forEach(node => res.nodes.push(node));
+        };
+
         (res.lyphs||[]).filter(lyph => lyph.internalLyphInLyph).forEach(lyph => {
-            createAxis(lyph);
-            if (!res.belongsTo(lyph.conveyedBy)){
-                if (!res.links) {res.links = [];}
-                if (!res.nodes) {res.nodes = [];}
-                res.links.push(lyph.conveyedBy);
-                [lyph.conveyedBy.source, lyph.conveyedBy.target].forEach(node => res.nodes.push(node));
-            }
+            if (!lyph.conveyedBy) { createAxis(lyph); }
+            if (!res.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
         });
 
         //Add auto-created clones of boundary nodes to relevant groups
@@ -88,21 +88,11 @@ export class Graph extends Entity {
         addColor(res.lyphs);
         addColor(res.regions, "#c0c0c0");
 
-        (res.regions||[]).filter(region => !region.points).forEach((region, i) => {
-
-        });
-
         return res;
     }
 
     get entities(){
-        let entities = [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[]),...(this.regions||[])];
-        (this.nodes||[]).forEach(lyph => {
-            [...(lyph.layers||[]), ...(lyph.internalNodes||[]), ...(lyph.internalLyphs||[])].forEach(x => {
-                if (!entities.find(e => e.id === x.id)){ entities.push(x); }
-            })
-        });
-        return entities;
+        return [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[]),...(this.regions||[])];
     }
 
     scale(axisLength){

@@ -8,7 +8,6 @@ export function fixRespiratoryControl(){
     let counter = 1;
     BG.groups.filter(e => e.group).forEach(e => {
         //TODO fix bug with nested groups
-        //e.inGroups = [e.group.toString()];
         delete e.group;
     });
     BG.nodes.forEach(e => {

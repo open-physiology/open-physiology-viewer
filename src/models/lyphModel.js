@@ -78,12 +78,15 @@ export class Lyph extends Entity {
         return res;
     }
 
+    /**
+     * Positions the point on the lyph surface
+     * @param p0 - initial point (coordinates)
+     * @returns {THREE.Vector3} - transformed point (coordinates)
+     */
     translate(p0) {
         let transformedLyph = this.layerInLyph ? this.layerInLyph : this;
         if (!p0 || !transformedLyph.viewObjects["main"]) { return p0; }
         let p = p0.clone();
-        if (this.layerInLyph) { p.x += this.offset; }
-
         p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
         p.add(transformedLyph.center);
         return p;
@@ -191,9 +194,10 @@ export class Lyph extends Entity {
         //update inner content
         let fociCenter = (this.hostedLyphs || this.internalNodes) ? getCenterPoint(this.viewObjects["main"]) : null;
 
-        const lyphsToLinks = (lyphs) => (this.lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
+        const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
 
-        lyphsToLinks(this.internalLyphs).forEach((link, i) => {
+        let internalLinks = lyphsToLinks(this.internalLyphs);
+        internalLinks.forEach((link, i) => {
             let p  = extractCoords(this.border.borderLinks[0].source);
             let p1 = extractCoords(this.border.borderLinks[0].target);
             let p2 = extractCoords(this.border.borderLinks[1].target);

@@ -115,7 +115,7 @@
     {
       "id": "n1",
       "host" : "SP",
-      "offset": 0.9
+      "offset": 0.92
     },
     {
       "id": "n2"
@@ -139,7 +139,8 @@
       "id": "n8"
     },
     {
-      "id": "n9"
+      "id": "n9",
+      "offset": 0.5
     }
   ],
   "links" : [
@@ -278,6 +279,7 @@
       "name" : "Neural",
       "nodes": ["t", "h", "a1", "a2"],
       "links": ["ns1", "ns2", "ns3"],
+      "lyphs": ["m1_1", "m1_2", "m1_3", "m1_4"],
       "assign": [
         {
           "path": "$.links[*].conveyingLyph",
@@ -335,6 +337,7 @@
     },
     {
       "id"   : "l7",
+      "name" : "Lung",
       "external" : "g9"
     },
     {
@@ -354,8 +357,17 @@
     },
     {
       "id"      : "m1",
-      "name"    : "Lung",
-      "external": "g9"
+      "name"    : "Spine",
+      "external": "g8",
+      "assign": [
+        {
+          "path": "$.layers[1]",
+          "value": {
+            "internalLyphs": ["m1_1", "m1_2", "m1_3", "m1_4"],
+            "internalLyphColumns": 4
+          }
+        }
+      ]
     },
     {
       "id": "m2"
@@ -423,7 +435,7 @@
       "name" : "Lungs",
       "points": [{"x": -20, "y": 0}, {"x": -20, "y": 50}, {"x": 100, "y": 50}, {"x": 100, "y": 0}],
       "border": {
-        "borders": [{"hostedNodes": ["n9"]}, {}, {}, {}]
+        "borders": [{"hostedNodes": ["n9"]},{},{},{}]
       }
     },
     {
@@ -468,6 +480,14 @@
       "value": {
         "charge" : 20,
         "collide": 15
+      }
+    },
+    {
+      "path": "$.lyphs[*].internalLyphs[*]",
+      "value": {
+        "color": "#fff",
+        "width" : 50,
+        "height": 60
       }
     }
   ]

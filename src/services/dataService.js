@@ -1,6 +1,7 @@
 import { pick, keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
 import { LINK_GEOMETRY, LINK_STROKE } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
+import { definitions } from '../data/graphScheme.json';
 
 import {assignPropertiesToJSONPath } from '../models/utils';
 
@@ -22,6 +23,7 @@ export class DataService{
         //Constant parameters and helper functions
         /////////////////////////////////////////////////////////////////////
 
+        //TODO auto generate links for internal lyphs
 
         //Create an expanded input model
         this._graphData = inputModel::cloneDeep()::defaults({
@@ -148,7 +150,7 @@ export class DataService{
         let entitiesByID = {};
         
         entitiesByID[this._graphData.id] = this._graphData;
-        ["nodes", "links", "lyphs", "groups"].forEach(prop => {
+        definitions["Graph"].properties::keys().forEach(prop => {
             (this._graphData[prop]||[]).forEach(e => {
                 if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
                 if (entitiesByID[e.id]) { console.error("Entity IDs are not unique: ", entitiesByID[e.id], e); }
