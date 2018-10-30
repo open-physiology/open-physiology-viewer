@@ -17,7 +17,7 @@ export class Node extends Entity {
         return ((this.fixed && this.layout) ||
          (this.controlNodes && this.controlNodes.length > 0) ||
          (this.host && this.host.isVisible) ||
-         (this.internalNodeInLyph && this.internalNodeInLyph.isVisible))
+         (this.internalNodeInLyph && this.internalNodeInLyph.isVisible))//TODO what about regions?
             ? true
             : false;
     }

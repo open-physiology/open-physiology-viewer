@@ -306,6 +306,18 @@
           ],
           "relatedTo": "internalNodes"
         },
+        "internalNodeInRegion": {
+          "description": "A region on which this node is positioned (other side of 'internalNodes').",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "internalNodes"
+        },
         "controlNodes": {
           "description": "A set of nodes that define the position of the current node as their center of mass",
           "type": "array",
@@ -536,22 +548,6 @@
           "relatedTo": "host",
           "uniqueItems": true
         },
-        "hostedRegions": {
-          "description": "Regions that are associated with the given link.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Region"
-              }
-            ]
-          },
-          "relatedTo": "host",
-          "uniqueItems": true
-        },
         "linkOnBorder": {
           "description": "Reference to the lyph border part if the link is created to host the border's conveying lyph",
           "$ref": "#/definitions/BorderPart",
@@ -585,18 +581,6 @@
             {"x":  10, "y": -10}
           ]
         },
-        "host": {
-          "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Link"
-            }
-          ],
-          "relatedTo": "hostedRegions"
-        },
         "border": {
           "description": "Properties that apply to the region's border",
           "anyOf": [
@@ -609,6 +593,56 @@
           ],
           "relatedTo": "host",
           "default"  : {}
+        },
+        "internalNodes": {
+          "description": "Nodes that should be positioned on the given region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          },
+          "relatedTo": "internalNodeInRegion",
+          "uniqueItems": true
+        },
+        "internalLyphs": {
+          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "internalLyphInRegion"
+        },
+        "internalLyphColumns": {
+          "description": "Defines number of columns in the grid layout for the internal lyphs",
+          "type": "number",
+          "default": 1
+        },         "hostedLyphs": {
+          "description": "Lyphs that should be projected to the given region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "hostedByRegion"
         }
       }
     },
@@ -792,6 +826,18 @@
           ],
           "relatedTo": "internalLyphs"
         },
+        "internalLyphInRegion": {
+          "description": "ID or reference of the region on which this lyph must be permanently positioned",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "internalLyphs"
+        },
         "hostedLyphs": {
           "description": "Lyphs that should be projected to the given lyph",
           "type": "array",
@@ -809,6 +855,18 @@
         },
         "hostedByLyph": {
           "description": "ID or reference of the lyph which this lyph must be projected to",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "hostedLyphs"
+        },
+        "hostedByRegion": {
+          "description": "ID or reference of the region which this lyph must be projected to",
           "anyOf": [
             {
               "type": "string"

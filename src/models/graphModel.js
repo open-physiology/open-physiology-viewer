@@ -36,8 +36,7 @@ export class Graph extends Entity {
             });
         });
 
-        const createAxis = (lyph) => {
-            let container = lyph.internalLyphInLyph;
+        const createAxis = (lyph, container) => {
             let [sNode, tNode] = ["s", "t"].map(prefix => (
                 modelClasses["Node"].fromJSON({
                     "id"   : `${prefix}${lyph.id}`,
@@ -66,8 +65,8 @@ export class Graph extends Entity {
             [link.source, link.target].forEach(node => res.nodes.push(node));
         };
 
-        (res.lyphs||[]).filter(lyph => lyph.internalLyphInLyph).forEach(lyph => {
-            if (!lyph.conveyedBy) { createAxis(lyph); }
+        (res.lyphs||[]).filter(lyph => lyph.internalLyphInLyph || lyph.internalLyphInRegion).forEach(lyph => {
+            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalLyphInLyph || lyph.internalLyphInRegion); }
             if (!res.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
         });
 

@@ -33,7 +33,7 @@ export const LINK_STROKE = {
     THICK      : "thick"        //thick line
 };
 
-const getPoint = (curve, s, t, d_i) => (curve.getPoint)? curve.getPoint(d_i): s.clone().add(t).multiplyScalar(d_i);
+const getPoint = (curve, s, t, offset) => (curve.getPoint)? curve.getPoint(offset): s.clone().add(t).multiplyScalar(offset);
 
 /**
  * The class to visualize processes (graph edges)
@@ -175,8 +175,8 @@ export class Link extends Entity {
                     }
                 }
         }
-        this.points = curve.getPoints? curve.getPoints(state.linkResolution - 1): [_start, _end];
         this.center = getPoint(curve, _start, _end, 0.5);
+        this.points = curve.getPoints? curve.getPoints(state.linkResolution - 1): [_start, _end];
 
         //Merge nodes of a collapsible link
         if (this.collapsible){
@@ -200,16 +200,6 @@ export class Link extends Entity {
             copyCoords(node, pos);
         });
 
-        //Position associated regions
-        (this.hostedRegions||[]).forEach((region, i) => {
-            let offset = region.offset? region.offset: 1 / (this.hostedRegions.length);
-            region.center = getPoint(curve, _start, _end, offset * (i + 0.5));
-            let p1 = getPoint(curve, _start, _end, offset * i);
-            let p2 = getPoint(curve, _start, _end, offset * (i + 1));
-            let axis = {"source": p1, "target": p2};
-            align(axis, region.viewObjects["main"]);
-        });
-
         this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
 
         if (this.conveyingLyph){
@@ -231,7 +221,7 @@ export class Link extends Entity {
                 let t = arrowLength / length;
                 if (curve){ dir = curve.getTangent(1 - t); }
                 let pos = getPoint(curve, _start, _end, 1 - t);
-                arrow.position.set(pos.x, pos.y, pos.z);
+                copyCoords(arrow.position, pos);
                 arrow.setDirection(dir.normalize());
             }
         }

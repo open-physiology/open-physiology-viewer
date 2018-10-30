@@ -75,7 +75,7 @@
       "val": 3,
       "layout": {
         "x": -50,
-        "y": 60,
+        "y": 55,
         "z": 0
       }
     },
@@ -86,7 +86,7 @@
       "val": 3,
       "layout": {
         "x": -50,
-        "y": 30,
+        "y": 15,
         "z": 0
       }
     },
@@ -159,7 +159,8 @@
       "geometry": "rectangle",
       "length"  : 25,
       "stroke"  : "thick",
-      "color"   : "#ee1d23"
+      "color"   : "#ee1d23",
+      "conveyingLyph": "br"
     },
     {
       "id"      : "LR",
@@ -268,18 +269,12 @@
     }
   ],
   "groups": [
-    { "id"     : "regions",
-      "name"   : "Regions",
-      "regions": [ "spinal", "Rh", "cs",
-        "prt1", "prt2","prt3", "prt4", "prt5","prt6", "prt7", "prt8","prt9","prt10",
-        "prt11", "prt12", "prt13", "prt14", "prt15"]
-    },
     {
       "id"   : "neural",
       "name" : "Neural",
       "nodes": ["t", "h", "a1", "a2"],
       "links": ["ns1", "ns2", "ns3"],
-      "lyphs": ["m1_1", "m1_2", "m1_3", "m1_4"],
+      "lyphs": ["m1_1", "m1_2", "m1_3", "m1_4", "m2_1", "m2_2", "m2_3", "m2_4", "m2_5", "m3_1", "m3_2"],
       "assign": [
         {
           "path": "$.links[*].conveyingLyph",
@@ -312,6 +307,33 @@
     }
   ],
   "lyphs" : [
+    {
+      "id"  : "abd_m",
+      "name": "Abdominal muscles",
+      "color": "#fff"
+    },
+    {
+      "id"  : "dia",
+      "name": "Diaphragm",
+      "color": "#fff"
+    },
+    {
+      "id": "br_l1",
+      "color": "#c3b49b"
+    },
+    {
+      "id": "br_l2",
+      "color": "#652d91"
+    },
+    {
+      "id": "br",
+      "name": "Baroreceptor",
+      "layers": ["br_l1", "br_l2"],
+      "scale": {
+        "width": 10,
+        "height": 10
+      }
+    },
     {
       "id" : "layer1",
       "color" : "#8bc63e"
@@ -370,29 +392,80 @@
       ]
     },
     {
-      "id": "m2"
+      "id": "m2",
+      "assign": [
+        {
+          "path": "$.layers[1]",
+          "value": {
+            "internalLyphs": ["m2_1", "m2_2", "m2_3", "m2_4", "m2_5"],
+            "internalLyphColumns": 3
+          }
+        }
+      ]
     },
     {
-      "id": "m3"
+      "id": "m3",
+      "assign": [
+        {
+          "path": "$.layers[1]",
+          "value": {
+            "internalLyphs": ["m3_1", "m3_2"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "m2_1",
+      "external": "g3",
+      "name": "VRG"
+    },
+    {
+      "id":  "m2_2",
+      "external": "g7"
+    },
+    {
+      "id": "m2_3",
+      "external": "g2",
+      "name": "BotC"
+    },
+    {
+      "id": "m2_4",
+      "external": "g5",
+      "name": "Nucleus Ambiguus"
+    },
+    {
+      "id": "m2_5",
+      "external": "g1",
+      "name": "NTS"
+    },
+    {
+      "id": "m3_1",
+      "external": "g4",
+      "name": "PRG"
+    },
+    {
+      "id": "m3_2",
+      "external": "g10",
+      "name": "Raphe9"
     }
   ],
   "regions": [
     {
       "id"    : "cs",
       "name"  : "Cardiac System",
-      "points": [{"x": -75, "y": 20}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 20}],
+      "points": [{"x": -75, "y": 0}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 0}],
       "color" : "#fbb03f"
     },
     {
       "id"   : "spinal",
       "name" : "Spinal Cord",
-      "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": -25, "y": -15}, {"x": -25, "y": -50}],
+      "points" : [{"x": -75, "y": -75}, {"x": -75, "y": 0}, {"x": -25, "y": 0}, {"x": -25, "y": -75}],
       "color": "#f4ed2f"
     },
     {
       "id"   : "Rh",
       "name" : "Rhombencephalon",
-      "points" : [{"x": -25, "y": -50}, {"x": -25, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
+      "points" : [{"x": -25, "y": -75}, {"x": -25, "y": 0}, {"x": 75, "y": 0}, {"x": 75, "y": -75}],
       "color": "#f4ed2f"
     },
     {
@@ -433,7 +506,7 @@
     {
       "id"   : "prt8",
       "name" : "Lungs",
-      "points": [{"x": -20, "y": 0}, {"x": -20, "y": 50}, {"x": 100, "y": 50}, {"x": 100, "y": 0}],
+      "points": [{"x": -25, "y": 0}, {"x": -25, "y": 50}, {"x": 100, "y": 50}, {"x": 100, "y": 0}],
       "border": {
         "borders": [{"hostedNodes": ["n9"]},{},{},{}]
       }
@@ -456,12 +529,14 @@
     {
       "id"   : "prt12",
       "name" : "Thorax",
-      "points": [{"x": -30, "y": -100}, {"x": -30, "y": -75}, {"x": 30, "y": -75}, {"x": 30, "y": -100}]
+      "points": [{"x": -30, "y": -100}, {"x": -30, "y": -75}, {"x": 30, "y": -75}, {"x": 30, "y": -100}],
+      "internalLyphs": ["dia"]
     },
     {
       "id"   : "prt13",
       "name" : "Abdomen",
-      "points": [{"x": -75, "y": -100}, {"x": -75, "y": -75}, {"x": -30, "y": -75}, {"x": -30, "y": -100}]
+      "points": [{"x": -75, "y": -100}, {"x": -75, "y": -75}, {"x": -30, "y": -75}, {"x": -30, "y": -100}],
+      "internalLyphs": ["abd_m"]
     },
     {
       "id"   : "prt14",

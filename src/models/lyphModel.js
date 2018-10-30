@@ -1,8 +1,8 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {Entity} from './entityModel';
-import {align, extractCoords, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
-import {boundToPolygon, boundToRectangle, copyCoords} from './utils';
+import { align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
+import {copyCoords} from './utils';
 
 /**
  * Class that creates visualization objects of lyphs
@@ -39,7 +39,7 @@ export class Lyph extends Entity {
             //and it can be placed in any plane passing through the axis!
             res = getCenterPoint(this.viewObjects["main"]);
         } else {
-            res = this.axis.center;
+            res = this.axis.center || res;
         }
         return res;
     }
@@ -57,7 +57,7 @@ export class Lyph extends Entity {
         let res = 0;
         //Lyphs positioned on top of the given lyph should be rendered first
         //This prevents blinking of polygons with equal z coordinates
-        ["layerInLyph", "internalLyphInLyph", "hostedByLyph"].forEach((prop, i) => {
+        ["layerInLyph", "internalLyphInLyph", "internalLyphInRegion", "hostedByLyph"].forEach((prop, i) => {
             if (this[prop]) {
                 res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
             }
@@ -70,7 +70,7 @@ export class Lyph extends Entity {
      * @returns {{height: number, width: number}}
      */
     get size() {
-        let res = {height: this.axis.length, width: this.axis.length};
+        let res = {height: this.axis.length || 1, width: this.axis.length || 1};
         if (this.scale) {
             res.width  *= this.scale.width / 100;
             res.height *= this.scale.height / 100;
@@ -90,6 +90,10 @@ export class Lyph extends Entity {
         p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
         p.add(transformedLyph.center);
         return p;
+    }
+
+    get points(){
+        return (this._points||[]).map(p => this.translate(p));
     }
 
     /**
@@ -125,6 +129,16 @@ export class Lyph extends Entity {
             lyphObj.userData = this;
             this.viewObjects['main'] = lyphObj;
 
+            this.offset = this.offset ||0;
+            this._points = [
+                new THREE.Vector3(this.offset, -this.height / 2, 0),
+                new THREE.Vector3(this.offset,  this.height / 2, 0),
+                new THREE.Vector3(this.width + this.offset, this.height / 2, 0),
+                new THREE.Vector3(this.width + this.offset, -this.height / 2,0)
+            ];
+            this._points.push(this._points[0].clone());
+
+            //Border uses corner points
             this.border.createViewObjects(state);
 
             //Layers
@@ -163,6 +177,7 @@ export class Lyph extends Entity {
         //Do not create labels for layers and nested lyphs
         if (this.layerInLyph || this.internalLyphInLyph) { return; }
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
+
     }
 
     /**
@@ -190,70 +205,6 @@ export class Lyph extends Entity {
 
         //update layers
         (this.layers || []).forEach(layer => { layer.updateViewObjects(state); });
-
-        //update inner content
-        let fociCenter = (this.hostedLyphs || this.internalNodes) ? getCenterPoint(this.viewObjects["main"]) : null;
-
-        const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
-
-        let internalLinks = lyphsToLinks(this.internalLyphs);
-        internalLinks.forEach((link, i) => {
-            let p  = extractCoords(this.border.borderLinks[0].source);
-            let p1 = extractCoords(this.border.borderLinks[0].target);
-            let p2 = extractCoords(this.border.borderLinks[1].target);
-            [p, p1, p2].forEach(p => p.z += 1);
-            let dX = p1.clone().sub(p);
-            let dY = p2.clone().sub(p1);
-            let delta = 0.05; //offset from the border
-            let offsetY = dY.clone().multiplyScalar(delta + i / (internalLinks.length + 2 * delta));
-            //offsetX is used to shift the internal lyph's axis link from the border
-            let sOffsetX = dX.clone().multiplyScalar(link.source.offset || 0);
-            let tOffsetX = dX.clone().multiplyScalar(link.target.offset || 0);
-            copyCoords(link.source, p.clone().add(sOffsetX).add(offsetY));
-            copyCoords(link.target, p1.clone().sub(tOffsetX).add(offsetY));
-        });
-
-        const delta = 5;
-        lyphsToLinks(this.hostedLyphs).forEach((link) => {
-            //Global force pushes content on top of lyph
-            if (Math.abs(this.axis.target.z - this.axis.source.z) <= delta) {
-                //Faster way to get projection for lyphs parallel to x-y plane
-                link.source.z = this.axis.source.z + 1;
-                link.target.z = this.axis.target.z + 1;
-            } else {
-                //Project links with hosted lyphs to the container lyph plane
-                let plane = new THREE.Plane();
-                let _start = extractCoords(this.axis.source);
-                let _end   = extractCoords(this.axis.target);
-                plane.setFromCoplanarPoints(_start, _end, fociCenter);
-
-                let _linkStart = extractCoords(link.source);
-                let _linkEnd = extractCoords(link.target);
-                [_linkStart, _linkEnd].forEach(node => {
-                    plane.projectPoint(node, node);
-                    node.z += 1;
-                });
-                copyCoords(link.source, _linkStart);
-                copyCoords(link.target, _linkEnd);
-            }
-
-            if (Math.abs(this.axis.target.y - this.axis.source.y) <= delta) {
-                //The lyph rectangle is almost straight, we can quickly bound the content
-                boundToRectangle(link.source, fociCenter, this.width / 2, this.height / 2);
-                boundToRectangle(link.target, fociCenter, this.width / 2, this.height / 2);
-            } else {
-                //Roughly confine the links to avoid extreme link jumping
-                //Regardless of the rotation, the area is bounded to the center +/- hypotenuse / 2
-                const h = Math.sqrt(this.width * this.width + this.height * this.height) / 2;
-                boundToRectangle(link.source, fociCenter, h, h);
-                boundToRectangle(link.target, fociCenter, h, h);
-                //Push the link to the tilted lyph rectangle
-                boundToPolygon(link, this.border.borderLinks);
-            }
-        });
-
-        (this.internalNodes || []).forEach(node => { copyCoords(node.layout, fociCenter); });
-
         this.border.updateViewObjects(state);
 
         //Layers and inner lyphs have no labels
