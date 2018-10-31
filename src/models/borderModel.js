@@ -59,7 +59,7 @@ export class Border extends Entity {
      * @param numCols - number of columns
      * @param numRows - number of Rows
      */
-    placeInside(link, i, numCols, numRows){//TODO this will only work well for rectangular shapes
+    placeLinkInside(link, i, numCols, numRows){//TODO this will only work well for rectangular shapes
         let delta = 0.05; //offset from the border
         let p = this.host.points.slice(0,3).map(p => p.clone());
         p.forEach(p => p.z += 1);
@@ -73,11 +73,22 @@ export class Border extends Entity {
         link.source.z += 1;
     }
 
+    placeNodeInside(node, i, n, center){//TODO this will only work well for rectangular shapes
+        let r = Math.min(this.host.width || 20, this.host.height || 20) / 2.5;
+        let offset = new THREE.Vector3( r, 0, 0 );
+        let axis = new THREE.Vector3( 0, 0, 1);
+        let angle = 4 * Math.PI * i / n;
+        offset.applyAxisAngle( axis, angle );
+        let pos = center.clone().add(offset);
+        copyCoords(node, pos);
+        node.z += 2;
+    }
+
     /**
      * Push existing link inside of the border
      * @param link
      */
-    pushInside(link) {
+    pushLinkInside(link) {
         const delta = 5;
         let points = this.host.points.map(p => p.clone());
         let [x, y, z] = ["x","y","z"].map(key => points.map(p => p[key]));
@@ -160,9 +171,13 @@ export class Border extends Entity {
         let internalLinks = lyphsToLinks(this.host.internalLyphs);
         let numCols = this.host.internalLyphColumns || 1;
         let numRows = internalLinks.length / numCols;
-        internalLinks.forEach((link, i) => { this.placeInside(link, i, numCols, numRows); });
-        lyphsToLinks(this.host.hostedLyphs).forEach((link) => { this.pushInside(link); });
-        (this.host.internalNodes || []).forEach(node => { copyCoords(node.layout, getCenterOfMass(this.host.points)); });
+        internalLinks.forEach((link, i) => { this.placeLinkInside(link, i, numCols, numRows); });
+        lyphsToLinks(this.host.hostedLyphs).forEach((link) => { this.pushLinkInside(link); });
+
+        //TODO arrange in a grid or circle
+         let center = getCenterOfMass(this.host.points);
+        (this.host.internalNodes || []).forEach((node, i) => { this.placeNodeInside(node, i,
+            this.host.internalNodes.length, center)});
 
         (this.borders || []).filter(border => border.hostedNodes).forEach(border => {
             //position nodes on the lyph border (exact shape, we use 'borderLinks' to place nodes on straight line)
