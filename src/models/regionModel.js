@@ -13,20 +13,10 @@ export class Region extends Entity {
         return super.fromJSON(json, modelClasses, entitiesByID, true);
     }
 
-    get polygonOffsetFactor() {
-        let res = 0;
-        if (this.host) {
-            res = Math.min(res, this.host.polygonOffsetFactor + 1);
-        }
-        return res;
-    }
-
     translate(p0) {
         if (!p0 || !this.viewObjects["main"]) { return p0; }
-        let p = p0.clone();
-        return p;
+        return p0.clone();
     }
-
 
     /**
      * Create view model for the class instance

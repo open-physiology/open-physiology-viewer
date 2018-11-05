@@ -234,6 +234,11 @@
             "lists": []
           }
         },
+        "inGroups": {
+          "description": "Groups that include the current entity",
+
+          "readOnly": true
+        },
         "hidden": {
           "description": "A flag to indicate that this entity should not be visualized",
           "type": "boolean"
@@ -282,7 +287,7 @@
         "$ref": "#/definitions/Entity"
       },
       "properties": {
-        "host": {
+        "hostedByLink": {
           "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
           "anyOf": [
             {
@@ -294,7 +299,7 @@
           ],
           "relatedTo": "hostedNodes"
         },
-        "internalNodeInLyph": {
+        "internalInLyph": {
           "description": "A lyph on which this node is positioned (other side of 'internalNodes').",
           "anyOf": [
             {
@@ -306,7 +311,7 @@
           ],
           "relatedTo": "internalNodes"
         },
-        "internalNodeInRegion": {
+        "internalInRegion": {
           "description": "A region on which this node is positioned (other side of 'internalNodes').",
           "anyOf": [
             {
@@ -545,7 +550,7 @@
               }
             ]
           },
-          "relatedTo": "host",
+          "relatedTo": "hostedByLink",
           "uniqueItems": true
         },
         "linkOnBorder": {
@@ -607,7 +612,7 @@
               }
             ]
           },
-          "relatedTo": "internalNodeInRegion",
+          "relatedTo": "internalInRegion",
           "uniqueItems": true
         },
         "internalLyphs": {
@@ -623,7 +628,7 @@
               }
             ]
           },
-          "relatedTo": "internalLyphInRegion"
+          "relatedTo": "internalInRegion"
         },
         "internalLyphColumns": {
           "description": "Defines number of columns in the grid layout for the internal lyphs",
@@ -791,7 +796,7 @@
               }
             ]
           },
-          "relatedTo": "internalNodeInLyph",
+          "relatedTo": "internalInLyph",
           "uniqueItems": true
         },
         "internalLyphs": {
@@ -807,14 +812,14 @@
               }
             ]
           },
-          "relatedTo": "internalLyphInLyph"
+          "relatedTo": "internalInLyph"
         },
         "internalLyphColumns": {
           "description": "Defines number of columns in the grid layout for the internal lyphs",
           "type": "number",
           "default": 1
         },
-        "internalLyphInLyph": {
+        "internalInLyph": {
           "description": "ID or reference of the lyph on which this lyph must be permanently positioned",
           "anyOf": [
             {
@@ -826,7 +831,7 @@
           ],
           "relatedTo": "internalLyphs"
         },
-        "internalLyphInRegion": {
+        "internalInRegion": {
           "description": "ID or reference of the region on which this lyph must be permanently positioned",
           "anyOf": [
             {

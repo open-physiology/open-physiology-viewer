@@ -5,7 +5,7 @@ import { Node } from './nodeModel';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
 import * as colorSchemes from 'd3-scale-chromatic';
-
+import {extractCoords} from '../three/utils';
 const validator = new Validator();
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
 
@@ -65,8 +65,8 @@ export class Graph extends Entity {
             [link.source, link.target].forEach(node => res.nodes.push(node));
         };
 
-        (res.lyphs||[]).filter(lyph => lyph.internalLyphInLyph || lyph.internalLyphInRegion).forEach(lyph => {
-            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalLyphInLyph || lyph.internalLyphInRegion); }
+        (res.lyphs||[]).filter(lyph => lyph.internalInLyph || lyph.internalInRegion).forEach(lyph => {
+            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalInLyph || lyph.internalInRegion); }
             if (!res.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
         });
 
@@ -74,9 +74,9 @@ export class Graph extends Entity {
         (res.nodes||[]).filter(node => node.clones).forEach(node => {
                 node.clones.forEach(clone => {
                     res.nodes.push(clone);
-                    if (clone.host) {
-                        clone.host.hostedNodes = clone.host.hostedNodes || [];
-                        clone.host.hostedNodes.push(clone);
+                    if (clone.hostedByLink) {
+                        clone.hostedByLink.hostedNodes = clone.hostedByLink.hostedNodes || [];
+                        clone.hostedByLink.hostedNodes.push(clone);
                     }
                 });
             }
@@ -184,11 +184,13 @@ export class Graph extends Entity {
             }));
         let res = fBundling();
         (res || []).forEach(path => {
-            let lnk = this.links.find(e => e.source.id === path[0].id);
+            let lnk = this.links.find(e => e.source.id === path[0].id && e.target.id === path[path.length -1 ].id);
             if (lnk){
                 let dz = (path[path.length - 1].z - path[0].z) / path.length;
-                for (let i = 1; i < path.length - 1; i++){ path[i].z = path[0].z + dz * i; }
-                lnk.path = path;
+                for (let i = 1; i < path.length - 1; i++){
+                    path[i].z = path[0].z + dz * i;
+                }
+                lnk.path = path.slice(1, path.length - 2).map(p => extractCoords(p));
             }
         });
 

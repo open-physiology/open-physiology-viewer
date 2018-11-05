@@ -6,7 +6,7 @@ import { Link, LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Lyph } from './lyphModel';
 import { isObject } from 'lodash-bound';
-import { getCenterOfMass, lyphBorders, polygonBorders, polygonBorderLinks, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
+import { direction, getCenterOfMass, lyphBorders, polygonBorders, polygonBorderLinks, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
 
 /**
  * Lyph or region border
@@ -53,6 +53,16 @@ export class Border extends Entity {
     }
 
     /**
+     * Returns coordinates of the bounding box (min and max points defining a parallelogram containing the border points)
+     */
+    getBoundingBox(){
+        let [x, y, z] = ["x","y","z"].map(key => this.host.points.map(p => p[key]));
+        let min = {"x": Math.min(...x), "y": Math.min(...y), "z": Math.min(...z)};
+        let max = {"x": Math.max(...x), "y": Math.max(...y), "z": Math.max(...z)};
+        return [min, max];
+    }
+
+    /**
      * Assigns fixed position on a grid inside border
      * @param link - link to place inside border
      * @param i    - position
@@ -74,10 +84,12 @@ export class Border extends Entity {
     }
 
     placeNodeInside(node, i, n, center){//TODO this will only work well for rectangular shapes
-        let r = Math.min(this.host.width || 20, this.host.height || 20) / 2.5;
+        let [min, max] = this.getBoundingBox();
+        let dX = max.x - min.x; let dY = max.y - min.y;
+        let r = Math.min(dX, dY) / 4;
         let offset = new THREE.Vector3( r, 0, 0 );
-        let axis = new THREE.Vector3( 0, 0, 1);
-        let angle = 4 * Math.PI * i / n;
+        let axis   = new THREE.Vector3( 0, 0, 1);
+        let angle  = 4 * Math.PI * i / n;
         offset.applyAxisAngle( axis, angle );
         let pos = center.clone().add(offset);
         copyCoords(node, pos);
@@ -91,9 +103,7 @@ export class Border extends Entity {
     pushLinkInside(link) {
         const delta = 5;
         let points = this.host.points.map(p => p.clone());
-        let [x, y, z] = ["x","y","z"].map(key => points.map(p => p[key]));
-        let min = {"x": Math.min(...x), "y": Math.min(...y), "z": Math.min(...z)};
-        let max = {"x": Math.max(...x), "y": Math.max(...y), "z": Math.max(...z)};
+        let [min, max] = this.getBoundingBox();
         //Global force pushes content on top of lyph
         if (Math.abs(max.z - min.z) <= delta) {
             //Fast way to get projection for lyphs parallel to x-y plane

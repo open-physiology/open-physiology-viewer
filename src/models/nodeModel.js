@@ -15,9 +15,10 @@ export class Node extends Entity {
      */
     get isConstrained() {
         return ((this.fixed && this.layout) ||
-         (this.controlNodes && this.controlNodes.length > 0) ||
-         (this.host && this.host.isVisible) ||
-         (this.internalNodeInLyph && this.internalNodeInLyph.isVisible))//TODO what about regions?
+         (this.controlNodes     && this.controlNodes.length > 0) ||
+         (this.hostedByLink     && this.hostedByLink.isVisible) ||
+         (this.internalInLyph   && this.internalInLyph.isVisible)
+         (this.internalInRegion && this.internalInRegion.isVisible))
             ? true
             : false;
     }

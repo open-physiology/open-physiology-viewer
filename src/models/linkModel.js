@@ -56,7 +56,6 @@ export class Link extends Entity {
 
         //Link
         if (!this.viewObjects["main"]) {
-            let geometry, obj;
             let material;
             if (this.stroke === LINK_STROKE.DASHED) {
                 material = MaterialFactory.createLineDashedMaterial({color: this.color});
@@ -78,6 +77,7 @@ export class Link extends Entity {
                 }
             }
 
+            let geometry, obj;
             if (this.stroke === LINK_STROKE.THICK) {
                 geometry = new THREE.LineGeometry();
                 obj = new THREE.Line2(geometry, material);
@@ -90,19 +90,21 @@ export class Link extends Entity {
                 }
                 obj = new THREE.Line(geometry, material);
             }
-            let size = (this.geometry === LINK_GEOMETRY.SEMICIRCLE || this.geometry === LINK_GEOMETRY.SPLINE)
+            this.pointLength = (this.geometry === LINK_GEOMETRY.SEMICIRCLE
+                || this.geometry === LINK_GEOMETRY.RECTANGLE
+                || this.geometry === LINK_GEOMETRY.SPLINE)
                 ? state.linkResolution
                 : (this.geometry === LINK_GEOMETRY.PATH)
-                    ? 66 // Edge bunding breaks a link into 66 points
+                    ? 67 // Edge bunding breaks a link into 66 points
                     : 2;
             if (this.stroke === LINK_STROKE.DASHED) {
                 //Dashed lines cannot be drawn with buffered geometry?
-                geometry.vertices = new Array(size);
-                for (let i = 0; i < size; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
+                geometry.vertices = new Array(this.pointLength);
+                for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
             } else {
                 //Buffered geometry
                 if (this.stroke !== LINK_STROKE.THICK){
-                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(size * 3), 3));
+                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
                 }
             }
 
@@ -119,7 +121,7 @@ export class Link extends Entity {
                 this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x!== this);
             }
 
-            obj.renderOrder = 10;  // Prevent visual glitches of dark lines on top of nodes by rendering them last
+            obj.renderOrder = 10;  // Prevepointnt visual glitches of dark lines on top of nodes by rendering them last
             obj.userData = this;     // Attach link data
             this.viewObjects["main"] = obj;
         }
@@ -160,7 +162,9 @@ export class Link extends Entity {
                 curve = rectangleCurve(_start, _end);
                 break;
             case LINK_GEOMETRY.PATH      :
-                curve = new THREE.CatmullRomCurve3(this.path);
+                if (this.path){
+                    curve = new THREE.CatmullRomCurve3(this.path);
+                }
                 break;
             case LINK_GEOMETRY.SPLINE    :
                 let prev = this.prev ? direction(this.prev.center, _start).multiplyScalar(2) : null;
@@ -176,7 +180,7 @@ export class Link extends Entity {
                 }
         }
         this.center = getPoint(curve, _start, _end, 0.5);
-        this.points = curve.getPoints? curve.getPoints(state.linkResolution - 1): [_start, _end];
+        this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
 
         //Merge nodes of a collapsible link
         if (this.collapsible){

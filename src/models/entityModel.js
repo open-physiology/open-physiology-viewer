@@ -148,7 +148,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
     //Assign dynamic group properties to all relevant entities
     assignPathProperties(res, modelClasses, entitiesByID);
 
-    //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.host
+    //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.hostedByLink
     refFields.forEach(f => syncRelationships(res, f));
 
     //Interpolation schemes do not contain IDs/references, we process them in the expanded model

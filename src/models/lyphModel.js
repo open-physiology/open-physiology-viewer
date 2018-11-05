@@ -57,7 +57,7 @@ export class Lyph extends Entity {
         let res = 0;
         //Lyphs positioned on top of the given lyph should be rendered first
         //This prevents blinking of polygons with equal z coordinates
-        ["layerInLyph", "internalLyphInLyph", "internalLyphInRegion", "hostedByLyph"].forEach((prop, i) => {
+        ["layerInLyph", "internalInLyph", "internalInRegion", "hostedByLyph"].forEach((prop, i) => {
             if (this[prop]) {
                 res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
             }
@@ -175,7 +175,7 @@ export class Lyph extends Entity {
         }
 
         //Do not create labels for layers and nested lyphs
-        if (this.layerInLyph || this.internalLyphInLyph) { return; }
+        if (this.layerInLyph || this.internalInLyph) { return; }
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
 
     }
@@ -190,7 +190,7 @@ export class Lyph extends Entity {
         if (!this.viewObjects["main"]) { this.createViewObjects(state); }
 
         if (!this.layerInLyph) {//update label
-            if (!this.internalLyphInLyph) {
+            if (!this.internalInLyph) {
                 if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
                     this.createViewObjects(state);
                 }
@@ -208,7 +208,7 @@ export class Lyph extends Entity {
         this.border.updateViewObjects(state);
 
         //Layers and inner lyphs have no labels
-        if (this.layerInLyph || this.internalLyphInLyph) { return; }
+        if (this.layerInLyph || this.internalInLyph) { return; }
 
         this.updateLabels(state.labels[this.constructor.name],
             state.showLabels[this.constructor.name], this.center.clone().addScalar(-5));

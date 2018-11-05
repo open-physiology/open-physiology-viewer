@@ -160,7 +160,18 @@
       "id": "40",
       "name": "Lung DIS_1s"
     },
-
+    {
+      "id": "19x"
+    },
+    {
+      "id": "22x"
+    },
+    {
+      "id": "24x"
+    },
+    {
+      "id": "25x"
+    },
     {
       "id": "c",
       "name": "c",
@@ -275,7 +286,7 @@
     },
     {
       "id": "n1",
-      "host" : "SP",
+      "hostedByLink" : "SP",
       "offset": 0.92
     },
     {
@@ -305,6 +316,26 @@
     }
   ],
   "links" : [
+    {
+      "id": "lum",
+      "source": "19",
+      "target": "19x"
+    },
+    {
+      "id": "lum-ht",
+      "source": "22",
+      "target": "22x"
+    },
+    {
+      "id": "phr",
+      "source": "24",
+      "target": "24x"
+    },
+    {
+      "id": "phr-ht",
+      "source": "25",
+      "target": "25x"
+    },
     {
       "source": "1",
       "target": "2",
@@ -1515,7 +1546,8 @@
         {
           "path": "$.links[*]",
           "value": {
-            "length": 20
+            "length": 20,
+            "geometry": "path"
           }
         }
       ]
@@ -1525,12 +1557,14 @@
     {
       "id"  : "abd_m",
       "name": "Abdominal muscles",
-      "color": "#fff"
+      "color": "#fff",
+      "internalNodes": ["19x", "22x"]
     },
     {
       "id"  : "dia",
       "name": "Diaphragm",
-      "color": "#fff"
+      "color": "#fff",
+      "internalNodes": ["24x", "25x"]
     },
     {
       "id": "br_l1",
@@ -1619,12 +1653,14 @@
     },
     {
       "id": "m2",
+      "name": "Medulla",
       "assign": [
         {
           "path": "$.layers[1]",
           "value": {
             "internalLyphs": ["m2_1", "m2_2", "m2_3", "m2_4", "m2_5"],
-            "internalLyphColumns": 3
+            "internalLyphColumns": 3,
+            "internalNodes": ["8"]
           }
         }
       ]
@@ -1665,6 +1701,7 @@
         "5",
         "6",
         "12",
+        "13",
         "14",
         "20",
         "30"]
@@ -1680,7 +1717,7 @@
       "id": "m2_5",
       "external": "g1",
       "name": "NTS",
-      "internalNodes": [ "32", "33", "38"]
+      "internalNodes": [ "32", "33", "35", "38"]
     },
     {
       "id": "m3_1",
@@ -1812,8 +1849,8 @@
       "path": "$.lyphs[*].internalLyphs[*]",
       "value": {
         "color": "#fff",
-        "width" : 60,
-        "height": 70
+        "width" : 50,
+        "height": 40
       }
     }
   ]

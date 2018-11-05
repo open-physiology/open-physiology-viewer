@@ -144,7 +144,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  An alternative way to get the same result, is to include the node's ID to the `hostedNodes` property of the link.
 
- To place a node on a lyph, assign the lyph's ID to the node's `internalNodeInLyph` property. This will force the node to attract to the lyph's center. An alternative way to get the same result is to include the node's ID to the `internalNodes` property of the lyph.
+ To place a node on a lyph, assign the lyph's ID to the node's `internalInLyph` property. This will force the node to attract to the lyph's center. An alternative way to get the same result is to include the node's ID to the `internalNodes` property of the lyph.
  
  To place a node to the center of coordinates of a set of other nodes, list their ID's in the `controlNodes` array.
  
@@ -270,7 +270,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  The property `internalNodes` may contain a set of nodes that have to be positioned on the lyph. Such nodes will be projected on the lyph's surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph's axis inside of the lyph, the force-directed layout method will not converge.
  
- The property `internalLyphs` is used to define the inner content of the lyph, i.e., neurons within the neural system parts. The related property, `internalLyphInLyph`, will indicate to which lyph the given lyph belongs. 
+ The property `internalLyphs` is used to define the inner content of the lyph, i.e., neurons within the neural system parts. The related property, `internalInLyph`, will indicate to which lyph the given lyph belongs. 
  
  Just like any other lyph, internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them in a line along the radial axis of the container lyph.  
  
