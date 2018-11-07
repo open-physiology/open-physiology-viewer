@@ -113,35 +113,30 @@
       "id": "LR00",
       "source": "nLR00",
       "target": "nLR01",
-      "external": "B",
       "conveyingLyph": "99"
     },
     {
       "id": "LR01",
       "source": "nLR01",
       "target": "nLR02",
-      "external": "C",
       "conveyingLyph": "114"
     },
     {
       "id": "LR02",
       "source": "nLR02",
       "target": "nLR03",
-      "external": "D",
       "conveyingLyph": "51"
     },
     {
       "id": "LR03",
       "source": "nLR03",
       "target": "nLR04",
-      "external": "E",
       "conveyingLyph": "54"
     },
     {
       "id": "LR04",
       "source": "nLR04",
       "target": "nLR05",
-      "external": "F",
       "conveyingLyph": "57"
     }
   ],
@@ -158,7 +153,6 @@
         "min": 5,
         "max": 5
       },
-      "external": "FMA:70496",
       "layers": [
         "52",
         "53"
@@ -198,7 +192,6 @@
         "min": 6,
         "max": 6
       },
-      "external": "FMA:70497",
       "length": {
         "min": 5,
         "max": 5
@@ -246,7 +239,6 @@
         "min": 5,
         "max": 5
       },
-      "external": "FMA:86339",
       "layers": [
         "58",
         "59"
@@ -290,7 +282,6 @@
         "min": 2,
         "max": 2
       },
-      "external": "FMA:14751",
       "layers": [
         "100",
         "101"
@@ -334,7 +325,6 @@
         "min": 2,
         "max": 2
       },
-      "external": "FMA:70494",
       "layers": [
         "115",
         "116"
