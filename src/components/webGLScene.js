@@ -29,8 +29,8 @@ const WindowResize = require('three-window-resize');
                             <i class="fa fa-refresh"></i>
                         </button>
                         <button class="w3-hover-light-grey" (click)="toggleSettingPanel()">
-                            <i *ngIf="showPanel"  class="fa fa-angle-right"></i>
-                            <i *ngIf="!showPanel" class="fa fa-angle-left"></i>
+                            <i *ngIf="!showPanel" class="fa fa-angle-right"></i>
+                            <i *ngIf="showPanel"  class="fa fa-angle-left"></i>
                         </button>
                     </section>
                     <canvas #canvas class="w3-card w3-round"></canvas>
@@ -47,13 +47,14 @@ const WindowResize = require('three-window-resize');
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
-                        <input type="checkbox" class="w3-check" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs
-                        <span *ngIf="_showLyphs">
-                            <input type="checkbox" class="w3-check" name="layers"
-                                   (change)="toggleLayers()" [checked]="_showLayers"/> Layers
+                        <input type="checkbox" class="w3-check" name="lyphs" [checked]="config.layout.lyphs"
+                               (change)="toggleLyphs()"/> Lyphs
+                        <span *ngIf="config.layout.lyphs">
+                            <input type="checkbox" class="w3-check" name="layers" [checked]="config.layout.layers"
+                               (change)="toggleLayers()"/> Layers
                         </span>
-                        <input type="checkbox" class="w3-check" name="coalescences"
-                               (change)="toggleGroup(graphData.coalescenceGroup)" [checked]="showGroup(graphData.coalescenceGroup)"/> Coalescences
+                        <input type="checkbox" class="w3-check" name="coalescences" [checked]="config.layout.coalescences"
+                               (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
                     </fieldset>
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Groups</legend>
@@ -67,11 +68,11 @@ const WindowResize = require('three-window-resize');
                         <span *ngFor="let labelClass of _labelClasses">
                             <input type="checkbox" class="w3-check"
                                    [name]="labelClass"
-                                   [checked]="_showLabels[labelClass]"
+                                   [checked]="config['labels'][labelClass]"
                                    (change)="toggleLabels(labelClass)"/> {{labelClass}}
                         </span>
                         <span *ngFor="let labelClass of _labelClasses">
-                            <fieldset *ngIf="_showLabels[labelClass]" class="w3-card w3-round w3-margin-small">
+                            <fieldset *ngIf="config['labels'][labelClass]" class="w3-card w3-round w3-margin-small">
                                 <legend>{{labelClass}} label</legend>
                                 <span *ngFor="let labelProp of _labelProps">
                                     <input type="radio" class="w3-radio"
@@ -114,8 +115,8 @@ const WindowResize = require('three-window-resize');
 
         :host >>> legend {
             padding: 0.2em 0.5em;
-            border: 1px solid grey;
-            color: grey;
+            border : 1px solid grey;
+            color  : grey;
             font-size: 90%;
             text-align: right;
         }
@@ -138,6 +139,7 @@ export class WebGLSceneComponent {
     mouse;
     windowResize;
 
+    //TODO operate on references to the data entity, not graphical object
     _highlighted = null;
     _selected    = null;
 
@@ -151,6 +153,23 @@ export class WebGLSceneComponent {
     graph;
     helpers = {};
     axisLength = 1000;
+
+    config = {
+        "layout": {
+            "lyphs"       : true,
+            "layers"      : true,
+            "coalescences": true
+        },
+        "groups": true,
+        "labels": {
+            "Node"  : true,
+            "Link"  : false,
+            "Lyph"  : false,
+            "Region": false
+        },
+        "highlighted": null,
+        "selected"   : null
+    };
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
@@ -204,16 +223,8 @@ export class WebGLSceneComponent {
 
     constructor() {
 
-        this._showLyphs = true;
-        this._showLayers = true;
-        this._showLabels = {
-            "Node"  : true,
-            "Link"  : false,
-            "Lyph"  : false,
-            "Region": false
-        };
-        this._labelClasses = this._showLabels::keys();
-        this._labelProps   = ["id", "name", "external"];
+        this._labelClasses = this.config["labels"]::keys();
+        this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
         this._hideGroups = new Set();
     }
@@ -255,23 +266,21 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
+
+
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('mousedown', evt => this.onMouseDown(evt), false );
-        window.addEventListener('keydown'  , evt => this.onKeyDown(evt), false);
+        window.addEventListener('keydown'  , evt => this.onKeyDown(evt)  , false);
     }
 
-    resizeCanvasToDisplaySize(force) {
-
-        const canvas = this.renderer.domElement;
+    resizeCanvasToDisplaySize() {
+        const delta = 5;
         const width  = this.canvasContainer.clientWidth;
         const height = this.canvasContainer.clientHeight;
-
-        const dimensions = function(){
-            return { width, height }
-        };
-
-        if (force || canvas.width !== width || canvas.height !== height) {
+        if (Math.abs(this.renderer.domElement.width - width) > delta
+            || Math.abs(this.renderer.domElement.height - height) > delta) {
+            const dimensions = function(){ return { width, height } };
             this.windowResize = new WindowResize(this.renderer, this.camera, dimensions);
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
@@ -333,7 +342,7 @@ export class WebGLSceneComponent {
             .strength(d => (d.strength ? d.strength :
                 (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
 
-        this.graph.showLabels(this._showLabels);
+        this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
     }
 
@@ -421,8 +430,8 @@ export class WebGLSceneComponent {
     onMouseMove(evt) {
         // calculate mouse position in normalized device coordinates
         let rect = this.renderer.domElement.getBoundingClientRect();
-        this.mouse.x = ( ( evt.clientX - rect.left ) / ( rect.width - rect.left ) ) * 2 - 1;
-        this.mouse.y = -( ( evt.clientY - rect.top ) / ( rect.bottom - rect.top) ) * 2 + 1;
+        this.mouse.x =  ( ( evt.clientX - rect.left ) / rect.width  ) * 2 - 1;
+        this.mouse.y = -( ( evt.clientY - rect.top  ) / rect.height ) * 2 + 1;
 
         this.highlighted = this.getMousedOverObject();
     }
@@ -491,21 +500,23 @@ export class WebGLSceneComponent {
     }
 
     toggleLyphs() {
-        this._showLyphs = !this._showLyphs;
-        this.graph.showLyphs(this._showLyphs);
+        this.config.layout['lyphs'] = !this.config.layout['lyphs'];
+        if (this.graph){
+            this.graph.showLyphs(this.config.layout['lyphs']);
+        }
     }
 
     toggleLayers() {
-        this._showLayers = !this._showLayers;
+        this.config.layout['layers'] = !this.config.layout['layers'];
         if (this.graph) {
-            this.graph.showLayers(this._showLayers);
+            this.graph.showLayers(this.config.layout['layers']);
         }
     }
 
     toggleLabels(labelClass) {
-        this._showLabels[labelClass] = !this._showLabels[labelClass];
+        this.config["labels"][labelClass] = !this.config["labels"][labelClass];
         if (this.graph){
-            this.graph.showLabels(this._showLabels);
+            this.graph.showLabels(this.config["labels"]);
         }
     }
 

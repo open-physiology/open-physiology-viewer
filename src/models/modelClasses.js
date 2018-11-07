@@ -4,9 +4,13 @@ import { Lyph }   from './lyphModel';
 import { Region } from './regionModel';
 import { Link }   from './linkModel';
 import { Graph }  from './graphModel';
-import { Material } from './materialModel';
+import { Entity } from './entityModel'
+
+export class Material extends Entity {}
+export class External extends Entity {}
 
 export const modelClasses = {
+    "External": External,
     "Node"    : Node,
     "Link"    : Link,
     "Material": Material,

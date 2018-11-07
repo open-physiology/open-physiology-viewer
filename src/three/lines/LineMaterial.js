@@ -383,8 +383,6 @@ THREE.LineMaterial.prototype.copy = function ( source ) {
 
 	this.resolution = source.resolution;
 
-	// todo
-
 	return this;
 
 };

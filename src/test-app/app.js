@@ -53,9 +53,12 @@ debug(true, msgCount);
                    [style.display] = "'none'"
                    (change)        = "load(fileInput.files)"
             />
-			<button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
+            <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
+                <i class="fa fa-plus"></i>
+            </button>
+            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
 				<i class="fa fa-folder"></i>
-				</button>
+			</button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit">
                 <i class="fa fa-edit"></i>
             </button>
@@ -65,7 +68,7 @@ debug(true, msgCount);
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide">
                 <i class="fa fa-eye-slash"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="preview()" title="Preview">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="preview()" title="Apply changes">
                 <i class="fa fa-check"></i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="save()" title="Export model">
@@ -73,19 +76,18 @@ debug(true, msgCount);
             </button>
         </section>
 
-		<section style="margin-top:40px;"></section>
+		<section style="margin-top:40px;margin-left:48px; width:calc(100% - 48px); opacity:0.95;" class="w3-row">
+            <section [hidden] = "!_showJSONEditor" style="height:100vh;"
+                     #jsonEditor id="jsonEditor" class ="w3-quarter"></section>
+            <webGLScene [graphData]="_graphData" [selected]="_selected" [class.w3-threequarter] = "_showJSONEditor"
+                        (selectedItemChange)="onSelectedItemChange($event)"
+                        (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
+        </section>
 		
-        <section [hidden] = "!_showJSONEditor" 
-				 #jsonEditor id="jsonEditor" class="w3-sidebar w3-animate-zoom" 
-				 style="margin-left:48px; width:calc(100% - 48px); opacity:0.95;"></section>
-
-    	<webGLScene [graphData]="_graphData" [selected]="_selected" 
-					(selectedItemChange)="onSelectedItemChange($event)"
-                    (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
-		<section class="w3-clear" style="margin-bottom:10px;"></section>
+        <section class="w3-clear" style="margin-bottom:10px;"></section>
         <ng2-toasty></ng2-toasty>
 
-	       <!-- Footer -->
+	       <!-- Footer --> 
 		<footer class="w3-container w3-grey">
             <span class="w3-right">
 				<i class="fa fa-code w3-padding-small"></i>natallia.kokash@gmail.com
@@ -137,6 +139,23 @@ export class TestApp {
             schema: schema
         });
         this._editor.set(this._model);
+    }
+
+    newModel(){
+        try {
+            this._model = {
+                "nodes"    : [],
+                "links"    : [],
+                "lyphs"    : [],
+                "materials": [],
+                "groups"   : [],
+                "regions"  : [],
+            };
+            this.update(this._model);
+            this._editor.set(this._model);
+        } catch(err){
+            throw new Error("Failed to create a new model: " +  err);
+        }
     }
 
 	load(files) {

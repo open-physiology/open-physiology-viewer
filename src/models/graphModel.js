@@ -26,9 +26,9 @@ export class Graph extends Entity {
 
         let resVal = validator.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
-
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
+        //TODO replicate materials and externals?
         //Inherit objects from subgroups
         (res.groups||[]).forEach(group => {
             ["nodes", "links", "lyphs", "regions"].forEach(property => {
@@ -36,6 +36,11 @@ export class Graph extends Entity {
             });
         });
 
+        /**
+         * Create an axis for a lyph
+         * @param lyph - lyph without axis
+         * @param container - lyph's container to size the auto-created link
+         */
         const createAxis = (lyph, container) => {
             let [sNode, tNode] = ["s", "t"].map(prefix => (
                 modelClasses["Node"].fromJSON({
@@ -82,11 +87,10 @@ export class Graph extends Entity {
             }
         );
 
-        //Color links and lyphs which do not have assigned colors in the spec
+        //Color entities which do not have assigned colors in the spec
         addColor(res.links, "#000");
         addColor(res.lyphs);
         addColor(res.regions, "#c0c0c0");
-
         return res;
     }
 

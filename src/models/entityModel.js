@@ -1,9 +1,13 @@
-import { merge, defaults, isObject, isArray, entries, keys, assign, cloneDeep } from 'lodash-bound';
+import { merge, defaults, isObject, isArray, isString, isNumber, entries, keys, assign, cloneDeep } from 'lodash-bound';
 import { definitions }  from '../data/graphScheme.json';
 import { SpriteText2D } from 'three-text2d';
 import { assignPropertiesToJSONPath, copyCoords, JSONPath } from './utils.js';
 import * as colorSchemes from 'd3-scale-chromatic';
 
+/**
+ * A helper function that returns true if the JSON Schema specification contains a nested object definition
+ * @param spec
+ */
 const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spec.items && isNestedObj(spec.items);
 
 /**
@@ -32,7 +36,7 @@ const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.item
 const syncRelationships = (res, [key, spec]) => {
     if (!res[key]){ return; }
     if (!res[key]::isObject()){
-        console.warn("Object ID has not been replaced with references", res[key]);
+        console.warn("Object ID has not been replaced with a reference", res[key]);
         return;
     }
     let key2 = spec.relatedTo;
@@ -86,6 +90,9 @@ const syncRelationships = (res, [key, spec]) => {
 const replaceReferences = (res, modelClasses, entitiesByID) => {
 
     const createObj = (value, spec) => {
+
+        if (value::isNumber()) { value = value.toString(); }
+
         let objValue = value;
         let clsName = getClassName(spec);
         if (!clsName){
@@ -95,7 +102,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
         }
 
         if (!definitions[clsName] || definitions[clsName].abstract){ return objValue; }
-        if (typeof value === "string") {
+        if (value::isString()) {
             if (!entitiesByID[value]) {
                 entitiesByID[value] = {"id": value};
                 console.info(`Auto-created new ${clsName} for ID: `, value);
@@ -140,9 +147,8 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
         }
     };
 
-    let refFields = definitions[res.class].properties::entries().filter(([key, spec]) => isReference(spec));
-
     //Replace IDs with model object references
+    let refFields = definitions[res.class].properties::entries().filter(([key, spec]) => isReference(spec));
     refFields.forEach(f => replaceRefs(res, f));
 
     //Assign dynamic group properties to all relevant entities
@@ -155,6 +161,12 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
     interpolatePathProperties(res);
 };
 
+/**
+ * Assigns specified properties to the entities defined by the JSONPath expression
+ * @param parent - root entity to which the JSONPath expression applies to
+ * @param modelClasses - a map of entity class names and their implementations
+ * @param entitiesByID - a map of all entities in the model
+ */
 const assignPathProperties = (parent, modelClasses, entitiesByID) => {
     //Do not process template assignment, this has been done at preprocessing stage
     if (parent.isTemplate) { return; }
@@ -299,6 +311,8 @@ export class Entity {
         json.class = json.class || this.name;
         const cls = this || modelClasses[json.class];
         const res = new cls(json.id);
+
+        if (res.id::isNumber){ res.id = res.id.toString(); }
 
         //spec
         let specProperties = initProperties::keys();

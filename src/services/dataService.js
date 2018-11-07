@@ -1,30 +1,19 @@
-import { pick, keys, cloneDeep, merge, defaults, isArray} from 'lodash-bound';
+import { pick, keys, cloneDeep, merge, defaults, isArray, isNumber} from 'lodash-bound';
 import { LINK_GEOMETRY, LINK_STROKE } from '../models/linkModel';
 import { modelClasses } from '../models/modelClasses';
 import { definitions } from '../data/graphScheme.json';
 
-import {assignPropertiesToJSONPath } from '../models/utils';
+import {assignPropertiesToJSONPath} from '../models/utils';
 
 /**
- * A class that assembles ApiNATOMY model from available data sources:
- * 1. Core graph definition
- * 2. Nervous system
- * 3. Kidney subsystems https://drive.google.com/file/d/0B89UZ62PbWq4ZkJkTjdkN1NBZDg/view
- * 4. Cardiac subsystems
- * 5. Spinatholamic tracts
- * ...
+ * A class that converts a serialized data model into an object graph:
+ *
  */
 export class DataService{
     /**
      * Prepare core ApiNATOMY graph
      */
     init(inputModel){
-        /////////////////////////////////////////////////////////////////////
-        //Constant parameters and helper functions
-        /////////////////////////////////////////////////////////////////////
-
-        //TODO auto generate links for internal lyphs
-
         //Create an expanded input model
         this._graphData = inputModel::cloneDeep()::defaults({
             id: "mainModel",
@@ -38,10 +27,11 @@ export class DataService{
             links : [],
             lyphs : [],
             groups: [],
+            references: [],
             materials: []
         });
 
-        /*Find lyph templates, generate new layers and replicate template properties */
+        /*Process lyph templates: generate new layers for subtypes and replicate template properties */
         const expandTemplates = () => {
             let templates = this._graphData.lyphs.filter(lyph => lyph.isTemplate);
             templates.forEach(template => {
@@ -142,22 +132,22 @@ export class DataService{
         };
         replaceBorderNodes();
 
-        /////////////////////////////////////////////////////////////////////////
-        /* Generate complete model */
-        /////////////////////////////////////////////////////////////////////////
-
         //Copy existing entities to a map to enable nested model instantiation
         let entitiesByID = {};
-        
         entitiesByID[this._graphData.id] = this._graphData;
         definitions["Graph"].properties::keys().forEach(prop => {
             (this._graphData[prop]||[]).forEach(e => {
                 if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
+                if (e.id::isNumber()) {
+                    console.error("Replaced numeric ID: ", e);
+                    e.id = e.id.toString();
+                }
                 if (entitiesByID[e.id]) { console.error("Entity IDs are not unique: ", entitiesByID[e.id], e); }
                 entitiesByID[e.id] = e;
             })
         });
 
+        //Check that lyphs are not conveyed by more than one link
         let conveyingLyphMap = {};
         this._graphData.links.filter(lnk => lnk.conveyingLyph).forEach(lnk => {
            if (lnk.conveyingLyph.isTemplate){
@@ -171,9 +161,7 @@ export class DataService{
            }
         });
 
-        //TODO warning if lyph coalesces with itself or misses axis
-
-        //Create an ApiNATOMY model
+        //Create the ApiNATOMY model
         this._graphData = modelClasses["Graph"].fromJSON(this._graphData, modelClasses, entitiesByID);
 
         //Create force links to bind coalescing lyphs
@@ -190,8 +178,16 @@ export class DataService{
 
         this._graphData.lyphs.filter(lyph => lyph.coalescesWith).forEach(lyph => {
             lyph.coalescesWith.forEach(lyph2 => {
-                if (lyph === lyph2 || !lyph.axis || !lyph2.axis) { return; }
-                ["source", "target"].forEach(end => {
+                    if (lyph === lyph2 || (lyph.layers||[]).includes(lyph2) || (lyph.internalLyphs||[]).includes(lyph2)){
+                        console.warn("A lyph cannot coalesce with itself or its content", lyph, lyph2);
+                        return;
+                    }
+                    if (!lyph.axis || !lyph2.axis) {
+                        console.warn("A coalescing lyph is missing an axis", !lyph.axis? lyph: lyph2);
+                        return;
+                    }
+
+                    ["source", "target"].forEach(end => {
                     let link = modelClasses["Link"].fromJSON({
                         "id"    : end.charAt(0) + "_" + lyph.id + "_" + lyph2.id,
                         "source": lyph.axis[end],
@@ -212,6 +208,11 @@ export class DataService{
         return this._graphData;
     }
 
+    /**
+     * Exports static layout for selected entities, the output format mimics the CellDL format for Bond graphs
+     * @param ids - a set of IDs to include to the output file
+     * @returns {{regions: Array, potentials: Array, connections: Array}} - output in the form of the JSON object
+     */
     export(ids){
         const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
 

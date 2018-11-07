@@ -184,7 +184,6 @@ export class Border extends Entity {
         internalLinks.forEach((link, i) => { this.placeLinkInside(link, i, numCols, numRows); });
         lyphsToLinks(this.host.hostedLyphs).forEach((link) => { this.pushLinkInside(link); });
 
-        //TODO arrange in a grid or circle
          let center = getCenterOfMass(this.host.points);
         (this.host.internalNodes || []).forEach((node, i) => { this.placeNodeInside(node, i,
             this.host.internalNodes.length, center)});

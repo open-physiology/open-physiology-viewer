@@ -3,6 +3,10 @@
   "title": "ApiNATOMY model",
   "description": "The ApiNATOMY model schema provides a contract for the JSON-based input data accepted by the ApiNATOMY lyph viewer, a web application that draws schematic models of physiology.",
   "definitions": {
+    "RGBColorScheme": {
+      "type": "string",
+      "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
+  },
     "Point2Scheme": {
       "description": "Coordinates of a 2d point",
       "type": "object",
@@ -85,7 +89,7 @@
           "type": "boolean"
         },
         "offset": {
-          "description": "Colors at the beginning and at the end of the color arrays are too dark or too light, so we skip some percentage",
+          "description": "Colors at the beginning and at the end of the color arrays may be too dark or too light, so we skip some percentage",
           "type": "number",
           "minimum": 0,
           "maximum": 1
@@ -183,19 +187,25 @@
             "Link",
             "Node",
             "Border",
-            "Material"
+            "Material",
+            "External"
           ],
           "readOnly": true
         },
-        "color": {
-          "description": "RGB color",
-          "type": "string",
-          "format": "rgbcolor",
-          "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
-        },
         "external": {
           "description": "Identifier of the entity in an external ontology such as FMA",
-          "type": "string"
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/External"
+              }
+            ]
+          },
+          "relatedTo": "externalTo"
         },
         "infoFields": {
           "description": "A set of properties shown in the info panel when the entity is active, i.e., highlighted or selected",
@@ -269,9 +279,11 @@
                 "type": "string"
               },
               "color": {
+                "description": "Color interpolation schema for a group of entities",
                 "$ref": "#/definitions/GroupColorScheme"
               },
               "offset": {
+                "description": "Interpolation scheme to gradually set offsets for a set of entities",
                 "$ref": "#/definitions/OffsetScheme"
               }
             }
@@ -280,6 +292,30 @@
       },
       "additionalProperties": false
     },
+    "External": {
+      "description": "Reference to an external resource",
+      "extends": {
+        "$ref": "#/definitions/Entity"
+      },
+      "properties": {
+        "uri": {
+          "description": "Reference to an external resource",
+          "type": "string"
+        },
+        "type": {
+          "description": "Resource category, i.e., FMA ontology, etc.",
+          "type": "string"
+        },
+        "externalTo": {
+          "description": "Model entities that refer to the given resource",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Entity"
+          },
+          "relatedTo": "external"
+        }
+      }
+    },
     "Node": {
       "description": "Graph node joins two or more links (processes)",
       "type": "object",
@@ -287,6 +323,10 @@
         "$ref": "#/definitions/Entity"
       },
       "properties": {
+        "color": {
+          "description": "RGB color",
+          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
+        },
         "hostedByLink": {
           "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
           "anyOf": [
@@ -459,6 +499,10 @@
           ],
           "relatedTo": "targetOf"
         },
+        "color": {
+          "description": "Link color",
+          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
+        },
         "length": {
           "description": "The length of the link",
           "type": "number",
@@ -573,6 +617,10 @@
         "$ref": "#/definitions/Entity"
       },
       "properties": {
+        "color": {
+          "description": "Region color",
+          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
+        },
         "points": {
           "description": "Points defining the region border shape",
           "type"  : "array",
@@ -657,6 +705,10 @@
         "$ref": "#/definitions/Entity"
       },
       "properties": {
+        "color": {
+          "description": "Lyph color",
+          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
+        },
         "topology": {
           "description": "Lyph topology defines its border shape",
           "type": "string",
@@ -1039,6 +1091,20 @@
               },
               {
                 "$ref": "#/definitions/Region"
+              }
+            ]
+          }
+        },
+        "references": {
+          "description": "References to external resources",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/External"
               }
             ]
           }

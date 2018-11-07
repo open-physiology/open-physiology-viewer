@@ -1546,8 +1546,7 @@
         {
           "path": "$.links[*]",
           "value": {
-            "length": 20,
-            "geometry": "path"
+            "length": 20
           }
         }
       ]
@@ -1609,7 +1608,7 @@
     {
       "id"   : "l7",
       "name" : "Lung",
-      "external" : "g9",
+      "external" : ["g9"],
       "internalNodes": [
         "31",
         "34",
@@ -1634,7 +1633,7 @@
     {
       "id"      : "m1",
       "name"    : "Spine",
-      "external": "g8",
+      "external": ["g8"],
       "internalNodes": [
         "19",
         "22",
@@ -1678,7 +1677,7 @@
     },
     {
       "id": "m2_1",
-      "external": "g3",
+      "external": ["g3"],
       "name": "VRG",
       "internalNodes": ["3",
         "7",
@@ -1686,7 +1685,7 @@
     },
     {
       "id":  "m2_2",
-      "external": "g7",
+      "external": ["g7"],
       "internalNodes": [
         "1",
         "2",
@@ -1695,7 +1694,7 @@
     },
     {
       "id": "m2_3",
-      "external": "g2",
+      "external": ["g2"],
       "name": "BotC",
       "internalNodes": ["4",
         "5",
@@ -1708,20 +1707,20 @@
     },
     {
       "id": "m2_4",
-      "external": "g5",
+      "external": ["g5"],
       "name": "Nucleus Ambiguus",
       "internalNodes": ["15",
         "21"]
     },
     {
       "id": "m2_5",
-      "external": "g1",
+      "external": ["g1"],
       "name": "NTS",
       "internalNodes": [ "32", "33", "35", "38"]
     },
     {
       "id": "m3_1",
-      "external": "g4",
+      "external": ["g4"],
       "name": "PRG",
       "internalNodes": [ "9",
         "10",
@@ -1732,7 +1731,7 @@
     },
     {
       "id": "m3_2",
-      "external": "g10",
+      "external": ["g10"],
       "name": "Raphe9",
       "internalNodes": [
         "26",
@@ -1843,6 +1842,18 @@
       "name" : "Urinary",
       "points": [{"x": -100, "y": -50}, {"x": -100, "y": 0}, {"x": -75, "y": 0}, {"x": -75, "y": -50}]
     }
+  ],
+  "references": [
+    {"id": "g1"},
+    {"id": "g2"},
+    {"id": "g3"},
+    {"id": "g4"},
+    {"id": "g5"},
+    {"id": "g6"},
+    {"id": "g7"},
+    {"id": "g8"},
+    {"id": "g9"},
+    {"id": "g10"}
   ],
   "assign": [
     {

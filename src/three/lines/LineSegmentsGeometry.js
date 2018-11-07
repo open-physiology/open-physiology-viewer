@@ -191,36 +191,26 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 		return function computeBoundingSphere() {
 
 			if ( this.boundingSphere === null ) {
-
 				this.boundingSphere = new THREE.Sphere();
-
 			}
 
 			if ( this.boundingBox === null ) {
-
 				this.computeBoundingBox();
-
 			}
 
-			var start = this.attributes.instanceStart;
-			var end = this.attributes.instanceEnd;
+			let start = this.attributes.instanceStart;
+			let end   = this.attributes.instanceEnd;
 
 			if ( start !== undefined && end !== undefined ) {
-
-				var center = this.boundingSphere.center;
-
+				let center = this.boundingSphere.center;
 				this.boundingBox.getCenter( center );
-
-				var maxRadiusSq = 0;
-
-				for ( var i = 0, il = start.count; i < il; i ++ ) {
-
+				let maxRadiusSq = 0;
+				for ( let i = 0, il = start.count; i < il; i ++ ) {
 					vector.fromBufferAttribute( start, i );
 					maxRadiusSq = Math.max( maxRadiusSq, center.distanceToSquared( vector ) );
 
 					vector.fromBufferAttribute( end, i );
 					maxRadiusSq = Math.max( maxRadiusSq, center.distanceToSquared( vector ) );
-
 				}
 
 				this.boundingSphere.radius = Math.sqrt( maxRadiusSq );
@@ -228,12 +218,8 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 				if ( isNaN( this.boundingSphere.radius ) ) {
 
 					console.error( 'THREE.LineSegmentsGeometry.computeBoundingSphere(): Computed radius is NaN. The instanced position data is likely to have NaN values.', this );
-
 				}
-
 			}
-
 		};
-
 	}()
 } );
