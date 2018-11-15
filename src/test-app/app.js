@@ -2,22 +2,30 @@ import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angul
 import { BrowserModule }    from '@angular/platform-browser';
 import { WebGLSceneModule } from '../components/webGLScene';
 
-import FileSaver from 'file-saver';
-import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
+//Local
 import { DataService } from '../services/dataService';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
-import {ToastyModule} from 'ng2-toasty';
-//import {NgxSmartModalModule, NgxSmartModalService} from 'ngx-smart-modal';
-
-import 'font-awesome/css/font-awesome.css';
-import 'jsoneditor/dist/jsoneditor.min.css';
-import 'ng2-toasty/bundles/style-bootstrap.css';
-import 'ngx-smart-modal/ngx-smart-modal.css';
 import { debug } from '../models/utils';
 
+//JSON Editor
+import FileSaver  from 'file-saver';
+import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 const ace = require('ace-builds');
+
+//Angular Material
+import 'hammerjs';
+import { MatSnackBarModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+//import {NgxSmartModalModule, NgxSmartModalService} from 'ngx-smart-modal';
+//import 'ngx-smart-modal/ngx-smart-modal.css';
+
+//Styles
+import 'font-awesome/css/font-awesome.css';
+import 'jsoneditor/dist/jsoneditor.min.css';
+import "@angular/material/prebuilt-themes/pink-bluegrey.css";
 
 let msgCount = {};
 debug(true, msgCount);
@@ -79,13 +87,13 @@ debug(true, msgCount);
 		<section style="margin-top:40px;margin-left:48px; width:calc(100% - 48px); opacity:0.95;" class="w3-row">
             <section [hidden] = "!_showJSONEditor" style="height:100vh;"
                      #jsonEditor id="jsonEditor" class ="w3-quarter"></section>
-            <webGLScene [graphData]="_graphData" [selected]="_selected" [class.w3-threequarter] = "_showJSONEditor"
+            <webGLScene [graphData]="_graphData" [class.w3-threequarter] = "_showJSONEditor"
                         (selectedItemChange)="onSelectedItemChange($event)"
                         (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
         </section>
 		
         <section class="w3-clear" style="margin-bottom:10px;"></section>
-        <ng2-toasty></ng2-toasty>
+        
 
 	       <!-- Footer --> 
 		<footer class="w3-container w3-grey">
@@ -143,14 +151,7 @@ export class TestApp {
 
     newModel(){
         try {
-            this._model = {
-                "nodes"    : [],
-                "links"    : [],
-                "lyphs"    : [],
-                "materials": [],
-                "groups"   : [],
-                "regions"  : [],
-            };
+            this._model = {};
             this.update(this._model);
             this._editor.set(this._model);
         } catch(err){
@@ -246,10 +247,11 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports: [ BrowserModule, WebGLSceneModule, ToastyModule.forRoot()], //, NgxSmartModalModule.forRoot()
+	imports     : [ BrowserModule, WebGLSceneModule,
+        MatSnackBarModule, BrowserAnimationsModule], //, NgxSmartModalModule.forRoot()
 	declarations: [ TestApp ],
-    bootstrap: [TestApp],
-    providers: [
+    bootstrap   : [ TestApp ],
+    providers   : [
         {
             provide: ErrorHandler,
             useClass: GlobalErrorHandler

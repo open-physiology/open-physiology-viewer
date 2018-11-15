@@ -14,10 +14,13 @@ const isNestedObj = (spec) => (spec.type === "object" && spec.properties) || spe
  * Extracts class name from the schema definition
  * @param spec - schema definition
  */
-const getClassName = (spec) => {
+export const getClassName = (spec) => {
     let classDef = spec.$ref || (spec.oneOf || spec.anyOf || []).find(obj => obj.$ref) || spec;
     if (!classDef) { return; }
     if (classDef.$ref){ classDef = classDef.$ref;}
+    if (!classDef.substr){
+        console.error("Class definition is not a string", classDef);
+    }
     return classDef.substr(classDef.lastIndexOf("/") + 1).trim();
 };
 
@@ -81,6 +84,14 @@ const syncRelationships = (res, [key, spec]) => {
     }
 };
 
+const getRelationshipFields = (clsName) => {
+    if (!definitions[clsName]) {
+        console.error("Could not find schema definition for class: ", clsName);
+        return [];
+    }
+    return definitions[clsName].properties::entries().filter(([key, spec]) => isReference(spec));
+};
+
 /**
  * Replace IDs with objec references
  * @param res - input model
@@ -121,7 +132,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
             }
         } else {
             //If the object does not need to be instantiated, we leave it unchanged but replace its inner references
-            let refFields = definitions[clsName].properties::entries().filter(([key, spec]) => isReference(spec));
+            let refFields = getRelationshipFields(clsName);
             (refFields||[]).forEach(f => replaceRefs(objValue, f));
         }
         return objValue;
@@ -148,7 +159,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
     };
 
     //Replace IDs with model object references
-    let refFields = definitions[res.class].properties::entries().filter(([key, spec]) => isReference(spec));
+    let refFields = getRelationshipFields(res.class);
     refFields.forEach(f => replaceRefs(res, f));
 
     //Assign dynamic group properties to all relevant entities
@@ -294,7 +305,7 @@ const initProperties = {"viewObjects": {}, "labels": {}};
 export class Entity {
     constructor(id) {
         this.id = id;
-        const handler = (currName) => this::merge(...getSchemaProperties(currName, false));
+        const handler = (currName) => this::merge(...getSchemaProperties(currName));
         recurseSchema(this.constructor.name, handler);
         this::merge(initProperties);
     }
@@ -348,6 +359,17 @@ export class Entity {
 
         return res;
     }
+
+    static getFields(){
+        let res = {};
+        const handler = (currName) => res::merge(...getSchemaProperties(currName));
+        recurseSchema(this.name, handler);
+        return res;
+    }
+
+    static getRelationshipFields() {
+        return getRelationshipFields(this.name);
+    };
 
     get isVisible(){
         return !this.hidden;

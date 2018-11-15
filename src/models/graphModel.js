@@ -1,5 +1,5 @@
-import { Entity } from './entityModel';
-import { keys, values, isObject, unionBy, isNumber} from 'lodash-bound';
+import { Entity, getClassName } from './entityModel';
+import { keys, values, isObject, unionBy, isNumber, entries} from 'lodash-bound';
 import { Link, LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Validator} from 'jsonschema';
@@ -31,9 +31,16 @@ export class Graph extends Entity {
         //TODO replicate materials and externals?
         //Inherit objects from subgroups
         (res.groups||[]).forEach(group => {
-            ["nodes", "links", "lyphs", "regions"].forEach(property => {
-                res[property] = (res[property]||[])::unionBy(group[property], "id");
-            });
+            if (group.id === res.id || (res.inGroups||[]).find(e => e.id === group.id)) {
+                console.warn("The model contains self-references or cyclic group dependencies: ", res.id, group.id);
+                return;
+            }
+            let relFields = this.getRelationshipFields();
+            let relFieldNames = (relFields||[])
+                //skip the filter if you want the (sub)graph (=group) to explicitly list all nested groups
+                .filter(([key, spec]) => getClassName(spec.items || spec) !== res.class)
+                .map(e => e[0]);
+            relFieldNames.forEach(property => { res[property] = (res[property]||[])::unionBy(group[property], "id"); });
         });
 
         /**

@@ -4,7 +4,10 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {keys, values} from 'lodash-bound';
 import * as THREE from 'three';
+import {SearchBar} from './gui/searchBar';
 
+//Search field
+import {MatFormFieldModule, MatInputModule, MatAutocompleteModule, } from '@angular/material';
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
     forceX,
@@ -13,14 +16,15 @@ import {
 } from 'd3-force-3d';
 
 import {ModelInfoPanel} from './gui/modelInfo';
-import {SelectNameSearchBar} from './gui/selectNameSearchBar';
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
+//import {MatSidenavModule} from '@angular/material/sidenav';
 
 @Component({
     selector: 'webGLScene',
     template: `
+        
         <section id="viewPanel" class="w3-row">
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
@@ -41,10 +45,31 @@ const WindowResize = require('three-window-resize');
                     <section class="w3-center w3-card w3-grey">
                         <h4>Control panel</h4>
                     </section>
-                    <fieldset *ngIf="!!_highlighted && !!_highlighted.userData" class="w3-card w3-round w3-margin-small">
-                        <legend>Highlighted</legend>
-                        <modelInfoPanel [model]=_highlighted.userData></modelInfoPanel>
+                    <!--Serach bar-->
+                    <fieldset class="w3-card w3-round w3-margin-small-small">
+                        <legend>Search</legend>
+                        <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
+                                   (selectedItemChange)="selectBySearchEventHandler($event)"></searchBar>
                     </fieldset>
+                    <!--Selected entity-->
+                    <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
+                        <legend>Selected</legend>
+                        <modelInfoPanel *ngIf="!!_selected" [model]=_selected></modelInfoPanel>
+                    </fieldset>
+                    <!--Highlighted entity-->
+                    <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
+                        <legend>Highlighted</legend>
+                        <modelInfoPanel *ngIf="!!_highlighted" [model]=_highlighted></modelInfoPanel>
+                    </fieldset>
+                    <!--Group controls-->
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Groups</legend>
+                        <span *ngFor="let group of graphData.activeGroups">
+                            <input type="checkbox" name="switch" class="w3-check"
+                                   (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
+                        </span>
+                    </fieldset>
+                    <!--Layout config-->
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" [checked]="config.layout.lyphs"
@@ -56,13 +81,7 @@ const WindowResize = require('three-window-resize');
                         <input type="checkbox" class="w3-check" name="coalescences" [checked]="config.layout.coalescences"
                                (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
                     </fieldset>
-                    <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>Groups</legend>
-                        <span *ngFor="let group of graphData.activeGroups">
-                            <input type="checkbox" name="switch" class="w3-check"
-                                   (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
-                        </span>
-                    </fieldset>
+                    <!--Label config-->
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
@@ -90,15 +109,6 @@ const WindowResize = require('three-window-resize');
                                    [checked]="showPlane(helper)"/> {{helper}}
                         </span>
                     </fieldset>
-                    <fieldset class="w3-card w3-round w3-margin-small-small">
-                        <legend>Select lyph</legend>
-                        <selectNameSearchBar [selectedName]="_selectedLyphName" [namesAvailable]="_namesAvailable"
-                                             (selectedBySearchEvent)="selectBySearchEventHandler($event)"></selectNameSearchBar>
-                    </fieldset>
-                    <fieldset *ngIf="!!_selected && !!_selected.userData" class="w3-card w3-round w3-margin-small">
-                        <legend>Selected</legend>
-                        <modelInfoPanel [model]=_selected.userData></modelInfoPanel>
-                    </fieldset>
                 </section>
             </section>
         </section>
@@ -123,7 +133,7 @@ const WindowResize = require('three-window-resize');
 
         button:focus {
             outline: 0 !important;
-        }
+        }        
     `]
 })
 export class WebGLSceneComponent {
@@ -139,12 +149,11 @@ export class WebGLSceneComponent {
     mouse;
     windowResize;
 
-    //TODO operate on references to the data entity, not graphical object
     _highlighted = null;
     _selected    = null;
 
-    _namesAvailable;
-    _selectedLyphName = "";
+    _searchOptions;
+    _selectedName = "";
 
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
@@ -167,8 +176,8 @@ export class WebGLSceneComponent {
             "Lyph"  : false,
             "Region": false
         },
-        "highlighted": null,
-        "selected"   : null
+        "highlighted": true,
+        "selected"   : true
     };
 
     @Input('graphData') set graphData(newGraphData) {
@@ -176,35 +185,33 @@ export class WebGLSceneComponent {
             this._graphData = newGraphData;
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
-            this._namesAvailable = this._graphData.lyphs.map(lyph => lyph.name);
+            this._searchOptions = this._graphData.lyphs.filter(e => e.name).map(e => e.name);
 
             /*Map initial positional constraints to match the scaled image*/
-
             this._graphData.scale(this.axisLength);
-
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
     }
 
-    @Input('highlighted') set highlighted(obj) {
-        if (this.highlighted === obj){ return; }
+    @Input('highlighted') set highlighted(entity) {
+        if (this.highlighted === entity){ return; }
         if (this.highlighted !== this.selected){
             this.unhighlight(this._highlighted);
         } else {
             this.highlight(this.selected, this.selectColor, false);
         }
-        this.highlight(obj, this.highlightColor, obj !== this._selected);
-        this._highlighted = obj;
-        this.highlightedItemChange.emit(obj);
+        this.highlight(entity, this.highlightColor, entity !== this._selected);
+        this._highlighted = entity;
+        this.highlightedItemChange.emit(entity);
     }
 
-    @Input('selected') set selected(obj){
-        if (this.selected === obj){ return; }
+    @Input('selected') set selected(entity){
+        if (this.selected === entity){ return; }
         this.unhighlight(this._selected);
-        this.highlight(obj, this.selectColor, obj !== this.highlighted);
-        this._selected = obj;
-        this._selectedLyphName = obj && obj.userData && (obj.userData.constructor.name === "Lyph")? obj.userData.name: "";
-        this.selectedItemChange.emit(obj);
+        this.highlight(entity, this.selectColor, entity !== this.highlighted);
+        this._selected     = entity;
+        this._selectedName = entity? entity.name || "": "";
+        this.selectedItemChange.emit(entity);
     }
 
     /**
@@ -266,8 +273,6 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
-
-
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('mousedown', evt => this.onMouseDown(evt), false );
@@ -322,8 +327,7 @@ export class WebGLSceneComponent {
 
     createGraph() {
         //Create
-        this.graph = new ThreeForceGraph()
-            .graphData(this._graphData || {});
+        this.graph = new ThreeForceGraph().graphData(this.graphData);
 
         const forceVal = (d, key) => {
             return (d.foci ? d.foci[key]: (key in d.layout) ? d.layout[key] : 0);
@@ -347,17 +351,14 @@ export class WebGLSceneComponent {
     }
 
     update() {
-        if (this.graph){
-            this.graph.graphData(this._graphData);
-        }
+        if (this.graph){ this.graph.graphData(this.graphData); }
     }
 
     toggleSettingPanel() {
         this.showPanel = !this.showPanel;
     }
 
-    // Also search internally for internal layers
-    getMousedOverObject() {
+    getMousedOverEntity() {
         if (!this.graph) { return; }
         let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
         vector.unproject(this.camera);
@@ -365,16 +366,17 @@ export class WebGLSceneComponent {
 
         let intersects = ray.intersectObjects(this.graph.children);
         if (intersects.length > 0) {
-            if (!intersects[0].object.userData || intersects[0].object.userData.inactive) { return; }
+            let entity = intersects[0].object.userData;
+            if (!entity|| entity.inactive) { return; }
             //Refine selection to layers
-            if (intersects[0].object.userData.layers) {
-                let layerMeshes = intersects[0].object.userData.layers.map(layer => layer.viewObjects["main"]);
+            if (entity.layers) {
+                let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
                 let layerIntersects = ray.intersectObjects(layerMeshes);
                 if (layerIntersects.length > 0) {
-                    return layerIntersects[0].object;
+                    return layerIntersects[0].object.userData;
                 }
             }
-            return intersects[0].object;
+            return entity;
         }
     }
 
@@ -386,7 +388,9 @@ export class WebGLSceneComponent {
         return this._selected;
     }
 
-    highlight(obj, color, rememberColor = true){
+    highlight(entity, color, rememberColor = true){
+        if (!entity || !entity.viewObjects) { return; }
+        let obj = entity.viewObjects["main"];
         if (obj && obj.material) {
             // store color of closest object (for later restoration)
             if (rememberColor){
@@ -404,8 +408,9 @@ export class WebGLSceneComponent {
         }
     }
 
-    unhighlight(obj){
-        // restore previous intersection object (if it exists) to its original color
+    unhighlight(entity){
+        if (!entity || !entity.viewObjects) { return; }
+        let obj = entity.viewObjects["main"];
         if (obj){
             if (obj.material){
                 obj.material.color.setHex( obj.currentHex || this.defaultColor);
@@ -417,14 +422,14 @@ export class WebGLSceneComponent {
     }
 
     selectBySearchEventHandler(name) {
-        if (this.graph && (name !== this._selectedLyphName)) {
-            let lyph = this._graphData.lyphs.find(lyph => lyph.name === name);
-            this.selected = lyph? lyph.viewObjects["main"]: null;
+        if (this.graph && (name !== this._selectedName)) {
+            this._selectedName = name;
+            this.selected = (this.graphData.entities||[]).find(e => e.name === name);
         }
     }
 
     onMouseDown(_) {
-        this.selected = this.getMousedOverObject();
+        this.selected = this.getMousedOverEntity();
     }
 
     onMouseMove(evt) {
@@ -433,11 +438,10 @@ export class WebGLSceneComponent {
         this.mouse.x =  ( ( evt.clientX - rect.left ) / rect.width  ) * 2 - 1;
         this.mouse.y = -( ( evt.clientY - rect.top  ) / rect.height ) * 2 + 1;
 
-        this.highlighted = this.getMousedOverObject();
+        this.highlighted = this.getMousedOverEntity();
     }
 
     onKeyDown(evt) {
-
         let keyCode = evt.which;
         if (evt.ctrlKey) {
             evt.preventDefault();
@@ -475,18 +479,19 @@ export class WebGLSceneComponent {
     }
 
     zoom(delta) {
+        if (this.lockCamera) {return; }
         this.camera.position.z += delta;
         this.camera.lookAt(this.scene.position);
     }
 
     rotateScene(deltaX, deltaY) {
+        if (this.lockCamera) {return; }
         this.camera.position.x += deltaX;
         this.camera.position.y += deltaY;
         this.camera.lookAt(this.scene.position);
     }
 
     /* Toggle scene elements */
-
     get helperKeys(){
         return this.helpers::keys();
     }
@@ -537,13 +542,14 @@ export class WebGLSceneComponent {
             this._hideGroups.add(group);
         }
         this._graphData.hideGroups([...this._hideGroups]);
-        if (this.graph) { this.graph.graphData(this._graphData); }
+        if (this.graph) { this.graph.graphData(this.graphData); }
     }
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule],
-    declarations: [WebGLSceneComponent, ModelInfoPanel, SelectNameSearchBar, StopPropagation ],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule,
+        MatAutocompleteModule, MatFormFieldModule, MatInputModule], //, MatSidenavModule
+    declarations: [WebGLSceneComponent, ModelInfoPanel, StopPropagation, SearchBar ],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

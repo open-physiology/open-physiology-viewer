@@ -601,6 +601,10 @@
           "description": "Reference to the lyph border part if the link is created to host the border's conveying lyph",
           "$ref": "#/definitions/BorderPart",
           "readOnly": true
+        },
+        "type": {
+          "description": "Process type annotation",
+          "type": "string"
         }
       },
       "required": [

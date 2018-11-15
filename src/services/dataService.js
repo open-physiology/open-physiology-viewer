@@ -52,9 +52,12 @@ export class DataService{
                         let newID = `${layerParent.id}_${subtype.id}`;
                         let lyphLayer = {
                             "id"        : newID,
-                            "name"      : `${layerParent.name} in ${subtype.name}`,
                             "supertype" : layerParent.id
                         };
+                        let layerParentName = layerParent.name? layerParent.name: `Layer ${layerParent.id}`;
+                        let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
+                        lyphLayer.name = `${layerParentName} in ${subtypeName}`,
+
                         //TODO get all properties from schema which are not relationships?
                         lyphLayer::merge(layerParent::pick(["color", "layerWidth"]));
                         this._graphData.lyphs.push(lyphLayer);

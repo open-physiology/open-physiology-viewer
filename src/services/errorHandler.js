@@ -1,31 +1,20 @@
 import { ErrorHandler, Injectable} from '@angular/core';
-import { ToastyService, ToastOptions, ToastData } from 'ng2-toasty';
+import { MatSnackBar, MatSnackBarConfig} from '@angular/material';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
-    constructor(toastyService: ToastyService) {
-        this._toastyService = toastyService;
+
+    config = new MatSnackBarConfig();
+
+    constructor(snackBar: MatSnackBar) {
+        this._snackBar = snackBar;
+        this.config.panelClass = ['w3-panel', 'w3-red'];
+        this.config.duration = 3000;
     }
 
     handleError(error) {
         console.error(error);
-        this.publishToast(error, "An unexpected error occured: " + error);
-    }
-
-    publishToast(error, msg) {
-        let title = "Error " + (error.statusCode ? error.statusCode : '');
-        let message = msg ? msg : '' + error.body ? error.body : '';
-
-        // Create the instance of ToastOptions
-        let toastOptions: ToastOptions = {
-            title     : title,
-            msg       : message,
-            showClose : true,
-            timeout   : 5000,
-            theme     : 'bootstrap',
-            onAdd     : (toast: ToastData) => {},
-            onRemove  : (toast: ToastData) => {}
-        };
-        this._toastyService.error(toastOptions);
+        let message = "An unexpected error occurred: " + error;
+        this._snackBar.open(message, "OK", this.config);
     }
 }

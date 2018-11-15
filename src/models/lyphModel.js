@@ -118,7 +118,7 @@ export class Lyph extends Entity {
             };
 
             //The shape of the lyph depends on its position in its parent lyph as layer
-            let lyphObj = createMeshWithBorder(
+            let obj = createMeshWithBorder(
                 this.prev
                     ? layerShape(
                         [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
@@ -126,8 +126,8 @@ export class Lyph extends Entity {
                     : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
                 params);
 
-            lyphObj.userData = this;
-            this.viewObjects['main'] = lyphObj;
+            obj.userData = this;
+            this.viewObjects['main'] = obj;
 
             this.offset = this.offset ||0;
             this._points = [
@@ -170,7 +170,7 @@ export class Lyph extends Entity {
                 let layerObj = layer.viewObjects["main"];
                 layerObj.translateX(layer.offset);
                 layerObj.translateZ(1);
-                lyphObj.add(layerObj);
+                obj.add(layerObj);
             });
         }
 
