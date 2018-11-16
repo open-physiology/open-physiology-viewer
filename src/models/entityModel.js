@@ -305,9 +305,10 @@ const initProperties = {"viewObjects": {}, "labels": {}};
 export class Entity {
     constructor(id) {
         this.id = id;
-        const handler = (currName) => this::merge(...getSchemaProperties(currName));
-        recurseSchema(this.constructor.name, handler);
-        this::merge(initProperties);
+        this::merge(this.constructor.getDefaultFields());
+        // const handler = (currName) => this::merge(...getSchemaProperties(currName));
+        // recurseSchema(this.constructor.name, handler);
+        // this::merge(initProperties);
     }
 
     /**
@@ -360,10 +361,11 @@ export class Entity {
         return res;
     }
 
-    static getFields(){
+    static getDefaultFields(){
         let res = {};
         const handler = (currName) => res::merge(...getSchemaProperties(currName));
         recurseSchema(this.name, handler);
+        res::merge(initProperties);
         return res;
     }
 

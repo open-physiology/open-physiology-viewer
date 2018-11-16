@@ -1,139 +1,43 @@
 #canvasContainer{
   height: 100%;
 }
+
 html, body{
   height : 100%;
   padding: 0;
   margin : 0;
 }
-.w3-row{
-  height: 100%;
+
+.jsoneditor-menu {
+  background-color: grey !important;
 }
 
-.hide{
-  display: none;
+.jsoneditor {
+  border: 1px solid #ccc !important;
 }
 
-#snackbar {
-  visibility: hidden;
-  min-width: 250px;
-  margin-left: -125px;
-  background-color: #b8860b;
-  color: #fff;
-  text-align: center;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-  padding: 16px;
-  position: fixed;
-  z-index: 1;
-  left: 50%;
-  bottom: 30px;
+.jsoneditor-modal .pico-modal-header {
+  background: grey !important;
 }
-#snackbar.show {
-  visibility: visible;
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  -moz-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  -o-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+
+.jsoneditor-modal a {
+  color: grey !important;
 }
-@-webkit-keyframes fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
+
+.jsoneditor-modal .jsoneditor-button-group.jsoneditor-button-group-value-asc input.jsoneditor-button-asc,
+.jsoneditor-modal .jsoneditor-button-group.jsoneditor-button-group-value-desc input.jsoneditor-button-desc {
+  background: grey !important;
+  border-color: #ccc !important;
 }
-@-webkit-keyframes fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
+
+.jsoneditor-modal .selectr-selected .selectr-tag {
+  background-color: grey !important;
 }
-@-moz-keyframes fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
+
+div.jsoneditor-menu {
+  background-color: grey !important;
+  border-bottom: 1px solid #ccc !important;
 }
-@-webkit-keyframes fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
-}
-@-o-keyframes fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
-}
-@keyframes fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
-}
-@-moz-keyframes fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
-@-webkit-keyframes fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
-@-o-keyframes fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
-@keyframes fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
+
+
+

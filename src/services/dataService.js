@@ -7,7 +7,6 @@ import {assignPropertiesToJSONPath} from '../models/utils';
 
 /**
  * A class that converts a serialized data model into an object graph:
- *
  */
 export class DataService{
     /**

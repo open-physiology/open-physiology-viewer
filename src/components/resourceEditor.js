@@ -1,4 +1,4 @@
-import {NgModule, Component} from '@angular/core';
+import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatExpansionModule} from '@angular/material/expansion';
 
@@ -8,30 +8,30 @@ import {MatExpansionModule} from '@angular/material/expansion';
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    {{model.id}}: {{model.name}} {{model.class}}
+                    Resource editor
                 </mat-panel-title>
-                <mat-panel-description>
-                    This is a summary of the content
-                </mat-panel-description>
             </mat-expansion-panel-header>
-
-            <p>This is the primary content of the panel.</p>
-
+            
             <mat-action-row>
-                <button mat-button>Click me</button>
+                <button class="w3-hover-light-grey">
+                    <i class="fa fa-plus"></i>
+                </button>
+                <button class="w3-hover-light-grey"> 
+                    <i class="fa fa-trash"></i> 
+                </button>
             </mat-action-row>
-
         </mat-expansion-panel>
     `
 })
 export class ResourceEditor {
     @Input() model;
+    @Input() optionsProvider;
     @Input() readonly = true;
 }
 
 @NgModule({
     imports: [BrowserAnimationsModule, MatExpansionModule],
-    declarations: [],
+    declarations: [ResourceEditor],
     exports: [ResourceEditor]
 })
 export class ResourceEditorModule {

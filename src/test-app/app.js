@@ -1,17 +1,20 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import { WebGLSceneModule } from '../components/webGLScene';
 
 //Local
-import { DataService } from '../services/dataService';
-import { GlobalErrorHandler } from '../services/errorHandler';
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
+import { WebGLSceneModule } from '../components/webGLScene';
+import { ResourceEditorModule } from '../components/resourceEditor';
+import { DataService } from '../services/dataService';
+import { GlobalErrorHandler } from '../services/errorHandler';
+
 import { debug } from '../models/utils';
 
 //JSON Editor
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
+
 const ace = require('ace-builds');
 
 //Angular Material
@@ -34,9 +37,9 @@ debug(true, msgCount);
 	selector: 'test-app',
 	template: `<!--Three.js scene-->
 		<!-- Top container -->
-		<header class="w3-bar w3-top w3-dark-grey">
+		<header class="w3-bar w3-top w3-dark-grey" style="z-index:10;">
             <span class="w3-bar-item">
-				<i class="fa fa-heartbeat w3-margin-right"></i>ApiNATOMY Lyph Viewer
+				<i class="fa fa-heartbeat w3-margin-right"></i>ApiNATOMY
 			</span>
             <span class="w3-bar-item" title="About ApiNATOMY">
 				<a href="https://youtu.be/XZjldom8CQM"><i class="fa fa-youtube"></i></a>
@@ -54,7 +57,8 @@ debug(true, msgCount);
             </span>
         </header>
 
-		<section class="w3-sidebar w3-top w3-bar-block" style="width:auto; left: 0px; top: 40px;">
+        <!--Left toolbar-->
+        <section id="left-toolbar" class="w3-sidebar w3-bar-block">
             <input #fileInput
                    [type]          = "'file'"
                    [accept]        = "'.json'"
@@ -65,12 +69,13 @@ debug(true, msgCount);
                 <i class="fa fa-plus"></i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
-				<i class="fa fa-folder"></i>
-			</button>
+                <i class="fa fa-folder"></i>
+            </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit">
                 <i class="fa fa-edit"></i>
             </button>
-            <!--<button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="export()" title="Export layout">-->
+            <!--<button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" -->
+                    <!--(click)="export()" title="Export layout">-->
                 <!--<i class="fa fa-image"></i>-->
             <!--</button>-->
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide">
@@ -84,18 +89,17 @@ debug(true, msgCount);
             </button>
         </section>
 
-		<section style="margin-top:40px;margin-left:48px; width:calc(100% - 48px); opacity:0.95;" class="w3-row">
-            <section [hidden] = "!_showJSONEditor" style="height:100vh;"
-                     #jsonEditor id="jsonEditor" class ="w3-quarter"></section>
-            <webGLScene [graphData]="_graphData" [class.w3-threequarter] = "_showJSONEditor"
-                        (selectedItemChange)="onSelectedItemChange($event)"
-                        (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
+        <!--Editor and canvas-->
+        <section class="main-panel">
+            <section class="w3-row">
+                <section [hidden] = "!_showJSONEditor" #jsonEditor id="json-editor" class ="w3-quarter"></section>
+                <webGLScene [graphData]="_graphData" [class.w3-threequarter] = "_showJSONEditor"
+                            (selectedItemChange)="onSelectedItemChange($event)"
+                            (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
+            </section>
         </section>
-		
-        <section class="w3-clear" style="margin-bottom:10px;"></section>
-        
-
-	       <!-- Footer --> 
+   
+        <!-- Footer -->
 		<footer class="w3-container w3-grey">
             <span class="w3-right">
 				<i class="fa fa-code w3-padding-small"></i>natallia.kokash@gmail.com
@@ -122,7 +126,29 @@ debug(true, msgCount);
                 <!--</div>-->
             <!--</div>-->
         <!--</ngx-smart-modal>-->
-	`
+	`,
+    styles: [`
+        #left-toolbar{
+            width : 48px; 
+            left  : 0px;
+            top   : 40px; 
+            bottom: 30px;
+        }
+        
+        #json-editor{
+            height: 100vh;    
+        }
+        
+        .main-panel{            
+            margin-left: 48px; 
+            width      : calc(100% - 48px);
+            margin-top : 40px;
+        }
+        
+        footer{
+            margin-top: 10px;
+        }
+	`]
 })
 export class TestApp {
     _dataService;
@@ -248,7 +274,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [ BrowserModule, WebGLSceneModule,
-        MatSnackBarModule, BrowserAnimationsModule], //, NgxSmartModalModule.forRoot()
+        MatSnackBarModule, BrowserAnimationsModule, ResourceEditorModule], //, NgxSmartModalModule.forRoot()
 	declarations: [ TestApp ],
     bootstrap   : [ TestApp ],
     providers   : [

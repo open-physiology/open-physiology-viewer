@@ -105,6 +105,14 @@ export class Graph extends Entity {
         return [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[]),...(this.regions||[])];
     }
 
+    optionsProvider(clsName, id = undefined){
+        let res = (this.entities||[]).filter(e => e.class === clsName);
+        if (id) {
+            //TODO exclude other invalid options
+            res = res.filter(e => e.id !== id);
+        }
+    }
+
     scale(axisLength){
         const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
                 p[key] *= axisLength * 0.01;

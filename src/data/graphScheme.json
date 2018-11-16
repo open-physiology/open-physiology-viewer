@@ -324,7 +324,7 @@
       },
       "properties": {
         "color": {
-          "description": "RGB color",
+          "description": "Node color",
           "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
         },
         "hostedByLink": {

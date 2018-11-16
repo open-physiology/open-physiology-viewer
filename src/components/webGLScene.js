@@ -24,17 +24,28 @@ const WindowResize = require('three-window-resize');
 @Component({
     selector: 'webGLScene',
     template: `
-        
         <section id="viewPanel" class="w3-row">
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
-                    <section class="w3-right" style="position:absolute; right: 4px; top: 4px;">
-                        <button class="w3-hover-light-grey" (click)="update()">
+                    <section class="w3-bar-block w3-right" style="position:absolute; right:0">
+                        <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleLockControls()" title="Lock controls">
+                            <i class="fa fa-lock"></i>
+                        </button>
+                        <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleLockControls()" title="Unlock controls">
+                            <i class="fa fa-unlock"></i>
+                        </button>
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()" title="Update layout">
                             <i class="fa fa-refresh"></i>
                         </button>
-                        <button class="w3-hover-light-grey" (click)="toggleSettingPanel()">
-                            <i *ngIf="!showPanel" class="fa fa-angle-right"></i>
-                            <i *ngIf="showPanel"  class="fa fa-angle-left"></i>
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleSettingPanel()" title="Show settings">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleSettingPanel()" title="Hide settings">
+                            <i class="fa fa-window-close"></i>
                         </button>
                     </section>
                     <canvas #canvas class="w3-card w3-round"></canvas>
@@ -42,10 +53,10 @@ const WindowResize = require('three-window-resize');
             </section>
             <section *ngIf="showPanel" id="settingsPanel" stop-propagation class="w3-third">
                 <section class="w3-padding-small">
-                    <section class="w3-center w3-card w3-grey">
-                        <h4>Control panel</h4>
-                    </section>
-                    <!--Serach bar-->
+                    <!--<section class="w3-center w3-card w3-grey">-->
+                        <!--<h4>Configuration panel</h4>-->
+                    <!--</section>-->
+                    <!--Search bar-->
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
@@ -80,7 +91,7 @@ const WindowResize = require('three-window-resize');
                         </span>
                         <input type="checkbox" class="w3-check" name="coalescences" [checked]="config.layout.coalescences"
                                (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
-                    </fieldset>
+                    </fieldset> 
                     <!--Label config-->
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
@@ -115,7 +126,11 @@ const WindowResize = require('three-window-resize');
     `,
     styles: [`
         #viewPanel {
-            z-index: 5;
+            height: 100vh;
+        }
+
+        #settingsPanel{
+            height: 100%;
         }
 
         :host >>> fieldset {
@@ -130,10 +145,6 @@ const WindowResize = require('three-window-resize');
             font-size: 90%;
             text-align: right;
         }
-
-        button:focus {
-            outline: 0 !important;
-        }        
     `]
 })
 export class WebGLSceneComponent {
@@ -160,8 +171,9 @@ export class WebGLSceneComponent {
     defaultColor   = 0x000000;
 
     graph;
-    helpers = {};
+    helpers   = {};
     axisLength = 1000;
+    lockControls = false;
 
     config = {
         "layout": {
@@ -185,7 +197,7 @@ export class WebGLSceneComponent {
             this._graphData = newGraphData;
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
-            this._searchOptions = this._graphData.lyphs.filter(e => e.name).map(e => e.name);
+            this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
 
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.axisLength);
@@ -299,7 +311,6 @@ export class WebGLSceneComponent {
             this.graph.tickFrame();
         }
         this.controls.update();
-
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(_ => this.animate());
     }
@@ -350,8 +361,13 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
-    update() {
+    updateGraphLayout() {
         if (this.graph){ this.graph.graphData(this.graphData); }
+    }
+
+    toggleLockControls(){
+        this.lockControls = !this.lockControls;
+        this.controls.enabled = !this.lockControls;
     }
 
     toggleSettingPanel() {
@@ -479,13 +495,11 @@ export class WebGLSceneComponent {
     }
 
     zoom(delta) {
-        if (this.lockCamera) {return; }
         this.camera.position.z += delta;
         this.camera.lookAt(this.scene.position);
     }
 
     rotateScene(deltaX, deltaY) {
-        if (this.lockCamera) {return; }
         this.camera.position.x += deltaX;
         this.camera.position.y += deltaY;
         this.camera.lookAt(this.scene.position);
