@@ -35,7 +35,7 @@ export class Graph extends Entity {
                 console.warn("The model contains self-references or cyclic group dependencies: ", res.id, group.id);
                 return;
             }
-            let relFields = this.getRelationshipFields();
+            let relFields = this.Model.relationships;
             let relFieldNames = (relFields||[])
                 //skip the filter if you want the (sub)graph (=group) to explicitly list all nested groups
                 .filter(([key, spec]) => getClassName(spec.items || spec) !== res.class)

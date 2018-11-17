@@ -1,9 +1,11 @@
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 const loaders = require('./webpack.loaders.js');
 const path    = require('path');
 
 module.exports = {
+    mode: 'development',
 	devtool: 'source-map',
 	context: __dirname + '/src',
 	entry: {
@@ -15,15 +17,12 @@ module.exports = {
 	output: {
 		path: __dirname + '/dist',
 		filename: '[name].js',
-		// library: 'ProjectName',
-		// libraryTarget: 'umd',
 		sourceMapFilename: '[file].map',
-		/* source-map support for IntelliJ/WebStorm */
 		devtoolModuleFilenameTemplate:         '[absolute-resource-path]',
 		devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
 	},
 	module: {
-		loaders: loaders
+		rules: loaders
 	},
 	plugins: [
 		new webpack.optimize.OccurrenceOrderPlugin(),
@@ -36,13 +35,16 @@ module.exports = {
             /angular(\\|\/)core(\\|\/)/,
 		    path.resolve(__dirname, '../src'), {}
 		),
-    new webpack.ContextReplacementPlugin(
-        /power-assert-formatter[\\\/]lib/,
-        path.resolve('./src'),
-        {}
-    ),
+		new webpack.ContextReplacementPlugin(
+			/power-assert-formatter[\\\/]lib/,
+			path.resolve('./src'),
+			{}
+		),
 		new webpack.ProvidePlugin({
 			'THREE': 'three'
-		})
-    ]
+		}),
+        new FilterWarningsPlugin({
+            exclude: /System.import/
+        })
+	]
 };

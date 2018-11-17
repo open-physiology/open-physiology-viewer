@@ -19,7 +19,6 @@ import {ModelInfoPanel} from './gui/modelInfo';
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
-//import {MatSidenavModule} from '@angular/material/sidenav';
 
 @Component({
     selector: 'webGLScene',
@@ -51,28 +50,33 @@ const WindowResize = require('three-window-resize');
                     <canvas #canvas class="w3-card w3-round"></canvas>
                 </section>
             </section>
-            <section *ngIf="showPanel" id="settingsPanel" stop-propagation class="w3-third">
+            <section id="settingsPanel" *ngIf="showPanel" stop-propagation class="w3-third">
                 <section class="w3-padding-small">
-                    <!--<section class="w3-center w3-card w3-grey">-->
-                        <!--<h4>Configuration panel</h4>-->
-                    <!--</section>-->
+                    
                     <!--Search bar-->
+                    
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
                                    (selectedItemChange)="selectBySearchEventHandler($event)"></searchBar>
                     </fieldset>
+                    
                     <!--Selected entity-->
+                    
                     <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
                         <modelInfoPanel *ngIf="!!_selected" [model]=_selected></modelInfoPanel>
                     </fieldset>
+                    
                     <!--Highlighted entity-->
+                    
                     <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
                         <modelInfoPanel *ngIf="!!_highlighted" [model]=_highlighted></modelInfoPanel>
                     </fieldset>
+                    
                     <!--Group controls-->
+                    
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Groups</legend>
                         <span *ngFor="let group of graphData.activeGroups">
@@ -80,7 +84,9 @@ const WindowResize = require('three-window-resize');
                                    (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
                         </span>
                     </fieldset>
+                    
                     <!--Layout config-->
+                    
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" [checked]="config.layout.lyphs"
@@ -92,7 +98,9 @@ const WindowResize = require('three-window-resize');
                         <input type="checkbox" class="w3-check" name="coalescences" [checked]="config.layout.coalescences"
                                (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
                     </fieldset> 
+                    
                     <!--Label config-->
+                    
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
@@ -113,6 +121,9 @@ const WindowResize = require('three-window-resize');
                             </fieldset>
                         </span>
                     </fieldset>
+                    
+                    <!--View helpers-->
+                    
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
                         <span *ngFor="let helper of helperKeys">
@@ -130,7 +141,8 @@ const WindowResize = require('three-window-resize');
         }
 
         #settingsPanel{
-            height: 100%;
+            height: 100vh;
+            overflow-y: scroll;
         }
 
         :host >>> fieldset {
@@ -562,7 +574,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule,
-        MatAutocompleteModule, MatFormFieldModule, MatInputModule], //, MatSidenavModule
+        MatAutocompleteModule, MatFormFieldModule, MatInputModule],
     declarations: [WebGLSceneComponent, ModelInfoPanel, StopPropagation, SearchBar ],
     exports: [WebGLSceneComponent]
 })

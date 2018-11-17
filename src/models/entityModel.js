@@ -31,6 +31,19 @@ export const getClassName = (spec) => {
 const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
 
 /**
+ * Returns schema relationships
+ * @param clsName - class name
+ * @returns {Array} - list of relationships
+ */
+const getRelationshipSpecs = (clsName) => {
+    if (!definitions[clsName]) {
+        console.error("Could not find schema definition for class: ", clsName);
+        return [];
+    }
+    return definitions[clsName].properties::entries().filter(([key, spec]) => isReference(spec));
+};
+
+/**
  * Auto-complete the model with bidirectional references
  * @param res  - input model
  * @param key  - property to auto-complete
@@ -84,21 +97,13 @@ const syncRelationships = (res, [key, spec]) => {
     }
 };
 
-const getRelationshipFields = (clsName) => {
-    if (!definitions[clsName]) {
-        console.error("Could not find schema definition for class: ", clsName);
-        return [];
-    }
-    return definitions[clsName].properties::entries().filter(([key, spec]) => isReference(spec));
-};
-
 /**
  * Replace IDs with objec references
  * @param res - input model
  * @param modelClasses - recognized entity classes
  * @param entitiesByID - map of all entities
  */
-const replaceReferences = (res, modelClasses, entitiesByID) => {
+const replaceIDs = (res, modelClasses, entitiesByID) => {
 
     const createObj = (value, spec) => {
 
@@ -132,7 +137,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
             }
         } else {
             //If the object does not need to be instantiated, we leave it unchanged but replace its inner references
-            let refFields = getRelationshipFields(clsName);
+            let refFields = getRelationshipSpecs(clsName);
             (refFields||[]).forEach(f => replaceRefs(objValue, f));
         }
         return objValue;
@@ -159,7 +164,7 @@ const replaceReferences = (res, modelClasses, entitiesByID) => {
     };
 
     //Replace IDs with model object references
-    let refFields = getRelationshipFields(res.class);
+    let refFields = getRelationshipSpecs(res.class);
     refFields.forEach(f => replaceRefs(res, f));
 
     //Assign dynamic group properties to all relevant entities
@@ -198,45 +203,11 @@ const assignPathProperties = (parent, modelClasses, entitiesByID) => {
                             return;
                         }
                     });
-                    if (needsUpdate){ replaceReferences(e, modelClasses, entitiesByID); }
+                    if (needsUpdate){ replaceIDs(e, modelClasses, entitiesByID); }
                 })
             }
         );
     }
-};
-
-/**
- * Assigns colors to a number of entities
- * @param entities - list of entities
- * @param scheme   - interpolation scheme
- * @param length   - length of the value array taken from the scheme
- * @param reversed - if true, indicates that the values must be taken from the color array in the reversed order
- * @param offset   - relative length of the color array to skip before starting to take values
- */
-const colorPathEntities = (entities, {scheme, length, reversed = false, offset}) => {
-    if (!colorSchemes[scheme]) {
-        console.warn("Unrecognized color scheme: ", scheme);
-        return;
-    }
-    if (!length) { length = entities.length; }
-    if (!offset) { offset = 0; }
-
-    const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
-    const assignColor = items => {
-        (items||[]).forEach((item, i) => {
-            if (!item::isObject()) {
-                console.warn("Cannot assign color to a non-object value");
-                return;
-            }
-            //If entity is an array, the schema is applied to each of it's items
-            if (item::isArray()){
-                assignColor(item);
-            } else {
-                item.color = getColor(i);
-            }
-        });
-    };
-    assignColor(entities);
 };
 
 /**
@@ -255,13 +226,36 @@ const interpolatePathProperties = (parent) => {
             entities.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
         }
         if (color){
-            colorPathEntities(entities, color);
+            let {scheme, length, reversed = false, offset} = color;
+            if (!colorSchemes[scheme]) {
+                console.warn("Unrecognized color scheme: ", scheme);
+                return;
+            }
+            if (!length) { length = entities.length; }
+            if (!offset) { offset = 0; }
+
+            const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
+            const assignColor = items => {
+                (items||[]).forEach((item, i) => {
+                    if (!item::isObject()) {
+                        console.warn("Cannot assign color to a non-object value");
+                        return;
+                    }
+                    //If entity is an array, the schema is applied to each of it's items
+                    if (item::isArray()){
+                        assignColor(item);
+                    } else {
+                        item.color = getColor(i);
+                    }
+                });
+            };
+            assignColor(entities);
         }
     })
 };
 
 /**
- * Returns recognized class properties from the specification
+ * Returns recognized class properties from the specification with default values
  * @param className
  */
 const getSchemaProperties = (className) => {
@@ -305,10 +299,9 @@ const initProperties = {"viewObjects": {}, "labels": {}};
 export class Entity {
     constructor(id) {
         this.id = id;
-        this::merge(this.constructor.getDefaultFields());
-        // const handler = (currName) => this::merge(...getSchemaProperties(currName));
-        // recurseSchema(this.constructor.name, handler);
-        // this::merge(initProperties);
+        const handler = (currName) => this::merge(...getSchemaProperties(currName));
+        recurseSchema(this.constructor.name, handler);
+        this::merge(initProperties);
     }
 
     /**
@@ -348,7 +341,7 @@ export class Entity {
                 entitiesByID[res.id] = res; //Update the entity map
             }
 
-            replaceReferences(res, modelClasses, entitiesByID);
+            replaceIDs(res, modelClasses, entitiesByID);
         }
 
         if (border){
@@ -361,17 +354,20 @@ export class Entity {
         return res;
     }
 
-    static getDefaultFields(){
-        let res = {};
-        const handler = (currName) => res::merge(...getSchemaProperties(currName));
-        recurseSchema(this.name, handler);
-        res::merge(initProperties);
-        return res;
+    //Model schema properties
+    static get Model() {
+        return {
+            schema: definitions[this.name],
+            relationships: getRelationshipSpecs(this.name),
+            fields: () => {
+                let res = {};
+                const handler = (currName) => res::merge(...getSchemaProperties(currName));
+                recurseSchema(this.name, handler);
+                return res;
+            },
+            ownFields: getSchemaProperties(this.name)
+        }
     }
-
-    static getRelationshipFields() {
-        return getRelationshipFields(this.name);
-    };
 
     get isVisible(){
         return !this.hidden;
@@ -425,4 +421,8 @@ export class Entity {
         }
     }
 
+    toJSON(){
+
+    }
 }
+

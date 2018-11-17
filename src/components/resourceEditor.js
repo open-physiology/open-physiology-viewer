@@ -24,10 +24,21 @@ import {MatExpansionModule} from '@angular/material/expansion';
     `
 })
 export class ResourceEditor {
-    @Input() model;
-    @Input() optionsProvider;
+    _model;
+    _graphData;
+    @Input() modelClasses;
     @Input() readonly = true;
-}
+
+    @Input('model') set model(newModel) {
+        this._model = newModel;
+    }
+
+    @Input('graphData') set graphData(newGraphData) {
+        this._graphData = newGraphData;
+    }
+
+
+ }
 
 @NgModule({
     imports: [BrowserAnimationsModule, MatExpansionModule],
@@ -35,4 +46,6 @@ export class ResourceEditor {
     exports: [ResourceEditor]
 })
 export class ResourceEditorModule {
+
+
 }

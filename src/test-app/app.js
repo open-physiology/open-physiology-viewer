@@ -4,11 +4,11 @@ import { BrowserModule }    from '@angular/platform-browser';
 //Local
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
+import { DataService } from '../services/dataService';
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/resourceEditor';
-import { DataService } from '../services/dataService';
 import { GlobalErrorHandler } from '../services/errorHandler';
-
+import { modelClasses } from '../models/modelClasses';
 import { debug } from '../models/utils';
 
 //JSON Editor
@@ -29,14 +29,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/pink-bluegrey.css";
+import "./styles/material.scss";
 
 let msgCount = {};
 debug(true, msgCount);
 
 @Component({
 	selector: 'test-app',
-	template: `<!--Three.js scene-->
-		<!-- Top container -->
+	template: `
+    
+		<!-- Header -->
+	
 		<header class="w3-bar w3-top w3-dark-grey" style="z-index:10;">
             <span class="w3-bar-item">
 				<i class="fa fa-heartbeat w3-margin-right"></i>ApiNATOMY
@@ -58,6 +61,7 @@ debug(true, msgCount);
         </header>
 
         <!--Left toolbar-->
+    
         <section id="left-toolbar" class="w3-sidebar w3-bar-block">
             <input #fileInput
                    [type]          = "'file'"
@@ -91,20 +95,24 @@ debug(true, msgCount);
 
         <!--Editor and canvas-->
         <section class="main-panel">
-            <section class="w3-row">
-                <section [hidden] = "!_showJSONEditor" #jsonEditor id="json-editor" class ="w3-quarter"></section>
-                <webGLScene [graphData]="_graphData" [class.w3-threequarter] = "_showJSONEditor"
-                            (selectedItemChange)="onSelectedItemChange($event)"
-                            (highlightedItemChange)="onHighlightedItemChange($event)"></webGLScene>
-            </section>
-        </section>
-   
+                <section class="w3-row">
+                    <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"></section>
+                    <webGLScene [class.w3-threequarter] = "_showJSONEditor"
+                                [graphData]             ="_graphData"
+                                (selectedItemChange)    ="onSelectedItemChange($event)"
+                                (highlightedItemChange) ="onHighlightedItemChange($event)"></webGLScene>
+                </section>
+               
+                <!--<resourceEditor [model] = "model" [graphData]="graphData" [modelClasses]="modelClasses" ></resourceEditor>-->
+        </section>    
+        
         <!-- Footer -->
-		<footer class="w3-container w3-grey">
-            <span class="w3-right">
+    
+        <footer class="w3-container w3-grey">
+            <span class="w3-row w3-right">
 				<i class="fa fa-code w3-padding-small"></i>natallia.kokash@gmail.com
 			</span>
-			<span class="w3-right w3-margin-right">
+			<span class="w3-row w3-right">
 				<i class="fa fa-envelope w3-padding-small"></i>bernard.de.bono@gmail.com
 			</span>
         </footer>
@@ -265,6 +273,10 @@ export class TestApp {
         this._model = model;
         this._dataService.init(this._model);
         this._graphData = this._dataService.graphData;
+    }
+
+    get graphData(){
+	    return this._graphData;
     }
 
 }

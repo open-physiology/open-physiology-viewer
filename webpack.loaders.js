@@ -1,24 +1,31 @@
 module.exports = [
-	{
-		test: /\.js$/,
-		exclude: /node_modules/,
-		loader: 'babel-loader'
-	},
-	{
-		test: /\.json$/,
-		loader: 'json-loader'
-	},
     {
-    	test: /\.css$/,
-		loader: "style-loader!css-loader?importLoaders=1"
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: ['babel-loader']
     },
     {
-    	test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-		loader: "url-loader"
-	},
+        test: /\.css$/,
+        use: [
+            "style-loader",
+            "css-loader"
+        ]
+    },
     {
-    	test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-		loader: "url-loader"
+        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        use: ["url-loader"]
+    },
+    {
+        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        use: ["url-loader"]
+    },
+    {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: [
+            "style-loader", // creates style nodes from JS strings
+            "css-loader",   // translates CSS into CommonJS
+            "sass-loader"   // compiles Sass to CSS, using Node Sass by default
+        ]
     }
-
 ];
