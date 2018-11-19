@@ -28,19 +28,23 @@ export const getClassName = (spec) => {
  * Selects schema definitions which contain as an option a reference to a model object
  * @param spec - schema definition
  */
-const isReference = (spec) => spec.$ref || spec.oneOf || spec.anyOf || spec.items && isReference(spec.items);
+const isReference = (spec) => spec.$ref
+    || (spec.oneOf||[]).find(e => isReference(e))
+    || (spec.anyOf||[]).find(e => isReference(e))
+    || spec.items && isReference(spec.items)
+;
 
-/**
- * Returns schema relationships
- * @param clsName - class name
- * @returns {Array} - list of relationships
- */
-const getRelationshipSpecs = (clsName) => {
-    if (!definitions[clsName]) {
-        console.error("Could not find schema definition for class: ", clsName);
-        return [];
+const extendsEntity = (spec) => {
+    let ref = isReference(spec);
+    if (ref){
+        let clsName = getClassName(ref);
+        if (clsName === "Entity") { return true; }
+        if (clsName){
+            let def = definitions[clsName];
+            return def && def.extends && extendsEntity(def.extends);
+        }
     }
-    return definitions[clsName].properties::entries().filter(([key, spec]) => isReference(spec));
+    return false;
 };
 
 /**
@@ -137,7 +141,7 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
             }
         } else {
             //If the object does not need to be instantiated, we leave it unchanged but replace its inner references
-            let refFields = getRelationshipSpecs(clsName);
+            let refFields = modelClasses[clsName].Model.relationships;
             (refFields||[]).forEach(f => replaceRefs(objValue, f));
         }
         return objValue;
@@ -164,7 +168,7 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
     };
 
     //Replace IDs with model object references
-    let refFields = getRelationshipSpecs(res.class);
+    let refFields = modelClasses[res.class].Model.relationships;
     refFields.forEach(f => replaceRefs(res, f));
 
     //Assign dynamic group properties to all relevant entities
@@ -258,7 +262,7 @@ const interpolatePathProperties = (parent) => {
  * Returns recognized class properties from the specification with default values
  * @param className
  */
-const getSchemaProperties = (className) => {
+const getFieldDefaultValues = (className) => {
     const getDefault = (specObj) => specObj.type ?
             specObj.type == "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
         : null;
@@ -291,17 +295,14 @@ const recurseSchema = (className, handler) => {
     }
 };
 
-const initProperties = {"viewObjects": {}, "labels": {}};
-
 /**
  * Common methods for all entity models
  */
 export class Entity {
+
     constructor(id) {
         this.id = id;
-        const handler = (currName) => this::merge(...getSchemaProperties(currName));
-        recurseSchema(this.constructor.name, handler);
-        this::merge(initProperties);
+        this::merge(this.constructor.Model.defaultValues);
     }
 
     /**
@@ -313,19 +314,14 @@ export class Entity {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID = null, border = false) {
         //Do not expand templates
-        json.class = json.class || this.name;
-        const cls = this || modelClasses[json.class];
+        let clsName = json.class || this.name;
+        const cls = this || modelClasses[clsName];
         const res = new cls(json.id);
-
-        if (res.id::isNumber){ res.id = res.id.toString(); }
+        res.class = clsName;
+        res.JSON = json; //Store original JSON model definition
 
         //spec
-        let specProperties = initProperties::keys();
-        const handler = (currName) => specProperties = [...specProperties,
-            ...definitions[currName].properties::keys()];
-        recurseSchema(this.name, handler);
-
-        let difference = json::keys().filter(x => !specProperties.find(y => y === x));
+        let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
             console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
         }
@@ -335,8 +331,9 @@ export class Entity {
         if (entitiesByID){
             //Exclude just created entity from being ever created again in the following recursion
             if (!res.id) {
-                if (res.class !== "Border"){ console.warn("An entity without ID has been found: ", res); }
+                if (!res.class.startsWith("Border")){ console.warn("An entity without ID has been found: ", res); }
             } else {
+                if (res.id::isNumber){ res.id = res.id.toString(); }
                 if (!entitiesByID[res.id]){ console.info("Added new entity to the global map: ", res.id); }
                 entitiesByID[res.id] = res; //Update the entity map
             }
@@ -356,17 +353,30 @@ export class Entity {
 
     //Model schema properties
     static get Model() {
-        return {
-            schema: definitions[this.name],
-            relationships: getRelationshipSpecs(this.name),
-            fields: () => {
-                let res = {};
-                const handler = (currName) => res::merge(...getSchemaProperties(currName));
-                recurseSchema(this.name, handler);
-                return res;
-            },
-            ownFields: getSchemaProperties(this.name)
+        let model = {};
+        if (!definitions[this.name]) {
+            console.error("Could not find schema definition for class: ", this.name);
+            return model;
         }
+        model.schema            = definitions[this.name];
+        model.defaultValues     = (() => { //object
+            let res = {};
+            recurseSchema(this.name, (currName) => res::merge(...getFieldDefaultValues(currName)));
+            return res;
+        })();
+        model.fields            = (() => {
+            let res = {};
+            recurseSchema(this.name, (currName) => res::merge(...definitions[currName].properties::entries()
+                .map(([key, value]) => ({[key]: value})))
+            );
+            return res::entries();
+        })();
+        model.fieldNames        = model.fields.map(e => e[0]);
+        model.relationships     = model.fields.filter(e => extendsEntity(e[1]));
+        model.relationshipNames = model.relationships.map(e => e[0]);
+        model.properties        = model.fields.filter(e => !extendsEntity(e[1]));
+        model.propertyNames     = model.properties.map(e => e[0]);
+        return model;
     }
 
     get isVisible(){

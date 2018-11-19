@@ -102,8 +102,7 @@ debug(true, msgCount);
                                 (selectedItemChange)    ="onSelectedItemChange($event)"
                                 (highlightedItemChange) ="onHighlightedItemChange($event)"></webGLScene>
                 </section>
-               
-                <!--<resourceEditor [model] = "model" [graphData]="graphData" [modelClasses]="modelClasses" ></resourceEditor>-->
+                <!--<resourceEditor [graphData]="graphData" [modelClasses]="modelClasses" ></resourceEditor>-->
         </section>    
         
         <!-- Footer -->
@@ -174,6 +173,7 @@ export class TestApp {
         this.update(initModel);
     }
     ngAfterViewInit(){
+        if (!this._container) { return; }
         this._editor = new JSONEditor(this._container.nativeElement, {
             mode: 'code',
             modes: ['code', 'tree', 'view'],

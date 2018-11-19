@@ -6,7 +6,10 @@ import { Link, LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Lyph } from './lyphModel';
 import { isObject } from 'lodash-bound';
-import { direction, getCenterOfMass, lyphBorders, polygonBorders, polygonBorderLinks, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
+import { getCenterOfMass, lyphBorders, polygonBorders, polygonBorderLinks, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
+
+
+//TODO revise - instead of borderLinks and links arrays, use 'link' property of border object
 
 /**
  * Lyph or region border

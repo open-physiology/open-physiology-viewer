@@ -8,9 +8,13 @@ import {MatExpansionModule} from '@angular/material/expansion';
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    Resource editor
+                    {{graphData?.class}}: {{graphData?.id? graphData.id: ""}}  {{graphData?.name? graphData.name: ""}} 
                 </mat-panel-title>
             </mat-expansion-panel-header>
+            
+            <section *ngFor="let property of graphData.constructor.Model.properties; let i = index">
+                <label>{{property[0]}} </label>
+            </section>
             
             <mat-action-row>
                 <button class="w3-hover-light-grey">
@@ -24,19 +28,18 @@ import {MatExpansionModule} from '@angular/material/expansion';
     `
 })
 export class ResourceEditor {
-    _model;
     _graphData;
     @Input() modelClasses;
     @Input() readonly = true;
 
-    @Input('model') set model(newModel) {
-        this._model = newModel;
-    }
 
     @Input('graphData') set graphData(newGraphData) {
         this._graphData = newGraphData;
     }
 
+    get graphData(){
+        return this._graphData;
+    }
 
  }
 

@@ -135,7 +135,9 @@
     },
     "BorderPart": {
       "description": "One side of the lyph border",
-      "type": "object",
+      "extends": {
+        "$ref": "#/definitions/Entity"
+      },
       "properties": {
         "hostedNodes": {
           "description": "Nodes that are positioned on the given lyph border. If the same node is positioned on several lyph borders, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
@@ -187,6 +189,7 @@
             "Link",
             "Node",
             "Border",
+            "BorderPart",
             "Material",
             "External"
           ],
@@ -243,6 +246,23 @@
             "objects": [],
             "lists": []
           }
+        },
+        "viewObjects": {
+          "description": "Graphical objects that represent the entity",
+          "type": "object",
+          "readOnly": true,
+          "default": {}
+        },
+        "labels": {
+          "description": "Graphical objects that represent entity labels",
+          "type": "object",
+          "readOnly": true,
+          "default": {}
+        },
+        "JSON": {
+          "description": "Initial JSON specification for the internal model",
+          "type": "object",
+          "readOnly": true
         },
         "inGroups": {
           "description": "Groups that include the current entity",

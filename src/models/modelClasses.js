@@ -1,5 +1,6 @@
 import { Node }   from './nodeModel';
 import { Border } from './borderModel';
+import { BorderPart } from './borderPartModel';
 import { Lyph }   from './lyphModel';
 import { Region } from './regionModel';
 import { Link }   from './linkModel';
@@ -17,5 +18,6 @@ export const modelClasses = {
     "Region"  : Region,
     "Lyph"    : Lyph,
     "Border"  : Border,
+    "BorderPart"  : BorderPart,
     "Graph"   : Graph
 };
