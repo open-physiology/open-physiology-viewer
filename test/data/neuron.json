@@ -1,0 +1,247 @@
+{
+    "nodes": [
+        { "id": "n001" },
+        { "id": "n002" },
+        { "id": "n003" },
+        { "id": "n004" },
+        { "id": "n005" },
+        { "id": "n006" },
+        { "id": "n007" },
+        { "id": "n008" }
+    ],
+    "links": [
+        {
+          "id": "l001",
+          "source": "n001",
+          "target": "n002",
+          "conveyingLyph": "n5-d"
+        },
+        {
+          "id": "l002",
+          "source": "n002",
+          "target": "n003",
+          "conveyingLyph": "n5-h"
+        },
+        {
+          "id": "l003",
+          "source": "n003",
+          "target": "n004",
+          "conveyingLyph": "n5-s1"
+        },
+        {
+          "id": "l004",
+          "source": "n004",
+          "target": "n005",
+          "conveyingLyph": "n5-s2"
+        },
+        {
+          "id": "l005",
+          "source": "n005",
+          "target": "n006",
+          "conveyingLyph": "n5-s3"
+        },
+        {
+          "id": "l006",
+          "source": "n006",
+          "target": "n007",
+          "conveyingLyph": "n5-s4"
+        },
+        {
+          "id": "l007",
+          "source": "n007",
+          "target": "n008",
+          "conveyingLyph": "n5-t"
+        }
+    ],
+    "lyphs": [
+        {
+          "id": "n5",
+          "name": "Neuron 5",
+          "topology": "BAG",
+          "hostedLyphs": [
+            "n5-d",
+            "n5-h",
+            "n5-s1",
+            "n5-s2",
+            "n5-s3",
+            "n5-s4",
+            "n5-t"
+          ]
+        },
+        {
+          "id": "n5-d",
+          "name": "Dendrite",
+          "topology": "TUBE",
+          "layers": [
+            "n5d-c",
+            "n5d-pm",
+            "n5d-ecf"
+          ]
+        },
+        {
+          "id": "n5d-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5d-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5d-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5-h",
+          "name": "Hillock",
+          "topology": "TUBE",
+          "layers": [
+            "n5h-c",
+            "n5h-pm",
+            "n5h-ecf"
+          ]
+        },
+        {
+          "id": "n5h-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5h-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5h-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5-s1",
+          "name": "Segment 1",
+          "topology": "TUBE",
+          "layers": [
+            "n5s1-c",
+            "n5s1-pm",
+            "n5s1-ecf"
+          ]
+        },
+        {
+          "id": "n5s1-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s1-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s1-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5-s2",
+          "name": "Segment 2",
+          "topology": "TUBE",
+          "layers": [
+            "n5s2-c",
+            "n5s2-pm",
+            "n5s2-ecf"
+          ]
+        },
+        {
+          "id": "n5s2-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s2-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s2-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5-s3",
+          "name": "Segment 3",
+          "topology": "TUBE",
+          "layers": [
+            "n5s3-c",
+            "n5s3-pm",
+            "n5s3-ecf"
+          ]
+        },
+        {
+          "id": "n5s3-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s3-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s3-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5-s4",
+          "name": "Segment 4",
+          "topology": "TUBE",
+          "layers": [
+            "n5s4-c",
+            "n5s4-pm",
+            "n5s4-ecf"
+          ]
+        },
+        {
+          "id": "n5s4-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s4-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5s4-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5-t",
+          "name": "Hillock",
+          "topology": "TUBE",
+          "layers": [
+            "n5t-c",
+            "n5t-pm",
+            "n5t-ecf"
+          ]
+        },
+        {
+          "id": "n5t-ecf",
+          "name": "Extracellular fluid",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5t-pm",
+          "name": "Plasma membrane",
+          "topology": "TUBE"
+        },
+        {
+          "id": "n5t-c",
+          "name": "Cytosol",
+          "topology": "TUBE"
+        }
+    ]
+}

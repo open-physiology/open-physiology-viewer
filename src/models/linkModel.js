@@ -36,7 +36,7 @@ export const LINK_STROKE = {
 const getPoint = (curve, s, t, offset) => (curve.getPoint)? curve.getPoint(offset): s.clone().add(t).multiplyScalar(offset);
 
 /**
- * The class to visualize processes (graph edges)
+ * The class to visualize processes (edges)
  */
 export class Link extends Entity {
     get polygonOffsetFactor(){

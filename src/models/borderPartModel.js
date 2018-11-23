@@ -1,5 +1,5 @@
-import { Entity } from './entityModel'
+import { Resource } from './resourceModel'
 
-export class BorderPart extends Entity {
+export class BorderPart extends Resource {
 }
 

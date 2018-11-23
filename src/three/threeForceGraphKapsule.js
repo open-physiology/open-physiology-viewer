@@ -7,6 +7,7 @@ import {
 
 import Kapsule from 'kapsule';
 import {Graph} from '../models/graphModel';
+import {modelClasses} from "../models/modelClasses";
 
 /**
  * A closure-based component for the force-directed 3d graph layout
@@ -14,7 +15,7 @@ import {Graph} from '../models/graphModel';
 export default Kapsule({
     props: {
         graphData: {
-            default: Graph.fromJSON({nodes: [], links: []}),
+            default: Graph.fromJSON({}, modelClasses),
             onChange(_, state) { state.onFrame = null; } // Pause simulation
         },
         numDimensions: {

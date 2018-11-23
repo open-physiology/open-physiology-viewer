@@ -1,8 +1,8 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {Entity} from './entityModel';
-import {copyCoords} from './utils';
-import {extractCoords, createMeshWithBorder, getCenterOfMass} from '../three/utils';
+import { clone } from 'lodash-bound';
+import {createMeshWithBorder, getCenterOfMass} from '../three/utils';
 
 /**
  * Class that creates visualization objects of regions
@@ -10,7 +10,13 @@ import {extractCoords, createMeshWithBorder, getCenterOfMass} from '../three/uti
 export class Region extends Entity {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-        return super.fromJSON(json, modelClasses, entitiesByID, true);
+        json.border      = json.border || {};
+        json.border.id   = json.border.id || json.id + "_border";
+        let res = super.fromJSON(json, modelClasses, entitiesByID);
+        res.border.host = res;
+        res.points.push(res.points[0]::clone()); //make closed shape
+        res.points = res.points.map(p => new THREE.Vector3(p.x, p.y, 0));
+        return res;
     }
 
     translate(p0) {
@@ -24,11 +30,7 @@ export class Region extends Entity {
      */
     createViewObjects(state) {
         if (!this.viewObjects["main"]) {
-            this.points.push(this.points[0]); //make closed shape
-
             let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
-
-            this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
             this.center = getCenterOfMass(this.points);
 
             let obj = createMeshWithBorder(shape, {

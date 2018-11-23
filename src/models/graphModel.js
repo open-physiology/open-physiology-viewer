@@ -1,108 +1,155 @@
-import { Entity, getClassName } from './entityModel';
-import { keys, values, isObject, unionBy, isNumber, entries} from 'lodash-bound';
-import { Link, LINK_GEOMETRY } from './linkModel';
-import { Node } from './nodeModel';
+import { Group } from './groupModel';
+import {keys, isNumber, merge, pick, isArray, cloneDeep, defaults} from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
-import * as colorSchemes from 'd3-scale-chromatic';
-import {extractCoords} from '../three/utils';
+import {assignPropertiesToJSONPath} from "./utils";
+import {Link, LINK_GEOMETRY} from "./linkModel";
 const validator = new Validator();
-import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
 
-const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
-const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
-    .forEach((e, i) => { e.color = defaultColor || colors[i % colors.length] });
+export class Graph extends Group{
 
-export class Graph extends Entity {
-
-    /**
-     * Create a graph model from the JSON specification
-     * @param json - input model
-     * @param modelClasses - recognized entity models
-     * @param entitiesByID
-     * @returns {*} - Graph model
-     */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
-
+    static fromJSON(json, modelClasses) {
         let resVal = validator.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
-        let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
-        //TODO replicate materials and externals?
-        //Inherit objects from subgroups
-        (res.groups||[]).forEach(group => {
-            if (group.id === res.id || (res.inGroups||[]).find(e => e.id === group.id)) {
-                console.warn("The model contains self-references or cyclic group dependencies: ", res.id, group.id);
-                return;
-            }
-            let relFields = this.Model.relationships;
-            let relFieldNames = (relFields||[])
-                //skip the filter if you want the (sub)graph (=group) to explicitly list all nested groups
-                .filter(([key, spec]) => getClassName(spec.items || spec) !== res.class)
-                .map(e => e[0]);
-            relFieldNames.forEach(property => { res[property] = (res[property]||[])::unionBy(group[property], "id"); });
+        let model = json::cloneDeep()::defaults({
+            id: "mainModel",
+            assign: [
+                {
+                    "path": "$.nodes",
+                    "value": {"charge": 10}
+                }
+            ]
         });
 
-        /**
-         * Create an axis for a lyph
-         * @param lyph - lyph without axis
-         * @param container - lyph's container to size the auto-created link
-         */
-        const createAxis = (lyph, container) => {
-            let [sNode, tNode] = ["s", "t"].map(prefix => (
-                modelClasses["Node"].fromJSON({
-                    "id"   : `${prefix}${lyph.id}`,
-                    "name" : `${prefix}${lyph.id}`,
-                    "color": "#ccc",
-                    "val"  : 0.1,
-                    "skipLabel": true
-                })));
-
-            let link = modelClasses["Link"].fromJSON({
-                "id"      : `${sNode.id}_ ${tNode.id}`,
-                "source"  : sNode,
-                "target"  : tNode,
-                "length"  : container && container.axis? container.axis.length * 0.8 : 5,
-                "geometry": LINK_GEOMETRY.INVISIBLE,
-                "color"   : "#ccc",
-                "conveyingLyph": lyph
-            });
-            lyph.conveyedBy = sNode.sourceIn = tNode.targetIn = link;
-        };
-
-        const addLinkToGroup = (link) => {
-            if (!res.links) {res.links = [];}
-            if (!res.nodes) {res.nodes = [];}
-            res.links.push(link);
-            [link.source, link.target].forEach(node => res.nodes.push(node));
-        };
-
-        (res.lyphs||[]).filter(lyph => lyph.internalInLyph || lyph.internalInRegion).forEach(lyph => {
-            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalInLyph || lyph.internalInRegion); }
-            if (!res.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
-        });
-
-        //Add auto-created clones of boundary nodes to relevant groups
-        (res.nodes||[]).filter(node => node.clones).forEach(node => {
-                node.clones.forEach(clone => {
-                    res.nodes.push(clone);
-                    if (clone.hostedByLink) {
-                        clone.hostedByLink.hostedNodes = clone.hostedByLink.hostedNodes || [];
-                        clone.hostedByLink.hostedNodes.push(clone);
+        /*Process lyph templates: generate new layers for subtypes and replicate template properties */
+        const expandTemplates = (lyphs) => {
+            if (!lyphs) { return; }
+            let templates = lyphs.filter(lyph => lyph.isTemplate);
+            templates.forEach(template => {
+                let subtypes = template.subtypes.map(subtypeRef =>
+                    lyphs.find(e => e.id === subtypeRef) || { "id": subtypeRef, "new" : true });
+                (subtypes || []).forEach(subtype => {
+                    if (subtype.new) { //add auto-create subtype lyphs to the graph lyphs
+                        delete subtype.new;
+                        lyphs.push(subtype);
                     }
+                    subtype.layers = [];
+                    (template.layers|| []).forEach(layerRef => {
+                        let layerParent = lyphs.find(e => e.id === layerRef);
+                        if (!layerParent) {
+                            console.warn("Generation error: template layer object not found: ", layerRef);
+                            return;
+                        }
+                        let newID = `${layerParent.id}_${subtype.id}`;
+                        let lyphLayer = {
+                            "id"        : newID,
+                            "supertype" : layerParent.id
+                        };
+                        let layerParentName = layerParent.name? layerParent.name: `Layer ${layerParent.id}`;
+                        let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
+                        lyphLayer.name = `${layerParentName} in ${subtypeName}`;
+
+                        //TODO get all properties from schema which are not relationships?
+                        lyphLayer::merge(layerParent::pick(["color", "layerWidth"]));
+                        lyphs.push(lyphLayer);
+                        subtype.layers.push(lyphLayer);
+                    });
                 });
+
+                //Copy defined properties to newly generated lyphs
+                if (template.assign){
+                    if (!template.assign::isArray()){
+                        console.warn("Cannot assign template properties: ", template.assign);
+                        return;
+                    }
+                    template.assign.forEach(({path, value}) =>
+                        assignPropertiesToJSONPath({path, value}, subtypes)
+                    );
+                }
+            });
+        };
+        expandTemplates(model.lyphs);
+
+        //Copy existing entities to a map to enable nested model instantiation
+        let entitiesByID = {};
+        entitiesByID[model.id] = model;
+
+        this.Model.relationshipNames.forEach(fieldName => {
+            (model[fieldName]||[]).forEach(e => {
+                if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
+                if (e.id::isNumber()) {
+                    console.error("Replaced numeric ID: ", e);
+                    e.id = e.id.toString();
+                }
+                if (entitiesByID[e.id]) {
+                    console.error("Entity IDs are not unique: ", entitiesByID[e.id], e); }
+                entitiesByID[e.id] = e;
+            })
+        });
+
+        //Check that lyphs are not conveyed by more than one link
+        let conveyingLyphMap = {};
+        (model.links||[]).filter(lnk => lnk.conveyingLyph).forEach(lnk => {
+            if (lnk.conveyingLyph.isTemplate){
+                console.warn("It is not allowed to use templates as conveying lyphs: ", lnk.conveyingLyph);
+                delete lnk.conveyingLyph;
             }
-        );
+            if (!conveyingLyphMap[lnk.conveyingLyph]){
+                conveyingLyphMap[lnk.conveyingLyph] = lnk.conveyingLyph;
+            } else {
+                console.error("It is not allowed to use the same lyph as conveying lyph " +
+                    "for multiple processes (links): ", lnk.conveyingLyph);
+            }
+        });
 
-        //Color entities which do not have assigned colors in the spec
-        addColor(res.links, "#000");
-        addColor(res.lyphs);
-        addColor(res.regions, "#c0c0c0");
+        //Create graph
+        let res = super.fromJSON(model, modelClasses, entitiesByID);
+        res.entitiesByID = entitiesByID;
+
+        //Create a coalescence group and force links to bind coalescing lyphs
+        let coalescenceGroup = (res.groups||[]).find(g => g.id === "coalescences");
+        if (!coalescenceGroup){
+            coalescenceGroup = Group.fromJSON({
+                "id"      : "coalescences",
+                "name"    : "Coalescences",
+                "inactive": true
+            });
+            res.groups.push(coalescenceGroup);
+            entitiesByID[coalescenceGroup.id] = coalescenceGroup;
+        }
+        coalescenceGroup.links = coalescenceGroup.links||[];
+
+        const createCoalescenceForces = (graph) => {
+            (graph.lyphs||[]).filter(lyph => lyph.coalescesWith).forEach(lyph => {
+                lyph.coalescesWith.forEach(lyph2 => {
+                    if (lyph === lyph2 || (lyph.layers||[]).find(l => l.id === lyph2.id)
+                        || (lyph.internalLyphs||[]).find(l => l.id === lyph2.id)){
+                        console.warn("A lyph cannot coalesce with itself or its content", lyph, lyph2);
+                        return;
+                    }
+                    if (!lyph.axis || !lyph2.axis) {
+                        console.warn("A coalescing lyph is missing an axis", !lyph.axis? lyph: lyph2);
+                        return;
+                    }
+
+                    ["source", "target"].forEach(end => {
+                        let link = Link.fromJSON({
+                            "id"    : end.charAt(0) + "_" + lyph.id + "_" + lyph2.id,
+                            "source": lyph.axis[end],
+                            "target": lyph2.axis[end],
+                            "length": 0.1,
+                            "geometry"  : LINK_GEOMETRY.FORCE
+                        });
+                        graph.links.push(link);
+                        coalescenceGroup.links.push(link);
+                        entitiesByID[link.id] = link;
+                    });
+                })
+            });
+        };
+        createCoalescenceForces(res);
         return res;
-    }
-
-    get entities(){
-        return [...(this.nodes||[]), ...(this.links||[]), ...(this.lyphs||[]),...(this.regions||[])];
     }
 
     optionsProvider(clsName, id = undefined){
@@ -123,98 +170,43 @@ export class Graph extends Entity {
            region.points.forEach(p => scalePoint(p)));
     }
 
-    belongsTo(entity){
-        return this.entities.find(e => (e === entity) || (e.id === entity.id && e.class === entity.class));
-    }
-
-    hideGroups(groups){
-        this.show();
-        (groups || []).forEach(g => g.hide());
-    }
-
-    hide(){
-        this.entities.forEach(entity => entity.hidden = true);
-    }
-
-    show(){
-        this.entities.forEach(entity => delete entity.hidden);
-    }
-
     get coalescenceGroup(){
         return (this.groups||[]).find(g => g.id === "coalescences");
     }
 
-    get activeGroups(){
-        return (this.groups||[]).filter(e => !e.inactive);
-    }
+    /**
+     * Experimental - export Bond-graph like descriptions
+     */
+    export(ids){
+        const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
 
-    get visibleRegions(){
-        return (this.regions||[]).filter(e => e.isVisible);
-    }
-
-    get visibleNodes(){
-        return (this.nodes||[]).filter(e => e.isVisible);
-    }
-
-    get visibleLinks(){
-        return (this.links||[]).filter(e => e.isVisible &&
-            this.visibleNodes.find(e2 => e2 === e.source) &&
-            this.visibleNodes.find(e2 => e2 === e.target)
-        );
-    }
-
-    get visibleLyphs(){
-        return (this.lyphs||[]).filter(e => e.isVisible && e.axis.isVisible);
-    }
-
-    createViewObjects(state){
-        this.visibleNodes.forEach(node => {
-            node.createViewObjects(state);
-            node.viewObjects::values().forEach(obj => state.graphScene.add(obj));
+        if (!ids) { return; }
+        let res = {"regions": [], "potentials": [], "connections": []};
+        (this.lyphs||[]).filter(e=> ids.includes(e.id) || (e.axis && ids.includes(e.axis.id))).forEach(lyph => {
+            res.regions.push({
+                "id"      : lyph.id,
+                "position": getCoords(lyph.center)
+            });
         });
 
-        this.visibleLinks.forEach(link => {
-            link.createViewObjects(state);
-            link.viewObjects::values().forEach(obj => state.graphScene.add(obj));
-            if (link.geometry === LINK_GEOMETRY.INVISIBLE){
-                link.viewObjects["main"].material.visible = false;
-            }
+        (this.nodes||[]).filter(e => ids.includes(e.id) ||
+            (e.sourceOf || []).find(lnk => ids.includes(lnk.id)) ||
+            (e.targetOf || []).find(lnk => ids.includes(lnk.id))).forEach(node => {
+            res.potentials.push({
+                "id"       : node.id,
+                "position" : getCoords(node)
+            });
         });
 
-        this.visibleRegions.forEach(region => {
-            region.createViewObjects(state);
-            region.viewObjects::values().forEach(obj => state.graphScene.add(obj));
+        (this.links||[]).filter(e=> ids.includes(e.id)).forEach(link => {
+            res.connections.push({
+                "id"     : link.id,
+                "source" : link.source.id,
+                "target" : link.target.id,
+                "points" : (link.points||[]).map(p => getCoords(p))
+            });
         });
 
-    }
-
-    updateViewObjects(state){
-        // Update nodes positions
-        this.visibleNodes.forEach(node => { node.updateViewObjects(state) });
-
-        //Edge bundling
-        const fBundling = ForceEdgeBundling()
-            .nodes(this.visibleNodes)
-            .edges(this.visibleLinks.filter(e => e.geometry === LINK_GEOMETRY.PATH).map(edge => {
-                return {
-                    source: this.nodes.indexOf(edge.source),
-                    target: this.nodes.indexOf(edge.target)
-                };
-            }));
-        let res = fBundling();
-        (res || []).forEach(path => {
-            let lnk = this.links.find(e => e.source.id === path[0].id && e.target.id === path[path.length -1 ].id);
-            if (lnk){
-                let dz = (path[path.length - 1].z - path[0].z) / path.length;
-                for (let i = 1; i < path.length - 1; i++){
-                    path[i].z = path[0].z + dz * i;
-                }
-                lnk.path = path.slice(1, path.length - 2).map(p => extractCoords(p));
-            }
-        });
-
-        this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
-
-        this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
+        return res;
     }
 }

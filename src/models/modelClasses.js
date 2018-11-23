@@ -4,6 +4,8 @@ import { BorderPart } from './borderPartModel';
 import { Lyph }   from './lyphModel';
 import { Region } from './regionModel';
 import { Link }   from './linkModel';
+import { Group }  from './groupModel';
+import { Tree }   from './treeModel';
 import { Graph }  from './graphModel';
 import { Entity } from './entityModel'
 
@@ -19,5 +21,7 @@ export const modelClasses = {
     "Lyph"    : Lyph,
     "Border"  : Border,
     "BorderPart"  : BorderPart,
+    "Group"   : Group,
+    "Tree"    : Tree,
     "Graph"   : Graph
 };

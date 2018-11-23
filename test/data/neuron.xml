@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flatmap>
+    <templates>
+        <template id="neuron-lyph">
+            <lyph id="${id}" region="${region}">
+                <layer id="${id}-cytosol" name="Cytosol"/>
+                <layer id="${id}-plasma-membrane" name="Plasma membrane"/>
+                <layer id="${id}-exc-fluid" name="Extracellular fluid"/>
+            </lyph>
+        </template>
+        <template id="neuron">
+            <group id="${id}" region="${region}">
+                <use template="neuron-lyph" id="${id}-d" region="putamen"/>  <!-- dendrite class ?? -->
+                <use template="neuron-lyph" id="${id}-h" region="putamen"/>
+                <use template="neuron-lyph" id="${id}-s1"/>  <!-- region is that of the group -->
+                <use template="neuron-lyph" id="${id}-s2" region="GPe"/>
+                <use template="neuron-lyph" id="${id}-s3"/>
+                <use template="neuron-lyph" id="${id}-s4" region="GPi"/>
+                <use template="neuron-lyph" id="${id}-t" region="GPi"/>  <!-- axon terminus class -->
+                <connection from="${id}-d" to="${id}-h"/>
+                <connection from="${id}-h" to="${id}-s1"/>
+                <connection from="${id}-s1" to="${id}-s2"/>
+                <connection from="${id}-s2" to="${id}-s3"/>
+                <connection from="${id}-s3" to="${id}-s4"/>
+                <connection from="${id}-s4" to="${id}-t"/>
+            </group>
+        </template>
+    </templates>
+    <!-- or <templates src="./templates.xml"/> -->
+
+    <region id="basal-ganglia">
+        <region id="putamen"/>
+        <region id="GPe"/>
+        <region id="GPi"/>
+    </region>
+    <network>
+        <use template="neuron" id="n5" region="basal-ganglia"/>
+        <coalescence from="n4-t-exc-fluid" to="n5-d-exc-fluid"/>  <!-- region inferred from from/to regions -->
+        <coalescence from="n5-t-exc-fluid" to="n9-d-exc-fluid"/>  <!-- region inferred from from/to regions -->
+    </network>
+</flatmap>

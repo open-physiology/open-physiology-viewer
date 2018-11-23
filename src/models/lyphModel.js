@@ -10,7 +10,11 @@ import {copyCoords} from './utils';
 export class Lyph extends Entity {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-        return super.fromJSON(json, modelClasses, entitiesByID, true);
+        json.border      = json.border || {};
+        json.border.id   = json.border.id || json.id + "_border";
+        let res = super.fromJSON(json, modelClasses, entitiesByID);
+        res.border.host  = res;
+        return res;
     }
 
     radialTypes(topology) {
@@ -134,9 +138,9 @@ export class Lyph extends Entity {
                 new THREE.Vector3(this.offset, -this.height / 2, 0),
                 new THREE.Vector3(this.offset,  this.height / 2, 0),
                 new THREE.Vector3(this.width + this.offset, this.height / 2, 0),
-                new THREE.Vector3(this.width + this.offset, -this.height / 2,0)
+                new THREE.Vector3(this.width + this.offset, -this.height / 2,0),
+                new THREE.Vector3(this.offset, -this.height / 2, 0)
             ];
-            this._points.push(this._points[0].clone());
 
             //Border uses corner points
             this.border.createViewObjects(state);

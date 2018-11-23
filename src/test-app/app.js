@@ -4,13 +4,12 @@ import { BrowserModule }    from '@angular/platform-browser';
 //Local
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
-import { DataService } from '../services/dataService';
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/resourceEditor';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses } from '../models/modelClasses';
 import { debug } from '../models/utils';
-
+import { Graph } from '../models/graphModel';
 //JSON Editor
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
@@ -92,7 +91,7 @@ debug(true, msgCount);
                 <i class="fa fa-save"></i>
             </button>
         </section>
-
+ 
         <!--Editor and canvas-->
         <section class="main-panel">
                 <section class="w3-row">
@@ -102,9 +101,9 @@ debug(true, msgCount);
                                 (selectedItemChange)    ="onSelectedItemChange($event)"
                                 (highlightedItemChange) ="onHighlightedItemChange($event)"></webGLScene>
                 </section>
-                <!--<resourceEditor [graphData]="graphData" [modelClasses]="modelClasses" ></resourceEditor>-->
+                <!--<resourceEditor [entity]="graphData" [modelClasses]="modelClasses" ></resourceEditor>-->
         </section>    
-        
+         
         <!-- Footer -->
     
         <footer class="w3-container w3-grey">
@@ -158,7 +157,6 @@ debug(true, msgCount);
 	`]
 })
 export class TestApp {
-    _dataService;
     _graphData;
     _showJSONEditor = false;
     _model = {};
@@ -168,8 +166,6 @@ export class TestApp {
     //@ViewChild('myModal') _myModal;
 
     constructor(){ //(modalService: NgxSmartModalService){
-        //this._modalService = modalService;
-        this._dataService = new DataService();
         this.update(initModel);
     }
     ngAfterViewInit(){
@@ -259,10 +255,10 @@ export class TestApp {
     }
 
     exportConfirm(){
-        this._myModal.close();
-        let result = JSON.stringify(this._dataService.export(this.bondGraphGroup), null, 2);
-        const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
-        FileSaver.saveAs(blob, 'apinatomy-layout.json');
+        // this._myModal.close();
+        // let result = JSON.stringify(this._dataService.export(this.bondGraphGroup), null, 2);
+        // const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+        // FileSaver.saveAs(blob, 'apinatomy-layout.json');
     }
 
     onSelectedItemChange(item){}
@@ -271,14 +267,13 @@ export class TestApp {
 
 	update(model){
         this._model = model;
-        this._dataService.init(this._model);
-        this._graphData = this._dataService.graphData;
+        this._graphData = Graph.fromJSON(this._model, modelClasses);
+        console.info("ApiNATOMY graph: ", this._graphData);
     }
 
     get graphData(){
 	    return this._graphData;
     }
-
 }
 
 /**
