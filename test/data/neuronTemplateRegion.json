@@ -67,14 +67,6 @@
       "source": "n007",
       "target": "n008",
       "conveyingLyph": "n5-t"
-    },
-    {
-      "id": "main",
-      "geometry": "invisible",
-      "source": "s",
-      "target": "t",
-      "conveyingLyph": "n5",
-      "length": 100
     }
   ],
   "lyphs": [

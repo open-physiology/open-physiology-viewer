@@ -192,13 +192,13 @@ export class TestApp {
 	load(files) {
         const reader = new FileReader();
 		reader.onload = () => {
-            try {
+            // try {
                 this._model = JSON.parse(reader.result);
                 this.update(this._model);
                 this._editor.set(this._model);
-            } catch(err){
-                throw new Error("Cannot load the model: " +  err);
-            }
+            // } catch(err){
+            //     throw new Error("Cannot load the model: " +  err);
+            // }
         };
 
         if (files && files[0]){

@@ -11,7 +11,8 @@ import {
     isString,
     keys,
     isEmpty,
-    assign
+    assign,
+    defaults
 } from 'lodash-bound';
 import {SpriteText2D} from "three-text2d";
 import {copyCoords} from "./utils";
@@ -73,7 +74,7 @@ const assignPathProperties = (res, modelClasses, entitiesByID) => {
  */
 const interpolatePathProperties = (res) => {
     (res.interpolate||[]).forEach(({path, offset, color}) => {
-        let resources = path? JSONPath({json: this, path: path}): res.nodes || [];
+        let resources = path? JSONPath({json: this, path: path}) || [] : [];
         if (offset){
             offset::defaults({
                 "start": 0,
@@ -120,6 +121,7 @@ let trace = false;
  */
 const replaceIDs = (res, modelClasses, entitiesByID) => {
 
+    const skip = (value) => !value || value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
     const replaceRefs = (res2, [key, spec]) => {
 
         const createObj = (value, spec) => {
@@ -133,8 +135,8 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
                 return objValue;
             }
 
-            if (!definitions[clsName] || definitions[clsName].abstract){ return objValue; }
-            if (value::isString()) {
+
+            if (value && value::isString()) {
                 if (!entitiesByID[value]) {
                     entitiesByID[value] = {"id": value};
                     console.info(`Auto-created new ${clsName} for ID: `, value);
@@ -142,6 +144,7 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
                 objValue = entitiesByID[value];
             }
 
+            if (!definitions[clsName] || definitions[clsName].abstract){ return objValue; }
             if (modelClasses[clsName]) {
                 if (!(objValue instanceof modelClasses[clsName])) {
                     if (!(entitiesByID[objValue.id] instanceof modelClasses[clsName])) {
@@ -152,8 +155,7 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
                     }
                 } else {
                     //If the object does not need to be instantiated, we leave it unchanged but replace its inner references
-                    let refFields = modelClasses[clsName].Model.relationships;
-                    //TODO TEST
+                    let refFields = modelClasses[clsName].Model.cudRelationships;
                     (refFields || []).forEach(f => replaceRefs(objValue, f));
                 }
             } else {
@@ -161,8 +163,6 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
             }
             return objValue;
         };
-
-        const skip = (value) => !value || value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
         if (skip(res2[key])) {
             return;
@@ -181,10 +181,13 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
                 res2[key] = [res2[key]];
             }
         }
+
+        return res2;
     };
 
     //Replace IDs with model object references
-    let refFields = modelClasses[res.class].Model.relationships;
+    let refFields = modelClasses[res.class].Model.cudRelationships;
+
     refFields.forEach(f => replaceRefs(res, f));
 
     assignPathProperties(res, modelClasses, entitiesByID);
@@ -229,11 +232,11 @@ const syncRelationships = (res, [key, spec]) => {
                     console.error(`Object's property '${key2}' should contain an array:`, obj);
                     return;
                 }
-                if (!obj[key2].find(obj2 => obj2 === obj || (obj2.id && obj.id && obj2.id === obj.id))){ obj[key2].push(res); }
+                if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
             } else {
                 if (!obj[key2]) { obj[key2] = res; }
                 else {
-                    if (obj[key2] !== res && obj[key2].id !== res.id){
+                    if (obj[key2] !== res && obj[key2] !== res.id){
                         console.warn(`First object should match second object:`,
                             obj.class, key2, obj[key2], res);
                     }
@@ -242,7 +245,9 @@ const syncRelationships = (res, [key, spec]) => {
         };
 
         if (res[key]::isArray()){
-            res[key].forEach(obj => syncProperty(obj))
+            res[key].forEach(obj => {
+                syncProperty(obj);
+            })
         } else {
             syncProperty(res[key]);
         }
@@ -278,11 +283,12 @@ export class Resource{
                 if (modelClasses[res.class].Model.extendsClass("Entity")){
                     console.warn("An entity without ID has been found: ", this.name, res);
                 }
-            } else {
-                if (res.id::isNumber()){ res.id = res.id.toString(); }
-                //if (!entitiesByID[res.id]){ console.info("Added new entity to the global map: ", res.id); }
-                entitiesByID[res.id] = res; //Update the entity map
+                res.id = "new_" + entitiesByID::keys().length;
             }
+            if (res.id::isNumber()){ res.id = res.id.toString(); }
+            //if (!entitiesByID[res.id]){ console.info("Added new entity to the global map: ", res.id); }
+            entitiesByID[res.id] = res; //Update the entity map
+
             replaceIDs(res, modelClasses, entitiesByID);
         }
         return res;
@@ -379,6 +385,8 @@ export class Resource{
         model.fieldNames        = model.fields.map(([key, ]) => key);
         model.propertyNames     = model.properties.map(([key, ]) => key);
         model.relationshipNames = model.relationships.map(([key, ]) => key);
+
+        model.isRelationship   = (key) => model.relationshipNames.includes(key);
 
         //Create, Update, Delete (CUD) fields
         model.cudFields         = model.fields       .filter(([key, spec]) => !spec.readOnly);

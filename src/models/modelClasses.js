@@ -8,11 +8,14 @@ import { Group }  from './groupModel';
 import { Tree }   from './treeModel';
 import { Graph }  from './graphModel';
 import { Entity } from './entityModel'
+import { Shape } from './shapeModel'
 
 export class Material extends Entity {}
 export class External extends Entity {}
 
 export const modelClasses = {
+    "Entity"  : Entity,
+    "Shape"   : Shape,
     "External": External,
     "Node"    : Node,
     "Link"    : Link,

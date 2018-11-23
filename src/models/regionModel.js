@@ -1,19 +1,16 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
-import {Entity} from './entityModel';
+import {Shape} from './shapeModel';
 import { clone } from 'lodash-bound';
 import {createMeshWithBorder, getCenterOfMass} from '../three/utils';
 
 /**
  * Class that creates visualization objects of regions
  */
-export class Region extends Entity {
+export class Region extends Shape {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-        json.border      = json.border || {};
-        json.border.id   = json.border.id || json.id + "_border";
         let res = super.fromJSON(json, modelClasses, entitiesByID);
-        res.border.host = res;
         res.points.push(res.points[0]::clone()); //make closed shape
         res.points = res.points.map(p => new THREE.Vector3(p.x, p.y, 0));
         return res;

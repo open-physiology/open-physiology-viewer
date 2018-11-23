@@ -144,7 +144,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  An alternative way to get the same result, is to include the node's ID to the `hostedNodes` property of the link.
 
- To place a node on a lyph, assign the lyph's ID to the node's `internalInLyph` property. This will force the node to attract to the lyph's center. An alternative way to get the same result is to include the node's ID to the `internalNodes` property of the lyph.
+ To place a node on a lyph, assign the lyph's ID to the node's `internalIn` property. This will force the node to attract to the lyph's center. An alternative way to get the same result is to include the node's ID to the `internalNodes` property of the lyph.
  
  To place a node to the center of coordinates of a set of other nodes, list their ID's in the `controlNodes` array.
  
@@ -250,7 +250,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  The center of the axial border of the lyph (see [Lyph border](#lyph-border)) always coincides with the center of its axis. The lyph's dimensions depend on its axis and can be controlled via the `scale` parameter. In this example, the lyph's length and height are half the length of the link's length (50%). If you do not want a lyph size to depend on the length of its axis, assign explicit values to the properties `width` and `height`.
  Lyph's properties `thickness` and `length` refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs. 
    
- The lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph's layers are specified in the property `layers` which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field `layerInLyph`. Similarly to other bi-directional relationships, it is sufficient to specify only one part of it in the model, the related property is inferred automatically.
+ The lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph's layers are specified in the property `layers` which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field `layerIn`. Similarly to other bi-directional relationships, it is sufficient to specify only one part of it in the model, the related property is inferred automatically.
  By default, all layers get the equal area within the main lyph. Since all layers have the same height as the hosting lyph, the area they occupy depend on the width designated to each layer. The percentage of the width of the main lyph's width a layer occupies can be controlled via the `layerWidth` parameter. For instance, the code below, set the outer layers of all lyphs in the neural system group (see the example in the [Entity](#entity) section) to occupy 75% of their total width.
  ```json
   {

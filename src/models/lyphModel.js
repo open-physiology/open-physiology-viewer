@@ -1,21 +1,13 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
-import {Entity} from './entityModel';
+import {Shape} from './shapeModel';
 import { align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
 import {copyCoords} from './utils';
 
 /**
  * Class that creates visualization objects of lyphs
  */
-export class Lyph extends Entity {
-
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
-        json.border      = json.border || {};
-        json.border.id   = json.border.id || json.id + "_border";
-        let res = super.fromJSON(json, modelClasses, entitiesByID);
-        res.border.host  = res;
-        return res;
-    }
+export class Lyph extends Shape {
 
     radialTypes(topology) {
         switch (topology) {
@@ -30,14 +22,14 @@ export class Lyph extends Entity {
     }
 
     get isVisible() {
-        return super.isVisible && (this.layerInLyph ? this.layerInLyph.isVisible : true);
+        return super.isVisible && (this.layerIn ? this.layerIn.isVisible : true);
     }
 
     //lyph's center = the center of its rotational axis
     get center() {
         let res = new THREE.Vector3();
         //Note: Do not use lyph borders to compute center as border translation relies on this method
-        if (this.layerInLyph && this.viewObjects["main"]) {
+        if (this.layerIn && this.viewObjects["main"]) {
             //Note: it is difficult to compute center of a layer geometrically as we have to translate the host axis
             //in the direction orthogonal to the hosting lyph axis along the plane in which the lyph is placed
             //and it can be placed in any plane passing through the axis!
@@ -52,8 +44,8 @@ export class Lyph extends Entity {
         if (this.conveyedBy) {
             return this.conveyedBy;
         }
-        if (this.layerInLyph) {
-            return this.layerInLyph.axis;
+        if (this.layerIn) {
+            return this.layerIn.axis;
         }
     }
 
@@ -61,7 +53,7 @@ export class Lyph extends Entity {
         let res = 0;
         //Lyphs positioned on top of the given lyph should be rendered first
         //This prevents blinking of polygons with equal z coordinates
-        ["layerInLyph", "internalInLyph", "internalInRegion", "hostedByLyph"].forEach((prop, i) => {
+        ["layerIn", "internalIn", "hostedBy"].forEach((prop, i) => {
             if (this[prop]) {
                 res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
             }
@@ -88,7 +80,7 @@ export class Lyph extends Entity {
      * @returns {THREE.Vector3} - transformed point (coordinates)
      */
     translate(p0) {
-        let transformedLyph = this.layerInLyph ? this.layerInLyph : this;
+        let transformedLyph = this.layerIn ? this.layerIn : this;
         if (!p0 || !transformedLyph.viewObjects["main"]) { return p0; }
         let p = p0.clone();
         p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
@@ -179,7 +171,7 @@ export class Lyph extends Entity {
         }
 
         //Do not create labels for layers and nested lyphs
-        if (this.layerInLyph || this.internalInLyph) { return; }
+        if (this.layerIn || this.internalIn) { return; }
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
 
     }
@@ -193,8 +185,8 @@ export class Lyph extends Entity {
 
         if (!this.viewObjects["main"]) { this.createViewObjects(state); }
 
-        if (!this.layerInLyph) {//update label
-            if (!this.internalInLyph) {
+        if (!this.layerIn) {//update label
+            if (!this.internalIn) {
                 if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
                     this.createViewObjects(state);
                 }
@@ -212,7 +204,7 @@ export class Lyph extends Entity {
         this.border.updateViewObjects(state);
 
         //Layers and inner lyphs have no labels
-        if (this.layerInLyph || this.internalInLyph) { return; }
+        if (this.layerIn || this.internalIn) { return; }
 
         this.updateLabels(state.labels[this.constructor.name],
             state.showLabels[this.constructor.name], this.center.clone().addScalar(-5));

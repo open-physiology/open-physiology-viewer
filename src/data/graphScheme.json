@@ -319,26 +319,14 @@
           ],
           "relatedTo": "hostedNodes"
         },
-        "internalInLyph": {
-          "description": "A lyph on which this node is positioned (other side of 'internalNodes').",
+        "internalIn": {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
           "anyOf": [
             {
               "type": "string"
             },
             {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "internalNodes"
-        },
-        "internalInRegion": {
-          "description": "A region on which this node is positioned (other side of 'internalNodes').",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Region"
+              "$ref": "#/definitions/Shape"
             }
           ],
           "relatedTo": "internalNodes"
@@ -591,51 +579,33 @@
         "linewidth": ["stroke"]
       }
     },
-    "Region": {
-      "description": "Area occupied by bordy part of subsystem",
+    "Shape": {
+      "description": "An entity that occupies space within a border",
       "$extends": {
         "$ref": "#/definitions/Entity"
-         
       },
       "properties": {
         "color": {
-          "description": "Region color",
+          "description": "Color",
           "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
         },
-        "points": {
-          "description": "Points defining the region border shape",
-          "type"  : "array",
-          "items" : {
-            "$ref" : "#/definitions/Point2Scheme"
-          },
-          "default": [
-            {"x": -10, "y": -10},
-            {"x": -10, "y":  10},
-            {"x":  10, "y":  10},
-            {"x":  10, "y": -10}
-          ]
-        },
         "border": {
-          "description": "Properties that apply to the region's border",
-          "$ref"       : "#/definitions/Border",
-          "relatedTo"  : "host",
-          "default"    : {}
+          "description": "Properties that apply to the shape's border",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Border"
+            }
+          ],
+          "relatedTo": "host",
+          "default"  : {}
         },
-        "internalNodes": {
-          "description": "Nodes that should be positioned on the given region",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "relatedTo": "internalInRegion",
-          "uniqueItems": true
+        "internalLyphColumns": {
+          "description": "Defines number of columns in the grid layout for the internal lyphs",
+          "type": "number",
+          "default": 1
         },
         "internalLyphs": {
           "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
@@ -650,14 +620,39 @@
               }
             ]
           },
-          "relatedTo": "internalInRegion"
+          "relatedTo": "internalIn"
         },
-        "internalLyphColumns": {
-          "description": "Defines number of columns in the grid layout for the internal lyphs",
-          "type": "number",
-          "default": 1
-        },         "hostedLyphs": {
-          "description": "Lyphs that should be projected to the given region",
+        "internalNodes": {
+          "description": "Nodes that should be positioned on the given region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          },
+          "relatedTo": "internalIn",
+          "uniqueItems": true
+        },
+        "points": {
+          "description": "Points defining the region border shape",
+          "type"  : "array",
+          "items" : {
+            "$ref" : "#/definitions/Point2Scheme"
+          },
+          "default": [
+            {"x": -10, "y": -10},
+            {"x": -10, "y":  10},
+            {"x":  10, "y":  10},
+            {"x":  10, "y": -10}
+          ]
+        },
+        "hostedLyphs": {
+          "description": "Lyphs that should be projected to the given shape",
           "type": "array",
           "items": {
             "anyOf": [
@@ -669,21 +664,25 @@
               }
             ]
           },
-          "relatedTo": "hostedByRegion"
+          "relatedTo": "hostedBy"
         }
+      },
+      "abstract": true
+    },
+    "Region": {
+      "description": "Area occupied by bordy part of subsystem",
+      "$extends": {
+        "$ref": "#/definitions/Shape"
+      },
+      "properties": {
       }
     },
     "Lyph": {
       "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
       "$extends": {
-        "$ref": "#/definitions/Entity"
-         
+        "$ref": "#/definitions/Shape"
       },
       "properties": {
-        "color": {
-          "description": "Lyph color",
-          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
-        },
         "topology": {
           "description": "Lyph topology defines its border shape",
           "type": "string",
@@ -720,10 +719,10 @@
               }
             ]
           },
-          "relatedTo": "layerInLyph",
+          "relatedTo": "layerIn",
           "uniqueItems": true
         },
-        "layerInLyph": {
+        "layerIn": {
           "description": "A lyph in which the current lyph is hosted as layer",
           "anyOf": [
             {
@@ -734,19 +733,6 @@
             }
           ],
           "relatedTo": "layers"
-        },
-        "border": {
-          "description": "Properties that apply to the lyph's border",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Border"
-            }
-          ],
-          "relatedTo": "host",
-          "default"  : {}
         },
         "infoFields": {
           "default": {
@@ -810,101 +796,26 @@
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
           "type": "number"
         },
-        "internalNodes": {
-          "description": "Nodes that should be positioned on the given lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "relatedTo": "internalInLyph",
-          "uniqueItems": true
-        },
-        "internalLyphs": {
-          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "internalInLyph"
-        },
-        "internalLyphColumns": {
-          "description": "Defines number of columns in the grid layout for the internal lyphs",
-          "type": "number",
-          "default": 1
-        },
-        "internalInLyph": {
-          "description": "ID or reference of the lyph on which this lyph must be permanently positioned",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "internalLyphs"
-        },
-        "internalInRegion": {
-          "description": "ID or reference of the region on which this lyph must be permanently positioned",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "internalLyphs"
-        },
-        "hostedLyphs": {
-          "description": "Lyphs that should be projected to the given lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "hostedByLyph"
-        },
-        "hostedByLyph": {
+        "internalIn": {
           "description": "ID or reference of the lyph which this lyph must be projected to",
           "anyOf": [
             {
               "type": "string"
             },
             {
-              "$ref": "#/definitions/Lyph"
+              "$ref": "#/definitions/Shape"
             }
           ],
-          "relatedTo": "hostedLyphs"
+          "relatedTo": "internalLyphs"
         },
-        "hostedByRegion": {
-          "description": "ID or reference of the region which this lyph must be projected to",
+        "hostedBy": {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
           "anyOf": [
             {
               "type": "string"
             },
             {
-              "$ref": "#/definitions/Lyph"
+              "$ref": "#/definitions/Shape"
             }
           ],
           "relatedTo": "hostedLyphs"
@@ -968,14 +879,6 @@
             ]
           },
           "relatedTo": "coalescesWith"
-        },
-        "points": {
-          "description": "Points defining the lyph border shape",
-          "type"  : "array",
-          "items" : {
-            "$ref" : "#/definitions/Point2Scheme"
-          },
-          "readOnly": true
         }
       }
     },
@@ -1000,10 +903,7 @@
               "type": "string"
             },
             {
-              "$ref": "#/definitions/Lyph"
-            },
-            {
-              "$ref": "#/definitions/Region"
+              "$ref": "#/definitions/Shape"
             }
           ],
           "relatedTo": "border",

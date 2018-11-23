@@ -136,8 +136,8 @@ export class Group extends Entity {
         };
 
         //Add auto-create axes for internal lyphs to the relevant groups
-        (res.lyphs||[]).filter(lyph => lyph.internalInLyph || lyph.internalInRegion).forEach(lyph => {
-            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalInLyph || lyph.internalInRegion); }
+        (res.lyphs||[]).filter(lyph => lyph.internalIn).forEach(lyph => {
+            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalIn); }
             if (!res.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
         });
 
