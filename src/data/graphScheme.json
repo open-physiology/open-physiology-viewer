@@ -126,6 +126,29 @@
       "type"      : "object",
       "abstract"  : "true",
       "properties": {
+        "id": {
+          "description": "Unique entity identifier",
+          "type": "string"
+        },
+        "name": {
+          "description": "Entity name",
+          "type": "string"
+        },
+        "external": {
+          "description": "Identifier of the entity in an external ontology such as FMA",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/External"
+              }
+            ]
+          },
+          "relatedTo": "externalTo"
+        },
         "class": {
           "description": "Resource class",
           "type"       : "string",
@@ -214,7 +237,17 @@
             "objects": [],
             "lists": []
           }
-        },
+        }
+      }
+    },
+    "Entity": {
+      "description": "An abstract entity that defines common properties for all types of entities in the ApiNATOMY model.",
+      "type": "object",
+      "abstract": "true",
+      "$extends": {
+        "$ref": "#/definitions/Resource"
+      },
+      "properties": {
         "viewObjects": {
           "description": "Graphical objects that represent the entity",
           "type": "object",
@@ -234,39 +267,6 @@
         "skipLabel": {
           "description": "A flag to indicate that this entity is visualized without the corresponding text label",
           "type": "boolean"
-        }
-      }
-    },
-    "Entity": {
-      "description": "An abstract entity that defines common properties for all types of entities in the ApiNATOMY model.",
-      "type": "object",
-      "abstract": "true",
-      "$extends": {
-        "$ref": "#/definitions/Resource"
-      },
-      "properties": {
-        "id": {
-          "description": "Unique entity identifier",
-          "type": "string"
-        },
-        "name": {
-          "description": "Entity name",
-          "type": "string"
-        },
-        "external": {
-          "description": "Identifier of the entity in an external ontology such as FMA",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/External"
-              }
-            ]
-          },
-          "relatedTo": "externalTo"
         }
       },
       "additionalProperties": false
@@ -300,7 +300,6 @@
       "type": "object",
       "$extends": {
         "$ref": "#/definitions/Entity"
-         
       },
       "properties": {
         "color": {
@@ -439,7 +438,6 @@
       "description": "Graph link schematically representing a (part of) physiological process. ",
       "$extends": {
         "$ref": "#/definitions/Entity"
-         
       },
       "properties": {
         "source": {
@@ -954,13 +952,13 @@
     "Material": {
       "description": "Biological materials, chemical elements and compounds",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/Resource"
       }
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which depicture the structural composition of human body organs and/or subsystems, with related measurements and annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/Resource"
       },
       "properties": {
         "nodes": {
@@ -1097,7 +1095,7 @@
     },
     "Tree":{
       "$extends": {
-        "$ref": "#/definitions/Group"
+        "$ref": "#/definitions/Resource"
       },
       "properties": {
         "root": {
@@ -1130,7 +1128,7 @@
             ]
           }
         },
-        "conveyingLyph": {
+        "lyphTemplate": {
           "description": "Lyph template to generate lyphs conveyed by the omega-tree branches.",
           "anyOf": [
             {

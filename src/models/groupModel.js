@@ -1,5 +1,4 @@
-import { getClassName } from './resourceModel';
-import { Entity } from './entityModel';
+import { Resource } from './resourceModel';
 import {values, isObject, unionBy, merge, keys, cloneDeep} from 'lodash-bound';
 import {Link, LINK_GEOMETRY, LINK_STROKE} from './linkModel';
 import {Node} from './nodeModel';
@@ -11,7 +10,7 @@ const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
     .forEach((e, i) => { e.color = defaultColor || colors[i % colors.length] });
 
-export class Group extends Entity {
+export class Group extends Resource {
 
     /**
      * Create a graph model from the JSON specification
@@ -86,10 +85,7 @@ export class Group extends Entity {
                 console.warn("The model contains self-references or cyclic group dependencies: ", res.id, group.id);
                 return;
             }
-            let relFields = this.Model.relationships;
-            let relFieldNames = (relFields||[])
-                .filter(([key, spec]) => getClassName(spec) !== res.class)
-                .map(e => e[0]);
+            let relFieldNames = this.Model.filteredRelNames([res.class]);
             relFieldNames.forEach(property => { res[property] = (res[property]||[])::unionBy(group[property], "id"); });
         });
 
@@ -161,13 +157,12 @@ export class Group extends Entity {
     }
 
     get entities(){
-        //this.constructor.Model.relationshipNames
-        return [
-            ...(this.nodes||[]),
-            ...(this.links||[]),
-            ...(this.lyphs||[]),
-            ...(this.regions||[])
-        ];
+        let res = [];
+        let relFieldNames = this.constructor.Model.filteredRelNames([this.constructor.name]); //Exclude groups
+        relFieldNames.forEach(property => {
+            if (this[property]) { res = [...res, ...this[property]]}
+        });
+        return res;
     }
 
     belongsTo(entity){

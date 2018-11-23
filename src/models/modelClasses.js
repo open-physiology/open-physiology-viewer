@@ -14,8 +14,8 @@ export class Material extends Entity {}
 export class External extends Entity {}
 
 export const modelClasses = {
-    "Entity"  : Entity,
-    "Shape"   : Shape,
+    //"Entity"  : Entity,
+    //"Shape"   : Shape,
     "External": External,
     "Node"    : Node,
     "Link"    : Link,

@@ -48,17 +48,17 @@ const getRefs = (spec) => {
  * @param modelClasses - a map of entity class names and their implementations
  * @param entitiesByID - a map of all entities in the model
  */
-const assignPathProperties = (res, modelClasses, entitiesByID) => {
+const assignPathProperties = (parent, modelClasses, entitiesByID) => {
     //Do not process template assignment, this has been done at preprocessing stage
-    if (res.isTemplate) { return; }
+    if (parent.isTemplate) { return; }
 
-    if (res.assign) {
-        if (!res.assign::isArray()){
-            console.warn("Cannot assign path properties: ", res.assign);
+    if (parent.assign) {
+        if (!parent.assign::isArray()){
+            console.warn("Cannot assign path properties: ", parent.assign);
             return;
         }
-        res.assign.forEach(({path, value}) => {
-            assignPropertiesToJSONPath({path, value}, res, (e) => {
+        parent.assign.forEach(({path, value}) => {
+            assignPropertiesToJSONPath({path, value}, parent, (e) => {
                 //Replace assigned references
                 if (value::keys().find(key => modelClasses[e.class].Model.relationshipNames.includes(key))){
                     replaceIDs(e, modelClasses, entitiesByID);
@@ -72,9 +72,9 @@ const assignPathProperties = (res, modelClasses, entitiesByID) => {
  * Assigns properties that can be set using interpolation functions allowed by the schema
  * @param parent
  */
-const interpolatePathProperties = (res) => {
-    (res.interpolate||[]).forEach(({path, offset, color}) => {
-        let resources = path? JSONPath({json: this, path: path}) || [] : [];
+const interpolatePathProperties = (parent) => {
+    (parent.interpolate||[]).forEach(({path, offset, color}) => {
+        let resources = path? JSONPath({json: parent, path: path}) || []: parent.nodes || [];
         if (offset){
             offset::defaults({
                 "start": 0,
@@ -110,9 +110,7 @@ const interpolatePathProperties = (res) => {
             assignColor(resources);
         }
     })
-}
-
-let trace = false;
+};
 
 /**
  * Replace IDs with object references
@@ -139,7 +137,7 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
             if (value && value::isString()) {
                 if (!entitiesByID[value]) {
                     entitiesByID[value] = {"id": value};
-                    console.info(`Auto-created new ${clsName} for ID: `, value);
+                    //console.info(`Auto-created new ${clsName} for ID: `, value);
                 }
                 objValue = entitiesByID[value];
             }
@@ -194,9 +192,6 @@ const replaceIDs = (res, modelClasses, entitiesByID) => {
 
     //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.hostedByLink
     refFields.forEach(f => syncRelationships(res, f));
-
-    interpolatePathProperties(res);
-
 };
 
 /**
@@ -264,11 +259,7 @@ export class Resource{
         const cls = this || modelClasses[clsName];
         const res = new cls(json.id);
         res.class = clsName;
-        if (!res.JSON) {//Store original JSON model definition, only once
-            res.JSON = json;
-        } else {
-            console.warn("Duplicate attempt to create entity:", json);
-        }
+        res.JSON = json;
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
@@ -291,6 +282,8 @@ export class Resource{
 
             replaceIDs(res, modelClasses, entitiesByID);
         }
+        interpolatePathProperties(res);
+
         return res;
     }
 
@@ -361,11 +354,12 @@ export class Resource{
 
         let model = {};
         if (!definitions[this.name]) {
-            console.error("Could not find schema definition for class: ", this.name);
+            console.error("Failed to find schema definition for class: ", this.name);
             return model;
         }
         model.schema            = definitions[this.name];
-        model.extendsClass      = (clsName) => extendsClass(getRefs(model.schema.$extends), clsName);
+        model.extendsClass      = (clsName) => (clsName === this.name)
+            || extendsClass(getRefs(model.schema.$extends), clsName);
         model.defaultValues     = (() => { //object
             let res = {};
             recurseSchema(this.name, (currName) => res::merge(...getFieldDefaultValues(currName)));
@@ -392,64 +386,16 @@ export class Resource{
         model.cudFields         = model.fields       .filter(([key, spec]) => !spec.readOnly);
         model.cudProperties     = model.properties   .filter(([key, spec]) => !spec.readOnly);
         model.cudRelationships  = model.relationships.filter(([key, spec]) => !spec.readOnly);
+
+        model.filteredRelNames  = (clsNames) => {
+            let relFields = model.relationships;
+            return (relFields||[])
+                .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
+                .map(([key, ]) => key);
+        };
+
         return model;
     }
 
-    get isVisible(){
-        return !this.hidden;
-    }
-
-    get polygonOffsetFactor() {
-        return 0;
-    }
-
-    toggleBorder(){
-        if (!this.viewObjects || !this.viewObjects['main']) { return; }
-        if (this.viewObjects['border']){
-            if (this.viewObjects['main'].children.find(this.viewObjects['border'])){
-                this.viewObjects['main'].children.remove(this.viewObjects['border']);
-            } else {
-                this.viewObjects['main'].add(this.viewObjects['border']);
-            }
-        }
-    }
-
-    /**
-     * Create visible labels
-     * @param labelKey - object property to use as label
-     * @param fontParams - font settings
-     */
-    createLabels(labelKey, fontParams){
-        if (this.skipLabel) { return; }
-        this.labels = this.labels || {};
-
-        if (!this.labels[labelKey] && this[labelKey]) {
-            this.labels[labelKey] = new SpriteText2D(this[labelKey], fontParams);
-        }
-
-        if (this.labels[labelKey]){
-            this.viewObjects["label"] = this.labels[labelKey];
-            this.viewObjects["label"].visible = this.isVisible;
-        } else {
-            delete this.viewObjects["label"];
-        }
-    }
-
-    /**
-     * Updates visual labels
-     * @param labelKey  - object property to use as label
-     * @param isVisible - a boolean flag to toggle the label
-     * @param position  - label's position wrt the visual object
-     */
-    updateLabels(labelKey, isVisible, position){
-        if (this.skipLabel) { return; }
-        if (this.labels[labelKey]){
-            this.viewObjects['label'] = this.labels[labelKey];
-            this.viewObjects["label"].visible = isVisible;
-            copyCoords(this.viewObjects["label"].position, position);
-        } else {
-            delete this.viewObjects['label'];
-        }
-    }
 }
 

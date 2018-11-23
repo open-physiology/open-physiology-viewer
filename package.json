@@ -34,7 +34,7 @@
     "babel-plugin-transform-function-bind": "^6.22.0",
     "babel-plugin-transform-strict-mode": "^6.24.1",
     "babel-polyfill": "^6.26.0",
-    "bootprint": "^2.0.1",
+    "bootprint": "^1.0.2",
     "bootprint-json-schema": "^1.1.0",
     "chai": "3",
     "chai-as-promised": "5",

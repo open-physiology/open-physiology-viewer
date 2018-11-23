@@ -50,8 +50,7 @@ export class Graph extends Group{
                         let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
                         lyphLayer.name = `${layerParentName} in ${subtypeName}`;
 
-                        //TODO get all properties from schema which are not relationships?
-                        lyphLayer::merge(layerParent::pick(["color", "layerWidth"]));
+                        lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
                         lyphs.push(lyphLayer);
                         subtype.layers.push(lyphLayer);
                     });

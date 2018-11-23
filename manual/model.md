@@ -346,8 +346,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
    The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`. 
      
-   Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.      
+ Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.
 
+ ## Region
+    Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs",
+    one can indicate that this process is happening in the lungs.
+    Region internal content is similar to the content of a lyph.
+    The only difference is that regions are mainly static and their positions should be explicitly given in 2D coordinates.
  
  ### Border
  
