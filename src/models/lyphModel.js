@@ -1,13 +1,95 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {Shape} from './shapeModel';
-import { align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
-import {copyCoords} from './utils';
+import {align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
+import {assignPropertiesToJSONPath, copyCoords} from './utils';
+import {isArray, merge, pick} from "lodash-bound";
 
 /**
  * Class that creates visualization objects of lyphs
  */
 export class Lyph extends Shape {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
+        let res = super.fromJSON(json, modelClasses, entitiesByID);
+        // if (res.isTemplate){
+        //     this.expandTemplate(res, modelClasses, entitiesByID);
+        // }
+        return res;
+    }
+
+    /**
+     * Generate new layers for subtypes and replicate template properties
+     * @param lyphs - lyph set that contains target subtypes
+     * @param template - lyph template
+     */
+    //TODO rewrite to work on entity graph
+    static expandTemplate(lyphs, template){
+        let subtypes = (template.subtypes||[]).map(subtypeRef =>
+            lyphs.find(e => e.id === subtypeRef) || { "id": subtypeRef, "new" : true });
+
+        subtypes.forEach(subtype => {
+            if (subtype.new) { //add auto-create subtype lyphs to the graph lyphs
+                delete subtype.new;
+                lyphs.push(subtype);
+            }
+            subtype.layers = [];
+            (template.layers|| []).forEach(layerRef => {
+                let layerParent = lyphs.find(e => e.id === layerRef);
+                if (!layerParent) {
+                    console.warn("Generation error: template layer object not found: ", layerRef);
+                    return;
+                }
+                let newID = `${layerParent.id}_${subtype.id}`;
+                let lyphLayer = {
+                    "id"        : newID,
+                    "supertype" : layerParent.id
+                };
+                let layerParentName = layerParent.name? layerParent.name: `Layer ${layerParent.id}`;
+                let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
+                lyphLayer.name = `${layerParentName} in ${subtypeName}`;
+
+                lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
+                lyphs.push(lyphLayer);
+                subtype.layers.push(lyphLayer);
+            });
+        });
+
+        //Copy defined properties to newly generated lyphs
+        if (template.assign){
+            if (!template.assign::isArray()){
+                console.warn("Cannot assign template properties: ", template.assign);
+                return;
+            }
+            template.assign.forEach(({path, value}) =>
+                assignPropertiesToJSONPath({path, value}, subtypes)
+            );
+        }
+    }
+
+    // static expandTemplate(template, modelClasses, entitiesByID){
+    //     (template.subtypes||[]).forEach(subtype => {
+    //         subtype::merge(template::pick(["assign", "interpolate"]));
+    //         if (subtype){
+    //
+    //         }
+    //         subtype.layers = [];
+    //         (template.layers|| []).forEach(templateLayer => {
+    //             let subtypeLayer = {
+    //                 "id"        : `${templateLayer.id}_${subtype.id}`,
+    //                 "supertype" : templateLayer.id
+    //             };
+    //             let layerParentName = templateLayer.name? templateLayer.name: `Layer ${templateLayer.id}`;
+    //             let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
+    //
+    //             subtypeLayer.name = `${layerParentName} in ${subtypeName}`;
+    //             subtypeLayer::merge(templateLayer::pick(["color", "layerWidth", "topology"]));
+    //             subtype.layers.push(subtypeLayer);
+    //
+    //             this.fromJSON(subtypeLayer, modelClasses, entitiesByID);
+    //         });
+    //     });
+    // }
 
     radialTypes(topology) {
         switch (topology) {

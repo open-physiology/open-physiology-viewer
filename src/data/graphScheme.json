@@ -82,7 +82,8 @@
         },
         "length": {
           "description": "Optional parameter to define number of colors from the color scheme",
-          "type": "number"
+          "type": "number",
+          "minimum" : 1
         },
         "reversed": {
           "description": "Boolean parameter that indicates whether to pick up colors from the color scheme in reverse order",
@@ -473,7 +474,7 @@
           "type": "number",
           "minimum": 0,
           "maximum": 100,
-          "default": 1
+          "default": 5
         },
         "collapsible": {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
@@ -1095,7 +1096,7 @@
     },
     "Tree":{
       "$extends": {
-        "$ref": "#/definitions/Resource"
+        "$ref": "#/definitions/Group"
       },
       "properties": {
         "root": {

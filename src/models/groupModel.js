@@ -1,10 +1,11 @@
 import { Resource } from './resourceModel';
-import {values, isObject, unionBy, merge, keys, cloneDeep} from 'lodash-bound';
+import {values, isObject, unionBy, merge, keys, cloneDeep, isNumber} from 'lodash-bound';
 import {Link, LINK_GEOMETRY, LINK_STROKE} from './linkModel';
 import {Node} from './nodeModel';
 import * as colorSchemes from 'd3-scale-chromatic';
 import {extractCoords} from '../three/utils';
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
+import {Lyph} from "./lyphModel";
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
@@ -21,74 +22,150 @@ export class Group extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID) {
 
-        //Important: the effect of this procedure depends on the order in which lyphs that share border nodes are selected
-        //If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
-        const replaceBorderNodes = (group) => {
-            //Replicate border nodes and create collapsible links
-            let borderNodesByID = {};
-            let lyphsWithBorders = (group.lyphs||[]).filter(lyph => ((lyph.border || {}).borders||[]).find(b => b.hostedNodes));
-            lyphsWithBorders.forEach(lyph => {
-                lyph.border.borders.forEach(b => {
-                    (b.hostedNodes||[]).forEach(nodeID => {
-                        if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
-                        borderNodesByID[nodeID].push(lyph);
-                    });
-                })
-            });
-
-            borderNodesByID::keys().forEach(nodeID => {
-                if (borderNodesByID[nodeID].length > 1){
-                    //groups that contain the node
-                    //links affected by the border node constraints
-                    let links = (group.links||[]).filter(e => e.target === nodeID);
-                    let node  = (group.nodes||[]).find(e => e.id === nodeID);
-                    //Unknown nodes will be detected by validation later, no need for logging here
-                    if (!node){return;}
-
-                    for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
-                        let nodeClone = node::cloneDeep()::merge({
-                            "id"     : nodeID + `_${i}`,
-                            "cloneOf": nodeID
-                        });
-                        if (!node.clones){ node.clones = []; }
-                        node.clones.push(nodeClone);
-
-                        group.nodes.push(nodeClone);
-                        links.forEach(lnk => {lnk.target = nodeClone.id});
-                        //lyph constraint - replace
-                        borderNodesByID[nodeID][i].border.borders.forEach(b => {
-                            let k = (b.hostedNodes||[]).indexOf(nodeID);
-                            if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
-                        });
-                        //create a collapsible link
-                        let lnk = {
-                            "id"    : `${prev}_${nodeClone.id}`,
-                            "source": `${prev}`,
-                            "target": `${nodeClone.id}`,
-                            "stroke": LINK_STROKE.DASHED,
-                            "length": 1,
-                            "collapsible": true
-                        };
-                        group.links.push(lnk);
-                        prev = nodeClone.id;
-                    }
-                }
-            });
-        };
-        replaceBorderNodes(json);
+        this.expandTreeTemplates(json, modelClasses, entitiesByID);
+        this.expandLyphTemplates(json.lyphs);
+        this.replaceBorderNodes(json);
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
-        //Inherit objects from subgroups
-        (res.groups||[]).forEach(group => {
-            if (group.id === res.id || (res.inGroups||[]).find(e => e.id === group.id)) {
-                console.warn("The model contains self-references or cyclic group dependencies: ", res.id, group.id);
-                return;
+        res.mergeSubgroupEntities();
+        res.createAxesForInternalLyphs(entitiesByID);
+
+        //Generate new groups from tree templates
+
+        //Add generated tree links into the main group
+
+        //Color entities which do not have assigned colors in the spec
+        addColor(res.regions, "#c0c0c0");
+        addColor(res.links, "#000");
+        addColor(res.lyphs);
+
+        return res;
+    }
+
+    static expandTreeTemplates(json, modelClasses, entitiesByID){
+        if (!modelClasses){ return; }
+        (json.trees||[]).forEach((tree, i) => {
+                tree.id = tree.id || (json.id + "_tree_" + i);
+                modelClasses["Tree"].expandTemplate(json, tree);
             }
-            let relFieldNames = this.Model.filteredRelNames([res.class]);
-            relFieldNames.forEach(property => { res[property] = (res[property]||[])::unionBy(group[property], "id"); });
+        );
+    }
+
+    static createEntityMap(model, entitiesByID = {}){
+        entitiesByID[model.id] = model;
+
+        this.Model.relationshipNames.forEach(fieldName => {
+            [...(model[fieldName]||[])].forEach(e => {
+                if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
+                if (e.id::isNumber()) {
+                    console.error("Replaced numeric ID: ", e);
+                    e.id = e.id.toString();
+                }
+                if (entitiesByID[e.id]) {
+
+                    console.error("Entity IDs are not unique: ", entitiesByID[e.id], e);
+                }
+                entitiesByID[e.id] = e;
+            })
+        });
+    }
+
+    static expandLyphTemplates(lyphs){
+        let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
+        templates.forEach(template => Lyph.expandTemplate(lyphs, template));
+    }
+
+    /**
+     * Replicate border nodes and create collapsible links
+     * The effect of this procedure depends on the order in which lyphs that share border nodes are selected
+     * If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
+     * @param json - group model defined by user
+     */
+    static replaceBorderNodes(json){
+        let borderNodesByID = {};
+        let lyphsWithBorders = (json.lyphs||[]).filter(lyph => ((lyph.border || {}).borders||[]).find(b => b.hostedNodes));
+        lyphsWithBorders.forEach(lyph => {
+            lyph.border.borders.forEach(b => {
+                (b.hostedNodes||[]).forEach(nodeID => {
+                    if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
+                    borderNodesByID[nodeID].push(lyph);
+                });
+            })
         });
 
+        borderNodesByID::keys().forEach(nodeID => {
+            if (borderNodesByID[nodeID].length > 1){
+                //groups that contain the node
+                //links affected by the border node constraints
+                let links = (json.links||[]).filter(e => e.target === nodeID);
+                let node  = (json.nodes||[]).find(e => e.id === nodeID);
+                //Unknown nodes will be detected by validation later, no need for logging here
+                if (!node){return;}
+
+                for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
+                    let nodeClone = node::cloneDeep()::merge({
+                        "id"     : nodeID + `_${i}`,
+                        "cloneOf": nodeID
+                    });
+                    if (!node.clones){ node.clones = []; }
+                    node.clones.push(nodeClone);
+
+                    json.nodes.push(nodeClone);
+                    links.forEach(lnk => {lnk.target = nodeClone.id});
+                    //lyph constraint - replace
+                    borderNodesByID[nodeID][i].border.borders.forEach(b => {
+                        let k = (b.hostedNodes||[]).indexOf(nodeID);
+                        if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
+                    });
+                    //create a collapsible link
+                    let lnk = {
+                        "id"    : `${prev}_${nodeClone.id}`,
+                        "source": `${prev}`,
+                        "target": `${nodeClone.id}`,
+                        "stroke": LINK_STROKE.DASHED,
+                        "length": 1,
+                        "collapsible": true
+                    };
+                    json.links.push(lnk);
+                    prev = nodeClone.id;
+                }
+            }
+        });
+    }
+
+    /**
+     * Add entities from subgroups to the current group
+     */
+    mergeSubgroupEntities(){
+        this.groups = [...(this.groups||[]), ...(this.trees||[])];
+
+        (this.groups||[]).forEach(group => {
+            if (group.id === this.id || (this.inGroups||[]).find(e => e.id === group.id)) {
+                console.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
+                return;
+            }
+            let relFieldNames = this.constructor.Model.filteredRelNames(["Tree", "Group", "Graph"]);
+            relFieldNames.forEach(property => { this[property] = (this[property]||[])::unionBy(group[property], "id"); });
+        });
+
+        //Add auto-created clones of boundary nodes to relevant groups
+        (this.nodes||[]).filter(node => node.clones).forEach(node => {
+            node.clones.forEach(clone => {
+                this.nodes.push(clone);
+                if (clone.hostedByLink) {
+                    clone.hostedByLink.hostedNodes = clone.hostedByLink.hostedNodes || [];
+                    clone.hostedByLink.hostedNodes.push(clone);
+                }
+            });
+        });
+    }
+
+    /**
+     * Auto-generates links for internal lyphs
+     * @param entitiesByID - a global resource map to include the generated resources
+     */
+    createAxesForInternalLyphs(entitiesByID){
         /**
          * Create an axis for a lyph
          * @param lyph - lyph without axis
@@ -117,71 +194,73 @@ export class Group extends Resource {
         };
 
         const addLinkToGroup = (link) => {
-            if (!res.links) {res.links = [];}
-            if (!res.nodes) {res.nodes = [];}
-            res.links.push(link);
+            if (!this.links) {this.links = [];}
+            if (!this.nodes) {this.nodes = [];}
+            this.links.push(link);
             [link.source, link.target].forEach(node => {
-                res.nodes.push(node);
-                if (entitiesByID) {
-                    entitiesByID[node.id] = node;
-                }
+                this.nodes.push(node);
+                if (entitiesByID) { entitiesByID[node.id] = node; }
             });
-            if (entitiesByID) {
-                entitiesByID[link.id] = link;
-            }
+            if (entitiesByID) { entitiesByID[link.id] = link; }
         };
 
         //Add auto-create axes for internal lyphs to the relevant groups
-        (res.lyphs||[]).filter(lyph => lyph.internalIn).forEach(lyph => {
+        (this.lyphs||[]).filter(lyph => lyph.internalIn).forEach(lyph => {
             if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalIn); }
-            if (!res.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
+            if (!this.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
         });
 
-        //Add auto-created clones of boundary nodes to relevant groups
-        (res.nodes||[]).filter(node => node.clones).forEach(node => {
-                node.clones.forEach(clone => {
-                    res.nodes.push(clone);
-                    if (clone.hostedByLink) {
-                        clone.hostedByLink.hostedNodes = clone.hostedByLink.hostedNodes || [];
-                        clone.hostedByLink.hostedNodes.push(clone);
-                    }
-                });
-            }
-        );
-
-        //Color entities which do not have assigned colors in the spec
-        addColor(res.links, "#000");
-        addColor(res.lyphs);
-        addColor(res.regions, "#c0c0c0");
-        return res;
     }
 
+    /**
+     * Entities that belong to the group (resources excluding subgroups)
+     * @returns {*[]}
+     */
     get entities(){
         let res = [];
         let relFieldNames = this.constructor.Model.filteredRelNames([this.constructor.name]); //Exclude groups
         relFieldNames.forEach(property => {
-            if (this[property]) { res = [...res, ...this[property]]}
+            if (this[property]) { res = [...res, ...(this[property] ||[])]}
         });
-        return res;
+        return res.filter(e => !!e);
     }
 
+    /**
+     * Check whether the given entity belongs to the group
+     * @param entity - resource
+     * @returns {*|void}
+     */
     belongsTo(entity){
         return this.entities.find(e => (e === entity) || (e.id === entity.id));
     }
 
+    /**
+     * Hide given subgroups of the current group
+     * @param groups - selected subgroups
+     */
     hideGroups(groups){
         this.show();
         (groups || []).forEach(g => g.hide());
     }
 
+    /**
+     * Hide current group (=hide all its entities)
+     */
     hide(){
         this.entities.forEach(entity => entity.hidden = true);
     }
 
+    /**
+     * Show current group (=show all its entities)
+     */
     show(){
         this.entities.forEach(entity => delete entity.hidden);
     }
 
+    /**
+     * Get groups that can be toggledon or off in the global graph
+     * @returns {T[]}
+     */
     get activeGroups(){
         return (this.groups||[]).filter(e => !e.inactive);
     }

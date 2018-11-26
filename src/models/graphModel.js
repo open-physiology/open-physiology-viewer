@@ -1,11 +1,14 @@
 import { Group } from './groupModel';
-import {keys, isNumber, merge, pick, isArray, cloneDeep, defaults} from 'lodash-bound';
+import {keys, isNumber, merge, pick, isArray, cloneDeep, defaults, unionBy} from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
-import {assignPropertiesToJSONPath} from "./utils";
-import {Link, LINK_GEOMETRY} from "./linkModel";
+import { Link, LINK_GEOMETRY } from "./linkModel";
+
 const validator = new Validator();
 
+/**
+ * Main APiNATOMY graph (a group with configuration options for the model viewer)
+ */
 export class Graph extends Group{
 
     static fromJSON(json, modelClasses) {
@@ -22,70 +25,12 @@ export class Graph extends Group{
             ]
         });
 
-        /*Process lyph templates: generate new layers for subtypes and replicate template properties */
-        const expandTemplates = (lyphs) => {
-            if (!lyphs) { return; }
-            let templates = lyphs.filter(lyph => lyph.isTemplate);
-            templates.forEach(template => {
-                let subtypes = template.subtypes.map(subtypeRef =>
-                    lyphs.find(e => e.id === subtypeRef) || { "id": subtypeRef, "new" : true });
-                (subtypes || []).forEach(subtype => {
-                    if (subtype.new) { //add auto-create subtype lyphs to the graph lyphs
-                        delete subtype.new;
-                        lyphs.push(subtype);
-                    }
-                    subtype.layers = [];
-                    (template.layers|| []).forEach(layerRef => {
-                        let layerParent = lyphs.find(e => e.id === layerRef);
-                        if (!layerParent) {
-                            console.warn("Generation error: template layer object not found: ", layerRef);
-                            return;
-                        }
-                        let newID = `${layerParent.id}_${subtype.id}`;
-                        let lyphLayer = {
-                            "id"        : newID,
-                            "supertype" : layerParent.id
-                        };
-                        let layerParentName = layerParent.name? layerParent.name: `Layer ${layerParent.id}`;
-                        let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
-                        lyphLayer.name = `${layerParentName} in ${subtypeName}`;
-
-                        lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
-                        lyphs.push(lyphLayer);
-                        subtype.layers.push(lyphLayer);
-                    });
-                });
-
-                //Copy defined properties to newly generated lyphs
-                if (template.assign){
-                    if (!template.assign::isArray()){
-                        console.warn("Cannot assign template properties: ", template.assign);
-                        return;
-                    }
-                    template.assign.forEach(({path, value}) =>
-                        assignPropertiesToJSONPath({path, value}, subtypes)
-                    );
-                }
-            });
-        };
-        expandTemplates(model.lyphs);
+        /*Process lyph templates */
+        this.expandLyphTemplates(model.lyphs);
 
         //Copy existing entities to a map to enable nested model instantiation
         let entitiesByID = {};
-        entitiesByID[model.id] = model;
-
-        this.Model.relationshipNames.forEach(fieldName => {
-            (model[fieldName]||[]).forEach(e => {
-                if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
-                if (e.id::isNumber()) {
-                    console.error("Replaced numeric ID: ", e);
-                    e.id = e.id.toString();
-                }
-                if (entitiesByID[e.id]) {
-                    console.error("Entity IDs are not unique: ", entitiesByID[e.id], e); }
-                entitiesByID[e.id] = e;
-            })
-        });
+        this.createEntityMap(model, entitiesByID);
 
         //Check that lyphs are not conveyed by more than one link
         let conveyingLyphMap = {};
@@ -134,11 +79,11 @@ export class Graph extends Group{
 
                     ["source", "target"].forEach(end => {
                         let link = Link.fromJSON({
-                            "id"    : end.charAt(0) + "_" + lyph.id + "_" + lyph2.id,
-                            "source": lyph.axis[end],
-                            "target": lyph2.axis[end],
-                            "length": 0.1,
-                            "geometry"  : LINK_GEOMETRY.FORCE
+                            "id"       : end.charAt(0) + "_" + lyph.id + "_" + lyph2.id,
+                            "source"   : lyph.axis[end],
+                            "target"   : lyph2.axis[end],
+                            "length"   : 0.1,
+                            "geometry" : LINK_GEOMETRY.FORCE
                         });
                         graph.links.push(link);
                         coalescenceGroup.links.push(link);
@@ -148,6 +93,7 @@ export class Graph extends Group{
             });
         };
         createCoalescenceForces(res);
+
         return res;
     }
 
