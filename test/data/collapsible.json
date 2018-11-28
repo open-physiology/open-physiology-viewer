@@ -105,7 +105,7 @@
       "name": "Microcirculation Pulmonary",
       "color": "#666",
       "val": 1,
-      "hostedByLink": "LR",
+      "hostedBy": "LR",
       "offset": 0.5
     },
     {
@@ -113,7 +113,7 @@
       "name": "Microcirculation Systemic",
       "color": "#666",
       "val": 1,
-      "hostedByLink": "RL",
+      "hostedBy": "RL",
       "offset": 0.5
     },
     {
@@ -292,7 +292,7 @@
     },
     {
       "id": "nLR00",
-      "hostedByLink": "LR",
+      "hostedBy": "LR",
       "offset": 0.25
     },
     {
@@ -312,7 +312,7 @@
     },
     {
       "id": "nLR10",
-      "hostedByLink": "LR",
+      "hostedBy": "LR",
       "offset": 0.65
     },
     {
@@ -335,7 +335,7 @@
     },
     {
       "id": "nPS00",
-      "hostedByLink": "PS",
+      "hostedBy": "PS",
       "offset": 0.25
     },
     {
@@ -1378,7 +1378,7 @@
           {
             "path": "$.nodes[*]",
             "value": {
-              "hostedByLink": "LR"
+              "hostedBy": "LR"
             }
           },
           {
@@ -1404,7 +1404,7 @@
             {
               "path": "$.nodes[*]",
               "value": {
-                "hostedByLink": "LR"
+                "hostedBy": "LR"
               }
             }
           ],
@@ -1424,7 +1424,7 @@
             {
               "path": "$.nodes[*]",
               "value": {
-                "hostedByLink": "RL"
+                "hostedBy": "RL"
               }
             }
           ],
@@ -1443,7 +1443,7 @@
             {
               "path": "$.nodes[*]",
               "value": {
-                "hostedByLink": "RL"
+                "hostedBy": "RL"
               }
             },
             {

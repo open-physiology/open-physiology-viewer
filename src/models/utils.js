@@ -36,12 +36,9 @@ export function assignPropertiesToJSONPath({path, value}, parent, handler){
     if (path && value){
         try{
             let entities = (JSONPath({json: parent, path: path}) || []).filter(e => !!e);
+            //let array = [].concat(...entities);
             entities.forEach(e => {
-                if (e::isArray()){ //copy value to every object of the array
-                    e.filter(item => item::isObject()).forEach(item => item::merge(value))
-                } else {
-                    if (e::isObject()) { e::merge(value); }
-                }
+                e::merge(value);
                 if (handler) { handler(e) }
             });
         } catch (err){

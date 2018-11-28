@@ -58,7 +58,7 @@
     },
     {
       "id": "nLR00",
-      "hostedByLink": "LR",
+      "hostedBy": "LR",
       "offset": 0.25
     },
     {
@@ -80,7 +80,7 @@
     {
       "id": "nLR05",
       "skipLabel": true,
-      "hostedByLink": "cn"
+      "hostedBy": "cn"
     }
   ],
   "links": [

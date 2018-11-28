@@ -4,7 +4,7 @@ import {copyCoords} from "./utils";
 /**
  * Common methods for all entity models
  */
-export class Entity extends Resource{
+export class VisualResource extends Resource{
 
     constructor(id) {
         super();
@@ -12,11 +12,11 @@ export class Entity extends Resource{
     }
 
     /**
-     * Create Entity model from the JSON specification
+     * Create VisualResource model from the JSON specification
      * @param json - input model
      * @param modelClasses - recognized classes
      * @param entitiesByID - map of all model entities
-     * @returns {Entity} - Entity model
+     * @returns {VisualResource} - VisualResource model
      */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
         //Do not expand templates ?

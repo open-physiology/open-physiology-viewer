@@ -20,20 +20,19 @@ export class Group extends Resource {
      * @param entitiesByID
      * @returns {*} - Graph model
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
 
-        this.expandTreeTemplates(json, modelClasses, entitiesByID);
-        this.expandLyphTemplates(json.lyphs);
+        //New entities will be auto-generated in the raw JSON format
         this.replaceBorderNodes(json);
+
+        addColor((json.lyphs||[]).filter(e => e.isTemplate));
+        this.expandTreeTemplates(json, modelClasses);
+        this.expandLyphTemplates(json.lyphs);
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
         res.mergeSubgroupEntities();
         res.createAxesForInternalLyphs(entitiesByID);
-
-        //Generate new groups from tree templates
-
-        //Add generated tree links into the main group
 
         //Color entities which do not have assigned colors in the spec
         addColor(res.regions, "#c0c0c0");
@@ -43,32 +42,13 @@ export class Group extends Resource {
         return res;
     }
 
-    static expandTreeTemplates(json, modelClasses, entitiesByID){
+    static expandTreeTemplates(json, modelClasses){
         if (!modelClasses){ return; }
         (json.trees||[]).forEach((tree, i) => {
                 tree.id = tree.id || (json.id + "_tree_" + i);
                 modelClasses["Tree"].expandTemplate(json, tree);
             }
         );
-    }
-
-    static createEntityMap(model, entitiesByID = {}){
-        entitiesByID[model.id] = model;
-
-        this.Model.relationshipNames.forEach(fieldName => {
-            [...(model[fieldName]||[])].forEach(e => {
-                if (!e.id) { console.warn("Entity without ID is skipped: ", e); return; }
-                if (e.id::isNumber()) {
-                    console.error("Replaced numeric ID: ", e);
-                    e.id = e.id.toString();
-                }
-                if (entitiesByID[e.id]) {
-
-                    console.error("Entity IDs are not unique: ", entitiesByID[e.id], e);
-                }
-                entitiesByID[e.id] = e;
-            })
-        });
     }
 
     static expandLyphTemplates(lyphs){
@@ -120,11 +100,11 @@ export class Group extends Resource {
                     });
                     //create a collapsible link
                     let lnk = {
-                        "id"    : `${prev}_${nodeClone.id}`,
-                        "source": `${prev}`,
-                        "target": `${nodeClone.id}`,
-                        "stroke": LINK_STROKE.DASHED,
-                        "length": 1,
+                        "id"         : `${prev}_${nodeClone.id}`,
+                        "source"     : `${prev}`,
+                        "target"     : `${nodeClone.id}`,
+                        "stroke"     : LINK_STROKE.DASHED,
+                        "length"     : 1,
                         "collapsible": true
                     };
                     json.links.push(lnk);
@@ -138,7 +118,7 @@ export class Group extends Resource {
      * Add entities from subgroups to the current group
      */
     mergeSubgroupEntities(){
-        this.groups = [...(this.groups||[]), ...(this.trees||[])];
+        this.groups = (this.groups||[])::unionBy(this.trees, "id");
 
         (this.groups||[]).forEach(group => {
             if (group.id === this.id || (this.inGroups||[]).find(e => e.id === group.id)) {
@@ -150,12 +130,12 @@ export class Group extends Resource {
         });
 
         //Add auto-created clones of boundary nodes to relevant groups
-        (this.nodes||[]).filter(node => node.clones).forEach(node => {
+        (this.nodes||[]).filter(node => node && node.clones).forEach(node => {
             node.clones.forEach(clone => {
                 this.nodes.push(clone);
-                if (clone.hostedByLink) {
-                    clone.hostedByLink.hostedNodes = clone.hostedByLink.hostedNodes || [];
-                    clone.hostedByLink.hostedNodes.push(clone);
+                if (clone.hostedBy) {
+                    clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
+                    clone.hostedBy.hostedNodes.push(clone);
                 }
             });
         });
@@ -270,8 +250,7 @@ export class Group extends Resource {
     }
 
     get visibleNodes(){
-        let res = (this.nodes||[]).filter(e => e.isVisible);
-        return res;
+        return (this.nodes||[]).filter(e => e.isVisible);
     }
 
     get visibleLinks(){
@@ -282,7 +261,7 @@ export class Group extends Resource {
     }
 
     get visibleLyphs(){
-        return (this.lyphs||[]).filter(e => e.isVisible && e.axis.isVisible);
+       return (this.lyphs||[]).filter(e => e.isVisible && e.axis && e.axis.isVisible);
     }
 
     createViewObjects(state){

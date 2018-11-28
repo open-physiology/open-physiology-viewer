@@ -4,35 +4,14 @@ import { copyCoords } from './utils';
 import { Link, LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Lyph } from './lyphModel';
-import { Entity } from './entityModel';
-import { BorderPart } from "./borderPartModel";
-import { isObject } from 'lodash-bound';
-import { getCenterOfMass, lyphBorders, polygonBorders, polygonBorderLinks, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
+import { VisualResource } from './visualResourceModel';
+import { merge } from 'lodash-bound';
+import { getCenterOfMass, lyphBorders, polygonBorders, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
 
 /**
  * Lyph or region border
  */
-export class Border extends Entity {
-
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
-        const res = super.fromJSON(json, modelClasses, entitiesByID);
-        (res.borders||[]).forEach(border => {
-            if (!border) { return; }
-            (border.hostedNodes||[]).forEach(node => {
-                if (!node::isObject()){
-                    console.error("Border content not instantiated", node);
-                } else {
-                    node.host = res
-                }
-            });
-            if (border.conveyingLyph){
-                if (!border.conveyingLyph::isObject()){
-                    console.error("Border content not instantiated", border.conveyingLyph);
-                }
-            }
-        });
-        return res;
-    }
+export class Border extends VisualResource {
 
     get isVisible(){
         return super.isVisible && (this.host? this.host.isVisible: true);
@@ -40,19 +19,6 @@ export class Border extends Entity {
 
     get polygonOffsetFactor(){
         return this.host? this.host.polygonOffsetFactor: 0;
-    }
-
-    /**
-     * Creates links (objects with fields 'source' and 'target') to define sides of the lyph rectangle
-     * @returns {Array}
-     */
-    get borderLinks(){
-        return (this._borderLinks||[]).map(({source, target}) => {
-            return {
-                source: this.host.translate(source),
-                target: this.host.translate(target)
-            }
-        });
     }
 
     /**
@@ -128,42 +94,52 @@ export class Border extends Entity {
         let [dX, dY] = ["x", "y"].map(key => points.map(p => Math.min(p[key] - min[key], max[key] - p[key])));
         if (Math.max(...[...dX,...dY]) > delta) { //if the shape is not rectangle
             //Push the link to the tilted lyph rectangle
-            boundToPolygon(link, this.borderLinks);
+            boundToPolygon(link, this.border.borders);
         }
     }
 
     createViewObjects(state){
         //Make sure we always have border objects regardless of data input
-        for (let i = this.borders.length; i < (this.host.points||[]).length -1 ; i++){
-            this.borders.push(BorderPart.fromJSON({}));
+        for (let i = 0; i < this.borders.length; i++){
+            let [s, t] = ["s", "t"].map(
+                prefix => Node.fromJSON({"id": `${prefix}_${this.id}_${i}`}
+            ));
+            this.borders[i]::merge({
+                "source": s,
+                "target": t,
+                "geometry": LINK_GEOMETRY.INVISIBLE,
+                "length": this.host.points[i + 1].distanceTo(this.host.points[i])
+            });
+            if (this.borders[i].conveyingLyph) {
+                this.borders[i].conveyingLyph.conveyedBy = this.borders[i];
+                this.borders[i].createViewObjects(state);
+            }
         }
 
         this.viewObjects["shape"] = (this.host instanceof Lyph)
             ? lyphBorders([this.host.width, this.host.height, this.host.width / 2, ...this.host.radialTypes])
             : polygonBorders(this.host.points);
-
-        this._borderLinks = polygonBorderLinks(this.host.points);
-
-        this.borders.forEach((border, i) => {
-            if (border.conveyingLyph) {
-                let id = `${this.id}`;
-                let [s, t] = ["s", "t"].map(prefix => Node.fromJSON({"id": `${prefix}_${id}`}));
-                border.link = Link.fromJSON({
-                    "id"           : `lnk_${id}`,
-                    "source"       : s,
-                    "target"       : t,
-                    "geometry"     : LINK_GEOMETRY.INVISIBLE,
-                    "length"       : this._borderLinks[i].target.distanceTo(this._borderLinks[i].source),
-                    "conveyingLyph": border.conveyingLyph,
-                    "linkOnBorder" : border  //Save the border as the link's host
-                });
-                border.conveyingLyph.conveyedBy = border.link;
-                border.link.createViewObjects(state);
-            }
-        });
     }
 
     updateViewObjects(state){
+        for (let i = 0; i < this.borders.length ; i++){
+            copyCoords(this.borders[i].source, this.host.points[ i ]);
+            copyCoords(this.borders[i].target, this.host.points[i + 1]);
+            this.borders[i].updateViewObjects(state);
+            if (this.borders[i].conveyingLyph){
+                state.graphScene.add(this.borders[i].conveyingLyph.viewObjects["main"]);
+            }
+            //Position hostedNodes exactly on the link shape
+            if (this.borders[i].hostedNodes){
+                //position nodes on the lyph border (exact shape)
+                const offset = 1 / (this.borders[i].hostedNodes.length + 1);
+                this.borders[i].hostedNodes.forEach((node, j) => {
+                    let p = this.viewObjects["shape"][i].getPoint(node.offset ? node.offset : offset * (j + 1));
+                    p = new THREE.Vector3(p.x, p.y, 0);
+                    copyCoords(node, this.host.translate(p));
+                })
+            }
+        }
 
         //By doing the update here, we also support inner content in the region
         const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
@@ -180,24 +156,5 @@ export class Border extends Entity {
             this.host.internalNodes.length, center)
         });
 
-        (this.borders || []).forEach((border, i) => {
-            if (border.hostedNodes){
-                //position nodes on the lyph border (exact shape, we use 'borderLinks' to place nodes on straight line)
-                const offset = 1 / (border.hostedNodes.length + 1);
-                border.hostedNodes.forEach((node, j) => {
-                    let p = this.viewObjects["shape"][i].getPoint(node.offset ? node.offset : offset * (j + 1));
-                    p = new THREE.Vector3(p.x, p.y, 0);
-                    copyCoords(node, this.host.translate(p));
-                })
-            }
-            if (border.link) {
-                let tmp = this.borderLinks[i];
-                copyCoords(border.link.source, tmp.source);
-                copyCoords(border.link.target, tmp.target);
-                border.link.updateViewObjects(state);
-                //Add border conveyingLyph to the scene
-                state.graphScene.add(border.link.conveyingLyph.viewObjects["main"]);
-            }
-        });
     }
 }

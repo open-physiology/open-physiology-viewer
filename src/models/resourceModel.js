@@ -12,10 +12,9 @@ import {
     keys,
     isEmpty,
     assign,
+    fromPairs,
     defaults
 } from 'lodash-bound';
-import {SpriteText2D} from "three-text2d";
-import {copyCoords} from "./utils";
 
 /**
  * Extracts class name from the schema definition
@@ -39,32 +38,6 @@ const getRefs = (spec) => {
     let expr = spec.oneOf || spec.anyOf || spec.allOf;
     if ( expr ){
         return expr.filter(e => e.$ref).map(e => e.$ref);
-    }
-};
-
-/**
- * Assigns specified properties to the entities defined by the JSONPath expression
- * @param parent - root entity to which the JSONPath expression applies to
- * @param modelClasses - a map of entity class names and their implementations
- * @param entitiesByID - a map of all entities in the model
- */
-const assignPathProperties = (parent, modelClasses, entitiesByID) => {
-    //Do not process template assignment, this has been done at preprocessing stage
-    if (parent.isTemplate) { return; }
-
-    if (parent.assign) {
-        if (!parent.assign::isArray()){
-            console.warn("Cannot assign path properties: ", parent.assign);
-            return;
-        }
-        parent.assign.forEach(({path, value}) => {
-            assignPropertiesToJSONPath({path, value}, parent, (e) => {
-                //Replace assigned references
-                if (value::keys().find(key => modelClasses[e.class].Model.relationshipNames.includes(key))){
-                    replaceIDs(e, modelClasses, entitiesByID);
-                }
-            })
-        });
     }
 };
 
@@ -112,152 +85,17 @@ const interpolatePathProperties = (parent) => {
     })
 };
 
-/**
- * Replace IDs with object references
- * @param modelClasses - recognized entity classes
- * @param entitiesByID - map of all entities
- */
-const replaceIDs = (res, modelClasses, entitiesByID) => {
-
-    const skip = (value) => !value || value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
-    const replaceRefs = (res2, [key, spec]) => {
-
-        const createObj = (value, spec) => {
-            if (value::isNumber()) { value = value.toString(); }
-
-            let objValue = value;
-            let clsName = getClassName(spec);
-            if (!clsName){
-                console.warn("Cannot extract the object class: property specification does not imply a reference",
-                    spec, value);
-                return objValue;
-            }
-
-
-            if (value && value::isString()) {
-                if (!entitiesByID[value]) {
-                    entitiesByID[value] = {"id": value};
-                    //console.info(`Auto-created new ${clsName} for ID: `, value);
-                }
-                objValue = entitiesByID[value];
-            }
-
-            if (!definitions[clsName] || definitions[clsName].abstract){ return objValue; }
-            if (modelClasses[clsName]) {
-                if (!(objValue instanceof modelClasses[clsName])) {
-                    if (!(entitiesByID[objValue.id] instanceof modelClasses[clsName])) {
-                        objValue = modelClasses[clsName].fromJSON(objValue, modelClasses, entitiesByID);
-                        entitiesByID[objValue.id] = objValue;
-                    } else {
-                        objValue = entitiesByID[objValue.id]
-                    }
-                } else {
-                    //If the object does not need to be instantiated, we leave it unchanged but replace its inner references
-                    let refFields = modelClasses[clsName].Model.cudRelationships;
-                    (refFields || []).forEach(f => replaceRefs(objValue, f));
-                }
-            } else {
-                console.error("Unknown class: ",clsName);
-            }
-            return objValue;
-        };
-
-        if (skip(res2[key])) {
-            return;
-        }
-
-        if (res2[key]::isArray()){
-            res2[key] = res2[key].map(value => {
-                if (skip(value)) { return value; }
-                return createObj(value, spec);
-            });
-
-        } else {
-            res2[key] = createObj(res2[key], spec);
-            if (spec.type === "array"){
-                //The spec allows multiple values, replace object with array of objects
-                res2[key] = [res2[key]];
-            }
-        }
-
-        return res2;
-    };
-
-    //Replace IDs with model object references
-    let refFields = modelClasses[res.class].Model.cudRelationships;
-
-    refFields.forEach(f => replaceRefs(res, f));
-
-    assignPathProperties(res, modelClasses, entitiesByID);
-
-    //Cross-reference objects from related properties, i.e. Link.hostedNodes <-> Node.hostedByLink
-    refFields.forEach(f => syncRelationships(res, f));
-};
-
-/**
- * Auto-complete the model with bidirectional references
- * @param key  - property to auto-complete
- * @param spec - property specification
- */
-const syncRelationships = (res, [key, spec]) => {
-    if (!res[key]){ return; }
-
-    if (!res[key]::isObject()){
-        console.warn("Object ID has not been replaced with a reference", res[key]);
-        return;
-    }
-    let key2 = spec.relatedTo;
-    if (key2){
-        let otherClassName = getClassName(spec);
-        if (!otherClassName) {
-            console.error("Class not defined: ", spec);
-            return;
-        }
-
-        let otherSpec = definitions[otherClassName].properties[key2];
-        if (!otherSpec){
-            console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
-            return;
-        }
-
-        const syncProperty = (obj) => {
-            if (otherSpec.type === "array"){
-                if (!obj[key2]) { obj[key2] = []; }
-                if (!obj[key2]::isArray()){
-                    console.error(`Object's property '${key2}' should contain an array:`, obj);
-                    return;
-                }
-                if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)){ obj[key2].push(res); }
-            } else {
-                if (!obj[key2]) { obj[key2] = res; }
-                else {
-                    if (obj[key2] !== res && obj[key2] !== res.id){
-                        console.warn(`First object should match second object:`,
-                            obj.class, key2, obj[key2], res);
-                    }
-                }
-            }
-        };
-
-        if (res[key]::isArray()){
-            res[key].forEach(obj => {
-                syncProperty(obj);
-            })
-        } else {
-            syncProperty(res[key]);
-        }
-    }
-};
-
 export class Resource{
     constructor() {
         this::merge(this.constructor.Model.defaultValues);
     }
 
-    static fromJSON(json, modelClasses, entitiesByID){
+    static fromJSON(json, modelClasses = {}, entitiesByID = null){
+
         let clsName = json.class || this.name;
         const cls = this || modelClasses[clsName];
         const res = new cls(json.id);
+
         res.class = clsName;
         res.JSON = json;
         //spec
@@ -270,20 +108,20 @@ export class Resource{
 
         if (entitiesByID){
             //Exclude just created entity from being ever created again in the following recursion
-            if (!res.id) {
-                if (modelClasses[res.class].Model.extendsClass("Entity")){
-                    console.warn("An entity without ID has been found: ", this.name, res);
-                }
-                res.id = "new_" + entitiesByID::keys().length;
-            }
-            if (res.id::isNumber()){ res.id = res.id.toString(); }
-            //if (!entitiesByID[res.id]){ console.info("Added new entity to the global map: ", res.id); }
-            entitiesByID[res.id] = res; //Update the entity map
+            if (!res.id) { res.id = "new_" + entitiesByID::keys().length; }
+            if ( res.id::isNumber()){ res.id = res.id.toString(); }
 
-            replaceIDs(res, modelClasses, entitiesByID);
+            if (entitiesByID[res.id]) {
+                if (entitiesByID[res.id] !== res){
+                    console.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
+                }
+            } else {
+                entitiesByID[res.id] = res;
+                res.reviseWaitingList(entitiesByID.waitingList);
+                res.replaceIDs(modelClasses, entitiesByID);
+            }
         }
         interpolatePathProperties(res);
-
         return res;
     }
 
@@ -375,10 +213,13 @@ export class Resource{
         model.relationships     = model.fields.filter(([key, spec]) =>  extendsClass(getRefs(spec), Resource.name));
         model.properties        = model.fields.filter(([key, spec]) => !model.relationships.find(([key2, ]) => key2 === key));
 
+        model.relationshipMap   = model.relationships::fromPairs();
+
         //Names only
         model.fieldNames        = model.fields.map(([key, ]) => key);
         model.propertyNames     = model.properties.map(([key, ]) => key);
         model.relationshipNames = model.relationships.map(([key, ]) => key);
+        model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
 
         model.isRelationship   = (key) => model.relationshipNames.includes(key);
 
@@ -394,7 +235,182 @@ export class Resource{
                 .map(([key, ]) => key);
         };
 
+        model.getRelNameByClsName  = (clsName) => {
+            let relFields = model.relClassNames;
+            let relNames = relFields::entries().filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
+            if (relNames && relNames[0]){ return relNames[0]; }
+        };
+
         return model;
+    }
+
+    /**
+     * Replace IDs with object references
+     * @param modelClasses - recognized entity classes
+     * @param entitiesByID - map of all entities
+     */
+    replaceIDs(modelClasses, entitiesByID){
+
+        const skip = (value) => !value || value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
+        const createObj = (res, key, value, spec) => {
+            if (skip(value)) { return value; }
+            if (value::isNumber()) { value = value.toString(); }
+
+            let clsName = getClassName(spec);
+            if (!clsName || !definitions[clsName]){
+                console.warn("Cannot extract the object class: property specification does not imply a reference",
+                    spec, value);
+                return value;
+            }
+
+            if (value && value::isString()) {
+                if (!entitiesByID[value]) {
+                    //put to a wait list instead
+                    entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
+                    entitiesByID.waitingList[value].push([res, key]);
+                    return value;
+                } else {
+                    return entitiesByID[value];
+                }
+            }
+
+            if (value.id && entitiesByID[value.id]) {
+                if (value !== entitiesByID[value.id]) {
+                    console.warn("Duplicate resource definition:", res, key, value.id, value, entitiesByID[value.id]);
+                }
+                return entitiesByID[value.id];
+            }
+
+            //value is an object and it is not in the map
+            if (definitions[clsName].abstract ){
+                if (value.class) {
+                    clsName = value.class;
+                    if (!modelClasses[clsName]){
+                        console.error("Failed to find class definition", value.class, value);
+                    }
+                } else {
+                    console.error("An abstract relationship field expects a reference to an existing resource " +
+                        " or 'class' field in its value definition: ", value);
+                    return null;
+                }
+            }
+            return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID);
+        };
+
+        //Replace IDs with model object references
+        let refFields = modelClasses[this.class].Model.cudRelationships;
+        let res = this;
+        refFields.forEach(([key, spec]) => {
+            if (skip(res[key])) { return; }
+            if (res[key]::isArray()){
+                res[key] = res[key].map(value => createObj(res, key, value, spec));
+            } else {
+                res[key] = createObj(res, key, res[key], spec);
+                if (spec.type === "array"){//The spec expects multiple values, replace an object with an array of objects
+                    res[key] = [res[key]];
+                }
+            }
+        });
+    };
+
+    /**
+     * Assigns specified properties to the entities defined by the JSONPath expression
+     * @param parent - root entity to which the JSONPath expression applies to
+     * @param modelClasses - a map of entity class names and their implementations
+     * @param entitiesByID - a map of all entities in the model
+     */
+    assignPathProperties(modelClasses, entitiesByID){
+        if (this.template){ return; }
+        if (this.assign) {
+            if (!this.assign::isArray()){
+                console.warn("Skipped property assignment - array expected: ", this.assign);
+                return;
+            }
+            this.assign.forEach(({path, value}) => {
+                assignPropertiesToJSONPath({path, value}, this, (e) => {
+                    //Replace assigned references
+                    if (e && (e instanceof modelClasses["Resource"])) {
+                        e.replaceIDs(modelClasses, entitiesByID);
+                    }
+                })
+            });
+        }
+    };
+
+
+    reviseWaitingList(waitingList){
+        //Revise waitingList
+        (waitingList[this.id]||[]).forEach(([obj, key]) => {
+            if (obj[key]::isArray()){
+                obj[key] = obj[key].map(e => (e === this.id)? this: e);
+            } else {
+                if (obj[key] === this.id){
+                    obj[key] = this
+                }
+            }}
+        );
+        delete waitingList[this.id];
+    }
+
+    syncRelationships(modelClasses, entitiesByID){
+        entitiesByID::entries().forEach(([id, res]) => {
+            if (id === "waitingList") { return; }
+
+            res.assignPathProperties(modelClasses, entitiesByID);
+
+            let refFields = modelClasses[res.class].Model.cudRelationships;
+            (refFields || []).forEach(([key, spec]) => {
+                if (!res[key]) { return; }
+                let key2 = spec.relatedTo;
+                if (key2) {
+                    let otherClassName = getClassName(spec);
+                    if (!otherClassName) {
+                        console.error("Class not defined: ", spec);
+                        return;
+                    }
+
+                    let otherSpec = modelClasses[otherClassName].Model.relationshipMap[key2];
+                    if (!otherSpec) {
+                        console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
+                        return;
+                    }
+
+                    const syncProperty = (obj) => {
+                        if (!obj || !obj::isObject()) { return; }
+                        if (otherSpec.type === "array") {
+                            if (!obj[key2]) {
+                                obj[key2] = [];
+                            }
+                            if (!obj[key2]::isArray()) {
+                                console.error(`Object's property '${key2}' should contain an array:`, obj);
+                                return;
+                            }
+                            if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)) {
+                                obj[key2].push(res);
+                            }
+                        } else {
+                            if (!obj[key2]) {
+                                obj[key2] = res;
+                            }
+                            else {
+                                if (obj[key2] !== res && obj[key2] !== res.id && obj[key2].id !== res.id) {
+                                    console.warn(`First object should match second object:`,
+                                        obj.class, key2, obj[key2], res);
+                                }
+                            }
+                        }
+                    };
+
+                    if (res[key]::isArray()) {
+                        res[key].forEach(obj => {
+                            syncProperty(obj);
+                        })
+                    } else {
+                        syncProperty(res[key]);
+                    }
+                }
+            })
+        })
     }
 
 }

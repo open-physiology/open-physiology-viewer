@@ -1,4 +1,4 @@
-import { Entity } from './entityModel';
+import { VisualResource } from './visualResourceModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import { direction, bezierSemicircle, rectangleCurve, extractCoords, align } from '../three/utils';
@@ -38,11 +38,45 @@ const getPoint = (curve, s, t, offset) => (curve.getPoint)? curve.getPoint(offse
 /**
  * The class to visualize processes (edges)
  */
-export class Link extends Entity {
+export class Link extends VisualResource {
     get polygonOffsetFactor(){
-        let res = -100;
-        if (this.linkOnBorder){ res = this.linkOnBorder.polygonOffsetFactor - 1; }
+        let res = -10;
+        ["hostedBy", "source", "target"].forEach((prop, i) => {
+            if (this[prop]) {
+                res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
+            }
+        });
         return res;
+    }
+
+    updateCurve(_start, _end){
+        let curve = new THREE.Line3(_start, _end);
+        switch (this.geometry) {
+            case LINK_GEOMETRY.SEMICIRCLE:
+                curve = bezierSemicircle(_start, _end);
+                break;
+            case LINK_GEOMETRY.RECTANGLE :
+                curve = rectangleCurve(_start, _end);
+                break;
+            case LINK_GEOMETRY.PATH      :
+                if (this.path){
+                    curve = new THREE.CatmullRomCurve3(this.path);
+                }
+                break;
+            case LINK_GEOMETRY.SPLINE    :
+                let prev = this.prev ? direction(this.prev.center, _start).multiplyScalar(2) : null;
+                let next = this.next ? direction(this.next.center, _end).multiplyScalar(2) : null;
+                if (prev) {
+                    curve = next
+                        ? new THREE.CubicBezierCurve3(_start, _start.clone().add(prev), _end.clone().add(next), _end)
+                        : new THREE.QuadraticBezierCurve3(_start, _start.clone().add(prev), _end);
+                } else {
+                    if (next) {
+                        curve = new THREE.QuadraticBezierCurve3(_start, _end.clone().add(next), _end);
+                    }
+                }
+        }
+        return curve;
     }
 
     /**
@@ -153,32 +187,9 @@ export class Link extends Entity {
         let _start = extractCoords(this.source);
         let _end   = extractCoords(this.target);
 
-        let curve = new THREE.Line3(_start, _end);
-        switch (this.geometry) {
-            case LINK_GEOMETRY.SEMICIRCLE:
-                curve = bezierSemicircle(_start, _end);
-                break;
-            case LINK_GEOMETRY.RECTANGLE :
-                curve = rectangleCurve(_start, _end);
-                break;
-            case LINK_GEOMETRY.PATH      :
-                if (this.path){
-                    curve = new THREE.CatmullRomCurve3(this.path);
-                }
-                break;
-            case LINK_GEOMETRY.SPLINE    :
-                let prev = this.prev ? direction(this.prev.center, _start).multiplyScalar(2) : null;
-                let next = this.next ? direction(this.next.center, _end).multiplyScalar(2) : null;
-                if (prev) {
-                    curve = next
-                        ? new THREE.CubicBezierCurve3(_start, _start.clone().add(prev), _end.clone().add(next), _end)
-                        : new THREE.QuadraticBezierCurve3(_start, _start.clone().add(prev), _end);
-                } else {
-                    if (next) {
-                        curve = new THREE.QuadraticBezierCurve3(_start, _end.clone().add(next), _end);
-                    }
-                }
-        }
+        this.updateCurve(_start, _end);
+
+        let curve = this.updateCurve(_start, _end);
         this.center = getPoint(curve, _start, _end, 0.5);
         this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
 
@@ -204,7 +215,8 @@ export class Link extends Entity {
             copyCoords(node, pos);
         });
 
-        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
+        this.updateLabels(state.labels[this.constructor.name],
+            state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
 
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);
@@ -215,7 +227,6 @@ export class Link extends Entity {
             delete this.viewObjects['icon'];
             delete this.viewObjects["iconLabel"];
         }
-
 
         if (this.directed && obj.children[0]){
             if (obj.children[0] instanceof THREE.ArrowHelper){

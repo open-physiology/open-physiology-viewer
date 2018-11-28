@@ -58,19 +58,6 @@ export function polygonBorders(points){
 }
 
 /**
- * Creates links for polygon sides
- * @param points
- * @returns {Array}
- */
-export function polygonBorderLinks(points){
-    let borders = [];
-    for (let i = 1; i < (points||[]).length; i++){
-        borders.push({"source": points[i - 1], "target": points[i]});
-    }
-    return borders;
-}
-
-/**
  * Draws layer of a lyph in 2d.
  * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
  * $thickness is axial border distance from the rotational axis

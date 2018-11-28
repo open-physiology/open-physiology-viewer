@@ -1,4 +1,4 @@
-import {Entity} from './entityModel';
+import {VisualResource} from './visualResourceModel';
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {copyCoords} from './utils';
@@ -8,22 +8,27 @@ import { getCenterOfMass } from '../three/utils';
 /**
  * The class to visualize nodes in the process graphs
  */
-export class Node extends Entity {
+export class Node extends VisualResource {
 
     /**
      * Determines whether the node's position is constrained in the model
      */
     get isConstrained() {
         return ((this.fixed && this.layout) ||
-         (this.controlNodes     && this.controlNodes.length > 0) ||
-         (this.hostedByLink     && this.hostedByLink.isVisible)  ||
-         (this.internalIn       && this.internalIn.isVisible))
+         (this.controlNodes && this.controlNodes.length > 0) ||
+         (this.hostedBy && this.hostedBy.isVisible)  ||
+         (this.internalIn   && this.internalIn.isVisible))
             ? true
             : false;
     }
 
     get polygonOffsetFactor() {
-        return -100;
+        let res = -10;
+        ["hostedBy", "internalIn"].forEach((prop, i) => {
+            if (this[prop]) {
+                res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
+            }
+        });
     }
 
     /**

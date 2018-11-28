@@ -1,5 +1,5 @@
 import { Group } from './groupModel';
-import {keys, isNumber, merge, pick, isArray, cloneDeep, defaults, unionBy} from 'lodash-bound';
+import {entries, keys, isNumber, cloneDeep, defaults} from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
 import { Link, LINK_GEOMETRY } from "./linkModel";
@@ -11,7 +11,7 @@ const validator = new Validator();
  */
 export class Graph extends Group{
 
-    static fromJSON(json, modelClasses) {
+    static fromJSON(json, modelClasses = {}) {
         let resVal = validator.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
@@ -25,12 +25,10 @@ export class Graph extends Group{
             ]
         });
 
-        /*Process lyph templates */
-        this.expandLyphTemplates(model.lyphs);
-
         //Copy existing entities to a map to enable nested model instantiation
-        let entitiesByID = {};
-        this.createEntityMap(model, entitiesByID);
+        let entitiesByID = {
+            "waitingList": {}
+        };
 
         //Check that lyphs are not conveyed by more than one link
         let conveyingLyphMap = {};
@@ -49,6 +47,37 @@ export class Graph extends Group{
 
         //Create graph
         let res = super.fromJSON(model, modelClasses, entitiesByID);
+
+        //Auto-create missing definitions for used references
+        let added = [];
+        entitiesByID.waitingList::entries().forEach(([id, refs]) => {
+            let [obj, key] = refs[0];
+            if (obj && obj.class){
+                let clsName = modelClasses[obj.class].Model.relClassNames[key];
+                if (clsName && (clsName !== "Shape")){ //TODO exclude all abstract classes
+                    //TODO This will mod the loop - fix
+                    let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
+
+                    //Include newly created entity to the main graph
+                    let prop = this.Model.getRelNameByClsName(clsName);
+                    if (prop) {
+                        res[prop] = res[prop] ||[];
+                        res[prop].push(e);
+                    }
+                    obj[key] = entitiesByID[e.id] = e;
+                    added.push(e.id);
+                }
+            }
+        });
+        if (added.length > 0){
+            added.forEach(id => delete entitiesByID.waitingList[id]);
+            console.warn("Auto-created missing resources:", added);
+        }
+
+        if (entitiesByID.waitingList::keys().length > 0){
+            console.warn("Incorrect model, could not process unknown references: ", entitiesByID.waitingList);
+        }
+        res.syncRelationships(modelClasses, entitiesByID);
         res.entitiesByID = entitiesByID;
 
         //Create a coalescence group and force links to bind coalescing lyphs

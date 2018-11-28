@@ -124,6 +124,7 @@
         "type": "string"
     },
     "Resource": {
+      "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model.",
       "type"      : "object",
       "abstract"  : "true",
       "properties": {
@@ -132,7 +133,7 @@
           "type": "string"
         },
         "name": {
-          "description": "Entity name",
+          "description": "Resource name",
           "type": "string"
         },
         "external": {
@@ -152,8 +153,7 @@
         },
         "class": {
           "description": "Resource class",
-          "type"       : "string",
-          "readOnly"   : true
+          "type"       : "string"
         },
         "JSON": {
           "description": "Initial JSON specification for the internal model",
@@ -199,7 +199,7 @@
           }
         },
         "inactive": {
-          "description": "A boolean flag to indicate that this entity should not be manipulated (i.e., highlighted or toggled)",
+          "description": "A boolean flag to indicate that this entity should not be manipulated in the appropriate context (i.e., lyph - highlighted, group - toggled, template - expanded)",
           "type": "boolean"
         },
         "infoFields": {
@@ -241,14 +241,18 @@
         }
       }
     },
-    "Entity": {
-      "description": "An abstract entity that defines common properties for all types of entities in the ApiNATOMY model.",
+    "VisualResource": {
+      "description": "An abstract visual resource that defines common properties for all types of visual resources in the ApiNATOMY model.",
       "type": "object",
       "abstract": "true",
       "$extends": {
         "$ref": "#/definitions/Resource"
       },
       "properties": {
+        "color": {
+          "description": "Color",
+          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
+        },
         "viewObjects": {
           "description": "Graphical objects that represent the entity",
           "type": "object",
@@ -275,7 +279,7 @@
     "External": {
       "description": "Reference to an external resource",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/VisualResource"
       },
       "properties": {
         "uri": {
@@ -290,7 +294,7 @@
           "description": "Model entities that refer to the given resource",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Entity"
+            "$ref": "#/definitions/VisualResource"
           },
           "relatedTo": "external"
         }
@@ -300,14 +304,10 @@
       "description": "Graph node joins two or more links (processes)",
       "type": "object",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/VisualResource"
       },
       "properties": {
-        "color": {
-          "description": "Node color",
-          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
-        },
-        "hostedByLink": {
+        "hostedBy": {
           "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
           "anyOf": [
             {
@@ -438,10 +438,10 @@
     "Link": {
       "description": "Graph link schematically representing a (part of) physiological process. ",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/VisualResource"
       },
       "properties": {
-        "source": {
+        "source"      : {
           "description": "Source node of the link",
           "anyOf": [
             {
@@ -453,7 +453,7 @@
           ],
           "relatedTo": "sourceOf"
         },
-        "target": {
+        "target"      : {
           "description": "Target node of the link",
           "anyOf": [
             {
@@ -465,34 +465,18 @@
           ],
           "relatedTo": "targetOf"
         },
-        "color": {
-          "description": "Link color",
-          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
-        },
-        "length": {
+        "length"      : {
           "description": "The length of the link",
           "type": "number",
           "minimum": 0,
           "maximum": 100,
           "default": 5
         },
-        "collapsible": {
+        "collapsible" : {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
           "type": "boolean"
         },
-        "conveyingLyph": {
-          "description": "Conveying lyph for the process represented by the link (other side of 'axis')",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "conveyedBy"
-        },
-        "geometry": {
+        "geometry"    : {
           "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
@@ -506,7 +490,7 @@
           ],
           "default": "link"
         },
-        "infoFields": {
+        "infoFields"  : {
           "default": {
             "text": [
               "length",
@@ -519,17 +503,17 @@
             ]
           }
         },
-        "directed": {
+        "directed"    : {
           "description": "When set to true, defines a directed edge with arrow at the end",
           "type": "boolean",
           "default": false
         },
-        "reversed": {
+        "reversed"    : {
           "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
           "type": "boolean",
           "default": false
         },
-        "stroke": {
+        "stroke"      : {
           "description": "Property that defined appearance of the link: `dashed` corresponds to a dashed line while `thick` is an indication for the tool to use a special shader to draw thick lines",
           "type": "string",
           "enum": [
@@ -538,17 +522,17 @@
           ],
           "default": ""
         },
-        "linewidth": {
+        "linewidth"   : {
           "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
           "type": "number",
           "default": "0.003"
         },
-        "strength": {
+        "strength"    : {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
           "type": "number"
         },
         "hostedNodes": {
-          "description": "Nodes that are positioned on the link",
+          "description": "Nodes that are positioned on a link or border edge. If the same node is positioned on several edges, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -560,14 +544,20 @@
               }
             ]
           },
-          "relatedTo": "hostedByLink",
+          "relatedTo": "hostedBy",
           "uniqueItems": true
         },
-        "linkOnBorder": {
-          "description": "Reference to the lyph border part if the link is created to host the border's conveying lyph",
-          "$ref"       : "#/definitions/BorderPart",
-          "readOnly"   : true,
-          "relatedTo"  : "link"
+        "conveyingLyph": {
+          "description": "Conveying lyph for the process represented by the link (other side of 'axis')",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "conveyedBy"
         },
         "type": {
           "description": "Process type annotation",
@@ -581,13 +571,10 @@
     "Shape": {
       "description": "An entity that occupies space within a border",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/VisualResource"
       },
+      "abstract": true,
       "properties": {
-        "color": {
-          "description": "Color",
-          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
-        },
         "border": {
           "description": "Properties that apply to the shape's border",
           "anyOf": [
@@ -642,13 +629,7 @@
           "type"  : "array",
           "items" : {
             "$ref" : "#/definitions/Point2Scheme"
-          },
-          "default": [
-            {"x": -10, "y": -10},
-            {"x": -10, "y":  10},
-            {"x":  10, "y":  10},
-            {"x":  10, "y": -10}
-          ]
+          }
         },
         "hostedLyphs": {
           "description": "Lyphs that should be projected to the given shape",
@@ -665,8 +646,7 @@
           },
           "relatedTo": "hostedBy"
         }
-      },
-      "abstract": true
+      }
     },
     "Region": {
       "description": "Area occupied by bordy part of subsystem",
@@ -884,14 +864,14 @@
     "Border": {
       "description": "Lyph border schematically models the inner and outer surfaces of a body part whose structure is   defined by the lyph. Each border consists of an array that defines two radial and two longitudinal borders. The inner longitudinal border is always parallel to the lyph's rotational axis.",
       "$extends": {
-        "$ref": "#/definitions/Entity"
+        "$ref": "#/definitions/VisualResource"
       },
       "properties": {
         "borders": {
           "description": "Lyph or region borders listed in the clockwise order (starting from the inner longitudinal border in lyph). If this property is included to the input model, it must contain as many objects as there are border sides.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/BorderPart"
+            "$ref": "#/definitions/Link"
           },
           "default": []
         },
@@ -907,46 +887,6 @@
           ],
           "relatedTo": "border",
           "readOnly" : true
-        }
-      }
-    },
-    "BorderPart": {
-      "description": "One side of the lyph border",
-      "$extends": {
-        "$ref": "#/definitions/Resource"
-      },
-      "properties": {
-        "hostedNodes": {
-          "description": "Nodes that are positioned on the given lyph border. If the same node is positioned on several lyph borders, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "uniqueItems": true
-        },
-        "conveyingLyph": {
-          "description": "Conveying lyph to model a nested organ or a process on the lyph border. Such a lyph uses the given border as its rotational axis (the corresponding link entity is auto-generated by the lyph viewer.",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ]
-        },
-        "link": {
-          "description": "Link on the border",
-          "$ref"       : "#/definitions/Link",
-          "readOnly"   : true,
-          "relatedTo"  : "linkOnBorder"
         }
       }
     },

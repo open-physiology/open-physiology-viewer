@@ -9,7 +9,11 @@ import {createMeshWithBorder, getCenterOfMass} from '../three/utils';
  */
 export class Region extends Shape {
 
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+        if (!json.points || json.points.length < 3) {
+            json.points = [{"x": -10, "y": -10 },{"x": -10, "y": 10 },{"x": 10, "y": 10 },{"x": 10, "y": -10 }];
+        }
+        json.numBorders = json.points.length;
         let res = super.fromJSON(json, modelClasses, entitiesByID);
         res.points.push(res.points[0]::clone()); //make closed shape
         res.points = res.points.map(p => new THREE.Vector3(p.x, p.y, 0));
@@ -27,6 +31,7 @@ export class Region extends Shape {
      */
     createViewObjects(state) {
         if (!this.viewObjects["main"]) {
+
             let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
             this.center = getCenterOfMass(this.points);
 

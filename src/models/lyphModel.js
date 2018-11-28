@@ -3,19 +3,16 @@ const THREE = window.THREE || three;
 import {Shape} from './shapeModel';
 import {align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
 import {assignPropertiesToJSONPath, copyCoords} from './utils';
-import {isArray, merge, pick} from "lodash-bound";
+import {isObject, isString, keys, merge, pick} from "lodash-bound";
 
 /**
  * Class that creates visualization objects of lyphs
  */
 export class Lyph extends Shape {
 
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
-        let res = super.fromJSON(json, modelClasses, entitiesByID);
-        // if (res.isTemplate){
-        //     this.expandTemplate(res, modelClasses, entitiesByID);
-        // }
-        return res;
+    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+        json.numBorders = 4;
+        return super.fromJSON(json, modelClasses, entitiesByID);
     }
 
     /**
@@ -23,73 +20,47 @@ export class Lyph extends Shape {
      * @param lyphs - lyph set that contains target subtypes
      * @param template - lyph template
      */
-    //TODO rewrite to work on entity graph
     static expandTemplate(lyphs, template){
-        let subtypes = (template.subtypes||[]).map(subtypeRef =>
-            lyphs.find(e => e.id === subtypeRef) || { "id": subtypeRef, "new" : true });
+        if (!template || template.inactive || !lyphs) { return; }
 
-        subtypes.forEach(subtype => {
-            if (subtype.new) { //add auto-create subtype lyphs to the graph lyphs
-                delete subtype.new;
-                lyphs.push(subtype);
+        //Validate subtype
+        (template.subtypes||[]).forEach(s => {
+            if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
+                //generate a lyph for the template supertype
+                lyphs.push(s);
             }
+        });
+        //Template supertype must contain id's for correct generation
+        template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
+
+        let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
+        subtypes.forEach(subtype => {
             subtype.layers = [];
             (template.layers|| []).forEach(layerRef => {
-                let layerParent = lyphs.find(e => e.id === layerRef);
+                let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
                 if (!layerParent) {
                     console.warn("Generation error: template layer object not found: ", layerRef);
                     return;
                 }
-                let newID = `${layerParent.id}_${subtype.id}`;
                 let lyphLayer = {
-                    "id"        : newID,
+                    "id"        : `${layerParent.id}_${subtype.id}`,
                     "supertype" : layerParent.id
                 };
                 let layerParentName = layerParent.name? layerParent.name: `Layer ${layerParent.id}`;
                 let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
-                lyphLayer.name = `${layerParentName} in ${subtypeName}`;
+                lyphLayer.name      = `${layerParentName} in ${subtypeName}`;
 
                 lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
                 lyphs.push(lyphLayer);
-                subtype.layers.push(lyphLayer);
+                subtype.layers.push(lyphLayer.id);
             });
         });
-
-        //Copy defined properties to newly generated lyphs
-        if (template.assign){
-            if (!template.assign::isArray()){
-                console.warn("Cannot assign template properties: ", template.assign);
-                return;
-            }
-            template.assign.forEach(({path, value}) =>
-                assignPropertiesToJSONPath({path, value}, subtypes)
-            );
-        }
+        //Copy assigned properties to newly generated lyphs
+        [...(template.assign||[])].forEach(({path, value}) =>
+            assignPropertiesToJSONPath({path, value}, subtypes)
+        );
+        template.inactive = true;
     }
-
-    // static expandTemplate(template, modelClasses, entitiesByID){
-    //     (template.subtypes||[]).forEach(subtype => {
-    //         subtype::merge(template::pick(["assign", "interpolate"]));
-    //         if (subtype){
-    //
-    //         }
-    //         subtype.layers = [];
-    //         (template.layers|| []).forEach(templateLayer => {
-    //             let subtypeLayer = {
-    //                 "id"        : `${templateLayer.id}_${subtype.id}`,
-    //                 "supertype" : templateLayer.id
-    //             };
-    //             let layerParentName = templateLayer.name? templateLayer.name: `Layer ${templateLayer.id}`;
-    //             let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
-    //
-    //             subtypeLayer.name = `${layerParentName} in ${subtypeName}`;
-    //             subtypeLayer::merge(templateLayer::pick(["color", "layerWidth", "topology"]));
-    //             subtype.layers.push(subtypeLayer);
-    //
-    //             this.fromJSON(subtypeLayer, modelClasses, entitiesByID);
-    //         });
-    //     });
-    // }
 
     radialTypes(topology) {
         switch (topology) {
@@ -123,19 +94,14 @@ export class Lyph extends Shape {
     }
 
     get axis() {
-        if (this.conveyedBy) {
-            return this.conveyedBy;
-        }
-        if (this.layerIn) {
-            return this.layerIn.axis;
-        }
+        return this.conveyedBy || ((this.layerIn)? this.layerIn.axis : null);
     }
 
     get polygonOffsetFactor() {
         let res = 0;
         //Lyphs positioned on top of the given lyph should be rendered first
         //This prevents blinking of polygons with equal z coordinates
-        ["layerIn", "internalIn", "hostedBy"].forEach((prop, i) => {
+        ["axis", "layerIn", "internalIn", "hostedBy"].forEach((prop, i) => {
             if (this[prop]) {
                 res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
             }
@@ -217,6 +183,9 @@ export class Lyph extends Shape {
             ];
 
             //Border uses corner points
+            if (!this.border.createViewObjects){
+                console.log("WEIRD BORDER", this, this.border);
+            }
             this.border.createViewObjects(state);
 
             //Layers
