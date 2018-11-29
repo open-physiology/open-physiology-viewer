@@ -94,7 +94,7 @@ export class Border extends VisualResource {
         let [dX, dY] = ["x", "y"].map(key => points.map(p => Math.min(p[key] - min[key], max[key] - p[key])));
         if (Math.max(...[...dX,...dY]) > delta) { //if the shape is not rectangle
             //Push the link to the tilted lyph rectangle
-            boundToPolygon(link, this.border.borders);
+            boundToPolygon(link, this.borders);
         }
     }
 
@@ -147,7 +147,8 @@ export class Border extends VisualResource {
         let internalLinks = lyphsToLinks(this.host.internalLyphs);
         let numCols = this.host.internalLyphColumns || 1;
         let numRows = internalLinks.length / numCols;
-        internalLinks.forEach((link, i) => { this.placeLinkInside(link, i, numCols, numRows); });
+        //TODO fix internal lyphs!
+       internalLinks.forEach((link, i) => { this.placeLinkInside(link, i, numCols, numRows); });
         lyphsToLinks(this.host.hostedLyphs).forEach((link) => { this.pushLinkInside(link); });
 
          let center = getCenterOfMass(this.host.points);

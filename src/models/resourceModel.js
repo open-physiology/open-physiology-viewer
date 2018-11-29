@@ -1,5 +1,5 @@
 import { definitions }  from '../data/graphScheme.json';
-import { assignPropertiesToJSONPath, JSONPath } from './utils.js';
+export const JSONPath = require('JSONPath');
 import * as colorSchemes from 'd3-scale-chromatic';
 import {
     isArray,
@@ -13,8 +13,29 @@ import {
     isEmpty,
     assign,
     fromPairs,
-    defaults
+    defaults,
+    pick
 } from 'lodash-bound';
+
+/**
+ * Assign properties for the entities in JSON path
+ * @param assign  - assignment array
+ * @param parent  - parent (root) object
+ */
+export function assignPropertiesToJSONPath(assign, parent){
+    [...(assign||[])].forEach(({path, value}) => {
+        if (!path || !value) { return;}
+        try{
+            let entities = (JSONPath({json: parent, path: path}) || []).filter(e => !!e);
+            console.log("Value applied to", value, entities);
+            entities.forEach(e => {
+                e::merge(value);
+            });
+        } catch (err){
+            console.error(`Failed to assign properties to the JSON Path ${path} of:`, parent, err);
+        }
+    })
+}
 
 /**
  * Extracts class name from the schema definition
@@ -115,10 +136,12 @@ export class Resource{
                 if (entitiesByID[res.id] !== res){
                     console.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
                 }
+                //
             } else {
                 entitiesByID[res.id] = res;
                 res.reviseWaitingList(entitiesByID.waitingList);
                 res.replaceIDs(modelClasses, entitiesByID);
+                res.assignPathProperties(modelClasses);
             }
         }
         interpolatePathProperties(res);
@@ -313,39 +336,25 @@ export class Resource{
         });
     };
 
-    /**
-     * Assigns specified properties to the entities defined by the JSONPath expression
-     * @param parent - root entity to which the JSONPath expression applies to
-     * @param modelClasses - a map of entity class names and their implementations
-     * @param entitiesByID - a map of all entities in the model
-     */
-    assignPathProperties(modelClasses, entitiesByID){
-        if (this.template){ return; }
-        if (this.assign) {
-            if (!this.assign::isArray()){
-                console.warn("Skipped property assignment - array expected: ", this.assign);
-                return;
-            }
-            this.assign.forEach(({path, value}) => {
-                assignPropertiesToJSONPath({path, value}, this, (e) => {
-                    //Replace assigned references
-                    if (e && (e instanceof modelClasses["Resource"])) {
-                        e.replaceIDs(modelClasses, entitiesByID);
-                    }
-                })
-            });
-        }
+    assignPathProperties(modelClasses){
+        let assign = [...(this.assign||[])].map(({path, value}) =>
+            value::pick(modelClasses[this.class].Model.propertyNames));
+        assignPropertiesToJSONPath(assign, this);
     };
-
 
     reviseWaitingList(waitingList){
         //Revise waitingList
-        (waitingList[this.id]||[]).forEach(([obj, key]) => {
+        let res = this;
+        (waitingList[res.id]||[]).forEach(([obj, key]) => {
             if (obj[key]::isArray()){
-                obj[key] = obj[key].map(e => (e === this.id)? this: e);
+                obj[key].forEach((e, i) => {
+                   if (e === res.id){
+                       obj[key][i] = res;
+                   }
+                });
             } else {
-                if (obj[key] === this.id){
-                    obj[key] = this
+                if (obj[key] === res.id){
+                    obj[key] = res
                 }
             }}
         );
@@ -355,9 +364,6 @@ export class Resource{
     syncRelationships(modelClasses, entitiesByID){
         entitiesByID::entries().forEach(([id, res]) => {
             if (id === "waitingList") { return; }
-
-            res.assignPathProperties(modelClasses, entitiesByID);
-
             let refFields = modelClasses[res.class].Model.cudRelationships;
             (refFields || []).forEach(([key, spec]) => {
                 if (!res[key]) { return; }
@@ -378,33 +384,27 @@ export class Resource{
                     const syncProperty = (obj) => {
                         if (!obj || !obj::isObject()) { return; }
                         if (otherSpec.type === "array") {
-                            if (!obj[key2]) {
-                                obj[key2] = [];
-                            }
+                            if (!obj[key2]) { obj[key2] = []; }
                             if (!obj[key2]::isArray()) {
                                 console.error(`Object's property '${key2}' should contain an array:`, obj);
                                 return;
                             }
-                            if (!obj[key2].find(obj2 => obj2 === obj || obj2 === obj.id)) {
+                            if (!obj[key2].find(obj2 => (obj2 === res || obj2 === res.id))) {
                                 obj[key2].push(res);
                             }
                         } else {
-                            if (!obj[key2]) {
-                                obj[key2] = res;
-                            }
+                            if (!obj[key2]) { obj[key2] = res; }
                             else {
-                                if (obj[key2] !== res && obj[key2] !== res.id && obj[key2].id !== res.id) {
-                                    console.warn(`First object should match second object:`,
-                                        obj.class, key2, obj[key2], res);
+                                if (obj[key2] !== res && obj[key2] !== res.id) {
+                                    console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the resource:`,
+                                        obj[key2], res);
                                 }
                             }
                         }
                     };
 
                     if (res[key]::isArray()) {
-                        res[key].forEach(obj => {
-                            syncProperty(obj);
-                        })
+                        res[key].forEach(obj => syncProperty(obj))
                     } else {
                         syncProperty(res[key]);
                     }

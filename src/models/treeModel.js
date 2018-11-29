@@ -49,7 +49,10 @@ export class Tree extends Group {
         }
         //generate a node that becomes the root tree (this covers also the case with )
         if (!treeGroup.root){
-            let rootNode = {"id": treeGroup.id + "_root"};
+            let rootNode = {
+                "id"    : treeGroup.id + "_root",
+                "layout": {"x": -100, "y": 0, "z": 0}
+            };
             treeGroup.root = rootNode.id;
             mergeGenResource(rootNode, "nodes");
         }
@@ -64,7 +67,6 @@ export class Tree extends Group {
 
         //Auto-generate missing entities for the tree levels
         let rootNode = parentGroup.nodes.find(e => e.id === treeGroup.root);
-        rootNode.layout::merge({"x": -100, "y": 0, "z": 0});
         let source = rootNode;
         for (let i = 0; i < treeGroup.numLevels; i++){
             if (!treeGroup.levels[i]){ treeGroup.levels[i] = {}; }

@@ -2,9 +2,9 @@ import * as three from 'three';
 const THREE = window.THREE || three;
 import {Shape} from './shapeModel';
 import {align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
-import {assignPropertiesToJSONPath, copyCoords} from './utils';
-import {isObject, isString, keys, merge, pick} from "lodash-bound";
-
+import {copyCoords} from './utils';
+import {isObject, isString,  merge, pick} from "lodash-bound";
+import {assignPropertiesToJSONPath} from './resourceModel';
 /**
  * Class that creates visualization objects of lyphs
  */
@@ -51,19 +51,19 @@ export class Lyph extends Shape {
                 lyphLayer.name      = `${layerParentName} in ${subtypeName}`;
 
                 lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
-                lyphs.push(lyphLayer);
-                subtype.layers.push(lyphLayer.id);
+                subtype.layers.push(lyphLayer);
             });
+            assignPropertiesToJSONPath(subtype.assign, subtype);
+            subtype.layers.forEach(e => lyphs.push(e));
+            subtype.layers = subtype.layers.map(e => e.id);
         });
         //Copy assigned properties to newly generated lyphs
-        [...(template.assign||[])].forEach(({path, value}) =>
-            assignPropertiesToJSONPath({path, value}, subtypes)
-        );
+        assignPropertiesToJSONPath(template.assign, template);
         template.inactive = true;
     }
 
-    radialTypes(topology) {
-        switch (topology) {
+    get radialTypes() {
+        switch (this.topology) {
             case "BAG"  :
                 return [true, false];
             case "BAG2" :
@@ -151,10 +151,8 @@ export class Lyph extends Shape {
         //Create a lyph object
         if (!this.viewObjects["main"]) {
             //Either use given dimensions or set from axis
-            this.width  = this.width  || this.size.width;
+            this.width = this.width || this.size.width;
             this.height = this.height || this.size.height;
-
-            let numLayers = (this.layers || [this]).length;
 
             let params = {
                 color: this.color,
@@ -165,50 +163,44 @@ export class Lyph extends Shape {
             let obj = createMeshWithBorder(
                 this.prev
                     ? layerShape(
-                        [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
-                        [this.width, this.height, this.height / 4, ...this.radialTypes])
+                    [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
+                    [this.width, this.height, this.height / 4, ...this.radialTypes])
                     : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
                 params);
 
             obj.userData = this;
             this.viewObjects['main'] = obj;
 
-            this.offset = this.offset ||0;
+            this.offset = this.offset || 0;
             this._points = [
                 new THREE.Vector3(this.offset, -this.height / 2, 0),
-                new THREE.Vector3(this.offset,  this.height / 2, 0),
+                new THREE.Vector3(this.offset, this.height / 2, 0),
                 new THREE.Vector3(this.width + this.offset, this.height / 2, 0),
-                new THREE.Vector3(this.width + this.offset, -this.height / 2,0),
+                new THREE.Vector3(this.width + this.offset, -this.height / 2, 0),
                 new THREE.Vector3(this.offset, -this.height / 2, 0)
             ];
 
             //Border uses corner points
-            if (!this.border.createViewObjects){
-                console.log("WEIRD BORDER", this, this.border);
-            }
             this.border.createViewObjects(state);
 
             //Layers
 
             //Define proportion each layer takes
+            let numLayers = (this.layers || [this]).length;
             let resizedLayers = (this.layers || []).filter(layer => layer.layerWidth);
             let layerTotalWidth = 0;
             (resizedLayers || []).forEach(layer => layerTotalWidth += layer.layerWidth);
             let defaultWidth = (resizedLayers.length < numLayers) ?
                 (100. - layerTotalWidth) / (numLayers - resizedLayers.length) : 0;
 
-            //Link layers
             for (let i = 1; i < (this.layers || []).length; i++) {
                 this.layers[i].prev = this.layers[i - 1];
                 this.layers[i].prev.next = this.layers[i];
             }
 
-            //Draw layers
             let offset = 0;
             (this.layers || []).forEach(layer => {
-                if (!layer.layerWidth) {
-                    layer.layerWidth = defaultWidth;
-                }
+                layer.layerWidth = layer.layerWidth || defaultWidth;
                 layer.width = layer.layerWidth / 100 * this.width;
                 layer.height = this.height;
                 layer.offset = offset;
@@ -220,11 +212,9 @@ export class Lyph extends Shape {
                 obj.add(layerObj);
             });
         }
-
         //Do not create labels for layers and nested lyphs
         if (this.layerIn || this.internalIn) { return; }
         this.createLabels(state.labels[this.constructor.name], state.fontParams);
-
     }
 
     /**
@@ -251,7 +241,8 @@ export class Lyph extends Shape {
         }
 
         //update layers
-        (this.layers || []).forEach(layer => { layer.updateViewObjects(state); });
+        (this.layers || []).forEach(layer => layer.updateViewObjects(state));
+
         this.border.updateViewObjects(state);
 
         //Layers and inner lyphs have no labels

@@ -1643,7 +1643,30 @@
       "id"        : "m",
       "layers"    : ["m_layer1", "m_layer2"],
       "isTemplate": true,
-      "subtypes"  : ["m1","m2", "m3"]
+      "subtypes"  : ["m1","m2", "m3"],
+      "assign"    : [
+        {
+          "path": "$.subtypes[1].layers[1]",
+          "value": {
+            "internalLyphs": ["m1_1", "m1_2", "m1_3", "m1_4"],
+            "internalLyphColumns": 4
+          }
+        },
+        {
+          "path": "$.subtypes[2].layers[1]",
+          "value": {
+            "internalLyphs": ["m2_1", "m2_2", "m2_3", "m2_4", "m2_5"],
+            "internalLyphColumns": 3,
+            "internalNodes": ["8"]
+          }
+        },
+        {
+          "path": "$.subtypes[3].layers[1]",
+          "value": {
+            "internalLyphs": ["m3_1", "m3_2"]
+          }
+        }
+      ]
     },
     {
       "id"      : "m1",
@@ -1654,41 +1677,14 @@
         "22",
         "24",
         "25"
-      ],
-      "assign": [
-        {
-          "path": "$.layers[1]",
-          "value": {
-            "internalLyphs": ["m1_1", "m1_2", "m1_3", "m1_4"],
-            "internalLyphColumns": 4
-          }
-        }
       ]
     },
     {
       "id": "m2",
-      "name": "Medulla",
-      "assign": [
-        {
-          "path": "$.layers[1]",
-          "value": {
-            "internalLyphs": ["m2_1", "m2_2", "m2_3", "m2_4", "m2_5"],
-            "internalLyphColumns": 3,
-            "internalNodes": ["8"]
-          }
-        }
-      ]
+      "name": "Medulla"
     },
     {
-      "id": "m3",
-      "assign": [
-        {
-          "path": "$.layers[1]",
-          "value": {
-            "internalLyphs": ["m3_1", "m3_2"]
-          }
-        }
-      ]
+      "id": "m3"
     },
     {"id": "m1_1"},
     {"id": "m1_2"},

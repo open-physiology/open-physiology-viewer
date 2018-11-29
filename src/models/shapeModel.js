@@ -1,6 +1,6 @@
 import {VisualResource} from './visualResourceModel';
 import {keys, merge} from 'lodash-bound';
-import {Link} from "./linkModel";
+
 /**
  * Class that creates visualization objects of regions
  */
@@ -13,6 +13,12 @@ export class Shape extends VisualResource {
         json.border.borders = json.border.borders || {};
         for (let i = 0; i < json.numBorders ; i++){
             json.border.borders[i]::merge({"id": json.border.id + "_" + i});
+            // let [s, t] = ["s", "t"].map(prefix => ({"id": `${prefix}_${json.border.id}_${i}`}));
+            // json.border.borders[i]::merge({
+            //     "id": json.border.id + "_" + i,
+            //     "source": s,
+            //     "target": t
+            // });
         }
         delete json.numBorders;
         let res = super.fromJSON(json, modelClasses, entitiesByID);

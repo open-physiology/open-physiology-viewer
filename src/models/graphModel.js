@@ -75,10 +75,16 @@ export class Graph extends Group{
         }
 
         if (entitiesByID.waitingList::keys().length > 0){
-            console.warn("Incorrect model, could not process unknown references: ", entitiesByID.waitingList);
+            console.warn("Incorrect model - found references to undefined resources: ", entitiesByID.waitingList);
         }
         res.syncRelationships(modelClasses, entitiesByID);
         res.entitiesByID = entitiesByID;
+
+        if (res.entitiesByID["m1"]){
+            console.log("InternalLyph: ", res.entitiesByID["m1"].layers[1],
+                res.entitiesByID["m1"].layers[1].internalLyphs);
+
+        }
 
         //Create a coalescence group and force links to bind coalescing lyphs
         let coalescenceGroup = (res.groups||[]).find(g => g.id === "coalescences");
@@ -138,6 +144,9 @@ export class Graph extends Group{
         const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
                 p[key] *= axisLength * 0.01;
             });
+        //(this.lyphs||[]).filter(lyph => lyph.width).forEach(lyph => {
+        // });
+
         (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
         (this.links||[]).filter(link => link.length).forEach(link => link.length *= 2 * axisLength * 0.01);
         (this.regions||[]).filter(region => region.points).forEach(region =>

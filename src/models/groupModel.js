@@ -11,6 +11,9 @@ const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
     .forEach((e, i) => { e.color = defaultColor || colors[i % colors.length] });
 
+//TODO replace with code that derives the group classes from the specification
+const GROUP_CLASSES = ["Group", "Tree", "Graph"];
+
 export class Group extends Resource {
 
     /**
@@ -25,14 +28,14 @@ export class Group extends Resource {
         //New entities will be auto-generated in the raw JSON format
         this.replaceBorderNodes(json);
 
-        addColor((json.lyphs||[]).filter(e => e.isTemplate));
+        //addColor((json.lyphs||[]).filter(e => e.isTemplate));
         this.expandTreeTemplates(json, modelClasses);
         this.expandLyphTemplates(json.lyphs);
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
         res.mergeSubgroupEntities();
-        res.createAxesForInternalLyphs(entitiesByID);
+        res.createAxesForInternalLyphs(modelClasses, entitiesByID);
 
         //Color entities which do not have assigned colors in the spec
         addColor(res.regions, "#c0c0c0");
@@ -118,14 +121,14 @@ export class Group extends Resource {
      * Add entities from subgroups to the current group
      */
     mergeSubgroupEntities(){
-        this.groups = (this.groups||[])::unionBy(this.trees, "id");
+        //this.groups = (this.groups||[])::unionBy(this.trees, "id");
 
         (this.groups||[]).forEach(group => {
             if (group.id === this.id || (this.inGroups||[]).find(e => e.id === group.id)) {
                 console.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames(["Tree", "Group", "Graph"]);
+            let relFieldNames = this.constructor.Model.filteredRelNames(GROUP_CLASSES);
             relFieldNames.forEach(property => { this[property] = (this[property]||[])::unionBy(group[property], "id"); });
         });
 
@@ -145,7 +148,8 @@ export class Group extends Resource {
      * Auto-generates links for internal lyphs
      * @param entitiesByID - a global resource map to include the generated resources
      */
-    createAxesForInternalLyphs(entitiesByID){
+    //TODO this should happen for regions too
+    createAxesForInternalLyphs(modelClasses, entitiesByID){
         /**
          * Create an axis for a lyph
          * @param lyph - lyph without axis
@@ -159,37 +163,36 @@ export class Group extends Resource {
                     "color": "#ccc",
                     "val"  : 0.1,
                     "skipLabel": true
-                })));
+                }, modelClasses, entitiesByID)));
 
             let link = Link.fromJSON({
                 "id"      : `${sNode.id}_ ${tNode.id}`,
-                "source"  : sNode,
-                "target"  : tNode,
+                "source"  : sNode.id,
+                "target"  : tNode.id,
                 "length"  : container && container.axis? container.axis.length * 0.8 : 5,
                 "geometry": LINK_GEOMETRY.INVISIBLE,
                 "color"   : "#ccc",
-                "conveyingLyph": lyph
-            });
-            lyph.conveyedBy = sNode.sourceIn = tNode.targetIn = link;
-        };
+                "conveyingLyph": lyph.id
+            }, modelClasses, entitiesByID);
+            lyph.conveyedBy = link.id;
 
-        const addLinkToGroup = (link) => {
             if (!this.links) {this.links = [];}
             if (!this.nodes) {this.nodes = [];}
             this.links.push(link);
-            [link.source, link.target].forEach(node => {
-                this.nodes.push(node);
-                if (entitiesByID) { entitiesByID[node.id] = node; }
-            });
-            if (entitiesByID) { entitiesByID[link.id] = link; }
+            [sNode, tNode].forEach(node => this.nodes.push(node));
         };
 
-        //Add auto-create axes for internal lyphs to the relevant groups
-        (this.lyphs||[]).filter(lyph => lyph.internalIn).forEach(lyph => {
-            if (!lyph.conveyedBy) { createAxis(lyph, lyph.internalIn); }
-            if (!this.belongsTo(lyph.conveyedBy)) { addLinkToGroup(lyph.conveyedBy); }
-        });
+        //Create axes for internal lyphs and add to the group
 
+        let iLyphs = (this.lyphs||[]).filter(lyph => lyph.internalIn || lyph.internalLyphs);
+        //THis runs before syncRelationships, so explore both ways!
+        iLyphs.forEach(lyph => {
+            console.log("Found internal lyphs:", lyph);
+            if (lyph.internalIn && !lyph.internalIn.conveyedBy){
+                createAxis(lyph, lyph.internalIn);
+            }
+            lyph.internalLyphs.filter(lyph2 => !lyph2.conveyedBy).forEach(lyph2 => createAxis(lyph2, lyph));
+        });
     }
 
     /**
@@ -198,10 +201,8 @@ export class Group extends Resource {
      */
     get entities(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames([this.constructor.name]); //Exclude groups
-        relFieldNames.forEach(property => {
-            if (this[property]) { res = [...res, ...(this[property] ||[])]}
-        });
+        let relFieldNames = this.constructor.Model.filteredRelNames(GROUP_CLASSES); //Exclude groups
+        relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
         return res.filter(e => !!e);
     }
 
@@ -242,7 +243,7 @@ export class Group extends Resource {
      * @returns {T[]}
      */
     get activeGroups(){
-        return (this.groups||[]).filter(e => !e.inactive);
+        return [...(this.groups||[]),...(this.trees||[])].filter(e => !e.inactive);
     }
 
     get visibleRegions(){

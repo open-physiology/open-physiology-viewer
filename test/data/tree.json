@@ -1,20 +1,19 @@
 {
   "trees": [{
-      "id"          : "tree1",
-      "name"        : "Neuron tree",
-      "numLevels"   : 8,
-      "lyphTemplate": "neuronLyph"
-    }],
-  "lyphs": [
-    {
-      "id"        : "neuronLyph",
-      "isTemplate": true,
-      "layers"    : [
-        "cytosol",
-        "plasma",
-        "fluid"
-      ]
-    },
+    "id"          : "tree1",
+    "name"        : "Neuron tree",
+    "numLevels"   : 8,
+    "lyphTemplate": "neuronLyph"
+  }],
+  "lyphs": [{
+    "id"        : "neuronLyph",
+    "isTemplate": true,
+    "layers"    : [
+      "cytosol",
+      "plasma",
+      "fluid"
+    ]
+  },
     {
       "id"   : "plasma",
       "name" : "Plasma membrane",
