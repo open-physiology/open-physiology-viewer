@@ -78,5 +78,11 @@
         "max": 2
       }
     }
+  ],
+  "assign": [
+    {
+      "path": "name",
+      "value": "HoHo!"
+    }
   ]
 }

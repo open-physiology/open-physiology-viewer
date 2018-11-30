@@ -4,7 +4,6 @@ import {Shape} from './shapeModel';
 import {align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
 import {copyCoords} from './utils';
 import {isObject, isString,  merge, pick} from "lodash-bound";
-import {assignPropertiesToJSONPath} from './resourceModel';
 /**
  * Class that creates visualization objects of lyphs
  */
@@ -24,7 +23,7 @@ export class Lyph extends Shape {
         if (!template || template.inactive || !lyphs) { return; }
 
         //Validate subtype
-        (template.subtypes||[]).forEach(s => {
+        (template.subtypes||[]).forEach((s, i) => {
             if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
                 //generate a lyph for the template supertype
                 lyphs.push(s);
@@ -51,14 +50,12 @@ export class Lyph extends Shape {
                 lyphLayer.name      = `${layerParentName} in ${subtypeName}`;
 
                 lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
+                lyphLayer::merge(subtype::pick(["topology"]));
                 subtype.layers.push(lyphLayer);
             });
-            assignPropertiesToJSONPath(subtype.assign, subtype);
             subtype.layers.forEach(e => lyphs.push(e));
             subtype.layers = subtype.layers.map(e => e.id);
         });
-        //Copy assigned properties to newly generated lyphs
-        assignPropertiesToJSONPath(template.assign, template);
         template.inactive = true;
     }
 

@@ -342,7 +342,7 @@
     {
       "path": "$.links[?(@.conveyingLyph && @.conveyingLyph.supertype && @.conveyingLyph.supertype.id == 'bg0')]",
       "value": {
-        "length": 2
+        "length": 1
       }
     }
   ]

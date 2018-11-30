@@ -14,28 +14,9 @@ import {
     assign,
     fromPairs,
     defaults,
-    pick
+    pick,
+    omit
 } from 'lodash-bound';
-
-/**
- * Assign properties for the entities in JSON path
- * @param assign  - assignment array
- * @param parent  - parent (root) object
- */
-export function assignPropertiesToJSONPath(assign, parent){
-    [...(assign||[])].forEach(({path, value}) => {
-        if (!path || !value) { return;}
-        try{
-            let entities = (JSONPath({json: parent, path: path}) || []).filter(e => !!e);
-            console.log("Value applied to", value, entities);
-            entities.forEach(e => {
-                e::merge(value);
-            });
-        } catch (err){
-            console.error(`Failed to assign properties to the JSON Path ${path} of:`, parent, err);
-        }
-    })
-}
 
 /**
  * Extracts class name from the schema definition
@@ -60,50 +41,6 @@ const getRefs = (spec) => {
     if ( expr ){
         return expr.filter(e => e.$ref).map(e => e.$ref);
     }
-};
-
-/**
- * Assigns properties that can be set using interpolation functions allowed by the schema
- * @param parent
- */
-const interpolatePathProperties = (parent) => {
-    (parent.interpolate||[]).forEach(({path, offset, color}) => {
-        let resources = path? JSONPath({json: parent, path: path}) || []: parent.nodes || [];
-        if (offset){
-            offset::defaults({
-                "start": 0,
-                "end": 1,
-                "step": (offset.end - offset.start) / (resources.length + 1)
-            });
-            resources.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
-        }
-        if (color){
-            let {scheme, length, reversed = false, offset} = color;
-            if (!colorSchemes[scheme]) {
-                console.warn("Unrecognized color scheme: ", scheme);
-                return;
-            }
-            if (!length) { length = resources.length; }
-            if (!offset) { offset = 0; }
-
-            const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
-            const assignColor = items => {
-                (items||[]).forEach((item, i) => {
-                    if (!item::isObject()) {
-                        console.warn("Cannot assign color to a non-object value");
-                        return;
-                    }
-                    //If entity is an array, the schema is applied to each of it's items
-                    if (item::isArray()){
-                        assignColor(item);
-                    } else {
-                        item.color = getColor(i);
-                    }
-                });
-            };
-            assignColor(resources);
-        }
-    })
 };
 
 export class Resource{
@@ -136,15 +73,12 @@ export class Resource{
                 if (entitiesByID[res.id] !== res){
                     console.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
                 }
-                //
             } else {
                 entitiesByID[res.id] = res;
                 res.reviseWaitingList(entitiesByID.waitingList);
                 res.replaceIDs(modelClasses, entitiesByID);
-                res.assignPathProperties(modelClasses);
             }
         }
-        interpolatePathProperties(res);
         return res;
     }
 
@@ -299,7 +233,7 @@ export class Resource{
 
             if (value.id && entitiesByID[value.id]) {
                 if (value !== entitiesByID[value.id]) {
-                    console.warn("Duplicate resource definition:", res, key, value.id, value, entitiesByID[value.id]);
+                    console.warn("Duplicate resource definition:", value, entitiesByID[value.id]);
                 }
                 return entitiesByID[value.id];
             }
@@ -337,10 +271,72 @@ export class Resource{
     };
 
     assignPathProperties(modelClasses){
-        let assign = [...(this.assign||[])].map(({path, value}) =>
-            value::pick(modelClasses[this.class].Model.propertyNames));
-        assignPropertiesToJSONPath(assign, this);
+        if (!this.assign){ return;  }
+        //Filter the value to assign only valid class properties
+        try{
+            [...(this.assign||[])].forEach(({path, value}) => {
+                if (!path || !value) { return;}
+                let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
+                entities.forEach(e => {
+                    console.log(e.class);
+                    let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
+                    let newValue = value::pick(propNames);
+                    if (newValue::keys().length !== value::keys().length){
+                        console.warn(`Property filter for class ${e.class} skipped invalid assignments: `,
+                            value::omit(propNames));
+                    }
+                    e::merge(newValue);
+                    //TODO If relationships are enabled, make sure we do not override resolved references!
+                });
+            })
+        } catch (err){
+            console.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
+        }
     };
+
+    /**
+     *
+     */
+    interpolatePathProperties(){
+        [...(this.interpolate||[])].forEach(({path, offset, color}) => {
+
+            let resources = path? JSONPath({json: this, path: path}) || []: this.nodes || [];
+            if (offset){
+                offset::defaults({
+                    "start": 0,
+                    "end": 1,
+                    "step": (offset.end - offset.start) / (resources.length + 1)
+                });
+                resources.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
+            }
+            if (color){
+                let {scheme, length, reversed = false, offset} = color;
+                if (!colorSchemes[scheme]) {
+                    console.warn("Unrecognized color scheme: ", scheme);
+                    return;
+                }
+                if (!length) { length = resources.length; }
+                if (!offset) { offset = 0; }
+
+                const getColor = i => colorSchemes[scheme](((reversed)? 1 - offset - i / length : offset + i / length));
+                const assignColor = items => {
+                    (items||[]).forEach((item, i) => {
+                        if (!item::isObject()) {
+                            console.warn("Cannot assign color to a non-object value");
+                            return;
+                        }
+                        //If entity is an array, the schema is applied to each of it's items
+                        if (item::isArray()){
+                            assignColor(item);
+                        } else {
+                            item.color = getColor(i);
+                        }
+                    });
+                };
+                assignColor(resources);
+            }
+        })
+    }
 
     reviseWaitingList(waitingList){
         //Revise waitingList
@@ -409,7 +405,10 @@ export class Resource{
                         syncProperty(res[key]);
                     }
                 }
-            })
+            });
+            //Keep it here as only at the end we can resolve JSONPath expressions with backward relationships
+            res.assignPathProperties(modelClasses);
+            res.interpolatePathProperties();
         })
     }
 

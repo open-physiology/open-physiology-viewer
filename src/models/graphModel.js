@@ -3,6 +3,7 @@ import {entries, keys, isNumber, cloneDeep, defaults} from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
 import { Link, LINK_GEOMETRY } from "./linkModel";
+import {Node} from "./nodeModel";
 
 const validator = new Validator();
 
@@ -16,13 +17,7 @@ export class Graph extends Group{
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
         let model = json::cloneDeep()::defaults({
-            id: "mainModel",
-            assign: [
-                {
-                    "path": "$.nodes",
-                    "value": {"charge": 10}
-                }
-            ]
+            id: "mainModel"
         });
 
         //Copy existing entities to a map to enable nested model instantiation
@@ -78,13 +73,11 @@ export class Graph extends Group{
             console.warn("Incorrect model - found references to undefined resources: ", entitiesByID.waitingList);
         }
         res.syncRelationships(modelClasses, entitiesByID);
+
+        res.createAxesForInternalLyphs(modelClasses, entitiesByID);
+
+
         res.entitiesByID = entitiesByID;
-
-        if (res.entitiesByID["m1"]){
-            console.log("InternalLyph: ", res.entitiesByID["m1"].layers[1],
-                res.entitiesByID["m1"].layers[1].internalLyphs);
-
-        }
 
         //Create a coalescence group and force links to bind coalescing lyphs
         let coalescenceGroup = (res.groups||[]).find(g => g.id === "coalescences");
@@ -130,6 +123,45 @@ export class Graph extends Group{
         createCoalescenceForces(res);
 
         return res;
+    }
+
+    /**
+     * Auto-generates links for internal lyphs
+     * @param entitiesByID - a global resource map to include the generated resources
+     */
+    createAxesForInternalLyphs(modelClasses, entitiesByID){
+        const createAxis = (lyph, container) => {
+            let [sNode, tNode] = ["s", "t"].map(prefix => (
+                Node.fromJSON({
+                    "id"   : `${prefix}${lyph.id}`,
+                    "name" : `${prefix}${lyph.id}`,
+                    "color": "#ccc",
+                    "val"  : 0.1,
+                    "skipLabel": true
+                })));
+
+            let link = Link.fromJSON({
+                "id"           : `${lyph.id}-lnk`,
+                "source"       : sNode,
+                "target"       : tNode,
+                "length"       : container && container.axis? container.axis.length * 0.8 : 5,
+                "geometry"     : LINK_GEOMETRY.INVISIBLE,
+                "color"        : "#ccc",
+                "conveyingLyph": lyph
+            });
+            lyph.conveyedBy = link;
+            sNode.sourceOf = [link];
+            tNode.targetOf = [link];
+
+            if (!this.links) {this.links = [];}
+            if (!this.nodes) {this.nodes = [];}
+            this.links.push(link);
+            [sNode, tNode].forEach(node => this.nodes.push(node));
+        };
+
+        //This runs before syncRelationships, it is important to revise all group lyphs!
+        [...(this.lyphs||[]), ...(this.regions||[])]
+            .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph, lyph.internalIn));
     }
 
     optionsProvider(clsName, id = undefined){

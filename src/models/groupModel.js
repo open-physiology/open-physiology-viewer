@@ -26,7 +26,8 @@ export class Group extends Resource {
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
 
         //New entities will be auto-generated in the raw JSON format
-        this.replaceBorderNodes(json);
+        //this.replaceBorderNodes(json);
+
 
         //addColor((json.lyphs||[]).filter(e => e.isTemplate));
         this.expandTreeTemplates(json, modelClasses);
@@ -35,7 +36,6 @@ export class Group extends Resource {
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
         res.mergeSubgroupEntities();
-        res.createAxesForInternalLyphs(modelClasses, entitiesByID);
 
         //Color entities which do not have assigned colors in the spec
         addColor(res.regions, "#c0c0c0");
@@ -67,7 +67,8 @@ export class Group extends Resource {
      */
     static replaceBorderNodes(json){
         let borderNodesByID = {};
-        let lyphsWithBorders = (json.lyphs||[]).filter(lyph => ((lyph.border || {}).borders||[]).find(b => b.hostedNodes));
+        let lyphsWithBorders = (json.lyphs||[]).filter(lyph => lyph.border && (lyph.border.borders||[])
+            .find(b => b && b.hostedNodes)); //TODO if link's reference is used this will fail
         lyphsWithBorders.forEach(lyph => {
             lyph.border.borders.forEach(b => {
                 (b.hostedNodes||[]).forEach(nodeID => {
@@ -79,7 +80,6 @@ export class Group extends Resource {
 
         borderNodesByID::keys().forEach(nodeID => {
             if (borderNodesByID[nodeID].length > 1){
-                //groups that contain the node
                 //links affected by the border node constraints
                 let links = (json.links||[]).filter(e => e.target === nodeID);
                 let node  = (json.nodes||[]).find(e => e.id === nodeID);
@@ -141,57 +141,6 @@ export class Group extends Resource {
                     clone.hostedBy.hostedNodes.push(clone);
                 }
             });
-        });
-    }
-
-    /**
-     * Auto-generates links for internal lyphs
-     * @param entitiesByID - a global resource map to include the generated resources
-     */
-    //TODO this should happen for regions too
-    createAxesForInternalLyphs(modelClasses, entitiesByID){
-        /**
-         * Create an axis for a lyph
-         * @param lyph - lyph without axis
-         * @param container - lyph's container to size the auto-created link
-         */
-        const createAxis = (lyph, container) => {
-            let [sNode, tNode] = ["s", "t"].map(prefix => (
-                Node.fromJSON({
-                    "id"   : `${prefix}${lyph.id}`,
-                    "name" : `${prefix}${lyph.id}`,
-                    "color": "#ccc",
-                    "val"  : 0.1,
-                    "skipLabel": true
-                }, modelClasses, entitiesByID)));
-
-            let link = Link.fromJSON({
-                "id"      : `${sNode.id}_ ${tNode.id}`,
-                "source"  : sNode.id,
-                "target"  : tNode.id,
-                "length"  : container && container.axis? container.axis.length * 0.8 : 5,
-                "geometry": LINK_GEOMETRY.INVISIBLE,
-                "color"   : "#ccc",
-                "conveyingLyph": lyph.id
-            }, modelClasses, entitiesByID);
-            lyph.conveyedBy = link.id;
-
-            if (!this.links) {this.links = [];}
-            if (!this.nodes) {this.nodes = [];}
-            this.links.push(link);
-            [sNode, tNode].forEach(node => this.nodes.push(node));
-        };
-
-        //Create axes for internal lyphs and add to the group
-
-        let iLyphs = (this.lyphs||[]).filter(lyph => lyph.internalIn || lyph.internalLyphs);
-        //THis runs before syncRelationships, so explore both ways!
-        iLyphs.forEach(lyph => {
-            console.log("Found internal lyphs:", lyph);
-            if (lyph.internalIn && !lyph.internalIn.conveyedBy){
-                createAxis(lyph, lyph.internalIn);
-            }
-            lyph.internalLyphs.filter(lyph2 => !lyph2.conveyedBy).forEach(lyph2 => createAxis(lyph2, lyph));
         });
     }
 

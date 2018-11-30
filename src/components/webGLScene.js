@@ -52,6 +52,13 @@ const WindowResize = require('three-window-resize');
             </section>
             <section id="settingsPanel" *ngIf="showPanel" stop-propagation class="w3-third">
                 <section class="w3-padding-small">
+
+                    <!--Highlighted entity-->
+
+                    <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
+                        <legend>Highlighted</legend>
+                        <modelInfoPanel *ngIf="!!_highlighted" [model]=_highlighted></modelInfoPanel>
+                    </fieldset>
                     
                     <!--Search bar-->
                     
@@ -66,13 +73,6 @@ const WindowResize = require('three-window-resize');
                     <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
                         <modelInfoPanel *ngIf="!!_selected" [model]=_selected></modelInfoPanel>
-                    </fieldset>
-                    
-                    <!--Highlighted entity-->
-                    
-                    <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
-                        <legend>Highlighted</legend>
-                        <modelInfoPanel *ngIf="!!_highlighted" [model]=_highlighted></modelInfoPanel>
                     </fieldset>
                     
                     <!--Group controls-->
@@ -187,6 +187,7 @@ export class WebGLSceneComponent {
     axisLength = 1000;
     lockControls = false;
 
+    //TODO replace with graph data config
     config = {
         "layout": {
             "lyphs"       : true,

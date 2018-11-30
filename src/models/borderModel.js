@@ -39,6 +39,10 @@ export class Border extends VisualResource {
      * @param numRows - number of Rows
      */
     placeLinkInside(link, i, numCols, numRows){//TODO this will only work well for rectangular shapes
+        if (!link.source || !link.target){
+            console.warn(`Cannot place a link inside border ${this.id}`, link);
+            return;
+        }
         let delta = 0.05; //offset from the border
         let p = this.host.points.slice(0,3).map(p => p.clone());
         p.forEach(p => p.z += 1);
@@ -49,13 +53,17 @@ export class Border extends VisualResource {
         let tOffsetX = dX.clone().multiplyScalar(1 - (i % numCols + 1) / numCols + link.target.offset || 0);
         copyCoords(link.source, p[0].clone().add(sOffsetX).add(offsetY));
         copyCoords(link.target, p[1].clone().sub(tOffsetX).add(offsetY));
-        link.source.z += 1;
+        link.source.z += 1; //todo replace to polygonOffset?
     }
 
     placeNodeInside(node, i, n, center){//TODO this will only work well for rectangular shapes
+        if (!node || !node.class) {
+            console.warn(`Cannot place a node inside border ${this.id}`, node);
+            return;
+        }
         let [min, max] = this.getBoundingBox();
         let dX = max.x - min.x; let dY = max.y - min.y;
-        let r = Math.min(dX, dY) / 4;
+        let r  = Math.min(dX, dY) / 4;
         let offset = new THREE.Vector3( r, 0, 0 );
         let axis   = new THREE.Vector3( 0, 0, 1);
         let angle  = 4 * Math.PI * i / n;
@@ -144,12 +152,14 @@ export class Border extends VisualResource {
         //By doing the update here, we also support inner content in the region
         const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
 
+
+        let hostedLinks   = lyphsToLinks(this.host.hostedLyphs);
         let internalLinks = lyphsToLinks(this.host.internalLyphs);
+
+        hostedLinks.forEach((link) => { this.pushLinkInside(link); });
         let numCols = this.host.internalLyphColumns || 1;
         let numRows = internalLinks.length / numCols;
-        //TODO fix internal lyphs!
-       internalLinks.forEach((link, i) => { this.placeLinkInside(link, i, numCols, numRows); });
-        lyphsToLinks(this.host.hostedLyphs).forEach((link) => { this.pushLinkInside(link); });
+        internalLinks.forEach((link, i) => { this.placeLinkInside(link, i, numCols, numRows); });
 
          let center = getCenterOfMass(this.host.points);
         (this.host.internalNodes || []).forEach((node, i) => {
