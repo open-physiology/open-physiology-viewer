@@ -1646,14 +1646,14 @@
       "subtypes"  : ["m1", "m2", "m3"],
       "assign"    : [
         {
-          "path": "$.subtypes[1].layers[1]",
+          "path": "$.subtypes[0].layers[1]",
           "value": {
             "internalLyphs": ["m1_1", "m1_2", "m1_3", "m1_4"],
             "internalLyphColumns": 4
           }
         },
         {
-          "path": "$.subtypes[2].layers[1]",
+          "path": "$.subtypes[1].layers[1]",
           "value": {
             "internalLyphs": ["m2_1", "m2_2", "m2_3", "m2_4", "m2_5"],
             "internalLyphColumns": 3,
@@ -1661,7 +1661,7 @@
           }
         },
         {
-          "path": "$.subtypes[3].layers[1]",
+          "path": "$.subtypes[2].layers[1]",
           "value": {
             "internalLyphs": ["m3_1", "m3_2"]
           }

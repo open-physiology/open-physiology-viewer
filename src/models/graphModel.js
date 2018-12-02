@@ -73,9 +73,7 @@ export class Graph extends Group{
             console.warn("Incorrect model - found references to undefined resources: ", entitiesByID.waitingList);
         }
         res.syncRelationships(modelClasses, entitiesByID);
-
         res.createAxesForInternalLyphs(modelClasses, entitiesByID);
-
 
         res.entitiesByID = entitiesByID;
 

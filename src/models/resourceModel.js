@@ -65,7 +65,6 @@ export class Resource{
         res::assign(json);
 
         if (entitiesByID){
-            //Exclude just created entity from being ever created again in the following recursion
             if (!res.id) { res.id = "new_" + entitiesByID::keys().length; }
             if ( res.id::isNumber()){ res.id = res.id.toString(); }
 
@@ -178,20 +177,19 @@ export class Resource{
         model.relationshipNames = model.relationships.map(([key, ]) => key);
         model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
 
-        model.isRelationship   = (key) => model.relationshipNames.includes(key);
+        model.isRelationship    = (key) => model.relationshipNames.includes(key);
 
         //Create, Update, Delete (CUD) fields
         model.cudFields         = model.fields       .filter(([key, spec]) => !spec.readOnly);
         model.cudProperties     = model.properties   .filter(([key, spec]) => !spec.readOnly);
         model.cudRelationships  = model.relationships.filter(([key, spec]) => !spec.readOnly);
 
-        model.filteredRelNames  = (clsNames) => {
+        model.filteredRelNames     = (clsNames) => {
             let relFields = model.relationships;
             return (relFields||[])
                 .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
                 .map(([key, ]) => key);
         };
-
         model.getRelNameByClsName  = (clsName) => {
             let relFields = model.relClassNames;
             let relNames = relFields::entries().filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
@@ -270,7 +268,7 @@ export class Resource{
         });
     };
 
-    assignPathProperties(modelClasses){
+    assignPathRelationships(modelClasses, entitiesByID){
         if (!this.assign){ return;  }
         //Filter the value to assign only valid class properties
         try{
@@ -278,16 +276,43 @@ export class Resource{
                 if (!path || !value) { return;}
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
-                    console.log(e.class);
-                    let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
-                    let newValue = value::pick(propNames);
-                    if (newValue::keys().length !== value::keys().length){
-                        console.warn(`Property filter for class ${e.class} skipped invalid assignments: `,
-                            value::omit(propNames));
-                    }
+                    let relNames   = modelClasses[e.class].Model.relationshipNames;
+                    let relMaps    = modelClasses[e.class].Model.relationshipMap;
+                    let newValue   = value::pick(relNames);
+                    newValue::keys().forEach(key => {
+                        if (relMaps[key]){
+                            if (newValue[key]::isArray()){
+                                newValue[key] = newValue[key].map(id => entitiesByID[id])
+                            } else {
+                                newValue[key] = entitiesByID[newValue[key]];
+                            }
+                            console.info(`Created relationship via dynamic assignment: `, key, e.id, newValue[key]);
+                        }
+                    });
                     e::merge(newValue);
-                    //TODO If relationships are enabled, make sure we do not override resolved references!
+                    newValue::keys().forEach(key => {
+                        if (relMaps[key]){
+                            e.syncRelationship(key, relMaps[key], modelClasses);
+                        }
+                    });
                 });
+            })
+        } catch (err){
+            console.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
+        }
+    };
+
+    assignPathProperties(modelClasses, entitiesByID){
+        if (!this.assign){ return;  }
+        //Filter the value to assign only valid class properties
+        try{
+            [...(this.assign||[])].forEach(({path, value}) => {
+                if (!path || !value) { return;}
+                let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
+                entities.forEach(e => {
+                    let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
+                    e::merge(value::pick(propNames));
+               });
             })
         } catch (err){
             console.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
@@ -357,60 +382,70 @@ export class Resource{
         delete waitingList[this.id];
     }
 
+    syncRelationship(key, spec, modelClasses){
+        let res = this;
+        let key2 = spec.relatedTo;
+        if (key2) {
+            let otherClassName = getClassName(spec);
+            if (!otherClassName) {
+                console.error("Class not defined: ", spec);
+                return;
+            }
+
+            let otherSpec = modelClasses[otherClassName].Model.relationshipMap[key2];
+            if (!otherSpec) {
+                console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
+                return;
+            }
+
+            const syncProperty = (obj) => {
+                if (!obj || !obj::isObject()) { return; }
+                if (otherSpec.type === "array") {
+                    if (!obj[key2]) { obj[key2] = []; }
+                    if (!obj[key2]::isArray()) {
+                        console.error(`Object's property '${key2}' should contain an array:`, obj);
+                        return;
+                    }
+                    if (!obj[key2].find(obj2 => (obj2 === res || obj2 === res.id))) {
+                        obj[key2].push(res);
+                    }
+                } else {
+                    if (!obj[key2]) { obj[key2] = res; }
+                    else {
+                        if (obj[key2] !== res && obj[key2] !== res.id) {
+                            console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the resource:`,
+                                obj[key2], res);
+                        }
+                    }
+                }
+            };
+
+            if (res[key]::isArray()) {
+                res[key].forEach(obj => syncProperty(obj))
+            } else {
+                syncProperty(res[key]);
+            }
+        }
+    }
+
     syncRelationships(modelClasses, entitiesByID){
         entitiesByID::entries().forEach(([id, res]) => {
             if (id === "waitingList") { return; }
             let refFields = modelClasses[res.class].Model.cudRelationships;
             (refFields || []).forEach(([key, spec]) => {
                 if (!res[key]) { return; }
-                let key2 = spec.relatedTo;
-                if (key2) {
-                    let otherClassName = getClassName(spec);
-                    if (!otherClassName) {
-                        console.error("Class not defined: ", spec);
-                        return;
-                    }
-
-                    let otherSpec = modelClasses[otherClassName].Model.relationshipMap[key2];
-                    if (!otherSpec) {
-                        console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
-                        return;
-                    }
-
-                    const syncProperty = (obj) => {
-                        if (!obj || !obj::isObject()) { return; }
-                        if (otherSpec.type === "array") {
-                            if (!obj[key2]) { obj[key2] = []; }
-                            if (!obj[key2]::isArray()) {
-                                console.error(`Object's property '${key2}' should contain an array:`, obj);
-                                return;
-                            }
-                            if (!obj[key2].find(obj2 => (obj2 === res || obj2 === res.id))) {
-                                obj[key2].push(res);
-                            }
-                        } else {
-                            if (!obj[key2]) { obj[key2] = res; }
-                            else {
-                                if (obj[key2] !== res && obj[key2] !== res.id) {
-                                    console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the resource:`,
-                                        obj[key2], res);
-                                }
-                            }
-                        }
-                    };
-
-                    if (res[key]::isArray()) {
-                        res[key].forEach(obj => syncProperty(obj))
-                    } else {
-                        syncProperty(res[key]);
-                    }
-                }
+                res.syncRelationship(key, spec, modelClasses);
             });
-            //Keep it here as only at the end we can resolve JSONPath expressions with backward relationships
-            res.assignPathProperties(modelClasses);
+            //Create dynamic relationships and synchronize opposites
+            res.assignPathRelationships(modelClasses, entitiesByID);
+        });
+
+        //Assign visual properties to a complete map
+        entitiesByID::entries().forEach(([id, res]) => {
+            if (id === "waitingList") { return; }
+            res.assignPathProperties(modelClasses, entitiesByID);
             res.interpolatePathProperties();
         })
     }
-
 }
 

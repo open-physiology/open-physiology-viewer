@@ -3,26 +3,21 @@
     {
       "id"          : "tree1",
       "name"        : "Neuron tree",
-      "numLevels"   : 10,
+      "numLevels"   : 6,
       "lyphTemplate": "neuronLyph",
       "levels"      : [ {}, "lnk2"]
     }
   ],
-  "links": [
+  "links": [{
+    "id": "lnk2",
+    "source": "nodeX"
+  }],
+  "lyphs": [
     {
-      "id": "lnk2",
-      "source": "nodeX"
-    }
-  ],
-  "lyphs": [{
-    "id"        : "neuronLyph",
-    "isTemplate": true,
-    "layers"    : [
-      "cytosol",
-      "plasma",
-      "fluid"
-    ]
-  },
+      "id"        : "neuronLyph",
+      "isTemplate": true,
+      "layers"    : [ "cytosol", "plasma", "fluid" ]
+    },
     {
       "id"   : "plasma",
       "name" : "Plasma membrane",
@@ -34,8 +29,8 @@
       "color": "#00ff00"
     },
     {
-      "id": "fluid",
-      "name": "Extracellular fluid",
+      "id"   : "fluid",
+      "name" : "Extracellular fluid",
       "color": "#0000ff"
     }
   ]
