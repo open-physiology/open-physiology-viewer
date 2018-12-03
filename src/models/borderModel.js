@@ -143,7 +143,7 @@ export class Border extends VisualResource {
                 const offset = 1 / (this.borders[i].hostedNodes.length + 1);
                 this.borders[i].hostedNodes.forEach((node, j) => {
                     let p = this.viewObjects["shape"][i].getPoint(node.offset ? node.offset : offset * (j + 1));
-                    p = new THREE.Vector3(p.x, p.y, 0);
+                    p = new THREE.Vector3(p.x, p.y, 1);
                     copyCoords(node, this.host.translate(p));
                 })
             }

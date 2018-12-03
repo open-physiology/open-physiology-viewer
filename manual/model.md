@@ -58,9 +58,9 @@
       "interpolate": { 
           "path"   : "$.lyphs[*].layers",
           "color"  : {
-             "scheme": "interpolateBlues",
-             "offset": 0.25,
-             "length": 3,
+             "scheme"  : "interpolateBlues",
+             "offset"  : 0.25,
+             "length"  : 3,
              "reversed": true
           }
         }
@@ -349,10 +349,26 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.
 
  ## Region
-    Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs",
-    one can indicate that this process is happening in the lungs.
+    Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
     Region internal content is similar to the content of a lyph.
-    The only difference is that regions are mainly static and their positions should be explicitly given in 2D coordinates.
+    Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
+  ```json
+  "regions": [
+      {
+        "id"     : "cs",
+        "name"   : "Cardiac system",
+        "points" : [{"x": -75, "y": 20}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 20}],
+        "color"  : "#fbb03f"
+      },
+      {
+        "id"     : "cns",
+        "name"   : "Central Nervous System",
+        "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
+        "color"  : "#f4ed2f"
+      }]
+  ```
+ In the future, we plan to add an option to create regions based on paths in SVG files.
+
  
  ### Border
  
@@ -390,7 +406,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
   ```
  <img src="asset/lyphOnBorder.png" height="300px" alt = "Lyph on border"> 
  
- Here one may observe that the conveyed lyph is using the container lyph's border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with border parts and convey nested lyphs.   
+ Here one may observe that the conveyed lyph is using the container lyph's border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with 4 sides of the lyph border.
       
 ## Material
  The ApiNATOMY model can contain definitions of materials, e.g.:

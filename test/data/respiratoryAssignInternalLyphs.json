@@ -1879,8 +1879,8 @@
       "path": "$.lyphs[*].internalLyphs[*]",
       "value": {
         "color": "#fff",
-        "width" : 50,
-        "height": 40
+        "width" : 5,
+        "height": 4
       }
     }
   ]

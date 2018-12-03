@@ -34,6 +34,8 @@ export class Lyph extends Shape {
 
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
         subtypes.forEach(subtype => {
+            //Lyph inherits from the group lyphTemplate size and appearance
+            subtype::merge(template::pick(["color", "scale", "height", "width", "length", "thickness"]));
             subtype.layers = [];
             (template.layers|| []).forEach(layerRef => {
                 let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
@@ -95,14 +97,9 @@ export class Lyph extends Shape {
     }
 
     get polygonOffsetFactor() {
-        let res = 0;
-        //Lyphs positioned on top of the given lyph should be rendered first
-        //This prevents blinking of polygons with equal z coordinates
-        ["axis", "layerIn", "internalIn", "hostedBy"].forEach((prop, i) => {
-            if (this[prop]) {
-                res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
-            }
-        });
+        let res = Math.min(
+            ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
+                (this[prop].polygonOffsetFactor || 0) - 1: 0))
         return res;
     }
 
@@ -205,7 +202,7 @@ export class Lyph extends Shape {
                 layer.createViewObjects(state);
                 let layerObj = layer.viewObjects["main"];
                 layerObj.translateX(layer.offset);
-                layerObj.translateZ(1);
+                layerObj.translateZ(1); //Layers should stay in the same plane to be visible from both sides
                 obj.add(layerObj);
             });
         }
@@ -233,6 +230,11 @@ export class Lyph extends Shape {
             this.viewObjects["main"].visible = this.isVisible && state.showLyphs;
             copyCoords(this.viewObjects["main"].position, this.center);
             align(this.axis, this.viewObjects["main"], this.axis.reversed);
+
+            if (this.angle){
+                this.viewObjects["main"].rotation.x = Math.PI * this.angle / 180;
+            }
+
         } else {
             this.viewObjects["main"].visible = state.showLayers;
         }
@@ -245,7 +247,7 @@ export class Lyph extends Shape {
         //Layers and inner lyphs have no labels
         if (this.layerIn || this.internalIn) { return; }
 
-        this.updateLabels(state.labels[this.constructor.name],
-            state.showLabels[this.constructor.name], this.center.clone().addScalar(-5));
+        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
+            this.center.clone().addScalar(5));
     }
 }

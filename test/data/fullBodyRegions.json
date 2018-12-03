@@ -1274,7 +1274,7 @@
       ]
     },
     {
-      "id": "contaners",
+      "id": "containers",
       "name": "Containers",
       "nodes": [
         "k",
@@ -4990,7 +4990,7 @@
       ],
       "assign": [
         {
-          "path": "$.[?(@.id=='1000')].layers[(@.length-1)]",
+          "path": "$.subtypes[?(@.id=='1000')].layers[(@.length-1)]",
           "value": {
             "internalLyphs": [
               "995"
@@ -4998,7 +4998,7 @@
           }
         },
         {
-          "path": "$.[?(@.id=='1010')].layers[(@.length-1)]",
+          "path": "$.subtypes[?(@.id=='1010')].layers[(@.length-1)]",
           "value": {
             "internalLyphs": [
               "996"

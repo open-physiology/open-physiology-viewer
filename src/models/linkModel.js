@@ -39,13 +39,10 @@ const getPoint = (curve, s, t, offset) => (curve.getPoint)? curve.getPoint(offse
  * The class to visualize processes (edges)
  */
 export class Link extends VisualResource {
+
     get polygonOffsetFactor(){
-        let res = -10;
-        ["hostedBy", "source", "target"].forEach((prop, i) => {
-            if (this[prop]) {
-                res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
-            }
-        });
+        let res = Math.min(...["hostedBy", "source", "target"].map(prop => this[prop]?
+                (this[prop].polygonOffsetFactor || 0) - 1: 0));
         return res;
     }
 
@@ -157,6 +154,7 @@ export class Link extends VisualResource {
 
             obj.renderOrder = 10;  // Prevepointnt visual glitches of dark lines on top of nodes by rendering them last
             obj.userData = this;     // Attach link data
+
             this.viewObjects["main"] = obj;
         }
 
@@ -215,8 +213,8 @@ export class Link extends VisualResource {
             copyCoords(node, pos);
         });
 
-        this.updateLabels(state.labels[this.constructor.name],
-            state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
+        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
+            this.center.clone().addScalar(5));
 
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);

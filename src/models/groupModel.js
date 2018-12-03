@@ -1,7 +1,6 @@
 import { Resource } from './resourceModel';
 import {values, isObject, unionBy, merge, keys, cloneDeep, isNumber} from 'lodash-bound';
-import {Link, LINK_GEOMETRY, LINK_STROKE} from './linkModel';
-import {Node} from './nodeModel';
+import {LINK_GEOMETRY, LINK_STROKE} from './linkModel';
 import * as colorSchemes from 'd3-scale-chromatic';
 import {extractCoords} from '../three/utils';
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
@@ -152,7 +151,7 @@ export class Group extends Resource {
         let res = [];
         let relFieldNames = this.constructor.Model.filteredRelNames(GROUP_CLASSES); //Exclude groups
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
-        return res.filter(e => !!e);
+        return res.filter(e => !!e && e::isObject());
     }
 
     /**

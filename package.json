@@ -4,12 +4,12 @@
   "description": "Open-physiology viewer",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha-webpack --opts mocha-webpack.opts",
-    "build": "cross-env BABEL_ENV=production webpack",
-    "watch": "webpack --progress --watch",
+    "test"      : "mocha-webpack --opts mocha-webpack.opts",
+    "build"     : "cross-env BABEL_ENV=production webpack",
+    "watch"     : "webpack --progress --watch",
     "dev-server": "webpack-dev-server --open --hot --config webpack.config-dev.js",
-    "esdoc     ": "./node_modules/.bin/esdoc",
-    "bootprint": "bootprint json-schema src/data/graphScheme.json docs/schema"
+    "esdoc"     : "./node_modules/.bin/esdoc",
+    "bootprint" : "bootprint json-schema src/data/graphScheme.json docs/schema"
   },
   "repository": {
     "type": "git",

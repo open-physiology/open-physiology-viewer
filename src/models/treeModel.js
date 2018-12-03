@@ -1,5 +1,5 @@
 import { Group } from './groupModel';
-import { isObject, merge, defaults, isEmpty} from 'lodash-bound';
+import { isObject, defaults} from 'lodash-bound';
 
 export class Tree extends Group {
     /**
@@ -63,12 +63,12 @@ export class Tree extends Group {
         }
 
         tree.root = getID(sources[0]);
-        if (sources[0]::isObject() && sources[0].layout::isEmpty()){
-            sources[0].layout = {"x": -100, "y": 0, "z": 0};
-        }
-        if (sources[N]::isObject() && sources[N].layout::isEmpty()){
-            sources[N].layout = {"x": 100, "y": 0, "z": 0};
-        }
+        // if (sources[0]::isObject() && sources[0].layout::isEmpty()){
+        //     sources[0].layout = {"x": -100, "y": 0, "z": 0};
+        // }
+        // if (sources[N]::isObject() && sources[N].layout::isEmpty()){
+        //     sources[N].layout = {"x": 100, "y": 0, "z": 0};
+        // }
 
         let template = tree.lyphTemplate;
         let topology = "TUBE"; //leave default untouched
@@ -95,7 +95,7 @@ export class Tree extends Group {
             if (!tree.levels[i]){ tree.levels[i] = {}; }
             //Do not override existing properties
             tree.levels[i]::defaults({
-                "id"    : tree.id + "_lnk" + i,
+                "id"    : tree.id + "_lnk" + (i+1),
                 "name"  : `${tree.name || ""}}: level ${i}`,
                 "source": getID(sources[i]),
                 "target": getID(sources[i + 1]),
@@ -104,7 +104,7 @@ export class Tree extends Group {
             if (template && !tree.levels[i].conveyingLyph){
                 //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
                 let lyph = {
-                    "id"         : tree.id + "_lyph_" + i,
+                    "id"         : tree.id + "_lyph" + (i+1),
                     "supertype"  : tree.lyphTemplate,
                     "conveyedBy" : tree.levels[i].id,
                     "topology"   : (i === N - 1)? topology: "TUBE"

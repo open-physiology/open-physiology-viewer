@@ -4,18 +4,18 @@ import * as colorSchemes from 'd3-scale-chromatic';
 import {
     isArray,
     merge,
-    entries,
     isObject,
     cloneDeep,
     isNumber,
     isString,
     keys,
+    entries,
+    values,
     isEmpty,
     assign,
     fromPairs,
     defaults,
-    pick,
-    omit
+    pick
 } from 'lodash-bound';
 
 /**
@@ -274,27 +274,32 @@ export class Resource{
         try{
             [...(this.assign||[])].forEach(({path, value}) => {
                 if (!path || !value) { return;}
+                //TODO create a timer here as JSONPath can get stuck!
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
-                    let relNames   = modelClasses[e.class].Model.relationshipNames;
-                    let relMaps    = modelClasses[e.class].Model.relationshipMap;
-                    let newValue   = value::pick(relNames);
-                    newValue::keys().forEach(key => {
-                        if (relMaps[key]){
-                            if (newValue[key]::isArray()){
-                                newValue[key] = newValue[key].map(id => entitiesByID[id])
-                            } else {
-                                newValue[key] = entitiesByID[newValue[key]];
+                    if (!modelClasses[e.class]){
+                        console.warn("Cannot assign to a resource with unknown class", e);
+                    } else {
+                        let relNames = modelClasses[e.class].Model.relationshipNames;
+                        let relMaps  = modelClasses[e.class].Model.relationshipMap;
+                        let newValue = value::pick(relNames);
+                        newValue::keys().forEach(key => {
+                            if (relMaps[key]) {
+                                if (newValue[key]::isArray()) {
+                                    newValue[key] = newValue[key].map(id => entitiesByID[id])
+                                } else {
+                                    newValue[key] = entitiesByID[newValue[key]];
+                                }
+                                console.info(`Created relationship via dynamic assignment: `, key, e.id, newValue[key]);
                             }
-                            console.info(`Created relationship via dynamic assignment: `, key, e.id, newValue[key]);
-                        }
-                    });
-                    e::merge(newValue);
-                    newValue::keys().forEach(key => {
-                        if (relMaps[key]){
-                            e.syncRelationship(key, relMaps[key], modelClasses);
-                        }
-                    });
+                        });
+                        e::merge(newValue);
+                        newValue::keys().forEach(key => {
+                            if (relMaps[key]) {
+                                e.syncRelationship(key, relMaps[key], modelClasses);
+                            }
+                        });
+                    }
                 });
             })
         } catch (err){
@@ -302,7 +307,7 @@ export class Resource{
         }
     };
 
-    assignPathProperties(modelClasses, entitiesByID){
+    assignPathProperties(modelClasses){
         if (!this.assign){ return;  }
         //Filter the value to assign only valid class properties
         try{
@@ -310,8 +315,12 @@ export class Resource{
                 if (!path || !value) { return;}
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
-                    let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
-                    e::merge(value::pick(propNames));
+                    if (!modelClasses[e.class]){
+                        console.warn("Cannot assign to a resource with unknown class", e);
+                    } else {
+                        let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
+                        e::merge(value::pick(propNames));
+                    }
                });
             })
         } catch (err){
@@ -399,22 +408,28 @@ export class Resource{
             }
 
             const syncProperty = (obj) => {
-                if (!obj || !obj::isObject()) { return; }
+                if (!obj || !obj::isObject()) {
+                    return;
+                }
                 if (otherSpec.type === "array") {
-                    if (!obj[key2]) { obj[key2] = []; }
-                    if (!obj[key2]::isArray()) {
-                        console.error(`Object's property '${key2}' should contain an array:`, obj);
-                        return;
+                    if (!obj[key2]) {
+                        obj[key2] = [];
                     }
-                    if (!obj[key2].find(obj2 => (obj2 === res || obj2 === res.id))) {
-                        obj[key2].push(res);
+                    if (!obj[key2]::isArray()) {
+                        console.warn(`Object's property '${key2}' should contain an array:`, obj);
+                    } else {
+                        if (!obj[key2].find(obj2 => obj2 === res)) {
+                            obj[key2].push(res);
+                        }
                     }
                 } else {
-                    if (!obj[key2]) { obj[key2] = res; }
+                    if (!obj[key2]) {
+                        obj[key2] = res;
+                    }
                     else {
-                        if (obj[key2] !== res && obj[key2] !== res.id) {
+                        if (obj[key2] !== res) {
                             console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the resource:`,
-                                obj[key2], res);
+                                obj[key2], res, obj[key2].id, res.id);
                         }
                     }
                 }
@@ -429,23 +444,26 @@ export class Resource{
     }
 
     syncRelationships(modelClasses, entitiesByID){
-        entitiesByID::entries().forEach(([id, res]) => {
-            if (id === "waitingList") { return; }
-            let refFields = modelClasses[res.class].Model.cudRelationships;
-            (refFields || []).forEach(([key, spec]) => {
-                if (!res[key]) { return; }
-                res.syncRelationship(key, spec, modelClasses);
-            });
-            //Create dynamic relationships and synchronize opposites
-            res.assignPathRelationships(modelClasses, entitiesByID);
+        entitiesByID::keys().forEach(id => {
+            if (!entitiesByID[id].class){ return; }
+             let refFields = modelClasses[entitiesByID[id].class].Model.cudRelationships;
+             (refFields || []).forEach(([key, spec]) => {
+                 if (!entitiesByID[id][key]) { return; }
+                 entitiesByID[id].syncRelationship(key, spec, modelClasses);
+             });
+        });
+
+        entitiesByID::keys().forEach(id => {
+            if (!entitiesByID[id].class){ return; }
+            entitiesByID[id].assignPathRelationships(modelClasses, entitiesByID);
         });
 
         //Assign visual properties to a complete map
-        entitiesByID::entries().forEach(([id, res]) => {
-            if (id === "waitingList") { return; }
-            res.assignPathProperties(modelClasses, entitiesByID);
-            res.interpolatePathProperties();
-        })
+        entitiesByID::keys().forEach(id => {
+            if (!entitiesByID[id].class){ return; }
+            entitiesByID[id].assignPathProperties(modelClasses);
+            entitiesByID[id].interpolatePathProperties();
+        });
     }
 }
 

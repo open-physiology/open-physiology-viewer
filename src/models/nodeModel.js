@@ -23,12 +23,9 @@ export class Node extends VisualResource {
     }
 
     get polygonOffsetFactor() {
-        let res = -10;
-        ["hostedBy", "internalIn"].forEach((prop, i) => {
-            if (this[prop]) {
-                res = Math.min(res, this[prop].polygonOffsetFactor - i - 1);
-            }
-        });
+        let res = Math.min(...["hostedBy", "internalIn"].map(prop => this[prop]?
+            (this[prop].polygonOffsetFactor || 0) - 1: 0));
+        return res;
     }
 
     /**

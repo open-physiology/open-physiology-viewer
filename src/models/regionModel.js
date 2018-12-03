@@ -20,6 +20,10 @@ export class Region extends Shape {
         return res;
     }
 
+    get polygonOffsetFactor() {
+        return 1; //always behind
+    }
+
     translate(p0) {
         if (!p0 || !this.viewObjects["main"]) { return p0; }
         return p0.clone();
@@ -69,6 +73,7 @@ export class Region extends Shape {
 
         this.border.updateViewObjects(state);
 
-        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name], this.center.clone().addScalar(5));
+        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
+            this.center.clone().addScalar(5));
     }
 }

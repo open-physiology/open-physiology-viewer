@@ -232,8 +232,7 @@
             "text": [
               "id",
               "class",
-              "name",
-              "external"
+              "name"
             ],
             "objects": [],
             "lists": []
@@ -291,10 +290,17 @@
           "type": "string"
         },
         "externalTo": {
-          "description": "Model entities that refer to the given resource",
+          "description": "Model annotations that refer to the given resource",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/VisualResource"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Resource"
+              }
+            ]
           },
           "relatedTo": "external"
         }
@@ -748,22 +754,30 @@
           }
         },
         "width" : {
-          "description": "Width of the visual object representing lyph",
-          "type": "number"
+          "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
+          "type"   : "number",
+          "minimum": 0,
+          "maximum": 100
         },
         "height": {
-          "description": "Height of the visual object representing lyph",
-          "type": "number"
+          "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
+          "type"   : "number",
+          "minimum": 0,
+          "maximum": 100
         },
         "scale" : {
-          "description": "Defines the size of the conveying lyph as percentage of its axis' (link) length",
+          "description": "Defines the size of the conveying lyph as percentage of its axis' length",
           "type": "object",
           "properties": {
             "width": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
             },
             "height": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
             }
           },
           "default": {
@@ -773,7 +787,9 @@
         },
         "layerWidth": {
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
-          "type": "number"
+          "type"   : "number",
+          "maximum": 0,
+          "maximum": 100
         },
         "internalIn": {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -786,6 +802,10 @@
             }
           ],
           "relatedTo": "internalLyphs"
+        },
+        "angle" : {
+          "description": "Angle (in degrees) to rotate the lyph around its axis",
+          "type": "number"
         },
         "hostedBy": {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -1093,7 +1113,7 @@
       },
       "properties": {
         "config": {
-          "description": "Global graph configuration options",
+          "description": "Global graph configuration options (reserved, the structure will be defined later)",
           "type": "object"
         }
       }

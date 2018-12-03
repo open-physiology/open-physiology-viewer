@@ -77,6 +77,10 @@ export class Graph extends Group{
 
         res.entitiesByID = entitiesByID;
 
+        //return res;
+
+        //TODO fix coalescences
+
         //Create a coalescence group and force links to bind coalescing lyphs
         let coalescenceGroup = (res.groups||[]).find(g => g.id === "coalescences");
         if (!coalescenceGroup){
@@ -174,8 +178,11 @@ export class Graph extends Group{
         const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
                 p[key] *= axisLength * 0.01;
             });
-        //(this.lyphs||[]).filter(lyph => lyph.width).forEach(lyph => {
-        // });
+        (this.lyphs||[]).forEach(lyph => {
+            if (lyph.width)  {lyph.width  *= axisLength * 0.01}
+            if (lyph.height) {lyph.height *= axisLength * 0.01}
+
+        });
 
         (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
         (this.links||[]).filter(link => link.length).forEach(link => link.length *= 2 * axisLength * 0.01);
