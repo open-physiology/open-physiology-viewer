@@ -93,7 +93,7 @@ The lyph viewer is a graphical component that consists of</p><ul>
 <li>a header and a footer with relevant project information, </li>
 <li>a toolbar that allows the user to import, edit, preview and export the data model,</li>
 <li>the integrated JSON editor to overview, analyze and modify the chosen data model.  </li>
-</ul></div>
+</ul><p>Sample ApiNATOMY models, including test models used in this documentation, can be found in the project&apos;s <a href="https://github.com/open-physiology/open-physiology-viewer/tree/master/test/data">repository at GitHub</a>.</p></div>
         <a data-ice="link" href="manual/overview.html"></a>
       </div>
     </div>
@@ -108,11 +108,10 @@ The lyph viewer is a graphical component that consists of</p><ul>
 <p>The compiled code is in the <code>open-physiology/dist/</code> folder. After that you should be able to open a demo app <code>test-app/index.html</code> in your browser.</p>
 </li>
 </ul><h2>Lyph viewer as a widget</h2><p> A lyph viewer is available as a stand-alone module that can be used in other applications as a graphical widget. For integrating the viewer with other applications, include  <code>open-physiology-viewer.js</code> to your build and import:</p><ul>
-<li><code>DataService</code> - a class that prepares the user input in the form of a serialized JSON file to be used by the lyph viewer. Here we auto-create entities for shorthand models that were not defined explicitly, expand lyph templates, process JSONPath queries and replace all IDs with object references.</li>
-<li><code>WebGLSceneModule</code> - the module that provides the Angular2 component <code>WebGLSceneComponent</code>. The component currently accepts 3 parameters: <ul>
+<li><code>WebGLSceneModule</code> - the module that provides the Angular component <code>WebGLSceneComponent</code>. The component currently accepts 3 parameters:<ul>
 <li><code>graphData</code> - an ApiNATOMY model in the deserialized JSON format (as returned by the <code>DataService</code>).</li>
-<li><code>highlighted</code> - a reference to a graphical object to highlight. Each graphical object can be accessed from the ApiNATOMY entity object via its property <code>viewObjects[&apos;main&apos;]</code> which returns a reference to a WebGL object that represents this entity in the viewer.</li>
-<li><code>selected</code> - a reference to a graphical object to be selected. </li>
+<li><code>highlighted</code> - a reference to a visual resource (e.g., node, link, lyph, region) to highlight.</li>
+<li><code>selected</code> - a reference to a visual resource to be selected.</li>
 </ul>
 </li>
 </ul></div>
@@ -149,9 +148,9 @@ The lyph viewer is a graphical component that consists of</p><ul>
       &quot;interpolate&quot;: { 
           &quot;path&quot;   : &quot;$.lyphs[*].layers&quot;,
           &quot;color&quot;  : {
-             &quot;scheme&quot;: &quot;interpolateBlues&quot;,
-             &quot;offset&quot;: 0.25,
-             &quot;length&quot;: 3,
+             &quot;scheme&quot;  : &quot;interpolateBlues&quot;,
+             &quot;offset&quot;  : 0.25,
+             &quot;length&quot;  : 3,
              &quot;reversed&quot;: true
           }
         }
@@ -318,11 +317,23 @@ The lyph viewer is a graphical component that consists of</p><ul>
        }
      ]
   }</code>
-</code></pre><p>  assigns <code>internalLyphs</code> to two outer most layers of lyphs <code>1000</code> and <code>1010</code> while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.</p><p>   The pair of properties <code>subtypes</code> and <code>supertype</code> can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the <code>isTemplate</code> property to <code>true</code>. </p><p> Lyph coalescences can be defined via the <code>coalescesWith</code> property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.</p><h2>Region</h2><pre><code><code class="source-code prettyprint">Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named &quot;Lungs&quot;,
-one can indicate that this process is happening in the lungs.
+</code></pre><p>  assigns <code>internalLyphs</code> to two outer most layers of lyphs <code>1000</code> and <code>1010</code> while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.</p><p>   The pair of properties <code>subtypes</code> and <code>supertype</code> can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the <code>isTemplate</code> property to <code>true</code>. </p><p> Lyph coalescences can be defined via the <code>coalescesWith</code> property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.</p><h2>Region</h2><pre><code><code class="source-code prettyprint">Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named &quot;Lungs&quot;, one can indicate that this process is happening in the lungs.
 Region internal content is similar to the content of a lyph.
-The only difference is that regions are mainly static and their positions should be explicitly given in 2D coordinates.</code>
-</code></pre><h3>Border</h3><p> A flat shape such as lyph or region has a border. The border is an object that extends <code>Entity</code> and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its <code>border</code> field.  </p><p> Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the anatomical relationships among the corresponding concepts.</p><p> The lyph&apos;s border is closely related to its topology. The topology defines the types of its <code>radial</code> borders: <code>false</code> represents a border with open flow while <code>true</code> corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph&apos;s inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph&apos;s rectangle. The axial border is always aligned with the lyph&apos;s axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property <code>borders</code> which is always an array of 4 objects. </p><p> It is possible to place nodes and other lyphs on any of the border segments. 
+Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.</code>
+</code></pre><pre><code class="lang-json"><code class="source-code prettyprint">  &quot;regions&quot;: [
+      {
+        &quot;id&quot;     : &quot;cs&quot;,
+        &quot;name&quot;   : &quot;Cardiac system&quot;,
+        &quot;points&quot; : [{&quot;x&quot;: -75, &quot;y&quot;: 20}, {&quot;x&quot;: -75, &quot;y&quot;: 75},{&quot;x&quot;: -25, &quot;y&quot;: 75},{&quot;x&quot;: -25, &quot;y&quot;: 20}],
+        &quot;color&quot;  : &quot;#fbb03f&quot;
+      },
+      {
+        &quot;id&quot;     : &quot;cns&quot;,
+        &quot;name&quot;   : &quot;Central Nervous System&quot;,
+        &quot;points&quot; : [{&quot;x&quot;: -65, &quot;y&quot;: -50}, {&quot;x&quot;: -65, &quot;y&quot;: -15}, {&quot;x&quot;: 65, &quot;y&quot;: -15}, {&quot;x&quot;: 65, &quot;y&quot;: -50}],
+        &quot;color&quot;  : &quot;#f4ed2f&quot;
+      }]</code>
+</code></pre><p> In the future, we plan to add an option to create regions based on paths in SVG files.</p><h3>Border</h3><p> A flat shape such as lyph or region has a border. The border is an object that extends <code>Entity</code> and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its <code>border</code> field.  </p><p> Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the anatomical relationships among the corresponding concepts.</p><p> The lyph&apos;s border is closely related to its topology. The topology defines the types of its <code>radial</code> borders: <code>false</code> represents a border with open flow while <code>true</code> corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph&apos;s inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph&apos;s rectangle. The axial border is always aligned with the lyph&apos;s axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property <code>borders</code> which is always an array of 4 objects. </p><p> It is possible to place nodes and other lyphs on any of the border segments. 
  The <code>hostedNodes</code> property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the <code>hostedLyphs</code> property):</p><pre><code class="lang-json"><code class="source-code prettyprint">     {
        &quot;id&quot;      : &quot;5&quot;,
        &quot;name&quot;    : &quot;Kidney Lobus&quot;,
@@ -339,7 +350,7 @@ The only difference is that regions are mainly static and their positions should
          &quot;borders&quot;: [ {}, {}, {}, { &quot;conveyingLyph&quot;: &quot;5&quot; } ]
        }
      }</code>
-</code></pre><p> <img src="./manual/asset/lyphOnBorder.png" height="300px" alt="Lyph on border"> </p><p> Here one may observe that the conveyed lyph is using the container lyph&apos;s border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with border parts and convey nested lyphs.   </p><h2>Material</h2><p> The ApiNATOMY model can contain definitions of materials, e.g.:</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
+</code></pre><p> <img src="./manual/asset/lyphOnBorder.png" height="300px" alt="Lyph on border"> </p><p> Here one may observe that the conveyed lyph is using the container lyph&apos;s border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with 4 sides of the lyph border.</p><h2>Material</h2><p> The ApiNATOMY model can contain definitions of materials, e.g.:</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
       &quot;materials&quot;: [
            {
               &quot;id&quot;  : &quot;9&quot;,

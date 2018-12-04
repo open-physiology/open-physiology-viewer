@@ -13,4 +13,5 @@ The use of the ApiNATOMY lyph viewer component is illustrated via the test appli
 * a header and a footer with relevant project information, 
 * a toolbar that allows the user to import, edit, preview and export the data model,
 * the integrated JSON editor to overview, analyze and modify the chosen data model.  
- 
+
+Sample ApiNATOMY models, including test models used in this documentation, can be found in the project's [repository at GitHub](https://github.com/open-physiology/open-physiology-viewer/tree/master/test/data).
