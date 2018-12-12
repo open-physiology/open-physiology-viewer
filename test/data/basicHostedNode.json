@@ -100,41 +100,41 @@
       "target"    : "R",
       "geometry"  : "semicircle",
       "length"    : 75,
-      "stroke": "thick"
+      "stroke"    : "thick"
     },
     {
-      "id": "cn",
+      "id"    : "cn",
       "source": "c",
       "target": "n",
       "stroke": "dashed",
       "length": 100
     },
     {
-      "id": "LR00",
+      "id"    : "LR00",
       "source": "nLR00",
       "target": "nLR01",
       "conveyingLyph": "99"
     },
     {
-      "id": "LR01",
+      "id"    : "LR01",
       "source": "nLR01",
       "target": "nLR02",
       "conveyingLyph": "114"
     },
     {
-      "id": "LR02",
+      "id"    : "LR02",
       "source": "nLR02",
       "target": "nLR03",
       "conveyingLyph": "51"
     },
     {
-      "id": "LR03",
+      "id"    : "LR03",
       "source": "nLR03",
       "target": "nLR04",
       "conveyingLyph": "54"
     },
     {
-      "id": "LR04",
+      "id"    : "LR04",
       "source": "nLR04",
       "target": "nLR05",
       "conveyingLyph": "57"
@@ -142,9 +142,9 @@
   ],
   "lyphs": [
     {
-      "id": "51",
-      "name": "Interlobar Artery",
-      "topology": "TUBE",
+      "id"       : "51",
+      "name"     : "Interlobar Artery",
+      "topology" : "TUBE",
       "thickness": {
         "min": 6,
         "max": 6
@@ -160,8 +160,8 @@
     },
     {
       "id": "52",
-      "name": "Lumen of Interlobar Artery",
-      "topology": "TUBE",
+      "name"     : "Lumen of Interlobar Artery",
+      "topology" : "TUBE",
       "thickness": {
         "min": 6,
         "max": 6

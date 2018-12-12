@@ -18,6 +18,7 @@
   "nodes": [
     {
       "id": "a",
+      "skipLabel": true,
       "layout": {
         "x": -100,
         "y": 100,
@@ -26,6 +27,7 @@
     },
     {
       "id": "b",
+      "skipLabel": true,
       "layout": {
         "x": 100,
         "y": 100,
@@ -44,7 +46,7 @@
       "id": "main",
       "source": "a",
       "target": "b",
-      "length": "100",
+      "length": 100,
       "geometry": "invisible",
       "conveyingLyph": "bg"
     },

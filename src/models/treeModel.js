@@ -1,5 +1,6 @@
 import { Group } from './groupModel';
 import { isObject, defaults} from 'lodash-bound';
+import { LYPH_TOPOLOGY } from "./lyphModel";
 
 export class Tree extends Group {
     /**
@@ -63,20 +64,38 @@ export class Tree extends Group {
         }
 
         tree.root = getID(sources[0]);
-        // if (sources[0]::isObject() && sources[0].layout::isEmpty()){
-        //     sources[0].layout = {"x": -100, "y": 0, "z": 0};
-        // }
-        // if (sources[N]::isObject() && sources[N].layout::isEmpty()){
-        //     sources[N].layout = {"x": 100, "y": 0, "z": 0};
-        // }
+
+        /**
+         * Define topology of edge conveying lyphs based on the topology of the lyph template
+         * @param level    - level index
+         * @param N        - number of levels in the tree
+         * @param template - lyph template
+         * @returns {string} lyph topology: TUBE, BAG, BAG2, or CYST
+         */
+        const getTopology = (level, N, template) => {
+            if (template){
+                if (level === 0) {
+                    if (template.topology === LYPH_TOPOLOGY.BAG2 || template.topology === LYPH_TOPOLOGY.CYST) {
+                        if (N === 1){
+                            return LYPH_TOPOLOGY.CYST;
+                        }
+                        return LYPH_TOPOLOGY.BAG2;
+                    }
+                }
+                if (level === N - 1) {
+                     if (template.topology === LYPH_TOPOLOGY.BAG || template.topology === LYPH_TOPOLOGY.CYST) {
+                        return LYPH_TOPOLOGY.BAG;
+                    }
+                }
+            }
+            return LYPH_TOPOLOGY.TUBE;
+        };
 
         let template = tree.lyphTemplate;
-        let topology = "TUBE"; //leave default untouched
         if (template){
             if (template::isObject()){
                 if (!template.id) { template.id = tree.id + "_template"; }
                 mergeGenResource(template, "lyphs");
-                topology = template.topology;
                 tree.lyphTemplate = template.id;
             } else {
                 //find lyph template to establish topology of the tree
@@ -84,8 +103,6 @@ export class Tree extends Group {
                 if (!template){
                     console.error("Failed to find the lyph template definition in the parent group: ",
                         tree.lyphTemplate);
-                } else {
-                    topology = template.topology;
                 }
             }
         }
@@ -107,7 +124,7 @@ export class Tree extends Group {
                     "id"         : tree.id + "_lyph" + (i+1),
                     "supertype"  : tree.lyphTemplate,
                     "conveyedBy" : tree.levels[i].id,
-                    "topology"   : (i === N - 1)? topology: "TUBE"
+                    "topology"   : getTopology(i, N, template)
                 };
                 tree.levels[i].conveyingLyph = lyph.id;
                 mergeGenResource(lyph, "lyphs");

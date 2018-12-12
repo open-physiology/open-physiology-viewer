@@ -81,8 +81,8 @@ debug(true, msgCount);
                     <!--(click)="export()" title="Export layout">-->
                 <!--<i class="fa fa-image"></i>-->
             <!--</button>-->
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide">
-                <i class="fa fa-eye-slash"></i>
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide editor">
+                <i class="fa fa-window-close"></i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="preview()" title="Apply changes">
                 <i class="fa fa-check"></i>

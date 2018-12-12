@@ -184,7 +184,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers   = {};
-    axisLength = 1000;
+    scaleFactor = 10;
     lockControls = false;
 
     //TODO replace with graph data config
@@ -213,7 +213,7 @@ export class WebGLSceneComponent {
             this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
 
             /*Map initial positional constraints to match the scaled image*/
-            this._graphData.scale(this.axisLength);
+            this._graphData.scale(this.scaleFactor);
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
     }
@@ -331,19 +331,20 @@ export class WebGLSceneComponent {
     createHelpers() {
         let gridColor = new THREE.Color(0xcccccc);
         let axisColor = new THREE.Color(0xaaaaaa);
+        let axisLength = 100 * this.scaleFactor;
 
         // x-y plane
-        let gridHelper1 = new THREE.GridHelper(2 * this.axisLength, 10, axisColor, gridColor);
+        let gridHelper1 = new THREE.GridHelper(2 * axisLength, 10, axisColor, gridColor);
         gridHelper1.geometry.rotateX(Math.PI / 2);
         this.scene.add(gridHelper1);
         this.helpers["Grid x-y"] = gridHelper1;
 
         // x-z plane
-        let gridHelper2 = new THREE.GridHelper(2 * this.axisLength, 10, axisColor, gridColor);
+        let gridHelper2 = new THREE.GridHelper(2 * axisLength, 10, axisColor, gridColor);
         this.scene.add(gridHelper2);
         this.helpers["Grid x-z"] = gridHelper2;
 
-        let axesHelper = new THREE.AxesHelper(this.axisLength + 20);
+        let axesHelper = new THREE.AxesHelper(axisLength + 20);
         this.scene.add(axesHelper);
         this.helpers["Axis"] = axesHelper;
         this.helpers::values().forEach(value => value.visible = false);

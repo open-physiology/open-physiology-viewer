@@ -61,6 +61,7 @@
     <ul class="manual-toc">
       
     <li data-ice="manualNav" class="indent-h1" data-link="manual/examples.html"><a href="manual/examples.html" data-ice="link">Examples</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/examples.html"><a href="manual/examples.html#basal-ganglia" data-ice="link">Basal Ganglia</a></li>
 </ul>
   </div>
 </div>
@@ -389,7 +390,144 @@ Regions are static and their positions are given in 2D coordinates. The border o
     </div>
 <div class="manual-card-wrap" data-ice="cards">
       <div class="manual-card">
-        <div data-ice="card"><h1>Examples</h1></div>
+        <div data-ice="card"><h1>Examples</h1><h2>Basal Ganglia</h2><p>The <em>basal ganglia</em> are a group of subcortical nuclei at the base of the forebrain and top of the midbrain. The basal ganglia are associated with a variety of functions, including control of voluntary motor movements, procedural learning, habit learning, eye movements, cognition, and emotion. Basal ganglia are strongly interconnected with the cerebral cortex, thalamus, and brainstem, as well as several other brain areas.</p><p><img src="./manual/asset/basalGanglia.png" width="100%" caption="Basal Ganglia"></p><p>The ApiNATOMY <a href="https://github.com/open-physiology/open-physiology-viewer/blob/master/test/data/neuronTreesAuto.json">model</a> automatically reproduces the layout from the schematic representation of the basal ganglia created by the physiology experts, given relational constraints among its constituent parts.
+Conceptually, the model consists of:</p><ul>
+<li>4 context lyphs: Basal Ganglia, Putamen, Globus Pallidus external (GPe) and Globus Pallidus internal (GPi) segments;</li>
+<li>a model of a neuron composed of 3 parts: <code>dendrite</code> and <code>axon</code> modelled as trees
+(we call them <code>omega trees</code>) and a conduit representing the axon <code>hillock</code> (a specialized part of the cell body, or soma, of a neuron that connects to the axon) that joins the omega trees on its sides.</li>
+</ul><p><img src="./manual/asset/basalGanglia-components.png" width="100%" caption="Basal Ganglia components"></p><p>Even though omega threes often look like simple chains in our schematics, the underlying data model
+implies that a branching tree can be generated from the canonical representation given model parameters such as branching factor or  mean number of branches at each level).</p><p>Technically, the model is essentially a JSON file with 4 fields: <code>nodes</code>, <code>links</code>, <code>lyphs</code>, and <code>trees</code>. The context lyphs, Putamen, GPe and GPi, are modelled as internal lyphs of Basal Ganglia:</p><pre><code class="lang-json"><code class="source-code prettyprint">   {
+      &quot;id&quot;    : &quot;bg&quot;,
+      &quot;name&quot;  : &quot;Basal Ganglia&quot;,
+      &quot;color&quot; : &quot;#d1d2d4&quot;,
+      &quot;internalLyphColumns&quot;: 3,
+      &quot;internalLyphs&quot;: [ &quot;putamen&quot;, &quot;gpe&quot;, &quot;gpi&quot; ]
+    }</code>
+</code></pre><p>This means that they are positioned on a grid within their container lyph, and the corresponding parameter, <code>internalLyphColumns: 3</code> indicates that the grid should contain 3 columns. The number
+of rows depends on the number of internal lyphs within the container.
+Other space allocation methods for internal lyphs will be supported upon demand, for example,
+<a href="http://www.nkokash.com/documents/IVAPP2014-treemaps.pdf">template-based treemaps</a> appear to be particularly useful if we need to dedicate areas of various size to internal lyphs while preserving relevant adjacency constraints.</p><p>The nodes and links to model rotational axes of internal lyphs are auto generated (they can also be defined explicitly if a user wants to override the default properties, i.e., make them visible, or specify relationships between them and other graph entities). Thus, in our model, we only define the position and the size of the main context lyph&apos;s axis, Basal Ganglia:</p><pre><code class="lang-json"><code class="source-code prettyprint">  &quot;nodes&quot;: [
+    { &quot;id&quot;: &quot;a&quot;, &quot;layout&quot;: {&quot;x&quot;: -100, &quot;y&quot;: 100, &quot;z&quot;: 0 }},
+    { &quot;id&quot;: &quot;b&quot;, &quot;layout&quot;: { &quot;x&quot;: 100, &quot;y&quot;: 100, &quot;z&quot;: 0 }},
+    ...
+  ],
+  &quot;links&quot;: [
+    {
+      &quot;id&quot;      : &quot;main&quot;,
+      &quot;source&quot;  : &quot;a&quot;,
+      &quot;target&quot;  : &quot;b&quot;,
+      &quot;length&quot;  : &quot;100&quot;,
+      &quot;geometry&quot;: &quot;invisible&quot;,
+      &quot;conveyingLyph&quot;: &quot;bg&quot;
+    },
+    ...
+  ]</code>
+</code></pre><p>The <code>trees</code> property is an array with 2 objects defining the <code>dendrite</code> 1-level tree and the <code>axonal</code> 5-level trees:</p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;trees&quot;: [
+    {
+      &quot;id&quot;          : &quot;dendrite&quot;,
+      &quot;name&quot;        : &quot;Dendrite omega tree&quot;,
+      &quot;root&quot;        : &quot;n1&quot;,
+      &quot;numLevels&quot;   : 1,
+      &quot;lyphTemplate&quot;: &quot;neuronBag&quot;
+    },
+    {
+      &quot;id&quot;          : &quot;axonal&quot;,
+      &quot;name&quot;        : &quot;Axonal omega tree&quot;,
+      &quot;root&quot;        : &quot;n2&quot;,
+      &quot;numLevels&quot;   : 5,
+      &quot;lyphTemplate&quot;: &quot;neuronBag&quot;
+    }
+  ],</code>
+</code></pre><p>The tree root nodes are named <code>n1</code> and <code>n2</code>, these names are explicitly given while defining the the axis of the axon hillock, and by referring to them in the tree model, we indicate that the roots of the <code>axonal</code> and <code>dendrite</code> trees coincide with the ends of the <code>hillock</code>.</p><p>Similarly to the root nodes, it is possible to plug an external link, a node or a lyph into the generated tree at a certain level via the optional <code>levels</code> property which expects an array with (partial) link definitions (see <a href="./manual/../schema/index.html#/definitions/Tree">JSON Schema</a> definition of the tree model for more details).</p><p>In the current model, we do not refer to external entities while defining the content of the tree branches. However, all auto-generated ApiNATOMY entities are also assigned IDs that can be referenced later to connect the part of the graph obtained from the tree template with the rest of the model. The identifies for auto-generated tree parts are formed using the following patterns:</p><ul>
+<li><code>{$tree.id}_node{$index}</code></li>
+<li><code>{$tree.id}_lnk{$index}</code></li>
+<li><code>{$tree.id}_lyph{$index}</code></li>
+</ul><p>where <code>$tree.id</code> is the identifier of the tree, and <code>$index</code> refers to a tree level.
+For the node names, the <code>$index</code> ranges from 0 to N, where N is the number of levels. Hence,
+the root node corresponds to the index = 0, the end node of the tree branch at the first level - to the index = 1, and so on. For the link and lyph names, the index ranges from 1 to N. For example, the valid ID names for the basal ganglia trees:</p><ul>
+<li><code>axonal_node3</code>  - end node of the 3d level of the &apos;axonal&apos; tree</li>
+<li><code>axonal_lyph5</code>  - lyph at the 5th level of the &apos;axonal&apos; tree,</li>
+<li><code>dendrite_lnk1</code> - link at the 1st level of the &apos;dendrite&apos; tree.</li>
+</ul><p>These names can be used to impose positional constraints on the generated entities. For example,
+in our model, the axonal tree node is located on the 2nd radial border of the GPi lyph, while two axonal tree
+level lyphs are hosted by (mapped to the surface of) the the GPi lyph.</p><pre><code class="lang-json"><code class="source-code prettyprint">    {
+      &quot;id&quot;          : &quot;gpi&quot;,
+      &quot;name&quot;        : &quot;GPi&quot;,
+      &quot;color&quot;       : &quot;#939598&quot;,
+      &quot;height&quot;      : 30,
+      &quot;border&quot;      : { &quot;borders&quot;: [ {}, {}, {}, { &quot;hostedNodes&quot;: [ &quot;axonal_node3&quot; ] }]},
+      &quot;hostedLyphs&quot; : [ &quot;axonal_lyph4&quot;, &quot;axonal_lyph5&quot; ]
+    }</code>
+</code></pre><p>Another <a href="https://github.com/open-physiology/open-physiology-viewer/blob/master/test/data/neuronTrees.json">version</a> of the basal ganglia shows how one can combine explicitly assigned tree levels with auto-generated ones.</p><p>The <code>lyphTemplate</code> field in these omega tree models refers to the lyph pattern to derive the structure of the conduits in the tree branches. Firstly, the tool expands the tree template by creating the necessary graph structure (a rooted tree with the required number of levels). Secondly, the blank lyph definitions associated with the tree graph are added to the <code>subtypes</code> property of the lyph template. At the next stage, the lyph viewer will process the lyph templates: the prototype lyph layers, color and size settings are copied to all template subtypes.
+Hence, at the tree expansion stage, the user definition of the template lyph:</p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;lyphs&quot;: [
+    {
+      &quot;id&quot;        : &quot;neuronBag&quot;,
+      &quot;isTemplate&quot;: true,
+      &quot;topology&quot;  : &quot;BAG&quot;,
+      &quot;color&quot;     : &quot;#ccc&quot;,
+      &quot;scale&quot;: {
+        &quot;width&quot; : 80,
+        &quot;height&quot;: 80
+      },
+      &quot;layers&quot;: [&quot;cytosol&quot;, &quot;plasma&quot;, &quot;fluid&quot;]
+    },..*
+]</code>
+</code></pre><p>is extended with the definition of subtype lyphs which will get 3 layers and will occupy each the square area with a side length computed as 80% of their axis length. Note that the <code>hillock</code> lyph also derives its structure from the <code>neuronBag</code> template, as indicated by its property <code>supertype</code>:</p><pre><code class="lang-json"><code class="source-code prettyprint">    {
+      &quot;id&quot;       : &quot;hillock&quot;,
+      &quot;name&quot;     : &quot;Hillock&quot;,
+      &quot;supertype&quot;: &quot;neuronBag&quot;,
+      &quot;topology&quot; : &quot;TUBE&quot;
+    },</code>
+</code></pre><p>Hence, after the generation of entities to represent required tree structures and bi-directional relationship synchronization, the user definition of the neuron template in the model will be auto-completed, i.e., the lyph template will know all lyphs that replicated its layers via its <code>subtypes</code> property:</p><pre><code class="lang-json"><code class="source-code prettyprint">    &quot;subtypes&quot;: [axonal_lyph1,...,axonal_lyph5, dendrite_lyph1, hillock]</code>
+</code></pre><p>Generally, each lyph originating from a lyph template, inherits its topology.
+However, in an omega tree model, the topology of the lyph template defines not the topology of individual level lyphs, but the overall topology of the tree. The lyphs conveyed by the tree edges can be seen as a single conduit with topological borders at the start and the end levels (root and leaves) of the tree compliant with the borders of the lyph template. Thus, the topology of the lyphs on tree edges is defined according to the table below:</p><table>
+<thead>
+<tr>
+<th style="text-align:center">Lyph template</th>
+<th style="text-align:center">Radial borders</th>
+<th style="text-align:center">Tree</th>
+<th style="text-align:center">Level 1</th>
+<th style="text-align:center">Levels 2..N-1</th>
+<th style="text-align:center">Level N</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">both open</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">TUBE</td>
+</tr>
+<tr>
+<td style="text-align:center">BAG</td>
+<td style="text-align:center">1st closed</td>
+<td style="text-align:center">BAG</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">BAG</td>
+</tr>
+<tr>
+<td style="text-align:center">BAG2</td>
+<td style="text-align:center">2nd closed</td>
+<td style="text-align:center">BAG2</td>
+<td style="text-align:center">BAG2</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">TUBE</td>
+</tr>
+<tr>
+<td style="text-align:center">CYST</td>
+<td style="text-align:center">both closed</td>
+<td style="text-align:center">CYST</td>
+<td style="text-align:center">BAG2</td>
+<td style="text-align:center">TUBE</td>
+<td style="text-align:center">BAG</td>
+</tr>
+</tbody>
+</table><p>In our example, the lyph template is of type <code>BAG</code>. Hence, only the conveying lyph at the end levels, <code>dendrite_lyph1</code> and <code>axonal_lyph5</code>, are of the type <code>BAG</code> while all the intermediate level lyphs, <code>axonal_lyph1,...,axonal_lyph4</code>, are of the type <code>TUBE</code>.</p><p>The topology of the <code>hillock</code> lyph, which also inherits the layer structure from the <code>neuronBag</code> lyph template, has to be explicitly defined as <code>TUBE</code> to override the inherited topology from the template.</p><p>The image below shows the layout created by the tool for the Basal Ganglia scenario based on the
+resource definition explained in this section.
+<img src="./manual/asset/basalGanglia-layout.png" height="300px;" caption="Basal Ganglia layout"></p><p>The live demo of this scenario with the possibility to edit the model file in an integrated JSON editor is available <a href="http://open-physiology.org/demo/open-physiology-viewer/trees">here</a>.</p></div>
         <a data-ice="link" href="manual/examples.html"></a>
       </div>
     </div>

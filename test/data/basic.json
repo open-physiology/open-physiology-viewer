@@ -23,7 +23,7 @@
   ],
   "links": [
     {
-      "id": "k_l",
+      "id"    : "k_l",
       "source": "k",
       "target": "l",
       "length": 40,
@@ -32,7 +32,7 @@
   ],
   "lyphs": [
     {
-      "id": "5",
+      "id"  : "5",
       "name": "Kidney Lobus",
       "topology": "BAG",
       "thickness": {
@@ -48,7 +48,7 @@
         "6"
       ],
       "scale": {
-        "width": 50,
+        "width" : 50,
         "height": 50
       }
     },
@@ -77,12 +77,6 @@
         "min": 2,
         "max": 2
       }
-    }
-  ],
-  "assign": [
-    {
-      "path": "name",
-      "value": "HoHo!"
     }
   ]
 }

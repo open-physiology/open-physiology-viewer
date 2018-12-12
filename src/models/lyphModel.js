@@ -4,6 +4,13 @@ import {Shape} from './shapeModel';
 import {align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
 import {copyCoords} from './utils';
 import {isObject, isString,  merge, pick} from "lodash-bound";
+
+export const LYPH_TOPOLOGY = {
+    TUBE : "TUBE",
+    BAG  : "BAG",
+    BAG2 : "BAG2",
+    CYST : "CYST"
+};
 /**
  * Class that creates visualization objects of lyphs
  */
@@ -63,11 +70,11 @@ export class Lyph extends Shape {
 
     get radialTypes() {
         switch (this.topology) {
-            case "BAG"  :
+            case LYPH_TOPOLOGY.BAG  :
                 return [true, false];
-            case "BAG2" :
+            case LYPH_TOPOLOGY.BAG2 :
                 return [false, true];
-            case "CYST" :
+            case LYPH_TOPOLOGY.CYST :
                 return [true, true];
         }
         return [false, false];

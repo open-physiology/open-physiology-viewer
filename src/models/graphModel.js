@@ -174,18 +174,17 @@ export class Graph extends Group{
         }
     }
 
-    scale(axisLength){
+    scale(scaleFactor){
         const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
-                p[key] *= axisLength * 0.01;
+                p[key] *= scaleFactor;
             });
+
         (this.lyphs||[]).forEach(lyph => {
-            if (lyph.width)  {lyph.width  *= axisLength * 0.01}
-            if (lyph.height) {lyph.height *= axisLength * 0.01}
-
+            if (lyph.width)  {lyph.width  *= scaleFactor}
+            if (lyph.height) {lyph.height *= scaleFactor}
         });
-
         (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
-        (this.links||[]).filter(link => link.length).forEach(link => link.length *= 2 * axisLength * 0.01);
+        (this.links||[]).filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor);
         (this.regions||[]).filter(region => region.points).forEach(region =>
            region.points.forEach(p => scalePoint(p)));
     }
