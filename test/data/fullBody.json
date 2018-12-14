@@ -1435,7 +1435,8 @@
     },
     {"id": "cardiac",
       "name": "Cardiac",
-      "groups": [    {
+      "groups": [
+        {
         "id": "R_MCP",
         "nodes": [
           "R_1_MCP",
@@ -1540,7 +1541,7 @@
       ],
       "lyphs" : ["995", "996"],
       "links" : ["LR", "RL"],
-      "nodes" : ["L", "R"],
+      "nodes" : ["L", "R", "MCS", "MCP"],
       "assign": [
         {
           "path": "$.groups[*].links[*]",

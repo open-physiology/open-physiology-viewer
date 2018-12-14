@@ -44,10 +44,18 @@ const getRefs = (spec) => {
 };
 
 export class Resource{
+
     constructor() {
         this::merge(this.constructor.Model.defaultValues);
     }
 
+    /**
+     * Creates an ApiNATOMY resource from JSON specification
+     * @param json - resource definition
+     * @param modelClasses - map of class names vs implementation of ApiNATOMY resources
+     * @param entitiesByID - map of resources in the global model
+     * @returns {Resource} - ApiNATOMY resource
+     */
     static fromJSON(json, modelClasses = {}, entitiesByID = null){
 
         let clsName = json.class || this.name;
@@ -81,7 +89,10 @@ export class Resource{
         return res;
     }
 
-    //Model schema properties
+    /**
+     * Model schema properties
+     * @constructor
+     */
     static get Model() {
         /**
          * Recursively applies a given operation to the classes in schema definitions
@@ -328,9 +339,6 @@ export class Resource{
         }
     };
 
-    /**
-     *
-     */
     interpolatePathProperties(){
         [...(this.interpolate||[])].forEach(({path, offset, color}) => {
 

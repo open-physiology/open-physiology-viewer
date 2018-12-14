@@ -215,7 +215,7 @@ export class Lyph extends Shape {
         }
         //Do not create labels for layers and nested lyphs
         if (this.layerIn || this.internalIn) { return; }
-        this.createLabels(state.labels[this.constructor.name], state.fontParams);
+        this.createLabels(state);
     }
 
     /**
@@ -254,7 +254,6 @@ export class Lyph extends Shape {
         //Layers and inner lyphs have no labels
         if (this.layerIn || this.internalIn) { return; }
 
-        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
-            this.center.clone().addScalar(5));
+        this.updateLabels(state, this.center.clone().addScalar(-5));
     }
 }

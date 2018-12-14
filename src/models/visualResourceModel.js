@@ -32,16 +32,16 @@ export class VisualResource extends Resource{
     }
 
     /**
-     * Create visible labels
-     * @param labelKey - object property to use as label
-     * @param fontParams - font settings
+     * Create resource labels
+     * @param state - graph configuration, relevant parameters: fontParams
      */
-    createLabels(labelKey, fontParams){
+    createLabels(state){
         if (this.skipLabel) { return; }
+        let labelKey = state.labels[this.constructor.name];
         this.labels = this.labels || {};
 
         if (!this.labels[labelKey] && this[labelKey]) {
-            this.labels[labelKey] = new SpriteText2D(this[labelKey], fontParams);
+            this.labels[labelKey] = new SpriteText2D(this[labelKey], state.fontParams);
         }
 
         if (this.labels[labelKey]){
@@ -53,17 +53,19 @@ export class VisualResource extends Resource{
     }
 
     /**
-     * Updates visual labels
-     * @param labelKey  - object property to use as label
-     * @param isVisible - a boolean flag to toggle the label
-     * @param position  - label's position wrt the visual object
+     * Updates resource labels
+     * @param state - graph configuration, relevant parameters: showLabels and labelRelSize
+     * @param position - label position
      */
-    updateLabels(labelKey, isVisible, position){
+    updateLabels(state, position){
         if (this.skipLabel) { return; }
+        let labelKey  = state.labels[this.constructor.name];
+        let isVisible = state.showLabels[this.constructor.name];
         if (this.labels[labelKey]){
+            this.labels[labelKey].visible = isVisible;
+            this.labels[labelKey].scale.set(state.labelRelSize , state.labelRelSize , state.labelRelSize );
+            copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];
-            this.viewObjects["label"].visible = isVisible;
-            copyCoords(this.viewObjects["label"].position, position);
         } else {
             delete this.viewObjects['label'];
         }

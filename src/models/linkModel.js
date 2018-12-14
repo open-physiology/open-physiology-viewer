@@ -159,7 +159,7 @@ export class Link extends VisualResource {
         }
 
         //Link label
-        this.createLabels(state.labels[this.constructor.name], state.fontParams);
+        this.createLabels(state);
 
         //Icon (lyph)
         if (this.conveyingLyph) {
@@ -213,8 +213,7 @@ export class Link extends VisualResource {
             copyCoords(node, pos);
         });
 
-        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
-            this.center.clone().addScalar(5));
+        this.updateLabels(state, this.center.clone().addScalar(5));
 
         if (this.conveyingLyph){
             this.conveyingLyph.updateViewObjects(state);

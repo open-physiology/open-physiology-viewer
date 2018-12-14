@@ -27,7 +27,6 @@ export class Group extends Resource {
         //New entities will be auto-generated in the raw JSON format
         //this.replaceBorderNodes(json);
 
-
         //addColor((json.lyphs||[]).filter(e => e.isTemplate));
         this.expandTreeTemplates(json, modelClasses);
         this.expandLyphTemplates(json.lyphs);

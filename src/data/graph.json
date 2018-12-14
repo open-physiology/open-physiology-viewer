@@ -171,5 +171,13 @@
         "axonal_lyph5"
       ]
     }
-  ]
+  ],
+  "config": {
+    "labels": {
+      "Node"  : false,
+      "Link"  : false,
+      "Lyph"  : false,
+      "Region": false
+    }
+  }
 }

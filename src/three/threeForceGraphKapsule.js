@@ -31,17 +31,19 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize    : { default: 3 },      // volume per val unit
-        nodeId         : { default: 'id' },
+        nodeRelSize    : { default: 3  },     // volume per val unit //TODO replace with scaleFactor?
         nodeResolution : { default: 16 },     // how many slice segments in the sphere's circumference
+
         linkResolution : { default: 30 },     // number of points on curved link
+
         showLyphs      : { default: true},
         showLayers     : { default: true},
         showLabels     : { default: {Node: true}},
+
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
-        fontParams     : { default: {
-            font: '28px Arial', fillStyle: '#000', antialias: true }
-        },
+        labelRelSize   : { default: 0.1},
+        fontParams     : { default: { font: '24px Arial', fillStyle: '#000', antialias: true }},
+
         d3AlphaDecay   : { default: 0.045 },
         d3VelocityDecay: { default: 0.45 },
         warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
@@ -108,9 +110,7 @@ export default Kapsule({
             .numDimensions(state.numDimensions)
             .nodes(state.graphData.visibleNodes);
 
-        layout.force('link')
-            .id(d => d[state.nodeId])
-            .links(state.graphData.visibleLinks);
+        layout.force('link').id(d => d.id).links(state.graphData.visibleLinks);
 
         // Initial ticks before starting to render
         for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }

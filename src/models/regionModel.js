@@ -49,7 +49,7 @@ export class Region extends Shape {
             this.border.createViewObjects(state);
         }
 
-        this.createLabels(state.labels[this.constructor.name], state.fontParams);
+        this.createLabels(state);
     }
 
     /**
@@ -73,7 +73,6 @@ export class Region extends Shape {
 
         this.border.updateViewObjects(state);
 
-        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
-            this.center.clone().addScalar(5));
+        this.updateLabels(state, this.center.clone().addScalar(5));
     }
 }

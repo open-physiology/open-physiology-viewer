@@ -124,6 +124,9 @@ export class Graph extends Group{
         };
         createCoalescenceForces(res);
 
+        //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
+        (res.links||[]).filter(link => link.length).forEach(link => link.length *= 2);
+
         return res;
     }
 
@@ -149,7 +152,8 @@ export class Graph extends Group{
                 "length"       : container && container.axis? container.axis.length * 0.8 : 5,
                 "geometry"     : LINK_GEOMETRY.INVISIBLE,
                 "color"        : "#ccc",
-                "conveyingLyph": lyph
+                "conveyingLyph": lyph,
+                "skipLabel"    : true
             });
             lyph.conveyedBy = link;
             sNode.sourceOf = [link];
@@ -184,7 +188,7 @@ export class Graph extends Group{
             if (lyph.height) {lyph.height *= scaleFactor}
         });
         (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
-        (this.links||[]).filter(link => link.length).forEach(link => link.length *= 2 * scaleFactor);
+        (this.links||[]).filter(link => link.length).forEach(link => link.length *= scaleFactor);
         (this.regions||[]).filter(region => region.points).forEach(region =>
            region.points.forEach(p => scalePoint(p)));
     }

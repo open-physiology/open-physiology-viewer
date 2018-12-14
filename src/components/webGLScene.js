@@ -2,9 +2,10 @@ import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter}
 import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {keys, values} from 'lodash-bound';
+import {keys, values, merge, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBar} from './gui/searchBar';
+import {MatSliderModule} from '@angular/material/slider'
 
 //Search field
 import {MatFormFieldModule, MatInputModule, MatAutocompleteModule, } from '@angular/material';
@@ -46,6 +47,12 @@ const WindowResize = require('three-window-resize');
                                 (click)="toggleSettingPanel()" title="Hide settings">
                             <i class="fa fa-window-close"></i>
                         </button>
+                        <mat-slider vertical class="w3-grey" 
+                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor" 
+                                    [step]="0.05 * scaleFactor" tickInterval="1" 
+                                    [value]="labelRelSize" title="Label size"
+                            (change)="onScaleChange($event.value)"
+                        ></mat-slider>
                     </section>
                     <canvas #canvas class="w3-card w3-round"></canvas>
                 </section>
@@ -105,18 +112,18 @@ const WindowResize = require('three-window-resize');
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
                             <input type="checkbox" class="w3-check"
-                                   [name]="labelClass"
-                                   [checked]="config['labels'][labelClass]"
-                                   (change)="toggleLabels(labelClass)"/> {{labelClass}}
+                                   [name]   = "labelClass"
+                                   [checked]= "config.labels[labelClass]"
+                                   (change) = "toggleLabels(labelClass)"/> {{labelClass}}
                         </span>
                         <span *ngFor="let labelClass of _labelClasses">
-                            <fieldset *ngIf="config['labels'][labelClass]" class="w3-card w3-round w3-margin-small">
+                            <fieldset *ngIf="config.labels[labelClass]" class="w3-card w3-round w3-margin-small">
                                 <legend>{{labelClass}} label</legend>
                                 <span *ngFor="let labelProp of _labelProps">
                                     <input type="radio" class="w3-radio"
-                                           [name]="labelClass"
-                                           [checked]="_labels[labelClass] === labelProp"
-                                           (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
+                                           [name]    ="labelClass"
+                                           [checked] ="_labels[labelClass] === labelProp"
+                                           (change)  ="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
                                 </span>
                             </fieldset>
                         </span>
@@ -184,11 +191,11 @@ export class WebGLSceneComponent {
 
     graph;
     helpers   = {};
-    scaleFactor = 10;
+    scaleFactor  = 8; //TODO make this a graph parameter with complete layout update on change
+    labelRelSize = 0.1 * this.scaleFactor;
     lockControls = false;
 
-    //TODO replace with graph data config
-    config = {
+    defaultConfig = {
         "layout": {
             "lyphs"       : true,
             "layers"      : true,
@@ -196,7 +203,7 @@ export class WebGLSceneComponent {
         },
         "groups": true,
         "labels": {
-            "Node"  : true,
+            "Node"  : true, //{show: true, "label": "id"}
             "Link"  : false,
             "Lyph"  : false,
             "Region": false
@@ -208,6 +215,7 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
+            this.config = this.defaultConfig::cloneDeep()::merge(this._graphData.config || {});
             this._hideGroups = new Set([...this._graphData.groups]);
             this._graphData.hideGroups([...this._hideGroups]);
             this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
@@ -216,6 +224,11 @@ export class WebGLSceneComponent {
             this._graphData.scale(this.scaleFactor);
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
+    }
+
+    onScaleChange(newLabelScale){
+        this.labelRelSize = newLabelScale;
+        if (this.graph){ this.graph.labelRelSize(this.labelRelSize); }
     }
 
     @Input('highlighted') set highlighted(entity) {
@@ -254,12 +267,13 @@ export class WebGLSceneComponent {
     }
 
     constructor() {
-
+        this.config        = this.defaultConfig::cloneDeep();
         this._labelClasses = this.config["labels"]::keys();
         this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
-        this._hideGroups = new Set();
+        this._hideGroups   = new Set();
     }
+
 
     ngAfterViewInit() {
         if (this.renderer) {  return; }
@@ -273,11 +287,13 @@ export class WebGLSceneComponent {
         let width = this.canvasContainer.clientWidth;
         let height = this.canvasContainer.clientHeight;
 
-        this.camera = new THREE.PerspectiveCamera(70, width / height, 100);
-        this.camera.position.set(0, 100, 1000);
+        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 3000);
+        this.camera.position.set(0, 0, 100 * this.scaleFactor );
         this.camera.aspect = width / height;
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.minDistance = 10;
+        this.controls.maxDistance = 3000;
 
         this.scene = new THREE.Scene();
         this.camera.updateProjectionMatrix();
@@ -344,7 +360,7 @@ export class WebGLSceneComponent {
         this.scene.add(gridHelper2);
         this.helpers["Grid x-z"] = gridHelper2;
 
-        let axesHelper = new THREE.AxesHelper(axisLength + 20);
+        let axesHelper = new THREE.AxesHelper(axisLength + 10);
         this.scene.add(axesHelper);
         this.helpers["Axis"] = axesHelper;
         this.helpers::values().forEach(value => value.visible = false);
@@ -371,6 +387,7 @@ export class WebGLSceneComponent {
             .strength(d => (d.strength ? d.strength :
                 (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
 
+        this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
     }
@@ -576,7 +593,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule,
-        MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+        MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatSliderModule],
     declarations: [WebGLSceneComponent, ModelInfoPanel, StopPropagation, SearchBar ],
     exports: [WebGLSceneComponent]
 })

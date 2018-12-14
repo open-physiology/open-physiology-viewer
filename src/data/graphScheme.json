@@ -476,7 +476,7 @@
           "type": "number",
           "minimum": 0,
           "maximum": 100,
-          "default": 5
+          "default": 4
         },
         "collapsible" : {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",

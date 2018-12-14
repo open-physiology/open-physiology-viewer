@@ -48,7 +48,7 @@ export class Node extends VisualResource {
         }
 
         //Labels
-        this.createLabels(state.labels[this.constructor.name], state.fontParams);
+        this.createLabels(state);
     }
 
     /**
@@ -70,7 +70,7 @@ export class Node extends VisualResource {
 
         copyCoords(this.viewObjects["main"].position, this);
 
-        this.updateLabels(state.labels[this.constructor.name], state.showLabels[this.constructor.name],
-            this.viewObjects["main"].position.clone().addScalar(5 + this.val * state.nodeRelSize));
+        this.updateLabels(state,
+            this.viewObjects["main"].position.clone().addScalar(1 + this.val * state.nodeRelSize));
     }
 }
