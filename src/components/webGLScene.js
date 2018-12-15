@@ -287,13 +287,14 @@ export class WebGLSceneComponent {
         let width = this.canvasContainer.clientWidth;
         let height = this.canvasContainer.clientHeight;
 
-        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 3000);
+        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
         this.camera.position.set(0, 0, 100 * this.scaleFactor );
         this.camera.aspect = width / height;
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.minDistance = 10;
-        this.controls.maxDistance = 3000;
+        //Keeps rotated graph in camera range to avoid disappearing
+        this.controls.maxDistance = 4000 - 100 * this.scaleFactor;
 
         this.scene = new THREE.Scene();
         this.camera.updateProjectionMatrix();
