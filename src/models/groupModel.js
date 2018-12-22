@@ -27,12 +27,10 @@ export class Group extends Resource {
         //New entities will be auto-generated in the raw JSON format
         //this.replaceBorderNodes(json);
 
-        //addColor((json.lyphs||[]).filter(e => e.isTemplate));
         this.expandTreeTemplates(json, modelClasses);
         this.expandLyphTemplates(json.lyphs);
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
-
         res.mergeSubgroupEntities();
 
         //Color entities which do not have assigned colors in the spec
@@ -210,6 +208,36 @@ export class Group extends Resource {
 
     get visibleLyphs(){
        return (this.lyphs||[]).filter(e => e.isVisible && e.axis && e.axis.isVisible);
+    }
+
+    /**
+     * Experimental - export visible object positions (or points)
+     */
+    export(){
+        const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
+
+        return {
+            regions: this.visibleRegions.map(region => ({
+                "id"     : region.id,
+                "points" : (region.points || []).map(p => getCoords(p)),
+                "center" : getCoords(region.center)
+            })),
+            lyphs: this.visibleLyphs.map(lyph => ({
+                "id"     : lyph.id,
+                "points" : (lyph.points || []).map(p => getCoords(p)),
+                "center" : getCoords(lyph.center)
+            })),
+            nodes: this.visibleNodes.map(node => ({
+                "id"     : node.id,
+                "center" : getCoords(node)
+            })),
+            links: this.visibleLinks.map(link => ({
+                "id"     : link.id,
+                "source" : link.source.id,
+                "target" : link.target.id,
+                "points" : (link.points || []).map(p => getCoords(p))
+            }))
+        };
     }
 
     createViewObjects(state){

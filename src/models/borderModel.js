@@ -70,7 +70,7 @@ export class Border extends VisualResource {
         offset.applyAxisAngle( axis, angle );
         let pos = center.clone().add(offset);
         copyCoords(node, pos);
-        node.z += 2;
+        node.z += 1;
     }
 
     /**
@@ -121,9 +121,10 @@ export class Border extends VisualResource {
             if (this.borders[i].conveyingLyph) {
                 this.borders[i].conveyingLyph.conveyedBy = this.borders[i];
                 this.borders[i].createViewObjects(state);
+                state.graphScene.add(this.borders[i].conveyingLyph.viewObjects["main"]);
             }
         }
-
+        //TODO draw borders as links
         this.viewObjects["shape"] = (this.host instanceof Lyph)
             ? lyphBorders([this.host.width, this.host.height, this.host.width / 2, ...this.host.radialTypes])
             : polygonBorders(this.host.points);
@@ -134,9 +135,6 @@ export class Border extends VisualResource {
             copyCoords(this.borders[i].source, this.host.points[ i ]);
             copyCoords(this.borders[i].target, this.host.points[i + 1]);
             this.borders[i].updateViewObjects(state);
-            if (this.borders[i].conveyingLyph){
-                state.graphScene.add(this.borders[i].conveyingLyph.viewObjects["main"]);
-            }
             //Position hostedNodes exactly on the link shape
             if (this.borders[i].hostedNodes){
                 //position nodes on the lyph border (exact shape)
@@ -152,7 +150,6 @@ export class Border extends VisualResource {
         //By doing the update here, we also support inner content in the region
         const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
 
-
         let hostedLinks   = lyphsToLinks(this.host.hostedLyphs);
         let internalLinks = lyphsToLinks(this.host.internalLyphs);
 
@@ -166,6 +163,5 @@ export class Border extends VisualResource {
             this.placeNodeInside(node, i,
             this.host.internalNodes.length, center)
         });
-
     }
 }

@@ -5,7 +5,7 @@ import { BrowserModule }    from '@angular/platform-browser';
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
 import { WebGLSceneModule } from '../components/webGLScene';
-import { ResourceEditorModule } from '../components/resourceEditor';
+//import { ResourceEditorModule } from '../components/resourceEditor';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses } from '../models/modelClasses';
 import { debug } from '../models/utils';
@@ -18,11 +18,8 @@ const ace = require('ace-builds');
 
 //Angular Material
 import 'hammerjs';
-import { MatSnackBarModule } from '@angular/material';
+import { MatSnackBarModule, MatDialogModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-//import {NgxSmartModalModule, NgxSmartModalService} from 'ngx-smart-modal';
-//import 'ngx-smart-modal/ngx-smart-modal.css';
 
 //Styles
 import 'font-awesome/css/font-awesome.css';
@@ -36,10 +33,10 @@ debug(true, msgCount);
 @Component({
 	selector: 'test-app',
 	template: `
-    
-		<!-- Header -->
-	
-		<header class="w3-bar w3-top w3-dark-grey" style="z-index:10;">
+
+        <!-- Header -->
+
+        <header class="w3-bar w3-top w3-dark-grey" style="z-index:10;">
             <span class="w3-bar-item">
 				<i class="fa fa-heartbeat w3-margin-right"></i>ApiNATOMY
 			</span>
@@ -60,13 +57,13 @@ debug(true, msgCount);
         </header>
 
         <!--Left toolbar-->
-    
+
         <section id="left-toolbar" class="w3-sidebar w3-bar-block">
             <input #fileInput
-                   [type]          = "'file'"
-                   [accept]        = "'.json'"
-                   [style.display] = "'none'"
-                   (change)        = "load(fileInput.files)"
+                   [type]="'file'"
+                   [accept]="'.json'"
+                   [style.display]="'none'"
+                   (change)="load(fileInput.files)"
             />
             <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
                 <i class="fa fa-plus"></i>
@@ -74,65 +71,60 @@ debug(true, msgCount);
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" (click)="openEditor()" title="Edit">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showResourceEditor"
+                    (click)="openResourceEditor()" title="Show resource editor">
+                <i class="fa fa-wpforms"></i>
+            </button>
+
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showResourceEditor"
+                    (click)="closeResourceEditor()" title="Show graph">
+                <i class="fa fa-image"></i>
+            </button>
+
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor && !_showResourceEditor"
+                    (click)="openEditor()" title="Edit">
                 <i class="fa fa-edit"></i>
             </button>
-            <!--<button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor" -->
-                    <!--(click)="export()" title="Export layout">-->
-                <!--<i class="fa fa-image"></i>-->
-            <!--</button>-->
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="closeEditor()" title="Hide editor">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor && !_showResourceEditor"
+                    (click)="closeEditor()" title="Hide editor">
                 <i class="fa fa-window-close"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="preview()" title="Apply changes">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor" (click)="preview()"
+                    title="Apply changes">
                 <i class="fa fa-check"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor" (click)="save()" title="Export model">
+            <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"></i>
             </button>
         </section>
- 
+
         <!--Editor and canvas-->
         <section class="main-panel">
-                <section class="w3-row">
-                    <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"></section>
-                    <webGLScene [class.w3-threequarter] = "_showJSONEditor"
-                                [graphData]             ="_graphData"
-                                (selectedItemChange)    ="onSelectedItemChange($event)"
-                                (highlightedItemChange) ="onHighlightedItemChange($event)"></webGLScene>
-                </section>
-                <!--<resourceEditor [entity]="graphData" [modelClasses]="modelClasses" ></resourceEditor>-->
-        </section>    
-         
+            <section class="w3-row" *ngIf="_showResourceEditor">
+                <!--<resourceEditor [resource]="_model" [className]="Graph" [modelClasses]="modelClasses"></resourceEditor>-->
+            </section>
+            <section class="w3-row">
+                <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"></section>
+                <webGLScene [class.w3-threequarter] = "_showJSONEditor"
+                    [graphData]             ="_graphData"
+                    (selectedItemChange)    ="onSelectedItemChange($event)"
+                    (highlightedItemChange) ="onHighlightedItemChange($event)">
+                </webGLScene>
+            </section>
+        </section>
+
+
         <!-- Footer -->
-    
+
         <footer class="w3-container w3-grey">
             <span class="w3-row w3-right">
 				<i class="fa fa-code w3-padding-small"></i>natallia.kokash@gmail.com
 			</span>
-			<span class="w3-row w3-right">
+            <span class="w3-row w3-right">
 				<i class="fa fa-envelope w3-padding-small"></i>bernard.de.bono@gmail.com
 			</span>
         </footer>
-
-        <!--<ngx-smart-modal #myModal identifier="myModal">-->
-            <!--<div>-->
-                <!--<div class="w3-container w3-light-gray">-->
-                    <!--<h4>Export bond graph layout?</h4>-->
-                <!--</div>-->
-                <!--<div class="w3-content w3-padding">-->
-                    <!--<b>Include entities: </b>-->
-                    <!--<p> {{bondGraphMsg }} </p>-->
-                <!--</div>-->
-                <!--<div class="w3-container w3-light-gray">-->
-                    <!--<div class="w3-right">-->
-                        <!--<button (click)="exportCancel()">Cancel</button>-->
-                        <!--<button (click)="exportConfirm()">OK</button>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</ngx-smart-modal>-->
-	`,
+    `,
     styles: [`
         #left-toolbar{
             width : 48px; 
@@ -159,21 +151,21 @@ debug(true, msgCount);
 export class TestApp {
     _graphData;
     _showJSONEditor = false;
+    _showResourceEditor = false;
     _model = {};
     _editor;
 
     @ViewChild('jsonEditor') _container: ElementRef;
-    //@ViewChild('myModal') _myModal;
 
-    constructor(){ //(modalService: NgxSmartModalService){
+    constructor(){
         this.update(initModel);
     }
     ngAfterViewInit(){
         if (!this._container) { return; }
         this._editor = new JSONEditor(this._container.nativeElement, {
-            mode: 'code',
-            modes: ['code', 'tree', 'view'],
-            ace: ace,
+            mode  : 'code',
+            modes : ['code', 'tree', 'view'],
+            ace   : ace,
             schema: schema
         });
         this._editor.set(this._model);
@@ -192,13 +184,9 @@ export class TestApp {
 	load(files) {
         const reader = new FileReader();
 		reader.onload = () => {
-            // try {
-                this._model = JSON.parse(reader.result);
-                this.update(this._model);
-                this._editor.set(this._model);
-            // } catch(err){
-            //     throw new Error("Cannot load the model: " +  err);
-            // }
+            this._model = JSON.parse(reader.result);
+            this.update(this._model);
+            this._editor.set(this._model);
         };
 
         if (files && files[0]){
@@ -216,7 +204,15 @@ export class TestApp {
         msgCount = {};
 	}
 
-	openEditor(){
+    openResourceEditor(){
+        this._showResourceEditor = true;
+    }
+
+    closeResourceEditor(){
+        this._showResourceEditor = false;
+    }
+
+    openEditor(){
         this._showJSONEditor = true;
 	}
 
@@ -225,7 +221,12 @@ export class TestApp {
 	}
 
 	preview(){
-        this._showJSONEditor = false;
+        if (this._showJSONEditor){
+            this._showJSONEditor = false;
+        }
+        if (this._showResourceEditor){
+            this._showResourceEditor = false;
+        }
         this.update(this._editor.get());
     }
 
@@ -234,31 +235,6 @@ export class TestApp {
         let result = JSON.stringify(this._model, null, 4);
         const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
         FileSaver.saveAs(blob, 'apinatomy-model.json');
-    }
-
-    // export() {
-    //     this._modalService.getModal('myModal').open();
-    // }
-
-    get bondGraphGroup() {
-        if (!this._graphData) {return []; }
-        let bondGroup = (this._graphData.groups||[]).find(e => e.id.startsWith("bond"));
-        return bondGroup? (bondGroup.entities||[]).map(e => e.id): [];
-    }
-
-    get bondGraphMsg() {
-        return this.bondGraphGroup.join(', ');
-    }
-
-    exportCancel(){
-        this._myModal.close();
-    }
-
-    exportConfirm(){
-        // this._myModal.close();
-        // let result = JSON.stringify(this._dataService.export(this.bondGraphGroup), null, 2);
-        // const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
-        // FileSaver.saveAs(blob, 'apinatomy-layout.json');
     }
 
     onSelectedItemChange(item){}
@@ -281,7 +257,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [ BrowserModule, WebGLSceneModule,
-        MatSnackBarModule, BrowserAnimationsModule, ResourceEditorModule], //, NgxSmartModalModule.forRoot()
+        MatSnackBarModule, MatDialogModule, BrowserAnimationsModule],//, ResourceEditorModule],
 	declarations: [ TestApp ],
     bootstrap   : [ TestApp ],
     providers   : [

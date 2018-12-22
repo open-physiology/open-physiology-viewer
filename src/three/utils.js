@@ -22,9 +22,9 @@ export function lyphBorders([width,  height,  radius,  top,  bottom]){
     borders[1].moveTo( 0,   height / 2);
     //Top radial border
     if (top){
-        borders[1].lineTo( width - radius, height / 2);
-        borders[1].quadraticCurveTo( width,  height / 2, width,  height / 2 - radius);
-        borders[2].moveTo( width,  height / 2 - radius);
+        borders[1].lineTo( width - radius, height / 2 );
+        borders[2].moveTo( width - radius, height / 2 );
+        borders[2].quadraticCurveTo( width,  height / 2, width,  height / 2 - radius);
     } else {
         borders[1].lineTo( width,  height / 2);
         borders[2].moveTo( width,  height / 2);

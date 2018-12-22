@@ -18,15 +18,10 @@
   
  The property `infoFields` lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the `infoFields` property of a lyph object
  ```json
-   {
-       "infoFields": {
-         "text"   : [ "id", "name", "topology" ],
-         "objects": [ "conveyedBy" ],
-         "lists"  : [ "layers" ]
-       }
-   }
+    "infoFields": [ "id", "name", "topology", "conveyedBy", "layers" ]
  ```
- will instruct the viewer to show the lyph's `id`, `name`, and `topology` as simple text, the signature of the link conveying the lyph, and a list of signatures for the lyph layers. 
+ will instruct the viewer to show the lyph's `id`, `name`, `topology`,
+ the signature of the link conveying the lyph, and the lyph's layers.
   
  Each object can have auxiliary boolean parameters `hidden`, `inactive`, and `skipLabels` that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.
 
@@ -35,17 +30,17 @@
  To simplify the parameter setting process, we provide means to assign valid properties to subsets of entities in the model. 
  Each object may contain a property `assign` with two fields: `path` which contains a [JSONPath](https://www.npmjs.com/package/jsonpath) expression, and `value` object, that contains a JSON object to merge with each and every item in the set defined by the query in the `path`. For example, the following code assigns `color` and `scale` properties to all lyphs in the `Neural system` group:   
 ```json
-  {
-    "id"    : "group1",
-    "name"  : "Neural system",
-    "assign": {
-        "path"    : "$.lyphs[*]",
-         "value"  : {
-           "color": "#aaa",
-           "scale": { "width": 200, "height": 100 }
-      }
-    }
-  }
+    {
+        "id"    : "group1",
+        "name"  : "Neural system",
+        "assign": {
+            "path"    : "$.lyphs[*]",
+            "value"  : {
+                "color": "#aaa",
+                "scale": { "width": 200, "height": 100 }
+            }
+        }
+     }
 ```
   <img src="asset/assign.png" height="300px" caption = "Assigning properties to a group of lyphs">
 
@@ -54,17 +49,15 @@
  For example, the following fragment colors three layers of every lyph in the ``Neural system`` group of lyphs using the shades of blue, starting from the opposite side of the color array with 25% offset to avoid very light and very dark shades:
  
  ```json
-   {  
-      "interpolate": { 
-          "path"   : "$.lyphs[*].layers",
-          "color"  : {
-             "scheme"  : "interpolateBlues",
-             "offset"  : 0.25,
-             "length"  : 3,
-             "reversed": true
-          }
-        }
-    }
+  "interpolate": {
+      "path"   : "$.lyphs[*].layers",
+      "color"  : {
+         "scheme"  : "interpolateBlues",
+         "offset"  : 0.25,
+         "length"  : 3,
+         "reversed": true
+      }
+  }
  ```
    <img src="asset/interpolate.png" height="300px" caption = "Assigning colors to a group of lyphs using a color interpolation scheme">
 
@@ -80,7 +73,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  A modeller can control the positions of the nodes by assigning the desired location via the `layout` property. For example, the image below illustrates the graph for the 5 core nodes: 
 
 ```json
-  {
     "nodes": [
         {
           "id"    : "a",
@@ -118,8 +110,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
           "val"   : 10,
           "layout": { "x" : 0, "y" : 75, "z" : 0 }
         }
-      ]
-    }
+    ]
 ```
   <img src="asset/nodes.png" height="300px" caption="Positioning nodes">
 
@@ -133,9 +124,9 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  The related optional property `offset` can be used to indicate the offset in percentage from the start of the link. Thus, the definition below 
  ```json
     {
-      "id"    : "nLR00",
-      "host"  : "LR",
-      "offset": 0.25
+        "id"    : "nLR00",
+        "host"  : "LR",
+        "offset": 0.25
     }
  ```
  instructs the viewer to position the node `nLR00` at the quarter of the length of the link `LR`. 
@@ -154,8 +145,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  By default, all links are drawn as straight lines, this corresponds to the `geometry=link` setting. To apply another visualization method, we set the link's `geometry` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `geometry="semicircle"` produces a spline that resembles a semicircle: 
  
  ```json
-  {
-    "links": [
+     "links": [
          {
            "id"        : "RL",
            "name"      : "Pulmonary",
@@ -181,8 +171,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
            "length" : 100,
            "stroke" : "dashed"
          }
-       ]
-    }
+     ]
  ```
  <img src="asset/links.png" height="300px" caption = "Drawing links">
  
@@ -219,7 +208,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  The shape of the lyph is defined by its `topology`. The topology value `TUBE` represents a conduit with two open ends. The values of `BAG` and `BAG2` represent a conduit with one closed end. Finally, the topology value `CYST` represents a conduit with both ends closed (a capsule). 
  
  ```json
- {
  "lyphs": [
      {
        "id"         : "5",
@@ -240,8 +228,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
        "name"     : "Medulla of Kidney Lobus",
        "topology" : "BAG"
      }
-   ]
- }
+ ]
  ```
  In addition to the nodes and links created in the previous sections and a new link `k_l` with source node `k` and target node `l`, the code above produces a bag with two layers conveyed by the `k_l` link.
  
@@ -278,31 +265,30 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the `hostedLyphs` property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.
  
-  ```json
-       {
+ ```json
+    {
          "id"         : "5",
          "name"       : "Kidney Lobus",
          "topology"   : "BAG",
          "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
-       }
-   ```
+    }
+ ```
   <img src="asset/hostedLyphs.png" height="300px" alt = "Lyph on border">
   
   A list of materials used in a lyph is available via its field `materials`, i.e.,:
-    ```json
-      {
-          "id"       : "112",
-          "name"     : "Lumen of Pelvis",
-          "topology" : "TUBE",
-          "materials": [ "9", "13" ]
-      }
-    ```
+ ```json
+    {
+        "id"       : "112",
+        "name"     : "Lumen of Pelvis",
+        "topology" : "TUBE",
+        "materials": [ "9", "13" ]
+    }
+ ```
  
  Often a model requires many lyphs with the same layer structure. To simplify the creation of sets of such lyphs, we introduced a notion of the lyph template. A lyph with property `isTemplate` set to true, serves as a prototype for all lyphs in its property `subtypes`: such lyphs inherit their layers from the their `supertype`. 
  In the example below, six lyphs are defined as subtypes of a generic cardiac lyph which works as a template to define their layer structure.
  
  ```json
- {
     "lyphs": [
          {
            "id"        : "994",
@@ -320,8 +306,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
            "name" : "Left Ventricle"
          }
     ] 
- }
- ``` 
+ ```
  <img src="asset/cardiac.png" height="300px" alt = "Lyph templates">
  
  Note that inheriting layer structure from the lyph template differs from assigning layers explicitly to all subtype lyphs, either individually or via the group's `assign` property. A lyph with the same ID cannot be used as a layer in two different  lyphs, that would imply that the same graphical object should appear in two different positions, and its dimensions and other context-dependent properties may vary as well. The code above instead implies that we replicate each of three template layers six times, i.e., 18 new lyphs are auto-generated and added to the model for the specification above.  
@@ -329,7 +314,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  It is possible to customize some of the `subtype` - `layer` pairs with the help of the context-dependent queries. For example, the code below
 
   ```json
-  {//...
      "assign": [
        {
          "path" : "$.[?(@.id=='1000')].layers[(@.length-1)]",
@@ -340,8 +324,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
          "value": { "internalLyphs": [ "996" ] }
        }
      ]
-  }
-  ```  
+  ```
   assigns `internalLyphs` to two outer most layers of lyphs `1000` and `1010` while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.
 
    The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`. 
@@ -352,21 +335,22 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
     Region internal content is similar to the content of a lyph.
     Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
-  ```json
-  "regions": [
-      {
-        "id"     : "cs",
-        "name"   : "Cardiac system",
-        "points" : [{"x": -75, "y": 20}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 20}],
-        "color"  : "#fbb03f"
-      },
-      {
-        "id"     : "cns",
-        "name"   : "Central Nervous System",
-        "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
-        "color"  : "#f4ed2f"
-      }]
-  ```
+ ```json
+    "regions": [
+        {
+            "id"     : "cs",
+            "name"   : "Cardiac system",
+            "points" : [{"x": -75, "y": 20}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 20}],
+            "color"  : "#fbb03f"
+        },
+        {
+            "id"     : "cns",
+            "name"   : "Central Nervous System",
+            "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
+            "color"  : "#f4ed2f"
+        }
+    ]
+ ```
  In the future, we plan to add an option to create regions based on paths in SVG files.
 
  
@@ -383,12 +367,12 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
   
   ```json
      {
-       "id"      : "5",
-       "name"    : "Kidney Lobus",
-       "topology": "BAG",
-       "border"  : {
-         "borders": [ {}, {}, {}, { "hostedNodes": [ "nPS013", "nLR05", "nLR15" ] } ]
-       }
+        "id"      : "5",
+        "name"    : "Kidney Lobus",
+        "topology": "BAG",
+        "border"  : {
+            "borders": [ {}, {}, {}, { "hostedNodes": [ "nPS013", "nLR05", "nLR15" ] } ]
+        }
      }
   ```
 
@@ -396,12 +380,12 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  ```json
      {
-       "id"      : "3",
-       "name"    : "Renal Parenchyma",
-       "topology": "BAG",
-       "border"  : {
-         "borders": [ {}, {}, {}, { "conveyingLyph": "5" } ]
-       }
+        "id"      : "3",
+        "name"    : "Renal Parenchyma",
+        "topology": "BAG",
+        "border"  : {
+            "borders": [ {}, {}, {}, { "conveyingLyph": "5" } ]
+        }
      }
   ```
  <img src="asset/lyphOnBorder.png" height="300px" alt = "Lyph on border"> 
@@ -411,8 +395,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 ## Material
  The ApiNATOMY model can contain definitions of materials, e.g.:
  ```json
-   {
-      "materials": [
+    {
+        "materials": [
            {
               "id"  : "9",
               "name": "Biological Fluid"
@@ -421,8 +405,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
               "id"  : "13",
               "name": "Urinary Fluid"
            }
-      ]
-   }
+        ]
+    }
  ```
 
  At the moment, we do not include material objects into the graph schematics.  Materials of a lyph can be displayed on the information panel if the `infoFields` property of the lyph is configured to show them.
@@ -433,8 +417,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  In the example below, we define a group of blood vessels by joining two subgroups, arterial and venous vessels.
  
  ```json
-    {
-      "groups": [
+    "groups": [
         {
           "id"    : "omega",
           "name"  : "Blood vessels",
@@ -452,8 +435,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
           "nodes" : [ "nLR10", "nLR11", "nLR12", "nLR13", "nLR14", "nLR15", "nLR16" ],
           "links" : [ "LR10", "LR11", "LR12", "LR13", "LR14", "LR15" ]
         }
-      ]
-    }
+    ]
  ```
  
  In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.  

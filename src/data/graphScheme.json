@@ -6,7 +6,7 @@
     "RGBColorScheme": {
       "type": "string",
       "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
-  },
+    },
     "Point2Scheme": {
       "description": "Coordinates of a 2d point",
       "type": "object",
@@ -83,7 +83,7 @@
         "length": {
           "description": "Optional parameter to define number of colors from the color scheme",
           "type": "number",
-          "minimum" : 1
+          "minimum": 1
         },
         "reversed": {
           "description": "Boolean parameter that indicates whether to pick up colors from the color scheme in reverse order",
@@ -120,13 +120,13 @@
       }
     },
     "JSONPathScheme": {
-        "description": "JSONPath expression to select entities",
-        "type": "string"
+      "description": "JSONPath expression to select entities",
+      "type": "string"
     },
     "Resource": {
       "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model.",
-      "type"      : "object",
-      "abstract"  : "true",
+      "type": "object",
+      "abstract": "true",
       "properties": {
         "id": {
           "description": "Unique entity identifier",
@@ -153,30 +153,31 @@
         },
         "class": {
           "description": "Resource class",
-          "type"       : "string"
+          "type": "string",
+          "readOnly": true
         },
         "JSON": {
           "description": "Initial JSON specification for the internal model",
-          "type"       : "object",
-          "readOnly"   : true
+          "type": "object",
+          "readOnly": true
         },
         "assign": {
-        "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
-        "type": "array",
-        "item": {
-          "type": "object",
-          "properties": {
-            "path": {
-              "description": "JSONPath expression to select entities",
-              "$ref": "#/definitions/JSONPathScheme"
-            },
-            "value": {
-              "description": "A subset of entity properties to assign to all selected entities",
-              "type": "object"
+          "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "description": "JSONPath expression to select entities",
+                "$ref": "#/definitions/JSONPathScheme"
+              },
+              "value": {
+                "description": "A subset of entity properties to assign to all selected entities",
+                "type": "object"
+              }
             }
           }
-        }
-      },
+        },
         "interpolate": {
           "description": "Parameters defining schemes to interpolate properties of entities in the JSON path",
           "type": "array",
@@ -203,40 +204,12 @@
           "type": "boolean"
         },
         "infoFields": {
-          "description": "A set of properties shown in the info panel when the entity is active, i.e., highlighted or selected",
-          "type": "object",
-          "properties": {
-            "text": {
-              "description": "Properties that are displayed as text fields",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "objects": {
-              "description": "Properties that are displayed as objects",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lists": {
-              "description": "Properties that are displayed as lists",
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
+          "description": "Resource properties shown in the info panel when the entity is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+             "type": "string"
           },
-          "default": {
-            "text": [
-              "id",
-              "class",
-              "name"
-            ],
-            "objects": [],
-            "lists": []
-          }
+          "default": [ "id", "name", "class" ]
         }
       }
     },
@@ -250,7 +223,11 @@
       "properties": {
         "color": {
           "description": "Color",
-          "allOf": [{"$ref": "#/definitions/RGBColorScheme"}]
+          "allOf": [
+            {
+              "$ref": "#/definitions/RGBColorScheme"
+            }
+          ]
         },
         "viewObjects": {
           "description": "Graphical objects that represent the entity",
@@ -447,7 +424,7 @@
         "$ref": "#/definitions/VisualResource"
       },
       "properties": {
-        "source"      : {
+        "source": {
           "description": "Source node of the link",
           "anyOf": [
             {
@@ -459,7 +436,7 @@
           ],
           "relatedTo": "sourceOf"
         },
-        "target"      : {
+        "target": {
           "description": "Target node of the link",
           "anyOf": [
             {
@@ -471,18 +448,18 @@
           ],
           "relatedTo": "targetOf"
         },
-        "length"      : {
+        "length": {
           "description": "The length of the link",
           "type": "number",
           "minimum": 0,
           "maximum": 100,
           "default": 4
         },
-        "collapsible" : {
+        "collapsible": {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
           "type": "boolean"
         },
-        "geometry"    : {
+        "geometry": {
           "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
@@ -496,30 +473,25 @@
           ],
           "default": "link"
         },
-        "infoFields"  : {
-          "default": {
-            "text": [
-              "length",
-              "type"
-            ],
-            "objects": [
-              "source",
-              "target",
-              "conveyingLyph"
-            ]
-          }
+        "infoFields": {
+          "description": "Resource properties shown in the info panel when the entity is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [ "id", "name", "class", "source", "target", "conveyingLyph" ]
         },
-        "directed"    : {
+        "directed": {
           "description": "When set to true, defines a directed edge with arrow at the end",
           "type": "boolean",
           "default": false
         },
-        "reversed"    : {
+        "reversed": {
           "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
           "type": "boolean",
           "default": false
         },
-        "stroke"      : {
+        "stroke": {
           "description": "Property that defined appearance of the link: `dashed` corresponds to a dashed line while `thick` is an indication for the tool to use a special shader to draw thick lines",
           "type": "string",
           "enum": [
@@ -528,12 +500,12 @@
           ],
           "default": ""
         },
-        "linewidth"   : {
+        "linewidth": {
           "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
           "type": "number",
           "default": "0.003"
         },
-        "strength"    : {
+        "strength": {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
           "type": "number"
         },
@@ -571,7 +543,9 @@
         }
       },
       "dependencies": {
-        "linewidth": ["stroke"]
+        "linewidth": [
+          "stroke"
+        ]
       }
     },
     "Shape": {
@@ -592,7 +566,7 @@
             }
           ],
           "relatedTo": "host",
-          "default"  : {}
+          "default": {}
         },
         "internalLyphColumns": {
           "description": "Defines number of columns in the grid layout for the internal lyphs",
@@ -632,9 +606,9 @@
         },
         "points": {
           "description": "Points defining the region border shape",
-          "type"  : "array",
-          "items" : {
-            "$ref" : "#/definitions/Point2Scheme"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Point2Scheme"
           }
         },
         "hostedLyphs": {
@@ -679,7 +653,7 @@
           ],
           "default": "TUBE"
         },
-        "conveyedBy"  : {
+        "conveyedBy": {
           "description": "A link conveing the lyph",
           "anyOf": [
             {
@@ -720,16 +694,14 @@
           "relatedTo": "layers"
         },
         "infoFields": {
-          "default": {
-            "text": [
-              "topology",
-              "width"
-            ],
-            "objects": [ "conveyedBy" ],
-            "lists": [ ]
-          }
+          "description": "Resource properties shown in the info panel when the entity is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [ "id", "name", "class", "topology", "conveyedBy" ]
         },
-        "thickness" : {
+        "thickness": {
           "description": "Anatomical lyph thickness defined in the form of power of 1/10",
           "type": "object",
           "properties": {
@@ -753,19 +725,19 @@
             }
           }
         },
-        "width" : {
+        "width": {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
-          "type"   : "number",
+          "type": "number",
           "minimum": 0,
           "maximum": 100
         },
         "height": {
           "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
-          "type"   : "number",
+          "type": "number",
           "minimum": 0,
           "maximum": 100
         },
-        "scale" : {
+        "scale": {
           "description": "Defines the size of the conveying lyph as percentage of its axis' length",
           "type": "object",
           "properties": {
@@ -781,13 +753,13 @@
             }
           },
           "default": {
-            "width" : 40,
+            "width": 40,
             "height": 80
           }
         },
         "layerWidth": {
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
-          "type"   : "number",
+          "type": "number",
           "maximum": 0,
           "maximum": 100
         },
@@ -803,7 +775,7 @@
           ],
           "relatedTo": "internalLyphs"
         },
-        "angle" : {
+        "angle": {
           "description": "Angle (in degrees) to rotate the lyph around its axis",
           "type": "number"
         },
@@ -906,7 +878,7 @@
             }
           ],
           "relatedTo": "border",
-          "readOnly" : true
+          "readOnly": true
         }
       }
     },
@@ -1034,7 +1006,7 @@
             ]
           },
           "relatedTo": "inGroups",
-          "default"  : []
+          "default": []
         },
         "inGroups": {
           "description": "A group that contains the current group",
@@ -1050,11 +1022,11 @@
             ]
           },
           "relatedTo": "groups",
-          "default"  : []
+          "default": []
         }
       }
     },
-    "Tree":{
+    "Tree": {
       "$extends": {
         "$ref": "#/definitions/Group"
       },

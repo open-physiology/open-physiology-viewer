@@ -26,7 +26,7 @@ Technically, the model is essentially a JSON file with 4 fields: `nodes`, `links
       "color" : "#d1d2d4",
       "internalLyphColumns": 3,
       "internalLyphs": [ "putamen", "gpe", "gpi" ]
-    }
+   }
 ```
 This means that they are positioned on a grid within their container lyph, and the corresponding parameter, `internalLyphColumns: 3` indicates that the grid should contain 3 columns. The number
 of rows depends on the number of internal lyphs within the container.
@@ -36,42 +36,40 @@ Other space allocation methods for internal lyphs will be supported upon demand,
 The nodes and links to model rotational axes of internal lyphs are auto generated (they can also be defined explicitly if a user wants to override the default properties, i.e., make them visible, or specify relationships between them and other graph entities). Thus, in our model, we only define the position and the size of the main context lyph's axis, Basal Ganglia:
 
 ```json
-  "nodes": [
-    { "id": "a", "layout": {"x": -100, "y": 100, "z": 0 }},
-    { "id": "b", "layout": { "x": 100, "y": 100, "z": 0 }},
-    ...
-  ],
-  "links": [
-    {
-      "id"      : "main",
-      "source"  : "a",
-      "target"  : "b",
-      "length"  : 100,
-      "geometry": "invisible",
-      "conveyingLyph": "bg"
-    },
-    ...
-  ]
+    "nodes": [
+        { "id": "a", "layout": {"x": -100, "y": 100, "z": 0 } },
+        { "id": "b", "layout": { "x": 100, "y": 100, "z": 0 } },...
+    ],
+    "links": [
+        {
+            "id"      : "main",
+            "source"  : "a",
+            "target"  : "b",
+            "length"  : 100,
+            "geometry": "invisible",
+            "conveyingLyph": "bg"
+        },...
+    ]
 ```
 
 The `trees` property is an array with 2 objects defining the `dendrite` 1-level tree and the `axonal` 5-level trees:
 ```json
-"trees": [
-    {
-      "id"          : "dendrite",
-      "name"        : "Dendrite omega tree",
-      "root"        : "n1",
-      "numLevels"   : 1,
-      "lyphTemplate": "neuronBag"
-    },
-    {
-      "id"          : "axonal",
-      "name"        : "Axonal omega tree",
-      "root"        : "n2",
-      "numLevels"   : 5,
-      "lyphTemplate": "neuronBag"
-    }
-  ],
+    "trees": [
+        {
+          "id"          : "dendrite",
+          "name"        : "Dendrite omega tree",
+          "root"        : "n1",
+          "numLevels"   : 1,
+          "lyphTemplate": "neuronBag"
+        },
+        {
+          "id"          : "axonal",
+          "name"        : "Axonal omega tree",
+          "root"        : "n2",
+          "numLevels"   : 5,
+          "lyphTemplate": "neuronBag"
+        }
+    ],
 ```
 
 The tree root nodes are named `n1` and `n2`, these names are explicitly given while defining the the axis of the axon hillock, and by referring to them in the tree model, we indicate that the roots of the `axonal` and `dendrite` trees coincide with the ends of the `hillock`.
@@ -97,12 +95,12 @@ in our model, the axonal tree node is located on the 2nd radial border of the GP
 level lyphs are hosted by (mapped to the surface of) the the GPi lyph.
 ```json
     {
-      "id"          : "gpi",
-      "name"        : "GPi",
-      "color"       : "#939598",
-      "height"      : 30,
-      "border"      : { "borders": [ {}, {}, {}, { "hostedNodes": [ "axonal_node3" ] }]},
-      "hostedLyphs" : [ "axonal_lyph4", "axonal_lyph5" ]
+        "id"          : "gpi",
+        "name"        : "GPi",
+        "color"       : "#939598",
+        "height"      : 30,
+        "border"      : { "borders": [ {}, {}, {}, { "hostedNodes": [ "axonal_node3" ] }]},
+        "hostedLyphs" : [ "axonal_lyph4", "axonal_lyph5" ]
     }
 ```
 
@@ -111,28 +109,28 @@ Another [version](https://github.com/open-physiology/open-physiology-viewer/blob
 The `lyphTemplate` field in these omega tree models refers to the lyph pattern to derive the structure of the conduits in the tree branches. Firstly, the tool expands the tree template by creating the necessary graph structure (a rooted tree with the required number of levels). Secondly, the blank lyph definitions associated with the tree graph are added to the `subtypes` property of the lyph template. At the next stage, the lyph viewer will process the lyph templates: the prototype lyph layers, color and size settings are copied to all template subtypes.
 Hence, at the tree expansion stage, the user definition of the template lyph:
 ```json
-"lyphs": [
-    {
-      "id"        : "neuronBag",
-      "isTemplate": true,
-      "topology"  : "BAG",
-      "color"     : "#ccc",
-      "scale": {
-        "width" : 80,
-        "height": 80
-      },
-      "layers": ["cytosol", "plasma", "fluid"]
-    },..*
-]
+    "lyphs": [
+        {
+            "id"        : "neuronBag",
+            "isTemplate": true,
+            "topology"  : "BAG",
+            "color"     : "#ccc",
+            "scale": {
+                "width" : 80,
+                "height": 80
+            },
+            "layers": ["cytosol", "plasma", "fluid"]
+        },...
+    ]
 ```
 is extended with the definition of subtype lyphs which will get 3 layers and will occupy each the square area with a side length computed as 80% of their axis length. Note that the `hillock` lyph also derives its structure from the `neuronBag` template, as indicated by its property `supertype`:
 ```json
-    {
-      "id"       : "hillock",
-      "name"     : "Hillock",
-      "supertype": "neuronBag",
-      "topology" : "TUBE"
-    },
+   {
+        "id"       : "hillock",
+        "name"     : "Hillock",
+        "supertype": "neuronBag",
+        "topology" : "TUBE"
+   },
 ```
 Hence, after the generation of entities to represent required tree structures and bi-directional relationship synchronization, the user definition of the neuron template in the model will be auto-completed, i.e., the lyph template will know all lyphs that replicated its layers via its `subtypes` property:
 ```json

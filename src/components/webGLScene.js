@@ -6,6 +6,7 @@ import {keys, values, merge, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBar} from './gui/searchBar';
 import {MatSliderModule} from '@angular/material/slider'
+import FileSaver  from 'file-saver';
 
 //Search field
 import {MatFormFieldModule, MatInputModule, MatAutocompleteModule, } from '@angular/material';
@@ -16,7 +17,7 @@ import {
     forceZ
 } from 'd3-force-3d';
 
-import {ModelInfoPanel} from './gui/modelInfo';
+import {ResourceInfoModule} from './gui/resourceInfo';
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -36,7 +37,8 @@ const WindowResize = require('three-window-resize');
                                 (click)="toggleLockControls()" title="Unlock controls">
                             <i class="fa fa-unlock"></i>
                         </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()" title="Update layout">
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
+                                title="Update layout">
                             <i class="fa fa-refresh"></i>
                         </button>
                         <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
@@ -47,12 +49,16 @@ const WindowResize = require('three-window-resize');
                                 (click)="toggleSettingPanel()" title="Hide settings">
                             <i class="fa fa-window-close"></i>
                         </button>
-                        <mat-slider vertical class="w3-grey" 
-                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor" 
-                                    [step]="0.05 * scaleFactor" tickInterval="1" 
+                        <mat-slider vertical class="w3-grey"
+                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                    [step]="0.05 * scaleFactor" tickInterval="1"
                                     [value]="labelRelSize" title="Label size"
-                            (change)="onScaleChange($event.value)"
+                                    (change)="onScaleChange($event.value)"
                         ></mat-slider>
+                        <button class="w3-bar-item w3-hover-light-grey"
+                                (click)="export()" title="Export layout">
+                            <i class="fa fa-save"></i>
+                        </button>
                     </section>
                     <canvas #canvas class="w3-card w3-round"></canvas>
                 </section>
@@ -64,26 +70,26 @@ const WindowResize = require('three-window-resize');
 
                     <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
-                        <modelInfoPanel *ngIf="!!_highlighted" [model]=_highlighted></modelInfoPanel>
+                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"></resourceInfoPanel>
                     </fieldset>
-                    
+
                     <!--Search bar-->
-                    
+
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
                                    (selectedItemChange)="selectBySearchEventHandler($event)"></searchBar>
                     </fieldset>
-                    
+
                     <!--Selected entity-->
-                    
+
                     <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
-                        <modelInfoPanel *ngIf="!!_selected" [model]=_selected></modelInfoPanel>
+                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected"></resourceInfoPanel>
                     </fieldset>
-                    
+
                     <!--Group controls-->
-                    
+
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Groups</legend>
                         <span *ngFor="let group of graphData.activeGroups">
@@ -91,46 +97,47 @@ const WindowResize = require('three-window-resize');
                                    (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
                         </span>
                     </fieldset>
-                    
+
                     <!--Layout config-->
-                    
+
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <input type="checkbox" class="w3-check" name="lyphs" [checked]="config.layout.lyphs"
                                (change)="toggleLyphs()"/> Lyphs
                         <span *ngIf="config.layout.lyphs">
                             <input type="checkbox" class="w3-check" name="layers" [checked]="config.layout.layers"
-                               (change)="toggleLayers()"/> Layers
+                                   (change)="toggleLayers()"/> Layers
                         </span>
-                        <input type="checkbox" class="w3-check" name="coalescences" [checked]="config.layout.coalescences"
+                        <input type="checkbox" class="w3-check" name="coalescences"
+                               [checked]="config.layout.coalescences"
                                (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
-                    </fieldset> 
-                    
+                    </fieldset>
+
                     <!--Label config-->
-                    
+
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
                             <input type="checkbox" class="w3-check"
-                                   [name]   = "labelClass"
-                                   [checked]= "config.labels[labelClass]"
-                                   (change) = "toggleLabels(labelClass)"/> {{labelClass}}
+                                   [name]="labelClass"
+                                   [checked]="config.labels[labelClass]"
+                                   (change)="toggleLabels(labelClass)"/> {{labelClass}}
                         </span>
                         <span *ngFor="let labelClass of _labelClasses">
                             <fieldset *ngIf="config.labels[labelClass]" class="w3-card w3-round w3-margin-small">
                                 <legend>{{labelClass}} label</legend>
                                 <span *ngFor="let labelProp of _labelProps">
                                     <input type="radio" class="w3-radio"
-                                           [name]    ="labelClass"
-                                           [checked] ="_labels[labelClass] === labelProp"
-                                           (change)  ="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
+                                           [name]="labelClass"
+                                           [checked]="_labels[labelClass] === labelProp"
+                                           (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
                                 </span>
                             </fieldset>
                         </span>
                     </fieldset>
-                    
+
                     <!--View helpers-->
-                    
+
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
                         <span *ngFor="let helper of helperKeys">
@@ -315,6 +322,15 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
+
+    export(){
+        if (this._graphData){
+            let result = JSON.stringify(this._graphData.export(), null, 2);
+            const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+            FileSaver.saveAs(blob, 'apinatomy-layout.json');
+        }
+    }
+
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('mousedown', evt => this.onMouseDown(evt), false );
@@ -420,10 +436,11 @@ export class WebGLSceneComponent {
             if (entity.layers) {
                 let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
                 let layerIntersects = ray.intersectObjects(layerMeshes);
-                if (layerIntersects.length > 0) {
-                    return layerIntersects[0].object.userData;
-                }
+                if (layerIntersects.length > 0) { return layerIntersects[0].object.userData; }
             }
+            // let children = intersects[0].object.children||[];
+            // let childIntersects = (ray.intersectObjects(children)||[]).filter(obj => obj.userData);
+            // if (childIntersects.length > 0) { return childIntersects[0].userData; }
             return entity;
         }
     }
@@ -593,9 +610,9 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule,
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
         MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatSliderModule],
-    declarations: [WebGLSceneComponent, ModelInfoPanel, StopPropagation, SearchBar ],
+    declarations: [WebGLSceneComponent, StopPropagation, SearchBar ],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

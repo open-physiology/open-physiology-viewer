@@ -10,7 +10,6 @@ import {
     isString,
     keys,
     entries,
-    values,
     isEmpty,
     assign,
     fromPairs,
@@ -100,21 +99,22 @@ export class Resource{
          * @param handler - function to apply to the current class
          */
         const recurseSchema = (className, handler) => {
-            let queue = [className];
+            let stack = [className];
             let i = 0;
-            while (queue[i]){
-                let clsName = queue[i];
+            while (stack[i]){
+                let clsName = stack[i];
                 if (definitions[clsName] && definitions[clsName].$extends){
                     let refs = getRefs(definitions[clsName].$extends);
                     (refs||[]).forEach(ref => {
-                        queue.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
+                        stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
                     })
                 }
                 i++;
             }
-            queue.forEach(clsName => {
+            while (stack.length > 0){
+                let clsName = stack.pop();
                 handler(clsName);
-            });
+            }
         };
 
         /**
@@ -123,7 +123,7 @@ export class Resource{
          */
         const getFieldDefaultValues = (className) => {
             const getDefault = (specObj) => specObj.type ?
-                specObj.type == "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
+                specObj.type === "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
                 : null;
             const initValue = (specObj) => {
                 return specObj.default?
@@ -180,14 +180,16 @@ export class Resource{
         model.relationships     = model.fields.filter(([key, spec]) =>  extendsClass(getRefs(spec), Resource.name));
         model.properties        = model.fields.filter(([key, spec]) => !model.relationships.find(([key2, ]) => key2 === key));
 
+        model.fieldMap          = model.fields::fromPairs();
+        model.propertyMap       = model.properties::fromPairs();
         model.relationshipMap   = model.relationships::fromPairs();
 
         //Names only
         model.fieldNames        = model.fields.map(([key, ]) => key);
         model.propertyNames     = model.properties.map(([key, ]) => key);
         model.relationshipNames = model.relationships.map(([key, ]) => key);
-        model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
 
+        model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
         model.isRelationship    = (key) => model.relationshipNames.includes(key);
 
         //Create, Update, Delete (CUD) fields
@@ -263,7 +265,6 @@ export class Resource{
             return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID);
         };
 
-        //Replace IDs with model object references
         let refFields = modelClasses[this.class].Model.cudRelationships;
         let res = this;
         refFields.forEach(([key, spec]) => {

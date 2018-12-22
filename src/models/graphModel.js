@@ -50,7 +50,6 @@ export class Graph extends Group{
             if (obj && obj.class){
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
                 if (clsName && (clsName !== "Shape")){ //TODO exclude all abstract classes
-                    //TODO This will mod the loop - fix
                     let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
 
                     //Include newly created entity to the main graph
@@ -77,10 +76,6 @@ export class Graph extends Group{
 
         res.entitiesByID = entitiesByID;
 
-        //return res;
-
-        //TODO fix coalescences
-
         //Create a coalescence group and force links to bind coalescing lyphs
         let coalescenceGroup = (res.groups||[]).find(g => g.id === "coalescences");
         if (!coalescenceGroup){
@@ -89,6 +84,7 @@ export class Graph extends Group{
                 "name"    : "Coalescences",
                 "inactive": true
             });
+            res.groups = res.groups || [];
             res.groups.push(coalescenceGroup);
             entitiesByID[coalescenceGroup.id] = coalescenceGroup;
         }
@@ -138,10 +134,10 @@ export class Graph extends Group{
         const createAxis = (lyph, container) => {
             let [sNode, tNode] = ["s", "t"].map(prefix => (
                 Node.fromJSON({
-                    "id"   : `${prefix}${lyph.id}`,
-                    "name" : `${prefix}${lyph.id}`,
-                    "color": "#ccc",
-                    "val"  : 0.1,
+                    "id"       : `${prefix}${lyph.id}`,
+                    "name"     : `${prefix}${lyph.id}`,
+                    "color"    : "#ccc",
+                    "val"      : 0.1,
                     "skipLabel": true
                 })));
 
@@ -197,39 +193,5 @@ export class Graph extends Group{
         return (this.groups||[]).find(g => g.id === "coalescences");
     }
 
-    /**
-     * Experimental - export Bond-graph like descriptions
-     */
-    export(ids){
-        const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
 
-        if (!ids) { return; }
-        let res = {"regions": [], "potentials": [], "connections": []};
-        (this.lyphs||[]).filter(e=> ids.includes(e.id) || (e.axis && ids.includes(e.axis.id))).forEach(lyph => {
-            res.regions.push({
-                "id"      : lyph.id,
-                "position": getCoords(lyph.center)
-            });
-        });
-
-        (this.nodes||[]).filter(e => ids.includes(e.id) ||
-            (e.sourceOf || []).find(lnk => ids.includes(lnk.id)) ||
-            (e.targetOf || []).find(lnk => ids.includes(lnk.id))).forEach(node => {
-            res.potentials.push({
-                "id"       : node.id,
-                "position" : getCoords(node)
-            });
-        });
-
-        (this.links||[]).filter(e=> ids.includes(e.id)).forEach(link => {
-            res.connections.push({
-                "id"     : link.id,
-                "source" : link.source.id,
-                "target" : link.target.id,
-                "points" : (link.points||[]).map(p => getCoords(p))
-            });
-        });
-
-        return res;
-    }
 }
