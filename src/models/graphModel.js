@@ -17,7 +17,7 @@ export class Graph extends Group{
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
         let model = json::cloneDeep()::defaults({
-            id: "mainModel"
+            id: "mainGraph"
         });
 
         //Copy existing entities to a map to enable nested model instantiation

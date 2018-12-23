@@ -5,7 +5,7 @@ import { BrowserModule }    from '@angular/platform-browser';
 import * as schema from '../data/graphScheme.json';
 import initModel from '../data/graph.json';
 import { WebGLSceneModule } from '../components/webGLScene';
-//import { ResourceEditorModule } from '../components/resourceEditor';
+import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses } from '../models/modelClasses';
 import { debug } from '../models/utils';
@@ -71,22 +71,16 @@ debug(true, msgCount);
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showResourceEditor"
-                    (click)="openResourceEditor()" title="Show resource editor">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showResourceEditor && !_showJSONEditor"
+                    (click)="openResourceEditor()" title="Open model editor">
                 <i class="fa fa-wpforms"></i>
             </button>
-
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showResourceEditor"
-                    (click)="closeResourceEditor()" title="Show graph">
-                <i class="fa fa-image"></i>
-            </button>
-
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor && !_showResourceEditor"
-                    (click)="openEditor()" title="Edit">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor && !_showResourceEditor" 
+                    (click)="openEditor()" title="Open JSON editor">
                 <i class="fa fa-edit"></i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor && !_showResourceEditor"
-                    (click)="closeEditor()" title="Hide editor">
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor"
+                    (click)="closeEditor()" title="Close editor">
                 <i class="fa fa-window-close"></i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor" (click)="preview()"
@@ -101,7 +95,7 @@ debug(true, msgCount);
         <!--Editor and canvas-->
         <section class="main-panel">
             <section class="w3-row" *ngIf="_showResourceEditor">
-                <!--<resourceEditor [resource]="_model" [className]="Graph" [modelClasses]="modelClasses"></resourceEditor>-->
+                <resourceEditor [resource]="_model" className="Graph" [modelClasses]="modelClasses"></resourceEditor>
             </section>
             <section class="w3-row">
                 <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"></section>
@@ -150,10 +144,11 @@ debug(true, msgCount);
 })
 export class TestApp {
     _graphData;
-    _showJSONEditor = false;
+    _showJSONEditor     = false;
     _showResourceEditor = false;
     _model = {};
     _editor;
+    modelClasses = modelClasses;
 
     @ViewChild('jsonEditor') _container: ElementRef;
 
@@ -217,17 +212,18 @@ export class TestApp {
 	}
 
 	closeEditor(){
-        this._showJSONEditor = false;
+        this._showJSONEditor = this._showResourceEditor = false;
 	}
 
 	preview(){
         if (this._showJSONEditor){
             this._showJSONEditor = false;
+            this.update(this._editor.get());
         }
         if (this._showResourceEditor){
             this._showResourceEditor = false;
+            this.update(this._model);
         }
-        this.update(this._editor.get());
     }
 
     save(){
@@ -257,7 +253,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [ BrowserModule, WebGLSceneModule,
-        MatSnackBarModule, MatDialogModule, BrowserAnimationsModule],//, ResourceEditorModule],
+        MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule],
 	declarations: [ TestApp ],
     bootstrap   : [ TestApp ],
     providers   : [
