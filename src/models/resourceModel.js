@@ -1,5 +1,4 @@
 import { definitions }  from '../data/graphScheme.json';
-export const JSONPath = require('JSONPath');
 import * as colorSchemes from 'd3-scale-chromatic';
 import {
     isArray,
@@ -16,40 +15,30 @@ import {
     defaults,
     pick
 } from 'lodash-bound';
+import {JSONPath, getClassName, getRefs} from "./utils";
 
 /**
- * Extracts class name from the schema definition
- * @param spec - schema definition
+ *  The class defining common methods for all resources
+ * @class
+ * @property id
+ * @property name
+ * @property class
+ * @property JSON
+ * @property assign
+ * @property interpolate
+ *
  */
-export const getClassName = (spec) => {
-    let ref = null;
-    if (spec::isString()) {
-        ref = spec;
-    } else {
-        let refs = getRefs(spec);
-        ref = refs && refs[0];
-    }
-    if (ref){ return ref.substr(ref.lastIndexOf("/") + 1).trim(); }
-};
-
-const getRefs = (spec) => {
-    if (!spec){ return null; }
-    if (spec.$ref) { return [spec.$ref]; }
-    if (spec.items) { return getRefs(spec.items); }
-    let expr = spec.oneOf || spec.anyOf || spec.allOf;
-    if ( expr ){
-        return expr.filter(e => e.$ref).map(e => e.$ref);
-    }
-};
-
 export class Resource{
 
+    /**
+     * @ignore
+     */
     constructor() {
         this::merge(this.constructor.Model.defaultValues);
     }
 
     /**
-     * Creates an ApiNATOMY resource from JSON specification
+     * Creates a resource from JSON specification
      * @param json - resource definition
      * @param modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param entitiesByID - map of resources in the global model
@@ -137,8 +126,10 @@ export class Resource{
         };
 
         /**
-         * Selects schema definitions which contain as an option a reference to a model object
-         * @param spec - schema definition
+         * Determines if given schema references extend a certain class
+         * @param refs  - schema references
+         * @param value - class name
+         * @returns {boolean} - returns true if at least one reference extends the given class
          */
         const extendsClass = (refs, value) => {
             if (!refs) { return false; }
@@ -150,6 +141,7 @@ export class Resource{
                         res = true;
                     } else {
                         let def = definitions[clsName];
+                        /** @namespace def.$extends */
                         res = res || def && extendsClass(getRefs(def.$extends), value);
                     }
                 }
@@ -178,7 +170,7 @@ export class Resource{
             return res::entries();
         })(); // [key, spec]
         model.relationships     = model.fields.filter(([key, spec]) =>  extendsClass(getRefs(spec), Resource.name));
-        model.properties        = model.fields.filter(([key, spec]) => !model.relationships.find(([key2, ]) => key2 === key));
+        model.properties        = model.fields.filter(([key, ]) => !model.relationships.find(([key2, ]) => key2 === key));
 
         model.fieldMap          = model.fields::fromPairs();
         model.propertyMap       = model.properties::fromPairs();
@@ -286,7 +278,7 @@ export class Resource{
         try{
             [...(this.assign||[])].forEach(({path, value}) => {
                 if (!path || !value) { return;}
-                //TODO create a timer here as JSONPath can get stuck!
+                //TODO create a timer here as JSONPath can get stuck?
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
@@ -343,7 +335,7 @@ export class Resource{
     interpolatePathProperties(){
         [...(this.interpolate||[])].forEach(({path, offset, color}) => {
 
-            let resources = path? JSONPath({json: this, path: path}) || []: this.nodes || [];
+            let resources = path? JSONPath({json: this, path: path}) || []: [];
             if (offset){
                 offset::defaults({
                     "start": 0,
@@ -400,6 +392,12 @@ export class Resource{
         delete waitingList[this.id];
     }
 
+    /**
+     *
+     * @param key
+     * @param {{relatedTo:string}} spec
+     * @param modelClasses
+     */
     syncRelationship(key, spec, modelClasses){
         let res = this;
         let key2 = spec.relatedTo;

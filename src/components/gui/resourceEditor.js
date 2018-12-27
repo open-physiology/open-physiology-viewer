@@ -2,11 +2,11 @@ import {NgModule, Component, Input, Output, EventEmitter, Inject} from '@angular
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatDialogModule, MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material';
+    MatCardModule, MatDialogModule, MatDialog} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule}  from "./fieldEditor";
-import {ResourceEditorDialog}  from "./resourceEditorDialog";
-import {getClassName} from "../../models/resourceModel";
+import {ResourceEditorDialog} from "./resourceEditorDialog";
+import {getClassName} from "../../models/utils";
 import {isPlainObject} from 'lodash-bound';
 
 @Component({
@@ -22,9 +22,9 @@ import {isPlainObject} from 'lodash-bound';
             <mat-card class="w3-margin w3-grey">
                 <section *ngFor="let field of _propertyFields">
                     <fieldEditor
-                            [value]="resource[field[0]]"
-                            [label]="field[0]"
-                            [spec]="field[1]"
+                            [value] = "resource[field[0]]"
+                            [label] = "field[0]"
+                            [spec]  = "field[1]"
                             (onValueChange)="updateValue(field, $event)">
                     </fieldEditor>
                 </section>
@@ -63,7 +63,6 @@ import {isPlainObject} from 'lodash-bound';
     `
 })
 export class ResourceEditor {
-    //Input: resource, className, modelClasses
 
     _resource;
     _className;
@@ -73,19 +72,20 @@ export class ResourceEditor {
     dialog: MatDialog;
 
     @Input() modelClasses;
-
     @Input() expanded = false;
-
     @Input('resource') set resource(newValue) {
         this._resource = newValue;
     }
-
     @Input('className') set className(newValue) {
         this._className = newValue;
         if (this.modelClasses){
             this._propertyFields     = this.modelClasses[this._className].Model.cudProperties;
             this._relationshipFields = this.modelClasses[this._className].Model.cudRelationships;
         }
+    }
+
+    constructor(dialog: MatDialog) {
+        this.dialog = dialog;
     }
 
     get resource(){
@@ -103,11 +103,6 @@ export class ResourceEditor {
     updateValue([key, spec], value){
         this.resource[key] = value;
     }
-
-    constructor(dialog: MatDialog) {
-        this.dialog = dialog;
-    }
-
 
     removeResource([key, spec], index){
         this.resource[key].splice(index, 1);
@@ -154,8 +149,6 @@ export class ResourceEditor {
             }
         });
     }
-
-
 }
 
 @NgModule({
@@ -164,7 +157,7 @@ export class ResourceEditor {
         MatCheckboxModule, MatCardModule, FieldEditorModule],
     declarations: [ResourceEditor, ResourceEditorDialog],
     entryComponents: [ResourceEditorDialog],
-    exports: [ResourceEditor]
+    exports: [ResourceEditor, ResourceEditorDialog]
 })
 export class ResourceEditorModule {
 

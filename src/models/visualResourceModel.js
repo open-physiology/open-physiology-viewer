@@ -1,8 +1,17 @@
 import { Resource } from './resourceModel';
 import {SpriteText2D} from "three-text2d";
 import {copyCoords} from "./utils";
+
 /**
- * Common methods for all entity models
+ * The class implementing common methods for visual resources
+ * @class
+ * @property color
+ * @property viewObjects
+ * @property labels
+ * @property hidden
+ * @property skipLabel
+ * @property userData
+ *
  */
 export class VisualResource extends Resource{
 

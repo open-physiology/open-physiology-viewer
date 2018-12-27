@@ -1,7 +1,5 @@
-import * as three from 'three';
-const THREE = window.THREE || three;
 import {Shape} from './shapeModel';
-import {align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
+import {THREE, align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
 import {copyCoords} from './utils';
 import {isObject, isString,  merge, pick} from "lodash-bound";
 
@@ -13,6 +11,19 @@ export const LYPH_TOPOLOGY = {
 };
 /**
  * Class that creates visualization objects of lyphs
+ * @class
+ * @property topology
+ * @property angle
+ * @property scale
+ * @property isTemplate
+ * @property conveyedBy
+ * @property layers
+ * @property layerIn
+ * @property internalIn
+ * @property coalescesWith
+ * @property prev
+ * @property next
+ *
  */
 export class Lyph extends Shape {
 
@@ -30,7 +41,7 @@ export class Lyph extends Shape {
         if (!template || template.inactive || !lyphs) { return; }
 
         //Validate subtype
-        (template.subtypes||[]).forEach((s, i) => {
+        (template.subtypes||[]).forEach(s => {
             if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
                 //generate a lyph for the template supertype
                 lyphs.push(s);
@@ -104,10 +115,9 @@ export class Lyph extends Shape {
     }
 
     get polygonOffsetFactor() {
-        let res = Math.min(
+        return Math.min(
             ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
-                (this[prop].polygonOffsetFactor || 0) - 1: 0))
-        return res;
+                (this[prop].polygonOffsetFactor || 0) - 1: 0));
     }
 
     /**
@@ -126,7 +136,7 @@ export class Lyph extends Shape {
     /**
      * Positions the point on the lyph surface
      * @param p0 - initial point (coordinates)
-     * @returns {THREE.Vector3} - transformed point (coordinates)
+     * @returns {THREE.Vector3} transformed point (coordinates)
      */
     translate(p0) {
         let transformedLyph = this.layerIn ? this.layerIn : this;

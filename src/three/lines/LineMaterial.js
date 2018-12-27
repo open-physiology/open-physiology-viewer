@@ -3,7 +3,7 @@
  *
  * parameters = {
  *  color: <hex>,
- *  linewidth: <float>,
+ *  lineWidth: <float>,
  *  dashed: <boolean>,
  *  dashScale: <float>,
  *  dashSize: <float>,
@@ -14,7 +14,7 @@
 
 THREE.UniformsLib.line = {
 
-	linewidth: { value: 1 },
+	lineWidth: { value: 1 },
 	resolution: { value: new THREE.Vector2( 1, 1 ) },
 	dashScale: { value: 1 },
 	dashSize: { value: 1 },
@@ -38,7 +38,7 @@ THREE.ShaderLib[ 'line' ] = {
 		#include <logdepthbuf_pars_vertex>
 		#include <clipping_planes_pars_vertex>
 
-		uniform float linewidth;
+		uniform float lineWidth;
 		uniform vec2 resolution;
 
 		attribute vec3 instanceStart;
@@ -152,8 +152,8 @@ THREE.ShaderLib[ 'line' ] = {
 
 			}
 
-			// adjust for linewidth
-			offset *= linewidth;
+			// adjust for lineWidth
+			offset *= lineWidth;
 
 			// adjust for clip-space to screen-space conversion // maybe resolution should be based on viewport ...
 			offset /= resolution.y;
@@ -272,19 +272,19 @@ THREE.LineMaterial = function ( parameters ) {
 
 		},
 
-		linewidth: {
+		lineWidth: {
 
 			enumerable: true,
 
 			get: function () {
 
-				return this.uniforms.linewidth.value;
+				return this.uniforms.lineWidth.value;
 
 			},
 
 			set: function ( value ) {
 
-				this.uniforms.linewidth.value = value;
+				this.uniforms.lineWidth.value = value;
 
 			}
 
@@ -379,7 +379,7 @@ THREE.LineMaterial.prototype.copy = function ( source ) {
 
 	this.color.copy( source.color );
 
-	this.linewidth = source.linewidth;
+	this.lineWidth = source.lineWidth;
 
 	this.resolution = source.resolution;
 

@@ -1,15 +1,17 @@
-import * as three from 'three';
-const THREE = window.THREE || three;
 import { copyCoords } from './utils';
-import { Link, LINK_GEOMETRY } from './linkModel';
+import { LINK_GEOMETRY } from './linkModel';
 import { Node } from './nodeModel';
 import { Lyph } from './lyphModel';
 import { VisualResource } from './visualResourceModel';
 import { merge } from 'lodash-bound';
-import { getCenterOfMass, lyphBorders, polygonBorders, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
+import { THREE, getCenterOfMass, lyphBorders, polygonBorders, extractCoords, boundToRectangle, boundToPolygon} from '../three/utils';
 
 /**
- * Lyph or region border
+ *  The class defining the border of a shape (lyph or region)
+ * @class
+ * @property host
+ * @property borders
+ *
  */
 export class Border extends VisualResource {
 

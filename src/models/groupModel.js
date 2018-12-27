@@ -1,19 +1,27 @@
 import { Resource } from './resourceModel';
-import {values, isObject, unionBy, merge, keys, cloneDeep, isNumber} from 'lodash-bound';
+import {values, isObject, unionBy, merge, keys, cloneDeep} from 'lodash-bound';
 import {LINK_GEOMETRY, LINK_STROKE} from './linkModel';
-import * as colorSchemes from 'd3-scale-chromatic';
 import {extractCoords} from '../three/utils';
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
 import {Lyph} from "./lyphModel";
+import {addColor} from './utils';
 
-const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
-const addColor = (entities, defaultColor) => (entities||[]).filter(e => e::isObject() && !e.color)
-    .forEach((e, i) => { e.color = defaultColor || colors[i % colors.length] });
-
-//TODO replace with code that derives the group classes from the specification
-const GROUP_CLASSES = ["Group", "Tree", "Graph"];
-
+/**
+ *  Group (subgraph) model
+ * @class
+ * @property nodes
+ * @property links
+ * @property regions
+ * @property lyphs
+ * @property materials
+ * @property references
+ * @property groups
+ * @property trees
+ * @property inGroups
+ */
 export class Group extends Resource {
+    //TODO replace with code that derives the group classes from the specification
+    static GROUP_CLASSES = ["Group", "Tree", "Graph"];
 
     /**
      * Create a graph model from the JSON specification
@@ -117,14 +125,13 @@ export class Group extends Resource {
      * Add entities from subgroups to the current group
      */
     mergeSubgroupEntities(){
-        //this.groups = (this.groups||[])::unionBy(this.trees, "id");
 
         (this.groups||[]).forEach(group => {
             if (group.id === this.id || (this.inGroups||[]).find(e => e.id === group.id)) {
                 console.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames(GROUP_CLASSES);
+            let relFieldNames = this.constructor.Model.filteredRelNames(Group.GROUP_CLASSES);
             relFieldNames.forEach(property => { this[property] = (this[property]||[])::unionBy(group[property], "id"); });
         });
 
@@ -146,7 +153,7 @@ export class Group extends Resource {
      */
     get entities(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames(GROUP_CLASSES); //Exclude groups
+        let relFieldNames = this.constructor.Model.filteredRelNames(Group.GROUP_CLASSES); //Exclude groups
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
         return res.filter(e => !!e && e::isObject());
     }
@@ -156,9 +163,9 @@ export class Group extends Resource {
      * @param entity - resource
      * @returns {*|void}
      */
-    belongsTo(entity){
-        return this.entities.find(e => (e === entity) || (e.id === entity.id));
-    }
+    // belongsTo(entity){
+    //     return this.entities.find(e => (e === entity) || (e.id === entity.id));
+    // }
 
     /**
      * Hide given subgroups of the current group
@@ -188,7 +195,7 @@ export class Group extends Resource {
      * @returns {T[]}
      */
     get activeGroups(){
-        return [...(this.groups||[]),...(this.trees||[])].filter(e => !e.inactive);
+        return [...(this.groups||[])].filter(e => !e.inactive);
     }
 
     get visibleRegions(){

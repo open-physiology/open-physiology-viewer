@@ -2,6 +2,13 @@ import { Group } from './groupModel';
 import { isObject, defaults} from 'lodash-bound';
 import { LYPH_TOPOLOGY } from "./lyphModel";
 
+/**
+ * Tree model
+ * @property group
+ * @property root
+ * @property levels
+ * @property numLevels
+ */
 export class Tree extends Group {
     /**
     * Generate a group from tree template
@@ -9,21 +16,32 @@ export class Tree extends Group {
     * @param tree
     */
     static expandTemplate(parentGroup, tree){
+        if ( !tree.id){ console.warn(`Skipped tree template - it must have (non-empty) ID!`); return; }
 
-        if (!tree.id){ console.warn(`Skipped tree template - it must have (non-empty) ID!`); return; }
+        if (!tree.group) {
+            tree.group = {
+                "id"   : "group_" + tree.id,
+                "name" : tree.name + " group",
+            }
+        }
+        tree.group.treeTemplate = tree.id;
+        if (!parentGroup.groups) { parentGroup.groups = []; }
+        parentGroup.groups.push(tree.group);
+
         if ( !tree.numLevels && ((tree.levels||[]).length === 0)) { console.warn(`Skipped tree template - it must have ID, "numLevels" set to a positive number or provide a non-empty "levels" array`); return; }
-        if ( tree.links && (tree.links.length > 0)){ console.warn(`Tree group contains extra links: ${tree.links}!`)}
-        if ( tree.nodes && (tree.nodes.length > 0)){ console.warn(`Tree group contains extra nodes: ${tree.nodes}!`)}
+        if ( tree.group.links && (tree.group.links.length > 0)){
+            console.warn(`Tree group contains extra links: ${tree.group.links}!`)}
+        if ( tree.group.nodes && (tree.group.nodes.length > 0)){ console.warn(`Tree group contains extra nodes: ${tree.group.nodes}!`)}
 
         const mergeGenResource = (e, prop) => {
-            tree[prop]        = tree[prop] || [];
+            tree.group[prop]        = tree.group[prop] || [];
             parentGroup[prop] = parentGroup[prop] || [];
-            if (!tree[prop].includes(e)) { tree[prop].push(e.id); }
+            if (!tree.group[prop].includes(e)) { tree.group[prop].push(e.id); }
             if (!parentGroup[prop].find(x => x.id === e.id)){ parentGroup[prop].push(e); }
         };
         const getID  = (e) => e::isObject()? e.id : e;
         const match  = (e1, e2) => getID(e1) === getID(e2);
-        const getObj = (e, prop) => e::isObject()? e: (parentGroup[prop]||[]).find(x => x.id == e);
+        const getObj = (e, prop) => e::isObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
 
         //START
         tree.levels = tree.levels || new Array(tree.numLevels);

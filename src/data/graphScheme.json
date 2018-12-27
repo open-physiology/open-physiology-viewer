@@ -500,7 +500,7 @@
           ],
           "default": ""
         },
-        "linewidth": {
+        "lineWidth": {
           "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
           "type": "number",
           "default": "0.003"
@@ -543,7 +543,7 @@
         }
       },
       "dependencies": {
-        "linewidth": [
+        "lineWidth": [
           "stroke"
         ]
       }
@@ -889,7 +889,7 @@
       }
     },
     "Group": {
-      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which depicture the structural composition of human body organs and/or subsystems, with related measurements and annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
+      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
       "$extends": {
         "$ref": "#/definitions/Resource"
       },
@@ -1008,7 +1008,7 @@
           "relatedTo": "inGroups",
           "default": []
         },
-        "inGroups": {
+        "inGroups" : {
           "description": "A group that contains the current group",
           "type": "array",
           "items": {
@@ -1023,12 +1023,26 @@
           },
           "relatedTo": "groups",
           "default": []
+        },
+        "treeTemplate": {
+          "description": "Tree template used to generate this group",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Tree"
+            }
+          ],
+          "readOnly": true,
+          "relatedTo": "group"
         }
       }
     },
     "Tree": {
+      "description": "A template for shorthand notation to describe arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
       "$extends": {
-        "$ref": "#/definitions/Group"
+        "$ref": "#/definitions/Resource"
       },
       "properties": {
         "root": {
@@ -1076,10 +1090,24 @@
           "description": "Branching factor defines a mean value of branches at each tree level",
           "type": "number",
           "default": 1
+        },
+        "group": {
+          "description": "Group (subgraph) generated for the given tree template",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Group"
+            }
+          ],
+          "readOnly": true,
+          "relatedTo": "treeTemplate"
         }
       }
     },
     "Graph": {
+      "description": "An ApiNATOMY model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$extends": {
         "$ref": "#/definitions/Group"
       },

@@ -1,10 +1,8 @@
 import {Component, Inject, NgModule} from '@angular/core';
 import {
     MatDialogRef,
-    MAT_DIALOG_DATA,
-    MatDialogModule,
+    MAT_DIALOG_DATA
 } from '@angular/material';
-import {ResourceEditorModule} from "./resourceEditor";
 
 @Component({
     selector: 'resourceEditorDialog',
@@ -38,12 +36,3 @@ export class ResourceEditorDialog {
     }
 }
 
-@NgModule({
-    imports: [MatDialogModule, ResourceEditorModule],
-    declarations: [ResourceEditorDialog],
-    entryComponents: [ResourceEditorDialog],
-    exports: [ResourceEditorDialog]
-})
-export class ResourceEditorDialogModule {
-
-}

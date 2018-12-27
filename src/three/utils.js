@@ -1,8 +1,16 @@
 import * as three from 'three';
-const THREE = window.THREE || three;
+export const THREE = window.THREE || three;
 import {MaterialFactory} from './materialFactory';
 import {merge} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
+
+/**
+ * Convert color string to hex
+ * @param str - string with color
+ * @returns {number} - color hex
+ */
+export const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : str;
+
 
 /**
  * Create shapes of lyph borders
@@ -14,7 +22,7 @@ import tinycolor from 'tinycolor2';
  * @returns {Array}
  */
 export function lyphBorders([width,  height,  radius,  top,  bottom]){
-    let borders = [0,1,2,3].map(x => new THREE.Shape());
+    let borders = [0,1,2,3].map(() => new THREE.Shape());
 
     //Axial border
     borders[0].moveTo( 0, - height / 2);
@@ -167,7 +175,7 @@ export function lyphShape(outer) {
  * Helper to create an object with border
  * @param shape - object shape
  * @param params - mesh and border material params
- * @returns {Raycaster.params.Mesh}
+ * @returns {Mesh}
  */
 export function createMeshWithBorder(shape, params = {}) {
     let geometry = new THREE.ShapeBufferGeometry(shape);
@@ -193,7 +201,7 @@ export function createMeshWithBorder(shape, params = {}) {
  * Draw THREE.js rectangular line with rounded corners
  * @param startV
  * @param endV
- * @returns {THREE.CurvePath}
+ * @returns {CurvePath<Vector> | CurvePath}
  */
 export function rectangleCurve(startV, endV){
     let edgeV   = endV.clone().sub(startV);
@@ -253,9 +261,10 @@ export function extractCoords(source){
 }
 
 /**
- * Align an object along its axis
- * @param axis
+ * Align an object along its axis (link)
+ * @param link
  * @param obj
+ * @param reversed
  */
 export function align(link, obj, reversed = false){
     if (!obj || !link) { return; }

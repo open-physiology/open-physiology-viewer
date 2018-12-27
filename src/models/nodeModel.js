@@ -1,12 +1,22 @@
-import {VisualResource} from './visualResourceModel';
-import * as three from 'three';
-const THREE = window.THREE || three;
-import {copyCoords} from './utils';
+import { VisualResource } from './visualResourceModel';
+import { copyCoords } from './utils';
 import { MaterialFactory } from '../three/materialFactory';
-import { getCenterOfMass } from '../three/utils';
+import { getCenterOfMass, THREE } from '../three/utils';
 
 /**
- * The class to visualize nodes in the process graphs
+ *  The class to visualize nodes in the process graphs
+ * @class
+ * @property val
+ * @property controlNodes *
+ * @property hostedBy
+ * @property sourceOf
+ * @property targetOf
+ * @property internalIn
+ * @property fixed
+ * @property layout
+ * @property x
+ * @property y
+ * @property z
  */
 export class Node extends VisualResource {
 
@@ -14,18 +24,15 @@ export class Node extends VisualResource {
      * Determines whether the node's position is constrained in the model
      */
     get isConstrained() {
-        return ((this.fixed && this.layout) ||
-         (this.controlNodes && this.controlNodes.length > 0) ||
-         (this.hostedBy && this.hostedBy.isVisible)  ||
-         (this.internalIn   && this.internalIn.isVisible))
-            ? true
-            : false;
+        return !!((this.fixed && this.layout) ||
+            (this.controlNodes && this.controlNodes.length > 0) ||
+            (this.hostedBy && this.hostedBy.isVisible) ||
+            (this.internalIn && this.internalIn.isVisible));
     }
 
     get polygonOffsetFactor() {
-        let res = Math.min(...["hostedBy", "internalIn"].map(prop => this[prop]?
+        return Math.min(...["hostedBy", "internalIn"].map(prop => this[prop]?
             (this[prop].polygonOffsetFactor || 0) - 1: 0));
-        return res;
     }
 
     /**
@@ -62,7 +69,7 @@ export class Node extends VisualResource {
             this.createViewObjects(state);
         }
 
-        if (this.fixed) { copyCoords(this, this.foci || this.layout); }
+        if (this.fixed) { copyCoords(this, this.layout); }
 
         if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes).multiplyScalar(2)); //double the distance from center

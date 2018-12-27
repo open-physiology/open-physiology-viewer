@@ -6,18 +6,15 @@ import {
 	expect,
 } from './test.helper';
 
-import { DataService }  from '../src/services/dataService';
 import initModel        from '../src/data/graph.json';
 import { modelClasses } from '../src/models/modelClasses';
 
 /** @test */
 describe("Instantiates model", () => {
-	let dataService = new DataService();
 	initModel.nodes.push({"id": 1});
     initModel.nodes.push({"id": 2});
     initModel.links.push({"id": 3, "source": 1, "target": 2});
-    dataService.init(initModel);
-    let graphData = dataService.graphData;
+    let graphData = modelClasses["Graph"].fromJSON(initModel, modelClasses);
 
     beforeEach(() => {
     });

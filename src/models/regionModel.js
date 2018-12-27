@@ -1,11 +1,10 @@
-import * as three from 'three';
-const THREE = window.THREE || three;
 import {Shape} from './shapeModel';
 import { clone } from 'lodash-bound';
-import {createMeshWithBorder, getCenterOfMass} from '../three/utils';
+import {createMeshWithBorder, getCenterOfMass, THREE} from '../three/utils';
 
 /**
  * Class that creates visualization objects of regions
+ * @class
  */
 export class Region extends Shape {
 

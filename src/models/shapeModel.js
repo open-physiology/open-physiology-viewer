@@ -2,7 +2,14 @@ import {VisualResource} from './visualResourceModel';
 import {keys, merge} from 'lodash-bound';
 
 /**
- * Class that creates visualization objects of regions
+ * Class that specifies borders of lyphs and regions
+ * @class
+ * @property border
+ * @property internalLyphs
+ * @property internalNodes
+ * @property internalLyphColumns
+ * @property points
+ * @property hostedLyphs
  */
 export class Shape extends VisualResource {
 
@@ -13,27 +20,21 @@ export class Shape extends VisualResource {
         json.border.borders = json.border.borders || {};
         for (let i = 0; i < json.numBorders ; i++){
             json.border.borders[i]::merge({"id": json.border.id + "_" + i});
-            // let [s, t] = ["s", "t"].map(prefix => ({"id": `${prefix}_${json.border.id}_${i}`}));
-            // json.border.borders[i]::merge({
-            //     "id": json.border.id + "_" + i,
-            //     "source": s,
-            //     "target": t
-            // });
         }
         delete json.numBorders;
         let res = super.fromJSON(json, modelClasses, entitiesByID);
-        res.host = res;
+        res.border.host = res;
         return res;
     }
 
-    toggleBorder(){
-        if (!this.viewObjects || !this.viewObjects['main']) { return; }
-        if (this.viewObjects['border']){
-            if (this.viewObjects['main'].children.find(this.viewObjects['border'])){
-                this.viewObjects['main'].children.remove(this.viewObjects['border']);
-            } else {
-                this.viewObjects['main'].add(this.viewObjects['border']);
-            }
-        }
-    }
+    // toggleBorder(){
+    //     if (!this.viewObjects || !this.viewObjects['main']) { return; }
+    //     if (this.viewObjects['border']){
+    //         if (this.viewObjects['main'].children.find(this.viewObjects['border'])){
+    //             this.viewObjects['main'].children.remove(this.viewObjects['border']);
+    //         } else {
+    //             this.viewObjects['main'].add(this.viewObjects['border']);
+    //         }
+    //     }
+    // }
 }

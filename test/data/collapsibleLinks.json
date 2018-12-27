@@ -1341,7 +1341,7 @@
           "path": "$.groups[*].links[*]",
           "value": {
             "stroke": "thick",
-            "linewidth": 0.002
+            "lineWidth": 0.002
           }
         },
         {

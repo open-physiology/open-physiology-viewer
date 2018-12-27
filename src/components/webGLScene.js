@@ -50,10 +50,10 @@ const WindowResize = require('three-window-resize');
                             <i class="fa fa-window-close"></i>
                         </button>
                         <mat-slider vertical class="w3-grey"
-                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
-                                    [step]="0.05 * scaleFactor" tickInterval="1"
-                                    [value]="labelRelSize" title="Label size"
-                                    (change)="onScaleChange($event.value)"
+                                    [min]   = "0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                    [step]  = "0.05 * scaleFactor" tickInterval="1"
+                                    [value] = "labelRelSize" title="Label size"
+                                    (change)= "onScaleChange($event.value)"
                         ></mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="export()" title="Export layout">
@@ -384,15 +384,14 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
-        //Create
         this.graph = new ThreeForceGraph().graphData(this.graphData);
 
         const forceVal = (d, key) => {
-            return (d.foci ? d.foci[key]: (key in d.layout) ? d.layout[key] : 0);
+            return ((key in d.layout) ? d.layout[key] : 0);
         };
 
         const forceStrength = (d, key) => {
-            return (key in d.layout) ? 1 : d.foci? 1: 0
+            return (key in d.layout) ? 1 : 0
         };
 
         this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));

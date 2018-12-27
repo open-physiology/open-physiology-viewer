@@ -1,19 +1,22 @@
 import { Group } from './groupModel';
-import {entries, keys, isNumber, cloneDeep, defaults} from 'lodash-bound';
+import { entries, keys, isNumber, cloneDeep, defaults } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from '../data/graphScheme.json';
 import { Link, LINK_GEOMETRY } from "./linkModel";
-import {Node} from "./nodeModel";
-
-const validator = new Validator();
+import { Node } from "./nodeModel";
 
 /**
- * Main APiNATOMY graph (a group with configuration options for the model viewer)
+ *  The main model graph (a group with configuration options for the model viewer)
+ * @class
+ * @property entitiesByID
+ * @property config
  */
 export class Graph extends Group{
 
+    static validator = new Validator();
+
     static fromJSON(json, modelClasses = {}) {
-        let resVal = validator.validate(json, schema);
+        let resVal = this.validator.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
         let model = json::cloneDeep()::defaults({
@@ -22,7 +25,7 @@ export class Graph extends Group{
 
         //Copy existing entities to a map to enable nested model instantiation
         let entitiesByID = {
-            "waitingList": {}
+            waitingList: {}
         };
 
         //Check that lyphs are not conveyed by more than one link
@@ -128,6 +131,7 @@ export class Graph extends Group{
 
     /**
      * Auto-generates links for internal lyphs
+     * @param modelClasses - map of class names vs their implementations
      * @param entitiesByID - a global resource map to include the generated resources
      */
     createAxesForInternalLyphs(modelClasses, entitiesByID){
@@ -152,8 +156,8 @@ export class Graph extends Group{
                 "skipLabel"    : true
             });
             lyph.conveyedBy = link;
-            sNode.sourceOf = [link];
-            tNode.targetOf = [link];
+            sNode.sourceOf  = [link];
+            tNode.targetOf  = [link];
 
             if (!this.links) {this.links = [];}
             if (!this.nodes) {this.nodes = [];}
@@ -164,14 +168,6 @@ export class Graph extends Group{
         //This runs before syncRelationships, it is important to revise all group lyphs!
         [...(this.lyphs||[]), ...(this.regions||[])]
             .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph, lyph.internalIn));
-    }
-
-    optionsProvider(clsName, id = undefined){
-        let res = (this.entities||[]).filter(e => e.class === clsName);
-        if (id) {
-            //TODO exclude other invalid options
-            res = res.filter(e => e.id !== id);
-        }
     }
 
     scale(scaleFactor){

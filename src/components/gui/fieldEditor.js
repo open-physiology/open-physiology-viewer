@@ -1,14 +1,17 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatTooltipModule} from '@angular/material';
-import {getClassName} from '../../models/resourceModel';
+import {
+    MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
+    MatCardModule, MatTooltipModule, MatDialogModule, MatDialog
+} from '@angular/material';
+import {getClassName} from '../../models/utils';
+import {FieldEditorDialog} from './fieldEditorDialog';
 
 @Component({
     selector: 'fieldEditor',
     template: `
-        <!--Input-->
+        <!--Input-->  
         <mat-form-field *ngIf="_isInput">
             <input matInput [placeholder]="label" [matTooltip]="spec.description"
                    [type]  = "_inputType"
@@ -26,7 +29,7 @@ import {getClassName} from '../../models/resourceModel';
 
         <!--Object - show fieldEditor for each property-->
         <section *ngIf="_isObject">
-            <mat-expansion-panel class="w3-margin-bottom">
+            <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
                 <mat-expansion-panel-header>
                     <mat-panel-title>
                         {{label}}
@@ -35,17 +38,27 @@ import {getClassName} from '../../models/resourceModel';
 
                 <section *ngIf="!!spec.properties">
                     <section *ngFor="let key of objectKeys(spec.properties)">
-                        <fieldEditor [label]="key" [value]=value[key] [spec]=spec.properties[key]></fieldEditor>
-                    </section>
+                        <fieldEditor 
+                                [label] = "key" 
+                                [value] = "value[key]||null" 
+                                [spec]  = "spec.properties[key]"
+                                (onValueChange) = "updateProperty(key, $event)">
+                        </fieldEditor>
+                    </section> 
                 </section>
                 <section *ngIf="!spec.properties">
                     <section *ngFor="let key of objectKeys(value||{})">
-                        <fieldEditor [value]=value[key] [label]="key"></fieldEditor>
+                        <fieldEditor 
+                                [value] = "value[key]||null" 
+                                [label] = "key"
+                                (onValueChange) = "updateProperty(key, $event)">
+                        </fieldEditor>
                         <button class="w3-hover-light-grey">
                             <i class="fa fa-trash"></i>
                         </button>
                     </section>
                     <mat-action-row>
+                        <!-- Add any number of key-value pairs -->
                         <button class="w3-hover-light-grey">
                             <i class="fa fa-plus"></i>
                         </button>
@@ -64,13 +77,13 @@ import {getClassName} from '../../models/resourceModel';
                     </mat-panel-title>
                 </mat-expansion-panel-header>
 
-                <section *ngFor="let item of value; let i = index">
-                    {{toJSON(item)}}
+                <section *ngFor="let obj of value; let i = index"> 
+                    {{toJSON(obj)}}
                     <mat-action-row>
-                        <button class="w3-hover-light-grey">
+                        <button class="w3-hover-light-grey" (click)="editObj(obj)">
                             <i class="fa fa-edit"></i>
                         </button>
-                        <button class="w3-hover-light-grey" (click)="removeItem(i)">
+                        <button class="w3-hover-light-grey" (click)="removeObj(i)">
                             <i class="fa fa-trash"></i>
                         </button>
                     </mat-action-row>
@@ -78,7 +91,7 @@ import {getClassName} from '../../models/resourceModel';
                 </section>
 
                 <mat-action-row>
-                    <button class="w3-hover-light-grey">
+                    <button class="w3-hover-light-grey" (click)="addObj()">
                         <i class="fa fa-plus"></i>
                     </button>
                 </mat-action-row>
@@ -87,11 +100,11 @@ import {getClassName} from '../../models/resourceModel';
     `
 })
 export class FieldEditor {
-    //Input: label, value, spec
-
     _spec;
     objectKeys = Object.keys;
+    dialog: MatDialog;
 
+    @Input() expanded = false;
     @Input('label') label;
     @Input('value') value;
     @Input('spec') set spec(newSpec){
@@ -117,11 +130,19 @@ export class FieldEditor {
                     ? "color"
                     : "text";
     }
-
     @Output() onValueChange = new EventEmitter();
 
-    updateValue(value){
-        this.value = value;
+    constructor(dialog: MatDialog) {
+        this.dialog = dialog;
+    }
+
+    updateValue(newValue){
+        this.value = newValue;
+        this.onValueChange.emit(this.value);
+    }
+
+    updateProperty(key, newValue){
+        this.value[key] = newValue;
         this.onValueChange.emit(this.value);
     }
 
@@ -133,17 +154,52 @@ export class FieldEditor {
         return JSON.stringify(item, " ", 2);
     }
 
-    removeItem(index){
+    removeObj(index){
         this.value.splice(index, 1);
+    }
+
+    editObj(obj){
+        const dialogRef = this.dialog.open(FieldEditorDialog, {
+            width: '75%',
+            data: {
+                title: `Update object?`,
+                value: obj,
+                label: this.label,
+                spec : this.spec.items
+            }
+        });
+        dialogRef.afterClosed().subscribe(result => {});
+    }
+
+    addObj(){
+        let obj = {};
+
+        const dialogRef = this.dialog.open(FieldEditorDialog, {
+            width: '75%',
+            data: {
+                title: `Create new object?`,
+                value: obj,
+                label: this.label,
+                spec: this.spec.items
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                if (!this.value){ this.value = []; }
+                this.value.push(obj);
+            }
+        });
     }
 }
 
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, MatExpansionModule,
         MatDividerModule, MatFormFieldModule, MatInputModule,
-        MatCheckboxModule, MatCardModule, MatTooltipModule],
-    declarations: [FieldEditor],
-    exports: [FieldEditor]
+        MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule],
+    declarations: [FieldEditor, FieldEditorDialog],
+    entryComponents: [FieldEditorDialog],
+    exports: [FieldEditor, FieldEditorDialog]
 })
 export class FieldEditorModule {
 }

@@ -1,7 +1,5 @@
 import { VisualResource } from './visualResourceModel';
-import * as three from 'three';
-const THREE = window.THREE || three;
-import { direction, bezierSemicircle, rectangleCurve, extractCoords, align } from '../three/utils';
+import { THREE, direction, bezierSemicircle, rectangleCurve, extractCoords} from '../three/utils';
 import { MaterialFactory } from '../three/materialFactory';
 
 import { copyCoords } from './utils';
@@ -36,14 +34,24 @@ export const LINK_STROKE = {
 const getPoint = (curve, s, t, offset) => (curve.getPoint)? curve.getPoint(offset): s.clone().add(t).multiplyScalar(offset);
 
 /**
- * The class to visualize processes (edges)
+ *  The class to visualize processes (edges)
+ * @class
+ * @property source
+ * @property target
+ * @property directed
+ * @property collapsible
+ * @property geometry
+ * @property conveyingLyph
+ * @property stroke
+ * @property path
+ * @property lineWidth
+ * @property hostedNodes
  */
 export class Link extends VisualResource {
 
     get polygonOffsetFactor(){
-        let res = Math.min(...["hostedBy", "source", "target"].map(prop => this[prop]?
+        return Math.min(...["hostedBy", "source", "target"].map(prop => this[prop]?
                 (this[prop].polygonOffsetFactor || 0) - 1: 0));
-        return res;
     }
 
     updateCurve(_start, _end){
@@ -96,7 +104,7 @@ export class Link extends VisualResource {
                     // Line 2 method: draws thick lines
                     material = MaterialFactory.createLine2Material({
                         color: this.color,
-                        linewidth: this.linewidth,
+                        lineWidth: this.lineWidth,
                         polygonOffsetFactor: this.polygonOffsetFactor
                     });
                 } else {
