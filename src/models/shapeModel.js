@@ -13,6 +13,13 @@ import {keys, merge} from 'lodash-bound';
  */
 export class Shape extends VisualResource {
 
+    /**
+     * Create a Shape resource from its JSON specification together with resources to model shape borders.
+     * @param   {Object} json                          - resource definition
+     * @param   {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
+     * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
+     * @returns {Shape} - ApiNATOMY Shape resource
+     */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
         json.id     = json.id || ("new_" + entitiesByID::keys().length());
         json.border = json.border || {};

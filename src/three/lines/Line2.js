@@ -1,9 +1,15 @@
 /**
- * @author WestLangley / http://github.com/WestLangley
- *
+ * based on thick line implementation by WestLangley / http://github.com/WestLangley
  */
 
+import {THREE} from '../utils'
 
+/**
+ * Extends three.js with Line2 type to enable thick lines
+ * @param geometry
+ * @param material
+ * @constructor
+ */
 THREE.Line2 = function ( geometry, material ) {
 
 	THREE.LineSegments2.call( this );
@@ -11,10 +17,15 @@ THREE.Line2 = function ( geometry, material ) {
 	this.type = 'Line2';
 
 	this.geometry = geometry !== undefined ? geometry : new THREE.LineGeometry();
+
 	this.material = material !== undefined ? material : new THREE.LineMaterial( { color: Math.random() * 0xffffff } );
 
 };
 
+/**
+ * Extends three.js with Line2 constructor to enable thick lines
+ * @type {LineSegments2 & {constructor: (THREE.Line2|*), isLine2: boolean, raycast: *}}
+ */
 THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.prototype ), {
 
 	constructor: THREE.Line2,
@@ -55,7 +66,7 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 			if ( geometry.isBufferGeometry ) {
 
 				let attributes = geometry.attributes;
-				let instanceStart = attributes.instanceStart.data.array;
+                let instanceStart = attributes.instanceStart.data.array;
 
 				if ( instanceStart !== null) {
 					let nPoints = Math.round(instanceStart.length / 3);
@@ -90,8 +101,10 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 					}
 
 				} else {
+                    //TODO test (NK) - 'positions' was undefined
+					let positions  = geometry.position.array;
 
-					for ( let i = 0, l = positions.length / 3 - 1; i < l; i += step ) {
+                    for ( let i = 0, l = positions.length / 3 - 1; i < l; i += step ) {
 
 						vStart.fromArray( positions, 3 * i );
 						vEnd.fromArray( positions, 3 * i + 3 );
@@ -116,11 +129,8 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 							face: null,
 							faceIndex: null,
 							object: this
-
 						} );
-
 					}
-
 				}
 
 			} else if ( geometry.isGeometry ) {

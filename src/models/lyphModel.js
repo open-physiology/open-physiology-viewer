@@ -136,7 +136,7 @@ export class Lyph extends Shape {
     /**
      * Positions the point on the lyph surface
      * @param p0 - initial point (coordinates)
-     * @returns {THREE.Vector3} transformed point (coordinates)
+     * @returns {Vector3} transformed point (coordinates)
      */
     translate(p0) {
         let transformedLyph = this.layerIn ? this.layerIn : this;

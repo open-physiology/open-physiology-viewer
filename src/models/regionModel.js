@@ -8,6 +8,14 @@ import {createMeshWithBorder, getCenterOfMass, THREE} from '../three/utils';
  */
 export class Region extends Shape {
 
+    /**
+     * Create a Region resource from its JSON specification.
+     * The method checks and sets default values to the region corner points if they are undefined.
+     * @param   {Object} json                          - resource definition
+     * @param   {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
+     * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
+     * @returns {Shape} - ApiNATOMY Shape resource
+     */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
         if (!json.points || json.points.length < 3) {
             json.points = [{"x": -10, "y": -10 },{"x": -10, "y": 10 },{"x": 10, "y": 10 },{"x": 10, "y": -10 }];
@@ -30,7 +38,7 @@ export class Region extends Shape {
 
     /**
      * Create view model for the class instance
-     * @param state - layout settings
+     * @param {Object} state - graph configuration
      */
     createViewObjects(state) {
         if (!this.viewObjects["main"]) {
@@ -47,31 +55,15 @@ export class Region extends Shape {
 
             this.border.createViewObjects(state);
         }
-
         this.createLabels(state);
     }
 
     /**
      * Update positions of regions in the force-directed graph (and their inner content)
-     * @param state - view settings
+     * @param {Object} state - graph configuration
      */
     updateViewObjects(state) {
-        // const linkObj = this.viewObjects["main"];
-        // if (!linkObj) { return; }
-        // // Update buffer geometry
-        // let linkPos = linkObj.geometry.attributes && linkObj.geometry.attributes.position;
-        // if (linkPos) {
-        //     for (let i = 0; i < this.points.length; i++) {
-        //         linkPos.array[3 * i] = this.points[i].x;
-        //         linkPos.array[3 * i + 1] = this.points[i].y;
-        //         linkPos.array[3 * i + 2] = 0;
-        //     }
-        //     linkPos.needsUpdate = true;
-        //     linkObj.geometry.computeBoundingSphere();
-        // }
-
         this.border.updateViewObjects(state);
-
         this.updateLabels(state, this.center.clone().addScalar(5));
     }
 }

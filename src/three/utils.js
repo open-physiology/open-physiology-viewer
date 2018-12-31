@@ -6,22 +6,18 @@ import tinycolor from 'tinycolor2';
 
 /**
  * Convert color string to hex
- * @param str - string with color
+ * @param {string} str - string with color
  * @returns {number} - color hex
  */
 export const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : str;
 
-
 /**
- * Create shapes of lyph borders
- * @param width
- * @param height
- * @param radius
- * @param top
- * @param bottom
- * @returns {Array}
+ * Create lyph border shapes
+ * @param {Array} params   - lyph border shape parameters
+ * @returns {Array<Shape>} - ordered set of lyph border shapes: axial, 1st radial, outer, 2nd radial
  */
-export function lyphBorders([width,  height,  radius,  top,  bottom]){
+export function lyphBorders(params){
+    let [width,  height,  radius,  top,  bottom] = params;
     let borders = [0,1,2,3].map(() => new THREE.Shape());
 
     //Axial border
@@ -53,8 +49,9 @@ export function lyphBorders([width,  height,  radius,  top,  bottom]){
 }
 
 /**
- * @param points - array of Vector2 points
- * @returns {Array}
+ * Create region border shapes
+ * @param {Array<Vector2>} points - coordinates of region corner points
+ * @returns {Array<Shape>}        - ordered set of region border shapes (sides of a polygon)
  */
 export function polygonBorders(points){
     let borders = [];
@@ -66,20 +63,10 @@ export function polygonBorders(points){
 }
 
 /**
- * Draws layer of a lyph in 2d.
- * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
- * $thickness is axial border distance from the rotational axis
- * $height is axial border height
- * $radius is the radius for the circle for closed border
- * $top is a boolean value indicating whether top axial border is closed
- * $bottom is a boolean value indicating whether bottom axial border is closed
- * @param outer = [thickness,  height,  radius,  top,  bottom], where
- * thickness is non-axial border distance from the rotational axis
- * height is non-axial border height
- * radius is the radius for the circle for closed border
- * top is a boolean value indicating whether top non-axial border is closed
- * bottom is a boolean value indicating whether bottom non-axial border is closed
- * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
+ * Create lyph layer shape
+ * @param {Array} inner - preceding (inner) lyph border shape parameters (@see lyphShape)
+ * @param {Array} outer - current (outer) lyph border shape parameters
+ * @returns {Shape}     - lyph layer shape (rectangle with or without rounded corners depending on its topology)
  */
 export function layerShape(inner, outer) {
     const [$thickness, $height, $radius, $top, $bottom] = inner;
@@ -132,17 +119,12 @@ export function layerShape(inner, outer) {
 }
 
 /**
- * Draw lyph shape without repeating the shape of the previous layer
- * @param outer = [thickness,  height,  radius,  top,  bottom], where
- * thickness is non-axial border distance from the rotational axis
- * height is non-axial border height
- * radius is the radius for the circle for closed border
- * top is a boolean value indicating whether top non-axial border is closed
- * bottom is a boolean value indicating whether bottom non-axial border is closed
- * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
+ * Create lyph shape
+ * @param {Array} params - lyph border shape parameters (thickness and height, corner radius, and boolean values to mark radial border topology: "false" for open and "true" for closed)
+ * @returns {Shape}      - lyph shape (rectangle with or without rounded corners depending on its topology)
  */
-export function lyphShape(outer) {
-    let [thickness, height, radius, top, bottom] = outer;
+export function lyphShape(params) {
+    let [thickness, height, radius, top, bottom] = params;
 
     const shape = new THREE.Shape();
 
@@ -172,10 +154,10 @@ export function lyphShape(outer) {
 }
 
 /**
- * Helper to create an object with border
- * @param shape - object shape
- * @param params - mesh and border material params
- * @returns {Mesh}
+ * Create a 3d object with border
+ * @param {Shape}  shape  - object shape
+ * @param {Object} [params = {}] - object and border material params
+ * @returns {Mesh}   3d object with child object that models its border
  */
 export function createMeshWithBorder(shape, params = {}) {
     let geometry = new THREE.ShapeBufferGeometry(shape);
@@ -198,10 +180,10 @@ export function createMeshWithBorder(shape, params = {}) {
 }
 
 /**
- * Draw THREE.js rectangular line with rounded corners
- * @param startV
- * @param endV
- * @returns {CurvePath<Vector> | CurvePath}
+ * Create a curve path resembling a semi-rectangle with rounded corners
+ * @param {Vector3} startV                  - start coordinates
+ * @param {Vector3} endV                    - end coordinates
+ * @returns {CurvePath<Vector> | CurvePath} - curve path
  */
 export function rectangleCurve(startV, endV){
     let edgeV   = endV.clone().sub(startV);
@@ -231,15 +213,14 @@ export function rectangleCurve(startV, endV){
 }
 
 /**
- * Draw THREE.js cubic Bezier curve resembling the semicircle
- * @param startV - start point
- * @param endV   - end point
- * @returns {CubicBezierCurve3|*}
+ * Create a cubic Bezier curve resembling a semicircle
+ * @param {Vector3} startV      - start coordinates
+ * @param {Vector3} endV        - end coordinates
+ * @returns {CubicBezierCurve3} - cubic Bezier curve
  */
 export function bezierSemicircle(startV, endV){
     let edgeV   = endV.clone().sub(startV);
     let pEdgeV  = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
-    //pEdgeV.z = 0;
     let insetV  = edgeV.multiplyScalar(0.05);
     let offsetV = pEdgeV.multiplyScalar(2/3);
 
@@ -251,9 +232,9 @@ export function bezierSemicircle(startV, endV){
 }
 
 /**
- * Create a vector from an object that contains coordinate fields (x,y,z)
- * @param source
- * @returns {THREE.Vector3}
+ * Create a vector from an object that contains coordinate fields x, y, and z
+ * @param {Object} source - object with fields x, y, and z
+ * @returns {Vector3}     - 3d vector
  */
 export function extractCoords(source){
     if (!source) { return; }
@@ -262,9 +243,9 @@ export function extractCoords(source){
 
 /**
  * Align an object along its axis (link)
- * @param link
- * @param obj
- * @param reversed
+ * @param {{source: Vector3, target: Vector3}} link  - link between two points
+ * @param {Object3D} obj                             - three.js visual object to align alone the line
+ * @param {boolean} [reversed=false]  indicates whether the object should be aligned in reversed direction
  */
 export function align(link, obj, reversed = false){
     if (!obj || !link) { return; }
@@ -274,10 +255,10 @@ export function align(link, obj, reversed = false){
 }
 
 /**
- * Angle between two vectors
- * @param v1
- * @param v2
- * @returns {number}
+ * Compute the angle between two 3d vectors
+ * @param {Vector3} v1 first vector
+ * @param {Vector3} v2 second vector
+ * @returns {number} computed angle between the given vectors
  */
 export function angle(v1, v2){
    let dot = v1.dot(v2);
@@ -285,9 +266,9 @@ export function angle(v1, v2){
 }
 
 /**
- * Vector between two 3d points
- * @param source
- * @param target
+ * Create a vector between two 3d points
+ * @param {Vector3} source  source coordinates
+ * @param {Vector3} target  target coordinates
  * @returns {null}
  */
 export function direction(source, target){
@@ -300,9 +281,9 @@ export function direction(source, target){
 }
 
 /**
- * Returns the center of mass given a set of control points
- * @param points - control points
- * @returns {THREE.Vector3} - center of mass
+ * Return the center of mass given a set of control points
+ * @param {Array<Vector3>} points   control points
+ * @returns {Vector3}               coordinates of the center of mass
  */
 export function getCenterOfMass(points){
     let middle = new THREE.Vector3(0, 0, 0);
@@ -316,9 +297,9 @@ export function getCenterOfMass(points){
 }
 
 /**
- * Coordinates of the central point of the given mesh
- * @param mesh
- * @returns {*}
+ * Find coordinates of the central point of the given mesh
+ * @param {Mesh} mesh three.js mesh object
+ * @returns {Vector3} coordinates of the mesh center
  */
 export function getCenterPoint(mesh) {
     let boundingBox = getBoundingBox(mesh);
@@ -328,6 +309,11 @@ export function getCenterPoint(mesh) {
     return center;
 }
 
+/**
+ * Get bounding box for a mesh geometry
+ * @param {Mesh} mesh  triangular polygon mesh based object
+ * @returns {Box3}     bounding box for the mesh geometry
+ */
 export function getBoundingBox(mesh) {
     if (!mesh.geometry){ return null; }
     if (!mesh.geometry.boundingBox) {
@@ -336,15 +322,21 @@ export function getBoundingBox(mesh) {
     return mesh.geometry.boundingBox;
 }
 
+/**
+ * Pushes a point inside of a rectangle on a plane
+ * @param {Vector2} point  point coordinates
+ * @param {{x: number, y: number}} min    minimal coordinate values
+ * @param {{x: number, y: number}} max    maximal coordinate values
+ */
 export function boundToRectangle(point, min, max){
     point.x = Math.max(Math.min(point.x, max.x) , min.x);
     point.y = Math.max(Math.min(point.y, max.y) , min.y);
 }
 
 /**
- * Force link ends to stay inside a polygon
- * @param link
- * @param boundaryLinks
+ * Force link ends to stay inside of a polygon (reset coordinates to the intersection point)
+ * @param {{source: Vector2, target: Vector2}} link - link between two points
+ * @param {Array} boundaryLinks                     - links representing sides of a polygon
  */
 export function boundToPolygon(link, boundaryLinks){
     let sourceIn = pointInPolygon(link.source, boundaryLinks);
@@ -372,10 +364,10 @@ export function boundToPolygon(link, boundaryLinks){
 }
 
 /**
- * Checks whether the point is in a polygon
- * @param point
- * @param boundaryLinks
- * @returns {boolean}
+ * Check whether the point is in a polygon
+ * @param {{x: number, y: number}} point  point coordinates
+ * @param {Array} boundaryLinks           links representing sides of a polygon
+ * @returns {boolean}   returns true if the point is within the polygon boundaries
  */
 function pointInPolygon (point, boundaryLinks) {
     let x = point.x, y = point.y, inside = false;
@@ -389,24 +381,23 @@ function pointInPolygon (point, boundaryLinks) {
 }
 
 /**
- * Find intersection with polygon
- * @param line
- * @param boundaryLinks
+ * Find intersection of a line with polygon
+ * @param {{source: Vector2, target: Vector2}} link    link between two points on a plane
+ * @param {Array} boundaryLinks                        links representing sides of a polygon
  * @returns {null}
  */
-function getBoundaryPoint (line, boundaryLinks){
+function getBoundaryPoint (link, boundaryLinks){
     for (let i = 0; i < boundaryLinks.length; i++){
-        let res = getLineIntersection(line, boundaryLinks[i]);
+        let res = getLineIntersection(link, boundaryLinks[i]);
         if (res){ return res; }
     }
 }
 
 /**
  * Find intersection point of two lines
- * @param line1
- * @param line2
- * @returns {{x: null, y: null, onLine1: boolean, onLine2: boolean}} -
- *  coordinates of the intersection point and whether the point is on the first or second line
+ * @param {{source: Vector2, target: Vector2}} line1  first line
+ * @param {{source: Vector2, target: Vector2}} line2  second line
+ * @returns {{x: number, y: number}}  coordinates of the intersection point or  null if the lines do not intersect
  */
 function getLineIntersection(line1, line2) {
     let denominator, a, b, numerator1;//, numerator2;

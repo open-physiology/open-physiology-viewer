@@ -3,7 +3,19 @@
   "destination": "./docs",
 
   "plugins": [
-     {
+    {
+      "name": "esdoc-babel-7-plugin",
+      "option": {
+        "plugins": [
+          "babel-plugin-angular2-annotations",
+          "babel-plugin-transform-decorators-legacy",
+          "babel-plugin-transform-class-properties",
+          "babel-plugin-transform-flow-strip-types",
+          "babel-plugin-transform-function-bind"
+        ]
+      }
+    },
+    {
       "name": "esdoc-standard-plugin",
        "option": {
          "brand": {

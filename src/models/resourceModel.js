@@ -20,28 +20,24 @@ import {JSONPath, getClassName, getRefs} from "./utils";
 /**
  *  The class defining common methods for all resources
  * @class
- * @property id
- * @property name
- * @property class
- * @property JSON
- * @property assign
- * @property interpolate
+ * @property {string} id
+ * @property {string} name
+ * @property {string} class
+ * @property {Object} JSON
+ * @property {Array<Object>} assign
+ * @property {Array<Object>} interpolate
  *
  */
 export class Resource{
-
-    /**
-     * @ignore
-     */
     constructor() {
         this::merge(this.constructor.Model.defaultValues);
     }
 
     /**
-     * Creates a resource from JSON specification
-     * @param json - resource definition
-     * @param modelClasses - map of class names vs implementation of ApiNATOMY resources
-     * @param entitiesByID - map of resources in the global model
+     * Creates a Resource object from its JSON specification
+     * @param   {Object} json                          - resource definition
+     * @param   {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
+     * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
      * @returns {Resource} - ApiNATOMY resource
      */
     static fromJSON(json, modelClasses = {}, entitiesByID = null){
@@ -84,8 +80,8 @@ export class Resource{
     static get Model() {
         /**
          * Recursively applies a given operation to the classes in schema definitions
-         * @param className - initial class
-         * @param handler - function to apply to the current class
+         * @param {string} className - initial class
+         * @param {function} handler - function to apply to the current class
          */
         const recurseSchema = (className, handler) => {
             let stack = [className];
@@ -108,7 +104,7 @@ export class Resource{
 
         /**
          * Returns recognized class properties from the specification with default values
-         * @param className
+         * @param {string} className
          */
         const getFieldDefaultValues = (className) => {
             const getDefault = (specObj) => specObj.type ?
@@ -127,9 +123,9 @@ export class Resource{
 
         /**
          * Determines if given schema references extend a certain class
-         * @param refs  - schema references
-         * @param value - class name
-         * @returns {boolean} - returns true if at least one reference extends the given class
+         * @param {Array<string>} refs  - schema references
+         * @param {string} value        - class name
+         * @returns {boolean}           - returns true if at least one reference extends the given class
          */
         const extendsClass = (refs, value) => {
             if (!refs) { return false; }
@@ -206,8 +202,8 @@ export class Resource{
 
     /**
      * Replace IDs with object references
-     * @param modelClasses - recognized entity classes
-     * @param entitiesByID - map of all entities
+     * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
+     * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
      */
     replaceIDs(modelClasses, entitiesByID){
 
@@ -272,6 +268,11 @@ export class Resource{
         });
     };
 
+    /**
+     * Create relationships defined with the help of JSON path expressions in the resource 'assign' statements
+     * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
+     * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+     */
     assignPathRelationships(modelClasses, entitiesByID){
         if (!this.assign){ return;  }
         //Filter the value to assign only valid class properties
@@ -311,6 +312,10 @@ export class Resource{
         }
     };
 
+    /**
+     * Assign properties to the objects specified with the help of JSON path expressions in the resource 'assign' statements
+     * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
+     */
     assignPathProperties(modelClasses){
         if (!this.assign){ return;  }
         //Filter the value to assign only valid class properties
@@ -332,6 +337,10 @@ export class Resource{
         }
     };
 
+    /**
+     * Assign properties to resources specified with the help of JSON path expressions in the resource 'interpolate'
+     * statements
+     */
     interpolatePathProperties(){
         [...(this.interpolate||[])].forEach(({path, offset, color}) => {
 
@@ -373,8 +382,13 @@ export class Resource{
         })
     }
 
+    /**
+     * Waiting list keeps objects that refer to unresolved model resources.
+     * When a new resource definition is found or created, all resources that referenced this resource by ID get the
+     * corresponding object reference instead
+     * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
+     */
     reviseWaitingList(waitingList){
-        //Revise waitingList
         let res = this;
         (waitingList[res.id]||[]).forEach(([obj, key]) => {
             if (obj[key]::isArray()){
@@ -393,10 +407,11 @@ export class Resource{
     }
 
     /**
-     *
-     * @param key
-     * @param {{relatedTo:string}} spec
-     * @param modelClasses
+     * Synchronize a relationship field of the resource with its counterpart
+     * (auto-fill a field that is involved into a bi-directional relationship based on its partial definition, i.e., A.child = B yields B.parent = A).
+     * @param {string} key    - property field that points to the related resource
+     * @param {Object} spec   - JSON schema specification of the relationship field
+     * @param {Object} modelClasses -  map of class names vs implementation of ApiNATOMY resources
      */
     syncRelationship(key, spec, modelClasses){
         let res = this;
@@ -450,6 +465,11 @@ export class Resource{
         }
     }
 
+    /**
+     * Synchronize all relationship properties of the resource
+     * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
+     * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+     */
     syncRelationships(modelClasses, entitiesByID){
         entitiesByID::keys().forEach(id => {
             if (!entitiesByID[id].class){ return; }

@@ -4,19 +4,21 @@ import { MaterialFactory } from '../three/materialFactory';
 import { getCenterOfMass, THREE } from '../three/utils';
 
 /**
- *  The class to visualize nodes in the process graphs
+ *  The class to visualize Node resources in the force-directed graphs
  * @class
- * @property val
- * @property controlNodes *
- * @property hostedBy
- * @property sourceOf
- * @property targetOf
- * @property internalIn
- * @property fixed
- * @property layout
- * @property x
- * @property y
- * @property z
+ * @property {number} val
+ * @property {Array<Node>} controlNodes
+ * @property {Link} hostedBy
+ * @property {Link} sourceOf
+ * @property {Link} targetOf
+ * @property {Shape} internalIn
+ * @property {boolean} fixed
+ * @property {Object} layout
+ * @property {number} collide
+ * @property {number} charge
+ * @property {number} x
+ * @property {number} y
+ * @property {number} z
  */
 export class Node extends VisualResource {
 

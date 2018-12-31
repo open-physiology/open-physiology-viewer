@@ -22,6 +22,9 @@ import {ResourceInfoModule} from './gui/resourceInfo';
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
 
+/**
+ * @ignore
+ */
 @Component({
     selector: 'webGLScene',
     template: `

@@ -3,15 +3,13 @@ import {SpriteText2D} from "three-text2d";
 import {copyCoords} from "./utils";
 
 /**
- * The class implementing common methods for visual resources
+ * The class implementing common methods for the visual resources.
  * @class
- * @property color
- * @property viewObjects
- * @property labels
- * @property hidden
- * @property skipLabel
- * @property userData
- *
+ * @property {string} color - visual resource color
+ * @property {Map<string, Object3D>} viewObjects - visual objects representing the resource
+ * @property {Map<string, SpriteText2D>} labels  - visual sprites representing resource labels
+ * @property {boolean} hidden    - indicates whether the resource is currently hidden (invisible in the scene)
+ * @property {boolean} skipLabel - excludes resource labels from the view
  */
 export class VisualResource extends Resource{
 
@@ -21,28 +19,25 @@ export class VisualResource extends Resource{
     }
 
     /**
-     * Create VisualResource model from the JSON specification
-     * @param json - input model
-     * @param modelClasses - recognized classes
-     * @param entitiesByID - map of all model entities
-     * @returns {VisualResource} - VisualResource model
+     * Polygon offset factor determines order of rendering of objects with the same depth (z-coordinate).
+     * Smaller number indicates that the visual object is rendered "closer" to the viewer
+     * @returns {number}
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-        //Do not expand templates ?
-        return super.fromJSON(json, modelClasses, entitiesByID );
-    }
-
     get polygonOffsetFactor() {
         return 0;
     }
 
+    /**
+     * Determines whether the resource should appear in the scheme based on its 'hidden' attribute and other resource dependencies
+     * @returns {boolean}
+     */
     get isVisible(){
         return !this.hidden;
     }
 
     /**
      * Create resource labels
-     * @param state - graph configuration, relevant parameters: fontParams
+     * @param {Object} state - graph configuration, relevant parameters: fontParams
      */
     createLabels(state){
         if (this.skipLabel) { return; }
@@ -63,8 +58,8 @@ export class VisualResource extends Resource{
 
     /**
      * Updates resource labels
-     * @param state - graph configuration, relevant parameters: showLabels and labelRelSize
-     * @param position - label position
+     * @param {Object}  state    - graph configuration, relevant parameters: showLabels and labelRelSize
+     * @param {Vector3} position - label position
      */
     updateLabels(state, position){
         if (this.skipLabel) { return; }

@@ -1,7 +1,4 @@
-/**
- * @author WestLangley / http://github.com/WestLangley
- *
- */
+import {THREE} from '../utils'
 
 THREE.LineSegmentsGeometry = function () {
 
@@ -9,11 +6,9 @@ THREE.LineSegmentsGeometry = function () {
 
 	this.type = 'LineSegmentsGeometry';
 
-	var plane = new THREE.BufferGeometry();
-
-	var positions = [ - 1, 2, 0, 1, 2, 0, - 1, 1, 0, 1, 1, 0, - 1, 0, 0, 1, 0, 0, - 1, - 1, 0, 1, - 1, 0 ];
-	var uvs = [ 0, 1, 1, 1, 0, .5, 1, .5, 0, .5, 1, .5, 0, 0, 1, 0 ];
-	var index = [ 0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5 ];
+	let positions = [ - 1, 2, 0, 1, 2, 0, - 1, 1, 0, 1, 1, 0, - 1, 0, 0, 1, 0, 0, - 1, - 1, 0, 1, - 1, 0 ];
+	let uvs = [ 0, 1, 1, 1, 0, .5, 1, .5, 0, .5, 1, .5, 0, 0, 1, 0 ];
+	let index = [ 0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5 ];
 
 	this.setIndex( index );
 	this.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
@@ -29,8 +24,8 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	applyMatrix: function ( matrix ) {
 
-		var start = this.attributes.instanceStart;
-		var end = this.attributes.instanceEnd;
+		let start = this.attributes.instanceStart;
+		let end = this.attributes.instanceEnd;
 
 		if ( start !== undefined ) {
 
@@ -60,7 +55,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	setPositions: function ( array ) {
 
-		var lineSegments;
+		let lineSegments;
 
 		if ( array instanceof Float32Array ) {
 
@@ -72,12 +67,11 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 		}
 
-		var instanceBuffer = new THREE.InstancedInterleavedBuffer( lineSegments, 6, 1 ); // xyz, xyz
+		let instanceBuffer = new THREE.InstancedInterleavedBuffer( lineSegments, 6, 1 ); // xyz, xyz
 
 		this.addAttribute( 'instanceStart', new THREE.InterleavedBufferAttribute( instanceBuffer, 3, 0 ) ); // xyz
 		this.addAttribute( 'instanceEnd', new THREE.InterleavedBufferAttribute( instanceBuffer, 3, 3 ) ); // xyz
 
-		//
 
 		this.computeBoundingBox();
 		this.computeBoundingSphere();
@@ -88,7 +82,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	setColors: function ( array ) {
 
-		var colors;
+		let colors;
 
 		if ( array instanceof Float32Array ) {
 
@@ -100,7 +94,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 		}
 
-		var instanceColorBuffer = new THREE.InstancedInterleavedBuffer( colors, 6, 1 ); // rgb, rgb
+		let instanceColorBuffer = new THREE.InstancedInterleavedBuffer( colors, 6, 1 ); // rgb, rgb
 
 		this.addAttribute( 'instanceColorStart', new THREE.InterleavedBufferAttribute( instanceColorBuffer, 3, 0 ) ); // rgb
 		this.addAttribute( 'instanceColorEnd', new THREE.InterleavedBufferAttribute( instanceColorBuffer, 3, 3 ) ); // rgb
@@ -137,7 +131,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	fromLineSegements: function ( lineSegments ) {
 
-		var geometry = lineSegments.geometry;
+		let geometry = lineSegments.geometry;
 
 		if ( geometry.isGeometry ) {
 
@@ -157,7 +151,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	computeBoundingBox: function () {
 
-		var box = new THREE.Box3();
+		let box = new THREE.Box3();
 
 		return function computeBoundingBox() {
 
@@ -167,8 +161,8 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 			}
 
-			var start = this.attributes.instanceStart;
-			var end = this.attributes.instanceEnd;
+			let start = this.attributes.instanceStart;
+			let end = this.attributes.instanceEnd;
 
 			if ( start !== undefined && end !== undefined ) {
 
@@ -186,7 +180,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	computeBoundingSphere: function () {
 
-		var vector = new THREE.Vector3();
+		let vector = new THREE.Vector3();
 
 		return function computeBoundingSphere() {
 
