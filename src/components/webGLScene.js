@@ -4,12 +4,10 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {keys, values, merge, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
-import {SearchBar} from './gui/searchBar';
+import {SearchBarModule} from './gui/searchBar';
 import {MatSliderModule} from '@angular/material/slider'
 import FileSaver  from 'file-saver';
 
-//Search field
-import {MatFormFieldModule, MatInputModule, MatAutocompleteModule, } from '@angular/material';
 import ThreeForceGraph   from '../three/threeForceGraph';
 import {
     forceX,
@@ -53,10 +51,10 @@ const WindowResize = require('three-window-resize');
                             <i class="fa fa-window-close"></i>
                         </button>
                         <mat-slider vertical class="w3-grey"
-                                    [min]   = "0.1 * scaleFactor" [max]="0.4 * scaleFactor"
-                                    [step]  = "0.05 * scaleFactor" tickInterval="1"
-                                    [value] = "labelRelSize" title="Label size"
-                                    (change)= "onScaleChange($event.value)"
+                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                    [step]="0.05 * scaleFactor" tickInterval="1"
+                                    [value]="labelRelSize" title="Label size"
+                                    (change)="onScaleChange($event.value)"
                         ></mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="export()" title="Export layout">
@@ -81,7 +79,7 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
-                                   (selectedItemChange)="selectBySearchEventHandler($event)"></searchBar>
+                                   (selectedItemChange)="selectBySearch($event)"></searchBar>
                     </fieldset>
 
                     <!--Selected entity-->
@@ -488,7 +486,7 @@ export class WebGLSceneComponent {
         }
     }
 
-    selectBySearchEventHandler(name) {
+    selectBySearch(name) {
         if (this.graph && (name !== this._selectedName)) {
             this._selectedName = name;
             this.selected = (this.graphData.entities||[]).find(e => e.name === name);
@@ -613,8 +611,8 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatSliderModule],
-    declarations: [WebGLSceneComponent, StopPropagation, SearchBar ],
+        MatSliderModule, SearchBarModule],
+    declarations: [WebGLSceneComponent, StopPropagation],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

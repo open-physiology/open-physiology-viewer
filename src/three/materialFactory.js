@@ -7,16 +7,6 @@ import {colorStr2Hex} from './utils';
  * The class to create materials with predefined default parameters
  */
 export class MaterialFactory {
-    static defaultParams = {
-        transparent: true,
-        opacity : 0.6,
-        side    : THREE.DoubleSide,
-        color   : "#666",
-        polygonOffsetUnits : 1,
-        polygonOffset      : true,
-        polygonOffsetFactor: 0
-    };
-
     static createLine2Material(params = {}){
         let p       = this.defaultParams::clone()::merge(params);
         p.color     = colorStr2Hex(p.color);
@@ -51,3 +41,13 @@ export class MaterialFactory {
         return new THREE.MeshLambertMaterial(p);
     }
 }
+
+MaterialFactory.defaultParams = {
+    transparent: true,
+    opacity : 0.6,
+    side    : THREE.DoubleSide,
+    color   : "#666",
+    polygonOffsetUnits : 1,
+    polygonOffset      : true,
+    polygonOffsetFactor: 0
+};

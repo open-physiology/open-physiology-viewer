@@ -156,11 +156,6 @@
           "type": "string",
           "readOnly": true
         },
-        "JSON": {
-          "description": "Initial JSON specification for the internal model",
-          "type": "object",
-          "readOnly": true
-        },
         "assign": {
           "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
           "type": "array",
@@ -255,7 +250,7 @@
     "External": {
       "description": "Reference to an external resource",
       "$extends": {
-        "$ref": "#/definitions/VisualResource"
+        "$ref": "#/definitions/Resource"
       },
       "properties": {
         "uri": {

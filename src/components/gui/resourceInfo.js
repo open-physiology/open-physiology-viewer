@@ -53,8 +53,6 @@ export class ResourceInfoPanel {
     get resource(){
         return this._resource;
     }
-
-
 }
 
 @NgModule({

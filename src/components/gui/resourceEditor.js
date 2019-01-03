@@ -1,10 +1,11 @@
-import {NgModule, Component, Input, Output, EventEmitter, Inject} from '@angular/core';
+import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatDialogModule, MatDialog} from '@angular/material';
+    MatCardModule, MatDialogModule, MatDialog, MatRadioModule} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule}  from "./fieldEditor";
+import {SearchBarModule} from "./searchBar";
 import {ResourceEditorDialog} from "./resourceEditorDialog";
 import {getClassName} from "../../models/utils";
 import {isPlainObject} from 'lodash-bound';
@@ -63,19 +64,17 @@ import {isPlainObject} from 'lodash-bound';
     `
 })
 export class ResourceEditor {
+    //TODO handle references in array
 
-    _resource;
     _className;
-
     _propertyFields     = [];
     _relationshipFields = [];
     dialog: MatDialog;
 
-    @Input() modelClasses;
     @Input() expanded = false;
-    @Input('resource') set resource(newValue) {
-        this._resource = newValue;
-    }
+    @Input() modelClasses;
+    @Input() modelResources;
+    @Input() resource;
     @Input('className') set className(newValue) {
         this._className = newValue;
         if (this.modelClasses){
@@ -86,10 +85,6 @@ export class ResourceEditor {
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
-    }
-
-    get resource(){
-        return this._resource;
     }
 
     get className(){
@@ -136,16 +131,27 @@ export class ResourceEditor {
         const dialogRef = this.dialog.open(ResourceEditorDialog, {
             width: '75%',
             data: {
-                title       : `Create new resource?`,
-                resource    : model,
-                className   : className,
-                modelClasses: this.modelClasses}
+                title          : `Add new resource?`,
+                actionType     : 'Create',
+                resource       : model,
+                className      : className,
+                modelClasses   : this.modelClasses,
+                modelResources : this.modelResources
+            }
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 if (!this.resource[key]){ this.resource[key] = []; }
-                this.resource[key].push(model);
+                if (!this.resource[key].find(e => e === model.id || e.id === model.id)){
+                    if (result.actionType === 'Include'){
+                        this.resource[key].push(model.id); //reference to an existing resource
+                    } else {
+                        this.resource[key].push(model);
+                    }
+                } else {
+                    //TODO warning that the object is already in the list
+                }
             }
         });
     }
@@ -154,11 +160,10 @@ export class ResourceEditor {
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule,
         MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule,
-        MatCheckboxModule, MatCardModule, FieldEditorModule],
+        MatCheckboxModule, MatCardModule, MatRadioModule, FieldEditorModule, SearchBarModule],
     declarations: [ResourceEditor, ResourceEditorDialog],
     entryComponents: [ResourceEditorDialog],
     exports: [ResourceEditor, ResourceEditorDialog]
 })
 export class ResourceEditorModule {
-
 }

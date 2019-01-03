@@ -11,93 +11,102 @@ import {FieldEditorDialog} from './fieldEditorDialog';
 @Component({
     selector: 'fieldEditor',
     template: `
-        <!--Input-->  
-        <mat-form-field *ngIf="_isInput">
-            <input matInput [placeholder]="label" [matTooltip]="spec.description"
-                   [type]  = "_inputType"
-                   [value] = "value||null"
-                   (input) = "updateValue($event.target.value)"
-            >
-        </mat-form-field>
-
-        <!--Check box-->
-        <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description"
-                      labelPosition="before"
-                      [value]="value"
-        >{{label}}
-        </mat-checkbox>
-
-        <!--Object - show fieldEditor for each property-->
-        <section *ngIf="_isObject">
-            <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        {{label}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-
-                <section *ngIf="!!spec.properties">
-                    <section *ngFor="let key of objectKeys(spec.properties)">
-                        <fieldEditor 
-                                [label] = "key" 
-                                [value] = "value[key]||null" 
-                                [spec]  = "spec.properties[key]"
-                                (onValueChange) = "updateProperty(key, $event)">
-                        </fieldEditor>
-                    </section> 
-                </section>
-                <section *ngIf="!spec.properties">
-                    <section *ngFor="let key of objectKeys(value||{})">
-                        <fieldEditor 
-                                [value] = "value[key]||null" 
-                                [label] = "key"
-                                (onValueChange) = "updateProperty(key, $event)">
-                        </fieldEditor>
-                        <button class="w3-hover-light-grey">
-                            <i class="fa fa-trash"></i>
-                        </button>
+        <section> 
+            <!--Input-->  
+            <mat-form-field *ngIf="_isInput" >
+                <input matInput class="w3-input"
+                       [placeholder]="label" 
+                       [matTooltip]="spec.description"
+                       [type]  = "_inputType"
+                       [value] = "value||null"
+                       (input) = "updateValue($event.target.value)"
+                >
+            </mat-form-field>
+    
+            <!--Check box-->
+            <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description"
+                          labelPosition="before"
+                          [value]="value"
+            >{{label}}
+            </mat-checkbox>
+    
+            <!--Object - show fieldEditor for each property-->
+            <section *ngIf="_isObject">
+                <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            {{label}}
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+    
+                    <section *ngIf="!!spec.properties">
+                        <section *ngFor="let key of objectKeys(spec.properties)">
+                            <fieldEditor 
+                                    [label] = "key" 
+                                    [value] = "value[key]||null" 
+                                    [spec]  = "spec.properties[key]"
+                                    (onValueChange) = "updateProperty(key, $event)">
+                            </fieldEditor>
+                        </section> 
                     </section>
+                    <section *ngIf="!spec.properties">
+                        <section *ngFor="let key of objectKeys(value||{})">
+                            <fieldEditor 
+                                    [value] = "value[key]||null" 
+                                    [label] = "key"
+                                    (onValueChange) = "updateProperty(key, $event)">
+                            </fieldEditor>
+                            <button class="w3-hover-light-grey">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </section>
+                        <mat-action-row>
+                            <!-- Add any number of key-value pairs -->
+                            <button class="w3-hover-light-grey">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </mat-action-row>
+                    </section>
+    
+                </mat-expansion-panel>
+            </section>
+    
+            <!--Array - show fieldEditor for each item-->
+            <section *ngIf="_isArray">
+                <mat-expansion-panel class="w3-margin-bottom">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title [matTooltip]="spec.description">
+                            {{label}}
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+    
+                    <section *ngFor="let obj of value; let i = index"> 
+                        {{toJSON(obj)}}
+                        <mat-action-row>
+                            <button class="w3-hover-light-grey" (click)="editObj(obj)">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="w3-hover-light-grey" (click)="removeObj(i)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </mat-action-row>
+    
+                    </section>
+    
                     <mat-action-row>
-                        <!-- Add any number of key-value pairs -->
-                        <button class="w3-hover-light-grey">
+                        <button class="w3-hover-light-grey" (click)="addObj()">
                             <i class="fa fa-plus"></i>
                         </button>
                     </mat-action-row>
-                </section>
-
-            </mat-expansion-panel>
+                </mat-expansion-panel>
+            </section>
         </section>
-
-        <!--Array - show fieldEditor for each item-->
-        <section *ngIf="_isArray">
-            <mat-expansion-panel class="w3-margin-bottom">
-                <mat-expansion-panel-header>
-                    <mat-panel-title [matTooltip]="spec.description">
-                        {{label}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-
-                <section *ngFor="let obj of value; let i = index"> 
-                    {{toJSON(obj)}}
-                    <mat-action-row>
-                        <button class="w3-hover-light-grey" (click)="editObj(obj)">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button class="w3-hover-light-grey" (click)="removeObj(i)">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </mat-action-row>
-
-                </section>
-
-                <mat-action-row>
-                    <button class="w3-hover-light-grey" (click)="addObj()">
-                        <i class="fa fa-plus"></i>
-                    </button>
-                </mat-action-row>
-            </mat-expansion-panel>
-        </section>
-    `
+    `,
+    styles: [`
+        .inputField {
+            width: 30%
+        }
+    `]
 })
 export class FieldEditor {
     _spec;

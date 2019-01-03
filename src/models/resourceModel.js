@@ -47,7 +47,6 @@ export class Resource{
         const res = new cls(json.id);
 
         res.class = clsName;
-        res.JSON = json;
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
@@ -196,6 +195,8 @@ export class Resource{
             let relNames = relFields::entries().filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
             if (relNames && relNames[0]){ return relNames[0]; }
         };
+
+        model.groupClsNames = ["Group", "Graph"]; //TODO automate if more group types need to be defined
 
         return model;
     }

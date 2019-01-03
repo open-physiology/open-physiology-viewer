@@ -1,7 +1,9 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {FormControl} from '@angular/forms';
+import {Component, Input, Output, EventEmitter, NgModule} from '@angular/core';
+import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Observable}  from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
+import {CommonModule} from "@angular/common";
+import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angular/material";
 
 @Component({
     selector: 'searchBar',
@@ -49,3 +51,10 @@ export class SearchBar {
        this.selectedItemChange.emit(event.option.value);
     }
 }
+
+@NgModule({
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+    declarations: [SearchBar],
+    exports: [SearchBar]
+})
+export class SearchBarModule {}

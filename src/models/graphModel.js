@@ -6,14 +6,12 @@ import { Link, LINK_GEOMETRY } from "./linkModel";
 import { Node } from "./nodeModel";
 
 /**
- *  The main model graph (a group with configuration options for the model viewer)
+ * The main model graph (a group with configuration options for the model viewer)
  * @class
  * @property entitiesByID
  * @property config
  */
 export class Graph extends Group{
-
-    static validator = new Validator();
 
     static fromJSON(json, modelClasses = {}) {
         let resVal = this.validator.validate(json, schema);
@@ -188,6 +186,7 @@ export class Graph extends Group{
     get coalescenceGroup(){
         return (this.groups||[]).find(g => g.id === "coalescences");
     }
-
-
 }
+
+Graph.validator = new Validator();
+

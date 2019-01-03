@@ -24,7 +24,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 //Styles
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
-import "@angular/material/prebuilt-themes/pink-bluegrey.css";
+import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 let msgCount = {};
@@ -95,14 +95,20 @@ debug(true, msgCount);
         <!--Editor and canvas-->
         <section class="main-panel">
             <section class="w3-row" *ngIf="_showResourceEditor">
-                <resourceEditor [resource]="_model" className="Graph" [modelClasses]="modelClasses"></resourceEditor>
+                <resourceEditor 
+                        [modelClasses]   = "modelClasses"
+                        [modelResources] = "_graphData.entities"
+                        [resource]       = "_model"
+                        className        = "Graph"
+                >
+                </resourceEditor>
             </section>
             <section class="w3-row">
                 <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"></section>
                 <webGLScene [class.w3-threequarter] = "_showJSONEditor"
-                    [graphData]             ="_graphData"
-                    (selectedItemChange)    ="onSelectedItemChange($event)"
-                    (highlightedItemChange) ="onHighlightedItemChange($event)">
+                    [graphData]             = "_graphData"
+                    (selectedItemChange)    = "onSelectedItemChange($event)"
+                    (highlightedItemChange) = "onHighlightedItemChange($event)">
                 </webGLScene>
             </section>
         </section>

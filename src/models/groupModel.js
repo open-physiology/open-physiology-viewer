@@ -20,9 +20,6 @@ import {addColor} from './utils';
  * @property inGroups
  */
 export class Group extends Resource {
-    //TODO replace with code that derives the group classes from the specification
-    static GROUP_CLASSES = ["Group", "Tree", "Graph"];
-
     /**
      * Create a graph model from the JSON specification
      * @param json - input model
@@ -131,7 +128,7 @@ export class Group extends Resource {
                 console.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames(Group.GROUP_CLASSES);
+            let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames);
             relFieldNames.forEach(property => { this[property] = (this[property]||[])::unionBy(group[property], "id"); });
         });
 
@@ -153,7 +150,7 @@ export class Group extends Resource {
      */
     get entities(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames(Group.GROUP_CLASSES); //Exclude groups
+        let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames); //Exclude groups
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
         return res.filter(e => !!e && e::isObject());
     }
@@ -297,3 +294,4 @@ export class Group extends Resource {
         this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
     }
 }
+
