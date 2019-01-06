@@ -14,11 +14,12 @@ import {FieldEditorDialog} from './fieldEditorDialog';
         <section> 
             <!--Input-->  
             <mat-form-field *ngIf="_isInput" >
-                <input matInput class="w3-input"
+                <input matInput class="w3-input"                       
                        [placeholder]="label" 
                        [matTooltip]="spec.description"
                        [type]  = "_inputType"
                        [value] = "value||null"
+                       [disabled] = "disabled"
                        (input) = "updateValue($event.target.value)"
                 >
             </mat-form-field>
@@ -27,8 +28,9 @@ import {FieldEditorDialog} from './fieldEditorDialog';
             <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description"
                           labelPosition="before"
                           [value]="value"
+                          [disabled] = "disabled"
             >{{label}}
-            </mat-checkbox>
+            </mat-checkbox> 
     
             <!--Object - show fieldEditor for each property-->
             <section *ngIf="_isObject">
@@ -45,6 +47,7 @@ import {FieldEditorDialog} from './fieldEditorDialog';
                                     [label] = "key" 
                                     [value] = "value[key]||null" 
                                     [spec]  = "spec.properties[key]"
+                                    [disabled] = "disabled"
                                     (onValueChange) = "updateProperty(key, $event)">
                             </fieldEditor>
                         </section> 
@@ -54,18 +57,21 @@ import {FieldEditorDialog} from './fieldEditorDialog';
                             <fieldEditor 
                                     [value] = "value[key]||null" 
                                     [label] = "key"
+                                    [disabled] = "disabled"
                                     (onValueChange) = "updateProperty(key, $event)">
                             </fieldEditor>
-                            <button class="w3-hover-light-grey">
+                            <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </section>
+
                         <mat-action-row>
                             <!-- Add any number of key-value pairs -->
-                            <button class="w3-hover-light-grey">
+                            <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="addProperty()">
                                 <i class="fa fa-plus"></i>
                             </button>
                         </mat-action-row>
+                        
                     </section>
     
                 </mat-expansion-panel>
@@ -79,33 +85,30 @@ import {FieldEditorDialog} from './fieldEditorDialog';
                             {{label}}
                         </mat-panel-title>
                     </mat-expansion-panel-header>
-    
+   
                     <section *ngFor="let obj of value; let i = index"> 
                         {{toJSON(obj)}}
                         <mat-action-row>
                             <button class="w3-hover-light-grey" (click)="editObj(obj)">
                                 <i class="fa fa-edit"></i>
                             </button>
-                            <button class="w3-hover-light-grey" (click)="removeObj(i)">
+                            <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
                                 <i class="fa fa-trash"></i>
                             </button>
-                        </mat-action-row>
-    
+                        </mat-action-row>    
                     </section>
-    
-                    <mat-action-row>
+
+                    <mat-action-row *ngIf = "!disabled">
                         <button class="w3-hover-light-grey" (click)="addObj()">
                             <i class="fa fa-plus"></i>
                         </button>
                     </mat-action-row>
+
                 </mat-expansion-panel>
             </section>
         </section>
     `,
-    styles: [`
-        .inputField {
-            width: 30%
-        }
+    styles: [`        
     `]
 })
 export class FieldEditor {
@@ -114,8 +117,8 @@ export class FieldEditor {
     dialog: MatDialog;
 
     @Input() expanded = false;
-    @Input('label') label;
-    @Input('value') value;
+    @Input() label;
+    @Input() value;
     @Input('spec') set spec(newSpec){
         this._spec = newSpec;
         if (!this._spec) {
@@ -139,6 +142,8 @@ export class FieldEditor {
                     ? "color"
                     : "text";
     }
+    @Input() disabled = false;
+
     @Output() onValueChange = new EventEmitter();
 
     constructor(dialog: MatDialog) {
@@ -163,6 +168,42 @@ export class FieldEditor {
         return JSON.stringify(item, " ", 2);
     }
 
+    removeProperty(key){
+        delete this.value[key];
+    }
+
+    addProperty(){
+        const spec = {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        };
+
+        const dialogRef = this.dialog.open(FieldEditorDialog, {
+            width: '75%',
+            data: {
+                title: `Add new property?`,
+                value: {},
+                label: this.label,
+                spec: spec
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                if (!this.value){ this.value = {}; }
+                this.value[result.key] = result.value;
+                console.log("RESULT", this.value``);
+            }
+        })
+    }
+
     removeObj(index){
         this.value.splice(index, 1);
     }
@@ -181,22 +222,20 @@ export class FieldEditor {
     }
 
     addObj(){
-        let obj = {};
-
         const dialogRef = this.dialog.open(FieldEditorDialog, {
             width: '75%',
             data: {
                 title: `Create new object?`,
-                value: obj,
+                value: {},
                 label: this.label,
-                spec: this.spec.items
+                spec : this.spec.items
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
                 if (!this.value){ this.value = []; }
-                this.value.push(obj);
+                this.value.push(result);
             }
         });
     }

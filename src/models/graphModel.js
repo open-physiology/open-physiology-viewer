@@ -5,6 +5,8 @@ import * as schema from '../data/graphScheme.json';
 import { Link, LINK_GEOMETRY } from "./linkModel";
 import { Node } from "./nodeModel";
 
+const V = new Validator();
+
 /**
  * The main model graph (a group with configuration options for the model viewer)
  * @class
@@ -14,7 +16,7 @@ import { Node } from "./nodeModel";
 export class Graph extends Group{
 
     static fromJSON(json, modelClasses = {}) {
-        let resVal = this.validator.validate(json, schema);
+        let resVal = V.validate(json, schema);
         if (resVal.errors && resVal.errors.length > 0){ console.warn(resVal); }
 
         let model = json::cloneDeep()::defaults({

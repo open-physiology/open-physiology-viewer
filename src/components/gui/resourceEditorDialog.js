@@ -17,8 +17,10 @@ import {
 
             <!--Include existing resource-->
             <section [hidden]="!data.actionType || data.actionType === 'Create'">
-                <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
-                           (selectedItemChange)="selectBySearch($event)"></searchBar>
+                <searchBar [selected] = "_selectedName" 
+                           [searchOptions] = "_searchOptions"
+                           (selectedItemChange) = "selectBySearch($event)">
+                </searchBar>
             </section>
             
             <!--Create resource-->
@@ -27,6 +29,7 @@ import {
                             [modelResources] = "data.modelResources"
                             [resource]       = "data.resource"
                             [className]      = "data.className"
+                            [disabled]       = "data.disabled || data.actionType === 'Include'"
             >
             </resourceEditor>
         </div>
@@ -42,7 +45,7 @@ export class ResourceEditorDialog {
     _actions = ['Create', 'Include'];
     _searchOptions = [];
 
-    constructor( dialogRef: MatDialogRef<ResourceEditorDialog>, @Inject(MAT_DIALOG_DATA) data) {
+    constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
         this.data = data;
         this._searchOptions = (this.data.modelResources||[])
@@ -56,7 +59,8 @@ export class ResourceEditorDialog {
     selectBySearch(name) {
         if (name !== this._selectedName) {
             //this._selectedName = name;
-            this.data.resource = (this.data.modelResources||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
+            let resource = (this.data.modelResources||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
+            this.data.resource = resource.JSON || resource; //show original user definition instead of the expanded version if available
         }
     }
 

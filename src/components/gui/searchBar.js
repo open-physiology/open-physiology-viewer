@@ -9,10 +9,15 @@ import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angula
     selector: 'searchBar',
     template: `
         <mat-form-field class="full-width">
-            <input type="text" [value]="selected" class="w3-input" 
-                   aria-label="Number" matInput [formControl]="_myControl"
+            <input matInput class="w3-input"
+                   placeholder="Search"
+                   matTooltip ="Describe resource you want to find"
+                   type="text" 
+                   [value]="selected"
+                   aria-label="Number" 
+                   [formControl]="_myControl"
                    [matAutocomplete]="auto">
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="optionSelected($event)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="_optionSelected($event)">
                 <mat-option *ngFor="let option of _filteredOptions | async" [value]="option">
                     {{option}}
                 </mat-option>
@@ -25,7 +30,9 @@ import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angula
         }
     `]
 })
-
+/**
+ * Search bar component
+ */
 export class SearchBar {
     @Input()  selected;
     @Input()  searchOptions;
@@ -34,6 +41,9 @@ export class SearchBar {
     _myControl = new FormControl();
     _filteredOptions: Observable<string[]>;
 
+    /**
+     * @access private
+     */
     ngOnInit() {
         this._filteredOptions = this._myControl.valueChanges
             .pipe(
@@ -47,7 +57,7 @@ export class SearchBar {
         return this.searchOptions.filter(option => option.toLowerCase().includes(filterValue));
     }
 
-    optionSelected(event){
+    _optionSelected(event){
        this.selectedItemChange.emit(event.option.value);
     }
 }

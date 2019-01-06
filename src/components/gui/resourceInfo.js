@@ -26,6 +26,9 @@ import {keys, isArray, isObject} from 'lodash-bound';
         </section>
     `
 })
+/**
+ * Resource info panel
+ */
 export class ResourceInfoPanel {
     _resource;
 

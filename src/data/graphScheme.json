@@ -25,9 +25,7 @@
     },
     "Point3Scheme": {
       "description": "Coordinates of a 3d point",
-      "$extends": {
-        "$ref": "#/definitions/Point2Scheme"
-      },
+      "allOf": [ {"$ref": "#/definitions/Point2Scheme"} ],
       "properties": {
         "z": {
           "type": "number",
@@ -156,6 +154,11 @@
           "type": "string",
           "readOnly": true
         },
+        "JSON": {
+          "description": "Initial JSON specification for the internal model",
+          "type": "object",
+          "readOnly": true
+        },
         "assign": {
           "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
           "type": "array",
@@ -212,9 +215,7 @@
       "description": "An abstract visual resource that defines common properties for all types of visual resources in the ApiNATOMY model.",
       "type": "object",
       "abstract": "true",
-      "$extends": {
-        "$ref": "#/definitions/Resource"
-      },
+      "allOf": [{"$ref": "#/definitions/Resource"}],
       "properties": {
         "color": {
           "description": "Color",
@@ -244,14 +245,11 @@
           "description": "A flag to indicate that this entity is visualized without the corresponding text label",
           "type": "boolean"
         }
-      },
-      "additionalProperties": false
+      }
     },
     "External": {
       "description": "Reference to an external resource",
-      "$extends": {
-        "$ref": "#/definitions/Resource"
-      },
+      "allOf":[{"$ref": "#/definitions/Resource"}],
       "properties": {
         "uri": {
           "description": "Reference to an external resource",
@@ -281,9 +279,9 @@
     "Node": {
       "description": "Graph node joins two or more links (processes)",
       "type": "object",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/VisualResource"
-      },
+      }],
       "properties": {
         "hostedBy": {
           "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
@@ -415,9 +413,9 @@
     },
     "Link": {
       "description": "Graph link schematically representing a (part of) physiological process. ",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/VisualResource"
-      },
+      }],
       "properties": {
         "source": {
           "description": "Source node of the link",
@@ -545,9 +543,9 @@
     },
     "Shape": {
       "description": "An entity that occupies space within a border",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/VisualResource"
-      },
+      }],
       "abstract": true,
       "properties": {
         "border": {
@@ -625,17 +623,17 @@
     },
     "Region": {
       "description": "Area occupied by bordy part of subsystem",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/Shape"
-      },
+      }],
       "properties": {
       }
     },
     "Lyph": {
       "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/Shape"
-      },
+      }],
       "properties": {
         "topology": {
           "description": "Lyph topology defines its border shape",
@@ -755,7 +753,7 @@
         "layerWidth": {
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
           "type": "number",
-          "maximum": 0,
+          "minimum": 0,
           "maximum": 100
         },
         "internalIn": {
@@ -850,9 +848,9 @@
     },
     "Border": {
       "description": "Lyph border schematically models the inner and outer surfaces of a body part whose structure is   defined by the lyph. Each border consists of an array that defines two radial and two longitudinal borders. The inner longitudinal border is always parallel to the lyph's rotational axis.",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/VisualResource"
-      },
+      }],
       "properties": {
         "borders": {
           "description": "Lyph or region borders listed in the clockwise order (starting from the inner longitudinal border in lyph). If this property is included to the input model, it must contain as many objects as there are border sides.",
@@ -879,15 +877,15 @@
     },
     "Material": {
       "description": "Biological materials, chemical elements and compounds",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/Resource"
-      }
+      }]
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/Resource"
-      },
+      }],
       "properties": {
         "nodes": {
           "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
@@ -1036,9 +1034,9 @@
     },
     "Tree": {
       "description": "A template for shorthand notation to describe arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
-      "$extends": {
+      "allOf":[{
         "$ref": "#/definitions/Resource"
-      },
+      }],
       "properties": {
         "root": {
           "description": "Root of the tree",
@@ -1103,9 +1101,7 @@
     },
     "Graph": {
       "description": "An ApiNATOMY model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "$extends": {
-        "$ref": "#/definitions/Group"
-      },
+      "allOf": [ {"$ref": "#/definitions/Group"} ],
       "properties": {
         "config": {
           "description": "Global graph configuration options (reserved, the structure will be defined later)",

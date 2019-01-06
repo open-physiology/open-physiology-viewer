@@ -47,6 +47,7 @@ export class Resource{
         const res = new cls(json.id);
 
         res.class = clsName;
+        res.JSON = json;
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
@@ -87,8 +88,8 @@ export class Resource{
             let i = 0;
             while (stack[i]){
                 let clsName = stack[i];
-                if (definitions[clsName] && definitions[clsName].$extends){
-                    let refs = getRefs(definitions[clsName].$extends);
+                if (definitions[clsName]){
+                    let refs = getRefs(definitions[clsName]);
                     (refs||[]).forEach(ref => {
                         stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
                     })
@@ -136,8 +137,7 @@ export class Resource{
                         res = true;
                     } else {
                         let def = definitions[clsName];
-                        /** @namespace def.$extends */
-                        res = res || def && extendsClass(getRefs(def.$extends), value);
+                        res = res || def && extendsClass(getRefs(def), value);
                     }
                 }
             });
@@ -151,7 +151,7 @@ export class Resource{
         }
         model.schema            = definitions[this.name];
         model.extendsClass      = (clsName) => (clsName === this.name)
-            || extendsClass(getRefs(model.schema.$extends), clsName);
+            || extendsClass(getRefs(model.schema), clsName);
         model.defaultValues     = (() => { //object
             let res = {};
             recurseSchema(this.name, (currName) => res::merge(...getFieldDefaultValues(currName)));
