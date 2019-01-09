@@ -33,7 +33,7 @@ import {
             >
             </resourceEditor>
         </div>
-        <div mat-dialog-actions>
+        <div mat-dialog-actions align="end">
             <button mat-button (click)="onNoClick()">Cancel</button>
             <button mat-button [mat-dialog-close]="data.resource" cdkFocusInitial>OK</button>
         </div>
@@ -58,7 +58,6 @@ export class ResourceEditorDialog {
 
     selectBySearch(name) {
         if (name !== this._selectedName) {
-            //this._selectedName = name;
             let resource = (this.data.modelResources||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
             this.data.resource = resource.JSON || resource; //show original user definition instead of the expanded version if available
         }

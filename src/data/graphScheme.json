@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
+  "$id": "http://open-physiology.com/graphSchema.json",
   "title": "ApiNATOMY model",
   "description": "The ApiNATOMY model schema provides a contract for the JSON-based input data accepted by the ApiNATOMY lyph viewer, a web application that draws schematic models of physiology.",
   "definitions": {
@@ -71,11 +72,11 @@
       ]
     },
     "GroupColorScheme": {
-      "description": "Scheme to specify color interpolation for a group of entities",
+      "description": "Scheme to specify color interpolation for a group of resources",
       "type": "object",
       "properties": {
         "scheme": {
-          "description": "Interpolation scheme to apply to a group of entities",
+          "description": "Interpolation scheme to apply to a group of resources",
           "$ref": "#/definitions/ColorScheme"
         },
         "length": {
@@ -118,16 +119,16 @@
       }
     },
     "JSONPathScheme": {
-      "description": "JSONPath expression to select entities",
+      "description": "JSONPath query to select resources",
       "type": "string"
     },
     "Resource": {
-      "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model.",
+      "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model",
       "type": "object",
       "abstract": "true",
       "properties": {
         "id": {
-          "description": "Unique entity identifier",
+          "description": "Unique resource identifier",
           "type": "string"
         },
         "name": {
@@ -135,7 +136,7 @@
           "type": "string"
         },
         "external": {
-          "description": "Identifier of the entity in an external ontology such as FMA",
+          "description": "Identifier of the resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
           "items": {
             "anyOf": [
@@ -160,49 +161,49 @@
           "readOnly": true
         },
         "assign": {
-          "description": "Defines properties to assign to selected entities defined by JSON path starting from the current entity",
+          "description": "Dynamically assign properties to selected resources",
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "path": {
-                "description": "JSONPath expression to select entities",
+                "description": "JSONPath query to select resources",
                 "$ref": "#/definitions/JSONPathScheme"
               },
               "value": {
-                "description": "A subset of entity properties to assign to all selected entities",
+                "description": "A set of fields to be assigned to all resources that match the query in the path",
                 "type": "object"
               }
             }
           }
         },
         "interpolate": {
-          "description": "Parameters defining schemes to interpolate properties of entities in the JSON path",
+          "description": "Dynamically apply property interpolation schemes to selected resources",
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
               "path": {
-                "description": "JSONPath expression to select entities",
+                "description": "JSONPath query to select resources",
                 "$ref": "#/definitions/JSONPathScheme"
               },
               "color": {
-                "description": "Color interpolation schema for a group of entities",
+                "description": "Color interpolation schema for a group of resources",
                 "$ref": "#/definitions/GroupColorScheme"
               },
               "offset": {
-                "description": "Interpolation scheme to gradually set offsets for a set of entities",
+                "description": "Interpolation scheme to gradually set offsets for a set of resources",
                 "$ref": "#/definitions/OffsetScheme"
               }
             }
           }
         },
         "inactive": {
-          "description": "A boolean flag to indicate that this entity should not be manipulated in the appropriate context (i.e., lyph - highlighted, group - toggled, template - expanded)",
+          "description": "A boolean flag to indicate that this resource should not be manipulated in the appropriate context (i.e., lyph - highlighted, group - toggled, template - expanded)",
           "type": "boolean"
         },
         "infoFields": {
-          "description": "Resource properties shown in the info panel when the entity is active, i.e., highlighted or selected",
+          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
           "type": "array",
           "items": {
              "type": "string"
@@ -226,23 +227,23 @@
           ]
         },
         "viewObjects": {
-          "description": "Graphical objects that represent the entity",
+          "description": "Graphical objects that represent the resource",
           "type": "object",
           "readOnly": true,
           "default": {}
         },
         "labels": {
-          "description": "Graphical objects that represent entity labels",
+          "description": "Graphical objects that represent resource labels",
           "type": "object",
           "readOnly": true,
           "default": {}
         },
         "hidden": {
-          "description": "A flag to indicate that this entity should not be visualized",
+          "description": "A flag to indicate that this resource should not be visualized",
           "type": "boolean"
         },
         "skipLabel": {
-          "description": "A flag to indicate that this entity is visualized without the corresponding text label",
+          "description": "A flag to indicate that this resource is visualized without the corresponding text label",
           "type": "boolean"
         }
       }
@@ -467,7 +468,7 @@
           "default": "link"
         },
         "infoFields": {
-          "description": "Resource properties shown in the info panel when the entity is active, i.e., highlighted or selected",
+          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"
@@ -542,7 +543,7 @@
       }
     },
     "Shape": {
-      "description": "An entity that occupies space within a border",
+      "description": "A resource that occupies space within a border",
       "allOf":[{
         "$ref": "#/definitions/VisualResource"
       }],
@@ -647,7 +648,7 @@
           "default": "TUBE"
         },
         "conveyedBy": {
-          "description": "A link conveing the lyph",
+          "description": "A link conveying the lyph",
           "anyOf": [
             {
               "type": "string"
@@ -687,7 +688,7 @@
           "relatedTo": "layers"
         },
         "infoFields": {
-          "description": "Resource properties shown in the info panel when the entity is active, i.e., highlighted or selected",
+          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"
@@ -699,24 +700,30 @@
           "type": "object",
           "properties": {
             "min": {
+              "description": "Minimal value",
               "type": "number"
             },
             "max": {
+              "description": "Maximal value",
               "type": "number"
             }
-          }
+          },
+          "default": {}
         },
         "length": {
           "description": "Anatomical lyph length defined in the form of power of 1/10",
           "type": "object",
           "properties": {
             "min": {
+              "description": "Minimal value",
               "type": "number"
             },
             "max": {
+              "description": "Maximal value",
               "type": "number"
             }
-          }
+          },
+          "default": {}
         },
         "width": {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
@@ -916,7 +923,7 @@
           }
         },
         "lyphs": {
-          "description": "This field lists all lyph definitions in the model. A Lyph provides a schematic explanation of an entity structure, i.e., tissue layers that consistite a certain organ. The lyph is depicted as a flat shape reflecting its topology (tube, bag or a cyst) and positioned along a conveying link, its axis. By rotating the lyph around its axis, we can create a tube (open, semi-closed or closed on both side) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neuron connection. Each lyph can be composed of other lyphs as its layers or inner elements, and elements that are positioned on its surface can be specified with the help of the lyph's border concept.",
+          "description": "Lyphs provide schematic explanation of physiology structures, i.e., tissue layers that constitute a certain organ. By rotating the lyph shape around its axis, we can create a tube (open, semi-closed or closed on both sides) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neural cell.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -930,7 +937,7 @@
           }
         },
         "regions": {
-          "description": "Body organs, systems or surfaces not modelled as lyphs",
+          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the current ApiNATOMY model but are useful for general context",
           "type": "array",
           "items": {
             "anyOf": [
@@ -972,7 +979,7 @@
           }
         },
         "trees": {
-          "description": "Omega tree",
+          "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
           "type": "array",
           "items": {
             "anyOf": [
@@ -986,7 +993,7 @@
           }
         },
         "groups": {
-          "description": "Semantically meaningful groups of entities that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
+          "description": "Semantically meaningful groups of resources that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -1002,7 +1009,7 @@
           "default": []
         },
         "inGroups" : {
-          "description": "A group that contains the current group",
+          "description": "Set of groups that include the current group (subgraph)",
           "type": "array",
           "items": {
             "anyOf": [
@@ -1018,7 +1025,7 @@
           "default": []
         },
         "treeTemplate": {
-          "description": "Tree template used to generate this group",
+          "description": "Tree template to generate the group",
           "anyOf": [
             {
               "type": "string"
@@ -1033,7 +1040,7 @@
       }
     },
     "Tree": {
-      "description": "A template for shorthand notation to describe arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
+      "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
       "allOf":[{
         "$ref": "#/definitions/Resource"
       }],
@@ -1104,7 +1111,7 @@
       "allOf": [ {"$ref": "#/definitions/Group"} ],
       "properties": {
         "config": {
-          "description": "Global graph configuration options (reserved, the structure will be defined later)",
+          "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
           "type": "object"
         }
       }

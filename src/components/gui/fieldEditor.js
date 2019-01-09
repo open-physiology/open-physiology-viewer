@@ -7,6 +7,8 @@ import {
 } from '@angular/material';
 import {getClassName} from '../../models/utils';
 import {FieldEditorDialog} from './fieldEditorDialog';
+import {clone, cloneDeep,
+} from 'lodash-bound';
 
 @Component({
     selector: 'fieldEditor',
@@ -23,6 +25,8 @@ import {FieldEditorDialog} from './fieldEditorDialog';
                        (input) = "updateValue($event.target.value)"
                 >
             </mat-form-field>
+            
+            <!--Select box-->
     
             <!--Check box-->
             <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description"
@@ -39,13 +43,16 @@ import {FieldEditorDialog} from './fieldEditorDialog';
                         <mat-panel-title>
                             {{label}}
                         </mat-panel-title>
+                        <mat-panel-description *ngIf="spec?.description">
+                            {{spec.description}}
+                        </mat-panel-description>
                     </mat-expansion-panel-header>
     
                     <section *ngIf="!!spec.properties">
                         <section *ngFor="let key of objectKeys(spec.properties)">
                             <fieldEditor 
                                     [label] = "key" 
-                                    [value] = "value[key]||null" 
+                                    [value] = "value?.key||getDefault(spec.properties[key])" 
                                     [spec]  = "spec.properties[key]"
                                     [disabled] = "disabled"
                                     (onValueChange) = "updateProperty(key, $event)">
@@ -54,15 +61,12 @@ import {FieldEditorDialog} from './fieldEditorDialog';
                     </section>
                     <section *ngIf="!spec.properties">
                         <section *ngFor="let key of objectKeys(value||{})">
-                            <fieldEditor 
-                                    [value] = "value[key]||null" 
-                                    [label] = "key"
-                                    [disabled] = "disabled"
-                                    (onValueChange) = "updateProperty(key, $event)">
-                            </fieldEditor>
-                            <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                            {{key}}: {{value[key]}}
+                            <mat-action-row>
+                                <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </mat-action-row>
                         </section>
 
                         <mat-action-row>
@@ -81,15 +85,18 @@ import {FieldEditorDialog} from './fieldEditorDialog';
             <section *ngIf="_isArray">
                 <mat-expansion-panel class="w3-margin-bottom">
                     <mat-expansion-panel-header>
-                        <mat-panel-title [matTooltip]="spec.description">
+                        <mat-panel-title> 
                             {{label}}
                         </mat-panel-title>
+                        <mat-panel-description *ngIf="spec?.description">
+                            {{spec.description}}
+                        </mat-panel-description>
                     </mat-expansion-panel-header>
    
                     <section *ngFor="let obj of value; let i = index"> 
                         {{toJSON(obj)}}
                         <mat-action-row>
-                            <button class="w3-hover-light-grey" (click)="editObj(obj)">
+                            <button class="w3-hover-light-grey" (click)="editObj(i)">
                                 <i class="fa fa-edit"></i>
                             </button>
                             <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
@@ -111,10 +118,27 @@ import {FieldEditorDialog} from './fieldEditorDialog';
     styles: [`        
     `]
 })
+/**
+ * The class to edit a resource field
+ */
 export class FieldEditor {
     _spec;
     objectKeys = Object.keys;
     dialog: MatDialog;
+
+    keyValueSpec = {
+        "type": "object",
+        "properties": {
+            "key": {
+                "description": "A field name that will be assigned a given value for all resources that match the query in the path",
+                "type": "string"
+            },
+            "value": {
+                "description": "",
+                "type": "string"
+            }
+        }
+    };
 
     @Input() expanded = false;
     @Input() label;
@@ -127,20 +151,23 @@ export class FieldEditor {
             return;
         }
         this._isInput = this.spec.type === "number"
-            || this.spec.type === "string"
+            || (this.spec.type === "string" && !this.spec.enum)
             || getClassName(this.spec) === "RGBColorScheme"
             || getClassName(this.spec) === "JSONPathScheme";
         this._isBoolean = this.spec.type === "boolean";
         this._isArray   = this.spec.type === "array";
         this._isObject  = this.spec.type === "object" ;
+        this._isSelect  = this.spec.enum;
 
-        this._inputType =  (this.spec.type === "string")
-            ? "text"
-            : this.spec.type
-                ? this.spec.type
-                : (getClassName(this.spec) === "RGBColorScheme")
-                    ? "color"
-                    : "text";
+        if (this._isInput){
+            this._inputType =  (this.spec.type === "string")
+                ? "text"
+                : this.spec.type
+                    ? this.spec.type
+                    : (getClassName(this.spec) === "RGBColorScheme")
+                        ? "color"
+                        : "text";
+        }
     }
     @Input() disabled = false;
 
@@ -148,16 +175,6 @@ export class FieldEditor {
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
-    }
-
-    updateValue(newValue){
-        this.value = newValue;
-        this.onValueChange.emit(this.value);
-    }
-
-    updateProperty(key, newValue){
-        this.value[key] = newValue;
-        this.onValueChange.emit(this.value);
     }
 
     get spec(){
@@ -168,30 +185,58 @@ export class FieldEditor {
         return JSON.stringify(item, " ", 2);
     }
 
+    getDefault(spec){
+        if (spec.default) {
+            if (spec.default::isObject()){
+                return spec.default::cloneDeep();
+            }
+            return spec.default;
+        }
+        if (spec.type === "array")  { return []; }
+        if (spec.type === "object") { return {}; }
+        if (spec.type === "string") { return ""; }
+        if (spec.type === "number") { return 0; }
+        return null;
+    }
+
+    /**
+     * Update the value
+     * @param newValue - new value
+     */
+    updateValue(newValue){
+        this.value = newValue;
+        this.onValueChange.emit(this.value);
+    }
+
+    /**
+     * Update the given property of the value object
+     * @param {string} key - property name
+     * @param newValue - new property value
+     */
+    updateProperty(key, newValue){
+        this.value[key] = newValue;
+        this.onValueChange.emit(this.value);
+    }
+
+    /**
+     * Remove the given property from the value object
+     * @param {string} key - property name
+     */
     removeProperty(key){
         delete this.value[key];
     }
 
+    /**
+     * Add property to the value object
+     */
     addProperty(){
-        const spec = {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        };
-
         const dialogRef = this.dialog.open(FieldEditorDialog, {
             width: '75%',
             data: {
                 title: `Add new property?`,
                 value: {},
                 label: this.label,
-                spec: spec
+                spec: this.keyValueSpec
             }
         });
 
@@ -199,33 +244,46 @@ export class FieldEditor {
             if (result) {
                 if (!this.value){ this.value = {}; }
                 this.value[result.key] = result.value;
-                console.log("RESULT", this.value``);
             }
         })
     }
 
-    removeObj(index){
+    /**
+     * Remove an object from the value array
+     * @param {number} [index = 0] - the index of an object in the array to remove
+     */
+    removeObj(index = 0){
         this.value.splice(index, 1);
     }
 
-    editObj(obj){
+    /**
+     * Edit object in the value array
+     * @param index - index of the object to edit
+     */
+    editObj(index){
+        let copyObj = this.value[index]::cloneDeep();
         const dialogRef = this.dialog.open(FieldEditorDialog, {
             width: '75%',
             data: {
-                title: `Update object?`,
-                value: obj,
+                title: `Update object assigned to the resource "${this.label}" property?`,
+                value: copyObj,
                 label: this.label,
                 spec : this.spec.items
             }
         });
-        dialogRef.afterClosed().subscribe(result => {});
+        dialogRef.afterClosed().subscribe(result => {
+            this.value[index] = result
+        });
     }
 
+    /**
+     * Add new object to the value array
+     */
     addObj(){
         const dialogRef = this.dialog.open(FieldEditorDialog, {
             width: '75%',
             data: {
-                title: `Create new object?`,
+                title: `Add new object to the resource "${this.label}" property?`,
                 value: {},
                 label: this.label,
                 spec : this.spec.items
@@ -242,8 +300,7 @@ export class FieldEditor {
 }
 
 @NgModule({
-    imports: [FormsModule, BrowserAnimationsModule, MatExpansionModule,
-        MatDividerModule, MatFormFieldModule, MatInputModule,
+    imports: [FormsModule, BrowserAnimationsModule, MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule,
         MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule],
     declarations: [FieldEditor, FieldEditorDialog],
     entryComponents: [FieldEditorDialog],

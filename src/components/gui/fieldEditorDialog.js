@@ -16,7 +16,7 @@ import {
                     [spec]  = "data.spec">
             </fieldEditor>
         </div>
-        <div mat-dialog-actions>
+        <div mat-dialog-actions align="end">
             <button mat-button (click)="onNoClick()">Cancel</button>
             <button mat-button [mat-dialog-close]="data.value" cdkFocusInitial>OK</button>
         </div>
