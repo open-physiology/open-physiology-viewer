@@ -1,21 +1,17 @@
-import { definitions }  from '../data/graphScheme.json';
 import * as colorSchemes from 'd3-scale-chromatic';
 import {
     isArray,
     merge,
     isObject,
-    cloneDeep,
     isNumber,
     isString,
     keys,
-    entries,
     isEmpty,
     assign,
-    fromPairs,
     defaults,
     pick
 } from 'lodash-bound';
-import {JSONPath, getClassName, getRefs} from "./utils";
+import {JSONPath, getClassName, getSchemaClassModel, isClassAbstract} from "./utils";
 
 /**
  *  The class defining common methods for all resources
@@ -73,132 +69,8 @@ export class Resource{
         return res;
     }
 
-    /**
-     * Model schema properties
-     * @constructor
-     */
-    static get Model() {
-        /**
-         * Recursively applies a given operation to the classes in schema definitions
-         * @param {string} className - initial class
-         * @param {function} handler - function to apply to the current class
-         */
-        const recurseSchema = (className, handler) => {
-            let stack = [className];
-            let i = 0;
-            while (stack[i]){
-                let clsName = stack[i];
-                if (definitions[clsName]){
-                    let refs = getRefs(definitions[clsName]);
-                    (refs||[]).forEach(ref => {
-                        stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
-                    })
-                }
-                i++;
-            }
-            while (stack.length > 0){
-                let clsName = stack.pop();
-                handler(clsName);
-            }
-        };
-
-        /**
-         * Returns recognized class properties from the specification with default values
-         * @param {string} className
-         */
-        const getFieldDefaultValues = (className) => {
-            const getDefault = (specObj) => specObj.type ?
-                specObj.type === "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
-                : null;
-            const initValue = (specObj) => {
-                return specObj.default?
-                    (specObj.default::isObject()
-                        ? specObj.default::cloneDeep()
-                        : specObj.default )
-                    : getDefault(specObj);
-            };
-
-            return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
-        };
-
-        /**
-         * Determines if given schema references extend a certain class
-         * @param {Array<string>} refs  - schema references
-         * @param {string} value        - class name
-         * @returns {boolean}           - returns true if at least one reference extends the given class
-         */
-        const extendsClass = (refs, value) => {
-            if (!refs) { return false; }
-            let res = false;
-            (refs||[]).forEach(ref => {
-                let clsName = getClassName(ref);
-                if (clsName) {
-                    if (clsName === value) {
-                        res = true;
-                    } else {
-                        let def = definitions[clsName];
-                        res = res || def && extendsClass(getRefs(def), value);
-                    }
-                }
-            });
-            return res;
-        };
-
-        let model = {};
-        if (!definitions[this.name]) {
-            console.error("Failed to find schema definition for class: ", this.name);
-            return model;
-        }
-        model.schema            = definitions[this.name];
-        model.extendsClass      = (clsName) => (clsName === this.name)
-            || extendsClass(getRefs(model.schema), clsName);
-        model.defaultValues     = (() => { //object
-            let res = {};
-            recurseSchema(this.name, (currName) => res::merge(...getFieldDefaultValues(currName)));
-            return res;
-        })(); // {key: value}
-        model.fields            = (() => {
-            let res = {};
-            recurseSchema(this.name, (currName) => res::merge(...definitions[currName].properties::entries()
-                .map(([key, value]) => ({[key]: value})))
-            );
-            return res::entries();
-        })(); // [key, spec]
-        model.relationships     = model.fields.filter(([key, spec]) =>  extendsClass(getRefs(spec), Resource.name));
-        model.properties        = model.fields.filter(([key, ]) => !model.relationships.find(([key2, ]) => key2 === key));
-
-        model.fieldMap          = model.fields::fromPairs();
-        model.propertyMap       = model.properties::fromPairs();
-        model.relationshipMap   = model.relationships::fromPairs();
-
-        //Names only
-        model.fieldNames        = model.fields.map(([key, ]) => key);
-        model.propertyNames     = model.properties.map(([key, ]) => key);
-        model.relationshipNames = model.relationships.map(([key, ]) => key);
-
-        model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
-        model.isRelationship    = (key) => model.relationshipNames.includes(key);
-
-        //Create, Update, Delete (CUD) fields
-        model.cudFields         = model.fields       .filter(([key, spec]) => !spec.readOnly);
-        model.cudProperties     = model.properties   .filter(([key, spec]) => !spec.readOnly);
-        model.cudRelationships  = model.relationships.filter(([key, spec]) => !spec.readOnly);
-
-        model.filteredRelNames     = (clsNames) => {
-            let relFields = model.relationships;
-            return (relFields||[])
-                .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
-                .map(([key, ]) => key);
-        };
-        model.getRelNameByClsName  = (clsName) => {
-            let relFields = model.relClassNames;
-            let relNames = relFields::entries().filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
-            if (relNames && relNames[0]){ return relNames[0]; }
-        };
-
-        model.groupClsNames = ["Group", "Graph"]; //TODO automate if more group types need to be defined
-
-        return model;
+    static get Model(){
+        return getSchemaClassModel(this.name);
     }
 
     /**
@@ -214,7 +86,7 @@ export class Resource{
             if (value::isNumber()) { value = value.toString(); }
 
             let clsName = getClassName(spec);
-            if (!clsName || !definitions[clsName]){
+            if (!clsName){
                 console.warn("Cannot extract the object class: property specification does not imply a reference",
                     spec, value);
                 return value;
@@ -239,7 +111,7 @@ export class Resource{
             }
 
             //value is an object and it is not in the map
-            if (definitions[clsName].abstract ){
+            if (isClassAbstract(clsName)){
                 if (value.class) {
                     clsName = value.class;
                     if (!modelClasses[clsName]){
@@ -494,4 +366,5 @@ export class Resource{
         });
     }
 }
+
 

@@ -3,12 +3,12 @@ import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
     MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatTooltipModule, MatDialogModule, MatDialog
+    MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule
 } from '@angular/material';
-import {getClassName} from '../../models/utils';
+import {getClassName, getSchemaClassModel} from '../../models/utils';
 import {FieldEditorDialog} from './fieldEditorDialog';
-import {clone, cloneDeep,
-} from 'lodash-bound';
+import {clone, cloneDeep} from 'lodash-bound';
+import { definitions }  from '../../data/graphScheme.json';
 
 @Component({
     selector: 'fieldEditor',
@@ -18,18 +18,28 @@ import {clone, cloneDeep,
             <mat-form-field *ngIf="_isInput" >
                 <input matInput class="w3-input"                       
                        [placeholder]="label" 
-                       [matTooltip]="spec.description"
-                       [type]  = "_inputType"
-                       [value] = "value||null"
-                       [disabled] = "disabled"
-                       (input) = "updateValue($event.target.value)"
+                       [matTooltip] ="spec.description"
+                       [type]       = "_inputType"
+                       [value]      = "value||null"
+                       [disabled]   = "disabled"
+                       (input)      = "updateValue($event.target.value)"
                 >
             </mat-form-field>
             
             <!--Select box-->
+            <mat-form-field *ngIf="_isSelect">
+                <mat-select
+                        [placeholder] = "label"
+                        [value]       = "value"
+                        (selectionChange) = "updateValue($event.value)">
+                    <mat-option *ngFor="let option of _selectOptions" [value]="option" >
+                        {{option}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
     
             <!--Check box-->
-            <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description"
+            <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description" (change) = "updateValue($event.value)"
                           labelPosition="before"
                           [value]="value"
                           [disabled] = "disabled"
@@ -48,18 +58,18 @@ import {clone, cloneDeep,
                         </mat-panel-description>
                     </mat-expansion-panel-header>
     
-                    <section *ngIf="!!spec.properties">
-                        <section *ngFor="let key of objectKeys(spec.properties)">
+                    <section *ngIf="!!_objectProperties">
+                        <section *ngFor="let key of objectKeys(_objectProperties)">
                             <fieldEditor 
-                                    [label] = "key" 
-                                    [value] = "value?.key||getDefault(spec.properties[key])" 
-                                    [spec]  = "spec.properties[key]"
+                                    [label]    = "key" 
+                                    [value]    = "value?.key||getDefault(_objectProperties[key])" 
+                                    [spec]     = "_objectProperties[key]"
                                     [disabled] = "disabled"
                                     (onValueChange) = "updateProperty(key, $event)">
                             </fieldEditor>
                         </section> 
                     </section>
-                    <section *ngIf="!spec.properties">
+                    <section *ngIf="!_objectProperties">
                         <section *ngFor="let key of objectKeys(value||{})">
                             {{key}}: {{value[key]}}
                             <mat-action-row>
@@ -145,6 +155,7 @@ export class FieldEditor {
     @Input() value;
     @Input('spec') set spec(newSpec){
         this._spec = newSpec;
+        let clsName = getClassName(this.spec);
         if (!this._spec) {
             this._isInput = true;
             this._inputType = "text";
@@ -152,12 +163,15 @@ export class FieldEditor {
         }
         this._isInput = this.spec.type === "number"
             || (this.spec.type === "string" && !this.spec.enum)
-            || getClassName(this.spec) === "RGBColorScheme"
-            || getClassName(this.spec) === "JSONPathScheme";
+            || clsName === "RGBColorScheme"
+            || clsName === "JSONPathScheme";
         this._isBoolean = this.spec.type === "boolean";
         this._isArray   = this.spec.type === "array";
-        this._isObject  = this.spec.type === "object" ;
-        this._isSelect  = this.spec.enum;
+
+        this._isObject  = this.spec.type === "object"
+            || clsName && definitions[clsName].type === "object"; //schemas referring to objects, e.g., GroupColorScheme, OffsetScheme
+        this._isSelect  = this.spec.enum
+            || clsName && definitions[clsName].enum; //schemes referring to enumerations, e.g., ColorScheme
 
         if (this._isInput){
             this._inputType =  (this.spec.type === "string")
@@ -168,7 +182,23 @@ export class FieldEditor {
                         ? "color"
                         : "text";
         }
+
+        //TODO collect recursively subschema properties
+        if (this._isObject){
+            this._objectProperties = this.spec.properties;
+            if (clsName) {
+                this._objectProperties = definitions[clsName].properties;
+            }
+        }
+
+        if (this._isSelect){
+            this._selectOptions = this.spec.enum;
+            if (clsName) {
+                this._selectOptions = definitions[clsName].enum;
+            }
+        }
     }
+
     @Input() disabled = false;
 
     @Output() onValueChange = new EventEmitter();
@@ -301,7 +331,7 @@ export class FieldEditor {
 
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule,
-        MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule],
+        MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule],
     declarations: [FieldEditor, FieldEditorDialog],
     entryComponents: [FieldEditorDialog],
     exports: [FieldEditor, FieldEditorDialog]

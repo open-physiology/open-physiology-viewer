@@ -97,7 +97,7 @@ debug(true, msgCount);
             <section class="w3-row" *ngIf="_showResourceEditor">
                 <resourceEditor 
                         [modelClasses]   = "modelClasses"
-                        [modelResources] = "_graphData.entities"
+                        [modelResources] = "_graphData.entitiesByID || {}"
                         [resource]       = "_model"
                         className        = "Graph"
                 >

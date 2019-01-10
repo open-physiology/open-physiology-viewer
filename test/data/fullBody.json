@@ -1469,6 +1469,7 @@
         ],
         "interpolate": [
           {
+            "path": "$.nodes[*]",
             "offset": {
               "start": 1,
               "end": 0.5
@@ -1489,6 +1490,7 @@
           ],
           "interpolate": [
             {
+              "path": "$.nodes[*]",
               "offset": {
                 "start": 0,
                 "end": 0.5
@@ -1509,6 +1511,7 @@
           ],
           "interpolate": [
             {
+              "path": "$.nodes[*]",
               "offset": {
                 "start": 0, "end": 0.5
               }
@@ -1534,6 +1537,7 @@
           ],
           "interpolate": [
             {
+              "path": "$.nodes[*]",
               "offset": {"start": 1, "end": 0.5}
             }
           ]

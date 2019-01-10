@@ -3,6 +3,7 @@ import {
     MatDialogRef,
     MAT_DIALOG_DATA
 } from '@angular/material';
+import {values} from 'lodash-bound';
 
 @Component({
     selector: 'resourceEditorDialog',
@@ -27,6 +28,7 @@ import {
             <resourceEditor [expanded]       = "true"
                             [modelClasses]   = "data.modelClasses"
                             [modelResources] = "data.modelResources"
+                            [filteredResources] = "data.filteredResourced"
                             [resource]       = "data.resource"
                             [className]      = "data.className"
                             [disabled]       = "data.disabled || data.actionType === 'Include'"
@@ -35,7 +37,7 @@ import {
         </div>
         <div mat-dialog-actions align="end">
             <button mat-button (click)="onNoClick()">Cancel</button>
-            <button mat-button [mat-dialog-close]="data.resource" cdkFocusInitial>OK</button>
+            <button mat-button [mat-dialog-close]="{actionType: data.actionType, resource: data.resource}" cdkFocusInitial>OK</button>
         </div>
     `
 })
@@ -48,20 +50,18 @@ export class ResourceEditorDialog {
     constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
         this.data = data;
-        this._searchOptions = (this.data.modelResources||[])
+        this._searchOptions = (this.data.modelResources::values()||[])
             .filter(e => e.class === this.data.className).map(e => (e.name? `${e.id} : ${e.name}`: e.id));
-    }
+            //.filter(e => (this.data.filteredResources||[]).find(x => x === e.id || x.id === e.id ));
+        }
 
     onNoClick(){
         this.dialogRef.close();
     }
 
     selectBySearch(name) {
-        if (name !== this._selectedName) {
-            let resource = (this.data.modelResources||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
-            this.data.resource = resource.JSON || resource; //show original user definition instead of the expanded version if available
-        }
+        let resource = (this.data.modelResources::values()||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
+        this.data.resource = resource.JSON || resource; //show original user definition instead of the expanded version if available
     }
-
 }
 

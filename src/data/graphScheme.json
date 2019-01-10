@@ -599,7 +599,7 @@
           "uniqueItems": true
         },
         "points": {
-          "description": "Points defining the region border shape",
+          "description": "Points defining the border shape",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Point2Scheme"

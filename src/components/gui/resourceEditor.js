@@ -8,7 +8,7 @@ import {FieldEditorModule}  from "./fieldEditor";
 import {SearchBarModule} from "./searchBar";
 import {ResourceEditorDialog} from "./resourceEditorDialog";
 import {getClassName} from "../../models/utils";
-import {isPlainObject, isArray, isString, cloneDeep} from 'lodash-bound';
+import {isPlainObject, isArray, isString, cloneDeep, merge} from 'lodash-bound';
 import { ObjToArray } from './utils';
 
 @Component({
@@ -26,7 +26,7 @@ import { ObjToArray } from './utils';
             </mat-expansion-panel-header>
 
             <mat-card class="w3-margin w3-grey">
-                <section *ngFor="let field of _propertyFields">
+                <section *ngFor="let field of _propertyFields"> 
                     <fieldEditor
                             [value]="resource[field[0]]"
                             [label]="field[0]"
@@ -95,6 +95,7 @@ export class ResourceEditor {
         }
     }
     @Input() disabled = false;
+    @Input() filteredResources = [];
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
@@ -162,18 +163,22 @@ export class ResourceEditor {
             width: '75%',
             data: {
                 title       : `Update resource?`,
+                modelClasses: this.modelClasses,
+                modelResources : this.modelResources,
+                filteredResourced : this.filteredResources,
                 resource    : obj,
                 className   : className,
-                modelClasses: this.modelClasses,
-                disabled    : this.disabled
+                disabled    : this.disabled,
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            this.resource[key][index] = result;
-            // if (this.modelResources[result.id]){
-            //     this.modelResources[result.id].JSON = result;
-            // }
+            if (result && result.resource){
+                this.resource[key][index] = result.resource;
+                if (this.modelResources[result.resource.id]){
+                    this.modelResources[result.resource.id].JSON = result.resource;
+                }
+            }
         });
     }
 
@@ -190,22 +195,25 @@ export class ResourceEditor {
             data: {
                 title          : `Add new resource?`,
                 actionType     : 'Create',
-                resource       : {},
-                className      : className,
                 modelClasses   : this.modelClasses,
-                modelResources : this.modelResources
+                modelResources : this.modelResources,
+                //filteredResourced : [...this.filteredResources, ...this.resource[key]], //exclude existing resources from options
+                resource       : {},
+                className      : className
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result) {
+            if (result && result.resource) {
                 if (spec.type === "array") {
+                    if (!this.resource[key]){ this.resource[key] = []; }
+
                     if (this.resource[key] && !this.resource[key]::isArray()){
                         console.error(`Cannot update an invalid model: field ${key} of the given resource should be an array`, this.resource);
                         return;
                     }
-                    if (this.resource[key].find(e => e === result.id || e.id === result.id)) {
-                        console.error("The selected resource is already included to the set of properties of the current resource", result, this.resource, key);
+                    if (this.resource[key].find(e => e === result.resource.id || e.id === result.resource.id)) {
+                        console.error("The selected resource is already included to the set of properties of the current resource", result.resource, this.resource, key);
                         return;
                     }
                 } else {
@@ -215,34 +223,37 @@ export class ResourceEditor {
                     }
                 }
 
-                let id;
                 if (result.actionType === 'Include'){
-                    id = result.id? result.id: result;
-                    if (!id){
-                        console.error("Cannot refer to a resource without ID", result, this.resource, key);
+                    if (!result.resource.id){
+                        console.error("Cannot refer to a resource without ID", result.resource, this.resource, key);
                         return;
                     }
                 }
 
                 if (spec.type === "array"){
                     //Update array
-                    if (!this.resource[key]){ this.resource[key] = []; }
                     if (result.actionType === 'Include'){
-                       this.resource[key].push(id); //add ID of an existing resource
+                       this.resource[key].push(result.resource.id); //add ID of an existing resource
                    } else {
-                       this.resource[key].push(result); //add new resource object
+                       this.resource[key].push(result.resource); //add new resource object
                    }
                 } else {
                     //Update object
                    if (result.actionType === 'Include'){
-                       this.resource[key] = id; //assign ID of an existing resource
+                       this.resource[key] = result.resource.id; //assign ID of an existing resource
                    } else {
-                       this.resource[key] = result; //assign new resource object
+                       this.resource[key] = result.resource; //assign new resource object
                    }
                 }
-                // if (this.modelResources[result.id]){
-                //     this.modelResources[result.id].JSON = result;
-                // }
+
+                //Add newly created resource to the global map to enable the possibility to refer to it
+                if (result.actionType === 'Create') {
+                    if (!this.modelResources[result.resource.id]) {
+                        //TODO call modelClasses[className].fromJSON here if we need proper model update
+                        this.modelResources[result.resource.id] = result.resource::merge({"class": className});
+                    }
+                    this.modelResources[result.resource.id].JSON = result.resource;
+                }
             }
         });
     }

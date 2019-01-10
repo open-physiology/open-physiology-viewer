@@ -54,7 +54,7 @@ export class SearchBar {
 
     _filter(name){
         const filterValue = name.toLowerCase();
-        return this.searchOptions.filter(option => option.toLowerCase().includes(filterValue));
+        return this.searchOptions.filter(option => option && option.toLowerCase().includes(filterValue));
     }
 
     _optionSelected(event){
