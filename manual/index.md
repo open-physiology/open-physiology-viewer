@@ -5,10 +5,10 @@
 * a knowledge model about biophysical entities, and   
 * a method to build knowledge representations of physiology processes in terms of  biophysical entities and physical operations over these entities.
 
-The current project delivers a graphical component, called, ApiNATOMY lyph viewer,  that automatically creates a biologically meaningful WebGL-based visualization of ApiNATOMY models as part of the [NIH-SPARC](https://commonfund.nih.gov/sparc) [MAP-CORE](https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432) toolset.
+The current project delivers a graphical component, called ApiNATOMY lyph viewer,  that automatically creates a biologically meaningful WebGL-based visualization of ApiNATOMY models as part of the [NIH-SPARC](https://commonfund.nih.gov/sparc) [MAP-CORE](https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432) toolset.
 
 In the rest of this manual, we overview the aforementioned component in more detail.
 An important aspect of the project, the input format for specifying ApiNATOMY data models, is explained in the data model guide. Installation instructions and control  settings are explained in the usage guide.
 
-Note that despite our best effort to keep this document up-to-date, it may differ from the actual implementation of the lyph viewer. The underlying modelling concepts evolve to suit the needs of the growing adopters of ApiNATOMY within the biomedical community.  
+Note that despite our best effort to keep this document up-to-date, it may differ from the actual implementation of the lyph viewer. The underlying modelling concepts evolve to suit the needs of the growing group of adopters of the ApiNATOMY methodology within the biomedical community.
   

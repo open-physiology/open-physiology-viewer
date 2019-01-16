@@ -68,7 +68,7 @@ export class Tree extends Group {
 
         for (let i = 0; i < sources.length; i++){
             if (sources[i] && targets[i] && !match(sources[i], targets[i])){
-                console.log(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
+                console.error(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
             }
             let newNode = {
                 "id"       : tree.id + "_node" + i,

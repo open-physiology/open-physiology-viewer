@@ -183,11 +183,10 @@ export class FieldEditor {
                         : "text";
         }
 
-        //TODO collect recursively subschema properties
         if (this._isObject){
             this._objectProperties = this.spec.properties;
             if (clsName) {
-                this._objectProperties = definitions[clsName].properties;
+                this._objectProperties = getSchemaClassModel(clsName).cudProperties;
             }
         }
 

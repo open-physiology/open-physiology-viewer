@@ -26,7 +26,7 @@ export class FieldEditorDialog {
     dialogRef;
     data;
 
-    constructor( dialogRef: MatDialogRef<FieldEditorDialog>, @Inject(MAT_DIALOG_DATA) data) {
+    constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
         this.data = data;
     }

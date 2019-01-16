@@ -3,9 +3,9 @@ sourceMapSupport.install();
 
 import 'polyfill-function-prototype-bind';
 import chai                   from 'chai';
-import sinon                  from 'sinon';
+//import sin[non                  from 'sinon';
 
-export { chai, sinon };
+export { chai };
 
 import chaiAsPromised         from 'chai-as-promised';
 import chaiThings             from 'chai-things';

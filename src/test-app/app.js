@@ -46,15 +46,19 @@ debug(true, msgCount);
             <span class="w3-bar-item" title="Source code">
 				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"></i></a>
 			</span>
+            <span class="w3-bar-item">
+                Model: {{_fileName || _graphData?.name || "?"}}
+            </span>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
 					<i class="fa fa-external-link"></i>
 				</a>
 			</span>
             <span class="w3-bar-item w3-right" title="Learn more">
-				<a href="http://open-physiology.org/"><i class="fa fa-home"></i></a>
+				<a href="http://open-physiology.org/demo/open-physiology-viewer/docs/"><i class="fa fa-home"></i></a>
             </span>
         </header>
+        
 
         <!--Left toolbar-->
 
@@ -159,7 +163,7 @@ export class TestApp {
     @ViewChild('jsonEditor') _container: ElementRef;
 
     constructor(){
-        this.update(initModel);
+        this.model = initModel;
     }
     ngAfterViewInit(){
         if (!this._container) { return; }
@@ -174,9 +178,7 @@ export class TestApp {
 
     newModel(){
         try {
-            this._model = {};
-            this.update(this._model);
-            this._editor.set(this._model);
+            this.model = {};
         } catch(err){
             throw new Error("Failed to create a new model: " +  err);
         }
@@ -185,14 +187,13 @@ export class TestApp {
 	load(files) {
         const reader = new FileReader();
 		reader.onload = () => {
-            this._model = JSON.parse(reader.result);
-            this.update(this._model);
-            this._editor.set(this._model);
+            this.model = JSON.parse(reader.result);
         };
 
         if (files && files[0]){
             try {
                 reader.readAsText(files[0]);
+                this._fileName = files[0].name;
             } catch (err){
                 throw new Error("Failed to open the input file: " + err);
             }
@@ -224,16 +225,15 @@ export class TestApp {
 	preview(){
         if (this._showJSONEditor){
             this._showJSONEditor = false;
-            this.update(this._editor.get());
+            this.model = this._editor.get();
         }
         if (this._showResourceEditor){
             this._showResourceEditor = false;
-            this.update(this._model);
+            this.model = this._model;
         }
     }
 
     save(){
-        this._model = this._editor.get();
         let result = JSON.stringify(this._model, null, 4);
         const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
         FileSaver.saveAs(blob, 'apinatomy-model.json');
@@ -243,10 +243,13 @@ export class TestApp {
 
 	onHighlightedItemChange(item){}
 
-	update(model){
+	set model(model){
         this._model = model;
         this._graphData = Graph.fromJSON(this._model, modelClasses);
         console.info("ApiNATOMY graph: ", this._graphData);
+        if (this._editor){
+            this._editor.set(this._model);
+        }
     }
 
     get graphData(){

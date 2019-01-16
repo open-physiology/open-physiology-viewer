@@ -7,6 +7,7 @@ import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule}  from "./fieldEditor";
 import {SearchBarModule} from "./searchBar";
 import {ResourceEditorDialog} from "./resourceEditorDialog";
+import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {getClassName} from "../../models/utils";
 import {isPlainObject, isArray, isString, cloneDeep, merge} from 'lodash-bound';
 import { ObjToArray } from './utils';
@@ -51,13 +52,13 @@ import { ObjToArray } from './utils';
                     <section *ngFor="let other of resource[field[0]] | objToArray; let i = index">
                         {{getLabel(other)}}
                         <mat-action-row>
-                            <button *ngIf="isPlainObject(other)"
-                                    class="w3-hover-light-grey" (click)="editRelatedResource(field, i)">
+                            <button *ngIf="isPlainObject(other)" title = "Edit"
+                                    class="w3-hover-light-grey" (click) = "editRelatedResource(field, i)">
                                 <i class="fa fa-edit">
                                 </i>
                             </button>
-                            <button *ngIf="!disabled && !!other"
-                                    class="w3-hover-light-grey" (click)="removeRelationship(field, i)">
+                            <button *ngIf="!disabled && !!other" title = "Remove"
+                                    class="w3-hover-light-grey" (click) = "removeRelationship(field, i)">
                                 <i class="fa fa-trash">
                                 </i>
                             </button>
@@ -65,8 +66,14 @@ import { ObjToArray } from './utils';
                     </section>
 
                     <mat-action-row *ngIf="!disabled && (!resource[field[0]] || isArray(resource[field[0]]))">
-                        <button class="w3-hover-light-grey" (click)="createRelationship(field)">
+                        <button class="w3-hover-light-grey"  title = "Create"
+                                (click)="createRelatedResource(field)">
                             <i class="fa fa-plus"> 
+                            </i>
+                        </button>
+                        <button class="w3-hover-light-grey"  title = "Include"
+                                (click)="createRelationship(field)">
+                            <i class="fa fa-search-plus">
                             </i>
                         </button>
                     </mat-action-row>
@@ -140,13 +147,21 @@ export class ResourceEditor {
      * @param {number} [index = 0] - index of the related resource
      */
     removeRelationship([key, spec], index = 0){
+        let id;
         if (spec.type === "array"){
+            if (this.resource[key][index]::isPlainObject()){
+                id = this.resource[key][index].id;
+            }
             this.resource[key].splice(index, 1);
         } else {
             if (this.resource[key]::isPlainObject()){
-                delete this.modelResources[this.resource.id];
+                id = this.resource[key].id;
             }
             delete this.resource[key];
+        }
+        //remove object from the reference map if its definition was removed
+        if (id && this.modelResources[id]) {
+            delete this.modelResources[id];
         }
     }
 
@@ -165,7 +180,7 @@ export class ResourceEditor {
                 title       : `Update resource?`,
                 modelClasses: this.modelClasses,
                 modelResources : this.modelResources,
-                filteredResourced : this.filteredResources,
+                filteredResources : this.filteredResources,
                 resource    : obj,
                 className   : className,
                 disabled    : this.disabled,
@@ -173,89 +188,105 @@ export class ResourceEditor {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result && result.resource){
-                this.resource[key][index] = result.resource;
-                if (this.modelResources[result.resource.id]){
-                    this.modelResources[result.resource.id].JSON = result.resource;
+            if (result){
+                if (spec.type === "array"){
+                    this.resource[key][index] = result;
+                } else {
+                    this.resource[key] = result;
                 }
             }
         });
     }
+    
+    _validateField([key, spec],result){
+        if (!result){
+            return false;
+        }
+        if (spec.type === "array") {
+            if (!this.resource[key]){ this.resource[key] = []; }
+
+            if (this.resource[key] && !this.resource[key]::isArray()){
+                throw Error(`Cannot update an invalid model: field ${key} of the current resource should be an array!`);
+                return false;
+            }
+            if (this.resource[key].find(e => e === result.id || e.id === result.id)) {
+                throw Error(`The resource with id "${result.id}" is already linked to the field "${key}" of the current resource`);
+                return false;
+            }
+        } else {
+            if (this.resource[key] && !this.resource[key]::isPlainObject()){
+                throw Error(`Cannot update an invalid model: field ${key} of the current resource should be an object`);
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
-     * Create a new relationship by including or assigning a new resource to the given field
+     * Create a new relationship by assigning a new resource to the given field
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      */
-    createRelationship([key, spec]) {
+    createRelatedResource([key, spec]) {
         let className = getClassName(spec);
 
         const dialogRef = this.dialog.open(ResourceEditorDialog, {
             width: '75%',
             data: {
                 title          : `Add new resource?`,
-                actionType     : 'Create',
                 modelClasses   : this.modelClasses,
                 modelResources : this.modelResources,
-                //filteredResourced : [...this.filteredResources, ...this.resource[key]], //exclude existing resources from options
+                filteredResources : this.filteredResources,
                 resource       : {},
                 className      : className
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result && result.resource) {
-                if (spec.type === "array") {
-                    if (!this.resource[key]){ this.resource[key] = []; }
+            if (!this._validateField([key, spec], result)){ return; }
 
-                    if (this.resource[key] && !this.resource[key]::isArray()){
-                        console.error(`Cannot update an invalid model: field ${key} of the given resource should be an array`, this.resource);
-                        return;
-                    }
-                    if (this.resource[key].find(e => e === result.resource.id || e.id === result.resource.id)) {
-                        console.error("The selected resource is already included to the set of properties of the current resource", result.resource, this.resource, key);
-                        return;
-                    }
-                } else {
-                    if (this.resource[key] && !this.resource[key]::isPlainObject()){
-                        console.error(`Cannot update an invalid model: field ${key} of the given resource should be an object`, this.resource);
-                        return;
-                    }
-                }
+            if (spec.type === "array"){
+                this.resource[key].push(result); //add new resource object
+            } else {
+                this.resource[key] = result; //assign new resource object
+            }
 
-                if (result.actionType === 'Include'){
-                    if (!result.resource.id){
-                        console.error("Cannot refer to a resource without ID", result.resource, this.resource, key);
-                        return;
-                    }
-                }
+            //Add newly created resource to the global map to enable the possibility to refer to it
+            if (!this.modelResources[result.id]) {
+                this.modelResources[result.id] = result::merge({"class": className});
+            }
+            this.modelResources[result.id] = result;
+        })
+    }
 
-                if (spec.type === "array"){
-                    //Update array
-                    if (result.actionType === 'Include'){
-                       this.resource[key].push(result.resource.id); //add ID of an existing resource
-                   } else {
-                       this.resource[key].push(result.resource); //add new resource object
-                   }
-                } else {
-                    //Update object
-                   if (result.actionType === 'Include'){
-                       this.resource[key] = result.resource.id; //assign ID of an existing resource
-                   } else {
-                       this.resource[key] = result.resource; //assign new resource object
-                   }
-                }
+    /**
+     * Create a new relationship by including a new resource to the given field
+     * @param {string} key  - resource field that points to the other resource in the relationship
+     * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
+     */
+    createRelationship([key, spec]) {
+        let className = getClassName(spec);
 
-                //Add newly created resource to the global map to enable the possibility to refer to it
-                if (result.actionType === 'Create') {
-                    if (!this.modelResources[result.resource.id]) {
-                        //TODO call modelClasses[className].fromJSON here if we need proper model update
-                        this.modelResources[result.resource.id] = result.resource::merge({"class": className});
-                    }
-                    this.modelResources[result.resource.id].JSON = result.resource;
-                }
+        const dialogRef = this.dialog.open(ResourceSelectDialog, {
+            width: '75%',
+            data: {
+                title          : `Include resource?`,
+                modelClasses   : this.modelClasses,
+                modelResources : this.modelResources,
+                filteredResources : this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
+                resource       : {},
+                className      : className
             }
         });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (!this._validateField([key, spec], result)){ return; }
+            if (spec.type === "array"){
+                this.resource[key].push(result); //add ID of an existing resource
+            } else {
+                this.resource[key] = result;  //assign ID of an existing resource
+            }
+        })
     }
 }
 
@@ -263,9 +294,9 @@ export class ResourceEditor {
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule,
         MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule,
         MatCheckboxModule, MatCardModule, MatRadioModule, FieldEditorModule, SearchBarModule],
-    declarations: [ResourceEditor, ResourceEditorDialog, ObjToArray],
-    entryComponents: [ResourceEditorDialog],
-    exports: [ResourceEditor, ResourceEditorDialog]
+    declarations: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ObjToArray],
+    entryComponents: [ResourceEditorDialog, ResourceSelectDialog],
+    exports: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog]
 })
 export class ResourceEditorModule {
 }
