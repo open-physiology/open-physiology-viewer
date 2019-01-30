@@ -3,7 +3,7 @@ const plugins = require('./webpack.plugins.js');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-    mode: 'production',
+    mode: 'development',
 	context: __dirname + '/src',
     devtool: 'source-map',
 	entry: {

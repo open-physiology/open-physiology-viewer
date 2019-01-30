@@ -199,24 +199,19 @@ export class ResourceEditor {
     }
     
     _validateField([key, spec],result){
-        if (!result){
-            return false;
-        }
+        if (!result){ return false; }
         if (spec.type === "array") {
             if (!this.resource[key]){ this.resource[key] = []; }
 
             if (this.resource[key] && !this.resource[key]::isArray()){
                 throw Error(`Cannot update an invalid model: field ${key} of the current resource should be an array!`);
-                return false;
             }
             if (this.resource[key].find(e => e === result.id || e.id === result.id)) {
                 throw Error(`The resource with id "${result.id}" is already linked to the field "${key}" of the current resource`);
-                return false;
             }
         } else {
             if (this.resource[key] && !this.resource[key]::isPlainObject()){
                 throw Error(`Cannot update an invalid model: field ${key} of the current resource should be an object`);
-                return false;
             }
         }
         return true;

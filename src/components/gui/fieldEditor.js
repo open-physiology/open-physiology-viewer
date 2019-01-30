@@ -7,7 +7,7 @@ import {
 } from '@angular/material';
 import {getClassName, getSchemaClassModel} from '../../models/utils';
 import {FieldEditorDialog} from './fieldEditorDialog';
-import {clone, cloneDeep} from 'lodash-bound';
+import { cloneDeep, isObject} from 'lodash-bound';
 import { definitions }  from '../../data/graphScheme.json';
 
 @Component({
@@ -22,6 +22,9 @@ import { definitions }  from '../../data/graphScheme.json';
                        [type]       = "_inputType"
                        [value]      = "value||null"
                        [disabled]   = "disabled"
+                       [min]        = "spec.minimum||0"
+                       [max]        = "spec.maximum||100"
+                       [step]       = "0.01 * (spec.maximum - spec.minimum) || 1"
                        (input)      = "updateValue($event.target.value)"
                 >
             </mat-form-field>
@@ -62,7 +65,7 @@ import { definitions }  from '../../data/graphScheme.json';
                         <section *ngFor="let key of objectKeys(_objectProperties)">
                             <fieldEditor 
                                     [label]    = "key" 
-                                    [value]    = "value?.key||getDefault(_objectProperties[key])" 
+                                    [value]    = "value[key]||getDefault(_objectProperties[key])" 
                                     [spec]     = "_objectProperties[key]"
                                     [disabled] = "disabled"
                                     (onValueChange) = "updateProperty(key, $event)">
@@ -74,7 +77,7 @@ import { definitions }  from '../../data/graphScheme.json';
                             {{key}}: {{value[key]}}
                             <mat-action-row>
                                 <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
-                                    <i class="fa fa-trash"></i>
+                                    <i class="fa fa-trash"> </i>
                                 </button>
                             </mat-action-row>
                         </section>
@@ -82,7 +85,7 @@ import { definitions }  from '../../data/graphScheme.json';
                         <mat-action-row>
                             <!-- Add any number of key-value pairs -->
                             <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="addProperty()">
-                                <i class="fa fa-plus"></i>
+                                <i class="fa fa-plus"> </i>
                             </button>
                         </mat-action-row>
                         
@@ -107,22 +110,29 @@ import { definitions }  from '../../data/graphScheme.json';
                         {{toJSON(obj)}}
                         <mat-action-row>
                             <button class="w3-hover-light-grey" (click)="editObj(i)">
-                                <i class="fa fa-edit"></i>
+                                <i class="fa fa-edit"> </i>
                             </button>
                             <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
-                                <i class="fa fa-trash"></i>
+                                <i class="fa fa-trash"> </i>
                             </button>
                         </mat-action-row>    
                     </section>
 
                     <mat-action-row *ngIf = "!disabled">
                         <button class="w3-hover-light-grey" (click)="addObj()">
-                            <i class="fa fa-plus"></i>
+                            <i class="fa fa-plus"> </i>
                         </button>
                     </mat-action-row>
 
                 </mat-expansion-panel>
             </section>
+            
+            <!--Other-->
+            <section *ngIf="_isOther">
+                Unsupported field: <b>{{label}}</b> 
+            </section>
+                
+            
         </section>
     `,
     styles: [`        
@@ -144,7 +154,7 @@ export class FieldEditor {
                 "type": "string"
             },
             "value": {
-                "description": "",
+                "description": "A value that will be assigned to the field names above for all resources that match the query in the path",
                 "type": "string"
             }
         }
@@ -165,13 +175,28 @@ export class FieldEditor {
             || (this.spec.type === "string" && !this.spec.enum)
             || clsName === "RGBColorScheme"
             || clsName === "JSONPathScheme";
+
         this._isBoolean = this.spec.type === "boolean";
+
         this._isArray   = this.spec.type === "array";
 
-        this._isObject  = this.spec.type === "object"
-            || clsName && definitions[clsName].type === "object"; //schemas referring to objects, e.g., GroupColorScheme, OffsetScheme
-        this._isSelect  = this.spec.enum
-            || clsName && definitions[clsName].enum; //schemes referring to enumerations, e.g., ColorScheme
+        const isSpecEnum   = (spec) => spec.enum;
+        const isSpecObject = (spec) => spec.type === "object";
+
+        const checkType = (spec, handler) => {
+            let res = handler(spec);
+            if (!res) {
+                let clsName = getClassName(spec);
+                if (clsName) { return checkType(definitions[clsName], handler); }
+            }
+            return res;
+        };
+
+        this._isSelect  = checkType(this.spec, isSpecEnum);
+
+        this._isObject  = checkType(this.spec, isSpecObject);
+
+        this._isOther = !(this._isInput || this._isBoolean || this._isSelect || this._isArray || this._isObject);
 
         if (this._isInput){
             this._inputType =  (this.spec.type === "string")
@@ -186,14 +211,14 @@ export class FieldEditor {
         if (this._isObject){
             this._objectProperties = this.spec.properties;
             if (clsName) {
-                this._objectProperties = getSchemaClassModel(clsName).cudProperties;
+                this._objectProperties = getSchemaClassModel(clsName).propertyMap;
             }
         }
 
         if (this._isSelect){
             this._selectOptions = this.spec.enum;
             if (clsName) {
-                this._selectOptions = definitions[clsName].enum;
+                this._selectOptions = definitions[clsName].enum; //TODO update to work with references to enumerations and inherited classes
             }
         }
     }
@@ -210,10 +235,12 @@ export class FieldEditor {
         return this._spec;
     }
 
+    // noinspection JSMethodCanBeStatic
     toJSON(item){
         return JSON.stringify(item, " ", 2);
     }
 
+    // noinspection JSMethodCanBeStatic
     getDefault(spec){
         if (spec.default) {
             if (spec.default::isObject()){
@@ -243,6 +270,7 @@ export class FieldEditor {
      * @param newValue - new property value
      */
     updateProperty(key, newValue){
+        if (!this.value){ this.value = {}; }
         this.value[key] = newValue;
         this.onValueChange.emit(this.value);
     }
@@ -253,6 +281,7 @@ export class FieldEditor {
      */
     removeProperty(key){
         delete this.value[key];
+        this.onValueChange.emit(this.value);
     }
 
     /**
@@ -265,14 +294,14 @@ export class FieldEditor {
                 title: `Add new property?`,
                 value: {},
                 label: this.label,
-                spec: this.keyValueSpec
+                spec : this.keyValueSpec
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                if (!this.value){ this.value = {}; }
                 this.value[result.key] = result.value;
+                this.onValueChange.emit(this.value);
             }
         })
     }
@@ -283,6 +312,7 @@ export class FieldEditor {
      */
     removeObj(index = 0){
         this.value.splice(index, 1);
+        this.onValueChange.emit(this.value);
     }
 
     /**
@@ -301,7 +331,10 @@ export class FieldEditor {
             }
         });
         dialogRef.afterClosed().subscribe(result => {
-            this.value[index] = result
+            if (result){
+                this.value[index] = result;
+                this.onValueChange.emit(this.value);
+            }
         });
     }
 
@@ -321,8 +354,8 @@ export class FieldEditor {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                if (!this.value){ this.value = []; }
                 this.value.push(result);
+                this.onValueChange.emit(this.value);
             }
         });
     }

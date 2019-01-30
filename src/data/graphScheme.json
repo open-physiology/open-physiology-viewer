@@ -80,7 +80,7 @@
           "$ref": "#/definitions/ColorScheme"
         },
         "length": {
-          "description": "Optional parameter to define number of colors from the color scheme",
+          "description": "Number of distinct colors from the color scheme",
           "type": "number",
           "minimum": 1
         },

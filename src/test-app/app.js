@@ -1,5 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
+import { HttpClientModule, HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
 //Local
 import * as schema from '../data/graphScheme.json';
@@ -37,25 +38,24 @@ debug(true, msgCount);
         <!-- Header -->
 
         <header class="w3-bar w3-top w3-dark-grey" style="z-index:10;">
-            <span class="w3-bar-item">
-				<i class="fa fa-heartbeat w3-margin-right"></i>ApiNATOMY
+            <span class="w3-bar-item"><i class="fa fa-heartbeat w3-margin-right"> </i>ApiNATOMY
 			</span>
             <span class="w3-bar-item" title="About ApiNATOMY">
-				<a href="https://youtu.be/XZjldom8CQM"><i class="fa fa-youtube"></i></a>
+				<a href="https://youtu.be/XZjldom8CQM"><i class="fa fa-youtube"> </i></a>
 			</span>
             <span class="w3-bar-item" title="Source code">
-				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"></i></a>
+				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"> </i></a>
 			</span>
             <span class="w3-bar-item">
                 Model: {{_fileName || _graphData?.name || "?"}}
             </span>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
-					<i class="fa fa-external-link"></i>
+					<i class="fa fa-external-link"> </i>
 				</a>
 			</span>
             <span class="w3-bar-item w3-right" title="Learn more">
-				<a href="http://open-physiology.org/demo/open-physiology-viewer/docs/"><i class="fa fa-home"></i></a>
+				<a href="http://open-physiology.org/demo/open-physiology-viewer/docs/"><i class="fa fa-home"> </i></a>
             </span>
         </header>
         
@@ -70,29 +70,29 @@ debug(true, msgCount);
                    (change)="load(fileInput.files)"
             />
             <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
-                <i class="fa fa-plus"></i>
+                <i class="fa fa-plus"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
-                <i class="fa fa-folder"></i>
+                <i class="fa fa-folder"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showResourceEditor && !_showJSONEditor"
                     (click)="openResourceEditor()" title="Open model editor">
-                <i class="fa fa-wpforms"></i>
+                <i class="fa fa-wpforms"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor && !_showResourceEditor" 
                     (click)="openEditor()" title="Open JSON editor">
-                <i class="fa fa-edit"></i>
+                <i class="fa fa-edit"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor"
                     (click)="closeEditor()" title="Close editor">
-                <i class="fa fa-window-close"></i>
+                <i class="fa fa-window-close"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor" (click)="preview()"
                     title="Apply changes">
-                <i class="fa fa-check"></i>
+                <i class="fa fa-check"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
-                <i class="fa fa-save"></i>
+                <i class="fa fa-save"> </i>
             </button>
         </section>
 
@@ -108,7 +108,7 @@ debug(true, msgCount);
                 </resourceEditor>
             </section>
             <section class="w3-row">
-                <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"></section>
+                <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"> </section>
                 <webGLScene [class.w3-threequarter] = "_showJSONEditor"
                     [graphData]             = "_graphData"
                     (selectedItemChange)    = "onSelectedItemChange($event)"
@@ -122,17 +122,17 @@ debug(true, msgCount);
 
         <footer class="w3-container w3-grey">
             <span class="w3-row w3-right">
-				<i class="fa fa-code w3-padding-small"></i>natallia.kokash@gmail.com
+				<i class="fa fa-code w3-padding-small"> </i>natallia.kokash@gmail.com
 			</span>
             <span class="w3-row w3-right">
-				<i class="fa fa-envelope w3-padding-small"></i>bernard.de.bono@gmail.com
+				<i class="fa fa-envelope w3-padding-small"> </i>bernard.de.bono@gmail.com
 			</span>
         </footer>
     `,
     styles: [`
         #left-toolbar{
             width : 48px; 
-            left  : 0px;
+            left  : 0;
             top   : 40px; 
             bottom: 30px;
         }
@@ -160,11 +160,48 @@ export class TestApp {
     _editor;
     modelClasses = modelClasses;
 
+    proxyURL = "https://cors-anywhere.herokuapp.com/";
+    baseURL = "http://scicrunch.org/api/1/scigraph/graph/neighbors/";
+
     @ViewChild('jsonEditor') _container: ElementRef;
 
-    constructor(){
+    constructor(http: HttpClient){
         this.model = initModel;
+        this.http  = http;
     }
+
+    // getAnnotations(): Promise {
+    //     let url = this.proxyURL + this.baseURL + "CHEBI:25512?depth=10&relationshipType=RO%3A0000087&direction=INCOMING";
+    //     //let url = "https://api.github.com/users/seeschweiler";
+    //     let headers = new HttpHeaders();
+    //     headers = headers.append("Authorization", "Basic natallia.kokash@gmail.com:XXX");
+    //     headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
+    //
+    //     return this.http.get(url, {
+    //         headers: headers
+    //     }).toPromise()
+    //         .then(this.extractData)
+    //         .catch(this.handleErrorPromise);
+    // }
+    //
+    // extractData(res: Response) {
+    //     let body = res;
+    //     console.info("HTTP Request succeeded: ", body);
+    //     return body;
+    // }
+    //
+    // handleErrorPromise (error) {
+    //     console.error("ERROR HANDLER:", error.message || error);
+    //     return Promise.reject(error.message || error);
+    // }
+    //
+    // ngOnInit(){
+    //     this.annotations = this.getAnnotations();
+    //     this.annotations.then(
+    //         annotations => this.annotations = annotations,
+    //         error =>  this.errorMessage = error);
+    // }
+
     ngAfterViewInit(){
         if (!this._container) { return; }
         this._editor = new JSONEditor(this._container.nativeElement, {
@@ -261,7 +298,7 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [ BrowserModule, WebGLSceneModule,
+	imports     : [ BrowserModule, WebGLSceneModule, HttpClientModule,
         MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule],
 	declarations: [ TestApp ],
     bootstrap   : [ TestApp ],

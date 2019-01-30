@@ -43,7 +43,7 @@ export class Resource{
         const res = new cls(json.id);
 
         res.class = clsName;
-        res.JSON = json;
+        //res.JSON = json;
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
