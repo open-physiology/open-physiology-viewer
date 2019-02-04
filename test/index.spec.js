@@ -41,8 +41,18 @@ describe("Instantiates model", () => {
         });
     });
 
-
     afterEach(() => {
 		// teardown
 	});
+});
+
+describe("Edit via resource editor", () => {
+    let graphData = modelClasses["Graph"].fromJSON(initModel, modelClasses);
+
+    beforeEach(() => {
+    });
+
+    afterEach(() => {
+        // teardown
+    });
 });

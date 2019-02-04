@@ -16,6 +16,7 @@ import {
 } from 'd3-force-3d';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
+import {ResourceEditorDialog} from "./gui/resourceEditorDialog";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -32,36 +33,36 @@ const WindowResize = require('three-window-resize');
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
                         <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
                                 (click)="toggleLockControls()" title="Lock controls">
-                            <i class="fa fa-lock"></i>
+                            <i class="fa fa-lock"> </i>
                         </button>
                         <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
                                 (click)="toggleLockControls()" title="Unlock controls">
-                            <i class="fa fa-unlock"></i>
+                            <i class="fa fa-unlock"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
                                 title="Update layout">
-                            <i class="fa fa-refresh"></i>
+                            <i class="fa fa-refresh"> </i>
                         </button>
                         <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="toggleSettingPanel()" title="Show settings">
-                            <i class="fa fa-cog"></i>
+                            <i class="fa fa-cog"> </i>
                         </button>
                         <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="toggleSettingPanel()" title="Hide settings">
-                            <i class="fa fa-window-close"></i>
+                            <i class="fa fa-window-close"> </i>
                         </button>
                         <mat-slider vertical class="w3-grey"
                                     [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
                                     [step]="0.05 * scaleFactor" tickInterval="1"
                                     [value]="labelRelSize" title="Label size"
-                                    (change)="onScaleChange($event.value)"
-                        ></mat-slider>
+                                    (change)="onScaleChange($event.value)">
+                        </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="export()" title="Export layout">
-                            <i class="fa fa-save"></i>
+                            <i class="fa fa-save"> </i>
                         </button>
                     </section>
-                    <canvas #canvas class="w3-card w3-round"></canvas>
+                    <canvas #canvas class="w3-card w3-round"> </canvas>
                 </section>
             </section>
             <section id="settingsPanel" *ngIf="showPanel" stop-propagation class="w3-third">
@@ -71,7 +72,7 @@ const WindowResize = require('three-window-resize');
 
                     <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
-                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"></resourceInfoPanel>
+                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"> </resourceInfoPanel>
                     </fieldset>
 
                     <!--Search bar-->
@@ -79,14 +80,20 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
-                                   (selectedItemChange)="selectBySearch($event)"></searchBar>
+                                   (selectedItemChange)="selectBySearch($event)">
+                        </searchBar>
                     </fieldset>
 
                     <!--Selected entity-->
 
                     <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
-                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected"></resourceInfoPanel>
+                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
+                        </resourceInfoPanel>
+                        <button *ngIf="!!_selected" title = "Edit"
+                                class="w3-hover-light-grey" (click) = "editResource(_selected)">
+                            <i class="fa fa-edit"> </i>
+                        </button>
                     </fieldset>
 
                     <!--Group controls-->
@@ -220,6 +227,8 @@ export class WebGLSceneComponent {
         "selected"   : true
     };
 
+    @Input() modelClasses;
+
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
@@ -273,6 +282,7 @@ export class WebGLSceneComponent {
     get graphData() {
         return this._graphData;
     }
+
 
     constructor() {
         this.config        = this.defaultConfig::cloneDeep();
@@ -607,6 +617,28 @@ export class WebGLSceneComponent {
         this._graphData.hideGroups([...this._hideGroups]);
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
+
+    editResource(resource){
+        let obj = resource::cloneDeep();
+        const dialogRef = this.dialog.open(ResourceEditorDialog, {
+            width: '75%',
+            data: {
+                title          : `Update resource?`,
+                modelClasses   : this.modelClasses,
+                modelResources : this.graphData.entitiesByID || {},
+                filteredResources : [],
+                resource    : obj,
+                className   : resource.class
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result){
+                resource = result;
+            }
+        });
+    }
+
 }
 
 @NgModule({

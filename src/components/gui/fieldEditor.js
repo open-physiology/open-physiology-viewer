@@ -15,22 +15,22 @@ import { definitions }  from '../../data/graphScheme.json';
     template: `
         <section> 
             <!--Input-->  
-            <mat-form-field *ngIf="_isInput" >
+            <mat-form-field *ngIf="_fieldType === 'input'" >
                 <input matInput class="w3-input"                       
                        [placeholder]="label" 
-                       [matTooltip] ="spec.description"
+                       [matTooltip] ="spec?.description"
                        [type]       = "_inputType"
                        [value]      = "value||null"
                        [disabled]   = "disabled"
-                       [min]        = "spec.minimum||0"
-                       [max]        = "spec.maximum||100"
-                       [step]       = "0.01 * (spec.maximum - spec.minimum) || 1"
+                       [min]        = "spec?.minimum||0"
+                       [max]        = "spec?.maximum||100"
+                       [step]       = "0.01 * (spec?.maximum - spec?.minimum) || 1"
                        (input)      = "updateValue($event.target.value)"
                 >
             </mat-form-field>
             
             <!--Select box-->
-            <mat-form-field *ngIf="_isSelect">
+            <mat-form-field *ngIf="_fieldType === 'select'">
                 <mat-select
                         [placeholder] = "label"
                         [value]       = "value"
@@ -42,7 +42,7 @@ import { definitions }  from '../../data/graphScheme.json';
             </mat-form-field>
     
             <!--Check box-->
-            <mat-checkbox *ngIf="_isBoolean" [matTooltip]="spec.description" (change) = "updateValue($event.value)"
+            <mat-checkbox *ngIf="_fieldType === 'boolean'" [matTooltip]="spec.description" (change) = "updateValue($event.value)"
                           labelPosition="before"
                           [value]="value"
                           [disabled] = "disabled"
@@ -50,7 +50,7 @@ import { definitions }  from '../../data/graphScheme.json';
             </mat-checkbox> 
     
             <!--Object - show fieldEditor for each property-->
-            <section *ngIf="_isObject">
+            <section *ngIf="_fieldType === 'object'">
                 <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
@@ -65,7 +65,7 @@ import { definitions }  from '../../data/graphScheme.json';
                         <section *ngFor="let key of objectKeys(_objectProperties)">
                             <fieldEditor 
                                     [label]    = "key" 
-                                    [value]    = "value[key]||getDefault(_objectProperties[key])" 
+                                    [value]    = "value? value[key]: getDefault(_objectProperties[key])" 
                                     [spec]     = "_objectProperties[key]"
                                     [disabled] = "disabled"
                                     (onValueChange) = "updateProperty(key, $event)">
@@ -74,7 +74,7 @@ import { definitions }  from '../../data/graphScheme.json';
                     </section>
                     <section *ngIf="!_objectProperties">
                         <section *ngFor="let key of objectKeys(value||{})">
-                            {{key}}: {{value[key]}}
+                            {{key}}: {{value? value[key]: ""}}
                             <mat-action-row>
                                 <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
                                     <i class="fa fa-trash"> </i>
@@ -88,20 +88,18 @@ import { definitions }  from '../../data/graphScheme.json';
                                 <i class="fa fa-plus"> </i>
                             </button>
                         </mat-action-row>
-                        
                     </section>
-    
                 </mat-expansion-panel>
             </section>
     
             <!--Array - show fieldEditor for each item-->
-            <section *ngIf="_isArray">
+            <section *ngIf="_fieldType === 'array'">
                 <mat-expansion-panel class="w3-margin-bottom">
                     <mat-expansion-panel-header>
                         <mat-panel-title> 
                             {{label}}
                         </mat-panel-title>
-                        <mat-panel-description *ngIf="spec?.description">
+                        <mat-panel-description *ngIf="spec.description">
                             {{spec.description}}
                         </mat-panel-description>
                     </mat-expansion-panel-header>
@@ -128,7 +126,7 @@ import { definitions }  from '../../data/graphScheme.json';
             </section>
             
             <!--Other-->
-            <section *ngIf="_isOther">
+            <section *ngIf="_fieldType === 'other'">
                 Unsupported field: <b>{{label}}</b> 
             </section>
                 
@@ -160,45 +158,18 @@ export class FieldEditor {
         }
     };
 
+
+    _fieldType = "input";
+
     @Input() expanded = false;
     @Input() label;
     @Input() value;
     @Input('spec') set spec(newSpec){
         this._spec = newSpec;
-        let clsName = getClassName(this.spec);
-        if (!this._spec) {
-            this._isInput = true;
-            this._inputType = "text";
-            return;
-        }
-        this._isInput = this.spec.type === "number"
-            || (this.spec.type === "string" && !this.spec.enum)
-            || clsName === "RGBColorScheme"
-            || clsName === "JSONPathScheme";
+        let clsName = getClassName(this._spec);
+        this._fieldType = this.getFieldType(clsName, this._spec);
 
-        this._isBoolean = this.spec.type === "boolean";
-
-        this._isArray   = this.spec.type === "array";
-
-        const isSpecEnum   = (spec) => spec.enum;
-        const isSpecObject = (spec) => spec.type === "object";
-
-        const checkType = (spec, handler) => {
-            let res = handler(spec);
-            if (!res) {
-                let clsName = getClassName(spec);
-                if (clsName) { return checkType(definitions[clsName], handler); }
-            }
-            return res;
-        };
-
-        this._isSelect  = checkType(this.spec, isSpecEnum);
-
-        this._isObject  = checkType(this.spec, isSpecObject);
-
-        this._isOther = !(this._isInput || this._isBoolean || this._isSelect || this._isArray || this._isObject);
-
-        if (this._isInput){
+        if (this._fieldType === "input") {
             this._inputType =  (this.spec.type === "string")
                 ? "text"
                 : this.spec.type
@@ -208,19 +179,23 @@ export class FieldEditor {
                         : "text";
         }
 
-        if (this._isObject){
+        if (this._fieldType === "object"){
             this._objectProperties = this.spec.properties;
             if (clsName) {
                 this._objectProperties = getSchemaClassModel(clsName).propertyMap;
             }
+
         }
 
-        if (this._isSelect){
+        if (this._fieldType === "select"){
             this._selectOptions = this.spec.enum;
             if (clsName) {
-                this._selectOptions = definitions[clsName].enum; //TODO update to work with references to enumerations and inherited classes
+                this._selectOptions = definitions[clsName].enum;
             }
         }
+
+        console.log("CHECK", this.label, this._fieldType, this._objectProperties);
+
     }
 
     @Input() disabled = false;
@@ -235,9 +210,46 @@ export class FieldEditor {
         return this._spec;
     }
 
+
     // noinspection JSMethodCanBeStatic
     toJSON(item){
         return JSON.stringify(item, " ", 2);
+    }
+
+    /**
+     * Defines type of the field
+     * @param clsName - schema type name
+     * @param spec - schema property specification
+     * @returns {string} string that describes the schema field type: 'input', 'select', 'array', 'object', or 'other'
+     */
+    getFieldType(clsName, spec){
+        if (!spec
+            || ((spec.type === "number" || spec.type === "string") && !spec.enum)
+            || clsName === "RGBColorScheme"
+            || clsName === "JSONPathScheme") {
+            return "input";
+        }
+
+        if (spec.type === "boolean" || spec.type === "array") {
+            return spec.type;
+        }
+
+        const checkType = (spec, handler) => {
+            let res = handler(spec);
+            if (!res) {
+                let clsName = getClassName(spec);
+                if (clsName) { return checkType(definitions[clsName], handler); }
+            }
+            return res;
+        };
+
+        const isSpecEnum   = (spec) => spec.enum;
+        if (checkType(spec, isSpecEnum)) {return "select"; }
+
+        const isSpecObject = (spec) => spec.type === "object";
+        if (checkType(spec, isSpecObject)) {return "object"; }
+
+        return "other";
     }
 
     // noinspection JSMethodCanBeStatic
@@ -248,11 +260,13 @@ export class FieldEditor {
             }
             return spec.default;
         }
-        if (spec.type === "array")  { return []; }
-        if (spec.type === "object") { return {}; }
-        if (spec.type === "string") { return ""; }
-        if (spec.type === "number") { return 0; }
-        return null;
+
+        let clsName = getClassName(spec);
+        let fieldType = this.getFieldType(clsName, spec);
+        if (fieldType === "array")  { return []; }
+        if (fieldType === "object") { return {}; }
+
+        return "";
     }
 
     /**

@@ -110,6 +110,7 @@ debug(true, msgCount);
             <section class="w3-row">
                 <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"> </section>
                 <webGLScene [class.w3-threequarter] = "_showJSONEditor"
+                    [modelClasses]         = "modelClasses"
                     [graphData]             = "_graphData"
                     (selectedItemChange)    = "onSelectedItemChange($event)"
                     (highlightedItemChange) = "onHighlightedItemChange($event)">
@@ -159,48 +160,42 @@ export class TestApp {
     _model = {};
     _editor;
     modelClasses = modelClasses;
+    @ViewChild('jsonEditor') _container: ElementRef;
 
     proxyURL = "https://cors-anywhere.herokuapp.com/";
     baseURL = "http://scicrunch.org/api/1/scigraph/graph/neighbors/";
-
-    @ViewChild('jsonEditor') _container: ElementRef;
+    //baseURL = "https://scigraph.olympiangods.org/scigraph/graph/neighbors/";
 
     constructor(http: HttpClient){
         this.model = initModel;
         this.http  = http;
     }
 
-    // getAnnotations(): Promise {
-    //     let url = this.proxyURL + this.baseURL + "CHEBI:25512?depth=10&relationshipType=RO%3A0000087&direction=INCOMING";
-    //     //let url = "https://api.github.com/users/seeschweiler";
-    //     let headers = new HttpHeaders();
-    //     headers = headers.append("Authorization", "Basic natallia.kokash@gmail.com:XXX");
-    //     headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
-    //
-    //     return this.http.get(url, {
-    //         headers: headers
-    //     }).toPromise()
-    //         .then(this.extractData)
-    //         .catch(this.handleErrorPromise);
-    // }
-    //
-    // extractData(res: Response) {
-    //     let body = res;
-    //     console.info("HTTP Request succeeded: ", body);
-    //     return body;
-    // }
-    //
-    // handleErrorPromise (error) {
-    //     console.error("ERROR HANDLER:", error.message || error);
-    //     return Promise.reject(error.message || error);
-    // }
-    //
-    // ngOnInit(){
-    //     this.annotations = this.getAnnotations();
-    //     this.annotations.then(
-    //         annotations => this.annotations = annotations,
-    //         error =>  this.errorMessage = error);
-    // }
+    getAnnotations(): Promise {
+        let url = this.proxyURL + this.baseURL + "CHEBI:25512?depth=10&relationshipType=RO%3A0000087&direction=INCOMING";
+        url += "&key=Klm0mWxTt1djFmMlp2EUtwrzjA84ltIP";
+        return this.http.get(url).toPromise()
+            .then(this.extractData)
+            .catch(this.handleErrorPromise);
+    }
+
+    extractData(res: Response) {
+        let body = res;
+        console.info("HTTP Request succeeded: ", body);
+        return body;
+    }
+
+    handleErrorPromise (error) {
+        console.error("ERROR HANDLER:", error.message || error);
+        return Promise.reject(error.message || error);
+    }
+
+    ngOnInit(){
+        this.annotations = this.getAnnotations();
+        this.annotations.then(
+            annotations => this.annotations = annotations,
+            error =>  this.errorMessage = error);
+    }
 
     ngAfterViewInit(){
         if (!this._container) { return; }

@@ -16,6 +16,7 @@ import { ObjToArray } from './utils';
     selector: 'resourceEditor',
     template: `
         <mat-expansion-panel [expanded]="expanded">
+            <!--Header-->
             <mat-expansion-panel-header>
                 <mat-panel-title>
                     {{className}}: {{resource?.id || "?"}} - {{resource?.name || "?"}}
@@ -26,6 +27,7 @@ import { ObjToArray } from './utils';
 
             </mat-expansion-panel-header>
 
+            <!--Properties-->
             <mat-card class="w3-margin w3-grey">
                 <section *ngFor="let field of _propertyFields"> 
                     <fieldEditor
@@ -38,6 +40,8 @@ import { ObjToArray } from './utils';
                     </fieldEditor>
                 </section>
             </mat-card>
+            
+            <!--Relationships-->
             <mat-card class="w3-margin w3-grey">
                 <mat-expansion-panel *ngFor="let field of _relationshipFields" class="w3-margin-bottom">
                     <mat-expansion-panel-header>
