@@ -13,7 +13,8 @@ import {values} from 'lodash-bound';
             <!--Include existing resource-->
             <searchBar [selected]           = "_selectedName" 
                        [searchOptions]      = "_searchOptions"
-                       (selectedItemChange) = "selectBySearch($event)">
+                       (selectedItemChange) = "selectBySearch($event)"
+            >
             </searchBar>
 
             <mat-form-field>
@@ -36,7 +37,7 @@ export class ResourceSelectDialog {
     data;
     _searchOptions = [];
 
-    constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
+    constructor(dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
         this.data = data;
         this.data.id = this.data.id || null;
@@ -44,7 +45,7 @@ export class ResourceSelectDialog {
             .filter(e => e.class === this.data.className)
             .filter(e => !(this.data.filteredResources||[]).includes(e.id))
             .map(e => (e.name? `${e.id} : ${e.name}`: e.id));
-        }
+    }
 
     onNoClick(){
         this.dialogRef.close();
@@ -53,6 +54,8 @@ export class ResourceSelectDialog {
     selectBySearch(name) {
         let resource = (this.data.modelResources::values()||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
         this.data.id = resource.id; //show original user definition instead of the expanded version if available
+        delete this.data.external;
+
     }
 }
 

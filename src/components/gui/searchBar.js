@@ -11,13 +11,16 @@ import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angula
         <mat-form-field class="full-width">
             <input matInput class="w3-input"
                    placeholder="Search"
-                   matTooltip ="Describe resource you want to find"
-                   type="text" 
+                   matTooltip="Describe resource you want to find"
+                   type="text"
+                   aria-label="Number"
                    [value]="selected"
-                   aria-label="Number" 
-                   [formControl]="_myControl"
-                   [matAutocomplete]="auto">
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="_optionSelected($event)">
+                   [formControl]="_myControl" 
+                   [matAutocomplete]="auto"
+                   (input)="inputChange.emit($event.target.value)"
+            >
+            <mat-autocomplete #auto="matAutocomplete" 
+                (optionSelected)="this.selectedItemChange.emit($event.option.value)">
                 <mat-option *ngFor="let option of _filteredOptions | async" [value]="option">
                     {{option}}
                 </mat-option>
@@ -26,7 +29,7 @@ import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angula
     `,
     styles: [`
         .full-width {
-            width: 100%;
+          width: 100%;
         }
     `]
 })
@@ -37,6 +40,7 @@ export class SearchBar {
     @Input()  selected;
     @Input()  searchOptions;
     @Output() selectedItemChange = new EventEmitter();
+    @Output() inputChange = new EventEmitter();
 
     _myControl = new FormControl();
     _filteredOptions: Observable<string[]>;
@@ -55,10 +59,6 @@ export class SearchBar {
     _filter(name){
         const filterValue = name.toLowerCase();
         return this.searchOptions.filter(option => option && option.toLowerCase().includes(filterValue));
-    }
-
-    _optionSelected(event){
-       this.selectedItemChange.emit(event.option.value);
     }
 }
 

@@ -1,7 +1,7 @@
 import {Shape} from './shapeModel';
 import {THREE, align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
 import {copyCoords} from './utils';
-import {isObject, isString,  merge, pick} from "lodash-bound";
+import {isObject, isString,  merge, pick, isArray} from "lodash-bound";
 
 export const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -195,6 +195,11 @@ export class Lyph extends Shape {
             this.border.createViewObjects(state);
 
             //Layers
+            //Whe layers contains not an array???
+            if (!(this.layers||[])::isArray()){
+                console.log("ERROR", this);
+                this.layers = [this.layers];
+            }
 
             //Define proportion each layer takes
             let numLayers = (this.layers || [this]).length;

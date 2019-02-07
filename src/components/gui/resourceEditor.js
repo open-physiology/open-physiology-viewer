@@ -1,16 +1,18 @@
 import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
+import {MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
     MatCardModule, MatDialogModule, MatDialog, MatRadioModule} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule}  from "./fieldEditor";
 import {SearchBarModule} from "./searchBar";
 import {ResourceEditorDialog} from "./resourceEditorDialog";
 import {ResourceSelectDialog} from "./resourceSelectDialog";
+import {ExternalSelectDialog} from "./externalSelectDialog";
 import {getClassName} from "../../models/utils";
-import {isPlainObject, isArray, isString, cloneDeep, merge} from 'lodash-bound';
+import {isPlainObject, isArray, isString, cloneDeep, merge, values} from 'lodash-bound';
 import { ObjToArray } from './utils';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
     selector: 'resourceEditor',
@@ -80,11 +82,16 @@ import { ObjToArray } from './utils';
                             <i class="fa fa-search-plus">
                             </i>
                         </button>
+                        <button *ngIf="field[0] === 'external'" class="w3-hover-light-grey"  title = "Annotate"
+                                (click)="createExternalResource(field)">
+                            <i class="fa fa-comment">
+                            </i>
+                        </button>
+
                     </mat-action-row>
 
                 </mat-expansion-panel>
             </mat-card>
-
         </mat-expansion-panel>
     `
 })
@@ -251,9 +258,7 @@ export class ResourceEditor {
             }
 
             //Add newly created resource to the global map to enable the possibility to refer to it
-            if (!this.modelResources[result.id]) {
-                this.modelResources[result.id] = result::merge({"class": className});
-            }
+            if (!result["class"]){ result::merge({"class": className}); }
             this.modelResources[result.id] = result;
         })
     }
@@ -287,15 +292,49 @@ export class ResourceEditor {
             }
         })
     }
+
+    createExternalResource([key, spec]) {
+        let config = {
+            title   : `Link new external resource?`,
+            baseURL : "https://scigraph.olympiangods.org/scigraph/vocabulary/",
+            type    : "UBERON"
+        };
+
+        const dialogRef = this.dialog.open(ExternalSelectDialog, {
+            width: '75%', data: config
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            (result||{})::values().forEach(e => {
+                console.log("Resource to link", e);
+                let resource = {
+                    id  : e.curie,
+                    name: e.labels ? e.labels[0] : null,
+                    uri : e.iri,
+                    type: config.type,
+                    class: "External"
+                };
+                if (!this.resource[key]){ this.resource[key] = []; }
+                //Add newly created resource to the global map to enable the possibility to refer to it
+                if (!this.modelResources[resource.id]) {
+                    this.modelResources[resource.id] = resource;
+                    this.resource[key].push(resource);
+                } else {
+                    this.resource[key].push(resource.id);
+                }
+            });
+        })
+    }
 }
 
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule,
-        MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule,
-        MatCheckboxModule, MatCardModule, MatRadioModule, FieldEditorModule, SearchBarModule],
-    declarations: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ObjToArray],
-    entryComponents: [ResourceEditorDialog, ResourceSelectDialog],
-    exports: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog]
+        MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule,
+        MatCheckboxModule, MatCardModule, MatRadioModule, FieldEditorModule, SearchBarModule,
+        HttpClientModule],
+    declarations: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog, ObjToArray],
+    entryComponents: [ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog],
+    exports: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog]
 })
 export class ResourceEditorModule {
 }

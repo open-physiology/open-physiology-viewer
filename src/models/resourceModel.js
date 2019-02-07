@@ -14,7 +14,7 @@ import {
 import {JSONPath, getClassName, getSchemaClassModel, isClassAbstract} from "./utils";
 
 /**
- *  The class defining common methods for all resources
+ * The class defining common methods for all resources
  * @class
  * @property {string} id
  * @property {string} name

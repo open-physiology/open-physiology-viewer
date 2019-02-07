@@ -1,6 +1,5 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import { HttpClientModule, HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 
 //Local
 import * as schema from '../data/graphScheme.json';
@@ -162,39 +161,9 @@ export class TestApp {
     modelClasses = modelClasses;
     @ViewChild('jsonEditor') _container: ElementRef;
 
-    proxyURL = "https://cors-anywhere.herokuapp.com/";
-    baseURL = "http://scicrunch.org/api/1/scigraph/graph/neighbors/";
-    //baseURL = "https://scigraph.olympiangods.org/scigraph/graph/neighbors/";
 
-    constructor(http: HttpClient){
+    constructor(){
         this.model = initModel;
-        this.http  = http;
-    }
-
-    getAnnotations(): Promise {
-        let url = this.proxyURL + this.baseURL + "CHEBI:25512?depth=10&relationshipType=RO%3A0000087&direction=INCOMING";
-        url += "&key=Klm0mWxTt1djFmMlp2EUtwrzjA84ltIP";
-        return this.http.get(url).toPromise()
-            .then(this.extractData)
-            .catch(this.handleErrorPromise);
-    }
-
-    extractData(res: Response) {
-        let body = res;
-        console.info("HTTP Request succeeded: ", body);
-        return body;
-    }
-
-    handleErrorPromise (error) {
-        console.error("ERROR HANDLER:", error.message || error);
-        return Promise.reject(error.message || error);
-    }
-
-    ngOnInit(){
-        this.annotations = this.getAnnotations();
-        this.annotations.then(
-            annotations => this.annotations = annotations,
-            error =>  this.errorMessage = error);
     }
 
     ngAfterViewInit(){
@@ -293,8 +262,7 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [ BrowserModule, WebGLSceneModule, HttpClientModule,
-        MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule],
+	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule],
 	declarations: [ TestApp ],
     bootstrap   : [ TestApp ],
     providers   : [

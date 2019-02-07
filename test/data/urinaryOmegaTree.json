@@ -1,0 +1,51 @@
+{
+  "nodes": [
+    {
+      "id": "uom-root"
+    },
+    {
+      "id": "uom-n1"
+    }
+  ],
+  "links": [
+    {
+      "id": "uom-lnk1",
+      "name": "UOM level 1",
+      "source": "uom-root",
+      "target": "uom-n1",
+      "conveyingLyph": "intraUr"
+    }
+  ],
+  "lyphs": [
+    {
+      "id" : "urine",
+      "name": "Urine"
+    },
+    {
+      "id": "traEp",
+      "name": "Transitional Epithelium"},
+    {
+      "id": "baseMem",
+      "name": "Basement Membrane"},
+    {
+      "id": "lamina",
+      "name": "Lamina Propria"},
+    {
+      "id": "muscosa",
+      "name": "Muscosa",
+      "layers": ["traEp", "baseMem", "lamina"]
+    },
+    {
+      "id": "muscularis",
+      "name": "Muscularis"
+    },
+    {
+      "id": "intraUr",
+      "name": "Intravesical urethra",
+      "topology": "TUBE",
+      "length": 2,
+      "thickness": 3,
+      "layers": ["urine", "muscosa", "muscularis"]
+    }
+  ]
+}

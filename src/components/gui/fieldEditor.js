@@ -16,7 +16,7 @@ import { definitions }  from '../../data/graphScheme.json';
         <section> 
             <!--Input-->  
             <mat-form-field *ngIf="_fieldType === 'input'" >
-                <input matInput class="w3-input"                       
+                <input matInput class="w3-input full-width"                       
                        [placeholder]="label" 
                        [matTooltip] ="spec?.description"
                        [type]       = "_inputType"
@@ -133,7 +133,10 @@ import { definitions }  from '../../data/graphScheme.json';
             
         </section>
     `,
-    styles: [`        
+    styles: [`
+        .full-width {
+          width: 100%;
+        }
     `]
 })
 /**
@@ -193,9 +196,6 @@ export class FieldEditor {
                 this._selectOptions = definitions[clsName].enum;
             }
         }
-
-        console.log("CHECK", this.label, this._fieldType, this._objectProperties);
-
     }
 
     @Input() disabled = false;

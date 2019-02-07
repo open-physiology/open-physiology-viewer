@@ -5,7 +5,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {keys, values, merge, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBarModule} from './gui/searchBar';
-import {MatSliderModule} from '@angular/material/slider'
+import {MatSliderModule, MatDialogModule, MatDialog} from '@angular/material'
 import FileSaver  from 'file-saver';
 
 import ThreeForceGraph   from '../three/threeForceGraph';
@@ -16,6 +16,7 @@ import {
 } from 'd3-force-3d';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
+import {ResourceEditorModule} from "./gui/resourceEditor";
 import {ResourceEditorDialog} from "./gui/resourceEditorDialog";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
@@ -91,7 +92,7 @@ const WindowResize = require('three-window-resize');
                         <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                         </resourceInfoPanel>
                         <button *ngIf="!!_selected" title = "Edit"
-                                class="w3-hover-light-grey" (click) = "editResource(_selected)">
+                                class="w3-hover-light-grey w3-right" (click) = "editResource(_selected)">
                             <i class="fa fa-edit"> </i>
                         </button>
                     </fieldset>
@@ -181,6 +182,11 @@ const WindowResize = require('three-window-resize');
         }
     `]
 })
+/**
+ * @class
+ * @property {Object} helpers
+ * @property {Object} defaultConfig
+ */
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
 
@@ -209,23 +215,7 @@ export class WebGLSceneComponent {
     scaleFactor  = 8; //TODO make this a graph parameter with complete layout update on change
     labelRelSize = 0.1 * this.scaleFactor;
     lockControls = false;
-
-    defaultConfig = {
-        "layout": {
-            "lyphs"       : true,
-            "layers"      : true,
-            "coalescences": true
-        },
-        "groups": true,
-        "labels": {
-            "Node"  : true, //{show: true, "label": "id"}
-            "Link"  : false,
-            "Lyph"  : false,
-            "Region": false
-        },
-        "highlighted": true,
-        "selected"   : true
-    };
+    defaultConfig = {};
 
     @Input() modelClasses;
 
@@ -241,11 +231,6 @@ export class WebGLSceneComponent {
             this._graphData.scale(this.scaleFactor);
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
-    }
-
-    onScaleChange(newLabelScale){
-        this.labelRelSize = newLabelScale;
-        if (this.graph){ this.graph.labelRelSize(this.labelRelSize); }
     }
 
     @Input('highlighted') set highlighted(entity) {
@@ -279,18 +264,40 @@ export class WebGLSceneComponent {
      */
     @Output() selectedItemChange = new EventEmitter();
 
-    get graphData() {
-        return this._graphData;
-    }
-
-
-    constructor() {
+    constructor(dialog: MatDialog) {
+        this.defaultConfig = {
+            "layout": {
+                "lyphs"       : true,
+                "layers"      : true,
+                "coalescences": true
+            },
+            "groups": true,
+            "labels": {
+                "Node"  : true, //{show: true, "label": "id"}
+                "Link"  : false,
+                "Lyph"  : false,
+                "Region": false
+            },
+            "highlighted": true,
+            "selected"   : true
+        };
         this.config        = this.defaultConfig::cloneDeep();
+        this.dialog        = dialog;
         this._labelClasses = this.config["labels"]::keys();
         this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
         this._hideGroups   = new Set();
     }
+
+    onScaleChange(newLabelScale){
+        this.labelRelSize = newLabelScale;
+        if (this.graph){ this.graph.labelRelSize(this.labelRelSize); }
+    }
+
+    get graphData() {
+        return this._graphData;
+    }
+
 
 
     ngAfterViewInit() {
@@ -344,7 +351,7 @@ export class WebGLSceneComponent {
 
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
-        window.addEventListener('mousedown', evt => this.onMouseDown(evt), false );
+        window.addEventListener('mousedown', () => this.onMouseDown(), false );
         window.addEventListener('keydown'  , evt => this.onKeyDown(evt)  , false);
     }
 
@@ -369,7 +376,7 @@ export class WebGLSceneComponent {
         }
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
-        window.requestAnimationFrame(_ => this.animate());
+        window.requestAnimationFrame(() => this.animate());
     }
 
     createHelpers() {
@@ -503,7 +510,7 @@ export class WebGLSceneComponent {
         }
     }
 
-    onMouseDown(_) {
+    onMouseDown() {
         this.selected = this.getMousedOverEntity();
     }
 
@@ -635,6 +642,7 @@ export class WebGLSceneComponent {
         dialogRef.afterClosed().subscribe(result => {
             if (result){
                 resource = result;
+                if (this.graph) { this.graph.graphData(this.graphData); }
             }
         });
     }
@@ -643,7 +651,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatSliderModule, SearchBarModule],
+        MatSliderModule, MatDialogModule, SearchBarModule, ResourceEditorModule],
     declarations: [WebGLSceneComponent, StopPropagation],
     exports: [WebGLSceneComponent]
 })
