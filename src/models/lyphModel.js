@@ -53,9 +53,9 @@ export class Lyph extends Shape {
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
         subtypes.forEach(subtype => {
             //Lyph inherits from the group lyphTemplate size and appearance
-            subtype::merge(template::pick(["color", "scale", "height", "width", "length", "thickness"]));
+            subtype::merge(template::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
             subtype.layers = [];
-            (template.layers|| []).forEach(layerRef => {
+            (template.layers || []).forEach(layerRef => {
                 let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
                 if (!layerParent) {
                     console.warn("Generation error: template layer object not found: ", layerRef);
@@ -65,10 +65,6 @@ export class Lyph extends Shape {
                     "id"        : `${layerParent.id}_${subtype.id}`,
                     "supertype" : layerParent.id
                 };
-                let layerParentName = layerParent.name? layerParent.name: `Layer ${layerParent.id}`;
-                let subtypeName     = subtype.name? subtype.name: `lyph ${subtype.id}`;
-                lyphLayer.name      = `${layerParentName} in ${subtypeName}`;
-
                 lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
                 lyphLayer::merge(subtype::pick(["topology"]));
                 subtype.layers.push(lyphLayer);
@@ -195,12 +191,6 @@ export class Lyph extends Shape {
             this.border.createViewObjects(state);
 
             //Layers
-            //Whe layers contains not an array???
-            if (!(this.layers||[])::isArray()){
-                console.log("ERROR", this);
-                this.layers = [this.layers];
-            }
-
             //Define proportion each layer takes
             let numLayers = (this.layers || [this]).length;
             let resizedLayers = (this.layers || []).filter(layer => layer.layerWidth);

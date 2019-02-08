@@ -1,10 +1,24 @@
 {
   "nodes": [
     {
-      "id": "uom-root"
+      "id": "uom-root",
+      "layout": {"x": -50}
     },
     {
       "id": "uom-n1"
+    },
+    {
+      "id": "uom-n2"
+    },
+    {
+      "id": "uom-n3"
+    },
+    {
+      "id": "uom-n4"
+    },
+    {
+      "id": "uom-n5",
+      "layout": {"x": 50}
     }
   ],
   "links": [
@@ -13,39 +27,204 @@
       "name": "UOM level 1",
       "source": "uom-root",
       "target": "uom-n1",
-      "conveyingLyph": "intraUr"
+      "conveyingLyph": "intra_urethra"
+    },
+    {
+      "id": "uom-lnk2",
+      "name": "UOM level 2",
+      "source": "uom-n1",
+      "target": "uom-n2",
+      "conveyingLyph": "urin_blad"
+    },
+    {
+      "id": "uom-lnk3",
+      "name": "UOM level 3",
+      "source": "uom-n2",
+      "target": "uom-n3",
+      "conveyingLyph": "intra_uret"
+    },
+    {
+      "id": "uom-lnk4",
+      "name": "UOM level 4",
+      "source": "uom-n3",
+      "target": "uom-n4",
+      "conveyingLyph": "distal_free_uret"
+    },
+    {
+      "id": "uom-lnk5",
+      "name": "UOM level 5",
+      "source": "uom-n4",
+      "target": "uom-n5",
+      "conveyingLyph": "pro_free_uret"
     }
   ],
   "lyphs": [
     {
       "id" : "urine",
-      "name": "Urine"
+      "name": "Urine",
+      "isTemplate": true
     },
     {
-      "id": "traEp",
-      "name": "Transitional Epithelium"},
+      "id": "tra_ep",
+      "name": "Transitional Epithelium",
+      "isTemplate": true
+    },
     {
-      "id": "baseMem",
-      "name": "Basement Membrane"},
+      "id": "base_mem",
+      "name": "Basement Membrane",
+      "isTemplate": true
+    },
     {
-      "id": "lamina",
-      "name": "Lamina Propria"},
+      "id"   : "lamina",
+      "name" : "Lamina Propria",
+      "isTemplate": true
+    },
     {
       "id": "muscosa",
       "name": "Muscosa",
-      "layers": ["traEp", "baseMem", "lamina"]
+      "isTemplate": true,
+      "layerWidth": 60,
+      "layers": ["tra_ep", "base_mem", "lamina"]
     },
     {
       "id": "muscularis",
-      "name": "Muscularis"
+      "name": "Muscularis",
+      "isTemplate": true
     },
     {
-      "id": "intraUr",
-      "name": "Intravesical urethra",
+      "id": "submucosa",
+      "name": "Submucosa",
+      "isTemplate": true,
+      "external": [
+        "UBERON:0000009"
+      ]
+    },
+    {
+      "id": "inner_lmf",
+      "name": "Inner Layer of Longitudinal Muscle Fibres",
+      "isTemplate": true
+    },      
+    {
+      "id": "cmf",
+      "name": "Circular Muscle Fibres",
+      "isTemplate": true,
+      "external": ["UBERON:0012368"]
+    },
+    {
+      "id": "outer_lmf",
+      "name": "Outer Layer of Longitudinal Muscle Fibres",
+      "isTemplate": true,
+      "external": [
+        "UBERON:0012369"
+      ]
+    },
+    {
+      "id": "detr",
+      "name": "Detrusor",
       "topology": "TUBE",
-      "length": 2,
-      "thickness": 3,
-      "layers": ["urine", "muscosa", "muscularis"]
+      "length"   : {"min": 2, "max": 2},
+      "thickness": {"min": 3, "max": 3},
+      "layers": ["inner_lmf", "cmf", "outer_lmf"],
+      "isTemplate": true,
+      "external": ["UBERON:0000381"]
+    },
+    {
+      "id": "muscularis2",
+      "name": "Muscularis",
+      "topology": "TUBE",
+      "layers": [
+        "inner_lmf",
+        "cmf",
+        "outer_lmf"
+      ],
+      "isTemplate": true,
+      "external": [
+        "UBERON:0006912"
+      ]
+    },
+    {
+      "id": "intra_mus",
+      "name": "Intravesical muscularis",
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "isTemplate": true,
+      "supertype": "muscularis2"
+    },
+    {
+      "id": "adv_serosa",
+      "name": "Adventitious serosa",
+      "topology": "TUBE",
+      "isTemplate": true,
+      "external": ["FMA:45637"]
+    },
+
+    {
+      "id"       : "intra_urethra",
+      "name"     : "Intravesical urethra",
+      "topology" : "TUBE",
+      "length"   : {"min": 2, "max": 2},
+      "thickness": {"min": 3, "max": 3},
+      "layers"   : ["urine", "muscosa", "muscularis"],
+      "width"    : 10
+    },
+    {
+      "id"       : "urin_blad",
+      "name"     : "Urinary bladder",
+      "topology" : "TUBE",
+      "length"   : {"min": 2, "max": 2},
+      "thickness": {"min": 2, "max": 2},
+      "layers"   : ["urine", "muscosa", "submucosa", "detr", "adv_serosa"],
+      "external" : ["UBERON:0001255"],
+      "width"    : 18
+    },
+    {
+      "id": "intra_uret",
+      "name": "Intravesical ureter",
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": ["urine", "muscosa", "muscularis2"],
+      "external": [
+        "UBERON:0000056"
+      ],
+      "width"    : 14
+    },
+    {
+      "id": "distal_free_uret",
+      "name": "Distal free ureter",
+      "topology": "TUBE",
+      "length"  : {"min": 2, "max": 2},
+      "thickness": {"min": 3, "max": 3},
+      "layers": ["urine", "muscosa", "muscularis2", "adv_serosa"],
+      "external": [
+        "UBERON:0000056"
+      ],
+      "width"    : 16
+    },
+    {
+      "id": "pro_free_uret",
+      "name": "Proximal free ureter",
+      "topology": "TUBE",
+      "length"  : {"min": 2, "max": 2},
+      "thickness": {"min": 3, "max": 3},
+      "layers": ["urine", "muscosa", "inner_lmf", "cmf", "adv_serosa"],
+      "external": [
+        "UBERON:0000056"
+      ],
+      "width"    : 14
     }
   ]
 }

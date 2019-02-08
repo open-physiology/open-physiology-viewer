@@ -1,12 +1,13 @@
 import { Group } from './groupModel';
 import { entries, keys, isNumber, cloneDeep, defaults } from 'lodash-bound';
 import { Validator} from 'jsonschema';
-import * as schema from '../data/graphScheme.json';
+import * as schema from './graphScheme.json';
 import { Link, LINK_GEOMETRY } from "./linkModel";
 import { Node } from "./nodeModel";
 
 const V = new Validator();
 
+export {schema};
 /**
  * The main model graph (a group with configuration options for the model viewer)
  * @class
@@ -31,10 +32,6 @@ export class Graph extends Group{
         //Check that lyphs are not conveyed by more than one link
         let conveyingLyphMap = {};
         (model.links||[]).filter(lnk => lnk.conveyingLyph).forEach(lnk => {
-            if (lnk.conveyingLyph.isTemplate){
-                console.warn("It is not allowed to use templates as conveying lyphs: ", lnk.conveyingLyph);
-                delete lnk.conveyingLyph;
-            }
             if (!conveyingLyphMap[lnk.conveyingLyph]){
                 conveyingLyphMap[lnk.conveyingLyph] = lnk.conveyingLyph;
             } else {
@@ -56,7 +53,7 @@ export class Graph extends Group{
                     let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
 
                     //Include newly created entity to the main graph
-                    let prop = this.Model.getRelNameByClsName(clsName);
+                    let prop = this.Model.selectedRelNames(clsName)[0];
                     if (prop) {
                         res[prop] = res[prop] ||[];
                         res[prop].push(e);

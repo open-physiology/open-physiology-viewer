@@ -5,10 +5,9 @@ import {
     MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
     MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule
 } from '@angular/material';
-import {getClassName, getSchemaClassModel} from '../../models/utils';
+import {getClassName, getSchemaClassModel, definitions} from '../../models/utils';
 import {FieldEditorDialog} from './fieldEditorDialog';
 import { cloneDeep, isObject} from 'lodash-bound';
-import { definitions }  from '../../data/graphScheme.json';
 
 @Component({
     selector: 'fieldEditor',

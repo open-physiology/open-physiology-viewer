@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import {values, isObject, unionBy, merge, keys, cloneDeep} from 'lodash-bound';
+import {values, isObject, unionBy, merge, keys, cloneDeep, entries, isArray, isString, pick} from 'lodash-bound';
 import {LINK_GEOMETRY, LINK_STROKE} from './linkModel';
 import {extractCoords} from '../three/utils';
 import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
@@ -32,6 +32,8 @@ export class Group extends Resource {
         //New entities will be auto-generated in the raw JSON format
         //this.replaceBorderNodes(json);
 
+        //replace references to templates
+        this.replaceReferencesToLyphTemplates(json, modelClasses);
         this.expandTreeTemplates(json, modelClasses);
         this.expandLyphTemplates(json.lyphs);
 
@@ -44,6 +46,55 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         return res;
+    }
+
+    static replaceReferencesToLyphTemplates(json, modelClasses){
+
+        let changed = 0;
+        const replaceRefToTemplate = (ref, parentID) => {
+            let template = (json.lyphs || []).find(e => e.id === ref && e.isTemplate);
+            if (template) {
+                changed++;
+                let subtype = {
+                    "id"       : ref + "_" + parentID,
+                    "supertype": template.id
+                };
+                subtype::merge(template::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
+                json.lyphs.push(subtype);
+                replaceRefsToTemplates(subtype, "layers");
+                return subtype.id;
+            }
+            return ref;
+        };
+
+        const replaceRefsToTemplates = (resource, key) => {
+            if (!resource[key]) { return; }
+            if (resource[key]::isArray()) {
+                resource[key] = resource[key].map(ref => replaceRefToTemplate(ref, resource.id))
+            } else {
+                resource[key] = replaceRefToTemplate(resource[key], resource.id);
+            }
+        };
+
+        (json::entries()||[]).forEach(([groupKey, resources]) => {
+            if (!resources::isArray()) { return; }
+            let groupClassNames = this.Model.relClassNames;
+            if (groupClassNames[groupKey]) {
+                let refsToLyphs = modelClasses[groupClassNames[groupKey]].Model.selectedRelNames("Lyph");
+                if (!refsToLyphs){ return; }
+                (resources || []).forEach(resource => {
+                    if (resource.isTemplate) { return; } // Do not alter templates
+                    (resource::keys() || []).forEach(key => {
+                        if (refsToLyphs.includes(key) && !["subtypes", "supertype"].includes(key)) {
+                            replaceRefsToTemplates(resource, key);
+                        }
+                    })
+                })
+            }
+        });
+        if (changed > 0){
+            console.info("Replaced references to lyph templates:", changed);
+        }
     }
 
     static expandTreeTemplates(json, modelClasses){

@@ -2,14 +2,13 @@ import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angul
 import { BrowserModule }    from '@angular/platform-browser';
 
 //Local
-import * as schema from '../data/graphScheme.json';
+//import * as schema from '../models/graphScheme.json';
 import initModel from '../data/graph.json';
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses } from '../models/modelClasses';
-import { debug } from '../models/utils';
-import { Graph } from '../models/graphModel';
+import { Graph, schema } from '../models/graphModel';
 //JSON Editor
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
@@ -26,6 +25,30 @@ import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
+
+let consoleHolder = console;
+/**
+ * Helper function to toggle console logging
+ * @param bool - boolean flag that indicates whether to print log messages to the console
+ * @param msgCount - optional object to count various types of messages (needed to notify the user about errors or warnings)
+ */
+function debug(bool, msgCount = {}){
+    if(!bool){
+        consoleHolder = console;
+        console = {};
+        Object.keys(consoleHolder).forEach(function(key){
+            console[key] = function(){
+                if (!msgCount[key]) {
+                    msgCount[key] = 0;
+                } else {
+                    msgCount[key]++;
+                }
+            };
+        })
+    }else{
+        console = consoleHolder;
+    }
+}
 
 let msgCount = {};
 debug(true, msgCount);
@@ -178,11 +201,7 @@ export class TestApp {
     }
 
     newModel(){
-        try {
-            this.model = {};
-        } catch(err){
-            throw new Error("Failed to create a new model: " +  err);
-        }
+        this.model = {};
     }
 
 	load(files) {
@@ -246,7 +265,11 @@ export class TestApp {
 
 	set model(model){
         this._model = model;
-        this._graphData = Graph.fromJSON(this._model, modelClasses);
+        try{
+            this._graphData = Graph.fromJSON(this._model, modelClasses);
+        } catch(err){
+            throw new Error("Failed to process the model: " +  err);
+        }
         console.info("ApiNATOMY graph: ", this._graphData);
         if (this._editor){
             this._editor.set(this._model);

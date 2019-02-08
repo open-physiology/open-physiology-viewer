@@ -43,7 +43,6 @@ export class Resource{
         const res = new cls(json.id);
 
         res.class = clsName;
-        //res.JSON = json;
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
@@ -272,10 +271,10 @@ export class Resource{
                 });
             } else {
                 if (obj[key] === res.id){
-                    obj[key] = res
+                    obj[key] = res;
                 }
-            }}
-        );
+            }
+        });
         delete waitingList[this.id];
     }
 
@@ -303,19 +302,15 @@ export class Resource{
             }
 
             const syncProperty = (obj) => {
-                if (!obj || !obj::isObject()) {
-                    return;
-                }
+                if (!obj || !obj::isObject()) { return; }
                 if (otherSpec.type === "array") {
-                    if (!obj[key2]) {
-                        obj[key2] = [];
-                    }
-                    if (!obj[key2]::isArray()) {
+                    if (!obj[key2]) { obj[key2] = []; }
+                    if (!(obj[key2]::isArray())) {
                         console.warn(`Object's property '${key2}' should contain an array:`, obj);
-                    } else {
-                        if (!obj[key2].find(obj2 => obj2 === res)) {
-                            obj[key2].push(res);
-                        }
+                        obj[key2] = [obj[key2]];
+                    }
+                    if (!obj[key2].find(obj2 => obj2 === res)) {
+                        obj[key2].push(res);
                     }
                 } else {
                     if (!obj[key2]) {

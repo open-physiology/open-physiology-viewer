@@ -1,30 +1,8 @@
 import {cloneDeep, entries, fromPairs, isObject, isString, merge} from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
-import {definitions} from "../data/graphScheme";
+import {definitions} from "./graphScheme";
 
-let consoleHolder = console;
-/**
- * Helper function to toggle console logging
- * @param bool - boolean flag that indicates whether to print log messages to the console
- * @param msgCount - optional object to count various types of messages (needed to notify the user about errors or warnings)
- */
-export function debug(bool, msgCount = {}){
-    if(!bool){
-        consoleHolder = console;
-        console = {};
-        Object.keys(consoleHolder).forEach(function(key){
-            console[key] = function(){
-                if (!msgCount[key]) {
-                    msgCount[key] = 0;
-                } else {
-                    msgCount[key]++;
-                }
-            };
-        })
-    }else{
-        console = consoleHolder;
-    }
-}
+export {definitions};
 
 /**
  * Copy coordinates from source object to target
@@ -223,10 +201,9 @@ export const getSchemaClassModel = (schemaClsName) => {
             .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
             .map(([key, ]) => key);
     };
-    model.getRelNameByClsName  = (clsName) => {
+    model.selectedRelNames  = (clsName) => {
         let relFields = model.relClassNames;
-        let relNames = relFields::entries().filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
-        if (relNames && relNames[0]){ return relNames[0]; }
+        return (relFields::entries()||[]).filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
     };
 
     model.groupClsNames = ["Group", "Graph"]; //TODO automate if more group types need to be defined

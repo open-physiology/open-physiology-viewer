@@ -445,16 +445,23 @@ export class WebGLSceneComponent {
         vector.unproject(this.camera);
         let ray = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize());
 
+        const selectLayer = (entity) => {
+            //Refine selection to layers
+            if (entity && entity.layers) {
+                let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
+                let layerIntersects = ray.intersectObjects(layerMeshes);
+                if (layerIntersects.length > 0) {
+                    return selectLayer(layerIntersects[0].object.userData);
+                }
+            }
+            return entity;
+        };
+
         let intersects = ray.intersectObjects(this.graph.children);
         if (intersects.length > 0) {
             let entity = intersects[0].object.userData;
             if (!entity|| entity.inactive) { return; }
-            //Refine selection to layers
-            if (entity.layers) {
-                let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
-                let layerIntersects = ray.intersectObjects(layerMeshes);
-                if (layerIntersects.length > 0) { return layerIntersects[0].object.userData; }
-            }
+            return selectLayer(entity);
             // let children = intersects[0].object.children||[];
             // let childIntersects = (ray.intersectObjects(children)||[]).filter(obj => obj.userData);
             // if (childIntersects.length > 0) { return childIntersects[0].userData; }
