@@ -1,141 +1,152 @@
 {
   "nodes": [
     {
-      "id": "uom-root",
+      "id": "uot-root",
       "layout": {"x": -50}
     },
     {
-      "id": "uom-n1"
+      "id": "uot-n1"
     },
     {
-      "id": "uom-n2"
+      "id": "uot-n2"
     },
     {
-      "id": "uom-n3"
+      "id": "uot-n3"
     },
     {
-      "id": "uom-n4"
+      "id": "uot-n4"
     },
     {
-      "id": "uom-n5",
+      "id": "uot-n5",
       "layout": {"x": 50}
     }
   ],
   "links": [
     {
-      "id": "uom-lnk1",
+      "id": "uot-lnk1",
       "name": "UOM level 1",
-      "source": "uom-root",
-      "target": "uom-n1",
+      "source": "uot-root",
+      "target": "uot-n1",
       "conveyingLyph": "intra_urethra"
     },
     {
-      "id": "uom-lnk2",
+      "id": "uot-lnk2",
       "name": "UOM level 2",
-      "source": "uom-n1",
-      "target": "uom-n2",
+      "source": "uot-n1",
+      "target": "uot-n2",
       "conveyingLyph": "urin_blad"
     },
     {
-      "id": "uom-lnk3",
+      "id": "uot-lnk3",
       "name": "UOM level 3",
-      "source": "uom-n2",
-      "target": "uom-n3",
+      "source": "uot-n2",
+      "target": "uot-n3",
       "conveyingLyph": "intra_uret"
     },
     {
-      "id": "uom-lnk4",
+      "id": "uot-lnk4",
       "name": "UOM level 4",
-      "source": "uom-n3",
-      "target": "uom-n4",
+      "source": "uot-n3",
+      "target": "uot-n4",
       "conveyingLyph": "distal_free_uret"
     },
     {
-      "id": "uom-lnk5",
+      "id": "uot-lnk5",
       "name": "UOM level 5",
-      "source": "uom-n4",
-      "target": "uom-n5",
+      "source": "uot-n4",
+      "target": "uot-n5",
       "conveyingLyph": "pro_free_uret"
     }
   ],
   "lyphs": [
     {
-      "id" : "urine",
+      "id" : "URN",
       "name": "Urine",
+      "color": "f9ed32",
       "isTemplate": true
     },
     {
-      "id": "tra_ep",
+      "id": "TE",
       "name": "Transitional Epithelium",
+      "color": "c49a6c",
       "isTemplate": true
     },
     {
-      "id": "base_mem",
+      "id": "BM",
       "name": "Basement Membrane",
+      "color": "dc9e5a",
       "isTemplate": true
     },
     {
-      "id"   : "lamina",
+      "id"   : "LP",
       "name" : "Lamina Propria",
+      "color": "edaa5f",
       "isTemplate": true
     },
     {
-      "id": "muscosa",
+      "id": "Mcs",
       "name": "Muscosa",
       "isTemplate": true,
       "layerWidth": 60,
-      "layers": ["tra_ep", "base_mem", "lamina"]
+      "color": "#f7e6cd",
+      "layers": ["TE", "BM", "LP"]
     },
     {
-      "id": "muscularis",
+      "id": "Ms1",
       "name": "Muscularis",
+      "color": "f7941e",
       "isTemplate": true
     },
     {
-      "id": "submucosa",
+      "id": "Sub",
       "name": "Submucosa",
+      "color": "ec008c",
       "isTemplate": true,
       "external": [
         "UBERON:0000009"
       ]
     },
     {
-      "id": "inner_lmf",
+      "id": "ILF",
       "name": "Inner Layer of Longitudinal Muscle Fibres",
+      "color": "fbb040",
       "isTemplate": true
     },      
     {
-      "id": "cmf",
+      "id": "CMF",
       "name": "Circular Muscle Fibres",
+      "color": "d48d23",
       "isTemplate": true,
       "external": ["UBERON:0012368"]
     },
     {
-      "id": "outer_lmf",
+      "id": "OLF",
       "name": "Outer Layer of Longitudinal Muscle Fibres",
+      "color": "c27d15",
       "isTemplate": true,
       "external": [
         "UBERON:0012369"
       ]
     },
     {
-      "id": "detr",
+      "id": "Det",
       "name": "Detrusor",
       "topology": "TUBE",
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
-      "layers": ["inner_lmf", "cmf", "outer_lmf"],
+      "layers": ["ILF", "CMF", "OLF"],
+      "color": "d4b079",
       "isTemplate": true,
       "external": ["UBERON:0000381"]
     },
     {
-      "id": "muscularis2",
+      "id": "Ms2",
       "name": "Muscularis",
       "topology": "TUBE",
       "layers": [
-        "inner_lmf",
-        "cmf",
-        "outer_lmf"
+        "ILF",
+        "CMF",
+        "OLF"
       ],
       "isTemplate": true,
       "external": [
@@ -155,7 +166,7 @@
         "max": 3
       },
       "isTemplate": true,
-      "supertype": "muscularis2"
+      "supertype": "Ms2"
     },
     {
       "id": "adv_serosa",
@@ -169,26 +180,29 @@
       "id"       : "intra_urethra",
       "name"     : "Intravesical urethra",
       "topology" : "TUBE",
+      "color"    : "ccc",
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
-      "layers"   : ["urine", "muscosa", "muscularis"],
-      "width"    : 10
+      "layers"   : ["URN", "Mcs", "Ms1"],
+      "width"    : 5
     },
     {
       "id"       : "urin_blad",
       "name"     : "Urinary bladder",
       "topology" : "TUBE",
+      "color"    : "ccc",
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 2, "max": 2},
-      "layers"   : ["urine", "muscosa", "submucosa", "detr", "adv_serosa"],
+      "layers"   : ["URN", "Mcs", "Sub", "Det", "adv_serosa"],
       "external" : ["UBERON:0001255"],
-      "width"    : 18
+      "width"    : 9
     },
     {
-      "id": "intra_uret",
-      "name": "Intravesical ureter",
+      "id"      : "intra_uret",
+      "name"    : "Intravesical ureter",
       "topology": "TUBE",
-      "length": {
+      "color"   : "ccc",
+      "length"  : {
         "min": 3,
         "max": 3
       },
@@ -196,35 +210,56 @@
         "min": 3,
         "max": 3
       },
-      "layers": ["urine", "muscosa", "muscularis2"],
+      "layers"  : ["URN", "Mcs", "Ms2"],
       "external": [
         "UBERON:0000056"
       ],
-      "width"    : 14
+      "width"    : 7
     },
     {
       "id": "distal_free_uret",
       "name": "Distal free ureter",
+      "color": "ccc",
       "topology": "TUBE",
       "length"  : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
-      "layers": ["urine", "muscosa", "muscularis2", "adv_serosa"],
+      "layers": ["URN", "Mcs", "Ms2", "adv_serosa"],
       "external": [
         "UBERON:0000056"
       ],
-      "width"    : 16
+      "width"    : 8
     },
     {
       "id": "pro_free_uret",
       "name": "Proximal free ureter",
+      "color": "ccc",
       "topology": "TUBE",
       "length"  : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
-      "layers": ["urine", "muscosa", "inner_lmf", "cmf", "adv_serosa"],
+      "layers": ["URN", "Mcs", "ILF", "CMF", "adv_serosa"],
       "external": [
         "UBERON:0000056"
       ],
-      "width"    : 14
+      "width"    : 7
+    }
+  ],
+  "trees": [
+    {
+      "id"          : "UOT",
+      "name"        : "Urinary Omega Tree",
+      "root"        : "uot-root",
+      "numLevels"   : 5,
+      "levels"      : ["uot-lnk1", "uot-lnk2", "uot-lnk3", "uot-lnk4", "uot-lnk5"],
+      "branchingFactors": [1, 2, 1, 1, 1]
+    }
+  ],
+  "assign": [
+    {
+      "path": "$.nodes[*]",
+      "value": {
+        "color": "red",
+        "val": "1"
+      }
     }
   ]
 }

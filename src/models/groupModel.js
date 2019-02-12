@@ -30,7 +30,7 @@ export class Group extends Resource {
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
 
         //New entities will be auto-generated in the raw JSON format
-        //this.replaceBorderNodes(json);
+        this.replaceBorderNodes(json);
 
         //replace references to templates
         this.replaceReferencesToLyphTemplates(json, modelClasses);
@@ -59,7 +59,6 @@ export class Group extends Resource {
                     "id"       : ref + "_" + parentID,
                     "supertype": template.id
                 };
-                subtype::merge(template::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
                 json.lyphs.push(subtype);
                 replaceRefsToTemplates(subtype, "layers");
                 return subtype.id;
@@ -141,12 +140,13 @@ export class Group extends Resource {
                 for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                     let nodeClone = node::cloneDeep()::merge({
                         "id"     : nodeID + `_${i}`,
-                        "cloneOf": nodeID
+                        "cloneOf": nodeID,
+                        "class"  : "Node"
                     });
                     if (!node.clones){ node.clones = []; }
-                    node.clones.push(nodeClone);
-
+                    node.clones.push(nodeClone.id);
                     json.nodes.push(nodeClone);
+
                     links.forEach(lnk => {lnk.target = nodeClone.id});
                     //lyph constraint - replace
                     borderNodesByID[nodeID][i].border.borders.forEach(b => {
@@ -180,7 +180,9 @@ export class Group extends Resource {
                 return;
             }
             let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames);
-            relFieldNames.forEach(property => { this[property] = (this[property]||[])::unionBy(group[property], "id"); });
+            relFieldNames.forEach(property => {
+                this[property] = (this[property]||[])::unionBy(group[property], "id");
+            });
         });
 
         //Add auto-created clones of boundary nodes to relevant groups

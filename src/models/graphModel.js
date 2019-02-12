@@ -48,6 +48,7 @@ export class Graph extends Group{
         entitiesByID.waitingList::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
+                //let spec = modelClasses[obj.class].Model.relationshipMap[key];
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
                 if (clsName && (clsName !== "Shape")){ //TODO exclude all abstract classes
                     let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
@@ -58,7 +59,10 @@ export class Graph extends Group{
                         res[prop] = res[prop] ||[];
                         res[prop].push(e);
                     }
-                    obj[key] = entitiesByID[e.id] = e;
+                    entitiesByID[e.id] = e;
+                    // if (spec.type === "array"){
+                    //     obj[key] = [obj[key]];
+                    // }
                     added.push(e.id);
                 }
             }

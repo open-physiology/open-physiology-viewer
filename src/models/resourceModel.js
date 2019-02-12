@@ -318,8 +318,8 @@ export class Resource{
                     }
                     else {
                         if (obj[key2] !== res) {
-                            console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the resource:`,
-                                obj[key2], res, obj[key2].id, res.id);
+                            console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the second resource:`,
+                                obj, res, obj[key2].id, res.id);
                         }
                     }
                 }

@@ -245,6 +245,33 @@
         "skipLabel": {
           "description": "A flag to indicate that this resource is visualized without the corresponding text label",
           "type": "boolean"
+        },
+        "cloneOf": {
+          "description": "A resource that was copied to create the current resource. This field is used to link resource clones to the original resource. We clone nodes that are hosted by more than one lyph border, and nodes, links and lyphs to generate an instance of an omega tree.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/VisualResource"
+            }
+          ],
+          "relatedTo": "clones"
+        },
+        "clones": {
+          "description": "Resources that are clones of the current resource. This field is used to link the resource to all its clones. We clone nodes that are hosted by more than one lyph border,  and nodes, links and lyphs to generate an instance of an omega tree.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/VisualResource"
+              }
+            ]
+          },
+          "relatedTo": "cloneOf"
         }
       }
     },
@@ -382,33 +409,6 @@
             ]
           },
           "relatedTo": "target"
-        },
-        "cloneOf": {
-          "description": "A node that was copied to create the current node. This field is used to link node clones to the original node. We clone nodes that are hosted by more than one lyph border.",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "clones"
-        },
-        "clones": {
-          "description": "Nodes that are clones of the current node. This field is used to link the ndoe to all its clones. We clone nodes that are hosted by more than one lyph border.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "relatedTo": "cloneOf"
         }
       }
     },
@@ -1023,19 +1023,6 @@
           },
           "relatedTo": "groups",
           "default": []
-        },
-        "treeTemplate": {
-          "description": "Tree template to generate the group",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Tree"
-            }
-          ],
-          "readOnly": true,
-          "relatedTo": "group"
         }
       }
     },
@@ -1086,23 +1073,26 @@
             }
           ]
         },
-        "branchingFactor": {
-          "description": "Branching factor defines a mean value of branches at each tree level",
-          "type": "number",
-          "default": 1
+        "branchingFactors": {
+          "description": "Branching factors define a mean value of branches at each tree level",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "default": 1
+          }
         },
         "group": {
-          "description": "Group (subgraph) generated for the given tree template",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Group"
-            }
-          ],
-          "readOnly": true,
-          "relatedTo": "treeTemplate"
+          "description": "Group (subgraph) that defines canonical tree for the given tree template",
+          "$ref": "#/definitions/Group",
+          "readOnly": true
+        },
+        "instances": {
+          "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
+          "readOnly": true
         }
       }
     },

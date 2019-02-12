@@ -188,7 +188,6 @@ export const getSchemaClassModel = (schemaClsName) => {
     model.relationshipNames = model.relationships.map(([key, ]) => key);
 
     model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
-    model.isRelationship    = (key) => model.relationshipNames.includes(key);
 
     //Create, Update, Delete (CUD) fields
     model.cudFields         = model.fields       .filter(([key, spec]) => !spec.readOnly);

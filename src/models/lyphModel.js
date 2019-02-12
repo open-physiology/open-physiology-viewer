@@ -43,36 +43,48 @@ export class Lyph extends Shape {
         //Validate subtype
         (template.subtypes||[]).forEach(s => {
             if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
-                //generate a lyph for the template supertype
-                lyphs.push(s);
+                lyphs.push(s); //generate a lyph for the template supertype
             }
         });
         //Template supertype must contain id's for correct generation
         template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
 
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
-        subtypes.forEach(subtype => {
-            //Lyph inherits from the group lyphTemplate size and appearance
-            subtype::merge(template::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
-            subtype.layers = [];
-            (template.layers || []).forEach(layerRef => {
-                let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
-                if (!layerParent) {
-                    console.warn("Generation error: template layer object not found: ", layerRef);
-                    return;
-                }
-                let lyphLayer = {
-                    "id"        : `${layerParent.id}_${subtype.id}`,
-                    "supertype" : layerParent.id
-                };
-                lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
-                lyphLayer::merge(subtype::pick(["topology"]));
-                subtype.layers.push(lyphLayer);
-            });
-            subtype.layers.forEach(e => lyphs.push(e));
-            subtype.layers = subtype.layers.map(e => e.id);
-        });
+        subtypes.forEach(subtype => this.clone(template, subtype, lyphs));
+
         template.inactive = true;
+    }
+
+    /**
+     * Copy the properties and layer structure of the source lyph to the target lyph
+     * @param sourceLyph - the lyph to clone
+     * @param targetLyph - the cloned lyph instance
+     * @param lyphs - a set of existing model/group lyphs
+     * @returns {Lyph} the target lyph
+     */
+    static clone(sourceLyph, targetLyph, lyphs){
+        targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
+        targetLyph.layers = [];
+        (sourceLyph.layers || []).forEach(layerRef => {
+            let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
+            if (!layerParent) {
+                console.warn("Generation error: template layer object not found: ", layerRef);
+                return;
+            }
+            let lyphLayer = { "id" : `${layerParent.id}_${targetLyph.id}`};
+            lyphs.push(lyphLayer);
+            if (layerParent.isTemplate){
+                lyphLayer.supertype = layerParent.id;
+                this.clone(layerParent, lyphLayer, lyphs);
+            } else {
+                lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
+                lyphLayer.cloneOf = layerParent.id;
+            }
+            lyphLayer::merge(targetLyph::pick(["topology"]));
+            targetLyph.layers.push(lyphLayer);
+        });
+        targetLyph.layers = targetLyph.layers.map(e => e.id);
+        return targetLyph;
     }
 
     get radialTypes() {
@@ -224,7 +236,7 @@ export class Lyph extends Shape {
     }
 
     /**
-     * Update positions of lyphs in the force-directed graph (and their inner content)
+     * Update position of the lyph and its inner content
      * @param state - view settings
      */
     updateViewObjects(state) {
