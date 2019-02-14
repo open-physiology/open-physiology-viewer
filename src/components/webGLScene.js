@@ -223,10 +223,8 @@ export class WebGLSceneComponent {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
             this.config = this.defaultConfig::cloneDeep()::merge(this._graphData.config || {});
-            this._hideGroups = new Set([...this._graphData.groups]);
-            this._graphData.hideGroups([...this._hideGroups]);
+            this._graphData.showGroups(this._showGroups);
             this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
-
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.scaleFactor);
             if (this.graph) { this.graph.graphData(this._graphData); }
@@ -286,7 +284,7 @@ export class WebGLSceneComponent {
         this._labelClasses = this.config["labels"]::keys();
         this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
-        this._hideGroups   = new Set();
+        this._showGroups   = new Set();
     }
 
     onScaleChange(newLabelScale){
@@ -618,17 +616,17 @@ export class WebGLSceneComponent {
     }
 
     showGroup(group){
-        return !this._hideGroups.has(group);
+        return this._showGroups.has(group);
     }
 
     toggleGroup(group) {
         if (!group) { return; }
-        if (this._hideGroups.has(group)){
-            this._hideGroups.delete(group);
+        if (this._showGroups.has(group)){
+            this._showGroups.delete(group);
         } else {
-            this._hideGroups.add(group);
+            this._showGroups.add(group);
         }
-        this._graphData.hideGroups([...this._hideGroups]);
+        this._graphData.showGroups(this._showGroups);
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 

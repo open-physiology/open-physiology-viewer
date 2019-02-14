@@ -36,6 +36,8 @@ export class Group extends Resource {
         this.replaceReferencesToLyphTemplates(json, modelClasses);
         this.expandTreeTemplates(json, modelClasses);
         this.expandLyphTemplates(json.lyphs);
+        this.createTreeInstances(json, modelClasses);
+
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
         res.mergeSubgroupEntities();
@@ -83,8 +85,8 @@ export class Group extends Resource {
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
                     if (resource.isTemplate) { return; } // Do not alter templates
-                    (resource::keys() || []).forEach(key => {
-                        if (refsToLyphs.includes(key) && !["subtypes", "supertype"].includes(key)) {
+                    (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
+                        if (refsToLyphs.includes(key) && !["subtypes", "supertype", "lyphTemplate"].includes(key)) {
                             replaceRefsToTemplates(resource, key);
                         }
                     })
@@ -103,6 +105,13 @@ export class Group extends Resource {
                 modelClasses["Tree"].expandTemplate(json, tree);
             }
         );
+    }
+
+    static createTreeInstances(json, modelClasses){
+        (json.trees||[]).forEach(tree => {
+            if (!tree.group) { this.expandTreeTemplates(json, modelClasses); }
+            modelClasses["Tree"].createInstance(json, tree)
+        });
     }
 
     static expandLyphTemplates(lyphs){
@@ -209,21 +218,13 @@ export class Group extends Resource {
     }
 
     /**
-     * Check whether the given entity belongs to the group
-     * @param entity - resource
-     * @returns {*|void}
-     */
-    // belongsTo(entity){
-    //     return this.entities.find(e => (e === entity) || (e.id === entity.id));
-    // }
-
-    /**
-     * Hide given subgroups of the current group
+     * Show subgroups of the current group. A resources is shown if it belongs to at least one visible subgroup
      * @param groups - selected subgroups
      */
-    hideGroups(groups){
-        this.show();
-        (groups || []).forEach(g => g.hide());
+    showGroups(groups){
+        this.show(); //show all entities that are in the main group
+        (this.groups || []).filter(group => !groups.has(group)).forEach(g => g.hide()); //hide entities from hidden groups
+        (this.groups || []).filter(group => groups.has(group)).forEach(g => g.show()); //show entities that are in visible groups
     }
 
     /**

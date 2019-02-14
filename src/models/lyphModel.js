@@ -1,7 +1,7 @@
 import {Shape} from './shapeModel';
-import {THREE, align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape} from '../three/utils';
+import {THREE, align, getCenterPoint, createMeshWithBorder, layerShape, lyphShape, d3Layer, d3Lyph} from '../three/utils';
 import {copyCoords} from './utils';
-import {isObject, isString,  merge, pick, isArray} from "lodash-bound";
+import {isObject, isString,  merge, pick} from "lodash-bound";
 
 export const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -71,15 +71,15 @@ export class Lyph extends Shape {
                 console.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
-            let lyphLayer = { "id" : `${layerParent.id}_${targetLyph.id}`};
+            let lyphLayer = { "id" : `${layerParent.id}_${targetLyph.id}` };
             lyphs.push(lyphLayer);
             if (layerParent.isTemplate){
                 lyphLayer.supertype = layerParent.id;
-                this.clone(layerParent, lyphLayer, lyphs);
             } else {
-                lyphLayer::merge(layerParent::pick(["color", "layerWidth", "topology"]));
                 lyphLayer.cloneOf = layerParent.id;
             }
+            this.clone(layerParent, lyphLayer, lyphs);
+
             lyphLayer::merge(targetLyph::pick(["topology"]));
             targetLyph.layers.push(lyphLayer);
         });
@@ -179,13 +179,23 @@ export class Lyph extends Shape {
             };
 
             //The shape of the lyph depends on its position in its parent lyph as layer
-            let obj = createMeshWithBorder(
-                this.prev
-                    ? layerShape(
-                    [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
-                    [this.width, this.height, this.height / 4, ...this.radialTypes])
-                    : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
-                params);
+            let obj;
+
+            if (this.layerIn && this.layerIn.show3d){
+                obj =  this.prev
+                    ? d3Layer(
+                        [ this.prev.offset || 1, this.height,  this.height / 4, ...this.prev.radialTypes],
+                        [ this.prev.offset + this.width, this.height, this.height / 4, ...this.radialTypes], params)
+                    : d3Lyph([this.width, this.height, this.height / 4, ...this.radialTypes], params) ;
+            } else {
+                obj = createMeshWithBorder(
+                    this.prev
+                        ? layerShape(
+                        [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
+                        [this.width, this.height, this.height / 4, ...this.radialTypes])
+                        : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
+                    params);
+            }
 
             obj.userData = this;
             this.viewObjects['main'] = obj;
@@ -222,11 +232,15 @@ export class Lyph extends Shape {
                 layer.width = layer.layerWidth / 100 * this.width;
                 layer.height = this.height;
                 layer.offset = offset;
-                offset += layer.width;
                 layer.createViewObjects(state);
+                offset += layer.width;
                 let layerObj = layer.viewObjects["main"];
-                layerObj.translateX(layer.offset);
-                layerObj.translateZ(1); //Layers should stay in the same plane to be visible from both sides
+
+                if (!layer.layerIn.show3d){
+                    layerObj.translateX(layer.offset);
+                    layerObj.translateZ(1); //Layers should stay in the same plane to be visible from both sides
+                }
+
                 obj.add(layerObj);
             });
         }

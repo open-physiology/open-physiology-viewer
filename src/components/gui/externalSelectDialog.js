@@ -83,7 +83,6 @@ export class ExternalSelectDialog {
         } else {
             delete this.selected[key];
         }
-        console.log("Selected", this.selected);
     }
 
     getAnnotations(option) {

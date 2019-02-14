@@ -306,7 +306,6 @@ export class ResourceEditor {
 
         dialogRef.afterClosed().subscribe(result => {
             (result||{})::values().forEach(e => {
-                console.log("Resource to link", e);
                 let resource = {
                     id  : e.curie,
                     name: e.labels ? e.labels[0] : null,

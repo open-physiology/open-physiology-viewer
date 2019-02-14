@@ -62,25 +62,25 @@
     {
       "id" : "URN",
       "name": "Urine",
-      "color": "f9ed32",
+      "color": "#f9ed32",
       "isTemplate": true
     },
     {
       "id": "TE",
       "name": "Transitional Epithelium",
-      "color": "c49a6c",
+      "color": "#c49a6c",
       "isTemplate": true
     },
     {
       "id": "BM",
       "name": "Basement Membrane",
-      "color": "dc9e5a",
+      "color": "#dc9e5a",
       "isTemplate": true
     },
     {
       "id"   : "LP",
       "name" : "Lamina Propria",
-      "color": "edaa5f",
+      "color": "#edaa5f",
       "isTemplate": true
     },
     {
@@ -94,13 +94,13 @@
     {
       "id": "Ms1",
       "name": "Muscularis",
-      "color": "f7941e",
+      "color": "#f7941e",
       "isTemplate": true
     },
     {
       "id": "Sub",
       "name": "Submucosa",
-      "color": "ec008c",
+      "color": "#ec008c",
       "isTemplate": true,
       "external": [
         "UBERON:0000009"
@@ -109,20 +109,20 @@
     {
       "id": "ILF",
       "name": "Inner Layer of Longitudinal Muscle Fibres",
-      "color": "fbb040",
+      "color": "#fbb040",
       "isTemplate": true
     },      
     {
       "id": "CMF",
       "name": "Circular Muscle Fibres",
-      "color": "d48d23",
+      "color": "#d48d23",
       "isTemplate": true,
       "external": ["UBERON:0012368"]
     },
     {
       "id": "OLF",
       "name": "Outer Layer of Longitudinal Muscle Fibres",
-      "color": "c27d15",
+      "color": "#c27d15",
       "isTemplate": true,
       "external": [
         "UBERON:0012369"
@@ -135,7 +135,7 @@
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
       "layers": ["ILF", "CMF", "OLF"],
-      "color": "d4b079",
+      "color": "#d4b079",
       "isTemplate": true,
       "external": ["UBERON:0000381"]
     },
@@ -149,6 +149,7 @@
         "OLF"
       ],
       "isTemplate": true,
+      "color": "#f7941e",
       "external": [
         "UBERON:0006912"
       ]
@@ -173,6 +174,7 @@
       "name": "Adventitious serosa",
       "topology": "TUBE",
       "isTemplate": true,
+      "color": "#8dc63f",
       "external": ["FMA:45637"]
     },
 
@@ -180,7 +182,7 @@
       "id"       : "intra_urethra",
       "name"     : "Intravesical urethra",
       "topology" : "TUBE",
-      "color"    : "ccc",
+      "color"    : "#ccc",
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
       "layers"   : ["URN", "Mcs", "Ms1"],
@@ -190,7 +192,7 @@
       "id"       : "urin_blad",
       "name"     : "Urinary bladder",
       "topology" : "TUBE",
-      "color"    : "ccc",
+      "color"    : "#ccc",
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 2, "max": 2},
       "layers"   : ["URN", "Mcs", "Sub", "Det", "adv_serosa"],
@@ -201,7 +203,7 @@
       "id"      : "intra_uret",
       "name"    : "Intravesical ureter",
       "topology": "TUBE",
-      "color"   : "ccc",
+      "color"   : "#ccc",
       "length"  : {
         "min": 3,
         "max": 3
@@ -219,7 +221,7 @@
     {
       "id": "distal_free_uret",
       "name": "Distal free ureter",
-      "color": "ccc",
+      "color": "#ccc",
       "topology": "TUBE",
       "length"  : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
@@ -232,7 +234,7 @@
     {
       "id": "pro_free_uret",
       "name": "Proximal free ureter",
-      "color": "ccc",
+      "color": "#ccc",
       "topology": "TUBE",
       "length"  : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},

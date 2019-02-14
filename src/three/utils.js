@@ -4,6 +4,99 @@ import {MaterialFactory} from './materialFactory';
 import {merge} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 
+const ThreeBSP = require('three-js-csg')(THREE);
+
+/**
+ * Computes difference between two geometries
+ * @param smallGeom - inner geometry
+ * @param largeGeom - outer geometry
+ * @param material  - geometry material
+ */
+export function geometryDifference(smallGeom, largeGeom, params){
+    let smallBSP = new ThreeBSP(smallGeom);
+    let largeBSP = new ThreeBSP(largeGeom);
+    let intersectionBSP = largeBSP.subtract(smallBSP);
+    return intersectionBSP.toMesh( MaterialFactory.createMeshBasicMaterial(params) );
+}
+
+/**
+ * Helper function to produce a merged layer geometry given a tube shape and two cups representing open or closed borders
+ * @param tube       - core layer tube
+ * @param cupTop     - top border
+ * @param cupBottom  - bottom border
+ * @param offset     - distance to shift cups wrt the tube center
+ * @returns {Geometry|SEA3D.Geometry|*|THREE.Geometry}
+ */
+export function mergedGeometry(tube, cupTop, cupBottom, offset){
+    let singleGeometry = new THREE.Geometry();
+    let tubeMesh       = new THREE.Mesh(tube);
+    let cupTopMesh     = new THREE.Mesh(cupTop);
+    let cupBottomMesh  = new THREE.Mesh(cupBottom);
+    cupTopMesh.translateY(offset);
+    cupBottomMesh.translateY(-offset);
+    cupTopMesh.updateMatrix();
+    cupBottomMesh.updateMatrix();
+    singleGeometry.merge(tubeMesh.geometry, tubeMesh.matrix);
+    singleGeometry.merge(cupTopMesh.geometry, cupTopMesh.matrix);
+    singleGeometry.merge(cupBottomMesh.geometry, cupBottomMesh.matrix);
+    return singleGeometry;
+}
+
+/**
+ * Draws layer of a lyph in 3d. Closed borders are drawn as cylinders because sphere approximation is quite slow
+ * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
+ * $thickness is axial border distance from the rotational axis
+ * $height is axial border height
+ * $radius is the radius for the circle for closed border
+ * $top is a boolean value indicating whether top axial border is closed
+ * $bottom is a boolean value indicating whether bottom axial border is closed
+ * @param outer = [thickness,  height,  radius,  top,  bottom], where
+ * thickness is non-axial border distance from the rotational axis
+ * height is non-axial border height
+ * radius is the radius for the circle for closed border
+ * top is a boolean value indicating whether top non-axial border is closed
+ * bottom is a boolean value indicating whether bottom non-axial border is closed
+ * @param params - object material params
+ * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
+ * @example
+ * d3Layer([ layer.width * i + 1,       layer.height, layer.width / 2, ...layer.border.radialTypes],
+ *         [ layer.width * (i + 1) + 1, layer.height, layer.width / 2, ...layer.border.radialTypes], layer.material);
+ */
+export function d3Layer(inner, outer, params) {
+    const [$thickness, $height, $radius, $top, $bottom] = inner;
+    const [thickness, height, radius, top, bottom] = outer;
+    const a = 0.5;
+    const b = 0.5 * (1 - a);
+    //Cylinder constructor parameters: [radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight]
+    //Closed borders are approximated by cylinders with smaller diameters for speed
+
+    let $tube = new THREE.CylinderGeometry($thickness, $thickness, a * $height, 10, 4);
+    let $cupTop = new THREE.CylinderGeometry($top ? $thickness - $radius : $thickness, $thickness, b * $height, 10, 4);
+    let $cupBottom = new THREE.CylinderGeometry($thickness, $bottom ? $thickness - $radius : $thickness, b * $height, 10, 4);
+
+    let tube = new THREE.CylinderGeometry(thickness, thickness, a * height, 10, 4);
+    let cupTop = new THREE.CylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
+    let cupBottom = new THREE.CylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
+
+    let smallGeometry = mergedGeometry($tube, $cupTop, $cupBottom, (a + b) * 0.5 * $height);
+    let largeGeometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+
+    return geometryDifference(smallGeometry, largeGeometry, params);
+}
+
+export function d3Lyph(outer, params) {
+    const [thickness, height, radius, top, bottom] = outer;
+    const a = 0.5;
+    const b = 0.5 * (1 - a);
+
+    let tube = new THREE.CylinderGeometry(thickness, thickness, a * height, 10, 4);
+    let cupTop = new THREE.CylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
+    let cupBottom = new THREE.CylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
+    let geometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+    return new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
+}
+
+
 /**
  * Convert color string to hex
  * @param {string} str - string with color
@@ -24,6 +117,7 @@ export function lyphBorders(params){
     borders[0].moveTo( 0, - height / 2);
     borders[0].lineTo( 0,   height / 2);
     borders[1].moveTo( 0,   height / 2);
+    //Top radial border
     //Top radial border
     if (top){
         borders[1].lineTo( width - radius, height / 2 );

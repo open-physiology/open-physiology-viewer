@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import { isObject, isPlainObject, defaults, values } from 'lodash-bound';
+import { isPlainObject, defaults } from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./lyphModel";
 
 /**
@@ -152,8 +152,6 @@ export class Tree extends Resource {
             mergeGenResource(tree.levels[i], "links");
             tree.levels[i] = tree.levels[i].id; //Replace with ID to avoid resource definition duplication
         }
-
-        this.createInstance(parentGroup, tree);
     }
 
     static createInstance(parentGroup, tree){
@@ -200,7 +198,7 @@ export class Tree extends Resource {
                     let prev = base[0].source;
                     for (let j = i; j < tree.levels.length; j++) {
                         let [lnk, trg, lyph] = levelResources[j][0].map(r => ({
-                            id: `${r.id}_${i}:${m}:${k}`,
+                            id: `${r.id}_${i+1}:${m+1}:${k}`,
                             cloneOf: r.id
                         }));
                         lnk.target = trg.id;
@@ -209,6 +207,9 @@ export class Tree extends Resource {
                         prev = lnk.target;
 
                         Lyph.clone(levelResources[j][0][2], lyph, parentGroup.lyphs); //clone lyph structure
+
+                        //lyph.show3d = true;
+
                         mergeGenResources([lnk, trg, lyph]);
                         levelResources[j].push([lnk, trg, lyph]);
                     }
