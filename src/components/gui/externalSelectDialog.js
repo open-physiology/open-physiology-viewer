@@ -41,7 +41,7 @@ import { HttpClient } from '@angular/common/http';
                             {{toJSON(resource)}}
                         </p>
                     </mat-list-option>
-                </mat-selection-list>
+                </mat-selection-list> 
                 
             </section>
         </div>

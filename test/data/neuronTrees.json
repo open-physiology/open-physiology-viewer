@@ -53,7 +53,7 @@
       "conveyingLyph" : "hillock"
     }
   ],
-  "lyphs" : [
+  "lyphs": [
     {
       "id"        : "neuronBag",
       "isTemplate": true,

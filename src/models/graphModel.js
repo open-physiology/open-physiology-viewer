@@ -4,6 +4,7 @@ import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import { Link, LINK_GEOMETRY } from "./linkModel";
 import { Node } from "./nodeModel";
+import { isObject} from "lodash-bound";
 
 const V = new Validator();
 
@@ -48,7 +49,6 @@ export class Graph extends Group{
         entitiesByID.waitingList::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
-                //let spec = modelClasses[obj.class].Model.relationshipMap[key];
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
                 if (clsName && (clsName !== "Shape")){ //TODO exclude all abstract classes
                     let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
@@ -60,9 +60,6 @@ export class Graph extends Group{
                         res[prop].push(e);
                     }
                     entitiesByID[e.id] = e;
-                    // if (spec.type === "array"){
-                    //     obj[key] = [obj[key]];
-                    // }
                     added.push(e.id);
                 }
             }
@@ -125,7 +122,7 @@ export class Graph extends Group{
         createCoalescenceForces(res);
 
         //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
-        (res.links||[]).filter(link => link.length).forEach(link => link.length *= 2);
+        (res.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= 2);
 
         return res;
     }
@@ -181,7 +178,7 @@ export class Graph extends Group{
             if (lyph.height) {lyph.height *= scaleFactor}
         });
         (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
-        (this.links||[]).filter(link => link.length).forEach(link => link.length *= scaleFactor);
+        (this.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= scaleFactor);
         (this.regions||[]).filter(region => region.points).forEach(region =>
            region.points.forEach(p => scalePoint(p)));
     }

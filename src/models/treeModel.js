@@ -2,6 +2,22 @@ import { Resource } from './resourceModel';
 import { isPlainObject, defaults } from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./lyphModel";
 
+const mergeGenResource = (group, parentGroup, e, prop) => {
+    if (!e) { return; }
+    if (group){
+        group[prop] = group[prop] || [];
+        if (e::isPlainObject()){
+            if (e.id){ if (!group[prop].find(x => x.id === e.id)){ group[prop].push(e.id); }}
+        } else {
+            if (!group[prop].includes(e)){ group[prop].push(e); }
+        }
+    }
+    if (parentGroup && e.id){
+        parentGroup[prop] = parentGroup[prop] || [];
+        if (!parentGroup[prop].find(x => x.id === e.id)){ parentGroup[prop].push(e); }
+    }
+};
+
 /**
  * Tree model
  * @property group
@@ -20,12 +36,12 @@ export class Tree extends Resource {
             console.warn(`Skipped tree template - it must have (non-empty) ID!`); return;
         }
 
-        if (!tree.group) {
-            tree.group = {
-                "id"   : "group_" + tree.id,
-                "name" : tree.name + " group",
-            }
-        }
+        tree.group = tree.group || {};
+        tree.group::defaults({
+            "id"   : "group_" + tree.id,
+            "name" : tree.name + " group",
+        });
+
         if (!parentGroup.groups) { parentGroup.groups = []; }
         parentGroup.groups.push(tree.group);
 
@@ -33,13 +49,6 @@ export class Tree extends Resource {
         if ( tree.group.links && (tree.group.links.length > 0)){
             console.warn(`Tree group contains extra links: ${tree.group.links}!`)}
         if ( tree.group.nodes && (tree.group.nodes.length > 0)){ console.warn(`Tree group contains extra nodes: ${tree.group.nodes}!`)}
-
-        const mergeGenResource = (e, prop) => {
-            tree.group[prop]  = tree.group[prop] || [];
-            parentGroup[prop] = parentGroup[prop] || [];
-            if (!tree.group[prop].includes(e)) { tree.group[prop].push(e.id); }
-            if (!parentGroup[prop].find(x => x.id === e.id)){ parentGroup[prop].push(e); }
-        };
 
         const getID  = (e) => e::isPlainObject()? e.id : e;
         const match  = (e1, e2) => getID(e1) === getID(e2);
@@ -78,9 +87,7 @@ export class Tree extends Resource {
                 "skipLabel": true
             };
             sources[i] = sources[i] || targets[i] || newNode;
-            if (sources[i] === newNode){
-                mergeGenResource(sources[i], "nodes");
-            }
+            mergeGenResource(tree.group, parentGroup, sources[i], "nodes");
         }
 
         tree.root = getID(sources[0]);
@@ -115,7 +122,7 @@ export class Tree extends Resource {
         if (template){
             if (template::isPlainObject()){
                 if (!template.id) { template.id = tree.id + "_template"; }
-                mergeGenResource(template, "lyphs");
+                mergeGenResource(tree.group, parentGroup, template, "lyphs");
                 tree.lyphTemplate = template.id;
             } else {
                 //find lyph template to establish topology of the tree
@@ -147,13 +154,19 @@ export class Tree extends Resource {
                     "topology"   : getTopology(i, N, template)
                 };
                 tree.levels[i].conveyingLyph = lyph.id;
-                mergeGenResource(lyph, "lyphs");
+                mergeGenResource(tree.group, parentGroup, lyph, "lyphs");
             }
-            mergeGenResource(tree.levels[i], "links");
+            mergeGenResource(tree.group, parentGroup, tree.levels[i].conveyingLyph, "lyphs");
+            mergeGenResource(tree.group, parentGroup, tree.levels[i], "links");
             tree.levels[i] = tree.levels[i].id; //Replace with ID to avoid resource definition duplication
         }
     }
 
+    /**
+     * Generate an instance of a given omega tree
+     * @param parentGroup - parent group, i.e., model resources that may be referred from the template
+     * @param tree - omega tree definition
+     */
     static createInstance(parentGroup, tree){
         if (!tree || !tree.group || !tree.levels){
             console.warn("Cannot create an omega tree instance: canonical tree undefined!");
@@ -165,51 +178,47 @@ export class Tree extends Resource {
             return;
         }
 
-        let instance = {
-            "id"   : "instance_" + tree.id,
-            "name" : tree.name + " instance",
+        tree.instance = {
+            "id"       : "instance_" + tree.id,
+            "name"     : tree.name + " instance"
         };
 
-        instance::defaults(tree.group);
+        const mergeGenResources = ([lnk, trg, lyph]) => {
+            mergeGenResource(tree.instance, parentGroup, lnk, "links");
+            mergeGenResource(tree.instance, parentGroup, trg, "nodes");
+            mergeGenResource(tree.instance, parentGroup, lyph, "lyphs");
+        };
 
         let levelResources = {};
         for (let i = 0; i < tree.levels.length; i++){
-            let lnk  = tree.levels[i]::isPlainObject()?   tree.levels[i]     : (parentGroup.links||[]).find(e => e.id === tree.levels[i]);
+            let lnk = tree.levels[i]::isPlainObject()?   tree.levels[i] : (parentGroup.links||[]).find(e => e.id === tree.levels[i]);
             let trg = lnk.target::isPlainObject()? lnk.target: (parentGroup.nodes||[]).find(e => e.id === lnk.target);
             let lyph = lnk.conveyingLyph::isPlainObject()? lnk.conveyingLyph : (parentGroup.lyphs||[]).find(e => e.id === lnk.conveyingLyph);
+
             if (!lnk || !trg) {
                 console.warn("Failed to find tree level resources: ", tree.id, i, tree.levels[i]);
+                if (!trg) { trg = {"id": lnk.target}; }
+                if (!lnk) { lnk = {"id": tree.levels[i]}; }
             }
+            if (lyph){ lyph.create3d = true; }
             levelResources[i] = [[lnk, trg, lyph]];
+            mergeGenResources([lnk, trg, lyph]);
         }
 
-        const mergeGenResources = (e) => {
-            ["links", "nodes", "lyphs"].forEach((prop, i) => {
-                instance[prop] = instance[prop] || [];
-                instance[prop].push(e[i].id);
-                parentGroup[prop] = parentGroup[prop] || [];
-                parentGroup[prop].push(e[i]);
-            })
-        };
-
-        for (let i = 0; i < tree.branchingFactors.length; i++){
+        for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
             levelResources[i].forEach((base, m) => {
                 for (let k = 1; k < tree.branchingFactors[i]; k++){
                     let prev = base[0].source;
                     for (let j = i; j < tree.levels.length; j++) {
-                        let [lnk, trg, lyph] = levelResources[j][0].map(r => ({
+                        let [lnk, trg, lyph] = levelResources[j][0].map(r => (r? {
                             id: `${r.id}_${i+1}:${m+1}:${k}`,
-                            cloneOf: r.id
-                        }));
+                            cloneOf: r.id} : r
+                        ));
                         lnk.target = trg.id;
                         lnk.conveyingLyph = lyph ? lyph.id : null;
                         lnk.source = prev;
                         prev = lnk.target;
-
                         Lyph.clone(levelResources[j][0][2], lyph, parentGroup.lyphs); //clone lyph structure
-
-                        //lyph.show3d = true;
-
                         mergeGenResources([lnk, trg, lyph]);
                         levelResources[j].push([lnk, trg, lyph]);
                     }
@@ -217,7 +226,6 @@ export class Tree extends Resource {
             })
         }
 
-        this.instances = [instance];
-        parentGroup.groups.push(instance);
+        parentGroup.groups.push(tree.instance);
     }
 }

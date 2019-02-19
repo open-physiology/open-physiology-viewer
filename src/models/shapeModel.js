@@ -21,7 +21,9 @@ export class Shape extends VisualResource {
      * @returns {Shape} - ApiNATOMY Shape resource
      */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-        json.id     = json.id || ("new_" + entitiesByID::keys().length());
+        json.id     = json.id || ("new_" + entitiesByID
+            ? entitiesByID::keys().length()
+            : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
         json.border = json.border || {};
         json.border.id = json.border.id || (json.id + "_border");
         json.border.borders = json.border.borders || {};

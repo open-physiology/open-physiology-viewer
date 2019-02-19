@@ -48,7 +48,6 @@ export class Lyph extends Shape {
         });
         //Template supertype must contain id's for correct generation
         template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
-
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
         subtypes.forEach(subtype => this.clone(template, subtype, lyphs));
 
@@ -63,6 +62,8 @@ export class Lyph extends Shape {
      * @returns {Lyph} the target lyph
      */
     static clone(sourceLyph, targetLyph, lyphs){
+        if (!sourceLyph || !targetLyph) {return; }
+        if (!lyphs) {lyphs = [];}
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
         targetLyph.layers = [];
         (sourceLyph.layers || []).forEach(layerRef => {
@@ -95,6 +96,11 @@ export class Lyph extends Shape {
                 return [false, true];
             case LYPH_TOPOLOGY.CYST :
                 return [true, true];
+            case LYPH_TOPOLOGY.TUBE :
+                return [false, false];
+        }
+        if (this.layerIn){
+            return this.layerIn.radialTypes;
         }
         return [false, false];
     }
@@ -159,6 +165,26 @@ export class Lyph extends Shape {
         return (this._points||[]).map(p => this.translate(p));
     }
 
+    get avgThickness(){
+        let {min, max} = this.thickness || {"min" : 1, "max": 1};
+        return ((min||1) + (max||1)) / 2;
+    }
+
+    get avgLength(){
+        let {min, max} = this.length|| {"min" : 1, "max": 1};
+        return ((min||1) + (max||1)) / 2;
+    }
+
+    get offset(){
+        let offset = this.layerIn? this.layerIn.offset: 0;
+        let curr = this.prev;
+        while (curr) {
+            offset += curr.width;
+            curr = curr.prev;
+        }
+        return offset;
+    }
+
     /**
      * Create view model for the class instance
      * @param state - layout settings
@@ -166,6 +192,11 @@ export class Lyph extends Shape {
     createViewObjects(state) {
         //Cannot draw a lyph without axis
         if (!this.axis) { return; }
+
+        for (let i = 1; i < (this.layers || []).length; i++) {
+            this.layers[i].prev = this.layers[i - 1];
+            this.layers[i].prev.next = this.layers[i];
+        }
 
         //Create a lyph object
         if (!this.viewObjects["main"]) {
@@ -179,34 +210,38 @@ export class Lyph extends Shape {
             };
 
             //The shape of the lyph depends on its position in its parent lyph as layer
-            let obj;
+            let offset = this.offset;
+            let prev = this.prev || this.layerIn? (this.layerIn.prev || this): this;
 
-            if (this.layerIn && this.layerIn.show3d){
-                obj =  this.prev
+            let obj = createMeshWithBorder(this.prev
+                    ? layerShape(
+                    [this.prev.width, prev.height, this.height / 4, ...this.prev.radialTypes],
+                    [this.width, this.height, this.height / 4, ...this.radialTypes])
+                    : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
+                params);
+            obj.userData = this;
+            this.viewObjects['main'] = this.viewObjects['2d'] = obj;
+
+            if (this.create3d){
+                params.opacity = 0.5;
+                let obj3d = (offset > 0)
                     ? d3Layer(
-                        [ this.prev.offset || 1, this.height,  this.height / 4, ...this.prev.radialTypes],
-                        [ this.prev.offset + this.width, this.height, this.height / 4, ...this.radialTypes], params)
+                        [ offset || 1, prev.height,  this.height / 4, ...prev.radialTypes],
+                        [ offset + this.width, this.height, this.height / 4, ...this.radialTypes], params)
                     : d3Lyph([this.width, this.height, this.height / 4, ...this.radialTypes], params) ;
-            } else {
-                obj = createMeshWithBorder(
-                    this.prev
-                        ? layerShape(
-                        [this.prev.width, this.prev.height, this.height / 4, ...this.prev.radialTypes],
-                        [this.width, this.height, this.height / 4, ...this.radialTypes])
-                        : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
-                    params);
+                obj3d.userData = this;
+                this.viewObjects["3d"] = obj3d;
+                if (state.showLyphs3d){
+                    this.viewObjects["main"] = this.viewObjects["3d"];
+                }
             }
 
-            obj.userData = this;
-            this.viewObjects['main'] = obj;
-
-            this.offset = this.offset || 0;
             this._points = [
-                new THREE.Vector3(this.offset, -this.height / 2, 0),
-                new THREE.Vector3(this.offset, this.height / 2, 0),
-                new THREE.Vector3(this.width + this.offset, this.height / 2, 0),
-                new THREE.Vector3(this.width + this.offset, -this.height / 2, 0),
-                new THREE.Vector3(this.offset, -this.height / 2, 0)
+                new THREE.Vector3(offset, -this.height / 2, 0),
+                new THREE.Vector3(offset, this.height / 2, 0),
+                new THREE.Vector3(offset + this.width, this.height / 2, 0),
+                new THREE.Vector3(offset + this.width, -this.height / 2, 0),
+                new THREE.Vector3(offset, -this.height / 2, 0)
             ];
 
             //Border uses corner points
@@ -221,27 +256,22 @@ export class Lyph extends Shape {
             let defaultWidth = (resizedLayers.length < numLayers) ?
                 (100. - layerTotalWidth) / (numLayers - resizedLayers.length) : 0;
 
-            for (let i = 1; i < (this.layers || []).length; i++) {
-                this.layers[i].prev = this.layers[i - 1];
-                this.layers[i].prev.next = this.layers[i];
-            }
-
-            let offset = 0;
+            let relOffset = 0;
             (this.layers || []).forEach(layer => {
+                layer.create3d = this.create3d;
                 layer.layerWidth = layer.layerWidth || defaultWidth;
                 layer.width = layer.layerWidth / 100 * this.width;
                 layer.height = this.height;
-                layer.offset = offset;
                 layer.createViewObjects(state);
-                offset += layer.width;
-                let layerObj = layer.viewObjects["main"];
+                let layerObj = layer.viewObjects["2d"];
+                this.viewObjects["2d"].add(layerObj);
+                layerObj.translateX(relOffset);
+                relOffset += layer.width;
 
-                if (!layer.layerIn.show3d){
-                    layerObj.translateX(layer.offset);
-                    layerObj.translateZ(1); //Layers should stay in the same plane to be visible from both sides
+                let layerObj3d = layer.viewObjects["3d"];
+                if (layerObj3d) {
+                    this.viewObjects["3d"].add(layerObj3d);
                 }
-
-                obj.add(layerObj);
             });
         }
         //Do not create labels for layers and nested lyphs
@@ -256,7 +286,12 @@ export class Lyph extends Shape {
     updateViewObjects(state) {
         if (!this.axis) { return; }
 
-        if (!this.viewObjects["main"]) { this.createViewObjects(state); }
+        let viewObj = this.viewObjects["main"] = this.viewObjects["2d"];
+        if (!viewObj) { this.createViewObjects(state); }
+
+        if (state.showLyphs3d && this.viewObjects["3d"]){
+            viewObj = this.viewObjects["main"] = this.viewObjects["3d"];
+        }
 
         if (!this.layerIn) {//update label
             if (!this.internalIn) {
@@ -265,16 +300,15 @@ export class Lyph extends Shape {
                 }
             }
             //update lyph
-            this.viewObjects["main"].visible = this.isVisible && state.showLyphs;
-            copyCoords(this.viewObjects["main"].position, this.center);
-            align(this.axis, this.viewObjects["main"], this.axis.reversed);
+            viewObj.visible = this.isVisible && state.showLyphs;
+            copyCoords(viewObj.position, this.center);
+            align(this.axis, viewObj, this.axis.reversed);
 
             if (this.angle){
-                this.viewObjects["main"].rotation.x = Math.PI * this.angle / 180;
+                viewObj.rotation.x = Math.PI * this.angle / 180;
             }
-
         } else {
-            this.viewObjects["main"].visible = state.showLayers;
+            viewObj.visible = state.showLayers;
         }
 
         //update layers

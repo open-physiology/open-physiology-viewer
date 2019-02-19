@@ -233,24 +233,23 @@ export class Link extends VisualResource {
             delete this.viewObjects["iconLabel"];
         }
 
-        if (this.directed && obj.children[0]){
-            if (obj.children[0] instanceof THREE.ArrowHelper){
-                let arrow  = obj.children[0];
-                let dir = direction(this.source, this.target);
-                let length = curve? curve.getLength(): dir.length();
-                let t = arrowLength / length;
-                if (curve){ dir = curve.getTangent(1 - t); }
-                let pos = getPoint(curve, _start, _end, 1 - t);
-                copyCoords(arrow.position, pos);
-                arrow.setDirection(dir.normalize());
-            }
-        }
-
         //Update buffered geometries
         //Do not update links with fixed node positions
         if (this.geometry === LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
 
         if (obj) {
+            if (this.directed && obj.children[0]){
+                if (obj.children[0] instanceof THREE.ArrowHelper){
+                    let arrow  = obj.children[0];
+                    let dir = direction(this.source, this.target);
+                    let length = curve? curve.getLength(): dir.length();
+                    let t = arrowLength / length;
+                    if (curve){ dir = curve.getTangent(1 - t); }
+                    let pos = getPoint(curve, _start, _end, 1 - t);
+                    copyCoords(arrow.position, pos);
+                    arrow.setDirection(dir.normalize());
+                }
+            }
             if (this.stroke === LINK_STROKE.THICK){
                 let coordArray = [];
                 for (let i = 0; i < this.points.length; i++) {

@@ -37,7 +37,9 @@ export default Kapsule({
         linkResolution : { default: 30 },     // number of points on curved link
 
         showLyphs      : { default: true},
+        showLyphs3d    : { default: false},
         showLayers     : { default: true},
+
         showLabels     : { default: {Node: true}},
 
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},

@@ -9,10 +9,11 @@ import {SearchBarModule} from "./searchBar";
 import {ResourceEditorDialog} from "./resourceEditorDialog";
 import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {ExternalSelectDialog} from "./externalSelectDialog";
-import {getClassName} from "../../models/utils";
 import {isPlainObject, isArray, isString, cloneDeep, merge, values} from 'lodash-bound';
-import { ObjToArray } from './utils';
-import { HttpClientModule } from '@angular/common/http';
+import {ObjToArray} from './utils';
+import {HttpClientModule} from '@angular/common/http';
+import {getClassName} from "../../models/utils";
+import {annotations} from "./config";
 
 @Component({
     selector: 'resourceEditor',
@@ -293,17 +294,16 @@ export class ResourceEditor {
         })
     }
 
-    createExternalResource([key, spec]) {
+    createExternalResource([key, ]) {
         let config = {
-            title   : `Link new external resource?`,
-            baseURL : "https://scigraph.olympiangods.org/scigraph/vocabulary/",
-            type    : "UBERON"
-        };
+            title   : `Link new external resource?`
+        }::merge(annotations);
 
         const dialogRef = this.dialog.open(ExternalSelectDialog, {
             width: '75%', data: config
         });
 
+        //TODO use JSONata (JSON transform) to define rules for transforming response into ApiNATOMY external resource object
         dialogRef.afterClosed().subscribe(result => {
             (result||{})::values().forEach(e => {
                 let resource = {

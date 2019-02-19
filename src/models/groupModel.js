@@ -23,9 +23,9 @@ export class Group extends Resource {
     /**
      * Create a graph model from the JSON specification
      * @param json - input model
-     * @param modelClasses - recognized entity models
-     * @param entitiesByID
-     * @returns {*} - Graph model
+     * @param modelClasses - model resource classes
+     * @param entitiesByID - global map of model resources
+     * @returns {*} - Graph model - model suitable for visualization
      */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
 
@@ -38,7 +38,6 @@ export class Group extends Resource {
         this.expandLyphTemplates(json.lyphs);
         this.createTreeInstances(json, modelClasses);
 
-
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
         res.mergeSubgroupEntities();
 
@@ -50,6 +49,11 @@ export class Group extends Resource {
         return res;
     }
 
+    /**
+     * Replace references to lyph templates with references to auto-generated lyphs that inherit properties from templates
+     * @param json - input model
+     * @param modelClasses - model resource classes
+     */
     static replaceReferencesToLyphTemplates(json, modelClasses){
 
         let changed = 0;
@@ -98,6 +102,11 @@ export class Group extends Resource {
         }
     }
 
+    /**
+     * Generate canonical omega trees from tree templates, i.e. auto-create necessary nodes and links, adn copy tree template to all tree levels
+     * @param json - input model
+     * @param modelClasses - model resource classes
+     */
     static expandTreeTemplates(json, modelClasses){
         if (!modelClasses){ return; }
         (json.trees||[]).forEach((tree, i) => {
@@ -107,6 +116,11 @@ export class Group extends Resource {
         );
     }
 
+    /**
+     * Generate omega tree instances
+     * @param json - input model
+     * @param modelClasses - model resource classes
+     */
     static createTreeInstances(json, modelClasses){
         (json.trees||[]).forEach(tree => {
             if (!tree.group) { this.expandTreeTemplates(json, modelClasses); }

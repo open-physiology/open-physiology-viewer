@@ -41,7 +41,6 @@ export class Resource{
         let clsName = json.class || this.name;
         const cls = this || modelClasses[clsName];
         const res = new cls(json.id);
-
         res.class = clsName;
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));

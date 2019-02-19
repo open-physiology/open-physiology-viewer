@@ -1,11 +1,10 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
-import {StopPropagation} from './stopPropagation';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {keys, values, merge, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBarModule} from './gui/searchBar';
-import {MatSliderModule, MatDialogModule, MatDialog} from '@angular/material'
+import {MatSliderModule } from '@angular/material'
 import FileSaver  from 'file-saver';
 
 import ThreeForceGraph   from '../three/threeForceGraph';
@@ -16,8 +15,6 @@ import {
 } from 'd3-force-3d';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
-import {ResourceEditorModule} from "./gui/resourceEditor";
-import {ResourceEditorDialog} from "./gui/resourceEditorDialog";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -66,7 +63,7 @@ const WindowResize = require('three-window-resize');
                     <canvas #canvas class="w3-card w3-round"> </canvas>
                 </section>
             </section>
-            <section id="settingsPanel" *ngIf="showPanel" stop-propagation class="w3-third">
+            <section id="settingsPanel" *ngIf="showPanel" class="w3-third">
                 <section class="w3-padding-small">
 
                     <!--Highlighted entity-->
@@ -91,8 +88,8 @@ const WindowResize = require('three-window-resize');
                         <legend>Selected</legend>
                         <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                         </resourceInfoPanel>
-                        <button *ngIf="!!_selected" title = "Edit"
-                                class="w3-hover-light-grey w3-right" (click) = "editResource(_selected)">
+                        <button *ngIf="!!_selected" title="Edit"
+                                class="w3-hover-light-grey w3-right" (click)="editResource.emit(_selected)">
                             <i class="fa fa-edit"> </i>
                         </button>
                     </fieldset>
@@ -111,26 +108,28 @@ const WindowResize = require('three-window-resize');
 
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
-                        <input type="checkbox" class="w3-check" name="lyphs" [checked]="config.layout.lyphs"
-                               (change)="toggleLyphs()"/> Lyphs
-                        <span *ngIf="config.layout.lyphs">
-                            <input type="checkbox" class="w3-check" name="layers" [checked]="config.layout.layers"
-                                   (change)="toggleLayers()"/> Layers
+                        <input type="checkbox" class="w3-check" [checked]="config.layout.showLyphs"
+                               (change)="toggleLayout('showLyphs')"/> Lyphs
+                        <span *ngIf="config.layout.showLyphs">
+                            <input type="checkbox" class="w3-check" [checked]="config.layout.showLayers"
+                                   (change)="toggleLayout('showLayers')"/> Layers
+                            <input type="checkbox" class="w3-check" [checked]="config.layout.showLyphs3d"
+                                    (change)="toggleLayout('showLyphs3d')"/> Lyphs 3D
                         </span>
-                        <input type="checkbox" class="w3-check" name="coalescences"
-                               [checked]="config.layout.coalescences"
+                        <input type="checkbox" class="w3-check" 
+                               [checked]="config.layout.showCoalescences"
                                (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
                     </fieldset>
 
                     <!--Label config-->
-
+ 
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
                             <input type="checkbox" class="w3-check"
                                    [name]="labelClass"
                                    [checked]="config.labels[labelClass]"
-                                   (change)="toggleLabels(labelClass)"/> {{labelClass}}
+                                   (change)="updateLabels(labelClass)"/> {{labelClass}}
                         </span>
                         <span *ngFor="let labelClass of _labelClasses">
                             <fieldset *ngIf="config.labels[labelClass]" class="w3-card w3-round w3-margin-small">
@@ -262,12 +261,16 @@ export class WebGLSceneComponent {
      */
     @Output() selectedItemChange = new EventEmitter();
 
-    constructor(dialog: MatDialog) {
+
+    @Output() editResource = new EventEmitter();
+
+    constructor() {
         this.defaultConfig = {
             "layout": {
-                "lyphs"       : true,
-                "layers"      : true,
-                "coalescences": true
+                "showLyphs"       : true,
+                "showLayers"      : true,
+                "showLyphs3d"     : false,
+                "showCoalescences": true
             },
             "groups": true,
             "labels": {
@@ -280,7 +283,6 @@ export class WebGLSceneComponent {
             "selected"   : true
         };
         this.config        = this.defaultConfig::cloneDeep();
-        this.dialog        = dialog;
         this._labelClasses = this.config["labels"]::keys();
         this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
@@ -295,8 +297,6 @@ export class WebGLSceneComponent {
     get graphData() {
         return this._graphData;
     }
-
-
 
     ngAfterViewInit() {
         if (this.renderer) {  return; }
@@ -349,7 +349,7 @@ export class WebGLSceneComponent {
 
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
-        window.addEventListener('mousedown', () => this.onMouseDown(), false );
+        window.addEventListener('dblclick', () => this.onDblClick(), false );
         window.addEventListener('keydown'  , evt => this.onKeyDown(evt)  , false);
     }
 
@@ -515,7 +515,7 @@ export class WebGLSceneComponent {
         }
     }
 
-    onMouseDown() {
+    onDblClick() {
         this.selected = this.getMousedOverEntity();
     }
 
@@ -589,25 +589,16 @@ export class WebGLSceneComponent {
         this.helpers[key].visible = !this.helpers[key].visible
     }
 
-    toggleLyphs() {
-        this.config.layout['lyphs'] = !this.config.layout['lyphs'];
+    toggleLayout(prop){
+        this.config.layout[prop] = !this.config.layout[prop];
         if (this.graph){
-            this.graph.showLyphs(this.config.layout['lyphs']);
+            this.graph[prop](this.config.layout[prop]);
         }
     }
 
-    toggleLayers() {
-        this.config.layout['layers'] = !this.config.layout['layers'];
-        if (this.graph) {
-            this.graph.showLayers(this.config.layout['layers']);
-        }
-    }
-
-    toggleLabels(labelClass) {
+    updateLabels(labelClass) {
         this.config["labels"][labelClass] = !this.config["labels"][labelClass];
-        if (this.graph){
-            this.graph.showLabels(this.config["labels"]);
-        }
+        if (this.graph){ this.graph.showLabels(this.config["labels"]); }
     }
 
     updateLabelContent(target, property) {
@@ -630,34 +621,12 @@ export class WebGLSceneComponent {
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 
-    editResource(resource){
-        let obj = resource::cloneDeep();
-        const dialogRef = this.dialog.open(ResourceEditorDialog, {
-            width: '75%',
-            data: {
-                title          : `Update resource?`,
-                modelClasses   : this.modelClasses,
-                modelResources : this.graphData.entitiesByID || {},
-                filteredResources : [],
-                resource    : obj,
-                className   : resource.class
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (result){
-                resource = result;
-                if (this.graph) { this.graph.graphData(this.graphData); }
-            }
-        });
-    }
-
 }
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatSliderModule, MatDialogModule, SearchBarModule, ResourceEditorModule],
-    declarations: [WebGLSceneComponent, StopPropagation],
+        MatSliderModule, SearchBarModule ],
+    declarations: [WebGLSceneComponent],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

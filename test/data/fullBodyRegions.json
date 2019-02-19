@@ -1547,7 +1547,7 @@
           ]
         }
       ],
-      "lyphs" : ["995", "996"],
+      "lyphs": ["995", "996"],
       "links" : ["LR", "RL"],
       "nodes" : ["L", "R", "MCS", "MCP"],
       "assign": [
@@ -1569,7 +1569,7 @@
       ]
     }
   ],
-  "lyphs" : [
+  "lyphs": [
     {
       "id": "1",
       "name": "kidney",

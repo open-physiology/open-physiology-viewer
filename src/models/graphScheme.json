@@ -135,6 +135,15 @@
           "description": "Resource name",
           "type": "string"
         },
+        "class": {
+          "description": "Resource class",
+          "type": "string",
+          "readOnly": true
+        },
+        "comment": {
+          "description": "Resource description, comments, modeling assumptions, etc.",
+          "type": "string"
+        },
         "external": {
           "description": "Identifier of the resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
@@ -149,16 +158,6 @@
             ]
           },
           "relatedTo": "externalTo"
-        },
-        "class": {
-          "description": "Resource class",
-          "type": "string",
-          "readOnly": true
-        },
-        "JSON": {
-          "description": "Initial JSON specification for the internal model",
-          "type": "object",
-          "readOnly": true
         },
         "assign": {
           "description": "Dynamically assign properties to selected resources",
@@ -644,8 +643,7 @@
             "BAG",
             "BAG2",
             "CYST"
-          ],
-          "default": "TUBE"
+          ]
         },
         "conveyedBy": {
           "description": "A link conveying the lyph",
@@ -756,6 +754,10 @@
             "width": 40,
             "height": 80
           }
+        },
+        "create3d": {
+          "description": "Create 3d visual objects for this lyph",
+          "type": "boolean"
         },
         "layerWidth": {
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
@@ -1086,12 +1088,9 @@
           "$ref": "#/definitions/Group",
           "readOnly": true
         },
-        "instances": {
+        "instance": {
           "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Group"
-          },
+          "$ref": "#/definitions/Group",
           "readOnly": true
         }
       }

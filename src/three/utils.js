@@ -1,7 +1,7 @@
 import * as three from 'three';
 export const THREE = window.THREE || three;
 import {MaterialFactory} from './materialFactory';
-import {merge} from 'lodash-bound';
+import {defaults} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 
 const ThreeBSP = require('three-js-csg')(THREE);
@@ -263,7 +263,7 @@ export function createMeshWithBorder(shape, params = {}) {
         point.z = 0;
         lineBorderGeometry.vertices.push(point);
     });
-    let borderParams = params::merge({
+    let borderParams = params::defaults({
         color   : tinycolor(params.color).darken(20), //20% darker color than surface
         opacity : 1,
         polygonOffsetFactor: params.polygonOffsetFactor - 1

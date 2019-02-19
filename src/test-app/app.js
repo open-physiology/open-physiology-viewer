@@ -1,24 +1,27 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
+import {cloneDeep, isArray, isObject, keys} from "lodash-bound";
 
-//Local
-//import * as schema from '../models/graphScheme.json';
-import initModel from '../data/graph.json';
-import { WebGLSceneModule } from '../components/webGLScene';
-import { ResourceEditorModule } from '../components/gui/resourceEditor';
-import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses } from '../models/modelClasses';
-import { Graph, schema } from '../models/graphModel';
+//Angular Material
+import 'hammerjs';
+import { MatSnackBarModule, MatDialogModule, MatDialog } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 //JSON Editor
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
 const ace = require('ace-builds');
 
-//Angular Material
-import 'hammerjs';
-import { MatSnackBarModule, MatDialogModule } from '@angular/material';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+//Local
+import initModel from '../data/graph.json';
+import { WebGLSceneModule } from '../components/webGLScene';
+import { ResourceEditorModule } from '../components/gui/resourceEditor';
+import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
+import {StopPropagation} from "../components/stopPropagation";
+import { GlobalErrorHandler } from '../services/errorHandler';
+import { modelClasses } from '../models/modelClasses';
+import { Graph, schema } from '../models/graphModel';
 
 //Styles
 import 'font-awesome/css/font-awesome.css';
@@ -135,7 +138,8 @@ debug(true, msgCount);
                     [modelClasses]         = "modelClasses"
                     [graphData]             = "_graphData"
                     (selectedItemChange)    = "onSelectedItemChange($event)"
-                    (highlightedItemChange) = "onHighlightedItemChange($event)">
+                    (highlightedItemChange) = "onHighlightedItemChange($event)"
+                    (editResource)          = "onEditResource($event)" >
                 </webGLScene>
             </section>
         </section>
@@ -180,13 +184,15 @@ export class TestApp {
     _showJSONEditor     = false;
     _showResourceEditor = false;
     _model = {};
+    _dialog;
     _editor;
     modelClasses = modelClasses;
     @ViewChild('jsonEditor') _container: ElementRef;
 
 
-    constructor(){
+    constructor(dialog: MatDialog){
         this.model = initModel;
+        this._dialog = dialog;
     }
 
     ngAfterViewInit(){
@@ -268,6 +274,7 @@ export class TestApp {
         try{
             this._graphData = Graph.fromJSON(this._model, modelClasses);
         } catch(err){
+            console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);
         }
         console.info("ApiNATOMY graph: ", this._graphData);
@@ -279,14 +286,64 @@ export class TestApp {
     get graphData(){
 	    return this._graphData;
     }
+
+    onEditResource(resource){
+
+        function findResourceDef(obj, parent, key) {
+            if (!obj) { return; }
+            let result = null;
+            if (obj::isArray()) {
+                obj.some((item, i) => {
+                    result = findResourceDef(obj[i], obj, i);
+                    return result;
+                })
+            }
+            else {
+                if (obj::isObject()){
+                    if (obj.id === resource.id) { return [parent, key]; }
+                    obj::keys().some(prop => {
+                        result = findResourceDef(obj[prop], obj, prop);
+                        return result;
+                    });
+                }
+            }
+            return result;
+        }
+
+        let [parent, key] = findResourceDef(this._model);
+
+        if (!parent) {
+            throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
+            return;
+        }
+        let obj = parent[key]::cloneDeep();
+        const dialogRef = this._dialog.open(ResourceEditorDialog, {
+            width: '75%',
+            data: {
+                title          : `Update resource?`,
+                modelClasses   : modelClasses,
+                modelResources : this._graphData.entitiesByID || {},
+                filteredResources : [],
+                resource    : obj,
+                className   : resource.class
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result){
+                parent[key] = result;
+                this.model = this._model;
+            }
+        });
+    }
 }
 
 /**
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule],
-	declarations: [ TestApp ],
+	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule ],
+	declarations: [ TestApp, StopPropagation ],
     bootstrap   : [ TestApp ],
     providers   : [
         {
