@@ -67,32 +67,46 @@ export function d3Layer(inner, outer, params) {
     const [thickness, height, radius, top, bottom] = outer;
     const a = 0.5;
     const b = 0.5 * (1 - a);
+
     //Cylinder constructor parameters: [radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight]
     //Closed borders are approximated by cylinders with smaller diameters for speed
 
-    let $tube = new THREE.CylinderGeometry($thickness, $thickness, a * $height, 10, 4);
-    let $cupTop = new THREE.CylinderGeometry($top ? $thickness - $radius : $thickness, $thickness, b * $height, 10, 4);
-    let $cupBottom = new THREE.CylinderGeometry($thickness, $bottom ? $thickness - $radius : $thickness, b * $height, 10, 4);
+    let smallGeometry, largeGeometry;
+    if ($top || $bottom){
+        let $tube = new THREE.CylinderGeometry($thickness, $thickness, a * $height, 10, 4);
+        let $cupTop = new THREE.CylinderGeometry($top ? $thickness - $radius : $thickness, $thickness, b * $height, 10, 4);
+        let $cupBottom = new THREE.CylinderGeometry($thickness, $bottom ? $thickness - $radius : $thickness, b * $height, 10, 4);
+        smallGeometry = mergedGeometry($tube, $cupTop, $cupBottom, (a + b) * 0.5 * $height);
+    } else {
+        smallGeometry = new THREE.CylinderGeometry($thickness, $thickness, $height, 10, 4);
+    }
 
-    let tube = new THREE.CylinderGeometry(thickness, thickness, a * height, 10, 4);
-    let cupTop = new THREE.CylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
-    let cupBottom = new THREE.CylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
-
-    let smallGeometry = mergedGeometry($tube, $cupTop, $cupBottom, (a + b) * 0.5 * $height);
-    let largeGeometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+    if (top || bottom) {
+        let tube = new THREE.CylinderGeometry(thickness, thickness, a * height, 10, 4);
+        let cupTop = new THREE.CylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
+        let cupBottom = new THREE.CylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
+        largeGeometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+    } else {
+        largeGeometry = new THREE.CylinderGeometry(thickness, thickness, height, 10, 4);
+    }
 
     return geometryDifference(smallGeometry, largeGeometry, params);
 }
 
 export function d3Lyph(outer, params) {
     const [thickness, height, radius, top, bottom] = outer;
-    const a = 0.5;
-    const b = 0.5 * (1 - a);
 
-    let tube = new THREE.CylinderGeometry(thickness, thickness, a * height, 10, 4);
-    let cupTop = new THREE.CylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
-    let cupBottom = new THREE.CylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
-    let geometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+    let geometry;
+    if (top || bottom) {  
+        const a = 0.5;
+        const b = 0.5 * (1 - a);
+        let tube = new THREE.CylinderGeometry(thickness, thickness, a * height, 10, 4);
+        let cupTop = new THREE.CylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
+        let cupBottom = new THREE.CylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
+        geometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+    } else {
+        geometry = new THREE.CylinderGeometry(thickness, thickness, height, 10, 4);
+    }
     return new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
 }
 

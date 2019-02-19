@@ -1,8 +1,8 @@
 import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatDialogModule, MatDialog, MatRadioModule} from '@angular/material';
+import {MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule,
+    MatCardModule, MatDialogModule, MatDialog} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule}  from "./fieldEditor";
 import {SearchBarModule} from "./searchBar";
@@ -329,7 +329,7 @@ export class ResourceEditor {
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule,
         MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule,
-        MatCheckboxModule, MatCardModule, MatRadioModule, FieldEditorModule, SearchBarModule,
+        MatCardModule, FieldEditorModule, SearchBarModule,
         HttpClientModule],
     declarations: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog, ObjToArray],
     entryComponents: [ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog],

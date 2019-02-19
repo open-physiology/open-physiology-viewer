@@ -43,7 +43,7 @@ import { cloneDeep, isObject} from 'lodash-bound';
             <!--Check box-->
             <mat-checkbox *ngIf="_fieldType === 'boolean'" [matTooltip]="spec.description" (change) = "updateValue($event.value)"
                           labelPosition="before"
-                          [value]="value"
+                          [checked]="value"
                           [disabled] = "disabled"
             >{{label}}
             </mat-checkbox> 

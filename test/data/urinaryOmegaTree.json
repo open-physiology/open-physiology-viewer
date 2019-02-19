@@ -1,5 +1,5 @@
 {
-  "nodes": [
+  "nodes" : [
     {
       "id": "uot-a",
       "name": "Urethral meatus",
@@ -21,9 +21,15 @@
       "name": "Cribriform area",
       "external": ["FMA:74311"]
     },
-    {"id": "uot-v", "layout": {"x": 100}}
+    {
+      "id": "uot-v",
+      "layout": {"x": 100}
+    },
+    {
+      "id": "cs-a"
+    }
   ],
-  "links": [
+  "links" : [
     {
       "id": "uot-lnk1",
       "source": "uot-a",
@@ -149,9 +155,27 @@
       "source": "uot-u",
       "target": "uot-v",
       "conveyingLyph": "VBC"
+    },
+    {
+      "id": "cs-lnk1",
+      "source": "cs-a",
+      "target": "cs-b",
+      "conveyingLyph": "AA"
+    },
+    {
+      "id": "cs-lnk2",
+      "source": "cs-b",
+      "target": "cs-c",
+      "conveyingLyph": "Glo"
+    },
+    {
+      "id": "cs-lnk3",
+      "source": "cs-c",
+      "target": "cs-d",
+      "conveyingLyph": "EA"
     }
   ],
-  "lyphs": [
+  "lyphs" : [
     {
       "id" : "URN",
       "name": "Urine",
@@ -648,12 +672,13 @@
       "external": ["UBERON:0004639"]
     },
     {
-      "id": "glomer",
+      "id": "Glo",
       "name": "Glomerulus",
       "topology": "TUBE",
       "length"  : {"min": 4, "max": 4},
       "thickness": {"min": 6, "max": 6},
       "layers": ["blood", "endoth", "BM"],
+      "coalescesWith": ["VBC"],
       "external": ["UBERON:0000074"]
     },
     {
@@ -666,12 +691,12 @@
       "external": ["UBERON:0004640"]
     }
   ],
-  "trees": [
+  "trees" : [
     {
       "id"          : "UOT",
       "name"        : "Urinary Omega Tree",
       "root"        : "uot-a",
-      "numLevels"   : 5,
+      "numLevels"   : 21,
       "levels"      : [
         "uot-lnk1", "uot-lnk2", "uot-lnk3", "uot-lnk4", "uot-lnk5", "uot-lnk6", "uot-lnk7", "uot-lnk8",
         "uot-lnk9", "uot-lnk10", "uot-lnk11", "uot-lnk12","uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16",
@@ -683,34 +708,41 @@
   ],
   "groups": [
     {
-      "id": "nephron",
-      "name": "Nephron",
-      "nodes": ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
-      "links": [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
-      "lyphs": ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
+      "id"    : "nephron",
+      "name"  : "Nephron",
+      "nodes" : ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
+      "links" : [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
+      "lyphs" : ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
       "external": ["UBERON:0001285"]
     },
     {
-      "id": "henle",
-      "name": "Loop of Henle",
-      "nodes": ["uot-n","uot-o","uot-p","uot-q","uot-r"],
-      "links": ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
-      "lyphs": ["FPofTAL", "DST", "ATL", "DTL"],
+      "id"    : "henle",
+      "name"  : "Loop of Henle",
+      "nodes" : ["uot-n","uot-o","uot-p","uot-q","uot-r"],
+      "links" : ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
+      "lyphs" : ["FPofTAL", "DST", "ATL", "DTL"],
       "external": ["UBERON:0001288"]
+    },
+    {
+      "id"    : "CST",
+      "name"  : "Cardiovascular Segment",
+      "links" : ["cs-lnk1", "cs-lnk2", "cs-lnk3"],
+      "lyphs" : ["AA", "Glo", "EA"],
+      "nodes" : ["cs-a", "cs-b", "cs-c", "cs-d"]
     }
   ],
   "assign": [
     {
-      "path": "$.nodes[*]",
+      "path" : "$.nodes[*]",
       "value": {
-        "color": "red",
-        "val": "1"
+        "color" : "red",
+        "val"   : "1"
       }
     },
     {
-      "path": "$.links[*].conveyingLyph",
-      "value": {
-        "color": "#ccc"
+      "path"  : "$.links[*].conveyingLyph",
+      "value" : {
+        "color" : "#ccc"
       }
     }
   ] 

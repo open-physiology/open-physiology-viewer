@@ -39,7 +39,7 @@ export class Tree extends Resource {
         tree.group = tree.group || {};
         tree.group::defaults({
             "id"   : "group_" + tree.id,
-            "name" : tree.name + " group",
+            "name" : tree.name,
         });
 
         if (!parentGroup.groups) { parentGroup.groups = []; }
@@ -175,7 +175,6 @@ export class Tree extends Resource {
 
         if (!tree.branchingFactors || !tree.branchingFactors.find(x => x !== 1)){
             console.info("Omega tree has no branching points, the instances coincide with the canonical tree!");
-            return;
         }
 
         tree.instance = {
@@ -189,11 +188,16 @@ export class Tree extends Resource {
             mergeGenResource(tree.instance, parentGroup, lyph, "lyphs");
         };
 
+        const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
+
+        let root  = getObj(tree.root, "nodes");
+        mergeGenResource(tree.instance, parentGroup, root, "nodes");
+
         let levelResources = {};
         for (let i = 0; i < tree.levels.length; i++){
-            let lnk = tree.levels[i]::isPlainObject()?   tree.levels[i] : (parentGroup.links||[]).find(e => e.id === tree.levels[i]);
-            let trg = lnk.target::isPlainObject()? lnk.target: (parentGroup.nodes||[]).find(e => e.id === lnk.target);
-            let lyph = lnk.conveyingLyph::isPlainObject()? lnk.conveyingLyph : (parentGroup.lyphs||[]).find(e => e.id === lnk.conveyingLyph);
+            let lnk  = getObj(tree.levels[i], "links");
+            let trg  = getObj(lnk.target, "nodes");
+            let lyph = getObj(lnk.conveyingLyph, "lyphs");
 
             if (!lnk || !trg) {
                 console.warn("Failed to find tree level resources: ", tree.id, i, tree.levels[i]);
@@ -204,6 +208,8 @@ export class Tree extends Resource {
             levelResources[i] = [[lnk, trg, lyph]];
             mergeGenResources([lnk, trg, lyph]);
         }
+
+        tree.branchingFactors = tree.branchingFactors || [];
 
         for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
             levelResources[i].forEach((base, m) => {

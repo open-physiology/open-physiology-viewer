@@ -1,10 +1,10 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {keys, values, merge, cloneDeep} from 'lodash-bound';
+import {keys, values, defaults, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBarModule} from './gui/searchBar';
-import {MatSliderModule } from '@angular/material'
+import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
 import FileSaver  from 'file-saver';
 
 import ThreeForceGraph   from '../three/threeForceGraph';
@@ -99,8 +99,10 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Groups</legend>
                         <span *ngFor="let group of graphData.activeGroups">
-                            <input type="checkbox" name="switch" class="w3-check"
-                                   (change)="toggleGroup(group)" [checked]="showGroup(group)"/> {{group.name || group.id}}
+                            <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left" 
+                                          (change) = "toggleGroup(group)"
+                                          [checked]= "showGroup(group)"> {{group.name || group.id}}
+                            </mat-checkbox>
                         </span>
                     </fieldset>
 
@@ -108,17 +110,22 @@ const WindowResize = require('three-window-resize');
 
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
-                        <input type="checkbox" class="w3-check" [checked]="config.layout.showLyphs"
-                               (change)="toggleLayout('showLyphs')"/> Lyphs
-                        <span *ngIf="config.layout.showLyphs">
-                            <input type="checkbox" class="w3-check" [checked]="config.layout.showLayers"
-                                   (change)="toggleLayout('showLayers')"/> Layers
-                            <input type="checkbox" class="w3-check" [checked]="config.layout.showLyphs3d"
-                                    (change)="toggleLayout('showLyphs3d')"/> Lyphs 3D
-                        </span>
-                        <input type="checkbox" class="w3-check" 
-                               [checked]="config.layout.showCoalescences"
-                               (change)="toggleGroup(graphData.coalescenceGroup)"/> Coalescences
+                        <mat-checkbox matTooltip="Toggle lyphs" labelPosition="after" class="w3-margin-left"
+                                      (change) = "toggleLayout('showLyphs')"
+                                      [checked]= "config.layout.showLyphs"> Lyphs
+                        </mat-checkbox>
+                        <mat-checkbox matTooltip = "Toggle layers" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                                      (change) = "toggleLayout('showLayers')"
+                                      [checked] = "config.layout.showLayers"> Layers
+                        </mat-checkbox>
+                        <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                                      (change) = "toggleLayout('showLyphs3d')"
+                                      [checked] = "config.layout.showLyphs3d"> Lyphs 3D
+                        </mat-checkbox>
+                        <mat-checkbox matTooltip="Toggle coalescences" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                                      (change) = "toggleLayout('showCoalescences')"
+                                      [checked] = "config.layout.showCoalescences"> Coalescences
+                        </mat-checkbox> 
                     </fieldset>
 
                     <!--Label config-->
@@ -126,31 +133,32 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
-                            <input type="checkbox" class="w3-check"
-                                   [name]="labelClass"
+                            <mat-checkbox matTooltip="Toggle labels" labelPosition="after" class="w3-margin-left"
                                    [checked]="config.labels[labelClass]"
-                                   (change)="updateLabels(labelClass)"/> {{labelClass}}
+                                   (change)="updateLabels(labelClass)"> {{labelClass}}
+                            </mat-checkbox> 
                         </span>
                         <span *ngFor="let labelClass of _labelClasses">
                             <fieldset *ngIf="config.labels[labelClass]" class="w3-card w3-round w3-margin-small">
                                 <legend>{{labelClass}} label</legend>
-                                <span *ngFor="let labelProp of _labelProps">
-                                    <input type="radio" class="w3-radio"
-                                           [name]="labelClass"
-                                           [checked]="_labels[labelClass] === labelProp"
-                                           (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
-                                </span>
+                                <mat-radio-group [(ngModel)]="_labels[labelClass]">
+                                    <mat-radio-button *ngFor="let labelProp of _labelProps" class="w3-margin-left"
+                                           [value] = "labelProp"
+                                           (change) = "updateLabelContent()"> {{labelProp}}
+                                    </mat-radio-button>
+                                </mat-radio-group>
                             </fieldset>
                         </span>
                     </fieldset>
-
                     <!--View helpers-->
 
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Helpers</legend>
                         <span *ngFor="let helper of helperKeys">
-                            <input type="checkbox" name="planes" class="w3-check" (change)="togglePlane(helper)"
-                                   [checked]="showPlane(helper)"/> {{helper}}
+                            <mat-checkbox matTooltip="Toggle planes" labelPosition="after" class="w3-margin-left"
+                                  [checked] = "showPlane(helper)"
+                                  (change) = "togglePlane(helper)"> {{helper}}
+                            </mat-checkbox> 
                         </span>
                     </fieldset>
                 </section>
@@ -214,14 +222,13 @@ export class WebGLSceneComponent {
     scaleFactor  = 8; //TODO make this a graph parameter with complete layout update on change
     labelRelSize = 0.1 * this.scaleFactor;
     lockControls = false;
-    defaultConfig = {};
 
     @Input() modelClasses;
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this.config = this.defaultConfig::cloneDeep()::merge(this._graphData.config || {});
+            this.config = this._graphData.config || this.config;
             this._graphData.showGroups(this._showGroups);
             this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
             /*Map initial positional constraints to match the scaled image*/
@@ -264,13 +271,13 @@ export class WebGLSceneComponent {
 
     @Output() editResource = new EventEmitter();
 
-    constructor() {
-        this.defaultConfig = {
+    constructor(){
+        this.config = {
             "layout": {
                 "showLyphs"       : true,
                 "showLayers"      : true,
                 "showLyphs3d"     : false,
-                "showCoalescences": true
+                "showCoalescences": false
             },
             "groups": true,
             "labels": {
@@ -282,7 +289,6 @@ export class WebGLSceneComponent {
             "highlighted": true,
             "selected"   : true
         };
-        this.config        = this.defaultConfig::cloneDeep();
         this._labelClasses = this.config["labels"]::keys();
         this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
@@ -336,6 +342,8 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
+
+        console.log("CONFIG", this.config);
     }
 
 
@@ -545,8 +553,6 @@ export class WebGLSceneComponent {
             }
         } else {
             if (evt.shiftKey) {
-                // I comment this out so that I can do cmd+shft+R (Hard refresh) during coding
-                // evt.preventDefault();
                 switch (keyCode) {
                     case 37: // Left arrow
                         this.rotateScene(-10, 0);
@@ -591,8 +597,12 @@ export class WebGLSceneComponent {
 
     toggleLayout(prop){
         this.config.layout[prop] = !this.config.layout[prop];
-        if (this.graph){
-            this.graph[prop](this.config.layout[prop]);
+        if (prop === "showCoalescences"){
+            this.toggleGroup(this.graphData.coalescenceGroup);
+        } else {
+            if (this.graph){
+                this.graph[prop](this.config.layout[prop]);
+            }
         }
     }
 
@@ -601,8 +611,7 @@ export class WebGLSceneComponent {
         if (this.graph){ this.graph.showLabels(this.config["labels"]); }
     }
 
-    updateLabelContent(target, property) {
-        this._labels[target] = property;
+    updateLabelContent() {
         if (this.graph){ this.graph.labels(this._labels); }
     }
 
@@ -625,7 +634,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatSliderModule, SearchBarModule ],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule],
     declarations: [WebGLSceneComponent],
     exports: [WebGLSceneComponent]
 })
