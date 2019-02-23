@@ -1,23 +1,6 @@
-import {cloneDeep, entries, fromPairs, isObject, isString, merge} from "lodash-bound";
+import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys} from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
-
-export {definitions};
-
-/**
- * Copy coordinates from source object to target
- * @param target
- * @param source
- */
-export function copyCoords(target, source){
-    if (!source) { return; }
-    if (!target) { return; }
-    ["x", "y", "z"].forEach(dim => {
-        if (source.hasOwnProperty(dim)) {
-            target[dim] = source[dim] || 0
-        }
-    });
-}
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
@@ -75,18 +58,11 @@ export const getRefs = (spec) => {
  */
 export const isClassAbstract = (clsName) => definitions[clsName].abstract;
 
-const schemaClassModels = {};
-
 /**
  * @param schemaClsName - name of the class in JSON Schema
  * @returns {*} Helper object with convenient access to field subgroups
  */
-export const getSchemaClassModel = (schemaClsName) => {
-
-    if ( schemaClassModels[schemaClsName]) {
-        return schemaClassModels[schemaClsName];
-    }
-
+const getSchemaClassModel = (schemaClsName) => {
     /**
      * Recursively applies a given operation to the classes in schema definitions
      * @param {string} className - initial class
@@ -207,12 +183,12 @@ export const getSchemaClassModel = (schemaClsName) => {
 
     model.groupClsNames = ["Group", "Graph"]; //TODO automate if more group types need to be defined
 
-    //TODO add subclasses, superclass
-
-    schemaClassModels[schemaClsName] = model;
-
     return model;
 };
+
+export const schemaClassModels = {};
+definitions::keys().forEach(schemaClsName => { schemaClassModels[schemaClsName] = getSchemaClassModel(schemaClsName); } );
+
 
 
 

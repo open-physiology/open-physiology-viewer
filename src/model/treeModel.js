@@ -1,6 +1,6 @@
 import { Resource } from './resourceModel';
 import { isPlainObject, defaults } from 'lodash-bound';
-import { LYPH_TOPOLOGY, Lyph } from "./lyphModel";
+import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
 
 const mergeGenResource = (group, parentGroup, e, prop) => {
     if (!e) { return; }

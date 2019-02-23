@@ -1,9 +1,7 @@
 import { Resource } from './resourceModel';
-import {values, isObject, unionBy, merge, keys, cloneDeep, entries, isArray, isString, pick} from 'lodash-bound';
-import {LINK_GEOMETRY, LINK_STROKE} from './linkModel';
-import {extractCoords} from '../three/utils';
-import {ForceEdgeBundling} from "../three/d3-forceEdgeBundling";
-import {Lyph} from "./lyphModel";
+import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray} from 'lodash-bound';
+import {LINK_STROKE} from './visualResourceModel';
+import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
 
 /**
@@ -312,54 +310,5 @@ export class Group extends Resource {
         };
     }
 
-    createViewObjects(state){
-        this.visibleNodes.forEach(node => {
-            node.createViewObjects(state);
-            node.viewObjects::values().forEach(obj => state.graphScene.add(obj));
-        });
-
-        this.visibleLinks.forEach(link => {
-            link.createViewObjects(state);
-            link.viewObjects::values().forEach(obj => state.graphScene.add(obj));
-            if (link.geometry === LINK_GEOMETRY.INVISIBLE){
-                link.viewObjects["main"].material.visible = false;
-            }
-        });
-
-        this.visibleRegions.forEach(region => {
-            region.createViewObjects(state);
-            region.viewObjects::values().forEach(obj => state.graphScene.add(obj));
-        });
-    }
-
-    updateViewObjects(state){
-        // Update nodes positions
-        this.visibleNodes.forEach(node => { node.updateViewObjects(state) });
-
-        //Edge bundling
-        const fBundling = ForceEdgeBundling()
-            .nodes(this.visibleNodes)
-            .edges(this.visibleLinks.filter(e => e.geometry === LINK_GEOMETRY.PATH).map(edge => {
-                return {
-                    source: this.nodes.indexOf(edge.source),
-                    target: this.nodes.indexOf(edge.target)
-                };
-            }));
-        let res = fBundling();
-        (res || []).forEach(path => {
-            let lnk = this.links.find(e => e.source.id === path[0].id && e.target.id === path[path.length -1 ].id);
-            if (lnk){
-                let dz = (path[path.length - 1].z - path[0].z) / path.length;
-                for (let i = 1; i < path.length - 1; i++){
-                    path[i].z = path[0].z + dz * i;
-                }
-                lnk.path = path.slice(1, path.length - 2).map(p => extractCoords(p));
-            }
-        });
-
-        this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
-
-        this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
-    }
 }
 

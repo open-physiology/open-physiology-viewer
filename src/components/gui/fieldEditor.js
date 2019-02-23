@@ -5,7 +5,7 @@ import {
     MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
     MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule
 } from '@angular/material';
-import {getClassName, getSchemaClassModel, definitions} from '../../models/utils';
+import {getClassName, schemaClassModels} from '../../model/utils';
 import {FieldEditorDialog} from './fieldEditorDialog';
 import { cloneDeep, isObject} from 'lodash-bound';
 
@@ -41,7 +41,7 @@ import { cloneDeep, isObject} from 'lodash-bound';
             </mat-form-field>
     
             <!--Check box-->
-            <mat-checkbox *ngIf="_fieldType === 'boolean'" [matTooltip]="spec.description" (change) = "updateValue($event.value)"
+            <mat-checkbox *ngIf="_fieldType === 'boolean'" [matTooltip]="spec.description" (change) = "updateValue($event.checked)"
                           labelPosition="before"
                           [checked]="value"
                           [disabled] = "disabled"
@@ -184,14 +184,14 @@ export class FieldEditor {
         if (this._fieldType === "object"){
             this._objectProperties = this.spec.properties;
             if (clsName) {
-                this._objectProperties = getSchemaClassModel(clsName).propertyMap;
+                this._objectProperties = schemaClassModels[clsName].propertyMap;
             }
         }
 
         if (this._fieldType === "select"){
             this._selectOptions = this.spec.enum;
             if (clsName) {
-                this._selectOptions = definitions[clsName].enum;
+                this._selectOptions = schemaClassModels[clsName].schema.enum;
             }
         }
     }
@@ -236,7 +236,7 @@ export class FieldEditor {
             let res = handler(spec);
             if (!res) {
                 let clsName = getClassName(spec);
-                if (clsName) { return checkType(definitions[clsName], handler); }
+                if (clsName) { return checkType(schemaClassModels[clsName].schema, handler); }
             }
             return res;
         };

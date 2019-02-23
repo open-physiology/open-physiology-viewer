@@ -20,8 +20,8 @@ import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import {StopPropagation} from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses } from '../models/modelClasses';
-import { Graph, schema } from '../models/graphModel';
+import { modelClasses } from '../model/modelClasses';
+import { Graph, schema } from '../model/graphModel';
 
 //Styles
 import 'font-awesome/css/font-awesome.css';

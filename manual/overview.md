@@ -29,7 +29,8 @@ Model authors aware of the post-processing procedures are more likely to underst
 wrong layouts and adjust their models accordingly:
 
 1. If the tree objects are present in the model, we generate tree-like graph structures and include all
-created resources (nodes, links and lyphs) to the main graph (or a parent group containing the tree for nested models). The procedure replicates the tree lyph template to all generated edges (links) and assigns their topology to define overall boundaries of the tree-like conduits. At the end of this stage, the lyph template
+created resources (nodes, links, lyphs, etc.) to the main graph (or a parent group containing the tree for nested models).
+The procedure replicates the tree lyph template to all generated edges (links) and assigns their topology to define overall boundaries of the tree-like conduits. At the end of this stage, the lyph template
 is linked to the newly created blank lyphs via its `subtypes` property.
 Check our [example](examples) section for a run-through scenario with tree definitions.
 

@@ -1,17 +1,9 @@
-import { Node }     from './nodeModel';
-import { Border }   from './borderModel';
-import { Lyph }     from './lyphModel';
-import { Region }   from './regionModel';
-import { Link }     from './linkModel';
 import { Group }    from './groupModel';
 import { Tree }     from './treeModel';
 import { Graph }    from './graphModel';
-import { Resource } from './resourceModel'
-import { VisualResource } from './visualResourceModel'
-import { Shape } from './shapeModel'
-
-export class Material extends VisualResource {}
-export class External extends VisualResource {}
+import { Resource, External } from './resourceModel'
+import { VisualResource, Material, Node, Link } from './visualResourceModel'
+import { Shape, Lyph, Region, Border } from './shapeModel'
 
 export const modelClasses = {
     /*Abstract */

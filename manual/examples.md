@@ -157,6 +157,54 @@ resource definition explained in this section.
 
 The live demo of this scenario with the possibility to edit the model file in an integrated JSON editor is available [here](http://open-physiology.org/demo/open-physiology-viewer/trees).
 
+## Urinary Omega Tree
 
+This model illustrates the ApiNATOMY format for the urinary arborisation.
+The purpose of this example is to illustrate how one can model an omega tree with branching points and resource annotation with references to external ontologies.
 
+<img src="asset/urinaryTree.png" width="100%" caption = "Urinary Omega Tree"/>
+
+The urinary tree [model](https://github.com/open-physiology/open-physiology-viewer/blob/master/test/data/urinaryOmegaTree.json) consists of 21 level.
+Levels are defined as links conveying specific lyphs, from Intravesical Urethra to Visceral Bowman's Capsule.
+The layer structure of these lyphs is modelled with the help of abstract templates that correspond to physiological tissues:
+urine (URN), transitional epithelium (TE), basement membrane (BM), muscosa (Mus), muscularis (Ms1) etc.
+
+```json
+  {
+      "id"        : "IU",
+      "name"      : "Intravesical urethra",
+      "topology"  : "TUBE",
+      "length"    : {"min": 2, "max": 2},
+      "thickness" : {"min": 3, "max": 3},
+      "layers"    : ["URN", "Mcs", "Ms1"],
+      "external"  : ["UBERON:0000057"]
+  },
+  {
+      "id"        : "URN",
+      "name"      : "Urine",
+      "color"     : "#f9ed32",
+      "isTemplate": true,
+      "external"  : ["UBERON:0001088"]
+  },
+  ...
+```
+
+Whenever the specific lyphs refer to abstract lyphs as their layers, meaning that the conduit we model consists of certain tissues, the lyph viewer automatically generates lyph instances and replaces the conduit layers with the references to the generated lyphs representing tissues within the conduits, i.e., `urine in the intravesical urethra`. The generated lyphs will refer to the template via their `supertype` field and later inherit a set of template properties, namely,
+ `color`, `scale`, `height`, `width`, `length`, and `thickness`, as well as the references in the field `external` which contains annotations that relate the ApiNATOMY lyph to existing ontological terms.
+
+```json
+  "trees" : [
+    {
+      "id"          : "UOT",
+      "name"        : "Urinary Omega Tree",
+      "root"        : "uot-a",
+      "numLevels"   : 21,
+      "levels"      : ["uot-lnk1", "uot-lnk2", "uot-lnk3", "uot-lnk4", "uot-lnk5", "uot-lnk6", "uot-lnk7", "uot-lnk8", "uot-lnk9", "uot-lnk10",
+         "uot-lnk11", "uot-lnk12","uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17","uot-lnk18","uot-lnk19", "uot-lnk20", "uot-lnk21"
+      ],
+      "branchingFactors": [1, 1, 2, 1, 1, 1, 3],
+      "comment": "Branching factors for the rest of the tree removed to avoid state explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
+    }
+  ]
+```
 

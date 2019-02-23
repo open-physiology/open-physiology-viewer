@@ -11,7 +11,7 @@ import {
     defaults,
     pick
 } from 'lodash-bound';
-import {JSONPath, getClassName, getSchemaClassModel, isClassAbstract} from "./utils";
+import {JSONPath, getClassName, schemaClassModels, isClassAbstract} from "./utils";
 
 /**
  * The class defining common methods for all resources
@@ -25,8 +25,9 @@ import {JSONPath, getClassName, getSchemaClassModel, isClassAbstract} from "./ut
  *
  */
 export class Resource{
-    constructor() {
+    constructor(id) {
         this::merge(this.constructor.Model.defaultValues);
+        this.id = id;
     }
 
     /**
@@ -68,7 +69,7 @@ export class Resource{
     }
 
     static get Model(){
-        return getSchemaClassModel(this.name);
+        return schemaClassModels[this.name];
     }
 
     /**
@@ -361,4 +362,5 @@ export class Resource{
     }
 }
 
+export class External extends Resource {}
 

@@ -2,7 +2,11 @@
  * based on thick line implementation by WestLangley / http://github.com/WestLangley
  */
 
-import {THREE} from '../utils'
+import {THREE} from '../utils';
+import './LineSegments2.js';
+import './LineSegmentsGeometry.js';
+import './LineGeometry.js';
+import './LineMaterial.js';
 
 /**
  * Extends three.js with Line2 type to enable thick lines

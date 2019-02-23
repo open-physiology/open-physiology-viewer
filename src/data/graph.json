@@ -1,5 +1,5 @@
 {
-  "nodes": [
+  "nodes" : [
     {
       "id": "uot-a",
       "name": "Urethral meatus",
@@ -29,7 +29,7 @@
       "id": "cs-a"
     }
   ],
-  "links": [
+  "links" : [
     {
       "id": "uot-lnk1",
       "source": "uot-a",
@@ -175,52 +175,56 @@
       "conveyingLyph": "EA"
     }
   ],
-  "lyphs": [
+  "lyphs" : [
     {
       "id" : "URN",
       "name": "Urine",
       "color": "#f9ed32",
-      "isTemplate": true
+      "isTemplate": true,
+      "external": ["UBERON:0001088"]
     },
     {
       "id": "TE",
       "name": "Transitional Epithelium",
       "color": "#c49a6c",
-      "isTemplate": true
+      "isTemplate": true,
+      "external": ["UBERON:0000365"]
     },
     {
       "id": "BM",
       "name": "Basement Membrane",
       "color": "#dc9e5a",
-      "isTemplate": true
+      "isTemplate": true,
+      "external": ["UBERON:0005769"]
     },
     {
       "id"   : "LP",
       "name" : "Lamina Propria",
       "color": "#edaa5f",
-      "isTemplate": true
+      "isTemplate": true,
+      "external": ["UBERON:0000030"]
     },
     {
       "id": "Mcs",
       "name": "Muscosa",
       "isTemplate": true,
       "color": "#f7e6cd",
-      "layers": ["TE", "BM", "LP"]
+      "layers": ["TE", "BM", "LP"],
+      "external": ["UBERON:0000344"]
     },
     {
       "id": "Ms1",
       "name": "Muscularis",
       "color": "#f7941e",
-      "isTemplate": true
+      "isTemplate": true,
+      "external": ["UBERON:0006912"]
     },
     {
       "id": "Sub",
       "name": "Submucosa",
       "color": "#ec008c",
       "isTemplate": true,
-      "external": [
-        "UBERON:0000009"
-      ]
+      "external": ["UBERON:0000009"]
     },
     {
       "id": "ILF",
@@ -240,9 +244,7 @@
       "name": "Outer Layer of Longitudinal Muscle Fibres",
       "color": "#c27d15",
       "isTemplate": true,
-      "external": [
-        "UBERON:0012369"
-      ]
+      "external": ["UBERON:0012369"]
     },
     {
       "id": "ICO",
@@ -267,9 +269,7 @@
       "isTemplate": true,
       "supertype": "ICO",
       "color": "#f7941e",
-      "external": [
-        "UBERON:0006912"
-      ]
+      "external": ["UBERON:0006912"]
     },
     {
       "id": "IM",
@@ -301,6 +301,7 @@
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
       "layers"   : ["URN", "Mcs", "Ms1"],
+      "external" : ["UBERON:0000057"],
       "width"    : 5
     },
     {
@@ -326,9 +327,7 @@
       },
       "topology": "TUBE",
       "layers"  : ["URN", "Mcs", "Ms2"],
-      "external": [
-        "UBERON:0000056"
-      ],
+      "external": ["UBERON:0000056"],
       "width"    : 7
     },
     {
@@ -614,9 +613,7 @@
         "BM",
         "EM"
       ],
-      "external": [
-        "UBERON:0001287"
-      ],
+      "external": ["UBERON:0001287"],
       "width"    : 4
     },
     {
@@ -658,9 +655,7 @@
       "id": "ASML",
       "name": "Arteriolar smooth muscle layer",
       "isTemplate": true,
-      "external": [
-        "UBERON:0004236"
-      ]
+      "external": ["UBERON:0004236"]
     },
     {
       "id": "AA",
@@ -691,7 +686,7 @@
       "external": ["UBERON:0004640"]
     }
   ],
-  "trees": [
+  "trees" : [
     {
       "id"          : "UOT",
       "name"        : "Urinary Omega Tree",
@@ -708,41 +703,48 @@
   ],
   "groups": [
     {
-      "id": "nephron",
-      "name": "Nephron",
-      "nodes": ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
-      "links": [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
-      "lyphs": ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
+      "id"    : "nephron",
+      "name"  : "Nephron",
+      "nodes" : ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
+      "links" : [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
+      "lyphs" : ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
       "external": ["UBERON:0001285"]
     },
     {
-      "id": "henle",
-      "name": "Loop of Henle",
-      "nodes": ["uot-n","uot-o","uot-p","uot-q","uot-r"],
-      "links": ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
-      "lyphs": ["FPofTAL", "DST", "ATL", "DTL"],
+      "id"    : "henle",
+      "name"  : "Loop of Henle",
+      "nodes" : ["uot-n","uot-o","uot-p","uot-q","uot-r"],
+      "links" : ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
+      "lyphs" : ["FPofTAL", "DST", "ATL", "DTL"],
       "external": ["UBERON:0001288"]
     },
     {
-      "id"     : "CST",
-      "name"   : "Cardiovascular Segment",
+      "id"    : "CST",
+      "name"  : "Cardiovascular Segment",
       "links" : ["cs-lnk1", "cs-lnk2", "cs-lnk3"],
       "lyphs" : ["AA", "Glo", "EA"],
       "nodes" : ["cs-a", "cs-b", "cs-c", "cs-d"]
+    },
+    {
+      "id"      : "RC",
+      "name"    : "Renal corpuscle",
+      "lyphs"   : ["VBC", "Glo"],
+      "external": ["UBERON:0001229"],
+      "inactive": true
     }
   ],
   "assign": [
     {
-      "path": "$.nodes[*]",
+      "path" : "$.nodes[*]",
       "value": {
-        "color": "red",
-        "val": "1"
+        "color" : "red",
+        "val"   : "1"
       }
     },
     {
-      "path": "$.links[*].conveyingLyph",
-      "value": {
-        "color": "#ccc"
+      "path"  : "$.links[*].conveyingLyph",
+      "value" : {
+        "color" : "#ccc"
       }
     }
   ]

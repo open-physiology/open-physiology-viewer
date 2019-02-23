@@ -12,7 +12,7 @@ import {ExternalSelectDialog} from "./externalSelectDialog";
 import {isPlainObject, isArray, isString, cloneDeep, merge, values} from 'lodash-bound';
 import {ObjToArray} from './utils';
 import {HttpClientModule} from '@angular/common/http';
-import {getClassName} from "../../models/utils";
+import {getClassName} from "../../model/utils";
 import {annotations} from "./config";
 
 @Component({

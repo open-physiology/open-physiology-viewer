@@ -6,6 +6,23 @@ import tinycolor from 'tinycolor2';
 
 const ThreeBSP = require('three-js-csg')(THREE);
 
+export const getPoint = (curve, s, t, offset) => (curve && curve.getPoint)? curve.getPoint(offset): s.clone().add(t).multiplyScalar(offset);
+
+/**
+ * Copy coordinates from source object to target
+ * @param target
+ * @param source
+ */
+export function copyCoords(target, source){
+    if (!source) { return; }
+    if (!target) { return; }
+    ["x", "y", "z"].forEach(dim => {
+        if (source.hasOwnProperty(dim)) {
+            target[dim] = source[dim] || 0
+        }
+    });
+}
+
 /**
  * Computes difference between two geometries
  * @param smallGeom - inner geometry

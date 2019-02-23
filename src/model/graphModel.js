@@ -2,8 +2,7 @@ import { Group } from './groupModel';
 import { entries, keys, isNumber, cloneDeep, defaults } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
-import { Link, LINK_GEOMETRY } from "./linkModel";
-import { Node } from "./nodeModel";
+import { Node, Link, LINK_GEOMETRY } from "./visualResourceModel";
 import { isObject} from "lodash-bound";
 
 const V = new Validator();

@@ -7,7 +7,7 @@ import {
 } from './test.helper';
 
 import initModel        from '../src/data/graph.json';
-import { modelClasses } from '../src/models/modelClasses';
+import { modelClasses } from '../src/model/modelClasses';
 
 /** @test */
 describe("Instantiates model", () => {

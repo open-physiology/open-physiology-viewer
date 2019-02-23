@@ -6,8 +6,9 @@ import {
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
-import {Graph} from '../models/graphModel';
-import {modelClasses} from "../models/modelClasses";
+import {Graph} from '../model/graphModel';
+import {modelClasses} from "../model/modelClasses";
+import './modelView';
 
 /**
  * A closure-based component for the force-directed 3d graph layout
@@ -35,6 +36,7 @@ export default Kapsule({
         nodeResolution : { default: 16 },     // how many slice segments in the sphere's circumference
 
         linkResolution : { default: 30 },     // number of points on curved link
+        arrowLength    : {default: 40 },      // arrow length for directed links
 
         showLyphs      : { default: true},
         showLyphs3d    : { default: false},
