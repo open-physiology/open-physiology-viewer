@@ -23,13 +23,18 @@ Object.defineProperty(Lyph.prototype, "center", {
     get: function() {
         let res = new THREE.Vector3();
         //Note: Do not use lyph borders to compute center as border translation relies on this method
-        if (this.layerIn && this.viewObjects["main"]) {
-            //Note: it is difficult to compute center of a layer geometrically as we have to translate the host axis
-            //in the direction orthogonal to the hosting lyph axis along the plane in which the lyph is placed
-            //and it can be placed in any plane passing through the axis!
-            res = getCenterPoint(this.viewObjects["main"]);
-        } else {
+        if (this.axis){
             res = this.axis.center || res;
+        }
+        if (this.layerIn) {
+            if (this.viewObjects["main"]) {
+                //Note: it is difficult to compute center of a layer geometrically as we have to translate the host axis
+                //in the direction orthogonal to the hosting lyph axis along the plane in which the lyph is placed
+                //and it can be placed in any plane passing through the axis!
+                res = getCenterPoint(this.viewObjects["main"]);
+            } else {
+                res = res.translateX(this.offset);
+            }
         }
         return res;
     }
@@ -189,7 +194,7 @@ Lyph.prototype.updateViewObjects = function(state) {
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
 
-    this.updateLabels(state, this.center.clone().addScalar(-5));
+    this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Lyph));
 };
 
 /**
@@ -227,7 +232,7 @@ Region.prototype.createViewObjects = function(state) {
  */
 Region.prototype.updateViewObjects = function(state) {
     this.border.updateViewObjects(state);
-    this.updateLabels(state, this.center.clone().addScalar(5));
+    this.updateLabels(state,  this.center.clone().addScalar(state.labelOffset.Region));
 };
 
 /**

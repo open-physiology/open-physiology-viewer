@@ -145,7 +145,6 @@ const getSchemaClassModel = (schemaClsName) => {
     model.fields            = (() => {
         let res = {};
         recurseSchema(schemaClsName, (currName) =>
-            //res::merge(...definitions[currName].properties::entries().map(([key, value]) => ({[key]: value})))
             res::merge(definitions[currName].properties)
         );
         return res::entries();

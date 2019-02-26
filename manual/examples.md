@@ -153,7 +153,10 @@ The topology of the `hillock` lyph, which also inherits the layer structure from
 
 The image below shows the layout created by the tool for the Basal Ganglia scenario based on the
 resource definition explained in this section.
-<img src="asset/basalGanglia-layout.png" height="300px;" caption = "Basal Ganglia layout"/>
+<img src="asset/basalGanglia-layout.png" width="75%" caption = "Basal Ganglia layout"/>
+
+There is also an option to instruct the editor to generate 3d representation of lyphs: if a lyph's attribute `create3d` is set to `true`, the user will see 3d-dimensional lyphs when the option `lyphs 3d` in the control panel is enabled. When generating omega trees, the viewer automatically sets `create3d` to `true`, the corresponding layout for the Basal ganglia scenario is shown in the snapshot below.
+<img src="asset/basalGanglia-layout3d.png" width="75%" caption = "Basal Ganglia layout"/>
 
 The live demo of this scenario with the possibility to edit the model file in an integrated JSON editor is available [here](http://open-physiology.org/demo/open-physiology-viewer/trees).
 
@@ -192,6 +195,11 @@ urine (URN), transitional epithelium (TE), basement membrane (BM), muscosa (Mus)
 Whenever the specific lyphs refer to abstract lyphs as their layers, meaning that the conduit we model consists of certain tissues, the lyph viewer automatically generates lyph instances and replaces the conduit layers with the references to the generated lyphs representing tissues within the conduits, i.e., `urine in the intravesical urethra`. The generated lyphs will refer to the template via their `supertype` field and later inherit a set of template properties, namely,
  `color`, `scale`, `height`, `width`, `length`, and `thickness`, as well as the references in the field `external` which contains annotations that relate the ApiNATOMY lyph to existing ontological terms.
 
+In the ApiNATOMY data model, trees are templates that replicate the given lyph template to the requited number of levels. However, it may be useful to define some or all of the tree levels by referring to already existing links.
+This is the case when there is no common lyph template that applies to all tree levels or when the tree is part of the bigger models and its elements are connected to other parts of the graph.
+
+The urinary omega tree below is defined in the aforementioned manner: its levels are composed of existing links that convey various lyphs. In principle, the same subgraph could be defined as a simple group, but the tree concept allows us to specify the branching patterns and automatically generate an instance of a `canonical tree`. The `canonical omega tree` is the minimal construct that is necessary to represent the structural composition of a certain organ or a physiology system, the `tree instance` is an actual arborisation that adheres to the structural, dimensional and branching patterns in the canonical tree. Due to certain degrees of freedom (probabilistic branching patterns, level dimension ranges, etc.) in the canonical trees, the tree instances we generate may vary.
+
 ```json
   "trees" : [
     {
@@ -208,3 +216,49 @@ Whenever the specific lyphs refer to abstract lyphs as their layers, meaning tha
   ]
 ```
 
+The images below show the canonical omega tree for the Urinary system model in 2d and 3d.
+
+<img src="asset/urinaryTree-layout.png" width="75%" caption = "Urinary system - canonical omega tree"/>
+
+<img src="asset/urinaryTree-layout3d.png" width="75%" caption = "Urinary system - canonical omega tree in 3d"/>
+
+The next image shows the snapshot of the omega tree instance with branching in levels 3 and 7. The actual model of the urinary omega tree has more branching points, but due to the number of visual elements needed to represent the entire model (appr. 90 million), the viewer cannot handle all of them in the same view. If necessary, we recommend to explore different branching points separately by setting branching factor for other levels to 1.
+
+<img src="asset/urinaryTree-instance.png" width="75%" caption = "Urinary system - partially generated omega tree instance"/>
+
+In this model, several subgroups of items are annotated with a single ontology term. We can represent such a many-to-one mapping by defining and annotating subgroups. hence, in the ApiMATOMY model for this system, you can find subgroups defining a nephron and a loop of Henle, with the corresponding UBERON term IDs.
+
+```json
+"groups": [
+    {
+      "id"      : "nephron",
+      "name"    : "Nephron",
+      "nodes"   : ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
+      "links"   : [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
+      "lyphs"   : ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
+      "external": ["UBERON:0001285"]
+    },
+    {
+      "id"      : "henle",
+      "name"    : "Loop of Henle",
+      "nodes"   : ["uot-n","uot-o","uot-p","uot-q","uot-r"],
+      "links"   : ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
+      "lyphs"   : ["FPofTAL", "DST", "ATL", "DTL"],
+      "external": ["UBERON:0001288"]
+    }
+]
+```
+
+To instruct the viewer to stretch the tree from left to right, we add layout constraints to the tree root and leaf nodes. We also rely on the `assign` property and JSON path expressions to customize the appearance of the nodes and lyphs: the nodes' color is set to `red` while the main conveying lyphs are set to the neutral grey color.
+```json
+ "assign": [
+    {
+      "path" : "$.nodes[*]",
+      "value": { "color" : "red"}
+    },
+    {
+      "path"  : "$.links[*].conveyingLyph",
+      "value" : { "color" : "#ccc" }
+    }
+  ]
+```

@@ -9,8 +9,8 @@
   
  In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. 
 
-## Entity
- All ApiNATOMY modelling elements have a common ancestor, an abstract entity that defines common properties present in all objects of the model.
+## Resource
+ All ApiNATOMY modelling elements have a common ancestor, an abstract resource that defines common properties present in all objects of the model.
   
  All entities come with basic properties such as `id` and `name` to identify the physiological element, and `color` to display the corresponding visual object in the viewer. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case. 
  
@@ -42,7 +42,7 @@
         }
      }
 ```
-  <img src="asset/assign.png" height="300px" caption = "Assigning properties to a group of lyphs">
+  <img src="asset/assign.png" width="75%" caption = "Assigning properties to a group of lyphs">
 
  In addition to the assignment of properties, either individually or as part of a dynamic group, we allow users to apply color interpolating schemes and gradual distance offsets. This is done with the help of the object's property `interpolate`.
  If the JSONPath query returns a one dimensional array, the schema is applied to its elements. If the query produces a higher-dimensional array, the schema is iteratively applied to all one-dimensional splices of the array.
@@ -59,7 +59,7 @@
       }
   }
  ```
-   <img src="asset/interpolate.png" height="300px" caption = "Assigning colors to a group of lyphs using a color interpolation scheme">
+   <img src="asset/interpolate.png" width="75%" caption = "Assigning colors to a group of lyphs using a color interpolation scheme">
 
  For the details on supported color schemes, and specification format for interpolating colors and distance offsets, see the [ApiNATOMY JSON Schema](../schema/index.html) documentation.
      
@@ -112,7 +112,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
         }
     ]
 ```
-  <img src="asset/nodes.png" height="300px" caption="Positioning nodes">
+  <img src="asset/nodes.png" width="75%" caption="Positioning nodes">
 
  In the above example, four nodes are positioned along `x` and `y` axes. The value of each coordinate is expected to be between -100 and 100, these numbers refer to the percentage of the lengths from the center of coordinates. The actual coordinates are then computed depending on the internal scaling factor. 
 
@@ -131,7 +131,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  ```
  instructs the viewer to position the node `nLR00` at the quarter of the length of the link `LR`. 
  
- <img src="asset/host.png" height="300px" caption="Node hosted by a link">
+ <img src="asset/host.png" width="75%" caption="Node hosted by a link">
  
  An alternative way to get the same result, is to include the node's ID to the `hostedNodes` property of the link.
 
@@ -173,7 +173,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
          }
      ]
  ```
- <img src="asset/links.png" height="300px" caption = "Drawing links">
+ <img src="asset/links.png" width="75%" caption = "Drawing links">
  
  Among other link geometries supported by the lyph viewer are `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e). 
  
@@ -189,9 +189,9 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  The screenshots below show the link chain representing the anterolateral apinothalamic tract in isolation and in combination with the neural system group. Observe that in the latter case the tract's nodes are bound to the neural system lyph borders with thin dashed transitions among pairs of replicated node instances. 
  
- <img src="asset/collapsible1.png" height="300px" caption = "Unconstrained collapsible links">
+ <img src="asset/collapsible1.png" width="75%" caption = "Unconstrained collapsible links">
  
- <img src="asset/collapsible2.png" height="300px" caption = "Constrained collapsible links">
+ <img src="asset/collapsible2.png" width="75%" caption = "Constrained collapsible links">
     
  Each link object must refer to its `source` and `target` nodes. 
  Although we never draw arrows, all links in the ApiNATOMY graph are directed links.
@@ -232,7 +232,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  ```
  In addition to the nodes and links created in the previous sections and a new link `k_l` with source node `k` and target node `l`, the code above produces a bag with two layers conveyed by the `k_l` link.
  
- <img src="asset/lyph.png" height="300px" caption = "Drawing lyphs">
+ <img src="asset/lyph.png" width="75%" caption = "Drawing lyphs">
  
  The center of the axial border of the lyph (see [Lyph border](#lyph-border)) always coincides with the center of its axis. The lyph's dimensions depend on its axis and can be controlled via the `scale` parameter. In this example, the lyph's length and height are half the length of the link's length (50%). If you do not want a lyph size to depend on the length of its axis, assign explicit values to the properties `width` and `height`.
  Lyph's properties `thickness` and `length` refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs. 
@@ -273,7 +273,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
          "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
     }
  ```
-  <img src="asset/hostedLyphs.png" height="300px" alt = "Lyph on border">
+  <img src="asset/hostedLyphs.png" width="75%" alt = "Lyph on border">
   
   A list of materials used in a lyph is available via its field `materials`, i.e.,:
  ```json
@@ -307,7 +307,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
          }
     ] 
  ```
- <img src="asset/cardiac.png" height="300px" alt = "Lyph templates">
+ <img src="asset/cardiac.png" width="75%" alt = "Lyph templates">
  
  Note that inheriting layer structure from the lyph template differs from assigning layers explicitly to all subtype lyphs, either individually or via the group's `assign` property. A lyph with the same ID cannot be used as a layer in two different  lyphs, that would imply that the same graphical object should appear in two different positions, and its dimensions and other context-dependent properties may vary as well. The code above instead implies that we replicate each of three template layers six times, i.e., 18 new lyphs are auto-generated and added to the model for the specification above.  
  
@@ -327,9 +327,11 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
   ```
   assigns `internalLyphs` to two outer most layers of lyphs `1000` and `1010` while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.
 
-   The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`. 
+ The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`.
      
  Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.
+
+In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
 
  ## Region
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
@@ -388,7 +390,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
         }
      }
   ```
- <img src="asset/lyphOnBorder.png" height="300px" alt = "Lyph on border"> 
+ <img src="asset/lyphOnBorder.png" width="75%" alt = "Lyph on border"> 
  
  Here one may observe that the conveyed lyph is using the container lyph's border as its axis. To avoid a whole new level of complication in the modelling schema by supporting lyphs that rotate around border objects, we auto-generate implicit and invisible straight links that coincide with 4 sides of the lyph border.
       

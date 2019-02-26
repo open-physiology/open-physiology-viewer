@@ -1,5 +1,6 @@
 import {VisualResource, Link, Node, LINK_GEOMETRY, LINK_STROKE} from "../model/visualResourceModel";
 import {SpriteText2D} from "three-text2d";
+
 import {
     extractCoords,
     THREE,
@@ -19,6 +20,7 @@ import {MaterialFactory} from "./materialFactory";
  * @param {Object} state - graph configuration, relevant parameters: fontParams
  */
 VisualResource.prototype.createLabels = function(state){
+
     if (this.skipLabel) { return; }
     let labelKey = state.labels[this.constructor.name];
     this.labels = this.labels || {};
@@ -97,7 +99,7 @@ Node.prototype.updateViewObjects = function(state) {
     copyCoords(this.viewObjects["main"].position, this);
 
     this.updateLabels(state,
-        this.viewObjects["main"].position.clone().addScalar(1 + this.val * state.nodeRelSize));
+        this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
 };
 
 /**
@@ -265,7 +267,7 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    this.updateLabels(state, this.center.clone().addScalar(5));
+    this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Link));
 
     if (this.conveyingLyph){
         this.conveyingLyph.updateViewObjects(state);

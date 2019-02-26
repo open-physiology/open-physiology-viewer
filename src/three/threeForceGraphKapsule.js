@@ -46,6 +46,7 @@ export default Kapsule({
 
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize   : { default: 0.1},
+        labelOffset    : { default: {Node: 5, Link: 5, Lyph: 0, Region: 0}},
         fontParams     : { default: { font: '24px Arial', fillStyle: '#000', antialias: true }},
 
         d3AlphaDecay   : { default: 0.045 },

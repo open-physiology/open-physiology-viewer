@@ -4,10 +4,10 @@
   ],
   "plugins": [
     "angular2-annotations",
-    "babel-plugin-transform-strict-mode",
     "@babel/plugin-syntax-flow",
     "@babel/plugin-transform-destructuring",
     "@babel/plugin-syntax-async-generators",
+    "@babel/plugin-proposal-object-rest-spread",
     "transform-decorators-legacy",
     "transform-class-properties",
     "transform-async-to-generator",
