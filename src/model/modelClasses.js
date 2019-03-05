@@ -5,20 +5,26 @@ import { Resource, External } from './resourceModel'
 import { VisualResource, Material, Node, Link } from './visualResourceModel'
 import { Shape, Lyph, Region, Border } from './shapeModel'
 
+export class Coalescence extends Resource{}
+
 export const modelClasses = {
     /*Abstract */
     "Resource"       : Resource,
     "VisualResource" : VisualResource,
     "Shape"          : Shape,
+
     /*Resources */
     "External": External,
-    "Material": Material,
+    "Coalescence": Coalescence,
     "Group"   : Group,
     "Tree"    : Tree,
     "Graph"   : Graph,
+
     /*Visual resources */
     "Node"    : Node,
     "Link"    : Link,
+
+    "Material": Material,
     "Region"  : Region,
     "Lyph"    : Lyph,
     "Border"  : Border

@@ -6,6 +6,7 @@ import { Node, Link, LINK_GEOMETRY } from "./visualResourceModel";
 import { isObject} from "lodash-bound";
 
 const V = new Validator();
+const DEFAULT_LENGTH = 4;
 
 export {schema};
 /**
@@ -121,7 +122,10 @@ export class Graph extends Group{
         createCoalescenceForces(res);
 
         //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
-        (res.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= 2);
+        (res.links||[]).filter(link => link::isObject()).forEach(link => {
+            if (!link.length) { link.length = DEFAULT_LENGTH; }
+            link.length *= 2
+        });
 
         return res;
     }
@@ -146,7 +150,6 @@ export class Graph extends Group{
                 "id"           : `${lyph.id}-lnk`,
                 "source"       : sNode,
                 "target"       : tNode,
-                "length"       : container && container.axis? container.axis.length * 0.8 : 5,
                 "geometry"     : LINK_GEOMETRY.INVISIBLE,
                 "color"        : "#ccc",
                 "conveyingLyph": lyph,
@@ -162,9 +165,18 @@ export class Graph extends Group{
             [sNode, tNode].forEach(node => this.nodes.push(node));
         };
 
-        //This runs before syncRelationships, it is important to revise all group lyphs!
         [...(this.lyphs||[]), ...(this.regions||[])]
             .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph, lyph.internalIn));
+
+        const assignAxisLength = (lyph, container) => {
+            if (!container.axis.length && container.container){
+                assignAxisLength(container, container.container);
+            }
+            lyph.axis.length = container.axis.length? container.axis.length * 0.8: DEFAULT_LENGTH;
+        };
+
+        [...(this.lyphs||[]), ...(this.regions||[])]
+            .filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
     }
 
     scale(scaleFactor){

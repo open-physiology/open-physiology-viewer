@@ -84,6 +84,7 @@ export class Lyph extends Shape {
      * @param template - lyph template
      */
     static expandTemplate(lyphs, template){
+        //TODO override to avoid endless recursion
         if (!template || template.inactive || !lyphs) { return; }
 
         //Validate subtype
@@ -107,11 +108,12 @@ export class Lyph extends Shape {
      * @param lyphs - a set of existing model/group lyphs
      * @returns {Lyph} the target lyph
      */
-    static clone(sourceLyph, targetLyph, lyphs){
+    static clone(sourceLyph, targetLyph, lyphs, stack = []){
         if (!sourceLyph || !targetLyph) {return; }
         if (!lyphs) {lyphs = [];}
-        targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length", "thickness", "external"]));
+        targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length", "thickness", "external", "comment"]));
         targetLyph.layers = [];
+        //stack.push(sourceLyph.id);
         (sourceLyph.layers || []).forEach(layerRef => {
             let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
             if (!layerParent) {
@@ -125,11 +127,14 @@ export class Lyph extends Shape {
             } else {
                 lyphLayer.cloneOf = layerParent.id;
             }
-            this.clone(layerParent, lyphLayer, lyphs);
+            //if (!stack.includes(layerParent.id)) {
+                this.clone(layerParent, lyphLayer, lyphs, stack);
+            //}
 
             lyphLayer::merge(targetLyph::pick(["topology"]));
             targetLyph.layers.push(lyphLayer);
         });
+        //stack.pop();
         targetLyph.layers = targetLyph.layers.map(e => e.id);
         return targetLyph;
     }
@@ -159,10 +164,8 @@ export class Lyph extends Shape {
         return this.conveyedBy || ((this.layerIn)? this.layerIn.axis : null);
     }
 
-    get polygonOffsetFactor() {
-        return Math.min(
-            ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
-                (this[prop].polygonOffsetFactor || 0) - 1: 0));
+    get container(){
+        return this.internalIn || this.layerIn && this.layerIn.internalIn;
     }
 
     /**
@@ -221,10 +224,6 @@ export class Region extends Shape {
         res.points.push(res.points[0]::clone()); //make closed shape
         return res;
     }
-
-    get polygonOffsetFactor() {
-        return 1; //always behind
-    }
 }
 
 /**
@@ -235,13 +234,8 @@ export class Region extends Shape {
  *
  */
 export class Border extends VisualResource {
-
     get isVisible(){
         return super.isVisible && (this.host? this.host.isVisible: true);
-    }
-
-    get polygonOffsetFactor(){
-        return this.host? this.host.polygonOffsetFactor: 0;
     }
 }
 

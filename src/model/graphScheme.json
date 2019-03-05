@@ -445,8 +445,7 @@
           "description": "The length of the link",
           "type": "number",
           "minimum": 0,
-          "maximum": 100,
-          "default": 4
+          "maximum": 100
         },
         "collapsible": {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
@@ -541,6 +540,58 @@
         ]
       }
     },
+    "Material": {
+      "description": "Biological materials, chemical elements and compounds",
+      "allOf":[{
+        "$ref": "#/definitions/VisualResource"
+      }],
+      "properties": {
+        "materials": {
+          "description": "Materials in the lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          }
+        },
+        "thickness": {
+          "description": "Anatomical lyph thickness defined in the form of power of 1/10",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Minimal value",
+              "type": "number"
+            },
+            "max": {
+              "description": "Maximal value",
+              "type": "number"
+            }
+          },
+          "default": {}
+        },
+        "length": {
+          "description": "Anatomical lyph length defined in the form of power of 1/10",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Minimal value",
+              "type": "number"
+            },
+            "max": {
+              "description": "Maximal value",
+              "type": "number"
+            }
+          },
+          "default": {}
+        }
+      }
+    },
     "Shape": {
       "description": "A resource that occupies space within a border",
       "allOf":[{
@@ -560,6 +611,13 @@
           ],
           "relatedTo": "host",
           "default": {}
+        },
+        "points": {
+          "description": "Points defining the border shape",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Point2Scheme"
+          }
         },
         "internalLyphColumns": {
           "description": "Defines number of columns in the grid layout for the internal lyphs",
@@ -597,13 +655,6 @@
           "relatedTo": "internalIn",
           "uniqueItems": true
         },
-        "points": {
-          "description": "Points defining the border shape",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Point2Scheme"
-          }
-        },
         "hostedLyphs": {
           "description": "Lyphs that should be projected to the given shape",
           "type": "array",
@@ -633,6 +684,8 @@
       "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
       "allOf":[{
         "$ref": "#/definitions/Shape"
+        }, {
+        "$ref": "#/definitions/Material"
       }],
       "properties": {
         "topology": {
@@ -691,37 +744,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "conveyedBy" ]
-        },
-        "thickness": {
-          "description": "Anatomical lyph thickness defined in the form of power of 1/10",
-          "type": "object",
-          "properties": {
-            "min": {
-              "description": "Minimal value",
-              "type": "number"
-            },
-            "max": {
-              "description": "Maximal value",
-              "type": "number"
-            }
-          },
-          "default": {}
-        },
-        "length": {
-          "description": "Anatomical lyph length defined in the form of power of 1/10",
-          "type": "object",
-          "properties": {
-            "min": {
-              "description": "Minimal value",
-              "type": "number"
-            },
-            "max": {
-              "description": "Maximal value",
-              "type": "number"
-            }
-          },
-          "default": {}
+          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment"]
         },
         "width": {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
@@ -793,20 +816,6 @@
           ],
           "relatedTo": "hostedLyphs"
         },
-        "materials": {
-          "description": "Materials in the lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          }
-        },
         "isTemplate": {
           "description": "Indicates that the lyph defines layers for its subtypes",
           "type": "boolean"
@@ -852,6 +861,22 @@
             ]
           },
           "relatedTo": "coalescesWith"
+        },
+        "inCoalescences" : {
+          "description": "A set of coalescences that include the current lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Coalescence"
+              }
+            ]
+          },
+          "relatedTo": "lyphs",
+          "default": []
         }
       }
     },
@@ -883,12 +908,6 @@
           "readOnly": true
         }
       }
-    },
-    "Material": {
-      "description": "Biological materials, chemical elements and compounds",
-      "allOf":[{
-        "$ref": "#/definitions/Resource"
-      }]
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
@@ -966,6 +985,21 @@
             ]
           }
         },
+        "coalescences": {
+          "description": "Coalescences, i.e., groups of overlapping lyphs",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Coalescence"
+              }
+            ]
+          },
+          "default": []
+        },
         "materials": {
           "description": "Biological materials, chemical elements and compounds, used in the model",
           "type": "array",
@@ -1025,6 +1059,29 @@
           },
           "relatedTo": "groups",
           "default": []
+        }
+      }
+    },
+    "Coalescence": {
+      "description": "Defines a group of lyphs with overlapping layers",
+      "allOf":[{
+        "$ref": "#/definitions/Resource"
+      }],
+      "properties": {
+        "lyphs": {
+          "description": "Coalescing lyphs, i.e., lyphs with overlapping layers. Each layer points to its partner via the 'coalescesWith property'",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "inCoalescences"
         }
       }
     },

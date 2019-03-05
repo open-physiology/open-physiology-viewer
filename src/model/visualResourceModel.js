@@ -32,16 +32,6 @@ export const LINK_STROKE = {
  * @property {boolean} skipLabel - excludes resource labels from the view
  */
 export class VisualResource extends Resource{
-
-    /**
-     * Polygon offset factor determines order of rendering of objects with the same depth (z-coordinate).
-     * Smaller number indicates that the visual object is rendered "closer" to the viewer
-     * @returns {number}
-     */
-    get polygonOffsetFactor() {
-        return 0;
-    }
-
     /**
      * Determines whether the resource should appear in the scheme based on its 'hidden' attribute and other resource dependencies
      * @returns {boolean}
@@ -50,11 +40,6 @@ export class VisualResource extends Resource{
         return !this.hidden;
     }
 }
-
-/**
- * The class to model Material resources within Lyphs
- */
-export class Material extends VisualResource {}
 
 /**
  *  The class to visualize Node resources in the force-directed graphs
@@ -84,11 +69,6 @@ export class Node extends VisualResource {
             (this.hostedBy && this.hostedBy.isVisible) ||
             (this.internalIn && this.internalIn.isVisible));
     }
-
-    get polygonOffsetFactor() {
-        return Math.min(...["hostedBy", "internalIn"].map(prop => this[prop]?
-            (this[prop].polygonOffsetFactor || 0) - 1: 0));
-    }
 }
 
 /**
@@ -105,12 +85,9 @@ export class Node extends VisualResource {
  * @property lineWidth
  * @property hostedNodes
  */
-export class Link extends VisualResource {
+export class Link extends VisualResource {}
 
-    get polygonOffsetFactor(){
-        return Math.min(...["hostedBy", "source", "target"].map(prop => this[prop]?
-            (this[prop].polygonOffsetFactor || 0) - 1: 0));
-    }
-
-}
-
+/**
+ * The class to model Material resources
+ */
+export class Material extends VisualResource {}

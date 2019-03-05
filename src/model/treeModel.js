@@ -140,7 +140,7 @@ export class Tree extends Resource {
             //Do not override existing properties
             tree.levels[i]::defaults({
                 "id"    : tree.id + "_lnk" + (i+1),
-                "name"  : `${tree.name || ""}}: level ${i}`,
+                "name"  : `${tree.name || ""}: level ${i}`,
                 "source": getID(sources[i]),
                 "target": getID(sources[i + 1]),
                 "color" : "#000"

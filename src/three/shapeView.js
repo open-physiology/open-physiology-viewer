@@ -88,11 +88,12 @@ Lyph.prototype.createViewObjects = function(state) {
         let offset = this.offset;
         let prev = this.prev || this.layerIn? (this.layerIn.prev || this): this;
 
+        let radius = this.height / 8;
         let obj = createMeshWithBorder(this.prev
             ? layerShape(
-                [this.prev.width, prev.height, this.height / 4, ...this.prev.radialTypes],
-                [this.width, this.height, this.height / 4, ...this.radialTypes])
-            : lyphShape([this.width, this.height, this.height / 4, ...this.radialTypes]),
+                [this.prev.width, prev.height, radius, ...this.prev.radialTypes],
+                [this.width, this.height, radius, ...this.radialTypes])
+            : lyphShape([this.width, this.height, radius, ...this.radialTypes]),
             params);
         obj.userData = this;
         this.viewObjects['main'] = this.viewObjects['2d'] = obj;
@@ -101,9 +102,9 @@ Lyph.prototype.createViewObjects = function(state) {
             params.opacity = 0.5;
             let obj3d = (offset > 0)
                 ? d3Layer(
-                    [ offset || 1, prev.height,  this.height / 4, ...prev.radialTypes],
-                    [ offset + this.width, this.height, this.height / 4, ...this.radialTypes], params)
-                : d3Lyph([this.width, this.height, this.height / 4, ...this.radialTypes], params) ;
+                    [ offset || 1, prev.height, radius, ...prev.radialTypes],
+                    [ offset + this.width, this.height, radius, ...this.radialTypes], params)
+                : d3Lyph([this.width, this.height, radius, ...this.radialTypes], params) ;
             obj3d.userData = this;
             this.viewObjects["3d"] = obj3d;
             if (state.showLyphs3d){
@@ -386,11 +387,27 @@ Border.prototype.updateViewObjects = function(state){
     hostedLinks.forEach((link) => { pushLinkInside(link); });
     let numCols = this.host.internalLyphColumns || 1;
     let numRows = internalLinks.length / numCols;
-    internalLinks.forEach((link, i) => { placeLinkInside(link, i, numCols, numRows); });
+    internalLinks.forEach((link, i) => placeLinkInside(link, i, numCols, numRows));
 
     let center = getCenterOfMass(this.host.points);
-    (this.host.internalNodes || []).forEach((node, i) => {
-        placeNodeInside(node, i,
-            this.host.internalNodes.length, center)
-    });
+    (this.host.internalNodes || []).forEach((node, i) => placeNodeInside(node, i, this.host.internalNodes.length, center));
 };
+
+Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
+    get: function() { return 1; }
+});
+
+Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
+    get: function() {
+        return Math.min(
+        ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
+            (this[prop].polygonOffsetFactor || 0) - 1: 0));
+    }
+});
+
+Object.defineProperty(Border.prototype, "polygonOffsetFactor", {
+    get: function() {
+        return this.host? this.host.polygonOffsetFactor: 0;
+    }
+});
+

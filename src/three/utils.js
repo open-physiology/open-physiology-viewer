@@ -205,8 +205,6 @@ export function layerShape(inner, outer) {
             shape.quadraticCurveTo(0, $height / 2, -$radius, $height / 2);
             shape.lineTo(-$thickness, $height / 2);
             shape.lineTo(-$thickness, height / 2);
-        } else {
-            shape.lineTo(0, height / 2);
         }
     }
 

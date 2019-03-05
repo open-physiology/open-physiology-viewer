@@ -322,3 +322,17 @@ Link.prototype.updateViewObjects = function(state) {
         }
     }
 };
+
+Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
+    get: function() {
+        return Math.min(...["hostedBy", "internalIn"].map(prop => this[prop]?
+            (this[prop].polygonOffsetFactor || 0) - 1: 0));
+    }
+});
+
+Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
+    get: function() {
+        return Math.min(...["hostedBy", "source", "target"].map(prop => this[prop]?
+            (this[prop].polygonOffsetFactor || 0) - 1: 0));
+    }
+});

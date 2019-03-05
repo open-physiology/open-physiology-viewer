@@ -201,8 +201,30 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  The property `hostedNodes` contains a set of nodes that are positioned on the link.
  This set should never include the link's source and target nodes.
- 
-## Lyph 
+
+##Shape
+ A shape is an abstract concept that defines properties and relationships shared by ApINATOMY resources that model physiology entities, namely, lyphs and regions. An important part of the shape abstraction is its border.
+
+ The property `internalNodes` may contain a set of nodes that have to be positioned on a shape. Such nodes will be projected to the shape's surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph's axis inside of the lyph, the force-directed layout method will not converge.
+
+ The property `internalLyphs` is used to define the inner content of a shape, i.e., neurons within the neural system parts. The related property, `internalIn`, will indicate to which shape (lyph or region) the given lyph belongs.
+ Internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them on a grid within the container shape.
+
+ It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders.
+
+  To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the `hostedLyphs` property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.
+
+  ```json
+     {
+          "id"         : "5",
+          "name"       : "Kidney Lobus",
+          "topology"   : "BAG",
+          "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
+     }
+  ```
+   <img src="asset/hostedLyphs.png" width="75%" alt = "Lyph on border">
+
+### Lyph
  Lyphs in the ApiNATOMY lyph viewer are shown as 2d rectangles either with straight or rounded corners. A lyph defines the layered tissue material that constitutes a body conduit vessel (a duct, canal, or other tube that contains or conveys a body fluid) when it is rotated around its axis. 
  
  The shape of the lyph is defined by its `topology`. The topology value `TUBE` represents a conduit with two open ends. The values of `BAG` and `BAG2` represent a conduit with one closed end. Finally, the topology value `CYST` represents a conduit with both ends closed (a capsule). 
@@ -255,26 +277,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
   }
  ```
  
- The property `internalNodes` may contain a set of nodes that have to be positioned on the lyph. Such nodes will be projected on the lyph's surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph's axis inside of the lyph, the force-directed layout method will not converge.
- 
- The property `internalLyphs` is used to define the inner content of the lyph, i.e., neurons within the neural system parts. The related property, `internalInLyph`, will indicate to which lyph the given lyph belongs. 
- 
- Just like any other lyph, internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them in a line along the radial axis of the container lyph.  
- 
- It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders. 
- 
- To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the `hostedLyphs` property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.
- 
- ```json
-    {
-         "id"         : "5",
-         "name"       : "Kidney Lobus",
-         "topology"   : "BAG",
-         "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
-    }
- ```
-  <img src="asset/hostedLyphs.png" width="75%" alt = "Lyph on border">
-  
+
   A list of materials used in a lyph is available via its field `materials`, i.e.,:
  ```json
     {
@@ -333,10 +336,9 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
 
- ## Region
+ ### Region
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
-    Region internal content is similar to the content of a lyph.
-    Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
+    Region internal content is similar to the content of a lyph. Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
  ```json
     "regions": [
         {
