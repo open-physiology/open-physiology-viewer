@@ -277,7 +277,7 @@ export class WebGLSceneComponent {
                 "showLyphs"       : true,
                 "showLayers"      : true,
                 "showLyphs3d"     : false,
-                "showCoalescences": false
+                "showCoalescences": true
             },
             "groups": true,
             "labels": {
@@ -597,12 +597,8 @@ export class WebGLSceneComponent {
 
     toggleLayout(prop){
         this.config.layout[prop] = !this.config.layout[prop];
-        if (prop === "showCoalescences"){
-            this.toggleGroup(this.graphData.coalescenceGroup);
-        } else {
-            if (this.graph){
-                this.graph[prop](this.config.layout[prop]);
-            }
+        if (this.graph){
+            this.graph[prop](this.config.layout[prop]);
         }
     }
 

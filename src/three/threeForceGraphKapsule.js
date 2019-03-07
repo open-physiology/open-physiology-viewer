@@ -41,7 +41,7 @@ export default Kapsule({
         showLyphs      : { default: true},
         showLyphs3d    : { default: false},
         showLayers     : { default: true},
-
+        showCoalescences : { default: true},
         showLabels     : { default: {Node: true}},
 
         labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},

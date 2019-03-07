@@ -1062,6 +1062,12 @@
       "conveyingLyph": "105"
     }
   ],
+  "coalescences": [
+    {
+      "id": "cl1",
+      "lyphs": ["78", "24"]
+    }
+  ],
   "groups": [
     { "id": "regions",
       "name": "Regions",
@@ -2865,9 +2871,6 @@
       "layers": [
         "79",
         "80"
-      ],
-      "coalescesWith": [
-        "24"
       ]
     },
     {

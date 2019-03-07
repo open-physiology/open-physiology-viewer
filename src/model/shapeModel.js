@@ -66,7 +66,7 @@ export class Shape extends VisualResource {
  * @property layers
  * @property layerIn
  * @property internalIn
- * @property coalescesWith
+ * @property inCoalescences
  * @property prev
  * @property next
  *

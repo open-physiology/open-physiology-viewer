@@ -163,7 +163,10 @@ Lyph.prototype.updateViewObjects = function(state) {
     if (!this.axis) { return; }
 
     let viewObj = this.viewObjects["main"] = this.viewObjects["2d"];
-    if (!viewObj) { this.createViewObjects(state); }
+    if (!viewObj) {
+        this.createViewObjects(state);
+        viewObj = this.viewObjects["main"];
+    }
 
     if (state.showLyphs3d && this.viewObjects["3d"]){
         viewObj = this.viewObjects["main"] = this.viewObjects["3d"];
@@ -178,11 +181,9 @@ Lyph.prototype.updateViewObjects = function(state) {
         //update lyph
         viewObj.visible = this.isVisible && state.showLyphs;
         copyCoords(viewObj.position, this.center);
-        align(this.axis, viewObj, this.axis.reversed);
 
-        if (this.angle){
-            viewObj.rotation.x = Math.PI * this.angle / 180;
-        }
+        align(this.axis, viewObj, this.axis.reversed);
+        //viewObj.rotate
     } else {
         viewObj.visible = state.showLayers;
     }
@@ -194,6 +195,31 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
+
+    if (state.showCoalescences){
+        (this.inCoalescences||[]).forEach(coalescence => {
+            if (this !== coalescence.lyphs[0]) { return; } //update is triggered by the main/fisrt lyph
+            for (let i = 1; i < coalescence.lyphs.length; i++) {
+                let lyph2 = coalescence.lyphs[i];
+                //TODO replace with proper coalescence validation check
+                if (this.id === lyph2.id || (this.layers || []).find(l => l.id === lyph2.id)){ return; }
+                if (this.avgThickness === lyph2.avgThickness) {
+                    //coalescing lyphs at the same scale level
+                    let layers = this.layers || [this];
+                    let layers2 = lyph2.layers || [lyph2];
+                    let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
+                    let scale = (this.width + lyph2.width - overlap) / (this.width || 1);
+                    let v1 = this.points[3].clone().sub(this.points[0]).multiplyScalar(scale);
+                    let v2 = this.points[2].clone().sub(this.points[1]).multiplyScalar(scale);
+                    let c1 = extractCoords(this.axis.source).clone().add(v1);
+                    let c2 = extractCoords(this.axis.target).clone().add(v2);
+                    copyCoords(lyph2.axis.source, c1);
+                    copyCoords(lyph2.axis.target, c2);
+                    lyph2.updateViewObjects(state);
+                }
+            }
+        });
+    }
 
     this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Lyph));
 };

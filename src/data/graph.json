@@ -241,6 +241,7 @@
       "id": "myocyte-SR",
       "name": "Sarcoplasmic reticulum in myocyte",
       "supertype": "SR",
+      "topology": "CYST",
       "scale": {
         "width": 15,
         "height": 40
@@ -853,9 +854,9 @@
       "length"  : {"min": 4, "max": 4},
       "thickness": {"min": 6, "max": 6},
       "layers": ["blood", "endoth", "BM"],
-      "coalescesWith": ["VBC"],
       "external": ["UBERON:0000074"],
-      "comment"  : "45"
+      "comment" : "45",
+      "angle"   : 180
     },
     {
       "id": "EA",
@@ -939,16 +940,16 @@
       "external": ["UBERON:0001229"]
     },
     {
-      "id": "myocyte-urineVBC",
-      "name": "Myocyte in urine of visceral Bowman's capsule",
-      "lyphs": ["myocyte", "VBC"],
-      "comment": "Overlapping lyphs are derived from 0 - Urine"
+      "id"      : "myocyte-urineVBC",
+      "name"    : "Myocyte in urine of visceral Bowman's capsule",
+      "lyphs"   : ["myocyte", "VBC"],
+      "comment" : "Overlapping lyphs are derived from 0 - Urine"
     },
     {
-      "id": "SR-myocyte",
-      "name": "Sarcomplasmic reticulum in myocyte cytosol",
-      "lyphs": ["SR", "myocyte"],
-      "comment": "Overlapping lyphs are derived from 61 - Sarcoplasm"
+      "id"      : "SR-myocyte",
+      "name"    : "Sarcomplasmic reticulum in myocyte cytosol",
+      "lyphs"   : ["SR", "myocyte"],
+      "comment" : "Overlapping lyphs are derived from 61 - Sarcoplasm"
     }
   ],
   "assign": [

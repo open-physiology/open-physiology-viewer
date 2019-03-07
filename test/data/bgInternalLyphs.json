@@ -273,12 +273,10 @@
       "id": "AB"
     },
     {
-      "id": "CD",
-      "coalescesWith": ["JK", "GH"]
+      "id": "CD"
     },
     {
-      "id": "EF",
-      "coalescesWith": ["NO"]
+      "id": "EF"
     },
     {
       "id": "GH"
@@ -287,8 +285,7 @@
       "id": "JK"
     },
     {
-      "id": "LM",
-      "coalescesWith": ["RS"]
+      "id": "LM"
     },
     {
       "id": "NO"
@@ -330,6 +327,20 @@
     {
       "id": "m5",
       "internalLyphs": ["PQ"]
+    }
+  ],
+  "coalescences": [
+    {
+      "id": "cl1",
+      "lyphs": ["CD", "JK", "GH"]
+    },
+    {
+      "id": "cl2",
+      "lyphs": ["EF", "NO"]
+    },
+    {
+      "id": "cl3",
+      "lyphs": ["LM", "RS"]
     }
   ],
   "assign": [

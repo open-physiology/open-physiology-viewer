@@ -847,21 +847,6 @@
           ],
           "relatedTo": "subtypes"
         },
-        "coalescesWith": {
-          "description": "A set of lyphs to coalesce with",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "coalescesWith"
-        },
         "inCoalescences" : {
           "description": "A set of coalescences that include the current lyph",
           "type": "array",
@@ -1069,7 +1054,7 @@
       }],
       "properties": {
         "lyphs": {
-          "description": "Coalescing lyphs, i.e., lyphs with overlapping layers. Each layer points to its partner via the 'coalescesWith property'",
+          "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
           "type": "array",
           "items": {
             "anyOf": [
@@ -1081,7 +1066,8 @@
               }
             ]
           },
-          "relatedTo": "inCoalescences"
+          "relatedTo": "inCoalescences",
+          "default": []
         }
       }
     },

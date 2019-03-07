@@ -77,49 +77,20 @@ export class Graph extends Group{
 
         res.entitiesByID = entitiesByID;
 
-        //Create a coalescence group and force links to bind coalescing lyphs
-        let coalescenceGroup = (res.groups||[]).find(g => g.id === "coalescences");
-        if (!coalescenceGroup){
-            coalescenceGroup = Group.fromJSON({
-                "id"      : "coalescences",
-                "name"    : "Coalescences",
-                "inactive": true
-            });
-            res.groups = res.groups || [];
-            res.groups.push(coalescenceGroup);
-            entitiesByID[coalescenceGroup.id] = coalescenceGroup;
-        }
-        coalescenceGroup.links = coalescenceGroup.links||[];
-
-        const createCoalescenceForces = (graph) => {
-            (graph.lyphs||[]).filter(lyph => lyph.coalescesWith).forEach(lyph => {
-                lyph.coalescesWith.forEach(lyph2 => {
-                    if (lyph === lyph2 || (lyph.layers||[]).find(l => l.id === lyph2.id)
-                        || (lyph.internalLyphs||[]).find(l => l.id === lyph2.id)){
-                        console.warn("A lyph cannot coalesce with itself or its content", lyph, lyph2);
-                        return;
-                    }
-                    if (!lyph.axis || !lyph2.axis) {
-                        console.warn("A coalescing lyph is missing an axis", !lyph.axis? lyph: lyph2);
-                        return;
-                    }
-
-                    ["source", "target"].forEach(end => {
-                        let link = Link.fromJSON({
-                            "id"       : end.charAt(0) + "_" + lyph.id + "_" + lyph2.id,
-                            "source"   : lyph.axis[end],
-                            "target"   : lyph2.axis[end],
-                            "length"   : 0.1,
-                            "geometry" : LINK_GEOMETRY.FORCE
-                        });
-                        graph.links.push(link);
-                        coalescenceGroup.links.push(link);
-                        entitiesByID[link.id] = link;
-                    });
-                })
-            });
-        };
-        createCoalescenceForces(res);
+        (res.coalescences || []).forEach(coalescence => {
+            let lyph = coalescence.lyphs[0];
+            if (!lyph) { return; }
+            for (let i = 1; i < coalescence.lyphs.length; i++) {
+                let lyph2 = coalescence.lyphs[i];
+                if (lyph === lyph2 || (lyph.layers || []).find(l => l.id === lyph2.id)) {
+                    console.warn("A lyph cannot coalesce with itself or its own layers", lyph, lyph2);
+                    return;
+                }
+                if (!lyph.axis || !lyph2.axis) {
+                    console.warn("A coalescing lyph is missing an axis", !lyph.axis ? lyph : lyph2);
+                }
+            }
+        });
 
         //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
         (res.links||[]).filter(link => link::isObject()).forEach(link => {
@@ -192,10 +163,6 @@ export class Graph extends Group{
         (this.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= scaleFactor);
         (this.regions||[]).filter(region => region.points).forEach(region =>
            region.points.forEach(p => scalePoint(p)));
-    }
-
-    get coalescenceGroup(){
-        return (this.groups||[]).find(g => g.id === "coalescences");
     }
 }
 
