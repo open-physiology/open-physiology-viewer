@@ -134,6 +134,9 @@ export class Lyph extends Shape {
             lyphLayer::merge(targetLyph::pick(["topology"]));
             targetLyph.layers.push(lyphLayer);
         });
+
+        // (sourceLyph.internalLyphs||[]).forEach(internalLyph => {
+        // });
         //stack.pop();
         targetLyph.layers = targetLyph.layers.map(e => e.id);
         return targetLyph;
@@ -166,6 +169,17 @@ export class Lyph extends Shape {
 
     get container(){
         return this.internalIn || this.layerIn && this.layerIn.internalIn;
+    }
+
+    get allContainers(){
+        let res = [this];
+        if (this.layerIn) {
+            res = res.concat(this.layerIn.allContainers);
+        }
+        if (this.internalIn){
+            res = res.concat(this.internalIn.allContainers);
+        }
+        return res;
     }
 
     /**

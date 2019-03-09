@@ -155,7 +155,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        console.warn("Cannot assign to a resource with unknown class", e);
+                        console.warn("Cannot create a relationship: unknown resource class", e);
                     } else {
                         let relNames = modelClasses[e.class].Model.relationshipNames;
                         let relMaps  = modelClasses[e.class].Model.relationshipMap;
@@ -197,7 +197,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        console.warn("Cannot assign to a resource with unknown class", e);
+                        console.warn("Cannot assign a property: unknown resource class", e);
                     } else {
                         let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
                         e::merge(value::pick(propNames));

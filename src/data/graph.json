@@ -22,8 +22,7 @@
       "external": ["FMA:74311"]
     },
     {
-      "id": "uot-u",
-      "layout": {"x": 0}
+      "id": "uot-u"
     },
     {
       "id": "uot-v",
@@ -32,13 +31,32 @@
     {
       "id": "cs-a"
     },
-
+    {
+      "id": "cs-b"
+    },
+    {
+      "id": "cs-c"
+    },
+    {
+      "id": "cs-d"
+    },
     {
       "id": "xCa1",
       "hostedBy": "uot-lnk21"
     },
     {
+      "id": "xCa1-a"
+    },{
+      "id": "xCa1-b"
+    },
+    {
       "id": "xCa2"
+    },
+    {
+      "id": "xCa2-a"
+    },
+    {
+      "id": "xCa2-b"
     },
     {
       "id": "xCa3"
@@ -169,7 +187,6 @@
       "id": "uot-lnk21",
       "source": "uot-u",
       "target": "uot-v",
-      "length": 100,
       "conveyingLyph": "VBC"
     },
     {
@@ -195,13 +212,43 @@
       "id": "lnk-Ca1",
       "name": "Calcium",
       "source": "xCa1",
-      "target": "xCa2"
+      "target": "xCa1-a",
+      "conveyingLyph": "Na-Ca:EE"
+    },
+    {
+      "id": "lnk-Ca1-a",
+      "name": "Calcium",
+      "source": "xCa1-a",
+      "target": "xCa1-b",
+      "conveyingLyph": "Na-Ca:TM"
+    },
+    {
+      "id": "lnk-Ca1-b",
+      "name": "Calcium",
+      "source": "xCa1-b",
+      "target": "xCa2",
+      "conveyingLyph": "Na-Ca:cyt"
     },
     {
       "id": "lnk-Ca2",
       "name": "Calcium",
       "source": "xCa2",
-      "target": "xCa3"
+      "target": "xCa2-a",
+      "conveyingLyph": "SR-Ca:cyt"
+    },
+    {
+      "id": "lnk-Ca2-a",
+      "name": "Calcium",
+      "source": "xCa2-a",
+      "target": "xCa2-b",
+      "conveyingLyph": "SR-Ca:TM"
+    },
+    {
+      "id": "lnk-Ca2-b",
+      "name": "Calcium",
+      "source": "xCa2-b",
+      "target": "xCa3",
+      "conveyingLyph": "SR-Ca:intraSR"
     }
   ],
   "materials": [
@@ -220,19 +267,10 @@
     {"id": "cytosol",  "name": "Cytosol",                                             "isTemplate": true, "supertype": "liquid",   "external": ["GO:0005829"], "comment": "54"},
     {"id": "membrane", "name": "Membran",                                             "isTemplate": true,                          "external": ["GO:0016020"], "comment": "55"},
     {"id": "plaMem",   "name": "Plasma membrane",                                     "isTemplate": true, "supertype": "membrane", "external": ["GO:0005886"], "comment": "56"},
-    {"id": "SRC",      "name": "Sarcoplasmic reticulum content",  "topology": "CYST", "isTemplate": true, "supertype": "liquid",   "external": ["GO:0033018"], "materials": ["SR-Ca:intraSR"],
-    "internalNodes": ["xCa3"], "comment": "57"},
+    {"id": "SRC",      "name": "Sarcoplasmic reticulum content",  "topology": "CYST", "isTemplate": true, "supertype": "liquid",   "external": ["GO:0033018"], "materials": ["SR-Ca:intraSR"], "comment": "57"},
     {"id": "SRM",      "name": "Sarcoplasmic reticulum membrane", "topology": "CYST", "isTemplate": true, "supertype": "membrane", "external": ["GO:0033017"], "materials": ["SR-Ca:TM"], "comment": "58"},
     {"id": "cell",     "name": "Cell",                                                "isTemplate": true,                          "external": ["GO:0005623"], "comment": "59"},
-
-    {
-      "id": "SR-content",
-      "isTemplate": true,
-      "layers": ["SRC", "SRM", "sarPla"],
-      "comment": "extra"
-    },
-
-    {"id": "SR",       "name": "Sarcoplasmic reticulum",          "topology": "CYST", "isTemplate": true, "supertype": "SR-content", "external": ["GO:0016529"], "comment": "60"},
+    {"id": "SR",       "name": "Sarcoplasmic reticulum",          "topology": "CYST", "isTemplate": true, "layers": ["SRC", "SRM", "sarPla"], "external": ["GO:0016529"], "comment": "60"},
 
     {"id": "sarPla",   "name": "Sarcoplasm",                      "topology": "CYST", "isTemplate": true, "supertype": "cytosol",  "external": ["GO:0016528"], "materials": ["Na-Ca:cyt", "SR-Ca:cyt"],  "comment": "61"},
     {"id": "sarLem",   "name": "Sarcolemma",                                          "isTemplate": true, "supertype": "membrane", "external": ["GO:0042383"], "materials": ["Na-Ca:TM"], "comment": "62"},
@@ -278,6 +316,7 @@
           }
         }
       ],
+      "angle": 180,
       "comment": "63"
     },
 
@@ -299,7 +338,7 @@
     {"id": "SR-Ca:TM",  "name": "SR Ca-ATPase transmembrane",           "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CT", "SR-Ca:WT"], "external": ["P16615"], "comment": "79"},
     {"id": "Na-Ca:cyt", "name": "Na-Ca exchanger cytosolic",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CI", "Na-Ca:WI"], "external": ["Q01728"], "comment": "80"},
     {"id": "SR-Ca:intraSR", "name": "SR Ca-ATPase intra-SR",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:C-intraSR", "SR-Ca:W-intraSR"], "external": ["P16615"], "comment": "81"},
-    {"id": "TF", "name": "Tissue fluid", "subtype":	"liquid", "comment": "82"},
+    {"id": "TF", "name": "Tissue fluid", "supertype":	"liquid", "comment": "82"},
 
     {
       "id" : "URN",
@@ -393,18 +432,12 @@
       "comment": "10"
     },
     {
-      "id": "Det-content",
-      "isTemplate": true,
-      "layers": ["ILF", "CMF", "OLF"],
-      "comment": "extra"
-    },
-    {
       "id": "Det",
       "name": "Detrusor",
       "topology": "TUBE",
       "length"   : {"min": 2, "max": 2},
       "thickness": {"min": 3, "max": 3},
-      "supertype": "Det-content",
+      "layers": ["ILF", "CMF", "OLF"],
       "color": "#d4b079",
       "isTemplate": true,
       "external": ["UBERON:0000381"],
@@ -415,7 +448,7 @@
       "name": "Muscularis",
       "topology": "TUBE",
       "isTemplate": true,
-      "supertype": "ICO",
+      "layers": ["ILF", "CMF", "OLF"],
       "color": "#f7941e",
       "external": ["UBERON:0006912"],
       "comment": "12"
@@ -881,15 +914,7 @@
         "uot-lnk17","uot-lnk18","uot-lnk19", "uot-lnk20", "uot-lnk21"
       ],
       "branchingFactors": [1, 1, 2, 1, 1, 1, 3],
-      "comment": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1",
-      "assign":[
-        {
-          "path" : "$.group.links[*]",
-          "value": {
-            "name" : "Urine"
-          }
-        }
-      ]
+      "comment": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
     }
   ],
   "groups": [
@@ -927,9 +952,51 @@
     {
       "id"      : "myocyte-group",
       "name"    : "Myocyte in urine of visceral Bowman's capsule",
-      "lyphs"   : ["myocyte", "myocyte-SR"],
-      "nodes"   : ["xCa1", "xCa2", "xCa3"],
-      "links"   : ["lnk-Ca1", "lnk-Ca2"]
+      "lyphs"   : ["myocyte", "myocyte-SR"]
+    },
+    {
+      "id"       : "na-ca",
+      "name"     : "Na-Ca exchanger",
+      "links"    : ["lnk-Ca1", "lnk-Ca1-a", "lnk-Ca1-b"],
+      "nodes"    : ["xCa1", "xCa1-a", "xCa1-b", "xCa2"],
+      "external" : ["PR:Q01728"],
+      "assign":[
+        {
+          "path" : "$.nodes[*]",
+          "value": {
+            "color": "black",
+            "val" : 0.5
+          }
+        },
+        {
+          "path" : "$.links[*]",
+          "value": {
+            "length" : 2
+          }
+        }
+      ]
+    },
+    {
+      "id"       : "sr-ca",
+      "name"     : "SR Ca-ATPase",
+      "links"    : ["lnk-Ca2", "lnk-Ca2-a", "lnk-Ca2-b"],
+      "nodes"    : ["xCa2", "xCa2-a", "xCa2-b", "xCa3"],
+      "external" : ["PR:P16615"],
+      "assign":[
+        {
+          "path" : "$.nodes[*]",
+          "value": {
+            "color": "black",
+            "val" : 0.5
+          }
+        },
+        {
+          "path" : "$.links[*]",
+          "value": {
+            "length" : 2
+          }
+        }
+      ]
     }
   ],
   "coalescences": [
@@ -942,13 +1009,13 @@
     {
       "id"      : "myocyte-urineVBC",
       "name"    : "Myocyte in urine of visceral Bowman's capsule",
-      "lyphs"   : ["myocyte", "VBC"],
+      "lyphs"   : ["VBC", "myocyte"],
       "comment" : "Overlapping lyphs are derived from 0 - Urine"
     },
     {
       "id"      : "SR-myocyte",
       "name"    : "Sarcomplasmic reticulum in myocyte cytosol",
-      "lyphs"   : ["SR", "myocyte"],
+      "lyphs"   : ["myocyte", "myocyte-SR"],
       "comment" : "Overlapping lyphs are derived from 61 - Sarcoplasm"
     }
   ],
@@ -957,13 +1024,19 @@
       "path" : "$.nodes[*]",
       "value": {
         "color" : "red",
-        "val"   : "1"
+        "val"   : 1
       }
     },
     {
       "path"  : "$.links[*].conveyingLyph",
       "value" : {
         "color" : "#ccc"
+      }
+    },
+    {
+      "path"  : "$.links[?(@.id=='uot-lnk21' || @.id =='cs-lnk2')]",
+      "value" : {
+        "length" : "80"
       }
     }
   ]

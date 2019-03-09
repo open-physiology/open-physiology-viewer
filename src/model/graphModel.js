@@ -41,6 +41,8 @@ export class Graph extends Group{
             }
         });
 
+        //TODO lyph templates should not have internal lyphs which are not templates
+
         //Create graph
         let res = super.fromJSON(model, modelClasses, entitiesByID);
 
@@ -82,9 +84,8 @@ export class Graph extends Group{
             if (!lyph) { return; }
             for (let i = 1; i < coalescence.lyphs.length; i++) {
                 let lyph2 = coalescence.lyphs[i];
-                if (lyph === lyph2 || (lyph.layers || []).find(l => l.id === lyph2.id)) {
-                    console.warn("A lyph cannot coalesce with itself or its own layers", lyph, lyph2);
-                    return;
+                if ((lyph2.layers||[]).find(x => x.id === lyph.id) || (lyph.layers||[]).find(x => x.id === lyph2.id)) {
+                    console.warn("A lyph coalesces with itself or its layers", lyph, lyph2);
                 }
                 if (!lyph.axis || !lyph2.axis) {
                     console.warn("A coalescing lyph is missing an axis", !lyph.axis ? lyph : lyph2);

@@ -194,16 +194,20 @@ export class Tree extends Resource {
         mergeGenResource(tree.instance, parentGroup, root, "nodes");
 
         let levelResources = {};
-        for (let i = 0; i < tree.levels.length; i++){
-            let lnk  = getObj(tree.levels[i], "links");
-            let trg  = getObj(lnk.target, "nodes");
+        for (let i = 0; i < tree.levels.length; i++) {
+            let lnk = getObj(tree.levels[i], "links");
+            let trg = getObj(lnk.target, "nodes");
             let lyph = getObj(lnk.conveyingLyph, "lyphs");
 
-            if (!lnk || !trg) {
-                console.warn("Failed to find tree level resources: ", tree.id, i, tree.levels[i]);
-                if (!trg) { trg = {"id": lnk.target}; }
-                if (!lnk) { lnk = {"id": tree.levels[i]}; }
+            if (!lnk) {
+                console.warn("Failed to find tree level link: ", tree.id, i, tree.levels[i]);
+                lnk = {"id": tree.levels[i]};
             }
+            if (!trg){
+                console.warn("Failed to find tree level target node: ", tree.id, i, lnk);
+                trg = {"id": lnk.target};
+            }
+
             if (lyph){ lyph.create3d = true; }
             levelResources[i] = [[lnk, trg, lyph]];
             mergeGenResources([lnk, trg, lyph]);

@@ -79,14 +79,14 @@ export class Group extends Resource {
             }
         };
 
-        (json::entries()||[]).forEach(([groupKey, resources]) => {
+        (json::entries()||[]).forEach(([groupRelName, resources]) => {
             if (!resources::isArray()) { return; }
             let groupClassNames = this.Model.relClassNames;
-            if (groupClassNames[groupKey]) {
-                let refsToLyphs = modelClasses[groupClassNames[groupKey]].Model.selectedRelNames("Lyph");
+            if (groupClassNames[groupRelName]) {
+                let refsToLyphs = modelClasses[groupClassNames[groupRelName]].Model.selectedRelNames("Lyph");
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
-                    if (resource.isTemplate) { return; } // Do not alter templates
+                    //if (resource.isTemplate) {return; }
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
                         if (refsToLyphs.includes(key) && !["subtypes", "supertype", "lyphTemplate"].includes(key)) {
                             replaceRefsToTemplates(resource, key);

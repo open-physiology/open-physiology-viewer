@@ -744,7 +744,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment"]
+          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment", "supertype", "cloneOf"]
         },
         "width": {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
@@ -802,7 +802,9 @@
         },
         "angle": {
           "description": "Angle (in degrees) to rotate the lyph around its axis",
-          "type": "number"
+          "type"   : "number",
+          "minimum" : 0,
+          "maximum" : 360
         },
         "hostedBy": {
           "description": "ID or reference of the lyph which this lyph must be projected to",

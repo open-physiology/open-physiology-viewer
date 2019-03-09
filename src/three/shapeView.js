@@ -16,6 +16,8 @@ import {
     extractCoords,
     boundToPolygon,
     boundToRectangle,
+    isInRange,
+    commonTemplate,
     THREE
 } from "./utils";
 
@@ -67,6 +69,10 @@ Lyph.prototype.translate = function(p0) {
 Lyph.prototype.createViewObjects = function(state) {
     //Cannot draw a lyph without axis
     if (!this.axis) { return; }
+
+    if (this.isTemplate){
+        console.warn("Creating visual objects for an abstract lyph", this);
+    }
 
     for (let i = 1; i < (this.layers || []).length; i++) {
         this.layers[i].prev = this.layers[i - 1];
@@ -180,10 +186,14 @@ Lyph.prototype.updateViewObjects = function(state) {
         }
         //update lyph
         viewObj.visible = this.isVisible && state.showLyphs;
+        viewObj.material.visible = !state.showLayers; //do not show lyph if layers are shown
+
         copyCoords(viewObj.position, this.center);
 
         align(this.axis, viewObj, this.axis.reversed);
-        //viewObj.rotate
+        if (this.angle){
+            this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180);
+        }
     } else {
         viewObj.visible = state.showLayers;
     }
@@ -193,33 +203,47 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     this.border.updateViewObjects(state);
 
-    //Layers and inner lyphs have no labels
-    if (this.layerIn || this.internalIn) { return; }
+    //TODO lyph visibility - always reset to true to avoid missing lyphs when groups are hidden
+    //TODO move to coalescence class
 
-    if (state.showCoalescences){
-        (this.inCoalescences||[]).forEach(coalescence => {
-            if (this !== coalescence.lyphs[0]) { return; } //update is triggered by the main/fisrt lyph
-            for (let i = 1; i < coalescence.lyphs.length; i++) {
-                let lyph2 = coalescence.lyphs[i];
-                //TODO replace with proper coalescence validation check
-                if (this.id === lyph2.id || (this.layers || []).find(l => l.id === lyph2.id)){ return; }
-                if (this.avgThickness === lyph2.avgThickness) {
-                    //coalescing lyphs at the same scale level
-                    let layers = this.layers || [this];
-                    let layers2 = lyph2.layers || [lyph2];
-                    let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
-                    let scale = (this.width + lyph2.width - overlap) / (this.width || 1);
-                    let v1 = this.points[3].clone().sub(this.points[0]).multiplyScalar(scale);
-                    let v2 = this.points[2].clone().sub(this.points[1]).multiplyScalar(scale);
-                    let c1 = extractCoords(this.axis.source).clone().add(v1);
-                    let c2 = extractCoords(this.axis.target).clone().add(v2);
-                    copyCoords(lyph2.axis.source, c1);
-                    copyCoords(lyph2.axis.target, c2);
-                    lyph2.updateViewObjects(state);
+    (this.inCoalescences||[]).forEach(coalescence => {
+        if (this !== coalescence.lyphs[0]) { return; } //update is triggered by the main/fisrt lyph
+        for (let i = 1; i < coalescence.lyphs.length; i++) {
+            let lyph2 = coalescence.lyphs[i];
+
+            //TODO Process coalescences with abstract types
+            if (lyph2.isTemplate){ return; }
+
+            let layers = this.layers || [this];
+            let layers2 = lyph2.layers || [lyph2];
+            let container1 = lyph2.allContainers.find(x => x.id === this.id);
+            if (container1) {
+                let same = commonTemplate(lyph2.internalIn, layers2[layers2.length - 1]);
+                layers2[layers2.length - 1].viewObjects["2d"].material.visible = !state.showCoalescences || !same;
+            } else {
+                let container2 = this.allContainers.find(x => x.id === lyph2.id);
+                if (container2) {
+                    let same = commonTemplate(this.internalIn, layers[layers.length - 1]);
+                    layers[layers.length - 1].viewObjects["2d"].material.visible = !state.showCoalescences || !same;
+                } else {
+                    if (state.showCoalescences){
+                        //coalescing lyphs are independent / at the same scale level
+                        let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
+                        let scale = (this.width + lyph2.width - overlap) / (this.width || 1);
+                        let v1 = this.points[3].clone().sub(this.points[0]).multiplyScalar(scale);
+                        let v2 = this.points[2].clone().sub(this.points[1]).multiplyScalar(scale);
+                        let c1 = extractCoords(this.axis.source).clone().add(v1);
+                        let c2 = extractCoords(this.axis.target).clone().add(v2);
+                        copyCoords(lyph2.axis.source, c1);
+                        copyCoords(lyph2.axis.target, c2);
+                    }
                 }
             }
-        });
-    }
+        }
+    });
+
+    //Layers and inner lyphs have no labels
+    if (this.layerIn || this.internalIn) { return; }
 
     this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Lyph));
 };
@@ -306,6 +330,7 @@ Border.prototype.createViewObjects = function(state){
  */
 Border.prototype.updateViewObjects = function(state){
 
+
     /**
      * Assigns fixed position on a grid inside border
      * @param link - link to place inside border
@@ -321,13 +346,21 @@ Border.prototype.updateViewObjects = function(state){
         let delta = 0.05; //offset from the border
         let p = this.host.points.slice(0,3).map(p => p.clone());
         p.forEach(p => p.z += 1);
+
+        let isReversed = link.reversed || isInRange(90, 270, link.conveyingLyph.angle);
+
         let dX = p[1].clone().sub(p[0]);
         let dY = p[2].clone().sub(p[1]);
-        let offsetY = dY.clone().multiplyScalar(delta + Math.floor(i / numCols) / (numRows * (1 + 2 * delta) ) );
+        let tmp = delta + Math.floor(i / numCols) / (numRows * (1 + 2 * delta) );
+        let offsetY  = dY.clone().multiplyScalar(isReversed? 1 - tmp: tmp);
         let sOffsetX = dX.clone().multiplyScalar(i % numCols / numCols + link.source.offset || 0);
         let tOffsetX = dX.clone().multiplyScalar(1 - (i % numCols + 1) / numCols + link.target.offset || 0);
-        copyCoords(link.source, p[0].clone().add(sOffsetX).add(offsetY));
-        copyCoords(link.target, p[1].clone().sub(tOffsetX).add(offsetY));
+
+        let v1 = p[0].clone().add(sOffsetX).add(offsetY);
+        let v2 = p[1].clone().sub(tOffsetX).add(offsetY);
+        copyCoords(link.source, v1);
+        copyCoords(link.target, v2);
+
         link.source.z += 1; //todo replace to polygonOffset?
     };
 

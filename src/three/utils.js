@@ -6,7 +6,53 @@ import tinycolor from 'tinycolor2';
 
 const ThreeBSP = require('three-js-csg')(THREE);
 
+/**
+ * Determines whether two lyphs have a common supertype
+ * @param lyph1
+ * @param lyph2
+ * @returns {*}
+ */
+export const commonTemplate = (lyph1, lyph2) => {
+    if (!lyph1 || !lyph2) { return false; }
+    if (lyph1.supertype) {
+        if (lyph2.supertype) {
+            return lyph1.supertype === lyph2.supertype;
+        }
+        if (lyph2.cloneOf){
+            return commonTemplate(lyph1, lyph2.cloneOf);
+        }
+    }
+    if (lyph1.cloneOf){
+        return commonTemplate(lyph2, lyph1.cloneOf);
+    }
+    return false;
+};
+
+
+/**
+ * Get a point on a curve
+ * @param curve  - THREE.js curve
+ * @param s      - start point at the curve
+ * @param t      - stop point atthe curve
+ * @param offset - curve length fraction to find a point at (e.g., 0.25, 0.5, 0.75, etc.)
+ * @returns {*}  - coordinates of a point on a curve
+ */
 export const getPoint = (curve, s, t, offset) => (curve && curve.getPoint)? curve.getPoint(offset): s.clone().add(t).multiplyScalar(offset);
+
+/**
+ * Checks that the angle is between given angles
+ * @param from  - start of the range
+ * @param to    - end of the range
+ * @param angle - current angle
+ * @returns {boolean}
+ */
+export function isInRange(from, to, angle){
+    while ( from < 0 ) { from += 360; }
+    while ( to < 0 )  { to += 360; }
+    from = from % 360;
+    to = to % 360;
+    return(( angle > from) && (angle < to));
+}
 
 /**
  * Copy coordinates from source object to target
@@ -27,7 +73,7 @@ export function copyCoords(target, source){
  * Computes difference between two geometries
  * @param smallGeom - inner geometry
  * @param largeGeom - outer geometry
- * @param material  - geometry material
+ * @param params    - material parameters
  */
 export function geometryDifference(smallGeom, largeGeom, params){
     let smallBSP = new ThreeBSP(smallGeom);
@@ -287,18 +333,18 @@ export function createMeshWithBorder(shape, params = {}) {
     let obj = new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
 
     // Create border
-    let lineBorderGeometry = new THREE.Geometry();
-    shape.getPoints().forEach(point => {
-        point.z = 0;
-        lineBorderGeometry.vertices.push(point);
-    });
-    let borderParams = params::defaults({
-        color   : tinycolor(params.color).darken(20), //20% darker color than surface
-        opacity : 1,
-        polygonOffsetFactor: params.polygonOffsetFactor - 1
-    });
-    let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
-    obj.add(borderObj);
+    // let lineBorderGeometry = new THREE.Geometry();
+    // shape.getPoints().forEach(point => {
+    //     point.z = 0;
+    //     lineBorderGeometry.vertices.push(point);
+    // });
+    // let borderParams = params::defaults({
+    //     color   : tinycolor(params.color).darken(20), //20% darker color than surface
+    //     opacity : 1,
+    //     polygonOffsetFactor: params.polygonOffsetFactor - 1
+    // });
+    // let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
+    // obj.add(borderObj);
     return obj;
 }
 
@@ -375,9 +421,6 @@ export function align(link, obj, reversed = false){
     let axis = direction(link.source, link.target).normalize();
     if (reversed){ axis.multiplyScalar(-1); }
     obj.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axis);
-    // if (obj.userData && obj.userData.angle) {
-    //     obj.rotateOnAxis(axis, Math.PI * obj.userData.angle / 180);
-    // }
 }
 
 /**
