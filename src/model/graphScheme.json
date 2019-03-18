@@ -529,15 +529,32 @@
           ],
           "relatedTo": "conveyedBy"
         },
-        "type": {
-          "description": "Process type annotation",
-          "type": "string"
+        "conveyingType": {
+          "description": "Process type",
+          "type": "string",
+          "enum": [
+            "advective",
+            "diffusive"
+          ]
+        },
+        "conveyingMaterials": {
+          "description": "Materials conveyed by a diffusive process, must be subset of materials in the innermost layer of the conveying lyph",
+          "description": "Conveying lyph for the process represented by the link (other side of 'axis')",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Material"
+            }
+          ]
         }
       },
       "dependencies": {
         "lineWidth": [
           "stroke"
-        ]
+        ],
+        "conveyingType": ["conveyedMaterials"]
       }
     },
     "Material": {

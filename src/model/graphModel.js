@@ -90,6 +90,7 @@ export class Graph extends Group{
                 if (!lyph.axis || !lyph2.axis) {
                     console.warn("A coalescing lyph is missing an axis", !lyph.axis ? lyph : lyph2);
                 }
+                lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
             }
         });
 
@@ -141,10 +142,12 @@ export class Graph extends Group{
             .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph, lyph.internalIn));
 
         const assignAxisLength = (lyph, container) => {
-            if (!container.axis.length && container.container){
-                assignAxisLength(container, container.container);
+            if (container.axis) {
+                if (!container.axis.length && container.container) {
+                    assignAxisLength(container, container.container);
+                }
+                lyph.axis.length = container.axis.length ? container.axis.length * 0.8 : DEFAULT_LENGTH;
             }
-            lyph.axis.length = container.axis.length? container.axis.length * 0.8: DEFAULT_LENGTH;
         };
 
         [...(this.lyphs||[]), ...(this.regions||[])]
@@ -165,6 +168,8 @@ export class Graph extends Group{
         (this.regions||[]).filter(region => region.points).forEach(region =>
            region.points.forEach(p => scalePoint(p)));
     }
+
+
 }
 
 Graph.validator = new Validator();

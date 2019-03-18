@@ -120,6 +120,7 @@ const WindowResize = require('three-window-resize');
                         </mat-checkbox>
                         <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
                                       (change) = "toggleLayout('showLyphs3d')"
+                                      matTooltip = "Shows 3D geometry for resources with property 'create3d' set to true"
                                       [checked] = "config.layout.showLyphs3d"> Lyphs 3D
                         </mat-checkbox>
                         <mat-checkbox matTooltip="Toggle coalescences" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
@@ -281,7 +282,7 @@ export class WebGLSceneComponent {
             },
             "groups": true,
             "labels": {
-                "Node"  : true, //{show: true, "label": "id"}
+                "Node"  : true,
                 "Link"  : false,
                 "Lyph"  : false,
                 "Region": false
@@ -466,7 +467,7 @@ export class WebGLSceneComponent {
         let intersects = ray.intersectObjects(this.graph.children);
         if (intersects.length > 0) {
             let entity = intersects[0].object.userData;
-            if (!entity|| entity.inactive) { return; }
+            if (!entity || entity.inactive) { return; }
             return selectLayer(entity);
             // let children = intersects[0].object.children||[];
             // let childIntersects = (ray.intersectObjects(children)||[]).filter(obj => obj.userData);

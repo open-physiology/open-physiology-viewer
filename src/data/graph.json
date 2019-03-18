@@ -187,7 +187,8 @@
       "id": "uot-lnk21",
       "source": "uot-u",
       "target": "uot-v",
-      "conveyingLyph": "VBC"
+      "conveyingLyph": "VBC",
+      "conveyingType": "advective"
     },
     {
       "id": "cs-lnk1",
@@ -199,7 +200,8 @@
       "id": "cs-lnk2",
       "source": "cs-b",
       "target": "cs-c",
-      "conveyingLyph": "Glo"
+      "conveyingLyph": "Glo",
+      "conveyingType": "advective"
     },
     {
       "id": "cs-lnk3",
@@ -213,42 +215,54 @@
       "name": "Calcium",
       "source": "xCa1",
       "target": "xCa1-a",
-      "conveyingLyph": "Na-Ca:EE"
+      "conveyingLyph": "Na-Ca:EE",
+      "conveyingType": "diffusive",
+      "conveyingMaterials": ["calcium"]
     },
     {
       "id": "lnk-Ca1-a",
       "name": "Calcium",
       "source": "xCa1-a",
       "target": "xCa1-b",
-      "conveyingLyph": "Na-Ca:TM"
+      "conveyingLyph": "Na-Ca:TM",
+      "conveyingType": "diffusive",
+      "conveyingMaterials": ["calcium"]
     },
     {
       "id": "lnk-Ca1-b",
       "name": "Calcium",
       "source": "xCa1-b",
       "target": "xCa2",
-      "conveyingLyph": "Na-Ca:cyt"
+      "conveyingLyph": "Na-Ca:cyt",
+      "conveyingType": "diffusive",
+      "conveyingMaterials": ["calcium"]
     },
     {
       "id": "lnk-Ca2",
       "name": "Calcium",
       "source": "xCa2",
       "target": "xCa2-a",
-      "conveyingLyph": "SR-Ca:cyt"
+      "conveyingLyph": "SR-Ca:cyt",
+      "conveyingType": "diffusive",
+      "conveyingMaterials": ["calcium"]
     },
     {
       "id": "lnk-Ca2-a",
       "name": "Calcium",
       "source": "xCa2-a",
       "target": "xCa2-b",
-      "conveyingLyph": "SR-Ca:TM"
+      "conveyingLyph": "SR-Ca:TM",
+      "conveyingType": "diffusive",
+      "conveyingMaterials": ["calcium"]
     },
     {
       "id": "lnk-Ca2-b",
       "name": "Calcium",
       "source": "xCa2-b",
       "target": "xCa3",
-      "conveyingLyph": "SR-Ca:intraSR"
+      "conveyingLyph": "SR-Ca:intraSR",
+      "conveyingType": "diffusive",
+      "conveyingMaterials": ["calcium"]
     }
   ],
   "materials": [
@@ -314,9 +328,21 @@
             "internalLyphs": ["myocyte-SR"],
             "internalNodes": ["xCa2"]
           }
+        },
+        {
+          "path": "$.layers[2]",
+          "value": {
+            "internalLyphs": ["Na-Ca:EE"]
+          }
+        },
+        {
+          "path": "$.layers[1]",
+          "value": {
+            "internalLyphs": ["Na-Ca:TM"]
+          }
         }
       ],
-      "angle": 180,
+      "angle"  : 180,
       "comment": "63"
     },
 
@@ -332,12 +358,12 @@
     {"id": "SR-Ca:WT", "name": "SR Ca-ATPase wall transmembrane",       "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["P16615"], "comment": "73"},
     {"id": "SR-Ca:C-intraSR", "name": "SR Ca-ATPase content intra-SR",  "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "materials": ["calcium"], "comment": "74"},
     {"id": "SR-Ca:W-intraSR", "name": "SR Ca-ATPase wall intra-SR",     "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["P16615"], "comment": "75"},
-    {"id": "Na-Ca:EE",  "name": "Na-Ca exchanger extracellular",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CE", "Na-Ca:WE"], "external": ["Q01728"], "comment": "76"},
-    {"id": "SR-Ca:cyt", "name": "SR Ca-ATPase cytosolic",               "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CC", "SR-Ca:WC"], "external": ["P16615"], "comment": "77"},
-    {"id": "Na-Ca:TM",  "name": "Na-Ca exchanger transmembrane",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CT", "Na-Ca:WT"], "external": ["Q01728"], "comment": "78"},
-    {"id": "SR-Ca:TM",  "name": "SR Ca-ATPase transmembrane",           "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CT", "SR-Ca:WT"], "external": ["P16615"], "comment": "79"},
-    {"id": "Na-Ca:cyt", "name": "Na-Ca exchanger cytosolic",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CI", "Na-Ca:WI"], "external": ["Q01728"], "comment": "80"},
-    {"id": "SR-Ca:intraSR", "name": "SR Ca-ATPase intra-SR",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:C-intraSR", "SR-Ca:W-intraSR"], "external": ["P16615"], "comment": "81"},
+    {"id": "Na-Ca:EE",  "name": "Na-Ca exchanger extracellular",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CE", "Na-Ca:WE", "URI"], "external": ["Q01728"], "comment": "76"},
+    {"id": "SR-Ca:cyt", "name": "SR Ca-ATPase cytosolic",               "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CC", "SR-Ca:WC", "sarPla"], "external": ["P16615"], "comment": "77"},
+    {"id": "Na-Ca:TM",  "name": "Na-Ca exchanger transmembrane",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CT", "Na-Ca:WT", "sarLem"], "external": ["Q01728"], "comment": "78"},
+    {"id": "SR-Ca:TM",  "name": "SR Ca-ATPase transmembrane",           "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CT", "SR-Ca:WT", "SRM"],    "external": ["P16615"], "comment": "79"},
+    {"id": "Na-Ca:cyt", "name": "Na-Ca exchanger cytosolic",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CI", "Na-Ca:WI", "sarPla"], "external": ["Q01728"], "comment": "80"},
+    {"id": "SR-Ca:intraSR", "name": "SR Ca-ATPase intra-SR",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:C-intraSR", "SR-Ca:W-intraSR", "SRC"], "external": ["P16615"], "comment": "81"},
     {"id": "TF", "name": "Tissue fluid", "supertype":	"liquid", "comment": "82"},
 
     {
@@ -888,8 +914,7 @@
       "thickness": {"min": 6, "max": 6},
       "layers": ["blood", "endoth", "BM"],
       "external": ["UBERON:0000074"],
-      "comment" : "45",
-      "angle"   : 180
+      "comment" : "45"
     },
     {
       "id": "EA",
@@ -937,9 +962,9 @@
     {
       "id"    : "CST",
       "name"  : "Cardiovascular Segment",
+      "nodes" : ["cs-a", "cs-b", "cs-c", "cs-d"],
       "links" : ["cs-lnk1", "cs-lnk2", "cs-lnk3"],
       "lyphs" : ["AA", "Glo", "EA"],
-      "nodes" : ["cs-a", "cs-b", "cs-c", "cs-d"],
       "assign":[
         {
           "path" : "$.links[*]",
@@ -952,7 +977,9 @@
     {
       "id"      : "myocyte-group",
       "name"    : "Myocyte in urine of visceral Bowman's capsule",
-      "lyphs"   : ["myocyte", "myocyte-SR"]
+      "nodes"   : ["uot-u", "uot-v"],
+      "lyphs"   : ["myocyte", "myocyte-SR", "VBC"],
+      "links"   : ["uot-lnk21"]
     },
     {
       "id"       : "na-ca",
@@ -1017,6 +1044,37 @@
       "name"    : "Sarcomplasmic reticulum in myocyte cytosol",
       "lyphs"   : ["myocyte", "myocyte-SR"],
       "comment" : "Overlapping lyphs are derived from 61 - Sarcoplasm"
+    },
+    {
+      "id"  : "90",
+      "name": "Na-Ca exchanger extracellular in urine of visceral Bowman's capsule",
+      "lyphs": ["Na-Ca:EE"],
+      "comment": "90"
+    },
+    {
+      "id"  : "91",
+      "name": "SR Ca-ATPase cytosolic in sarcoplasm layer of myocyte",
+      "comment": "91"
+    },
+    {
+      "id"  : "92",
+      "name": "Na-Ca exchanger transmembrane in sarcolemma layer of myocyte",
+      "comment": "92"
+    },
+    {
+      "id"  : "93",
+      "name": "SR Ca-ATPase transmembrane",
+      "comment": "93"
+    },
+    {
+      "id"  : "94",
+      "name": "Na-Ca exchanger cytosolic in sarcoplasm layer of myocyte",
+      "comment": "94"
+    },
+    {
+      "id"  : "95",
+      "name": "SR Ca-ATPase intra-SR",
+      "comment": "95"
     }
   ],
   "assign": [
@@ -1031,12 +1089,6 @@
       "path"  : "$.links[*].conveyingLyph",
       "value" : {
         "color" : "#ccc"
-      }
-    },
-    {
-      "path"  : "$.links[?(@.id=='uot-lnk21' || @.id =='cs-lnk2')]",
-      "value" : {
-        "length" : "80"
       }
     }
   ]

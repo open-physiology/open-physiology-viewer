@@ -6,6 +6,7 @@ import {
     isNumber,
     isString,
     keys,
+    entries,
     isEmpty,
     assign,
     defaults,
@@ -358,6 +359,17 @@ export class Resource{
             if (!entitiesByID[id].class){ return; }
             entitiesByID[id].assignPathProperties(modelClasses);
             entitiesByID[id].interpolatePathProperties();
+        });
+    }
+
+    toJSON(){
+        let res = {};
+        this::entries().forEach(([key, value]) => {
+            if (value::isArray()){
+                res[key] = value.map(e => e.toJSON? e.toJSON(): e );
+            } else {
+                res[key] = value.id? value.id: value
+            }
         });
     }
 }

@@ -111,7 +111,8 @@ export class Lyph extends Shape {
     static clone(sourceLyph, targetLyph, lyphs, stack = []){
         if (!sourceLyph || !targetLyph) {return; }
         if (!lyphs) {lyphs = [];}
-        targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length", "thickness", "external", "comment"]));
+        targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
+            "thickness", "external", "comment", "materials"]));
         targetLyph.layers = [];
         //stack.push(sourceLyph.id);
         (sourceLyph.layers || []).forEach(layerRef => {

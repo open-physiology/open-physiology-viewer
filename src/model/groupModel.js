@@ -1,6 +1,6 @@
 import { Resource } from './resourceModel';
-import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray} from 'lodash-bound';
-import {LINK_STROKE} from './visualResourceModel';
+import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray, intersectionBy} from 'lodash-bound';
+import {LINK_STROKE, PROCESS_TYPE, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
 
@@ -38,6 +38,7 @@ export class Group extends Resource {
 
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
         res.mergeSubgroupEntities();
+        res.validateMaterialEdges();
 
         //Color entities which do not have assigned colors in the spec
         addColor(res.regions, "#c0c0c0");
@@ -218,6 +219,32 @@ export class Group extends Resource {
         });
     }
 
+    validateMaterialEdges(){
+        let edges = [];
+        (this.links||[]).forEach(lnk => {
+            if (lnk.conveyingLyph){
+                let layers = lnk.conveyingLyph.layers || [lnk.conveyingLyph];
+                if (layers[0] && layers[0].materials){
+                    if (lnk.conveyingType === PROCESS_TYPE.ADVECTIVE){
+                        if (!lnk.conveyingMaterials || lnk.conveyingMaterials.length === 0){
+                            lnk.conveyingMaterials = layers[0].materials;
+                        } else {
+                            let diff = (layers[0].materials || []).filter(x => !(lnk.conveyingMaterials||[]).find(e => e.id === x.id));
+                            if (diff.length > 0){
+                                console.log("Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link", lnk, diff);
+                            }
+                        }
+                    } else {
+                        let nonConveying = (lnk.conveyingMaterials||[]).filter(x => !(layers[0].materials || []).find(e => e.id === x.id));
+                        if (nonConveying.length > 0){
+                            console.warn("Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:", lnk, nonConveying);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     /**
      * Entities that belong to the group (resources excluding subgroups)
      * @returns {*[]}
@@ -266,14 +293,14 @@ export class Group extends Resource {
     }
 
     get visibleNodes(){
-        return (this.nodes||[]).filter(e => e.isVisible);
+        return (this.nodes||[]).filter(e => e.isVisible ||
+            e.sourceOf && e.sourceOf.isVisible ||
+            e.targetOf && e.targetOf.isVisible
+        );
     }
 
     get visibleLinks(){
-        return (this.links||[]).filter(e => e.isVisible &&
-            this.visibleNodes.find(e2 => e2 === e.source) &&
-            this.visibleNodes.find(e2 => e2 === e.target)
-        );
+        return (this.links||[]).filter(e => e.isVisible);
     }
 
     get visibleLyphs(){

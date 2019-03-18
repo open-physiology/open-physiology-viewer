@@ -33,6 +33,7 @@ import { cloneDeep, isObject} from 'lodash-bound';
                 <mat-select
                         [placeholder] = "label"
                         [value]       = "value"
+                        [matTooltip]  = "spec?.description"
                         (selectionChange) = "updateValue($event.value)">
                     <mat-option *ngFor="let option of _selectOptions" [value]="option" >
                         {{option}}
@@ -41,10 +42,13 @@ import { cloneDeep, isObject} from 'lodash-bound';
             </mat-form-field>
     
             <!--Check box-->
-            <mat-checkbox *ngIf="_fieldType === 'boolean'" [matTooltip]="spec.description" (change) = "updateValue($event.checked)"
-                          labelPosition="before"
-                          [checked]="value"
-                          [disabled] = "disabled"
+            <mat-checkbox *ngIf="_fieldType === 'boolean'" 
+                          [matTooltip]  = "spec?.description" 
+                          labelPosition = "before" 
+                          [checked]     = "value"
+                          [disabled]    = "disabled"
+                          (change)      = "updateValue($event.checked)"
+
             >{{label}}
             </mat-checkbox> 
     

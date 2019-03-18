@@ -1,4 +1,4 @@
-import {VisualResource, Link, Node, LINK_GEOMETRY, LINK_STROKE} from "../model/visualResourceModel";
+import {VisualResource, Link, Node, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE} from "../model/visualResourceModel";
 import {SpriteText2D} from "three-text2d";
 
 import {
@@ -148,8 +148,8 @@ Link.prototype.createViewObjects = function(state){
             obj = new THREE.Line(geometry, material);
         }
         this.pointLength = (this.geometry === LINK_GEOMETRY.SEMICIRCLE
-            || this.geometry === LINK_GEOMETRY.RECTANGLE
-            || this.geometry === LINK_GEOMETRY.SPLINE)
+                || this.geometry === LINK_GEOMETRY.RECTANGLE
+                || this.geometry === LINK_GEOMETRY.SPLINE)
             ? state.linkResolution
             : (this.geometry === LINK_GEOMETRY.PATH)
                 ? 67 // Edge bunding breaks a link into 66 points
@@ -174,8 +174,8 @@ Link.prototype.createViewObjects = function(state){
         }
 
         if (this.geometry === LINK_GEOMETRY.SPLINE) {
-            this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x!== this);
-            this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x!== this);
+            this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x !== this);
+            this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x !== this);
         }
 
         obj.renderOrder = 10;  // Prevepointnt visual glitches of dark lines on top of nodes by rendering them last
@@ -190,11 +190,23 @@ Link.prototype.createViewObjects = function(state){
     //Icon (lyph)
     if (this.conveyingLyph) {
         this.conveyingLyph.createViewObjects(state);
+
         // Note: we do not make conveying lyphs children of links to include them to the scene
         // because we want to have them in the main scene for highlighting
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
-        if (!this.viewObjects['iconLabel']) {delete  this.viewObjects['iconLabel'];}
+
+        //TODO create Process resource?
+        if (this.conveyingType){
+            //Draw process edge - line between lyph points p0, p1
+            // let edgeMaterial = MaterialFactory.createLineBasicMaterial({
+            //     color: this.conveyingType === (PROCESS_TYPE.ADVECTIVE)? "#CCC": "#000",
+            //     polygonOffsetFactor: this.polygonOffsetFactor
+            // });
+            // let edgeGeometry = new THREE.BufferGeometry();
+            // edgeGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
+            this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
+        }
     }
 };
 
@@ -273,10 +285,18 @@ Link.prototype.updateViewObjects = function(state) {
         this.conveyingLyph.updateViewObjects(state);
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
-        if (!this.viewObjects['iconLabel']) {delete this.viewObjects['iconLabel'];}
-    } else {
-        delete this.viewObjects['icon'];
-        delete this.viewObjects["iconLabel"];
+
+        let edgeObj = this.viewObjects["edge"];
+        if (edgeObj){
+            // let points = [this.conveyingLyph.points[0], this.conveyingLyph.points[1]];
+            // let linkPos = edgeObj.geometry.attributes && edgeObj.geometry.attributes.position;
+            // if (linkPos) {
+            //     points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+            //     // linkPos.needsUpdate = true;
+            //     // edgeObj.geometry.computeBoundingSphere();
+            // }
+            copyCoords(edgeObj.position, this.conveyingLyph.center);
+        }
     }
 
     //Update buffered geometries
@@ -298,9 +318,7 @@ Link.prototype.updateViewObjects = function(state) {
         }
         if (this.stroke === LINK_STROKE.THICK){
             let coordArray = [];
-            for (let i = 0; i < this.points.length; i++) {
-                coordArray.push(this.points[i].x, this.points[i].y, this.points[i].z);
-            }
+            this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
         } else {
             if (obj && this.stroke === LINK_STROKE.DASHED) {
@@ -310,11 +328,7 @@ Link.prototype.updateViewObjects = function(state) {
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
-                    for (let i = 0; i < this.points.length; i++) {
-                        linkPos.array[3 * i] = this.points[i].x;
-                        linkPos.array[3 * i + 1] = this.points[i].y;
-                        linkPos.array[3 * i + 2] = this.points[i].z;
-                    }
+                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     linkPos.needsUpdate = true;
                     obj.geometry.computeBoundingSphere();
                 }
@@ -324,15 +338,12 @@ Link.prototype.updateViewObjects = function(state) {
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
-    get: function() {
-        return Math.min(...["hostedBy", "internalIn"].map(prop => this[prop]?
-            (this[prop].polygonOffsetFactor || 0) - 1: 0));
-    }
+    get: function() { return 0; }
 });
 
 Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
     get: function() {
-        return Math.min(...["hostedBy", "source", "target"].map(prop => this[prop]?
+        return Math.min(...["source", "target"].map(prop => this[prop]?
             (this[prop].polygonOffsetFactor || 0) - 1: 0));
     }
 });

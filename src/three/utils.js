@@ -333,18 +333,18 @@ export function createMeshWithBorder(shape, params = {}) {
     let obj = new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
 
     // Create border
-    // let lineBorderGeometry = new THREE.Geometry();
-    // shape.getPoints().forEach(point => {
-    //     point.z = 0;
-    //     lineBorderGeometry.vertices.push(point);
-    // });
-    // let borderParams = params::defaults({
-    //     color   : tinycolor(params.color).darken(20), //20% darker color than surface
-    //     opacity : 1,
-    //     polygonOffsetFactor: params.polygonOffsetFactor - 1
-    // });
-    // let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
-    // obj.add(borderObj);
+    let lineBorderGeometry = new THREE.Geometry();
+    shape.getPoints().forEach(point => {
+        point.z = 0;
+        lineBorderGeometry.vertices.push(point);
+    });
+    let borderParams = params::defaults({
+        color   : tinycolor(params.color).darken(20), //20% darker color than surface
+        opacity : 1,
+        polygonOffsetFactor: params.polygonOffsetFactor - 1
+    });
+    let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
+    obj.add(borderObj);
     return obj;
 }
 
@@ -507,7 +507,7 @@ export function boundToRectangle(point, min, max){
  * @param {{source: Vector2, target: Vector2}} link - link between two points
  * @param {Array} boundaryLinks                     - links representing sides of a polygon
  */
-export function boundToPolygon(link, boundaryLinks){
+export function boundToPolygon(link, boundaryLinks=[]){
     let sourceIn = pointInPolygon(link.source, boundaryLinks);
     let targetIn = pointInPolygon(link.target, boundaryLinks);
     if (!sourceIn || !targetIn) {
@@ -538,7 +538,7 @@ export function boundToPolygon(link, boundaryLinks){
  * @param {Array} boundaryLinks           links representing sides of a polygon
  * @returns {boolean}   returns true if the point is within the polygon boundaries
  */
-function pointInPolygon (point, boundaryLinks) {
+function pointInPolygon (point, boundaryLinks=[]) {
     let x = point.x, y = point.y, inside = false;
     boundaryLinks.forEach(line2 => {
         let xi = line2.source.x, yi = line2.source.y,
@@ -555,7 +555,7 @@ function pointInPolygon (point, boundaryLinks) {
  * @param {Array} boundaryLinks                        links representing sides of a polygon
  * @returns {null}
  */
-function getBoundaryPoint (link, boundaryLinks){
+function getBoundaryPoint (link, boundaryLinks=[]){
     for (let i = 0; i < boundaryLinks.length; i++){
         let res = getLineIntersection(link, boundaryLinks[i]);
         if (res){ return res; }

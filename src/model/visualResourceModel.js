@@ -24,6 +24,15 @@ export const LINK_STROKE = {
 };
 
 /**
+ * Process types
+ * @type {{ADVECTIVE: string, DIFFUSIVE: string}}
+ */
+export const PROCESS_TYPE = {
+    ADVECTIVE     : "advective",
+    DIFFUSIVE     : "diffusive"
+};
+
+/**
  * The class implementing common methods for the visual resources.
  * @class
  * @property {string} color - visual resource color
@@ -80,6 +89,8 @@ export class Node extends VisualResource {
  * @property collapsible
  * @property geometry
  * @property conveyingLyph
+ * @property conveyingType
+ * @property conveyingMaterials
  * @property stroke
  * @property path
  * @property lineWidth

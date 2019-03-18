@@ -1,4 +1,4 @@
-import {Region, Lyph, Border} from "../model/shapeModel";
+import {Region, Lyph, Border, Shape} from "../model/shapeModel";
 import {Node, LINK_GEOMETRY} from "../model/visualResourceModel";
 import {merge} from 'lodash-bound';
 import {
@@ -17,7 +17,6 @@ import {
     boundToPolygon,
     boundToRectangle,
     isInRange,
-    commonTemplate,
     THREE
 } from "./utils";
 
@@ -47,6 +46,16 @@ Object.defineProperty(Lyph.prototype, "points", {
         return (this._points||[]).map(p => this.translate(p))
     }
 });
+
+Lyph.prototype.setMaterialVisibility = function(isVisible){
+    if (this.viewObjects["2d"]) {
+        this.viewObjects["2d"].material.visible = isVisible;
+        let children = this.viewObjects["2d"].children;
+        if (children && children.length > 0){
+            children[0].material.visible = isVisible;
+        }
+    }
+};
 
 /**
  * Positions the point on the lyph surface
@@ -186,13 +195,13 @@ Lyph.prototype.updateViewObjects = function(state) {
         }
         //update lyph
         viewObj.visible = this.isVisible && state.showLyphs;
-        viewObj.material.visible = !state.showLayers; //do not show lyph if layers are shown
+        this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
         copyCoords(viewObj.position, this.center);
 
         align(this.axis, viewObj, this.axis.reversed);
         if (this.angle){
-            this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180);
+            this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
         }
     } else {
         viewObj.visible = state.showLayers;
@@ -202,45 +211,6 @@ Lyph.prototype.updateViewObjects = function(state) {
     (this.layers || []).forEach(layer => layer.updateViewObjects(state));
 
     this.border.updateViewObjects(state);
-
-    //TODO lyph visibility - always reset to true to avoid missing lyphs when groups are hidden
-    //TODO move to coalescence class
-
-    (this.inCoalescences||[]).forEach(coalescence => {
-        if (this !== coalescence.lyphs[0]) { return; } //update is triggered by the main/fisrt lyph
-        for (let i = 1; i < coalescence.lyphs.length; i++) {
-            let lyph2 = coalescence.lyphs[i];
-
-            //TODO Process coalescences with abstract types
-            if (lyph2.isTemplate){ return; }
-
-            let layers = this.layers || [this];
-            let layers2 = lyph2.layers || [lyph2];
-            let container1 = lyph2.allContainers.find(x => x.id === this.id);
-            if (container1) {
-                let same = commonTemplate(lyph2.internalIn, layers2[layers2.length - 1]);
-                layers2[layers2.length - 1].viewObjects["2d"].material.visible = !state.showCoalescences || !same;
-            } else {
-                let container2 = this.allContainers.find(x => x.id === lyph2.id);
-                if (container2) {
-                    let same = commonTemplate(this.internalIn, layers[layers.length - 1]);
-                    layers[layers.length - 1].viewObjects["2d"].material.visible = !state.showCoalescences || !same;
-                } else {
-                    if (state.showCoalescences){
-                        //coalescing lyphs are independent / at the same scale level
-                        let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
-                        let scale = (this.width + lyph2.width - overlap) / (this.width || 1);
-                        let v1 = this.points[3].clone().sub(this.points[0]).multiplyScalar(scale);
-                        let v2 = this.points[2].clone().sub(this.points[1]).multiplyScalar(scale);
-                        let c1 = extractCoords(this.axis.source).clone().add(v1);
-                        let c2 = extractCoords(this.axis.target).clone().add(v2);
-                        copyCoords(lyph2.axis.source, c1);
-                        copyCoords(lyph2.axis.target, c2);
-                    }
-                }
-            }
-        }
-    });
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
@@ -330,7 +300,6 @@ Border.prototype.createViewObjects = function(state){
  */
 Border.prototype.updateViewObjects = function(state){
 
-
     /**
      * Assigns fixed position on a grid inside border
      * @param link - link to place inside border
@@ -340,9 +309,11 @@ Border.prototype.updateViewObjects = function(state){
      */
     const placeLinkInside = (link, i, numCols, numRows) => {//TODO this will only work well for rectangular shapes
         if (!link.source || !link.target){
-            console.warn(`Cannot place a link inside border ${this.id}`, link);
+            console.warn(`Cannot place a link inside border ${this.id}: end nodes not defined!`, link);
             return;
         }
+        if (link.source.isConstrained || link.target.isConstrained){ return; }
+
         let delta = 0.05; //offset from the border
         let p = this.host.points.slice(0,3).map(p => p.clone());
         p.forEach(p => p.z += 1);
@@ -388,6 +359,24 @@ Border.prototype.updateViewObjects = function(state){
         node.z += 1;
     };
 
+    const pushNodeInside = (node) => {
+        const delta = 5;
+        let points = this.host.points.map(p => p.clone());
+        let [min, max] = this.getBoundingBox();
+        if (Math.abs(max.z - min.z) <= delta) {
+            node.z = points[0].z + 1;
+        } else {
+            //Project links with hosted lyphs to the container lyph plane
+            let plane = new THREE.Plane();
+            plane.setFromCoplanarPoints(...points.slice(0,3));
+            let point = extractCoords(node);
+            plane.projectPoint(point, point);
+            node.z += 1;
+            copyCoords(node, point);
+        }
+        boundToRectangle(node, min, max);
+    };
+
     /**
      * Push existing link inside of the border
      * @param link
@@ -406,10 +395,10 @@ Border.prototype.updateViewObjects = function(state){
             plane.setFromCoplanarPoints(...points.slice(0,3));
 
             ["source", "target"].forEach(key => {
-                let node = extractCoords(link[key]);
-                plane.projectPoint(node, node);
-                node.z += 1;
-                copyCoords(link[key], node);
+                let point = extractCoords(link[key]);
+                plane.projectPoint(point, point);
+                point.z += 1;
+                copyCoords(link[key], point);
             });
         }
         boundToRectangle(link.source, min, max);
@@ -451,6 +440,9 @@ Border.prototype.updateViewObjects = function(state){
     let center = getCenterOfMass(this.host.points);
     (this.host.internalNodes || []).forEach((node, i) => placeNodeInside(node, i, this.host.internalNodes.length, center));
 };
+
+
+
 
 Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
     get: function() { return 1; }
