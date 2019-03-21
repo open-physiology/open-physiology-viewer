@@ -8,3 +8,4 @@ export class ObjToArray implements PipeTransform {
         return [obj];
     }
 }
+

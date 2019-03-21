@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import {cloneDeep, isArray, isObject, keys} from "lodash-bound";
+import { cloneDeep, isArray, isObject, keys, values, pick, omit } from "lodash-bound";
 
 //Angular Material
 import 'hammerjs';
@@ -28,6 +28,8 @@ import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
+
+import * as XLSX from 'xlsx';
 
 let consoleHolder = console;
 /**
@@ -89,10 +91,10 @@ debug(true, msgCount);
 
         <section id="left-toolbar" class="w3-sidebar w3-bar-block">
             <input #fileInput
-                   [type]="'file'"
-                   [accept]="'.json'"
-                   [style.display]="'none'"
-                   (change)="load(fileInput.files)"
+                    type   = "file"
+                    accept = ".json,.xlsx"
+                   [style.display] = "'none'"
+                   (change) = "load(fileInput.files)"
             />
             <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
                 <i class="fa fa-plus"> </i>
@@ -135,7 +137,7 @@ debug(true, msgCount);
             <section class="w3-row">
                 <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"> </section>
                 <webGLScene [class.w3-threequarter] = "_showJSONEditor"
-                    [modelClasses]         = "modelClasses"
+                    [modelClasses]          = "modelClasses"
                     [graphData]             = "_graphData"
                     (selectedItemChange)    = "onSelectedItemChange($event)"
                     (highlightedItemChange) = "onHighlightedItemChange($event)"
@@ -211,15 +213,110 @@ export class TestApp {
     }
 
 	load(files) {
-        const reader = new FileReader();
-		reader.onload = () => {
-            this.model = JSON.parse(reader.result);
-        };
-
         if (files && files[0]){
+            this._fileName = files[0].name;
+            let [fileName, extension]  = files[0].name.split('.').slice(0,2);
+            extension = extension.toLowerCase();
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                let model = {};
+                if (extension === "xlsx"){
+                    let wb  = XLSX.read(reader.result, {type: "binary"});
+                    wb.SheetNames.forEach(sheetName => {
+                        let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
+                        if(roa.length) { model[sheetName] = roa; }
+                    });
+                    //model
+
+                    //TODO move this to a service
+                    model = model::pick(Graph.Model.relationshipNames);
+
+                    const borderNames = ["inner", "radial1", "outer", "radial2"];
+                    model::keys().forEach(relName => {
+                        let table = model[relName];
+                        if (!table) { return; }
+                        let headers = table[0] || [];
+                        let clsName = Graph.Model.relClassNames[relName];
+                        let fields  = modelClasses[clsName].Model.fieldMap;
+                        for (let i = 1; i < table.length; i++){
+                            let resource = {};
+                            table[i].forEach((value, j) => {
+                                let key = headers[j];
+                                if (!fields[key]){
+                                    console.warn("Unrecognized property:", clsName, key);
+                                    return;
+                                }
+                                if (key === "assign" && value.length > 0) {
+                                    let assign = value.toString().split(";");
+                                    assign = assign.map(expr => {
+                                        let [path, value] = expr.split("=");
+                                        let [propName, propValue] = value.split(":");
+                                        if (propName && propValue){
+                                            propValue = propValue.toString().split(",");
+                                            let borderIndex = borderNames.indexOf(propName);
+                                            if (borderIndex > 0){
+                                                path  = path + `.border.borders[${borderIndex}]`;
+                                                value = {hostedNodes: propValue};
+                                            } else {
+                                                value = {[propName]: propValue}; //TODO add property validation
+                                            }
+                                        } else {
+                                            console.error("Assign value error:", value);
+                                        }
+                                        return { "path"  : path, "value" : value }
+                                    });
+                                    console.log("Assign", assign);
+                                }
+
+                                const strToValue = (x, type) => (type === "number")? parseInt(x): (type === "boolean")? x === "true" : x;
+
+                                let res = value;
+                                if (fields[key].type === "array"){
+                                    let type = fields[key].items && fields[key].items.type;
+                                    res = value.toString().replace(/\s/g,"").split(",").map(x => strToValue(x, type));
+                                }
+                                // else {
+                                //     res = strToValue(res, fields[key].type);
+                                // }
+
+                                if (res.length > 0){
+                                    resource[key] = res;
+                                }
+                            });
+
+                            table[i] = resource;
+                            let borderConstraints = resource::pick(borderNames);
+                            if (borderConstraints::values().filter(x => !!x).length > 0){
+                                table.border = {borders: borderNames.map(borderName => borderConstraints[borderName]? {hostedNodes: [borderConstraints[borderName]]}: {})};
+                            }
+                            table[i] = resource::omit(borderNames);
+                        }
+                        model[relName] = model[relName].slice(1);
+                    });
+                    model["id"] = fileName;
+                    console.info("Excel ApiNATOMY model:", model);
+
+                    console.info("I will stop now!", JSON.stringify(model));
+
+                    alert("Excel model successfully parsed!");
+                    //this.model = model;
+
+                } else {
+                    if (extension === "json") {
+                        this.model = JSON.parse(reader.result);
+                    }
+                }
+            };
+
             try {
-                reader.readAsText(files[0]);
-                this._fileName = files[0].name;
+                if (extension === "json"){
+                    reader.readAsText(files[0]);
+                } else {
+                    if (extension === "xlsx"){
+                        reader.readAsBinaryString(files[0]);
+                    }
+                }
             } catch (err){
                 throw new Error("Failed to open the input file: " + err);
             }

@@ -67,6 +67,18 @@ export class Group extends Resource {
                 json.lyphs.push(subtype);
                 replaceRefsToTemplates(subtype, "layers");
                 return subtype.id;
+            } else { //Replace materials in layers
+                template = (json.materials || []).find(e => e.id === ref);
+                if (template) {
+                    changed++;
+                    let subtype = {
+                        "id": ref + "_" + parentID,
+                        "materials": [template.id]
+                    };
+                    json.lyphs.push(subtype);
+                    console.log("Replaced material", parentID, template.id);
+                    return subtype.id;
+                }
             }
             return ref;
         };
