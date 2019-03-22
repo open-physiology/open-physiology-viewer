@@ -66,6 +66,7 @@ export class Shape extends VisualResource {
  * @property layers
  * @property layerIn
  * @property internalIn
+ * @property inMaterials
  * @property inCoalescences
  * @property prev
  * @property next
@@ -105,40 +106,34 @@ export class Lyph extends Shape {
      * Copy the properties and layer structure of the source lyph to the target lyph
      * @param sourceLyph - the lyph to clone
      * @param targetLyph - the cloned lyph instance
-     * @param lyphs - a set of existing model/group lyphs
+     * @param lyphs      - a set of existing model/group lyphs
      * @returns {Lyph} the target lyph
      */
-    static clone(sourceLyph, targetLyph, lyphs, stack = []){
+    static clone(sourceLyph, targetLyph, lyphs){
         if (!sourceLyph || !targetLyph) {return; }
         if (!lyphs) {lyphs = [];}
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
             "thickness", "external", "comment", "materials"]));
         targetLyph.layers = [];
-        //stack.push(sourceLyph.id);
         (sourceLyph.layers || []).forEach(layerRef => {
             let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
             if (!layerParent) {
                 console.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
-            let lyphLayer = { "id" : `${layerParent.id}_${targetLyph.id}` };
+            let lyphLayer = {"id" : `${layerParent.id}_${targetLyph.id}`};
             lyphs.push(lyphLayer);
             if (layerParent.isTemplate){
                 lyphLayer.supertype = layerParent.id;
             } else {
                 lyphLayer.cloneOf = layerParent.id;
             }
-            //if (!stack.includes(layerParent.id)) {
-                this.clone(layerParent, lyphLayer, lyphs, stack);
-            //}
+            this.clone(layerParent, lyphLayer, lyphs);
 
             lyphLayer::merge(targetLyph::pick(["topology"]));
             targetLyph.layers.push(lyphLayer);
         });
 
-        // (sourceLyph.internalLyphs||[]).forEach(internalLyph => {
-        // });
-        //stack.pop();
         targetLyph.layers = targetLyph.layers.map(e => e.id);
         return targetLyph;
     }
@@ -180,6 +175,10 @@ export class Lyph extends Shape {
         if (this.internalIn){
             res = res.concat(this.internalIn.allContainers);
         }
+        (this.inMaterials||[]).forEach(materialIn => {
+            res = res.concat(materialIn.allContainers);
+        });
+        
         return res;
     }
 

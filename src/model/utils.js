@@ -10,7 +10,11 @@ const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
  * @param defaultColor - optional default color
  */
 export const addColor = (resources, defaultColor) => (resources||[]).filter(e => e::isObject() && !e.color)
-    .forEach((e, i) => { e.color = e.supertype && e.supertype.color ? e.supertype.color: (defaultColor || colors[i % colors.length]) });
+    .forEach((e, i) => { e.color = e.supertype && e.supertype.color
+        ? e.supertype.color
+        : (e.cloneOf && e.cloneOf.color)
+            ? e.cloneOf.color
+            :(defaultColor || colors[i % colors.length]) });
 
 /**
  * JSON Path validator

@@ -55,6 +55,7 @@ export class Tree extends Resource {
         const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
 
         //START
+        tree.numLevels = tree.numLevels || 0;
         tree.levels = tree.levels || new Array(tree.numLevels);
         //Levels should contain link objects for generation/validation
 
@@ -64,10 +65,10 @@ export class Tree extends Resource {
 
         //Match number of requested levels with the tree.levels[i] array length
         if (tree.levels.length !== tree.numLevels){
-            let min = Math.min(tree.levels.length, tree.numLevels);
-            let max = Math.max(tree.levels.length, tree.numLevels);
+            let min = Math.min(tree.levels.length, tree.numLevels||100);
+            let max = Math.max(tree.levels.length, tree.numLevels||0);
             console.info(`Corrected number of levels in the tree from ${min} to ${max}` );
-            for (let i = tree.levels.length; i < max; i++){
+            for (let i = min; i < max; i++){
                 tree.levels.push({});
             }
             tree.numLevels = max;
@@ -191,6 +192,7 @@ export class Tree extends Resource {
         const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
 
         let root  = getObj(tree.root, "nodes");
+
         mergeGenResource(tree.instance, parentGroup, root, "nodes");
 
         let levelResources = {};
@@ -215,9 +217,14 @@ export class Tree extends Resource {
 
         tree.branchingFactors = tree.branchingFactors || [];
 
+        const MAX_GEN_RESOURCES = 3000;
+        let count = 0;
         for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
             levelResources[i].forEach((base, m) => {
                 for (let k = 1; k < tree.branchingFactors[i]; k++){
+                    if (count > MAX_GEN_RESOURCES){
+                        throw new Error("Reached maximum allowed number of generated tree instance resources!");
+                    }
                     let prev = base[0].source;
                     for (let j = i; j < tree.levels.length; j++) {
                         let [lnk, trg, lyph] = levelResources[j][0].map(r => (r? {
@@ -231,6 +238,7 @@ export class Tree extends Resource {
                         Lyph.clone(levelResources[j][0][2], lyph, parentGroup.lyphs); //clone lyph structure
                         mergeGenResources([lnk, trg, lyph]);
                         levelResources[j].push([lnk, trg, lyph]);
+                        count += 3;
                     }
                 }
             })

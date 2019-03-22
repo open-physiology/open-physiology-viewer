@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray, intersectionBy} from 'lodash-bound';
+import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
 import {LINK_STROKE, PROCESS_TYPE, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
@@ -15,6 +15,7 @@ import {addColor} from './utils';
  * @property references
  * @property groups
  * @property trees
+ * @property coalescences
  * @property inGroups
  */
 export class Group extends Resource {
@@ -55,40 +56,58 @@ export class Group extends Resource {
      */
     static replaceReferencesToLyphTemplates(json, modelClasses){
 
-        let changed = 0;
+        let changedLyphs = 0;
+        let changedMaterials = 0;
+
+        const replaceRefToMaterial = (ref, parentID) => {
+            const prefix = "lyphMat_";
+            let template = (json.lyphs || []).find(e => (e.id === prefix + ref) && e.isTemplate);
+            if (!template){
+                let material = (json.materials || []).find(e => e.id === ref);
+                if (material) {
+                    template = {
+                        "id"        : prefix + material.id,
+                        "isTemplate": true,
+                        "materials" : [material.id]
+                    };
+                    template::merge(material::pick(["name", "external", "color"]));
+                    json.lyphs.push(template);
+                }
+            }
+            if (template){
+                return template.id;
+            }
+            return ref;
+        };
+
         const replaceRefToTemplate = (ref, parentID) => {
             let template = (json.lyphs || []).find(e => e.id === ref && e.isTemplate);
             if (template) {
-                changed++;
+                changedLyphs++;
                 let subtype = {
                     "id"       : ref + "_" + parentID,
                     "supertype": template.id
                 };
                 json.lyphs.push(subtype);
-                replaceRefsToTemplates(subtype, "layers");
+                replaceAbstractRefs(subtype, "layers");
                 return subtype.id;
-            } else { //Replace materials in layers
-                template = (json.materials || []).find(e => e.id === ref);
-                if (template) {
-                    changed++;
-                    let subtype = {
-                        "id": ref + "_" + parentID,
-                        "materials": [template.id]
-                    };
-                    json.lyphs.push(subtype);
-                    console.log("Replaced material", parentID, template.id);
-                    return subtype.id;
-                }
             }
             return ref;
         };
 
-        const replaceRefsToTemplates = (resource, key) => {
+        const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
+            const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate"].includes(key);
             if (resource[key]::isArray()) {
-                resource[key] = resource[key].map(ref => replaceRefToTemplate(ref, resource.id))
+                resource[key] = resource[key].map(ref => replaceRefToMaterial(ref, resource.id));
+                if (replaceLyphTemplates){
+                    resource[key] = resource[key].map(ref => replaceRefToTemplate(ref, resource.id));
+                }
             } else {
-                resource[key] = replaceRefToTemplate(resource[key], resource.id);
+                resource[key] = replaceRefToMaterial(resource[key], resource.id);
+                if (replaceLyphTemplates) {
+                    resource[key] = replaceRefToTemplate(resource[key], resource.id);
+                }
             }
         };
 
@@ -99,17 +118,17 @@ export class Group extends Resource {
                 let refsToLyphs = modelClasses[groupClassNames[groupRelName]].Model.selectedRelNames("Lyph");
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
-                    //if (resource.isTemplate) {return; }
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
-                        if (refsToLyphs.includes(key) && !["subtypes", "supertype", "lyphTemplate"].includes(key)) {
-                            replaceRefsToTemplates(resource, key);
-                        }
+                        if (refsToLyphs.includes(key)) { replaceAbstractRefs(resource, key); }
                     })
                 })
             }
         });
-        if (changed > 0){
-            console.info("Replaced references to lyph templates:", changed);
+        if (changedLyphs > 0){
+            console.info("Replaced references to lyph templates:", changedLyphs);
+        }
+        if (changedMaterials > 0){
+            console.info("Replaced references to materials:", changedMaterials);
         }
     }
 
@@ -135,7 +154,9 @@ export class Group extends Resource {
     static createTreeInstances(json, modelClasses){
         (json.trees||[]).forEach(tree => {
             if (!tree.group) { this.expandTreeTemplates(json, modelClasses); }
-            modelClasses["Tree"].createInstance(json, tree)
+            if (tree.createInstance){
+                modelClasses["Tree"].createInstance(json, tree);
+            }
         });
     }
 

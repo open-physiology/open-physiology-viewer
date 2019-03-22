@@ -343,8 +343,6 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
-
-        console.log("CONFIG", this.config);
     }
 
 

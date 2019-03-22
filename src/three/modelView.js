@@ -88,12 +88,14 @@ Group.prototype.updateViewObjects = function(state){
                         //coalescing lyphs are independent / at the same scale level
                         let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
                         let scale = (lyph.width + lyph2.width - overlap) / (lyph.width || 1);
-                        let v1 = lyph.points[3].clone().sub(lyph.points[0]).multiplyScalar(scale);
-                        let v2 = lyph.points[2].clone().sub(lyph.points[1]).multiplyScalar(scale);
-                        let c1 = extractCoords(lyph.axis.source).clone().add(v1);
-                        let c2 = extractCoords(lyph.axis.target).clone().add(v2);
-                        copyCoords(lyph2.axis.source, c1);
-                        copyCoords(lyph2.axis.target, c2);
+                        if (lyph.axis && lyph2.axis){
+                            let v1 = lyph.points[3].clone().sub(lyph.points[0]).multiplyScalar(scale);
+                            let v2 = lyph.points[2].clone().sub(lyph.points[1]).multiplyScalar(scale);
+                            let c1 = extractCoords(lyph.axis.source).clone().add(v1);
+                            let c2 = extractCoords(lyph.axis.target).clone().add(v2);
+                            copyCoords(lyph2.axis.source, c1);
+                            copyCoords(lyph2.axis.target, c2);
+                        }
                     }
                 }
             }

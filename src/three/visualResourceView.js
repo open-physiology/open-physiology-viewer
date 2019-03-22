@@ -205,7 +205,7 @@ Link.prototype.createViewObjects = function(state){
             // });
             // let edgeGeometry = new THREE.BufferGeometry();
             // edgeGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-            this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
+            // this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
         }
     }
 };

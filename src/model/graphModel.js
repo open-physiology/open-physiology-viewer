@@ -41,8 +41,6 @@ export class Graph extends Group{
             }
         });
 
-        //TODO lyph templates should not have internal lyphs which are not templates
-
         //Create graph
         let res = super.fromJSON(model, modelClasses, entitiesByID);
 

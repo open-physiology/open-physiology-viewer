@@ -575,37 +575,23 @@
                 "$ref": "#/definitions/Material"
               }
             ]
-          }
-        },
-        "thickness" : {
-          "description": "Anatomical lyph thickness defined in the form of power of 1/10",
-          "type": "object",
-          "properties": {
-            "min": {
-              "description": "Minimal value",
-              "type": "number"
-            },
-            "max": {
-              "description": "Maximal value",
-              "type": "number"
-            }
           },
-          "default": {}
+          "relatedTo": "inMaterials"
         },
-        "length"    : {
-          "description": "Anatomical lyph length defined in the form of power of 1/10",
-          "type": "object",
-          "properties": {
-            "min": {
-              "description": "Minimal value",
-              "type": "number"
-            },
-            "max": {
-              "description": "Maximal value",
-              "type": "number"
-            }
+        "inMaterials": {
+          "description": "Materials which contain the current material",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
           },
-          "default": {}
+          "relatedTo": "materials"
         }
       }
     },
@@ -717,6 +703,36 @@
             "BAG2",
             "CYST"
           ]
+        },
+        "thickness"      : {
+          "description": "Anatomical lyph thickness defined in the form of power of 1/10",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Minimal value",
+              "type": "number"
+            },
+            "max": {
+              "description": "Maximal value",
+              "type": "number"
+            }
+          },
+          "default": {}
+        },
+        "length"         : {
+          "description": "Anatomical lyph length defined in the form of power of 1/10",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Minimal value",
+              "type": "number"
+            },
+            "max": {
+              "description": "Maximal value",
+              "type": "number"
+            }
+          },
+          "default": {}
         },
         "isTemplate"     : {
           "description": "Indicates that the lyph defines layers for its subtypes",
@@ -1147,6 +1163,10 @@
             "type": "number",
             "default": 1
           }
+        },
+        "createInstance": {
+          "description": "Indicates whether to create a tree instance",
+          "type": "boolean"
         },
         "group": {
           "description": "Group (subgraph) that defines canonical tree for the given tree template",

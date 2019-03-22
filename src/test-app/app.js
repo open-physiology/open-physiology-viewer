@@ -239,6 +239,7 @@ export class TestApp {
                         let headers = table[0] || [];
                         let clsName = Graph.Model.relClassNames[relName];
                         let fields  = modelClasses[clsName].Model.fieldMap;
+                        let propNames = modelClasses[clsName].Model.propertyNames;
                         for (let i = 1; i < table.length; i++){
                             let resource = {};
                             table[i].forEach((value, j) => {
@@ -247,60 +248,65 @@ export class TestApp {
                                     console.warn("Unrecognized property:", clsName, key);
                                     return;
                                 }
-                                if (key === "assign" && value.length > 0) {
-                                    let assign = value.toString().split(";");
-                                    assign = assign.map(expr => {
-                                        let [path, value] = expr.split("=");
-                                        let [propName, propValue] = value.split(":");
-                                        if (propName && propValue){
-                                            propValue = propValue.toString().split(",");
-                                            let borderIndex = borderNames.indexOf(propName);
-                                            if (borderIndex > 0){
-                                                path  = path + `.border.borders[${borderIndex}]`;
-                                                value = {hostedNodes: propValue};
-                                            } else {
-                                                value = {[propName]: propValue}; //TODO add property validation
-                                            }
-                                        } else {
-                                            console.error("Assign value error:", value);
-                                        }
-                                        return { "path"  : path, "value" : value }
-                                    });
-                                    console.log("Assign", assign);
-                                }
+                                let res = value.toString();
+                                if (res.length === 0){ return; } //skip empty properties
 
-                                const strToValue = (x, type) => (type === "number")? parseInt(x): (type === "boolean")? x === "true" : x;
-
-                                let res = value;
+                                let itemType = fields[key].type;
                                 if (fields[key].type === "array"){
-                                    let type = fields[key].items && fields[key].items.type;
-                                    res = value.toString().replace(/\s/g,"").split(",").map(x => strToValue(x, type));
+                                    itemType = fields[key].items && fields[key].items.type;
                                 }
-                                // else {
-                                //     res = strToValue(res, fields[key].type);
-                                // }
 
-                                if (res.length > 0){
-                                    resource[key] = res;
+                                if (!(itemType === "string" && propNames.includes(key))){
+                                    res = res.replace(/\s/g, '');
                                 }
+
+                                const strToValue = x => (itemType === "number")? parseInt(x): (itemType === "boolean")? (x.toLowerCase() === "true") : x;
+
+                                if (key === "length" || key === "thickness"){
+                                    res = {min: parseInt(res), max: parseInt(res)};
+                                } else {
+                                    if (key === "assign") {
+                                        res = res.split(";").map(expr => {
+                                            let [path, value] = expr.split("=");
+                                            let [propName, propValue] = value.split(":").map(x => x.trim());
+                                            if (propName && propValue){
+                                                propValue = propValue.toString().split(",");
+                                                let borderIndex = borderNames.indexOf(propName);
+                                                if (borderIndex > -1){
+                                                    path  = path + `.border.borders[${borderIndex}]`;
+                                                    value = {hostedNodes: propValue};
+                                                } else {
+                                                    value = {[propName]: propValue};
+                                                }
+                                            } else {
+                                                console.error("Assign value error:", value);
+                                            }
+                                            return { "path"  : "$." + path, "value" : value }
+                                        });
+                                    } else {
+                                        if (fields[key].type === "array"){
+                                            res = res.split(",").map(x => strToValue(x));
+                                        } else {
+                                            res = strToValue(res);
+                                        }
+                                    }
+                                }
+                                resource[key] = res;
                             });
 
                             table[i] = resource;
                             let borderConstraints = resource::pick(borderNames);
                             if (borderConstraints::values().filter(x => !!x).length > 0){
-                                table.border = {borders: borderNames.map(borderName => borderConstraints[borderName]? {hostedNodes: [borderConstraints[borderName]]}: {})};
+                                table.border =  {borders: borderNames.map(borderName => borderConstraints[borderName]? {hostedNodes: [borderConstraints[borderName]]}: {})};
                             }
                             table[i] = resource::omit(borderNames);
                         }
                         model[relName] = model[relName].slice(1);
                     });
                     model["id"] = fileName;
-                    console.info("Excel ApiNATOMY model:", model);
 
-                    console.info("I will stop now!", JSON.stringify(model));
-
-                    alert("Excel model successfully parsed!");
-                    //this.model = model;
+                    this.model = model;
+                    //this.save();
 
                 } else {
                     if (extension === "json") {

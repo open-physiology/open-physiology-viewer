@@ -338,6 +338,7 @@ export function createMeshWithBorder(shape, params = {}) {
         point.z = 0;
         lineBorderGeometry.vertices.push(point);
     });
+
     let borderParams = params::defaults({
         color   : tinycolor(params.color).darken(20), //20% darker color than surface
         opacity : 1,
@@ -345,6 +346,7 @@ export function createMeshWithBorder(shape, params = {}) {
     });
     let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
     obj.add(borderObj);
+
     return obj;
 }
 
