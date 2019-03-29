@@ -32,30 +32,30 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize    : { default: 3  },     // volume per val unit //TODO replace with scaleFactor?
-        nodeResolution : { default: 16 },     // how many slice segments in the sphere's circumference
+        nodeRelSize      : { default: 3  },     // volume per val unit //TODO replace with scaleFactor?
+        nodeResolution   : { default: 16 },     // how many slice segments in the sphere's circumference
 
-        linkResolution : { default: 30 },     // number of points on curved link
-        arrowLength    : {default: 40 },      // arrow length for directed links
+        linkResolution   : { default: 30 },     // number of points on curved link
+        arrowLength      : {default: 40 },      // arrow length for directed links
 
-        showLyphs      : { default: true},
-        showLyphs3d    : { default: false},
-        showLayers     : { default: true},
+        showLyphs        : { default: true},
+        showLyphs3d      : { default: false},
+        showLayers       : { default: true},
         showCoalescences : { default: true},
-        showLabels     : { default: {Node: true}},
+        showLabels       : { default: {Node: true}},
 
-        labels         : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
-        labelRelSize   : { default: 0.1},
-        labelOffset    : { default: {Node: 5, Link: 5, Lyph: 0, Region: 0}},
-        fontParams     : { default: { font: '24px Arial', fillStyle: '#000', antialias: true }},
+        labels           : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
+        labelRelSize     : { default: 0.1},
+        labelOffset      : { default: {Node: 5, Link: 5, Lyph: 0, Region: 0}},
+        fontParams       : { default: { font: '24px Arial', fillStyle: '#000', antialias: true }},
 
-        d3AlphaDecay   : { default: 0.045 },
-        d3VelocityDecay: { default: 0.45 },
-        warmupTicks    : { default: 0 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks  : { default: 1000 },
-        cooldownTime   : { default: 2000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
-        onLoading      : { default: () => {}, triggerUpdate: false },
-        onFinishLoading: { default: () => {}, triggerUpdate: false }
+        d3AlphaDecay     : { default: 0.045 },
+        d3VelocityDecay  : { default: 0.45 },
+        warmupTicks      : { default: 0 }, // how many times to tick the force engine at init before starting to render
+        cooldownTicks    : { default: 1000 },
+        cooldownTime     : { default: 2000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
+        onLoading        : { default: () => {}, triggerUpdate: false },
+        onFinishLoading  : { default: () => {}, triggerUpdate: false }
     },
 
     methods: {

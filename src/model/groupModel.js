@@ -237,6 +237,8 @@ export class Group extends Resource {
             let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames);
             relFieldNames.forEach(property => {
                 this[property] = (this[property]||[])::unionBy(group[property], "id");
+
+                this[property] = this[property].filter(x => x.class); //TODO New - test
             });
         });
 
@@ -343,32 +345,32 @@ export class Group extends Resource {
     /**
      * Experimental - export visible object positions (or points)
      */
-    export(){
-        const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
-
-        return {
-            regions: this.visibleRegions.map(region => ({
-                "id"     : region.id,
-                "points" : (region.points || []).map(p => getCoords(p)),
-                "center" : getCoords(region.center)
-            })),
-            lyphs: this.visibleLyphs.map(lyph => ({
-                "id"     : lyph.id,
-                "points" : (lyph.points || []).map(p => getCoords(p)),
-                "center" : getCoords(lyph.center)
-            })),
-            nodes: this.visibleNodes.map(node => ({
-                "id"     : node.id,
-                "center" : getCoords(node)
-            })),
-            links: this.visibleLinks.map(link => ({
-                "id"     : link.id,
-                "source" : link.source.id,
-                "target" : link.target.id,
-                "points" : (link.points || []).map(p => getCoords(p))
-            }))
-        };
-    }
+    // export(){
+    //     const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
+    //
+    //     return {
+    //         regions: this.visibleRegions.map(region => ({
+    //             "id"     : region.id,
+    //             "points" : (region.points || []).map(p => getCoords(p)),
+    //             "center" : getCoords(region.center)
+    //         })),
+    //         lyphs: this.visibleLyphs.map(lyph => ({
+    //             "id"     : lyph.id,
+    //             "points" : (lyph.points || []).map(p => getCoords(p)),
+    //             "center" : getCoords(lyph.center)
+    //         })),
+    //         nodes: this.visibleNodes.map(node => ({
+    //             "id"     : node.id,
+    //             "center" : getCoords(node)
+    //         })),
+    //         links: this.visibleLinks.map(link => ({
+    //             "id"     : link.id,
+    //             "source" : link.source.id,
+    //             "target" : link.target.id,
+    //             "points" : (link.points || []).map(p => getCoords(p))
+    //         }))
+    //     };
+    // }
 
 }
 

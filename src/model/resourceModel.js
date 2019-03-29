@@ -6,11 +6,11 @@ import {
     isNumber,
     isString,
     keys,
-    entries,
     isEmpty,
     assign,
     defaults,
-    pick
+    pick,
+    intersection
 } from 'lodash-bound';
 import {JSONPath, getClassName, schemaClassModels, isClassAbstract} from "./utils";
 
@@ -125,6 +125,11 @@ export class Resource{
             }
             return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID);
         };
+
+        if (!modelClasses[this.class]){
+            console.error("Class definitions not passed to resource constructor:", modelClasses, this.class);
+            return;
+        }
 
         let refFields = modelClasses[this.class].Model.cudRelationships;
         let res = this;
@@ -280,8 +285,7 @@ export class Resource{
     }
 
     /**
-     * Synchronize a relationship field of the resource with its counterpart
-     * (auto-fill a field that is involved into a bi-directional relationship based on its partial definition, i.e., A.child = B yields B.parent = A).
+     * Synchronize a relationship field of the resource with its counterpart (auto-fill a field that is involved into a bi-directional relationship based on its partial definition, i.e., A.child = B yields B.parent = A).
      * @param {string} key    - property field that points to the related resource
      * @param {Object} spec   - JSON schema specification of the relationship field
      * @param {Object} modelClasses -  map of class names vs implementation of ApiNATOMY resources
@@ -364,13 +368,21 @@ export class Resource{
 
     toJSON(){
         let res = {};
-        this::entries().forEach(([key, value]) => {
+        const visualProperties = ["viewObjects", "infoFields", "labels"];
+        const fieldToJSON = (value) => (value instanceof Resource)? value.id: value;
+        this::keys()::intersection(this.constructor.Model.fieldNames).forEach(key => {
+            let value = this[key];
+            if (!value) { return; }
+
+            if (visualProperties.includes(key)) { return; }
+
             if (value::isArray()){
-                res[key] = value.map(e => e.toJSON? e.toJSON(): e );
+                res[key] = value.map(e => fieldToJSON(e));
             } else {
-                res[key] = value.id? value.id: value
+                res[key] = fieldToJSON(value)
             }
         });
+        return res;
     }
 }
 

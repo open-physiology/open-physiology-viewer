@@ -1,9 +1,19 @@
 import { Group } from './groupModel';
-import { entries, keys, isNumber, cloneDeep, defaults } from 'lodash-bound';
+import { Node, Link, LINK_GEOMETRY } from "./visualResourceModel";
+import {
+    entries,
+    keys,
+    isNumber,
+    cloneDeep,
+    defaults,
+    intersection,
+    isArray,
+    isObject,
+    pick,
+    values, omit
+} from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
-import { Node, Link, LINK_GEOMETRY } from "./visualResourceModel";
-import { isObject} from "lodash-bound";
 
 const V = new Validator();
 const DEFAULT_LENGTH = 4;
@@ -167,7 +177,119 @@ export class Graph extends Group{
            region.points.forEach(p => scalePoint(p)));
     }
 
+    toJSON(){
+        let res = {};
+        console.log("toJSON:", this.id, this.class);
+        this::keys()::intersection(this.constructor.Model.fieldNames).forEach(key => {
+            let value = this[key];
+            if (!value || key === "infoFields") { return; }
+            if (value::isArray()){
+                res[key] = value.filter(e => !!e).map(e => e.toJSON? e.toJSON(): e);
+            } else {
+                res[key] = value.toJSON? value.toJSON(): value;
+            }
+        });
+        return res;
+    }
 
+    entitiesToJSON(){
+        let res = {};
+        (this::entitiesByID||{})::keys().forEach(key => {
+            let value = this[key];
+            if (!value || value.class === this.class) { return; }
+            if (value::isArray()){
+                res[key] = value.filter(e => !!e).map(e => e.toJSON? e.toJSON(): e);
+            } else {
+                res[key] = value.toJSON? value.toJSON(): value;
+            }
+        });
+        return res;
+    }
+
+    export(){
+        return this.toJSON();
+    }
+
+    static excelToJSON(model, modelClasses = {}){
+        model::pick(Graph.Model.relationshipNames);
+
+        const borderNames = ["inner", "radial1", "outer", "radial2"];
+        model::keys().forEach(relName => {
+            let table = model[relName];
+            if (!table) { return; }
+            let headers = table[0] || [];
+            let clsName = this.Model.relClassNames[relName];
+            if (!modelClasses[clsName]){
+                console.warn("Class name not found:", relName);
+                return;
+            }
+            let fields  = modelClasses[clsName].Model.fieldMap;
+            let propNames = modelClasses[clsName].Model.propertyNames;
+            for (let i = 1; i < table.length; i++){
+                let resource = {};
+                table[i].forEach((value, j) => {
+                    let key = headers[j];
+                    if (!fields[key]){
+                        console.warn("Unrecognized property:", clsName, key);
+                        return;
+                    }
+                    let res = value.toString();
+                    if (res.length === 0){ return; } //skip empty properties
+
+                    let itemType = fields[key].type;
+                    if (fields[key].type === "array"){
+                        itemType = fields[key].items && fields[key].items.type;
+                    }
+
+                    if (!(itemType === "string" && propNames.includes(key))){
+                        res = res.replace(/\s/g, '');
+                    }
+
+                    const strToValue = x => (itemType === "number")? parseInt(x): (itemType === "boolean")? (x.toLowerCase() === "true") : x;
+
+                    if (key === "length" || key === "thickness"){
+                        res = {min: parseInt(res), max: parseInt(res)};
+                    } else {
+                        if (key === "assign") {
+                            res = res.split(";").map(expr => {
+                                let [path, value] = expr.split("=");
+                                let [propName, propValue] = value.split(":").map(x => x.trim());
+                                if (propName && propValue){
+                                    propValue = propValue.toString().split(",");
+                                    let borderIndex = borderNames.indexOf(propName);
+                                    if (borderIndex > -1){
+                                        path  = path + `.border.borders[${borderIndex}]`;
+                                        value = {hostedNodes: propValue};
+                                    } else {
+                                        value = {[propName]: propValue};
+                                    }
+                                } else {
+                                    console.error("Assign value error:", value);
+                                }
+                                return { "path"  : "$." + path, "value" : value }
+                            });
+                        } else {
+                            if (fields[key].type === "array"){
+                                res = res.split(",").map(x => strToValue(x));
+                            } else {
+                                res = strToValue(res);
+                            }
+                        }
+                    }
+                    resource[key] = res;
+                });
+
+                table[i] = resource;
+                let borderConstraints = resource::pick(borderNames);
+                if (borderConstraints::values().filter(x => !!x).length > 0){
+                    table.border =  {borders: borderNames.map(borderName => borderConstraints[borderName]? {hostedNodes: [borderConstraints[borderName]]}: {})};
+                }
+                table[i] = resource::omit(borderNames);
+            }
+            model[relName] = model[relName].slice(1);
+        });
+        return model;
+    }
 }
 
 Graph.validator = new Validator();

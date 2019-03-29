@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import { cloneDeep, isArray, isObject, keys, values, pick, omit } from "lodash-bound";
+import { cloneDeep, isArray, isObject, keys } from "lodash-bound";
 
 //Angular Material
 import 'hammerjs';
@@ -41,7 +41,7 @@ function debug(bool, msgCount = {}){
     if(!bool){
         consoleHolder = console;
         console = {};
-        Object.keys(consoleHolder).forEach(function(key){
+        consoleHolder::keys().forEach(function(key){
             console[key] = function(){
                 if (!msgCount[key]) {
                     msgCount[key] = 0;
@@ -124,6 +124,7 @@ debug(true, msgCount);
         </section>
 
         <!--Editor and canvas-->
+        
         <section class="main-panel">
             <section class="w3-row" *ngIf="_showResourceEditor">
                 <resourceEditor 
@@ -227,87 +228,8 @@ export class TestApp {
                         let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
                         if(roa.length) { model[sheetName] = roa; }
                     });
-                    //model
-
-                    //TODO move this to a service
-                    model = model::pick(Graph.Model.relationshipNames);
-
-                    const borderNames = ["inner", "radial1", "outer", "radial2"];
-                    model::keys().forEach(relName => {
-                        let table = model[relName];
-                        if (!table) { return; }
-                        let headers = table[0] || [];
-                        let clsName = Graph.Model.relClassNames[relName];
-                        let fields  = modelClasses[clsName].Model.fieldMap;
-                        let propNames = modelClasses[clsName].Model.propertyNames;
-                        for (let i = 1; i < table.length; i++){
-                            let resource = {};
-                            table[i].forEach((value, j) => {
-                                let key = headers[j];
-                                if (!fields[key]){
-                                    console.warn("Unrecognized property:", clsName, key);
-                                    return;
-                                }
-                                let res = value.toString();
-                                if (res.length === 0){ return; } //skip empty properties
-
-                                let itemType = fields[key].type;
-                                if (fields[key].type === "array"){
-                                    itemType = fields[key].items && fields[key].items.type;
-                                }
-
-                                if (!(itemType === "string" && propNames.includes(key))){
-                                    res = res.replace(/\s/g, '');
-                                }
-
-                                const strToValue = x => (itemType === "number")? parseInt(x): (itemType === "boolean")? (x.toLowerCase() === "true") : x;
-
-                                if (key === "length" || key === "thickness"){
-                                    res = {min: parseInt(res), max: parseInt(res)};
-                                } else {
-                                    if (key === "assign") {
-                                        res = res.split(";").map(expr => {
-                                            let [path, value] = expr.split("=");
-                                            let [propName, propValue] = value.split(":").map(x => x.trim());
-                                            if (propName && propValue){
-                                                propValue = propValue.toString().split(",");
-                                                let borderIndex = borderNames.indexOf(propName);
-                                                if (borderIndex > -1){
-                                                    path  = path + `.border.borders[${borderIndex}]`;
-                                                    value = {hostedNodes: propValue};
-                                                } else {
-                                                    value = {[propName]: propValue};
-                                                }
-                                            } else {
-                                                console.error("Assign value error:", value);
-                                            }
-                                            return { "path"  : "$." + path, "value" : value }
-                                        });
-                                    } else {
-                                        if (fields[key].type === "array"){
-                                            res = res.split(",").map(x => strToValue(x));
-                                        } else {
-                                            res = strToValue(res);
-                                        }
-                                    }
-                                }
-                                resource[key] = res;
-                            });
-
-                            table[i] = resource;
-                            let borderConstraints = resource::pick(borderNames);
-                            if (borderConstraints::values().filter(x => !!x).length > 0){
-                                table.border =  {borders: borderNames.map(borderName => borderConstraints[borderName]? {hostedNodes: [borderConstraints[borderName]]}: {})};
-                            }
-                            table[i] = resource::omit(borderNames);
-                        }
-                        model[relName] = model[relName].slice(1);
-                    });
                     model["id"] = fileName;
-
-                    this.model = model;
-                    //this.save();
-
+                    this.model = Graph.excelToJSON(model, this.modelClasses);
                 } else {
                     if (extension === "json") {
                         this.model = JSON.parse(reader.result);
@@ -375,7 +297,7 @@ export class TestApp {
 	set model(model){
         this._model = model;
         try{
-            this._graphData = Graph.fromJSON(this._model, modelClasses);
+            this._graphData = Graph.fromJSON(this._model, this.modelClasses);
         } catch(err){
             console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);

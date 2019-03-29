@@ -120,13 +120,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
  It is important to retain in the model the containment and spacial adjacency relationships among entities. Several properties of a node object are used to constraint the positions of the node on a link, within a lyph or on its surface. It is also possible to define the desired position of a node in the graphical layout based on the positions of other nodes.
  
- To place a node on a link, we assign the link's ID to the node's property `host`.
+ To place a node on a link, we assign the link's ID to the node's property `hostedBy`.
  The related optional property `offset` can be used to indicate the offset in percentage from the start of the link. Thus, the definition below 
  ```json
     {
-        "id"    : "nLR00",
-        "host"  : "LR",
-        "offset": 0.25
+        "id"       : "nLR00",
+        "hostedBy" : "LR",
+        "offset"   : 0.25
     }
  ```
  instructs the viewer to position the node `nLR00` at the quarter of the length of the link `LR`. 
@@ -332,8 +332,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
  The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`.
      
- Lyph coalescences can be defined via the `coalescesWith` property. Coalescing lyphs share the outer layer and the layout algorithm will try to align them.
-
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
 
  ### Region
@@ -360,7 +358,7 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
  
  ### Border
  
- A flat shape such as lyph or region has a border. The border is an object that extends `Entity` and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its `border` field.  
+ A flat shape such as lyph or region has a border. The border is an object that extends the class `resource` and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its `border` field.
  
  Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the anatomical relationships among the corresponding concepts.
 

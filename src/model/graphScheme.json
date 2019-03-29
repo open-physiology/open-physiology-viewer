@@ -200,14 +200,6 @@
         "inactive": {
           "description": "A boolean flag to indicate that this resource should not be manipulated in the appropriate context (i.e., lyph - highlighted, group - toggled, template - expanded)",
           "type": "boolean"
-        },
-        "infoFields": {
-          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-          "type": "array",
-          "items": {
-             "type": "string"
-          },
-          "default": [ "id", "name", "class" ]
         }
       }
     },
@@ -272,6 +264,14 @@
           },
           "relatedTo": "cloneOf"
         }
+      },
+      "infoFields": {
+        "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [ "id", "name", "class" ]
       }
     },
     "External": {
@@ -479,14 +479,17 @@
         },
         "conveyingMaterials": {
           "description": "Materials conveyed by a diffusive process, must be subset of materials in the innermost layer of the conveying lyph",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Material"
-            }
-          ]
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          }
         },
 
         "length"       : {

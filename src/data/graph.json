@@ -1,487 +1,909 @@
 {
-  "nodes" : [
+  "nodes": [
     {
-      "id": "uot-a",
-      "name": "Urethral meatus",
-      "external": ["UBERON:0012240"],
-      "layout": {"x": -100}
-    },
-    {
-      "id": "uot-b",
-      "name": "Internal urethral orifice",
-      "external": ["UBERON:0012242"]
-    },
-    {
-      "id": "uot-d",
+      "id": "node1D",
       "name": "Ureterovesical junction",
-      "external": ["UBERON:0009973"]
+      "external": [
+        "UBERON:0009973"
+      ]
     },
     {
-      "id": "uot-i",
+      "id": "node1I",
       "name": "Cribriform area",
-      "external": ["FMA:74311"]
+      "external": [
+        "FMA:74311"
+      ]
     },
     {
-      "id": "uot-u"
+      "id": "node1B",
+      "name": "Internal urethral orifice",
+      "external": [
+        "UBERON:0012242"
+      ]
     },
     {
-      "id": "uot-v",
-      "layout": {"x": 100}
-    },
-    {
-      "id": "cs-a"
-    },
-    {
-      "id": "cs-b"
-    },
-    {
-      "id": "cs-c"
-    },
-    {
-      "id": "cs-d"
-    },
-    {
-      "id": "xCa1",
-      "hostedBy": "uot-lnk21"
-    },
-    {
-      "id": "xCa1-a"
-    },{
-      "id": "xCa1-b"
-    },
-    {
-      "id": "xCa2"
-    },
-    {
-      "id": "xCa2-a"
-    },
-    {
-      "id": "xCa2-b"
-    },
-    {
-      "id": "xCa3"
+      "id": "node1A",
+      "name": "Urethral meatus",
+      "external": [
+        "UBERON:0012240"
+      ]
     }
   ],
-  "links" : [
+  "links": [
     {
-      "id": "uot-lnk1",
-      "source": "uot-a",
-      "target": "uot-b",
-      "conveyingLyph": "IU"
+      "id": "lnk1",
+      "source": "node1A",
+      "target": "node1B",
+      "conveyingLyph": "6",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk2",
-      "source": "uot-b",
-      "target": "uot-c",
-      "conveyingLyph": "UB"
+      "id": "lnk2",
+      "source": "node1B",
+      "target": "node1C",
+      "conveyingLyph": "15",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk3",
-      "source": "uot-c",
-      "target": "uot-d",
-      "conveyingLyph": "IUT"
+      "id": "lnk3",
+      "source": "node1C",
+      "target": "node1D",
+      "conveyingLyph": "16",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk4",
-      "source": "uot-d",
-      "target": "uot-e",
-      "conveyingLyph": "DFU"
+      "id": "lnk4",
+      "source": "node1D",
+      "target": "node1E",
+      "conveyingLyph": "17",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk5",
-      "source": "uot-e",
-      "target": "uot-f",
-      "conveyingLyph": "PFU"
+      "id": "lnk5",
+      "source": "node1E",
+      "target": "node1F",
+      "conveyingLyph": "20",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk6",
-      "source": "uot-f",
-      "target": "uot-g",
-      "conveyingLyph": "RP"
+      "id": "lnk6",
+      "source": "node1F",
+      "target": "node1G",
+      "conveyingLyph": "21",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk7",
-      "source": "uot-g",
-      "target": "uot-h",
-      "conveyingLyph": "majorC"
+      "id": "lnk7",
+      "source": "node1G",
+      "target": "node1H",
+      "conveyingLyph": "22",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk8",
-      "source": "uot-h",
-      "target": "uot-i",
-      "conveyingLyph": "minorC"
+      "id": "lnk8",
+      "source": "node1H",
+      "target": "node1I",
+      "conveyingLyph": "23",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk9",
-      "source": "uot-i",
-      "target": "uot-j",
-      "conveyingLyph": "IMCD"
+      "id": "lnk9",
+      "source": "node1I",
+      "target": "node1J",
+      "conveyingLyph": "27",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk10",
-      "source": "uot-j",
-      "target": "uot-k",
-      "conveyingLyph": "OMCD"
+      "id": "lnk10",
+      "source": "node1J",
+      "target": "node1K",
+      "conveyingLyph": "28",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk11",
-      "source": "uot-k",
-      "target": "uot-l",
-      "conveyingLyph": "CCT"
+      "id": "lnk11",
+      "source": "node1K",
+      "target": "node1L",
+      "conveyingLyph": "29",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk12",
-      "source": "uot-l",
-      "target": "uot-m",
-      "conveyingLyph": "CT"
+      "id": "lnk12",
+      "source": "node1L",
+      "target": "node1M",
+      "conveyingLyph": "30",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk13",
-      "source": "uot-m",
-      "target": "uot-n",
-      "conveyingLyph": "DCT"
+      "id": "lnk13",
+      "source": "node1M",
+      "target": "node1N",
+      "conveyingLyph": "31",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk14",
-      "source": "uot-n",
-      "target": "uot-o",
-      "conveyingLyph": "FPofTAL"
+      "id": "lnk14",
+      "source": "node1N",
+      "target": "node1O",
+      "conveyingLyph": "32",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk15",
-      "source": "uot-o",
-      "target": "uot-p",
-      "conveyingLyph": "DST"
+      "id": "lnk15",
+      "source": "node1O",
+      "target": "node1P",
+      "conveyingLyph": "33",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk16",
-      "source": "uot-p",
-      "target": "uot-q",
-      "conveyingLyph": "ATL"
+      "id": "lnk16",
+      "source": "node1P",
+      "target": "node1Q",
+      "conveyingLyph": "34",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk17",
-      "source": "uot-q",
-      "target": "uot-r",
-      "conveyingLyph": "DTL"
+      "id": "lnk17",
+      "source": "node1Q",
+      "target": "node1R",
+      "conveyingLyph": "35",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk18",
-      "source": "uot-r",
-      "target": "uot-s",
-      "conveyingLyph": "PST"
+      "id": "lnk18",
+      "source": "node1R",
+      "target": "node1S",
+      "conveyingLyph": "36",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk19",
-      "source": "uot-s",
-      "target": "uot-t",
-      "conveyingLyph": "PCT"
+      "id": "lnk19",
+      "source": "node1S",
+      "target": "node1T",
+      "conveyingLyph": "37",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk20",
-      "source": "uot-t",
-      "target": "uot-u",
-      "conveyingLyph": "PBC"
+      "id": "lnk20",
+      "source": "node1T",
+      "target": "node1U",
+      "conveyingLyph": "39",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "uot-lnk21",
-      "source": "uot-u",
-      "target": "uot-v",
-      "conveyingLyph": "VBC",
-      "conveyingType": "advective"
+      "id": "lnk21",
+      "source": "node1U",
+      "target": "node1V",
+      "conveyingLyph": "40",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "cs-lnk1",
-      "source": "cs-a",
-      "target": "cs-b",
-      "conveyingLyph": "AA"
+      "id": "lnk22",
+      "source": "node2A",
+      "target": "node2B",
+      "conveyingLyph": "44",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "cs-lnk2",
-      "source": "cs-b",
-      "target": "cs-c",
-      "conveyingLyph": "Glo",
-      "conveyingType": "advective"
+      "id": "lnk23",
+      "source": "node2B",
+      "target": "node2C",
+      "conveyingLyph": "45",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "cs-lnk3",
-      "source": "cs-c",
-      "target": "cs-d",
-      "conveyingLyph": "EA"
-    },
-
-    {
-      "id": "lnk-Ca1",
-      "name": "Calcium",
-      "source": "xCa1",
-      "target": "xCa1-a",
-      "conveyingLyph": "Na-Ca:EE",
-      "conveyingType": "diffusive",
-      "conveyingMaterials": ["calcium"]
+      "id": "lnk24",
+      "source": "node2C",
+      "target": "node2D",
+      "conveyingLyph": "46",
+      "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "lnk-Ca1-a",
-      "name": "Calcium",
-      "source": "xCa1-a",
-      "target": "xCa1-b",
-      "conveyingLyph": "Na-Ca:TM",
-      "conveyingType": "diffusive",
-      "conveyingMaterials": ["calcium"]
+      "id": "lnk25",
+      "source": "node3A",
+      "target": "node3B",
+      "conveyingLyph": "76",
+      "conveyingType": "DIFFUSIVE",
+      "conveyingMaterials": ["51"]
     },
     {
-      "id": "lnk-Ca1-b",
-      "name": "Calcium",
-      "source": "xCa1-b",
-      "target": "xCa2",
-      "conveyingLyph": "Na-Ca:cyt",
-      "conveyingType": "diffusive",
-      "conveyingMaterials": ["calcium"]
+      "id": "lnk26",
+      "source": "node3B",
+      "target": "node3C",
+      "conveyingLyph": "78",
+      "conveyingType": "DIFFUSIVE",
+      "conveyingMaterials": ["51"]
     },
     {
-      "id": "lnk-Ca2",
-      "name": "Calcium",
-      "source": "xCa2",
-      "target": "xCa2-a",
-      "conveyingLyph": "SR-Ca:cyt",
-      "conveyingType": "diffusive",
-      "conveyingMaterials": ["calcium"]
+      "id": "lnk27",
+      "source": "node3C",
+      "target": "node3D",
+      "conveyingLyph": "80",
+      "conveyingType": "DIFFUSIVE",
+      "conveyingMaterials": ["51"]
     },
     {
-      "id": "lnk-Ca2-a",
-      "name": "Calcium",
-      "source": "xCa2-a",
-      "target": "xCa2-b",
-      "conveyingLyph": "SR-Ca:TM",
-      "conveyingType": "diffusive",
-      "conveyingMaterials": ["calcium"]
+      "id": "lnk28",
+      "source": "node4A",
+      "target": "node4B",
+      "conveyingLyph": "77",
+      "conveyingType": "DIFFUSIVE",
+      "conveyingMaterials": ["51"]
     },
     {
-      "id": "lnk-Ca2-b",
-      "name": "Calcium",
-      "source": "xCa2-b",
-      "target": "xCa3",
-      "conveyingLyph": "SR-Ca:intraSR",
-      "conveyingType": "diffusive",
-      "conveyingMaterials": ["calcium"]
+      "id": "lnk29",
+      "source": "node4B",
+      "target": "node4C",
+      "conveyingLyph": "79",
+      "conveyingType": "DIFFUSIVE",
+      "conveyingMaterials": ["51"]
+    },
+    {
+      "id": "lnk30",
+      "source": "node4C",
+      "target": "node4D",
+      "conveyingLyph": "81",
+      "conveyingType": "DIFFUSIVE",
+      "conveyingMaterials": ["51"]
     }
   ],
-  "materials": [
-    {"id": "water",     "name": "Water",           "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:15377"]},
-    {"id": "sodium",    "name": "Sodium ion",      "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:29101"]},
-    {"id": "potassium", "name": "Potassium ion",   "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:29103"]},
-    {"id": "calcium",   "name": "Calcium ion",     "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:29108"]},
-    {"id": "chloride",  "name": "Chloride ion",    "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:17996"]},
-    {"id": "hydrogen",  "name":	"Hydrogen ion",    "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:24636"]},
-    {"id": "hydroxide", "name": "Hydroxide ion",   "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:16234"]},
-    {"id": "bicarb",    "name": "Bicarbonate ion", "length" : {"min": 9, "max": 9}, "thickness": {"min": 9, "max": 9}, "external": ["CHEBI:17544"]}
-  ],
-  "lyphs" : [
-
-    {"id": "liquid",   "name": "Liquid",                                              "isTemplate": true,                          "external": ["FMA:85815"], "materials": ["water","sodium","potassium","calcium", "chloride", "hydrogen", "hydroxide"], "comment": "53"},
-    {"id": "cytosol",  "name": "Cytosol",                                             "isTemplate": true, "supertype": "liquid",   "external": ["GO:0005829"], "comment": "54"},
-    {"id": "membrane", "name": "Membran",                                             "isTemplate": true,                          "external": ["GO:0016020"], "comment": "55"},
-    {"id": "plaMem",   "name": "Plasma membrane",                                     "isTemplate": true, "supertype": "membrane", "external": ["GO:0005886"], "comment": "56"},
-    {"id": "SRC",      "name": "Sarcoplasmic reticulum content",  "topology": "CYST", "isTemplate": true, "supertype": "liquid",   "external": ["GO:0033018"], "materials": ["SR-Ca:intraSR"], "comment": "57"},
-    {"id": "SRM",      "name": "Sarcoplasmic reticulum membrane", "topology": "CYST", "isTemplate": true, "supertype": "membrane", "external": ["GO:0033017"], "materials": ["SR-Ca:TM"], "comment": "58"},
-    {"id": "cell",     "name": "Cell",                                                "isTemplate": true,                          "external": ["GO:0005623"], "comment": "59"},
-    {"id": "SR",       "name": "Sarcoplasmic reticulum",          "topology": "CYST", "isTemplate": true, "layers": ["SRC", "SRM", "sarPla"], "external": ["GO:0016529"], "comment": "60"},
-
-    {"id": "sarPla",   "name": "Sarcoplasm",                      "topology": "CYST", "isTemplate": true, "supertype": "cytosol",  "external": ["GO:0016528"], "materials": ["Na-Ca:cyt", "SR-Ca:cyt"],  "comment": "61"},
-    {"id": "sarLem",   "name": "Sarcolemma",                                          "isTemplate": true, "supertype": "membrane", "external": ["GO:0042383"], "materials": ["Na-Ca:TM"], "comment": "62"},
-
+  "lyphs": [
     {
-      "id": "myocyte-SR",
-      "name": "Sarcoplasmic reticulum in myocyte",
-      "supertype": "SR",
-      "topology": "CYST",
-      "scale": {
-        "width": 15,
-        "height": 40
+      "id": "45",
+      "name": "Glomerulus",
+      "external": [
+        "UBERON:0000074"
+      ],
+      "isTemplate": false,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
       },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "41",
+        "42",
+        "2"
+      ]
+    },
+    {
+      "id": "40",
+      "name": "Visceral Bowman's capsule",
+      "external": [
+        "UBERON:0005751"
+      ],
+      "isTemplate": false,
+      "topology": "BAG",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "0",
+        "38",
+        "2"
+      ],
       "assign": [
         {
           "path": "$.layers[0]",
           "value": {
-            "layerWidth": 60,
-            "internalNodes": ["xCa3"]
+            "materials": [
+              "63"
+            ]
           }
         }
       ]
     },
-
     {
-      "id": "myocyte",
+      "id": "63",
       "name": "Myocyte",
+      "external": [
+        "CL_0002098"
+      ],
+      "isTemplate": true,
       "topology": "CYST",
-      "length" : {"min": 6, "max": 6}, "thickness": {"min": 7, "max": 7},
-      "layers":["sarPla", "sarLem", "URN"],
-      "external": ["CL_0002098"],
-      "scale": {
-        "width": 25,
-        "height": 50
+      "length": {
+        "min": 6,
+        "max": 6
       },
+      "thickness": {
+        "min": 7,
+        "max": 7
+      },
+      "layers": [
+        "61",
+        "62",
+        "0"
+      ],
+      "supertype": "59",
       "assign": [
-        {
-          "path": "$.layers[0]",
-          "value": {
-            "layerWidth": 60,
-            "internalLyphs": ["myocyte-SR"],
-            "internalNodes": ["xCa2"]
-          }
-        },
         {
           "path": "$.layers[2]",
           "value": {
-            "internalLyphs": ["Na-Ca:EE"]
+            "materials": [
+              "76"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[0]",
+          "value": {
+            "materials": [
+              "80"
+            ]
           }
         },
         {
           "path": "$.layers[1]",
           "value": {
-            "internalLyphs": ["Na-Ca:TM"]
+            "materials": [
+              "78"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[1].border.borders[2]",
+          "value": {
+            "hostedNodes": [
+              "node3B"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[1].border.borders[0]",
+          "value": {
+            "hostedNodes": [
+              "node3C"
+            ]
           }
         }
+      ]
+    },
+    {
+      "id": "61",
+      "name": "Sarcoplasm",
+      "external": [
+        "GO:0016528"
       ],
-      "angle"  : 180,
-      "comment": "63"
-    },
-
-    {"id": "Na-Ca:CE", "name": "Na-Ca exchanger content extracellular", "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8}, "isTemplate": true, "materials": ["sodium", "calcium"], "comment": "64"},
-    {"id": "Na-Ca:WE", "name": "Na-Ca exchanger wall extracellular",    "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8}, "isTemplate": true, "external": ["Q01728"], "comment": "65"},
-    {"id": "Na-Ca:CT", "name": "Na-Ca exchanger content transmembrane", "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8}, "isTemplate": true, "materials": ["sodium", "calcium"], "comment": "66"},
-    {"id": "Na-Ca:WT", "name": "Na-Ca exchanger wall transmembrane",    "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["Q01728"], "comment": "67"},
-    {"id": "Na-Ca:CI", "name": "Na-Ca exchanger content intracellular", "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "materials": ["sodium", "calcium"], "comment": "68"},
-    {"id": "Na-Ca:WI", "name": "Na-Ca exchanger wall intracellular",    "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["Q01728"], "comment": "69"},
-    {"id": "SR-Ca:CC", "name": "SR Ca-ATPase content cytosolic",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "materials": ["calcium"], "comment": "70"},
-    {"id": "SR-Ca:WC", "name": "SR Ca-ATPase wall cytosolic",           "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["P16615"], "comment": "71"},
-    {"id": "SR-Ca:CT", "name": "SR Ca-ATPase content transmembrane",    "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "materials": ["calcium"], "comment": "72"},
-    {"id": "SR-Ca:WT", "name": "SR Ca-ATPase wall transmembrane",       "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["P16615"], "comment": "73"},
-    {"id": "SR-Ca:C-intraSR", "name": "SR Ca-ATPase content intra-SR",  "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "materials": ["calcium"], "comment": "74"},
-    {"id": "SR-Ca:W-intraSR", "name": "SR Ca-ATPase wall intra-SR",     "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	"isTemplate": true, "external": ["P16615"], "comment": "75"},
-    {"id": "Na-Ca:EE",  "name": "Na-Ca exchanger extracellular",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CE", "Na-Ca:WE", "URI"], "external": ["Q01728"], "comment": "76"},
-    {"id": "SR-Ca:cyt", "name": "SR Ca-ATPase cytosolic",               "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CC", "SR-Ca:WC", "sarPla"], "external": ["P16615"], "comment": "77"},
-    {"id": "Na-Ca:TM",  "name": "Na-Ca exchanger transmembrane",        "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CT", "Na-Ca:WT", "sarLem"], "external": ["Q01728"], "comment": "78"},
-    {"id": "SR-Ca:TM",  "name": "SR Ca-ATPase transmembrane",           "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:CT", "SR-Ca:WT", "SRM"],    "external": ["P16615"], "comment": "79"},
-    {"id": "Na-Ca:cyt", "name": "Na-Ca exchanger cytosolic",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["Na-Ca:CI", "Na-Ca:WI", "sarPla"], "external": ["Q01728"], "comment": "80"},
-    {"id": "SR-Ca:intraSR", "name": "SR Ca-ATPase intra-SR",            "topology": "TUBE", "length" : {"min": 8, "max": 8}, "thickness": {"min": 8, "max": 8},	 "layers": ["SR-Ca:C-intraSR", "SR-Ca:W-intraSR", "SRC"], "external": ["P16615"], "comment": "81"},
-    {"id": "TF", "name": "Tissue fluid", "supertype":	"liquid", "comment": "82"},
-
-    {
-      "id" : "URN",
-      "name": "Urine",
-      "color": "#f9ed32",
       "isTemplate": true,
-      "external": ["UBERON:0001088"],
-      "comment": "0"
+      "topology": "CYST",
+      "supertype": "54"
     },
     {
-      "id": "TE",
-      "name": "Transitional Epithelium",
-      "color": "#c49a6c",
+      "id": "62",
+      "name": "Sarcolemma",
+      "external": [
+        "GO:0042383"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0000365"],
-      "comment": "1"
+      "topology": "CYST",
+      "supertype": "56"
     },
     {
-      "id": "BM",
-      "name": "Basement Membrane",
-      "color": "#dc9e5a",
+      "id": "60",
+      "name": "Sarcoplasmic reticulum",
+      "external": [
+        "GO:0016529"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0005769"],
-      "comment": "2"
+      "topology": "CYST",
+      "layers": [
+        "57",
+        "58",
+        "54"
+      ],
+      "assign": [
+        {
+          "path": "$.layers[0]",
+          "value": {
+            "materials": [
+              "81"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[2]",
+          "value": {
+            "materials": [
+              "77"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[1]",
+          "value": {
+            "materials": [
+              "79"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[1].border.borders[2]",
+          "value": {
+            "hostedNodes": [
+              "node4B"
+            ]
+          }
+        },
+        {
+          "path": "$.layers[1].border.borders[0]",
+          "value": {
+            "hostedNodes": [
+              "node4C"
+            ]
+          }
+        }
+      ]
     },
     {
-      "id"   : "LP",
-      "name" : "Lamina Propria",
-      "color": "#edaa5f",
+      "id": "59",
+      "name": "Cell",
+      "external": [
+        "GO:0005623"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0000030"],
-      "comment": "3"
+      "topology": "CYST",
+      "layers": [
+        "54",
+        "56",
+        "53"
+      ],
+      "assign": [
+        {
+          "path": "$.layers[0]",
+          "value": {
+            "materials": [
+              "60"
+            ]
+          }
+        }
+      ]
     },
     {
-      "id": "Mcs",
-      "name": "Muscosa",
+      "id": "76",
+      "name": "Na-Ca exchanger extracellular",
+      "external": [
+        "PR:Q01728"
+      ],
       "isTemplate": true,
-      "color": "#f7e6cd",
-      "layers": ["TE", "BM", "LP"],
-      "external": ["UBERON:0000344"],
-      "comment": "4"
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "layers": [
+        "64",
+        "65",
+        "53"
+      ]
     },
     {
-      "id": "Ms1",
-      "name": "Muscularis",
-      "color": "#f7941e",
+      "id": "77",
+      "name": "SR Ca-ATPase cytosolic",
+      "external": [
+        "PR:P16615"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0006912"],
-      "comment": "5"
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "layers": [
+        "70",
+        "71",
+        "54"
+      ]
     },
     {
-      "id"       : "IU",
-      "name"     : "Intravesical urethra",
-      "topology" : "TUBE",
-      "length"   : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers"   : ["URN", "Mcs", "Ms1"],
-      "external" : ["UBERON:0000057"],
-      "width"    : 5,
-      "comment": "6"
-    },
-    {
-      "id": "Sub",
-      "name": "Submucosa",
-      "color": "#ec008c",
+      "id": "78",
+      "name": "Na-Ca exchanger transmembrane",
+      "external": [
+        "PR:Q01728"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0000009"],
-      "comment": "7"
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "layers": [
+        "66",
+        "67",
+        "62"
+      ]
     },
     {
-      "id": "ILF",
-      "name": "Inner Layer of Longitudinal Muscle Fibres",
-      "color": "#fbb040",
+      "id": "79",
+      "name": "SR Ca-ATPase transmembrane",
+      "external": [
+        "PR:P16615"
+      ],
       "isTemplate": true,
-      "comment": "8"
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "layers": [
+        "72",
+        "73",
+        "58"
+      ]
     },
     {
-      "id": "CMF",
-      "name": "Circular Muscle Fibres",
-      "color": "#d48d23",
+      "id": "80",
+      "name": "Na-Ca exchanger cytosolic",
+      "external": [
+        "PR:Q01728"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0012368"],
-      "comment": "9"
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "layers": [
+        "68",
+        "69",
+        "54"
+      ]
     },
     {
-      "id": "OLF",
-      "name": "Outer Layer of Longitudinal Muscle Fibres",
-      "color": "#c27d15",
+      "id": "81",
+      "name": "SR Ca-ATPase intra-SR",
+      "external": [
+        "PR:P16615"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0012369"],
-      "comment": "10"
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "layers": [
+        "74",
+        "75",
+        "57"
+      ]
     },
     {
-      "id": "Det",
+      "id": "64",
+      "name": "Na-Ca exchanger content extracellular",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "materials": [
+        "49",
+        "51"
+      ]
+    },
+    {
+      "id": "65",
+      "name": "Na-Ca exchanger wall extracellular",
+      "external": [
+        "PR:Q01728"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      }
+    },
+    {
+      "id": "66",
+      "name": "Na-Ca exchanger content transmembrane",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "materials": [
+        "49",
+        "51"
+      ]
+    },
+    {
+      "id": "67",
+      "name": "Na-Ca exchanger wall transmembrane",
+      "external": [
+        "PR:Q01728"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      }
+    },
+    {
+      "id": "68",
+      "name": "Na-Ca exchanger content intracellular",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "materials": [
+        "49",
+        "51"
+      ]
+    },
+    {
+      "id": "69",
+      "name": "Na-Ca exchanger wall intracellular",
+      "external": [
+        "PR:Q01728"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      }
+    },
+    {
+      "id": "70",
+      "name": "SR Ca-ATPase content cytosolic",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "materials": [
+        "51"
+      ]
+    },
+    {
+      "id": "71",
+      "name": "SR Ca-ATPase wall cytosolic",
+      "external": [
+        "PR:P16615"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      }
+    },
+    {
+      "id": "72",
+      "name": "SR Ca-ATPase content transmembrane",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "materials": [
+        "51"
+      ]
+    },
+    {
+      "id": "73",
+      "name": "SR Ca-ATPase wall transmembrane",
+      "external": [
+        "PR:P16615"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      }
+    },
+    {
+      "id": "74",
+      "name": "SR Ca-ATPase content intra-SR",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      },
+      "materials": [
+        "51"
+      ]
+    },
+    {
+      "id": "75",
+      "name": "SR Ca-ATPase wall intra-SR",
+      "external": [
+        "PR:P16615"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 8,
+        "max": 8
+      },
+      "thickness": {
+        "min": 8,
+        "max": 8
+      }
+    },
+    {
+      "id": "6",
+      "name": "Intravesical urethra",
+      "external": [
+        "UBERON:0000057"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "id": "11",
       "name": "Detrusor",
-      "topology": "TUBE",
-      "length"   : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["ILF", "CMF", "OLF"],
-      "color": "#d4b079",
+      "external": [
+        "UBERON:0000381"
+      ],
       "isTemplate": true,
-      "external": ["UBERON:0000381"],
-      "comment": "11"
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "8",
+        "9",
+        "10"
+      ]
     },
     {
-      "id": "Ms2",
+      "id": "12",
       "name": "Muscularis",
-      "topology": "TUBE",
+      "external": [
+        "UBERON:0006912"
+      ],
       "isTemplate": true,
-      "layers": ["ILF", "CMF", "OLF"],
-      "color": "#f7941e",
-      "external": ["UBERON:0006912"],
-      "comment": "12"
+      "topology": "TUBE",
+      "layers": [
+        "8",
+        "9",
+        "10"
+      ]
     },
     {
-      "id": "IM",
-      "name": "Intravesical muscularis",
+      "id": "14",
+      "name": "Adventitious serosa",
+      "external": [
+        "FMA:45637"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE"
+    },
+    {
+      "id": "15",
+      "name": "Urinary bladder",
+      "external": [
+        "UBERON:0001255"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 2,
+        "max": 2
+      },
+      "layers": [
+        "0",
+        "4",
+        "7",
+        "11",
+        "14"
+      ]
+    },
+    {
+      "id": "16",
+      "name": "Intravesical ureter",
+      "external": [
+        "UBERON:0000056"
+      ],
+      "isTemplate": true,
       "topology": "TUBE",
       "length": {
         "min": 3,
@@ -491,34 +913,92 @@
         "min": 3,
         "max": 3
       },
-      "isTemplate": true,
-      "supertype": "Ms2",
-      "comment": "13"
+      "layers": [
+        "0",
+        "4",
+        "12"
+      ]
     },
     {
-      "id": "AS",
-      "name": "Adventitious serosa",
+      "id": "17",
+      "name": "Distal free ureter",
+      "external": [
+        "UBERON:0000056"
+      ],
+      "isTemplate": true,
       "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "12",
+        "14"
+      ]
+    },
+    {
+      "id": "20",
+      "name": "Proximal free ureter",
+      "external": [
+        "UBERON:0000056"
+      ],
       "isTemplate": true,
-      "color": "#8dc63f",
-      "external": ["FMA:45637"],
-      "comment" : "14"
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "18",
+        "19",
+        "14"
+      ]
     },
     {
-      "id"       : "UB",
-      "name"     : "Urinary bladder",
-      "topology" : "TUBE",
-      "length"   : {"min": 2, "max": 2},
-      "thickness": {"min": 2, "max": 2},
-      "layers"   : ["URN", "Mcs", "Sub", "Det", "AS"],
-      "external" : ["UBERON:0001255"],
-      "width"    : 9,
-      "comment"  : "15"
+      "id": "21",
+      "name": "Renal pelvis",
+      "external": [
+        "UBERON:0001224"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "18",
+        "19",
+        "14"
+      ]
     },
     {
-      "id"      : "IUT",
-      "name"    : "Intravesical ureter",
-      "length"  : {
+      "id": "22",
+      "name": "Major calyx",
+      "external": [
+        "UBERON:0001226"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
         "min": 3,
         "max": 3
       },
@@ -526,130 +1006,45 @@
         "min": 3,
         "max": 3
       },
-      "topology": "TUBE",
-      "layers"  : ["URN", "Mcs", "Ms2"],
-      "external": ["UBERON:0000056"],
-      "width"   : 7,
-      "comment" : "16"
+      "layers": [
+        "0",
+        "4",
+        "18",
+        "19",
+        "14"
+      ]
     },
     {
-      "id": "DFU",
-      "name": "Distal free ureter",
-      "topology": "TUBE",
-      "length"  : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "Ms2", "AS"],
-      "external": [
-        "UBERON:0000056"
-      ],
-      "width"    : 8,
-      "comment"  : "17"
-    },
-    {
-      "id": "ISML",
-      "name": "Inner smooth muscle layer",
-      "isTemplate": true,
-      "external": ["UBERON:0034933"],
-      "comment" : "18"
-    },
-    {
-      "id": "OSML",
-      "name": "Outer smooth muscle layer",
-      "isTemplate": true,
-      "external": ["UBERON:0034933"],
-      "comment" : "19"
-    },
-    {
-      "id": "PFU",
-      "name": "Proximal free ureter",
-      "topology": "TUBE",
-      "length"  : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "ISML", "OSML", "AS"],
-      "external": [
-        "UBERON:0000056"
-      ],
-      "width"    : 7,
-      "comment"  : "20"
-    },
-    {
-      "id": "RP",
-      "name": "Renal pelvis",
-      "topology": "TUBE",
-      "length"  : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "ISML", "OSML", "AS"],
-      "external": [
-        "UBERON:0001224"
-      ],
-      "width"    : 7,
-      "comment"  : "21"
-    },
-    {
-      "id": "majorC",
-      "name": "Major calyx",
-      "topology": "TUBE",
-      "length"  : {"min": 3, "max": 3},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "ISML", "OSML", "AS"],
-      "external": [
-        "UBERON:0001226"
-      ],
-      "width"    : 7,
-      "comment"  : "22"
-    },
-    {
-      "id": "minorC",
+      "id": "23",
       "name": "Minor calyx",
-      "topology": "TUBE",
-      "length"  : {"min": 3, "max": 3},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "TE", "BM", "ISML", "AS"],
       "external": [
         "UBERON:0001227"
       ],
-      "width"    : 7,
-      "comment"  : "23"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "1",
+        "2",
+        "18",
+        "14"
+      ]
     },
     {
-      "id": "SColE",
-      "name": "Simple columnar epithelium",
-      "isTemplate": true,
+      "id": "27",
+      "name": "Inner medullary collecting duct",
       "external": [
-        "UBERON:0000485"
+        "UBERON:0004205"
       ],
-      "comment"  : "24"
-    },
-    {
-      "id": "SCubE",
-      "name": "Simple cuboidal epithelium",
       "isTemplate": true,
-      "external": [
-        "UBERON:0000484"
-      ],
-      "comment"  : "25"
-    },
-    {
-      "id": "EM",
-      "name": "Extracellular matrix",
-      "isTemplate": true,
-      "external": ["ILX:0104048"],
-      "comment"  : "26"
-    },
-    {
-      "id"       : "IMCD",
-      "name"     : "Inner medullary collecting duct",
-      "topology" : "TUBE",
-      "length"   : {"min": 3, "max": 3},
-      "thickness": {"min": 4, "max": 4},
-      "layers"   : ["URN", "SColE", "BM", "ISML", "EM"],
-      "external" : ["UBERON:0004205"],
-      "width"    : 5,
-      "comment"  : "27"
-    },
-    {
-      "id": "OMCD",
-      "name": "Outer medullary collecting duct",
       "topology": "TUBE",
       "length": {
         "min": 3,
@@ -660,59 +1055,68 @@
         "max": 4
       },
       "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "ISML",
-        "EM"
-      ],
+        "0",
+        "24",
+        "2",
+        "18",
+        "26"
+      ]
+    },
+    {
+      "id": "28",
+      "name": "Outer medullary collecting duct",
       "external": [
         "UBERON:0004204"
       ],
-      "width"    : 5,
-      "comment"  : "28"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "18",
+        "26"
+      ]
     },
     {
-      "id": "CCT",
+      "id": "29",
       "name": "Cortical collecting tubule",
-      "topology": "TUBE",
-      "length"  : {"min": 3, "max": 3},
-      "thickness": {"min": 4, "max": 4},
-      "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "ISML",
-        "EM"
-      ],
       "external": [
         "UBERON:0004203"
       ],
-      "width"    : 5,
-      "comment"  : "29"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "18",
+        "26"
+      ]
     },
     {
-      "id": "CT",
+      "id": "30",
       "name": "Connecting tubule",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
-      "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "ISML",
-        "EM"
-      ],
       "external": [
         "UBERON:0005097"
       ],
-      "width"    : 5,
-      "comment"  : "30"
-    },
-    {
-      "id": "DCT",
-      "name": "Distal convoluted tubule",
+      "isTemplate": true,
       "topology": "TUBE",
       "length": {
         "min": 4,
@@ -723,373 +1127,722 @@
         "max": 5
       },
       "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "EM"
-      ],
-      "external": [
-        "UBERON: 0001292"
-      ],
-      "width"    : 4,
-      "comment"  : "31"
+        "0",
+        "25",
+        "2",
+        "18",
+        "26"
+      ]
     },
     {
-      "id": "FPofTAL",
+      "id": "31",
+      "name": "Distal convoluted tubule",
+      "external": [
+        "UBERON:0001292"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "32",
       "name": "Final portion of thick ascending limb",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
-      "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "EM"
-      ],
       "external": [
         "UBERON:0001291"
       ],
-      "width"    : 4,
-      "comment"  : "32"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
     },
     {
-      "id": "DST",
+      "id": "33",
       "name": "Distal straight tubule",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
-      "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "EM"
-      ],
       "external": [
         "UBERON:0001291"
       ],
-      "width"    : 4,
-      "comment"  : "33"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
     },
     {
-      "id": "ATL",
+      "id": "34",
       "name": "Ascending thin limb",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
-      "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "EM"
-      ],
       "external": [
         "UBERON:0004193"
       ],
-      "width"    : 4,
-      "comment"  : "34"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
     },
     {
-      "id": "DTL",
+      "id": "35",
       "name": "Descending thin limb",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},"layers": [
-      "URN",
-      "SCubE",
-      "BM",
-      "EM"
-    ],
       "external": [
         "UBERON:0005096"
       ],
-      "width"    : 4,
-      "comment"  : "35"
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
     },
     {
-      "id": "PST",
+      "id": "36",
       "name": "Proximal straight tubule",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
-      "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "EM"
-      ],
       "external": [
         "UBERON:0001290"
       ],
-      "width"    : 4,
-      "comment"  : "36"
-    },
-    {
-      "id": "PCT",
-      "name": "Proximal convoluted tubule",
+      "isTemplate": true,
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
       "layers": [
-        "URN",
-        "SCubE",
-        "BM",
-        "EM"
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "37",
+      "name": "Proximal convoluted tubule",
+      "external": [
+        "UBERON:0001287"
       ],
-      "external": ["UBERON:0001287"],
-      "width"    : 4,
-      "comment"  : "37"
-    },
-    {
-      "id": "SSE",
-      "name": "Simple squamous epithelium",
       "isTemplate": true,
-      "external": ["UBERON:0000487"],
-      "comment" : "38"
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
     },
     {
-      "id": "PBC",
+      "id": "39",
       "name": "Parietal Bowman's capsule",
-      "topology": "TUBE",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["URN", "SSE", "BM", "EM"],
-      "external": ["UBERON:0005750"],
-      "comment"  : "39"
-    },
-    {
-      "id": "VBC",
-      "name": "Visceral Bowman's capsule",
-      "topology": "BAG",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["URN", "SSE", "BM"],
-      "external": ["UBERON:0005751"],
-      "comment" : "40",
-      "assign": [
-        {
-          "path": "$.layers[0]",
-          "value": {
-            "layerWidth": 60,
-            "internalLyphs": ["myocyte"]
-          }
-        }
-      ]
-    },
-    {
-      "id": "blood",
-      "name": "Blood",
-      "isTemplate": true,
-      "external": ["UBERON:0000178"],
-      "comment"  : "41"
-    },
-    {
-      "id": "endoth",
-      "name": "Endothelium",
-      "isTemplate": true,
-      "external": ["UBERON:0001986"],
-      "comment"  : "42"
-    },
-    {
-      "id": "ASML",
-      "name": "Arteriolar smooth muscle layer",
-      "isTemplate": true,
-      "external": ["UBERON:0004236"],
-      "comment"  : "43"
-    },
-    {
-      "id": "AA",
-      "name": "Afferent arteriole",
-      "topology": "TUBE",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["blood", "endoth", "BM", "ASML", "EM"],
-      "external": ["UBERON:0004639"],
-      "comment"  : "44"
-    },
-    {
-      "id": "Glo",
-      "name": "Glomerulus",
-      "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["blood", "endoth", "BM"],
-      "external": ["UBERON:0000074"],
-      "comment" : "45"
-    },
-    {
-      "id": "EA",
-      "name": "Efferent arteriole",
-      "topology": "TUBE",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["blood", "endoth", "BM", "ASML", "EM"],
-      "external": ["UBERON:0004640"],
-      "comment"  : "46"
-    }
-  ],
-  "trees" : [
-    {
-      "id"          : "UOT",
-      "name"        : "Urinary Omega Tree",
-      "root"        : "uot-a",
-      "numLevels"   : 21,
-      "levels"      : [
-        "uot-lnk1", "uot-lnk2", "uot-lnk3", "uot-lnk4", "uot-lnk5", "uot-lnk6", "uot-lnk7", "uot-lnk8",
-        "uot-lnk9", "uot-lnk10", "uot-lnk11", "uot-lnk12","uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16",
-        "uot-lnk17","uot-lnk18","uot-lnk19", "uot-lnk20", "uot-lnk21"
+      "external": [
+        "UBERON:0005750"
       ],
-      "branchingFactors": [1, 1, 2, 1, 1, 1, 3],
-      "comment": "Branching factors for the rest of the tree removed to avoid model explosion ... 1, 1, 2, 1, 1, 1, 3, 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
-    }
-  ],
-  "groups": [
-    {
-      "id"    : "nephron",
-      "name"  : "Nephron",
-      "nodes" : ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
-      "links" : [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
-      "lyphs" : ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
-      "external": ["UBERON:0001285"]
-    },
-    {
-      "id"    : "henle",
-      "name"  : "Loop of Henle",
-      "nodes" : ["uot-n","uot-o","uot-p","uot-q","uot-r"],
-      "links" : ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
-      "lyphs" : ["FPofTAL", "DST", "ATL", "DTL"],
-      "external": ["UBERON:0001288"]
-    },
-    {
-      "id"    : "CST",
-      "name"  : "Cardiovascular Segment",
-      "nodes" : ["cs-a", "cs-b", "cs-c", "cs-d"],
-      "links" : ["cs-lnk1", "cs-lnk2", "cs-lnk3"],
-      "lyphs" : ["AA", "Glo", "EA"],
-      "assign":[
-        {
-          "path" : "$.links[*]",
-          "value": {
-            "name" : "Blood"
-          }
-        }
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "0",
+        "38",
+        "2",
+        "26"
       ]
     },
     {
-      "id"      : "myocyte-group",
-      "name"    : "Myocyte in urine of visceral Bowman's capsule",
-      "nodes"   : ["uot-u", "uot-v"],
-      "lyphs"   : ["myocyte", "myocyte-SR", "VBC"],
-      "links"   : ["uot-lnk21"]
-    },
-    {
-      "id"       : "na-ca",
-      "name"     : "Na-Ca exchanger",
-      "links"    : ["lnk-Ca1", "lnk-Ca1-a", "lnk-Ca1-b"],
-      "nodes"    : ["xCa1", "xCa1-a", "xCa1-b", "xCa2"],
-      "external" : ["PR:Q01728"],
-      "assign":[
-        {
-          "path" : "$.nodes[*]",
-          "value": {
-            "color": "black",
-            "val" : 0.5
-          }
-        },
-        {
-          "path" : "$.links[*]",
-          "value": {
-            "length" : 2
-          }
-        }
+      "id": "44",
+      "name": "Afferent arteriole",
+      "external": [
+        "UBERON:0004639"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "41",
+        "42",
+        "2",
+        "43",
+        "26"
       ]
     },
     {
-      "id"       : "sr-ca",
-      "name"     : "SR Ca-ATPase",
-      "links"    : ["lnk-Ca2", "lnk-Ca2-a", "lnk-Ca2-b"],
-      "nodes"    : ["xCa2", "xCa2-a", "xCa2-b", "xCa3"],
-      "external" : ["PR:P16615"],
-      "assign":[
-        {
-          "path" : "$.nodes[*]",
-          "value": {
-            "color": "black",
-            "val" : 0.5
-          }
-        },
-        {
-          "path" : "$.links[*]",
-          "value": {
-            "length" : 2
-          }
-        }
+      "id": "46",
+      "name": "Efferent arteriole",
+      "external": [
+        "UBERON:0004640"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "41",
+        "42",
+        "2",
+        "43",
+        "26"
       ]
     }
   ],
   "coalescences": [
     {
-      "id"      : "RC",
-      "name"    : "Renal corpuscle",
-      "lyphs"   : ["VBC", "Glo"],
-      "external": ["UBERON:0001229"]
+      "id": "47",
+      "name": "Renal corpuscle",
+      "external": [
+        "UBERON:0001229"
+      ],
+      "lyphs": [
+        "45",
+        "40"
+      ],
+      "comment": "45.layers[2], 40.layers[2]"
     },
     {
-      "id"      : "myocyte-urineVBC",
-      "name"    : "Myocyte in urine of visceral Bowman's capsule",
-      "lyphs"   : ["VBC", "myocyte"],
-      "comment" : "Overlapping lyphs are derived from 0 - Urine"
+      "id": "96",
+      "name": "Myocyte material in VBC urine",
+      "lyphs": [
+        "40",
+        "63"
+      ],
+      "comment": "40.layers[0], 63.layers[2]"
     },
     {
-      "id"      : "SR-myocyte",
-      "name"    : "Sarcomplasmic reticulum in myocyte cytosol",
-      "lyphs"   : ["myocyte", "myocyte-SR"],
-      "comment" : "Overlapping lyphs are derived from 61 - Sarcoplasm"
+      "id": "97",
+      "name": "Sarcoplasmic reticilum material in Cell cytosol",
+      "lyphs": [
+        "59",
+        "60"
+      ],
+      "comment": "59.layers[0], 60.layers[2]"
     },
     {
-      "id"  : "90",
-      "name": "Na-Ca exchanger extracellular in urine of visceral Bowman's capsule",
-      "lyphs": ["Na-Ca:EE"],
-      "comment": "90"
+      "id": "90",
+      "name": "Na-Ca exchanger extracellular in fluid surrounding myocyte",
+      "lyphs": [
+        "63",
+        "76"
+      ],
+      "comment": "63.layers[2], 76.layers[2]"
     },
     {
-      "id"  : "91",
-      "name": "SR Ca-ATPase cytosolic in sarcoplasm layer of myocyte",
-      "comment": "91"
+      "id": "91",
+      "name": "SR Ca-ATPase cytosolic in cytosol surrounding sarcoplasmic reticulum",
+      "lyphs": [
+        "60",
+        "77"
+      ],
+      "comment": "60.layers[2], 77.layers[2]"
     },
     {
-      "id"  : "92",
+      "id": "92",
       "name": "Na-Ca exchanger transmembrane in sarcolemma layer of myocyte",
-      "comment": "92"
+      "lyphs": [
+        "63",
+        "78"
+      ],
+      "comment": "63.layers[1], 78.layers[2]"
     },
     {
-      "id"  : "93",
-      "name": "SR Ca-ATPase transmembrane",
-      "comment": "93"
+      "id": "93",
+      "name": "SR Ca-ATPase transmembrane in membrane layer of sarcoplasmic retiuculum",
+      "lyphs": [
+        "60",
+        "79"
+      ],
+      "comment": "60.layers[1], 79.layers[2]"
     },
     {
-      "id"  : "94",
+      "id": "94",
       "name": "Na-Ca exchanger cytosolic in sarcoplasm layer of myocyte",
-      "comment": "94"
+      "lyphs": [
+        "63",
+        "80"
+      ],
+      "comment": "63.layers[0], 80.layers[2]"
     },
     {
-      "id"  : "95",
-      "name": "SR Ca-ATPase intra-SR",
-      "comment": "95"
+      "id": "95",
+      "name": "SR Ca-ATPase intra-SR in fluid layer of sarcolplasmic reticulum",
+      "lyphs": [
+        "60",
+        "81"
+      ],
+      "comment": "60.layers[0], 81.layers[2]"
     }
   ],
-  "assign": [
+  "materials": [
     {
-      "path" : "$.nodes[*]",
-      "value": {
-        "color" : "red",
-        "val"   : 1
-      }
+      "id": "2",
+      "name": "Basement membrane",
+      "external": [
+        "UBERON:0005769"
+      ]
     },
     {
-      "path"  : "$.links[*].conveyingLyph",
-      "value" : {
-        "color" : "#ccc"
-      }
+      "id": "42",
+      "name": "Endothelium",
+      "external": [
+        "UBERON:0001986"
+      ]
+    },
+    {
+      "id": "41",
+      "name": "Blood",
+      "external": [
+        "UBERON:0000178"
+      ]
+    },
+    {
+      "id": "38",
+      "name": "Simple squamous epithelium",
+      "external": [
+        "UBERON:0000487"
+      ]
+    },
+    {
+      "id": "0",
+      "name": "Urine",
+      "external": [
+        "UBERON:0001088"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "53",
+      "name": "Liquid",
+      "external": [
+        "FMA:85815"
+      ],
+      "materials": [
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "83",
+        "84",
+        "85"
+      ]
+    },
+    {
+      "id": "48",
+      "name": "Water",
+      "external": [
+        "CHEBI:15377"
+      ]
+    },
+    {
+      "id": "49",
+      "name": "Sodium ion",
+      "external": [
+        "CHEBI:29101"
+      ]
+    },
+    {
+      "id": "50",
+      "name": "Potassium ion",
+      "external": [
+        "CHEBI:29103"
+      ]
+    },
+    {
+      "id": "51",
+      "name": "Calcium ion",
+      "external": [
+        "CHEBI:29108"
+      ]
+    },
+    {
+      "id": "52",
+      "name": "Chloride ion",
+      "external": [
+        "CHEBI:17996"
+      ]
+    },
+    {
+      "id": "83",
+      "name": "Hydrogen ion",
+      "external": [
+        "CHEBI:24636"
+      ]
+    },
+    {
+      "id": "84",
+      "name": "Hydroxide ion",
+      "external": [
+        "CHEBI:16234"
+      ]
+    },
+    {
+      "id": "54",
+      "name": "Cytosol",
+      "external": [
+        "GO:0005829"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Membrane",
+      "external": [
+        "GO:0016020"
+      ]
+    },
+    {
+      "id": "56",
+      "name": "Plasma membrane",
+      "external": [
+        "GO:0005886"
+      ],
+      "materials": [
+        "55"
+      ]
+    },
+    {
+      "id": "57",
+      "name": "Sarcoplasmic reticulum content",
+      "external": [
+        "GO:0033018"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "58",
+      "name": "Sarcoplasmic reticulum membrane",
+      "external": [
+        "GO:0033017"
+      ],
+      "materials": [
+        "55"
+      ]
+    },
+    {
+      "id": "85",
+      "name": "Bicarbonate ion ",
+      "external": [
+        "CHEBI:17544"
+      ]
+    },
+    {
+      "id": "8",
+      "name": "Inner layer of longitudinal muscle fibres"
+    },
+    {
+      "id": "13",
+      "name": "Intravesical muscularis"
+    },
+    {
+      "id": "1",
+      "name": "Transitional epithelium",
+      "external": [
+        "UBERON:0000365"
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Lamina propria",
+      "external": [
+        "UBERON:0000030"
+      ]
+    },
+    {
+      "id": "4",
+      "name": "Muscosa",
+      "external": [
+        "UBERON:0000344"
+      ],
+      "materials": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Muscularis",
+      "external": [
+        "UBERON:0006912"
+      ]
+    },
+    {
+      "id": "7",
+      "name": "Submucosa",
+      "external": [
+        "UBERON:0000009"
+      ]
+    },
+    {
+      "id": "9",
+      "name": "Circular muscle fibres",
+      "external": [
+        "UBERON:0012368"
+      ]
+    },
+    {
+      "id": "10",
+      "name": "Outer layer of longitudinal muscle fibres",
+      "external": [
+        "UBERON:0012369"
+      ]
+    },
+    {
+      "id": "18",
+      "name": "Inner smooth muscle",
+      "external": [
+        "UBERON:0034933"
+      ]
+    },
+    {
+      "id": "19",
+      "name": "Outer smooth muscle",
+      "external": [
+        "UBERON:0034933"
+      ]
+    },
+    {
+      "id": "24",
+      "name": "Simple columnar epithelium",
+      "external": [
+        "UBERON:0000485"
+      ]
+    },
+    {
+      "id": "25",
+      "name": "Simple cuboidal epithelium",
+      "external": [
+        "UBERON:0000484"
+      ]
+    },
+    {
+      "id": "26",
+      "name": "Extracellular matrix",
+      "external": [
+        "ILX:0104048"
+      ]
+    },
+    {
+      "id": "43",
+      "name": "Arteriolar smooth muscle ",
+      "external": [
+        "UBERON:0004236"
+      ]
     }
-  ]
+  ],
+  "trees": [
+    {
+      "id": "uot",
+      "name": "Urinary omega tree",
+      "external": [
+        "FMA:7159"
+      ],
+      "root": "node1A",
+      "numLevels": 21,
+      "levels": [
+        "lnk1",
+        "lnk2",
+        "lnk3",
+        "lnk4",
+        "lnk5",
+        "lnk6",
+        "lnk7",
+        "lnk8",
+        "lnk9",
+        "lnk10",
+        "lnk11",
+        "lnk12",
+        "lnk13",
+        "lnk14",
+        "lnk15",
+        "lnk16",
+        "lnk17",
+        "lnk18",
+        "lnk19",
+        "lnk20",
+        "lnk21"
+      ],
+      "branchingFactors": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1,
+        3,
+        3,
+        20,
+        8,
+        9,
+        8,
+        9,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "grp1",
+      "name": "Nephron",
+      "external": [
+        "UBERON:0001285"
+      ],
+      "nodes": [
+        "node1M",
+        "node1N",
+        "node1O",
+        "node1P",
+        "node1Q",
+        "node1R",
+        "node1S",
+        "node1T",
+        "node1U",
+        "node1V"
+      ],
+      "links": [
+        "lnk13",
+        "lnk14",
+        "lnk15",
+        "lnk16",
+        "lnk17",
+        "lnk18",
+        "lnk19",
+        "lnk20",
+        "lnk21"
+      ],
+      "lyphs": [
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40"
+      ]
+    },
+    {
+      "id": "grp2",
+      "name": "Loop of Henle",
+      "external": [
+        "UBERON:0001288"
+      ],
+      "nodes": [
+        "node1N",
+        "node1O",
+        "nofde1P",
+        "node1Q",
+        "node1R"
+      ],
+      "links": [
+        "lnk14",
+        "lnk15",
+        "lnk16",
+        "lnk17"
+      ],
+      "lyphs": [
+        "32",
+        "33",
+        "34",
+        "35"
+      ]
+    }
+  ],
+  "id": "Urinary Omega Tree"
 }

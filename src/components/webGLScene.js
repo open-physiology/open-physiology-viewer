@@ -1,18 +1,15 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {keys, values, defaults, cloneDeep} from 'lodash-bound';
-import * as THREE from 'three';
-import {SearchBarModule} from './gui/searchBar';
 import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
 import FileSaver  from 'file-saver';
+import {keys, values} from 'lodash-bound';
+import * as THREE from 'three';
+import {SearchBarModule} from './gui/searchBar';
+import {RelGraphModule} from "./relationGraph";
 
 import ThreeForceGraph   from '../three/threeForceGraph';
-import {
-    forceX,
-    forceY,
-    forceZ
-} from 'd3-force-3d';
+import { forceX, forceY, forceZ } from 'd3-force-3d';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
 
@@ -29,38 +26,54 @@ const WindowResize = require('three-window-resize');
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
-                        <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleLockControls()" title="Lock controls">
-                            <i class="fa fa-lock"> </i>
-                        </button>
-                        <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleLockControls()" title="Unlock controls">
-                            <i class="fa fa-unlock"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
-                                title="Update layout">
-                            <i class="fa fa-refresh"> </i>
-                        </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleSettingPanel()" title="Show settings">
-                            <i class="fa fa-cog"> </i>
-                        </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleSettingPanel()" title="Hide settings">
+                        <section *ngIf="!showRelGraph">
+                            <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
+                                    (click)="toggleLockControls()" title="Lock controls">
+                                <i class="fa fa-lock"> </i>
+                            </button>
+                            <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
+                                    (click)="toggleLockControls()" title="Unlock controls">
+                                <i class="fa fa-unlock"> </i>
+                            </button>
+                            <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
+                                    title="Update layout">
+                                <i class="fa fa-refresh"> </i>
+                            </button>
+                            <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                                    (click)="toggleSettingPanel()" title="Show settings">
+                                <i class="fa fa-cog"> </i>
+                            </button>
+                            <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                                    (click)="toggleSettingPanel()" title="Hide settings">
+                                <i class="fa fa-window-close"> </i>
+                            </button>
+                            <mat-slider vertical class="w3-grey"
+                                        [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                        [step]="0.05 * scaleFactor" tickInterval="1"
+                                        [value]="labelRelSize" title="Label size"
+                                        (change)="onScaleChange($event.value)">
+                            </mat-slider>
+                            <button class="w3-bar-item w3-hover-light-grey"
+                                    (click)="toggleRelGraph()" title="Show resource relationships">
+                                <i class="fa fa-crosshairs"> </i>
+                            </button>
+                        </section>
+                        <button *ngIf="showRelGraph" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleRelGraph()" title="Hide resource relationships">
                             <i class="fa fa-window-close"> </i>
                         </button>
-                        <mat-slider vertical class="w3-grey"
-                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
-                                    [step]="0.05 * scaleFactor" tickInterval="1"
-                                    [value]="labelRelSize" title="Label size"
-                                    (change)="onScaleChange($event.value)">
-                        </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="export()" title="Export layout">
+                                (click)="export()" title="Export generated model">
                             <i class="fa fa-save"> </i>
                         </button>
+                                       
                     </section>
-                    <canvas #canvas class="w3-card w3-round"> </canvas>
+                     
+                    <!--Main content-->
+                    
+                    <relGraph [graphData] = "_graphData" class="w3-card w3-round" *ngIf="showRelGraph"></relGraph>
+                    <canvas #canvas class="w3-card w3-round" [hidden]="showRelGraph"> </canvas>
+                    
                 </section>
             </section>
             <section id="settingsPanel" *ngIf="showPanel" class="w3-third">
@@ -350,7 +363,7 @@ export class WebGLSceneComponent {
         if (this._graphData){
             let result = JSON.stringify(this._graphData.export(), null, 2);
             const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
-            FileSaver.saveAs(blob, 'apinatomy-layout.json');
+            FileSaver.saveAs(blob, 'apinatomy-generated.json');
         }
     }
 
@@ -442,6 +455,10 @@ export class WebGLSceneComponent {
 
     toggleSettingPanel() {
         this.showPanel = !this.showPanel;
+    }
+
+    toggleRelGraph(){
+        this.showRelGraph = !this.showRelGraph;
     }
 
     getMousedOverEntity() {
@@ -629,7 +646,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, RelGraphModule],
     declarations: [WebGLSceneComponent],
     exports: [WebGLSceneComponent]
 })
