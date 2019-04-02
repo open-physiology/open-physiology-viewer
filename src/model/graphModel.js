@@ -179,10 +179,10 @@ export class Graph extends Group{
 
     toJSON(){
         let res = {};
-        console.log("toJSON:", this.id, this.class);
         this::keys()::intersection(this.constructor.Model.fieldNames).forEach(key => {
             let value = this[key];
             if (!value || key === "infoFields") { return; }
+
             if (value::isArray()){
                 res[key] = value.filter(e => !!e).map(e => e.toJSON? e.toJSON(): e);
             } else {
@@ -194,20 +194,8 @@ export class Graph extends Group{
 
     entitiesToJSON(){
         let res = {};
-        (this::entitiesByID||{})::keys().forEach(key => {
-            let value = this[key];
-            if (!value || value.class === this.class) { return; }
-            if (value::isArray()){
-                res[key] = value.filter(e => !!e).map(e => e.toJSON? e.toJSON(): e);
-            } else {
-                res[key] = value.toJSON? value.toJSON(): value;
-            }
-        });
+        (this.entitiesByID||{})::entries().forEach(([id,obj]) => res[id] = obj.toJSON? obj.toJSON(): obj);
         return res;
-    }
-
-    export(){
-        return this.toJSON();
     }
 
     static excelToJSON(model, modelClasses = {}){

@@ -3,11 +3,9 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
 import FileSaver  from 'file-saver';
-import {keys, values} from 'lodash-bound';
+import {keys, values, defaults} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBarModule} from './gui/searchBar';
-import {RelGraphModule} from "./relationGraph";
-
 import ThreeForceGraph   from '../three/threeForceGraph';
 import { forceX, forceY, forceZ } from 'd3-force-3d';
 
@@ -26,53 +24,45 @@ const WindowResize = require('three-window-resize');
             <section id="canvasContainer" [class.w3-twothird]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
-                        <section *ngIf="!showRelGraph">
-                            <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
-                                    (click)="toggleLockControls()" title="Lock controls">
-                                <i class="fa fa-lock"> </i>
-                            </button>
-                            <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
-                                    (click)="toggleLockControls()" title="Unlock controls">
-                                <i class="fa fa-unlock"> </i>
-                            </button>
-                            <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
-                                    title="Update layout">
-                                <i class="fa fa-refresh"> </i>
-                            </button>
-                            <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
-                                    (click)="toggleSettingPanel()" title="Show settings">
-                                <i class="fa fa-cog"> </i>
-                            </button>
-                            <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
-                                    (click)="toggleSettingPanel()" title="Hide settings">
-                                <i class="fa fa-window-close"> </i>
-                            </button>
-                            <mat-slider vertical class="w3-grey"
-                                        [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
-                                        [step]="0.05 * scaleFactor" tickInterval="1"
-                                        [value]="labelRelSize" title="Label size"
-                                        (change)="onScaleChange($event.value)">
-                            </mat-slider>
-                            <button class="w3-bar-item w3-hover-light-grey"
-                                    (click)="toggleRelGraph()" title="Show resource relationships">
-                                <i class="fa fa-crosshairs"> </i>
-                            </button>
-                        </section>
-                        <button *ngIf="showRelGraph" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleRelGraph()" title="Hide resource relationships">
+                        <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleLockControls()" title="Lock controls">
+                            <i class="fa fa-lock"> </i>
+                        </button>
+                        <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleLockControls()" title="Unlock controls">
+                            <i class="fa fa-unlock"> </i>
+                        </button>
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
+                                title="Update layout">
+                            <i class="fa fa-refresh"> </i>
+                        </button>
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleSettingPanel()" title="Show settings">
+                            <i class="fa fa-cog"> </i>
+                        </button>
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleSettingPanel()" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
+                        <mat-slider vertical class="w3-grey"
+                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                    [step]="0.05 * scaleFactor" tickInterval="1"
+                                    [value]="labelRelSize" title="Label size"
+                                    (change)="onScaleChange($event.value)">
+                        </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="export()" title="Export generated model">
-                            <i class="fa fa-save"> </i>
+                            <i class="fa fa-file-text-o"> </i>
                         </button>
-                                       
-                    </section>
-                     
-                    <!--Main content-->
+                        <button class="w3-bar-item w3-hover-light-grey"
+                                (click)="exportResourceMap()" title="Export resource map">
+                            <i class="fa fa-file-code-o"> </i>
+                        </button> 
+
+                    </section> 
                     
-                    <relGraph [graphData] = "_graphData" class="w3-card w3-round" *ngIf="showRelGraph"></relGraph>
-                    <canvas #canvas class="w3-card w3-round" [hidden]="showRelGraph"> </canvas>
+                    <!--Main content-->                   
+                    <canvas #canvas class="w3-card w3-round"> </canvas>
                     
                 </section>
             </section>
@@ -215,8 +205,7 @@ export class WebGLSceneComponent {
     scene;
     camera;
     renderer;
-    canvasContainer;
-    settingsPanel;
+    container;
     controls;
     mouse;
     windowResize;
@@ -227,22 +216,21 @@ export class WebGLSceneComponent {
     _searchOptions;
     _selectedName = "";
 
+    graph;
+    helpers   = {};
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
-
-    graph;
-    helpers   = {};
-    scaleFactor  = 8; //TODO make this a graph parameter with complete layout update on change
-    labelRelSize = 0.1 * this.scaleFactor;
-    lockControls = false;
+    scaleFactor    = 8; //TODO make this a graph parameter with complete layout update on change
+    labelRelSize   = 0.1 * this.scaleFactor;
+    lockControls   = false;
 
     @Input() modelClasses;
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this.config = this._graphData.config || this.config;
+            this.config = (this._graphData.config||{})::defaults(this.config);
             this._graphData.showGroups(this._showGroups);
             this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
             /*Map initial positional constraints to match the scaled image*/
@@ -324,11 +312,10 @@ export class WebGLSceneComponent {
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 
-        this.canvasContainer = document.getElementById('canvasContainer');
-        this.settingsPanel   = document.getElementById('settingsPanel');
+        this.container = document.getElementById('canvasContainer');
 
-        let width = this.canvasContainer.clientWidth;
-        let height = this.canvasContainer.clientHeight;
+        let width = this.container.clientWidth;
+        let height = this.container.clientHeight;
 
         this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
         this.camera.position.set(0, 0, 100 * this.scaleFactor );
@@ -352,7 +339,7 @@ export class WebGLSceneComponent {
 
         this.mouse = new THREE.Vector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
-        this.resizeCanvasToDisplaySize();
+        this.resizeToDisplaySize();
         this.createHelpers();
         this.createGraph();
         this.animate();
@@ -361,9 +348,17 @@ export class WebGLSceneComponent {
 
     export(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.export(), null, 2);
+            let result = JSON.stringify(this._graphData.toJSON(), null, 2);
             const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
             FileSaver.saveAs(blob, 'apinatomy-generated.json');
+        }
+    }
+
+    exportResourceMap(){
+        if (this._graphData){
+            let result = JSON.stringify(this._graphData.entitiesToJSON(), null, 2);
+            const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+            FileSaver.saveAs(blob, 'apinatomy-resourceMap.json');
         }
     }
 
@@ -373,10 +368,10 @@ export class WebGLSceneComponent {
         window.addEventListener('keydown'  , evt => this.onKeyDown(evt)  , false);
     }
 
-    resizeCanvasToDisplaySize() {
+    resizeToDisplaySize() {
         const delta = 5;
-        const width  = this.canvasContainer.clientWidth;
-        const height = this.canvasContainer.clientHeight;
+        const width  = this.container.clientWidth;
+        const height = this.container.clientHeight;
         if (Math.abs(this.renderer.domElement.width - width) > delta
             || Math.abs(this.renderer.domElement.height - height) > delta) {
             const dimensions = function(){ return { width, height } };
@@ -388,7 +383,7 @@ export class WebGLSceneComponent {
     }
 
     animate() {
-        this.resizeCanvasToDisplaySize();
+        this.resizeToDisplaySize();
         if (this.graph) {
             this.graph.tickFrame();
         }
@@ -455,10 +450,6 @@ export class WebGLSceneComponent {
 
     toggleSettingPanel() {
         this.showPanel = !this.showPanel;
-    }
-
-    toggleRelGraph(){
-        this.showRelGraph = !this.showRelGraph;
     }
 
     getMousedOverEntity() {
@@ -619,8 +610,8 @@ export class WebGLSceneComponent {
     }
 
     updateLabels(labelClass) {
-        this.config["labels"][labelClass] = !this.config["labels"][labelClass];
-        if (this.graph){ this.graph.showLabels(this.config["labels"]); }
+        this.config.labels[labelClass] = !this.config.labels[labelClass];
+        if (this.graph){ this.graph.showLabels(this.config.labels||{}); }
     }
 
     updateLabelContent() {
@@ -646,7 +637,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, RelGraphModule],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule],
     declarations: [WebGLSceneComponent],
     exports: [WebGLSceneComponent]
 })

@@ -43,7 +43,7 @@ VisualResource.prototype.createLabels = function(state){
  * @param {Vector3} position - label position
  */
 VisualResource.prototype.updateLabels = function(state, position){
-    if (this.skipLabel) { return; }
+    if (this.skipLabel || !state.showLabels) { return; }
     let labelKey  = state.labels[this.constructor.name];
     let isVisible = state.showLabels[this.constructor.name];
     if (this.labels[labelKey]){

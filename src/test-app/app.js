@@ -4,7 +4,7 @@ import { cloneDeep, isArray, isObject, keys } from "lodash-bound";
 
 //Angular Material
 import 'hammerjs';
-import { MatSnackBarModule, MatDialogModule, MatDialog } from '@angular/material';
+import {MatSnackBarModule, MatDialogModule, MatDialog, MatRadioModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 //JSON Editor
@@ -18,7 +18,8 @@ import initModel from '../data/graph.json';
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
-import {StopPropagation} from "../components/stopPropagation";
+import { RelGraphModule } from "../components/relationGraph";
+import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses } from '../model/modelClasses';
 import { Graph, schema } from '../model/graphModel';
@@ -118,6 +119,14 @@ debug(true, msgCount);
                     title="Apply changes">
                 <i class="fa fa-check"> </i>
             </button>
+            <button *ngIf="!showRelGraph" class="w3-bar-item w3-hover-light-grey"
+                    (click)="toggleRelGraph()" title="Show resource relationships">
+                <i class="fa fa-crosshairs"> </i>
+            </button>
+            <button *ngIf="showRelGraph" class="w3-bar-item w3-hover-light-grey"
+                    (click)="toggleRelGraph()" title="Show ApiNATOMY model">
+                <i class="fa fa-heartbeat"> </i>
+            </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i>
             </button>
@@ -137,12 +146,18 @@ debug(true, msgCount);
             </section>
             <section class="w3-row">
                 <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"> </section>
-                <webGLScene [class.w3-threequarter] = "_showJSONEditor"
-                    [modelClasses]          = "modelClasses"
-                    [graphData]             = "_graphData"
-                    (selectedItemChange)    = "onSelectedItemChange($event)"
-                    (highlightedItemChange) = "onHighlightedItemChange($event)"
-                    (editResource)          = "onEditResource($event)" >
+                <relGraph *ngIf = "showRelGraph" 
+                          [class.w3-threequarter] = "_showJSONEditor" 
+                          [graphData] = "_graphData" 
+                > 
+                </relGraph>
+                <webGLScene [hidden] = "showRelGraph"
+                        [class.w3-threequarter] = "_showJSONEditor"
+                        [modelClasses]          = "modelClasses"
+                        [graphData]             = "_graphData"
+                        (selectedItemChange)    = "onSelectedItemChange($event)"
+                        (highlightedItemChange) = "onHighlightedItemChange($event)"
+                        (editResource)          = "onEditResource($event)" >
                 </webGLScene>
             </section>
         </section>
@@ -361,13 +376,17 @@ export class TestApp {
             }
         });
     }
+
+    toggleRelGraph(){
+        this.showRelGraph = !this.showRelGraph;
+    }
 }
 
 /**
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule ],
+	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, RelGraphModule],
 	declarations: [ TestApp, StopPropagation ],
     bootstrap   : [ TestApp ],
     providers   : [

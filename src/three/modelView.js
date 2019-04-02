@@ -40,7 +40,7 @@ Group.prototype.createViewObjects = function(state){
  */
 Group.prototype.updateViewObjects = function(state){
     // Update nodes positions
-    this.visibleNodes.forEach(node => { node.updateViewObjects(state) });
+    this.visibleNodes.forEach(node => node.updateViewObjects(state));
 
     //Edge bundling
     const fBundling = ForceEdgeBundling()

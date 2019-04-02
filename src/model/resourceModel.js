@@ -369,19 +369,28 @@ export class Resource{
     toJSON(){
         let res = {};
         const visualProperties = ["viewObjects", "infoFields", "labels"];
+
         const fieldToJSON = (value) => (value instanceof Resource)? value.id: value;
+
         this::keys()::intersection(this.constructor.Model.fieldNames).forEach(key => {
             let value = this[key];
             if (!value) { return; }
-
             if (visualProperties.includes(key)) { return; }
-
             if (value::isArray()){
                 res[key] = value.map(e => fieldToJSON(e));
             } else {
                 res[key] = fieldToJSON(value)
             }
         });
+        return res;
+    }
+
+    isSubtypeOf(supertypeID){
+        let res = false;
+        if (this.id === supertypeID){ res = true; }
+        if (!res && this.supertype) { res = this.supertype.isSubtypeOf(supertypeID)}
+        if (!res && this.cloneOf) { res = this.cloneOf.isSubtypeOf(supertypeID)}
+        if (!res && this.layerIn) { res = this.layerIn.isSubtypeOf(supertypeID)}
         return res;
     }
 }
