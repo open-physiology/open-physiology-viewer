@@ -59,7 +59,7 @@ export class Group extends Resource {
         let changedLyphs = 0;
         let changedMaterials = 0;
 
-        const replaceRefToMaterial = (ref, parentID) => {
+        const replaceRefToMaterial = (ref) => {
             const prefix = "lyphMat_";
             let template = (json.lyphs || []).find(e => (e.id === prefix + ref) && e.isTemplate);
             if (!template){
@@ -67,6 +67,7 @@ export class Group extends Resource {
                 if (material) {
                     template = {
                         "id"        : prefix + material.id,
+                        "name"      : material.name,
                         "isTemplate": true,
                         "materials" : [material.id]
                     };
@@ -80,12 +81,13 @@ export class Group extends Resource {
             return ref;
         };
 
-        const replaceRefToTemplate = (ref, parentID) => {
+        const replaceRefToTemplate = (ref, parent) => {
             let template = (json.lyphs || []).find(e => e.id === ref && e.isTemplate);
             if (template) {
                 changedLyphs++;
                 let subtype = {
-                    "id"       : ref + "_" + parentID,
+                    "id"       : ref + "_" + parent.id,
+                    "name"     : template.name,
                     "supertype": template.id
                 };
                 json.lyphs.push(subtype);
@@ -99,14 +101,14 @@ export class Group extends Resource {
             if (!resource[key]) { return; }
             const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate"].includes(key);
             if (resource[key]::isArray()) {
-                resource[key] = resource[key].map(ref => replaceRefToMaterial(ref, resource.id));
+                resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
-                    resource[key] = resource[key].map(ref => replaceRefToTemplate(ref, resource.id));
+                    resource[key] = resource[key].map(ref => replaceRefToTemplate(ref, resource));
                 }
             } else {
-                resource[key] = replaceRefToMaterial(resource[key], resource.id);
+                resource[key] = replaceRefToMaterial(resource[key]);
                 if (replaceLyphTemplates) {
-                    resource[key] = replaceRefToTemplate(resource[key], resource.id);
+                    resource[key] = replaceRefToTemplate(resource[key], resource);
                 }
             }
         };

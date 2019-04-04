@@ -1,8 +1,15 @@
-import * as d3 from 'd3';
-//import * as d3 from 'd3-force-3d';
+//import * as d3 from 'd3';
+import * as d3 from 'd3-force';
+import {select, event} from 'd3-selection';
+import {attrs} from 'd3-selection-multi';
+import {drag} from 'd3-drag';
+import {inputScale} from 'd3-scale';
+import {category20} from 'd3-scale-chromatic';
+import {transition} from 'd3-transition';
+
 import {Component, ElementRef, Input, NgModule, ViewChild} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {values, pick, flatten} from 'lodash-bound';
+import {values, pick, flatten, keys} from 'lodash-bound';
 
 @Component({
     selector: 'relGraph',
@@ -25,7 +32,7 @@ import {values, pick, flatten} from 'lodash-bound';
             font: 12px sans-serif;
             border: 1px solid #666;
             pointer-events: none;
-        }        
+        }
     `]
 })
 /**
@@ -91,7 +98,15 @@ export class RelGraph {
                 }
                 (lyph.materials||[]).forEach(material => {
                     if (getNode(material) && (lyph.id === this._matPrefix + material.id)){
-                        this.data.links.push({"source": material.id, "target": lyph.id, "type"  : "material"});
+                        this.data.links.push({"source": material.id, "target": lyph.id, "type"  : "lyphFromMaterial"});
+                    }
+                })
+            });
+
+            (this._graphData.materials||[]).filter(e => getNode(e)).forEach(material => {
+                (material.materials||[]).forEach(material2 => {
+                    if (getNode(material2)){
+                        this.data.links.push({"source": material.id, "target": material2.id, "type" : "material"});
                     }
                 })
             });
@@ -117,76 +132,149 @@ export class RelGraph {
     resizeToDisplaySize(evt) {
         this.width  = this.container.clientWidth;
         this.height = this.container.clientHeight;
-        d3.select(this.svgElementRef.nativeElement)
+        select(this.svgElementRef.nativeElement)
+            .attr("left", 0)
             .attr("width", this.width).attr("height", this.height);
     }
 
     draw() {
-        //text label - first 4 characters of ID
-        //mouseover ID and Name
         let data = this.data;
-        let svg = d3.select(this.svgElementRef.nativeElement)
-            .attr("width", this.width).attr("height", this.height);
+        let svg = select(this.svgElementRef.nativeElement).attr("width", this.width).attr("height", this.height);
 
+        //Clean the view
         svg.selectAll("g").remove();
 
-        const linkColor = {
-            "diffusive"         : "#CCC",
-            "advective"         : "#000",
-            "conveyingLyph"     : "#FF0000",
-            "layer"             : "#00FF00",
-            "subtype"           : "#0000FF",
-            "coalescence"       : "#FFA500",
-            "conveyingMaterial" : "#FFC0CB",
-            "material"          : "#008000"
-        };
+        //Simulation
 
-        this.simulation = d3.forceSimulation(data.nodes)
+        let simulation = d3.forceSimulation(data.nodes)
             .force("link", d3.forceLink(data.links).id(d => d.id))
             .force("charge", d3.forceManyBody())
             .force("x", d3.forceX())
             .force("y", d3.forceY())
             .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
-        const link = svg.append("g")
+        //Links
+
+        const linkTypeColors = {
+            "diffusive"         : "#CCC",
+            "advective"         : "#000",
+            "conveyingLyph"     : "#FF0000",
+            "layer"             : "#00FF00",
+            "subtype"           : "#0000FF",
+            "coalescence"       : "#FFA500",
+            "material"          : "#000080",
+            "conveyingMaterial" : "#FFC0CB",
+            "lyphFromMaterial"  : "#008000"
+        };
+
+        const directedLinkTypes = ["layer", "subtype", "lyphFromMaterial", "material"];
+
+        //Arrow markers
+
+        svg.append("defs").selectAll("marker")
+            .data(directedLinkTypes)
+            .enter().append("marker")
+            .attr("id",   d => 'marker' + d)
+            .attr('fill', d => linkTypeColors[d])
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 20)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr('markerUnits', 'strokeWidth')
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M 0,-5 L 10, 0 L 0,5");
+
+        const link = svg.append("g").selectAll("path")
+            .data(data.links).join("path")
             .attr("stroke-opacity", 0.6)
-            .selectAll("path")
-            .data(data.links)
-            .join("path")
-            .attr("stroke", e => linkColor[e.type]);
+            .attr("stroke", d => linkTypeColors[d.type])
+            .attr("marker-end", d => "url(#marker" + d.type + ")");
 
-        const nodeLyph = svg.append("g")
-            .selectAll("circle")
+        //Nodes
+
+        const nodeTypes = {
+            "Lyph"             : {color: "#FF0000", shape: "circle", attrs: {"r": 5}},
+            "LyphFromMaterial" : {color: "#00FF00", shape: "circle", attrs: {"r": 5}},
+            "Link"             : {color: "#000000", shape: "rect",   attrs: {"width": 10, "height": 10, "x": -5, "y": -5}},
+            "Coalescence"      : {color: "#FFFF00", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}},
+            "Material"         : {color: "#008000", shape: "path",   attrs: {"d": "M -7 0 L -4 -7 L 4 -7 L 7 0 L 4 7 L -4 7 L -7 0"}}
+        };
+
+        const nodeStrokeColor = "#CCC";
+
+        const nodeLyph = svg.append("g").selectAll(nodeTypes["Lyph"].shape)
             .data(data.nodes.filter(e => e.class === "Lyph"))
-            .join("circle")
-            .attr("r", 5)
-            .attr("fill", e => e.id.startsWith(this._matPrefix)? "#00FF00" :"#FF0000");
+            .join(nodeTypes["Lyph"].shape);
 
-        const nodeLink = svg.append("g")
-            .selectAll("rect")
+        const nodeLink = svg.append("g").selectAll(nodeTypes["Link"].shape)
             .data(data.nodes.filter(e => e.class === "Link"))
-            .join("rect")
-            .attr("width", 10)
-            .attr("height", 10)
-            .attr("x", -5)
-            .attr("y", -5)
-            .attr("fill", "#000");
+            .join(nodeTypes["Link"].shape);
 
-        const nodeCoalescence = svg.append("g")
-            .selectAll("path")
+        const nodeCoalescence = svg.append("g").selectAll(nodeTypes["Coalescence"].shape)
             .data(data.nodes.filter(e => e.class === "Coalescence"))
-            .join("path")
-            .attr("d", "M -10 8 L 0 -8 L 10 8 L -10 8")
-            .attr("fill", "#FFFF00");
+            .join(nodeTypes["Coalescence"].shape);
 
-        const nodeMaterial = svg.append("g")
-            .selectAll("path")
+        const nodeMaterial = svg.append("g").selectAll(nodeTypes["Material"].shape)
             .data(data.nodes.filter(e => e.class === "Material"))
-            .join("path")
-            .attr("d", "M -7 0 L -4 -7 L 4 -7 L 7 0 L 4 7 L -4 7 L -7 0")
-            .attr("fill", "#008000");
+            .join(nodeTypes["Material"].shape);
 
-        let tooltip = d3.select(this.tooltipElementRef.nativeElement)
+        //Legends
+
+        const labelHSpacing = 15;
+        const labelVSpacing = 4;
+
+        //Link legend
+
+        const linkVSpacing  = 15;
+        const linkLegendRect = {width: 40, height: 1};
+
+        const linkLegend = svg.append("g").selectAll('.linkLegend')
+            .data(linkTypeColors::keys()).enter().append('g').attr('class', 'linkLegend')
+            .attr('transform', (d, i) => {
+                let [h, v] = [-linkLegendRect.width, i * (linkLegendRect.height + linkVSpacing) + linkVSpacing];
+                return 'translate(' + h + ',' + v + ')';
+            });
+
+        linkLegend.append('rect')
+            .attr('width', linkLegendRect.width).attr('height', linkLegendRect.height)
+            .style('fill', d => linkTypeColors[d]).style('stroke', d => linkTypeColors[d]);
+
+        linkLegend.append('text')
+            .attr('x', linkLegendRect.width  + labelHSpacing)
+            .attr('y', linkLegendRect.height + labelVSpacing)
+            .text(d => d);
+
+        //Node legend
+
+        const offset = linkTypeColors::keys().length * (linkLegendRect.height + linkVSpacing) + linkVSpacing;
+        const nodeLegendRect = {width: 12, height: 12};
+        const nodeVSpacing   = 4;
+
+        const nodeLegend = svg.append("g").selectAll('.nodeLegend')
+            .data(nodeTypes::keys())
+            .enter().append("g")
+            .attr('class', 'nodeLegend')
+            .attr('transform', (d, i) => {
+            let [h, v] = [-nodeLegendRect.width, offset + i * (nodeLegendRect.height + nodeVSpacing) + nodeVSpacing];
+            return 'translate(' + h + ',' + v + ')';
+        });
+
+        nodeLegend.each(function(d){
+            select(this).append(nodeTypes[d].shape).attrs(nodeTypes[d].attrs)
+                .attr('fill', nodeTypes[d].color)
+                .attr('stroke', nodeStrokeColor)
+        });
+
+        nodeLegend.append('text')
+            .attr('x', nodeLegendRect.width  + labelHSpacing)
+            .attr('y', nodeLegendRect.height - labelVSpacing)
+            .text(d => d);
+
+        //Tooltips
+
+        let tooltip = select(this.tooltipElementRef.nativeElement)
             .style("opacity", 0);
 
         let text = svg.append("g")
@@ -194,27 +282,62 @@ export class RelGraph {
             .data(data.nodes)
             .enter().append("text")
             .attr("y", 12)
+            .style("pointer-events", "none")
             .style("font", "10px sans-serif")
             .style("text-anchor", "middle")
             .style("opacity", 0.6)
             .text(d => d.id);
 
+        //Behavior on drag
+
+        let nodeDrag = drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+
+        function dragstarted(d) {
+            if (!event.active) {simulation.alphaTarget(0.3).restart(); }
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(d) {
+            if (!event.active) {simulation.alphaTarget(0);}
+        }
+
+        //Set common node attributes
+
         [nodeLink, nodeCoalescence, nodeMaterial, nodeLyph].forEach(node => {
-            node.attr("stroke", "#ccc").attr("stroke-width", 1.5);
+            node.attrs(d => nodeTypes[d.class].attrs)
+                .attr("stroke", nodeStrokeColor)
+                .attr("fill", e => (e.class ==="Lyph" && e.id.startsWith(this._matPrefix))
+                    ? nodeTypes["LyphFromMaterial"].color
+                    : nodeTypes[e.class].color);
+
+            node.on("dblclick", d => {
+                d.fx = null;
+                d.fy = null;
+            });
 
             node.on("mouseover", d => {
                 tooltip.transition().duration(200).style("opacity", .9);
                 tooltip.html(`<div>${d.id}: ${d.name||"?"}<\div>`)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px"); //TODO fix positions
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
 
-            node.call(this.drag(this.simulation));
+            node.call(nodeDrag);
         });
 
-        this.simulation.on("tick", () => {
+        //Update
 
+        simulation.on("tick", () => {
             const boundX = x => Math.min(this.width, Math.max(0, x));
             const boundY = y => Math.min(this.height, Math.max(0, y));
 
@@ -235,34 +358,9 @@ export class RelGraph {
                 e.attr("transform", d => "translate(" + boundX(d.x) + "," + boundY(d.y) + ")"));
         });
 
-        //invalidation.then(() => simulation.stop());
         return svg.node();
     }
 
-    drag(simulation){
-
-        function dragstarted(d) {
-            if (!d3.event.active) { simulation.alphaTarget(0.3).restart(); }
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-
-        function dragged(d) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-
-        function dragended(d) {
-            if (!d3.event.active) { simulation.alphaTarget(0); }
-            d.fx = null;
-            d.fy = null;
-        }
-
-        return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-    }
 }
 
 @NgModule({

@@ -85,7 +85,6 @@ export class Lyph extends Shape {
      * @param template - lyph template
      */
     static expandTemplate(lyphs, template){
-        //TODO override to avoid endless recursion
         if (!template || template.inactive || !lyphs) { return; }
 
         //Validate subtype
@@ -121,7 +120,10 @@ export class Lyph extends Shape {
                 console.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
-            let lyphLayer = {"id" : `${layerParent.id}_${targetLyph.id}`};
+            let lyphLayer = {
+                "id" : `${layerParent.id}_${targetLyph.id}`,
+                "name": `${layerParent.name || '?'} in ${targetLyph.name || '?'}`
+            };
             lyphs.push(lyphLayer);
             if (layerParent.isTemplate){
                 lyphLayer.supertype = layerParent.id;
