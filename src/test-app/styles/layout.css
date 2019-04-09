@@ -1,6 +1,9 @@
 #canvasContainer{
   height: 100%;
 }
+#svgContainer{
+  height: 100%;
+}
 
 html, body{
   height : 100%;

@@ -1,7 +1,7 @@
 import {values} from 'lodash-bound';
 import {Group} from "../model/groupModel";
 import {LINK_GEOMETRY} from "../model/visualResourceModel";
-import {ForceEdgeBundling} from "./d3-forceEdgeBundling";
+import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
 import {
     commonTemplate, copyCoords,
     extractCoords

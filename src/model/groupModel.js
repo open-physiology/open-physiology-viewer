@@ -344,6 +344,10 @@ export class Group extends Resource {
        return (this.lyphs||[]).filter(e => e.isVisible && e.axis && e.axis.isVisible);
     }
 
+    get create3d(){
+        return (this.lyphs||[]).find(e => e.create3d);
+    }
+
     /**
      * Experimental - export visible object positions (or points)
      */

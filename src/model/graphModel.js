@@ -60,7 +60,7 @@ export class Graph extends Group{
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
-                if (clsName && (clsName !== "Shape")){ //TODO exclude all abstract classes
+                if (clsName && !modelClasses[clsName].Model.schema.abstract){
                     let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
 
                     //Include newly created entity to the main graph
@@ -198,8 +198,8 @@ export class Graph extends Group{
         return res;
     }
 
-    static excelToJSON(model, modelClasses = {}){
-        model::pick(Graph.Model.relationshipNames);
+    static excelToJSON(inputModel, modelClasses = {}){
+        let model = inputModel::pick(Graph.Model.relationshipNames);
 
         const borderNames = ["inner", "radial1", "outer", "radial2"];
         model::keys().forEach(relName => {
@@ -233,7 +233,8 @@ export class Graph extends Group{
                         res = res.replace(/\s/g, '');
                     }
 
-                    const strToValue = x => (itemType === "number")? parseInt(x): (itemType === "boolean")? (x.toLowerCase() === "true") : x;
+                    const strToValue = x => (itemType === "number")? parseInt(x)
+                        : (itemType === "boolean")? (x.toLowerCase() === "true") : x;
 
                     if (key === "length" || key === "thickness"){
                         res = {min: parseInt(res), max: parseInt(res)};

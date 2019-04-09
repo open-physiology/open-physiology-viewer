@@ -121,7 +121,7 @@ const WindowResize = require('three-window-resize');
                                       (change) = "toggleLayout('showLayers')"
                                       [checked] = "config.layout.showLayers"> Layers
                         </mat-checkbox>
-                        <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                        <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" *ngIf="graphData?.create3d" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
                                       (change) = "toggleLayout('showLyphs3d')"
                                       matTooltip = "Shows 3D geometry for resources with property 'create3d' set to true"
                                       [checked] = "config.layout.showLyphs3d"> Lyphs 3D
@@ -313,7 +313,6 @@ export class WebGLSceneComponent {
         this.renderer.setClearColor(0xffffff);
 
         this.container = document.getElementById('canvasContainer');
-
         let width = this.container.clientWidth;
         let height = this.container.clientHeight;
 

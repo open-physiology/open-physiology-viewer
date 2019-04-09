@@ -473,8 +473,8 @@
           "description": "Process type",
           "type": "string",
           "enum": [
-            "advective",
-            "diffusive"
+            "ADVECTIVE",
+            "DIFFUSIVE"
           ]
         },
         "conveyingMaterials": {
@@ -554,10 +554,7 @@
         }
       },
       "dependencies" : {
-        "lineWidth": [
-          "stroke"
-        ],
-        "conveyingType": ["conveyedMaterials"]
+        "lineWidth": ["stroke"]
       }
     },
     "Material": {
@@ -1189,7 +1186,16 @@
       "properties": {
         "config": {
           "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
-          "type": "object"
+          "type": "object",
+          "properties": {
+            "filter": {
+              "description": "Identifiers of resources to exclude from the relationship graph",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }
