@@ -5,16 +5,18 @@
  In the nutshell, the lyph viewer expects as input a JSON object that 
   contains sets of entities which are either 
   nodes, links, lyphs, materials or groups which contain subsets of these entities. 
-  Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology. 
+  Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology.
+
+  <img class="screen-shot no-border" src="asset/classDiagram.png">
   
  In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. 
 
 ## Resource
  All ApiNATOMY modelling elements have a common ancestor, an abstract resource that defines common properties present in all objects of the model.
   
- All entities come with basic properties such as `id` and `name` to identify the physiological element, and `color` to display the corresponding visual object in the viewer. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case. 
+ All entities come with basic properties such as `id` and `name` to identify the physiological element. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case.
  
- Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Reion`, `Material` or `Group`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology. 
+ Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Region`, `Border`, `Material`, `External`, `Group`, `Tree`, `Coalescence`, or `Graph`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology.
   
  The property `infoFields` lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the `infoFields` property of a lyph object
  ```json
@@ -22,8 +24,6 @@
  ```
  will instruct the viewer to show the lyph's `id`, `name`, `topology`,
  the signature of the link conveying the lyph, and the lyph's layers.
-  
- Each object can have auxiliary boolean parameters `hidden`, `inactive`, and `skipLabels` that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.
 
  The models of physiology systems may contain thousands or even millions of entities. While the majority of the information will come from existing data sources (publicly maintained data sets, ontologies, clinical trials, experiments, etc.), and converted to the expected format with the help of some data manipulation scripts, many properties in our model are specific for the lyph viewer. The derived input model has to be augmented with properties that help the viewer to produce a meaningful and clean graph layout. It is likely that it will take at least several attempts for the modeller to figure out the proper constraints for the intuitive visualization of a certain model. For example, one may want to draw links that represent all blood vessels as straight thick red lines or show neural connections as curved thin blue paths.
  
@@ -62,7 +62,13 @@
    <img src="asset/interpolate.png" width="75%" caption = "Assigning colors to a group of lyphs using a color interpolation scheme">
 
  For the details on supported color schemes, and specification format for interpolating colors and distance offsets, see the [ApiNATOMY JSON Schema](../schema/index.html) documentation.
-     
+
+### Visual resource
+ `Visual resource` is a subclass of `Resource` that lists properties common for resources with visual artifacts, such as shape and its border (lyph or region), material, node, and link.
+
+ The most basic visual artifact property is `color` - the color of the resource helps to interpret the model, identify resources that originate from the common template, etc. Additionally, each visual resource can have auxiliary boolean parameters `hidden`, `inactive`, and `skipLabels` that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.
+
+
 ## Node  
 The ApiNATOMY model essentially defines a graph where the positions of nodes are computed by the force-directed layout. Nodes connect links which convey lyphs, the main modelling concept in the ApiNATOMY framework.
 
@@ -202,7 +208,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  The property `hostedNodes` contains a set of nodes that are positioned on the link.
  This set should never include the link's source and target nodes.
 
-##Shape
+## Shape
  A shape is an abstract concept that defines properties and relationships shared by ApINATOMY resources that model physiology entities, namely, lyphs and regions. An important part of the shape abstraction is its border.
 
  The property `internalNodes` may contain a set of nodes that have to be positioned on a shape. Such nodes will be projected to the shape's surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph's axis inside of the lyph, the force-directed layout method will not converge.
@@ -276,7 +282,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
      ]
   }
  ```
- 
 
   A list of materials used in a lyph is available via its field `materials`, i.e.,:
  ```json
@@ -355,7 +360,6 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
  ```
  In the future, we plan to add an option to create regions based on paths in SVG files.
 
- 
  ### Border
  
  A flat shape such as lyph or region has a border. The border is an object that extends the class `resource` and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its `border` field.
@@ -440,9 +444,62 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
     ]
  ```
  
- In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.  
-    
-    
+ In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.
+
+### Graph
+ Graph is the top-level group that in addition to all the group parameters contains a `config` object. The field is not part of the semantic physiology model but it can be used to define user preferences regarding the visualization of a certain model. For example, a field `filter` within this object is currently used to exclude resources with given identifiers from appearing in the relationship graph.
+ ```json
+    "config": {
+        "filter": ["6", "11", "12", "14", "15", "16", "17", "20", "21"]
+    }
+ ```
+ Among other properties that can be stated here are the default label fields.
+
+## Tree
+Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An `omega tree` is a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.
+
+The `Tree` resource class allows users to specify a root of the tree via an optional property `root` that can point into an existing node. If the root node is not specified, it is either automatically generated or assigned to coincide with the source node of a link that represents the first level of the tree.
+
+We define the `level` of a tree branch as the number of edges between the target node of the link and the root. A user may specify the required number of levels in a tree via its optional property `numLevels` which expects an integer value greater than 1. Given the desired number of levels, the ApiNATOMY lyph viewer can generate a `group` (a read-only property that refers to a `Group` resource and encompasses all necessary nodes and links) to represent the tree. If the property `lyphTemplate` points to an abstract lyph, the generated links for each tree level then convey lyphs which are subtypes of this template.
+
+Alternatively, the tree branches can be specified, partially or fully, via the property `levels` which expects an array of partial or complete link definitions corresponding to the tree levels. If this array contains an empty object, the missing tree level branch is auto-generated, if instead it points to an existing Link resource, the corresponding link then becomes the branch of the tree. If `source`, `target`, or both ends of the link resource are not specified, they are auto-generated. Otherwise, it is expected that incident links (connected tree branches) share a common node; the tool will issue a warning if this is not the case.
+
+```json
+  "trees": [
+        {
+             "id"          : "axonal",
+             "name"        : "Axonal omega tree",
+             "root"        : "a",
+             "numLevels"   : 5,
+             "lyphTemplate": "neuronBag"
+        },
+        {
+             "id"          : "UOT",
+             "name"        : "Urinary Omega Tree",
+             "root"        : "b",
+             "levels"      : ["lnk1", "lnk2", "lnk3", "lnk4", "lnk5", "lnk6", "lnk7", "lnk8", "lnk9", "lnk10",
+                "lnk11", "lnk12", "lnk13", "lnk14", "lnk15", "lnk16", "lnk17", "lnk18", "lnk19", "lnk20", "lnk21"],
+             "branchingFactors": [1, 1, 2, 1, 1, 1, 3, 3, 20, 8, 9, 8, 9]
+        }
+    ]
+```
+
+Our [examples](./examples.html) section demonstrates in full detail how to define omega trees using both `lyphTemplate` and `levels` properties. A combination of both approaches may help modellers to reduce an effort while specifying multi-level trees where the majority of the branches convey the same lyphs (involve the same tissue structures) while certain levels either convey different lyphs or are characterized by unique features that need to be modelled in a special way.
+
+The trees defined this way actually do not have any branching, they look like liner chains of enumerated links. We refer to such trees as `canonical`, meaning that they define the basic structure necessary to generate a branching tree that models an organ or a physiological subsystem. The branching can happen at each level of the canonical tree definition, and the number of branches per level can be specified in the `branchingFactors` array. The size of the array does not need to coincide with the size of the `levels` array - branching stops at the last level with branching factor greater than 1.
+
+A user may indicate that a branching tree instance is required in addition to a canonical tree specification. This is done with the help of the boolean property `createInstance`. The generated subgraph representing a branching tree instance is available via the read-only property `instance` in the expanded ApiNATOMY model. The lyphs for a tree instance are assigned `create3d` property, i.e., the generated tree instance can be visualized using solid 3d lyph renderings.
+
+In the case of trees with branches that convey lyphs derived from a common `lyphTemplate` pattern, we can use the `topology` property of the lyph template to define the overall topology of the tree.
+Generally, lyphs originating from a lyph template inherit its topology. However, the lyphs conveyed by the tree edges work as a single conduit with topological borders at the start and the end levels (root and leaves) of the tree compliant with the borders of the lyph template. Thus, the topology of the lyphs on tree edges is defined according to the table below:
+
+| Lyph template | Radial borders | Tree |Level 1|Levels 2..N-1| Level N|
+|:-------------:|:--------------:|:----:|:-----:|:-----------:|:------:|
+| TUBE          | both open      | TUBE | TUBE  | TUBE        | TUBE   |
+| BAG           | 1st closed     | BAG  | TUBE  | TUBE        | BAG    |
+| BAG2          | 2nd closed     | BAG2 | BAG2  | TUBE        | TUBE   |
+| CYST          | both closed    | CYST | BAG2  | TUBE        | BAG    |
+
  
  
   

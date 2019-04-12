@@ -137,17 +137,7 @@ Hence, after the generation of entities to represent required tree structures an
     "subtypes": [axonal_lyph1,...,axonal_lyph5, dendrite_lyph1, hillock]
 ```
 
-Generally, each lyph originating from a lyph template, inherits its topology.
-However, in an omega tree model, the topology of the lyph template defines not the topology of individual level lyphs, but the overall topology of the tree. The lyphs conveyed by the tree edges can be seen as a single conduit with topological borders at the start and the end levels (root and leaves) of the tree compliant with the borders of the lyph template. Thus, the topology of the lyphs on tree edges is defined according to the table below:
-
-| Lyph template | Radial borders | Tree |Level 1|Levels 2..N-1| Level N|
-|:-------------:|:--------------:|:----:|:-----:|:-----------:|:------:|
-| TUBE          | both open      | TUBE | TUBE  | TUBE        | TUBE   |
-| BAG           | 1st closed     | BAG  | TUBE  | TUBE        | BAG    |
-| BAG2          | 2nd closed     | BAG2 | BAG2  | TUBE        | TUBE   |
-| CYST          | both closed    | CYST | BAG2  | TUBE        | BAG    |
-
-In our example, the lyph template is of type `BAG`. Hence, only the conveying lyph at the end levels, `dendrite_lyph1` and `axonal_lyph5`, are of the type `BAG` while all the intermediate level lyphs, `axonal_lyph1,...,axonal_lyph4`, are of the type `TUBE`.
+The lyphs conveyed by the tree edges are seen as a single conduit with topological borders at the start and the end levels (root and leaves) of the tree compliant with the borders of the lyph template. In our example, the lyph template is of type `BAG`. Hence, the conveying lyphs at the end levels, `dendrite_lyph1` and `axonal_lyph5`, are of the type `BAG` while all the intermediate level lyphs, `axonal_lyph1,...,axonal_lyph4`, are of the type `TUBE`.
 
 The topology of the `hillock` lyph, which also inherits the layer structure from the `neuronBag` lyph template, has to be explicitly defined as `TUBE` to override the inherited topology from the template.
 
@@ -193,7 +183,7 @@ urine (URN), transitional epithelium (TE), basement membrane (BM), muscosa (Mus)
 ```
 
 Whenever the specific lyphs refer to abstract lyphs as their layers, meaning that the conduit we model consists of certain tissues, the lyph viewer automatically generates lyph instances and replaces the conduit layers with the references to the generated lyphs representing tissues within the conduits, i.e., `urine in the intravesical urethra`. The generated lyphs will refer to the template via their `supertype` field and later inherit a set of template properties, namely,
- `color`, `scale`, `height`, `width`, `length`, and `thickness`, as well as the references in the field `external` which contains annotations that relate the ApiNATOMY lyph to existing ontological terms.
+ `color`, `scale`, `height`, `width`, `length`, `thickness`, as well as the references in the fields `external` and `materials`.
 
 In the ApiNATOMY data model, trees are templates that replicate the given lyph template to the requited number of levels. However, it may be useful to define some or all of the tree levels by referring to already existing links.
 This is the case when there is no common lyph template that applies to all tree levels or when the tree is part of the bigger models and its elements are connected to other parts of the graph.

@@ -1,5 +1,6 @@
-import { Group }    from './groupModel';
 import { Tree }     from './treeModel';
+import { Channel }  from './channelModel';
+import { Group }    from './groupModel';
 import { Graph }    from './graphModel';
 import { Resource, External } from './resourceModel'
 import { VisualResource, Material, Node, Link } from './visualResourceModel'
@@ -14,18 +15,19 @@ export const modelClasses = {
     "Shape"          : Shape,
 
     /*Resources */
-    "External": External,
-    "Coalescence": Coalescence,
-    "Group"   : Group,
-    "Tree"    : Tree,
-    "Graph"   : Graph,
+    "External"     : External,
+    "Coalescence"  : Coalescence,
+    "Channel"      : Channel,
+    "Tree"         : Tree,
+    "Group"        : Group,
+    "Graph"        : Graph,
 
     /*Visual resources */
-    "Node"    : Node,
-    "Link"    : Link,
-
-    "Material": Material,
-    "Region"  : Region,
-    "Lyph"    : Lyph,
-    "Border"  : Border
+    "Node"         : Node,
+    "Link"         : Link,
+    /* Shapes */
+    "Material"     : Material,
+    "Region"       : Region,
+    "Lyph"         : Lyph,
+    "Border"       : Border
 };

@@ -200,6 +200,11 @@
         "inactive": {
           "description": "A boolean flag to indicate that this resource should not be manipulated in the appropriate context (i.e., lyph - highlighted, group - toggled, template - expanded)",
           "type": "boolean"
+        },
+        "generated": {
+          "description": "A boolean flag to mark automatically generated resources",
+          "type" : "boolean",
+          "readOnly" : true
         }
       }
     },
@@ -592,6 +597,21 @@
             ]
           },
           "relatedTo": "materials"
+        },
+        "transportedBy": {
+          "description": "Channels that transfer the current material",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Channel"
+              }
+            ]
+          },
+          "relatedTo": "materials"
         }
       }
     },
@@ -900,6 +920,33 @@
           "type": "number",
           "minimum": 0,
           "maximum": 100
+        },
+        "channels"       : {
+          "description": "ID or reference of the channel which this lyph houses",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Channel"
+              }
+            ]
+          },
+          "relatedTo": "housingLyphs",
+          "uniqueItems": true
+        },
+        "fromMaterial"   : {
+          "description": "Material which was used to generate the current lyph",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Material"
+            }
+          ]
         }
       }
     },
@@ -932,159 +979,6 @@
         }
       }
     },
-    "Group"   : {
-      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
-      "allOf":[{
-        "$ref": "#/definitions/Resource"
-      }],
-      "properties": {
-        "nodes": {
-          "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          }
-        },
-        "links": {
-          "description": "Links schematically represent structural elements of the human physiology relevant to the explanation of a certain physiological process: blood vessels, neural connections, pulmonary vessels, etc.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          }
-        },
-        "lyphs": {
-          "description": "Lyphs provide schematic explanation of physiology structures, i.e., tissue layers that constitute a certain organ. By rotating the lyph shape around its axis, we can create a tube (open, semi-closed or closed on both sides) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neural cell.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          }
-        },
-        "regions": {
-          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the current ApiNATOMY model but are useful for general context",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Region"
-              }
-            ]
-          }
-        },
-        "references": {
-          "description": "References to external resources",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/External"
-              }
-            ]
-          }
-        },
-        "coalescences": {
-          "description": "Coalescences, i.e., groups of overlapping lyphs",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Coalescence"
-              }
-            ]
-          },
-          "default": []
-        },
-        "materials": {
-          "description": "Biological materials, chemical elements and compounds, used in the model",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          }
-        },
-        "trees": {
-          "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Tree"
-              }
-            ]
-          }
-        },
-        "groups": {
-          "description": "Semantically meaningful groups of resources that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Group"
-              }
-            ]
-          },
-          "relatedTo": "inGroups",
-          "default": []
-        },
-        "inGroups" : {
-          "description": "Set of groups that include the current group (subgraph)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Group"
-              }
-            ]
-          },
-          "relatedTo": "groups",
-          "default": []
-        }
-      }
-    },
     "Coalescence": {
       "description": "Defines a group of lyphs with overlapping layers",
       "allOf":[{
@@ -1106,6 +1000,51 @@
           },
           "relatedTo": "inCoalescences",
           "default": []
+        }
+      }
+    },
+    "Channel": {
+      "description": "Defines a chain of lyphs that transport materials",
+      "allOf":[{
+        "$ref": "#/definitions/Resource"
+      }],
+      "properties": {
+        "materials": {
+          "description": "Biological materials, chemical elements and compounds, conveyed by the channel",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          },
+          "relatedTo": "transportedBy",
+          "default": []
+        },
+        "housingLyphs": {
+          "description": "Lyphs that house the channel",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "channels",
+          "default": []
+        },
+        "group": {
+          "description": "Group (subgraph) that defines a linear chain for the given channel template",
+          "$ref": "#/definitions/Group",
+          "readOnly": true
         }
       }
     },
@@ -1177,6 +1116,173 @@
           "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
           "$ref": "#/definitions/Group",
           "readOnly": true
+        }
+      }
+    },
+    "Group"   : {
+      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
+      "allOf":[{
+        "$ref": "#/definitions/Resource"
+      }],
+      "properties": {
+        "nodes": {
+          "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          }
+        },
+        "links": {
+          "description": "Links schematically represent structural elements of the human physiology relevant to the explanation of a certain physiological process: blood vessels, neural connections, pulmonary vessels, etc.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          }
+        },
+        "lyphs": {
+          "description": "Lyphs provide schematic explanation of physiology structures, i.e., tissue layers that constitute a certain organ. By rotating the lyph shape around its axis, we can create a tube (open, semi-closed or closed on both sides) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neural cell.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          }
+        },
+        "materials": {
+          "description": "Biological materials, chemical elements and compounds, used in the model",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          }
+        },
+        "regions": {
+          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the current ApiNATOMY model but are useful for general context",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          }
+        },
+        "references": {
+          "description": "References to external resources",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/External"
+              }
+            ]
+          }
+        },
+        "coalescences": {
+          "description": "Coalescences, i.e., groups of overlapping lyphs",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Coalescence"
+              }
+            ]
+          },
+          "default": []
+        },
+        "channels": {
+          "description": "Templates that define channel patterns. Channel templates are used to automatically generate groups (subgraphs) representing process chains.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Channel"
+              }
+            ]
+          }
+        },
+        "trees": {
+          "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Tree"
+              }
+            ]
+          }
+        },
+        "groups": {
+          "description": "Semantically meaningful groups of resources that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Group"
+              }
+            ]
+          },
+          "relatedTo": "inGroups",
+          "default": []
+        },
+        "inGroups" : {
+          "description": "Set of groups that include the current group (subgraph)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Group"
+              }
+            ]
+          },
+          "relatedTo": "groups",
+          "default": []
         }
       }
     },

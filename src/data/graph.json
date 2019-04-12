@@ -400,6 +400,7 @@
         "58",
         "54"
       ],
+      "channels": ["mc1"],
       "assign": [
         {
           "path": "$.layers[0]",
@@ -1842,6 +1843,27 @@
         "34",
         "35"
       ]
+    },
+    {
+      "id": "grp3",
+      "links": ["lnk22", "lnk23", "lnk24", "lnk25", "lnk26", "lnk27", "lnk28", "lnk29", "lnk30"],
+      "nodes": ["node2A", "node2B", "node2C", "node2D", "node3A", "node3B", "node3C", "node3D", "node4A","node4B", "node4C", "node4D"],
+      "lyphs": ["44", "45", "46", "76", "78", "80", "77", "79", "81"]
+    }
+  ],
+  "channels": [
+    {
+      "id"           : "mc1",
+      "name"         : "Na-Ca exchanger",
+      "external"     : ["PR:Q01728"],
+      "materials"    : ["49", "51"]
+    },
+    {
+      "id"          : "mc2",
+      "name"        : "SR Ca-ATPase",
+      "external"    : ["PR:P16615"],
+      "materials"   : ["51"],
+      "housingLyphs": ["63"]
     }
   ],
   "id": "Urinary Omega Tree",

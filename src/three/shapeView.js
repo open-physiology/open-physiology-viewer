@@ -20,6 +20,9 @@ import {
     THREE
 } from "./utils";
 
+/**
+ * @property center
+ */
 Object.defineProperty(Lyph.prototype, "center", {
     get: function() {
         let res = new THREE.Vector3();
@@ -41,12 +44,19 @@ Object.defineProperty(Lyph.prototype, "center", {
     }
 });
 
+/**
+ * @property points
+ */
 Object.defineProperty(Lyph.prototype, "points", {
     get: function() {
         return (this._points||[]).map(p => this.translate(p))
     }
 });
 
+/**
+ * Set visibility of object's material (children may remain visible even if the object is hidden)
+ * @param isVisible
+ */
 Lyph.prototype.setMaterialVisibility = function(isVisible){
     if (this.viewObjects["2d"]) {
         this.viewObjects["2d"].material.visible = isVisible;
@@ -218,6 +228,21 @@ Lyph.prototype.updateViewObjects = function(state) {
     this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Lyph));
 };
 
+
+/**
+ * @property polygonOffsetFactor
+ */
+Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
+    get: function() {
+        return Math.min(
+            ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
+                (this[prop].polygonOffsetFactor || 0) - 1: 0));
+    }
+});
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Positions a point on a region surface
  * @param p0 - initial point (coordinates)
@@ -255,6 +280,17 @@ Region.prototype.updateViewObjects = function(state) {
     this.border.updateViewObjects(state);
     this.updateLabels(state,  this.center.clone().addScalar(state.labelOffset.Region));
 };
+
+
+/**
+ * @property polygonOffsetFactor
+ */
+Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
+    get: function() { return 1; }
+});
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Returns coordinates of the bounding box (min and max points defining a parallelogram containing the border points)
@@ -441,21 +477,9 @@ Border.prototype.updateViewObjects = function(state){
     (this.host.internalNodes || []).forEach((node, i) => placeNodeInside(node, i, this.host.internalNodes.length, center));
 };
 
-
-
-
-Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
-    get: function() { return 1; }
-});
-
-Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
-    get: function() {
-        return Math.min(
-        ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
-            (this[prop].polygonOffsetFactor || 0) - 1: 0));
-    }
-});
-
+/**
+ * @property polygonOffsetFactor
+ */
 Object.defineProperty(Border.prototype, "polygonOffsetFactor", {
     get: function() {
         return this.host? this.host.polygonOffsetFactor: 0;

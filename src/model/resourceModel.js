@@ -393,6 +393,14 @@ export class Resource{
         if (!res && this.layerIn) { res = this.layerIn.isSubtypeOf(supertypeID)}
         return res;
     }
+
+    containsMaterial(materialID){
+        let res = (this.materials||[]).find(e => e.id === materialID);
+        if (!res && this.supertype) { res = this.supertype.containsMaterial(materialID)}
+        if (!res && this.cloneOf) { res = this.cloneOf.containsMaterial(materialID)}
+        if (!res && this.fromMaterial) { res = this.fromMaterial.containsMaterial(materialID)}
+        return res;
+    }
 }
 
 export class External extends Resource {}

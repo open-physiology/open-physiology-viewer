@@ -1,13 +1,13 @@
 # Overview
  
-<img class="screen-shot no-border" src="asset/main.png" width="600px"> 
- 
 The ApiNATOMY lyph viewer shows 3d schematics of physiology models.
 The lyph viewer is a graphical component that consists of
 
 * a canvas that features a dynamic graph rendered using a 3D force-directed layout algorithm;
 * a control panel that allows users to change parameters of the viewer and select parts of the model to display.
- 
+
+<img class="screen-shot no-border" src="asset/main.png">
+
 The use of the ApiNATOMY lyph viewer component is illustrated via the test application that allows the user to load an ApiNATOMY data model from the local file system. In addition to the aforementioned component, the demo application includes:
  
 * a header and a footer with relevant project information;
@@ -15,6 +15,24 @@ The use of the ApiNATOMY lyph viewer component is illustrated via the test appli
 * an integrated JSON editor to overview, analyze and modify the chosen data model;
 * a dedicated form-based resource editor for assisted editing of model resources;
 * an svg-based viewer that helps users to overview the structural relationships among model resources, including derived (auto-generated) resources.
+
+## Model input
+
+The lyph viewer accepts as input a JSON-based object that defines ApiNATOMY resources, see [model](./model.html) section for more detail. The model can be edited using external tools or with the help of a build-in JSON editor and custom resource editor within the demo app.
+
+The image below shows an integrated ACE-based JSON editor. The editor uses the ApiNATOMY JSON Schema for interactive validation - the lines that violate the schema model are marked with error or warning signs.
+
+<img class="screen-shot no-border" src="asset/overview.png">
+
+Alternatively, the input model can be edited with the help of the form-based editor as shown in the image below. The fields in the form are also based on the ApiNATOMY JSON schema and are preconfigured to assist the modeller with the choice of correct options, i.e., multi-selection fields that expect references to lyphs, show all suitable lyphs in the model.
+
+<img class="screen-shot no-border" src="asset/resourceEditor.png">
+
+Users that prefer working with a table-style data, can define an ApiNATOMY model using Excel spreadsheets.
+The lyph viewer app can open .xlsx files and convert their content to a corresponding JSON-based model.
+The recognized Excel format should specify ApiNATOMY resources in separate pages named after the Graph's fields, namely, `lyphs`, `materials`, `links`, `nodes`, `coalescences`, and `groups`. Each of the pages can contain columns named as the corresponding resource class properties, i.e., `id`, `name`, `external`, `conveyingLyph`, etc. for the class `Lyph` in the page `lyphs`. In the Excel lyph specification, one can assign content to a lyph border using columns `inner`, `radial1`, `outer`, and `radial2`; the content of these columns is then mapped to the property `border.borders` in the JSON specification which defines an array of 4 lyph borders.
+
+A modified model must be saved using the dedicated button on the left hand menu panel. After that it is processed as described in the [Model assembly](#Model assembly) section below and an in-memory expanded model with auto-generated resources is created. This model is then visualized in the main canvas. One can also serialize this model using the menu items from the right-hand panel - the model can be either stored in a file as it is, or one can opt to serialize it in a form of a dictionary where the top object lists all resources with their unique identifiers as keys.
 
 Sample ApiNATOMY models, including test models used in this documentation, can be found in the project's [repository at GitHub](https://github.com/open-physiology/open-physiology-viewer/tree/master/test/data).
 
@@ -30,32 +48,45 @@ Below we describe key stages in user model post-processing in order to prepare i
 Model authors aware of the post-processing procedures are more likely to understand the causes of
 wrong layouts and adjust their models accordingly:
 
-1. If the tree objects are present in the model, we generate tree-like graph structures and include all
-created resources (nodes, links, lyphs, etc.) to the main graph (or a parent group containing the tree for nested models).
-The procedure replicates the tree lyph template to all generated edges (links) and assigns their topology to define overall boundaries of the tree-like conduits. At the end of this stage, the lyph template
+1. Many resources that domain experts need for modelling are abstract assemblies of physiology subsystems (materials, cells, neuron pathways). It is convenient to specify such resources once and place them to the context they are used in as many times as needed. On the other hand, the ApiNATOMY model viewer creates a visual artifact for each unique visual resource (lyph, node, link) in the model. Hence, the first step is to replace the abstract templates with resource instances that inherit the majority of their characteristics from the templates. The tool identifies references to materials and lyph templates in all the fields that are expected to contain lyphs as building parts, automatically creates lyph instances with necessary characteristics and replaces abstract references with instance references. All derived or cloned resources within this step can be overviewed with the help of the [relationship graph](#Relationship graph).
+
+2. If tree objects are present in the model, we generate tree-like graph structures and include all
+created resources (nodes, links, lyphs, etc.) to the main graph (or a parent group containing the tree for nested models). The procedure replicates the tree lyph template to all generated edges (links) and assigns their topology to define overall boundaries of the tree-like conduits. At the end of this stage, the lyph template
 is linked to the newly created blank lyphs via its `subtypes` property.
-Check our [example](examples) section for a run-through scenario with tree definitions.
+Check our [example](./examples.html) section for a run-through scenario with tree definitions.
 
-2. At the next step, we process lyph templates: all subtypes of a lyph template inherit its layer structure,
-color and size properties (unless they are overridden for the lyphs individually).
+3. At the next step, we process lyph templates: all subtypes of a lyph template inherit
+ its `layers`, `color`, size-related properties, namely, `scale`, `height`, `width`, `length`,
+ and `thickness` (unless they are overridden for the lyphs individually), `external` annotations, constituent `materials`, and auxiliary fields such as `comments` and `create3d`.
 
-3. After auto-creating resources originating from tree and lyph templates, the model's graph structure is almost ready to be visualized. Hence, we create ApiNATOMY model objects and replace all IDs with references. Lyph and region borders are auto-created and merged with user-defined border content. Missing links and nodes for internal lyphs are also auto-created.
+4. After auto-creating resources originating from tree and lyph templates, the model's graph structure is almost ready to be visualized. Hence, we create ApiNATOMY model objects and replace string identifiers with corresponding object references. Lyph and region borders are auto-created and merged with user-defined border content. Missing links and nodes for internal lyphs are also auto-created.
  By default, they are invisible. However, their presence is required for
- lyph positioning and sizing, they can also be accessed and customized via the JSONPath `assign` expressions.
- We also perform group inclusion analyses at this stage and include nested group resources into
- parent groups.
+ lyph positioning and sizing, they can also be accessed and customized via the JSONPath `assign` expressions.  We also perform group inclusion analyses at this stage and include nested group resources into parent groups.
 
-4. As the result of the previous step, the main graph has a complete map of all model resources
-regardless of where they were defined, i.e., all references can be resolved. If the tool detected IDs without
-corresponding resource definitions, we will auto-generate such objects setting their `ID` and `class` properties, all other parameters will be set to default values as defined in the
+5. As the result of the previous step, the main graph has a complete map of all model resources
+regardless of where they were defined, i.e., all references can be resolved. If the tool detected IDs without corresponding resource definitions, we will auto-generate such objects setting their `ID` and `class` properties, all other parameters will be set to default values as defined in the
 [ApiNATOMY JSON Schema](../schema/index.html).
 
-5. To be able to fully connect related resources, we synchronize symmetric properties.
+6. To be able to fully connect related resources, we synchronize symmetric properties.
 In a model, a user may specify, for example, that `A` has a layer `B` and that `C` is a layer in `A`,
 hence `A` actually has two layers, `B` and `C`. At this stage, we analyze and integrate related
 definitions into a complete and consistent model.
 
-6. After that we process model customization via the JSONPath queries in `assign` and `interpolate` properties. This is done in two steps:
- ..1. we create dynamic relationships by assigning `relationship` fields, i.e., `layers=["B"]`. The tool will replace IDs in these fields with object references (thus, only IDs of known objects should be used in `assign` expressions, unresolved IDs will be ignored).
- ..2. we complete model customization by assigning qualitative properties to resources selected
+7. After that we process model customization via the JSONPath queries in `assign` and `interpolate` properties. This is done in two steps:
+.. 1. we create dynamic relationships by assigning `relationship` fields, i.e., `layers=["B"]`. The tool will replace IDs in these fields with object references (thus, only IDs of known objects should be used in `assign` expressions, unresolved IDs will be ignored).
+.. 2. we complete model customization by assigning qualitative properties to resources selected
  by JSONPath queries for every resource in the model with `assign` and `interpolate` properties.
+
+## Relationship graph
+The relationship graph is an auxiliary tool that allows users to trace the resource derivation process described above and visually inspect the relationships among the key resources in the model. In this viw, all resources are represented by graph nodes (visualized using colored shapes according to the type of the resource) while their relationships correspond to the graph links (visualized using colored lines where each color stands for a certain type of the relationship).
+
+The nodes in the relationship graph are organized using the so called `force-in-a-box` layout, which clusters nodes based on their class and creates centers of attraction for each cluster. The area occupied by a cluster depends on its size. Be default we use a setting for the force-in-a-box algorithm that allocates cluster areas based on the treemap pattern.
+
+<img class="screen-shot no-border" src="asset/relationshipGraph.png">
+
+The force-in-a-box algorithm creates a good initial graph layout. It is used in a combination with the `sticky` force-directed technique when the program reassigns the nodes coordinates when the user drags them to a different location. Hence, users are free to rearrange the nodes in a way that makes understanding the model or tracing certain derivation chains easier.
+
+An any moment, the positions of the nodes in the graph can be saved and reloaded using the dedicated buttons from the right-hand panel.
+ The file created at this process contains only node identifiers with the corresponding coordinates. To avoid compatibility issues when a user tries to load a relationship graph coordinates after modifying an ApiNATOMY model, we do not store other information such as node and link classes/types. Nodes which do not have saved coordinates in a certain file simply remain in their initial locations.
+ Note that switching the view modes between the relationship graph and the main ApiNATOMY visualization resets the relationship graph node positions.
+

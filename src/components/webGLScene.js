@@ -232,7 +232,7 @@ export class WebGLSceneComponent {
             this._graphData = newGraphData;
             this.config = (this._graphData.config||{})::defaults(this.config);
             this._graphData.showGroups(this._showGroups);
-            this._searchOptions = (this._graphData.entities||[]).filter(e => e.name).map(e => e.name);
+            this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.scaleFactor);
             if (this.graph) { this.graph.graphData(this._graphData); }
@@ -525,7 +525,7 @@ export class WebGLSceneComponent {
     selectBySearch(name) {
         if (this.graph && (name !== this._selectedName)) {
             this._selectedName = name;
-            this.selected = (this.graphData.entities||[]).find(e => e.name === name);
+            this.selected = (this.graphData.resources||[]).find(e => e.name === name);
         }
     }
 

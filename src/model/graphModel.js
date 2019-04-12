@@ -61,7 +61,7 @@ export class Graph extends Group{
             if (obj && obj.class){
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
                 if (clsName && !modelClasses[clsName].Model.schema.abstract){
-                    let e = modelClasses[clsName].fromJSON({"id": id}, modelClasses, entitiesByID);
+                    let e = modelClasses[clsName].fromJSON({"id": id, "generated": true}, modelClasses, entitiesByID);
 
                     //Include newly created entity to the main graph
                     let prop = this.Model.selectedRelNames(clsName)[0];
@@ -124,7 +124,8 @@ export class Graph extends Group{
                     "name"     : `${prefix}${lyph.id}`,
                     "color"    : "#ccc",
                     "val"      : 0.1,
-                    "skipLabel": true
+                    "skipLabel": true,
+                    "generated": true
                 })));
 
             let link = Link.fromJSON({
@@ -134,7 +135,8 @@ export class Graph extends Group{
                 "geometry"     : LINK_GEOMETRY.INVISIBLE,
                 "color"        : "#ccc",
                 "conveyingLyph": lyph,
-                "skipLabel"    : true
+                "skipLabel"    : true,
+                "generated"    : true
             });
             lyph.conveyedBy = link;
             sNode.sourceOf  = [link];

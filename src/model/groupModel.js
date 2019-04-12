@@ -32,16 +32,33 @@ export class Group extends Resource {
         this.replaceBorderNodes(json);
 
         //replace references to templates
-        this.replaceReferencesToLyphTemplates(json, modelClasses);
+        this.replaceReferencesToTemplates(json, modelClasses);
+
+        //create tree resources from templates
         this.expandTreeTemplates(json, modelClasses);
+
+        //create process chains from channel templates
+        this.expandChannelTemplates(json, modelClasses);
+
+        //create lyphs that inherit properties from templates
         this.expandLyphTemplates(json.lyphs);
+
+        //create tree instances
         this.createTreeInstances(json, modelClasses);
 
+        //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
-        res.mergeSubgroupEntities();
-        res.validateMaterialEdges();
 
-        //Color entities which do not have assigned colors in the spec
+        //copy nested references to resources to the parent group
+        res.mergeSubgroupEntities();
+
+        //validate housing lyphs
+        res.validateHousingLyphs();
+
+        //validate process edges
+        res.validateProcessEdges();
+
+        //Assign color to visual resources with no color in the spec
         addColor(res.regions, "#c0c0c0");
         addColor(res.links, "#000");
         addColor(res.lyphs);
@@ -54,7 +71,7 @@ export class Group extends Resource {
      * @param json - input model
      * @param modelClasses - model resource classes
      */
-    static replaceReferencesToLyphTemplates(json, modelClasses){
+    static replaceReferencesToTemplates(json, modelClasses){
 
         let changedLyphs = 0;
         let changedMaterials = 0;
@@ -66,10 +83,12 @@ export class Group extends Resource {
                 let material = (json.materials || []).find(e => e.id === ref);
                 if (material) {
                     template = {
-                        "id"        : prefix + material.id,
-                        "name"      : material.name,
-                        "isTemplate": true,
-                        "materials" : [material.id]
+                        "id"           : prefix + material.id,
+                        "name"         : material.name,
+                        "isTemplate"   : true,
+                        "materials"    : [material.id],
+                        "fromMaterial" : material.id,
+                        "generated"    : true
                     };
                     template::merge(material::pick(["name", "external", "color"]));
                     json.lyphs.push(template);
@@ -88,7 +107,8 @@ export class Group extends Resource {
                 let subtype = {
                     "id"       : ref + "_" + parent.id,
                     "name"     : template.name,
-                    "supertype": template.id
+                    "supertype": template.id,
+                    "generated": true
                 };
                 json.lyphs.push(subtype);
                 replaceAbstractRefs(subtype, "layers");
@@ -135,7 +155,7 @@ export class Group extends Resource {
     }
 
     /**
-     * Generate canonical omega trees from tree templates, i.e. auto-create necessary nodes and links, adn copy tree template to all tree levels
+     * Generate canonical omega trees from tree templates, i.e. auto-create necessary nodes and links, and copy tree template to all tree levels
      * @param json - input model
      * @param modelClasses - model resource classes
      */
@@ -143,7 +163,21 @@ export class Group extends Resource {
         if (!modelClasses){ return; }
         (json.trees||[]).forEach((tree, i) => {
                 tree.id = tree.id || (json.id + "_tree_" + i);
-                modelClasses["Tree"].expandTemplate(json, tree);
+                modelClasses.Tree.expandTemplate(json, tree);
+            }
+        );
+    }
+
+    /**
+     * Generate process chains from channel templates, i.e. auto-create necessary nodes and links, and assign conveying lyphs of certain structure
+     * @param json - input model
+     * @param modelClasses - model resource classes
+     */
+    static expandChannelTemplates(json, modelClasses){
+        if (!modelClasses){ return; }
+        (json.channels||[]).forEach((channel, i) => {
+                channel.id = channel.id || (json.id + "_channel_" + i);
+                modelClasses.Channel.expandTemplate(json, channel);
             }
         );
     }
@@ -155,13 +189,19 @@ export class Group extends Resource {
      */
     static createTreeInstances(json, modelClasses){
         (json.trees||[]).forEach(tree => {
-            if (!tree.group) { this.expandTreeTemplates(json, modelClasses); }
+            if (!tree.group) {
+                this.expandTreeTemplates(json, modelClasses);
+            }
             if (tree.createInstance){
-                modelClasses["Tree"].createInstance(json, tree);
+                modelClasses.Tree.createInstance(json, tree);
             }
         });
     }
 
+    /**
+     * Create lyphs that inherit properties from templates
+     * @param lyphs
+     */
     static expandLyphTemplates(lyphs){
         let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
         templates.forEach(template => Lyph.expandTemplate(lyphs, template));
@@ -196,9 +236,10 @@ export class Group extends Resource {
 
                 for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                     let nodeClone = node::cloneDeep()::merge({
-                        "id"     : nodeID + `_${i}`,
-                        "cloneOf": nodeID,
-                        "class"  : "Node"
+                        "id"       : nodeID + `_${i}`,
+                        "cloneOf"  : nodeID,
+                        "class"    : "Node",
+                        "generated": true
                     });
                     if (!node.clones){ node.clones = []; }
                     node.clones.push(nodeClone.id);
@@ -217,7 +258,8 @@ export class Group extends Resource {
                         "target"     : `${nodeClone.id}`,
                         "stroke"     : LINK_STROKE.DASHED,
                         "length"     : 1,
-                        "collapsible": true
+                        "collapsible": true,
+                        "generated"  : true
                     };
                     json.links.push(lnk);
                     prev = nodeClone.id;
@@ -239,8 +281,7 @@ export class Group extends Resource {
             let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames);
             relFieldNames.forEach(property => {
                 this[property] = (this[property]||[])::unionBy(group[property], "id");
-
-                this[property] = this[property].filter(x => x.class); //TODO New - test
+            this[property] = this[property].filter(x => x.class);
             });
         });
 
@@ -256,8 +297,10 @@ export class Group extends Resource {
         });
     }
 
-    validateMaterialEdges(){
-        let edges = [];
+    /**
+     * Validate process edges
+     */
+    validateProcessEdges(){
         (this.links||[]).forEach(lnk => {
             if (lnk.conveyingLyph){
                 let layers = lnk.conveyingLyph.layers || [lnk.conveyingLyph];
@@ -283,10 +326,38 @@ export class Group extends Resource {
     }
 
     /**
+     * Check that 2nd layer of housing lyphs is a membrane
+     */
+    validateHousingLyphs(){
+        let membraneLyph = (this.lyphs||[]).find(e => (e.external||[]).find(x => x.id === "GO:0016020"));
+        let membraneMaterial = (this.materials||[]).find(e => (e.external||[]).find(x => x.id === "GO:0016020"));
+        let housingLyphs = (this.lyphs||[]).filter(lyph => (lyph.channels||[]).length > 0);
+
+        if ((housingLyphs.length > 0) && !membraneLyph && !membraneMaterial){
+            console.warn("Did not find a reference to a membrane lyph or material - skipping validation of housing lyphs...");
+            return;
+        }
+
+        housingLyphs.forEach(lyph => {
+            let middleLayer = lyph.layers && lyph.layers[1];
+            let isOk = false;
+            if (membraneLyph){
+                isOk = middleLayer.isSubtypeOf(membraneLyph.id);
+            }
+            if (!isOk && membraneMaterial){
+                isOk = (middleLayer.materials||[]).find(e => e.id === membraneMaterial.id);
+            }
+            if (!isOk){
+                console.error("Second layer of a housing lyph is not a (subtype of) membrane", middleLayer, membraneLyph, membraneMaterial);
+            }
+        })
+    }
+
+    /**
      * Entities that belong to the group (resources excluding subgroups)
      * @returns {*[]}
      */
-    get entities(){
+    get resources(){
         let res = [];
         let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames); //Exclude groups
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
@@ -307,14 +378,14 @@ export class Group extends Resource {
      * Hide current group (=hide all its entities)
      */
     hide(){
-        this.entities.forEach(entity => entity.hidden = true);
+        this.resources.forEach(entity => entity.hidden = true);
     }
 
     /**
      * Show current group (=show all its entities)
      */
     show(){
-        this.entities.forEach(entity => delete entity.hidden);
+        this.resources.forEach(entity => delete entity.hidden);
     }
 
     /**
@@ -377,6 +448,9 @@ export class Group extends Resource {
     //         }))
     //     };
     // }
+
+
+
 
 }
 

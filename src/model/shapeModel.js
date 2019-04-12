@@ -1,5 +1,5 @@
 import {VisualResource} from './visualResourceModel';
-import {clone, isObject, isString, keys, merge, pick} from 'lodash-bound';
+import {clone, isObject, isString, keys, merge, pick, isPlainObject} from 'lodash-bound';
 
 export const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -89,14 +89,14 @@ export class Lyph extends Shape {
 
         //Validate subtype
         (template.subtypes||[]).forEach(s => {
-            if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
+            if (s::isPlainObject() && s.id && !lyphs.find(e => e.id === s.id)){
                 lyphs.push(s); //generate a lyph for the template supertype
             }
         });
         //Template supertype must contain id's for correct generation
-        template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
+        template.subtypes = (template.subtypes||[]).map(e => e::isPlainObject()? e.id: e);
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
-        subtypes.forEach(subtype => this.clone(template, subtype, lyphs));
+        subtypes.forEach(subtype => this.clone(lyphs, template, subtype));
 
         template.inactive = true;
     }
@@ -108,21 +108,37 @@ export class Lyph extends Shape {
      * @param lyphs      - a set of existing model/group lyphs
      * @returns {Lyph} the target lyph
      */
-    static clone(sourceLyph, targetLyph, lyphs){
-        if (!sourceLyph || !targetLyph) {return; }
+    static clone(lyphs, sourceLyph, targetLyph){
+        if (!sourceLyph || !targetLyph) { return; }
         if (!lyphs) {lyphs = [];}
+
+        if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
+            //expand the supertype - the sourceLyph may need to get its layers from the supertype first
+            let supertype = sourceLyph.supertype::isPlainObject()? sourceLyph.supertype: lyphs.find(e => e.id === sourceLyph.supertype);
+            if (supertype && supertype.isTemplate){
+                this.expandTemplate(lyphs, supertype);
+            }
+        }
+
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
-            "thickness", "external", "comment", "materials"]));
+            "thickness", "external", "comment", "materials", "create3d"]));
+
+        if ((targetLyph.layers||[]).length > 0) {
+            console.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
+            return;
+        }
+
         targetLyph.layers = [];
         (sourceLyph.layers || []).forEach(layerRef => {
-            let layerParent = layerRef::isString()? lyphs.find(e => e.id === layerRef) : layerRef;
+            let layerParent = layerRef::isPlainObject()? layerRef: lyphs.find(e => e.id === layerRef);
             if (!layerParent) {
                 console.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
             let lyphLayer = {
-                "id" : `${layerParent.id}_${targetLyph.id}`,
-                "name": `${layerParent.name || '?'} in ${targetLyph.name || '?'}`
+                "id"        : `${layerParent.id}_${targetLyph.id}`,
+                "name"      : `${layerParent.name || '?'} in ${targetLyph.name || '?'}`,
+                "generated" : true
             };
             lyphs.push(lyphLayer);
             if (layerParent.isTemplate){
@@ -130,7 +146,7 @@ export class Lyph extends Shape {
             } else {
                 lyphLayer.cloneOf = layerParent.id;
             }
-            this.clone(layerParent, lyphLayer, lyphs);
+            this.clone(lyphs, layerParent, lyphLayer);
 
             lyphLayer::merge(targetLyph::pick(["topology"]));
             targetLyph.layers.push(lyphLayer);

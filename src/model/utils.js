@@ -1,4 +1,4 @@
-import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys} from "lodash-bound";
+import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys, isPlainObject} from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
 
@@ -61,6 +61,29 @@ export const getRefs = (spec) => {
  * @type {boolean} Returns true if the class is abstract
  */
 export const isClassAbstract = (clsName) => definitions[clsName].abstract;
+
+/**
+ * Add a given resource to a given group and a parent group if it does not exist
+ * @param group - a group to add resources to
+ * @param parentGroup - parent group
+ * @param resource - resource
+ * @param prop - property in the group
+ */
+export const mergeGenResource = (group, parentGroup, resource, prop) => {
+    if (!resource) { return; }
+    if (group){
+        group[prop] = group[prop] || [];
+        if (resource::isPlainObject()){
+            if (resource.id){ if (!group[prop].find(x => x.id === resource.id)){ group[prop].push(resource.id); }}
+        } else {
+            if (!group[prop].includes(resource)){ group[prop].push(resource); }
+        }
+    }
+    if (parentGroup && resource.id){
+        parentGroup[prop] = parentGroup[prop] || [];
+        if (!parentGroup[prop].find(x => x.id === resource.id)){ parentGroup[prop].push(resource); }
+    }
+};
 
 /**
  * @param schemaClsName - name of the class in JSON Schema
