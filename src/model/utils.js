@@ -86,6 +86,20 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
 };
 
 /**
+ *
+ * @param group - a group to add resources to
+ * @param parentGroup - parent group
+ * @param lnk  - link
+ * @param trg  - target node
+ * @param lyph - conveyed lyph
+ */
+export const mergeGenResources = (group, parentGroup, [lnk, trg, lyph]) => {
+    mergeGenResource(group, parentGroup, lnk, "links");
+    mergeGenResource(group, parentGroup, trg, "nodes");
+    mergeGenResource(group, parentGroup, lyph, "lyphs");
+};
+
+/**
  * @param schemaClsName - name of the class in JSON Schema
  * @returns {*} Helper object with convenient access to field subgroups
  */

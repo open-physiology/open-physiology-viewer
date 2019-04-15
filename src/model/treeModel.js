@@ -1,7 +1,7 @@
 import { Resource } from './resourceModel';
 import { isPlainObject, defaults } from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
-import { mergeGenResource } from "./utils";
+import { mergeGenResource, mergeGenResources } from "./utils";
 
 /**
  * Tree model
@@ -9,6 +9,9 @@ import { mergeGenResource } from "./utils";
  * @property root
  * @property levels
  * @property numLevels
+ * @property numInstances
+ * @property group
+ * @property instances
  */
 export class Tree extends Resource {
     /**
@@ -159,13 +162,13 @@ export class Tree extends Resource {
     }
 
     /**
-     * Generate an instance of a given omega tree
+     * Generate instances of a given omega tree
      * @param parentGroup - parent group, i.e., model resources that may be referred from the template
      * @param tree - omega tree definition
      */
-    static createInstance(parentGroup, tree){
+    static createInstances(parentGroup, tree){
         if (!tree || !tree.group || !tree.levels){
-            console.warn("Cannot create an omega tree instance: canonical tree undefined!");
+            console.warn("Cannot create omega tree instances: canonical tree undefined!");
             return;
         }
 
@@ -173,77 +176,84 @@ export class Tree extends Resource {
             console.info("Omega tree has no branching points, the instances coincide with the canonical tree!");
         }
 
-        tree.instance = {
-            "id"        : "instance_" + tree.id,
-            "name"      : tree.name + " instance",
-            "generated" : true
-        };
-
-        const mergeGenResources = ([lnk, trg, lyph]) => {
-            mergeGenResource(tree.instance, parentGroup, lnk, "links");
-            mergeGenResource(tree.instance, parentGroup, trg, "nodes");
-            mergeGenResource(tree.instance, parentGroup, lyph, "lyphs");
-        };
-
-        const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
-
-        let root  = getObj(tree.root, "nodes");
-
-        mergeGenResource(tree.instance, parentGroup, root, "nodes");
-
-        let levelResources = {};
-        for (let i = 0; i < tree.levels.length; i++) {
-            let lnk = getObj(tree.levels[i], "links");
-            let trg = getObj(lnk.target, "nodes");
-            let lyph = getObj(lnk.conveyingLyph, "lyphs");
-
-            if (!lnk) {
-                console.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
-                lnk = {"id": tree.levels[i], "generated": true};
-            }
-            if (!trg){
-                console.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
-                trg = {"id": lnk.target, "generated": true};
-            }
-
-            if (lyph){ lyph.create3d = true; }
-            levelResources[i] = [[lnk, trg, lyph]];
-            mergeGenResources([lnk, trg, lyph]);
+        for (let i = 0; i < tree.numInstances; i++){
+            let instance  = createInstance(i + 1);
+            tree.instances = tree.instances || [];
+            tree.instances.push(instance);
+            parentGroup.groups.push(instance);
         }
 
-        tree.branchingFactors = tree.branchingFactors || [];
+        /**
+         * Create a tree instance
+         * @param prefix - instance id/name prefix
+         * @returns Group
+         */
+        function createInstance(prefix){
+            let instance = {
+                "id"        : `${tree.id}_instance-${prefix}`,
+                "name"      : `${tree.name} instance #${prefix}`,
+                "generated" : true
+            };
 
-        const MAX_GEN_RESOURCES = 3000;
-        let count = 0;
-        for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
-            levelResources[i].forEach((base, m) => {
-                for (let k = 1; k < tree.branchingFactors[i]; k++){
-                    if (count > MAX_GEN_RESOURCES){
-                        throw new Error("Reached maximum allowed number of generated tree instance resources!");
-                    }
-                    let prev = base[0].source;
-                    for (let j = i; j < tree.levels.length; j++) {
-                        let [lnk, trg, lyph] = levelResources[j][0].map(r => (r
-                                ? {
-                                    "id"       : `${r.id}_${i+1}:${m+1}:${k}`,
-                                    "cloneOf"  : r.id,
-                                    "generated": true
-                                  }
-                                : r
-                        ));
-                        lnk.target = trg.id;
-                        lnk.conveyingLyph = lyph ? lyph.id : null;
-                        lnk.source = prev;
-                        prev = lnk.target;
-                        Lyph.clone(parentGroup.lyphs, levelResources[j][0][2], lyph);
-                        mergeGenResources([lnk, trg, lyph]);
-                        levelResources[j].push([lnk, trg, lyph]);
-                        count += 3;
-                    }
+            const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
+
+            let root  = getObj(tree.root, "nodes");
+
+            mergeGenResource(instance, parentGroup, root, "nodes");
+
+            let levelResources = {};
+            for (let i = 0; i < tree.levels.length; i++) {
+                let lnk  = getObj(tree.levels[i], "links");
+                let trg  = getObj(lnk.target, "nodes");
+                let lyph = getObj(lnk.conveyingLyph, "lyphs");
+
+                if (!lnk) {
+                    console.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
+                    lnk = {"id": tree.levels[i], "generated": true};
                 }
-            })
-        }
+                if (!trg){
+                    console.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
+                    trg = {"id": lnk.target, "generated": true};
+                }
 
-        parentGroup.groups.push(tree.instance);
+                if (lyph){ lyph.create3d = true; }
+                levelResources[i] = [[lnk, trg, lyph]];
+                mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
+            }
+
+            tree.branchingFactors = tree.branchingFactors || [];
+
+            const MAX_GEN_RESOURCES = 1000;
+            let count = 0;
+            for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
+                levelResources[i].forEach((base, m) => {
+                    for (let k = 1; k < tree.branchingFactors[i]; k++){
+                        if (count > MAX_GEN_RESOURCES){
+                            throw new Error(`Reached maximum allowed number of generated resources per tree instance (${MAX_GEN_RESOURCES})!`);
+                        }
+                        let prev = base[0].source;
+                        for (let j = i; j < tree.levels.length; j++) {
+                            let [lnk, trg, lyph] = levelResources[j][0].map(r => (r
+                                    ? {
+                                        "id"       : `${r.id}_${i+1}:${m+1}:${k}-${prefix}`,
+                                        "cloneOf"  : r.id,
+                                        "generated": true
+                                    }
+                                    : r
+                            ));
+                            lnk.target = trg.id;
+                            lnk.conveyingLyph = lyph ? lyph.id : null;
+                            lnk.source = prev;
+                            Lyph.clone(parentGroup.lyphs, levelResources[j][0][2], lyph);
+                            mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
+                            levelResources[j].push([lnk, trg, lyph]);
+                            prev = lnk.target;
+                            count += 3;
+                        }
+                    }
+                })
+            }
+            return instance;
+        }
     }
 }

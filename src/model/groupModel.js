@@ -15,6 +15,7 @@ import {addColor} from './utils';
  * @property references
  * @property groups
  * @property trees
+ * @property channels
  * @property coalescences
  * @property inGroups
  */
@@ -51,9 +52,6 @@ export class Group extends Resource {
 
         //copy nested references to resources to the parent group
         res.mergeSubgroupEntities();
-
-        //validate housing lyphs
-        res.validateHousingLyphs();
 
         //validate process edges
         res.validateProcessEdges();
@@ -119,7 +117,7 @@ export class Group extends Resource {
 
         const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
-            const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate"].includes(key);
+            const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate", "housingLyphs"].includes(key);
             if (resource[key]::isArray()) {
                 resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
@@ -188,13 +186,18 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static createTreeInstances(json, modelClasses){
+        if (!modelClasses){ return; }
         (json.trees||[]).forEach(tree => {
-            if (!tree.group) {
-                this.expandTreeTemplates(json, modelClasses);
-            }
-            if (tree.createInstance){
-                modelClasses.Tree.createInstance(json, tree);
-            }
+            if (!tree.group) { this.expandTreeTemplates(json, modelClasses); }
+            modelClasses.Tree.createInstances(json, tree);
+        });
+    }
+
+    static createChannelInstances(json, modelClasses){
+        if (!modelClasses){ return; }
+        (json.channels||[]).forEach(channel => {
+            if (!tree.group) { this.expandChannelTemplates(json, modelClasses); }
+            modelClasses.Channel.createInstances(json, tree);
         });
     }
 
@@ -323,34 +326,6 @@ export class Group extends Resource {
                 }
             }
         });
-    }
-
-    /**
-     * Check that 2nd layer of housing lyphs is a membrane
-     */
-    validateHousingLyphs(){
-        let membraneLyph = (this.lyphs||[]).find(e => (e.external||[]).find(x => x.id === "GO:0016020"));
-        let membraneMaterial = (this.materials||[]).find(e => (e.external||[]).find(x => x.id === "GO:0016020"));
-        let housingLyphs = (this.lyphs||[]).filter(lyph => (lyph.channels||[]).length > 0);
-
-        if ((housingLyphs.length > 0) && !membraneLyph && !membraneMaterial){
-            console.warn("Did not find a reference to a membrane lyph or material - skipping validation of housing lyphs...");
-            return;
-        }
-
-        housingLyphs.forEach(lyph => {
-            let middleLayer = lyph.layers && lyph.layers[1];
-            let isOk = false;
-            if (membraneLyph){
-                isOk = middleLayer.isSubtypeOf(membraneLyph.id);
-            }
-            if (!isOk && membraneMaterial){
-                isOk = (middleLayer.materials||[]).find(e => e.id === membraneMaterial.id);
-            }
-            if (!isOk){
-                console.error("Second layer of a housing lyph is not a (subtype of) membrane", middleLayer, membraneLyph, membraneMaterial);
-            }
-        })
     }
 
     /**

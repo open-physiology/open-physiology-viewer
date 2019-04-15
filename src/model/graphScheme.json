@@ -938,7 +938,7 @@
           "uniqueItems": true
         },
         "fromMaterial"   : {
-          "description": "Material which was used to generate the current lyph",
+          "description": "Material which was used generated the current lyph",
           "anyOf": [
             {
               "type": "string"
@@ -1009,7 +1009,7 @@
         "$ref": "#/definitions/Resource"
       }],
       "properties": {
-        "materials": {
+        "materials"    : {
           "description": "Biological materials, chemical elements and compounds, conveyed by the channel",
           "type": "array",
           "items": {
@@ -1025,7 +1025,7 @@
           "relatedTo": "transportedBy",
           "default": []
         },
-        "housingLyphs": {
+        "housingLyphs" : {
           "description": "Lyphs that house the channel",
           "type": "array",
           "items": {
@@ -1041,9 +1041,17 @@
           "relatedTo": "channels",
           "default": []
         },
-        "group": {
-          "description": "Group (subgraph) that defines a linear chain for the given channel template",
+        "group"        : {
+          "description": "Group (subgraph) that defines a canonical chain for a given channel template",
           "$ref": "#/definitions/Group",
+          "readOnly": true
+        },
+        "instances"    : {
+          "description": "Groups (subgraphs) that contain instances of channels housed by lyph instances",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
           "readOnly": true
         }
       }
@@ -1054,7 +1062,7 @@
         "$ref": "#/definitions/Resource"
       }],
       "properties": {
-        "root": {
+        "root"            : {
           "description": "Root of the tree",
           "anyOf": [
             {
@@ -1065,12 +1073,12 @@
             }
           ]
         },
-        "numLevels": {
+        "numLevels"       : {
           "description": "Number of levels in the generated omega tree. Nodes and links are auto-created",
           "type": "number",
           "default": 1
         },
-        "levels": {
+        "levels"          : {
           "description": "Optional references to links or link properties that must be associated with the tree level",
           "type": "array",
           "items": {
@@ -1084,7 +1092,7 @@
             ]
           }
         },
-        "lyphTemplate": {
+        "lyphTemplate"    : {
           "description": "Lyph template to generate lyphs conveyed by the omega-tree branches.",
           "anyOf": [
             {
@@ -1103,18 +1111,22 @@
             "default": 1
           }
         },
-        "createInstance": {
-          "description": "Indicates whether to create a tree instance",
-          "type": "boolean"
+        "numInstances"  : {
+          "description": "Indicates how many tree instances to create",
+          "type"       : "number",
+          "default"    : 0
         },
-        "group": {
+        "group"           : {
           "description": "Group (subgraph) that defines canonical tree for the given tree template",
           "$ref": "#/definitions/Group",
           "readOnly": true
         },
-        "instance": {
+        "instances"        : {
           "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
-          "$ref": "#/definitions/Group",
+          "type" : "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
           "readOnly": true
         }
       }
