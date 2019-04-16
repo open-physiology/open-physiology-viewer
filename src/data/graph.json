@@ -175,7 +175,8 @@
       "source": "node1U",
       "target": "node1V",
       "conveyingLyph": "40",
-      "conveyingType": "ADVECTIVE"
+      "conveyingType": "ADVECTIVE",
+      "length": 30
     },
     {
       "id": "lnk22",
@@ -204,7 +205,9 @@
       "target": "node3B",
       "conveyingLyph": "76",
       "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": ["51"]
+      "conveyingMaterials": [
+        "51"
+      ]
     },
     {
       "id": "lnk26",
@@ -212,7 +215,9 @@
       "target": "node3C",
       "conveyingLyph": "78",
       "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": ["51"]
+      "conveyingMaterials": [
+        "51"
+      ]
     },
     {
       "id": "lnk27",
@@ -220,7 +225,9 @@
       "target": "node3D",
       "conveyingLyph": "80",
       "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": ["51"]
+      "conveyingMaterials": [
+        "51"
+      ]
     },
     {
       "id": "lnk28",
@@ -228,7 +235,9 @@
       "target": "node4B",
       "conveyingLyph": "77",
       "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": ["51"]
+      "conveyingMaterials": [
+        "51"
+      ]
     },
     {
       "id": "lnk29",
@@ -236,7 +245,9 @@
       "target": "node4C",
       "conveyingLyph": "79",
       "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": ["51"]
+      "conveyingMaterials": [
+        "51"
+      ]
     },
     {
       "id": "lnk30",
@@ -244,7 +255,9 @@
       "target": "node4D",
       "conveyingLyph": "81",
       "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": ["51"]
+      "conveyingMaterials": [
+        "51"
+      ]
     }
   ],
   "lyphs": [
@@ -287,7 +300,7 @@
         "max": 6
       },
       "layers": [
-        "0",
+        "0_40",
         "38",
         "2"
       ],
@@ -295,8 +308,8 @@
         {
           "path": "$.layers[0]",
           "value": {
-            "materials": [
-              "63"
+            "internalLyphs": [
+              "63_0_40"
             ]
           }
         }
@@ -323,7 +336,6 @@
         "62",
         "0"
       ],
-      "supertype": "59",
       "assign": [
         {
           "path": "$.layers[2]",
@@ -400,7 +412,9 @@
         "58",
         "54"
       ],
-      "channels": ["mc1"],
+      "channels": [
+        "mc1"
+      ],
       "assign": [
         {
           "path": "$.layers[0]",
@@ -1366,92 +1380,11 @@
         "43",
         "26"
       ]
-    }
-  ],
-  "coalescences": [
-    {
-      "id": "47",
-      "name": "Renal corpuscle",
-      "external": [
-        "UBERON:0001229"
-      ],
-      "lyphs": [
-        "45",
-        "40"
-      ],
-      "comment": "45.layers[2], 40.layers[2]"
     },
     {
-      "id": "96",
-      "name": "Myocyte material in VBC urine",
-      "lyphs": [
-        "40",
-        "63"
-      ],
-      "comment": "40.layers[0], 63.layers[2]"
-    },
-    {
-      "id": "97",
-      "name": "Sarcoplasmic reticilum material in Cell cytosol",
-      "lyphs": [
-        "59",
-        "60"
-      ],
-      "comment": "59.layers[0], 60.layers[2]"
-    },
-    {
-      "id": "90",
-      "name": "Na-Ca exchanger extracellular in fluid surrounding myocyte",
-      "lyphs": [
-        "63",
-        "76"
-      ],
-      "comment": "63.layers[2], 76.layers[2]"
-    },
-    {
-      "id": "91",
-      "name": "SR Ca-ATPase cytosolic in cytosol surrounding sarcoplasmic reticulum",
-      "lyphs": [
-        "60",
-        "77"
-      ],
-      "comment": "60.layers[2], 77.layers[2]"
-    },
-    {
-      "id": "92",
-      "name": "Na-Ca exchanger transmembrane in sarcolemma layer of myocyte",
-      "lyphs": [
-        "63",
-        "78"
-      ],
-      "comment": "63.layers[1], 78.layers[2]"
-    },
-    {
-      "id": "93",
-      "name": "SR Ca-ATPase transmembrane in membrane layer of sarcoplasmic retiuculum",
-      "lyphs": [
-        "60",
-        "79"
-      ],
-      "comment": "60.layers[1], 79.layers[2]"
-    },
-    {
-      "id": "94",
-      "name": "Na-Ca exchanger cytosolic in sarcoplasm layer of myocyte",
-      "lyphs": [
-        "63",
-        "80"
-      ],
-      "comment": "63.layers[0], 80.layers[2]"
-    },
-    {
-      "id": "95",
-      "name": "SR Ca-ATPase intra-SR in fluid layer of sarcolplasmic reticulum",
-      "lyphs": [
-        "60",
-        "81"
-      ],
-      "comment": "60.layers[0], 81.layers[2]"
+      "id": "63_0_40",
+      "name": "Myocyte in Urine in VBC",
+      "supertype": "63"
     }
   ],
   "materials": [
@@ -1474,6 +1407,9 @@
       "name": "Blood",
       "external": [
         "UBERON:0000178"
+      ],
+      "materials": [
+        "53"
       ]
     },
     {
@@ -1495,7 +1431,7 @@
     },
     {
       "id": "53",
-      "name": "Liquid",
+      "name": "Aqueous solution",
       "external": [
         "FMA:85815"
       ],
@@ -1718,10 +1654,66 @@
       ]
     }
   ],
+  "references": [
+    {
+      "id": "GO:0016020",
+      "uri": "http://amigo.geneontology.org/amigo/term/GO:0016020",
+      "type": "Gene Ontology"
+    }
+  ],
+  "coalescences": [
+    {
+      "id": "47",
+      "name": "Renal corpuscle",
+      "external": [
+        "UBERON:0001229"
+      ],
+      "lyphs": [
+        "45",
+        "40"
+      ],
+      "comment": "45.layers[2], 40.layers[2]"
+    },
+    {
+      "id": "96",
+      "name": "Myocyte material in VBC urine",
+      "lyphs": [
+        "40",
+        "63_0_40"
+      ],
+      "comment": "40.layers[0], 63.layers[2]"
+    }
+  ],
+  "channels": [
+    {
+      "id": "mc1",
+      "name": "Na-Ca exchanger",
+      "external": [
+        "PR:Q01728"
+      ],
+      "materials": [
+        "49",
+        "51"
+      ]
+    },
+    {
+      "id": "mc2",
+      "name": "SR Ca-ATPase",
+      "external": [
+        "PR:P16615"
+      ],
+      "materials": [
+        "51"
+      ],
+      "housingLyphs": [
+        "63"
+      ]
+    }
+  ],
   "trees": [
     {
       "id": "uot",
-      "name": "Urinary omega tree",
+      "name": "Urinary Tract",
       "external": [
         "FMA:7159"
       ],
@@ -1750,7 +1742,6 @@
         "lnk20",
         "lnk21"
       ],
-      "numInstances": 1,
       "branchingFactors": [
         1,
         1,
@@ -1758,9 +1749,22 @@
         1,
         1,
         1,
-        3
-      ],
-      "comment": "3, 20, 8, 9, 8, 9"
+        3,
+        3,
+        20,
+        8,
+        9,
+        8,
+        9,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
     }
   ],
   "groups": [
@@ -1792,18 +1796,6 @@
         "lnk19",
         "lnk20",
         "lnk21"
-      ],
-      "lyphs": [
-        "31",
-        "32",
-        "33",
-        "34",
-        "35",
-        "36",
-        "37",
-        "38",
-        "39",
-        "40"
       ]
     },
     {
@@ -1824,38 +1816,36 @@
         "lnk15",
         "lnk16",
         "lnk17"
-      ],
-      "lyphs": [
-        "32",
-        "33",
-        "34",
-        "35"
       ]
     },
     {
       "id": "grp3",
-      "links": ["lnk22", "lnk23", "lnk24", "lnk25", "lnk26", "lnk27", "lnk28", "lnk29", "lnk30"],
-      "nodes": ["node2A", "node2B", "node2C", "node2D", "node3A", "node3B", "node3C", "node3D", "node4A","node4B", "node4C", "node4D"],
-      "lyphs": ["44", "45", "46", "76", "78", "80", "77", "79", "81"]
+      "name": "Manually defined membrane channels",
+      "nodes": [
+        "node2A",
+        "node2B",
+        "node2C",
+        "node2D",
+        "node3A",
+        "node3B",
+        "node3C",
+        "node3D",
+        "node4A",
+        "node4B",
+        "node4C",
+        "node4D"
+      ],
+      "links": [
+        "lnk22",
+        "lnk23",
+        "lnk24",
+        "lnk25",
+        "lnk26",
+        "lnk27",
+        "lnk28",
+        "lnk29",
+        "lnk30"
+      ]
     }
-  ],
-  "channels": [
-    {
-      "id"           : "mc1",
-      "name"         : "Na-Ca exchanger",
-      "external"     : ["PR:Q01728"],
-      "materials"    : ["49", "51"]
-    },
-    {
-      "id"           : "mc2",
-      "name"         : "SR Ca-ATPase",
-      "external"     : ["PR:P16615"],
-      "materials"    : ["51"],
-      "housingLyphs" : ["63"]
-    }
-  ],
-  "id": "Urinary Omega Tree",
-  "config": {
-    "filter": ["6", "11", "12", "14", "15", "16", "17", "20", "21", "22", "23", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37"]
-  }
+  ]
 }

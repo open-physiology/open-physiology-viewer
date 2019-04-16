@@ -182,58 +182,6 @@ export function d3Lyph(outer, params) {
 export const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : str;
 
 /**
- * Create lyph border shapes
- * @param {Array} params   - lyph border shape parameters
- * @returns {Array<Shape>} - ordered set of lyph border shapes: axial, 1st radial, outer, 2nd radial
- */
-export function lyphBorders(params){
-    let [width,  height,  radius,  top,  bottom] = params;
-    let borders = [0,1,2,3].map(() => new THREE.Shape());
-
-    //Axial border
-    borders[0].moveTo( 0, - height / 2);
-    borders[0].lineTo( 0,   height / 2);
-    borders[1].moveTo( 0,   height / 2);
-    //Top radial border
-    //Top radial border
-    if (top){
-        borders[1].lineTo( width - radius, height / 2 );
-        borders[2].moveTo( width - radius, height / 2 );
-        borders[2].quadraticCurveTo( width,  height / 2, width,  height / 2 - radius);
-    } else {
-        borders[1].lineTo( width,  height / 2);
-        borders[2].moveTo( width,  height / 2);
-    }
-    //Non-axial border
-    if (bottom){
-        borders[2].lineTo( width, - height / 2 + radius);
-        borders[2].quadraticCurveTo( width, -height / 2, width - radius, -height / 2);
-        borders[3].moveTo( width - radius, -height / 2);
-    } else {
-        borders[2].lineTo( width, -height / 2);
-        borders[3].moveTo( width, -height / 2);
-    }
-
-    //Finish Bottom radial border
-    borders[3].lineTo( 0, - height / 2);
-    return borders;
-}
-
-/**
- * Create region border shapes
- * @param {Array<Vector2>} points - coordinates of region corner points
- * @returns {Array<Shape>}        - ordered set of region border shapes (sides of a polygon)
- */
-export function polygonBorders(points){
-    let borders = [];
-    for (let i = 1; i < (points||[]).length; i++){
-        let border = [points[i-1], points[i]].map(p => new THREE.Vector2(p.x, p.y));
-        borders.push(new THREE.Shape(border)); //Expects Vector2!
-    }
-    return borders;
-}
-
-/**
  * Create lyph layer shape
  * @param {Array} inner - preceding (inner) lyph border shape parameters (@see lyphShape)
  * @param {Array} outer - current (outer) lyph border shape parameters

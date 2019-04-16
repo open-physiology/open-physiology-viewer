@@ -41,6 +41,16 @@ export const getClassName = (spec) => {
     }
 };
 
+
+/**
+ * Finds a resource object in the parent group given an object or an ID
+ * @param parentGroup
+ * @param e
+ * @param prop
+ * @returns {*|void|T}
+ */
+export const getObj = (parentGroup, e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
+
 /**
  * Returns a list of references in the schema type specification
  * @param spec - schema definition

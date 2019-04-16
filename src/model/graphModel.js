@@ -218,7 +218,7 @@ export class Graph extends Group{
             for (let i = 1; i < table.length; i++){
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    let key = headers[j];
+                    let key = headers[j].trim();
                     if (!fields[key]){
                         console.warn("Unrecognized property:", clsName, key);
                         return;
@@ -238,7 +238,7 @@ export class Graph extends Group{
                     const strToValue = x => (itemType === "number")? parseInt(x)
                         : (itemType === "boolean")? (x.toLowerCase() === "true") : x;
 
-                    if (key === "length" || key === "thickness"){
+                    if (relName === "lyphs" && (key === "length" || key === "thickness")){
                         res = {min: parseInt(res), max: parseInt(res)};
                     } else {
                         if (key === "assign") {

@@ -1,7 +1,7 @@
 import { Resource } from './resourceModel';
 import { isPlainObject, defaults } from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
-import { mergeGenResource, mergeGenResources } from "./utils";
+import { mergeGenResource, mergeGenResources, getObj } from "./utils";
 
 /**
  * Tree model
@@ -46,7 +46,6 @@ export class Tree extends Resource {
         }
 
         const getID  = (e) => e::isPlainObject()? e.id : e;
-        const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
         const match  = (e1, e2) => getID(e1) === getID(e2);
 
         //START
@@ -55,7 +54,7 @@ export class Tree extends Resource {
         //Levels should contain link objects for generation/validation
 
         for (let i = 0; i < tree.levels.length; i++) {
-            tree.levels[i] = getObj(tree.levels[i], "links");
+            tree.levels[i] = getObj(parentGroup, tree.levels[i], "links");
         }
 
         //Match number of requested levels with the tree.levels[i] array length
@@ -195,17 +194,15 @@ export class Tree extends Resource {
                 "generated" : true
             };
 
-            const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
-
-            let root  = getObj(tree.root, "nodes");
+            let root  = getObj(parentGroup, tree.root, "nodes");
 
             mergeGenResource(instance, parentGroup, root, "nodes");
 
             let levelResources = {};
             for (let i = 0; i < tree.levels.length; i++) {
-                let lnk  = getObj(tree.levels[i], "links");
-                let trg  = getObj(lnk.target, "nodes");
-                let lyph = getObj(lnk.conveyingLyph, "lyphs");
+                let lnk  = getObj(parentGroup, tree.levels[i], "links");
+                let trg  = getObj(parentGroup, lnk.target, "nodes");
+                let lyph = getObj(parentGroup, lnk.conveyingLyph, "lyphs");
 
                 if (!lnk) {
                     console.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
@@ -217,6 +214,7 @@ export class Tree extends Resource {
                 }
 
                 if (lyph){ lyph.create3d = true; }
+                //TODO clone these resources
                 levelResources[i] = [[lnk, trg, lyph]];
                 mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
             }
@@ -227,11 +225,11 @@ export class Tree extends Resource {
             let count = 0;
             for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
                 levelResources[i].forEach((base, m) => {
-                    for (let k = 1; k < tree.branchingFactors[i]; k++){
+                    for (let k = 1; k < tree.branchingFactors[i]; k++){ //Instances reuse the canonic tree objects
                         if (count > MAX_GEN_RESOURCES){
                             throw new Error(`Reached maximum allowed number of generated resources per tree instance (${MAX_GEN_RESOURCES})!`);
                         }
-                        let prev = base[0].source;
+                        let prev_id = base[0].source;
                         for (let j = i; j < tree.levels.length; j++) {
                             let [lnk, trg, lyph] = levelResources[j][0].map(r => (r
                                     ? {
@@ -243,11 +241,12 @@ export class Tree extends Resource {
                             ));
                             lnk.target = trg.id;
                             lnk.conveyingLyph = lyph ? lyph.id : null;
-                            lnk.source = prev;
+                            lnk.source = prev_id;
+                            //TODO clone other properties of the link?
                             Lyph.clone(parentGroup.lyphs, levelResources[j][0][2], lyph);
                             mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
                             levelResources[j].push([lnk, trg, lyph]);
-                            prev = lnk.target;
+                            prev_id = lnk.target;
                             count += 3;
                         }
                     }

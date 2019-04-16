@@ -276,7 +276,7 @@
         "items": {
           "type": "string"
         },
-        "default": [ "id", "name", "class" ]
+        "default": [ "id", "name", "class", "generated" ]
       }
     },
     "External": {
@@ -315,6 +315,14 @@
         "$ref": "#/definitions/VisualResource"
       }],
       "properties": {
+        "infoFields": {
+          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [ "id", "name", "class", "hostedBy", "generated" ]
+        },
         "hostedBy": {
           "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
           "anyOf": [
@@ -527,7 +535,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "source", "target", "conveyingLyph" ]
+          "default": [ "id", "name", "class", "source", "target", "conveyingLyph", "generated" ]
         },
         "directed"     : {
           "description": "When set to true, defines a directed edge with arrow at the end",
@@ -823,7 +831,8 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "layers"
+          "relatedTo": "layers",
+          "readOnly" : true
         },
         "internalIn"     : {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -877,7 +886,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment", "supertype", "cloneOf"]
+          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment", "supertype", "cloneOf", "generated"]
         },
         "width"          : {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",

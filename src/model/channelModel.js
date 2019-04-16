@@ -1,8 +1,8 @@
 import { Resource } from './resourceModel';
-import {isPlainObject, defaults, clone, merge} from 'lodash-bound';
+import { defaults, clone, merge, pick} from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
 import { PROCESS_TYPE, Link } from "./visualResourceModel";
-import { mergeGenResource, mergeGenResources } from "./utils";
+import { mergeGenResource, mergeGenResources, getObj } from "./utils";
 
 /**
  * Channel model
@@ -124,6 +124,21 @@ export class Channel extends Resource {
           mergeGenResource(channel.group, parentGroup, lyph, "lyphs");
           mergeGenResource(channel.group, parentGroup, link, "links");
       }
+
+      channel.housingLyphs = channel.housingLyphs || [];
+
+      //This is needed to merge Channel.housighLyphs into Lyph.channels for correct template derivation (lyph templates will pass channels to subtypes)
+      channel.housingLyphs.forEach(lyphRef => {
+          let lyph =  getObj(parentGroup, lyphRef, "lyphs");
+          if (!lyph){
+              console.warn("Housing lyph not found while processing channel group", lyphRef);
+              return;
+          }
+          lyph.channels = lyph.channels || [];
+          if (!lyph.channels.find(x => x.id === channel.id)){
+              lyph.channels.push(channel.id);
+          }
+      });
   }
 
     /**
@@ -138,58 +153,73 @@ export class Channel extends Resource {
           return;
       }
 
-      let membraneLyph     = (parentGroup.lyphs||[]).find(e => (e.external||[]).find(x => x.id === "GO:0016020"));
-      let membraneMaterial = (parentGroup.materials||[]).find(e => (e.external||[]).find(x => x.id === "GO:0016020"));
+      let MEMBRANE_ANNOTATION = "GO:0016020";
+      let membraneLyph     = parentGroup.lyphs.find(e => (e.external||[]).find(x => x === MEMBRANE_ANNOTATION || x.id === MEMBRANE_ANNOTATION));
+
+      parentGroup.materials = parentGroup.materials || [];
+      let membraneMaterial = parentGroup.materials.find(e => (e.external||[]).find(x => x === MEMBRANE_ANNOTATION || x.id === MEMBRANE_ANNOTATION));
       if (!membraneLyph && !membraneMaterial){
-          console.warn("Did not find a reference to a membrane lyph or material - validation of the housing lyph membrane layer will be skipped");
+          console.warn("Did not find a reference to a membrane lyph or material - validation of the housing lyphs will be skipped");
       }
 
-      const getObj = (e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
-
-      (channel.housingLyphs||[]).forEach(lyphRef => {
-          let lyph =  getObj(lyphRef, "lyphs");
-          if (!lyph){
-              console.warn("Housing lyph not found", lyphRef);
-              return;
-          }
-          if (lyph.isTemplate) {
-              console.info("Skipping channel instance for a lyph template", lyph);
-              return;
-          }
-
-          let isOk = validateHousingLyph(lyph);
-          if (isOk){
-              let instance = createInstance(lyph.id);
-              channel.instances = channel.instances || [];
-              channel.instances.push(instance);
-              parentGroup.groups.push(instance);
+      //This is needed to merge Lyph.channels for generated lyphs back to Channel.housingLyph
+      parentGroup.lyphs.forEach(lyph => {
+          if (lyph.channels && lyph.channels.includes(channel.id) && !channel.housingLyphs.includes(lyph.id)){
+              console.info("Found derivative of a housing lyph", lyph.id);
+              channel.housingLyphs.push(lyph.id);
           }
       });
 
+      channel.housingLyphs.forEach(lyphRef => {
+            console.info("Processing channel instance for lyph", lyphRef);
+            let lyph =  getObj(parentGroup, lyphRef, "lyphs");
+
+            if (!lyph){
+                console.warn("Housing lyph not found while creating instances", lyphRef);
+                return;
+            }
+
+            if (lyph.isTemplate) {
+                console.info("Skipping channel instance for a lyph template", lyph.id);
+                return;
+            }
+
+            //let isOk = validateHousingLyph(lyph);
+            //if (isOk){
+
+                let instance = createInstance(lyph.id);
+                channel.instances = channel.instances || [];
+                channel.instances.push(instance);
+                parentGroup.groups.push(instance);
+                embedToHousingLyph(lyph, instance);
+            //}
+      });
+
+      //TODO fix!
       function validateHousingLyph(lyph){
-          if ((lyph.layers||[]).length !== (this.group.links||[].length)) {
-              console.warn("The number of layers in the housing lyph does not match the number of links in its membrane channel", lyph);
-              return false;
-          }
-          if (membraneLyph || membraneMaterial) {
-              let middleLayer = lyph.layers && lyph.layers[1];
-              let isOk = membraneLyph && middleLayer.isSubtypeOf(membraneLyph.id);
-              if (!isOk && membraneMaterial) {
-                  isOk = (middleLayer.materials || []).find(e => e.id === membraneMaterial.id);
-              }
-              if (!isOk) {
-                  console.warn("Second layer of a housing lyph is not a (subtype of) membrane", middleLayer, membraneLyph, membraneMaterial);
-              }
-              return isOk;
-          }
-          return true;
+            if ((lyph.layers||[]).length !== (this.group.links||[].length)) {
+                console.warn("The number of layers in the housing lyph does not match the number of links in its membrane channel", lyph);
+                return false;
+            }
+            if (membraneLyph || membraneMaterial) {
+                let middleLayer = lyph.layers && lyph.layers[1];
+                let isOk = membraneLyph && middleLayer.isSubtypeOf(membraneLyph.id);
+                if (!isOk && membraneMaterial) {
+                    isOk = (middleLayer.materials || []).find(e => e === membraneMaterial.id || e.id === membraneMaterial.id);
+                }
+                if (!isOk) {
+                    console.warn("Second layer of a housing lyph is not a (subtype of) membrane", middleLayer, membraneLyph, membraneMaterial);
+                }
+                return isOk;
+            }
+            return true;
       }
 
-        /**
+      /**
          * Create a channel instance
          * @param prefix - instance id/name prefix
          * @returns Group
-         */
+      */
       function createInstance(prefix){
           let instance = {
               "id"        : `${channel.id}_instance-${prefix}`,
@@ -200,26 +230,43 @@ export class Channel extends Resource {
               instance[prop] = [];
           });
 
-          let prev = channel.group.nodes[0]::clone();
-          prev.id = `${prev.id}-${prefix}`;
-          mergeGenResource(instance, parentGroup, prev, "nodes");
-          channel.group.links.forEach(baseLnk => {
-              let baseTrg  = getObj(baseLnk.target, "nodes");
-              let baseLyph = getObj(baseLnk.conveyingLyph, "lyphs");
+          //Clone first node
+          let prev_id = channel.group.nodes[0];
+          let baseSrc = getObj(parentGroup, prev_id, "nodes");
+          if (!baseSrc){
+              console.error("Failed to find first node of the channel group", prev_id);
+              return instance;
+          }
+          let src = {
+              "id": `${baseSrc.id}-${prefix}`,
+              "cloneOf"  : baseSrc.id
+          }::merge(baseSrc::pick(["color", "skipLabel", "generated"])); //TODO replace with Node.clone
+          mergeGenResource(instance, parentGroup, src, "nodes");
+
+          //Clone the rest of the chain resources: link, target node, conveying lyph
+          prev_id = src.id;
+          let links = parentGroup.links.filter(lnk => channel.group.links.includes(lnk.id));
+          links.forEach(baseLnk => {
+              let baseTrg  = getObj(parentGroup, baseLnk.target, "nodes");
+              let baseLyph = getObj(parentGroup, baseLnk.conveyingLyph, "lyphs");
               let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r
-                      ? r::clone()::merge({
+                      ? {
                           "id"       : `${r.id}-${prefix}`,
                           "cloneOf"  : r.id,
-                          "generated": true
-                      })
+                      }
                       : r
               ));
-              lnk.source = prev.id;
+              lnk.source = prev_id;
               lnk.target = trg.id;
+              lnk.conveyingLyph = lyph ? lyph.id : null;
+
+              //TODO move to Link and Node clone functions
+              trg = trg::merge(baseTrg::pick(["color", "skipLabel", "generated"]));
+              lnk = lnk::merge(baseLnk::pick(["conveyingType", "conveyingMaterials", "color", "generated"]));
               Lyph.clone(parentGroup.lyphs, baseLyph, lyph);
 
               mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
-              prev = lnk.target;
+              prev_id = lnk.target;
           });
 
           return instance;
@@ -233,18 +280,23 @@ export class Channel extends Resource {
       function embedToHousingLyph(lyph, instance) {
           //Embed channel to the housing lyph
 
-          (lyph.layers||[]).forEach((layerRef, i) => {
-              let layer = getObj(layerRef, "lyphs");
+          const addNode = (border, node) => {
+              border.hostedNodes = border.hostedNodes || [];
+              border.hostedNodes.push(node);
+          };
+
+          let layers = (lyph.layers||[]).filter(e => !!e);
+          for (let i = 0; i < layers.length; i++){
+              let layer = getObj(parentGroup, lyph.layers[i], "lyphs");
               if (!layer){
-                  console.warn("Housing lyph layer not found", lyph, layerRef);
+                  console.warn("Housing lyph layer not found", lyph, layers[i]);
                   return;
               }
               layer.border = layer.border || {};
               layer.border.borders = layer.border.borders || [{}, {}, {}, {}];
-              layer.border.borders[0].hostedNodes = layer.border.borders[0].hostedNodes || [];
-              layer.border.borders[0].hostedNodes.push(instance.nodes[i]);
-          });
-          lyph.layers[2].border.borders[2] = instance.nodes[3];
+              addNode(layer.border.borders[0], instance.nodes[i]);
+              if (i === layers.length - 1){ addNode(layer.border.borders[2], instance.nodes[instance.nodes.length - 1]); }
+          }
 
           //parentGroup.coalescences = parentGroup.coalescences || [];
 

@@ -47,11 +47,24 @@ export class Group extends Resource {
         //create tree instances
         this.createTreeInstances(json, modelClasses);
 
+        //create channel instances
+        this.createChannelInstances(json, modelClasses);
+
+
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
         //copy nested references to resources to the parent group
         res.mergeSubgroupEntities();
+
+        res.lyphs = res.lyphs || [];
+        res.links = res.links || [];
+        //Add conveying lyphs to groups that contain links
+        res.links.forEach(link => {
+            if (link.conveyingLyph && !res.lyphs.find(lyph => lyph.id === link.conveyingLyph.id)){
+                res.lyphs.push(link.conveyingLyph);
+            }
+        });
 
         //validate process edges
         res.validateProcessEdges();
@@ -188,16 +201,21 @@ export class Group extends Resource {
     static createTreeInstances(json, modelClasses){
         if (!modelClasses){ return; }
         (json.trees||[]).forEach(tree => {
-            if (!tree.group) { this.expandTreeTemplates(json, modelClasses); }
+            if (!tree.group) { return; }
             modelClasses.Tree.createInstances(json, tree);
         });
     }
 
+    /**
+     * Create channel instances
+     * @param json - input model
+     * @param modelClasses - model resource classes
+     */
     static createChannelInstances(json, modelClasses){
         if (!modelClasses){ return; }
         (json.channels||[]).forEach(channel => {
-            if (!tree.group) { this.expandChannelTemplates(json, modelClasses); }
-            modelClasses.Channel.createInstances(json, tree);
+            if (!channel.group) { return; }
+            modelClasses.Channel.createInstances(json, channel);
         });
     }
 
