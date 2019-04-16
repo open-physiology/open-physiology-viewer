@@ -279,7 +279,7 @@ export class WebGLSceneComponent {
                 "showLyphs"       : true,
                 "showLayers"      : true,
                 "showLyphs3d"     : false,
-                "showCoalescences": true
+                "showCoalescences": false
             },
             "groups": true,
             "labels": {

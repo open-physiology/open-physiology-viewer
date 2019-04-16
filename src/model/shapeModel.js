@@ -123,6 +123,8 @@ export class Lyph extends Shape {
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
             "thickness", "external", "comment", "materials", "create3d", "channels"]));
 
+        if (!targetLyph.name) {targetLyph.name = sourceLyph.name + " (clone)"; }
+
         if ((targetLyph.layers||[]).length > 0) {
             console.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
             return;

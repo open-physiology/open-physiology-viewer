@@ -39,9 +39,9 @@ export default Kapsule({
         arrowLength      : {default: 40 },      // arrow length for directed links
 
         showLyphs        : { default: true},
-        showLyphs3d      : { default: false},
         showLayers       : { default: true},
-        showCoalescences : { default: true},
+        showLyphs3d      : { default: false},
+        showCoalescences : { default: false},
         showLabels       : { default: {Node: true}},
 
         labels           : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},

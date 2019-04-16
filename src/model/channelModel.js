@@ -63,18 +63,21 @@ export class Channel extends Resource {
           {
               "id"        : "mcTemplate",
               "isTemplate": true,
-              "layers"    : ["mcContent", "mcWall", "mcExtra"]
+              "layers"    : ["mcContent", "mcWall", "mcOuter"]
           },
           {
               "id"        : "mcContent",
+              "name"      : "Content",
               "isTemplate": true
           },
           {
               "id"        : "mcWall",
+              "name"      : "Wall",
               "isTemplate": true
           },
           {
-              "id"        : "mcExtra",
+              "id"        : "mcOuter",
+              "name"      : "Outer",
               "isTemplate": true
           }
       ];
@@ -103,6 +106,7 @@ export class Channel extends Resource {
       for (let i = 0; i < CHANNEL_LENGTH; i++){
           let lyph = {
               "id"        : channel.id + "_" + mcLyphs[i].id,
+              "name"      : `${mcLyphs[i].name} of ${channel.name || "?"}`,
               "supertype" : mcLyphs[i].id,
               "generated" : true
           };
