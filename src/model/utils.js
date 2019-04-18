@@ -1,6 +1,7 @@
 import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys, isPlainObject} from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
+import {logger} from './logger';
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
@@ -182,7 +183,7 @@ const getSchemaClassModel = (schemaClsName) => {
 
     let model = {};
     if (!definitions[schemaClsName]) {
-        console.error("Failed to find schema definition for class: ", schemaClsName);
+        logger.error("Failed to find schema definition for class: ", schemaClsName);
         return model;
     }
     model.schema            = definitions[schemaClsName];

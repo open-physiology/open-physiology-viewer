@@ -3,6 +3,7 @@ import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from
 import {LINK_STROKE, PROCESS_TYPE, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
+import {logger} from './logger';
 
 /**
  *  Group (subgraph) model
@@ -158,10 +159,10 @@ export class Group extends Resource {
             }
         });
         if (changedLyphs > 0){
-            console.info("Replaced references to lyph templates:", changedLyphs);
+            logger.info("Replaced references to lyph templates:", changedLyphs);
         }
         if (changedMaterials > 0){
-            console.info("Replaced references to materials:", changedMaterials);
+            logger.info("Replaced references to materials:", changedMaterials);
         }
     }
 
@@ -296,7 +297,7 @@ export class Group extends Resource {
 
         (this.groups||[]).forEach(group => {
             if (group.id === this.id || (this.inGroups||[]).find(e => e.id === group.id)) {
-                console.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
+                logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
             let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames);
@@ -332,13 +333,13 @@ export class Group extends Resource {
                         } else {
                             let diff = (layers[0].materials || []).filter(x => !(lnk.conveyingMaterials||[]).find(e => e.id === x.id));
                             if (diff.length > 0){
-                                console.log("Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link", lnk, diff);
+                                logger.log("Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link", lnk, diff);
                             }
                         }
                     } else {
                         let nonConveying = (lnk.conveyingMaterials||[]).filter(x => !(layers[0].materials || []).find(e => e.id === x.id));
                         if (nonConveying.length > 0){
-                            console.warn("Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:", lnk, nonConveying);
+                            logger.warn("Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:", lnk, nonConveying);
                         }
                     }
                 }

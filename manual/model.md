@@ -68,7 +68,6 @@
 
  The most basic visual artifact property is `color` - the color of the resource helps to interpret the model, identify resources that originate from the common template, etc. Additionally, each visual resource can have auxiliary boolean parameters `hidden`, `inactive`, and `skipLabels` that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.
 
-
 ## Node  
 The ApiNATOMY model essentially defines a graph where the positions of nodes are computed by the force-directed layout. Nodes connect links which convey lyphs, the main modelling concept in the ApiNATOMY framework.
 

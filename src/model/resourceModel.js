@@ -12,7 +12,9 @@ import {
     pick,
     intersection
 } from 'lodash-bound';
+
 import {JSONPath, getClassName, schemaClassModels, isClassAbstract} from "./utils";
+import {logger} from './logger';
 
 /**
  * The class defining common methods for all resources
@@ -26,6 +28,7 @@ import {JSONPath, getClassName, schemaClassModels, isClassAbstract} from "./util
  *
  */
 export class Resource{
+
     constructor(id) {
         this::merge(this.constructor.Model.defaultValues);
         this.id = id;
@@ -47,7 +50,7 @@ export class Resource{
         //spec
         let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
-            console.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
+            logger.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
         }
 
         res::assign(json);
@@ -58,7 +61,7 @@ export class Resource{
 
             if (entitiesByID[res.id]) {
                 if (entitiesByID[res.id] !== res){
-                    console.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
+                    logger.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
                 }
             } else {
                 entitiesByID[res.id] = res;
@@ -87,7 +90,7 @@ export class Resource{
 
             let clsName = getClassName(spec);
             if (!clsName){
-                console.warn("Cannot extract the object class: property specification does not imply a reference",
+                logger.warn("Cannot extract the object class: property specification does not imply a reference",
                     spec, value);
                 return value;
             }
@@ -105,7 +108,7 @@ export class Resource{
 
             if (value.id && entitiesByID[value.id]) {
                 if (value !== entitiesByID[value.id]) {
-                    console.warn("Duplicate resource definition:", value, entitiesByID[value.id]);
+                    logger.warn("Duplicate resource definition:", value, entitiesByID[value.id]);
                 }
                 return entitiesByID[value.id];
             }
@@ -115,10 +118,10 @@ export class Resource{
                 if (value.class) {
                     clsName = value.class;
                     if (!modelClasses[clsName]){
-                        console.error("Failed to find class definition", value.class, value);
+                        logger.error("Failed to find class definition", value.class, value);
                     }
                 } else {
-                    console.error("An abstract relationship field expects a reference to an existing resource " +
+                    logger.error("An abstract relationship field expects a reference to an existing resource " +
                         " or 'class' field in its value definition: ", value);
                     return null;
                 }
@@ -127,7 +130,7 @@ export class Resource{
         };
 
         if (!modelClasses[this.class]){
-            console.error("Class definitions not passed to resource constructor:", modelClasses, this.class);
+            logger.error("Class definitions not passed to resource constructor:", modelClasses, this.class);
             return;
         }
 
@@ -161,7 +164,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        console.warn("Cannot create a relationship: unknown resource class", e);
+                        logger.warn("Cannot create a relationship: unknown resource class", e);
                     } else {
                         let relNames = modelClasses[e.class].Model.relationshipNames;
                         let relMaps  = modelClasses[e.class].Model.relationshipMap;
@@ -173,7 +176,7 @@ export class Resource{
                                 } else {
                                     newValue[key] = entitiesByID[newValue[key]];
                                 }
-                                console.info(`Created relationship via dynamic assignment: `, key, e.id, newValue[key]);
+                                logger.info(`Created relationship via dynamic assignment: `, key, e.id, newValue[key]);
                             }
                         });
                         e::merge(newValue);
@@ -186,7 +189,7 @@ export class Resource{
                 });
             })
         } catch (err){
-            console.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
+            logger.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
         }
     };
 
@@ -203,7 +206,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        console.warn("Cannot assign a property: unknown resource class", e);
+                        logger.warn("Cannot assign a property: unknown resource class", e);
                     } else {
                         let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
                         e::merge(value::pick(propNames));
@@ -211,7 +214,7 @@ export class Resource{
                });
             })
         } catch (err){
-            console.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
+            logger.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
         }
     };
 
@@ -234,7 +237,7 @@ export class Resource{
             if (color){
                 let {scheme, length, reversed = false, offset} = color;
                 if (!colorSchemes[scheme]) {
-                    console.warn("Unrecognized color scheme: ", scheme);
+                    logger.warn("Unrecognized color scheme: ", scheme);
                     return;
                 }
                 if (!length) { length = resources.length; }
@@ -244,7 +247,7 @@ export class Resource{
                 const assignColor = items => {
                     (items||[]).forEach((item, i) => {
                         if (!item::isObject()) {
-                            console.warn("Cannot assign color to a non-object value");
+                            logger.warn("Cannot assign color to a non-object value");
                             return;
                         }
                         //If entity is an array, the schema is applied to each of it's items
@@ -296,13 +299,13 @@ export class Resource{
         if (key2) {
             let otherClassName = getClassName(spec);
             if (!otherClassName) {
-                console.error("Class not defined: ", spec);
+                logger.error("Class not defined: ", spec);
                 return;
             }
 
             let otherSpec = modelClasses[otherClassName].Model.relationshipMap[key2];
             if (!otherSpec) {
-                console.error(`Property specification '${key2}' is not found in class:`, otherClassName);
+                logger.error(`Property specification '${key2}' is not found in class:`, otherClassName);
                 return;
             }
 
@@ -311,7 +314,7 @@ export class Resource{
                 if (otherSpec.type === "array") {
                     if (!obj[key2]) { obj[key2] = []; }
                     if (!(obj[key2]::isArray())) {
-                        console.warn(`Object's property '${key2}' should contain an array:`, obj);
+                        logger.warn(`Object's property '${key2}' should contain an array:`, obj);
                         obj[key2] = [obj[key2]];
                     }
                     if (!obj[key2].find(obj2 => obj2 === res)) {
@@ -323,7 +326,7 @@ export class Resource{
                     }
                     else {
                         if (obj[key2] !== res) {
-                            console.warn(`Property "${key2}" of the first resource (${obj.class}) should match the second resource:`,
+                            logger.warn(`Property "${key2}" of the first resource (${obj.class}) should match the second resource:`,
                                 obj, res, obj[key2].id, res.id);
                         }
                     }

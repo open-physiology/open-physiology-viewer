@@ -2,6 +2,7 @@ import { Resource } from './resourceModel';
 import { isPlainObject, defaults } from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
 import { mergeGenResource, mergeGenResources, getObj } from "./utils";
+import {logger} from './logger';
 
 /**
  * Tree model
@@ -21,7 +22,7 @@ export class Tree extends Resource {
     */
     static expandTemplate(parentGroup, tree){
         if ( !tree.id){
-            console.warn(`Skipped tree template - it must have (non-empty) ID!`); return;
+            logger.warn(`Skipped tree template - it must have (non-empty) ID!`); return;
         }
 
         tree.group = tree.group || {};
@@ -35,14 +36,14 @@ export class Tree extends Resource {
         parentGroup.groups.push(tree.group);
 
         if ( !tree.numLevels && ((tree.levels||[]).length === 0)) {
-            console.warn(`Skipped tree template - it must have ID, "numLevels" set to a positive number or provide a non-empty "levels" array`);
+            logger.warn(`Skipped tree template - it must have ID, "numLevels" set to a positive number or provide a non-empty "levels" array`);
             return;
         }
         if ( tree.group.links && (tree.group.links.length > 0)){
-            console.warn(`Tree group contains extra links: ${tree.group.links}!`)
+            logger.warn(`Tree group contains extra links: ${tree.group.links}!`)
         }
         if ( tree.group.nodes && (tree.group.nodes.length > 0)){
-            console.warn(`Tree group contains extra nodes: ${tree.group.nodes}!`)
+            logger.warn(`Tree group contains extra nodes: ${tree.group.nodes}!`)
         }
 
         const getID  = (e) => e::isPlainObject()? e.id : e;
@@ -61,7 +62,7 @@ export class Tree extends Resource {
         if (tree.levels.length !== tree.numLevels){
             let min = Math.min(tree.levels.length, tree.numLevels||100);
             let max = Math.max(tree.levels.length, tree.numLevels||0);
-            console.info(`Corrected number of levels in the tree from ${min} to ${max}` );
+            logger.info(`Corrected number of levels in the tree from ${min} to ${max}` );
             for (let i = min; i < max; i++){
                 tree.levels.push({});
             }
@@ -74,7 +75,7 @@ export class Tree extends Resource {
 
         for (let i = 0; i < sources.length; i++){
             if (sources[i] && targets[i] && !match(sources[i], targets[i])){
-                console.error(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
+                logger.error(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
             }
             let newNode = {
                 "id"       : tree.id + "_node" + i,
@@ -124,7 +125,7 @@ export class Tree extends Resource {
                 //find lyph template to establish topology of the tree
                 template = parentGroup.lyphs.find(e => e.id === tree.lyphTemplate);
                 if (!template){
-                    console.error("Failed to find the lyph template definition in the parent group: ",
+                    logger.error("Failed to find the lyph template definition in the parent group: ",
                         tree.lyphTemplate);
                 }
             }
@@ -167,12 +168,12 @@ export class Tree extends Resource {
      */
     static createInstances(parentGroup, tree){
         if (!tree || !tree.group || !tree.levels){
-            console.warn("Cannot create omega tree instances: canonical tree undefined!");
+            logger.warn("Cannot create omega tree instances: canonical tree undefined!");
             return;
         }
 
         if (!tree.branchingFactors || !tree.branchingFactors.find(x => x !== 1)){
-            console.info("Omega tree has no branching points, the instances coincide with the canonical tree!");
+            logger.info("Omega tree has no branching points, the instances coincide with the canonical tree!");
         }
 
         for (let i = 0; i < tree.numInstances; i++){
@@ -205,11 +206,11 @@ export class Tree extends Resource {
                 let lyph = getObj(parentGroup, lnk.conveyingLyph, "lyphs");
 
                 if (!lnk) {
-                    console.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
+                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
                     lnk = {"id": tree.levels[i], "generated": true};
                 }
                 if (!trg){
-                    console.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
+                    logger.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
                     trg = {"id": lnk.target, "generated": true};
                 }
 

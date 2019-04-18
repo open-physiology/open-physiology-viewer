@@ -317,7 +317,6 @@ export class TestApp {
             console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);
         }
-        console.info("ApiNATOMY graph: ", this._graphData);
         if (this._editor){
             this._editor.set(this._model);
         }

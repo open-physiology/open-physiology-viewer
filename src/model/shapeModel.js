@@ -1,5 +1,6 @@
 import {VisualResource} from './visualResourceModel';
-import {clone, isObject, isString, keys, merge, pick, isPlainObject} from 'lodash-bound';
+import {clone, keys, merge, pick, isPlainObject} from 'lodash-bound';
+import {logger} from './logger';
 
 export const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -126,7 +127,7 @@ export class Lyph extends Shape {
         if (!targetLyph.name) {targetLyph.name = sourceLyph.name + " (clone)"; }
 
         if ((targetLyph.layers||[]).length > 0) {
-            console.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
+            logger.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
             return;
         }
 
@@ -134,7 +135,7 @@ export class Lyph extends Shape {
         (sourceLyph.layers || []).forEach(layerRef => {
             let layerParent = layerRef::isPlainObject()? layerRef: lyphs.find(e => e.id === layerRef);
             if (!layerParent) {
-                console.warn("Generation error: template layer object not found: ", layerRef);
+                logger.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
             let lyphLayer = {

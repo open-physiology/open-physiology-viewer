@@ -339,6 +339,7 @@ Border.prototype.updateViewObjects = function(state){
      */
     const placeLinkInside = (link, i, numCols, numRows) => {//TODO this will only work well for rectangular shapes
         if (!link.source || !link.target){
+            //TODO avoid console messages on update
             console.warn(`Cannot place a link inside border ${this.id}: end nodes not defined!`, link);
             return;
         }

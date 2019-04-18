@@ -6,7 +6,7 @@ module.exports = {
     mode: 'development',
 	context: __dirname + '/src',
     devtool: 'source-map',
-	entry: {
+    entry: {
         'test-app/index': [ 'babel-polyfill', 'zone.js/dist/zone.js', './test-app/index.js'],
         'open-physiology-viewer': [ 'babel-polyfill', 'zone.js/dist/zone.js', './index.js' ],
         'open-physiology-viewer-minimal':                                   [ './index.js' ]
