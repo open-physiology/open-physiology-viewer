@@ -1,4 +1,4 @@
-import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys, isPlainObject} from "lodash-bound";
+import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys, isPlainObject, defaults} from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
 import {logger} from './logger';
@@ -45,12 +45,11 @@ export const getClassName = (spec) => {
 
 /**
  * Finds a resource object in the parent group given an object or an ID
- * @param parentGroup
+ * @param eArray
  * @param e
- * @param prop
  * @returns {*|void|T}
  */
-export const getObj = (parentGroup, e, prop) => e::isPlainObject()? e: (parentGroup[prop]||[]).find(x => x.id === e);
+export const findResourceByID = (eArray, e) => e::isPlainObject()? e: (eArray||[]).find(x => x.id === e);
 
 /**
  * Returns a list of references in the schema type specification
@@ -85,7 +84,11 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
     if (group){
         group[prop] = group[prop] || [];
         if (resource::isPlainObject()){
-            if (resource.id){ if (!group[prop].find(x => x.id === resource.id)){ group[prop].push(resource.id); }}
+            if (resource.id){
+                if (!group[prop].find(x => x.id === resource.id)){
+                    group[prop].push(resource.id);
+                }
+            }
         } else {
             if (!group[prop].includes(resource)){ group[prop].push(resource); }
         }

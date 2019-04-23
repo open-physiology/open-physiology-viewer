@@ -1,4 +1,6 @@
 import { Resource } from './resourceModel';
+import {findResourceByID} from "./utils";
+import {merge, pick} from "lodash-bound";
 
 /**
  * Supported link geometries
@@ -69,6 +71,12 @@ export class VisualResource extends Resource{
  */
 export class Node extends VisualResource {
 
+    static clone(sourceNode, targetNode){
+        if (!sourceNode || !targetNode) { return; }
+        targetNode.cloneOf = sourceNode.id;
+        targetNode::merge(sourceNode::pick(["color", "skipLabel", "generated"]));
+    }
+
     /**
      * Determines whether the node's position is constrained in the model
      */
@@ -96,7 +104,14 @@ export class Node extends VisualResource {
  * @property lineWidth
  * @property hostedNodes
  */
-export class Link extends VisualResource {}
+export class Link extends VisualResource {
+
+    static clone(sourceLink, targetLink){
+        if (!sourceLink || !targetLink) { return; }
+        targetLink.cloneOf = sourceLink.id;
+        targetLink::merge(sourceLink::pick(["conveyingType", "conveyingMaterials", "color", "generated"]));
+    }
+}
 
 /**
  * The class to model Material resources

@@ -401,7 +401,7 @@ export class Resource{
         let res = (this.materials||[]).find(e => e.id === materialID);
         if (!res && this.supertype) { res = this.supertype.containsMaterial(materialID)}
         if (!res && this.cloneOf) { res = this.cloneOf.containsMaterial(materialID)}
-        if (!res && this.fromMaterial) { res = this.fromMaterial.containsMaterial(materialID)}
+        if (!res && this.generatedFrom) { res = this.generatedFrom.containsMaterial(materialID)}
         return res;
     }
 }

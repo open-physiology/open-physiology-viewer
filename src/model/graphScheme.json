@@ -946,8 +946,8 @@
           "relatedTo": "housingLyphs",
           "uniqueItems": true
         },
-        "fromMaterial"   : {
-          "description": "Material which was used generated the current lyph",
+        "generatedFrom"   : {
+          "description": "Material which was used to generate the current lyph",
           "anyOf": [
             {
               "type": "string"
@@ -994,6 +994,22 @@
         "$ref": "#/definitions/Resource"
       }],
       "properties": {
+        "topology": {
+          "type": "string",
+          "enum": ["CONNECTING", "EMBEDDING"],
+          "default": "CONNECTING"
+        },
+        "generatedFrom"   : {
+          "description": "Coalescence with abstract lyphs or materials which was used to generate the current coalescence",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Coalescence"
+            }
+          ]
+        },
         "lyphs": {
           "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
           "type": "array",
@@ -1158,7 +1174,8 @@
                 "$ref": "#/definitions/Node"
               }
             ]
-          }
+          },
+          "default": []
         },
         "links": {
           "description": "Links schematically represent structural elements of the human physiology relevant to the explanation of a certain physiological process: blood vessels, neural connections, pulmonary vessels, etc.",
@@ -1172,7 +1189,8 @@
                 "$ref": "#/definitions/Link"
               }
             ]
-          }
+          },
+          "default": []
         },
         "lyphs": {
           "description": "Lyphs provide schematic explanation of physiology structures, i.e., tissue layers that constitute a certain organ. By rotating the lyph shape around its axis, we can create a tube (open, semi-closed or closed on both sides) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neural cell.",
@@ -1186,7 +1204,8 @@
                 "$ref": "#/definitions/Lyph"
               }
             ]
-          }
+          },
+          "default": []
         },
         "materials": {
           "description": "Biological materials, chemical elements and compounds, used in the model",

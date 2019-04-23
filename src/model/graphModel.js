@@ -90,19 +90,12 @@ export class Graph extends Group{
 
         res.entitiesByID = entitiesByID;
 
+        //Generate and validate coalescence instances
         (res.coalescences || []).forEach(coalescence => {
-            let lyph = coalescence.lyphs[0];
-            if (!lyph) { return; }
-            for (let i = 1; i < coalescence.lyphs.length; i++) {
-                let lyph2 = coalescence.lyphs[i];
-                if ((lyph2.layers||[]).find(x => x.id === lyph.id) || (lyph.layers||[]).find(x => x.id === lyph2.id)) {
-                    logger.warn("A lyph coalesces with itself or its layers", lyph, lyph2);
-                }
-                if (!lyph.axis || !lyph2.axis) {
-                    logger.warn("A coalescing lyph is missing an axis", !lyph.axis ? lyph : lyph2);
-                }
-                lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
-            }
+            coalescence.createInstances(res, modelClasses);
+        });
+        (res.coalescences || []).forEach(coalescence => {
+            coalescence.validate();
         });
 
         //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
@@ -112,7 +105,7 @@ export class Graph extends Group{
         });
 
         //Show logged messages
-        logger.info("ApiNATOMY generated model", json);
+        logger.info("ApiNATOMY generated model", res);
         logger.toConsole();
 
         return res;
@@ -212,7 +205,7 @@ export class Graph extends Group{
      * @param entitiesByID - a global resource map to include the generated resources
      */
     createAxesForInternalLyphs(modelClasses, entitiesByID){
-        const createAxis = (lyph, container) => {
+        const createAxis = lyph => {
             let [sNode, tNode] = ["s", "t"].map(prefix => (
                 Node.fromJSON({
                     "id"       : `${prefix}${lyph.id}`,
@@ -221,7 +214,7 @@ export class Graph extends Group{
                     "val"      : 0.1,
                     "skipLabel": true,
                     "generated": true
-                })));
+                }, modelClasses, entitiesByID)));
 
             let link = Link.fromJSON({
                 "id"           : `${lyph.id}-lnk`,
@@ -232,13 +225,11 @@ export class Graph extends Group{
                 "conveyingLyph": lyph,
                 "skipLabel"    : true,
                 "generated"    : true
-            });
+            }, modelClasses, entitiesByID);
             lyph.conveyedBy = link;
             sNode.sourceOf  = [link];
             tNode.targetOf  = [link];
 
-            if (!this.links) {this.links = [];}
-            if (!this.nodes) {this.nodes = [];}
             this.links.push(link);
             [sNode, tNode].forEach(node => this.nodes.push(node));
         };

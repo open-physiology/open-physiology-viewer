@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import { isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick, defaults} from 'lodash-bound';
 import {LINK_STROKE, PROCESS_TYPE, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
@@ -51,15 +51,12 @@ export class Group extends Resource {
         //create channel instances
         this.createChannelInstances(json, modelClasses);
 
-
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
         //copy nested references to resources to the parent group
         res.mergeSubgroupEntities();
 
-        res.lyphs = res.lyphs || [];
-        res.links = res.links || [];
         //Add conveying lyphs to groups that contain links
         res.links.forEach(link => {
             if (link.conveyingLyph && !res.lyphs.find(lyph => lyph.id === link.conveyingLyph.id)){
@@ -95,12 +92,12 @@ export class Group extends Resource {
                 let material = (json.materials || []).find(e => e.id === ref);
                 if (material) {
                     template = {
-                        "id"           : prefix + material.id,
-                        "name"         : material.name,
-                        "isTemplate"   : true,
-                        "materials"    : [material.id],
-                        "fromMaterial" : material.id,
-                        "generated"    : true
+                        "id"            : prefix + material.id,
+                        "name"          : material.name,
+                        "isTemplate"    : true,
+                        "materials"     : [material.id],
+                        "generatedFrom" : material.id,
+                        "generated"     : true
                     };
                     template::merge(material::pick(["name", "external", "color"]));
                     json.lyphs.push(template);
@@ -131,7 +128,7 @@ export class Group extends Resource {
 
         const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
-            const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate", "housingLyphs"].includes(key);
+            const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate", "housingLyphs", "lyphs"].includes(key);
             if (resource[key]::isArray()) {
                 resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
@@ -219,6 +216,31 @@ export class Group extends Resource {
             modelClasses.Channel.createInstances(json, channel);
         });
     }
+
+    /**
+     * Create empty group to accumulate resources generated from a template
+     * @param template - tree or channel template
+     * @param parentGroup - parent group
+     */
+    static createTemplateGroup(template, parentGroup){
+        let group = template.group || {};
+        group::defaults({
+            "id"        : "group_" + template.id,
+            "name"      : template.name,
+            "generated" : true
+        });
+        ["links", "nodes", "lyphs"].forEach(prop => {
+            group[prop] = group[prop] || [];
+            if ( group[prop].length > 0){
+                logger.warn(`Generated group contains extra ${prop}: ${group[prop]}!`)
+            }
+        });
+
+        if (!parentGroup.groups) { parentGroup.groups = []; }
+        parentGroup.groups.push(group);
+        return group;
+    }
+
 
     /**
      * Create lyphs that inherit properties from templates

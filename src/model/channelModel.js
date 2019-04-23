@@ -1,8 +1,8 @@
 import { Resource } from './resourceModel';
-import { defaults, clone, merge, pick} from 'lodash-bound';
+import { Group } from './groupModel';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
-import { PROCESS_TYPE, Link } from "./visualResourceModel";
-import { mergeGenResource, mergeGenResources, getObj } from "./utils";
+import { PROCESS_TYPE, Link, Node } from "./visualResourceModel";
+import { mergeGenResource, mergeGenResources, findResourceByID, generateGroup } from "./utils";
 import {logger} from './logger';
 
 /**
@@ -22,22 +22,7 @@ export class Channel extends Resource {
           logger.warn(`Skipped channel template - it must have (non-empty) ID!`); return;
       }
 
-      channel.group = channel.group || {};
-      channel.group::defaults({
-          "id"        : "group_" + channel.id,
-          "name"      : channel.name,
-          "generated" : true
-      });
-
-      if (!parentGroup.groups) { parentGroup.groups = []; }
-      parentGroup.groups.push(channel.group);
-
-      if ( channel.group.links && (channel.group.links.length > 0)){
-          logger.warn(`Channel group contains extra links: ${channel.group.links}!`)
-      }
-      if ( channel.group.nodes && (channel.group.nodes.length > 0)){
-          logger.warn(`Channel group contains extra nodes: ${channel.group.nodes}!`)
-      }
+      channel.group = Group.createTemplateGroup(channel, parentGroup);
 
       let mcLyphs = [
           {
@@ -134,7 +119,7 @@ export class Channel extends Resource {
 
       //This is needed to merge Channel.housighLyphs into Lyph.channels for correct template derivation (lyph templates will pass channels to subtypes)
       channel.housingLyphs.forEach(lyphRef => {
-          let lyph =  getObj(parentGroup, lyphRef, "lyphs");
+          let lyph =  findResourceByID(parentGroup.lyphs, lyphRef);
           if (!lyph){
               logger.warn("Housing lyph not found while processing channel group", lyphRef);
               return;
@@ -177,7 +162,7 @@ export class Channel extends Resource {
 
       channel.housingLyphs.forEach(lyphRef => {
             logger.info("Processing channel instance for lyph", lyphRef);
-            let lyph =  getObj(parentGroup, lyphRef, "lyphs");
+            let lyph =  findResourceByID(parentGroup.lyphs, lyphRef);
 
             if (!lyph){
                 logger.warn("Housing lyph not found while creating instances", lyphRef);
@@ -232,42 +217,33 @@ export class Channel extends Resource {
               "generated" : true
           };
           ["links", "nodes", "lyphs"].forEach(prop => {
-              instance[prop] = [];
+              instance[prop] = instance[prop] || [];
           });
 
           //Clone first node
           let prev_id = channel.group.nodes[0];
-          let baseSrc = getObj(parentGroup, prev_id, "nodes");
+          let baseSrc = findResourceByID(parentGroup.nodes, prev_id);
           if (!baseSrc){
               logger.error("Failed to find first node of the channel group", prev_id);
               return instance;
           }
-          let src = {
-              "id": `${baseSrc.id}-${prefix}`,
-              "cloneOf"  : baseSrc.id
-          }::merge(baseSrc::pick(["color", "skipLabel", "generated"])); //TODO replace with Node.clone
+          let src = { "id": `${baseSrc.id}-${prefix}` };
+          Node.clone(baseSrc, src);
           mergeGenResource(instance, parentGroup, src, "nodes");
 
           //Clone the rest of the chain resources: link, target node, conveying lyph
           prev_id = src.id;
           let links = parentGroup.links.filter(lnk => channel.group.links.includes(lnk.id));
           links.forEach(baseLnk => {
-              let baseTrg  = getObj(parentGroup, baseLnk.target, "nodes");
-              let baseLyph = getObj(parentGroup, baseLnk.conveyingLyph, "lyphs");
-              let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r
-                      ? {
-                          "id"       : `${r.id}-${prefix}`,
-                          "cloneOf"  : r.id,
-                      }
-                      : r
-              ));
+              let baseTrg  = findResourceByID(parentGroup.nodes, baseLnk.target);
+              let baseLyph = findResourceByID(parentGroup.lyphs, baseLnk.conveyingLyph);
+              let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r? { "id" : `${r.id}-${prefix}`}: r ));
               lnk.source = prev_id;
               lnk.target = trg.id;
               lnk.conveyingLyph = lyph ? lyph.id : null;
 
-              //TODO move to Link and Node clone functions
-              trg = trg::merge(baseTrg::pick(["color", "skipLabel", "generated"]));
-              lnk = lnk::merge(baseLnk::pick(["conveyingType", "conveyingMaterials", "color", "generated"]));
+              Node.clone(baseTrg, trg);
+              Link.clone(baseLnk, lnk);
               Lyph.clone(parentGroup.lyphs, baseLyph, lyph);
 
               mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
@@ -292,7 +268,7 @@ export class Channel extends Resource {
 
           let layers = (lyph.layers||[]).filter(e => !!e);
           for (let i = 0; i < layers.length; i++){
-              let layer = getObj(parentGroup, lyph.layers[i], "lyphs");
+              let layer = findResourceByID(parentGroup.lyphs, lyph.layers[i]);
               if (!layer){
                   logger.warn("Housing lyph layer not found", lyph, layers[i]);
                   return;

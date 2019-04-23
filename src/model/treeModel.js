@@ -1,7 +1,9 @@
 import { Resource } from './resourceModel';
 import { isPlainObject, defaults } from 'lodash-bound';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
-import { mergeGenResource, mergeGenResources, getObj } from "./utils";
+import { Link, Node } from './visualResourceModel';
+import { Group } from './groupModel';
+import { mergeGenResource, mergeGenResources, findResourceByID } from "./utils";
 import {logger} from './logger';
 
 /**
@@ -25,26 +27,12 @@ export class Tree extends Resource {
             logger.warn(`Skipped tree template - it must have (non-empty) ID!`); return;
         }
 
-        tree.group = tree.group || {};
-        tree.group::defaults({
-            "id"        : "group_" + tree.id,
-            "name"      : tree.name,
-            "generated" : true
-        });
-
-        if (!parentGroup.groups) { parentGroup.groups = []; }
-        parentGroup.groups.push(tree.group);
-
         if ( !tree.numLevels && ((tree.levels||[]).length === 0)) {
             logger.warn(`Skipped tree template - it must have ID, "numLevels" set to a positive number or provide a non-empty "levels" array`);
             return;
         }
-        if ( tree.group.links && (tree.group.links.length > 0)){
-            logger.warn(`Tree group contains extra links: ${tree.group.links}!`)
-        }
-        if ( tree.group.nodes && (tree.group.nodes.length > 0)){
-            logger.warn(`Tree group contains extra nodes: ${tree.group.nodes}!`)
-        }
+
+        tree.group = Group.createTemplateGroup(tree, parentGroup);
 
         const getID  = (e) => e::isPlainObject()? e.id : e;
         const match  = (e1, e2) => getID(e1) === getID(e2);
@@ -55,7 +43,7 @@ export class Tree extends Resource {
         //Levels should contain link objects for generation/validation
 
         for (let i = 0; i < tree.levels.length; i++) {
-            tree.levels[i] = getObj(parentGroup, tree.levels[i], "links");
+            tree.levels[i] = findResourceByID(parentGroup.links, tree.levels[i]);
         }
 
         //Match number of requested levels with the tree.levels[i] array length
@@ -194,16 +182,18 @@ export class Tree extends Resource {
                 "name"      : `${tree.name} instance #${prefix}`,
                 "generated" : true
             };
+            ["links", "nodes", "lyphs"].forEach(prop => {
+                instance[prop] = instance[prop] || [];
+            });
 
-            let root  = getObj(parentGroup, tree.root, "nodes");
-
+            let root  = findResourceByID(parentGroup.nodes, tree.root);
             mergeGenResource(instance, parentGroup, root, "nodes");
 
             let levelResources = {};
             for (let i = 0; i < tree.levels.length; i++) {
-                let lnk  = getObj(parentGroup, tree.levels[i], "links");
-                let trg  = getObj(parentGroup, lnk.target, "nodes");
-                let lyph = getObj(parentGroup, lnk.conveyingLyph, "lyphs");
+                let lnk  = findResourceByID(parentGroup.links, tree.levels[i]);
+                let trg  = findResourceByID(parentGroup.nodes, lnk.target);
+                let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
 
                 if (!lnk) {
                     logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
@@ -232,19 +222,14 @@ export class Tree extends Resource {
                         }
                         let prev_id = base[0].source;
                         for (let j = i; j < tree.levels.length; j++) {
-                            let [lnk, trg, lyph] = levelResources[j][0].map(r => (r
-                                    ? {
-                                        "id"       : `${r.id}_${i+1}:${m+1}:${k}-${prefix}`,
-                                        "cloneOf"  : r.id,
-                                        "generated": true
-                                    }
-                                    : r
-                            ));
+                            let baseResources = levelResources[j][0];
+                            let [lnk, trg, lyph] = baseResources.map(r => (r ? { "id" : `${r.id}_${i+1}:${m+1}:${k}-${prefix}` }: r));
                             lnk.target = trg.id;
                             lnk.conveyingLyph = lyph ? lyph.id : null;
                             lnk.source = prev_id;
-                            //TODO clone other properties of the link?
-                            Lyph.clone(parentGroup.lyphs, levelResources[j][0][2], lyph);
+                            Link.clone(baseResources[0], lnk);
+                            Node.clone(baseResources[1], trg);
+                            Lyph.clone(parentGroup.lyphs, baseResources[2], lyph);
                             mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
                             levelResources[j].push([lnk, trg, lyph]);
                             prev_id = lnk.target;

@@ -1679,7 +1679,7 @@
       "name": "Myocyte material in VBC urine",
       "lyphs": [
         "40",
-        "63_0_40"
+        "63"
       ],
       "comment": "40.layers[0], 63.layers[2]"
     }

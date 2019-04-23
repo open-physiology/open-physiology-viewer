@@ -1,6 +1,7 @@
 import {VisualResource} from './visualResourceModel';
 import {clone, keys, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
+import {findResourceByID} from './utils';
 
 export const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -115,7 +116,7 @@ export class Lyph extends Shape {
 
         if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
             //expand the supertype - the sourceLyph may need to get its layers from the supertype first
-            let supertype = sourceLyph.supertype::isPlainObject()? sourceLyph.supertype: lyphs.find(e => e.id === sourceLyph.supertype);
+            let supertype = findResourceByID(lyphs, sourceLyph.supertype);
             if (supertype && supertype.isTemplate){
                 this.expandTemplate(lyphs, supertype);
             }
@@ -133,7 +134,7 @@ export class Lyph extends Shape {
 
         targetLyph.layers = [];
         (sourceLyph.layers || []).forEach(layerRef => {
-            let layerParent = layerRef::isPlainObject()? layerRef: lyphs.find(e => e.id === layerRef);
+            let layerParent = findResourceByID(lyphs, layerRef);
             if (!layerParent) {
                 logger.warn("Generation error: template layer object not found: ", layerRef);
                 return;
@@ -159,6 +160,10 @@ export class Lyph extends Shape {
         return targetLyph;
     }
 
+    /**
+     * Get border types based on the lyph's topology
+     * @returns {Array[2]}
+     */
     get radialTypes() {
         switch (this.topology) {
             case LYPH_TOPOLOGY.BAG  :
@@ -176,10 +181,18 @@ export class Lyph extends Shape {
         return [false, false];
     }
 
+    /**
+     * Get lyph visibility
+     * @returns {boolean}
+     */
     get isVisible() {
         return super.isVisible && (this.layerIn ? this.layerIn.isVisible : true);
     }
 
+    /**
+     * Get lyph axis
+     * @returns {Link}
+     */
     get axis() {
         return this.conveyedBy || ((this.layerIn)? this.layerIn.axis : null);
     }
