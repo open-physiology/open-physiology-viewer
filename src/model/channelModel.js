@@ -2,6 +2,7 @@ import { Resource } from './resourceModel';
 import { Group } from './groupModel';
 import { LYPH_TOPOLOGY, Lyph } from "./shapeModel";
 import { PROCESS_TYPE, Link, Node } from "./visualResourceModel";
+import { COALESCENCE_TOPOLOGY } from "./coalescenceModel";
 import { mergeGenResource, mergeGenResources, findResourceByID, generateGroup } from "./utils";
 import {logger} from './logger';
 
@@ -13,10 +14,11 @@ import {logger} from './logger';
  */
 export class Channel extends Resource {
 
-  /**
-   * Create membrane channel group
-   * @param json
-   */
+    /**
+     * Create membrane channel group
+     * @param parentGroup
+     * @param channel
+     */
   static expandTemplate(parentGroup, channel) {
       if ( !channel.id){
           logger.warn(`Skipped channel template - it must have (non-empty) ID!`); return;
@@ -267,6 +269,8 @@ export class Channel extends Resource {
           };
 
           let layers = (lyph.layers||[]).filter(e => !!e);
+          parentGroup.coalescences = parentGroup.coalescences || [];
+
           for (let i = 0; i < layers.length; i++){
               let layer = findResourceByID(parentGroup.lyphs, lyph.layers[i]);
               if (!layer){
@@ -277,11 +281,17 @@ export class Channel extends Resource {
               layer.border.borders = layer.border.borders || [{}, {}, {}, {}];
               addNode(layer.border.borders[0], instance.nodes[i]);
               if (i === layers.length - 1){ addNode(layer.border.borders[2], instance.nodes[instance.nodes.length - 1]); }
+
+              let layerCoalescence = {
+                  "id"           : `${layer.id}_channel-${instance.lyphs[i]}`,
+                  "name"         : `${layer.name} channel #${instance.lyphs[i]}`,
+                  "generated"    : true,
+                  "topology"     : COALESCENCE_TOPOLOGY.EMBEDDING,
+                  "lyphs"        : [layer.id, instance.lyphs[i]]
+              };
+
+              parentGroup.coalescences.push(layerCoalescence);
           }
-
-          //parentGroup.coalescences = parentGroup.coalescences || [];
-
-          //The third layer of each MC segment will undergo an Embedding Coalescence with the layer of the Housing Lyph that contains it.
       }
   }
 }

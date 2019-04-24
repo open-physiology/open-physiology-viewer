@@ -1,6 +1,11 @@
 import { Resource } from './resourceModel';
 import {logger} from "./logger";
-import { keys, values } from 'lodash-bound';
+import { keys, values, uniqBy } from 'lodash-bound';
+
+export const COALESCENCE_TOPOLOGY = {
+    EMBEDDING  : "EMBEDDING",
+    CONNECTING : "CONNECTING"
+};
 
 export class Coalescence extends Resource{
 
@@ -43,12 +48,17 @@ export class Coalescence extends Resource{
             let coalescingLyphs = cartesian(...lyphInstances);
 
             coalescingLyphs.forEach((lyphs, i) => {
+                let uniqueLyphs = lyphs::uniqBy(e => e.id);
+                if (uniqueLyphs.length <= 1) { return; }
+
                 let instance = this.constructor.fromJSON({
                     "id"           : `${this.id}_instance-${i + 1}`,
                     "name"         : `${this.name} instance #${i + 1}`,
+                    "generated"    : true,
+                    "topology"     : this.topology,
                     "generatedFrom": this,
-                    "lyphs"        : lyphs,
-                    "comment"      : lyphs.map(e => e.id).join(",")
+                    "lyphs"        : uniqueLyphs,
+                    "comment"      : uniqueLyphs.map(e => e.id).join(",")
                 }, modelClasses, parentGroup.entitiesByID);
 
                 //it is ok to add newly create coalescences to the parent group coalescence set as they won't be further processed

@@ -175,8 +175,7 @@
       "source": "node1U",
       "target": "node1V",
       "conveyingLyph": "40",
-      "conveyingType": "ADVECTIVE",
-      "length": 30
+      "conveyingType": "ADVECTIVE"
     },
     {
       "id": "lnk22",
@@ -200,64 +199,11 @@
       "conveyingType": "ADVECTIVE"
     },
     {
-      "id": "lnk25",
-      "source": "node3A",
-      "target": "node3B",
-      "conveyingLyph": "76",
-      "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": [
-        "51"
-      ]
-    },
-    {
-      "id": "lnk26",
-      "source": "node3B",
-      "target": "node3C",
-      "conveyingLyph": "78",
-      "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": [
-        "51"
-      ]
-    },
-    {
-      "id": "lnk27",
-      "source": "node3C",
-      "target": "node3D",
-      "conveyingLyph": "80",
-      "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": [
-        "51"
-      ]
-    },
-    {
-      "id": "lnk28",
-      "source": "node4A",
-      "target": "node4B",
-      "conveyingLyph": "77",
-      "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": [
-        "51"
-      ]
-    },
-    {
-      "id": "lnk29",
-      "source": "node4B",
-      "target": "node4C",
-      "conveyingLyph": "79",
-      "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": [
-        "51"
-      ]
-    },
-    {
-      "id": "lnk30",
-      "source": "node4C",
-      "target": "node4D",
-      "conveyingLyph": "81",
-      "conveyingType": "DIFFUSIVE",
-      "conveyingMaterials": [
-        "51"
-      ]
+      "id": "lnk200",
+      "source": "node200a",
+      "target": "node200b",
+      "conveyingLyph": "63",
+      "length": 40
     }
   ],
   "lyphs": [
@@ -303,16 +249,6 @@
         "0",
         "38",
         "2"
-      ],
-      "assign": [
-        {
-          "path": "$.layers[0]",
-          "value": {
-            "internalLyphs": [
-              "63_0_40"
-            ]
-          }
-        }
       ]
     },
     {
@@ -335,6 +271,9 @@
         "61",
         "62",
         "0"
+      ],
+      "channels": [
+        "mc2"
       ],
       "assign": [
         {
@@ -387,7 +326,9 @@
       ],
       "isTemplate": true,
       "topology": "CYST",
-      "supertype": "54"
+      "materials": [
+        "54"
+      ]
     },
     {
       "id": "62",
@@ -397,7 +338,9 @@
       ],
       "isTemplate": true,
       "topology": "CYST",
-      "supertype": "56"
+      "materials": [
+        "56"
+      ]
     },
     {
       "id": "60",
@@ -481,345 +424,6 @@
           }
         }
       ]
-    },
-    {
-      "id": "76",
-      "name": "Na-Ca exchanger extracellular",
-      "external": [
-        "PR:Q01728"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "layers": [
-        "64",
-        "65",
-        "53"
-      ]
-    },
-    {
-      "id": "77",
-      "name": "SR Ca-ATPase cytosolic",
-      "external": [
-        "PR:P16615"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "layers": [
-        "70",
-        "71",
-        "54"
-      ]
-    },
-    {
-      "id": "78",
-      "name": "Na-Ca exchanger transmembrane",
-      "external": [
-        "PR:Q01728"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "layers": [
-        "66",
-        "67",
-        "62"
-      ]
-    },
-    {
-      "id": "79",
-      "name": "SR Ca-ATPase transmembrane",
-      "external": [
-        "PR:P16615"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "layers": [
-        "72",
-        "73",
-        "58"
-      ]
-    },
-    {
-      "id": "80",
-      "name": "Na-Ca exchanger cytosolic",
-      "external": [
-        "PR:Q01728"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "layers": [
-        "68",
-        "69",
-        "54"
-      ]
-    },
-    {
-      "id": "81",
-      "name": "SR Ca-ATPase intra-SR",
-      "external": [
-        "PR:P16615"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "layers": [
-        "74",
-        "75",
-        "57"
-      ]
-    },
-    {
-      "id": "64",
-      "name": "Na-Ca exchanger content extracellular",
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "materials": [
-        "49",
-        "51"
-      ]
-    },
-    {
-      "id": "65",
-      "name": "Na-Ca exchanger wall extracellular",
-      "external": [
-        "PR:Q01728"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      }
-    },
-    {
-      "id": "66",
-      "name": "Na-Ca exchanger content transmembrane",
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "materials": [
-        "49",
-        "51"
-      ]
-    },
-    {
-      "id": "67",
-      "name": "Na-Ca exchanger wall transmembrane",
-      "external": [
-        "PR:Q01728"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      }
-    },
-    {
-      "id": "68",
-      "name": "Na-Ca exchanger content intracellular",
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "materials": [
-        "49",
-        "51"
-      ]
-    },
-    {
-      "id": "69",
-      "name": "Na-Ca exchanger wall intracellular",
-      "external": [
-        "PR:Q01728"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      }
-    },
-    {
-      "id": "70",
-      "name": "SR Ca-ATPase content cytosolic",
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "materials": [
-        "51"
-      ]
-    },
-    {
-      "id": "71",
-      "name": "SR Ca-ATPase wall cytosolic",
-      "external": [
-        "PR:P16615"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      }
-    },
-    {
-      "id": "72",
-      "name": "SR Ca-ATPase content transmembrane",
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "materials": [
-        "51"
-      ]
-    },
-    {
-      "id": "73",
-      "name": "SR Ca-ATPase wall transmembrane",
-      "external": [
-        "PR:P16615"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      }
-    },
-    {
-      "id": "74",
-      "name": "SR Ca-ATPase content intra-SR",
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      },
-      "materials": [
-        "51"
-      ]
-    },
-    {
-      "id": "75",
-      "name": "SR Ca-ATPase wall intra-SR",
-      "external": [
-        "PR:P16615"
-      ],
-      "isTemplate": true,
-      "topology": "TUBE",
-      "length": {
-        "min": 8,
-        "max": 8
-      },
-      "thickness": {
-        "min": 8,
-        "max": 8
-      }
     },
     {
       "id": "6",
@@ -1380,11 +984,6 @@
         "43",
         "26"
       ]
-    },
-    {
-      "id": "63_0_40",
-      "name": "Myocyte in Urine in VBC",
-      "supertype": "63"
     }
   ],
   "materials": [
@@ -1426,7 +1025,8 @@
         "UBERON:0001088"
       ],
       "materials": [
-        "53"
+        "53",
+        "63"
       ]
     },
     {
@@ -1672,16 +1272,8 @@
         "45",
         "40"
       ],
+      "topology": "CONNECTING",
       "comment": "45.layers[2], 40.layers[2]"
-    },
-    {
-      "id": "96",
-      "name": "Myocyte material in VBC urine",
-      "lyphs": [
-        "40",
-        "63"
-      ],
-      "comment": "40.layers[0], 63.layers[2]"
     }
   ],
   "channels": [
@@ -1694,6 +1286,9 @@
       "materials": [
         "49",
         "51"
+      ],
+      "housingLyphs": [
+        "60"
       ]
     },
     {
@@ -1820,32 +1415,56 @@
     },
     {
       "id": "grp3",
-      "name": "Manually defined membrane channels",
+      "name": "Cardiovascular Segment",
       "nodes": [
         "node2A",
         "node2B",
         "node2C",
-        "node2D",
-        "node3A",
-        "node3B",
-        "node3C",
-        "node3D",
-        "node4A",
-        "node4B",
-        "node4C",
-        "node4D"
+        "node2D"
       ],
       "links": [
         "lnk22",
         "lnk23",
-        "lnk24",
-        "lnk25",
-        "lnk26",
-        "lnk27",
-        "lnk28",
-        "lnk29",
-        "lnk30"
+        "lnk24"
+      ]
+    },
+    {
+      "id": "grp4",
+      "name": "Myocyte instance",
+      "nodes": [
+        "node200a",
+        "node200b"
+      ],
+      "links": [
+        "lnk200"
       ]
     }
-  ]
+  ],
+  "id": "Urinary Omega Tree",
+  "config": {
+    "filter": [
+      "6",
+      "11",
+      "12",
+      "14",
+      "15",
+      "16",
+      "17",
+      "20",
+      "21",
+      "22",
+      "23",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37"
+    ]
+  }
 }

@@ -14,9 +14,11 @@ const ThreeBSP = require('three-js-csg')(THREE);
  */
 export const commonTemplate = (lyph1, lyph2) => {
     if (!lyph1 || !lyph2) { return false; }
+    if (lyph1 === lyph2)  { return true; }
+    if (lyph1.generatedFrom && lyph1.generatedFrom === lyph2.generatedFrom) { return true; }
     if (lyph1.supertype) {
         if (lyph2.supertype) {
-            return lyph1.supertype === lyph2.supertype;
+            return commonTemplate(lyph1.supertype, lyph2.supertype);
         }
         if (lyph2.cloneOf){
             return commonTemplate(lyph1, lyph2.cloneOf);

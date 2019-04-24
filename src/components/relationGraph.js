@@ -78,11 +78,7 @@ export class RelGraph {
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
     _graphData;
-    _matPrefix = "lyphMat_";
-
-    data = {
-        nodes: [], links: []
-    };
+    data = { nodes: [], links: [] };
     width = 1000; height = 600;
 
     nodeTypes = {
@@ -115,8 +111,8 @@ export class RelGraph {
             let nodeResources = this._graphData::pick(["materials", "lyphs", "coalescences", "links"])::values()::flatten();
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
             nodeResources = nodeResources.filter(e => !filter.find(x => e.isSubtypeOf(x)));
-            this.data.nodes = nodeResources.map(e => e::pick(["id", "name", "class", "conveyingType"]));
-            this.data.nodes.filter(e => e.id.startsWith(this._matPrefix)).forEach(e => e.class = "LyphFromMaterial");
+            this.data.nodes = nodeResources.map(e => e::pick(["id", "name", "class", "conveyingType", "generatedFrom"]));
+            this.data.nodes.filter(e => e.class === "Lyph" && e.generatedFrom).forEach(e => e.class = "LyphFromMaterial");
 
             const getNode = (d) => this.data.nodes.find(e => d && (e === d || e.id === d.id));
 
@@ -127,7 +123,7 @@ export class RelGraph {
                 sources.forEach(source => {
                     targets.forEach(target => {
                         this.data.links.push({
-                            "source": source.id, "target": target.id, "type"  : source.conveyingType === "DIFFUSIVE"? "diffusive" : "advective"
+                            "source": source.id, "target": target.id, "type"  : source.conveyingType? source.conveyingType.toLowerCase(): "advective"
                         });
                     })
                 })
@@ -155,7 +151,7 @@ export class RelGraph {
                     this.data.links.push({"source": lyph.cloneOf.id, "target": lyph.id, "type"  : "subtype"});
                 }
                 (lyph.materials||[]).forEach(material => {
-                    if (getNode(material) && (lyph.id === this._matPrefix + material.id)){
+                    if (getNode(material) && lyph.generatedFrom && (lyph.generatedFrom.id === material.id)){
                         this.data.links.push({"source": material.id, "target": lyph.id, "type"  : "lyphFromMaterial"});
                     }
                 })

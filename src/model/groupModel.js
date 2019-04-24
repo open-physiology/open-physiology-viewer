@@ -64,6 +64,8 @@ export class Group extends Resource {
             }
         });
 
+        //TODO "subtypes", "supertype", "lyphTemplate" should not contain materials - add check
+
         //validate process edges
         res.validateProcessEdges();
 

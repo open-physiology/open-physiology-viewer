@@ -30,8 +30,8 @@ export const LINK_STROKE = {
  * @type {{ADVECTIVE: string, DIFFUSIVE: string}}
  */
 export const PROCESS_TYPE = {
-    ADVECTIVE     : "advective",
-    DIFFUSIVE     : "diffusive"
+    ADVECTIVE     : "ADVECTIVE",
+    DIFFUSIVE     : "DIFFUSIVE"
 };
 
 /**

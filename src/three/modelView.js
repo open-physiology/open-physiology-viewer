@@ -1,6 +1,7 @@
 import {values} from 'lodash-bound';
 import {Group} from "../model/groupModel";
 import {LINK_GEOMETRY} from "../model/visualResourceModel";
+import {COALESCENCE_TOPOLOGY} from "../model/coalescenceModel";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
 import {
     commonTemplate, copyCoords,
@@ -65,37 +66,34 @@ Group.prototype.updateViewObjects = function(state){
 
     this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
 
+
     (this.coalescences||[]).forEach(coalescence => {
-        if (!coalescence.lyphs || !coalescence.lyphs[0]) { return }
+        if (coalescence.inactive || !coalescence.lyphs) { return }
         let lyph = coalescence.lyphs[0];
+        if (!lyph || lyph.isTemplate ) { return; }
         for (let i = 1; i < coalescence.lyphs.length; i++) {
             let lyph2 = coalescence.lyphs[i];
-            if (lyph.isTemplate || lyph2.isTemplate){ return; }
+            if (lyph2.isTemplate) { return; }
 
-            let layers  = lyph.layers  || [lyph];
             let layers2 = lyph2.layers || [lyph2];
-            let container1 = lyph2.allContainers.find(x => x.id === lyph.id);
-            if (container1) {
-                let same = commonTemplate(lyph2.internalIn, layers2[layers2.length - 1]);
-                layers2[layers2.length - 1].setMaterialVisibility( !state.showCoalescences || !same);
-            } else {
-                let container2 = lyph.allContainers.find(x => x.id === lyph2.id);
-                if (container2) {
-                    let same = commonTemplate(lyph.internalIn, layers[layers.length - 1]);
-                    layers[layers.length - 1].setMaterialVisibility(!state.showCoalescences || !same);
-                } else {
-                    if (state.showCoalescences && lyph.viewObjects["2d"]){
-                        //coalescing lyphs are independent / at the same scale level
-                        let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
-                        let scale = (lyph.width + lyph2.width - overlap) / (lyph.width || 1);
-                        if (lyph.axis && lyph2.axis){
-                            let v1 = lyph.points[3].clone().sub(lyph.points[0]).multiplyScalar(scale);
-                            let v2 = lyph.points[2].clone().sub(lyph.points[1]).multiplyScalar(scale);
-                            let c1 = extractCoords(lyph.axis.source).clone().add(v1);
-                            let c2 = extractCoords(lyph.axis.target).clone().add(v2);
-                            copyCoords(lyph2.axis.source, c1);
-                            copyCoords(lyph2.axis.target, c2);
-                        }
+            if (coalescence.topology === COALESCENCE_TOPOLOGY.EMBEDDING) {
+                //Non-symmetric - first lyph is a "housing lyph"
+                //let same = commonTemplate(lyph, layers2[layers2.length - 1]);
+                layers2[layers2.length - 1].setMaterialVisibility( !state.showCoalescences);// || !same);
+            } else {//CONNECTING
+                //Non-symmetric - second lyph moves towards the first
+                //coalescing lyphs are independent / at the same scale level
+                if (state.showCoalescences && lyph.viewObjects["2d"]) {
+                    let layers = lyph.layers || [lyph];
+                    let overlap = Math.min(layers[layers.length - 1].width, layers2[layers2.length - 1].width);
+                    let scale = (lyph.width + lyph2.width - overlap) / (lyph.width || 1);
+                    if (lyph.axis && lyph2.axis) {
+                        let v1 = lyph.points[3].clone().sub(lyph.points[0]).multiplyScalar(scale);
+                        let v2 = lyph.points[2].clone().sub(lyph.points[1]).multiplyScalar(scale);
+                        let c1 = extractCoords(lyph.axis.source).clone().add(v1);
+                        let c2 = extractCoords(lyph.axis.target).clone().add(v2);
+                        copyCoords(lyph2.axis.source, c1);
+                        copyCoords(lyph2.axis.target, c2);
                     }
                 }
             }
