@@ -8,8 +8,6 @@ import {values, pick, flatten, keys, entries} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
 import FileSaver from "file-saver";
 
-const STROKE_COLOR = "#CCC";
-
 @Component({
     selector: 'relGraph',
     template: `
@@ -82,13 +80,13 @@ export class RelGraph {
     width = 1000; height = 600;
 
     nodeTypes = {
-        "Lyph"             : {color: "#FF0000", shape: "circle", attrs: {"r": 5}},
-        "LyphFromMaterial" : {color: "#00FF00", shape: "circle", attrs: {"r": 5}},
-        "Link"             : {color: "#000000", shape: "rect",   attrs: {"width": 10, "height": 10, "x": -5, "y": -5}},
-        "Coalescence"      : {color: "#FFFF00", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}},
-        "Material"         : {color: "#008000", shape: "path",   attrs: {"d": "M -7 0 L -4 -7 L 4 -7 L 7 0 L 4 7 L -4 7 L -7 0"}}
+        "Lyph"                  : {color: "#FF0000", shape: "circle", attrs: {"r": 5}},
+        "LyphFromMaterial"      : {color: "#00FF00", shape: "circle", attrs: {"r": 5}},
+        "Link"                  : {color: "#000000", shape: "rect",   attrs: {"width": 10, "height": 10, "x": -5, "y": -5}},
+        "Coalescence"           : {color: "#FFA500", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}},
+        "EmbeddedCoalescence"   : {color: "#FFFF00", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}},
+        "Material"              : {color: "#008000", shape: "path",   attrs: {"d": "M -7 0 L -4 -7 L 4 -7 L 7 0 L 4 7 L -4 7 L -7 0"}}
     };
-
 
     linkTypes = {
         "diffusive"         :  {color: "#CCC"},
@@ -102,6 +100,12 @@ export class RelGraph {
         "lyphFromMaterial"  :  {color: "#008000", directed: true}
     };
 
+    strokeTypes = {
+        "instance": "#CCC",
+        "template": "#0000FF"
+    };
+
+
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
@@ -111,8 +115,9 @@ export class RelGraph {
             let nodeResources = this._graphData::pick(["materials", "lyphs", "coalescences", "links"])::values()::flatten();
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
             nodeResources = nodeResources.filter(e => !filter.find(x => e.isSubtypeOf(x)));
-            this.data.nodes = nodeResources.map(e => e::pick(["id", "name", "class", "conveyingType", "generatedFrom"]));
+            this.data.nodes = nodeResources.map(e => e::pick(["id", "name", "class", "conveyingType", "generatedFrom", "isTemplate", "topology"]));
             this.data.nodes.filter(e => e.class === "Lyph" && e.generatedFrom).forEach(e => e.class = "LyphFromMaterial");
+            this.data.nodes.filter(e => e.class === "Coalescence" && e.topology === "EMBEDDING").forEach(e => e.class = "EmbeddedCoalescence");
 
             const getNode = (d) => this.data.nodes.find(e => d && (e === d || e.id === d.id));
 
@@ -167,7 +172,7 @@ export class RelGraph {
 
             (this._graphData.coalescences||[]).filter(e => getNode(e)).forEach(coalescence => {
                 (coalescence.lyphs||[]).filter(e => getNode(e)).forEach(lyph  => {
-                    this.data.links.push({"source": lyph.id, "target": coalescence.id, "type"  : "coalescence"})
+                    this.data.links.push({"source": lyph.id, "target": coalescence.id, "type" : "coalescence"})
                 })
             });
 
@@ -207,13 +212,7 @@ export class RelGraph {
             forceInABoxStrength      : 0.1,
             linkStrengthInterCluster : 0.2,
             linkStrengthIntraCluster : 0.1
-            // forceLinkDistance: 150,
-            // forceLinkStrength: 0.2,
-            // forceCharge  : 700,
-            // forceNodeSize: 3
         };
-
-        //TODO stimulate forceInABox after resizing
 
         //Simulation
         let groupingForce = forceInABox()
@@ -223,12 +222,8 @@ export class RelGraph {
             .strength(fParams.forceInABoxStrength) // Strength to foci
             .links(data.links)
             .enableGrouping(useGroupInABox)
-            .linkStrengthInterCluster(fParams.linkStrengthInterCluster) // linkStrength between nodes of different clusters
+            .linkStrengthInterCluster(fParams.linkStrengthInterCluster)  // linkStrength between nodes of different clusters
             .linkStrengthIntraCluster(fParams.linkStrengthIntraCluster); // linkStrength between nodes of the same cluster
-            // .forceLinkDistance(fParams.forceLinkDistance)       // linkDistance between meta-nodes on the template (Force template only)
-            // .forceLinkStrength(fParams.forceLinkStrength)       // linkStrength between meta-nodes of the template (Force template only)
-            // .forceCharge(-fParams.forceCharge)                  // Charge between the meta-nodes (Force template only)
-            // .forceNodeSize(fParams.forceNodeSize);              // Used to compute the template force nodes size (Force template only)
 
         let simulation = d3.forceSimulation(data.nodes)
             .force("link", d3.forceLink(data.links).id(d => d.id))
@@ -266,7 +261,7 @@ export class RelGraph {
 
         //Nodes
 
-        const [nodeLyph, nodeLyphFromMaterial, nodeLink, nodeCoalescence, nodeMaterial] =
+        const [nodeLyph, nodeLyphFromMaterial, nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial] =
         this.nodeTypes::keys().map(clsName =>
             graphSvg.append("g").selectAll(this.nodeTypes[clsName].shape)
                 .data(data.nodes.filter(e => e.class === clsName))
@@ -313,9 +308,9 @@ export class RelGraph {
 
         //Set common node attributes
 
-        [nodeLink, nodeCoalescence, nodeMaterial, nodeLyph, nodeLyphFromMaterial].forEach(node => {
+        [nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial, nodeLyph, nodeLyphFromMaterial].forEach(node => {
             node.attrs(d => this.nodeTypes[d.class].attrs)
-                .attr("stroke", STROKE_COLOR)
+                .attr("stroke", e => e.isTemplate? this.strokeTypes.template: this.strokeTypes.instance)
                 .attr("fill", e => this.nodeTypes[e.class].color);
 
             node.on("dblclick", d => {
@@ -354,7 +349,7 @@ export class RelGraph {
                     .attr("cy", d => boundY(d.y));
             });
 
-            [nodeLink, nodeCoalescence, nodeMaterial, text].forEach(e =>
+            [nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial, text].forEach(e =>
                 e.attr("transform", d => "translate(" + boundX(d.x) + "," + boundY(d.y) + ")"));
         });
 
@@ -375,7 +370,7 @@ export class RelGraph {
     drawLegend(){
         //Legends
         if (!this.legendSvgRef){ return; }
-        let legendSvg = d3.select(this.legendSvgRef.nativeElement).attr("width", 200).attr("height", 300);
+        let legendSvg = d3.select(this.legendSvgRef.nativeElement).attr("width", 300).attr("height", 300);
         let nodeTypes = this.nodeTypes;
 
         const labelHSpacing = 15;
@@ -419,10 +414,11 @@ export class RelGraph {
                 return 'translate(' + h + ',' + v + ')';
             });
 
+        const cls = this;
         nodeLegend.each(function(d){
             d3.select(this).append(nodeTypes[d].shape).attrs(nodeTypes[d].attrs)
                 .attr('fill', nodeTypes[d].color)
-                .attr('stroke', STROKE_COLOR)
+                .attr('stroke', cls.strokeTypes.instance)
         });
 
         nodeLegend.append('text')

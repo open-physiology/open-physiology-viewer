@@ -5,6 +5,8 @@ import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
 import {logger} from './logger';
 
+//TODO Make sure the viewer does not fail if the group includes non-existing links and nodes
+
 /**
  *  Group (subgraph) model
  * @class

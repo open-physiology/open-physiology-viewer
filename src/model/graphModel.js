@@ -16,7 +16,7 @@ import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
 
-export {schema};
+export { schema };
 const DEFAULT_LENGTH = 4;
 
 /**
@@ -91,12 +91,8 @@ export class Graph extends Group{
         res.entitiesByID = entitiesByID;
 
         //Generate and validate coalescence instances
-        (res.coalescences || []).forEach(coalescence => {
-            coalescence.createInstances(res, modelClasses);
-        });
-        (res.coalescences || []).forEach(coalescence => {
-            coalescence.validate();
-        });
+        (res.coalescences || []).forEach(coalescence => coalescence.createInstances(res, modelClasses));
+        (res.coalescences || []).forEach(coalescence => coalescence.validate());
 
         //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
         (res.links||[]).filter(link => link::isObject()).forEach(link => {
@@ -106,7 +102,8 @@ export class Graph extends Group{
 
         //Show logged messages
         logger.info("ApiNATOMY generated model", res);
-        logger.toConsole();
+        res.logger = logger;
+        //logger.toConsole();
 
         return res;
     }

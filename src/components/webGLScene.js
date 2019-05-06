@@ -1,7 +1,7 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
+import {MatSliderModule, MatCheckboxModule, MatRadioModule, MatDialog, MatDialogModule} from '@angular/material'
 import FileSaver  from 'file-saver';
 import {keys, values, defaults} from 'lodash-bound';
 import * as THREE from 'three';
@@ -10,6 +10,7 @@ import ThreeForceGraph   from '../three/threeForceGraph';
 import { forceX, forceY, forceZ } from 'd3-force-3d';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
+import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -57,8 +58,13 @@ const WindowResize = require('three-window-resize');
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="exportResourceMap()" title="Export resource map">
                             <i class="fa fa-file-code-o"> </i>
-                        </button> 
-
+                        </button>
+                        <button *ngIf="graphData?.logger" class="w3-bar-item w3-hover-light-grey"
+                                (click)="showReport()" title="Show logs">
+                            <i *ngIf = "graphData.logger.status === graphData.logger.levels.ERROR"   class="fa fa-exclamation-triangle" style="color:red"> </i>
+                            <i *ngIf = "graphData.logger.status === graphData.logger.levels.WARNING" class="fa fa-exclamation-triangle" style="color:yellow"> </i>
+                            <i *ngIf = "graphData.logger.status === graphData.logger.levels.OK"      class="fa fa-check-circle"         style="color:green"> </i>
+                        </button>
                     </section> 
                     
                     <!--Main content-->                   
@@ -200,6 +206,7 @@ const WindowResize = require('three-window-resize');
  */
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
+    logDialog: MatDialog;
 
     showPanel = false;
     scene;
@@ -215,6 +222,7 @@ export class WebGLSceneComponent {
 
     _searchOptions;
     _selectedName = "";
+
 
     graph;
     helpers   = {};
@@ -270,10 +278,10 @@ export class WebGLSceneComponent {
      */
     @Output() selectedItemChange = new EventEmitter();
 
-
     @Output() editResource = new EventEmitter();
 
-    constructor(){
+    constructor(dialog: MatDialog) {
+        this.dialog = dialog;
         this.config = {
             "layout": {
                 "showLyphs"       : true,
@@ -359,6 +367,20 @@ export class WebGLSceneComponent {
             const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
             FileSaver.saveAs(blob, 'apinatomy-resourceMap.json');
         }
+    }
+
+    showReport(){
+        const dialogRef = this.dialog.open(LogInfoDialog, {
+            width : '75%',
+            data  : this.graphData.logger.toJSON()
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result){
+                //save to file
+            }
+        });
+
     }
 
     createEventListeners() {
@@ -631,13 +653,13 @@ export class WebGLSceneComponent {
         this._graphData.showGroups(this._showGroups);
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
-
 }
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, MatDialogModule, LogInfoModule],
     declarations: [WebGLSceneComponent],
+    entryComponents: [LogInfoDialog],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

@@ -197,13 +197,6 @@
       "target": "node2D",
       "conveyingLyph": "46",
       "conveyingType": "ADVECTIVE"
-    },
-    {
-      "id": "lnk200",
-      "source": "node200a",
-      "target": "node200b",
-      "conveyingLyph": "63",
-      "length": 40
     }
   ],
   "lyphs": [
@@ -213,7 +206,7 @@
       "external": [
         "UBERON:0000074"
       ],
-      "isTemplate": false,
+      "isTemplate": true,
       "topology": "TUBE",
       "length": {
         "min": 4,
@@ -235,7 +228,7 @@
       "external": [
         "UBERON:0005751"
       ],
-      "isTemplate": false,
+      "isTemplate": true,
       "topology": "BAG",
       "length": {
         "min": 5,
@@ -274,48 +267,6 @@
       ],
       "channels": [
         "mc2"
-      ],
-      "assign": [
-        {
-          "path": "$.layers[2]",
-          "value": {
-            "materials": [
-              "76"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[0]",
-          "value": {
-            "materials": [
-              "80"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[1]",
-          "value": {
-            "materials": [
-              "78"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[1].border.borders[2]",
-          "value": {
-            "hostedNodes": [
-              "node3B"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[1].border.borders[0]",
-          "value": {
-            "hostedNodes": [
-              "node3C"
-            ]
-          }
-        }
       ]
     },
     {
@@ -357,48 +308,6 @@
       ],
       "channels": [
         "mc1"
-      ],
-      "assign": [
-        {
-          "path": "$.layers[0]",
-          "value": {
-            "materials": [
-              "81"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[2]",
-          "value": {
-            "materials": [
-              "77"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[1]",
-          "value": {
-            "materials": [
-              "79"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[1].border.borders[2]",
-          "value": {
-            "hostedNodes": [
-              "node4B"
-            ]
-          }
-        },
-        {
-          "path": "$.layers[1].border.borders[0]",
-          "value": {
-            "hostedNodes": [
-              "node4C"
-            ]
-          }
-        }
       ]
     },
     {
@@ -413,16 +322,6 @@
         "54",
         "56",
         "53"
-      ],
-      "assign": [
-        {
-          "path": "$.layers[0]",
-          "value": {
-            "materials": [
-              "60"
-            ]
-          }
-        }
       ]
     },
     {
@@ -1102,7 +1001,8 @@
         "GO:0005829"
       ],
       "materials": [
-        "53"
+        "53",
+        "60"
       ]
     },
     {
@@ -1426,17 +1326,6 @@
         "lnk22",
         "lnk23",
         "lnk24"
-      ]
-    },
-    {
-      "id": "grp4",
-      "name": "Myocyte instance",
-      "nodes": [
-        "node200a",
-        "node200b"
-      ],
-      "links": [
-        "lnk200"
       ]
     }
   ],

@@ -84,4 +84,8 @@ export class Coalescence extends Resource{
             lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
         }
     }
+
+    get isTemplate(){
+        return !!(this.lyphs||[]).find(lyphOrMat => lyphOrMat.isTemplate || lyphOrMat.class === "Material");
+    }
 }
