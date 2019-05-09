@@ -155,7 +155,7 @@ export class Tree extends Resource {
      * @param tree - omega tree definition
      */
     static createInstances(parentGroup, tree){
-        if (!tree || !tree.group || !tree.levels){
+        if (!tree || !tree.group || !tree.statusOptions){
             logger.warn("Cannot create omega tree instances: canonical tree undefined!");
             return;
         }
@@ -190,14 +190,14 @@ export class Tree extends Resource {
             mergeGenResource(instance, parentGroup, root, "nodes");
 
             let levelResources = {};
-            for (let i = 0; i < tree.levels.length; i++) {
-                let lnk  = findResourceByID(parentGroup.links, tree.levels[i]);
+            for (let i = 0; i < tree.statusOptions.length; i++) {
+                let lnk  = findResourceByID(parentGroup.links, tree.statusOptions[i]);
                 let trg  = findResourceByID(parentGroup.nodes, lnk.target);
                 let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
 
                 if (!lnk) {
-                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
-                    lnk = {"id": tree.levels[i], "generated": true};
+                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.statusOptions[i]);
+                    lnk = {"id": tree.statusOptions[i], "generated": true};
                 }
                 if (!trg){
                     logger.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
@@ -214,14 +214,14 @@ export class Tree extends Resource {
 
             const MAX_GEN_RESOURCES = 1000;
             let count = 0;
-            for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
+            for (let i = 0; i < Math.min(tree.statusOptions.length, tree.branchingFactors.length); i++){
                 levelResources[i].forEach((base, m) => {
                     for (let k = 1; k < tree.branchingFactors[i]; k++){ //Instances reuse the canonic tree objects
                         if (count > MAX_GEN_RESOURCES){
                             throw new Error(`Reached maximum allowed number of generated resources per tree instance (${MAX_GEN_RESOURCES})!`);
                         }
                         let prev_id = base[0].source;
-                        for (let j = i; j < tree.levels.length; j++) {
+                        for (let j = i; j < tree.statusOptions.length; j++) {
                             let baseResources = levelResources[j][0];
                             let [lnk, trg, lyph] = baseResources.map(r => (r ? { "id" : `${r.id}_${i+1}:${m+1}:${k}-${prefix}` }: r));
                             lnk.target = trg.id;

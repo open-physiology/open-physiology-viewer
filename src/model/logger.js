@@ -1,10 +1,10 @@
-const LEVEL = {
+export const LEVEL = {
     INFO  : "Info",
     WARN  : "Warn",
     ERROR : "Error"
 };
 
-const STATUS = {
+export const STATUS = {
     OK      : "OK",
     WARNING : "Warning",
     ERROR   : "Error"
@@ -12,18 +12,19 @@ const STATUS = {
 
 export class Logger {
     entries = [];
-    levels = STATUS;
+    levelOptions  = LEVEL;
+    statusOptions = STATUS;
 
     constructor(){}
 
     info(msg, ...params){
-        this.entries.push({"level": LEVEL.INFO, msg, params});
+        this.entries.push({"level": this.levelOptions.INFO, msg, params});
     }
     warn(msg, ...params){
-        this.entries.push({"level": LEVEL.WARN, msg, params});
+        this.entries.push({"level": this.levelOptions.WARN, msg, params});
     }
     error(msg, ...params){
-        this.entries.push({"level": LEVEL.ERROR, msg, params});
+        this.entries.push({"level": this.levelOptions.ERROR, msg, params});
     }
 
     clear(){
@@ -38,11 +39,11 @@ export class Logger {
     }
 
     get status(){
-        let count = this.entries.filter(msg => msg.level === LEVEL.ERROR).length;
-        if (count) { return STATUS.ERROR; }
-        count = this.entries.filter(msg => msg.level === LEVEL.WARN).length;
-        if (count) { return STATUS.WARNING; }
-        return STATUS.OK;
+        let count = this.entries.filter(msg => msg.level === this.levelOptions.ERROR).length;
+        if (count) { return this.statusOptions.ERROR; }
+        count = this.entries.filter(msg => msg.level === this.levelOptions.WARN).length;
+        if (count) { return this.statusOptions.WARNING; }
+        return this.statusOptions.OK;
     }
 
     toJSON(){

@@ -7,12 +7,18 @@ export const COALESCENCE_TOPOLOGY = {
     CONNECTING : "CONNECTING"
 };
 
+/**
+ * Coalescence model
+ * @property lyphs
+ * @property topology
+ * @property generatedFrom
+ */
 export class Coalescence extends Resource{
 
     /**
      * Replicates coalescences defined on abstract lyphs to their subtypes
-     * @param parentGroup
-     * @param coalescence
+     * @param parentGroup  - global group/graph (to refer to other resources)
+     * @param modelClasses - model resource classes
      */
     createInstances(parentGroup, modelClasses){
         if (this.inactive) {return; }
@@ -68,6 +74,9 @@ export class Coalescence extends Resource{
         }
     }
 
+    /**
+     * Validate whether the lyphs in the coalescence template are allowed to coalesce (e.g., lyph layers cannot coalesce with their container, etc.)
+     */
     validate(){
         if (this.inactive) { return; }
         let lyph = this.lyphs[0];
@@ -85,6 +94,10 @@ export class Coalescence extends Resource{
         }
     }
 
+    /**
+     * Checks whether the coalescence resource defines an abstract template (coalescence of abstract lyphs or materials)
+     * @returns {boolean}
+     */
     get isTemplate(){
         return !!(this.lyphs||[]).find(lyphOrMat => lyphOrMat.isTemplate || lyphOrMat.class === "Material");
     }

@@ -3,7 +3,7 @@
 ## Overview
 Physiology deals with the body in terms of anatomical compartments that delineate portions of  interest. The compartments can be defined at various anatomical scales, from organs to cells.  Clinical and bioengineering experts are interested to see records of physical measurements  associated with certain anatomical compartments.  
 
-[_ApiNATOMY_](http://open-physiology.org/apinatomy-toolkit/index.html) is a methodology to coherently manage knowledge about the scale, parthood and connectivity of anatomical compartments as well as to represent and analyse process mechanisms and associated measurements. It consists of   
+[_ApiNATOMY_](https://youtu.be/unSw6VcIOHw) is a methodology to coherently manage knowledge about the scale, parthood and connectivity of anatomical compartments as well as to represent and analyse process mechanisms and associated measurements. It consists of
 * a knowledge model about biophysical entities, and   
 * a method to build knowledge representations of physiology processes in terms of  biophysical entities and physical operations over these entities.
 
@@ -11,6 +11,7 @@ The current project visualizes 3d ApiNATOMY models as part of the [NIH-SPARC](ht
 The main component in the current project accepts as input a JSON model and generates
 a force-directed graph layout satisfying relational constraints among model resources.
 The input model format is defined in the ApiNATOMY JSON Schema specification, check project [documentation](http://open-physiology.org/demo/open-physiology-viewer/docs/) for more detail.
+Live demonstrations of earlier versions of this application can be seen [here](http://open-physiology.org/demo/open-physiology-viewer/).
 
 ## Build instructions
 * Install  [Node.js](https://nodejs.org/).    

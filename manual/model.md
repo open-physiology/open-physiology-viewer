@@ -2,21 +2,23 @@
  The ApiNATOMY input data is a JSON model that matches the [ApiNATOMY JSON Schema](../schema/index.html). The schema provides a contract between the input data and the lyph viewer component. Follow the link above to see the bootprint of the schema.
  
 # Data Model
- In the nutshell, the lyph viewer expects as input a JSON object that 
-  contains sets of entities which are either 
-  nodes, links, lyphs, materials or groups which contain subsets of these entities. 
+
+Knowledge representation in ApiNATOMY has its basis in the constraints of forming tissue domain architecture. In particular, physiological system experts identify compartmental models of primary functional tissue units, so-called `pFTUs`. A `pFTU` is a cuff wrapped around a central (endothelial, epithelial or neural) canal, such that no two points within this domain are beyond average diffusion distance for small molecules. Two types of transfer processes occur over pFTUs: `advective` solid flow along the lumen of the vessel (mass fluid transport, e.g., urine along the ureter), and `diffusive` solute flow between the lumen of the vessel and the rest of the tissue cuff (e.g., calcium ions through a membrane channel). A pFTU therefore represents a point of transition between long and short range molecular interactions.
+
+ Technically, an ApiNATOMY model is a JSON object that
+  contains sets of entities which are either nodes, links, lyphs, materials, coalescences, channels, trees, or groups which contain subsets of these entities.
   Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology.
 
   <img class="screen-shot no-border" src="asset/classDiagram.png">
   
- In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the lyph viewer. 
+ In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the ApiNATOMY lyph viewer.
 
 ## Resource
  All ApiNATOMY modelling elements have a common ancestor, an abstract resource that defines common properties present in all objects of the model.
   
  All entities come with basic properties such as `id` and `name` to identify the physiological element. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case.
  
- Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Region`, `Border`, `Material`, `External`, `Group`, `Tree`, `Coalescence`, or `Graph`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology.
+ Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Region`, `Border`, `Material`, `External`, `Group`, `Tree`, `Channel`, `Coalescence`, or `Graph`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology.
   
  The property `infoFields` lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the `infoFields` property of a lyph object
  ```json
@@ -455,13 +457,13 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
  Among other properties that can be stated here are the default label fields.
 
 ## Tree
-Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An `omega tree` is a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.
+Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An `omega tree` is a template to create a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.
 
 The `Tree` resource class allows users to specify a root of the tree via an optional property `root` that can point into an existing node. If the root node is not specified, it is either automatically generated or assigned to coincide with the source node of a link that represents the first level of the tree.
 
-We define the `level` of a tree branch as the number of edges between the target node of the link and the root. A user may specify the required number of levels in a tree via its optional property `numLevels` which expects an integer value greater than 1. Given the desired number of levels, the ApiNATOMY lyph viewer can generate a `group` (a read-only property that refers to a `Group` resource and encompasses all necessary nodes and links) to represent the tree. If the property `lyphTemplate` points to an abstract lyph, the generated links for each tree level then convey lyphs which are subtypes of this template.
+We define the `level` of a tree branch as the number of edges between the target node of the link and the root. A user may specify the required number of levels in a tree via its optional property `numLevels` which expects a positive integer value. Given the desired number of levels, the ApiNATOMY lyph viewer can generate a `group` (a read-only property that refers to a `Group` resource and encompasses all necessary nodes and links) to represent the tree. If the property `lyphTemplate` points to an abstract lyph, the generated links for each tree level then convey lyphs which are subtypes of this template.
 
-Alternatively, the tree branches can be specified, partially or fully, via the property `levels` which expects an array of partial or complete link definitions corresponding to the tree levels. If this array contains an empty object, the missing tree level branch is auto-generated, if instead it points to an existing Link resource, the corresponding link then becomes the branch of the tree. If `source`, `target`, or both ends of the link resource are not specified, they are auto-generated. Otherwise, it is expected that incident links (connected tree branches) share a common node; the tool will issue a warning if this is not the case.
+Alternatively, the tree branches can be specified, partially or fully, via the property `levels` which expects an array of partial or complete link definitions corresponding to the tree levels. If this array contains an empty object, the missing tree level branch is auto-generated. If instead it points to an existing link, the corresponding link then becomes the branch of the tree. If `source`, `target`, or both ends of the link resource are not specified, they are auto-generated. Otherwise, it is expected that incident links (connected tree branches) share a common node; the tool will issue a warning if this is not the case.
 
 ```json
   "trees": [
@@ -487,7 +489,7 @@ Our [examples](./examples.html) section demonstrates in full detail how to defin
 
 The trees defined this way actually do not have any branching, they look like liner chains of enumerated links. We refer to such trees as `canonical`, meaning that they define the basic structure necessary to generate a branching tree that models an organ or a physiological subsystem. The branching can happen at each level of the canonical tree definition, and the number of branches per level can be specified in the `branchingFactors` array. The size of the array does not need to coincide with the size of the `levels` array - branching stops at the last level with branching factor greater than 1.
 
-A user may indicate that a branching tree instance is required in addition to a canonical tree specification. This is done with the help of the boolean property `createInstance`. The generated subgraph representing a branching tree instance is available via the read-only property `instance` in the expanded ApiNATOMY model. The lyphs for a tree instance are assigned `create3d` property, i.e., the generated tree instance can be visualized using solid 3d lyph renderings.
+A user may define a required number of branching tree instances produced from the canonical tree specification. This is done with the help of the boolean property `numInstances`. The generated subgraphs representing  branching tree instances are available via the read-only property `instances` in the expanded ApiNATOMY model. The lyphs for a tree instance are assigned `create3d` property, i.e., the generated tree instance can be visualized using solid 3d lyph renderings.
 
 In the case of trees with branches that convey lyphs derived from a common `lyphTemplate` pattern, we can use the `topology` property of the lyph template to define the overall topology of the tree.
 Generally, lyphs originating from a lyph template inherit its topology. However, the lyphs conveyed by the tree edges work as a single conduit with topological borders at the start and the end levels (root and leaves) of the tree compliant with the borders of the lyph template. Thus, the topology of the lyphs on tree edges is defined according to the table below:
@@ -499,8 +501,44 @@ Generally, lyphs originating from a lyph template inherit its topology. However,
 | BAG2          | 2nd closed     | BAG2 | BAG2  | TUBE        | TUBE   |
 | CYST          | both closed    | CYST | BAG2  | TUBE        | BAG    |
 
+## Coalescence
  
+Coalescences are lyph assemblies that allow for conduits to link sideways by sharing the outermost layer of their wall.
+This approach is well-suited, for example, to track compartments for two or more pFTUs responsible for the regulation of exchange between different arborisation systems.
+
+## Channel
+The `Channel` resource class provides fields to define a template that will instruct the model generator to create specialized assemblies (groups, subgraphs) that represent membrane channels incorporated into the given housing lyphs.
+
+To create membrane channel components, a model author provides:
+- an identifier for the channel alone with optional characteristics shared by all ApiNATOMY resources, i.e., name, external annotations, etc.;
+- identifiers of housing lyphs. A `housing lyph` is a lyph of at least three layers representing some cell or organelle (e.g. Sarcoplasmic Reticulum) such that the middle layer of this lyph is a membrane;
+- the material payload that is conveyed by the diffusive edge;
+
+The identifiers of the housing lyphs and materials conveyed by the diffusive edges of the channel are specified in the resource properties `housingLyphs` and `materials`, respectively.
+Alternatively, a lyph can refer to the channel it houses via its property `channel`.
+
+Given these data, the model generator creates three tube lyphs representing the three segments of the membrane channel (MC): `internal`, `membranous` and `external`. Each of the MC segments consists of three layers as follows:
+- innermost, or the content;
+- middle, or the wall;
+- outermost, or the same `stuff` (material) as the lyph that contains it;
+The group assembly generated given such a template will include 23 resources (4 nodes, 3 links, 3 lyphs with 3 layers each, 3 coalescences, and a group resource that encompasses nodes, links and lyphs of the channel instance). If the housing lyph is a template, this number of resources is then replicated for each channel instance housed by a lyph instance that is a subtype of the template.
+
+The three MC segments are placed (housed) respectively in:
+- the innermost layer of the housing lyph;
+- the second layer of the housing lyph, which must be constituted of material of type membrane
+- the third layer of the housing lyph.
+To fulfill this requirement, we automatically set constraints that require channel nodes to be hosted by the borders of the layers of the housing lyph.
+
+The third layer of each MC segment undergoes an `embedding coalescence` with the layer of the housing lyph that contains it.
+Each of the three MC segments conveys a `diffusive edge` such that both nodes of the edge conveyed by the MC segment in the second (membranous) layer are shared by the other two diffusive edges.
+Diffusive edges are associated with the links that convey the membrane channels (i.e., the link's `conveyingType` is set to `DIFFUSIVE`) and the material in the channel object is copied to the `conveyingMaterials` property of the link.
+
+The images below show two membrane channels, `mc1: Na-Ca exchanger` and `mc2: SR Ca-ATPase`, which are housed by the abstract lyphs (templates) with IDs 63 and 60: `Myocyte` and `Sarcoplasmic reticulum`, respectively.
+The first image shows abstract assemblies, the second image shows the instances of these assemblies housed by two lyph instances derived from the abstract `Myocyte` and `Sarcoplasmic reticulum` lyph templates.
+
+<img src="asset/channels.png" width="75%" alt = "Membrane channels">
  
-  
- 
+<img src="asset/housedChannels.png" width="75%" alt = "Membrane channels in housing lyphs">
+
+As one can see, channels are defined in a minimalistic way, but may cause the model generator to automatically create a large number of entities, the modeller should keep this in mind to avoid state space explosion (which we mitigate to some extent by limiting the number of objects in the generated model, but this as well may be an issue since the viewer will not display all expected resources).
 

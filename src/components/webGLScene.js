@@ -61,15 +61,18 @@ const WindowResize = require('three-window-resize');
                         </button>
                         <button *ngIf="graphData?.logger" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showReport()" title="Show logs">
-                            <i *ngIf = "graphData.logger.status === graphData.logger.levels.ERROR"   class="fa fa-exclamation-triangle" style="color:red"> </i>
-                            <i *ngIf = "graphData.logger.status === graphData.logger.levels.WARNING" class="fa fa-exclamation-triangle" style="color:yellow"> </i>
-                            <i *ngIf = "graphData.logger.status === graphData.logger.levels.OK"      class="fa fa-check-circle"         style="color:green"> </i>
+                            <i *ngIf="graphData.logger.status === graphData.logger.statusOptions.ERROR"
+                               class="fa fa-exclamation-triangle" style="color:red"> </i>
+                            <i *ngIf="graphData.logger.status === graphData.logger.statusOptions.WARNING"
+                               class="fa fa-exclamation-triangle" style="color:yellow"> </i>
+                            <i *ngIf="graphData.logger.status === graphData.logger.statusOptions.OK"
+                               class="fa fa-check-circle" style="color:green"> </i>
                         </button>
-                    </section> 
-                    
-                    <!--Main content-->                   
-                    <canvas #canvas class="w3-card w3-round"> </canvas>
-                    
+                    </section>
+
+                    <!--Main content-->
+                    <canvas #canvas class="w3-card w3-round"></canvas>
+
                 </section>
             </section>
             <section id="settingsPanel" *ngIf="showPanel" class="w3-third">
@@ -79,7 +82,7 @@ const WindowResize = require('three-window-resize');
 
                     <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
-                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"> </resourceInfoPanel>
+                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"></resourceInfoPanel>
                     </fieldset>
 
                     <!--Search bar-->
@@ -108,9 +111,9 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Groups</legend>
                         <span *ngFor="let group of graphData.activeGroups">
-                            <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left" 
-                                          (change) = "toggleGroup(group)"
-                                          [checked]= "showGroup(group)"> {{group.name || group.id}}
+                            <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
+                                          (change)="toggleGroup(group)"
+                                          [checked]="showGroup(group)"> {{group.name || group.id}}
                             </mat-checkbox>
                         </span>
                     </fieldset>
@@ -120,32 +123,35 @@ const WindowResize = require('three-window-resize');
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
                         <mat-checkbox matTooltip="Toggle lyphs" labelPosition="after" class="w3-margin-left"
-                                      (change) = "toggleLayout('showLyphs')"
-                                      [checked]= "config.layout.showLyphs"> Lyphs
+                                      (change)="toggleLayout('showLyphs')"
+                                      [checked]="config.layout.showLyphs"> Lyphs
                         </mat-checkbox>
-                        <mat-checkbox matTooltip = "Toggle layers" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                      (change) = "toggleLayout('showLayers')"
-                                      [checked] = "config.layout.showLayers"> Layers
+                        <mat-checkbox matTooltip="Toggle layers" labelPosition="after"
+                                      [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                                      (change)="toggleLayout('showLayers')"
+                                      [checked]="config.layout.showLayers"> Layers
                         </mat-checkbox>
-                        <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" *ngIf="graphData?.create3d" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                      (change) = "toggleLayout('showLyphs3d')"
-                                      matTooltip = "Shows 3D geometry for resources with property 'create3d' set to true"
-                                      [checked] = "config.layout.showLyphs3d"> Lyphs 3D
+                        <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" *ngIf="graphData?.create3d"
+                                      [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                                      (change)="toggleLayout('showLyphs3d')"
+                                      matTooltip="Shows 3D geometry for resources with property 'create3d' set to true"
+                                      [checked]="config.layout.showLyphs3d"> Lyphs 3D
                         </mat-checkbox>
-                        <mat-checkbox matTooltip="Toggle coalescences" labelPosition="after" [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                      (change) = "toggleLayout('showCoalescences')"
-                                      [checked] = "config.layout.showCoalescences"> Coalescences
-                        </mat-checkbox> 
+                        <mat-checkbox matTooltip="Toggle coalescences" labelPosition="after"
+                                      [disabled]="!config.layout.showLyphs" class="w3-margin-left"
+                                      (change)="toggleLayout('showCoalescences')"
+                                      [checked]="config.layout.showCoalescences"> Coalescences
+                        </mat-checkbox>
                     </fieldset>
 
                     <!--Label config-->
- 
+
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Labels</legend>
                         <span *ngFor="let labelClass of _labelClasses">
                             <mat-checkbox matTooltip="Toggle labels" labelPosition="after" class="w3-margin-left"
-                                   [checked]="config.labels[labelClass]"
-                                   (change)="updateLabels(labelClass)"> {{labelClass}}
+                                          [checked]="config.labels[labelClass]"
+                                          (change)="updateLabels(labelClass)"> {{labelClass}}
                             </mat-checkbox> 
                         </span>
                         <span *ngFor="let labelClass of _labelClasses">
@@ -153,8 +159,8 @@ const WindowResize = require('three-window-resize');
                                 <legend>{{labelClass}} label</legend>
                                 <mat-radio-group [(ngModel)]="_labels[labelClass]">
                                     <mat-radio-button *ngFor="let labelProp of _labelProps" class="w3-margin-left"
-                                           [value] = "labelProp"
-                                           (change) = "updateLabelContent()"> {{labelProp}}
+                                                      [value]="labelProp"
+                                                      (change)="updateLabelContent()"> {{labelProp}}
                                     </mat-radio-button>
                                 </mat-radio-group>
                             </fieldset>
@@ -166,8 +172,8 @@ const WindowResize = require('three-window-resize');
                         <legend>Helpers</legend>
                         <span *ngFor="let helper of helperKeys">
                             <mat-checkbox matTooltip="Toggle planes" labelPosition="after" class="w3-margin-left"
-                                  [checked] = "showPlane(helper)"
-                                  (change) = "togglePlane(helper)"> {{helper}}
+                                          [checked]="showPlane(helper)"
+                                          (change)="togglePlane(helper)"> {{helper}}
                             </mat-checkbox> 
                         </span>
                     </fieldset>

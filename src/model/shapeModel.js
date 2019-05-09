@@ -105,9 +105,9 @@ export class Lyph extends Shape {
 
     /**
      * Copy the properties and layer structure of the source lyph to the target lyph
+     * @param lyphs      - a set of existing model/group lyphs
      * @param sourceLyph - the lyph to clone
      * @param targetLyph - the cloned lyph instance
-     * @param lyphs      - a set of existing model/group lyphs
      * @returns {Lyph} the target lyph
      */
     static clone(lyphs, sourceLyph, targetLyph){

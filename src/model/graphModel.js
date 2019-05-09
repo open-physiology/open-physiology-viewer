@@ -38,7 +38,7 @@ export class Graph extends Group{
         let resVal = V.validate(json, schema);
 
         logger.clear();
-        logger.info("ApiNATOMY input model", json);
+        //logger.info("ApiNATOMY input model", json);
 
         if (resVal.errors && resVal.errors.length > 0){
             logger.warn(resVal);
@@ -101,7 +101,7 @@ export class Graph extends Group{
         });
 
         //Show logged messages
-        logger.info("ApiNATOMY generated model", res);
+        //logger.info("ApiNATOMY generated model", res);
         res.logger = logger;
         //logger.toConsole();
 
@@ -110,8 +110,8 @@ export class Graph extends Group{
 
     /**
      * Generate the JSON input model from an Excel file (.xlsx)
-     * @param inputModel
-     * @param modelClasses
+     * @param inputModel   - Excel ApiNATOMY model
+     * @param modelClasses - model resource classes
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
@@ -198,7 +198,7 @@ export class Graph extends Group{
 
     /**
      * Auto-generates links for internal lyphs
-     * @param modelClasses - map of class names vs their implementations
+     * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
      */
     createAxesForInternalLyphs(modelClasses, entitiesByID){
