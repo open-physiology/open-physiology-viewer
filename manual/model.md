@@ -234,8 +234,14 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 ### Lyph
  Lyphs in the ApiNATOMY lyph viewer are shown as 2d rectangles either with straight or rounded corners. A lyph defines the layered tissue material that constitutes a body conduit vessel (a duct, canal, or other tube that contains or conveys a body fluid) when it is rotated around its axis. 
  
- The shape of the lyph is defined by its `topology`. The topology value `TUBE` represents a conduit with two open ends. The values of `BAG` and `BAG2` represent a conduit with one closed end. Finally, the topology value `CYST` represents a conduit with both ends closed (a capsule). 
- 
+ The shape of the lyph is defined by its `topology`. The topology value `TUBE` represents a conduit with two open ends. The values of `BAG` and `BAG2` represent a conduit with one closed end. Finally, the topology value `CYST` represents a conduit with both ends closed (a capsule). The images below show 2d and 3d representation of three types of lyphs: `TUBE`, `CYST`, and `BAG`, each with 3 layers.
+
+ <img src="asset/lyphTypes.png" width="75%" alt = "Lyph topology">
+
+ <img src="asset/lyphTypes3d.png" width="75%" alt = "Lyph topology in 3d">
+
+ In addition to the nodes and links created in the previous sections and a new link `k_l` with source node `k` and target node `l`, the code below produces a bag with two layers conveyed by the `k_l` link:
+
  ```json
  "lyphs": [
      {
@@ -259,15 +265,15 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
      }
  ]
  ```
- In addition to the nodes and links created in the previous sections and a new link `k_l` with source node `k` and target node `l`, the code above produces a bag with two layers conveyed by the `k_l` link.
- 
+
  <img src="asset/lyph.png" width="75%" caption = "Drawing lyphs">
  
  The center of the axial border of the lyph (see [Lyph border](#lyph-border)) always coincides with the center of its axis. The lyph's dimensions depend on its axis and can be controlled via the `scale` parameter. In this example, the lyph's length and height are half the length of the link's length (50%). If you do not want a lyph size to depend on the length of its axis, assign explicit values to the properties `width` and `height`.
- Lyph's properties `thickness` and `length` refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not influence on the size of the graphical objects representing lyphs. 
+ Lyph's properties `thickness` and `length` refer to the anatomical dimensions of the related conduits. At the moment, these parameters do not affect the size of the graphical objects representing lyphs.
    
  The lyph above consists of 2 layers. A layer is a lyph that rotates around its container lyph. The lyph's layers are specified in the property `layers` which contains an array of layers. Each layer object is also aware in what lyph it works as a layer via its field `layerIn`. Similarly to other bi-directional relationships, it is sufficient to specify only one part of it in the model, the related property is inferred automatically.
  By default, all layers get the equal area within the main lyph. Since all layers have the same height as the hosting lyph, the area they occupy depend on the width designated to each layer. The percentage of the width of the main lyph's width a layer occupies can be controlled via the `layerWidth` parameter. For instance, the code below, set the outer layers of all lyphs in the neural system group (see the example in the [Entity](#entity) section) to occupy 75% of their total width.
+
  ```json
   {
      "id"    : "largeOuterLayers",
@@ -339,6 +345,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`.
      
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
+
+
 
  ### Region
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
@@ -503,8 +511,25 @@ Generally, lyphs originating from a lyph template inherit its topology. However,
 
 ## Coalescence
  
-Coalescences are lyph assemblies that allow for conduits to link sideways by sharing the outermost layer of their wall.
-This approach is well-suited, for example, to track compartments for two or more pFTUs responsible for the regulation of exchange between different arborisation systems.
+A coalescence creates a fusion situation where two or more lyphs are treated as being a single entity.
+
+There are two types of coalescence, both describing material fusion. In both cases, coalescence can only occur between lyphs that have exactly the same material composition:
+
+- `Connecting coalescence` represents a ‘sideways’ connection between two or more lyphs such that their outermost layer is shared between them. The visualisation of such a situation requires that only a "single" depiction of these layers is shown. Technically, we still use two visual objects which, however, are aligned in such a way that they appear as a single object (provided that they are of the same size).
+- `Embedding coalescence` represents dropping of a contained lyph into a container lyph such that the outer layer of the contained lyph fuses with the container lyph. The visualisation of such a situation requires that only the container lyph is shown.
+
+The `Coalescence` class, apart from the generic resource properties `id`, `name`, etc., defines fields `topology` and `lyphs` which the model author should use to specify the type of the coalescence, `CONNECTING` or `EMBEDDING` (default value is `CONNECTING`) and the coalescing lyphs, respectively. The field `lyphs` expects an array of coalescing lyphs. Although semantically the order of the lyphs in the connecting coalescence are not important, in the viewer, the first lyph is treated as a "master" - while connecting the graphical depictions of coalescing lyphs, all subsequent lyphs are pushed by the force-directed layout to approach the "master" lyph and realign their outermost layers to match the outermost layer of the first lyph. In the case of the embedded coalescence, the first lyph is expected to be the `housing` lyph.
+
+If a coalescence resource is defined on abstract lyphs (lyph templates), it is considered abstract and works as a template to generate coalescences among lyphs that inherit the abstract lyphs.
+
+The images below show the visualization of connecting coalescence: two coalescing lyphs, `Visceral Bowman's capsule` and `Glomerulus`, share a common outer layer, `Basement membrane`:
+
+<img src="asset/coalescence.png" width="75%" alt = "Connecting coalescence">
+
+In the case of embedding coalescence, the outer layer of the embedded lyph blends with the layer of the housing lyph, we make it invisible:
+
+<img src="asset/coalescenceEmbedded.png" width="75%" alt = "Embedding coalescence">
+
 
 ## Channel
 The `Channel` resource class provides fields to define a template that will instruct the model generator to create specialized assemblies (groups, subgraphs) that represent membrane channels incorporated into the given housing lyphs.
@@ -540,5 +565,5 @@ The first image shows abstract assemblies, the second image shows the instances 
  
 <img src="asset/housedChannels.png" width="75%" alt = "Membrane channels in housing lyphs">
 
-As one can see, channels are defined in a minimalistic way, but may cause the model generator to automatically create a large number of entities, the modeller should keep this in mind to avoid state space explosion (which we mitigate to some extent by limiting the number of objects in the generated model, but this as well may be an issue since the viewer will not display all expected resources).
+As one can see, channels are defined in a minimalistic way, but may cause the model generator to automatically create a potentially large number of resources, the modeller should keep this in mind to avoid state space explosion.
 

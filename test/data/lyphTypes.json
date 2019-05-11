@@ -1,0 +1,89 @@
+{
+  "nodes": [
+    {
+      "id": "a",
+      "layout": {"x": -50, "y": 0, "z": 0}
+    },
+    {
+      "id": "b",
+      "layout": {"x": -50, "y": 50, "z": 0}
+    },
+    {
+      "id": "c",
+      "layout": {"x": 0, "y": 0, "z": 0}
+    },
+    {
+      "id": "d",
+      "layout": {"x": 0, "y": 50, "z": 0}
+    },
+    {
+      "id": "e",
+      "layout": {"x": 50, "y": 0, "z": 0}
+    },
+    {
+      "id": "f",
+      "layout": {"x": 50, "y": 50, "z": 0}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "a",
+      "target": "b",
+      "length": 30,
+      "conveyingLyph": "1"
+    },
+    {
+      "id": "lnk2",
+      "source": "c",
+      "target": "d",
+      "length": 30,
+      "conveyingLyph": "2"
+    },
+    {
+      "id": "lnk3",
+      "source": "e",
+      "target": "f",
+      "length": 30,
+      "conveyingLyph": "3"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "1",
+      "topology": "TUBE",
+      "supertype": "4",
+      "create3d": true
+    },
+    {
+      "id": "2",
+      "topology": "CYST",
+      "supertype": "4",
+      "create3d": true
+    },
+    {
+      "id": "3",
+      "topology": "BAG",
+      "supertype": "4",
+      "create3d": true
+    },
+    {
+      "id": "4",
+      "isTemplate": true,
+      "color": "#ccc",
+      "layers": ["5", "6", "7"]
+    },
+    {
+      "id": "5",
+      "isTemplate": true
+    },
+    {
+      "id": "6",
+      "isTemplate": true
+    },
+    {
+      "id": "7",
+      "isTemplate": true
+    }
+  ]
+}
