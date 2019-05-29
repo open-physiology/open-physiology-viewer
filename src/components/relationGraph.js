@@ -7,13 +7,15 @@ import {CommonModule} from "@angular/common";
 import {values, pick, flatten, keys, entries} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
 import FileSaver from "file-saver";
+import {ResourceInfoModule} from "./gui/resourceInfo";
+import {MatSliderModule} from "@angular/material";
+import {SearchBarModule} from "./gui/searchBar";
 
 @Component({
     selector: 'relGraph',
     template: `
         <section id="svgPanel" class="w3-row">
             <section #svgContainer id="svgContainer" [class.w3-threequarter]="showPanel">
-                <!--<section class="w3-padding-right" style="position:relative;">-->
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
                         <input #fileInput
                                type   = "file"
@@ -22,7 +24,7 @@ import FileSaver from "file-saver";
                                (change) = "load(fileInput.files)"
                         />
     
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="draw()"
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
@@ -45,11 +47,42 @@ import FileSaver from "file-saver";
                     </section>
     
                     <svg #svg [attr.width.px]="width" [attr.height.px]="height"> </svg>
-                    <section #tooltip class="tooltip"> </section>
-                <!--</section>-->
             </section>            
-            <section id="svgSettingsPanel" [hidden]="!showPanel" class="w3-quarter">
+            <section id="settingsPanel" [hidden]="!showPanel" class="w3-quarter">
                 <svg #legendSvg></svg>
+                <section class="w3-padding-small">
+                    <!--Highlighted entity-->
+
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Highlighted</legend>
+                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"></resourceInfoPanel>
+                    </fieldset>
+
+                    <!--Search bar-->
+
+                    <fieldset class="w3-card w3-round w3-margin-small-small">
+                        <legend>Search</legend>
+                        <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
+                                   (selectedItemChange)="selectBySearch($event)">
+                        </searchBar>
+                    </fieldset>
+
+                    <!--Selected entity-->
+
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Selected</legend>
+                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
+                        </resourceInfoPanel>
+                        <button *ngIf="!!_selected" title="Edit"
+                                class="w3-hover-light-grey w3-right">
+                            <i class="fa fa-edit"> </i>
+                        </button>
+                    </fieldset>
+
+                    <section #tooltip class="tooltip"> </section>
+
+                </section>
+
             </section>
         </section>
     `,
@@ -65,6 +98,24 @@ import FileSaver from "file-saver";
             border: 1px solid #666;
             pointer-events: none;
         }
+
+        #settingsPanel{
+            height: 100vh;
+            overflow-y: scroll;
+        }
+
+        :host >>> fieldset {
+            border: 1px solid grey;
+            margin: 2px;
+        }
+
+        :host >>> legend {
+            padding: 0.2em 0.5em;
+            border : 1px solid grey;
+            color  : grey;
+            font-size: 90%;
+            text-align: right;
+        }
     `]
 })
 /**
@@ -76,6 +127,12 @@ export class RelGraph {
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
     _graphData;
+    _highlighted = null;
+    _selected    = null;
+
+    _searchOptions;
+    _selectedName = "";
+
     data = { nodes: [], links: [] };
     width = 1000; height = 600;
 
@@ -105,19 +162,22 @@ export class RelGraph {
         "template": "#0000FF"
     };
 
-
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
 
+            this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
             this.data = {nodes: [], links: []};
 
             let nodeResources = this._graphData::pick(["materials", "lyphs", "coalescences", "links"])::values()::flatten();
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
-            nodeResources = nodeResources.filter(e => !filter.find(x => e.isSubtypeOf(x)));
-            this.data.nodes = nodeResources.map(e => e::pick(["id", "name", "class", "conveyingType", "generatedFrom", "isTemplate", "topology"]));
-            this.data.nodes.filter(e => e.class === "Lyph" && e.generatedFrom).forEach(e => e.class = "LyphFromMaterial");
-            this.data.nodes.filter(e => e.class === "Coalescence" && e.topology === "EMBEDDING").forEach(e => e.class = "EmbeddedCoalescence");
+            this.data.nodes = nodeResources.filter(e => !filter.find(x => e.isSubtypeOf(x)));
+
+            this.data.nodes.forEach(e => {
+                e.relClass = e.class;
+                if (e.class === "Lyph" && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
+                if (e.class === "Coalescence" && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }
+            });
 
             const getNode = (d) => this.data.nodes.find(e => d && (e === d || e.id === d.id));
 
@@ -175,36 +235,36 @@ export class RelGraph {
                     this.data.links.push({"source": lyph.id, "target": coalescence.id, "type" : "coalescence"})
                 })
             });
-
             this.resizeToDisplaySize();
-            this.draw();
         }
+    }
+
+    get graphData() {
+        return this._graphData;
     }
 
     ngAfterViewInit() {
         this.svgContainer = document.getElementById('svgContainer');
-        window.addEventListener('resize', evt => this.resizeToDisplaySize(evt), false);
-        this.draw();
-
+        window.addEventListener('resize', evt => this.resizeToDisplaySize(), false);
         this.drawLegend();
-
     }
 
-    resizeToDisplaySize(evt) {
-        if (this.svgContainer){
+    resizeToDisplaySize() {
+        if (this.svgContainer && this.svgContainer.clientWidth && this.svgContainer.clientHeight){
             this.width  = this.svgContainer.clientWidth;
             this.height = this.svgContainer.clientHeight;
+            this.draw();
         }
     }
 
     draw() {
-        if (!this.data) {return; }
-        let data = this.data;
         let svg = d3.select(this.svgRef.nativeElement).attr("width", this.width).attr("height", this.height);
-
         //Clean the view
         svg.selectAll("g").remove();
-        let graphSvg = svg.append("g");
+        svg.selectAll("rect").remove();
+
+        if (!this.data || !this.width || !this.height) {return; }
+        let data = this.data;
 
         let useGroupInABox = true;
 
@@ -235,10 +295,30 @@ export class RelGraph {
 
         this.simulation = simulation;
 
+        //Zoom area
+        svg.append("rect")
+            .attr("width", this.width)
+            .attr("height", this.height)
+            .style("fill", "none")
+            .style("pointer-events", "all")
+            .call(d3.zoom()
+                .scaleExtent([1, 10])
+                .on("zoom", zoomed));
+
+        function zoomed() {
+            graphGroup.attr("transform", d3.event.transform);
+        }
+
+        //Highlight and select markers
+        // let highlighter = svg.append("g").append("circle").attr("r", 10).attr("fill", "#ff0000");
+        // let selector = svg.append("g").append("circle").attr("r", 10).attr("fill", "#008000");
+
+
         //Arrow markers
         const directedLinkTypes = this.linkTypes::entries().filter(([, value]) => value.directed).map(([key, ]) => key);
 
-        graphSvg.append("defs").selectAll("marker")
+        let graphGroup = svg.append("g");
+        graphGroup.append("defs").selectAll("marker")
             .data(directedLinkTypes)
             .enter().append("marker")
             .attr("id",   d => 'marker' + d)
@@ -253,7 +333,7 @@ export class RelGraph {
             .append("path")
             .attr("d", "M 0,-5 L 10, 0 L 0,5");
 
-        const link = graphSvg.append("g").selectAll("path")
+        const link = graphGroup.append("g").selectAll("path")
             .data(data.links).join("path")
             .attr("stroke-opacity", 0.6)
             .attr("stroke", d => this.linkTypes[d.type].color)
@@ -263,8 +343,8 @@ export class RelGraph {
 
         const [nodeLyph, nodeLyphFromMaterial, nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial] =
         this.nodeTypes::keys().map(clsName =>
-            graphSvg.append("g").selectAll(this.nodeTypes[clsName].shape)
-                .data(data.nodes.filter(e => e.class === clsName))
+            graphGroup.append("g").selectAll(this.nodeTypes[clsName].shape)
+                .data(data.nodes.filter(e => e.relClass === clsName))
                 .join(this.nodeTypes[clsName].shape)
         );
 
@@ -273,7 +353,7 @@ export class RelGraph {
         let tooltip = d3.select(this.tooltipRef.nativeElement)
             .style("opacity", 0);
 
-        let text = graphSvg.append("g")
+        let text = graphGroup.append("g")
             .selectAll("text")
             .data(data.nodes)
             .enter().append("text")
@@ -309,22 +389,31 @@ export class RelGraph {
         //Set common node attributes
 
         [nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial, nodeLyph, nodeLyphFromMaterial].forEach(node => {
-            node.attrs(d => this.nodeTypes[d.class].attrs)
+            node.attrs(d => this.nodeTypes[d.relClass].attrs)
                 .attr("stroke", e => e.isTemplate? this.strokeTypes.template: this.strokeTypes.instance)
-                .attr("fill", e => this.nodeTypes[e.class].color);
+                .attr("fill", e => this.nodeTypes[e.relClass].color);
 
             node.on("dblclick", d => {
                 d.fx = null;
                 d.fy = null;
+                this.selected = d
             });
 
+            node.on("click", d => this.selected = d);
+
             node.on("mouseover", d => {
+                this.highlighted = d;
                 tooltip.transition().duration(200).style("opacity", .9);
                 tooltip.html(`<div>${d.id}: ${d.name||"?"}<\div>`)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
             })
             .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
+
+            node.each(function(d){
+                d.viewObjects = d.viewObjects || {};
+                d.viewObjects["node"] = this;
+            });
 
             node.call(nodeDrag);
         });
@@ -353,18 +442,7 @@ export class RelGraph {
                 e.attr("transform", d => "translate(" + boundX(d.x) + "," + boundY(d.y) + ")"));
         });
 
-        //Zoom
-        // const groupZoom = d3.zoom()
-        //     .scaleExtent([1, 10])
-        //     .on("zoom", zoomed);
-        //
-        // function zoomed() {
-        //     graphSvg.attr("transform", d3.event.transform);
-        // }
-        //
-        // graphSvg.call(groupZoom);
-
-        return graphSvg.node();
+        return graphGroup.node();
     }
 
     drawLegend(){
@@ -428,12 +506,10 @@ export class RelGraph {
             .text(d => d);
     }
 
-    updateGraphLayout(){
-        this.draw();
-    }
-
     toggleSettingPanel(){
         this.showPanel = !this.showPanel;
+        this.width *= (this.showPanel? 3/4 : 4/3);
+        this.draw();
     }
 
     export(){
@@ -441,7 +517,7 @@ export class RelGraph {
             let coords = {};
             (this.data.nodes||[]).forEach(e => coords[e.id] = {"x": e.x, "y": e.y});
             let result = JSON.stringify(coords, null, 2);
-            const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+            const blob = new Blob([result], {type: 'text/plain'});
             FileSaver.saveAs(blob, 'apinatomy-relationshipCoords.json');
         }
     }
@@ -467,20 +543,36 @@ export class RelGraph {
                 throw new Error("Failed to open the input file: " + err);
             }
         }
-
-        // if (msgCount["error"] || msgCount["warn"]){
-        //     throw new Error(`Detected ${msgCount["error"]} error(s), ${msgCount["warn"]} warning(s),
-        //         may affect the model layout, check console messages for more detail!`);
-        // }
-        // msgCount = {};
     }
 
+    set highlighted(entity) {
+        this._highlighted = entity;
+    }
 
+    set selected(entity){
+        this._selected     = entity;
+        this._selectedName = entity? entity.name || "": "";
+    }
+
+    get highlighted(){
+        return this._highlighted;
+    }
+
+    get selected(){
+        return this._selected;
+    }
+
+    selectBySearch(name) {
+        if (this._graphData && (name !== this._selectedName)) {
+            this._selectedName = name;
+            this.selected = (this._graphData.resources||[]).find(e => e.name === name);
+        }
+    }
 
 }
 
 @NgModule({
-    imports: [CommonModule],
+    imports: [CommonModule, ResourceInfoModule, MatSliderModule, SearchBarModule],
     declarations: [RelGraph],
     exports: [RelGraph]
 })

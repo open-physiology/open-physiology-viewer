@@ -15,7 +15,7 @@ Conceptually, the model consists of:
 
 <img src="asset/basalGanglia-components.png" width="100%" caption = "Basal Ganglia components"/>
 
-Even though omega threes often look like simple chains in our schematics, the underlying data model
+Even though omega trees often look like simple chains in our schematics, the underlying data model
 implies that a branching tree can be generated from the canonical representation given model parameters such as branching factor or  mean number of branches at each level).
 
 Technically, the model is essentially a JSON file with 4 fields: `nodes`, `links`, `lyphs`, and `trees`. The context lyphs, Putamen, GPe and GPi, are modelled as internal lyphs of Basal Ganglia:

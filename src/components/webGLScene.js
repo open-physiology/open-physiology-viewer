@@ -71,8 +71,7 @@ const WindowResize = require('three-window-resize');
                     </section>
 
                     <!--Main content-->
-                    <canvas #canvas class="w3-card w3-round"></canvas>
-
+                    <canvas #canvas></canvas>
                 </section>
             </section>
             <section id="settingsPanel" *ngIf="showPanel" class="w3-third">
@@ -254,11 +253,11 @@ export class WebGLSceneComponent {
     }
 
     @Input('highlighted') set highlighted(entity) {
-        if (this.highlighted === entity){ return; }
-        if (this.highlighted !== this.selected){
+        if (this._highlighted === entity){ return; }
+        if (this._highlighted !== this._selected){
             this.unhighlight(this._highlighted);
         } else {
-            this.highlight(this.selected, this.selectColor, false);
+            this.highlight(this._selected, this.selectColor, false);
         }
         this.highlight(entity, this.highlightColor, entity !== this._selected);
         this._highlighted = entity;
@@ -362,7 +361,7 @@ export class WebGLSceneComponent {
     export(){
         if (this._graphData){
             let result = JSON.stringify(this._graphData.toJSON(), null, 2);
-            const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+            const blob = new Blob([result], {type: 'text/plain'});
             FileSaver.saveAs(blob, 'apinatomy-generated.json');
         }
     }
@@ -370,7 +369,7 @@ export class WebGLSceneComponent {
     exportResourceMap(){
         if (this._graphData){
             let result = JSON.stringify(this._graphData.entitiesToJSON(), null, 2);
-            const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+            const blob = new Blob([result], {type: 'text/plain'});
             FileSaver.saveAs(blob, 'apinatomy-resourceMap.json');
         }
     }
@@ -479,7 +478,7 @@ export class WebGLSceneComponent {
         this.showPanel = !this.showPanel;
     }
 
-    getMousedOverEntity() {
+    getMouseOverEntity() {
         if (!this.graph) { return; }
         let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
         vector.unproject(this.camera);
@@ -505,7 +504,7 @@ export class WebGLSceneComponent {
             // let children = intersects[0].object.children||[];
             // let childIntersects = (ray.intersectObjects(children)||[]).filter(obj => obj.userData);
             // if (childIntersects.length > 0) { return childIntersects[0].userData; }
-            return entity;
+            // return entity;
         }
     }
 
@@ -558,7 +557,7 @@ export class WebGLSceneComponent {
     }
 
     onDblClick() {
-        this.selected = this.getMousedOverEntity();
+        this.selected = this.getMouseOverEntity();
     }
 
     onMouseMove(evt) {
@@ -567,7 +566,7 @@ export class WebGLSceneComponent {
         this.mouse.x =  ( ( evt.clientX - rect.left ) / rect.width  ) * 2 - 1;
         this.mouse.y = -( ( evt.clientY - rect.top  ) / rect.height ) * 2 + 1;
 
-        this.highlighted = this.getMousedOverEntity();
+        this.highlighted = this.getMouseOverEntity();
     }
 
     onKeyDown(evt) {

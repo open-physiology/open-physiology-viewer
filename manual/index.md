@@ -1,5 +1,5 @@
 # ApiNATOMY User Guide
- Physiology deals with the body in terms of anatomical compartments that delineate portions of  interest. The compartments can be defined at various anatomical scales, from organs to cells. Clinical and bioengineering experts are interested to see records of physical measurements  associated with certain anatomical compartments.  
+ Physiology deals with the body in terms of anatomical compartments that delineate portions of  interest. The compartments can be defined at various anatomical scales, from organs to cells. Clinical and bioengineering experts are interested to see records of physical measurements associated with certain anatomical compartments.
 
 _ApiNATOMY_ is a methodology to coherently manage knowledge about the scale, parthood and connectivity of anatomical compartments as well as to represent and analyse process mechanisms and associated measurements. It consists of
 * a knowledge model about biophysical entities, and   

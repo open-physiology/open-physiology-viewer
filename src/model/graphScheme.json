@@ -205,6 +205,14 @@
           "description": "A boolean flag to mark automatically generated resources",
           "type" : "boolean",
           "readOnly" : true
+        },
+        "infoFields": {
+          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [ "id", "name", "class", "generated" ]
         }
       }
     },
@@ -269,14 +277,6 @@
           },
           "relatedTo": "cloneOf"
         }
-      },
-      "infoFields": {
-        "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-        "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "default": [ "id", "name", "class", "generated" ]
       }
     },
     "External": {
@@ -946,7 +946,7 @@
           "relatedTo": "housingLyphs",
           "uniqueItems": true
         },
-        "generatedFrom"   : {
+        "generatedFrom"  : {
           "description": "Material which was used to generate the current lyph",
           "anyOf": [
             {

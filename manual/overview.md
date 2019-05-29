@@ -80,11 +80,11 @@ definitions into a complete and consistent model.
 ## Relationship graph
 The relationship graph is an auxiliary tool that allows users to trace the resource derivation process described above and visually inspect the relationships among the key resources in the model. In this viw, all resources are represented by graph nodes (visualized using colored shapes according to the type of the resource) while their relationships correspond to the graph links (visualized using colored lines where each color stands for a certain type of the relationship).
 
-The nodes in the relationship graph are organized using the so called `force-in-a-box` layout, which clusters nodes based on their class and creates centers of attraction for each cluster. The area occupied by a cluster depends on its size. Be default we use a setting for the force-in-a-box algorithm that allocates cluster areas based on the treemap pattern.
+The nodes in the relationship graph are organized using the so called `group-in-a-box` layout, which clusters nodes based on their class and creates centers of attraction for each cluster. The area occupied by a cluster depends on its size. Be default we use a setting for the group-in-a-box algorithm that allocates cluster areas based on the treemap pattern.
 
 <img class="screen-shot no-border" src="asset/relationshipGraph.png">
 
-The force-in-a-box algorithm creates a good initial graph layout. It is used in a combination with the `sticky` force-directed technique when the program reassigns the nodes coordinates when the user drags them to a different location. Hence, users are free to rearrange the nodes in a way that makes understanding the model or tracing certain derivation chains easier.
+The group-in-a-box algorithm creates a good initial graph layout. It is used in a combination with the `sticky` force-directed technique when the program reassigns the nodes coordinates when the user drags them to a different location. Hence, users are free to rearrange the nodes in a way that makes understanding the model or tracing certain derivation chains easier.
 
 An any moment, the positions of the nodes in the graph can be saved and reloaded using the dedicated buttons from the right-hand panel.
  The file created at this process contains only node identifiers with the corresponding coordinates. To avoid compatibility issues when a user tries to load a relationship graph coordinates after modifying an ApiNATOMY model, we do not store other information such as node and link classes/types. Nodes which do not have saved coordinates in a certain file simply remain in their initial locations.

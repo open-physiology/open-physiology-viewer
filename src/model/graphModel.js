@@ -10,7 +10,9 @@ import {
     isArray,
     isObject,
     pick,
-    values, omit
+    values,
+    omit,
+    merge
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
@@ -38,7 +40,6 @@ export class Graph extends Group{
         let resVal = V.validate(json, schema);
 
         logger.clear();
-        //logger.info("ApiNATOMY input model", json);
 
         if (resVal.errors && resVal.errors.length > 0){
             logger.warn(resVal);
@@ -99,12 +100,9 @@ export class Graph extends Group{
             if (!link.length) { link.length = DEFAULT_LENGTH; }
             link.length *= 2
         });
+        delete res.waitingList;
 
-        //Show logged messages
-        //logger.info("ApiNATOMY generated model", res);
         res.logger = logger;
-        //logger.toConsole();
-
         return res;
     }
 
@@ -115,84 +113,101 @@ export class Graph extends Group{
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
-        let model = inputModel::pick(Graph.Model.relationshipNames);
-
+        let model = inputModel::pick(Graph.Model.relationshipNames.concat(["main"]));
         const borderNames = ["inner", "radial1", "outer", "radial2"];
+
         model::keys().forEach(relName => {
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
-            let clsName = this.Model.relClassNames[relName];
-            if (!modelClasses[clsName]){
+            let clsName = relName === "main"? "Graph": this.Model.relClassNames[relName];
+            if (!modelClasses[clsName]) {
                 logger.warn("Class name not found:", relName);
                 return;
             }
-            let fields  = modelClasses[clsName].Model.fieldMap;
+            let fields = modelClasses[clsName].Model.fieldMap;
             let propNames = modelClasses[clsName].Model.propertyNames;
-            for (let i = 1; i < table.length; i++){
+
+            const convertValue = (key, value) => {
+                if (!fields[key]) {
+                    logger.warn("Unrecognized property:", clsName, key);
+                    return;
+                }
+                let res = value.toString();
+                if (res.length === 0) { return; } //skip empty properties
+
+                let itemType = fields[key].type;
+                if (fields[key].type === "array") {
+                    itemType = fields[key].items && fields[key].items.type;
+                }
+
+                if (!(itemType === "string" && propNames.includes(key))) {
+                    res = res.replace(/\s/g, '');
+                }
+
+                const strToValue = x => (itemType === "number") ? parseInt(x)
+                    : (itemType === "boolean") ? (x.toLowerCase() === "true") : x;
+
+                if (relName === "lyphs" && (key === "length" || key === "thickness")) {
+                    res = {min: parseInt(res), max: parseInt(res)};
+                } else {
+                    if (key === "assign") {
+                        res = res.split(";").map(expr => {
+                            let [path, value] = expr.split("=");
+                            let [propName, propValue] = value.split(":").map(x => x.trim());
+                            if (propName && propValue) {
+                                propValue = propValue.toString().split(",");
+                                let borderIndex = borderNames.indexOf(propName);
+                                if (borderIndex > -1) {
+                                    path = path + `.border.borders[${borderIndex}]`;
+                                    value = {hostedNodes: propValue};
+                                } else {
+                                    value = {[propName]: propValue};
+                                }
+                            } else {
+                                logger.error("Assign value error:", value);
+                            }
+                            return {"path": "$." + path, "value": value}
+                        });
+                    } else {
+                        if (fields[key].type === "array") {
+                            res = res.split(",").map(x => strToValue(x));
+                        } else {
+                            res = strToValue(res);
+                        }
+                    }
+                }
+                return res;
+            };
+
+            for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
                     let key = headers[j].trim();
-                    if (!fields[key]){
-                        logger.warn("Unrecognized property:", clsName, key);
-                        return;
-                    }
-                    let res = value.toString();
-                    if (res.length === 0){ return; } //skip empty properties
-
-                    let itemType = fields[key].type;
-                    if (fields[key].type === "array"){
-                        itemType = fields[key].items && fields[key].items.type;
-                    }
-
-                    if (!(itemType === "string" && propNames.includes(key))){
-                        res = res.replace(/\s/g, '');
-                    }
-
-                    const strToValue = x => (itemType === "number")? parseInt(x)
-                        : (itemType === "boolean")? (x.toLowerCase() === "true") : x;
-
-                    if (relName === "lyphs" && (key === "length" || key === "thickness")){
-                        res = {min: parseInt(res), max: parseInt(res)};
-                    } else {
-                        if (key === "assign") {
-                            res = res.split(";").map(expr => {
-                                let [path, value] = expr.split("=");
-                                let [propName, propValue] = value.split(":").map(x => x.trim());
-                                if (propName && propValue){
-                                    propValue = propValue.toString().split(",");
-                                    let borderIndex = borderNames.indexOf(propName);
-                                    if (borderIndex > -1){
-                                        path  = path + `.border.borders[${borderIndex}]`;
-                                        value = {hostedNodes: propValue};
-                                    } else {
-                                        value = {[propName]: propValue};
-                                    }
-                                } else {
-                                    logger.error("Assign value error:", value);
-                                }
-                                return { "path"  : "$." + path, "value" : value }
-                            });
-                        } else {
-                            if (fields[key].type === "array"){
-                                res = res.split(",").map(x => strToValue(x));
-                            } else {
-                                res = strToValue(res);
-                            }
-                        }
-                    }
-                    resource[key] = res;
+                    let res = convertValue(key, value);
+                    if (res){ resource[key] = res; }
                 });
 
                 table[i] = resource;
                 let borderConstraints = resource::pick(borderNames);
-                if (borderConstraints::values().filter(x => !!x).length > 0){
-                    table.border =  {borders: borderNames.map(borderName => borderConstraints[borderName]? {hostedNodes: [borderConstraints[borderName]]}: {})};
+                if (borderConstraints::values().filter(x => !!x).length > 0) {
+                    table.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {hostedNodes: [borderConstraints[borderName]]} : {})};
                 }
                 table[i] = resource::omit(borderNames);
             }
             model[relName] = model[relName].slice(1);
         });
+
+        if (model.main){
+            if (model.main[0]::isArray()){
+                model.main[0].forEach(({key: value}) => model[key] = value);
+            } else {
+                if (model.main[0]::isObject()){
+                    model::merge(model.main[0]);
+                }
+            }
+            delete model.main;
+        }
         return model;
     }
 
@@ -288,8 +303,11 @@ export class Graph extends Group{
      * Serialize the map of all resources in JSON
      */
     entitiesToJSON(){
-        let res = {};
-        (this.entitiesByID||{})::entries().forEach(([id,obj]) => res[id] = obj.toJSON? obj.toJSON(): obj);
+        let res = {
+            "id": this.id,
+            "resources": {}
+        };
+        (this.entitiesByID||{})::entries().forEach(([id,obj]) => res.resources[id] = obj.toJSON? obj.toJSON(): obj);
         return res;
     }
 }

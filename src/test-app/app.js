@@ -301,7 +301,7 @@ export class TestApp {
 
     save(){
         let result = JSON.stringify(this._model, null, 4);
-        const blob = new Blob([result], {type: 'text/plain;charset=utf-8'});
+        const blob = new Blob([result], {type: 'text/plain'});
         FileSaver.saveAs(blob, 'apinatomy-model.json');
     }
 

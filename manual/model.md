@@ -346,8 +346,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
      
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
 
-
-
  ### Region
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
     Region internal content is similar to the content of a lyph. Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
