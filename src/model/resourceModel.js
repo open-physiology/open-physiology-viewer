@@ -376,7 +376,7 @@ export class Resource{
         let omitKeys = this::keys()::difference(this.constructor.Model.fieldNames).concat(["viewObjects", "infoFields", "labels"]);
         let res = {};
         this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
-            let flag = (key === "border")? 1: (key === "borders")? initDepth: depth;
+            let flag = (key === "border" || key === "borders")? initDepth: depth;
             res[key] = fieldToJSON(this[key], flag, initDepth);
         });
         return res;
