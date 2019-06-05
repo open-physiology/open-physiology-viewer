@@ -5,6 +5,7 @@ import { Link, Node } from './visualResourceModel';
 import { Group } from './groupModel';
 import { mergeGenResource, mergeGenResources, findResourceByID } from "./utils";
 import {logger} from './logger';
+import {COALESCENCE_TOPOLOGY} from "./coalescenceModel";
 
 /**
  * Tree model
@@ -27,8 +28,10 @@ export class Tree extends Resource {
             logger.warn(`Skipped tree template - it must have (non-empty) ID!`); return;
         }
 
-        if ( !tree.numLevels && ((tree.levels||[]).length === 0)) {
-            logger.warn(`Skipped tree template - it must have ID, "numLevels" set to a positive number or provide a non-empty "levels" array`);
+        const isDefined = value => value && (!Array.isArray(value) || value.length > 0);
+
+        if ( !(isDefined(tree.numLevels) || isDefined(tree.housingLyphs) || isDefined(tree.levels))) {
+            logger.warn(`Skipped tree template - it must have ID, "numLevels" set to a positive number or provide a non-empty "levels" or "housingLyphs" arrays`);
             return;
         }
 
@@ -39,6 +42,11 @@ export class Tree extends Resource {
 
         //START
         tree.numLevels = tree.numLevels || 0;
+
+        if (!tree.numLevels && tree.housingLyphs){
+            tree.numLevels = tree.housingLyphs.length;
+        }
+
         tree.levels = tree.levels || new Array(tree.numLevels);
         //Levels should contain link objects for generation/validation
 
@@ -147,6 +155,65 @@ export class Tree extends Resource {
             mergeGenResource(tree.group, parentGroup, tree.levels[i], "links");
             tree.levels[i] = tree.levels[i].id; //Replace with ID to avoid resource definition duplication
         }
+
+        embedToHousingLyphs(tree.housingLyphs, tree.levels);
+
+
+        /**
+         * Align tree levels along housing lyphs
+         * @param lyphs - housing lyphs
+         * @param tree - tree group
+         */
+        function embedToHousingLyphs(lyphs, levels) {
+            if (!lyphs || !levels){ return; }
+
+            const addBorderNode = (border, node) => {
+                border.hostedNodes = border.hostedNodes || [];
+                border.hostedNodes.push(node);
+            };
+
+            const addInternalNode = (lyph, node) => {
+                lyph.internalNodes = lyph.internalNodes || [];
+                lyph.internalNodes.push(node);
+            };
+
+            let N = Math.min(lyphs.length, levels.length);
+
+            for (let i = 0; i < N; i++) {
+                let lyph = findResourceByID(parentGroup.lyphs, lyphs[i]);
+                let level = findResourceByID(parentGroup.links, levels[i]);
+
+                if (!lyph || !level)  {
+                    logger.warn(`Could not house a tree level ${levels[i]} in a lyph ${lyphs[i]}`, level, lyph);
+                    return;
+                }
+
+                if (!lyph.isTemplate) {
+                    lyph.border = lyph.border || {};
+                    lyph.border.borders = lyph.border.borders || [{}, {}, {}, {}];
+                    if (i === 0){
+                        addInternalNode(lyph, level.source);
+                    } else {
+                        addBorderNode(lyph.border.borders[1], level.source);
+                    }
+                    if (i === lyphs.length - 1){
+                        addInternalNode(lyph, level.target);
+                    } else {
+                        addBorderNode(lyph.border.borders[3], level.target);
+                    }
+                }
+
+                let lyphCoalescence = {
+                    "id"       : `${lyph.id}_tree-${level.conveyingLyph}`,
+                    "name"     : `${lyph.name} tree #${level.conveyingLyph}`,
+                    "generated": true,
+                    "topology" : COALESCENCE_TOPOLOGY.EMBEDDING,
+                    "lyphs"    : [level.conveyingLyph, lyph.id]
+                };
+
+                parentGroup.coalescences.push(lyphCoalescence);
+            }
+        }
     }
 
     /**
@@ -155,7 +222,7 @@ export class Tree extends Resource {
      * @param tree - omega tree definition
      */
     static createInstances(parentGroup, tree){
-        if (!tree || !tree.group || !tree.statusOptions){
+        if (!tree || !tree.group || !tree.levels){
             logger.warn("Cannot create omega tree instances: canonical tree undefined!");
             return;
         }
@@ -190,14 +257,14 @@ export class Tree extends Resource {
             mergeGenResource(instance, parentGroup, root, "nodes");
 
             let levelResources = {};
-            for (let i = 0; i < tree.statusOptions.length; i++) {
-                let lnk  = findResourceByID(parentGroup.links, tree.statusOptions[i]);
+            for (let i = 0; i < tree.levels.length; i++) {
+                let lnk  = findResourceByID(parentGroup.links, tree.levels[i]);
                 let trg  = findResourceByID(parentGroup.nodes, lnk.target);
                 let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
 
                 if (!lnk) {
-                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.statusOptions[i]);
-                    lnk = {"id": tree.statusOptions[i], "generated": true};
+                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, tree.levels[i]);
+                    lnk = {"id": tree.levels[i], "generated": true};
                 }
                 if (!trg){
                     logger.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
@@ -214,14 +281,14 @@ export class Tree extends Resource {
 
             const MAX_GEN_RESOURCES = 1000;
             let count = 0;
-            for (let i = 0; i < Math.min(tree.statusOptions.length, tree.branchingFactors.length); i++){
+            for (let i = 0; i < Math.min(tree.levels.length, tree.branchingFactors.length); i++){
                 levelResources[i].forEach((base, m) => {
                     for (let k = 1; k < tree.branchingFactors[i]; k++){ //Instances reuse the canonic tree objects
                         if (count > MAX_GEN_RESOURCES){
                             throw new Error(`Reached maximum allowed number of generated resources per tree instance (${MAX_GEN_RESOURCES})!`);
                         }
                         let prev_id = base[0].source;
-                        for (let j = i; j < tree.statusOptions.length; j++) {
+                        for (let j = i; j < tree.levels.length; j++) {
                             let baseResources = levelResources[j][0];
                             let [lnk, trg, lyph] = baseResources.map(r => (r ? { "id" : `${r.id}_${i+1}:${m+1}:${k}-${prefix}` }: r));
                             lnk.target = trg.id;

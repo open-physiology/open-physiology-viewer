@@ -46,11 +46,11 @@ export class Logger {
         return this.statusOptions.OK;
     }
 
-    toJSON(){
+    print(){
         return this.entries.map(e => ({
             "level"  : e.level,
             "msg"    : e.msg,
-            "params" : (e.params||[]).map(param => param.toJSON? param.toJSON(): param)
+            "params" : (e.params||[]).map(param => param.toJSON? param.toJSON(new Set([])): param)
         }));
     }
 

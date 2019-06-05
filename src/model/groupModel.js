@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick, defaults} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick, defaults, sortBy} from 'lodash-bound';
 import {LINK_STROKE, PROCESS_TYPE, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
@@ -20,7 +20,6 @@ import {logger} from './logger';
  * @property trees
  * @property channels
  * @property coalescences
- * @property inGroups
  */
 export class Group extends Resource {
     /**
@@ -31,9 +30,6 @@ export class Group extends Resource {
      * @returns {*} - Graph model - model suitable for visualization
      */
     static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-
-        //New entities will be auto-generated in the raw JSON format
-        this.replaceBorderNodes(json);
 
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
@@ -52,6 +48,9 @@ export class Group extends Resource {
 
         //create channel instances
         this.createChannelInstances(json, modelClasses);
+
+        //New entities will be auto-generated in the raw JSON format
+        this.replaceBorderNodes(json);
 
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
@@ -265,6 +264,7 @@ export class Group extends Resource {
         let borderNodesByID = {};
         let lyphsWithBorders = (json.lyphs||[]).filter(lyph => lyph.border && (lyph.border.borders||[])
             .find(b => b && b.hostedNodes)); //TODO if link's reference is used this will fail
+
         lyphsWithBorders.forEach(lyph => {
             lyph.border.borders.forEach(b => {
                 (b.hostedNodes||[]).forEach(nodeID => {
@@ -281,6 +281,8 @@ export class Group extends Resource {
                 let node  = (json.nodes||[]).find(e => e.id === nodeID);
                 //Unknown nodes will be detected by validation later, no need for logging here
                 if (!node){return;}
+
+                borderNodesByID[nodeID] = borderNodesByID[nodeID].reverse();
 
                 for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                     let nodeClone = node::cloneDeep()::merge({
@@ -322,7 +324,7 @@ export class Group extends Resource {
     mergeSubgroupEntities(){
 
         (this.groups||[]).forEach(group => {
-            if (group.id === this.id || (this.inGroups||[]).find(e => e.id === group.id)) {
+            if (group.id === this.id) {
                 logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
@@ -390,8 +392,8 @@ export class Group extends Resource {
      */
     showGroups(groups){
         this.show(); //show all entities that are in the main group
-        (this.groups || []).filter(group => !groups.has(group)).forEach(g => g.hide()); //hide entities from hidden groups
-        (this.groups || []).filter(group => groups.has(group)).forEach(g => g.show()); //show entities that are in visible groups
+        (this.groups || []).filter(g => (g instanceof Group) && !groups.has(g)).forEach(g => g.hide()); //hide entities from hidden groups
+        (this.groups || []).filter(g => (g instanceof Group) && groups.has(g)).forEach(g => g.show()); //show entities that are in visible groups
     }
 
     /**

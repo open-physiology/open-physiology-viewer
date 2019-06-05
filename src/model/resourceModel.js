@@ -10,7 +10,7 @@ import {
     assign,
     defaults,
     pick,
-    intersection
+    difference
 } from 'lodash-bound';
 
 import {JSONPath, getClassName, schemaClassModels, isClassAbstract} from "./utils";
@@ -369,21 +369,15 @@ export class Resource{
         });
     }
 
-    toJSON(){
+    toJSON(depth = 0, initDepth = depth){
+        function valueToJSON(e, depth, initDepth) { return (e instanceof Resource)? ((depth > 0)? e.toJSON(depth-1, initDepth): e.id): e}
+        function fieldToJSON(value, depth, initDepth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth, initDepth)): valueToJSON(value, depth, initDepth); }
+
+        let omitKeys = this::keys()::difference(this.constructor.Model.fieldNames).concat(["viewObjects", "infoFields", "labels"]);
         let res = {};
-        const visualProperties = ["viewObjects", "infoFields", "labels"];
-
-        const fieldToJSON = (value) => (value instanceof Resource)? value.id: value;
-
-        this::keys()::intersection(this.constructor.Model.fieldNames).forEach(key => {
-            let value = this[key];
-            if (!value) { return; }
-            if (visualProperties.includes(key)) { return; }
-            if (value::isArray()){
-                res[key] = value.map(e => fieldToJSON(e));
-            } else {
-                res[key] = fieldToJSON(value)
-            }
+        this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
+            let flag = (key === "border")? 1: (key === "borders")? initDepth: depth;
+            res[key] = fieldToJSON(this[key], flag, initDepth);
         });
         return res;
     }

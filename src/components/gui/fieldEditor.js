@@ -12,46 +12,46 @@ import { cloneDeep, isObject} from 'lodash-bound';
 @Component({
     selector: 'fieldEditor',
     template: `
-        <section stop-propagation> 
-            <!--Input-->  
-            <mat-form-field *ngIf="_fieldType === 'input'" >
-                <input matInput class="w3-input full-width"                       
-                       [placeholder]="label" 
-                       [matTooltip] ="spec?.description"
-                       [type]       = "_inputType"
-                       [value]      = "value||null"
-                       [disabled]   = "disabled"
-                       [min]        = "spec?.minimum||0"
-                       [max]        = "spec?.maximum||100"
-                       [step]       = "0.01 * (spec?.maximum - spec?.minimum) || 1"
-                       (input)      = "updateValue($event.target.value)"
+        <section stop-propagation>
+            <!--Input-->
+            <mat-form-field *ngIf="_fieldType === 'input'">
+                <input matInput class="w3-input full-width"
+                       [placeholder]="label"
+                       [matTooltip]="spec?.description"
+                       [type]="_inputType"
+                       [value]="value||null"
+                       [disabled]="disabled"
+                       [min]="spec?.minimum||0"
+                       [max]="spec?.maximum||100"
+                       [step]="0.01 * (spec?.maximum - spec?.minimum) || 1"
+                       (input)="updateValue($event.target.value)"
                 >
             </mat-form-field>
-            
+
             <!--Select box-->
             <mat-form-field *ngIf="_fieldType === 'select'">
                 <mat-select
-                        [placeholder] = "label"
-                        [value]       = "value"
-                        [matTooltip]  = "spec?.description"
-                        (selectionChange) = "updateValue($event.value)">
-                    <mat-option *ngFor="let option of _selectOptions" [value]="option" >
+                        [placeholder]="label"
+                        [value]="value"
+                        [matTooltip]="spec?.description"
+                        (selectionChange)="updateValue($event.value)">
+                    <mat-option *ngFor="let option of _selectOptions" [value]="option">
                         {{option}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-    
+
             <!--Check box-->
-            <mat-checkbox *ngIf="_fieldType === 'boolean'" 
-                          [matTooltip]  = "spec?.description" 
-                          labelPosition = "before" 
-                          [checked]     = "value"
-                          [disabled]    = "disabled"
-                          (change)      = "updateValue($event.checked)"
+            <mat-checkbox *ngIf="_fieldType === 'boolean'"
+                          [matTooltip]="spec?.description"
+                          labelPosition="before"
+                          [checked]="value"
+                          [disabled]="disabled"
+                          (change)="updateValue($event.checked)"
 
             >{{label}}
-            </mat-checkbox> 
-    
+            </mat-checkbox>
+
             <!--Object - show fieldEditor for each property-->
             <section *ngIf="_fieldType === 'object'">
                 <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
@@ -63,23 +63,23 @@ import { cloneDeep, isObject} from 'lodash-bound';
                             {{spec.description}}
                         </mat-panel-description>
                     </mat-expansion-panel-header>
-    
+
                     <section *ngIf="!!_objectProperties">
                         <section *ngFor="let key of objectKeys(_objectProperties)">
-                            <fieldEditor 
-                                    [label]    = "key" 
-                                    [value]    = "value? value[key]: getDefault(_objectProperties[key])" 
-                                    [spec]     = "_objectProperties[key]"
-                                    [disabled] = "disabled"
-                                    (onValueChange) = "updateProperty(key, $event)">
+                            <fieldEditor
+                                    [label]="key"
+                                    [value]="value? value[key]: getDefault(_objectProperties[key])"
+                                    [spec]="_objectProperties[key]"
+                                    [disabled]="disabled"
+                                    (onValueChange)="updateProperty(key, $event)">
                             </fieldEditor>
-                        </section> 
+                        </section>
                     </section>
                     <section *ngIf="!_objectProperties">
                         <section *ngFor="let key of objectKeys(value||{})">
-                            {{key}}: {{value? value[key]: ""}}
+                            {{key}}: {{value ? value[key] : ""}}
                             <mat-action-row>
-                                <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
+                                <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
                                     <i class="fa fa-trash"> </i>
                                 </button>
                             </mat-action-row>
@@ -87,39 +87,39 @@ import { cloneDeep, isObject} from 'lodash-bound';
 
                         <mat-action-row>
                             <!-- Add any number of key-value pairs -->
-                            <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="addProperty()">
+                            <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="addProperty()">
                                 <i class="fa fa-plus"> </i>
                             </button>
                         </mat-action-row>
                     </section>
                 </mat-expansion-panel>
             </section>
-    
+
             <!--Array - show fieldEditor for each item-->
             <section *ngIf="_fieldType === 'array'">
                 <mat-expansion-panel class="w3-margin-bottom">
                     <mat-expansion-panel-header>
-                        <mat-panel-title> 
+                        <mat-panel-title>
                             {{label}}
                         </mat-panel-title>
                         <mat-panel-description *ngIf="spec.description">
                             {{spec.description}}
                         </mat-panel-description>
                     </mat-expansion-panel-header>
-   
-                    <section *ngFor="let obj of value; let i = index"> 
-                        {{toJSON(obj)}}
+
+                    <section *ngFor="let obj of value; let i = index">
+                        {{print(obj, " ", 2)}}
                         <mat-action-row>
                             <button class="w3-hover-light-grey" (click)="editObj(i)">
                                 <i class="fa fa-edit"> </i>
                             </button>
-                            <button *ngIf = "!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
+                            <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
                                 <i class="fa fa-trash"> </i>
                             </button>
-                        </mat-action-row>    
+                        </mat-action-row>
                     </section>
 
-                    <mat-action-row *ngIf = "!disabled">
+                    <mat-action-row *ngIf="!disabled">
                         <button class="w3-hover-light-grey" (click)="addObj()">
                             <i class="fa fa-plus"> </i>
                         </button>
@@ -127,13 +127,13 @@ import { cloneDeep, isObject} from 'lodash-bound';
 
                 </mat-expansion-panel>
             </section>
-            
+
             <!--Other-->
             <section *ngIf="_fieldType === 'other'">
-                Unsupported field: <b>{{label}}</b> 
+                Unsupported field: <b>{{label}}</b>
             </section>
-                
-            
+
+
         </section>
     `,
     styles: [`
@@ -212,11 +212,7 @@ export class FieldEditor {
         return this._spec;
     }
 
-
-    // noinspection JSMethodCanBeStatic
-    toJSON(item){
-        return JSON.stringify(item, " ", 2);
-    }
+    print = JSON.stringify;
 
     /**
      * Defines type of the field

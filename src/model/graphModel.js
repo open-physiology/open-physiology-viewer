@@ -1,4 +1,5 @@
 import { Group } from './groupModel';
+import {Resource} from "./resourceModel";
 import { Node, Link, LINK_GEOMETRY } from "./visualResourceModel";
 import {
     entries,
@@ -12,7 +13,7 @@ import {
     pick,
     values,
     omit,
-    merge
+    merge, difference
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
@@ -39,7 +40,7 @@ export class Graph extends Group{
         const V = new Validator();
         let resVal = V.validate(json, schema);
 
-        logger.clear();
+        //logger.clear();
 
         if (resVal.errors && resVal.errors.length > 0){
             logger.warn(resVal);
@@ -140,13 +141,17 @@ export class Graph extends Group{
                 if (fields[key].type === "array") {
                     itemType = fields[key].items && fields[key].items.type;
                 }
+                if (fields[key].$ref) {
+                    itemType = "object";
+                }
 
                 if (!(itemType === "string" && propNames.includes(key))) {
                     res = res.replace(/\s/g, '');
                 }
-
                 const strToValue = x => (itemType === "number") ? parseInt(x)
-                    : (itemType === "boolean") ? (x.toLowerCase() === "true") : x;
+                    : (itemType === "boolean") ? (x.toLowerCase() === "true")
+                        : (itemType === "object")? JSON.parse(x)
+                            : x;
 
                 if (relName === "lyphs" && (key === "length" || key === "thickness")) {
                     res = {min: parseInt(res), max: parseInt(res)};
@@ -282,24 +287,6 @@ export class Graph extends Group{
     }
 
     /**
-     * Serialize the expanded model in JSON
-     */
-    toJSON(){
-        let res = {};
-        this::keys()::intersection(this.constructor.Model.fieldNames).forEach(key => {
-            let value = this[key];
-            if (!value || key === "infoFields") { return; }
-
-            if (value::isArray()){
-                res[key] = value.filter(e => !!e).map(e => e.toJSON? e.toJSON(): e);
-            } else {
-                res[key] = value.toJSON? value.toJSON(): value;
-            }
-        });
-        return res;
-    }
-
-    /**
      * Serialize the map of all resources in JSON
      */
     entitiesToJSON(){
@@ -307,7 +294,7 @@ export class Graph extends Group{
             "id": this.id,
             "resources": {}
         };
-        (this.entitiesByID||{})::entries().forEach(([id,obj]) => res.resources[id] = obj.toJSON? obj.toJSON(): obj);
+        (this.entitiesByID||{})::entries().forEach(([id,obj]) => res.resources[id] = (obj instanceof Resource) ? obj.toJSON(): obj);
         return res;
     }
 }

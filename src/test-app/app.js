@@ -225,6 +225,7 @@ export class TestApp {
     }
 
     newModel(){
+        this._fileName = "";
         this.model = {};
     }
 

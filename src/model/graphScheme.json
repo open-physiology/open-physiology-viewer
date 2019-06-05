@@ -218,7 +218,6 @@
     },
     "VisualResource": {
       "description": "An abstract visual resource that defines common properties for all types of visual resources in the ApiNATOMY model.",
-      "type": "object",
       "abstract": "true",
       "allOf": [{"$ref": "#/definitions/Resource"}],
       "properties": {
@@ -310,7 +309,6 @@
     },
     "Node": {
       "description": "Graph node joins two or more links (processes)",
-      "type": "object",
       "allOf":[{
         "$ref": "#/definitions/VisualResource"
       }],
@@ -1136,15 +1134,30 @@
             "default": 1
           }
         },
-        "numInstances"  : {
-          "description": "Indicates how many tree instances to create",
-          "type"       : "number",
-          "default"    : 0
+        "housingLyphs"    : {
+          "description": "A set of lyphs that house the tree",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "default": []
         },
         "group"           : {
           "description": "Group (subgraph) that defines canonical tree for the given tree template",
           "$ref": "#/definitions/Group",
           "readOnly": true
+        },
+        "numInstances"  : {
+          "description": "Indicates how many tree instances to create",
+          "type"       : "number",
+          "default"    : 0
         },
         "instances"        : {
           "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
@@ -1305,23 +1318,6 @@
               }
             ]
           },
-          "relatedTo": "inGroups",
-          "default": []
-        },
-        "inGroups" : {
-          "description": "Set of groups that include the current group (subgraph)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Group"
-              }
-            ]
-          },
-          "relatedTo": "groups",
           "default": []
         }
       }

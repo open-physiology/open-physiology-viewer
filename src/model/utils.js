@@ -1,4 +1,15 @@
-import {cloneDeep, entries, fromPairs, isObject, isString, merge, keys, isPlainObject, defaults} from "lodash-bound";
+import {
+    cloneDeep,
+    entries,
+    fromPairs,
+    isObject,
+    isString,
+    merge,
+    keys,
+    isPlainObject,
+    defaults,
+    intersection, isArray
+} from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
 import {logger} from './logger';

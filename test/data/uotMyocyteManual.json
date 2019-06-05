@@ -315,7 +315,7 @@
       "topology": "CYST",
       "length" : {"min": 6, "max": 6}, "thickness": {"min": 7, "max": 7},
       "layers":["sarPla", "sarLem", "URN"],
-      "external": ["CL_0002098"],
+      "external": ["CL:0002098"],
       "scale": {
         "width": 25,
         "height": 50

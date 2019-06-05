@@ -12,10 +12,10 @@ import {LEVEL} from '../../model/logger';
     template:`
         <div mat-dialog-content>
             <!--<span *ngFor="let level of levels">-->
-                <!--<mat-checkbox matTooltip="Toggle message group" labelPosition="after" class="w3-margin-left"-->
-                              <!--(change) = "toggleGroup(group)"-->
-                              <!--[checked]= "showGroup(group)"> {{level}}-->
-                <!--</mat-checkbox>-->
+            <!--<mat-checkbox matTooltip="Toggle message group" labelPosition="after" class="w3-margin-left"-->
+            <!--(change) = "toggleGroup(group)"-->
+            <!--[checked]= "showGroup(group)"> {{level}}-->
+            <!--</mat-checkbox>-->
             <!--</span>-->
 
             <section *ngFor="let entry of data" class="w3-margin-bottom">
@@ -23,7 +23,7 @@ import {LEVEL} from '../../model/logger';
                     {{entry.msg}}
                 </section>
                 <section *ngFor="let param of entry.params">
-                    {{toJSON(param)}}
+                    {{print(param)}}
                 </section>
             </section>
         </div>
@@ -38,7 +38,7 @@ import {LEVEL} from '../../model/logger';
 export class LogInfoDialog {
     dialogRef;
     data;
-    toJSON = JSON.stringify;
+    print = JSON.stringify;
 
     constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;

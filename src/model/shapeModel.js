@@ -35,7 +35,7 @@ export class Shape extends VisualResource {
             : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
         json.border = json.border || {};
         json.border.id = json.border.id || (json.id + "_border");
-        json.border.borders = json.border.borders || {};
+        json.border.borders = json.border.borders || [];
         for (let i = 0; i < json.numBorders ; i++){
             json.border.borders[i]::merge({"id": json.border.id + "_" + i});
         }

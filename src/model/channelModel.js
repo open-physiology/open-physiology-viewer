@@ -262,7 +262,7 @@ export class Channel extends Resource {
         function embedToHousingLyph(lyph, instance) {
             //Embed channel to the housing lyph
 
-            const addNode = (border, node) => {
+            const addBorderNode = (border, node) => {
                 border.hostedNodes = border.hostedNodes || [];
                 border.hostedNodes.push(node);
             };
@@ -280,18 +280,18 @@ export class Channel extends Resource {
                 if (!lyph.isTemplate) {
                     layer.border = layer.border || {};
                     layer.border.borders = layer.border.borders || [{}, {}, {}, {}];
-                    addNode(layer.border.borders[0], instance.nodes[i]);
+                    addBorderNode(layer.border.borders[0], instance.nodes[i]);
                     if (i === layers.length - 1) {
-                        addNode(layer.border.borders[2], instance.nodes[instance.nodes.length - 1]);
+                        addBorderNode(layer.border.borders[2], instance.nodes[instance.nodes.length - 1]);
                     }
                 }
 
                 let layerCoalescence = {
-                    "id": `${layer.id}_channel-${instance.lyphs[i]}`,
-                    "name": `${layer.name} channel #${instance.lyphs[i]}`,
+                    "id"       : `${layer.id}_channel-${instance.lyphs[i]}`,
+                    "name"     : `${layer.name} channel #${instance.lyphs[i]}`,
                     "generated": true,
-                    "topology": COALESCENCE_TOPOLOGY.EMBEDDING,
-                    "lyphs": [layer.id, instance.lyphs[i]]
+                    "topology" : COALESCENCE_TOPOLOGY.EMBEDDING,
+                    "lyphs"    : [layer.id, instance.lyphs[i]]
                 };
 
                 parentGroup.coalescences.push(layerCoalescence);

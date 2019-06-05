@@ -1,0 +1,588 @@
+{
+  "nodes": [
+    {
+      "id": "n1",
+      "layout": {
+        "x": -100
+      }
+    },
+    {
+      "id": "n5",
+      "layout": {
+        "x": 100
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "n1",
+      "target": "n2",
+      "conveyingLyph": "200",
+      "length": 20
+    },
+    {
+      "id": "lnk2",
+      "source": "n2",
+      "target": "n3",
+      "conveyingLyph": "203",
+      "length": 20
+    },
+    {
+      "id": "lnk3",
+      "source": "n3",
+      "target": "n4",
+      "conveyingLyph": "204",
+      "length": 20
+    },
+    {
+      "id": "lnk4",
+      "source": "n4",
+      "target": "n5",
+      "conveyingLyph": "205",
+      "length": 20
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "200",
+      "name": "Diencephalon",
+      "external": [
+        "UBERON:0001894"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ],
+      "internalLyphs": [
+        "201"
+      ]
+    },
+    {
+      "id": "201",
+      "name": "Hypothalamus",
+      "external": [
+        "UBERON:0001898"
+      ],
+      "internalLyphs": [
+        "202"
+      ]
+    },
+    {
+      "id": "202",
+      "name": "Paraventricular nucleus",
+      "external": [
+        "UBERON:0001920"
+      ]
+    },
+    {
+      "id": "203",
+      "name": "Midbrain",
+      "external": [
+        "UBERON:0001891"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "204",
+      "name": "Pons",
+      "external": [
+        "UBERON:0000988"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "205",
+      "name": "Medulla",
+      "external": [
+        "UBERON:0001896"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "206",
+      "name": "C1 spinal segment",
+      "external": [
+        "UBERON:0006469"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "207",
+      "name": "C2 spinal segment",
+      "external": [
+        "UBERON:0006489"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "208",
+      "name": "C3 spinal segment",
+      "external": [
+        "UBERON:0006488"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "209",
+      "name": "C4 spinal segment",
+      "external": [
+        "UBERON:0006490"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "210",
+      "name": "C5 spinal segment",
+      "external": [
+        "UBERON:0006491"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "211",
+      "name": "C6 spinal segment",
+      "external": [
+        "UBERON:0006492"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "212",
+      "name": "C7 spinal segment",
+      "external": [
+        "UBERON:0006493"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "213",
+      "name": "C8 spinal segment",
+      "external": [
+        "UBERON:0006470"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "214",
+      "name": "T1 spinal segment",
+      "external": [
+        "UBERON:0006457"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "215",
+      "name": "T2 spinal segment",
+      "external": [
+        "UBERON:0006458"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "216",
+      "name": "T3 spinal segment",
+      "external": [
+        "UBERON:0006459"
+      ],
+      "layers": [
+        "104",
+        "105",
+        "107",
+        "106"
+      ]
+    },
+    {
+      "id": "217",
+      "name": "T1 sympathetic ganglion",
+      "external": [
+        "FMA:6474"
+      ]
+    },
+    {
+      "id": "218",
+      "name": "Inferior cervical ganglion",
+      "external": [
+        "UBERON:0002440"
+      ]
+    },
+    {
+      "id": "219",
+      "name": "Middle cervical ganglion",
+      "external": [
+        "UBERON:0001990"
+      ]
+    },
+    {
+      "id": "220",
+      "name": "Superior cervical ganglion",
+      "external": [
+        "UBERON:0001989"
+      ]
+    },
+    {
+      "id": "221",
+      "name": "Larynx",
+      "external": [
+        "UBERON:0001737"
+      ],
+      "layers": [
+        "103",
+        "108"
+      ]
+    },
+    {
+      "id": "222",
+      "name": "Trachea",
+      "external": [
+        "UBERON:0003126"
+      ],
+      "layers": [
+        "103",
+        "109"
+      ]
+    },
+    {
+      "id": "223",
+      "name": "Aortic arch",
+      "external": [
+        "UBERON:0001508"
+      ],
+      "layers": [
+        "41",
+        "110"
+      ]
+    },
+    {
+      "id": "224",
+      "name": "Common carotid artery",
+      "external": [
+        "UBERON:0010197"
+      ],
+      "layers": [
+        "41",
+        "110"
+      ]
+    },
+    {
+      "id": "225",
+      "name": "Internal carotid artery",
+      "external": [
+        "UBERON:0001532"
+      ],
+      "layers": [
+        "41",
+        "110"
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "53",
+      "name": "Aqueous solution",
+      "external": [
+        "FMA:85815"
+      ],
+      "materials": [
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "83",
+        "84",
+        "85",
+        "102"
+      ]
+    },
+    {
+      "id": "48",
+      "name": "Water",
+      "external": [
+        "CHEBI:15377"
+      ]
+    },
+    {
+      "id": "49",
+      "name": "Sodium ion",
+      "external": [
+        "CHEBI:29101"
+      ]
+    },
+    {
+      "id": "50",
+      "name": "Potassium ion",
+      "external": [
+        "CHEBI:29103"
+      ]
+    },
+    {
+      "id": "51",
+      "name": "Calcium ion",
+      "external": [
+        "CHEBI:29108"
+      ]
+    },
+    {
+      "id": "52",
+      "name": "Chloride ion",
+      "external": [
+        "CHEBI:17996"
+      ]
+    },
+    {
+      "id": "83",
+      "name": "Hydrogen ion",
+      "external": [
+        "CHEBI:24636"
+      ]
+    },
+    {
+      "id": "84",
+      "name": "Hydroxide ion",
+      "external": [
+        "CHEBI:16234"
+      ]
+    },
+    {
+      "id": "54",
+      "name": "Cytosol",
+      "external": [
+        "GO:0005829"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Membrane",
+      "external": [
+        "GO:0016020"
+      ]
+    },
+    {
+      "id": "56",
+      "name": "Plasma membrane",
+      "external": [
+        "GO:0005886"
+      ],
+      "materials": [
+        "55"
+      ]
+    },
+    {
+      "id": "85",
+      "name": "Bicarbonate ion ",
+      "external": [
+        "CHEBI:17544"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Basement membrane",
+      "external": [
+        "UBERON:0005769",
+        "PMID:31102947"
+      ]
+    },
+    {
+      "id": "42",
+      "name": "Endothelium",
+      "external": [
+        "UBERON:0001986"
+      ]
+    },
+    {
+      "id": "41",
+      "name": "Blood",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "100",
+      "name": "Fluid"
+    },
+    {
+      "id": "101",
+      "name": "Gas",
+      "materials": [
+        "100"
+      ]
+    },
+    {
+      "id": "102",
+      "name": "Liquid",
+      "materials": [
+        "100"
+      ]
+    },
+    {
+      "id": "103",
+      "name": "Air",
+      "materials": [
+        "101"
+      ]
+    },
+    {
+      "id": "104",
+      "name": "Cerebrospinal fluid",
+      "external": [
+        "UBERON:0001359"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "105",
+      "name": "Ependyma",
+      "external": [
+        "UBERON:0004670"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "106",
+      "name": "Pia mater",
+      "external": [
+        "UBERON:0002361"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "107",
+      "name": "Central nervous system tissue",
+      "external": [
+        "UBERON:0001017"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "108",
+      "name": "Wall of larynx",
+      "external": [
+        "FMA:64182"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "109",
+      "name": "Wall of trachea",
+      "external": [
+        "FMA:7470"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "110",
+      "name": "Wall of artery",
+      "external": [
+        "UBERON:0000415"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "111",
+      "name": "Connective tissue",
+      "external": [
+        "UBERON:0002384"
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "id": "t1",
+      "lyphTemplate": "221",
+      "housingLyphs": [
+        "200",
+        "203",
+        "204",
+        "205"
+      ]
+    }
+  ]
+}

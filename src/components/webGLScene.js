@@ -307,7 +307,7 @@ export class WebGLSceneComponent {
         this._labelClasses = this.config["labels"]::keys();
         this._labelProps   = ["id", "name"];
         this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
-        this._showGroups   = new Set();
+        this._showGroups   = new Set([]);
     }
 
     onScaleChange(newLabelScale){
@@ -357,10 +357,9 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
-
     export(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(), null, 2);
+            let result = JSON.stringify(this._graphData.toJSON(1), null, 2);
             const blob = new Blob([result], {type: 'text/plain'});
             FileSaver.saveAs(blob, 'apinatomy-generated.json');
         }
@@ -377,7 +376,7 @@ export class WebGLSceneComponent {
     showReport(){
         const dialogRef = this.dialog.open(LogInfoDialog, {
             width : '75%',
-            data  : this.graphData.logger.toJSON()
+            data  : this.graphData.logger.print()
         });
 
         dialogRef.afterClosed().subscribe(result => {

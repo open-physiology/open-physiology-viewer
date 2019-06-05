@@ -1,6 +1,6 @@
 import { Resource } from './resourceModel';
 import {findResourceByID} from "./utils";
-import {merge, pick} from "lodash-bound";
+import {keys, merge, pick} from "lodash-bound";
 
 /**
  * Supported link geometries
@@ -105,6 +105,12 @@ export class Node extends VisualResource {
  * @property hostedNodes
  */
 export class Link extends VisualResource {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+        // if (!json.source) { json.source = "new_" + entitiesByID::keys().length; }
+        // if (!json.target) { json.target = "new_" + entitiesByID::keys().length; }
+        return super.fromJSON(json, modelClasses, entitiesByID);
+    }
 
     static clone(sourceLink, targetLink){
         if (!sourceLink || !targetLink) { return; }
