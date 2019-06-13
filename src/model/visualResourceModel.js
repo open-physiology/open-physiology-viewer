@@ -103,20 +103,20 @@ export class Node extends VisualResource {
  * @property path
  * @property lineWidth
  * @property hostedNodes
+ * @property onBorder
  */
 export class Link extends VisualResource {
-
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-        // if (!json.source) { json.source = "new_" + entitiesByID::keys().length; }
-        // if (!json.target) { json.target = "new_" + entitiesByID::keys().length; }
-        return super.fromJSON(json, modelClasses, entitiesByID);
-    }
 
     static clone(sourceLink, targetLink){
         if (!sourceLink || !targetLink) { return; }
         targetLink.cloneOf = sourceLink.id;
         targetLink::merge(sourceLink::pick(["conveyingType", "conveyingMaterials", "color", "generated"]));
     }
+
+    get isVisible(){
+        return this.onBorder? this.onBorder.isVisible: super.isVisible;
+    }
+
 }
 
 /**

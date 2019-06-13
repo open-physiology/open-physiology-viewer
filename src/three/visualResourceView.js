@@ -155,7 +155,6 @@ Link.prototype.createViewObjects = function(state){
                 ? 67 // Edge bunding breaks a link into 66 points
                 : 2;
         if (this.stroke === LINK_STROKE.DASHED) {
-            //Dashed lines cannot be drawn with buffered geometry?
             geometry.vertices = new Array(this.pointLength);
             for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
         } else {

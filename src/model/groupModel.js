@@ -34,20 +34,20 @@ export class Group extends Resource {
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
 
-        //create tree resources from templates
-        this.expandTreeTemplates(json, modelClasses);
-
-        //create process chains from channel templates
-        this.expandChannelTemplates(json, modelClasses);
+        //create group resources from templates
+        this.expandGroupTemplates(json, modelClasses);
 
         //create lyphs that inherit properties from templates
         this.expandLyphTemplates(json.lyphs);
 
-        //create tree instances
-        this.createTreeInstances(json, modelClasses);
+        /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
 
-        //create channel instances
-        this.createChannelInstances(json, modelClasses);
+        //align generated groups and housing lyphs
+        (json.trees||[]).forEach(tree => modelClasses.Tree.embedToHousingLyphs(json, tree.housingLyphs, tree.levels));
+
+        //create instances of group templates (e.g., trees and channels)
+        this.createTemplateInstances(json, modelClasses);
+        /******************************************************************************************************/
 
         //New entities will be auto-generated in the raw JSON format
         this.replaceBorderNodes(json);
@@ -64,8 +64,6 @@ export class Group extends Resource {
                 res.lyphs.push(link.conveyingLyph);
             }
         });
-
-        //TODO "subtypes", "supertype", "lyphTemplate" should not contain materials - add check
 
         //validate process edges
         res.validateProcessEdges();
@@ -145,11 +143,11 @@ export class Group extends Resource {
             }
         };
 
-        (json::entries()||[]).forEach(([groupRelName, resources]) => {
+        (json::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
-            let groupClassNames = this.Model.relClassNames;
-            if (groupClassNames[groupRelName]) {
-                let refsToLyphs = modelClasses[groupClassNames[groupRelName]].Model.selectedRelNames("Lyph");
+            let classNames = this.Model.relClassNames;
+            if (classNames[relName]) {
+                let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames("Lyph");
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
@@ -167,83 +165,46 @@ export class Group extends Resource {
     }
 
     /**
-     * Generate canonical omega trees from tree templates, i.e. auto-create necessary nodes and links, and copy tree template to all tree levels
+     * Generate groups from group templates, i.e. auto-create necessary nodes and links conveying given or generated lyphs
      * @param json - input model
      * @param modelClasses - model resource classes
      */
-    static expandTreeTemplates(json, modelClasses){
+    static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
-        (json.trees||[]).forEach((tree, i) => {
-                tree.id = tree.id || (json.id + "_tree_" + i);
-                modelClasses.Tree.expandTemplate(json, tree);
+        let relClassNames = this.Model.relClassNames;
+        ["trees", "channels", "chains"].forEach(relName => {
+            let clsName = relClassNames[relName];
+            if (!clsName){
+                logger.error(`Could not find class definition for the field ${relName}`)
             }
-        );
+            (json[relName]||[]).forEach((field, i) => {
+                    field.id = field.id || `${json.id}_${relName}_${i}`;
+                    modelClasses[clsName].expandTemplate(json, field);
+                }
+            );
+        })
     }
 
     /**
-     * Generate process chains from channel templates, i.e. auto-create necessary nodes and links, and assign conveying lyphs of certain structure
+     * Generate group template instances
      * @param json - input model
      * @param modelClasses - model resource classes
      */
-    static expandChannelTemplates(json, modelClasses){
+    static createTemplateInstances(json, modelClasses){
         if (!modelClasses){ return; }
-        (json.channels||[]).forEach((channel, i) => {
-                channel.id = channel.id || (json.id + "_channel_" + i);
-                modelClasses.Channel.expandTemplate(json, channel);
+        let relClassNames = this.Model.relClassNames;
+        ["trees", "channels"].forEach(relName => {
+            let clsName = relClassNames[relName];
+            if (!clsName){
+                logger.error(`Could not find class definition for the field ${relName}`)
             }
-        );
+            (json[relName]||[]).forEach((field) => {
+                if (!field.group) { return; }
+                    modelClasses[clsName].createInstances(json, field);
+                }
+            );
+        })
     }
-
-    /**
-     * Generate omega tree instances
-     * @param json - input model
-     * @param modelClasses - model resource classes
-     */
-    static createTreeInstances(json, modelClasses){
-        if (!modelClasses){ return; }
-        (json.trees||[]).forEach(tree => {
-            if (!tree.group) { return; }
-            modelClasses.Tree.createInstances(json, tree);
-        });
-    }
-
-    /**
-     * Create channel instances
-     * @param json - input model
-     * @param modelClasses - model resource classes
-     */
-    static createChannelInstances(json, modelClasses){
-        if (!modelClasses){ return; }
-        (json.channels||[]).forEach(channel => {
-            if (!channel.group) { return; }
-            modelClasses.Channel.createInstances(json, channel);
-        });
-    }
-
-    /**
-     * Create empty group to accumulate resources generated from a template
-     * @param template - tree or channel template
-     * @param parentGroup - parent group
-     */
-    static createTemplateGroup(template, parentGroup){
-        let group = template.group || {};
-        group::defaults({
-            "id"        : "group_" + template.id,
-            "name"      : template.name,
-            "generated" : true
-        });
-        ["links", "nodes", "lyphs"].forEach(prop => {
-            group[prop] = group[prop] || [];
-            if ( group[prop].length > 0){
-                logger.warn(`Generated group contains extra ${prop}: ${group[prop]}!`)
-            }
-        });
-
-        if (!parentGroup.groups) { parentGroup.groups = []; }
-        parentGroup.groups.push(group);
-        return group;
-    }
-
 
     /**
      * Create lyphs that inherit properties from templates
@@ -335,10 +296,13 @@ export class Group extends Resource {
             });
         });
 
-        //Add auto-created clones of boundary nodes to relevant groups
         (this.nodes||[]).filter(node => node && node.clones).forEach(node => {
             node.clones.forEach(clone => {
+                //Add auto-created clones of boundary nodes and collapsible links they connect to relevant groups
                 this.nodes.push(clone);
+                let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
+                spacerLinks.forEach(lnk => this.links.push(lnk));
+
                 if (clone.hostedBy) {
                     clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
                     clone.hostedBy.hostedNodes.push(clone);
@@ -361,7 +325,7 @@ export class Group extends Resource {
                         } else {
                             let diff = (layers[0].materials || []).filter(x => !(lnk.conveyingMaterials||[]).find(e => e.id === x.id));
                             if (diff.length > 0){
-                                logger.log("Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link", lnk, diff);
+                                logger.warn("Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link", lnk, diff);
                             }
                         }
                     } else {
@@ -411,17 +375,25 @@ export class Group extends Resource {
     }
 
     /**
-     * Get groups that can be toggledon or off in the global graph
+     * Groups that can be toggled on or off in the global graph
      * @returns {T[]}
      */
     get activeGroups(){
         return [...(this.groups||[])].filter(e => !e.inactive);
     }
 
+    /**
+     * Visible regions
+     * @returns {*[]}
+     */
     get visibleRegions(){
         return (this.regions||[]).filter(e => e.isVisible);
     }
 
+    /**
+     * Visible nodes
+     * @returns {T[]}
+     */
     get visibleNodes(){
         return (this.nodes||[]).filter(e => e.isVisible ||
             e.sourceOf && e.sourceOf.isVisible ||
@@ -429,6 +401,10 @@ export class Group extends Resource {
         );
     }
 
+    /**
+     * Visible links
+     * @returns {*[]}
+     */
     get visibleLinks(){
         return (this.links||[]).filter(e => e.isVisible);
     }
@@ -470,9 +446,5 @@ export class Group extends Resource {
     //         }))
     //     };
     // }
-
-
-
-
 }
 

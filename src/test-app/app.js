@@ -268,7 +268,7 @@ export class TestApp {
 
         if (msgCount["error"] || msgCount["warn"]){
             throw new Error(`Detected ${msgCount["error"]} error(s), ${msgCount["warn"]} warning(s), 
-                may affect the model layout, check console messages for more detail!`);
+                may affect the model layout, check logging messages for more detail!`);
         }
         msgCount = {};
 	}
@@ -314,6 +314,7 @@ export class TestApp {
         this._model = model;
         try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
+            console.log("Current model", this._graphData);
         } catch(err){
             console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);

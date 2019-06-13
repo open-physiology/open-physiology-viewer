@@ -40,7 +40,7 @@ export class Graph extends Group{
         const V = new Validator();
         let resVal = V.validate(json, schema);
 
-        //logger.clear();
+        logger.clear();
 
         if (resVal.errors && resVal.errors.length > 0){
             logger.warn(resVal);

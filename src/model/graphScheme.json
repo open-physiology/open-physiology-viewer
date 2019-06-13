@@ -502,7 +502,18 @@
             ]
           }
         },
-
+        "onBorder"     :{
+          "description": "Border that contains this link",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Border"
+            }
+          ],
+          "relatedTo": "borders"
+        },
         "length"       : {
           "description": "The length of the link",
           "type": "number",
@@ -629,7 +640,7 @@
       "abstract": true,
       "properties": {
         "border": {
-          "description": "Properties that apply to the shape's border",
+          "description": "Structure of the shape's border",
           "anyOf": [
             {
               "type": "string"
@@ -967,8 +978,16 @@
           "description": "Lyph or region borders listed in the clockwise order (starting from the inner longitudinal border in lyph). If this property is included to the input model, it must contain as many objects as there are border sides.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Link"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
           },
+          "relatedTo": "onBorder",
           "default": []
         },
         "host": {
@@ -1026,10 +1045,28 @@
         }
       }
     },
+    "GroupTemplate": {
+      "description": "An abstract resource that defines common properties for all types of generated subgraphs",
+      "abstract": "true",
+      "allOf": [{"$ref": "#/definitions/Resource"}],
+      "properties": {
+        "group"        : {
+          "description": "Group (subgraph) that encompasses generated group resources",
+          "$ref": "#/definitions/Group",
+          "readOnly": true
+        },
+        "length"       : {
+          "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
+          "type"       : "number",
+          "minimum"    : 0,
+          "maximum"    : 100
+        }
+      }
+    },
     "Channel": {
       "description": "Defines a chain of lyphs that transport materials",
       "allOf":[{
-        "$ref": "#/definitions/Resource"
+        "$ref": "#/definitions/GroupTemplate"
       }],
       "properties": {
         "materials"    : {
@@ -1064,11 +1101,6 @@
           "relatedTo": "channels",
           "default": []
         },
-        "group"        : {
-          "description": "Group (subgraph) that defines a canonical chain for a given channel template",
-          "$ref": "#/definitions/Group",
-          "readOnly": true
-        },
         "instances"    : {
           "description": "Groups (subgraphs) that contain instances of channels housed by lyph instances",
           "type": "array",
@@ -1079,10 +1111,55 @@
         }
       }
     },
+    "Chain": {
+      "description": "Defines a chain of conveying lyphs",
+      "allOf":[{
+        "$ref": "#/definitions/GroupTemplate"
+      }],
+      "properties": {
+        "conveyingLyphs" : {
+          "description": "Ordered set of lyphs to form a chain",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "default": []
+        },
+        "start"          : {
+          "description": "The first node of the chain",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ]
+        },
+        "end"          : {
+          "description": "The last node of the chain",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ]
+        }
+      }
+    },
     "Tree"  : {
       "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
       "allOf":[{
-        "$ref": "#/definitions/Resource"
+        "$ref": "#/definitions/GroupTemplate"
       }],
       "properties": {
         "root"            : {
@@ -1134,6 +1211,19 @@
             "default": 1
           }
         },
+        "numInstances"    : {
+          "description": "Indicates how many tree instances to create",
+          "type"       : "number",
+          "default"    : 0
+        },
+        "instances"       : {
+          "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
+          "type" : "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
+          "readOnly": true
+        },
         "housingLyphs"    : {
           "description": "A set of lyphs that house the tree",
           "type": "array",
@@ -1148,24 +1238,6 @@
             ]
           },
           "default": []
-        },
-        "group"           : {
-          "description": "Group (subgraph) that defines canonical tree for the given tree template",
-          "$ref": "#/definitions/Group",
-          "readOnly": true
-        },
-        "numInstances"  : {
-          "description": "Indicates how many tree instances to create",
-          "type"       : "number",
-          "default"    : 0
-        },
-        "instances"        : {
-          "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
-          "type" : "array",
-          "items": {
-            "$ref": "#/definitions/Group"
-          },
-          "readOnly": true
         }
       }
     },
@@ -1278,7 +1350,7 @@
           "default": []
         },
         "channels": {
-          "description": "Templates that define channel patterns. Channel templates are used to automatically generate groups (subgraphs) representing process chains.",
+          "description": "Templates that define channel patterns. Channel templates are used to automatically generate groups (subgraphs) representing process chains within layers.",
           "type": "array",
           "items": {
             "anyOf": [
@@ -1287,6 +1359,20 @@
               },
               {
                 "$ref": "#/definitions/Channel"
+              }
+            ]
+          }
+        },
+        "chains": {
+          "description": "Templates that define chain patterns. Chain templates are used to automatically generate groups (subgraphs) representing process chains.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Chain"
               }
             ]
           }

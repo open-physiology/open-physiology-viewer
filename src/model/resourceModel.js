@@ -134,7 +134,7 @@ export class Resource{
             return;
         }
 
-        let refFields = modelClasses[this.class].Model.cudRelationships;
+        let refFields = modelClasses[this.class].Model.relationships;
         let res = this;
         refFields.forEach(([key, spec]) => {
             if (skip(res[key])) { return; }
@@ -349,7 +349,7 @@ export class Resource{
     syncRelationships(modelClasses, entitiesByID){
         entitiesByID::keys().forEach(id => {
             if (!entitiesByID[id].class){ return; }
-             let refFields = modelClasses[entitiesByID[id].class].Model.cudRelationships;
+             let refFields = modelClasses[entitiesByID[id].class].Model.relationships;
              (refFields || []).forEach(([key, spec]) => {
                  if (!entitiesByID[id][key]) { return; }
                  entitiesByID[id].syncRelationship(key, spec, modelClasses);
@@ -369,19 +369,47 @@ export class Resource{
         });
     }
 
+    /**
+     * Prepare a circular resource object to be serialized in JSON.
+     * @param depth     - remaining depth of nested objects in the recursive calls
+     * @param initDepth - depth of nested objects to serialize (called with depth = 0 for resource map, depth = 1 for the main model)
+     */
     toJSON(depth = 0, initDepth = depth){
-        function valueToJSON(e, depth, initDepth) { return (e instanceof Resource)? ((depth > 0)? e.toJSON(depth-1, initDepth): e.id): e}
+
+        /**
+         * Converts a resource object into serializable JSON.
+         * May fail to serialize recursive objects which are not instances of Resource
+         * @param value - resource object
+         * @param depth - depth of nested resources to output
+         * @param initDepth - initial depth of nested resources used in a recursive call to compute the remaining depth
+         * @returns {*} JSON object without circular references         *
+         */
+        function valueToJSON(value, depth, initDepth) { return (value instanceof Resource)? ((depth > 0)? value.toJSON(depth - 1, initDepth): value.id): value.id? value.id: value }
+
+        /**
+         * Serializes field value: array or object
+         * @param value - resource field value
+         * @param depth - depth of nested resources to output
+         * @param initDepth - initial depth of nested resources used in a recursive call to compute the remaining depth
+         * @returns {*} JSON object or an array of JSON objects without circular references
+         */
         function fieldToJSON(value, depth, initDepth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth, initDepth)): valueToJSON(value, depth, initDepth); }
 
         let omitKeys = this::keys()::difference(this.constructor.Model.fieldNames).concat(["viewObjects", "infoFields", "labels"]);
         let res = {};
         this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
-            let flag = (key === "border" || key === "borders")? initDepth: depth;
-            res[key] = fieldToJSON(this[key], flag, initDepth);
+            let fieldDepth = (key === "border" || key === "borders")? initDepth: depth;
+            res[key] = fieldToJSON(this[key], fieldDepth, initDepth);
         });
         return res;
     }
 
+    /**
+     * Checks if the current resource is derived from
+     * The method makes more sense for lyphs, but it is useful to be able to test any resource, this simplifies filtering
+     * @param supertypeID
+     * @returns {boolean}
+     */
     isSubtypeOf(supertypeID){
         let res = false;
         if (this.id === supertypeID){ res = true; }
@@ -391,6 +419,12 @@ export class Resource{
         return res;
     }
 
+    /**
+     * Checks if the current resource carries a material.
+     * The method makes more sense for lyphs, but it is useful to be able to test any resource, this simplifies filtering
+     * @param materialID
+     * @returns {*|void|T}
+     */
     containsMaterial(materialID){
         let res = (this.materials||[]).find(e => e.id === materialID);
         if (!res && this.supertype) { res = this.supertype.containsMaterial(materialID)}

@@ -60,7 +60,7 @@ export const getClassName = (spec) => {
  * @param e
  * @returns {*|void|T}
  */
-export const findResourceByID = (eArray, e) => e::isPlainObject()? e: (eArray||[]).find(x => x.id === e);
+export const findResourceByID = (eArray, e) => e::isPlainObject()? e: (eArray||[]).find(x => !!e && x.id === e);
 
 /**
  * Returns a list of references in the schema type specification

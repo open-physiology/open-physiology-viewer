@@ -29,7 +29,6 @@ export class Logger {
 
     clear(){
         this.entries = [];
-        console.clear();
     }
 
     toConsole(){

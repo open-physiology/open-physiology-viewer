@@ -186,7 +186,7 @@ export class Lyph extends Shape {
      * @returns {boolean}
      */
     get isVisible() {
-        return super.isVisible && (this.layerIn ? this.layerIn.isVisible : true);
+        return super.isVisible && (!this.layerIn || this.layerIn.isVisible);
     }
 
     /**
@@ -283,7 +283,7 @@ export class Region extends Shape {
  */
 export class Border extends VisualResource {
     get isVisible(){
-        return super.isVisible && (this.host? this.host.isVisible: true);
+        return this.host? this.host.isVisible: super.isVisible;
     }
 }
 

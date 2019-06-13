@@ -338,11 +338,7 @@ Border.prototype.updateViewObjects = function(state){
      * @param numRows - number of Rows
      */
     const placeLinkInside = (link, i, numCols, numRows) => {//TODO this will only work well for rectangular shapes
-        if (!link.source || !link.target){
-            //TODO avoid console messages on update
-            console.warn(`Cannot place a link inside border ${this.id}: end nodes not defined!`, link);
-            return;
-        }
+        if (!link.source || !link.target){ return; }
         if (link.source.isConstrained || link.target.isConstrained){ return; }
 
         let delta = 0.05; //offset from the border
@@ -363,7 +359,7 @@ Border.prototype.updateViewObjects = function(state){
         copyCoords(link.source, v1);
         copyCoords(link.target, v2);
 
-        link.source.z += 1; //todo replace to polygonOffset?
+        //link.polygonOffsetFactor = this.polygonOffsetFactor - 1;
     };
 
     /**
@@ -413,6 +409,10 @@ Border.prototype.updateViewObjects = function(state){
      * @param link
      */
     const pushLinkInside = (link) => {
+        if (!link.source || !link.target){ return; }
+        //TODO test || vs &&
+        if (link.source.isConstrained || link.target.isConstrained){ return; }
+
         const delta = 5;
         let points = this.host.points.map(p => p.clone());
         let [min, max] = this.getBoundingBox();
