@@ -314,7 +314,6 @@ export class TestApp {
         this._model = model;
         try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
-            console.log("Current model", this._graphData);
         } catch(err){
             console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);

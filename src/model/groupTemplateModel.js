@@ -31,7 +31,7 @@ export class GroupTemplate extends Resource{
         });
 
         if (!parentGroup.groups) { parentGroup.groups = []; }
-        parentGroup.groups.push(group);
+        parentGroup.groups.push(group.id);
         return group;
     }
 }
@@ -325,20 +325,20 @@ export class Tree extends GroupTemplate {
 
             if (!hostLyph.isTemplate) {
 
-                hostLyph.hostedLyphs = hostLyph.hostedLyphs ||[];
-                hostLyph.hostedLyphs.push(level.conveyingLyph);
+                // hostLyph.hostedLyphs = hostLyph.hostedLyphs ||[];
+                // hostLyph.hostedLyphs.push(level.conveyingLyph);
 
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
                 if (i === 0){
                     addInternalNode(hostLyph, level.source);
                 } else {
-                    addBorderNode(hostLyph.border.borders[1], level.source);
+                    addBorderNode(hostLyph.border.borders[3], level.source);
                 }
                 if (i === lyphs.length - 1){
                     addInternalNode(hostLyph, level.target);
                 } else {
-                    addBorderNode(hostLyph.border.borders[3], level.target);
+                    addBorderNode(hostLyph.border.borders[1], level.target);
                 }
             }
 
@@ -348,7 +348,7 @@ export class Tree extends GroupTemplate {
                 "name"     : `${lyph.name} tree #${level.conveyingLyph}`,
                 "generated": true,
                 "topology" : COALESCENCE_TOPOLOGY.EMBEDDING,
-                "lyphs"    : [level.conveyingLyph, lyph.id]
+                "lyphs"    : [lyph.id, level.conveyingLyph]
             };
 
             parentGroup.coalescences.push(lyphCoalescence);

@@ -147,9 +147,9 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  To place a node to the center of coordinates of a set of other nodes, list their ID's in the `controlNodes` array.
  
 ## Link 
- Links connect graph nodes and perform a number of functions in the ApiNATOMY framework, most notably, they model process flow and serve as rotational axes to position and scale conveying vessels and body elements at various scales (organs, tissues, cells, etc.).
+ Links connect graph nodes and perform a number of functions in the ApiNATOMY framework, most notably, they model process flow and serve as rotational axes to position and scale conveying lyphs.
 
- By default, all links are drawn as straight lines, this corresponds to the `geometry=link` setting. To apply another visualization method, we set the link's `geometry` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `geometry="semicircle"` produces a spline that resembles a semicircle: 
+ By default, all links are drawn as straight lines, this corresponds to the `"geometry":"link"` setting. To apply another visualization method, we set the link's `geometry` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `"geometry":"semicircle"` produces a spline that resembles a semicircle:
  
  ```json
      "links": [
@@ -182,17 +182,22 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  ```
  <img src="asset/links.png" width="75%" caption = "Drawing links">
  
- Among other link geometries supported by the lyph viewer are `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e). 
+ Among other link geometries supported by the lyph viewer are
+ * `spline` to draw link connectors that smoothly join preceding and following links
+ * `rectangle` to draw splines that resemble a semi-square connector with rounded corners
+ * `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e).
  
- There are also two auxiliary link types: `invisible` links which are never displayed themselves but serve as axes for the lyphs they convey. The `force` links have no corresponding visual objects and currently only serve the purpose of binding together selected nodes. The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model. 
+ There are also two auxiliary link types:
+ * `invisible` links are never displayed themselves but serve as axes for the lyphs they convey. The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model;
+ * `force` links have no corresponding visual objects and only serve the purpose of binding together selected nodes.
  
- The property `stroke` set to `dashed` yields a dashed line while its value `thick` indicates that the link should be drawn as a thick line. This option was introduced to overcome a well-known WebGL [issue](https://mattdesl.svbtle.com/drawing-lines-is-hard) with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property `lineWidth` can be used to specify how thick such links should be (its default value is 0.003).
+ The property `stroke` set to `dashed` yields a dashed line while its property `thick` set to `true` indicates that the link should be drawn as a thick line. This option was introduced to overcome a well-known WebGL [issue](https://mattdesl.svbtle.com/drawing-lines-is-hard) with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property `lineWidth` can be used to specify how thick such links should be (the default value is 0.003).
  
  The property `length` defines the desired distance between the link ends in terms of the percentage from the maximal allowed length (which is equal to the main axis length in the lyph viewer). The link force from the [d3-force-3d](https://github.com/vasturiano/d3-force-3d#links) module pushes the link's source and target nodes together or apart according to the desired distance. More details about these parameters can be found in the documentation of the module. 
  
- A link of any type can be set to be `collapsible`. A collapsible link exists only if its ends are constrained by the visible entities in the view, i.e., the link's source and target nodes must be inside of visible lyphs, on separate lyph borders or are hosted by other visible links. If this is not the case, the source and target nodes of the collapsible link are attracted to each other until they collide to look like a single node. 
+ A link of any type can be set to be `collapsible`. A collapsible link exists only if its ends are `constrained` by the visible entities in the view, i.e., the link's source and target nodes must be inside of visible lyphs, on separate lyph borders or are hosted by other visible links. If this is not the case, the source and target nodes of the collapsible link are attracted to each other until they collide to look like a single node.
  
- Collapsible links are auto-generated for the models where one node is constrained by two or more different entities meaning that it should be placed to several different locations. This functionality allows modellers to include the same semantic entity to various subsystems in the model, even if these subsystems are split by some space for readability. The auto-generated collapsible links are `dashed` to emphasize that the link is an auxiliary line that helps to locate duplicates of the same node.
+ Collapsible links are auto-generated for the models where one node is constrained by two or more different resources (i.e., lyph borders) meaning that it should be placed to several different locations. This functionality allows modellers to include the same semantic entity to various subsystems in the model, even if these subsystems are split by some space for readability. The auto-generated collapsible links are `dashed` to emphasize that the link is an auxiliary line that helps to locate duplicates of the same node.
  
  The screenshots below show the link chain representing the anterolateral apinothalamic tract in isolation and in combination with the neural system group. Observe that in the latter case the tract's nodes are bound to the neural system lyph borders with thin dashed transitions among pairs of replicated node instances. 
  
@@ -200,9 +205,10 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  
  <img src="asset/collapsible2.png" width="75%" caption = "Constrained collapsible links">
     
- Each link object must refer to its `source` and `target` nodes. 
- Although we never draw arrows, all links in the ApiNATOMY graph are directed links.
- It is possible to change the direction of the link without overriding the `source` and `target` properties. If the boolean property `reversed` is set to `true`, its direction vector starts in the `target` node and ends in the `source` node, this is useful if we want to turn the lyph it conveys by 180 degrees. 
+ Each link object must refer to its `source` and `target` nodes; these nodes will be able to access the link resource via the related `sourceOf` and `targetOf` properties.
+
+ Although we do not draw arrows by default, all links in the ApiNATOMY graph are directed links. To show the arrows, set the link's flag `directed`.
+ It is possible to change the direction of the link without overriding the `source` and `target` properties. If the boolean property `reversed` is set to `true`, its direction vector starts in the `target` node and ends in the `source` node, this is useful if we want to turn the lyph it conveys by 180 degrees in the 2d view.
  
  A link may have a conveying lyph which is set via its property `conveyingLyph`. The lyph conveyed by the link is placed to its center and uses the link as its rotational axis. The size of the lyph in the lyph viewer depends on the link's length, a more detailed of the size computation is given in the [Lyph](#lyph) section. Hence, one can define the same relationship from the other entity's perspective: by assigning the link's ID to the lyph's property `conveydBy`. 
  
@@ -346,7 +352,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
      
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
 
- ### Region
+### Region
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
     Region internal content is similar to the content of a lyph. Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
  ```json
@@ -367,13 +373,13 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
  ```
  In the future, we plan to add an option to create regions based on paths in SVG files.
 
- ### Border
+### Border
  
- A flat shape such as lyph or region has a border. The border is an object that extends the class `resource` and inherits all its properties: it can have its own ID, a name, a reference to an external source, etc. The owner can refer to its border via its `border` field.
+ A flat shape such as lyph or region has a border. The border is an object that extends the class `Visual Resource` and inherits all properties from the class hierarchy: it can have its own ID, a name, a reference to an external source, etc. The owner shape can refer to its border via its `border` field.
  
- Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the anatomical relationships among the corresponding concepts.
+ Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the semantic relationships among the corresponding concepts.
 
- The lyph's border is closely related to its topology. The topology defines the types of its `radial` borders: `false` represents a border with open flow while `true` corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph's inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph's rectangle. The axial border is always aligned with the lyph's axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property `borders` which is always an array of 4 objects. 
+ The lyph's border is closely related to its topology. The topology defines the types of its `radial` borders: `false` represents a border with open flow while `true` corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph's inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph's rectangle. The axial border is always aligned with the lyph's axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property `borders` which is always an array of 4 objects. Individual border objects may either remain empty or contain a reference to a `Link` resource that manages the content of the border. The link resource representing one of the border sides refers to its hosting border via the `onBorder` field.
  
  It is possible to place nodes and other lyphs on any of the border segments. 
  The `hostedNodes` property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the `hostedLyphs` property):
@@ -424,6 +430,28 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
 
  At the moment, we do not include material objects into the graph schematics.  Materials of a lyph can be displayed on the information panel if the `infoFields` property of the lyph is configured to show them.
 
+## Coalescence
+
+A coalescence creates a fusion situation where two or more lyphs are treated as being a single entity.
+
+There are two types of coalescence, both describing material fusion. In both cases, coalescence can only occur between lyphs that have exactly the same material composition:
+
+- `Connecting coalescence` represents a ‘sideways’ connection between two or more lyphs such that their outermost layer is shared between them. The visualisation of such a situation requires that only a "single" depiction of these layers is shown. Technically, we still use two visual objects which, however, are aligned in such a way that they appear as a single object (provided that they are of the same size).
+- `Embedding coalescence` represents dropping of a contained lyph into a container lyph such that the outer layer of the contained lyph fuses with the container lyph. The visualisation of such a situation requires that only the container lyph is shown.
+
+The `Coalescence` class, apart from the generic resource properties `id`, `name`, etc., defines fields `topology` and `lyphs` which the model author should use to specify the type of the coalescence, `CONNECTING` or `EMBEDDING` (default value is `CONNECTING`) and the coalescing lyphs, respectively. The field `lyphs` expects an array of coalescing lyphs. Although semantically the order of the lyphs in the connecting coalescence are not important, in the viewer, the first lyph is treated as a "master" - while connecting the graphical depictions of coalescing lyphs, all subsequent lyphs are pushed by the force-directed layout to approach the "master" lyph and realign their outermost layers to match the outermost layer of the first lyph. In the case of the embedded coalescence, the first lyph is expected to be the `housing` lyph.
+
+If a coalescence resource is defined on abstract lyphs (lyph templates), it is considered abstract and works as a template to generate coalescences among lyphs that inherit the abstract lyphs.
+
+The images below show the visualization of connecting coalescence: two coalescing lyphs, `Visceral Bowman's capsule` and `Glomerulus`, share a common outer layer, `Basement membrane`:
+
+<img src="asset/coalescence.png" width="75%" alt = "Connecting coalescence">
+
+In the case of embedding coalescence, the outer layer of the embedded lyph blends with the layer of the housing lyph, we make it invisible:
+
+<img src="asset/coalescenceEmbedded.png" width="75%" alt = "Embedding coalescence">
+
+
 ## Group
  A group is a subset of entities from the ApiNATOMY model (which can also be seen as a  group) that have a common semantic meaning and/or a distinct set of visual characteristics. A group can include `nodes`, `links`, `lyphs`, `materials`, and other `groups` (subgroups) via the properties with the corresponding names.
  
@@ -462,7 +490,10 @@ In addition to the link's `reversed` property that can be used to rotate the lyp
  ```
  Among other properties that can be stated here are the default label fields.
 
-## Tree
+## Group templates
+ Group template is a generic concept to encapsulate resource definitions that result into automatic generation of subgraphs with certain structure and/or semantic meaning. A distinct property of the resource objects of this type is a readonly `group` property that establishes the relationship between the template and the generated group.
+
+### Tree
 Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An `omega tree` is a template to create a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.
 
 The `Tree` resource class allows users to specify a root of the tree via an optional property `root` that can point into an existing node. If the root node is not specified, it is either automatically generated or assigned to coincide with the source node of a link that represents the first level of the tree.
@@ -507,29 +538,7 @@ Generally, lyphs originating from a lyph template inherit its topology. However,
 | BAG2          | 2nd closed     | BAG2 | BAG2  | TUBE        | TUBE   |
 | CYST          | both closed    | CYST | BAG2  | TUBE        | BAG    |
 
-## Coalescence
- 
-A coalescence creates a fusion situation where two or more lyphs are treated as being a single entity.
-
-There are two types of coalescence, both describing material fusion. In both cases, coalescence can only occur between lyphs that have exactly the same material composition:
-
-- `Connecting coalescence` represents a ‘sideways’ connection between two or more lyphs such that their outermost layer is shared between them. The visualisation of such a situation requires that only a "single" depiction of these layers is shown. Technically, we still use two visual objects which, however, are aligned in such a way that they appear as a single object (provided that they are of the same size).
-- `Embedding coalescence` represents dropping of a contained lyph into a container lyph such that the outer layer of the contained lyph fuses with the container lyph. The visualisation of such a situation requires that only the container lyph is shown.
-
-The `Coalescence` class, apart from the generic resource properties `id`, `name`, etc., defines fields `topology` and `lyphs` which the model author should use to specify the type of the coalescence, `CONNECTING` or `EMBEDDING` (default value is `CONNECTING`) and the coalescing lyphs, respectively. The field `lyphs` expects an array of coalescing lyphs. Although semantically the order of the lyphs in the connecting coalescence are not important, in the viewer, the first lyph is treated as a "master" - while connecting the graphical depictions of coalescing lyphs, all subsequent lyphs are pushed by the force-directed layout to approach the "master" lyph and realign their outermost layers to match the outermost layer of the first lyph. In the case of the embedded coalescence, the first lyph is expected to be the `housing` lyph.
-
-If a coalescence resource is defined on abstract lyphs (lyph templates), it is considered abstract and works as a template to generate coalescences among lyphs that inherit the abstract lyphs.
-
-The images below show the visualization of connecting coalescence: two coalescing lyphs, `Visceral Bowman's capsule` and `Glomerulus`, share a common outer layer, `Basement membrane`:
-
-<img src="asset/coalescence.png" width="75%" alt = "Connecting coalescence">
-
-In the case of embedding coalescence, the outer layer of the embedded lyph blends with the layer of the housing lyph, we make it invisible:
-
-<img src="asset/coalescenceEmbedded.png" width="75%" alt = "Embedding coalescence">
-
-
-## Channel
+### Channel
 The `Channel` resource class provides fields to define a template that will instruct the model generator to create specialized assemblies (groups, subgraphs) that represent membrane channels incorporated into the given housing lyphs.
 
 To create membrane channel components, a model author provides:

@@ -252,3 +252,44 @@ To instruct the viewer to stretch the tree from left to right, we add layout con
     }
   ]
 ```
+
+
+## Bolser-Lewis map
+
+Please note that this example shows a rough work-in-progress model that demonstrates the use of modeling concepts rather than preserves the physiological accuracy!
+
+The example is based on a mock-up for the Bolser-Lewis model
+
+<img src="asset/bolserLewis.png" width="75%" caption = "Bolser-Lewis model mock-up"/>
+
+The model author defined the necessary resources in the Excel format. The image below shows the snapshot of the Excel template we developed as alternative to the text-based JSON format. The model from the Excel template can be exported as an .xlsx file and opened from the ApiNATOMY model viewer. The integrated converter translates the model to the JSON-based input format.
+
+<img src="asset/bolserLewis-excelLyphs.png" width="75%" caption = "Bolser-Lewis model Excel page: lyphs"/>
+
+The model shows the neuron tree passing through a chain of body compartments. As a requirement, the author wanted to generate the chain given an ordered list of conveying lyphs:
+
+<img src="asset/bolserLewis-excelChain.png" width="75%" caption = "Bolser-Lewis model Excel page: chains"/>
+
+The chain template shown in the image above produces a chain of connected links that convey the lyphs from the chain's `conveyingLyphs` property:
+
+<img src="asset/chain.png" width="75%" caption = "A group generated from the chain template"/>
+
+The neuron tree needs to be generated to match the number of housing lyphs:
+
+<img src="asset/bolserLewis-excelTree.png" width="75%" caption = "Bolser-Lewis model Excel page: trees"/>
+
+The specification above does not set `numLevels` or `levels` fields; instead the size of the `housingLyphs` array here is used to determine the number of generated tree levels; each tree level is then "embedded" to the corresponding housing lyph. This implies that the tree level link ends are hosted by the housing lyph or, in case of layered lyphs, its outermost layer
+(`hostedBy` relationship is set).
+
+<img src="asset/chain-housedTree.png" width="75%" caption = "An omega tree housed by a set of lyphs which are part of the chain group"/>
+
+Moreover, an embedding coalescence is defined between the pairs of the housing lyphs and the conveying lyphs of the tree levels they house.
+
+<img src="asset/chain-housedTreeCoalescence.png" width="75%" caption = "Embedded lyphs coalesce with their housing lyphs"/>
+
+One can observe that the generated omega tree has collapsible "spacer" links. These links should disappear in the views that do not require the same node to appear in two different locations (i.e., on borders of adjacent lyphs which are displayed with a gap). The lyph viewer determines whether spacer link ends are constrained based on the visibility of the related resources.
+
+<img src="asset/chain-tree.png" width="75%" caption = "A group generated from the tree template"/>
+
+
+

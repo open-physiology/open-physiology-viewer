@@ -250,6 +250,8 @@ export class Group extends Resource {
                         "id"       : nodeID + `_${i}`,
                         "cloneOf"  : nodeID,
                         "class"    : "Node",
+                        "charge"   : 0,
+                        "collide"  : 0,
                         "generated": true
                     });
                     if (!node.clones){ node.clones = []; }
@@ -395,10 +397,7 @@ export class Group extends Resource {
      * @returns {T[]}
      */
     get visibleNodes(){
-        return (this.nodes||[]).filter(e => e.isVisible ||
-            e.sourceOf && e.sourceOf.isVisible ||
-            e.targetOf && e.targetOf.isVisible
-        );
+        return (this.nodes||[]).filter(e => e.isVisible);
     }
 
     /**

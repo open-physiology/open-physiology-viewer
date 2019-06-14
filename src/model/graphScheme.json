@@ -1052,7 +1052,14 @@
       "properties": {
         "group"        : {
           "description": "Group (subgraph) that encompasses generated group resources",
-          "$ref": "#/definitions/Group",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Group"
+            }
+          ],
           "readOnly": true
         },
         "length"       : {

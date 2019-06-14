@@ -365,10 +365,7 @@ function forceInABox() {
       });
 
     templateForce
-      .on("tick", () => {
-         // console.log("tick");
-         drawGraph(container);
-      })
+      .on("tick", () => drawGraph(container))
       .restart();
 
     templateNodesSel.exit().remove();
