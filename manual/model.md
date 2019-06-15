@@ -207,13 +207,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
     
  Each link object must refer to its `source` and `target` nodes; these nodes will be able to access the link resource via the related `sourceOf` and `targetOf` properties.
 
- Although we do not draw arrows by default, all links in the ApiNATOMY graph are directed links. To show the arrows, set the link's flag `directed`.
- It is possible to change the direction of the link without overriding the `source` and `target` properties. If the boolean property `reversed` is set to `true`, its direction vector starts in the `target` node and ends in the `source` node, this is useful if we want to turn the lyph it conveys by 180 degrees in the 2d view.
+ Although we do not draw arrows by default, all links in the ApiNATOMY graph are directed links. To show the arrows, set the link's flag `directed`. It is possible to change the direction of the link without overriding the `source` and `target` properties. If the boolean property `reversed` is set to `true`, its direction vector starts in the `target` node and ends in the `source` node, this is useful if we want to turn the lyph it conveys by 180 degrees in the 2d view.
  
  A link may have a conveying lyph which is set via its property `conveyingLyph`. The lyph conveyed by the link is placed to its center and uses the link as its rotational axis. The size of the lyph in the lyph viewer depends on the link's length, a more detailed of the size computation is given in the [Lyph](#lyph) section. Hence, one can define the same relationship from the other entity's perspective: by assigning the link's ID to the lyph's property `conveydBy`. 
  
- The property `hostedNodes` contains a set of nodes that are positioned on the link.
- This set should never include the link's source and target nodes.
+ The property `hostedNodes` contains a set of nodes that are positioned on the link. This set should never include the link's source and target nodes.
+
+ The field `fasciculatesIn` represents a specialized relationship that may point to a lyph that bundles the link (e.g., representing a neural connection).
 
 ## Shape
  A shape is an abstract concept that defines properties and relationships shared by ApINATOMY resources that model physiology entities, namely, lyphs and regions. An important part of the shape abstraction is its border.
@@ -351,6 +351,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  The pair of properties `subtypes` and `supertype` can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the `isTemplate` property to `true`.
      
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
+
+The field `bundles`  points to the links that have to pass through the lyph.
 
 ### Region
     Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
@@ -493,6 +495,26 @@ In the case of embedding coalescence, the outer layer of the embedded lyph blend
 ## Group templates
  Group template is a generic concept to encapsulate resource definitions that result into automatic generation of subgraphs with certain structure and/or semantic meaning. A distinct property of the resource objects of this type is a readonly `group` property that establishes the relationship between the template and the generated group.
 
+ Another currently supported property of this generic class is `length` that sets in percentage the desired length of the maximal path in the generated group. This property is used to compute the default link length and, consequently, control the size of the lyph shape conveyed by the link.
+
+ There is ongoing work on supporting visual resource styles that one will be able to refer to from groups or group templates to define the appearance of links, lyphs and nodes in the entire (auto-generated) group.
+
+### Chain
+This template instructs the model generator to create a chain from an ordered list of conveying lyphs, i.e., a linear concatenation of advective edges that convey the material of the innermost layer of these conveying lyphs. This requires the lyphs in the ordered list to have their innermost layers constituted of the same material.
+
+The listing below shows an example of chain template definition:
+
+```json
+{
+  "id": "c1",
+  "conveyingLyphs": ["200", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "215", "216"],
+  "start": "s",
+  "end": "t"
+}
+```
+
+Apart from the list of `conveyingLyphs` field, the template provides `start` and `end` fields which allows users to name the start and the end nodes of the chain which may be useful if one wants to integrate the chain fragment into a larger model graph.
+
 ### Tree
 Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An `omega tree` is a template to create a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.
 
@@ -537,6 +559,36 @@ Generally, lyphs originating from a lyph template inherit its topology. However,
 | BAG           | 1st closed     | BAG  | TUBE  | TUBE        | BAG    |
 | BAG2          | 2nd closed     | BAG2 | BAG2  | TUBE        | TUBE   |
 | CYST          | both closed    | CYST | BAG2  | TUBE        | BAG    |
+
+A tree template can be used to reduce repetition and possibility of error by automating the creation of a tree and associated conveying lyphs to distribute/embed conveying lyphs over an ordered list of housing lyphs. If the `housingLyphs` list is provided in a tree template, the number of levels is set to equal the size of this list, and a tree group with no branching is generated, then each level of the generated tree is bundled with the corresponding housing lyph as follows:
+* The edges for the non-terminal housing lyphs span the housing lyph completely. The nodes of these edges anchor on the radial borders of the outermost layer of the housing lyph, i.e. they run parallel to the longitudinal borders. For the first and the last lyphs in the `housingLyphs` set, only one node anchors on the radial border, the other "hangs free" inside the housing lyph.
+* The housing lyph is bundled with the tree level via its property `bundles`. Respectively, the level link refers to the housing lyph via its property `fasciculatesIn`
+* Finally, the embedded coalescence resource is created to link the housing lyph and the lyph conveyed by the bundled link.
+
+The fragment below shows an example of housed tree definition. More details about this model can be found in the [Examples](./examples.html) section (Bolser-Lewis map)
+```json
+{
+  "id": "t1",
+  "name": "Neuron",
+  "lyphTemplate": "229",
+  "housingLyphs": ["202", "201", "200", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "228"]
+}
+```
+
+The image below shows a neuron tree aligned along the chain of housing lyphs.
+
+<img src="asset/chain-housedTreeCoalescence.png" width="75%" caption = "An omega tree housed by a set of lyphs which are part of the chain group"/>
+
+Semantically, lyphs in contiguous chains of lyphs have a common border, but because the chosen ApiNATOMY visualization approach depicts lyphs as centered icons with separate borders, the alignment of an omega tree that respects the border constraints set by the rules above requires the non-terminal level link ends to be placed on two separate lines. To address this problem, we rely on the node `clones` and `collapsible` links (drawn as dashed lines) that connect two copies of the same node. Developers who plan to work with the ApiNATOMY models should keep this in mind when traversing the ApiNATOMY graph - two semantically adjacent graph links can be separated by an auxiliary collapsible link that does not convey any lyphs. Hence, to access a link that models the next level in the generated tree group, starting from the tree level link `L1`,one may need to use the following 3 step traversals:
+
+```L1.target.clones[0].sourceOf => L2```
+
+Here, `L1.target` gives the target node of `L1`, then `clones[0]` field gives a reference to its clone (there can be more clones of the same node as this mechanism is not limited by the canonical tree level alignment), and, finally, `sourceOf` field would provide the following link, `L2`.
+
+For the transition in the reverse direction, the similar path can be used via the opposite `cloneOf` field that links the cloned node to its prototype:
+
+```L2.source.cloneOf.targetOf => L1```
+
 
 ### Channel
 The `Channel` resource class provides fields to define a template that will instruct the model generator to create specialized assemblies (groups, subgraphs) that represent membrane channels incorporated into the given housing lyphs.

@@ -286,6 +286,7 @@ export class Group extends Resource {
      */
     mergeSubgroupEntities(){
 
+        //Place references to subgroup resources to the current group
         (this.groups||[]).forEach(group => {
             if (group.id === this.id) {
                 logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
@@ -298,9 +299,9 @@ export class Group extends Resource {
             });
         });
 
+        //Add auto-created clones of boundary nodes and collapsible links they connect to the group that contains the original node
         (this.nodes||[]).filter(node => node && node.clones).forEach(node => {
             node.clones.forEach(clone => {
-                //Add auto-created clones of boundary nodes and collapsible links they connect to relevant groups
                 this.nodes.push(clone);
                 let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
                 spacerLinks.forEach(lnk => this.links.push(lnk));
@@ -360,6 +361,7 @@ export class Group extends Resource {
         this.show(); //show all entities that are in the main group
         (this.groups || []).filter(g => (g instanceof Group) && !groups.has(g)).forEach(g => g.hide()); //hide entities from hidden groups
         (this.groups || []).filter(g => (g instanceof Group) && groups.has(g)).forEach(g => g.show()); //show entities that are in visible groups
+
     }
 
     /**
@@ -367,13 +369,17 @@ export class Group extends Resource {
      */
     hide(){
         this.resources.forEach(entity => entity.hidden = true);
-    }
+        //TODO rewire links to hide collapsible links with unconstrained ends
+        // (this.links||[]).filter(lnk => lnk.collapsible).forEach(lnk => {
+        // })
+    }тзь
 
     /**
      * Show current group (=show all its entities)
      */
     show(){
         this.resources.forEach(entity => delete entity.hidden);
+        //TODO rewire links to show collapsible links with constrained ends
     }
 
     /**

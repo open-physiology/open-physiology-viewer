@@ -285,8 +285,9 @@ export class Tree extends GroupTemplate {
 
     /**
      * Align tree levels along housing lyphs
-     * @param lyphs  - housing lyphs
-     * @param levels - tree levels
+     * @param parentGroup
+     * @param lyphs
+     * @param levels
      */
     static embedToHousingLyphs(parentGroup, lyphs, levels) {
         if (!lyphs || !levels){ return; }
@@ -324,9 +325,8 @@ export class Tree extends GroupTemplate {
             }
 
             if (!hostLyph.isTemplate) {
-
-                // hostLyph.hostedLyphs = hostLyph.hostedLyphs ||[];
-                // hostLyph.hostedLyphs.push(level.conveyingLyph);
+                hostLyph.bundles  = hostLyph.bundles ||[];
+                hostLyph.bundles.push(level);
 
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];

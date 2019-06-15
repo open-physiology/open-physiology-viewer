@@ -514,6 +514,18 @@
           ],
           "relatedTo": "borders"
         },
+        "fasciculatesIn": {
+          "description": "A lyph which bundles the link",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "bundles"
+        },
         "length"       : {
           "description": "The length of the link",
           "type": "number",
@@ -696,7 +708,7 @@
           "uniqueItems": true
         },
         "hostedLyphs": {
-          "description": "Lyphs that should be projected to the given shape",
+          "description": "Lyphs that should be projected to a given lyph",
           "type": "array",
           "items": {
             "anyOf": [
@@ -717,8 +729,7 @@
       "allOf":[{
         "$ref": "#/definitions/Shape"
       }],
-      "properties": {
-      }
+      "properties": {}
     },
     "Lyph"    : {
       "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
@@ -883,6 +894,48 @@
           "relatedTo": "lyphs",
           "default": []
         },
+        "channels"       : {
+          "description": "ID or reference of the channel which this lyph houses",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Channel"
+              }
+            ]
+          },
+          "relatedTo": "housingLyphs",
+          "uniqueItems": true
+        },
+        "bundles"        : {
+          "description" : "A set of links (i.e., neural connections) that pass through the lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "fasciculatesIn"
+        },
+        "generatedFrom"  : {
+          "description": "Material which was used to generate the current lyph",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Material"
+            }
+          ]
+        },
         "angle"          : {
           "description": "Angle (in degrees) to rotate the lyph around its axis",
           "type"   : "number",
@@ -938,33 +991,6 @@
           "type": "number",
           "minimum": 0,
           "maximum": 100
-        },
-        "channels"       : {
-          "description": "ID or reference of the channel which this lyph houses",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Channel"
-              }
-            ]
-          },
-          "relatedTo": "housingLyphs",
-          "uniqueItems": true
-        },
-        "generatedFrom"  : {
-          "description": "Material which was used to generate the current lyph",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Material"
-            }
-          ]
         }
       }
     },
