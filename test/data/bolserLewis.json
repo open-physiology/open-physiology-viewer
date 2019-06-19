@@ -1,14 +1,14 @@
 {
   "nodes": [
     {
-      "id": "c1Start",
+      "id": "c1_s",
       "layout": {
         "x": -100,
         "y": 0
       }
     },
     {
-      "id": "c1End",
+      "id": "c1_t",
       "layout": {
         "x": 100,
         "y": 0
@@ -18,8 +18,8 @@
   "links": [
     {
       "id": "lnk100",
-      "source": "node100A",
-      "target": "node100B",
+      "source": "100a",
+      "target": "100b",
       "conveyingLyph": "227",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -28,8 +28,8 @@
     },
     {
       "id": "lnk101",
-      "source": "node100B",
-      "target": "node100C",
+      "source": "100b",
+      "target": "100c",
       "conveyingLyph": "226",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -38,8 +38,8 @@
     },
     {
       "id": "lnk102",
-      "source": "node100C",
-      "target": "node100D",
+      "source": "100c",
+      "target": "100d",
       "conveyingLyph": "221",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -48,8 +48,8 @@
     },
     {
       "id": "lnk103",
-      "source": "node100D",
-      "target": "node100E",
+      "source": "100d",
+      "target": "100e",
       "conveyingLyph": "222",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -58,8 +58,8 @@
     },
     {
       "id": "lnk200",
-      "source": "node200A",
-      "target": "node200B",
+      "source": "200a",
+      "target": "200b",
       "conveyingLyph": "223",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -68,8 +68,8 @@
     },
     {
       "id": "lnk201",
-      "source": "node200B",
-      "target": "node200C",
+      "source": "200b",
+      "target": "200c",
       "conveyingLyph": "224",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -78,12 +78,124 @@
     },
     {
       "id": "lnk202",
-      "source": "node200C",
-      "target": "node200D",
+      "source": "200c",
+      "target": "200d",
       "conveyingLyph": "225",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
         "41"
+      ]
+    },
+    {
+      "conveyingLyph": "217",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "218",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "219",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "220",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "230",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "231",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "232",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "233",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "234",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "235",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "236",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "237",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "238",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "239",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "240",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
+      ]
+    },
+    {
+      "conveyingLyph": "241",
+      "conveyingType": "ADVECTIVE",
+      "conveyingMaterials": [
+        "116"
       ]
     }
   ],
@@ -97,10 +209,7 @@
       "layers": [
         "104",
         "105",
-        "107"
-      ],
-      "internalLyphs": [
-        "201"
+        "107in200"
       ]
     },
     {
@@ -261,10 +370,7 @@
       "layers": [
         "104",
         "105",
-        "107"
-      ],
-      "internalLyphs": [
-        "228"
+        "107in214"
       ]
     },
     {
@@ -296,6 +402,9 @@
       "name": "T1 sympathetic ganglion",
       "external": [
         "FMA:6474"
+      ],
+      "layers": [
+        "117"
       ]
     },
     {
@@ -303,6 +412,9 @@
       "name": "Inferior cervical ganglion",
       "external": [
         "UBERON:0002440"
+      ],
+      "layers": [
+        "117"
       ]
     },
     {
@@ -310,6 +422,9 @@
       "name": "Middle cervical ganglion",
       "external": [
         "UBERON:0001990"
+      ],
+      "layers": [
+        "117"
       ]
     },
     {
@@ -317,6 +432,9 @@
       "name": "Superior cervical ganglion",
       "external": [
         "UBERON:0001989"
+      ],
+      "layers": [
+        "117"
       ]
     },
     {
@@ -382,7 +500,7 @@
       ],
       "layers": [
         "115",
-        "114",
+        "114in226",
         "103"
       ]
     },
@@ -394,7 +512,7 @@
       ],
       "layers": [
         "113",
-        "112",
+        "112in227",
         "103"
       ]
     },
@@ -407,7 +525,7 @@
     },
     {
       "id": "229",
-      "name": "Neuronal lyph",
+      "name": "Segment of neuron",
       "isTemplate": true,
       "layers": [
         "54",
@@ -415,8 +533,139 @@
         "116"
       ]
     },
-    {},
-    {}
+    {
+      "id": "107in214",
+      "supertype": "107",
+      "internalLyphs": [
+        "228"
+      ]
+    },
+    {
+      "id": "107in200",
+      "supertype": "107",
+      "internalLyphs": [
+        "201"
+      ]
+    },
+    {
+      "id": "230",
+      "name": "T1 ventral root",
+      "external": [
+        "FMA:7643"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "231",
+      "name": "T1 white ramus",
+      "external": [
+        "FMA:14056"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "232",
+      "name": "T1-ICG sympathetic cord",
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "233",
+      "name": "ICG-MCG sympathetic cord",
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "234",
+      "name": "MCG-SCG sympathetic cord",
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "235",
+      "name": "External carotid nerve",
+      "external": [
+        "FMA:6579"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "236",
+      "name": "Ganglioglomerular nerve",
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "237",
+      "name": "Internal carotid nerve",
+      "external": [
+        "UBERON:0002024"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "238",
+      "name": "Superior cervical ganglion branch to vagus nerve",
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "239",
+      "name": "Vagus nerve",
+      "external": [
+        "UBERON:0001759"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "240",
+      "name": "Superior laryngeal nerve",
+      "external": [
+        "UBERON:0011326"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "241",
+      "name": "External branch of superior laryngeal nerve",
+      "external": [
+        "FMA:6243"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "114in226",
+      "supertype": "114",
+      "bundlesTrees": [
+        "t3"
+      ]
+    },
+    {
+      "id": "112in227",
+      "supertype": "112",
+      "bundlesTrees": [
+        "t3"
+      ]
+    }
   ],
   "materials": [
     {
@@ -685,7 +934,16 @@
         "53"
       ]
     },
-    {},
+    {
+      "id": "117",
+      "name": "Peripheral nervous system tissue",
+      "external": [
+        "UBERON:0000010"
+      ],
+      "materials": [
+        "116"
+      ]
+    },
     {}
   ],
   "references": [
@@ -715,15 +973,15 @@
         "215",
         "216"
       ],
-      "start": "c1Start",
-      "end": "c1End",
+      "start": "c1_s",
+      "end": "c1_t",
       "length": 100
     }
   ],
   "trees": [
     {
       "id": "t1",
-      "name": "Neuron",
+      "name": "PVN T1 projection neuron",
       "lyphTemplate": "229",
       "housingLyphs": [
         "202",
@@ -744,6 +1002,39 @@
         "228"
       ],
       "length": 50
+    },
+    {
+      "id": "t2",
+      "name": "Pre-ganglionic sympathetic projection from T1 to SCG",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "228",
+        "214",
+        "230",
+        "231",
+        "217",
+        "232",
+        "218",
+        "233",
+        "219",
+        "234",
+        "220"
+      ],
+      "length": 35
+    },
+    {
+      "id": "t3",
+      "name": "Post-ganglionic sympathetic projection from SCG to epiglottis",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "238",
+        "239",
+        "240",
+        "241",
+        "226"
+      ],
+      "length": 20
     }
   ],
   "groups": [
@@ -751,15 +1042,15 @@
       "id": "b1",
       "name": "Blood vessels",
       "nodes": [
-        "node100A",
-        "node100B",
-        "node100C",
-        "node100D",
-        "node100E",
-        "node200A",
-        "node200B",
-        "node200C",
-        "node200D"
+        "100a",
+        "100b",
+        "100c",
+        "100d",
+        "100e",
+        "200a",
+        "200b",
+        "200c",
+        "200d"
       ],
       "links": [
         "lnk100",
@@ -775,8 +1066,8 @@
       "id": "b2",
       "name": "Internal lyphs",
       "lyphs": [
-        "228",
         "201",
+        "228",
         "202"
       ]
     }

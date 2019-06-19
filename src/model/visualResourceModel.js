@@ -1,10 +1,10 @@
 import { Resource } from './resourceModel';
-import {findResourceByID} from "./utils";
-import {keys, merge, pick} from "lodash-bound";
+import { getNewID } from "./utils";
+import { merge, pick } from "lodash-bound";
 
 /**
  * Supported link geometries
- * @type {{LINK: string, SEMICIRCLE: string, RECTANGLE: string, PATH: string, SPLINE: string, INVISIBLE: string, FORCE: string}}
+ * @type {{LINK: string, SEMICIRCLE: string, RECTANGLE: string, PATH: string, SPLINE: string, FORCE: string}}
  */
 export const LINK_GEOMETRY = {
     LINK       : "link",        //straight line
@@ -12,8 +12,7 @@ export const LINK_GEOMETRY = {
     RECTANGLE  : "rectangle",   //rectangular line with rounded corners
     PATH       : "path",        //path defined (e.g., in the shape for the edge bundling)
     SPLINE     : "spline",      //solid curve line that uses other nodes to produce a smooth path
-    INVISIBLE  : "invisible",   //link with hidden visual geometry,
-    FORCE      : "force"        //link without visual geometry, works as force to attract or repel nodes
+    INVISIBLE  : "invisible",   //link with hidden visual geometry
 };
 
 /**
@@ -107,6 +106,13 @@ export class Node extends VisualResource {
  */
 export class Link extends VisualResource {
 
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
+        json.id = json.id || getNewID(entitiesByID);
+        json.source = json.source || `s_${json.id}`;
+        json.target = json.target || `t_${json.id}`;
+        return super.fromJSON(json, modelClasses, entitiesByID);
+    }
+
     static clone(sourceLink, targetLink){
         if (!sourceLink || !targetLink) { return; }
         targetLink.cloneOf = sourceLink.id;
@@ -114,9 +120,8 @@ export class Link extends VisualResource {
     }
 
     get isVisible(){
-        return this.onBorder? this.onBorder.isVisible: super.isVisible && this.source && this.source.isVisible && this.target && this.target.isVisible;
+        return this.onBorder? this.onBorder.isVisible : super.isVisible && this.source && this.source.isVisible && this.target && this.target.isVisible;
     }
-
 }
 
 /**

@@ -7,13 +7,12 @@ import {
     isNumber,
     cloneDeep,
     defaults,
-    intersection,
     isArray,
     isObject,
     pick,
     values,
     omit,
-    merge, difference
+    merge
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';

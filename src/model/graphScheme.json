@@ -537,7 +537,7 @@
           "type": "boolean"
         },
         "geometry"     : {
-          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `force` is a link without a visual object used to attract or repel nodes, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
             "link",
@@ -545,7 +545,6 @@
             "rectangle",
             "spline",
             "path",
-            "force",
             "invisible"
           ],
           "default": "link"
@@ -925,6 +924,20 @@
           },
           "relatedTo": "fasciculatesIn"
         },
+        "bundlesTrees"   : {
+          "description" : "Trees that generate links that pass through the lyph. The property is used to override default bundling of tree links to the outermost layer of a lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Tree"
+              }
+            ]
+          }
+        },
         "generatedFrom"  : {
           "description": "Material which was used to generate the current lyph",
           "anyOf": [
@@ -1269,8 +1282,7 @@
                 "$ref": "#/definitions/Lyph"
               }
             ]
-          },
-          "default": []
+          }
         }
       }
     },

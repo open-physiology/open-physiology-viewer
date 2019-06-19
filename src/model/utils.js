@@ -16,6 +16,9 @@ import {logger} from './logger';
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
+export const getNewID = entitiesByID => "new_" +
+    (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
+
 /**
  * Add color to the visual resources in the list that do not have color assigned yet
  * @param resources - list of resources
@@ -96,7 +99,7 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
         group[prop] = group[prop] || [];
         if (resource::isPlainObject()){
             if (resource.id){
-                if (!group[prop].find(x => x.id === resource.id)){
+                if (!group[prop].find(x => x === resource.id || x.id === resource.id)){
                     group[prop].push(resource.id);
                 }
             }
@@ -106,7 +109,7 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
     }
     if (parentGroup && resource.id){
         parentGroup[prop] = parentGroup[prop] || [];
-        if (!parentGroup[prop].find(x => x.id === resource.id)){ parentGroup[prop].push(resource); }
+        if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){ parentGroup[prop].push(resource); }
     }
 };
 

@@ -246,7 +246,6 @@ export class Tree extends GroupTemplate {
                 }
 
                 if (lyph){ lyph.create3d = true; }
-                //TODO clone these resources
                 levelResources[i] = [[lnk, trg, lyph]];
                 mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
             }
@@ -286,11 +285,10 @@ export class Tree extends GroupTemplate {
     /**
      * Align tree levels along housing lyphs
      * @param parentGroup
-     * @param lyphs
-     * @param levels
+     * @param tree
      */
-    static embedToHousingLyphs(parentGroup, lyphs, levels) {
-        if (!lyphs || !levels){ return; }
+    static embedToHousingLyphs(parentGroup, tree) {
+        if (!tree || !tree.id || !tree.housingLyphs || !tree.levels){ return; }
 
         const addBorderNode = (border, node) => {
             border.hostedNodes = border.hostedNodes || [];
@@ -302,25 +300,26 @@ export class Tree extends GroupTemplate {
             lyph.internalNodes.push(node);
         };
 
-        let N = Math.min(lyphs.length, levels.length);
+        let N = Math.min(tree.housingLyphs.length, tree.levels.length);
 
         parentGroup.coalescences = parentGroup.coalescences || [];
 
         for (let i = 0; i < N; i++) {
-            let lyph = findResourceByID(parentGroup.lyphs, lyphs[i]);
+            let lyph = findResourceByID(parentGroup.lyphs, tree.housingLyphs[i]);
+            if (!lyph) { return; }
 
             //A tree level can be "hosted" by the lyph or by its outermost layer.
             let hostLyph = lyph;
             if (hostLyph.layers){
                 let layers = hostLyph.layers.map(layerID => findResourceByID(parentGroup.lyphs, layerID));
-                hostLyph = layers[layers.length - 1] || hostLyph;
+                let bundlingLayer = layers.find(e => (e.bundlesTrees||[]).find(t => t === tree.id));
+                hostLyph = bundlingLayer || layers[layers.length - 1] || hostLyph;
             }
 
-            //TODO Do we need an explicit relationship between the lyph (e.g., outermost layer) and the conveying lyph of the tree level?
-            let level = findResourceByID(parentGroup.links, levels[i]);
+            let level = findResourceByID(parentGroup.links, tree.levels[i]);
 
             if (!hostLyph || !level)  {
-                logger.warn(`Could not house a tree level ${levels[i]} in a lyph ${lyphs[i]}`, level, hostLyph);
+                logger.warn(`Could not house a tree level ${tree.levels[i]} in a lyph ${lyph.id}`, level, hostLyph);
                 return;
             }
 
@@ -335,7 +334,7 @@ export class Tree extends GroupTemplate {
                 } else {
                     addBorderNode(hostLyph.border.borders[3], level.source);
                 }
-                if (i === lyphs.length - 1){
+                if (i === tree.housingLyphs.length - 1){
                     addInternalNode(hostLyph, level.target);
                 } else {
                     addBorderNode(hostLyph.border.borders[1], level.target);

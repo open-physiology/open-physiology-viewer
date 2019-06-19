@@ -13,7 +13,7 @@ import {
     difference
 } from 'lodash-bound';
 
-import {JSONPath, getClassName, schemaClassModels, isClassAbstract} from "./utils";
+import {JSONPath, getClassName, schemaClassModels, isClassAbstract, getNewID} from "./utils";
 import {logger} from './logger';
 
 /**
@@ -41,7 +41,7 @@ export class Resource{
      * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
      * @returns {Resource} - ApiNATOMY resource
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID = null){
+    static fromJSON(json, modelClasses = {}, entitiesByID ){
 
         let clsName = json.class || this.name;
         const cls = this || modelClasses[clsName];
@@ -56,7 +56,7 @@ export class Resource{
         res::assign(json);
 
         if (entitiesByID){
-            if (!res.id) { res.id = "new_" + entitiesByID::keys().length; }
+            if (!res.id) { res.id = getNewID(entitiesByID); }
             if ( res.id::isNumber()){ res.id = res.id.toString(); }
 
             if (entitiesByID[res.id]) {
@@ -84,6 +84,7 @@ export class Resource{
     replaceIDs(modelClasses, entitiesByID){
 
         const skip = (value) => !value || value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
+
         const createObj = (res, key, value, spec) => {
             if (skip(value)) { return value; }
             if (value::isNumber()) { value = value.toString(); }

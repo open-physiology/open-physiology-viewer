@@ -42,6 +42,14 @@ div.jsoneditor-menu {
   border-bottom: 1px solid #ccc !important;
 }
 
+.mat-checkbox-layout {
+  white-space: normal !important;
+}
+
+.mat-radio-label {
+  white-space: normal !important;
+}
+
 
 
 

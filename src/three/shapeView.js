@@ -1,5 +1,4 @@
-import {Region, Lyph, Border, Shape} from "../model/shapeModel";
-import {Node, Link, LINK_GEOMETRY} from "../model/visualResourceModel";
+import {Region, Lyph, Border} from "../model/shapeModel";
 import {merge} from 'lodash-bound';
 import {
     align,
@@ -307,13 +306,7 @@ Border.prototype.getBoundingBox = function(){
 Border.prototype.createViewObjects = function(state){
     //Make sure we always have border objects regardless of data input
     for (let i = 0; i < this.borders.length; i++){
-        let [s, t] = ["s", "t"].map(
-            prefix => Node.fromJSON({"id": `${prefix}_${this.id}_${i}`}
-            ));
         this.borders[i]::merge({
-            "source": s,
-            "target": t,
-            "geometry": LINK_GEOMETRY.INVISIBLE,
             "length": this.host.points[i + 1].distanceTo(this.host.points[i])
         });
         if (this.borders[i].conveyingLyph) {

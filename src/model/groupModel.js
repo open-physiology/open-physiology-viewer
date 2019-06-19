@@ -29,7 +29,7 @@ export class Group extends Resource {
      * @param entitiesByID - global map of model resources
      * @returns {*} - Graph model - model suitable for visualization
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
 
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
@@ -43,7 +43,7 @@ export class Group extends Resource {
         /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
 
         //align generated groups and housing lyphs
-        (json.trees||[]).forEach(tree => modelClasses.Tree.embedToHousingLyphs(json, tree.housingLyphs, tree.levels));
+        (json.trees||[]).forEach(tree => modelClasses.Tree.embedToHousingLyphs(json, tree));
 
         //create instances of group templates (e.g., trees and channels)
         this.createTemplateInstances(json, modelClasses);
@@ -271,6 +271,7 @@ export class Group extends Resource {
                         "target"     : `${nodeClone.id}`,
                         "stroke"     : LINK_STROKE.DASHED,
                         "length"     : 1,
+                        "strength"   : 1,
                         "collapsible": true,
                         "generated"  : true
                     };

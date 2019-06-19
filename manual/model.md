@@ -187,10 +187,8 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  * `rectangle` to draw splines that resemble a semi-square connector with rounded corners
  * `path` to draw graph edges bundled together by the [d3.js edge bundling method](https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e).
  
- There are also two auxiliary link types:
- * `invisible` links are never displayed themselves but serve as axes for the lyphs they convey. The `invisible` links can either be defined explicitly in the model or auto-generated if a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model;
- * `force` links have no corresponding visual objects and only serve the purpose of binding together selected nodes.
- 
+ There are also auxiliary links: `invisible` links are never displayed themselves but serve as axes for the lyphs they convey. The `invisible` links can either be defined explicitly in the model or auto-generated, e.g., when a lyph that is an `internalLyph` of some other lyph is not conveyed by any user-defined link in the model;
+
  The property `stroke` set to `dashed` yields a dashed line while its property `thick` set to `true` indicates that the link should be drawn as a thick line. This option was introduced to overcome a well-known WebGL [issue](https://mattdesl.svbtle.com/drawing-lines-is-hard) with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property `lineWidth` can be used to specify how thick such links should be (the default value is 0.003).
  
  The property `length` defines the desired distance between the link ends in terms of the percentage from the maximal allowed length (which is equal to the main axis length in the lyph viewer). The link force from the [d3-force-3d](https://github.com/vasturiano/d3-force-3d#links) module pushes the link's source and target nodes together or apart according to the desired distance. More details about these parameters can be found in the documentation of the module. 

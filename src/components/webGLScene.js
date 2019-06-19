@@ -22,7 +22,7 @@ const WindowResize = require('three-window-resize');
     selector: 'webGLScene',
     template: `
         <section id="viewPanel" class="w3-row">
-            <section id="canvasContainer" [class.w3-twothird]="showPanel">
+            <section id="canvasContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
                         <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
@@ -74,7 +74,7 @@ const WindowResize = require('three-window-resize');
                     <canvas #canvas></canvas>
                 </section>
             </section>
-            <section id="settingsPanel" *ngIf="showPanel" class="w3-third">
+            <section id="settingsPanel" *ngIf="showPanel" class="w3-quarter">
                 <section class="w3-padding-small">
 
                     <!--Highlighted entity-->
@@ -112,7 +112,8 @@ const WindowResize = require('three-window-resize');
                         <span *ngFor="let group of graphData.activeGroups">
                             <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
                                           (change)="toggleGroup(group)"
-                                          [checked]="showGroup(group)"> {{group.name || group.id}}
+                                          [checked]="showGroup(group)"> 
+                                {{group.name || group.id}}
                             </mat-checkbox>
                         </span>
                     </fieldset>
@@ -121,6 +122,11 @@ const WindowResize = require('three-window-resize');
 
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Layout</legend>
+                        <mat-checkbox matTooltip="Toggle view mode" labelPosition="after" class="w3-margin-left"
+                                      (change)="toggleMode()"
+                                      [checked]="config.layout.numDimensions === 2"> 2D mode
+                        </mat-checkbox>
+
                         <mat-checkbox matTooltip="Toggle lyphs" labelPosition="after" class="w3-margin-left"
                                       (change)="toggleLayout('showLyphs')"
                                       [checked]="config.layout.showLyphs"> Lyphs
@@ -292,7 +298,8 @@ export class WebGLSceneComponent {
                 "showLyphs"       : true,
                 "showLayers"      : true,
                 "showLyphs3d"     : false,
-                "showCoalescences": false
+                "showCoalescences": false,
+                "numDimensions"   : 3
             },
             "groups": true,
             "labels": {
@@ -618,13 +625,21 @@ export class WebGLSceneComponent {
     get helperKeys(){
         return this.helpers::keys();
     }
-
+   
     showPlane(key){
         return this.helpers[key].visible;
     }
 
     togglePlane(key) {
         this.helpers[key].visible = !this.helpers[key].visible
+    }
+
+    toggleMode(){
+        this.config.layout.numDimensions = (this.config.layout.numDimensions === 3)? 2: 3;
+        console.log("Toggling mode:", this.config.layout.numDimensions);
+        if (this.graph){
+            this.graph.numDimensions(this.config.layout.numDimensions);
+        }
     }
 
     toggleLayout(prop){

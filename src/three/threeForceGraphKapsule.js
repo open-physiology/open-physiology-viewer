@@ -2,6 +2,7 @@ import {
     forceSimulation,
     forceLink,
     forceManyBody,
+    //forceRadial,
     forceCollide
 } from 'd3-force-3d';
 
@@ -22,7 +23,10 @@ export default Kapsule({
         numDimensions: {
             default: 3,
             onChange(numDim, state) {
-                if (numDim < 3) { eraseDimension(state.graphData.visibleNodes, 'z'); }
+                if (numDim < 3) {
+                    eraseDimension(state.graphData.visibleNodes, 'z');
+                    console.log("Dimension erased!");
+                }
 
                 function eraseDimension(nodes, dim) {
                     nodes.forEach(node => {
@@ -78,6 +82,7 @@ export default Kapsule({
     stateInit: () => ({
         simulation: forceSimulation()
             .force('link', forceLink())
+            //.force('radial', forceRadial(100))
             .force('charge', forceManyBody(d => d.charge || 0))
             .force('collide', forceCollide(d => d.collide || 0))
         .stop()

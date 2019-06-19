@@ -1,7 +1,7 @@
-import {VisualResource} from './visualResourceModel';
-import {clone, keys, merge, pick, isPlainObject} from 'lodash-bound';
+import {LINK_GEOMETRY, Node, VisualResource} from './visualResourceModel';
+import {clone, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
-import {findResourceByID} from './utils';
+import {findResourceByID, getNewID} from './utils';
 
 export const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -29,15 +29,19 @@ export class Shape extends VisualResource {
      * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
      * @returns {Shape} - ApiNATOMY Shape resource
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
-        json.id     = json.id || ("new_" + entitiesByID
-            ? entitiesByID::keys().length()
-            : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
+        json.id     = json.id || getNewID(entitiesByID);
         json.border = json.border || {};
         json.border.id = json.border.id || (json.id + "_border");
         json.border.borders = json.border.borders || [];
         for (let i = 0; i < json.numBorders ; i++){
-            json.border.borders[i]::merge({"id": json.border.id + "_" + i});
+            let id = json.border.id + "_" + i;
+            json.border.borders[i]::merge({
+                "id": id,
+                "source": { id: `s_${id}` },
+                "target": { id: `t_${id}` },
+                "geometry": LINK_GEOMETRY.INVISIBLE
+            });
         }
         delete json.numBorders;
         let res = super.fromJSON(json, modelClasses, entitiesByID);
@@ -70,13 +74,14 @@ export class Shape extends VisualResource {
  * @property internalIn
  * @property inMaterials
  * @property inCoalescences
+ * @property bundles
+ * @property bundlesTrees
  * @property prev
  * @property next
- *
  */
 export class Lyph extends Shape {
 
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
         json.numBorders = 4;
         return super.fromJSON(json, modelClasses, entitiesByID);
     }
@@ -123,7 +128,7 @@ export class Lyph extends Shape {
         }
 
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
-            "thickness", "external", "comment", "materials", "create3d", "channels"]));
+            "thickness", "external", "comment", "materials", "create3d", "channels", "bundlesTrees"]));
 
         if (!targetLyph.name) {targetLyph.name = sourceLyph.name + " (clone)"; }
 
@@ -263,7 +268,7 @@ export class Region extends Shape {
      * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
      * @returns {Shape} - ApiNATOMY Shape resource
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID = null) {
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
         if (!json.points || json.points.length < 3) {
             json.points = [{"x": -10, "y": -10 },{"x": -10, "y": 10 },{"x": 10, "y": 10 },{"x": 10, "y": -10 }];
         }

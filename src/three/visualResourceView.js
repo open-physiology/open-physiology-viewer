@@ -108,9 +108,6 @@ Node.prototype.updateViewObjects = function(state) {
  */
 Link.prototype.createViewObjects = function(state){
 
-    //Do not visualize force-only links
-    if (this.geometry === LINK_GEOMETRY.FORCE) {return; }
-
     //Link
     if (!this.viewObjects["main"]) {
         let material;
