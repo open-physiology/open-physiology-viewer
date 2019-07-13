@@ -2,7 +2,7 @@ import { Resource } from './resourceModel';
 import {logger} from "./logger";
 import { keys, values, uniqBy } from 'lodash-bound';
 
-export const COALESCENCE_TOPOLOGY = {
+const COALESCENCE_TOPOLOGY = {
     EMBEDDING  : "EMBEDDING",
     CONNECTING : "CONNECTING"
 };
@@ -14,6 +14,8 @@ export const COALESCENCE_TOPOLOGY = {
  * @property generatedFrom
  */
 export class Coalescence extends Resource{
+
+    static COALESCENCE_TOPOLOGY = COALESCENCE_TOPOLOGY;
 
     /**
      * Replicates coalescences defined on abstract lyphs to their subtypes
@@ -27,6 +29,10 @@ export class Coalescence extends Resource{
         let lyphMap = {};
 
         (this.lyphs||[]).forEach(lyphOrMat => {
+            if (!lyphOrMat) {
+                logger.error("Unable to access lyph for coalescence definition", this.lyphs);
+                return;
+            }
             if (lyphOrMat.isTemplate){
                 lyphMap[lyphOrMat.id] = lyphOrMat.subtypes || [];
             } else {
@@ -78,7 +84,7 @@ export class Coalescence extends Resource{
      * Validate whether the lyphs in the coalescence template are allowed to coalesce (e.g., lyph layers cannot coalesce with their container, etc.)
      */
     validate(){
-        if (this.inactive) { return; }
+        if (this.inactive || !this.lyphs) { return; }
         let lyph = this.lyphs[0];
         if (!lyph) { return; }
 

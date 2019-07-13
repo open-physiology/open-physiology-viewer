@@ -72,10 +72,6 @@ export class ExternalSelectDialog {
         this.dialogRef.close();
     }
 
-    updateTerm(name){
-        this.searchTerm = name;
-    }
-
     updateSelected(obj){
         let key = obj.curie;
         if (!this.selected[key]){

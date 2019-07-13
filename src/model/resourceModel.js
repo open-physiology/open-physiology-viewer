@@ -48,7 +48,7 @@ export class Resource{
         const res = new cls(json.id);
         res.class = clsName;
         //spec
-        let difference = json::keys().filter(x => !this.Model.fieldNames.find(y => y === x));
+        let difference = json::keys().filter(x => !cls.Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
             logger.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
         }
@@ -57,7 +57,10 @@ export class Resource{
 
         if (entitiesByID){
             if (!res.id) { res.id = getNewID(entitiesByID); }
-            if ( res.id::isNumber()){ res.id = res.id.toString(); }
+            if (res.id::isNumber()){
+                res.id = res.id.toString();
+                logger.warn(`Converted numeric ID ${res.id} to string`);
+            }
 
             if (entitiesByID[res.id]) {
                 if (entitiesByID[res.id] !== res){
@@ -82,12 +85,15 @@ export class Resource{
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
      */
     replaceIDs(modelClasses, entitiesByID){
-
-        const skip = (value) => !value || value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
+        const skip = (value) => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
         const createObj = (res, key, value, spec) => {
             if (skip(value)) { return value; }
-            if (value::isNumber()) { value = value.toString(); }
+
+            if (value::isNumber()) {
+                value = value.toString();
+                logger.warn(`Converted numeric value ${value} of resource's ${res.id} field ${key} to string`);
+            }
 
             let clsName = getClassName(spec);
             if (!clsName){
@@ -424,7 +430,7 @@ export class Resource{
      * Checks if the current resource carries a material.
      * The method makes more sense for lyphs, but it is useful to be able to test any resource, this simplifies filtering
      * @param materialID
-     * @returns {*|void|T}
+     * @returns {*|void}
      */
     containsMaterial(materialID){
         let res = (this.materials||[]).find(e => e.id === materialID);

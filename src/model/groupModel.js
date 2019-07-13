@@ -1,11 +1,9 @@
 import { Resource } from './resourceModel';
-import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick, defaults, sortBy} from 'lodash-bound';
-import {LINK_STROKE, PROCESS_TYPE, Node} from './visualResourceModel';
+import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
+import {Link, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
 import {logger} from './logger';
-
-//TODO Make sure the viewer does not fail if the group includes non-existing links and nodes
 
 /**
  *  Group (subgraph) model
@@ -145,7 +143,7 @@ export class Group extends Resource {
 
         (json::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
-            let classNames = this.Model.relClassNames;
+            let classNames = modelClasses["Group"].Model.relClassNames;
             if (classNames[relName]) {
                 let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames("Lyph");
                 if (!refsToLyphs){ return; }
@@ -224,7 +222,7 @@ export class Group extends Resource {
     static replaceBorderNodes(json){
         let borderNodesByID = {};
         let lyphsWithBorders = (json.lyphs||[]).filter(lyph => lyph.border && (lyph.border.borders||[])
-            .find(b => b && b.hostedNodes)); //TODO if link's reference is used this will fail
+            .find(b => b && b.hostedNodes));
 
         lyphsWithBorders.forEach(lyph => {
             lyph.border.borders.forEach(b => {
@@ -269,7 +267,7 @@ export class Group extends Resource {
                         "id"         : `${prev}_${nodeClone.id}`,
                         "source"     : `${prev}`,
                         "target"     : `${nodeClone.id}`,
-                        "stroke"     : LINK_STROKE.DASHED,
+                        "stroke"     : Link.LINK_STROKE.DASHED,
                         "length"     : 1,
                         "strength"   : 1,
                         "collapsible": true,
@@ -323,7 +321,7 @@ export class Group extends Resource {
             if (lnk.conveyingLyph){
                 let layers = lnk.conveyingLyph.layers || [lnk.conveyingLyph];
                 if (layers[0] && layers[0].materials){
-                    if (lnk.conveyingType === PROCESS_TYPE.ADVECTIVE){
+                    if (lnk.conveyingType === Link.PROCESS_TYPE.ADVECTIVE){
                         if (!lnk.conveyingMaterials || lnk.conveyingMaterials.length === 0){
                             lnk.conveyingMaterials = layers[0].materials;
                         } else {
@@ -361,7 +359,7 @@ export class Group extends Resource {
     showGroups(groups){
         this.show(); //show all entities that are in the main group
         (this.groups || []).filter(g => (g instanceof Group) && !groups.has(g)).forEach(g => g.hide()); //hide entities from hidden groups
-        (this.groups || []).filter(g => (g instanceof Group) && groups.has(g)).forEach(g => g.show()); //show entities that are in visible groups
+        (this.groups || []).filter(g => (g instanceof Group) && groups.has(g)).forEach(g => g.show());  //show entities that are in visible groups
 
     }
 
@@ -371,9 +369,8 @@ export class Group extends Resource {
     hide(){
         this.resources.forEach(entity => entity.hidden = true);
         //TODO rewire links to hide collapsible links with unconstrained ends
-        // (this.links||[]).filter(lnk => lnk.collapsible).forEach(lnk => {
-        // })
-    }тзь
+        // (this.links||[]).filter(lnk => lnk.collapsible).forEach(lnk => {})
+    }
 
     /**
      * Show current group (=show all its entities)
@@ -385,7 +382,7 @@ export class Group extends Resource {
 
     /**
      * Groups that can be toggled on or off in the global graph
-     * @returns {T[]}
+     * @returns {*[]}
      */
     get activeGroups(){
         return [...(this.groups||[])].filter(e => !e.inactive);
@@ -401,7 +398,7 @@ export class Group extends Resource {
 
     /**
      * Visible nodes
-     * @returns {T[]}
+     * @returns {*[]}
      */
     get visibleNodes(){
         return (this.nodes||[]).filter(e => e.isVisible);
@@ -415,6 +412,10 @@ export class Group extends Resource {
         return (this.links||[]).filter(e => e.isVisible);
     }
 
+    /**
+     * Visible lyphs
+     * @returns {*[]}
+     */
     get visibleLyphs(){
        return (this.lyphs||[]).filter(e => e.isVisible && e.axis && e.axis.isVisible);
     }

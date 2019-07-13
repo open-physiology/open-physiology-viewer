@@ -1,15 +1,14 @@
 import {values} from 'lodash-bound';
-import {Group} from "../model/groupModel";
-import {LINK_GEOMETRY} from "../model/visualResourceModel";
-import {COALESCENCE_TOPOLOGY} from "../model/coalescenceModel";
+import {modelClasses} from "../model/index.js";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
-import {
-    commonTemplate, copyCoords,
+import {copyCoords,
     extractCoords
 } from "./utils";
 
 import './visualResourceView';
 import './shapeView';
+
+const {Group, Link, Coalescence} = modelClasses;
 
 /**
  * Create visual objects for group resources
@@ -24,7 +23,7 @@ Group.prototype.createViewObjects = function(state){
     this.visibleLinks.forEach(link => {
         link.createViewObjects(state);
         link.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
-        if (link.geometry === LINK_GEOMETRY.INVISIBLE){
+        if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE){
             link.viewObjects["main"].material.visible = false;
         }
     });
@@ -46,7 +45,7 @@ Group.prototype.updateViewObjects = function(state){
     //Edge bundling
     const fBundling = ForceEdgeBundling()
         .nodes(this.visibleNodes)
-        .edges(this.visibleLinks.filter(e => e.geometry === LINK_GEOMETRY.PATH).map(edge => {
+        .edges(this.visibleLinks.filter(e => e.geometry === Link.LINK_GEOMETRY.PATH).map(edge => {
             return {
                 source: this.nodes.indexOf(edge.source),
                 target: this.nodes.indexOf(edge.target)
@@ -76,7 +75,7 @@ Group.prototype.updateViewObjects = function(state){
             if (lyph2.isTemplate) { return; }
 
             let layers2 = lyph2.layers || [lyph2];
-            if (coalescence.topology === COALESCENCE_TOPOLOGY.EMBEDDING) {
+            if (coalescence.topology === Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING) {
                 //Non-symmetric - first lyph is a "housing lyph"
                 //let same = commonTemplate(lyph, layers2[layers2.length - 1]);
                 layers2[layers2.length - 1].setMaterialVisibility( !state.showCoalescences);// || !same);

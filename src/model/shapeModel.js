@@ -1,9 +1,9 @@
-import {LINK_GEOMETRY, Node, VisualResource} from './visualResourceModel';
+import {Link, VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
 import {findResourceByID, getNewID} from './utils';
 
-export const LYPH_TOPOLOGY = {
+const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
     BAG  : "BAG",
     BAG2 : "BAG2",
@@ -21,6 +21,8 @@ export const LYPH_TOPOLOGY = {
  * @property hostedLyphs
  */
 export class Shape extends VisualResource {
+
+    static LYPH_TOPOLOGY = LYPH_TOPOLOGY;
 
     /**
      * Create a Shape resource from its JSON specification together with resources to model shape borders.
@@ -40,7 +42,7 @@ export class Shape extends VisualResource {
                 "id": id,
                 "source": { id: `s_${id}` },
                 "target": { id: `t_${id}` },
-                "geometry": LINK_GEOMETRY.INVISIBLE
+                "geometry": Link.LINK_GEOMETRY.INVISIBLE
             });
         }
         delete json.numBorders;
@@ -167,7 +169,7 @@ export class Lyph extends Shape {
 
     /**
      * Get border types based on the lyph's topology
-     * @returns {Array[2]}
+     * @returns {Array}
      */
     get radialTypes() {
         switch (this.topology) {

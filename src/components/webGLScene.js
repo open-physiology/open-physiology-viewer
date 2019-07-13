@@ -11,6 +11,7 @@ import { forceX, forceY, forceZ } from 'd3-force-3d';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
+import {SciGraphSearchModule} from "./gui/sciGraphSearch";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -93,7 +94,7 @@ const WindowResize = require('three-window-resize');
                         </searchBar>
                     </fieldset>
 
-                    <!--Selected entity-->
+                    <!--Selected resource-->
 
                     <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
@@ -105,6 +106,13 @@ const WindowResize = require('three-window-resize');
                         </button>
                     </fieldset>
 
+                    <!--SciGraph search-->
+                    
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>SciGraph search</legend>
+                        <sciGraphSearch [selected]="_selected"></sciGraphSearch>
+                    </fieldset>
+                    
                     <!--Group controls-->
 
                     <fieldset class="w3-card w3-round w3-margin-small">
@@ -171,6 +179,7 @@ const WindowResize = require('three-window-resize');
                             </fieldset>
                         </span>
                     </fieldset>
+                    
                     <!--View helpers-->
 
                     <fieldset class="w3-card w3-round w3-margin-small">
@@ -181,7 +190,8 @@ const WindowResize = require('three-window-resize');
                                           (change)="togglePlane(helper)"> {{helper}}
                             </mat-checkbox> 
                         </span>
-                    </fieldset>
+                    </fieldset>                                           
+                    
                 </section>
             </section>
         </section>
@@ -250,6 +260,7 @@ export class WebGLSceneComponent {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
             this.config = (this._graphData.config||{})::defaults(this.config);
+            this._showGroups = new Set(this._graphData.defaultVisibleGroups);
             this._graphData.showGroups(this._showGroups);
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
             /*Map initial positional constraints to match the scaled image*/
@@ -675,7 +686,7 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule,
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, SciGraphSearchModule,
         MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, MatDialogModule, LogInfoModule],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog],

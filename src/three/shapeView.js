@@ -1,4 +1,4 @@
-import {Region, Lyph, Border} from "../model/shapeModel";
+import {modelClasses} from "../model/index.js";
 import {merge} from 'lodash-bound';
 import {
     align,
@@ -16,6 +16,8 @@ import {
     isInRange,
     THREE
 } from "./utils";
+
+const {Region, Lyph, Border} = modelClasses;
 
 /**
  * @property center

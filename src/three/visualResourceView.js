@@ -1,4 +1,4 @@
-import {VisualResource, Link, Node, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE} from "../model/visualResourceModel";
+import {modelClasses} from "../model/index.js";
 import {SpriteText2D} from "three-text2d";
 
 import {
@@ -14,6 +14,8 @@ import {
 
 import '../three/lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
+
+const {VisualResource, Link, Node} = modelClasses;
 
 /**
  * Create resource labels
@@ -111,11 +113,11 @@ Link.prototype.createViewObjects = function(state){
     //Link
     if (!this.viewObjects["main"]) {
         let material;
-        if (this.stroke === LINK_STROKE.DASHED) {
+        if (this.stroke === Link.LINK_STROKE.DASHED) {
             material = MaterialFactory.createLineDashedMaterial({color: this.color});
         } else {
             //Thick lines
-            if (this.stroke === LINK_STROKE.THICK) {
+            if (this.stroke === Link.LINK_STROKE.THICK) {
                 // Line 2 method: draws thick lines
                 material = MaterialFactory.createLine2Material({
                     color: this.color,
@@ -132,31 +134,31 @@ Link.prototype.createViewObjects = function(state){
         }
 
         let geometry, obj;
-        if (this.stroke === LINK_STROKE.THICK) {
+        if (this.stroke === Link.LINK_STROKE.THICK) {
             geometry = new THREE.LineGeometry();
             obj = new THREE.Line2(geometry, material);
         } else {
             //Thick lines
-            if (this.stroke === LINK_STROKE.DASHED) {
+            if (this.stroke === Link.LINK_STROKE.DASHED) {
                 geometry = new THREE.Geometry();
             } else {
                 geometry = new THREE.BufferGeometry();
             }
             obj = new THREE.Line(geometry, material);
         }
-        this.pointLength = (this.geometry === LINK_GEOMETRY.SEMICIRCLE
-                || this.geometry === LINK_GEOMETRY.RECTANGLE
-                || this.geometry === LINK_GEOMETRY.SPLINE)
+        this.pointLength = (this.geometry === Link.LINK_GEOMETRY.SEMICIRCLE
+                || this.geometry === Link.LINK_GEOMETRY.RECTANGLE
+                || this.geometry === Link.LINK_GEOMETRY.SPLINE)
             ? state.linkResolution
-            : (this.geometry === LINK_GEOMETRY.PATH)
+            : (this.geometry === Link.LINK_GEOMETRY.PATH)
                 ? 67 // Edge bunding breaks a link into 66 points
                 : 2;
-        if (this.stroke === LINK_STROKE.DASHED) {
+        if (this.stroke === Link.LINK_STROKE.DASHED) {
             geometry.vertices = new Array(this.pointLength);
             for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
         } else {
             //Buffered geometry
-            if (this.stroke !== LINK_STROKE.THICK){
+            if (this.stroke !== Link.LINK_STROKE.THICK){
                 geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
             }
         }
@@ -169,7 +171,7 @@ Link.prototype.createViewObjects = function(state){
             obj.add(arrow);
         }
 
-        if (this.geometry === LINK_GEOMETRY.SPLINE) {
+        if (this.geometry === Link.LINK_GEOMETRY.SPLINE) {
             this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x !== this);
             this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x !== this);
         }
@@ -214,18 +216,18 @@ Link.prototype.updateViewObjects = function(state) {
     const updateCurve = (_start, _end) => {
         let curve = new THREE.Line3(_start, _end);
         switch (this.geometry) {
-            case LINK_GEOMETRY.SEMICIRCLE:
+            case Link.LINK_GEOMETRY.SEMICIRCLE:
                 curve = bezierSemicircle(_start, _end);
                 break;
-            case LINK_GEOMETRY.RECTANGLE :
+            case Link.LINK_GEOMETRY.RECTANGLE :
                 curve = rectangleCurve(_start, _end);
                 break;
-            case LINK_GEOMETRY.PATH      :
+            case Link.LINK_GEOMETRY.PATH      :
                 if (this.path){
                     curve = new THREE.CatmullRomCurve3(this.path);
                 }
                 break;
-            case LINK_GEOMETRY.SPLINE    :
+            case Link.LINK_GEOMETRY.SPLINE    :
                 let prev = this.prev ? direction(this.prev.center, _start).multiplyScalar(2) : null;
                 let next = this.next ? direction(this.next.center, _end).multiplyScalar(2) : null;
                 if (prev) {
@@ -297,7 +299,7 @@ Link.prototype.updateViewObjects = function(state) {
 
     //Update buffered geometries
     //Do not update links with fixed node positions
-    if (this.geometry === LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
+    if (this.geometry === Link.LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
 
     if (obj) {
         if (this.directed && obj.children[0] && (obj.children[0] instanceof THREE.ArrowHelper)){
@@ -312,12 +314,12 @@ Link.prototype.updateViewObjects = function(state) {
             copyCoords(arrow.position, pos);
             arrow.setDirection(dir.normalize());
         }
-        if (this.stroke === LINK_STROKE.THICK){
+        if (this.stroke === Link.LINK_STROKE.THICK){
             let coordArray = [];
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
         } else {
-            if (obj && this.stroke === LINK_STROKE.DASHED) {
+            if (obj && this.stroke === Link.LINK_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();

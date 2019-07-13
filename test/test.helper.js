@@ -1,22 +1,9 @@
 import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
 
-import 'polyfill-function-prototype-bind';
-import chai                   from 'chai';
-//import sin[non                  from 'sinon';
+import chai from 'chai';
+export {chai};
 
-export { chai };
-
-import chaiAsPromised         from 'chai-as-promised';
-import chaiThings             from 'chai-things';
-import sinonChai              from 'sinon-chai';
-
-/* activating chai plugins */
-chai.use(chaiAsPromised); // keep this as the first plugin or it messes up other plugins
-chai.use(chaiThings);
-chai.use(sinonChai);
-
-/* direct exports from respective packages */
 import mocha from 'mocha';
 
 const global = Function('return this')(); // window or global, depending on environment

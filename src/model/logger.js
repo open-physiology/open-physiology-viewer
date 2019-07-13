@@ -1,16 +1,19 @@
-export const LEVEL = {
+const LEVEL = {
     INFO  : "Info",
     WARN  : "Warn",
     ERROR : "Error"
 };
 
-export const STATUS = {
+const STATUS = {
     OK      : "OK",
     WARNING : "Warning",
     ERROR   : "Error"
 };
 
 export class Logger {
+    static LEVEL = LEVEL;
+    static STATUS = STATUS;
+
     entries = [];
     levelOptions  = LEVEL;
     statusOptions = STATUS;

@@ -7,10 +7,10 @@ import {
 } from 'd3-force-3d';
 
 import Kapsule from 'kapsule';
-import {Graph} from '../model/graphModel';
-import {modelClasses} from "../model/modelClasses";
+import {modelClasses} from '../model/index';
 import './modelView';
 
+const {Graph} = modelClasses;
 /**
  * A closure-based component for the force-directed 3d graph layout
  */

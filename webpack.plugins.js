@@ -6,8 +6,9 @@ module.exports = [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.ContextReplacementPlugin(
-        /angular(\\|\/)core(\\|\/)/,
-        path.resolve(__dirname, '../src'), {}
+        /angular[\\\/]core[\\\/](esm[\\\/]src|src)[\\\/]linker/,
+        path.resolve('./src'),
+        {}
     ),
     new webpack.ContextReplacementPlugin(
         /power-assert-formatter[\\\/]lib/,

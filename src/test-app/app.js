@@ -4,7 +4,8 @@ import { cloneDeep, isArray, isObject, keys } from "lodash-bound";
 
 //Angular Material
 import 'hammerjs';
-import {MatSnackBarModule, MatDialogModule, MatDialog, MatRadioModule} from '@angular/material';
+
+import {MatSnackBarModule, MatDialogModule, MatDialog} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 //JSON Editor
@@ -21,8 +22,7 @@ import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses } from '../model/modelClasses';
-import { Graph, schema } from '../model/graphModel';
+import { modelClasses, schema } from '../model/index';
 
 //Styles
 import 'font-awesome/css/font-awesome.css';
@@ -31,6 +31,8 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import * as XLSX from 'xlsx';
+
+const {Graph} = modelClasses;
 
 let consoleHolder = console;
 /**
@@ -245,7 +247,7 @@ export class TestApp {
                         if(roa.length) { model[sheetName] = roa; }
                     });
                     model["id"] = fileName;
-                    this.model = Graph.excelToJSON(model, this.modelClasses);
+                    this.model = modelClasses.Graph.excelToJSON(model, this.modelClasses);
                 } else {
                     if (extension === "json") {
                         this.model = JSON.parse(reader.result);
@@ -354,7 +356,6 @@ export class TestApp {
 
         if (!parent) {
             throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
-            return;
         }
         let obj = parent[key]::cloneDeep();
         const dialogRef = this._dialog.open(ResourceEditorDialog, {

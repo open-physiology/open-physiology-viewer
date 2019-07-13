@@ -24,9 +24,14 @@
     {
       "id": "node1A",
       "name": "Urethral meatus",
+      "layout": {"x": -100},
       "external": [
         "UBERON:0012240"
       ]
+    },
+    {
+      "id": "node1V",
+      "layout": {"x": 100}
     }
   ],
   "links": [
@@ -1354,6 +1359,7 @@
       "35",
       "36",
       "37"
-    ]
+    ],
+    "showGroups": ["uot"]
   }
 }

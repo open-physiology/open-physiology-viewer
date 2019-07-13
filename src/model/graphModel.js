@@ -1,6 +1,6 @@
 import { Group } from './groupModel';
 import {Resource} from "./resourceModel";
-import { Node, Link, LINK_GEOMETRY } from "./visualResourceModel";
+import { Node, Link } from "./visualResourceModel";
 import {
     entries,
     keys,
@@ -215,6 +215,11 @@ export class Graph extends Group{
         return model;
     }
 
+    get defaultVisibleGroups(){
+        if (!this.config || !this.config.showGroups || !this.config.showGroups::isArray()){ return []; }
+        return (this.groups||[]).filter(g => this.config.showGroups.find(id => g.id === id || (g.generatedFrom && g.generatedFrom.id === id)));
+    }
+
     /**
      * Auto-generates links for internal lyphs
      * @param modelClasses - model resource classes
@@ -236,7 +241,7 @@ export class Graph extends Group{
                 "id"           : `${lyph.id}-lnk`,
                 "source"       : sNode,
                 "target"       : tNode,
-                "geometry"     : LINK_GEOMETRY.INVISIBLE,
+                "geometry"     : Link.LINK_GEOMETRY.INVISIBLE,
                 "color"        : "#ccc",
                 "conveyingLyph": lyph,
                 "skipLabel"    : true,

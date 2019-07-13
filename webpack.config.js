@@ -9,7 +9,7 @@ module.exports = {
     entry: {
         'test-app/index': [ 'babel-polyfill', 'zone.js/dist/zone.js', './test-app/index.js'],
         'open-physiology-viewer': [ 'babel-polyfill', 'zone.js/dist/zone.js', './index.js' ],
-        'open-physiology-viewer-minimal':                                   [ './index.js' ]
+        'open-physiology-viewer-minimal':                                                                  [ './index.js' ]
     },
 	output: {
 		path: __dirname + '/dist',
@@ -27,5 +27,5 @@ module.exports = {
             { from: 'test-app/favicon.ico', to: 'test-app/favicon.ico' },
             { from: 'test-app/styles',      to: 'test-app/styles'}
         ])
-	])
+    ])
 };

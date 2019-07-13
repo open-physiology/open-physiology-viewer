@@ -6,9 +6,7 @@ import {
     isString,
     merge,
     keys,
-    isPlainObject,
-    defaults,
-    intersection, isArray
+    isPlainObject
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -61,7 +59,7 @@ export const getClassName = (spec) => {
  * Finds a resource object in the parent group given an object or an ID
  * @param eArray
  * @param e
- * @returns {*|void|T}
+ * @returns {*|void}
  */
 export const findResourceByID = (eArray, e) => e::isPlainObject()? e: (eArray||[]).find(x => !!e && x.id === e);
 
@@ -116,9 +114,10 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
 /**
  * @param group - a group to add resources to
  * @param parentGroup - parent group
- * @param [lnk,trg, lyph]  - link, target node, conveyed lyph
+ * @param level - an array with a link, target node, and conveyed lyph
  */
-export const mergeGenResources = (group, parentGroup, [lnk, trg, lyph]) => {
+export const mergeGenResources = (group, parentGroup, level) => {
+    let [lnk, trg, lyph] = level;
     mergeGenResource(group, parentGroup, lnk, "links");
     mergeGenResource(group, parentGroup, trg, "nodes");
     mergeGenResource(group, parentGroup, lyph, "lyphs");

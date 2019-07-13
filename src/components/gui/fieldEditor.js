@@ -5,7 +5,7 @@ import {
     MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
     MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule
 } from '@angular/material';
-import {getClassName, schemaClassModels} from '../../model/utils';
+import {getClassName, schemaClassModels} from '../../model/index.js';
 import {FieldEditorDialog} from './fieldEditorDialog';
 import { cloneDeep, isObject} from 'lodash-bound';
 

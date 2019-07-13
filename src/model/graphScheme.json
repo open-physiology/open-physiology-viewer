@@ -1099,7 +1099,8 @@
               "$ref": "#/definitions/Group"
             }
           ],
-          "readOnly": true
+          "readOnly": true,
+          "relatedTo": "generatedFrom"
         },
         "length"       : {
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
@@ -1450,6 +1451,17 @@
             ]
           },
           "default": []
+        },
+        "generatedFrom"  : {
+          "description": "Group template which was used to generate the current lyph",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/GroupTemplate"
+            }
+          ]
         }
       }
     },
@@ -1463,6 +1475,13 @@
           "properties": {
             "filter": {
               "description": "Identifiers of resources to exclude from the relationship graph",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "showGroups":{
+              "description": "Identifiers of visible by default groups or group templates",
               "type": "array",
               "items": {
                 "type": "string"

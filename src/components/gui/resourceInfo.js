@@ -1,6 +1,6 @@
 import {Component, Input, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {keys, isArray, isObject} from 'lodash-bound';
+import {isArray, isObject} from 'lodash-bound';
 
 @Component({
     selector: 'resourceInfoPanel',

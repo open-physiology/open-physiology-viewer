@@ -1,0 +1,27 @@
+{
+  "links": [
+    {
+      "id": "somaLnk",
+      "conveyingLyph": "soma",
+      "source": "n1",
+      "target": "n2"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "soma"
+    }
+  ],
+  "trees": [
+    {
+      "id": "t1",
+      "root": "n1",
+      "numLevels": 5
+    },
+    {
+      "id": "t2",
+      "root": "n2",
+      "numLevels": 5
+    }
+  ]
+}

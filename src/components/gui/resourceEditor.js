@@ -12,7 +12,7 @@ import {ExternalSelectDialog} from "./externalSelectDialog";
 import {isPlainObject, isArray, isString, cloneDeep, merge, values} from 'lodash-bound';
 import {ObjToArray} from './utils';
 import {HttpClientModule} from '@angular/common/http';
-import {getClassName} from "../../model/utils";
+import {getClassName} from '../../model/index';
 import {annotations} from "./config";
 
 @Component({
@@ -209,8 +209,16 @@ export class ResourceEditor {
             }
         });
     }
-    
-    _validateField([key, spec],result){
+
+    /**
+     * Check validity of the field
+     * @param key - resource property
+     * @param spec - property specification in JSON Schema
+     * @param result - field's value
+     * @returns {boolean} - true is the result complies with property specification constraints, false otherwise
+     * @private
+     */
+    _validateField([key, spec], result){
         if (!result){ return false; }
         if (spec.type === "array") {
             if (!this.resource[key]){ this.resource[key] = []; }

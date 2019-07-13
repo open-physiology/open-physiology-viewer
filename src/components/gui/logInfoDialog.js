@@ -5,7 +5,13 @@ import {
 } from '@angular/material';
 import {CommonModule} from "@angular/common";
 import {MatDialogModule} from '@angular/material'
-import {LEVEL} from '../../model/logger';
+
+//TODO import from Logger
+const LEVEL = {
+    INFO  : "Info",
+    WARN  : "Warn",
+    ERROR : "Error"
+};
 
 @Component({
     selector: 'logInfoDialog',

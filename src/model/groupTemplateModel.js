@@ -1,7 +1,7 @@
 import {Resource} from './resourceModel';
-import {LYPH_TOPOLOGY, Lyph} from "./shapeModel";
-import {PROCESS_TYPE, Link, Node} from "./visualResourceModel";
-import {COALESCENCE_TOPOLOGY} from "./coalescenceModel";
+import {Lyph} from "./shapeModel";
+import {Link, Node} from "./visualResourceModel";
+import {Coalescence} from "./coalescenceModel";
 import {mergeGenResource, mergeGenResources, findResourceByID} from "./utils";
 import {logger} from './logger';
 import {defaults, isPlainObject, isArray, flatten} from "lodash-bound";
@@ -123,20 +123,20 @@ export class Tree extends GroupTemplate {
         const getTopology = (level, N, template) => {
             if (template){
                 if (level === 0) {
-                    if (template.topology === LYPH_TOPOLOGY.BAG2 || template.topology === LYPH_TOPOLOGY.CYST) {
+                    if (template.topology === Lyph.LYPH_TOPOLOGY.BAG2 || template.topology === Lyph.LYPH_TOPOLOGY.CYST) {
                         if (N === 1){
-                            return LYPH_TOPOLOGY.CYST;
+                            return Lyph.LYPH_TOPOLOGY.CYST;
                         }
-                        return LYPH_TOPOLOGY.BAG2;
+                        return Lyph.LYPH_TOPOLOGY.BAG2;
                     }
                 }
                 if (level === N - 1) {
-                    if (template.topology === LYPH_TOPOLOGY.BAG || template.topology === LYPH_TOPOLOGY.CYST) {
-                        return LYPH_TOPOLOGY.BAG;
+                    if (template.topology === Lyph.LYPH_TOPOLOGY.BAG || template.topology === Lyph.LYPH_TOPOLOGY.CYST) {
+                        return Lyph.LYPH_TOPOLOGY.BAG;
                     }
                 }
             }
-            return LYPH_TOPOLOGY.TUBE;
+            return Lyph.LYPH_TOPOLOGY.TUBE;
         };
 
         let template = tree.lyphTemplate;
@@ -346,7 +346,7 @@ export class Tree extends GroupTemplate {
                 "id"       : `${lyph.id}_tree-${level.conveyingLyph}`,
                 "name"     : `${lyph.name} tree #${level.conveyingLyph}`,
                 "generated": true,
-                "topology" : COALESCENCE_TOPOLOGY.EMBEDDING,
+                "topology" : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                 "lyphs"    : [lyph.id, level.conveyingLyph]
             };
 
@@ -381,21 +381,21 @@ export class Channel extends Resource {
                 "name"      : "Internal",
                 "isTemplate": true,
                 "supertype" : "mcTemplate",
-                "topology"  : LYPH_TOPOLOGY.TUBE
+                "topology"  : Lyph.LYPH_TOPOLOGY.TUBE
             },
             {
                 "id"        : "mcMembranous",
                 "name"      : "Membranous",
                 "isTemplate": true,
                 "supertype" : "mcTemplate",
-                "topology"  : LYPH_TOPOLOGY.TUBE
+                "topology"  : Lyph.LYPH_TOPOLOGY.TUBE
             },
             {
                 "id"        : "mcExternal",
                 "name"      : "External",
                 "isTemplate": true,
                 "supertype" : "mcTemplate",
-                "topology"  : LYPH_TOPOLOGY.TUBE
+                "topology"  : Lyph.LYPH_TOPOLOGY.TUBE
             },
             {
                 "id"        : "mcTemplate",
@@ -457,7 +457,7 @@ export class Channel extends Resource {
                 "source"       : channel.group.nodes[i],
                 "target"       : channel.group.nodes[i + 1],
                 "conveyingLyph": lyph.id,
-                "conveyingType": PROCESS_TYPE.DIFFUSIVE,
+                "conveyingType": Link.PROCESS_TYPE.DIFFUSIVE,
                 "conveyingMaterials": channel.materials,
                 "color"        : "#000",
                 "generated"    : true
@@ -643,7 +643,7 @@ export class Channel extends Resource {
                     "id"       : `${layer.id}_channel-${instance.lyphs[i]}`,
                     "name"     : `${layer.name} channel #${instance.lyphs[i]}`,
                     "generated": true,
-                    "topology" : COALESCENCE_TOPOLOGY.EMBEDDING,
+                    "topology" : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                     "lyphs"    : [layer.id, instance.lyphs[i]]
                 };
 
@@ -712,7 +712,7 @@ export class Chain extends Resource{
                 "source"             : chain.group.nodes[i],
                 "target"             : chain.group.nodes[i + 1],
                 "conveyingLyph"      : lyphs[i].id,
-                "conveyingType"      : PROCESS_TYPE.ADVECTIVE,
+                "conveyingType"      : Link.PROCESS_TYPE.ADVECTIVE,
                 "conveyingMaterials" : conveyingMaterials,
                 "color"              : "#000",
                 "generated"          : true

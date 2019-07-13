@@ -6,7 +6,7 @@ import { merge, pick } from "lodash-bound";
  * Supported link geometries
  * @type {{LINK: string, SEMICIRCLE: string, RECTANGLE: string, PATH: string, SPLINE: string, FORCE: string}}
  */
-export const LINK_GEOMETRY = {
+const LINK_GEOMETRY = {
     LINK       : "link",        //straight line
     SEMICIRCLE : "semicircle",  //line in the form of a semicircle
     RECTANGLE  : "rectangle",   //rectangular line with rounded corners
@@ -19,7 +19,7 @@ export const LINK_GEOMETRY = {
  * Supported link strokes
  * @type {{DASHED: string, THICK: string}}
  */
-export const LINK_STROKE = {
+const LINK_STROKE = {
     DASHED     : "dashed",      //dashed line
     THICK      : "thick"        //thick line
 };
@@ -28,7 +28,7 @@ export const LINK_STROKE = {
  * Process types
  * @type {{ADVECTIVE: string, DIFFUSIVE: string}}
  */
-export const PROCESS_TYPE = {
+const PROCESS_TYPE = {
     ADVECTIVE     : "ADVECTIVE",
     DIFFUSIVE     : "DIFFUSIVE"
 };
@@ -37,11 +37,16 @@ export const PROCESS_TYPE = {
  * The class implementing common methods for the visual resources.
  * @class
  * @property {string} color - visual resource color
- * @property {Map<string, Object3D>} viewObjects - visual objects representing the resource
+ * @property {Map<string, Object>} viewObjects - visual objects representing the resource
  * @property {boolean} hidden    - indicates whether the resource is currently hidden (invisible in the scene)
  * @property {boolean} skipLabel - excludes resource labels from the view
  */
 export class VisualResource extends Resource{
+
+    static LINK_GEOMETRY = LINK_GEOMETRY;
+    static LINK_STROKE = LINK_STROKE;
+    static PROCESS_TYPE = PROCESS_TYPE;
+
     /**
      * Determines whether the resource should appear in the scheme based on its 'hidden' attribute and other resource dependencies
      * @returns {boolean}
