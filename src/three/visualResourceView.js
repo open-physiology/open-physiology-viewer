@@ -15,6 +15,8 @@ import {
 import '../three/lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
+import {merge} from 'lodash-bound';
+
 const {VisualResource, Link, Node} = modelClasses;
 
 /**

@@ -28,9 +28,10 @@ import {logger} from './logger';
  *
  */
 export class Resource{
+    static get Model(){return schemaClassModels[this.name]};
 
     constructor(id) {
-        this::merge(this.constructor.Model.defaultValues);
+        this::merge(schemaClassModels[this.constructor.name].defaultValues);
         this.id = id;
     }
 
@@ -48,7 +49,7 @@ export class Resource{
         const res = new cls(json.id);
         res.class = clsName;
         //spec
-        let difference = json::keys().filter(x => !cls.Model.fieldNames.find(y => y === x));
+        let difference = json::keys().filter(x => !modelClasses[clsName].Model.fieldNames.find(y => y === x));
         if (difference.length > 0) {
             logger.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
         }
@@ -73,10 +74,6 @@ export class Resource{
             }
         }
         return res;
-    }
-
-    static get Model(){
-        return schemaClassModels[this.name];
     }
 
     /**
@@ -141,7 +138,7 @@ export class Resource{
             return;
         }
 
-        let refFields = modelClasses[this.class].Model.relationships;
+        let refFields = this.constructor.Model.relationships;
         let res = this;
         refFields.forEach(([key, spec]) => {
             if (skip(res[key])) { return; }
@@ -356,7 +353,7 @@ export class Resource{
     syncRelationships(modelClasses, entitiesByID){
         entitiesByID::keys().forEach(id => {
             if (!entitiesByID[id].class){ return; }
-             let refFields = modelClasses[entitiesByID[id].class].Model.relationships;
+             let refFields = entitiesByID[id].constructor.Model.relationships;
              (refFields || []).forEach(([key, spec]) => {
                  if (!entitiesByID[id][key]) { return; }
                  entitiesByID[id].syncRelationship(key, spec, modelClasses);

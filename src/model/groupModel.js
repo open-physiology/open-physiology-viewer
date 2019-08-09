@@ -5,6 +5,8 @@ import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
 import {logger} from './logger';
 
+const groupClsNames = ["Graph", "Group"];
+
 /**
  *  Group (subgraph) model
  * @class
@@ -57,7 +59,7 @@ export class Group extends Resource {
         res.mergeSubgroupEntities();
 
         //Add conveying lyphs to groups that contain links
-        res.links.forEach(link => {
+        (res.links||[]).forEach(link => {
             if (link.conveyingLyph && !res.lyphs.find(lyph => lyph.id === link.conveyingLyph.id)){
                 res.lyphs.push(link.conveyingLyph);
             }
@@ -143,7 +145,7 @@ export class Group extends Resource {
 
         (json::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
-            let classNames = modelClasses["Group"].Model.relClassNames;
+            let classNames = modelClasses[this.name].Model.relClassNames;
             if (classNames[relName]) {
                 let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames("Lyph");
                 if (!refsToLyphs){ return; }
@@ -169,8 +171,8 @@ export class Group extends Resource {
      */
     static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
-        let relClassNames = this.Model.relClassNames;
-        ["trees", "channels", "chains"].forEach(relName => {
+        let relClassNames = modelClasses[this.name].Model.relClassNames;
+         ["trees", "channels", "chains"].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)
@@ -190,7 +192,9 @@ export class Group extends Resource {
      */
     static createTemplateInstances(json, modelClasses){
         if (!modelClasses){ return; }
+
         let relClassNames = this.Model.relClassNames;
+
         ["trees", "channels"].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
@@ -291,7 +295,7 @@ export class Group extends Resource {
                 logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames);
+            let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames);
             relFieldNames.forEach(property => {
                 this[property] = (this[property]||[])::unionBy(group[property], "id");
             this[property] = this[property].filter(x => x.class);
@@ -347,7 +351,7 @@ export class Group extends Resource {
      */
     get resources(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames(this.constructor.Model.groupClsNames); //Exclude groups
+        let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames); //Exclude groups
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
         return res.filter(e => !!e && e::isObject());
     }

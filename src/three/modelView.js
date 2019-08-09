@@ -101,7 +101,3 @@ Group.prototype.updateViewObjects = function(state){
 
     this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
 };
-
-
-
-

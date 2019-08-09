@@ -24,6 +24,11 @@ import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses, schema } from '../model/index';
 
+//TEST import external Graph
+//TODO add to package.json "open-physiology-model": "github:open-physiology/open-physiology-model",
+//import * as external from 'open-physiology-model'; ///dist/open-physiology-model-minimal
+
+
 //Styles
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -316,6 +321,9 @@ export class TestApp {
         this._model = model;
         try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
+
+            //let testModel = external.modelClasses.Graph.fromJSON(this._model, external.modelClasses);
+
         } catch(err){
             console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);

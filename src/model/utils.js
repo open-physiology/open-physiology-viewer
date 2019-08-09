@@ -54,7 +54,6 @@ export const getClassName = (spec) => {
     }
 };
 
-
 /**
  * Finds a resource object in the parent group given an object or an ID
  * @param eArray
@@ -123,142 +122,126 @@ export const mergeGenResources = (group, parentGroup, level) => {
     mergeGenResource(group, parentGroup, lyph, "lyphs");
 };
 
+
 /**
- * @param schemaClsName - name of the class in JSON Schema
- * @returns {*} Helper object with convenient access to field subgroups
+ * Determines if given schema references extend a certain class
+ * @param {Array<string>} refs  - schema references
+ * @param {string} value        - class name
+ * @returns {boolean}           - returns true if at least one reference extends the given class
  */
-const getSchemaClassModel = (schemaClsName) => {
-
-    /**
-     * Recursively applies a given operation to the classes in schema definitions
-     * @param {string} className - initial class
-     * @param {function} handler - function to apply to the current class
-     */
-    const recurseSchema = (className, handler) => {
-        let stack = [className];
-        let i = 0;
-        while (stack[i]){
-            let clsName = stack[i];
-            if (definitions[clsName]){
-                let refs = getRefs(definitions[clsName]);
-                (refs||[]).forEach(ref => {
-                    stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
-                })
+const extendsClass = (refs, value) => {
+    if (!refs) { return false; }
+    let res = false;
+    (refs||[]).forEach(ref => {
+        let clsName = getClassName(ref);
+        if (clsName) {
+            if (clsName === value) {
+                res = true;
+            } else {
+                let def = definitions[clsName];
+                res = res || def && extendsClass(getRefs(def), value);
             }
-            i++;
         }
-        while (stack.length > 0){
-            let clsName = stack.pop();
-            handler(clsName);
-        }
-    };
-
-    /**
-     * Returns recognized class properties from the specification with default values
-     * @param {string} className
-     */
-    const getFieldDefaultValues = (className) => {
-        const getDefault = (specObj) => specObj.type ?
-            specObj.type === "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
-            : null;
-        const initValue = (specObj) => {
-            return specObj.default?
-                (specObj.default::isObject()
-                    ? specObj.default::cloneDeep()
-                    : specObj.default )
-                : getDefault(specObj);
-        };
-
-        return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
-    };
-
-    /**
-     * Determines if given schema references extend a certain class
-     * @param {Array<string>} refs  - schema references
-     * @param {string} value        - class name
-     * @returns {boolean}           - returns true if at least one reference extends the given class
-     */
-    const extendsClass = (refs, value) => {
-        if (!refs) { return false; }
-        let res = false;
-        (refs||[]).forEach(ref => {
-            let clsName = getClassName(ref);
-            if (clsName) {
-                if (clsName === value) {
-                    res = true;
-                } else {
-                    let def = definitions[clsName];
-                    res = res || def && extendsClass(getRefs(def), value);
-                }
-            }
-        });
-        return res;
-    };
-
-    let model = {};
-    if (!definitions[schemaClsName]) {
-        logger.error("Failed to find schema definition for class: ", schemaClsName);
-        return model;
-    }
-    model.schema            = definitions[schemaClsName];
-    model.extendsClass      = (clsName) => (clsName === schemaClsName)
-        || extendsClass(getRefs(model.schema), clsName);
-    model.defaultValues     = (() => { //object
-        let res = {};
-        recurseSchema(schemaClsName, (currName) => res::merge(...getFieldDefaultValues(currName)));
-        return res;
-    })(); // {key: value}
-    model.fields            = (() => {
-        let res = {};
-        recurseSchema(schemaClsName, (currName) =>
-            res::merge(definitions[currName].properties)
-        );
-        return res::entries();
-    })(); // [key, spec]
-
-    model.relationships     = model.fields.filter(([key, spec]) =>  extendsClass(getRefs(spec), "Resource"));
-    model.properties        = model.fields.filter(([key, ]) => !model.relationships.find(([key2, ]) => key2 === key));
-
-    model.fieldMap          = model.fields::fromPairs();
-    model.propertyMap       = model.properties::fromPairs();
-    model.relationshipMap   = model.relationships::fromPairs();
-
-    //Names only
-    model.fieldNames        = model.fields.map(([key, ]) => key);
-    model.propertyNames     = model.properties.map(([key, ]) => key);
-    model.relationshipNames = model.relationships.map(([key, ]) => key);
-
-    model.relClassNames     = model.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
-
-    //Create, Update, Delete (CUD) fields
-    model.cudFields         = model.fields       .filter(([key, spec]) => !spec.readOnly);
-    model.cudProperties     = model.properties   .filter(([key, spec]) => !spec.readOnly);
-    model.cudRelationships  = model.relationships.filter(([key, spec]) => !spec.readOnly);
-
-    model.filteredRelNames     = (clsNames) => {
-        let relFields = model.relationships;
-        return (relFields||[])
-            .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
-            .map(([key, ]) => key);
-    };
-    model.selectedRelNames  = (clsName) => {
-        let relFields = model.relClassNames;
-        return (relFields::entries()||[]).filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
-    };
-
-    model.groupClsNames = ["Group", "Graph"]; //TODO automate if more group types need to be defined
-
-    return model;
+    });
+    return res;
 };
 
-export const schemaClassModels = {};
-definitions::keys().forEach(schemaClsName => { schemaClassModels[schemaClsName] = getSchemaClassModel(schemaClsName); } );
+/**
+ * Returns recognized class properties from the specification with default values
+ * @param {string} className
+ */
+const getFieldDefaultValues = (className) => {
+    const getDefault = (specObj) => specObj.type ?
+        specObj.type === "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
+        : null;
+    const initValue = (specObj) => {
+        return specObj.default?
+            (specObj.default::isObject()
+                ? specObj.default::cloneDeep()
+                : specObj.default )
+            : getDefault(specObj);
+    };
+
+    return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
+};
 
 
+/**
+ * Recursively applies a given operation to the classes in schema definitions
+ * @param {string} className - initial class
+ * @param {function} handler - function to apply to the current class
+ */
+const recurseSchema = (className, handler) => {
+    let stack = [className];
+    let i = 0;
+    while (stack[i]){
+        let clsName = stack[i];
+        if (definitions[clsName]){
+            let refs = getRefs(definitions[clsName]);
+            (refs||[]).forEach(ref => {
+                stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
+            })
+        }
+        i++;
+    }
+    while (stack.length > 0){
+        let clsName = stack.pop();
+        handler(clsName);
+    }
+};
 
+export class SchemaClass {
+    schemaClsName;
+    defaultValues = {};
+    fields = [];
+    relClassNames = {};
 
+    constructor(schemaClsName) {
+        this.schemaClsName = schemaClsName;
+        if (!definitions[schemaClsName]) {
+            logger.error("Failed to find schema definition for class: ", schemaClsName);
+        } else {
+            this.schema = definitions[this.schemaClsName];
 
+            let res = {};
+            recurseSchema(this.schemaClsName, (currName) => res::merge(...getFieldDefaultValues(currName)));
+            this.defaultValues = res;
 
+            let res2 = {};
+            recurseSchema(this.schemaClsName, (currName) => res2::merge(definitions[currName].properties));
+            this.fields = res2::entries();
+
+            this.relationships = this.fields.filter(([key, spec]) => extendsClass(getRefs(spec), "Resource"));
+            this.properties = this.fields.filter(([key,]) => !this.relationships.find(([key2,]) => key2 === key));
+            this.fieldMap = this.fields::fromPairs();
+            this.propertyMap = this.properties::fromPairs();
+            this.relationshipMap = this.relationships::fromPairs();
+            this.fieldNames = this.fields.map(([key,]) => key);
+            this.propertyNames = this.properties.map(([key,]) => key);
+            this.relationshipNames = this.relationships.map(([key,]) => key);
+            this.relClassNames = this.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
+            this.cudFields = this.fields.filter(([key, spec]) => !spec.readOnly);
+            this.cudProperties = this.properties.filter(([key, spec]) => !spec.readOnly);
+            this.cudRelationships = this.relationships.filter(([key, spec]) => !spec.readOnly);
+        }
+    }
+
+    extendsClass(clsName) {
+        return (clsName === this.schemaClsName) || extendsClass(getRefs(this.schema), clsName);
+    }
+
+    filteredRelNames(clsNames){
+        return (this.relationships||[])
+            .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
+            .map(([key, ]) => key);
+    }
+
+    selectedRelNames(clsName){
+        return (this.relClassNames::entries()||[]).filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
+    }
+}
+
+export const schemaClassModels = definitions::keys().map(schemaClsName => [schemaClsName, new SchemaClass(schemaClsName)])::fromPairs();
 
 
 

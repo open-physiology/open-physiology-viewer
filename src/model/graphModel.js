@@ -17,6 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
+import {schemaClassModels} from "./utils";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -68,7 +69,7 @@ export class Graph extends Group{
                     let e = modelClasses[clsName].fromJSON({"id": id, "generated": true}, modelClasses, entitiesByID);
 
                     //Include newly created entity to the main graph
-                    let prop = this.Model.selectedRelNames(clsName)[0];
+                    let prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
                     if (prop) {
                         res[prop] = res[prop] ||[];
                         res[prop].push(e);
@@ -113,14 +114,15 @@ export class Graph extends Group{
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
-        let model = inputModel::pick(Graph.Model.relationshipNames.concat(["main"]));
+        let graphSchema = modelClasses[this.name].Model;
+        let model = inputModel::pick(graphSchema.relationshipNames.concat(["main"]));
         const borderNames = ["inner", "radial1", "outer", "radial2"];
 
         model::keys().forEach(relName => {
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
-            let clsName = relName === "main"? "Graph": this.Model.relClassNames[relName];
+            let clsName = relName === "main"? "Graph": graphSchema.relClassNames[relName];
             if (!modelClasses[clsName]) {
                 logger.warn("Class name not found:", relName);
                 return;
