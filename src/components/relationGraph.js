@@ -171,7 +171,7 @@ export class RelGraph {
 
             let nodeResources = this._graphData::pick(["materials", "lyphs", "coalescences", "links"])::values()::flatten();
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
-            this.data.nodes = nodeResources.filter(e => !filter.find(x => e.isSubtypeOf(x)));
+            this.data.nodes = nodeResources.filter(e => !!e && !filter.find(x => e.isSubtypeOf(x)));
 
             this.data.nodes.forEach(e => {
                 e.relClass = e.class;

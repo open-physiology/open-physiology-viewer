@@ -13,8 +13,14 @@ import {
     difference
 } from 'lodash-bound';
 
-import {JSONPath, getClassName, schemaClassModels, isClassAbstract, getNewID} from "./utils";
+import JSONPath from 'JSONPath';
+import {getClassName, schemaClassModels, isClassAbstract, getNewID} from "./utils";
 import {logger} from './logger';
+/**
+ * JSON Path validator
+ * @type {JSONPath}
+ */
+
 
 /**
  * The class defining common methods for all resources

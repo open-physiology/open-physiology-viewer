@@ -30,12 +30,6 @@ export const addColor = (resources, defaultColor) => (resources||[]).filter(e =>
             :(defaultColor || colors[i % colors.length]) });
 
 /**
- * JSON Path validator
- * @type {JSONPath}
- */
-export const JSONPath = require('JSONPath');
-
-/**
  * Extracts class name from the schema definition
  * @param spec - schema definition
  */
