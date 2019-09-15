@@ -215,6 +215,7 @@ export class Group extends Resource {
     static expandLyphTemplates(lyphs){
         let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
         templates.forEach(template => Lyph.expandTemplate(lyphs, template));
+        templates.forEach(template => delete template._inactive);
     }
 
     /**

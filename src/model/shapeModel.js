@@ -94,7 +94,7 @@ export class Lyph extends Shape {
      * @param template - lyph template
      */
     static expandTemplate(lyphs, template){
-        if (!template || template.inactive || !lyphs) { return; }
+        if (!template || template._inactive || !lyphs) { return; }
 
         //Validate subtype
         (template.subtypes||[]).forEach(s => {
@@ -107,7 +107,7 @@ export class Lyph extends Shape {
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
         subtypes.forEach(subtype => this.clone(lyphs, template, subtype));
 
-        template.inactive = true;
+        template._inactive = true;
     }
 
     /**

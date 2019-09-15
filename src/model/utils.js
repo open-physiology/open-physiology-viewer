@@ -184,6 +184,7 @@ const recurseSchema = (className, handler) => {
     }
 };
 
+
 export class SchemaClass {
     schemaClsName;
     defaultValues = {};
@@ -214,22 +215,36 @@ export class SchemaClass {
             this.propertyNames = this.properties.map(([key,]) => key);
             this.relationshipNames = this.relationships.map(([key,]) => key);
             this.relClassNames = this.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
+
             this.cudFields = this.fields.filter(([key, spec]) => !spec.readOnly);
             this.cudProperties = this.properties.filter(([key, spec]) => !spec.readOnly);
             this.cudRelationships = this.relationships.filter(([key, spec]) => !spec.readOnly);
         }
     }
 
+    /**
+     * Check whther the resource extends a given class
+     * @param clsName - class name
+     * @returns {boolean}
+     */
     extendsClass(clsName) {
         return (clsName === this.schemaClsName) || extendsClass(getRefs(this.schema), clsName);
     }
 
+    /**
+     * Get relationships that point to resources with given class names
+     * @param clsNames - resource class names
+     * @returns {any[]}
+     */
     filteredRelNames(clsNames){
-        return (this.relationships||[])
-            .filter(([key, spec]) => !clsNames.includes(getClassName(spec)))
-            .map(([key, ]) => key);
+        return (this.relationships||[]).filter(([key, spec]) => !clsNames.includes(getClassName(spec))).map(([key, ]) => key);
     }
 
+    /**
+     * Get relationship names that point to resources of a given class
+     * @param clsName - resource class name
+     * @returns {any[]}
+     */
     selectedRelNames(clsName){
         return (this.relClassNames::entries()||[]).filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
     }

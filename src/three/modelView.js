@@ -67,7 +67,7 @@ Group.prototype.updateViewObjects = function(state){
 
 
     (this.coalescences||[]).forEach(coalescence => {
-        if (coalescence.inactive || !coalescence.lyphs) { return }
+        if (coalescence.abstract || !coalescence.lyphs) { return }
         let lyph = coalescence.lyphs[0];
         if (!lyph || lyph.isTemplate ) { return; }
         for (let i = 1; i < coalescence.lyphs.length; i++) {

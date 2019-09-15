@@ -2,9 +2,6 @@ import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angul
 import { BrowserModule }    from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys } from "lodash-bound";
 
-//Angular Material
-import 'hammerjs';
-
 import {MatSnackBarModule, MatDialogModule, MatDialog} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -26,10 +23,9 @@ import { modelClasses, schema } from '../model/index';
 
 //TEST import external Graph
 //TODO add to package.json "open-physiology-model": "github:open-physiology/open-physiology-model",
-//import * as external from 'open-physiology-model'; ///dist/open-physiology-model-minimal
+//import * as external from 'open-physiology-model'; // /dist/open-physiology-model-minimal
+import 'hammerjs';
 
-
-//Styles
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/deeppurple-amber.css";
@@ -110,19 +106,19 @@ debug(true, msgCount);
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showResourceEditor && !_showJSONEditor"
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canOpenEditor"
                     (click)="openResourceEditor()" title="Open model editor">
                 <i class="fa fa-wpforms"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="!_showJSONEditor && !_showResourceEditor" 
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canOpenEditor" 
                     (click)="openEditor()" title="Open JSON editor">
                 <i class="fa fa-edit"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor"
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canCloseEditor"
                     (click)="closeEditor()" title="Close editor">
                 <i class="fa fa-window-close"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="_showJSONEditor || _showResourceEditor" (click)="preview()"
+            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canCloseEditor" (click)="preview()"
                     title="Apply changes">
                 <i class="fa fa-check"> </i>
             </button>
@@ -284,10 +280,6 @@ export class TestApp {
         this._showResourceEditor = true;
     }
 
-    closeResourceEditor(){
-        this._showResourceEditor = false;
-    }
-
     openEditor(){
         this._showJSONEditor = true;
 	}
@@ -335,6 +327,14 @@ export class TestApp {
 
     get graphData(){
 	    return this._graphData;
+    }
+
+    get canOpenEditor(){
+        return !this._showResourceEditor && !this._showJSONEditor
+    }
+
+    get canCloseEditor(){
+        return this._showJSONEditor || this._showResourceEditor;
     }
 
     onEditResource(resource){
@@ -395,7 +395,8 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, RelGraphModule],
+	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
+        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule],
 	declarations: [ TestApp, StopPropagation ],
     bootstrap   : [ TestApp ],
     providers   : [

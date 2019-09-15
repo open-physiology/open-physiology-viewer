@@ -159,6 +159,11 @@
           },
           "relatedTo": "externalTo"
         },
+        "generated": {
+          "description": "A boolean flag to mark automatically generated resources",
+          "type" : "boolean",
+          "readOnly" : true
+        },
         "assign": {
           "description": "Dynamically assign properties to selected resources",
           "type": "array",
@@ -174,7 +179,8 @@
                 "type": "object"
               }
             }
-          }
+          },
+          "advanced": true
         },
         "interpolate": {
           "description": "Dynamically apply property interpolation schemes to selected resources",
@@ -195,16 +201,8 @@
                 "$ref": "#/definitions/OffsetScheme"
               }
             }
-          }
-        },
-        "inactive": {
-          "description": "A boolean flag to indicate that this resource should not be manipulated in the appropriate context (i.e., lyph - highlighted, group - toggled, template - expanded)",
-          "type": "boolean"
-        },
-        "generated": {
-          "description": "A boolean flag to mark automatically generated resources",
-          "type" : "boolean",
-          "readOnly" : true
+          },
+          "advanced": true
         },
         "infoFields": {
           "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
@@ -212,7 +210,8 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "generated" ]
+          "default": [ "id", "name", "class", "generated" ],
+          "advanced": true
         }
       }
     },
@@ -245,6 +244,11 @@
           "description": "A flag to indicate that this resource should not be visualized",
           "type": "boolean"
         },
+        "inactive": {
+          "description": "A boolean flag to indicate that this visual resource should not be highlighted",
+          "type": "boolean",
+          "advanced": true
+        },
         "skipLabel": {
           "description": "A flag to indicate that this resource is visualized without the corresponding text label",
           "type": "boolean"
@@ -259,7 +263,8 @@
               "$ref": "#/definitions/VisualResource"
             }
           ],
-          "relatedTo": "clones"
+          "relatedTo": "clones",
+          "readOnly": true
         },
         "clones": {
           "description": "Resources that are clones of the current resource. This field is used to link the resource to all its clones. We clone nodes that are hosted by more than one lyph border,  and nodes, links and lyphs to generate an instance of an omega tree.",
@@ -274,7 +279,8 @@
               }
             ]
           },
-          "relatedTo": "cloneOf"
+          "relatedTo": "cloneOf",
+          "readOnly": true
         }
       }
     },
@@ -947,7 +953,8 @@
             {
               "$ref": "#/definitions/Material"
             }
-          ]
+          ],
+          "readOnly": true
         },
         "angle"          : {
           "description": "Angle (in degrees) to rotate the lyph around its axis",
@@ -1055,6 +1062,11 @@
           "enum": ["CONNECTING", "EMBEDDING"],
           "default": "CONNECTING"
         },
+        "abstract": {
+          "description": "A boolean flag to indicate that this coalescence is defined on abstract lyphs",
+          "type": "boolean",
+          "readOnly": true
+        },
         "generatedFrom"   : {
           "description": "Coalescence with abstract lyphs or materials which was used to generate the current coalescence",
           "anyOf": [
@@ -1064,7 +1076,8 @@
             {
               "$ref": "#/definitions/Coalescence"
             }
-          ]
+          ],
+          "readOnly": true
         },
         "lyphs": {
           "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
@@ -1293,6 +1306,11 @@
         "$ref": "#/definitions/Resource"
       }],
       "properties": {
+        "inactive": {
+          "description": "A boolean flag to indicate that this group should not appear in the view panel",
+          "type": "boolean",
+          "advanced": true
+        },
         "nodes": {
           "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
           "type": "array",
@@ -1461,7 +1479,8 @@
             {
               "$ref": "#/definitions/GroupTemplate"
             }
-          ]
+          ],
+          "readOnly": true
         }
       }
     },
@@ -1487,7 +1506,8 @@
                 "type": "string"
               }
             }
-          }
+          },
+          "advanced": true
         }
       }
     }

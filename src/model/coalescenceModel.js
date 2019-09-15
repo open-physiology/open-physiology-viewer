@@ -23,7 +23,7 @@ export class Coalescence extends Resource{
      * @param modelClasses - model resource classes
      */
     createInstances(parentGroup, modelClasses){
-        if (this.inactive) {return; }
+        if (this.abstract) {return; }
         let lyph = this.lyphs[0];
         if (!lyph) { return; }
         let lyphMap = {};
@@ -76,7 +76,7 @@ export class Coalescence extends Resource{
                 //it is ok to add newly create coalescences to the parent group coalescence set as they won't be further processed
                 parentGroup.coalescences.push(instance);
             });
-            this.inactive = true;
+            this.abstract = true;
         }
     }
 
@@ -84,7 +84,7 @@ export class Coalescence extends Resource{
      * Validate whether the lyphs in the coalescence template are allowed to coalesce (e.g., lyph layers cannot coalesce with their container, etc.)
      */
     validate(){
-        if (this.inactive || !this.lyphs) { return; }
+        if (this.abstract || !this.lyphs) { return; }
         let lyph = this.lyphs[0];
         if (!lyph) { return; }
 

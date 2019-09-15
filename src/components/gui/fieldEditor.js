@@ -12,7 +12,7 @@ import { cloneDeep, isObject} from 'lodash-bound';
 @Component({
     selector: 'fieldEditor',
     template: `
-        <section stop-propagation>
+        <section>
             <!--Input-->
             <mat-form-field *ngIf="_fieldType === 'input'">
                 <input matInput class="w3-input full-width"

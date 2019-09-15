@@ -408,7 +408,7 @@ export class WebGLSceneComponent {
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('dblclick', () => this.onDblClick(), false );
-        window.addEventListener('keydown'  , evt => this.onKeyDown(evt)  , false);
+        window.addEventListener('keydown'  , evt => this.onKeyDown(evt), false);
     }
 
     resizeToDisplaySize() {
@@ -589,7 +589,6 @@ export class WebGLSceneComponent {
     onKeyDown(evt) {
         let keyCode = evt.which;
         if (evt.ctrlKey) {
-            evt.preventDefault();
             switch (keyCode) {
                 case 37: // Left arrow
                     break;
@@ -618,7 +617,6 @@ export class WebGLSceneComponent {
                 }
             }
         }
-
     }
 
     zoom(delta) {
