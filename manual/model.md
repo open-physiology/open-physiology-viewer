@@ -326,6 +326,7 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
          }
     ] 
  ```
+
  <img src="asset/cardiac.png" width="75%" alt = "Lyph templates">
  
  Note that inheriting layer structure from the lyph template differs from assigning layers explicitly to all subtype lyphs, either individually or via the group's `assign` property. A lyph with the same ID cannot be used as a layer in two different  lyphs, that would imply that the same graphical object should appear in two different positions, and its dimensions and other context-dependent properties may vary as well. The code above instead implies that we replicate each of three template layers six times, i.e., 18 new lyphs are auto-generated and added to the model for the specification above.  
