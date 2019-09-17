@@ -142,7 +142,8 @@
         },
         "comment": {
           "description": "Resource description, comments, modeling assumptions, etc.",
-          "type": "string"
+          "type": "string",
+          "advanced": true
         },
         "external": {
           "description": "Identifier of the resource in an external ontology (i.e., ID of an FMA term) ",
@@ -226,7 +227,8 @@
             {
               "$ref": "#/definitions/RGBColorScheme"
             }
-          ]
+          ],
+          "advanced": true
         },
         "viewObjects": {
           "description": "Graphical objects that represent the resource",
@@ -242,7 +244,8 @@
         },
         "hidden": {
           "description": "A flag to indicate that this resource should not be visualized",
-          "type": "boolean"
+          "type": "boolean",
+          "advanced": true
         },
         "inactive": {
           "description": "A boolean flag to indicate that this visual resource should not be highlighted",
@@ -251,7 +254,8 @@
         },
         "skipLabel": {
           "description": "A flag to indicate that this resource is visualized without the corresponding text label",
-          "type": "boolean"
+          "type": "boolean",
+          "advanced": true
         },
         "cloneOf": {
           "description": "A resource that was copied to create the current resource. This field is used to link resource clones to the original resource. We clone nodes that are hosted by more than one lyph border, and nodes, links and lyphs to generate an instance of an omega tree.",
@@ -309,7 +313,8 @@
               }
             ]
           },
-          "relatedTo": "external"
+          "relatedTo": "external",
+          "advanced": true
         }
       }
     },
@@ -363,7 +368,8 @@
                 "$ref": "#/definitions/Node"
               }
             ]
-          }
+          },
+          "advanced": true
         },
         "layout": {
           "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
@@ -409,7 +415,8 @@
               }
             ]
           },
-          "relatedTo": "source"
+          "relatedTo": "source",
+          "advanced": true
         },
         "targetOf": {
           "description": "Links that end in this node",
@@ -424,7 +431,8 @@
               }
             ]
           },
-          "relatedTo": "target"
+          "relatedTo": "target",
+          "advanced": true
         }
       }
     },
@@ -518,7 +526,8 @@
               "$ref": "#/definitions/Border"
             }
           ],
-          "relatedTo": "borders"
+          "relatedTo": "borders",
+          "advanced": true
         },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
@@ -540,7 +549,10 @@
         },
         "collapsible"  : {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
-          "type": "boolean"
+          "type": "boolean",
+          "readOnly": true,
+          "advanced": true
+
         },
         "geometry"     : {
           "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
@@ -566,12 +578,14 @@
         "directed"     : {
           "description": "When set to true, defines a directed edge with arrow at the end",
           "type": "boolean",
-          "default": false
+          "default": false,
+          "advanced": true
         },
         "reversed"     : {
           "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
           "type": "boolean",
-          "default": false
+          "default": false,
+          "advanced": true
         },
         "stroke"       : {
           "description": "Property that defined appearance of the link: `dashed` corresponds to a dashed line while `thick` is an indication for the tool to use a special shader to draw thick lines",
@@ -580,16 +594,19 @@
             "dashed",
             "thick"
           ],
-          "default": ""
+          "default": "",
+          "advanced": true
         },
         "lineWidth"    : {
           "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
           "type": "number",
-          "default": "0.003"
+          "default": "0.003",
+          "advanced": true
         },
         "strength"     : {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
-          "type": "number"
+          "type": "number",
+          "advanced": true
         }
       },
       "dependencies" : {
@@ -630,7 +647,8 @@
               }
             ]
           },
-          "relatedTo": "materials"
+          "relatedTo": "materials",
+          "advanced": true
         },
         "transportedBy": {
           "description": "Channels that transfer the current material",
@@ -645,7 +663,8 @@
               }
             ]
           },
-          "relatedTo": "materials"
+          "relatedTo": "materials",
+          "advanced": true
         }
       }
     },
@@ -667,19 +686,23 @@
             }
           ],
           "relatedTo": "host",
-          "default": {}
+          "default": {},
+          "advanced": true
         },
         "points": {
           "description": "Points defining the border shape",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Point2Scheme"
-          }
+          },
+          "readOnly": true,
+          "advanced": true
         },
         "internalLyphColumns": {
           "description": "Defines number of columns in the grid layout for the internal lyphs",
           "type": "number",
-          "default": 1
+          "default": 1,
+          "advanced": true
         },
         "internalLyphs": {
           "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
@@ -725,7 +748,8 @@
               }
             ]
           },
-          "relatedTo": "hostedBy"
+          "relatedTo": "hostedBy",
+          "advanced": true
         }
       }
     },
@@ -757,6 +781,10 @@
             "CYST"
           ]
         },
+        "isTemplate"     : {
+          "description": "Indicates that the lyph defines layers for its subtypes",
+          "type": "boolean"
+        },
         "thickness"      : {
           "description": "Anatomical lyph thickness defined in the form of power of 1/10",
           "type": "object",
@@ -787,10 +815,6 @@
           },
           "default": {}
         },
-        "isTemplate"     : {
-          "description": "Indicates that the lyph defines layers for its subtypes",
-          "type": "boolean"
-        },
         "subtypes"       : {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
           "type": "array",
@@ -804,7 +828,8 @@
               }
             ]
           },
-          "relatedTo": "supertype"
+          "relatedTo": "supertype",
+          "advanced": true
         },
         "supertype"      : {
           "description": "Lyph which is an anatomical supertype of the given lyph",
@@ -828,7 +853,8 @@
               "$ref": "#/definitions/Link"
             }
           ],
-          "relatedTo": "conveyingLyph"
+          "relatedTo": "conveyingLyph",
+          "advanced": true
         },
         "layers"         : {
           "description": "Lyph layers",
@@ -857,7 +883,8 @@
             }
           ],
           "relatedTo": "layers",
-          "readOnly" : true
+          "readOnly" : true,
+          "advanced": true
         },
         "internalIn"     : {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -869,7 +896,8 @@
               "$ref": "#/definitions/Shape"
             }
           ],
-          "relatedTo": "internalLyphs"
+          "relatedTo": "internalLyphs",
+          "advanced": true
         },
         "hostedBy"       : {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -881,7 +909,8 @@
               "$ref": "#/definitions/Shape"
             }
           ],
-          "relatedTo": "hostedLyphs"
+          "relatedTo": "hostedLyphs",
+          "advanced": true
         },
         "inCoalescences" : {
           "description": "A set of coalescences that include the current lyph",
@@ -897,7 +926,8 @@
             ]
           },
           "relatedTo": "lyphs",
-          "default": []
+          "default": [],
+          "advanced": true
         },
         "channels"       : {
           "description": "ID or reference of the channel which this lyph houses",
@@ -954,13 +984,15 @@
               "$ref": "#/definitions/Material"
             }
           ],
-          "readOnly": true
+          "readOnly": true,
+          "advanced": true
         },
         "angle"          : {
           "description": "Angle (in degrees) to rotate the lyph around its axis",
           "type"   : "number",
           "minimum" : 0,
-          "maximum" : 360
+          "maximum" : 360,
+          "advanced": true
         },
         "infoFields"     : {
           "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
@@ -968,19 +1000,22 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment", "supertype", "cloneOf", "generated"]
+          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment", "supertype", "cloneOf", "generated"],
+          "advanced": true
         },
         "width"          : {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
           "type": "number",
           "minimum": 0,
-          "maximum": 100
+          "maximum": 100,
+          "advanced": true
         },
         "height"         : {
           "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
           "type": "number",
           "minimum": 0,
-          "maximum": 100
+          "maximum": 100,
+          "advanced": true
         },
         "scale"          : {
           "description": "Defines the size of the conveying lyph as percentage of its axis' length",
@@ -1000,17 +1035,20 @@
           "default": {
             "width": 40,
             "height": 80
-          }
+          },
+          "advanced": true
         },
         "create3d"       : {
           "description": "Create 3d visual objects for this lyph",
-          "type": "boolean"
+          "type": "boolean",
+          "advanced": true
         },
         "layerWidth"     : {
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
           "type": "number",
           "minimum": 0,
-          "maximum": 100
+          "maximum": 100,
+          "advanced": true
         }
       }
     },
@@ -1077,7 +1115,8 @@
               "$ref": "#/definitions/Coalescence"
             }
           ],
-          "readOnly": true
+          "readOnly": true,
+          "advanced": true
         },
         "lyphs": {
           "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
@@ -1119,7 +1158,8 @@
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
           "type"       : "number",
           "minimum"    : 0,
-          "maximum"    : 100
+          "maximum"    : 100,
+          "advanced"   : true
         }
       }
     },
@@ -1167,7 +1207,8 @@
           "items": {
             "$ref": "#/definitions/Group"
           },
-          "readOnly": true
+          "readOnly": true,
+          "advanced": true
         }
       }
     },
@@ -1274,7 +1315,8 @@
         "numInstances"    : {
           "description": "Indicates how many tree instances to create",
           "type"       : "number",
-          "default"    : 0
+          "default"    : 0,
+          "advanced"   : true
         },
         "instances"       : {
           "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
@@ -1282,7 +1324,8 @@
           "items": {
             "$ref": "#/definitions/Group"
           },
-          "readOnly": true
+          "readOnly": true,
+          "advanced": true
         },
         "housingLyphs"    : {
           "description": "A set of lyphs that house the tree",

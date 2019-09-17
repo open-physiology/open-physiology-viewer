@@ -39,16 +39,18 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
                     
                     <!--Properties-->
                     <mat-tab class="w3-margin" label="main">
-                        <section *ngFor="let field of _propertyFields"> 
-                            <fieldEditor
-                                    [value]="resource[field[0]]"
-                                    [label]="field[0]"
-                                    [spec] ="field[1]"
-                                    [disabled]=  "disabled"
-                                    (onValueChange)="updateValue(field, $event)"
-                            >
-                            </fieldEditor>
-                        </section>
+                        <mat-card class="w3-margin w3-card">
+                            <section *ngFor="let field of _propertyFields"> 
+                                <fieldEditor
+                                        [value]="resource[field[0]]"
+                                        [label]="field[0]"
+                                        [spec] ="field[1]"
+                                        [disabled]=  "disabled"
+                                        (onValueChange)="updateValue(field, $event)"
+                                >
+                                </fieldEditor>
+                            </section>
+                        </mat-card>
                     </mat-tab>
                     
                     <mat-tab *ngFor="let field of _relationshipFields; let k = index;" 
@@ -62,6 +64,7 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
                         <mat-card class="w3-margin w3-card">
                             <fieldTableEditor
                                     [dataSource]="resource[field[0]] | objToMatTableDataSource"
+                                    [dataModel]="getFieldModel(field[1])"
                                     [showExternal]="field[0] === 'external'"
                                     [disabled]="disabled" 
                                     (removeRelationship)="removeRelationship(field, $event.table, $event.index)"
@@ -137,8 +140,8 @@ export class ResourceEditor {
         }
     }
 
-    getDisplayedColumns(){
-
+    getFieldModel(spec){
+        return this.modelClasses[getClassName(spec)].Model;
     }
 
     /**
