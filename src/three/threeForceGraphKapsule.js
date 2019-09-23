@@ -25,7 +25,6 @@ export default Kapsule({
             onChange(numDim, state) {
                 if (numDim < 3) {
                     eraseDimension(state.graphData.visibleNodes, 'z');
-                    console.log("Dimension erased!");
                 }
 
                 function eraseDimension(nodes, dim) {

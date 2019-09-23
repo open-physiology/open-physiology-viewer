@@ -102,7 +102,7 @@ export class ExternalSelectDialog {
                 : `${this.data.baseURL}search/${this.searchTerm}?prefix=${this.data.type}`;
 
         this.http.get(url).subscribe(res => {
-                this._annotations = res;
+                this._annotations = res.map(x => x.concept? x.concept: x);
                 this.selected = {};
                 console.info("HTTP Request succeeded: ", res);
             }

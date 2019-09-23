@@ -244,7 +244,6 @@ export class WebGLSceneComponent {
     _searchOptions;
     _selectedName = "";
 
-
     graph;
     helpers   = {};
     highlightColor = 0xff0000;
@@ -645,7 +644,6 @@ export class WebGLSceneComponent {
 
     toggleMode(){
         this.config.layout.numDimensions = (this.config.layout.numDimensions === 3)? 2: 3;
-        console.log("Toggling mode:", this.config.layout.numDimensions);
         if (this.graph){
             this.graph.numDimensions(this.config.layout.numDimensions);
         }

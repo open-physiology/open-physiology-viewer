@@ -299,7 +299,7 @@ export class Group extends Resource {
             let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames);
             relFieldNames.forEach(property => {
                 this[property] = (this[property]||[])::unionBy(group[property], "id");
-            this[property] = this[property].filter(x => x.class);
+                this[property] = this[property].filter(x => x.class);
             });
         });
 

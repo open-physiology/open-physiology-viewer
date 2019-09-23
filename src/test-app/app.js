@@ -2,7 +2,7 @@ import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angul
 import { BrowserModule }    from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys } from "lodash-bound";
 
-import {MatSnackBarModule, MatDialogModule, MatDialog} from '@angular/material';
+import {MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 //JSON Editor
@@ -93,7 +93,7 @@ debug(true, msgCount);
 
         <!--Left toolbar-->
 
-        <section id="left-toolbar" class="w3-sidebar w3-bar-block">
+        <section class="w3-sidebar w3-bar-block vertical-toolbar">
             <input #fileInput
                     type   = "file"
                     accept = ".json,.xlsx"
@@ -106,30 +106,6 @@ debug(true, msgCount);
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canOpenEditor"
-                    (click)="openResourceEditor()" title="Open model editor">
-                <i class="fa fa-wpforms"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canOpenEditor" 
-                    (click)="openEditor()" title="Open JSON editor">
-                <i class="fa fa-edit"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canCloseEditor"
-                    (click)="closeEditor()" title="Close editor">
-                <i class="fa fa-window-close"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" *ngIf="canCloseEditor" (click)="preview()"
-                    title="Apply changes">
-                <i class="fa fa-check"> </i>
-            </button>
-            <button *ngIf="!showRelGraph" class="w3-bar-item w3-hover-light-grey"
-                    (click)="toggleRelGraph()" title="Show resource relationships">
-                <i class="fa fa-crosshairs"> </i>
-            </button>
-            <button *ngIf="showRelGraph" class="w3-bar-item w3-hover-light-grey"
-                    (click)="toggleRelGraph()" title="Show ApiNATOMY model">
-                <i class="fa fa-heartbeat"> </i>
-            </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i>
             </button>
@@ -137,32 +113,65 @@ debug(true, msgCount);
 
         <!--Editor and canvas-->
         
-        <section class="main-panel">
-            <section class="w3-row" *ngIf="_showResourceEditor">
-                <resourceEditor 
-                        [modelClasses]   = "modelClasses"
-                        [modelResources] = "_graphData.entitiesByID || {}"
-                        [resource]       = "_model"
-                        className        = "Graph"
-                >
-                </resourceEditor>
-            </section>
-            <section class="w3-row">
-                <section #jsonEditor id="json-editor" [hidden] = "!_showJSONEditor" class ="w3-quarter"> </section>
-                <relGraph *ngIf = "showRelGraph" 
-                          [class.w3-threequarter] = "_showJSONEditor" 
-                          [graphData] = "_graphData" 
-                > 
-                </relGraph>
-                <webGLScene [hidden] = "showRelGraph"
-                        [class.w3-threequarter] = "_showJSONEditor"
-                        [modelClasses]          = "modelClasses"
-                        [graphData]             = "_graphData"
-                        (selectedItemChange)    = "onSelectedItemChange($event)"
-                        (highlightedItemChange) = "onHighlightedItemChange($event)"
-                        (editResource)          = "onEditResource($event)" >
-                </webGLScene>
-            </section>
+        <section id="main-panel">
+            <mat-tab-group animationDuration="0ms">
+                <!--Viewer-->
+                <mat-tab class="w3-margin">
+                    <ng-template mat-tab-label>
+                        <i class="fa fa-heartbeat"> Viewer </i>
+                    </ng-template>
+                    <webGLScene
+                            [modelClasses]          = "modelClasses"
+                            [graphData]             = "_graphData"
+                            (selectedItemChange)    = "onSelectedItemChange($event)"
+                            (highlightedItemChange) = "onHighlightedItemChange($event)"
+                            (editResource)          = "onEditResource($event)" >
+                    </webGLScene>
+                </mat-tab>
+
+                <!--Table editor-->
+                <mat-tab class="w3-margin">
+                    <ng-template mat-tab-label>
+                        <i class="fa fa-wpforms"> Resources </i>
+                    </ng-template>
+                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyTableEditorChanges()" title="Apply changes">
+                            <i class="fa fa-check"> </i>
+                        </button>
+                    </section>
+                    <section id="resource-editor">
+                        <resourceEditor
+                            [modelClasses]   = "modelClasses"
+                            [modelResources] = "_graphData.entitiesByID || {}"
+                            [resource]       = "_model"
+                            className        = "Graph"
+                        >
+                        </resourceEditor>
+                    </section>
+                </mat-tab>
+
+                <!--Code editor-->
+                <mat-tab class="w3-margin" label="Code editor">
+                    <ng-template mat-tab-label>
+                        <i class="fa fa-edit"> Code </i>
+                    </ng-template>
+                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()" title="Apply changes">
+                            <i class="fa fa-check"> </i>
+                        </button>
+                    </section>
+                    <section #jsonEditor id="json-editor" > </section>
+                </mat-tab>
+
+                <!--Relationship graph-->
+                <mat-tab class="w3-margin">
+                    <ng-template mat-tab-label>
+                        <i class="fa fa-crosshairs"> Relationship graph </i>
+                    </ng-template>
+                    <relGraph [graphData] = "_graphData"></relGraph>
+                </mat-tab>
+
+            </mat-tab-group>
         </section>
 
 
@@ -178,23 +187,26 @@ debug(true, msgCount);
         </footer>
     `,
     styles: [`
-        #left-toolbar{
+        .vertical-toolbar{
             width : 48px; 
-            left  : 0;
-            top   : 40px; 
-            bottom: 30px;
         }
-        
-        #json-editor{
-            height: 100vh;    
-        }
-        
-        .main-panel{            
+               
+        #main-panel{            
             margin-left: 48px; 
             width      : calc(100% - 48px);
             margin-top : 40px;
         }
+
+        #json-editor{
+            height : 100vh;
+            width  : calc(100% - 48px);
+        }
         
+        #resource-editor{
+            height : 100vh;
+            width  : calc(100% - 48px);
+        }
+
         footer{
             margin-top: 10px;
         }
@@ -202,8 +214,6 @@ debug(true, msgCount);
 })
 export class TestApp {
     _graphData;
-    _showJSONEditor     = false;
-    _showResourceEditor = false;
     _model = {};
     _dialog;
     _editor;
@@ -276,27 +286,14 @@ export class TestApp {
         msgCount = {};
 	}
 
-    openResourceEditor(){
-        this._showResourceEditor = true;
-    }
-
-    openEditor(){
-        this._showJSONEditor = true;
-	}
-
-	closeEditor(){
-        this._showJSONEditor = this._showResourceEditor = false;
-	}
-
-	preview(){
-        if (this._showJSONEditor){
-            this._showJSONEditor = false;
+	applyJSONEditorChanges() {
+        if (this._editor){
             this.model = this._editor.get();
         }
-        if (this._showResourceEditor){
-            this._showResourceEditor = false;
-            this.model = this._model;
-        }
+    }
+
+    applyTableEditorChanges(){
+        this.model = this._model;
     }
 
     save(){
@@ -313,9 +310,6 @@ export class TestApp {
         this._model = model;
         try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
-
-            //let testModel = external.modelClasses.Graph.fromJSON(this._model, external.modelClasses);
-
         } catch(err){
             console.error(err.stack);
             throw new Error("Failed to process the model: " +  err);
@@ -329,16 +323,7 @@ export class TestApp {
 	    return this._graphData;
     }
 
-    get canOpenEditor(){
-        return !this._showResourceEditor && !this._showJSONEditor
-    }
-
-    get canCloseEditor(){
-        return this._showJSONEditor || this._showResourceEditor;
-    }
-
     onEditResource(resource){
-
         function findResourceDef(obj, parent, key) {
             if (!obj) { return; }
             let result = null;
@@ -385,10 +370,6 @@ export class TestApp {
             }
         });
     }
-
-    toggleRelGraph(){
-        this.showRelGraph = !this.showRelGraph;
-    }
 }
 
 /**
@@ -396,7 +377,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
-        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule],
+        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule],
 	declarations: [ TestApp, StopPropagation ],
     bootstrap   : [ TestApp ],
     providers   : [

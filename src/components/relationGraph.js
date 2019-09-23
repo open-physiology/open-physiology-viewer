@@ -22,8 +22,7 @@ import {SearchBarModule} from "./gui/searchBar";
                                accept = ".json"
                                [style.display] = "'none'"
                                (change) = "load(fileInput.files)"
-                        />
-    
+                        />    
                         <button class="w3-bar-item w3-hover-light-grey" (click)="draw()"
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
@@ -46,7 +45,7 @@ import {SearchBarModule} from "./gui/searchBar";
                         </button>
                     </section>
     
-                    <svg #svg [attr.width.px]="width" [attr.height.px]="height"> </svg>
+                    <svg #svg> </svg>
             </section>            
             <section id="settingsPanel" [hidden]="!showPanel" class="w3-quarter">
                 <svg #legendSvg></svg>
@@ -90,6 +89,11 @@ import {SearchBarModule} from "./gui/searchBar";
         #svgPanel {
             height: 100vh;
         }
+
+        #svgContainer{
+            height: 100vh;
+        }
+        
         .tooltip {
             position: absolute;
             padding: 2px;
@@ -123,6 +127,7 @@ import {SearchBarModule} from "./gui/searchBar";
  */
 export class RelGraph {
     @ViewChild('svg') svgRef: ElementRef;
+    @ViewChild('svgContainer') svgContainer: ElementRef;
     @ViewChild('legendSvg') legendSvgRef: ElementRef;
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
@@ -133,8 +138,10 @@ export class RelGraph {
     _searchOptions;
     _selectedName = "";
 
+    // width = 0;
+    // height = 0;
+
     data = { nodes: [], links: [] };
-    width = 1000; height = 600;
 
     nodeTypes = {
         "Lyph"                  : {color: "#FF0000", shape: "circle", attrs: {"r": 5}},
@@ -235,7 +242,6 @@ export class RelGraph {
                     this.data.links.push({"source": lyph.id, "target": coalescence.id, "type" : "coalescence"})
                 })
             });
-            this.resizeToDisplaySize();
         }
     }
 
@@ -244,17 +250,15 @@ export class RelGraph {
     }
 
     ngAfterViewInit() {
-        this.svgContainer = document.getElementById('svgContainer');
-        window.addEventListener('resize', evt => this.resizeToDisplaySize(), false);
+        this.resizeToDisplaySize();
+        window.addEventListener('resize', () => this.resizeToDisplaySize(), false);
         this.drawLegend();
     }
 
     resizeToDisplaySize() {
-        if (this.svgContainer && this.svgContainer.clientWidth && this.svgContainer.clientHeight){
-            this.width  = this.svgContainer.clientWidth;
-            this.height = this.svgContainer.clientHeight;
-            this.draw();
-        }
+        this.width  = this.svgContainer.nativeElement.clientWidth;
+        this.height = this.svgContainer.nativeElement.clientHeight;
+        this.draw();
     }
 
     draw() {

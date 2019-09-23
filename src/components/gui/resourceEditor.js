@@ -16,78 +16,72 @@ import {getClassName} from '../../model/index';
 import {annotations} from "./config";
 import {FieldTableEditorModule} from "./fieldTableEditor";
 
-
 @Component({
     selector: 'resourceEditor',
     template: `
-        <mat-expansion-panel [expanded]="expanded">
-            <!--Header-->
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    {{className}}: {{resource?.id || "?"}} - {{resource?.name || "?"}}
-                </mat-panel-title>
-                <mat-panel-description *ngIf="modelClasses[className]?.description">
-                    {{modelClasses[className].description}}
-                </mat-panel-description>
+        <mat-card class="w3-grey">
+            <mat-expansion-panel [expanded]="expanded">
+                <!--Header-->
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        {{className}}: {{resource?.id || "?"}} - {{resource?.name || "?"}}
+                    </mat-panel-title>
+                    <mat-panel-description *ngIf="modelClasses[className]?.description">
+                        {{modelClasses[className].description}}
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
 
-            </mat-expansion-panel-header>
+                <!--Relationships-->
+                <mat-card class="w3-grey">
+                    <mat-tab-group animationDuration="0ms">
 
-            
-            <!--Relationships-->
-            <mat-card class="w3-margin w3-grey">
-                <mat-tab-group animationDuration="0ms">
-                    
-                    <!--Properties-->
-                    <mat-tab class="w3-margin" label="main">
-                        <mat-card class="w3-margin w3-card">
-                            <section *ngFor="let field of _propertyFields"> 
-                                <fieldEditor
-                                        [value]="resource[field[0]]"
-                                        [label]="field[0]"
-                                        [spec] ="field[1]"
-                                        [disabled]=  "disabled"
-                                        (onValueChange)="updateValue(field, $event)"
+                        <!--Properties-->
+                        <mat-tab label="main">
+                            <mat-card class="w3-card">
+                                <section *ngFor="let field of _propertyFields">
+                                    <fieldEditor
+                                            [value]="resource[field[0]]"
+                                            [label]="field[0]"
+                                            [spec]="field[1]"
+                                            [disabled]="disabled"
+                                            (onValueChange)="updateValue(field, $event)"
+                                    >
+                                    </fieldEditor>
+                                </section>
+                            </mat-card>
+                        </mat-tab>
+
+                        <mat-tab *ngFor="let field of _relationshipFields">
+                            <ng-template mat-tab-label>
+                                <span [matTooltip]="field[1]?.description">
+                                    {{field[0]}}                                    
+                                </span>
+                            </ng-template>
+
+                            <mat-card class="w3-card">
+                                <fieldTableEditor
+                                        [dataSource]="resource[field[0]] | objToMatTableDataSource"
+                                        [dataModel]="getFieldModel(field[1])"
+                                        [showExternal]="showExternal(field[1])"
+                                        [disabled]="disabled"
+                                        (onEditRelatedResource)="editRelatedResource(field, $event)"
+                                        (onCreateRelatedResource)="createRelatedResource(field)"
+                                        (onCreateRelationship)="createRelationship(field)"
+                                        (onCreateExternalResource)="createExternalResource(field)"
                                 >
-                                </fieldEditor>
-                            </section>
-                        </mat-card>
-                    </mat-tab>
-                    
-                    <mat-tab *ngFor="let field of _relationshipFields; let k = index;" 
-                             class="w3-margin-bottom" 
-                             [label]="field[0]"
-                    >
-                        <span [matTooltip]="field[1]?.description" class="w3-right"> 
-                            <i class="fa fa-info-circle w3-left w3-padding-small"></i>
-                        </span>
-
-                        <mat-card class="w3-margin w3-card">
-                            <fieldTableEditor
-                                    [dataSource]="resource[field[0]] | objToMatTableDataSource"
-                                    [dataModel]="getFieldModel(field[1])"
-                                    [showExternal]="field[0] === 'external'"
-                                    [disabled]="disabled" 
-                                    (removeRelationship)="removeRelationship(field, $event.table, $event.index)"
-                                    (editRelatedResource)="editRelatedResource(field, $event.table, $event.index)"
-                                    (createRelatedResource)="createRelatedResource(field, $event)"
-                                    (createRelationship)="createRelationship(field, $event)"
-                                    (createExternalResource)="createExternalResource(field, $event)"
-                            >
-                            </fieldTableEditor>
-                        </mat-card> 
-                    </mat-tab>
-                </mat-tab-group>    
-            </mat-card>
-        </mat-expansion-panel>
+                                </fieldTableEditor>
+                            </mat-card>
+                        </mat-tab>
+                    </mat-tab-group>
+                </mat-card>
+            </mat-expansion-panel>
+        </mat-card>
     `,
     styles: [`
-        table {
-          width: 100%;
-        }
         ::ng-deep.mat-tab-label, ::ng-deep.mat-tab-label-active{
              min-width: 0!important;
              padding: 4px!important;
-             margin: 4px!important;
+             height: 32px!important;
         }
     `]
 })
@@ -97,7 +91,7 @@ export class ResourceEditor {
     _relationshipFields = [];
     dialog: MatDialog;
 
-    @Input() expanded = false;
+    @Input() expanded = true;
     @Input() modelClasses;
     @Input() modelResources;
     @Input() resource;
@@ -144,6 +138,10 @@ export class ResourceEditor {
         return this.modelClasses[getClassName(spec)].Model;
     }
 
+    showExternal(spec){
+        return getClassName(spec) === this.modelClasses.External.name;
+    }
+
     /**
      * Update resource property
      * @param {string} key  - resource field
@@ -155,41 +153,13 @@ export class ResourceEditor {
     }
 
     /**
-     * Remove relationship by removing a related resource from the given field
-     * @param {string} key  - resource field that points to the other resource in the relationship
-     * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
-     * @param {number} [index = 0] - index of the related resource
-     */
-    removeRelationship([key, spec], table, index = 0){
-        let id;
-        if (spec.type === "array"){
-            if (this.resource[key][index]::isPlainObject()){
-                id = this.resource[key][index].id;
-            }
-            this.resource[key].splice(index, 1);
-        } else {
-            if (this.resource[key]::isPlainObject()){
-                id = this.resource[key].id;
-            }
-            delete this.resource[key];
-        }
-        //remove object from the reference map if its definition was removed
-        if (id && this.modelResources[id]) {
-            delete this.modelResources[id];
-        }
-        if (table) {
-            table.renderRows();
-        }
-    }
-
-    /**
      * Update a relationship by modifying the resource assigned to the given field
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
-     * @param {number} [index = 0] - index of the related resource
+     * @param {number} index - index of the element to edit (use 0 if resource[key] implies one resource).
      */
-    editRelatedResource([key, spec], table, index = 0){
-        let obj = this.resource[key][index]::cloneDeep();
+    editRelatedResource([key, spec], index){
+        let obj = [...this.resource[key]][index]::cloneDeep();
         let className = getClassName(spec);
         const dialogRef = this.dialog.open(ResourceEditorDialog, {
             width: '75%',
@@ -208,11 +178,9 @@ export class ResourceEditor {
             if (result){
                 if (spec.type === "array"){
                     this.resource[key][index] = result;
+                    this.resource[key] = [...this.resource[key]];
                 } else {
                     this.resource[key] = result;
-                }
-                if (table) {
-                    table.renderRows();
                 }
             }
         });
@@ -256,7 +224,7 @@ export class ResourceEditor {
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      */
-    createRelatedResource([key, spec], table) {
+    createRelatedResource([key, spec]) {
         let className = getClassName(spec);
 
         const dialogRef = this.dialog.open(ResourceEditorDialog, {
@@ -273,9 +241,9 @@ export class ResourceEditor {
 
         dialogRef.afterClosed().subscribe(result => {
             if (!this._validateField([key, spec], result)){ return; }
-
             if (spec.type === "array"){
                 this.resource[key].push(result); //add new resource object
+                this.resource[key] = [...this.resource[key]];
             } else {
                 this.resource[key] = result; //assign new resource object
             }
@@ -283,9 +251,6 @@ export class ResourceEditor {
             //Add newly created resource to the global map to enable the possibility to refer to it
             if (!result["class"]){ result::merge({"class": className}); }
             this.modelResources[result.id] = result;
-            if (table) {
-                table.renderRows();
-            }
         })
     }
 
@@ -294,7 +259,7 @@ export class ResourceEditor {
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      */
-    createRelationship([key, spec], table) {
+    createRelationship([key, spec]) {
         let className = getClassName(spec);
 
         const dialogRef = this.dialog.open(ResourceSelectDialog, {
@@ -311,17 +276,11 @@ export class ResourceEditor {
 
         dialogRef.afterClosed().subscribe(result => {
             if (!this._validateField([key, spec], result)){ return; }
-
-            console.log("Pushing:", result);
-
             if (spec.type === "array"){
                 this.resource[key].push(result); //add ID of an existing resource
+                this.resource[key] = [...this.resource[key]];
             } else {
-                //TODO generate error is this contradicts previous model?
                 this.resource[key] = result;  //assign ID of an existing resource
-            }
-            if (table) {
-                table.renderRows();
             }
         })
     }
@@ -330,7 +289,7 @@ export class ResourceEditor {
      * Create external resource
      * @param {string} key - relationship name
      */
-    createExternalResource([key, ], table) {
+    createExternalResource([key, ]) {
         let config = {
             title   : `Link new external resource?`
         }::merge(annotations);
@@ -357,9 +316,7 @@ export class ResourceEditor {
                 } else {
                     this.resource[key].push(resource.id);
                 }
-                if (table){
-                    table.renderRows();
-                }
+                this.resource[key] = [...this.resource[key]];
             });
         })
     }

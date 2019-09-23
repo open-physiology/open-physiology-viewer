@@ -54,8 +54,6 @@ export class ResourceSelectDialog {
     selectBySearch(name) {
         let resource = (this.data.modelResources::values()||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
         this.data.id = resource.id; //show original user definition instead of the expanded version if available
-        delete this.data.external;
-
     }
 }
 

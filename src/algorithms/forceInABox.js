@@ -299,7 +299,6 @@ function forceInABox() {
       );
 
     // console.log("Initialize with force ", templateForce.nodes().length, " ", templateForce.force("links").links().length);
-
     // var i = 0;
     // while (i++ < 500) templateForce.tick();
 
