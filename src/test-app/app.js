@@ -111,7 +111,7 @@ debug(true, msgCount);
             </button>
         </section>
 
-        <!--Editor and canvas-->
+        <!--Views-->
         
         <section id="main-panel">
             <mat-tab-group animationDuration="0ms">

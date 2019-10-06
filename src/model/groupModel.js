@@ -4,6 +4,7 @@ import {Link, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
 import {addColor} from './utils';
 import {logger} from './logger';
+import {Villus} from "./groupTemplateModel";
 
 const groupClsNames = ["Graph", "Group"];
 
@@ -39,6 +40,8 @@ export class Group extends Resource {
 
         //create lyphs that inherit properties from templates
         this.expandLyphTemplates(json.lyphs);
+
+        this.generateVilli(json);
 
         /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
 
@@ -172,7 +175,7 @@ export class Group extends Resource {
     static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
         let relClassNames = modelClasses[this.name].Model.relClassNames;
-         ["trees", "channels", "chains"].forEach(relName => {
+        ["trees", "channels", "chains"].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)
@@ -182,7 +185,7 @@ export class Group extends Resource {
                     modelClasses[clsName].expandTemplate(json, field);
                 }
             );
-        })
+        });
     }
 
     /**
@@ -216,6 +219,19 @@ export class Group extends Resource {
         let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
         templates.forEach(template => Lyph.expandTemplate(lyphs, template));
         templates.forEach(template => delete template._inactive);
+    }
+
+
+    /**
+     * Generate subgraphs to model villi
+     * @param lyphs
+     */
+    static generateVilli(json){
+        let lyphsWithVillus = (json.lyphs||[]).filter(lyph => lyph.villus);
+        lyphsWithVillus.forEach(lyph => {
+            lyph.villus.villusOf = lyph.id;
+            Villus.expandTemplate(json, lyph.villus);
+        })
     }
 
     /**

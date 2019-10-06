@@ -1,0 +1,1365 @@
+{
+  "nodes": [
+    {
+      "id": "node1D",
+      "name": "Ureterovesical junction",
+      "external": [
+        "UBERON:0009973"
+      ]
+    },
+    {
+      "id": "node1I",
+      "name": "Cribriform area",
+      "external": [
+        "FMA:74311"
+      ]
+    },
+    {
+      "id": "node1B",
+      "name": "Internal urethral orifice",
+      "external": [
+        "UBERON:0012242"
+      ]
+    },
+    {
+      "id": "node1A",
+      "name": "Urethral meatus",
+      "layout": {"x": -100},
+      "external": [
+        "UBERON:0012240"
+      ]
+    },
+    {
+      "id": "node1V",
+      "layout": {"x": 100}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "node1A",
+      "target": "node1B",
+      "conveyingLyph": "6",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk2",
+      "source": "node1B",
+      "target": "node1C",
+      "conveyingLyph": "15",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk3",
+      "source": "node1C",
+      "target": "node1D",
+      "conveyingLyph": "16",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk4",
+      "source": "node1D",
+      "target": "node1E",
+      "conveyingLyph": "17",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk5",
+      "source": "node1E",
+      "target": "node1F",
+      "conveyingLyph": "20",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk6",
+      "source": "node1F",
+      "target": "node1G",
+      "conveyingLyph": "21",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk7",
+      "source": "node1G",
+      "target": "node1H",
+      "conveyingLyph": "22",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk8",
+      "source": "node1H",
+      "target": "node1I",
+      "conveyingLyph": "23",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk9",
+      "source": "node1I",
+      "target": "node1J",
+      "conveyingLyph": "27",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk10",
+      "source": "node1J",
+      "target": "node1K",
+      "conveyingLyph": "28",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk11",
+      "source": "node1K",
+      "target": "node1L",
+      "conveyingLyph": "29",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk12",
+      "source": "node1L",
+      "target": "node1M",
+      "conveyingLyph": "30",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk13",
+      "source": "node1M",
+      "target": "node1N",
+      "conveyingLyph": "31",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk14",
+      "source": "node1N",
+      "target": "node1O",
+      "conveyingLyph": "32",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk15",
+      "source": "node1O",
+      "target": "node1P",
+      "conveyingLyph": "33",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk16",
+      "source": "node1P",
+      "target": "node1Q",
+      "conveyingLyph": "34",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk17",
+      "source": "node1Q",
+      "target": "node1R",
+      "conveyingLyph": "35",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk18",
+      "source": "node1R",
+      "target": "node1S",
+      "conveyingLyph": "36",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk19",
+      "source": "node1S",
+      "target": "node1T",
+      "conveyingLyph": "37",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk20",
+      "source": "node1T",
+      "target": "node1U",
+      "conveyingLyph": "39",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk21",
+      "source": "node1U",
+      "target": "node1V",
+      "conveyingLyph": "40",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk22",
+      "source": "node2A",
+      "target": "node2B",
+      "conveyingLyph": "44",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk23",
+      "source": "node2B",
+      "target": "node2C",
+      "conveyingLyph": "45",
+      "conveyingType": "ADVECTIVE"
+    },
+    {
+      "id": "lnk24",
+      "source": "node2C",
+      "target": "node2D",
+      "conveyingLyph": "46",
+      "conveyingType": "ADVECTIVE"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "45",
+      "name": "Glomerulus",
+      "external": [
+        "UBERON:0000074"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "41",
+        "42",
+        "2"
+      ]
+    },
+    {
+      "id": "40",
+      "name": "Visceral Bowman's capsule",
+      "external": [
+        "UBERON:0005751"
+      ],
+      "isTemplate": true,
+      "topology": "BAG",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "0",
+        "38",
+        "2"
+      ]
+    },
+    {
+      "id": "63",
+      "name": "Myocyte",
+      "external": [
+        "CL_0002098"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "length": {
+        "min": 6,
+        "max": 6
+      },
+      "thickness": {
+        "min": 7,
+        "max": 7
+      },
+      "layers": [
+        "61",
+        "62",
+        "0"
+      ],
+      "channels": [
+        "mc2"
+      ]
+    },
+    {
+      "id": "61",
+      "name": "Sarcoplasm",
+      "external": [
+        "GO:0016528"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "materials": [
+        "54"
+      ]
+    },
+    {
+      "id": "62",
+      "name": "Sarcolemma",
+      "external": [
+        "GO:0042383"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "materials": [
+        "56"
+      ]
+    },
+    {
+      "id": "60",
+      "name": "Sarcoplasmic reticulum",
+      "external": [
+        "GO:0016529"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "layers": [
+        "57",
+        "58",
+        "54"
+      ],
+      "channels": [
+        "mc1"
+      ]
+    },
+    {
+      "id": "59",
+      "name": "Cell",
+      "external": [
+        "GO:0005623"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "layers": [
+        "54",
+        "56",
+        "53"
+      ]
+    },
+    {
+      "id": "6",
+      "name": "Intravesical urethra",
+      "external": [
+        "UBERON:0000057"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "id": "11",
+      "name": "Detrusor",
+      "external": [
+        "UBERON:0000381"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "8",
+        "9",
+        "10"
+      ]
+    },
+    {
+      "id": "12",
+      "name": "Muscularis",
+      "external": [
+        "UBERON:0006912"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "layers": [
+        "8",
+        "9",
+        "10"
+      ]
+    },
+    {
+      "id": "14",
+      "name": "Adventitious serosa",
+      "external": [
+        "FMA:45637"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE"
+    },
+    {
+      "id": "15",
+      "name": "Urinary bladder",
+      "external": [
+        "UBERON:0001255"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 2,
+        "max": 2
+      },
+      "layers": [
+        "0",
+        "4",
+        "7",
+        "11",
+        "14"
+      ]
+    },
+    {
+      "id": "16",
+      "name": "Intravesical ureter",
+      "external": [
+        "UBERON:0000056"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "12"
+      ]
+    },
+    {
+      "id": "17",
+      "name": "Distal free ureter",
+      "external": [
+        "UBERON:0000056"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "12",
+        "14"
+      ]
+    },
+    {
+      "id": "20",
+      "name": "Proximal free ureter",
+      "external": [
+        "UBERON:0000056"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "18",
+        "19",
+        "14"
+      ]
+    },
+    {
+      "id": "21",
+      "name": "Renal pelvis",
+      "external": [
+        "UBERON:0001224"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "18",
+        "19",
+        "14"
+      ]
+    },
+    {
+      "id": "22",
+      "name": "Major calyx",
+      "external": [
+        "UBERON:0001226"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "4",
+        "18",
+        "19",
+        "14"
+      ]
+    },
+    {
+      "id": "23",
+      "name": "Minor calyx",
+      "external": [
+        "UBERON:0001227"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "0",
+        "1",
+        "2",
+        "18",
+        "14"
+      ]
+    },
+    {
+      "id": "27",
+      "name": "Inner medullary collecting duct",
+      "external": [
+        "UBERON:0004205"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
+      "layers": [
+        "0",
+        "24",
+        "2",
+        "18",
+        "26"
+      ]
+    },
+    {
+      "id": "28",
+      "name": "Outer medullary collecting duct",
+      "external": [
+        "UBERON:0004204"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "18",
+        "26"
+      ]
+    },
+    {
+      "id": "29",
+      "name": "Cortical collecting tubule",
+      "external": [
+        "UBERON:0004203"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "18",
+        "26"
+      ]
+    },
+    {
+      "id": "30",
+      "name": "Connecting tubule",
+      "external": [
+        "UBERON:0005097"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "18",
+        "26"
+      ]
+    },
+    {
+      "id": "31",
+      "name": "Distal convoluted tubule",
+      "external": [
+        "UBERON:0001292"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "32",
+      "name": "Final portion of thick ascending limb",
+      "external": [
+        "UBERON:0001291"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "33",
+      "name": "Distal straight tubule",
+      "external": [
+        "UBERON:0001291"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "34",
+      "name": "Ascending thin limb",
+      "external": [
+        "UBERON:0004193"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "35",
+      "name": "Descending thin limb",
+      "external": [
+        "UBERON:0005096"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "36",
+      "name": "Proximal straight tubule",
+      "external": [
+        "UBERON:0001290"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "37",
+      "name": "Proximal convoluted tubule",
+      "external": [
+        "UBERON:0001287"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
+        "0",
+        "25",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "39",
+      "name": "Parietal Bowman's capsule",
+      "external": [
+        "UBERON:0005750"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "0",
+        "38",
+        "2",
+        "26"
+      ]
+    },
+    {
+      "id": "44",
+      "name": "Afferent arteriole",
+      "external": [
+        "UBERON:0004639"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "41",
+        "42",
+        "2",
+        "43",
+        "26"
+      ]
+    },
+    {
+      "id": "46",
+      "name": "Efferent arteriole",
+      "external": [
+        "UBERON:0004640"
+      ],
+      "isTemplate": true,
+      "topology": "TUBE",
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "41",
+        "42",
+        "2",
+        "43",
+        "26"
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "2",
+      "name": "Basement membrane",
+      "external": [
+        "UBERON:0005769"
+      ]
+    },
+    {
+      "id": "42",
+      "name": "Endothelium",
+      "external": [
+        "UBERON:0001986"
+      ]
+    },
+    {
+      "id": "41",
+      "name": "Blood",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "38",
+      "name": "Simple squamous epithelium",
+      "external": [
+        "UBERON:0000487"
+      ]
+    },
+    {
+      "id": "0",
+      "name": "Urine",
+      "external": [
+        "UBERON:0001088"
+      ],
+      "materials": [
+        "53",
+        "63"
+      ]
+    },
+    {
+      "id": "53",
+      "name": "Aqueous solution",
+      "external": [
+        "FMA:85815"
+      ],
+      "materials": [
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "83",
+        "84",
+        "85"
+      ]
+    },
+    {
+      "id": "48",
+      "name": "Water",
+      "external": [
+        "CHEBI:15377"
+      ]
+    },
+    {
+      "id": "49",
+      "name": "Sodium ion",
+      "external": [
+        "CHEBI:29101"
+      ]
+    },
+    {
+      "id": "50",
+      "name": "Potassium ion",
+      "external": [
+        "CHEBI:29103"
+      ]
+    },
+    {
+      "id": "51",
+      "name": "Calcium ion",
+      "external": [
+        "CHEBI:29108"
+      ]
+    },
+    {
+      "id": "52",
+      "name": "Chloride ion",
+      "external": [
+        "CHEBI:17996"
+      ]
+    },
+    {
+      "id": "83",
+      "name": "Hydrogen ion",
+      "external": [
+        "CHEBI:24636"
+      ]
+    },
+    {
+      "id": "84",
+      "name": "Hydroxide ion",
+      "external": [
+        "CHEBI:16234"
+      ]
+    },
+    {
+      "id": "54",
+      "name": "Cytosol",
+      "external": [
+        "GO:0005829"
+      ],
+      "materials": [
+        "53",
+        "60"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Membrane",
+      "external": [
+        "GO:0016020"
+      ]
+    },
+    {
+      "id": "56",
+      "name": "Plasma membrane",
+      "external": [
+        "GO:0005886"
+      ],
+      "materials": [
+        "55"
+      ]
+    },
+    {
+      "id": "57",
+      "name": "Sarcoplasmic reticulum content",
+      "external": [
+        "GO:0033018"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "58",
+      "name": "Sarcoplasmic reticulum membrane",
+      "external": [
+        "GO:0033017"
+      ],
+      "materials": [
+        "55"
+      ]
+    },
+    {
+      "id": "85",
+      "name": "Bicarbonate ion ",
+      "external": [
+        "CHEBI:17544"
+      ]
+    },
+    {
+      "id": "8",
+      "name": "Inner layer of longitudinal muscle fibres"
+    },
+    {
+      "id": "13",
+      "name": "Intravesical muscularis"
+    },
+    {
+      "id": "1",
+      "name": "Transitional epithelium",
+      "external": [
+        "UBERON:0000365"
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Lamina propria",
+      "external": [
+        "UBERON:0000030"
+      ]
+    },
+    {
+      "id": "4",
+      "name": "Muscosa",
+      "external": [
+        "UBERON:0000344"
+      ],
+      "materials": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Muscularis",
+      "external": [
+        "UBERON:0006912"
+      ]
+    },
+    {
+      "id": "7",
+      "name": "Submucosa",
+      "external": [
+        "UBERON:0000009"
+      ]
+    },
+    {
+      "id": "9",
+      "name": "Circular muscle fibres",
+      "external": [
+        "UBERON:0012368"
+      ]
+    },
+    {
+      "id": "10",
+      "name": "Outer layer of longitudinal muscle fibres",
+      "external": [
+        "UBERON:0012369"
+      ]
+    },
+    {
+      "id": "18",
+      "name": "Inner smooth muscle",
+      "external": [
+        "UBERON:0034933"
+      ]
+    },
+    {
+      "id": "19",
+      "name": "Outer smooth muscle",
+      "external": [
+        "UBERON:0034933"
+      ]
+    },
+    {
+      "id": "24",
+      "name": "Simple columnar epithelium",
+      "external": [
+        "UBERON:0000485"
+      ]
+    },
+    {
+      "id": "25",
+      "name": "Simple cuboidal epithelium",
+      "external": [
+        "UBERON:0000484"
+      ]
+    },
+    {
+      "id": "26",
+      "name": "Extracellular matrix",
+      "external": [
+        "ILX:0104048"
+      ]
+    },
+    {
+      "id": "43",
+      "name": "Arteriolar smooth muscle ",
+      "external": [
+        "UBERON:0004236"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "id": "GO:0016020",
+      "uri": "http://amigo.geneontology.org/amigo/term/GO:0016020",
+      "type": "Gene Ontology"
+    }
+  ],
+  "coalescences": [
+    {
+      "id": "47",
+      "name": "Renal corpuscle",
+      "external": [
+        "UBERON:0001229"
+      ],
+      "lyphs": [
+        "45",
+        "40"
+      ],
+      "topology": "CONNECTING",
+      "comment": "45.layers[2], 40.layers[2]"
+    }
+  ],
+  "channels": [
+    {
+      "id": "mc1",
+      "name": "Na-Ca exchanger",
+      "external": [
+        "PR:Q01728"
+      ],
+      "materials": [
+        "49",
+        "51"
+      ],
+      "housingLyphs": [
+        "60"
+      ]
+    },
+    {
+      "id": "mc2",
+      "name": "SR Ca-ATPase",
+      "external": [
+        "PR:P16615"
+      ],
+      "materials": [
+        "51"
+      ],
+      "housingLyphs": [
+        "63"
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "id": "uot",
+      "name": "Urinary Tract",
+      "external": [
+        "FMA:7159"
+      ],
+      "root": "node1A",
+      "numLevels": 21,
+      "levels": [
+        "lnk1",
+        "lnk2",
+        "lnk3",
+        "lnk4",
+        "lnk5",
+        "lnk6",
+        "lnk7",
+        "lnk8",
+        "lnk9",
+        "lnk10",
+        "lnk11",
+        "lnk12",
+        "lnk13",
+        "lnk14",
+        "lnk15",
+        "lnk16",
+        "lnk17",
+        "lnk18",
+        "lnk19",
+        "lnk20",
+        "lnk21"
+      ],
+      "branchingFactors": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1,
+        3,
+        3,
+        20,
+        8,
+        9,
+        8,
+        9,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "grp1",
+      "name": "Nephron",
+      "external": [
+        "UBERON:0001285"
+      ],
+      "nodes": [
+        "node1M",
+        "node1N",
+        "node1O",
+        "node1P",
+        "node1Q",
+        "node1R",
+        "node1S",
+        "node1T",
+        "node1U",
+        "node1V"
+      ],
+      "links": [
+        "lnk13",
+        "lnk14",
+        "lnk15",
+        "lnk16",
+        "lnk17",
+        "lnk18",
+        "lnk19",
+        "lnk20",
+        "lnk21"
+      ]
+    },
+    {
+      "id": "grp2",
+      "name": "Loop of Henle",
+      "external": [
+        "UBERON:0001288"
+      ],
+      "nodes": [
+        "node1N",
+        "node1O",
+        "node1P",
+        "node1Q",
+        "node1R"
+      ],
+      "links": [
+        "lnk14",
+        "lnk15",
+        "lnk16",
+        "lnk17"
+      ]
+    },
+    {
+      "id": "grp3",
+      "name": "Cardiovascular Segment",
+      "nodes": [
+        "node2A",
+        "node2B",
+        "node2C",
+        "node2D"
+      ],
+      "links": [
+        "lnk22",
+        "lnk23",
+        "lnk24"
+      ]
+    }
+  ],
+  "id": "Urinary Omega Tree",
+  "config": {
+    "filter": [
+      "6",
+      "11",
+      "12",
+      "14",
+      "15",
+      "16",
+      "17",
+      "20",
+      "21",
+      "22",
+      "23",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37"
+    ],
+    "showGroups": ["uot"]
+  }
+}

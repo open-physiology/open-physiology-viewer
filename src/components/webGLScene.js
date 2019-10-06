@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSliderModule, MatCheckboxModule, MatRadioModule, MatDialog, MatDialogModule} from '@angular/material'
 import FileSaver  from 'file-saver';
-import {keys, values, defaults} from 'lodash-bound';
+import {keys, values, defaults, isObject} from 'lodash-bound';
 import * as THREE from 'three';
 import {SearchBarModule} from './gui/searchBar';
 import ThreeForceGraph   from '../three/threeForceGraph';
@@ -460,11 +460,11 @@ export class WebGLSceneComponent {
         this.graph = new ThreeForceGraph().graphData(this.graphData);
 
         const forceVal = (d, key) => {
-            return ((key in d.layout) ? d.layout[key] : 0);
+            return (d.layout::isObject() && (key in d.layout) ? d.layout[key] : 0);
         };
 
         const forceStrength = (d, key) => {
-            return (key in d.layout) ? 1 : 0
+            return (d.layout::isObject() && key in d.layout) ? 1 : 0
         };
 
         this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));

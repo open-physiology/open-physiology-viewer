@@ -22,8 +22,6 @@ const LYPH_TOPOLOGY = {
  */
 export class Shape extends VisualResource {
 
-    static LYPH_TOPOLOGY = LYPH_TOPOLOGY;
-
     /**
      * Create a Shape resource from its JSON specification together with resources to model shape borders.
      * @param   {Object} json                          - resource definition
@@ -80,8 +78,10 @@ export class Shape extends VisualResource {
  * @property bundlesTrees
  * @property prev
  * @property next
+ * @property villus
  */
 export class Lyph extends Shape {
+    static LYPH_TOPOLOGY = LYPH_TOPOLOGY;
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         json.numBorders = 4;
@@ -131,8 +131,24 @@ export class Lyph extends Shape {
 
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
             "thickness", "external", "comment", "materials", "create3d", "channels", "bundlesTrees"]));
+        if (sourceLyph.isTemplate){
+            targetLyph.supertype = sourceLyph.id;
+            //Clone template villus object into all subtype lyphs
+            //TODO test
+            if (sourceLyph.villus){
+                targetLyph.villus = sourceLyph.villus::clone();
+                if (targetLyph.villus.id){
+                    targetLyph.villus.id = targetLyph.id + "_" + targetLyph.villus.id
+                }
+                if (targetLyph.villus.villusOf){
+                    targetLyph.villus.villusOf = targetLyph.id || targetLyph;
+                }
+            }
+        } else {
+            targetLyph.cloneOf = sourceLyph.id;
+        }
 
-        if (!targetLyph.name) {targetLyph.name = sourceLyph.name + " (clone)"; }
+        if (!targetLyph.name) {targetLyph.name = sourceLyph.name + (sourceLyph.name && sourceLyph.name.endsWith("clone)")? "": " (clone)"); }
 
         if ((targetLyph.layers||[]).length > 0) {
             logger.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
@@ -141,26 +157,21 @@ export class Lyph extends Shape {
 
         targetLyph.layers = [];
         (sourceLyph.layers || []).forEach(layerRef => {
-            let layerParent = findResourceByID(lyphs, layerRef);
-            if (!layerParent) {
+            let sourceLayer = findResourceByID(lyphs, layerRef);
+            if (!sourceLayer) {
                 logger.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
-            let lyphLayer = {
-                "id"        : `${layerParent.id}_${targetLyph.id}`,
-                "name"      : `${layerParent.name || '?'} in ${targetLyph.name || '?'}`,
+            let targetLayer = {
+                "id"        : `${sourceLayer.id}_${targetLyph.id}`,
+                "name"      : `${sourceLayer.name || '?'} in ${targetLyph.name || '?'}`,
                 "generated" : true
             };
-            lyphs.push(lyphLayer);
-            if (layerParent.isTemplate){
-                lyphLayer.supertype = layerParent.id;
-            } else {
-                lyphLayer.cloneOf = layerParent.id;
-            }
-            this.clone(lyphs, layerParent, lyphLayer);
+            lyphs.push(targetLayer);
+            this.clone(lyphs, sourceLayer, targetLayer);
 
-            lyphLayer::merge(targetLyph::pick(["topology"]));
-            targetLyph.layers.push(lyphLayer);
+            targetLayer::merge(targetLyph::pick(["topology"]));
+            targetLyph.layers.push(targetLayer);
         });
 
         targetLyph.layers = targetLyph.layers.map(e => e.id);

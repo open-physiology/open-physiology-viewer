@@ -2,7 +2,7 @@ import {Resource} from './resourceModel';
 import {Lyph} from "./shapeModel";
 import {Link, Node} from "./visualResourceModel";
 import {Coalescence} from "./coalescenceModel";
-import {mergeGenResource, mergeGenResources, findResourceByID} from "./utils";
+import {mergeGenResource, mergeGenResources, findResourceByID, getNewID, addBorderNode} from "./utils";
 import {logger} from './logger';
 import {defaults, isPlainObject, isArray, flatten} from "lodash-bound";
 
@@ -52,6 +52,11 @@ export class Tree extends GroupTemplate {
      * @param tree - omega tree template in JSON
      */
     static expandTemplate(parentGroup, tree){
+        if (!tree){
+            logger.warn("Cannot expand undefined tree template");
+            return;
+        }
+
         if ( !tree.id){
             logger.warn(`Skipped tree template - it must have (non-empty) ID!`); return;
         }
@@ -63,7 +68,7 @@ export class Tree extends GroupTemplate {
             return;
         }
 
-        tree.group = GroupTemplate.createTemplateGroup(tree, parentGroup);
+        tree.group = this.createTemplateGroup(tree, parentGroup);
 
         const getID  = (e) => e::isPlainObject()? e.id : e;
         const match  = (e1, e2) => getID(e1) === getID(e2);
@@ -290,11 +295,6 @@ export class Tree extends GroupTemplate {
     static embedToHousingLyphs(parentGroup, tree) {
         if (!tree || !tree.id || !tree.housingLyphs || !tree.levels){ return; }
 
-        const addBorderNode = (border, node) => {
-            border.hostedNodes = border.hostedNodes || [];
-            border.hostedNodes.push(node);
-        };
-
         const addInternalNode = (lyph, node) => {
             lyph.internalNodes = lyph.internalNodes || [];
             lyph.internalNodes.push(node);
@@ -360,7 +360,7 @@ export class Tree extends GroupTemplate {
  * @property materials
  * @property housingLyphs
  */
-export class Channel extends Resource {
+export class Channel extends GroupTemplate {
 
     /**
      * Create membrane channel group
@@ -368,12 +368,17 @@ export class Channel extends Resource {
      * @param channel - channel template in JSON
      */
     static expandTemplate(parentGroup, channel) {
+        if (!channel){
+            logger.warn("Cannot expand undefined channel template");
+            return;
+        }
+
         if (!channel.id) {
             logger.warn(`Skipped channel template - it must have (non-empty) ID!`);
             return;
         }
 
-        channel.group = GroupTemplate.createTemplateGroup(channel, parentGroup);
+        channel.group = this.createTemplateGroup(channel, parentGroup);
 
         let mcLyphs = [
             {
@@ -615,11 +620,6 @@ export class Channel extends Resource {
         function embedToHousingLyph(lyph, instance) {
             //Embed channel to the housing lyph
 
-            const addBorderNode = (border, node) => {
-                border.hostedNodes = border.hostedNodes || [];
-                border.hostedNodes.push(node);
-            };
-
             let layers = (lyph.layers || []).filter(e => !!e);
             parentGroup.coalescences = parentGroup.coalescences || [];
 
@@ -657,7 +657,7 @@ export class Channel extends Resource {
  * Chain model
  * @property conveyingLyphs
  */
-export class Chain extends Resource{
+export class Chain extends GroupTemplate {
 
     /**
      * advective edges that convey the material of the innermost layer of these conveying lyphs.
@@ -669,12 +669,17 @@ export class Chain extends Resource{
      */
 
     static expandTemplate(parentGroup, chain){
+        if (!chain){
+            logger.warn("Cannot expand undefined chain template");
+            return;
+        }
+
         if (!chain.id) {
             logger.warn(`Skipped chain template - it must have (non-empty) ID!`);
             return;
         }
 
-        chain.group = GroupTemplate.createTemplateGroup(chain, parentGroup);
+        chain.group = this.createTemplateGroup(chain, parentGroup);
 
         if (!chain.conveyingLyphs::isArray() || chain.conveyingLyphs.length <= 0){
             logger.warn(`Skipped chain template - no conveying lyphs given!`);
@@ -722,5 +727,113 @@ export class Chain extends Resource{
             }
             mergeGenResource(chain.group, parentGroup, link, "links");
         }
+    }
+}
+
+/**
+ * Villus model
+ * @property numLayers
+ * @property numLevels
+ * @property villusOf
+ */
+export class Villus extends GroupTemplate{
+
+    static expandTemplate(parentGroup, villus){
+        if (!villus) {
+            logger.warn("Cannot expand undefined villus template");
+            return;
+        }
+
+        if (!villus.villusOf){
+            logger.warn("Incomplete villus definition - hosting lyph is missing", villus);
+            return;
+        }
+
+        let lyph = findResourceByID(parentGroup.lyphs, villus.villusOf);
+        if (!lyph){
+            logger.error("Could not find the villus hosting lyph definition in the parent group", villus);
+            return;
+        }
+
+        if (lyph.isTemplate){
+            logger.warn("Skipping generation of villus group for lyph template", lyph);
+            return;
+        }
+
+        if (villus.numLayers > lyph.layers.length){
+            logger.warn(`Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the lyph`, lyph);
+            return;
+        }
+
+        villus.numLayers = villus.numLayers || 0;
+        villus.numLevels = villus.numLevels || 1;
+
+        let prev;
+        villus.id = villus.id || getNewID();
+        villus.group = GroupTemplate.createTemplateGroup(villus, parentGroup);
+
+        let lyphLayers = lyph.layers.map(layer2 => findResourceByID(parentGroup.lyphs, layer2));
+        let sourceLayers = lyphLayers.slice(0, villus.numLayers).reverse();
+
+        for (let i = villus.numLayers - 1; i >= 0; i--){
+            let layer = lyphLayers[i];
+            if (!layer){
+                logger.error(`Error while generating a villus object - could not locate a layer resource: `, lyph.layers[i]);
+                return;
+            }
+            layer.border = layer.border || {};
+            layer.border.borders = layer.border.borders || [{}, {}, {}, {}];
+
+            let node1 = (i === villus.numLayers - 1)? {
+                "id": "villus_node_" + layer.id + "_0"
+            }: prev;
+
+            if (i === villus.numLayers - 1){
+                addBorderNode(layer.border.borders[2], node1);
+                mergeGenResource(villus.group, parentGroup, node1, "nodes");
+            }
+            let node2 = { "id": "villus_node_" + lyph.id + "_" + layer.id + "_" + (i + 1) };
+            addBorderNode(layer.border.borders[0], node2);
+            mergeGenResource(villus.group, parentGroup, node2, "nodes");
+
+            let villus_layers = sourceLayers.slice(0, villus.numLayers - i).reverse().map(sourceLyph => {
+                let targetLyph =  {
+                    "id": lyph.id + "_" + layer.id + "_" + sourceLyph.id
+                };
+                Lyph.clone(parentGroup.lyphs, sourceLyph, targetLyph);
+                return targetLyph;
+            });
+
+            villus_layers.forEach(newLayer => {
+                mergeGenResource(villus.group, parentGroup, newLayer, "lyphs");
+            });
+            villus_layers = villus_layers.map(x => x.id);
+
+            let villusLyph = {
+                "id"      : "villus_lyph_" + lyph.id + "_" + layer.id,
+                "layers"  : villus_layers.reverse(),
+                "topology": (i===0)? Lyph.LYPH_TOPOLOGY.BAG : Lyph.LYPH_TOPOLOGY.TUBE,
+                "scale"   : {"width": 40 * (villus.numLayers - i), "height": 80}
+            };
+            // if (i === 0 && villus.numLevels > 0){
+            //     villusvillus = {
+            //         "numLayers": villus.numLayers,
+            //         "numLevels": villus.numLevels - 1
+            //     }
+            // }
+
+            mergeGenResource(villus.group, parentGroup, villusLyph, "lyphs");
+
+            let link = {
+                "id"      : "villus_link_" + layer.id,
+                "source"  : node1.id,
+                "target"  : node2.id,
+                "conveyingLyph": villusLyph.id,
+                "geometry": Link.LINK_GEOMETRY.INVISIBLE
+            };
+            mergeGenResource(villus.group, parentGroup, link, "links");
+            prev = node2;
+        }
+        //Assign villus to the last generated lyph
     }
 }

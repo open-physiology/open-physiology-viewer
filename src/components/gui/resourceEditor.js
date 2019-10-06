@@ -4,13 +4,13 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatTooltipModule, MatIconModule,
     MatCardModule, MatDialogModule, MatDialog, MatTabsModule, MatTableModule} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
-import {FieldEditorModule}  from "./fieldEditor";
+import {FieldEditorModule} from "./fieldEditor";
 import {SearchBarModule} from "./searchBar";
 import {ResourceEditorDialog} from "./resourceEditorDialog";
 import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {ExternalSelectDialog} from "./externalSelectDialog";
 import {UtilsModule} from "./utils";
-import {isPlainObject, isArray, isString, cloneDeep, merge, values} from 'lodash-bound';
+import {isPlainObject, isArray, isString, clone, merge, values} from 'lodash-bound';
 import {HttpClientModule} from '@angular/common/http';
 import {getClassName} from '../../model/index';
 import {annotations} from "./config";
@@ -60,13 +60,14 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
 
                             <mat-card class="w3-card">
                                 <fieldTableEditor
-                                        [dataSource]="resource[field[0]] | objToMatTableDataSource"
-                                        [dataModel]="getFieldModel(field[1])"
+                                        [resources]="resource[field[0]]"
+                                        [resourceModel]="getFieldModel(field[1])"
                                         [showExternal]="showExternal(field[1])"
                                         [disabled]="disabled"
-                                        (onEditRelatedResource)="editRelatedResource(field, $event)"
-                                        (onCreateRelatedResource)="createRelatedResource(field)"
-                                        (onCreateRelationship)="createRelationship(field)"
+                                        (onRemoveResource)="removeRelationship(field)"
+                                        (onCreateResource)="createRelatedResource(field, $event)"
+                                        (onCopyResource)  ="createRelatedResource(field)"
+                                        (onEditResource)  ="editRelatedResource(field, $event)"
                                         (onCreateExternalResource)="createExternalResource(field)"
                                 >
                                 </fieldTableEditor>
@@ -158,32 +159,8 @@ export class ResourceEditor {
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      * @param {number} index - index of the element to edit (use 0 if resource[key] implies one resource).
      */
-    editRelatedResource([key, spec], index){
-        let obj = [...this.resource[key]][index]::cloneDeep();
-        let className = getClassName(spec);
-        const dialogRef = this.dialog.open(ResourceEditorDialog, {
-            width: '75%',
-            data: {
-                title          : `Update resource?`,
-                modelClasses   : this.modelClasses,
-                modelResources : this.modelResources,
-                filteredResources : this.filteredResources,
-                resource  : obj,
-                className : className,
-                disabled  : this.disabled,
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (result){
-                if (spec.type === "array"){
-                    this.resource[key][index] = result;
-                    this.resource[key] = [...this.resource[key]];
-                } else {
-                    this.resource[key] = result;
-                }
-            }
-        });
+    editRelatedResource([key, spec], value){
+        //update value?
     }
 
     /**
@@ -219,39 +196,19 @@ export class ResourceEditor {
         return true;
     }
 
+    removeRelationship(resource){
+        //TODO register change ?
+    }
+
     /**
-     * Create a new relationship by assigning a new resource to the given field
+     * Add newly created resource to the global map to enable the possibility to refer to it
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
+     * @param result
      */
-    createRelatedResource([key, spec]) {
+    createRelatedResource([key, spec], result) {
         let className = getClassName(spec);
-
-        const dialogRef = this.dialog.open(ResourceEditorDialog, {
-            width: '75%',
-            data: {
-                title          : `Add new resource?`,
-                modelClasses   : this.modelClasses,
-                modelResources : this.modelResources,
-                filteredResources : this.filteredResources,
-                resource       : {},
-                className      : className
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (!this._validateField([key, spec], result)){ return; }
-            if (spec.type === "array"){
-                this.resource[key].push(result); //add new resource object
-                this.resource[key] = [...this.resource[key]];
-            } else {
-                this.resource[key] = result; //assign new resource object
-            }
-
-            //Add newly created resource to the global map to enable the possibility to refer to it
-            if (!result["class"]){ result::merge({"class": className}); }
-            this.modelResources[result.id] = result;
-        })
+        this.modelResources[result.id] = result::clone()::merge({"class": className});
     }
 
     /**
@@ -260,29 +217,6 @@ export class ResourceEditor {
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      */
     createRelationship([key, spec]) {
-        let className = getClassName(spec);
-
-        const dialogRef = this.dialog.open(ResourceSelectDialog, {
-            width: '75%',
-            data: {
-                title          : `Include resource?`,
-                modelClasses   : this.modelClasses,
-                modelResources : this.modelResources,
-                filteredResources : this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
-                resource       : {},
-                className      : className
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (!this._validateField([key, spec], result)){ return; }
-            if (spec.type === "array"){
-                this.resource[key].push(result); //add ID of an existing resource
-                this.resource[key] = [...this.resource[key]];
-            } else {
-                this.resource[key] = result;  //assign ID of an existing resource
-            }
-        })
     }
 
     /**

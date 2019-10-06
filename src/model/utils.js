@@ -47,6 +47,16 @@ export const getClassName = (spec) => {
         return clsName;
     }
 };
+/**
+ * Places a given node on a given border
+ * @param border
+ * @param node
+ */
+export const addBorderNode = (border, node) => {
+    border.hostedNodes = border.hostedNodes || [];
+    border.hostedNodes.push(node);
+};
+
 
 /**
  * Finds a resource object in the parent group given an object or an ID

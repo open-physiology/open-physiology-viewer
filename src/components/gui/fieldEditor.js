@@ -164,7 +164,6 @@ export class FieldEditor {
         }
     };
 
-
     _fieldType = "input";
 
     @Input() expanded = false;
@@ -199,7 +198,6 @@ export class FieldEditor {
             }
         }
     }
-
     @Input() disabled = false;
 
     @Output() onValueChange = new EventEmitter();
@@ -366,6 +364,7 @@ export class FieldEditor {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
+                if (!this.value) {this.value = [];}
                 this.value.push(result);
                 this.onValueChange.emit(this.value);
             }

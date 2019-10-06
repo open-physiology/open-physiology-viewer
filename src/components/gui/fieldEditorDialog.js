@@ -13,7 +13,8 @@ import {
                     [expanded] = true
                     [value] = "data.value"
                     [label] = "data.key"
-                    [spec]  = "data.spec">
+                    [spec]  = "data.spec"
+                    (onValueChange) = "data.value=$event">
             </fieldEditor>
         </div>
         <div mat-dialog-actions align="end">

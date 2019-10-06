@@ -1,4 +1,4 @@
-import { GroupTemplate, Channel, Chain, Tree }  from './groupTemplateModel';
+import { GroupTemplate, Channel, Chain, Tree, Villus }  from './groupTemplateModel';
 import { Group }    from './groupModel';
 import { Graph }    from './graphModel';
 import { Resource, External } from './resourceModel'
@@ -19,6 +19,7 @@ export const modelClasses = {
     "Channel"      : Channel,
     "Chain"        : Chain,
     "Tree"         : Tree,
+    "Villus"       : Villus,
     "Group"        : Group,
     "Graph"        : Graph,
 

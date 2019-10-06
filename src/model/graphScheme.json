@@ -798,7 +798,8 @@
               "type": "number"
             }
           },
-          "default": {}
+          "default": {},
+          "advanced": "true"
         },
         "length"         : {
           "description": "Anatomical lyph length defined in the form of power of 1/10",
@@ -813,7 +814,8 @@
               "type": "number"
             }
           },
-          "default": {}
+          "default": {},
+          "advanced": "true"
         },
         "subtypes"       : {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
@@ -912,23 +914,6 @@
           "relatedTo": "hostedLyphs",
           "advanced": true
         },
-        "inCoalescences" : {
-          "description": "A set of coalescences that include the current lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Coalescence"
-              }
-            ]
-          },
-          "relatedTo": "lyphs",
-          "default": [],
-          "advanced": true
-        },
         "channels"       : {
           "description": "ID or reference of the channel which this lyph houses",
           "type": "array",
@@ -973,6 +958,35 @@
               }
             ]
           }
+        },
+        "villus" : {
+          "description": "Small, finger-like projections that extend into the lumen",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Villus"
+            }
+          ],
+          "relatedTo": "villusOf"
+        },
+        "inCoalescences" : {
+          "description": "A set of coalescences that include the current lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Coalescence"
+              }
+            ]
+          },
+          "relatedTo": "lyphs",
+          "default": [],
+          "advanced": true
         },
         "generatedFrom"  : {
           "description": "Material which was used to generate the current lyph",
@@ -1252,6 +1266,35 @@
             },
             {
               "$ref": "#/definitions/Node"
+            }
+          ]
+        }
+      }
+    },
+    "Villus": {
+      "description": "Defines a group of resources forming an intestinal villus",
+      "allOf":[{
+        "$ref": "#/definitions/GroupTemplate"
+      }],
+      "properties": {
+        "numLayers": {
+          "description": "Number of layers in the villus, or, equivalently, a layer index from which a villus starts",
+          "type": "number",
+          "default": 1
+        },
+        "numLevels": {
+          "description": "Number of recursive micro-villi levels",
+          "type": "number",
+          "default": 1
+        },
+        "villusOf": {
+          "description": "Hosting lyph for the villus",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
             }
           ]
         }

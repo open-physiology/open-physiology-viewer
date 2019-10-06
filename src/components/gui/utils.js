@@ -10,18 +10,10 @@ export class ObjToArray implements PipeTransform {
     }
 }
 
-@Pipe({name: 'objToMatTableDataSource'})
-export class ObjToMatTableDataSource implements PipeTransform {
-    transform(obj) {
-        let res = obj::isArray()? obj: [obj];
-        return new MatTableDataSource(res);
-    }
-}
-
 @NgModule({
     imports: [MatTableModule],
-    declarations: [ObjToArray, ObjToMatTableDataSource],
-    exports: [ObjToArray, ObjToMatTableDataSource]
+    declarations: [ObjToArray],
+    exports: [ObjToArray]
 })
 export class UtilsModule {
 }
