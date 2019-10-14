@@ -140,7 +140,7 @@
           "type": "string",
           "readOnly": true
         },
-        "comment": {
+        "description": {
           "description": "Resource description, comments, modeling assumptions, etc.",
           "type": "string",
           "advanced": true
@@ -1014,7 +1014,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "conveyedBy", "external", "comment", "supertype", "cloneOf", "generated"],
+          "default": [ "id", "name", "description", "class", "topology", "conveyedBy", "external", "supertype", "cloneOf", "generated"],
           "advanced": true
         },
         "width"          : {
@@ -1574,6 +1574,25 @@
       "description": "An ApiNATOMY model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "allOf": [ {"$ref": "#/definitions/Group"} ],
       "properties": {
+        "version": {
+          "description": "Model version",
+          "type": "string",
+          "pattern": "^(?:(d+).)?(?:(d+).)?(d+)$"
+        },
+        "created": {
+          "description": "Date of model creation",
+          "type": "string",
+          "format": "date"
+        },
+        "lastUpdated": {
+          "description": "Date of the model last update",
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "description": "Name of the model author",
+          "type": "string"
+        },
         "config": {
           "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
           "type": "object",

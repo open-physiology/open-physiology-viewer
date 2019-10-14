@@ -1,4 +1,8 @@
 {
+  "id"  : "neurontemplateRegion",
+  "name": "Neuron",
+  "description": "Demo model of a region containing a sequence of links with conveying lyphs inheriting layers from a lyph template",
+  "author": "Natallia Kokash",
   "nodes": [
     {
       "id": "n001"

@@ -69,8 +69,7 @@ export class Coalescence extends Resource{
                     "generated"    : true,
                     "topology"     : this.topology,
                     "generatedFrom": this,
-                    "lyphs"        : uniqueLyphs,
-                    "comment"      : uniqueLyphs.map(e => e.id).join(",")
+                    "lyphs"        : uniqueLyphs
                 }, modelClasses, parentGroup.entitiesByID);
 
                 //it is ok to add newly create coalescences to the parent group coalescence set as they won't be further processed

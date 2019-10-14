@@ -1,4 +1,7 @@
 {
+  "id"  : "bolserLewisNew",
+  "name": "Bolser-Lewis model",
+  "description": "A demo model with chains and trees (updated bolserLewis.json with neuron data)",
   "nodes": [
     {
       "id": "c1_s",

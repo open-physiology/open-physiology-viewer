@@ -1,4 +1,8 @@
 {
+  "id"  : "neuron",
+  "name": "Neuron",
+  "description": "Demo model of an explicitly coded sequence of links conveying lyphs",
+  "author": "Natallia Kokash",
     "nodes": [
         { "id": "n001", "layout": {"x": -100, "y": 0, "z": 0} },
         { "id": "n002" },
@@ -54,20 +58,6 @@
         }
     ],
     "lyphs": [
-        {
-          "id": "n5",
-          "name": "Neuron 5",
-          "topology": "BAG",
-          "hostedLyphs": [
-            "n5-d",
-            "n5-h",
-            "n5-s1",
-            "n5-s2",
-            "n5-s3",
-            "n5-s4",
-            "n5-t"
-          ]
-        },
         {
           "id": "n5-d",
           "name": "Dendrite",

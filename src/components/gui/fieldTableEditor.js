@@ -1,13 +1,17 @@
 import {NgModule, Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {SearchBarModule} from "./searchBar";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
     MatFormFieldModule, MatTooltipModule, MatDialogModule, MatTableModule, MatSortModule, MatSort, MatTableDataSource,
-    MatButtonToggleModule, MatPaginatorModule, MatDialog
+    MatButtonToggleModule, MatPaginatorModule, MatDialog, MatInputModule
 } from '@angular/material';
 import {FieldEditorDialog} from './fieldEditorDialog';
+import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {isArray, isObject, isString, keys, cloneDeep} from "lodash-bound";
 import {getNewID} from "../../model/utils";
+import {getClassName} from '../../model/index';
+
 
 @Component({
     selector: 'fieldTableEditor',
@@ -97,13 +101,15 @@ export class FieldTableEditor {
         this.fieldNames = this._resourceModel.cudFields.filter(([key, spec]) => !spec.advanced).map(([key,]) => key);
         this.displayedColumns = [...this.fieldNames, 'actions'];
     }
+    @Input() modelResources = [];
 
     //filter(([key, spec]) => !spec.advanced)
 
-    @Output() onRemoveResource = new EventEmitter();
-    @Output() onEditResource = new EventEmitter();
-    @Output() onCreateResource = new EventEmitter();
-    @Output() onCopyResource = new EventEmitter();
+    @Output() onRemoveResource  = new EventEmitter();
+    @Output() onEditResource    = new EventEmitter();
+    @Output() onCreateResource  = new EventEmitter();
+    @Output() onCopyResource    = new EventEmitter();
+    @Output() onIncludeResource = new EventEmitter();
     @Output() onCreateExternalResource = new EventEmitter();
 
     constructor(dialog: MatDialog) {
@@ -185,34 +191,64 @@ export class FieldTableEditor {
 
     editResource(index, element, fieldName){
         let fieldValue = element[fieldName];
-        let fieldSpec = this._resourceModel.fieldMap[fieldName];
-        if (!fieldSpec) { return; }
-        const dialogRef = this.dialog.open(FieldEditorDialog, {
-            width: '25%',
-            data: {
-                title: `Enter new value:`,
-                value: fieldValue,
-                label: fieldName,
-                spec : fieldSpec
-            }
-        });
+        let fieldSpec = this._resourceModel.relationshipMap[fieldName];
+        if (fieldSpec){
+            //resource selection
+            let className = getClassName(fieldSpec);
+            const dialogRef = this.dialog.open(ResourceSelectDialog, {
+                width: '25%',
+                data: {
+                    title          : `Include resource?`,
+                    modelResources : this.modelResources,
+                    filteredResources : [],
+                    //this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
+                    resource       : {},
+                    className      : className
+                }
+            });
 
-        dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                this.resources[index][fieldName] = result;
+            dialogRef.afterClosed().subscribe(result => {
+                //if (!this._validateField([key, spec], result)){ return; }
+                if (fieldSpec.type === "array"){
+                    this.resources[index][fieldName].push(result);
+                } else {
+                    this.resources[index][fieldName] = result;
+                }
                 this.resources = [...this.resources];
-                this.onEditResource.emit(element);
-            }
-        });
+            })
+            //this.onIncludeResource.emit()
+
+        } else {
+            //property
+            fieldSpec = this._resourceModel.fieldMap[fieldName];
+            if (!fieldSpec) { return; }
+            const dialogRef = this.dialog.open(FieldEditorDialog, {
+                width: '25%',
+                data: {
+                    title: `Enter new value:`,
+                    value: fieldValue,
+                    label: fieldName,
+                    spec : fieldSpec
+                }
+            });
+
+            dialogRef.afterClosed().subscribe(result => {
+                if (result) {
+                    this.resources[index][fieldName] = result;
+                    this.resources = [...this.resources];
+                    this.onEditResource.emit(element);
+                }
+            });
+        }
     }
 }
 
 @NgModule({
-    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatDialogModule,
-        MatTooltipModule, MatDialogModule, MatTableModule, MatSortModule, MatButtonToggleModule, MatPaginatorModule],
-    declarations: [FieldTableEditor],
-    entryComponents: [FieldEditorDialog],
-    exports: [FieldTableEditor]
+    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatDialogModule, MatInputModule,
+        MatTooltipModule, MatDialogModule, MatTableModule, SearchBarModule, MatSortModule, MatButtonToggleModule, MatPaginatorModule],
+    declarations: [FieldTableEditor, ResourceSelectDialog],
+    entryComponents: [FieldEditorDialog, ResourceSelectDialog],
+    exports: [FieldTableEditor, ResourceSelectDialog]
 })
 export class FieldTableEditorModule {
 }

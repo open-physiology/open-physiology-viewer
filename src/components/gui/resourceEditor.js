@@ -1,13 +1,10 @@
-import {NgModule, Component, Input, ViewChildren} from '@angular/core';
+import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatTooltipModule, MatIconModule,
     MatCardModule, MatDialogModule, MatDialog, MatTabsModule, MatTableModule} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule} from "./fieldEditor";
-import {SearchBarModule} from "./searchBar";
-import {ResourceEditorDialog} from "./resourceEditorDialog";
-import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {ExternalSelectDialog} from "./externalSelectDialog";
 import {UtilsModule} from "./utils";
 import {isPlainObject, isArray, isString, clone, merge, values} from 'lodash-bound';
@@ -62,6 +59,7 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
                                 <fieldTableEditor
                                         [resources]="resource[field[0]]"
                                         [resourceModel]="getFieldModel(field[1])"
+                                        [modelResources]="modelResources"
                                         [showExternal]="showExternal(field[1])"
                                         [disabled]="disabled"
                                         (onRemoveResource)="removeRelationship(field)"
@@ -107,7 +105,6 @@ export class ResourceEditor {
     @Input() disabled = false;
     @Input() filteredResources = [];
     @Input() filteredFieldNames = [];
-
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
@@ -207,6 +204,7 @@ export class ResourceEditor {
      * @param result
      */
     createRelatedResource([key, spec], result) {
+        //TODO can be done in table now
         let className = getClassName(spec);
         this.modelResources[result.id] = result::clone()::merge({"class": className});
     }
@@ -217,6 +215,27 @@ export class ResourceEditor {
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      */
     createRelationship([key, spec]) {
+        // let className = getClassName(spec);
+        //
+        // const dialogRef = this.dialog.open(ResourceSelectDialog, {
+        //     width: '75%',
+        //     data: {
+        //         title          : `Include resource?`,
+        //         modelResources : this.modelResources,
+        //         filteredResources : this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
+        //         resource       : {},
+        //         className      : className
+        //     }
+        // });
+        //
+        // dialogRef.afterClosed().subscribe(result => {
+        //     if (!this._validateField([key, spec], result)){ return; }
+        //     if (spec.type === "array"){
+        //         this.resource[key].push(result); //add ID of an existing resource
+        //     } else {
+        //         this.resource[key] = result;  //assign ID of an existing resource
+        //     }
+        // })
     }
 
     /**
@@ -259,11 +278,11 @@ export class ResourceEditor {
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule, FieldTableEditorModule,
         MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule, MatTooltipModule,
-        MatCardModule, FieldEditorModule, SearchBarModule, UtilsModule, MatIconModule,
+        MatCardModule, FieldEditorModule, UtilsModule, MatIconModule,
         HttpClientModule, MatTabsModule, MatTableModule],
-    declarations: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog],
-    entryComponents: [ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog],
-    exports: [ResourceEditor, ResourceEditorDialog, ResourceSelectDialog, ExternalSelectDialog]
+    declarations: [ResourceEditor, ExternalSelectDialog],
+    entryComponents: [ExternalSelectDialog],
+    exports: [ResourceEditor, ExternalSelectDialog]
 })
 export class ResourceEditorModule {
 }

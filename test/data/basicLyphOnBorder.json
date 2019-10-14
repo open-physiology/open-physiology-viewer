@@ -1,4 +1,7 @@
 {
+  "id"  : "basicLyphOnBorder",
+  "name": "Renal Parenchyma with Kidney Lobus",
+  "description": "Demo model with a lyph conveying another lyph on its border",
   "nodes": [
     {
       "id": "k",

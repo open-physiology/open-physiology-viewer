@@ -79,6 +79,9 @@ export class Graph extends Group{
                 }
             }
         });
+
+        logger.info("Number of resources in the generated model:", entitiesByID::keys().length);
+
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
             logger.warn("Auto-created missing resources:", added);

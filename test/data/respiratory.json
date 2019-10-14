@@ -1,4 +1,7 @@
 {
+  "id"  : "respiratoryInternalLyphsInLayers",
+  "name": "Respiratory system (alternative model)",
+  "description": "Respiratory system as in respiratory.json but with internal lyphs assigned to layers of 'm'",
   "nodes" : [
     {
       "id": "1",

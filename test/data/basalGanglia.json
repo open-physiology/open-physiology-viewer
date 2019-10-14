@@ -1,4 +1,8 @@
 {
+  "id"  : "basalGanglia",
+  "name": "Basal Ganglia",
+  "description": "Basal Ganglia model assembly with axonal and dendrite generated trees",
+  "author": "Natallia Kokash",
   "trees" : [
     {
       "id"          : "dendrite",

@@ -10,8 +10,8 @@ Physiology deals with the body in terms of anatomical compartments that delineat
 The current project visualizes 3d ApiNATOMY models as part of the [NIH-SPARC](https://commonfund.nih.gov/sparc) [MAP-CORE](https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432) toolset.
 The main component in the current project accepts as input a JSON model and generates
 a force-directed graph layout satisfying relational constraints among model resources.
-The input model format is defined in the ApiNATOMY JSON Schema specification, check project [documentation](http://open-physiology.org/demo/open-physiology-viewer/docs/) for more detail.
-Live demonstrations of earlier versions of this application can be seen [here](http://open-physiology.org/demo/open-physiology-viewer/).
+The input model format is defined in the ApiNATOMY JSON Schema specification, check project [documentation](http://open-physiology-viewer-docs.surge.sh) for more detail.
+Live demonstration of this application can be found [here](http://open-physiology-viewer.surge.sh).
 
 ## Build instructions
 * Install  [Node.js](https://nodejs.org/).    

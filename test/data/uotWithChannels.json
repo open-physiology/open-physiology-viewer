@@ -1,4 +1,7 @@
 {
+  "id"  : "uotWithChannels",
+  "name": "Urinary Omega Tree",
+  "description": "Urinary Omega Tree, generated from Excel model, with channels",
   "nodes": [
     {
       "id": "node1D",
@@ -1178,7 +1181,7 @@
         "40"
       ],
       "topology": "CONNECTING",
-      "comment": "45.layers[2], 40.layers[2]"
+      "description": "45.layers[2], 40.layers[2]"
     }
   ],
   "channels": [

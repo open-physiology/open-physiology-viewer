@@ -1,4 +1,7 @@
 {
+  "id"  : "fullBody",
+  "name": "Circulatory cystem, central nervous system with nervous tracts",
+  "description": "Test model renders circular (rectangular with rounded corners) links and desired node positions",
   "nodes" : [
     {
       "id": "c",

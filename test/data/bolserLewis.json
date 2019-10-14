@@ -1,4 +1,7 @@
 {
+  "id"  : "bolserLewis",
+  "name": "Bolser-Lewis model",
+  "description": "A demo model with chains and trees (initial version)",
   "nodes": [
     {
       "id": "c1_s",

@@ -130,7 +130,7 @@ export class Lyph extends Shape {
         }
 
         targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
-            "thickness", "external", "comment", "materials", "create3d", "channels", "bundlesTrees"]));
+            "thickness", "external", "description", "materials", "create3d", "channels", "bundlesTrees"]));
         if (sourceLyph.isTemplate){
             targetLyph.supertype = sourceLyph.id;
             //Clone template villus object into all subtype lyphs

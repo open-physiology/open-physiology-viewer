@@ -1,4 +1,7 @@
 {
+  "id"  : "bgInternalLyphs",
+  "name": "Bond graph alternative in ApiNATOMY",
+  "description": "Demo model with internal lyphs connected by splines (see mock-up bgInternalLyphs.pdf)",
   "nodes": [
     {
       "id": "A",

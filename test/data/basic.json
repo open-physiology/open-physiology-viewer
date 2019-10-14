@@ -1,4 +1,8 @@
 {
+  "id"  : "basic",
+  "name": "Kidney Lobus",
+  "description": "Demo model with a lyph conveyed by a link",
+  "author": "Natallia Kokash",
   "nodes": [
     {
       "id": "k",

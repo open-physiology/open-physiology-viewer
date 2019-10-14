@@ -1,4 +1,7 @@
 {
+  "id"  : "basicHostedNode",
+  "name": "Circulatory system",
+  "description": "Demo model with nodes hosted by links with circular geometry",
   "nodes": [
     {
       "id": "a",

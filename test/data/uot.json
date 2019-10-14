@@ -1,4 +1,7 @@
 {
+  "id"  : "uot",
+  "name": "Urinary Omega Tree",
+  "description": "Urinary Omega Tree, simple model",
   "nodes" : [
     {
       "id": "uot-a",
@@ -698,7 +701,7 @@
         "uot-lnk17","uot-lnk18","uot-lnk19", "uot-lnk20", "uot-lnk21"
       ],
       "branchingFactors": [1, 1, 2, 1, 1, 1, 3],
-      "comment": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
+      "description": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
     }
   ],
   "groups": [

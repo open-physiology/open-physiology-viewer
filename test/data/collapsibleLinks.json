@@ -1,4 +1,7 @@
 {
+  "id"  : "collapsibleLinks",
+  "name": "Circulatory system with central nervous system",
+  "description": "A demo model with generated collapsible links",
   "nodes" : [
     {
       "id": "c",

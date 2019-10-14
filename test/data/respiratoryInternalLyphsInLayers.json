@@ -1,4 +1,7 @@
 {
+  "id"  : "respiratory",
+  "name": "Respiratory system",
+  "description": "Respiratory system on full body view (large number of node and links imported from an external data source)",
   "nodes" : [
     {
       "id": "1",

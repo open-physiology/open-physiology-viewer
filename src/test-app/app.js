@@ -86,7 +86,7 @@ debug(true, msgCount);
 				</a>
 			</span>
             <span class="w3-bar-item w3-right" title="Learn more">
-				<a href="http://open-physiology.org/demo/open-physiology-viewer/docs/"><i class="fa fa-home"> </i></a>
+				<a href="http://open-physiology-viewer-docs.surge.sh"><i class="fa fa-home"> </i></a>
             </span>
         </header>
         
@@ -312,7 +312,7 @@ export class TestApp {
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
         } catch(err){
             console.error(err.stack);
-            throw new Error("Failed to process the model: " +  err);
+            //throw new Error("Failed to process the model: " +  err);
         }
         if (this._editor){
             this._editor.set(this._model);

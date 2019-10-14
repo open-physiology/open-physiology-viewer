@@ -1,4 +1,8 @@
 {
+  "id"  : "jointTreesAtSoma",
+  "name": "Omega trees joint at Soma",
+  "description": "Demo model with two generated omega trees connected to a common lyph",
+  "author": "Natallia Kokash",
   "links": [
     {
       "id": "somaLnk",

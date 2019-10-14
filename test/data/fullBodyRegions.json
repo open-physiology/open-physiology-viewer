@@ -1,4 +1,7 @@
 {
+  "id"  : "fullBodyRegion",
+  "name": "Circulatory cystem, central nervous system with nervous tracts in a dedicated region",
+  "description": "Test model similar to fullBody.json but with nervous system in an allocated region",
   "nodes" : [
     {
       "id": "c",
@@ -1483,6 +1486,7 @@
         ],
         "interpolate": [
           {
+            "path": "$.nodes[*]",
             "offset": {
               "start": 1,
               "end": 0.5
@@ -1503,6 +1507,7 @@
           ],
           "interpolate": [
             {
+              "path": "$.nodes[*]",
               "offset": {
                 "start": 0,
                 "end": 0.5
@@ -1523,6 +1528,7 @@
           ],
           "interpolate": [
             {
+              "path": "$.nodes[*]",
               "offset": {
                 "start": 0, "end": 0.5
               }
@@ -1548,6 +1554,7 @@
           ],
           "interpolate": [
             {
+              "path": "$.nodes[*]",
               "offset": {"start": 1, "end": 0.5}
             }
           ]
