@@ -4,7 +4,7 @@
     "baseURL" : "https://scigraph.olympiangods.org/scigraph/vocabulary/",
     "mapping" : {
       "id"  : "curie",
-      "name": "labels[0]",
+      "name": "labels",
       "uri" : "iri"
     }
   }

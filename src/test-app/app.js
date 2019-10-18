@@ -299,7 +299,7 @@ export class TestApp {
     save(){
         let result = JSON.stringify(this._model, null, 4);
         const blob = new Blob([result], {type: 'text/plain'});
-        FileSaver.saveAs(blob, 'apinatomy-model.json');
+        FileSaver.saveAs(blob, (this._model.id? this._model.id: 'mainGraph') + '-model.json');
     }
 
     onSelectedItemChange(item){}
@@ -364,7 +364,7 @@ export class TestApp {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result){
+            if (result !== undefined){
                 parent[key] = result;
                 this.model = this._model;
             }

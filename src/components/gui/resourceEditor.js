@@ -1,8 +1,20 @@
 import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatTooltipModule, MatIconModule,
-    MatCardModule, MatDialogModule, MatDialog, MatTabsModule, MatTableModule} from '@angular/material';
+import {
+    MatExpansionModule,
+    MatListModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTooltipModule,
+    MatIconModule,
+    MatCardModule,
+    MatDialogModule,
+    MatDialog,
+    MatTabsModule,
+    MatCheckboxModule
+} from '@angular/material';
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule} from "./fieldEditor";
 import {ExternalSelectDialog} from "./externalSelectDialog";
@@ -16,25 +28,21 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
 @Component({
     selector: 'resourceEditor',
     template: `
-        <mat-card class="w3-grey">
-            <mat-expansion-panel [expanded]="expanded">
+        <mat-card class="w3-grey w3-padding-small">
+            <mat-expansion-panel [expanded]="expanded" class="w3-padding-small">
                 <!--Header-->
                 <mat-expansion-panel-header>
-                    <mat-panel-title>
+                    <mat-panel-title class="w3-padding-small">
                         {{className}}: {{resource?.id || "?"}} - {{resource?.name || "?"}}
                     </mat-panel-title>
-                    <mat-panel-description *ngIf="modelClasses[className]?.description">
-                        {{modelClasses[className].description}}
-                    </mat-panel-description>
                 </mat-expansion-panel-header>
 
-                <!--Relationships-->
-                <mat-card class="w3-grey">
+                <!--Fields-->
+                <mat-card class="w3-grey w3-padding-small">
                     <mat-tab-group animationDuration="0ms">
-
                         <!--Properties-->
                         <mat-tab label="main">
-                            <mat-card class="w3-card">
+                            <mat-card class="w3-card w3-row">
                                 <section *ngFor="let field of _propertyFields">
                                     <fieldEditor
                                             [value]="resource[field[0]]"
@@ -48,6 +56,7 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
                             </mat-card>
                         </mat-tab>
 
+                        <!--Relationships-->
                         <mat-tab *ngFor="let field of _relationshipFields">
                             <ng-template mat-tab-label>
                                 <span [matTooltip]="field[1]?.description">
@@ -57,22 +66,29 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
 
                             <mat-card class="w3-card">
                                 <fieldTableEditor
-                                        [resources]="resource[field[0]]"
-                                        [resourceModel]="getFieldModel(field[1])"
-                                        [modelResources]="modelResources"
-                                        [showExternal]="showExternal(field[1])"
-                                        [disabled]="disabled"
-                                        (onRemoveResource)="removeRelationship(field)"
-                                        (onCreateResource)="createRelatedResource(field, $event)"
-                                        (onCopyResource)  ="createRelatedResource(field)"
-                                        (onEditResource)  ="editRelatedResource(field, $event)"
-                                        (onCreateExternalResource)="createExternalResource(field)"
+                                        [resources]       = "resource[field[0]]"
+                                        [resourceModel]   = "getFieldModel(field[1])"
+                                        [modelResources]  = "modelResources"
+                                        [showExternal]    = "showExternal(field[1])"
+                                        [disabled]        = "disabled"
+                                        (onRemoveResource)        = "removeRelationship(field, $event)"
+                                        (onCreateResource)        = "createRelatedResource(field, $event)"
+                                        (onCopyResource)          = "createRelatedResource(field)"
+                                        (onIncludeResource)       = "createRelationship(field)"
+                                        (onEditResource)          = "editRelatedResource(field, $event)"
+                                        (onCreateExternalResource)= "createExternalResource(field)"
                                 >
                                 </fieldTableEditor>
                             </mat-card>
                         </mat-tab>
                     </mat-tab-group>
                 </mat-card>
+
+                <mat-action-row>
+                    <mat-checkbox labelPosition="after" [checked]="viewMode"
+                       (change)="updateViewMode($event.checked)">Show all fields</mat-checkbox>
+
+                </mat-action-row>
             </mat-expansion-panel>
         </mat-card>
     `,
@@ -112,6 +128,10 @@ export class ResourceEditor {
 
     get className(){
         return this._className;
+    }
+
+    updateViewMode(){
+        //
     }
 
     // noinspection JSMethodCanBeStatic
@@ -193,8 +213,9 @@ export class ResourceEditor {
         return true;
     }
 
-    removeRelationship(resource){
-        //TODO register change ?
+    removeRelationship([key, spec], index){
+        this.resource[key].splice(index, 1);
+        this.resource[key] = [...this.resource[key]];
     }
 
     /**
@@ -215,27 +236,6 @@ export class ResourceEditor {
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
      */
     createRelationship([key, spec]) {
-        // let className = getClassName(spec);
-        //
-        // const dialogRef = this.dialog.open(ResourceSelectDialog, {
-        //     width: '75%',
-        //     data: {
-        //         title          : `Include resource?`,
-        //         modelResources : this.modelResources,
-        //         filteredResources : this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
-        //         resource       : {},
-        //         className      : className
-        //     }
-        // });
-        //
-        // dialogRef.afterClosed().subscribe(result => {
-        //     if (!this._validateField([key, spec], result)){ return; }
-        //     if (spec.type === "array"){
-        //         this.resource[key].push(result); //add ID of an existing resource
-        //     } else {
-        //         this.resource[key] = result;  //assign ID of an existing resource
-        //     }
-        // })
     }
 
     /**
@@ -243,34 +243,28 @@ export class ResourceEditor {
      * @param {string} key - relationship name
      */
     createExternalResource([key, ]) {
-        let config = {
-            title   : `Link new external resource?`
-        }::merge(annotations);
-
-        const dialogRef = this.dialog.open(ExternalSelectDialog, {
+        const config = {title: `Link new external resource?`}::merge(annotations);
+        let dialogRef = this.dialog.open(ExternalSelectDialog, {
             width: '75%', data: config
         });
 
         //TODO use JSONata (JSON transform) to define rules for transforming response into ApiNATOMY external resource object
         dialogRef.afterClosed().subscribe(result => {
-            (result||{})::values().forEach(e => {
-                let resource = {
-                    id    : e.curie,
-                    name  : e.labels ? e.labels[0] : null,
-                    uri   : e.iri,
-                    type  : config.type,
-                    class : "External"
-                };
-                if (!this.resource[key]){ this.resource[key] = []; }
-                //Add newly created resource to the global map to enable the possibility to refer to it
-                if (!this.modelResources[resource.id]) {
-                    this.modelResources[resource.id] = resource;
-                    this.resource[key].push(resource);
-                } else {
-                    this.resource[key].push(resource.id);
-                }
-                this.resource[key] = [...this.resource[key]];
-            });
+            if (result !== undefined){
+                let newResources = result::values().map(e => ({
+                        id    : e.curie,
+                        name  : e.labels ? e.labels[0] : null,
+                        uri   : e.iri,
+                        type  : config.type,
+                        class : "External"
+                    }));
+                newResources.forEach(resource => {
+                    if (!this.modelResources[resource.id]) {
+                        this.modelResources[resource.id] = resource;
+                    }
+                });
+                this.resource[key] = (this.resource[key] || []).concat(newResources);
+            }
         })
     }
 }
@@ -278,8 +272,8 @@ export class ResourceEditor {
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule, FieldTableEditorModule,
         MatExpansionModule, MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule, MatTooltipModule,
-        MatCardModule, FieldEditorModule, UtilsModule, MatIconModule,
-        HttpClientModule, MatTabsModule, MatTableModule],
+        MatCardModule, FieldEditorModule, UtilsModule, MatIconModule, MatCheckboxModule,
+        HttpClientModule, MatTabsModule],
     declarations: [ResourceEditor, ExternalSelectDialog],
     entryComponents: [ExternalSelectDialog],
     exports: [ResourceEditor, ExternalSelectDialog]

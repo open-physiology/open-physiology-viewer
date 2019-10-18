@@ -4,11 +4,11 @@ import {SearchBarModule} from "./searchBar";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
     MatFormFieldModule, MatTooltipModule, MatDialogModule, MatTableModule, MatSortModule, MatSort, MatTableDataSource,
-    MatButtonToggleModule, MatPaginatorModule, MatDialog, MatInputModule
+    MatPaginatorModule, MatDialog, MatInputModule
 } from '@angular/material';
 import {FieldEditorDialog} from './fieldEditorDialog';
 import {ResourceSelectDialog} from "./resourceSelectDialog";
-import {isArray, isObject, isString, keys, cloneDeep} from "lodash-bound";
+import {isArray, isObject, isString, entries, cloneDeep} from "lodash-bound";
 import {getNewID} from "../../model/utils";
 import {getClassName} from '../../model/index';
 
@@ -16,12 +16,6 @@ import {getClassName} from '../../model/index';
 @Component({
     selector: 'fieldTableEditor',
     template: `
-
-        <mat-button-toggle-group name="displayMode" aria-label="Display mode" class="w3-right">
-            <mat-button-toggle value="basic"><i class="fa fa-filter"> </i></mat-button-toggle>
-            <mat-button-toggle value="all"><i class="fa fa-list"> </i></mat-button-toggle>
-        </mat-button-toggle-group>
-
         <table #table mat-table [dataSource]="dataSource" matSort>
 
             <ng-container *ngFor="let fieldName of fieldNames" [matColumnDef]="fieldName">
@@ -80,9 +74,6 @@ export class FieldTableEditor {
 
     @ViewChild('table') table;
     @ViewChild(MatSort, {static: true}) sort: MatSort;
-
-    //field table view parameters
-    _mode = 'BASIC';
     _dataSource;
 
     //field table input parameters
@@ -103,8 +94,6 @@ export class FieldTableEditor {
     }
     @Input() modelResources = [];
 
-    //filter(([key, spec]) => !spec.advanced)
-
     @Output() onRemoveResource  = new EventEmitter();
     @Output() onEditResource    = new EventEmitter();
     @Output() onCreateResource  = new EventEmitter();
@@ -117,17 +106,6 @@ export class FieldTableEditor {
     }
 
     set dataSource(newResources){
-        if (!newResources){ return;}
-        let tableContent = newResources::cloneDeep();
-        tableContent.forEach(resource => resource::keys().forEach(key => resource[key] = this.printCellContent(key, resource)));
-        this._dataSource = new MatTableDataSource(tableContent);
-        this._dataSource.sort = this.sort;
-    }
-
-    printCellContent(fieldName, rowContent){
-        if (!rowContent) {return "";}
-        if (rowContent::isString()){ return (fieldName === "id")? rowContent: ""; }
-
         function printObj(cellContent){
             if (!cellContent) {return}
             if (cellContent::isArray()){
@@ -141,9 +119,16 @@ export class FieldTableEditor {
                     }
                 }
             }
-            return cellContent;
-        }
-        return printObj(rowContent[fieldName]);
+            return cellContent;    }
+
+        if (!newResources){ return;}
+        let tableContent = newResources;
+
+        tableContent.forEach(resource => resource::entries().map(([key, value]) =>
+            (value::isString())? (key === "id")? value: "": printObj(value)));
+
+        this._dataSource = new MatTableDataSource(tableContent);
+        this._dataSource.sort = this.sort;
     }
 
     get dataSource(){
@@ -174,12 +159,9 @@ export class FieldTableEditor {
     }
 
     removeResource(index){
-        let el = this._resources.splice(index, 1);
-        this.dataSource = this._resources;
-        this.onRemoveResource.emit(el);
+        this.onRemoveResource.emit(index);
     }
 
-    //TODO replace with ResourceType::clone() operations to properly clone objects
     copyResource(index){
         let el = this._resources[index];
         let newEl = el::cloneDeep();
@@ -202,21 +184,20 @@ export class FieldTableEditor {
                     modelResources : this.modelResources,
                     filteredResources : [],
                     //this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
-                    resource       : {},
-                    className      : className
+                    resource       : fieldValue,
+                    className      : className,
+                    multiSelect    : fieldSpec.type === "array"
                 }
             });
 
             dialogRef.afterClosed().subscribe(result => {
-                //if (!this._validateField([key, spec], result)){ return; }
-                if (fieldSpec.type === "array"){
-                    this.resources[index][fieldName].push(result);
-                } else {
-                    this.resources[index][fieldName] = result;
+                if (result !== undefined){
+                    //if (!this._validateField([key, spec], result)){ return; }
+                    this.resources[index][fieldName] = result.split(",");
+                    this.onIncludeResource.emit(result);
+                    this.resources = [...this.resources];
                 }
-                this.resources = [...this.resources];
-            })
-            //this.onIncludeResource.emit()
+            });
 
         } else {
             //property
@@ -227,13 +208,13 @@ export class FieldTableEditor {
                 data: {
                     title: `Enter new value:`,
                     value: fieldValue,
-                    label: fieldName,
+                    key  : fieldName,
                     spec : fieldSpec
                 }
             });
 
             dialogRef.afterClosed().subscribe(result => {
-                if (result) {
+                if (result !== undefined) {
                     this.resources[index][fieldName] = result;
                     this.resources = [...this.resources];
                     this.onEditResource.emit(element);
@@ -245,7 +226,7 @@ export class FieldTableEditor {
 
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatDialogModule, MatInputModule,
-        MatTooltipModule, MatDialogModule, MatTableModule, SearchBarModule, MatSortModule, MatButtonToggleModule, MatPaginatorModule],
+        MatTooltipModule, MatDialogModule, MatTableModule, SearchBarModule, MatSortModule, MatPaginatorModule],
     declarations: [FieldTableEditor, ResourceSelectDialog],
     entryComponents: [FieldEditorDialog, ResourceSelectDialog],
     exports: [FieldTableEditor, ResourceSelectDialog]

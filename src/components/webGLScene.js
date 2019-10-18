@@ -378,7 +378,7 @@ export class WebGLSceneComponent {
         if (this._graphData){
             let result = JSON.stringify(this._graphData.toJSON(1), null, 2);
             const blob = new Blob([result], {type: 'text/plain'});
-            FileSaver.saveAs(blob, 'apinatomy-generated.json');
+            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
         }
     }
 
@@ -386,7 +386,7 @@ export class WebGLSceneComponent {
         if (this._graphData){
             let result = JSON.stringify(this._graphData.entitiesToJSON(), null, 2);
             const blob = new Blob([result], {type: 'text/plain'});
-            FileSaver.saveAs(blob, 'apinatomy-resourceMap.json');
+            FileSaver.saveAs(blob, this._graphData.id + '-resourceMap.json');
         }
     }
 
@@ -397,7 +397,7 @@ export class WebGLSceneComponent {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result){
+            if (result !== undefined){
                 //save to file
             }
         });

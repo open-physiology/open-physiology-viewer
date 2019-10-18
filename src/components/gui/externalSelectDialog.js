@@ -3,6 +3,7 @@ import {
     MatDialogRef,
     MAT_DIALOG_DATA
 } from '@angular/material';
+import {isArray} from 'lodash-bound';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -36,10 +37,7 @@ import { HttpClient } from '@angular/common/http';
                 {{_annotations?.length}} external resources found for the term <b>{{searchTerm}}</b>
                 <mat-selection-list #annotations>
                     <mat-list-option *ngFor="let obj of _annotations" (click)="updateSelected(obj)">
-                        <h3 matLine> {{obj.curie + (obj.labels ? " : " + obj.labels[0] : "")}} </h3>
-                        <p matLine>
-                            {{print(resource, " ", 2)}}
-                        </p>
+                        <h3 matLine> {{getName(obj)}} </h3>
                     </mat-list-option>
                 </mat-selection-list>
 
@@ -73,12 +71,21 @@ export class ExternalSelectDialog {
     }
 
     updateSelected(obj){
-        let key = obj.curie;
+        let key = obj[this.data.mapping.id];
         if (!this.selected[key]){
             this.selected[key] = obj;
         } else {
             delete this.selected[key];
         }
+    }
+
+    getName(obj){
+        let res = obj[this.data.mapping.id];
+        let name = obj[this.data.mapping.name];
+        if (name) {
+            res += " : " + (name::isArray()? name[0]: name);
+        }
+        return res;
     }
 
     getAnnotations(option) {
@@ -102,13 +109,13 @@ export class ExternalSelectDialog {
                 : `${this.data.baseURL}search/${this.searchTerm}?prefix=${this.data.type}`;
 
         this.http.get(url).subscribe(res => {
-                this._annotations = res.map(x => x.concept? x.concept: x);
+                this._annotations = res.map(x => x.concept? x.concept: x); //TODO place this to the annotations
+                let key = this.data.mapping.id;
+                //select annotations with unique identifiers
+                this._annotations = this._annotations.filter((x, i ) => this._annotations.findIndex(y => y[key] === x[key]) === i);
                 this.selected = {};
-                console.info("HTTP Request succeeded: ", res);
             }
         )
     }
-
-    print = JSON.stringify;
 }
 

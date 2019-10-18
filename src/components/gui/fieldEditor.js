@@ -1,9 +1,9 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, FormControl} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
     MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule
+    MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule, MatDatepickerModule, MatNativeDateModule
 } from '@angular/material';
 import {getClassName, schemaClassModels} from '../../model/index.js';
 import {FieldEditorDialog} from './fieldEditorDialog';
@@ -12,10 +12,10 @@ import { cloneDeep, isObject} from 'lodash-bound';
 @Component({
     selector: 'fieldEditor',
     template: `
-        <section>
+        <section class="w3-quarter">
             <!--Input-->
             <mat-form-field *ngIf="_fieldType === 'input'">
-                <input matInput class="w3-input full-width"
+                <input matInput class="w3-input"
                        [placeholder]="label"
                        [matTooltip]="spec?.description"
                        [type]="_inputType"
@@ -48,105 +48,109 @@ import { cloneDeep, isObject} from 'lodash-bound';
                           [checked]="value"
                           [disabled]="disabled"
                           (change)="updateValue($event.checked)"
-
             >{{label}}
             </mat-checkbox>
 
-            <!--Object - show fieldEditor for each property-->
-            <section *ngIf="_fieldType === 'object'">
-                <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            {{label}}
-                        </mat-panel-title>
-                        <mat-panel-description *ngIf="spec?.description">
-                            {{spec.description}}
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
+            <!--Datepicker-->
+            <mat-form-field  *ngIf="_fieldType === 'date'">
+                <input matInput [matDatepicker]="picker" 
+                       [placeholder]="label"
+                       [value]="date?.value"
+                       (dateInput)="updateValue($event)" (dateChange)="updateValue($event)">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+        </section>
 
-                    <section *ngIf="!!_objectProperties">
-                        <section *ngFor="let key of objectKeys(_objectProperties)">
-                            <fieldEditor
-                                    [label]="key"
-                                    [value]="value? value[key]: getDefault(_objectProperties[key])"
-                                    [spec]="_objectProperties[key]"
-                                    [disabled]="disabled"
-                                    (onValueChange)="updateProperty(key, $event)">
-                            </fieldEditor>
-                        </section>
+        <!--Object - show fieldEditor for each property-->
+        <section *ngIf="_fieldType === 'object'" class="w3-row">
+            <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        {{label}}
+                    </mat-panel-title>
+                    <!--<mat-panel-description *ngIf="spec?.description">-->
+                        <!--{{spec.description}}-->
+                    <!--</mat-panel-description>-->
+                </mat-expansion-panel-header>
+
+                <section *ngIf="!!_objectProperties">
+                    <section *ngFor="let key of objectKeys(_objectProperties)">
+                        <fieldEditor
+                                [label]="key"
+                                [value]="value? value[key]: getDefault(_objectProperties[key])"
+                                [spec]="_objectProperties[key]"
+                                [disabled]="disabled"
+                                (onValueChange)="updateProperty(key, $event)">
+                        </fieldEditor>
                     </section>
-                    <section *ngIf="!_objectProperties">
-                        <section *ngFor="let key of objectKeys(value||{})">
-                            {{key}}: {{value ? value[key] : ""}}
-                            <mat-action-row>
-                                <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
-                                    <i class="fa fa-trash"> </i>
-                                </button>
-                            </mat-action-row>
-                        </section>
-
+                </section>
+                <section *ngIf="!_objectProperties">
+                    <section *ngFor="let key of objectKeys(value||{})">
+                        {{key}}: {{value ? value[key] : ""}}
                         <mat-action-row>
-                            <!-- Add any number of key-value pairs -->
-                            <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="addProperty()">
-                                <i class="fa fa-plus"> </i>
-                            </button>
-                        </mat-action-row>
-                    </section>
-                </mat-expansion-panel>
-            </section>
-
-            <!--Array - show fieldEditor for each item-->
-            <section *ngIf="_fieldType === 'array'">
-                <mat-expansion-panel class="w3-margin-bottom">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            {{label}}
-                        </mat-panel-title>
-                        <mat-panel-description *ngIf="spec.description">
-                            {{spec.description}}
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-
-                    <section *ngFor="let obj of value; let i = index">
-                        {{print(obj, " ", 2)}}
-                        <mat-action-row>
-                            <button class="w3-hover-light-grey" (click)="editObj(i)">
-                                <i class="fa fa-edit"> </i>
-                            </button>
-                            <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
+                            <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="removeProperty(key)">
                                 <i class="fa fa-trash"> </i>
                             </button>
                         </mat-action-row>
                     </section>
 
-                    <mat-action-row *ngIf="!disabled">
-                        <button class="w3-hover-light-grey" (click)="addObj()">
+                    <mat-action-row>
+                        <!-- Add any number of key-value pairs -->
+                        <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="addProperty()">
                             <i class="fa fa-plus"> </i>
                         </button>
                     </mat-action-row>
-
-                </mat-expansion-panel>
-            </section>
-
-            <!--Other-->
-            <section *ngIf="_fieldType === 'other'">
-                Unsupported field: <b>{{label}}</b>
-            </section>
-
-
+                </section>
+            </mat-expansion-panel>
         </section>
-    `,
-    styles: [`
-        .full-width {
-          width: 100%;
-        }
-    `]
+
+        <!--Array - show fieldEditor for each item-->
+        <section *ngIf="_fieldType === 'array'" class="w3-row">
+            <mat-expansion-panel class="w3-margin-bottom">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        {{label}}
+                    </mat-panel-title>
+                    <!--<mat-panel-description *ngIf="spec.description">-->
+                        <!--{{spec.description}}-->
+                    <!--</mat-panel-description>-->
+                </mat-expansion-panel-header>
+
+                <section *ngFor="let obj of value; let i = index">
+                    {{print(obj, " ", 2)}}
+                    <mat-action-row>
+                        <button class="w3-hover-light-grey" (click)="editObj(i)">
+                            <i class="fa fa-edit"> </i>
+                        </button>
+                        <button *ngIf="!disabled" class="w3-hover-light-grey" (click)="removeObj(i)">
+                            <i class="fa fa-trash"> </i>
+                        </button>
+                    </mat-action-row>
+                </section>
+
+                <mat-action-row *ngIf="!disabled">
+                    <button class="w3-hover-light-grey" (click)="addObj()">
+                        <i class="fa fa-plus"> </i>
+                    </button>
+                </mat-action-row>
+
+            </mat-expansion-panel>
+        </section>
+
+        <!--Other-->
+        <section *ngIf="_fieldType === 'other'">
+            Unsupported field: <b>{{label}}</b>
+        </section>
+
+    `
 })
 /**
  * The class to edit a resource field
  */
 export class FieldEditor {
     _spec;
+    _value;
     objectKeys = Object.keys;
     dialog: MatDialog;
 
@@ -168,11 +172,18 @@ export class FieldEditor {
 
     @Input() expanded = false;
     @Input() label;
-    @Input() value;
+    @Input('value') set value(newValue){
+        this._value = newValue;
+    };
+
     @Input('spec') set spec(newSpec){
         this._spec = newSpec;
         let clsName = getClassName(this._spec);
         this._fieldType = this.getFieldType(clsName, this._spec);
+
+        if (this._fieldType === "date") {
+            this.date = new FormControl(new Date(this.value));
+        }
 
         if (this._fieldType === "input") {
             this._inputType =  (this.spec.type === "string")
@@ -210,6 +221,10 @@ export class FieldEditor {
         return this._spec;
     }
 
+    get value(){
+        return this._value;
+    }
+
     print = JSON.stringify;
 
     /**
@@ -219,15 +234,20 @@ export class FieldEditor {
      * @returns {string} string that describes the schema field type: 'input', 'select', 'array', 'object', or 'other'
      */
     getFieldType(clsName, spec){
-        if (!spec
-            || ((spec.type === "number" || spec.type === "string") && !spec.enum)
-            || clsName === "RGBColorScheme"
-            || clsName === "JSONPathScheme") {
-            return "input";
+        if (!spec) { return "input"; }
+
+        if (spec.type === "string" && spec.format === 'date'){
+            return spec.format;
         }
 
         if (spec.type === "boolean" || spec.type === "array") {
             return spec.type;
+        }
+
+        if ((spec.type === "number" || spec.type === "string") && !spec.enum
+            || clsName === "RGBColorScheme"
+            || clsName === "JSONPathScheme") {
+            return "input";
         }
 
         const checkType = (spec, handler) => {
@@ -280,6 +300,7 @@ export class FieldEditor {
      * @param newValue - new property value
      */
     updateProperty(key, newValue){
+        //TODO fix type 'layout'
         if (!this.value){ this.value = {}; }
         this.value[key] = newValue;
         this.onValueChange.emit(this.value);
@@ -307,9 +328,8 @@ export class FieldEditor {
                 spec : this.keyValueSpec
             }
         });
-
         dialogRef.afterClosed().subscribe(result => {
-            if (result) {
+            if (result !== undefined) {
                 this.value[result.key] = result.value;
                 this.onValueChange.emit(this.value);
             }
@@ -341,7 +361,7 @@ export class FieldEditor {
             }
         });
         dialogRef.afterClosed().subscribe(result => {
-            if (result){
+            if (result !== undefined){
                 this.value[index] = result;
                 this.onValueChange.emit(this.value);
             }
@@ -363,7 +383,7 @@ export class FieldEditor {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result) {
+            if (result !== undefined) {
                 if (!this.value) {this.value = [];}
                 this.value.push(result);
                 this.onValueChange.emit(this.value);
@@ -374,8 +394,10 @@ export class FieldEditor {
 
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule,
-        MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule],
+        MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule, MatDatepickerModule,
+        MatNativeDateModule],
     declarations: [FieldEditor, FieldEditorDialog],
+    providers:[MatDatepickerModule],
     entryComponents: [FieldEditorDialog],
     exports: [FieldEditor, FieldEditorDialog]
 })
