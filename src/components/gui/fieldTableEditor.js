@@ -28,7 +28,7 @@ import {getClassName} from '../../model/index';
                 <th mat-header-cell *matHeaderCellDef> 
                     <section *ngIf="!disabled">
                         <button class="w3-hover-light-grey" title="Create resource"
-                                (click)="createResource()">
+                                (click)="onCreateResource.emit()">
                             <i class="fa fa-plus"> </i>
                         </button>
                         <button *ngIf="showExternal" class="w3-hover-light-grey" title="Annotate"
@@ -41,7 +41,7 @@ import {getClassName} from '../../model/index';
 
                 <td mat-cell *matCellDef="let element; let i = index;" class="w3-padding-small">
                     <button *ngIf="!disabled && _isFieldArray" class="w3-hover-light-grey" title="Copy resource"
-                          (click)="copyResource(i)">
+                          (click)="onCreateResource.emit(_resources[i])">
                         <i class="fa fa-copy"> </i>
                     </button>
                     <button *ngIf="!disabled && !!element" title="Remove resource"
@@ -97,8 +97,6 @@ export class FieldTableEditor {
     @Output() onRemoveResource  = new EventEmitter();
     @Output() onEditResource    = new EventEmitter();
     @Output() onCreateResource  = new EventEmitter();
-    @Output() onCopyResource    = new EventEmitter();
-    @Output() onIncludeResource = new EventEmitter();
     @Output() onCreateExternalResource = new EventEmitter();
 
     constructor(dialog: MatDialog) {
@@ -150,27 +148,12 @@ export class FieldTableEditor {
         return value::isArray();
     }
 
-    createResource(){
-        let newEl = {id: getNewID()};
-        if (!this._resources) { this._resources = []}
-        this._resources.push(newEl);
-        this.resources = [...this.resources];
-        this.onCreateResource.emit(newEl);
-    }
 
     removeResource(index){
         this.onRemoveResource.emit(index);
     }
 
-    copyResource(index){
-        let el = this._resources[index];
-        let newEl = el::cloneDeep();
-        newEl.id = getNewID() + " - copy of " + el.id || "?";
-        this.resources.push(newEl);
-        this.resources = [...this.resources];
-        this.onCreateResource.emit(newEl);
-    }
-
+    //TODO move to resourceEditor?
     editResource(index, element, fieldName){
         let fieldValue = element[fieldName];
         let fieldSpec = this._resourceModel.relationshipMap[fieldName];
@@ -194,8 +177,8 @@ export class FieldTableEditor {
                 if (result !== undefined){
                     //if (!this._validateField([key, spec], result)){ return; }
                     this.resources[index][fieldName] = result.split(",");
-                    this.onIncludeResource.emit(result);
                     this.resources = [...this.resources];
+                    this.onEditResource.emit();
                 }
             });
 
@@ -217,7 +200,7 @@ export class FieldTableEditor {
                 if (result !== undefined) {
                     this.resources[index][fieldName] = result;
                     this.resources = [...this.resources];
-                    this.onEditResource.emit(element);
+                    this.onEditResource.emit();
                 }
             });
         }

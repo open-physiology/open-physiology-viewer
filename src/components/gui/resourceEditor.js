@@ -19,11 +19,12 @@ import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule} from "./fieldEditor";
 import {ExternalSelectDialog} from "./externalSelectDialog";
 import {UtilsModule} from "./utils";
-import {isPlainObject, isArray, isString, clone, merge, values} from 'lodash-bound';
+import {isPlainObject, isArray, isString, clone, merge, values, cloneDeep} from 'lodash-bound';
 import {HttpClientModule} from '@angular/common/http';
 import {getClassName} from '../../model/index';
 import {annotations} from "./config";
 import {FieldTableEditorModule} from "./fieldTableEditor";
+import {getNewID} from "../../model/utils";
 
 @Component({
     selector: 'resourceEditor',
@@ -71,11 +72,9 @@ import {FieldTableEditorModule} from "./fieldTableEditor";
                                         [modelResources]  = "modelResources"
                                         [showExternal]    = "showExternal(field[1])"
                                         [disabled]        = "disabled"
-                                        (onRemoveResource)        = "removeRelationship(field, $event)"
-                                        (onCreateResource)        = "createRelatedResource(field, $event)"
-                                        (onCopyResource)          = "createRelatedResource(field)"
-                                        (onIncludeResource)       = "createRelationship(field)"
-                                        (onEditResource)          = "editRelatedResource(field, $event)"
+                                        (onRemoveResource)        = "removeResource(field, $event)"
+                                        (onCreateResource)        = "createResource(field, $event)"
+                                        (onEditResource)          = "editResource(field)"
                                         (onCreateExternalResource)= "createExternalResource(field)"
                                 >
                                 </fieldTableEditor>
@@ -174,10 +173,10 @@ export class ResourceEditor {
      * Update a relationship by modifying the resource assigned to the given field
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
-     * @param {number} index - index of the element to edit (use 0 if resource[key] implies one resource).
      */
-    editRelatedResource([key, spec], value){
-        //update value?
+    editResource([key, spec]){
+        //this.resource[key][index][fieldName] = value;
+        this.resource[key] = [...this.resource[key]];
     }
 
     /**
@@ -213,8 +212,9 @@ export class ResourceEditor {
         return true;
     }
 
-    removeRelationship([key, spec], index){
-        this.resource[key].splice(index, 1);
+    removeResource([key, spec], index){
+        let removedResource = this.resource[key].splice(index, 1);
+        delete this.modelResources[removedResource.id];
         this.resource[key] = [...this.resource[key]];
     }
 
@@ -222,20 +222,20 @@ export class ResourceEditor {
      * Add newly created resource to the global map to enable the possibility to refer to it
      * @param {string} key  - resource field that points to the other resource in the relationship
      * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
-     * @param result
      */
-    createRelatedResource([key, spec], result) {
-        //TODO can be done in table now
+    createResource([key, spec], fromResource) {
         let className = getClassName(spec);
-        this.modelResources[result.id] = result::clone()::merge({"class": className});
-    }
-
-    /**
-     * Create a new relationship by including a new resource to the given field
-     * @param {string} key  - resource field that points to the other resource in the relationship
-     * @param {object} spec - JSON Schema definition of the field (specifies its expected type and relevant constraints)
-     */
-    createRelationship([key, spec]) {
+        let newResource = fromResource
+            ? fromResource::cloneDeep()::merge({"id": getNewID() + " - copy of " + fromResource.id || "?"})
+            : {id: getNewID(), "class": className};
+        if (spec.type === "array") {
+            if (!this.resource[key]){ this.resource[key] = []; }
+            this.resource[key].push(newResource);
+            this.resource[key] = [...this.resource[key]];
+        } else {
+             this.resource[key] = newResource; //TODO test
+        }
+        this.modelResources[newResource.id] = newResource;
     }
 
     /**
@@ -244,17 +244,14 @@ export class ResourceEditor {
      */
     createExternalResource([key, ]) {
         const config = {title: `Link new external resource?`}::merge(annotations);
-        let dialogRef = this.dialog.open(ExternalSelectDialog, {
-            width: '75%', data: config
-        });
+        let dialogRef = this.dialog.open(ExternalSelectDialog, { width: '75%', data: config });
 
-        //TODO use JSONata (JSON transform) to define rules for transforming response into ApiNATOMY external resource object
         dialogRef.afterClosed().subscribe(result => {
             if (result !== undefined){
                 let newResources = result::values().map(e => ({
-                        id    : e.curie,
-                        name  : e.labels ? e.labels[0] : null,
-                        uri   : e.iri,
+                        id    : e[config.mapping.id],
+                        name  : e[config.mapping.name]::isArray()? e[config.mapping.name][0]: e[config.mapping.name],
+                        uri   : e[config.mapping.uri],
                         type  : config.type,
                         class : "External"
                     }));

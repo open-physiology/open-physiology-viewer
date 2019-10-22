@@ -53,7 +53,6 @@ export class ResourceSelectDialog {
 
     selectBySearch(name) {
         let resource = (this.data.modelResources::values()||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
-        console.log(resource.id);
         if (this.data.multiSelect){
             let newIds = this.data.ids.split(",").filter(x => !!x);
             newIds.push(resource.id);

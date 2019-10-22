@@ -55,7 +55,7 @@ export class Resource{
         const res = new cls(json.id);
         res.class = clsName;
         //spec
-        let difference = json::keys().filter(x => !modelClasses[clsName].Model.fieldNames.find(y => y === x));
+        let difference = json::keys().filter(x => !modelClasses[clsName].Model.fieldNames.find(y => y === x)).filter(x => !["_inactive"].includes(x));
         if (difference.length > 0) {
             logger.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
         }

@@ -250,18 +250,14 @@ export class RelGraph {
     }
 
     ngAfterViewInit() {
-        this.resizeToDisplaySize();
-        window.addEventListener('resize', () => this.resizeToDisplaySize(), false);
+        window.addEventListener('resize', () => this.draw(), false);
         this.drawLegend();
     }
 
-    resizeToDisplaySize() {
+    draw() {
         this.width  = this.svgContainer.nativeElement.clientWidth;
         this.height = this.svgContainer.nativeElement.clientHeight;
-        this.draw();
-    }
 
-    draw() {
         let svg = d3.select(this.svgRef.nativeElement).attr("width", this.width).attr("height", this.height);
         //Clean the view
         svg.selectAll("g").remove();

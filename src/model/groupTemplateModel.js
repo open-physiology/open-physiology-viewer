@@ -789,11 +789,11 @@ export class Villus extends GroupTemplate{
             }: prev;
 
             if (i === villus.numLayers - 1){
-                addBorderNode(layer.border.borders[2], node1);
+                addBorderNode(layer.border.borders[2], node1.id);
                 mergeGenResource(villus.group, parentGroup, node1, "nodes");
             }
             let node2 = { "id": "villus_node_" + lyph.id + "_" + layer.id + "_" + (i + 1) };
-            addBorderNode(layer.border.borders[0], node2);
+            addBorderNode(layer.border.borders[0], node2.id);
             mergeGenResource(villus.group, parentGroup, node2, "nodes");
 
             let villus_layers = sourceLayers.slice(0, villus.numLayers - i).reverse().map(sourceLyph => {

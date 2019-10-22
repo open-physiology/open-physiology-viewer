@@ -43,6 +43,8 @@ export class Coalescence extends Resource{
         });
         if (lyphMap::keys().length > 0){
             //coalescence was defined on abstract lyphs - generate coalescence instances
+
+            //TODO why lyph is undefined?
             (this.lyphs||[]).forEach(lyph => {
                 lyphMap[lyph.id] = lyphMap[lyph.id] || [lyph];
             });
