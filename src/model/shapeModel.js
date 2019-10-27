@@ -1,7 +1,7 @@
 import {Link, VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
-import {findResourceByID, getNewID} from './utils';
+import {$Field, findResourceByID, getNewID} from './utils';
 
 const LYPH_TOPOLOGY = {
     TUBE : "TUBE",
@@ -37,10 +37,11 @@ export class Shape extends VisualResource {
         for (let i = 0; i < json.numBorders ; i++){
             let id = json.border.id + "_" + i;
             json.border.borders[i]::merge({
-                "id": id,
-                "source": { id: `s_${id}` },
-                "target": { id: `t_${id}` },
-                "geometry": Link.LINK_GEOMETRY.INVISIBLE
+                [$Field.id]       : id,
+                [$Field.source]   : { id: `s_${id}` },
+                [$Field.target]   : { id: `t_${id}` },
+                [$Field.geometry] : Link.LINK_GEOMETRY.INVISIBLE,
+                [$Field.generated]: true
             });
         }
         delete json.numBorders;
@@ -129,8 +130,9 @@ export class Lyph extends Shape {
             }
         }
 
-        targetLyph::merge(sourceLyph::pick(["color", "scale", "height", "width", "length",
-            "thickness", "external", "description", "materials", "create3d", "channels", "bundlesTrees"]));
+        targetLyph::merge(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
+            $Field.thickness, $Field.external, $Field.description, $Field.materials, $Field.create3d, $Field.channels, $Field.bundlesTrees]));
+
         if (sourceLyph.isTemplate){
             targetLyph.supertype = sourceLyph.id;
             //Clone template villus object into all subtype lyphs
@@ -163,9 +165,9 @@ export class Lyph extends Shape {
                 return;
             }
             let targetLayer = {
-                "id"        : `${sourceLayer.id}_${targetLyph.id}`,
-                "name"      : `${sourceLayer.name || '?'} in ${targetLyph.name || '?'}`,
-                "generated" : true
+                [$Field.id]        : `${sourceLayer.id}_${targetLyph.id}`,
+                [$Field.name]      : `${sourceLayer.name || '?'} in ${targetLyph.name || '?'}`,
+                [$Field.generated] : true
             };
             lyphs.push(targetLayer);
             this.clone(lyphs, sourceLayer, targetLayer);
@@ -283,7 +285,12 @@ export class Region extends Shape {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         if (!json.points || json.points.length < 3) {
-            json.points = [{"x": -10, "y": -10 },{"x": -10, "y": 10 },{"x": 10, "y": 10 },{"x": 10, "y": -10 }];
+            json.points = [
+                {"x": -10, "y": -10 },
+                {"x": -10, "y":  10 },
+                {"x":  10, "y":  10 },
+                {"x":  10, "y": -10 }
+                ];
         }
         json.numBorders = json.points.length;
         let res = super.fromJSON(json, modelClasses, entitiesByID);

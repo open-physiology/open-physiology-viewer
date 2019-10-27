@@ -90,6 +90,7 @@ Lyph.prototype.createViewObjects = function(state) {
 
     if (this.isTemplate){
         console.warn("Creating visual objects for an abstract lyph", this);
+        return;
     }
 
     for (let i = 1; i < (this.layers || []).length; i++) {

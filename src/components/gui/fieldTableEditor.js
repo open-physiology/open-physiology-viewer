@@ -8,10 +8,9 @@ import {
 } from '@angular/material';
 import {FieldEditorDialog} from './fieldEditorDialog';
 import {ResourceSelectDialog} from "./resourceSelectDialog";
-import {isArray, isObject, isString, entries, cloneDeep} from "lodash-bound";
-import {getNewID} from "../../model/utils";
+import {isArray, isObject, entries} from "lodash-bound";
 import {getClassName} from '../../model/index';
-
+import {printFieldValue, parseFieldValue} from "./utils";
 
 @Component({
     selector: 'fieldTableEditor',
@@ -20,7 +19,7 @@ import {getClassName} from '../../model/index';
 
             <ng-container *ngFor="let fieldName of fieldNames" [matColumnDef]="fieldName">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{fieldName}}</th>
-                <td mat-cell *matCellDef="let element; let i = index;" (click)="editResource(i, element, fieldName)"> {{element[fieldName]||""}}</td>
+                <td mat-cell *matCellDef="let element; let i = index;" (click)="editResource(i, fieldName)"> {{element[fieldName]||""}}</td>
             </ng-container> 
 
             <!-- Actions Column -->
@@ -103,28 +102,14 @@ export class FieldTableEditor {
         this.dialog = dialog;
     }
 
-    set dataSource(newResources){
-        function printObj(cellContent){
-            if (!cellContent) {return}
-            if (cellContent::isArray()){
-                return cellContent.map(e => printObj(e)).filter(e => !!e).join(",");
-            } else {
-                if (cellContent::isObject()) {
-                    if (cellContent.id) {
-                        return cellContent.id;
-                    } else {
-                        return JSON.stringify(cellContent, " ", 2);
-                    }
-                }
+    set dataSource(newResources) {
+        let tableContent = [];
+        (newResources||[]).forEach(resource => {
+                let tableRow = {};
+                resource::entries().forEach(([key, value]) => tableRow[key] = printFieldValue(value));
+                tableContent.push(tableRow);
             }
-            return cellContent;    }
-
-        if (!newResources){ return;}
-        let tableContent = newResources;
-
-        tableContent.forEach(resource => resource::entries().map(([key, value]) =>
-            (value::isString())? (key === "id")? value: "": printObj(value)));
-
+        );
         this._dataSource = new MatTableDataSource(tableContent);
         this._dataSource.sort = this.sort;
     }
@@ -148,38 +133,47 @@ export class FieldTableEditor {
         return value::isArray();
     }
 
-
     removeResource(index){
         this.onRemoveResource.emit(index);
     }
 
-    //TODO move to resourceEditor?
-    editResource(index, element, fieldName){
-        let fieldValue = element[fieldName];
+    editResource(index, fieldName){
+        let fieldValue = this.resources[index][fieldName];
         let fieldSpec = this._resourceModel.relationshipMap[fieldName];
         if (fieldSpec){
-            //resource selection
-            let className = getClassName(fieldSpec);
+            let classNames = [getClassName(fieldSpec)];
+            if (fieldName === "layers"){
+                classNames.push("Material");
+            }
             const dialogRef = this.dialog.open(ResourceSelectDialog, {
-                width: '25%',
+                width: '50%',
                 data: {
                     title          : `Include resource?`,
                     modelResources : this.modelResources,
-                    filteredResources : [],
-                    //this.filteredResources.concat(this.resource[key]::isArray()? this.resource[key].map(e => e.id): []), //exclude existing resources from selection options
                     resource       : fieldValue,
-                    className      : className,
+                    classNames     : classNames,
                     multiSelect    : fieldSpec.type === "array"
                 }
             });
 
             dialogRef.afterClosed().subscribe(result => {
                 if (result !== undefined){
-                    //if (!this._validateField([key, spec], result)){ return; }
-                    this.resources[index][fieldName] = result.split(",");
-                    this.resources = [...this.resources];
-                    this.onEditResource.emit();
-                }
+                    try {
+                        let res = parseFieldValue(result);
+                        if (res.length < 1){
+                            delete this.resources[index][fieldName];
+                        } else {
+                            if (fieldSpec.type === "array"){
+                                this.resources[index][fieldName] = res;
+                            } else {
+                                this.resources[index][fieldName] = res[0];
+                            }
+                        }
+                        this.onEditResource.emit();
+                    } catch{
+                        throw new Error("Cannot update the resource field: invalid value: " + result );
+                    }
+            }
             });
 
         } else {
@@ -187,7 +181,7 @@ export class FieldTableEditor {
             fieldSpec = this._resourceModel.fieldMap[fieldName];
             if (!fieldSpec) { return; }
             const dialogRef = this.dialog.open(FieldEditorDialog, {
-                width: '25%',
+                width: '50%',
                 data: {
                     title: `Enter new value:`,
                     value: fieldValue,
@@ -199,7 +193,6 @@ export class FieldTableEditor {
             dialogRef.afterClosed().subscribe(result => {
                 if (result !== undefined) {
                     this.resources[index][fieldName] = result;
-                    this.resources = [...this.resources];
                     this.onEditResource.emit();
                 }
             });

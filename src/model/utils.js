@@ -6,13 +6,17 @@ import {
     isString,
     merge,
     keys,
-    isPlainObject
+    isPlainObject,
+    flatten
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
 import {logger} from './logger';
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
+
+export const $Class = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
+export const $Field = $Class::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
 export const getNewID = entitiesByID => "new_" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
@@ -56,7 +60,6 @@ export const addBorderNode = (border, node) => {
     border.hostedNodes = border.hostedNodes || [];
     border.hostedNodes.push(node);
 };
-
 
 /**
  * Finds a resource object in the parent group given an object or an ID
@@ -261,7 +264,4 @@ export class SchemaClass {
 }
 
 export const schemaClassModels = definitions::keys().map(schemaClsName => [schemaClsName, new SchemaClass(schemaClsName)])::fromPairs();
-
-
-
 

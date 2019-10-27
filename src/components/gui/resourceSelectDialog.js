@@ -4,6 +4,7 @@ import {
     MAT_DIALOG_DATA
 } from '@angular/material';
 import {values} from 'lodash-bound';
+import {printFieldValue, parseFieldValue} from "./utils";
 
 @Component({
     selector: 'resourceSelectDialog',
@@ -21,14 +22,14 @@ import {values} from 'lodash-bound';
                 <input matInput class = "w3-input"
                        placeholder = "id"
                        matTooltip  = "Identifier of a resource to include"
-                       [(ngModel)] = "data.ids"
+                       [(ngModel)] = "data.refs"
                 >
             </mat-form-field>
             
         </div>
         <div mat-dialog-actions align="end">
             <button mat-button (click)="onNoClick()">Cancel</button>
-            <button mat-button [mat-dialog-close]="data.ids" cdkFocusInitial>OK</button>
+            <button mat-button [mat-dialog-close]="data.refs" cdkFocusInitial>OK</button>
         </div>
     `
 })
@@ -40,10 +41,9 @@ export class ResourceSelectDialog {
     constructor(dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
         this.data = data;
-        this.data.ids = this.data.multiSelect? (this.data.resource || []).join(","): this.data.resource;
+        this.data.refs = printFieldValue(this.data.resource);
         this._searchOptions = (this.data.modelResources::values()||[])
-            .filter(e => e.class === this.data.className)
-            .filter(e => !(this.data.filteredResources||[]).includes(e.id))
+            .filter(e => this.data.classNames.includes(e.class))
             .map(e => (e.name? `${e.id} : ${e.name}`: e.id));
     }
 
@@ -54,11 +54,15 @@ export class ResourceSelectDialog {
     selectBySearch(name) {
         let resource = (this.data.modelResources::values()||[]).find(e => (e.name? `${e.id} : ${e.name}`: e.id) === name);
         if (this.data.multiSelect){
-            let newIds = this.data.ids.split(",").filter(x => !!x);
-            newIds.push(resource.id);
-            this.data.ids = newIds.join(",");
+            try {
+                let res = parseFieldValue(this.data.refs);
+                res.push(resource.id);
+                this.data.refs = printFieldValue(res);
+            } catch(err) {
+                throw new Error("Error while selecting a value!");
+            }
         } else {
-            this.data.ids = resource.id; //show original user definition instead of the expanded version if available
+            this.data.refs = resource.id;
         }
     }
 }

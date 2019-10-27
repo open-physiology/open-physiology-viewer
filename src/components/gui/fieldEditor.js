@@ -7,7 +7,7 @@ import {
 } from '@angular/material';
 import {getClassName, schemaClassModels} from '../../model/index.js';
 import {FieldEditorDialog} from './fieldEditorDialog';
-import { cloneDeep, isObject} from 'lodash-bound';
+import { cloneDeep, isObject, isString } from 'lodash-bound';
 
 @Component({
     selector: 'fieldEditor',
@@ -64,15 +64,10 @@ import { cloneDeep, isObject} from 'lodash-bound';
 
         <!--Object - show fieldEditor for each property-->
         <section *ngIf="_fieldType === 'object'" class="w3-row">
-            <mat-expansion-panel class="w3-margin-bottom" [expanded]="expanded">
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        {{label}}
-                    </mat-panel-title>
-                    <!--<mat-panel-description *ngIf="spec?.description">-->
-                        <!--{{spec.description}}-->
-                    <!--</mat-panel-description>-->
-                </mat-expansion-panel-header>
+                {{label}}
+                <!--<mat-panel-description *ngIf="spec?.description">-->
+                    <!--{{spec.description}}-->
+                <!--</mat-panel-description>-->
 
                 <section *ngIf="!!_objectProperties">
                     <section *ngFor="let key of objectKeys(_objectProperties)">
@@ -102,7 +97,6 @@ import { cloneDeep, isObject} from 'lodash-bound';
                         </button>
                     </mat-action-row>
                 </section>
-            </mat-expansion-panel>
         </section>
 
         <!--Array - show fieldEditor for each item-->
@@ -300,7 +294,6 @@ export class FieldEditor {
      * @param newValue - new property value
      */
     updateProperty(key, newValue){
-        //TODO fix type 'layout'
         if (!this.value){ this.value = {}; }
         this.value[key] = newValue;
         this.onValueChange.emit(this.value);

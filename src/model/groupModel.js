@@ -1,8 +1,8 @@
 import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
-import {Link, Node} from './visualResourceModel';
+import {Link} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
-import {addColor} from './utils';
+import {addColor, $Class, $Field} from './utils';
 import {logger} from './logger';
 import {Villus} from "./groupTemplateModel";
 
@@ -96,14 +96,14 @@ export class Group extends Resource {
                 let material = (json.materials || []).find(e => e.id === ref);
                 if (material) {
                     template = {
-                        "id"            : prefix + material.id,
-                        "name"          : material.name,
-                        "isTemplate"    : true,
-                        "materials"     : [material.id],
-                        "generatedFrom" : material.id,
-                        "generated"     : true
+                        [$Field.id]            : prefix + material.id,
+                        [$Field.name]          : material.name,
+                        [$Field.isTemplate]    : true,
+                        [$Field.materials]     : [material.id],
+                        [$Field.generatedFrom] : material.id,
+                        [$Field.generated]     : true
                     };
-                    template::merge(material::pick(["name", "external", "color"]));
+                    template::merge(material::pick([$Field.name, $Field.external, $Field.color]));
                     json.lyphs.push(template);
                 }
             }
@@ -118,13 +118,13 @@ export class Group extends Resource {
             if (template) {
                 changedLyphs++;
                 let subtype = {
-                    "id"       : ref + "_" + parent.id,
-                    "name"     : template.name,
-                    "supertype": template.id,
-                    "generated": true
+                    [$Field.id]        : ref + "_" + parent.id,
+                    [$Field.name]      : template.name,
+                    [$Field.supertype] : template.id,
+                    [$Field.generated] : true
                 };
                 json.lyphs.push(subtype);
-                replaceAbstractRefs(subtype, "layers");
+                replaceAbstractRefs(subtype, $Field.layers);
                 return subtype.id;
             }
             return ref;
@@ -132,7 +132,7 @@ export class Group extends Resource {
 
         const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
-            const replaceLyphTemplates = !["subtypes", "supertype", "lyphTemplate", "housingLyphs", "lyphs"].includes(key);
+            const replaceLyphTemplates = ![$Field.subtypes, $Field.supertype, $Field.lyphTemplate, $Field.housingLyphs, $Field.lyphs].includes(key);
             if (resource[key]::isArray()) {
                 resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
@@ -150,7 +150,7 @@ export class Group extends Resource {
             if (!resources::isArray()) { return; }
             let classNames = modelClasses[this.name].Model.relClassNames;
             if (classNames[relName]) {
-                let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames("Lyph");
+                let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames($Class.Lyph);
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
@@ -175,7 +175,7 @@ export class Group extends Resource {
     static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
         let relClassNames = modelClasses[this.name].Model.relClassNames;
-        ["trees", "channels", "chains"].forEach(relName => {
+        [$Field.trees, $Field.channels, $Field.chains].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)
@@ -198,7 +198,7 @@ export class Group extends Resource {
 
         let relClassNames = this.Model.relClassNames;
 
-        ["trees", "channels"].forEach(relName => {
+        [$Field.trees, $Field.channels].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)
@@ -224,7 +224,7 @@ export class Group extends Resource {
 
     /**
      * Generate subgraphs to model villi
-     * @param lyphs
+     * @param json
      */
     static generateVilli(json){
         let lyphsWithVillus = (json.lyphs||[]).filter(lyph => lyph.villus);
@@ -266,12 +266,12 @@ export class Group extends Resource {
 
                 for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                     let nodeClone = node::cloneDeep()::merge({
-                        "id"       : nodeID + `_${i}`,
-                        "cloneOf"  : nodeID,
-                        "class"    : "Node",
-                        "charge"   : 0,
-                        "collide"  : 0,
-                        "generated": true
+                        [$Field.id]       : nodeID + `_${i}`,
+                        [$Field.cloneOf]  : nodeID,
+                        [$Field.class]    : "Node",
+                        [$Field.charge]   : 0,
+                        [$Field.collide]  : 0,
+                        [$Field.generated]: true
                     });
                     if (!node.clones){ node.clones = []; }
                     node.clones.push(nodeClone.id);
@@ -285,14 +285,14 @@ export class Group extends Resource {
                     });
                     //create a collapsible link
                     let lnk = {
-                        "id"         : `${prev}_${nodeClone.id}`,
-                        "source"     : `${prev}`,
-                        "target"     : `${nodeClone.id}`,
-                        "stroke"     : Link.LINK_STROKE.DASHED,
-                        "length"     : 1,
-                        "strength"   : 1,
-                        "collapsible": true,
-                        "generated"  : true
+                        [$Field.id]         : `${prev}_${nodeClone.id}`,
+                        [$Field.source]     : `${prev}`,
+                        [$Field.target]     : `${nodeClone.id}`,
+                        [$Field.stroke]     : Link.LINK_STROKE.DASHED,
+                        [$Field.length]     : 1,
+                        [$Field.strength]   : 1,
+                        [$Field.collapsible]: true,
+                        [$Field.generated]  : true
                     };
                     json.links.push(lnk);
                     prev = nodeClone.id;
@@ -314,7 +314,7 @@ export class Group extends Resource {
             }
             let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames);
             relFieldNames.forEach(property => {
-                this[property] = (this[property]||[])::unionBy(group[property], "id");
+                this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
                 this[property] = this[property].filter(x => x.class);
             });
         });
@@ -369,7 +369,7 @@ export class Group extends Resource {
     get resources(){
         let res = [];
         let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames); //Exclude groups
-        relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), "id"));
+        relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
         return res.filter(e => !!e && e::isObject());
     }
 
@@ -444,35 +444,5 @@ export class Group extends Resource {
     get create3d(){
         return (this.lyphs||[]).find(e => e.create3d);
     }
-
-    /**
-     * Experimental - export visible object positions (or points)
-     */
-    // export(){
-    //     const getCoords = (obj) => ({"x": Math.round(obj.x), "y": Math.round(obj.y), "z": Math.round(obj.z)});
-    //
-    //     return {
-    //         regions: this.visibleRegions.map(region => ({
-    //             "id"     : region.id,
-    //             "points" : (region.points || []).map(p => getCoords(p)),
-    //             "center" : getCoords(region.center)
-    //         })),
-    //         lyphs: this.visibleLyphs.map(lyph => ({
-    //             "id"     : lyph.id,
-    //             "points" : (lyph.points || []).map(p => getCoords(p)),
-    //             "center" : getCoords(lyph.center)
-    //         })),
-    //         nodes: this.visibleNodes.map(node => ({
-    //             "id"     : node.id,
-    //             "center" : getCoords(node)
-    //         })),
-    //         links: this.visibleLinks.map(link => ({
-    //             "id"     : link.id,
-    //             "source" : link.source.id,
-    //             "target" : link.target.id,
-    //             "points" : (link.points || []).map(p => getCoords(p))
-    //         }))
-    //     };
-    // }
 }
 

@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import { cloneDeep, isArray, isObject, keys } from "lodash-bound";
+import { cloneDeep, isArray, isObject, keys, merge } from "lodash-bound";
 
 import {MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule} from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,35 +32,8 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import * as XLSX from 'xlsx';
-
+import {$Field} from "../model/utils";
 const {Graph} = modelClasses;
-
-let consoleHolder = console;
-/**
- * Helper function to toggle console logging
- * @param bool - boolean flag that indicates whether to print log messages to the console
- * @param msgCount - optional object to count various types of messages (needed to notify the user about errors or warnings)
- */
-function debug(bool, msgCount = {}){
-    if(!bool){
-        consoleHolder = console;
-        console = {};
-        consoleHolder::keys().forEach(function(key){
-            console[key] = function(){
-                if (!msgCount[key]) {
-                    msgCount[key] = 0;
-                } else {
-                    msgCount[key]++;
-                }
-            };
-        })
-    }else{
-        console = consoleHolder;
-    }
-}
-
-let msgCount = {};
-debug(true, msgCount);
 
 @Component({
 	selector: 'test-app',
@@ -83,7 +56,7 @@ debug(true, msgCount);
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
 					<i class="fa fa-external-link"> </i>
-				</a>
+				</a>  
 			</span>
             <span class="w3-bar-item w3-right" title="Learn more">
 				<a href="http://open-physiology-viewer-docs.surge.sh"><i class="fa fa-home"> </i></a>
@@ -94,17 +67,18 @@ debug(true, msgCount);
         <!--Left toolbar-->
 
         <section class="w3-sidebar w3-bar-block vertical-toolbar">
-            <input #fileInput
-                    type   = "file"
-                    accept = ".json,.xlsx"
-                   [style.display] = "'none'"
-                   (change) = "load(fileInput.files)"
-            />
+            <input #fileInput type  = "file" accept = ".json,.xlsx" [style.display] = "'none'" 
+                   (change) = "load(fileInput.files)"/>
+            <input #fileInput1 type = "file" accept = ".json" [style.display] = "'none'"
+                   (change) = "join(fileInput1.files)"/>
             <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
                 <i class="fa fa-plus"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
+            </button>
+            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
+                <i class="fa fa-handshake-o"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i>
@@ -220,7 +194,6 @@ export class TestApp {
     modelClasses = modelClasses;
     @ViewChild('jsonEditor') _container: ElementRef;
 
-
     constructor(dialog: MatDialog){
         this.model = initModel;
         this._dialog = dialog;
@@ -250,14 +223,14 @@ export class TestApp {
 
             const reader = new FileReader();
             reader.onload = () => {
-                let model = {};
                 if (extension === "xlsx"){
+                    let model = {};
                     let wb  = XLSX.read(reader.result, {type: "binary"});
                     wb.SheetNames.forEach(sheetName => {
                         let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
                         if(roa.length) { model[sheetName] = roa; }
                     });
-                    model["id"] = fileName;
+                    model[$Field.id] = fileName;
                     this.model = modelClasses.Graph.excelToJSON(model, this.modelClasses);
                 } else {
                     if (extension === "json") {
@@ -278,21 +251,38 @@ export class TestApp {
                 throw new Error("Failed to open the input file: " + err);
             }
         }
-
-        if (msgCount["error"] || msgCount["warn"]){
-            throw new Error(`Detected ${msgCount["error"]} error(s), ${msgCount["warn"]} warning(s), 
-                may affect the model layout, check logging messages for more detail!`);
-        }
-        msgCount = {};
 	}
 
-	applyJSONEditorChanges() {
+    join(files) {
+        if (files && files[0]){
+            const reader = new FileReader();
+            reader.onload = () => {
+
+                let newModel = JSON.parse(reader.result);
+                let newConfig = (this._model.config||{})::merge(newModel.config);
+                schema.definitions.Graph.properties::keys().forEach(property => {
+                    delete newModel[property];
+                    delete this._model[property];
+                });
+                this.model = {"groups": [this._model, newModel], "config": newConfig};
+            };
+            try {
+                reader.readAsText(files[0]);
+            } catch (err){
+                throw new Error("Failed to open the input file: " + err);
+            }
+        }
+    }
+
+    applyJSONEditorChanges() {
         if (this._editor){
+            this._graphData = Graph.fromJSON({}, this.modelClasses);
             this.model = this._editor.get();
         }
     }
 
     applyTableEditorChanges(){
+        this._graphData = Graph.fromJSON({}, this.modelClasses);
         this.model = this._model;
     }
 
@@ -311,8 +301,7 @@ export class TestApp {
         try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
         } catch(err){
-            console.error(err.stack);
-            //throw new Error("Failed to process the model: " +  err);
+            throw new Error(err);
         }
         if (this._editor){
             this._editor.set(this._model);

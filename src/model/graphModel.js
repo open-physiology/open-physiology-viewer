@@ -17,7 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
-import {schemaClassModels} from "./utils";
+import {$Field, schemaClassModels} from "./utils";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -66,7 +66,10 @@ export class Graph extends Group{
             if (obj && obj.class){
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
                 if (clsName && !modelClasses[clsName].Model.schema.abstract){
-                    let e = modelClasses[clsName].fromJSON({"id": id, "generated": true}, modelClasses, entitiesByID);
+                    let e = modelClasses[clsName].fromJSON({
+                        [$Field.id]        : id,
+                        [$Field.generated] : true
+                    }, modelClasses, entitiesByID);
 
                     //Include newly created entity to the main graph
                     let prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
@@ -234,23 +237,23 @@ export class Graph extends Group{
         const createAxis = lyph => {
             let [sNode, tNode] = ["s", "t"].map(prefix => (
                 Node.fromJSON({
-                    "id"       : `${prefix}${lyph.id}`,
-                    "name"     : `${prefix}${lyph.id}`,
-                    "color"    : "#ccc",
-                    "val"      : 0.1,
-                    "skipLabel": true,
-                    "generated": true
+                    [$Field.id]        : `${prefix}${lyph.id}`,
+                    [$Field.name]      : `${prefix}${lyph.id}`,
+                    [$Field.color]     : "#ccc", //TODO template
+                    [$Field.val]       : 0.1,
+                    [$Field.skipLabel] : true,
+                    [$Field.generated] : true
                 }, modelClasses, entitiesByID)));
 
             let link = Link.fromJSON({
-                "id"           : `${lyph.id}-lnk`,
-                "source"       : sNode,
-                "target"       : tNode,
-                "geometry"     : Link.LINK_GEOMETRY.INVISIBLE,
-                "color"        : "#ccc",
-                "conveyingLyph": lyph,
-                "skipLabel"    : true,
-                "generated"    : true
+                [$Field.id]           : `${lyph.id}-lnk`,
+                [$Field.source]       : sNode,
+                [$Field.target]       : tNode,
+                [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
+                [$Field.color]        : "#ccc",
+                [$Field.conveyingLyph]: lyph,
+                [$Field.skipLabel]    : true,
+                [$Field.generated]    : true
             }, modelClasses, entitiesByID);
             lyph.conveyedBy = link;
             sNode.sourceOf  = [link];

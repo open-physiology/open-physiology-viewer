@@ -5,30 +5,31 @@ import { Resource, External } from './resourceModel'
 import { VisualResource, Material, Node, Link } from './visualResourceModel'
 import { Shape, Lyph, Region, Border } from './shapeModel'
 import { Coalescence } from './coalescenceModel';
+import {$Class} from './utils';
 
 export const modelClasses = {
     /*Abstract */
-    "Resource"       : Resource,
-    "VisualResource" : VisualResource,
-    "GroupTemplate"  : GroupTemplate,
-    "Shape"          : Shape,
+    [$Class.Resource]       : Resource,
+    [$Class.VisualResource] : VisualResource,
+    [$Class.GroupTemplate]  : GroupTemplate,
+    [$Class.Shape]          : Shape,
 
     /*Resources */
-    "External"     : External,
-    "Coalescence"  : Coalescence,
-    "Channel"      : Channel,
-    "Chain"        : Chain,
-    "Tree"         : Tree,
-    "Villus"       : Villus,
-    "Group"        : Group,
-    "Graph"        : Graph,
+    [$Class.External]     : External,
+    [$Class.Coalescence]  : Coalescence,
+    [$Class.Channel]      : Channel,
+    [$Class.Chain]        : Chain,
+    [$Class.Tree]         : Tree,
+    [$Class.Villus]       : Villus,
+    [$Class.Group]        : Group,
+    [$Class.Graph]        : Graph,
 
     /*Visual resources */
-    "Node"         : Node,
-    "Link"         : Link,
+    [$Class.Node]         : Node,
+    [$Class.Link]         : Link,
     /* Shapes */
-    "Material"     : Material,
-    "Region"       : Region,
-    "Lyph"         : Lyph,
-    "Border"       : Border
+    [$Class.Material]     : Material,
+    [$Class.Region]       : Region,
+    [$Class.Lyph]         : Lyph,
+    [$Class.Border]       : Border
 };

@@ -110,8 +110,6 @@ export class ExternalSelectDialog {
 
         this.http.get(url).subscribe(res => {
                 this._annotations = res.map(x => x.concept? x.concept: x); //TODO place this to the annotations
-                console.log(this._annotations);
-
                 let key = this.data.mapping.id;
                 //select annotations with unique identifiers
                 this._annotations = this._annotations.filter((x, i ) => this._annotations.findIndex(y => y[key] === x[key]) === i);

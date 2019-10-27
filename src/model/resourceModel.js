@@ -14,7 +14,7 @@ import {
 } from 'lodash-bound';
 
 import JSONPath from 'JSONPath';
-import {getClassName, schemaClassModels, isClassAbstract, getNewID} from "./utils";
+import {getClassName, schemaClassModels, isClassAbstract, getNewID, $Field} from "./utils";
 import {logger} from './logger';
 /**
  * JSON Path validator
@@ -218,7 +218,7 @@ export class Resource{
                     if (!modelClasses[e.class]){
                         logger.warn("Cannot assign a property: unknown resource class", e);
                     } else {
-                        let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== "id");
+                        let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== $Field.id);
                         e::merge(value::pick(propNames));
                     }
                });

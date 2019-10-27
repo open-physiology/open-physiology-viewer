@@ -10,6 +10,7 @@ import FileSaver from "file-saver";
 import {ResourceInfoModule} from "./gui/resourceInfo";
 import {MatSliderModule} from "@angular/material";
 import {SearchBarModule} from "./gui/searchBar";
+import {$Field, $Class} from "../model/utils";
 
 @Component({
     selector: 'relGraph',
@@ -176,14 +177,14 @@ export class RelGraph {
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
             this.data = {nodes: [], links: []};
 
-            let nodeResources = this._graphData::pick(["materials", "lyphs", "coalescences", "links"])::values()::flatten();
+            let nodeResources = this._graphData::pick([$Field.materials, $Field.lyphs, $Field.coalescences, $Field.links])::values()::flatten();
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
             this.data.nodes = nodeResources.filter(e => !!e && !filter.find(x => e.isSubtypeOf(x)));
 
             this.data.nodes.forEach(e => {
                 e.relClass = e.class;
-                if (e.class === "Lyph" && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
-                if (e.class === "Coalescence" && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }
+                if (e.class === $Class.Lyph && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
+                if (e.class === $Class.Coalescence && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }
             });
 
             const getNode = (d) => this.data.nodes.find(e => d && (e === d || e.id === d.id));

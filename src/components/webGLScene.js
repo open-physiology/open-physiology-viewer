@@ -12,6 +12,7 @@ import { forceX, forceY, forceZ } from 'd3-force-3d';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SciGraphSearchModule} from "./gui/sciGraphSearch";
+import {$Field} from "../model/utils";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -321,9 +322,9 @@ export class WebGLSceneComponent {
             "highlighted": true,
             "selected"   : true
         };
-        this._labelClasses = this.config["labels"]::keys();
-        this._labelProps   = ["id", "name"];
-        this._labels       = {Node: "id", Link: "id", Lyph: "id", Region: "id"};
+        this._labelClasses = this.config[$Field.labels]::keys();
+        this._labelProps   = [$Field.id, $Field.name];
+        this._labels       = {Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showGroups   = new Set([]);
     }
 
