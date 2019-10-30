@@ -17,7 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
-import {$Field, schemaClassModels} from "./utils";
+import {$Field} from "./utils";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -221,11 +221,6 @@ export class Graph extends Group{
             delete model.main;
         }
         return model;
-    }
-
-    get defaultVisibleGroups(){
-        if (!this.config || !this.config.showGroups || !this.config.showGroups::isArray()){ return []; }
-        return (this.groups||[]).filter(g => this.config.showGroups.find(id => g.id === id || (g.generatedFrom && g.generatedFrom.id === id)));
     }
 
     /**

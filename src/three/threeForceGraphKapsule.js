@@ -39,7 +39,7 @@ export default Kapsule({
         nodeResolution   : { default: 16 },     // how many slice segments in the sphere's circumference
 
         linkResolution   : { default: 30 },     // number of points on curved link
-        arrowLength      : {default: 40 },      // arrow length for directed links
+        arrowLength      : { default: 40 },     // arrow length for directed links
 
         showLyphs        : { default: true},
         showLayers       : { default: true},

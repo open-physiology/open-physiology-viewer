@@ -1,7 +1,7 @@
 {
   "annotations": {
     "type"    : "UBERON",
-    "baseURL" : "https://scigraph.olympiangods.org/scigraph/vocabulary/",
+    "baseURL" : "https://scigraph.olympiangods.org/scigraph/",
     "mapping" : {
       "id"  : "curie",
       "name": "labels",

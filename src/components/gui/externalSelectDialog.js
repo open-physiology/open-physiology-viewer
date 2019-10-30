@@ -103,10 +103,10 @@ export class ExternalSelectDialog {
 
         //Autocomplete
         let url = option === "auto"
-            ? `${this.data.baseURL}autocomplete/${this.searchTerm}?prefix=${this.data.type}`
+            ? `${this.data.baseURL}vocabulary/autocomplete/${this.searchTerm}?prefix=${this.data.type}`
             : option === "exact"
-                ? `${this.data.baseURL}term/${this.searchTerm}?prefix=${this.data.type}`
-                : `${this.data.baseURL}search/${this.searchTerm}?prefix=${this.data.type}`;
+                ? `${this.data.baseURL}vocabulary/term/${this.searchTerm}?prefix=${this.data.type}`
+                : `${this.data.baseURL}vocabulary/search/${this.searchTerm}?prefix=${this.data.type}`;
 
         this.http.get(url).subscribe(res => {
                 this._annotations = res.map(x => x.concept? x.concept: x); //TODO place this to the annotations

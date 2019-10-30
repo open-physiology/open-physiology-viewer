@@ -1,6 +1,7 @@
 import {Component, Input, NgModule} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {annotations} from "./config";
 
 @Component({
     selector: 'sciGraphSearch',
@@ -30,7 +31,7 @@ import {HttpClient, HttpClientModule} from '@angular/common/http';
         </div>
     `
 })
-export class SciGraphSearch {
+export class ExternalSearchBar {
     _selected;
 
     query;
@@ -42,8 +43,8 @@ export class SciGraphSearch {
     }
 
     @Input('selected') set resource(newSelected) {
-        const nameQuery = (sName) => `/cypher/execute?cypherQuery=MATCH p=( o { label: "${sName}"})-[r*]-(x) RETURN p`;
-        const idQuery = (id) => `/graph/reachablefrom/${id}`;
+        const nameQuery = (sName) => `cypher/execute?cypherQuery=MATCH p=( o { label: "${sName}"})-[r*]-(x) RETURN p`;
+        const idQuery = (id) => `graph/reachablefrom/${id}`;
 
         this._selected = newSelected;
         this.query = "";
@@ -68,13 +69,9 @@ export class SciGraphSearch {
 
     executeQuery(){
         if (!this.query){ throw Error ("Query is not defined!"); }
-
-        let baseURL = "http://34.214.7.90:9000/scigraph";
-
-        let url = baseURL + this.query;
+        let url = annotations.baseURL + this.query;
 
         this.http.get(url).subscribe(res => {
-            console.info("HTTP Request succeeded: ", res);
             this.result = JSON.stringify(res);
         })
     }
@@ -84,8 +81,8 @@ export class SciGraphSearch {
 
 @NgModule({
     imports: [CommonModule, HttpClientModule],
-    declarations: [SciGraphSearch],
-    exports: [SciGraphSearch]
+    declarations: [ExternalSearchBar],
+    exports: [ExternalSearchBar]
 })
-export class SciGraphSearchModule {}
+export class ExternalSearchModule {}
 

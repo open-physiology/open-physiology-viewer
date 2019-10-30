@@ -1,18 +1,15 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatSliderModule, MatCheckboxModule, MatRadioModule, MatDialog, MatDialogModule} from '@angular/material'
+import {FormsModule} from '@angular/forms';
+import {MatSliderModule, MatDialog, MatDialogModule} from '@angular/material'
 import FileSaver  from 'file-saver';
-import {keys, values, defaults, isObject} from 'lodash-bound';
+import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';
-import {SearchBarModule} from './gui/searchBar';
 import ThreeForceGraph   from '../three/threeForceGraph';
 import { forceX, forceY, forceZ } from 'd3-force-3d';
 
-import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
-import {SciGraphSearchModule} from "./gui/sciGraphSearch";
-import {$Field} from "../model/utils";
+import {SettingsPanelModule} from "./settingsPanel";
 
 const OrbitControls = require('three-orbit-controls')(THREE);
 const WindowResize = require('three-window-resize');
@@ -35,16 +32,16 @@ const WindowResize = require('three-window-resize');
                                 (click)="toggleLockControls()" title="Unlock controls">
                             <i class="fa fa-unlock"> </i>
                         </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="updateGraphLayout()"
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="graph?.graphData(graphData)"
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
                         <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleSettingPanel()" title="Show settings">
+                                (click)="showPanel = !showPanel" title="Show settings">
                             <i class="fa fa-cog"> </i>
                         </button>
                         <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleSettingPanel()" title="Hide settings">
+                                (click)="showPanel = !showPanel" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
                         <mat-slider vertical class="w3-grey"
@@ -73,127 +70,26 @@ const WindowResize = require('three-window-resize');
                     </section>
 
                     <!--Main content-->
-                    <canvas #canvas></canvas>
+                    <canvas #canvas> </canvas>
                 </section>
             </section>
             <section id="settingsPanel" *ngIf="showPanel" class="w3-quarter">
-                <section class="w3-padding-small">
-
-                    <!--Highlighted entity-->
-
-                    <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
-                        <legend>Highlighted</legend>
-                        <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"></resourceInfoPanel>
-                    </fieldset>
-
-                    <!--Search bar-->
-
-                    <fieldset class="w3-card w3-round w3-margin-small-small">
-                        <legend>Search</legend>
-                        <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
-                                   (selectedItemChange)="selectBySearch($event)">
-                        </searchBar>
-                    </fieldset>
-
-                    <!--Selected resource-->
-
-                    <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
-                        <legend>Selected</legend>
-                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
-                        </resourceInfoPanel>
-                        <button *ngIf="!!_selected" title="Edit"
-                                class="w3-hover-light-grey w3-right" (click)="editResource.emit(_selected)">
-                            <i class="fa fa-edit"> </i>
-                        </button>
-                    </fieldset>
-
-                    <!--SciGraph search-->
-                    
-                    <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>SciGraph search</legend>
-                        <sciGraphSearch [selected]="_selected"></sciGraphSearch>
-                    </fieldset>
-                    
-                    <!--Group controls-->
-
-                    <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>Groups</legend>
-                        <span *ngFor="let group of graphData.activeGroups">
-                            <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
-                                          (change)="toggleGroup(group)"
-                                          [checked]="showGroup(group)"> 
-                                {{group.name || group.id}}
-                            </mat-checkbox>
-                        </span>
-                    </fieldset>
-
-                    <!--Layout config-->
-
-                    <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>Layout</legend>
-                        <mat-checkbox matTooltip="Toggle view mode" labelPosition="after" class="w3-margin-left"
-                                      (change)="toggleMode()"
-                                      [checked]="config.layout.numDimensions === 2"> 2D mode
-                        </mat-checkbox>
-
-                        <mat-checkbox matTooltip="Toggle lyphs" labelPosition="after" class="w3-margin-left"
-                                      (change)="toggleLayout('showLyphs')"
-                                      [checked]="config.layout.showLyphs"> Lyphs
-                        </mat-checkbox>
-                        <mat-checkbox matTooltip="Toggle layers" labelPosition="after"
-                                      [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                      (change)="toggleLayout('showLayers')"
-                                      [checked]="config.layout.showLayers"> Layers
-                        </mat-checkbox>
-                        <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" *ngIf="graphData?.create3d"
-                                      [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                      (change)="toggleLayout('showLyphs3d')"
-                                      matTooltip="Shows 3D geometry for resources with property 'create3d' set to true"
-                                      [checked]="config.layout.showLyphs3d"> Lyphs 3D
-                        </mat-checkbox>
-                        <mat-checkbox matTooltip="Toggle coalescences" labelPosition="after"
-                                      [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                      (change)="toggleLayout('showCoalescences')"
-                                      [checked]="config.layout.showCoalescences"> Coalescences
-                        </mat-checkbox>
-                    </fieldset>
-
-                    <!--Label config-->
-
-                    <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>Labels</legend>
-                        <span *ngFor="let labelClass of _labelClasses">
-                            <mat-checkbox matTooltip="Toggle labels" labelPosition="after" class="w3-margin-left"
-                                          [checked]="config.labels[labelClass]"
-                                          (change)="updateLabels(labelClass)"> {{labelClass}}
-                            </mat-checkbox> 
-                        </span>
-                        <span *ngFor="let labelClass of _labelClasses">
-                            <fieldset *ngIf="config.labels[labelClass]" class="w3-card w3-round w3-margin-small">
-                                <legend>{{labelClass}} label</legend>
-                                <mat-radio-group [(ngModel)]="_labels[labelClass]">
-                                    <mat-radio-button *ngFor="let labelProp of _labelProps" class="w3-margin-left"
-                                                      [value]="labelProp"
-                                                      (change)="updateLabelContent()"> {{labelProp}}
-                                    </mat-radio-button>
-                                </mat-radio-group>
-                            </fieldset>
-                        </span>
-                    </fieldset>
-                    
-                    <!--View helpers-->
-
-                    <fieldset class="w3-card w3-round w3-margin-small">
-                        <legend>Helpers</legend>
-                        <span *ngFor="let helper of helperKeys">
-                            <mat-checkbox matTooltip="Toggle planes" labelPosition="after" class="w3-margin-left"
-                                          [checked]="showPlane(helper)"
-                                          (change)="togglePlane(helper)"> {{helper}}
-                            </mat-checkbox> 
-                        </span>
-                    </fieldset>                                           
-                    
-                </section>
+                <settingsPanel
+                        [config]          ="config"
+                        [selected]        ="_selected"
+                        [highlighted]     ="_highlighted"
+                        [helperKeys]      ="_helperKeys"
+                        [groups]          ="graphData?.activeGroups"
+                        [searchOptions]   ="_searchOptions"                        
+                        (onSelectBySearch)="selectByName($event)"
+                        (onEditResource)  ="editResource.emit($event)"
+                        (onUpdateLabels)  ="graph?.showLabels($event)"
+                        (onToggleMode)    ="graph?.numDimensions($event)"
+                        (onToggleLayout)  ="toggleLayout($event)"
+                        (onToggleGroup)   ="toggleGroup($event)"
+                        (onUpdateLabelContent)="graph?.labels($event)"
+                        (onToggleHelperPlane) ="this.helpers[$event].visible = !this.helpers[$event].visible"
+                > </settingsPanel>
             </section>
         </section>
     `,
@@ -243,7 +139,7 @@ export class WebGLSceneComponent {
     _selected    = null;
 
     _searchOptions;
-    _selectedName = "";
+    _helperKeys = [];
 
     graph;
     helpers   = {};
@@ -259,10 +155,9 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this.config = (this._graphData.config||{})::defaults(this.config);
-            this._showGroups = new Set(this._graphData.defaultVisibleGroups);
-            this._graphData.showGroups(this._showGroups);
+            this.config = (this._graphData.config||{})::defaults(this.defaultConfig);
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
+            this._graphData.showGroups(new Set(this._graphData.findGeneratedFromIDs(this.config.showGroups)));
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.scaleFactor);
             if (this.graph) { this.graph.graphData(this._graphData); }
@@ -285,8 +180,7 @@ export class WebGLSceneComponent {
         if (this.selected === entity){ return; }
         this.unhighlight(this._selected);
         this.highlight(entity, this.selectColor, entity !== this.highlighted);
-        this._selected     = entity;
-        this._selectedName = entity? entity.name || "": "";
+        this._selected = entity;
         this.selectedItemChange.emit(entity);
     }
 
@@ -304,7 +198,7 @@ export class WebGLSceneComponent {
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
-        this.config = {
+        this.defaultConfig = {
             "layout": {
                 "showLyphs"       : true,
                 "showLayers"      : true,
@@ -322,10 +216,7 @@ export class WebGLSceneComponent {
             "highlighted": true,
             "selected"   : true
         };
-        this._labelClasses = this.config[$Field.labels]::keys();
-        this._labelProps   = [$Field.id, $Field.name];
-        this._labels       = {Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
-        this._showGroups   = new Set([]);
+        this.config = this.defaultColor::cloneDeep();
     }
 
     onScaleChange(newLabelScale){
@@ -455,6 +346,8 @@ export class WebGLSceneComponent {
         this.scene.add(axesHelper);
         this.helpers["Axis"] = axesHelper;
         this.helpers::values().forEach(value => value.visible = false);
+
+        this._helperKeys = this.helpers::keys();
     }
 
     createGraph() {
@@ -482,17 +375,9 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
-    updateGraphLayout() {
-        if (this.graph){ this.graph.graphData(this.graphData); }
-    }
-
     toggleLockControls(){
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
-    }
-
-    toggleSettingPanel() {
-        this.showPanel = !this.showPanel;
     }
 
     getMouseOverEntity() {
@@ -566,10 +451,15 @@ export class WebGLSceneComponent {
         }
     }
 
-    selectBySearch(name) {
-        if (this.graph && (name !== this._selectedName)) {
-            this._selectedName = name;
-            this.selected = (this.graphData.resources||[]).find(e => e.name === name);
+    selectByName(name) {
+        let options = (this.graphData.resources||[]).filter(e => e.name === name);
+        if (options.length > 0){
+            //prefer visible lyphs over templates
+            let res = options.find(e => !e.isTemplate);
+            this.selected = res? res: options[0];
+        }
+        else {
+            this.selected = undefined;
         }
     }
 
@@ -630,61 +520,19 @@ export class WebGLSceneComponent {
         this.camera.lookAt(this.scene.position);
     }
 
-    /* Toggle scene elements */
-    get helperKeys(){
-        return this.helpers::keys();
-    }
-   
-    showPlane(key){
-        return this.helpers[key].visible;
-    }
-
-    togglePlane(key) {
-        this.helpers[key].visible = !this.helpers[key].visible
-    }
-
-    toggleMode(){
-        this.config.layout.numDimensions = (this.config.layout.numDimensions === 3)? 2: 3;
-        if (this.graph){
-            this.graph.numDimensions(this.config.layout.numDimensions);
-        }
-    }
-
     toggleLayout(prop){
-        this.config.layout[prop] = !this.config.layout[prop];
-        if (this.graph){
-            this.graph[prop](this.config.layout[prop]);
-        }
+        if (this.graph){ this.graph[prop](this.config.layout[prop]); }
     }
 
-    updateLabels(labelClass) {
-        this.config.labels[labelClass] = !this.config.labels[labelClass];
-        if (this.graph){ this.graph.showLabels(this.config.labels||{}); }
-    }
-
-    updateLabelContent() {
-        if (this.graph){ this.graph.labels(this._labels); }
-    }
-
-    showGroup(group){
-        return this._showGroups.has(group);
-    }
-
-    toggleGroup(group) {
-        if (!group) { return; }
-        if (this._showGroups.has(group)){
-            this._showGroups.delete(group);
-        } else {
-            this._showGroups.add(group);
-        }
-        this._graphData.showGroups(this._showGroups);
+    toggleGroup(showGroups) {
+        if (!this._graphData){ return; }
+        this._graphData.showGroups(showGroups);
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, SciGraphSearchModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, MatDialogModule, LogInfoModule],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog],
     exports: [WebGLSceneComponent]
