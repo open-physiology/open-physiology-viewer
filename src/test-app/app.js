@@ -192,6 +192,7 @@ export class TestApp {
     _dialog;
     _editor;
     modelClasses = modelClasses;
+
     @ViewChild('jsonEditor') _container: ElementRef;
 
     constructor(dialog: MatDialog){
@@ -278,7 +279,7 @@ export class TestApp {
         if (this._editor){
             this._graphData = Graph.fromJSON({}, this.modelClasses);
             this.model = this._editor.get();
-        }12345678910
+        }
     }
 
     applyTableEditorChanges(){
