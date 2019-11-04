@@ -2,17 +2,12 @@ import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angul
 import { BrowserModule }    from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys, merge } from "lodash-bound";
 
-import {MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule} from '@angular/material';
+import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-//JSON Editor
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
-const ace = require('ace-builds');
-
-//Local
-import initModel from '../data/graph.json';
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
@@ -21,10 +16,8 @@ import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses, schema } from '../model/index';
 
-//TEST import external Graph
-//TODO add to package.json "open-physiology-model": "github:open-physiology/open-physiology-model",
-//import * as external from 'open-physiology-model'; // /dist/open-physiology-model-minimal
 import 'hammerjs';
+import initModel from '../data/graph.json';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -33,7 +26,9 @@ import "./styles/material.scss";
 
 import * as XLSX from 'xlsx';
 import {$Field} from "../model/utils";
+
 const {Graph} = modelClasses;
+const ace = require('ace-builds');
 
 @Component({
 	selector: 'test-app',
@@ -91,9 +86,7 @@ const {Graph} = modelClasses;
             <mat-tab-group animationDuration="0ms">
                 <!--Viewer-->
                 <mat-tab class="w3-margin">
-                    <ng-template mat-tab-label>
-                        <i class="fa fa-heartbeat"> Viewer </i>
-                    </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-heartbeat"> Viewer </i></ng-template>
                     <webGLScene
                             [modelClasses]          = "modelClasses"
                             [graphData]             = "_graphData"
@@ -103,11 +96,15 @@ const {Graph} = modelClasses;
                     </webGLScene>
                 </mat-tab>
 
+                <!--Relationship graph-->
+                <mat-tab class="w3-margin">
+                    <ng-template mat-tab-label><i class="fa fa-crosshairs"> Relationship graph </i></ng-template>
+                    <relGraph [graphData] = "_graphData"></relGraph>
+                </mat-tab>
+
                 <!--Table editor-->
                 <mat-tab class="w3-margin">
-                    <ng-template mat-tab-label>
-                        <i class="fa fa-wpforms"> Resources </i>
-                    </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-wpforms"> Resources </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyTableEditorChanges()" title="Apply changes">
                             <i class="fa fa-check"> </i>
@@ -125,10 +122,8 @@ const {Graph} = modelClasses;
                 </mat-tab>
 
                 <!--Code editor-->
-                <mat-tab class="w3-margin" label="Code editor">
-                    <ng-template mat-tab-label>
-                        <i class="fa fa-edit"> Code </i>
-                    </ng-template>
+                <mat-tab class="w3-margin">
+                    <ng-template mat-tab-label><i class="fa fa-edit"> Code </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()" title="Apply changes">
                             <i class="fa fa-check"> </i>
@@ -137,16 +132,9 @@ const {Graph} = modelClasses;
                     <section #jsonEditor id="json-editor" > </section>
                 </mat-tab>
 
-                <!--Relationship graph-->
-                <mat-tab class="w3-margin">
-                    <ng-template mat-tab-label>
-                        <i class="fa fa-crosshairs"> Relationship graph </i>
-                    </ng-template>
-                    <relGraph [graphData] = "_graphData"></relGraph>
-                </mat-tab>
-
             </mat-tab-group>
-        </section>
+
+            
 
 
         <!-- Footer -->
@@ -213,7 +201,15 @@ export class TestApp {
 
     newModel(){
         this._fileName = "";
-        this.model = {};
+        this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate};
+    }
+
+    get currentDate(){
+        let today = new Date();
+        let [yyyy, mm, dd] = [today.getFullYear(), (today.getMonth()+1), today.getDate()];
+        if (dd < 10) { dd = '0' + dd; }
+        if (mm < 10) { mm = '0' + mm; }
+        return [yyyy,mm,dd].join("-");
     }
 
 	load(files) {
@@ -265,7 +261,8 @@ export class TestApp {
                     delete newModel[property];
                     delete this._model[property];
                 });
-                this.model = {"groups": [this._model, newModel], "config": newConfig};
+                newConfig::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+                this.model = {[$Field.groups]: [this._model, newModel], [$Field.config]: newConfig};
             };
             try {
                 reader.readAsText(files[0]);
@@ -278,12 +275,15 @@ export class TestApp {
     applyJSONEditorChanges() {
         if (this._editor){
             this._graphData = Graph.fromJSON({}, this.modelClasses);
-            this.model = this._editor.get();
+            this._model = this._editor.get();
+            this._model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
+            this.model = this._model;
         }
     }
 
     applyTableEditorChanges(){
         this._graphData = Graph.fromJSON({}, this.modelClasses);
+        this._model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
         this.model = this._model;
     }
 

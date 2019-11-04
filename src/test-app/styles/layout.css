@@ -1,14 +1,15 @@
-#canvasContainer{
-  height: 100%;
-}
-#svgContainer{
-  height: 100%;
-}
-
 html, body{
   height : 100%;
   padding: 0;
   margin : 0;
+}
+
+#apiLayoutContainer{
+  height: 100%;
+}
+
+#relGraphContainer{
+  height: 100%;
 }
 
 .jsoneditor-menu {

@@ -9,7 +9,7 @@ import {
     getNewID,
     addBorderNode,
     $Field,
-    $Class
+    $Color
 } from "./utils";
 import {logger} from './logger';
 import {defaults, isPlainObject, isArray, flatten} from "lodash-bound";
@@ -116,7 +116,7 @@ export class Tree extends GroupTemplate {
             }
             let newNode = {
                 [$Field.id]        : tree.id + "_node" + i,
-                [$Field.color]     : "#000", //TODO put this to node template
+                [$Field.color]     : $Color.Node,
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
             };
@@ -160,7 +160,7 @@ export class Tree extends GroupTemplate {
                 tree.lyphTemplate = template.id;
             } else {
                 //find lyph template to establish topology of the tree
-                template = parentGroup.lyphs.find(e => e.id === tree.lyphTemplate);
+                template = (parentGroup.lyphs||[]).find(e => e.id === tree.lyphTemplate);
                 if (!template){
                     logger.error("Failed to find the lyph template definition in the parent group: ",
                         tree.lyphTemplate);
@@ -178,7 +178,7 @@ export class Tree extends GroupTemplate {
                 [$Field.name]      : `${tree.name || ""}: level ${i}`,
                 [$Field.source]    : getID(sources[i]),
                 [$Field.target]    : getID(sources[i + 1]),
-                [$Field.color]     : "#000", //TODO put this to link template
+                [$Field.color]     : $Color.Link,
                 [$Field.generated] : true
             });
             if (tree.length){
@@ -447,7 +447,7 @@ export class Channel extends GroupTemplate {
             let node = {
                 [$Field.id]       : channel.id + "_node" + i,
                 [$Field.name]     : channel.name + ": node " + i,
-                [$Field.color]    : "#000",
+                [$Field.color]    : $Color.Node,
                 [$Field.skipLabel]: true,
                 [$Field.generated]: true
             };
@@ -472,7 +472,7 @@ export class Channel extends GroupTemplate {
                 [$Field.conveyingLyph]: lyph.id,
                 [$Field.conveyingType]: Link.PROCESS_TYPE.DIFFUSIVE,
                 [$Field.conveyingMaterials]: channel.materials,
-                [$Field.color]        : "#000",
+                [$Field.color]        : $Color.Link,
                 [$Field.generated]    : true
             };
             if (channel.length){
@@ -719,7 +719,7 @@ export class Chain extends GroupTemplate {
                     : {
                         [$Field.id]        : nodeID,
                         [$Field.name]      : chain.name + ": node " + i,
-                        [$Field.color]     : "#000", //TODO template
+                        [$Field.color]     : $Color.Node,
                         [$Field.skipLabel] : true,
                         [$Field.generated] : true
                     };
@@ -735,7 +735,7 @@ export class Chain extends GroupTemplate {
                 [$Field.conveyingLyph]      : lyphs[i].id,
                 [$Field.conveyingType]      : Link.PROCESS_TYPE.ADVECTIVE,
                 [$Field.conveyingMaterials] : conveyingMaterials,
-                [$Field.color]              : "#000", //TODO template
+                [$Field.color]              : $Color.Link,
                 [$Field.generated]          : true
             };
             if (chain.length){

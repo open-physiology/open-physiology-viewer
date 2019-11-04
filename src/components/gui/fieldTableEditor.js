@@ -9,7 +9,7 @@ import {
 import {FieldEditorDialog} from './fieldEditorDialog';
 import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {isArray, isObject, entries} from "lodash-bound";
-import {getClassName} from '../../model/index';
+import {getClassName, $Class} from '../../model/index';
 import {printFieldValue, parseFieldValue} from "./utils";
 
 @Component({
@@ -30,7 +30,7 @@ import {printFieldValue, parseFieldValue} from "./utils";
                                 (click)="onCreateResource.emit()">
                             <i class="fa fa-plus"> </i>
                         </button>
-                        <button *ngIf="showExternal" class="w3-hover-light-grey" title="Annotate"
+                        <button *ngIf="_showExternal" class="w3-hover-light-grey" title="Annotate"
                                 (click)="onCreateExternalResource.emit()">
                             <i class="fa fa-comment">
                             </i>
@@ -77,7 +77,6 @@ export class FieldTableEditor {
 
     //field table input parameters
     @Input() disabled = false;
-    @Input() showExternal = false;
     _resources;
     @Input('resources') set resources(newResources){
         this._resources = newResources;
@@ -88,6 +87,8 @@ export class FieldTableEditor {
     _resourceModel;
     @Input('resourceModel') set resourceModel(newModel) {
         this._resourceModel = newModel;
+        this._showExternal = this._resourceModel.schemaClsName === $Class.External;
+        //this._showGroup = this._resourceModel.schemaClsName === $Class.Group;
         this.fieldNames = this._resourceModel.cudFields.filter(([key, spec]) => !spec.advanced).map(([key,]) => key);
         this.displayedColumns = [...this.fieldNames, 'actions'];
     }

@@ -7,20 +7,21 @@ import {
 } from '@angular/material';
 import {getClassName, schemaClassModels} from '../../model/index.js';
 import {FieldEditorDialog} from './fieldEditorDialog';
-import { cloneDeep, isObject, isString } from 'lodash-bound';
+import { cloneDeep, isObject } from 'lodash-bound';
 
 @Component({
     selector: 'fieldEditor',
     template: `
         <section class="w3-quarter">
             <!--Input-->
-            <mat-form-field *ngIf="_fieldType === 'input'">
+            <mat-form-field *ngIf="_fieldType === FIELD_TYPES.INPUT">
                 <input matInput class="w3-input"
                        [placeholder]="label"
                        [matTooltip]="spec?.description"
                        [type]="_inputType"
                        [value]="value||null"
                        [disabled]="disabled"
+                       [pattern]="spec?.pattern"
                        [min]="spec?.minimum||0"
                        [max]="spec?.maximum||100"
                        [step]="0.01 * (spec?.maximum - spec?.minimum) || 1"
@@ -29,7 +30,7 @@ import { cloneDeep, isObject, isString } from 'lodash-bound';
             </mat-form-field>
 
             <!--Select box-->
-            <mat-form-field *ngIf="_fieldType === 'select'">
+            <mat-form-field *ngIf="_fieldType === FIELD_TYPES.SELECT">
                 <mat-select
                         [placeholder]="label"
                         [value]="value"
@@ -42,7 +43,7 @@ import { cloneDeep, isObject, isString } from 'lodash-bound';
             </mat-form-field>
 
             <!--Check box-->
-            <mat-checkbox *ngIf="_fieldType === 'boolean'"
+            <mat-checkbox *ngIf="_fieldType === FIELD_TYPES.BOOLEAN"
                           [matTooltip]="spec?.description"
                           labelPosition="before"
                           [checked]="value"
@@ -52,23 +53,20 @@ import { cloneDeep, isObject, isString } from 'lodash-bound';
             </mat-checkbox>
 
             <!--Datepicker-->
-            <mat-form-field  *ngIf="_fieldType === 'date'">
+            <mat-form-field  *ngIf="_fieldType === FIELD_TYPES.DATE">
                 <input matInput [matDatepicker]="picker" 
                        [placeholder]="label"
                        [value]="date?.value"
-                       (dateInput)="updateValue($event)" (dateChange)="updateValue($event)">
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
+                       (dateInput) ="updateValue($event)" 
+                       (dateChange)="updateValue($event)">
+                <mat-datepicker-toggle matSuffix [for]="picker"> </mat-datepicker-toggle>
+                <mat-datepicker #picker> </mat-datepicker>
             </mat-form-field>
         </section>
 
         <!--Object - show fieldEditor for each property-->
-        <section *ngIf="_fieldType === 'object'" class="w3-row">
+        <section *ngIf="_fieldType === FIELD_TYPES.OBJECT" class="w3-row">
                 {{label}}
-                <!--<mat-panel-description *ngIf="spec?.description">-->
-                    <!--{{spec.description}}-->
-                <!--</mat-panel-description>-->
-
                 <section *ngIf="!!_objectProperties">
                     <section *ngFor="let key of objectKeys(_objectProperties)">
                         <fieldEditor
@@ -100,7 +98,7 @@ import { cloneDeep, isObject, isString } from 'lodash-bound';
         </section>
 
         <!--Array - show fieldEditor for each item-->
-        <section *ngIf="_fieldType === 'array'" class="w3-row">
+        <section *ngIf="_fieldType === FIELD_TYPES.ARRAY" class="w3-row">
             <mat-expansion-panel class="w3-margin-bottom">
                 <mat-expansion-panel-header>
                     <mat-panel-title>
@@ -133,8 +131,8 @@ import { cloneDeep, isObject, isString } from 'lodash-bound';
         </section>
 
         <!--Other-->
-        <section *ngIf="_fieldType === 'other'">
-            Unsupported field: <b>{{label}}</b>
+        <section *ngIf="_fieldType === FIELD_TYPES.OTHER">
+            Field with unsupported format: <b>{{label}}</b>
         </section>
 
     `
@@ -148,7 +146,34 @@ export class FieldEditor {
     objectKeys = Object.keys;
     dialog: MatDialog;
 
-    keyValueSpec = {
+    SCHEMA_TYPES = {
+        STRING : "string",
+        NUMBER : "number",
+        BOOLEAN: "boolean",
+        ARRAY  : "array",
+        OBJECT : "object",
+        DATE   : "date",
+        COLOR  : "RGBColorScheme",
+        PATH   : "JSONPathScheme"
+    };
+
+    FIELD_TYPES = {
+        INPUT  : "input",
+        BOOLEAN: "boolean",
+        DATE   : "date",
+        SELECT : "select",
+        OBJECT : "object",
+        ARRAY  : "array",
+        OTHER  : "other"
+    };
+
+    INPUT_TYPES = {
+        NUMBER  : "number",
+        TEXT    : "text",
+        COLOR   : "color"
+    };
+
+    KEY_VALUE_SPEC = {
         "type": "object",
         "properties": {
             "key": {
@@ -175,34 +200,31 @@ export class FieldEditor {
         let clsName = getClassName(this._spec);
         this._fieldType = this.getFieldType(clsName, this._spec);
 
-        if (this._fieldType === "date") {
+        console.log(this.label, this._fieldType);
+
+        if (this._fieldType === this.FIELD_TYPES.DATE) {
             this.date = new FormControl(new Date(this.value));
         }
 
-        if (this._fieldType === "input") {
-            this._inputType =  (this.spec.type === "string")
-                ? "text"
-                : this.spec.type
-                    ? this.spec.type
-                    : (getClassName(this.spec) === "RGBColorScheme")
-                        ? "color"
-                        : "text";
+        if (this._fieldType === this.FIELD_TYPES.INPUT) {
+            this._inputType = this.spec.type
+                ? (this.spec.type === this.SCHEMA_TYPES.STRING)
+                    ? this.INPUT_TYPES.TEXT
+                    : this.spec.type
+                : (getClassName(this.spec) === this.SCHEMA_TYPES.COLOR)
+                    ? this.INPUT_TYPES.COLOR
+                    : this.INPUT_TYPES.TEXT;
         }
 
-        if (this._fieldType === "object"){
-            this._objectProperties = this.spec.properties;
-            if (clsName) {
-                this._objectProperties = schemaClassModels[clsName].propertyMap;
-            }
+        if (this._fieldType === this.FIELD_TYPES.OBJECT){
+            this._objectProperties = clsName? schemaClassModels[clsName].propertyMap: this.spec.properties;
         }
 
-        if (this._fieldType === "select"){
-            this._selectOptions = this.spec.enum;
-            if (clsName) {
-                this._selectOptions = schemaClassModels[clsName].schema.enum;
-            }
+        if (this._fieldType === this.FIELD_TYPES.SELECT){
+            this._selectOptions = clsName? schemaClassModels[clsName].schema.enum: this.spec.enum;
         }
     }
+
     @Input() disabled = false;
 
     @Output() onValueChange = new EventEmitter();
@@ -228,20 +250,25 @@ export class FieldEditor {
      * @returns {string} string that describes the schema field type: 'input', 'select', 'array', 'object', or 'other'
      */
     getFieldType(clsName, spec){
-        if (!spec) { return "input"; }
-
-        if (spec.type === "string" && spec.format === 'date'){
-            return spec.format;
+        if (!spec) {
+            return this.FIELD_TYPES.INPUT;
         }
 
-        if (spec.type === "boolean" || spec.type === "array") {
-            return spec.type;
+        if (spec.type === this.SCHEMA_TYPES.STRING && spec.format === this.SCHEMA_TYPES.DATE){
+            return this.FIELD_TYPES.DATE;
         }
 
-        if ((spec.type === "number" || spec.type === "string") && !spec.enum
-            || clsName === "RGBColorScheme"
-            || clsName === "JSONPathScheme") {
-            return "input";
+        if (spec.type === this.SCHEMA_TYPES.BOOLEAN) {
+            return this.FIELD_TYPES.BOOLEAN;
+        }
+
+        if (spec.type === this.SCHEMA_TYPES.ARRAY) {
+            return this.FIELD_TYPES.ARRAY;
+        }
+
+        if (spec.type && !spec.enum && [this.SCHEMA_TYPES.STRING, this.SCHEMA_TYPES.NUMBER].includes(spec.type)
+            || clsName && [this.SCHEMA_TYPES.COLOR, this.SCHEMA_TYPES.PATH].includes(clsName)) {
+            return this.FIELD_TYPES.INPUT;
         }
 
         const checkType = (spec, handler) => {
@@ -253,13 +280,15 @@ export class FieldEditor {
             return res;
         };
 
-        const isSpecEnum   = (spec) => spec.enum;
-        if (checkType(spec, isSpecEnum)) {return "select"; }
+        const isSpecEnum = (spec) => !!spec.enum;
+        if (checkType(spec, isSpecEnum)) {
+            return this.FIELD_TYPES.SELECT;
+        }
 
-        const isSpecObject = (spec) => spec.type === "object";
-        if (checkType(spec, isSpecObject)) {return "object"; }
+        const isSpecObject = (spec) => spec.type === this.SCHEMA_TYPES.OBJECT;
+        if (checkType(spec, isSpecObject)) {return this.FIELD_TYPES.OBJECT; }
 
-        return "other";
+        return this.FIELD_TYPES.OTHER;
     }
 
     // noinspection JSMethodCanBeStatic
@@ -273,8 +302,9 @@ export class FieldEditor {
 
         let clsName = getClassName(spec);
         let fieldType = this.getFieldType(clsName, spec);
-        if (fieldType === "array")  { return []; }
-        if (fieldType === "object") { return {}; }
+
+        if (fieldType === this.FIELD_TYPES.ARRAY)  { return []; }
+        if (fieldType === this.FIELD_TYPES.OBJECT) { return {}; }
 
         return "";
     }
@@ -284,7 +314,15 @@ export class FieldEditor {
      * @param newValue - new value
      */
     updateValue(newValue){
-        this.value = newValue;
+        if (this._inputType === this.INPUT_TYPES.NUMBER){
+            if (this.spec && this.spec.step){
+                this.value = parseFloat(newValue);
+            } else {
+                this.value = parseInt(newValue);
+            }
+        } else {
+            this.value = newValue;
+        }
         this.onValueChange.emit(this.value);
     }
 
@@ -295,7 +333,11 @@ export class FieldEditor {
      */
     updateProperty(key, newValue){
         if (!this.value){ this.value = {}; }
-        this.value[key] = newValue;
+        if (newValue === undefined){
+            delete this.value[key];
+        } else {
+            this.value[key] = newValue;
+        }
         this.onValueChange.emit(this.value);
     }
 
@@ -318,7 +360,7 @@ export class FieldEditor {
                 title: `Add new property?`,
                 value: {},
                 label: this.label,
-                spec : this.keyValueSpec
+                spec : this.KEY_VALUE_SPEC
             }
         });
         dialogRef.afterClosed().subscribe(result => {

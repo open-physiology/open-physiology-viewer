@@ -18,6 +18,14 @@ const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 export const $Class = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $Class::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
+export const $Color = {
+    Link   : "#000",
+    Node   : "#000",
+    Region : "#c0c0c0",
+    InternalNode : "#ccc",
+    InternalLink : "#ccc"
+};
+
 export const getNewID = entitiesByID => "new_" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
@@ -79,7 +87,7 @@ export const getRefs = (spec) => {
     if (spec.$ref) { return [spec.$ref]; }
     if (spec.items) { return getRefs(spec.items); }
     let expr = spec.oneOf || spec.anyOf || spec.allOf;
-    if ( expr ){
+    if (expr){
         return expr.filter(e => e.$ref).map(e => e.$ref);
     }
 };

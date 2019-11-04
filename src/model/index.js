@@ -1,11 +1,13 @@
 import {schema} from './graphModel';
 import {modelClasses} from "./modelClasses";
-import {getClassName, schemaClassModels} from "./utils";
+import {getClassName, schemaClassModels, $Class, $Field} from "./utils";
 
 export {
     schema,
     modelClasses,
     getClassName,
-    schemaClassModels
+    schemaClassModels,
+    $Class,
+    $Field
 };
 

@@ -15,40 +15,40 @@ import {$Field, $Class} from "../model/utils";
 @Component({
     selector: 'relGraph',
     template: `
-        <section id="svgPanel" class="w3-row">
-            <section #svgContainer id="svgContainer" [class.w3-threequarter]="showPanel">
-                    <section class="w3-bar-block w3-right" style="position:absolute; right:0">
-                        <input #fileInput
-                               type   = "file"
-                               accept = ".json"
-                               [style.display] = "'none'"
-                               (change) = "load(fileInput.files)"
-                        />    
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="draw()"
-                                title="Update layout">
-                            <i class="fa fa-refresh"> </i>
-                        </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleSettingPanel()" title="Show legend">
-                            <i class="fa fa-cog"> </i>
-                        </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleSettingPanel()" title="Hide legend">
-                            <i class="fa fa-window-close"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="export()" title="Save coordinates">
-                            <i class="fa fa-save"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey" 
-                                (click)="fileInput.click()" title="Load coordinates">
-                            <i class="fa fa-folder"> </i>
-                        </button>
-                    </section>
-    
-                    <svg #svg> </svg>
-            </section>            
-            <section id="settingsPanel" [hidden]="!showPanel" class="w3-quarter">
+        <section id="relGraphPanel" class="w3-row">
+            <section #relGraphContainer id="relGraphContainer" [class.w3-threequarter]="showPanel">
+                <section class="w3-bar-block w3-right" style="position:absolute; right:0">
+                    <input #fileInput
+                           type="file"
+                           accept=".json"
+                           [style.display]="'none'"
+                           (change)="load(fileInput.files)"
+                    />
+                    <button class="w3-bar-item w3-hover-light-grey" (click)="draw()"
+                            title="Update layout">
+                        <i class="fa fa-refresh"> </i>
+                    </button>
+                    <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                            (click)="toggleSettingPanel()" title="Show legend">
+                        <i class="fa fa-cog"> </i>
+                    </button>
+                    <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                            (click)="toggleSettingPanel()" title="Hide legend">
+                        <i class="fa fa-window-close"> </i>
+                    </button>
+                    <button class="w3-bar-item w3-hover-light-grey"
+                            (click)="export()" title="Save coordinates">
+                        <i class="fa fa-save"> </i>
+                    </button>
+                    <button class="w3-bar-item w3-hover-light-grey"
+                            (click)="fileInput.click()" title="Load coordinates">
+                        <i class="fa fa-folder"> </i>
+                    </button>
+                </section>
+
+                <svg #svg></svg>
+            </section>
+            <section id="relGraphSettingsPanel" [hidden]="!showPanel" class="w3-quarter">
                 <svg #legendSvg></svg>
                 <section class="w3-padding-small">
                     <!--Highlighted entity-->
@@ -79,7 +79,7 @@ import {$Field, $Class} from "../model/utils";
                         </button>
                     </fieldset>
 
-                    <section #tooltip class="tooltip"> </section>
+                    <section #tooltip class="tooltip"></section>
 
                 </section>
 
@@ -87,14 +87,14 @@ import {$Field, $Class} from "../model/utils";
         </section>
     `,
     styles: [`
-        #svgPanel {
+        #relGraphPanel {
             height: 100vh;
         }
 
-        #svgContainer{
+        #relGraphContainer {
             height: 100vh;
         }
-        
+
         .tooltip {
             position: absolute;
             padding: 2px;
@@ -104,7 +104,7 @@ import {$Field, $Class} from "../model/utils";
             pointer-events: none;
         }
 
-        #settingsPanel{
+        #relGraphSettingsPanel {
             height: 100vh;
             overflow-y: scroll;
         }
@@ -116,8 +116,8 @@ import {$Field, $Class} from "../model/utils";
 
         :host >>> legend {
             padding: 0.2em 0.5em;
-            border : 1px solid grey;
-            color  : grey;
+            border: 1px solid grey;
+            color: grey;
             font-size: 90%;
             text-align: right;
         }
@@ -128,7 +128,7 @@ import {$Field, $Class} from "../model/utils";
  */
 export class RelGraph {
     @ViewChild('svg') svgRef: ElementRef;
-    @ViewChild('svgContainer') svgContainer: ElementRef;
+    @ViewChild('relGraphContainer') relGraphContainer: ElementRef;
     @ViewChild('legendSvg') legendSvgRef: ElementRef;
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
@@ -138,9 +138,6 @@ export class RelGraph {
 
     _searchOptions;
     _selectedName = "";
-
-    // width = 0;
-    // height = 0;
 
     data = { nodes: [], links: [] };
 
@@ -256,8 +253,8 @@ export class RelGraph {
     }
 
     draw() {
-        this.width  = this.svgContainer.nativeElement.clientWidth;
-        this.height = this.svgContainer.nativeElement.clientHeight;
+        this.width  = this.relGraphContainer.nativeElement.clientWidth;
+        this.height = this.relGraphContainer.nativeElement.clientHeight;
 
         let svg = d3.select(this.svgRef.nativeElement).attr("width", this.width).attr("height", this.height);
         //Clean the view
@@ -313,7 +310,6 @@ export class RelGraph {
         //Highlight and select markers
         // let highlighter = svg.append("g").append("circle").attr("r", 10).attr("fill", "#ff0000");
         // let selector = svg.append("g").append("circle").attr("r", 10).attr("fill", "#008000");
-
 
         //Arrow markers
         const directedLinkTypes = this.linkTypes::entries().filter(([, value]) => value.directed).map(([key, ]) => key);

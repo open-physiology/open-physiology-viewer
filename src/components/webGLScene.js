@@ -20,8 +20,8 @@ const WindowResize = require('three-window-resize');
 @Component({
     selector: 'webGLScene',
     template: `
-        <section id="viewPanel" class="w3-row">
-            <section id="canvasContainer" [class.w3-threequarter]="showPanel">
+        <section id="apiLayoutPanel" class="w3-row">
+            <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
                         <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
@@ -70,39 +70,40 @@ const WindowResize = require('three-window-resize');
                     </section>
 
                     <!--Main content-->
-                    <canvas #canvas> </canvas>
+                    <canvas #canvas></canvas>
                 </section>
             </section>
-            <section id="settingsPanel" *ngIf="showPanel" class="w3-quarter">
+            <section id="apiLayoutSettingsPanel" *ngIf="showPanel" class="w3-quarter">
                 <settingsPanel
-                        [config]          ="config"
-                        [selected]        ="_selected"
-                        [highlighted]     ="_highlighted"
-                        [helperKeys]      ="_helperKeys"
-                        [groups]          ="graphData?.activeGroups"
-                        [searchOptions]   ="_searchOptions"                        
+                        [config]="config"
+                        [selected]="_selected"
+                        [highlighted]="_highlighted"
+                        [helperKeys]="_helperKeys"
+                        [groups]="graphData?.activeGroups"
+                        [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
-                        (onEditResource)  ="editResource.emit($event)"
-                        (onUpdateLabels)  ="graph?.showLabels($event)"
-                        (onToggleMode)    ="graph?.numDimensions($event)"
-                        (onToggleLayout)  ="toggleLayout($event)"
-                        (onToggleGroup)   ="toggleGroup($event)"
+                        (onEditResource)="editResource.emit($event)"
+                        (onUpdateLabels)="graph?.showLabels($event)"
+                        (onToggleMode)="graph?.numDimensions($event)"
+                        (onToggleLayout)="toggleLayout($event)"
+                        (onToggleGroup)="toggleGroup($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
-                        (onToggleHelperPlane) ="this.helpers[$event].visible = !this.helpers[$event].visible"
-                > </settingsPanel>
+                        (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
+                ></settingsPanel>
             </section>
         </section>
     `,
     styles: [`
-        #viewPanel {
+
+        #apiLayoutPanel {
             height: 100vh;
         }
-
-        #settingsPanel{
+        
+        #apiLayoutSettingsPanel{
             height: 100vh;
             overflow-y: scroll;
         }
-
+        
         :host >>> fieldset {
             border: 1px solid grey;
             margin: 2px;
@@ -110,8 +111,8 @@ const WindowResize = require('three-window-resize');
 
         :host >>> legend {
             padding: 0.2em 0.5em;
-            border : 1px solid grey;
-            color  : grey;
+            border: 1px solid grey;
+            color: grey;
             font-size: 90%;
             text-align: right;
         }
@@ -234,7 +235,7 @@ export class WebGLSceneComponent {
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
         this.renderer.setClearColor(0xffffff);
 
-        this.container = document.getElementById('canvasContainer');
+        this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;
         let height = this.container.clientHeight;
 
@@ -353,13 +354,9 @@ export class WebGLSceneComponent {
     createGraph() {
         this.graph = new ThreeForceGraph().graphData(this.graphData);
 
-        const forceVal = (d, key) => {
-            return (d.layout::isObject() && (key in d.layout) ? d.layout[key] : 0);
-        };
-
-        const forceStrength = (d, key) => {
-            return (d.layout::isObject() && key in d.layout) ? 1 : 0
-        };
+        const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && layout[key];
+        const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
+        const forceStrength = (d, key) => isLayoutDimValid(d.layout, key) ? 1 : 0;
 
         this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));
         this.graph.d3Force("y", forceY().y(d => forceVal(d, "y")).strength(d => forceStrength(d, "y")));

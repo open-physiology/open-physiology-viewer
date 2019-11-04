@@ -223,12 +223,7 @@
       "properties": {
         "color": {
           "description": "Color",
-          "allOf": [
-            {
-              "$ref": "#/definitions/RGBColorScheme"
-            }
-          ],
-          "advanced": true
+          "$ref": "#/definitions/RGBColorScheme"
         },
         "viewObjects": {
           "description": "Graphical objects that represent the resource",
@@ -1589,12 +1584,14 @@
         "created": {
           "description": "Date of the model creation",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "lastUpdated": {
           "description": "Date of the model last update",
           "type": "string",
-          "format": "date"
+          "format": "date",
+          "readOnly": true
         },
         "author": {
           "description": "Name of the model author",

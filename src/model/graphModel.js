@@ -17,7 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
-import {$Field} from "./utils";
+import {$Field, $Class, $Color} from "./utils";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -61,7 +61,7 @@ export class Graph extends Group{
 
         //Auto-create missing definitions for used references
         let added = [];
-        entitiesByID.waitingList::entries().forEach(([id, refs]) => {
+        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
@@ -90,7 +90,7 @@ export class Graph extends Group{
             logger.warn("Auto-created missing resources:", added);
         }
 
-        if (entitiesByID.waitingList::keys().length > 0){
+        if ((entitiesByID.waitingList)::keys().length > 0){
             logger.warn("Incorrect model - found references to undefined resources: ", entitiesByID.waitingList);
         }
         res.syncRelationships(modelClasses, entitiesByID);
@@ -128,7 +128,7 @@ export class Graph extends Group{
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
-            let clsName = relName === "main"? "Graph": graphSchema.relClassNames[relName];
+            let clsName = relName === "main"? $Class.Graph: graphSchema.relClassNames[relName];
             if (!modelClasses[clsName]) {
                 logger.warn("Class name not found:", relName);
                 return;
@@ -234,7 +234,7 @@ export class Graph extends Group{
                 Node.fromJSON({
                     [$Field.id]        : `${prefix}${lyph.id}`,
                     [$Field.name]      : `${prefix}${lyph.id}`,
-                    [$Field.color]     : "#ccc", //TODO template
+                    [$Field.color]     : $Color.InternalNode,
                     [$Field.val]       : 0.1,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
@@ -245,7 +245,7 @@ export class Graph extends Group{
                 [$Field.source]       : sNode,
                 [$Field.target]       : tNode,
                 [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
-                [$Field.color]        : "#ccc",
+                [$Field.color]        : $Color.InternalLink,
                 [$Field.conveyingLyph]: lyph,
                 [$Field.skipLabel]    : true,
                 [$Field.generated]    : true

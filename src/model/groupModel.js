@@ -2,7 +2,7 @@ import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
 import {Link} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
-import {addColor, $Class, $Field} from './utils';
+import {addColor, $Class, $Field, $Color} from './utils';
 import {logger} from './logger';
 import {Villus} from "./groupTemplateModel";
 
@@ -72,8 +72,8 @@ export class Group extends Resource {
         res.validateProcessEdges();
 
         //Assign color to visual resources with no color in the spec
-        addColor(res.regions, "#c0c0c0");
-        addColor(res.links, "#000");
+        addColor(res.regions, $Color.Region);
+        addColor(res.links, $Color.Link);
         addColor(res.lyphs);
 
         return res;

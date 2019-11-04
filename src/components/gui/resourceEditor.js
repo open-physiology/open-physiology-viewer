@@ -65,7 +65,6 @@ import {$Field, $Class, getNewID} from "../../model/utils";
                                     [resources]       = "resource[field[0]]"
                                     [resourceModel]   = "getFieldModel(field[1])"
                                     [modelResources]  = "inputModelResources"
-                                    [showExternal]    = "showExternal(field[1])"
                                     [disabled]        = "disabled"
                                     (onRemoveResource)        = "removeResource(field, $event)"
                                     (onCreateResource)        = "createResource(field, $event)"
@@ -137,10 +136,6 @@ export class ResourceEditor {
 
     getFieldModel(spec){
         return this.modelClasses[getClassName(spec)].Model;
-    }
-
-    showExternal(spec){
-        return getClassName(spec) === this.modelClasses.External.name;
     }
 
     /**
