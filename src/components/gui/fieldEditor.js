@@ -200,8 +200,6 @@ export class FieldEditor {
         let clsName = getClassName(this._spec);
         this._fieldType = this.getFieldType(clsName, this._spec);
 
-        console.log(this.label, this._fieldType);
-
         if (this._fieldType === this.FIELD_TYPES.DATE) {
             this.date = new FormControl(new Date(this.value));
         }

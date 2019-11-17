@@ -84,7 +84,7 @@ import {$Field} from "../model/utils";
                                   (change)="toggleLayout('showLayers')"
                                   [checked]="config.layout.showLayers"> Layers
                     </mat-checkbox>
-                    <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" *ngIf="graphData?.create3d"
+                    <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" 
                                   [disabled]="!config.layout.showLyphs" class="w3-margin-left"
                                   (change)="toggleLayout('showLyphs3d')"
                                   matTooltip="Shows 3D geometry for resources with property 'create3d' set to true"

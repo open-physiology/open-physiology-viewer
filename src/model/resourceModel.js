@@ -186,7 +186,7 @@ export class Resource{
                                 } else {
                                     newValue[key] = entitiesByID[newValue[key]];
                                 }
-                                logger.info(`Created relationship via dynamic assignment: `, key, e.id, newValue[key]);
+                                logger.info(`Created relationship via dynamic assignment: `, key, e.id);
                             }
                         });
                         e::merge(newValue);
@@ -381,36 +381,32 @@ export class Resource{
 
     /**
      * Prepare a circular resource object to be serialized in JSON.
-     * @param depth     - remaining depth of nested objects in the recursive calls
-     * @param initDepth - depth of nested objects to serialize (called with depth = 0 for resource map, depth = 1 for the main model)
+     * @param depth     - depth of nested objects in the recursive calls
      */
-    toJSON(depth = 0, initDepth = depth){
-
+    toJSON(depth = 1){
         /**
          * Converts a resource object into serializable JSON.
          * May fail to serialize recursive objects which are not instances of Resource
          * @param value - resource object
          * @param depth - depth of nested resources to output
-         * @param initDepth - initial depth of nested resources used in a recursive call to compute the remaining depth
          * @returns {*} JSON object without circular references         *
          */
-        function valueToJSON(value, depth, initDepth) { return (value instanceof Resource)? ((depth > 0)? value.toJSON(depth - 1, initDepth): value.id): value.id? value.id: value }
+        function valueToJSON(value, depth) { return (value instanceof Resource)? ((depth > 0)? value.toJSON(depth - 1): value.id): value.id? value.id: value }
 
         /**
          * Serializes field value: array or object
          * @param value - resource field value
          * @param depth - depth of nested resources to output
-         * @param initDepth - initial depth of nested resources used in a recursive call to compute the remaining depth
          * @returns {*} JSON object or an array of JSON objects without circular references
          */
-        function fieldToJSON(value, depth, initDepth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth, initDepth)): valueToJSON(value, depth, initDepth); }
+        function fieldToJSON(value, depth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
-        let omitKeys = this::keys()::difference(this.constructor.Model.fieldNames).concat(["viewObjects", "infoFields", "labels"]);
         let res = {};
-        let inlineResources = ["border", "borders", "villus"];
+        const omitKeys = (this::keys())::difference(this.constructor.Model.fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
+        const inlineResources = [$Field.border, $Field.borders, $Field.villus];
         this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
-            let fieldDepth = inlineResources.includes(key)? initDepth: depth;
-            res[key] = fieldToJSON(this[key], fieldDepth, initDepth);
+            let fieldDepth = inlineResources.includes(key)? depth + 1: depth;
+            res[key] = fieldToJSON(this[key], fieldDepth);
         });
         return res;
     }
@@ -423,10 +419,16 @@ export class Resource{
      */
     isSubtypeOf(supertypeID){
         let res = false;
-        if (this.id === supertypeID){ res = true; }
-        if (!res && this.supertype) { res = this.supertype.isSubtypeOf(supertypeID)}
-        if (!res && this.cloneOf) { res = this.cloneOf.isSubtypeOf(supertypeID)}
-        if (!res && this.layerIn) { res = this.layerIn.isSubtypeOf(supertypeID)}
+        if (this.id === supertypeID) { res = true; }
+        if (!res && this.supertype) {
+            res = this.supertype.isSubtypeOf(supertypeID)
+        }
+        if (!res && this.cloneOf) {
+            res = this.cloneOf.isSubtypeOf(supertypeID)
+        }
+        if (!res && this.layerIn) {
+            res = this.layerIn.isSubtypeOf(supertypeID)
+        }
         return res;
     }
 
@@ -437,12 +439,23 @@ export class Resource{
      * @returns {*|void}
      */
     containsMaterial(materialID){
-        let res = (this.materials||[]).find(e => e.id === materialID);
-        if (!res && this.supertype) { res = this.supertype.containsMaterial(materialID)}
-        if (!res && this.cloneOf) { res = this.cloneOf.containsMaterial(materialID)}
-        if (!res && this.generatedFrom) { res = this.generatedFrom.containsMaterial(materialID)}
+        let res = false;
+        if (this.id === materialID) { res = true; }
+        if (!res){
+            res = (this.materials || []).find(e => e.containsMaterial(materialID));
+        }
+        if (!res && this.supertype) {
+            res = this.supertype.containsMaterial(materialID)
+        }
+        if (!res && this.cloneOf) {
+            res = this.cloneOf.containsMaterial(materialID)
+        }
+        if (!res && this.generatedFrom) {
+            res = this.generatedFrom.containsMaterial(materialID)
+        }
         return res;
     }
+
 }
 
 export class External extends Resource {}

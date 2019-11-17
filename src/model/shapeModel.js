@@ -150,14 +150,15 @@ export class Lyph extends Shape {
             targetLyph.cloneOf = sourceLyph.id;
         }
 
-        if (!targetLyph.name) {targetLyph.name = sourceLyph.name + (sourceLyph.name && sourceLyph.name.endsWith("clone)")? "": " (clone)"); }
+        if (!targetLyph.name) {
+            targetLyph.name = sourceLyph.name + (sourceLyph.name && sourceLyph.name.endsWith("clone)")? "": " (clone)");
+        }
 
         if ((targetLyph.layers||[]).length > 0) {
             logger.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
             return;
         }
 
-        targetLyph.layers = [];
         (sourceLyph.layers || []).forEach(layerRef => {
             let sourceLayer = findResourceByID(lyphs, layerRef);
             if (!sourceLayer) {
@@ -172,11 +173,11 @@ export class Lyph extends Shape {
             lyphs.push(targetLayer);
             this.clone(lyphs, sourceLayer, targetLayer);
 
-            targetLayer::merge(targetLyph::pick(["topology"]));
-            targetLyph.layers.push(targetLayer);
+            targetLayer::merge(targetLyph::pick([$Field.topology]));
+            targetLyph.layers = targetLyph.layers || [];
+            targetLyph.layers.push(targetLayer.id);
         });
 
-        targetLyph.layers = targetLyph.layers.map(e => e.id);
         return targetLyph;
     }
 

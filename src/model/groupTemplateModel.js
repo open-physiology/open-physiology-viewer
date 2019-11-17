@@ -12,7 +12,7 @@ import {
     $Color
 } from "./utils";
 import {logger} from './logger';
-import {defaults, isPlainObject, isArray, flatten} from "lodash-bound";
+import {defaults, isPlainObject, isArray, flatten} from 'lodash-bound';
 
 /**
  * Group template
@@ -493,7 +493,7 @@ export class Channel extends GroupTemplate {
                 return;
             }
             lyph.channels = lyph.channels || [];
-            if (!lyph.channels.find(x => x.id === channel.id)) {
+            if (!lyph.channels.find(x => x === channel.id || x.id === channel.id)) {
                 lyph.channels.push(channel.id);
             }
         });
@@ -509,14 +509,6 @@ export class Channel extends GroupTemplate {
         if (!channel.group) {
             logger.warn("Cannot create channel instances: canonical group not found!");
             return;
-        }
-
-        let MEMBRANE_ANNOTATION = "GO:0016020";
-        let membraneLyph = (parentGroup.lyphs||[]).find(e => (e.external || []).find(x => x === MEMBRANE_ANNOTATION || x.id === MEMBRANE_ANNOTATION));
-        let membraneMaterial = (parentGroup.materials||[]).find(e => (e.external || []).find(x => x === MEMBRANE_ANNOTATION || x.id === MEMBRANE_ANNOTATION));
-
-        if (!membraneLyph && !membraneMaterial) {
-            logger.warn("Did not find a reference to a membrane lyph or material - validation of the housing lyphs will be skipped");
         }
 
         //This is needed to merge Lyph.channels for generated lyphs back to Channel.housingLyph
@@ -536,8 +528,9 @@ export class Channel extends GroupTemplate {
                 return;
             }
 
-            if (!validate(lyph, channel)) {
-                logger.warn(`Skipping channel for lyph ${lyph.id} - custom validation failed!`);
+            if ((lyph.layers||[]).length !== (channel.group.links||[]).length) {
+                logger.warn("The number of layers in the housing lyph does not match the number of links in its membrane channel",
+                    lyph, (lyph.layers||[]).length, (channel.group.links||[]).length);
                 return;
             }
 
@@ -551,26 +544,6 @@ export class Channel extends GroupTemplate {
                 embedToHousingLyph(lyph, instance);
             }
         });
-
-        //TODO test
-        function validate(lyph, channel) {
-            if ((lyph.layers||[]).length !== (channel.group.links||[].length)) {
-                logger.warn("The number of layers in the housing lyph does not match the number of links in its membrane channel", lyph);
-                return false;
-            }
-            if (membraneLyph || membraneMaterial) {
-                let middleLayer = lyph.layers && lyph.layers[1];
-                let isOk = membraneLyph && middleLayer.isSubtypeOf(membraneLyph.id);
-                if (!isOk && membraneMaterial) {
-                    isOk = (middleLayer.materials || []).find(e => e === membraneMaterial.id || e.id === membraneMaterial.id);
-                }
-                if (!isOk) {
-                    logger.warn("Second layer of a housing lyph is not a (subtype of) membrane", middleLayer, membraneLyph, membraneMaterial);
-                }
-                return isOk;
-            }
-            return true;
-        }
 
         /**
          * Create a channel instance
@@ -663,6 +636,30 @@ export class Channel extends GroupTemplate {
 
                 parentGroup.coalescences.push(layerCoalescence);
             }
+        }
+    }
+
+    validate(parentGroup){
+        let MEMBRANE_ANNOTATION = "GO:0016020";
+        const findMembrane = (array) => (array||[]).find(e => (e.external || []).find(x => (x.id? x.id: x) === MEMBRANE_ANNOTATION));
+
+        let membraneLyph     = findMembrane(parentGroup.lyphs);
+        let membraneMaterial = findMembrane(parentGroup.materials);
+        if (membraneLyph || membraneMaterial) {
+            (this.housingLyphs||[]).forEach(lyph => {
+                if ((lyph.layers||[]).length > 1) {
+                    let isOk = membraneLyph && lyph.layers[1].isSubtypeOf(membraneLyph.id);
+                    if (!isOk) {
+                        isOk = membraneMaterial && lyph.layers[1].containsMaterial(membraneMaterial.id);
+                        if (!isOk) {
+                            logger.warn(`Second layer of a housing lyph is not a (subtype of) membrane (externals - GO:0016020, id - ${membraneLyph? membraneLyph.id: membraneMaterial.id} ): `, lyph.layers[1]);
+                        }
+                    }
+                    return isOk;
+                }
+            })
+        } else {
+            logger.warn("Did not find a reference to a membrane lyph or material - validation of the housing lyphs is skipped");
         }
     }
 }

@@ -312,10 +312,12 @@ export class Group extends Resource {
                 logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames);
+            let relFieldNames = this.constructor.Model.filteredRelNames([$Class.Group, $Class.GroupTemplate]);
             relFieldNames.forEach(property => {
-                this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
-                this[property] = this[property].filter(x => x.class);
+                if (group[property]::isArray()){
+                    this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
+                    this[property] = this[property].filter(x => x.class);
+                }
             });
         });
 
@@ -368,7 +370,7 @@ export class Group extends Resource {
      */
     get resources(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames(groupClsNames); //Exclude groups
+        let relFieldNames = this.constructor.Model.filteredRelNames([$Class.Group]);
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
         return res.filter(e => !!e && e::isObject());
     }

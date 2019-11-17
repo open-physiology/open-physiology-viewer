@@ -52,7 +52,7 @@ export class Logger {
         return this.entries.map(e => ({
             "level"  : e.level,
             "msg"    : e.msg,
-            "params" : (e.params||[]).map(param => param.toJSON? param.toJSON(new Set([])): param)
+            "params" : (e.params||[]).map(param => param && param.toJSON? param.toJSON(): param)
         }));
     }
 

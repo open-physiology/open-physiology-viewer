@@ -78,7 +78,9 @@ Group.prototype.updateViewObjects = function(state){
             if (coalescence.topology === Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING) {
                 //Non-symmetric - first lyph is a "housing lyph"
                 //let same = commonTemplate(lyph, layers2[layers2.length - 1]);
-                layers2[layers2.length - 1].setMaterialVisibility( !state.showCoalescences);// || !same);
+                if (layers2.length > 0){
+                    layers2[layers2.length - 1].setMaterialVisibility( !state.showCoalescences);// || !same);
+                }
             } else {//CONNECTING
                 //Non-symmetric - second lyph moves towards the first
                 //coalescing lyphs are independent / at the same scale level

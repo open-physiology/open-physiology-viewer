@@ -116,7 +116,7 @@ Lyph.prototype.createViewObjects = function(state) {
         let radius = this.height / 8;
         let obj = createMeshWithBorder(this.prev
             ? layerShape(
-                [this.prev.width, prev.height, radius, ...this.prev.radialTypes],
+                [offset, prev.height, radius, ...this.prev.radialTypes],
                 [this.width, this.height, radius, ...this.radialTypes])
             : lyphShape([this.width, this.height, radius, ...this.radialTypes]),
             params);
@@ -157,12 +157,13 @@ Lyph.prototype.createViewObjects = function(state) {
         let defaultWidth = (resizedLayers.length < numLayers) ?
             (100. - layerTotalWidth) / (numLayers - resizedLayers.length) : 0;
 
+
         let relOffset = 0;
-        (this.layers || []).forEach(layer => {
+        (this.layers || []).forEach((layer, i) => {
             layer.create3d = this.create3d;
             layer.layerWidth = layer.layerWidth || defaultWidth;
             layer.width = layer.layerWidth / 100 * this.width;
-            layer.height = this.height;
+            layer.height = this.height;  //* (0.8 + ((numLayers > 1)?  0.2 * i / (numLayers - 1): 0.2));
             layer.createViewObjects(state);
             let layerObj = layer.viewObjects["2d"];
             this.viewObjects["2d"].add(layerObj);

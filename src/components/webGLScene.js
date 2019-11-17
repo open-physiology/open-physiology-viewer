@@ -269,7 +269,7 @@ export class WebGLSceneComponent {
 
     export(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(1), null, 2);
+            let result = JSON.stringify(this._graphData.toJSON(), null, 2);
             const blob = new Blob([result], {type: 'text/plain'});
             FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
         }
@@ -354,7 +354,7 @@ export class WebGLSceneComponent {
     createGraph() {
         this.graph = new ThreeForceGraph().graphData(this.graphData);
 
-        const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && layout[key];
+        const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && (typeof layout[key] !== 'undefined');
         const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
         const forceStrength = (d, key) => isLayoutDimValid(d.layout, key) ? 1 : 0;
 
