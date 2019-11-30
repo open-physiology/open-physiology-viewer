@@ -6,16 +6,15 @@ import {
     THREE,
     copyCoords,
     direction,
-    bezierSemicircle,
+    semicircleCurve,
     rectangleCurve,
+    arcCurve,
     getPoint,
     getCenterOfMass
 } from "./utils";
 
 import '../three/lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
-
-import {merge} from 'lodash-bound';
 
 const {VisualResource, Link, Node} = modelClasses;
 
@@ -148,12 +147,14 @@ Link.prototype.createViewObjects = function(state){
             }
             obj = new THREE.Line(geometry, material);
         }
-        this.pointLength = (this.geometry === Link.LINK_GEOMETRY.SEMICIRCLE
+        this.pointLength =
+            (this.geometry === Link.LINK_GEOMETRY.SEMICIRCLE
                 || this.geometry === Link.LINK_GEOMETRY.RECTANGLE
+                || this.geometry === Link.LINK_GEOMETRY.ARC
                 || this.geometry === Link.LINK_GEOMETRY.SPLINE)
             ? state.linkResolution
             : (this.geometry === Link.LINK_GEOMETRY.PATH)
-                ? 67 // Edge bunding breaks a link into 66 points
+                ? 67 // Edge bundling breaks a link into 66 points
                 : 2;
         if (this.stroke === Link.LINK_STROKE.DASHED) {
             geometry.vertices = new Array(this.pointLength);
@@ -215,30 +216,33 @@ Link.prototype.createViewObjects = function(state){
  * @param state
  */
 Link.prototype.updateViewObjects = function(state) {
-    const updateCurve = (_start, _end) => {
-        let curve = new THREE.Line3(_start, _end);
+    const updateCurve = (start, end) => {
+        let curve = new THREE.Line3(start, end);
         switch (this.geometry) {
             case Link.LINK_GEOMETRY.SEMICIRCLE:
-                curve = bezierSemicircle(_start, _end);
+                curve = semicircleCurve(start, end);
                 break;
-            case Link.LINK_GEOMETRY.RECTANGLE :
-                curve = rectangleCurve(_start, _end);
+            case Link.LINK_GEOMETRY.RECTANGLE:
+                curve = rectangleCurve(start, end);
                 break;
-            case Link.LINK_GEOMETRY.PATH      :
+            case Link.LINK_GEOMETRY.ARC:
+                curve = arcCurve(start, end, extractCoords(this.arcCenter));
+                break;
+            case Link.LINK_GEOMETRY.PATH:
                 if (this.path){
                     curve = new THREE.CatmullRomCurve3(this.path);
                 }
                 break;
-            case Link.LINK_GEOMETRY.SPLINE    :
-                let prev = this.prev ? direction(this.prev.center, _start).multiplyScalar(2) : null;
-                let next = this.next ? direction(this.next.center, _end).multiplyScalar(2) : null;
+            case Link.LINK_GEOMETRY.SPLINE:
+                let prev = this.prev ? direction(this.prev.center, start).multiplyScalar(2) : null;
+                let next = this.next ? direction(this.next.center, end).multiplyScalar(2) : null;
                 if (prev) {
                     curve = next
-                        ? new THREE.CubicBezierCurve3(_start, _start.clone().add(prev), _end.clone().add(next), _end)
-                        : new THREE.QuadraticBezierCurve3(_start, _start.clone().add(prev), _end);
+                        ? new THREE.CubicBezierCurve3(start, start.clone().add(prev), end.clone().add(next), end)
+                        : new THREE.QuadraticBezierCurve3(start, start.clone().add(prev), end);
                 } else {
                     if (next) {
-                        curve = new THREE.QuadraticBezierCurve3(_start, _end.clone().add(next), _end);
+                        curve = new THREE.QuadraticBezierCurve3(start, end.clone().add(next), end);
                     }
                 }
         }

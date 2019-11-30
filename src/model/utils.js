@@ -18,6 +18,13 @@ const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 export const $Class = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $Class::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
+export const LINK_GEOMETRY = definitions[$Class.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LINK_STROKE   = definitions[$Class.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const PROCESS_TYPE  = definitions[$Class.Link].properties[$Field.conveyingType].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+
+export const LYPH_TOPOLOGY  = definitions[$Class.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const COALESCENCE_TOPOLOGY = definitions[$Class.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+
 export const $Color = {
     Link   : "#000",
     Node   : "#000",

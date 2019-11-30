@@ -7,34 +7,68 @@
     {
       "id"          : "tree1",
       "name"        : "Neuron tree",
-      "numLevels"   : 8,
+      "numLevels"   : 4,
       "lyphTemplate": "neuronLyph"
     }
   ],
-  "lyphs": [{
-    "id"         : "neuronLyph",
-    "isTemplate" : true,
-    "topology"   : "BAG",
-    "layers"     : [
-      "cytosol",
-      "plasma",
-      "fluid"
-    ]
-  },
+  "nodes": [
+    {
+      "id": "tree1_node0",
+      "layout": {"x": -25, "y": 0, "z": 0},
+      "color": "#000"
+    },
+    {
+      "id": "tree1_node4",
+      "layout": {"x": 25, "y": 0, "z": 0},
+      "color": "#000"
+    },
+    {
+      "id": "n1",
+      "layout": {"x": -10, "y": 10, "z": 0},
+      "color": "#000"
+    },
+    {
+      "id": "n2",
+      "layout": {"x": 10, "y": 10, "z": 0},
+      "color": "#000"
+    }
+  ],
+  "links": [
+      {
+        "id": "lnk1",
+        "source": "n1",
+        "target": "n2",
+        "conveyingLyph": "lyph1"
+      }
+  ],
+  "lyphs": [
+    {
+      "id"         : "lyph1",
+      "topology"   : "CYST",
+      "supertype"  : "neuronLyph"
+    },
+    {
+      "id"         : "neuronLyph",
+      "isTemplate" : true,
+      "topology"   : "CYST",
+      "layers"     : [
+        "cytosol",
+        "plasma",
+        "fluid"
+      ],
+      "scale" : {"width": 60, "height": 120}
+    },
     {
       "id"    : "plasma",
-      "name"  : "Plasma membrane",
-      "color" : "#ff0000"
+      "name"  : "Plasma membrane"
     },
     {
       "id"    : "cytosol",
-      "name"  : "Cytosol",
-      "color" : "#00ff00"
+      "name"  : "Cytosol"
     },
     {
       "id"       : "fluid",
-      "name"     : "Extracellular fluid",
-      "color"    : "#0000ff"
+      "name"     : "Extracellular fluid"
     }
   ]
 }

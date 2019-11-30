@@ -333,13 +333,30 @@ export function rectangleCurve(startV, endV){
     return curvePath;
 }
 
+//TODO fix this method
+export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
+    let p = startV.clone().sub(centerV);
+    let q = endV.clone().sub(centerV);
+
+    let a2 = Math.abs((p.x^2)*(q.y^2) - (q.x^2)*(p.y^2)) / (q.y^2 - p.y^2);
+    let b2 = Math.abs((q.x^2)*(p.y^2) - (p.x^2)*(q.y^2)) / (p.x^2 - q.x^2);
+
+    let dot = p.dot(q);
+    let theta = Math.acos( dot / (p.length() * q.length()) );
+
+    let curve = new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false, 0);
+    return curve;
+
+}
+
+
 /**
  * Create a cubic Bezier curve resembling a semicircle
  * @param {Vector3} startV      - start coordinates
  * @param {Vector3} endV        - end coordinates
  * @returns {CubicBezierCurve3} - cubic Bezier curve
  */
-export function bezierSemicircle(startV, endV){
+export function semicircleCurve(startV, endV){
     let edgeV   = endV.clone().sub(startV);
     let pEdgeV  = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
     let insetV  = edgeV.multiplyScalar(0.05);

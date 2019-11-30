@@ -12,9 +12,47 @@ import respiratory from './data/respiratory.json';
 import {keys, entries} from 'lodash-bound';
 
 import { modelClasses } from '../src/model/index';
-import {VisualResource} from "../src/model/visualResourceModel";
 
-//TODO for every test model, check that logger does not contain unexpected warnings
+//TODO goal - for every test model, check that logger does not contain unexpected warnings
+
+describe("JSON Schema read correctly", () => {
+    it("Link geometry types are loaded", () => {
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("LINK");
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("SEMICIRCLE");
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("RECTANGLE");
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("SPLINE");
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("PATH");
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("INVISIBLE");
+        expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("ARC"); //TODO new link type, add tests to check that it is drawn
+    });
+
+    it("Link stroke types are loaded", () => {
+        expect(modelClasses.Link.LINK_STROKE).to.have.property("DASHED");
+        expect(modelClasses.Link.LINK_STROKE).to.have.property("THICK");
+    });
+
+    it("Link process types are loaded", () => {
+        expect(modelClasses.Link.PROCESS_TYPE).to.have.property("ADVECTIVE");
+        expect(modelClasses.Link.PROCESS_TYPE).to.have.property("DIFFUSIVE");
+    });
+
+    it("Lyph topology types are loaded", () => {
+        expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("TUBE");
+        expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("CYST");
+        expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG");
+        expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG2");
+        expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG-");
+        expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG+");
+        //TODO create models to test BAG- and BAG+ options
+    });
+
+    it("Coalescence topology types are loaded", () => {
+        expect(modelClasses.Coalescence.COALESCENCE_TOPOLOGY).to.have.property("EMBEDDING");
+        expect(modelClasses.Coalescence.COALESCENCE_TOPOLOGY).to.have.property("CONNECTING");
+    });
+});
+
+
 
 describe("Produce generated model - Basal Ganglia", () => {
     let graphData;
@@ -23,6 +61,7 @@ describe("Produce generated model - Basal Ganglia", () => {
     });
 
     it("Graph model created", () => {
+
         expect(graphData).to.have.a.property("class");
         expect(graphData).to.be.instanceOf(modelClasses.Graph);
 
@@ -89,3 +128,5 @@ describe("Generate groups from templates - UOT with channels", () => {
     afterEach(() => {
     });
 });
+
+//TODO add regression test for channels to make sure generated lyph order works

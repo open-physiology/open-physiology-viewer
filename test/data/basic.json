@@ -1,86 +1,52 @@
 {
-  "id"  : "basic",
-  "name": "Kidney Lobus",
-  "description": "Demo model with a lyph conveyed by a link",
+  "id"  : "basicLyph",
+  "name": "Basic lyph",
+  "description": "Demo model to show 2d visualization of a lyph",
   "author": "Natallia Kokash",
   "nodes": [
     {
-      "id": "k",
-      "name": "k",
-      "fixed": true,
-      "hidden": true,
-      "layout": {
-        "x": 0,
-        "y": 0,
-        "z": 25
-      }
+      "id": "c",
+      "layout": {"x": 0, "y": 0, "z": 0}
     },
     {
-      "id": "l",
-      "name": ";",
-      "fixed": true,
-      "hidden": true,
-      "layout": {
-        "x": 0, "y": 70, "z": 25
-      }
+      "id": "d",
+      "layout": {"x": 0, "y": 50, "z": 0}
     }
   ],
   "links": [
     {
-      "id"    : "k_l",
-      "source": "k",
-      "target": "l",
-      "length": 40,
-      "conveyingLyph": "5"
+      "id": "lnk1",
+      "source": "c",
+      "target": "d",
+      "length": 30,
+      "conveyingLyph": "1"
     }
   ],
   "lyphs": [
     {
-      "id"  : "5",
-      "name": "Kidney Lobus",
+      "id": "1",
       "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 2,
-        "max": 2
-      },
-      "layers": [
-        "7",
-        "6"
-      ],
-      "scale": {
-        "width" : 50,
-        "height": 50
-      }
+      "supertype": "4",
+      "create3d": true,
+      "scale": {"width": 40, "height": 60}
+    },
+    {
+      "id": "4",
+      "isTemplate": true,
+      "color": "#ccc",
+      "layers": ["5", "6", "7"]
+    },
+    {
+      "id": "5",
+      "isTemplate": true
     },
     {
       "id": "6",
-      "name": "Cortex of Kidney Lobus",
-      "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 2,
-        "max": 2
-      }
+      "isTemplate": true
     },
     {
       "id": "7",
-      "name": "Medulla of Kidney Lobus",
-      "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 2,
-        "max": 2
-      }
+      "isTemplate": true
     }
   ]
 }

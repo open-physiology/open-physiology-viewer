@@ -61,13 +61,13 @@
     },
     {
       "id": "2",
-      "topology": "CYST",
+      "topology": "BAG",
       "supertype": "4",
       "create3d": true
     },
     {
       "id": "3",
-      "topology": "BAG",
+      "topology": "CYST",
       "supertype": "4",
       "create3d": true
     },

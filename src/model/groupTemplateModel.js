@@ -12,7 +12,7 @@ import {
     $Color
 } from "./utils";
 import {logger} from './logger';
-import {defaults, isPlainObject, isArray, flatten} from 'lodash-bound';
+import {defaults, isObject, isArray, flatten} from 'lodash-bound';
 
 /**
  * Group template
@@ -78,7 +78,7 @@ export class Tree extends GroupTemplate {
 
         tree.group = this.createTemplateGroup(tree, parentGroup);
 
-        const getID  = (e) => e::isPlainObject()? e.id : e;
+        const getID  = (e) => e::isObject()? e.id : e;
         const match  = (e1, e2) => getID(e1) === getID(e2);
 
         //START
@@ -136,7 +136,7 @@ export class Tree extends GroupTemplate {
         const getTopology = (level, N, template) => {
             if (template){
                 if (level === 0) {
-                    if (template.topology === Lyph.LYPH_TOPOLOGY.BAG2 || template.topology === Lyph.LYPH_TOPOLOGY.CYST) {
+                    if ([Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
                         if (N === 1){
                             return Lyph.LYPH_TOPOLOGY.CYST;
                         }
@@ -144,7 +144,7 @@ export class Tree extends GroupTemplate {
                     }
                 }
                 if (level === N - 1) {
-                    if (template.topology === Lyph.LYPH_TOPOLOGY.BAG || template.topology === Lyph.LYPH_TOPOLOGY.CYST) {
+                    if ([Lyph.LYPH_TOPOLOGY["BAG-"], Lyph.LYPH_TOPOLOGY.BAG, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
                         return Lyph.LYPH_TOPOLOGY.BAG;
                     }
                 }
@@ -154,7 +154,7 @@ export class Tree extends GroupTemplate {
 
         let template = tree.lyphTemplate;
         if (template){
-            if (template::isPlainObject()){
+            if (template::isObject()){
                 if (!template.id) { template.id = tree.id + "_template"; }
                 mergeGenResource(tree.group, parentGroup, template, $Field.lyphs);
                 tree.lyphTemplate = template.id;
@@ -190,7 +190,7 @@ export class Tree extends GroupTemplate {
                 let lyph = {
                     [$Field.id]         : tree.id + "_lyph" + (i+1),
                     [$Field.supertype]  : tree.lyphTemplate,
-                    [$Field.conveyedBy] : tree.levels[i].id,
+                    [$Field.conveys] : tree.levels[i].id,
                     [$Field.topology]   : getTopology(i, N, template),
                     [$Field.generated]  : true
                 };
@@ -394,23 +394,8 @@ export class Channel extends GroupTemplate {
 
         channel.group = this.createTemplateGroup(channel, parentGroup);
 
+        //Important: do not change the order of lyphs in this array
         let mcLyphs = [
-            {
-                [$Field.id]     : "mcTemplate",
-                [$Field.layers] : ["mcContent", "mcWall", "mcOuter"]
-            },
-            {
-                [$Field.id]        : "mcContent",
-                [$Field.name]      : "Content",
-            },
-            {
-                [$Field.id]        : "mcWall",
-                [$Field.name]      : "Wall",
-            },
-            {
-                [$Field.id]        : "mcOuter",
-                [$Field.name]      : "Outer",
-            },
             {
                 [$Field.id]        : "mcInternal",
                 [$Field.name]      : "Internal",
@@ -428,6 +413,22 @@ export class Channel extends GroupTemplate {
                 [$Field.name]      : "External",
                 [$Field.supertype] : "mcTemplate",
                 [$Field.topology]  : Lyph.LYPH_TOPOLOGY.TUBE
+            },
+            {
+                [$Field.id]     : "mcTemplate",
+                [$Field.layers] : ["mcContent", "mcWall", "mcOuter"]
+            },
+            {
+                [$Field.id]        : "mcContent",
+                [$Field.name]      : "Content",
+            },
+            {
+                [$Field.id]        : "mcWall",
+                [$Field.name]      : "Wall",
+            },
+            {
+                [$Field.id]        : "mcOuter",
+                [$Field.name]      : "Outer",
             }
         ];
         mcLyphs.forEach(lyph => {

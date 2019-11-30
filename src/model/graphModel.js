@@ -255,7 +255,7 @@ export class Graph extends Group{
                 [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
             }, modelClasses, entitiesByID);
-            lyph.conveyedBy = link;
+            lyph.conveys = link;
             sNode.sourceOf  = [link];
             tNode.targetOf  = [link];
 

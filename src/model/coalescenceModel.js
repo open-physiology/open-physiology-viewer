@@ -1,12 +1,7 @@
 import { Resource } from './resourceModel';
 import {logger} from "./logger";
 import { keys, values, uniqBy } from 'lodash-bound';
-import {$Field} from "./utils";
-
-const COALESCENCE_TOPOLOGY = {
-    EMBEDDING  : "EMBEDDING",
-    CONNECTING : "CONNECTING"
-};
+import {$Field, COALESCENCE_TOPOLOGY} from "./utils";
 
 /**
  * Coalescence model

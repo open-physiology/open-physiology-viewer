@@ -1,37 +1,6 @@
 import { Resource } from './resourceModel';
-import { getNewID } from "./utils";
+import { getNewID, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE } from "./utils";
 import { merge, pick } from "lodash-bound";
-
-/**
- * Supported link geometries
- * @type {{LINK: string, SEMICIRCLE: string, RECTANGLE: string, PATH: string, SPLINE: string, FORCE: string}}
- */
-const LINK_GEOMETRY = {
-    LINK       : "link",        //straight line
-    SEMICIRCLE : "semicircle",  //line in the form of a semicircle
-    RECTANGLE  : "rectangle",   //rectangular line with rounded corners
-    PATH       : "path",        //path defined (e.g., in the shape for the edge bundling)
-    SPLINE     : "spline",      //solid curve line that uses other nodes to produce a smooth path
-    INVISIBLE  : "invisible",   //link with hidden visual geometry
-};
-
-/**
- * Supported link strokes
- * @type {{DASHED: string, THICK: string}}
- */
-const LINK_STROKE = {
-    DASHED     : "dashed",      //dashed line
-    THICK      : "thick"        //thick line
-};
-
-/**
- * Process types
- * @type {{ADVECTIVE: string, DIFFUSIVE: string}}
- */
-const PROCESS_TYPE = {
-    ADVECTIVE     : "ADVECTIVE",
-    DIFFUSIVE     : "DIFFUSIVE"
-};
 
 /**
  * The class implementing common methods for the visual resources.
@@ -44,8 +13,8 @@ const PROCESS_TYPE = {
 export class VisualResource extends Resource{
 
     static LINK_GEOMETRY = LINK_GEOMETRY;
-    static LINK_STROKE = LINK_STROKE;
-    static PROCESS_TYPE = PROCESS_TYPE;
+    static LINK_STROKE   = LINK_STROKE;
+    static PROCESS_TYPE  = PROCESS_TYPE;
 
     /**
      * Determines whether the resource should appear in the scheme based on its 'hidden' attribute and other resource dependencies

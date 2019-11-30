@@ -492,7 +492,7 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "conveyedBy"
+          "relatedTo": "conveys"
         },
         "conveyingType" : {
           "description": "Process type",
@@ -555,12 +555,13 @@
 
         },
         "geometry"     : {
-          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "type": "string",
           "enum": [
             "link",
             "semicircle",
             "rectangle",
+            "arc",
             "spline",
             "path",
             "invisible"
@@ -607,10 +608,15 @@
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
           "type": "number",
           "advanced": true
+        },
+        "arcCenter"    : {
+          "description": "Center of an elliptic curve for an arc link",
+          "$ref": "#/definitions/Point3Scheme"
         }
       },
       "dependencies" : {
-        "lineWidth": ["stroke"]
+        "lineWidth": ["stroke"],
+        "arcCenter": ["geometry"]
       }
     },
     "Material": {
@@ -776,6 +782,8 @@
           "type": "string",
           "enum": [
             "TUBE",
+            "BAG-",
+            "BAG+",
             "BAG",
             "BAG2",
             "CYST"
@@ -845,7 +853,7 @@
           ],
           "relatedTo": "subtypes"
         },
-        "conveyedBy"     : {
+        "conveys"     : {
           "description": "A link conveying the lyph",
           "anyOf": [
             {
@@ -1015,7 +1023,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "description", "class", "topology", "conveyedBy", "external", "supertype", "cloneOf", "generated"],
+          "default": [ "id", "name", "description", "class", "topology", "conveys", "external", "supertype", "cloneOf", "generated"],
           "advanced": true
         },
         "width"          : {

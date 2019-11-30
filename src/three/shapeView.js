@@ -159,11 +159,11 @@ Lyph.prototype.createViewObjects = function(state) {
 
 
         let relOffset = 0;
-        (this.layers || []).forEach((layer, i) => {
+        (this.layers || []).forEach(layer => {
             layer.create3d = this.create3d;
             layer.layerWidth = layer.layerWidth || defaultWidth;
             layer.width = layer.layerWidth / 100 * this.width;
-            layer.height = this.height;  //* (0.8 + ((numLayers > 1)?  0.2 * i / (numLayers - 1): 0.2));
+            layer.height = this.height;
             layer.createViewObjects(state);
             let layerObj = layer.viewObjects["2d"];
             this.viewObjects["2d"].add(layerObj);
@@ -314,7 +314,7 @@ Border.prototype.createViewObjects = function(state){
             "length": this.host.points[i + 1].distanceTo(this.host.points[i])
         });
         if (this.borders[i].conveyingLyph) {
-            this.borders[i].conveyingLyph.conveyedBy = this.borders[i];
+            this.borders[i].conveyingLyph.conveys = this.borders[i];
             this.borders[i].createViewObjects(state);
             state.graphScene.add(this.borders[i].conveyingLyph.viewObjects["main"]);
         }

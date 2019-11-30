@@ -1,14 +1,7 @@
 import {Link, VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
-import {$Field, findResourceByID, getNewID} from './utils';
-
-const LYPH_TOPOLOGY = {
-    TUBE : "TUBE",
-    BAG  : "BAG",
-    BAG2 : "BAG2",
-    CYST : "CYST"
-};
+import {$Field, findResourceByID, getNewID, LYPH_TOPOLOGY} from './utils';
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -69,7 +62,7 @@ export class Shape extends VisualResource {
  * @property angle
  * @property scale
  * @property isTemplate
- * @property conveyedBy
+ * @property conveys
  * @property layers
  * @property layerIn
  * @property internalIn
@@ -187,13 +180,15 @@ export class Lyph extends Shape {
      */
     get radialTypes() {
         switch (this.topology) {
-            case LYPH_TOPOLOGY.BAG  :
+            case Lyph.LYPH_TOPOLOGY["BAG-"]:
+            case Lyph.LYPH_TOPOLOGY.BAG  :
                 return [true, false];
-            case LYPH_TOPOLOGY.BAG2 :
+            case Lyph.LYPH_TOPOLOGY["BAG+"]:
+            case Lyph.LYPH_TOPOLOGY.BAG2 :
                 return [false, true];
-            case LYPH_TOPOLOGY.CYST :
+            case Lyph.LYPH_TOPOLOGY.CYST :
                 return [true, true];
-            case LYPH_TOPOLOGY.TUBE :
+            case Lyph.LYPH_TOPOLOGY.TUBE :
                 return [false, false];
         }
         if (this.layerIn){
@@ -215,7 +210,7 @@ export class Lyph extends Shape {
      * @returns {Link}
      */
     get axis() {
-        return this.conveyedBy || ((this.layerIn)? this.layerIn.axis : null);
+        return this.conveys || ((this.layerIn)? this.layerIn.axis : null);
     }
 
     get container(){
