@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import { cloneDeep, isArray, isObject, keys, merge } from "lodash-bound";
+import {cloneDeep, isArray, isObject, keys, merge, mergeWith, unionBy, add} from 'lodash-bound';
 
 import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -14,7 +14,7 @@ import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses, schema } from '../model/index';
+import {$Class, modelClasses, schema} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -66,6 +66,8 @@ const ace = require('ace-builds');
                    (change) = "load(fileInput.files)"/>
             <input #fileInput1 type = "file" accept = ".json" [style.display] = "'none'"
                    (change) = "join(fileInput1.files)"/>
+            <input #fileInput2 type = "file" accept = ".json" [style.display] = "'none'"
+                   (change) = "merge(fileInput2.files)"/>
             <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
                 <i class="fa fa-plus"> </i>
             </button>
@@ -73,12 +75,15 @@ const ace = require('ace-builds');
                 <i class="fa fa-folder"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
-                <i class="fa fa-handshake-o"> </i>
+                <i class="fa fa-object-ungroup"> </i>
+            </button>
+            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
+                <i class="fa fa-object-group"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i>
             </button>
-        </section>
+        </section> 
 
         <!--Views-->
         
@@ -98,7 +103,7 @@ const ace = require('ace-builds');
 
                 <!--Relationship graph-->
                 <mat-tab class="w3-margin">
-                    <ng-template mat-tab-label><i class="fa fa-crosshairs"> Relationship graph </i></ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
                     <relGraph [graphData] = "_graphData"></relGraph>
                 </mat-tab>
 
@@ -133,9 +138,7 @@ const ace = require('ace-builds');
                 </mat-tab>
 
             </mat-tab-group>
-
-            
-
+        </section>            
 
         <!-- Footer -->
 
@@ -272,12 +275,42 @@ export class TestApp {
         }
     }
 
+    merge(files) {
+        if (files && files[0]){
+            const reader = new FileReader();
+            reader.onload = () => {
+                let newModel = JSON.parse(reader.result);
+                this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, merger));
+
+                function merger(a, b) {
+                    if (a::isArray()){
+                        if (b::isArray()) {
+                            let ab = a.map(x => x::merge(b.find(y => y[$Field.id] === x[$Field.id])));
+                            return ab::unionBy(b, $Field.id);
+                        } else {
+                            return a.push(b);
+                        }
+                    } else {
+                        if (a::isObject()){
+                            return b::isObject()? a::mergeWith(b, merger): a;
+                        } else {
+                            return a;
+                        }
+                    }
+                }
+            };
+            try {
+                reader.readAsText(files[0]);
+            } catch (err){
+                throw new Error("Failed to open the input file: " + err);
+            }
+        }
+    }
+
     applyJSONEditorChanges() {
         if (this._editor){
             this._graphData = Graph.fromJSON({}, this.modelClasses);
-            this._model = this._editor.get();
-            this._model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
-            this.model = this._model;
+            this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
     }
 

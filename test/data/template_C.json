@@ -1,6 +1,6 @@
 {
-  "id"     : "template_0",
-  "name"   : "Template 0",
+  "id"     : "template_C",
+  "name"   : "Template C",
   "author" : "Natallia Kokash",
   "created": "2019-11-29",
   "nodes": [
@@ -21,13 +21,13 @@
     },
     {
       "id": "VB",
-      "layout": {"x": 0, "y": -100, "z": 0},
-      "fixed": true
+      "hostedBy": "HI-HS",
+      "offset": 0.5
     },
     {
       "id": "VT",
-      "layout": {"x": 0, "y": 100, "z": 0},
-      "fixed": true
+      "hostedBy": "HS-HI",
+      "offset": 0.5
     }
   ],
   "links": [
@@ -42,6 +42,22 @@
       "source": "VB",
       "target": "VT",
       "length": 100
+    },
+    {
+      "id": "HI-HS",
+      "source": "HI",
+      "target": "HS",
+      "length": 100,
+      "geometry": "semicircle",
+      "stroke": "thick"
+    },
+    {
+      "id": "HS-HI",
+      "source": "HS",
+      "target": "HI",
+      "length": 100,
+      "geometry": "semicircle",
+      "stroke": "thick"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
-  "id": "template_D+",
-  "name": "Template",
-  "author": "Natallia Kokash",
-  "created": "11-29-2019",
+  "id"     : "template_D",
+  "name"   : "Template D",
+  "author" : "Natallia Kokash",
+  "created": "2019-11-29",
   "nodes": [
     {
       "id": "HI",
@@ -22,19 +22,15 @@
 
     }
   ],
-  "links": [
-  ],
-  "lyphs": [],
-  "materials": [],
   "regions":[
     {
       "id": "spleen",
       "name": "Spleen",
       "points": [
-        {"x": -50, "y": 40, "z": 0},
-        {"x": -50, "y": 60, "z": 0},
-        {"x": -30, "y": 60, "z": 0},
-        {"x": -30, "y": 40, "z": 0}
+        {"x": -50, "y": 40},
+        {"x": -50, "y": 60},
+        {"x": -30, "y": 60},
+        {"x": -30, "y": 40}
       ]
     }
   ]

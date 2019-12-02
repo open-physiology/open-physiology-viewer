@@ -1,8 +1,8 @@
 {
-  "id": "template",
-  "name": "Template",
-  "author": "Natallia Kokash",
-  "created": "11-29-2019",
+  "id"     : "template",
+  "name"   : "Template",
+  "author" : "Natallia Kokash",
+  "created": "2019-11-29",
   "nodes": [
     {
       "id": "x",
