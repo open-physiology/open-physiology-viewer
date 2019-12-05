@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule, MatDialog, MatDialogModule} from '@angular/material'
 import FileSaver  from 'file-saver';
-import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
+import {keys, values, defaults, isObject, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph   from '../three/threeForceGraph';
 import { forceX, forceY, forceZ } from 'd3-force-3d';
@@ -11,7 +11,8 @@ import { forceX, forceY, forceZ } from 'd3-force-3d';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
-const OrbitControls = require('three-orbit-controls')(THREE);
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+
 const WindowResize = require('three-window-resize');
 
 /**
@@ -70,7 +71,7 @@ const WindowResize = require('three-window-resize');
                     </section>
 
                     <!--Main content-->
-                    <canvas #canvas></canvas>
+                    <canvas #canvas> </canvas>
                 </section>
             </section>
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel" class="w3-quarter">
@@ -89,11 +90,11 @@ const WindowResize = require('three-window-resize');
                         (onToggleGroup)="toggleGroup($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
-                ></settingsPanel>
+                > </settingsPanel>
             </section>
         </section>
     `,
-    styles: [`
+    styles: [` 
 
         #apiLayoutPanel {
             height: 100vh;
@@ -133,6 +134,7 @@ export class WebGLSceneComponent {
     renderer;
     container;
     controls;
+    ray;
     mouse;
     windowResize;
 
@@ -240,16 +242,33 @@ export class WebGLSceneComponent {
         let height = this.container.clientHeight;
 
         this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
-        this.camera.position.set(0, 0, 100 * this.scaleFactor );
+        this.camera.position.set(200, 0, 100 * this.scaleFactor );
         this.camera.aspect = width / height;
+        this.camera.up.set( 0, 0, 1 );
+        this.camera.updateProjectionMatrix();
+
+        this.ray = new THREE.Raycaster();
+        this.scene = new THREE.Scene();
+
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
         this.controls.minDistance = 10;
-        //Keeps rotated graph in camera range to avoid disappearing
         this.controls.maxDistance = 4000 - 100 * this.scaleFactor;
 
-        this.scene = new THREE.Scene();
-        this.camera.updateProjectionMatrix();
+        this.controls.minZoom = 0;
+        this.controls.maxZoom = 10;
+
+        this.controls.enablePan = true;
+
+        //this.controls.enableRotate = false;
+        //this.controls.autoRotate = true;
+
+        this.controls.minPolarAngle = 0;
+        this.controls.maxPolarAngle = Math.PI/2;
+
+        this.controls.minAzimuthAngle = 0;
+        this.controls.maxAzimuthAngle = 0;
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
@@ -295,12 +314,6 @@ export class WebGLSceneComponent {
             }
         });
 
-    }
-
-    createEventListeners() {
-        window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
-        window.addEventListener('dblclick', () => this.onDblClick(), false );
-        window.addEventListener('keydown'  , evt => this.onKeyDown(evt), false);
     }
 
     resizeToDisplaySize() {
@@ -377,17 +390,16 @@ export class WebGLSceneComponent {
         this.controls.enabled = !this.lockControls;
     }
 
+
     getMouseOverEntity() {
         if (!this.graph) { return; }
-        let vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1);
-        vector.unproject(this.camera);
-        let ray = new THREE.Raycaster(this.camera.position, vector.sub(this.camera.position).normalize());
+        this.ray.setFromCamera( this.mouse, this.camera );
 
         const selectLayer = (entity) => {
             //Refine selection to layers
             if (entity && entity.layers) {
                 let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
-                let layerIntersects = ray.intersectObjects(layerMeshes);
+                let layerIntersects = this.ray.intersectObjects(layerMeshes);
                 if (layerIntersects.length > 0) {
                     return selectLayer(layerIntersects[0].object.userData);
                 }
@@ -395,15 +407,11 @@ export class WebGLSceneComponent {
             return entity;
         };
 
-        let intersects = ray.intersectObjects(this.graph.children);
+        let intersects = this.ray.intersectObjects(this.graph.children);
         if (intersects.length > 0) {
             let entity = intersects[0].object.userData;
             if (!entity || entity.inactive) { return; }
             return selectLayer(entity);
-            // let children = intersects[0].object.children||[];
-            // let childIntersects = (ray.intersectObjects(children)||[]).filter(obj => obj.userData);
-            // if (childIntersects.length > 0) { return childIntersects[0].userData; }
-            // return entity;
         }
     }
 
@@ -464,57 +472,17 @@ export class WebGLSceneComponent {
         this.selected = this.getMouseOverEntity();
     }
 
+    createEventListeners() {
+        window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
+        window.addEventListener('dblclick', () => this.onDblClick(), false );
+    }
+
     onMouseMove(evt) {
         // calculate mouse position in normalized device coordinates
         let rect = this.renderer.domElement.getBoundingClientRect();
         this.mouse.x =  ( ( evt.clientX - rect.left ) / rect.width  ) * 2 - 1;
         this.mouse.y = -( ( evt.clientY - rect.top  ) / rect.height ) * 2 + 1;
-
         this.highlighted = this.getMouseOverEntity();
-    }
-
-    onKeyDown(evt) {
-        let keyCode = evt.which;
-        if (evt.ctrlKey) {
-            switch (keyCode) {
-                case 37: // Left arrow
-                    break;
-                case 39: // Right arrow
-                    break;
-                case 40: // Down arrow
-                    this.zoom(-10);
-                    break;
-                case 38: // Up arrow
-                    this.zoom(10);
-            }
-        } else {
-            if (evt.shiftKey) {
-                switch (keyCode) {
-                    case 37: // Left arrow
-                        this.rotateScene(-10, 0);
-                        break;
-                    case 39: // Right arrow
-                        this.rotateScene(10, 0);
-                        break;
-                    case 40: // Down arrow
-                        this.rotateScene(0, 10);
-                        break;
-                    case 38: // Up arrow
-                        this.rotateScene(0, -10);
-                }
-            }
-        }
-    }
-
-    zoom(delta) {
-        this.camera.position.z += delta;
-        this.camera.lookAt(this.scene.position);
-    }
-
-    rotateScene(deltaX, deltaY) {
-        this.camera.position.x += deltaX;
-        this.camera.position.y += deltaY;
-        this.camera.lookAt(this.scene.position);
     }
 
     toggleLayout(prop){
