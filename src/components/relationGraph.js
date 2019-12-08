@@ -4,7 +4,7 @@ import {attrs} from 'd3-selection-multi';
 
 import {Component, ElementRef, Input, NgModule, ViewChild} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {values, pick, flatten, keys, entries} from 'lodash-bound';
+import {values, pick, flatten, keys, entries, isObject} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
 import FileSaver from "file-saver";
 import {ResourceInfoModule} from "./gui/resourceInfo";
@@ -178,7 +178,7 @@ export class RelGraph {
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
             this.data.nodes = nodeResources.filter(e => !!e && !filter.find(x => e.isSubtypeOf(x)));
 
-            this.data.nodes.forEach(e => {
+            this.data.nodes.filter(e => e::isObject()).forEach(e => {
                 e.relClass = e.class;
                 if (e.class === $Class.Lyph && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
                 if (e.class === $Class.Coalescence && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }

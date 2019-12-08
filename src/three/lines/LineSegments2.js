@@ -38,9 +38,9 @@ THREE.LineSegments2.prototype = Object.assign(Object.create(THREE.Mesh.prototype
 
             let instanceDistanceBuffer = new THREE.InstancedInterleavedBuffer(lineDistances, 2, 1); // d0, d1
 
-            geometry.addAttribute('instanceDistanceStart',
+            geometry.setAttribute('instanceDistanceStart',
                 new THREE.InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0)); // d0
-            geometry.addAttribute('instanceDistanceEnd',
+            geometry.setAttribute('instanceDistanceEnd',
                 new THREE.InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1)); // d1
             return this;
         };

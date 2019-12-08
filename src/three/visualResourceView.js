@@ -162,7 +162,7 @@ Link.prototype.createViewObjects = function(state){
         } else {
             //Buffered geometry
             if (this.stroke !== Link.LINK_STROKE.THICK){
-                geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
+                geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
             }
         }
 

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
-  "$id": "http://open-physiology.com/graphSchema.json",
+  "$id": "https://github.com/open-physiology/open-physiology-viewer/blob/master/src/model/graphScheme.json",
   "title": "ApiNATOMY model",
   "description": "The ApiNATOMY model schema provides a contract for the JSON-based input data accepted by the ApiNATOMY lyph viewer, a web application that draws schematic models of physiology.",
   "definitions": {

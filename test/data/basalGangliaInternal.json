@@ -1,4 +1,5 @@
 {
+  "$schema": "https://github.com/open-physiology/open-physiology-viewer/blob/master/src/model/graphScheme.json",
   "id"  : "basalGanglia",
   "name": "Basal Ganglia",
   "description": "Basal Ganglia as in basalGanglia.json but without explicitly declared nodes - generated from the tree template node ID's are used to position lyphs on borders",
@@ -8,14 +9,16 @@
       "name"        : "Dendrite omega tree",
       "root"        : "n1",
       "numLevels"   : 1,
-      "lyphTemplate": "neuronBag"
+      "lyphTemplate": "neuronBag",
+      "length": 2
     },
     {
       "id"          : "axonal",
       "name"        : "Axonal omega tree",
       "root"        : "n2",
       "numLevels"   : 5,
-      "lyphTemplate": "neuronBag"
+      "lyphTemplate": "neuronBag",
+      "length": 10
     }
   ],
   "nodes": [
@@ -37,6 +40,7 @@
       "id"      : "hl-lnk",
       "source"  : "n1",
       "target"  : "n2",
+      "length"  : 2,
       "conveyingLyph": "hillock"
     }
   ],

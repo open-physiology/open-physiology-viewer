@@ -267,8 +267,8 @@ export class WebGLSceneComponent {
         this.controls.minPolarAngle = 0;
         this.controls.maxPolarAngle = Math.PI/2;
 
-        this.controls.minAzimuthAngle = 0;
-        this.controls.maxAzimuthAngle = 0;
+        // this.controls.minAzimuthAngle = 0;
+        // this.controls.maxAzimuthAngle = 0;
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
