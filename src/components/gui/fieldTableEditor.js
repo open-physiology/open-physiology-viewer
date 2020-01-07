@@ -144,7 +144,7 @@ export class FieldTableEditor {
         if (fieldSpec){
             let classNames = [getClassName(fieldSpec)];
             if (fieldName === "layers"){
-                classNames.push("Material");
+                classNames.push($Class.Material);
             }
             const dialogRef = this.dialog.open(ResourceSelectDialog, {
                 width: '50%',

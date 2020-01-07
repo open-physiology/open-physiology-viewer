@@ -383,7 +383,7 @@ export class Resource{
      * Prepare a circular resource object to be serialized in JSON.
      * @param depth     - depth of nested objects in the recursive calls
      */
-    toJSON(depth = 1){
+    toJSON(depth = 1, inlineResources = {}){
         /**
          * Converts a resource object into serializable JSON.
          * May fail to serialize recursive objects which are not instances of Resource
@@ -391,7 +391,7 @@ export class Resource{
          * @param depth - depth of nested resources to output
          * @returns {*} JSON object without circular references         *
          */
-        function valueToJSON(value, depth) { return (value instanceof Resource)? ((depth > 0)? value.toJSON(depth - 1): value.id): value.id? value.id: value }
+        function valueToJSON(value, depth) { return (value instanceof Resource)? value.toJSON(depth-1, inlineResources): value }
 
         /**
          * Serializes field value: array or object
@@ -401,12 +401,14 @@ export class Resource{
          */
         function fieldToJSON(value, depth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
+        if (depth <= 0) {
+            return this.id? this.id: null;
+        }
+
         let res = {};
         const omitKeys = (this::keys())::difference(this.constructor.Model.fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
-        const inlineResources = [$Field.border, $Field.borders, $Field.villus];
         this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
-            let fieldDepth = inlineResources.includes(key)? depth + 1: depth;
-            res[key] = fieldToJSON(this[key], fieldDepth);
+            res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
         });
         return res;
     }
@@ -455,7 +457,6 @@ export class Resource{
         }
         return res;
     }
-
 }
 
 export class External extends Resource {}

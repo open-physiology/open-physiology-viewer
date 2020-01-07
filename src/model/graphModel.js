@@ -39,9 +39,7 @@ export class Graph extends Group{
     static fromJSON(json, modelClasses = {}) {
         const V = new Validator();
         let resVal = V.validate(json, schema);
-
         logger.clear();
-
         if (resVal.errors && resVal.errors.length > 0){
             logger.warn(resVal);
         }
@@ -94,12 +92,15 @@ export class Graph extends Group{
             logger.warn("Incorrect model - found references to undefined resources: ", entitiesByID.waitingList);
         }
         res.syncRelationships(modelClasses, entitiesByID);
-        res.createAxesForInternalLyphs(modelClasses, entitiesByID);
 
         res.entitiesByID = entitiesByID;
 
-        //Generate coalescence instances
-        (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
+        if (!res.generated) {
+            res.createAxesForInternalLyphs(modelClasses, entitiesByID);
+
+            //Generate coalescence instances
+            (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
+        }
 
         //Validate coalescences
         (res.coalescences || []).forEach(r => r.validate());
@@ -111,8 +112,10 @@ export class Graph extends Group{
         (res.links||[]).filter(link => link::isObject()).forEach(link => {
             if (!link.length) { link.length = DEFAULT_LENGTH; }
             link.length *= 2
-        });
+        }); 
         delete res.waitingList;
+
+        res.generated = true;
 
         res.logger = logger;
         return res;

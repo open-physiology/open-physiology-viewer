@@ -1,7 +1,7 @@
 import { Resource } from './resourceModel';
 import {logger} from "./logger";
-import { keys, values, uniqBy } from 'lodash-bound';
-import {$Field, COALESCENCE_TOPOLOGY} from "./utils";
+import { keys, values, uniqBy} from 'lodash-bound';
+import {$Field, $Class, COALESCENCE_TOPOLOGY} from "./utils";
 
 /**
  * Coalescence model
@@ -32,7 +32,7 @@ export class Coalescence extends Resource{
             if (lyphOrMat.isTemplate){
                 lyphMap[lyphOrMat.id] = lyphOrMat.subtypes || [];
             } else {
-                if (lyphOrMat.class === "Material") {
+                if (lyphOrMat.class === $Class.Material) {
                     lyphMap[lyphOrMat.id] = (parentGroup.lyphs||[]).filter(e => e.generatedFrom === lyphOrMat);
                 }
             }
@@ -102,6 +102,6 @@ export class Coalescence extends Resource{
      * @returns {boolean}
      */
     get isTemplate(){
-        return !!(this.lyphs||[]).find(lyphOrMat => lyphOrMat.isTemplate || lyphOrMat.class === "Material");
+        return !!(this.lyphs||[]).find(lyphOrMat => lyphOrMat.isTemplate || lyphOrMat.class === $Class.Material);
     }
 }

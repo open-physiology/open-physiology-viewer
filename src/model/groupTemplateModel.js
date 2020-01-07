@@ -214,9 +214,9 @@ export class Tree extends GroupTemplate {
             return;
         }
 
-        if (!tree.branchingFactors || !tree.branchingFactors.find(x => x !== 1)){
-            logger.info("Omega tree has no branching points, the instances coincide with the canonical tree!");
-        }
+        // if (!tree.branchingFactors || !tree.branchingFactors.find(x => x !== 1)){
+        //     logger.info("Omega tree has no branching points, the instances coincide with the canonical tree!", tree);
+        // }
 
         for (let i = 0; i < tree.numInstances; i++){
             let instance  = createInstance(i + 1);

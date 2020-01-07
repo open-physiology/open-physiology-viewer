@@ -32,6 +32,10 @@ export class Group extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID) {
 
+        if (json.generated) {
+            return super.fromJSON(json, modelClasses, entitiesByID);
+        }
+
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
 

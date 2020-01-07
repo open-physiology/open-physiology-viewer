@@ -12,6 +12,7 @@ import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {$Field} from "../model";
 
 const WindowResize = require('three-window-resize');
 
@@ -288,7 +289,7 @@ export class WebGLSceneComponent {
 
     export(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(), null, 2);
+            let result = JSON.stringify(this._graphData.toJSON(3, {[$Field.border]: 3, [$Field.borders]: 3, [$Field.villus]: 3}), null, 2);
             const blob = new Blob([result], {type: 'text/plain'});
             FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
         }
@@ -313,7 +314,6 @@ export class WebGLSceneComponent {
                 //save to file
             }
         });
-
     }
 
     resizeToDisplaySize() {

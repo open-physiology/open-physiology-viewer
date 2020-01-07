@@ -307,6 +307,23 @@ export class TestApp {
         }
     }
 
+    //TODO fix me
+    secureMerge(files) {
+        if (files && files[0]){
+            const reader = new FileReader();
+            reader.onload = () => {
+                let newModel = JSON.parse(reader.result);
+                let newGraph = Graph.fromJSON(newModel, this.modelClasses);
+                //this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, merger));
+            };
+            try {
+                reader.readAsText(files[0]);
+            } catch (err){
+                throw new Error("Failed to open the input file: " + err);
+            }
+        }
+    }
+
     applyJSONEditorChanges() {
         if (this._editor){
             this._graphData = Graph.fromJSON({}, this.modelClasses);

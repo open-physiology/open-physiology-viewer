@@ -214,7 +214,7 @@
       "source": "e1_a",
       "target": "e1_b",
       "conveyingLyph": "m1",
-      "length": 10,
+      "length": 20,
       "geometry": "invisible"
     },
     {
@@ -222,7 +222,7 @@
       "source": "e2_a",
       "target": "e2_b",
       "conveyingLyph": "m2",
-      "length": 10,
+      "length": 20,
       "geometry": "invisible"
     },
     {
@@ -230,7 +230,7 @@
       "source": "e3_a",
       "target": "e3_b",
       "conveyingLyph": "m3",
-      "length": 10,
+      "length": 20,
       "geometry": "invisible"
 
     },
@@ -239,7 +239,7 @@
       "source": "e4_a",
       "target": "e4_b",
       "conveyingLyph": "m4",
-      "length": 10,
+      "length": 20,
       "geometry": "invisible"
 
     },
@@ -248,9 +248,8 @@
       "source": "e5_a",
       "target": "e5_b",
       "conveyingLyph": "m5",
-      "length": 10,
+      "length": 20,
       "geometry": "invisible"
-
     }
   ],
   "lyphs": [
@@ -259,7 +258,6 @@
       "layers"    : ["bg1", "bg2", "bg3"],
       "isTemplate": true,
       "subtypes"  : ["AB", "CD", "EF", "GH", "JK", "LM", "NO", "PQ", "RS"]
-
     },
     {
       "id"     : "bg1",
@@ -356,7 +354,13 @@
     {
       "path": "$.links[?(@.conveyingLyph && @.conveyingLyph.supertype && @.conveyingLyph.supertype.id == 'bg0')]",
       "value": {
-        "length": 1
+        "length": 2
+      }
+    },
+    {
+      "path": "$.links[?(@.conveyingLyph(?(@.supertype)))]",
+      "value": {
+        "length": 2
       }
     }
   ]
