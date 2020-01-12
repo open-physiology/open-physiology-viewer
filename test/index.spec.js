@@ -8,12 +8,14 @@ import {
 import basalGanglia from './data/basalGanglia.json';
 import uotWithChannels from './data/uotWithChannels.json';
 import respiratory from './data/respiratory.json';
+import villus from './data/villus';
+import lyphOnBorder from './data/basicLyphOnBorder';
 
 import {keys, entries} from 'lodash-bound';
 
-import { modelClasses } from '../src/model/index';
+import {modelClasses} from '../src/model/index';
 
-//TODO goal - for every test model, check that logger does not contain unexpected warnings
+//TODO for every test model, check that logger does not contain unexpected warnings
 
 describe("JSON Schema read correctly", () => {
     it("Link geometry types are loaded", () => {
@@ -51,7 +53,6 @@ describe("JSON Schema read correctly", () => {
         expect(modelClasses.Coalescence.COALESCENCE_TOPOLOGY).to.have.property("CONNECTING");
     });
 });
-
 
 
 describe("Produce generated model - Basal Ganglia", () => {
@@ -95,22 +96,43 @@ describe("Produce generated model - Basal Ganglia", () => {
     });
 });
 
-describe("Serialize data - Respiratory System", () => {
+describe("Serialize data", () => {
     let graphData;
     beforeEach(() => {
-        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
     });
 
-    it("All mecessary fields serialized", () => {
+    it("All necessary fields serialized (respiratory system)", () => {
+        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
         let serializedGraphData = graphData.toJSON();
         let excluded = ["infoFields", "entitiesByID", "logger"];
         let exported = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key));
         expect(serializedGraphData::keys().length).to.be.equal(exported.length);
-    });
-
-    it("All log messages serialized", () => {
         let serializedLogs = graphData.logger.print();
         expect(serializedLogs.length).to.be.equal(graphData.logger.entries.length);
+    });
+
+    it("Nested villus resource serialized", () => {
+        graphData = modelClasses.Graph.fromJSON(villus, modelClasses);
+        let serializedGraphData = graphData.toJSON(3, {"villus": 3});
+        let lyph = serializedGraphData.lyphs.find(e => e.id === "l1");
+        expect(lyph).to.be.defined;
+        expect(lyph).to.have.property("villus");
+        expect(lyph.villus).to.have.property("id");
+        expect(lyph.villus).to.have.property("class");
+        expect(lyph.villus.class).to.be.equal("Villus");
+    });
+
+    it("Borders serialized", () => {
+        graphData = modelClasses.Graph.fromJSON(lyphOnBorder, modelClasses);
+        let serializedGraphData = graphData.toJSON(3, {"border": 3, "borders": 3});
+        let lyph = serializedGraphData.lyphs.find(lyph => lyph.id === "3");
+        expect(lyph).to.be.defined;
+        expect(lyph).to.have.property("border");
+        expect(lyph.border).to.have.property("borders");
+        expect(lyph.border.borders).to.have.property("length");
+        expect(lyph.border.borders.length).to.be.equal(4);
+        expect(lyph.border.borders[0]).to.have.property("class");
+        expect(lyph.border.borders[0].class).to.be.equal("Link");
     });
 
     afterEach(() => {
