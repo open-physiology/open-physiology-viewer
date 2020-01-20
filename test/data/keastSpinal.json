@@ -1,0 +1,377 @@
+{
+  "id"  : "keastSpinal",
+  "name": "Keast Spinal",
+  "description": "A demo model with chains of lyphs with generated structure",
+  "nodes": [
+    {
+      "id": "c1_s",
+      "layout": {
+        "x": -100,
+        "y": 0
+      }
+    },
+    {
+      "id": "c1_t",
+      "layout": {
+        "x": 100,
+        "y": 0
+      }
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "K_77",
+      "name": "lamina I of gray matter of spinal cord"
+    },
+    {
+      "id": "K_78",
+      "name": "lamina II of gray matter of spinal cord"
+    },
+    {
+      "id": "K_79",
+      "name": "lamina III of gray matter of spinal cord"
+    },
+    {
+      "id": "K_80",
+      "name": "lamina IV of gray matter of spinal cord"
+    },
+    {
+      "id": "K_81",
+      "name": "lamina V of gray matter of spinal cord"
+    },
+    {
+      "id": "K_82",
+      "name": "lamina VI of gray matter of spinal cord"
+    },
+    {
+      "id": "K_83",
+      "name": "lamina VII of gray matter of spinal cord"
+    },
+    {
+      "id": "K_84",
+      "name": "lamina VIII of gray matter of spinal cord"
+    },
+    {
+      "id": "K_85",
+      "name": "lamina IX of gray matter of spinal cord"
+    },
+    {
+      "id": "K_86",
+      "name": "lamina X of gray matter of spinal cord"
+    },
+    {
+      "id": "K_129",
+      "name": "Segment of Spinal Cord",
+      "layers": [
+        "104",
+        "105",
+        "K_86",
+        "KM_27",
+        "K_85",
+        "K_84",
+        "K_83",
+        "K_82",
+        "K_81",
+        "K_80",
+        "K_79",
+        "K_78",
+        "K_77"
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "53",
+      "name": "Aqueous solution",
+      "external": [
+        "FMA:85815"
+      ],
+      "materials": [
+        "48",
+        "49",
+        "50",
+        "51",
+        "52",
+        "83",
+        "84",
+        "85",
+        "102"
+      ]
+    },
+    {
+      "id": "48",
+      "name": "Water",
+      "external": [
+        "CHEBI:15377"
+      ]
+    },
+    {
+      "id": "49",
+      "name": "Sodium ion",
+      "external": [
+        "CHEBI:29101"
+      ]
+    },
+    {
+      "id": "50",
+      "name": "Potassium ion",
+      "external": [
+        "CHEBI:29103"
+      ]
+    },
+    {
+      "id": "51",
+      "name": "Calcium ion",
+      "external": [
+        "CHEBI:29108"
+      ]
+    },
+    {
+      "id": "52",
+      "name": "Chloride ion",
+      "external": [
+        "CHEBI:17996"
+      ]
+    },
+    {
+      "id": "83",
+      "name": "Hydrogen ion",
+      "external": [
+        "CHEBI:24636"
+      ]
+    },
+    {
+      "id": "84",
+      "name": "Hydroxide ion",
+      "external": [
+        "CHEBI:16234"
+      ]
+    },
+    {
+      "id": "54",
+      "name": "Cytosol",
+      "external": [
+        "GO:0005829"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Membrane",
+      "external": [
+        "GO:0016020"
+      ]
+    },
+    {
+      "id": "56",
+      "name": "Plasma membrane",
+      "external": [
+        "GO:0005886"
+      ],
+      "materials": [
+        "55"
+      ]
+    },
+    {
+      "id": "85",
+      "name": "Bicarbonate ion ",
+      "external": [
+        "CHEBI:17544"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Basement membrane",
+      "external": [
+        "UBERON:0005769",
+        "PMID:31102947"
+      ]
+    },
+    {
+      "id": "42",
+      "name": "Endothelium",
+      "external": [
+        "UBERON:0001986"
+      ]
+    },
+    {
+      "id": "41",
+      "name": "Blood",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "100",
+      "name": "Fluid"
+    },
+    {
+      "id": "101",
+      "name": "Gas",
+      "materials": [
+        "100"
+      ]
+    },
+    {
+      "id": "102",
+      "name": "Liquid",
+      "materials": [
+        "100"
+      ]
+    },
+    {
+      "id": "103",
+      "name": "Air",
+      "materials": [
+        "101"
+      ]
+    },
+    {
+      "id": "104",
+      "name": "Cerebrospinal fluid",
+      "external": [
+        "UBERON:0001359"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "105",
+      "name": "Ependyma",
+      "external": [
+        "UBERON:0004670"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "106",
+      "name": "Pia mater",
+      "external": [
+        "UBERON:0002361"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "107",
+      "name": "Central nervous system tissue",
+      "external": [
+        "UBERON:0001017"
+      ],
+      "materials": [
+        "116"
+      ]
+    },
+    {
+      "id": "108",
+      "name": "Wall of larynx",
+      "external": [
+        "FMA:64182"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "109",
+      "name": "Wall of trachea",
+      "external": [
+        "FMA:7470"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "110",
+      "name": "Wall of artery",
+      "external": [
+        "UBERON:0000415"
+      ],
+      "materials": [
+        "111"
+      ]
+    },
+    {
+      "id": "111",
+      "name": "Connective tissue",
+      "external": [
+        "UBERON:0002384"
+      ]
+    },
+    {
+      "id": "112",
+      "name": "Mucosa of tongue",
+      "external": [
+        "FMA:54807"
+      ]
+    },
+    {
+      "id": "113",
+      "name": "Muscle of tongue",
+      "external": [
+        "FMA:4668"
+      ]
+    },
+    {
+      "id": "114",
+      "name": "Mucosa of epiglottis",
+      "external": [
+        "UBERON:0004982"
+      ]
+    },
+    {
+      "id": "115",
+      "name": "Cartilage of epiglottis",
+      "external": [
+        "FMA:55112"
+      ]
+    },
+    {
+      "id": "116",
+      "name": "Extracellular fluid",
+      "external": [
+        "ILX:0492026"
+      ],
+      "materials": [
+        "53"
+      ]
+    },
+    {
+      "id": "117",
+      "name": "Peripheral nervous system tissue",
+      "external": [
+        "UBERON:0000010"
+      ],
+      "materials": [
+        "116"
+      ]
+    },
+    {
+      "id": "KM_27",
+      "name": "White matter of CNS"
+    },
+    {
+      "id": "KM_28",
+      "name": "Gray matter of CNS"
+    }
+  ],
+  "links": [
+    {
+      "id": "c1",
+      "conveyingLyph": "K_129",
+      "source": "c1_s",
+      "target": "c1_t",
+      "length": 100
+    }
+  ]
+}

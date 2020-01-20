@@ -1,7 +1,7 @@
 import {Link, VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
-import {$Field, findResourceByID, getNewID, LYPH_TOPOLOGY} from './utils';
+import {$Field, getGenID, findResourceByID, getNewID, LYPH_TOPOLOGY} from './utils';
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -28,11 +28,11 @@ export class Shape extends VisualResource {
         json.border.id = json.border.id || (json.id + "_border");
         json.border.borders = json.border.borders || [];
         for (let i = 0; i < json.numBorders ; i++){
-            let id = json.border.id + "_" + i;
+            let id = getGenID(json.border.id, i);
             json.border.borders[i]::merge({
                 [$Field.id]       : id,
-                [$Field.source]   : { id: `s_${id}` },
-                [$Field.target]   : { id: `t_${id}` },
+                [$Field.source]   : { id: getGenID("s", id) },
+                [$Field.target]   : { id: getGenID("t", id) },
                 [$Field.geometry] : Link.LINK_GEOMETRY.INVISIBLE,
                 [$Field.generated]: true
             });
@@ -159,7 +159,7 @@ export class Lyph extends Shape {
                 return;
             }
             let targetLayer = {
-                [$Field.id]        : `${sourceLayer.id}_${targetLyph.id}`,
+                [$Field.id]        : getGenID(sourceLayer.id, targetLyph.id),
                 [$Field.name]      : `${sourceLayer.name || '?'} in ${targetLyph.name || '?'}`,
                 [$Field.generated] : true
             };

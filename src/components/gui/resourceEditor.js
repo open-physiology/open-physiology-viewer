@@ -23,7 +23,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {getClassName} from '../../model/index';
 import {annotations} from "./config";
 import {FieldTableEditorModule} from "./fieldTableEditor";
-import {$Field, $Class, getNewID} from "../../model/utils";
+import {$Field, $Class, getNewID, getGenID} from "../../model/utils";
 
 @Component({
     selector: 'resourceEditor',
@@ -178,7 +178,7 @@ export class ResourceEditor {
         let className = getClassName(spec);
         let newResource = fromResource
             ? fromResource::cloneDeep()::merge({
-                [$Field.id]: getNewID() + " - copy of " + fromResource.id || "?",
+                [$Field.id]: getGenID(getNewID(), fromResource.id || "?"),
                 [$Field.class]: className
             })
             : { [$Field.id]: getNewID(),

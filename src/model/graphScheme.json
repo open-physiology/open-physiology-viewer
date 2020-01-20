@@ -146,7 +146,7 @@
           "advanced": true
         },
         "external": {
-          "description": "Identifier of the resource in an external ontology (i.e., ID of an FMA term) ",
+          "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
           "items": {
             "anyOf": [
@@ -158,7 +158,22 @@
               }
             ]
           },
-          "relatedTo": "externalTo"
+          "relatedTo": "annotates"
+        },
+        "publications": {
+          "description": "Identifier of an evidence publication in an external library, i.e., PubMed) ",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/External"
+              }
+            ]
+          },
+          "relatedTo": "documents"
         },
         "generated": {
           "description": "A boolean flag to mark automatically generated resources",
@@ -295,8 +310,8 @@
           "description": "Resource category, i.e., FMA ontology, etc.",
           "type": "string"
         },
-        "externalTo": {
-          "description": "Model annotations that refer to the given resource",
+        "annotates": {
+          "description": "Model resources annotated by the given external resource (ontology)",
           "type": "array",
           "items": {
             "anyOf": [
@@ -310,7 +325,24 @@
           },
           "relatedTo": "external",
           "advanced": true
+        },
+        "documents": {
+          "description": "Model resources documented by the given external resource (publication)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Resource"
+              }
+            ]
+          },
+          "relatedTo": "publications",
+          "advanced": true
         }
+
       }
     },
     "Node": {
@@ -1256,8 +1288,8 @@
           },
           "default": []
         },
-        "start"          : {
-          "description": "The first node of the chain",
+        "source": {
+          "description": "The source node of the chain",
           "anyOf": [
             {
               "type": "string"
@@ -1267,8 +1299,8 @@
             }
           ]
         },
-        "end"          : {
-          "description": "The last node of the chain",
+        "target": {
+          "description": "The target node of the chain",
           "anyOf": [
             {
               "type": "string"
@@ -1395,7 +1427,7 @@
         }
       }
     },
-    "Group"   : {
+    "Group" : {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
       "allOf":[{
         "$ref": "#/definitions/Resource"
@@ -1480,7 +1512,7 @@
           }
         },
         "references": {
-          "description": "References to external resources",
+          "description": "Descriptors of external resources (i.e., ontologies or publications) used in the model",
           "type": "array",
           "items": {
             "anyOf": [

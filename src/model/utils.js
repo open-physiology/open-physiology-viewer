@@ -36,6 +36,8 @@ export const $Color = {
 export const getNewID = entitiesByID => "new_" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
+export const getGenID = (...args) => args.join("_");
+
 /**
  * Add color to the visual resources in the list that do not have color assigned yet
  * @param resources - list of resources
