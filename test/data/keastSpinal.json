@@ -4,14 +4,14 @@
   "description": "A demo model with chains of lyphs with generated structure",
   "nodes": [
     {
-      "id": "c1_s",
+      "id": "s_c1",
       "layout": {
         "x": -100,
         "y": 0
       }
     },
     {
-      "id": "c1_t",
+      "id": "t_c1",
       "layout": {
         "x": 100,
         "y": 0
@@ -20,63 +20,150 @@
   ],
   "lyphs": [
     {
-      "id": "K_77",
+      "id": "K-77",
       "name": "lamina I of gray matter of spinal cord"
     },
     {
-      "id": "K_78",
+      "id": "K-78",
       "name": "lamina II of gray matter of spinal cord"
     },
     {
-      "id": "K_79",
+      "id": "K-79",
       "name": "lamina III of gray matter of spinal cord"
     },
     {
-      "id": "K_80",
+      "id": "K-80",
       "name": "lamina IV of gray matter of spinal cord"
     },
     {
-      "id": "K_81",
+      "id": "K-81",
       "name": "lamina V of gray matter of spinal cord"
     },
     {
-      "id": "K_82",
+      "id": "K-82",
       "name": "lamina VI of gray matter of spinal cord"
     },
     {
-      "id": "K_83",
+      "id": "K-83",
       "name": "lamina VII of gray matter of spinal cord"
     },
     {
-      "id": "K_84",
+      "id": "K-84",
       "name": "lamina VIII of gray matter of spinal cord"
     },
     {
-      "id": "K_85",
+      "id": "K-85",
       "name": "lamina IX of gray matter of spinal cord"
     },
     {
-      "id": "K_86",
+      "id": "K-86",
       "name": "lamina X of gray matter of spinal cord"
     },
     {
-      "id": "K_129",
+      "id": "K-129",
       "name": "Segment of Spinal Cord",
+      "isTemplate": true,
       "layers": [
         "104",
         "105",
-        "K_86",
-        "KM_27",
-        "K_85",
-        "K_84",
-        "K_83",
-        "K_82",
-        "K_81",
-        "K_80",
-        "K_79",
-        "K_78",
-        "K_77"
+        "K-86",
+        "KM-27",
+        "K-85",
+        "K-84",
+        "K-83",
+        "K-82",
+        "K-81",
+        "K-80",
+        "K-79",
+        "K-78",
+        "K-77",
+        "KM-27"
       ]
+    },
+    {
+      "id": "KC1",
+      "name": "C1",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KC2",
+      "name": "C2",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KC3",
+      "name": "C3",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KC4",
+      "name": "C4",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KC5",
+      "name": "C5",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KC6",
+      "name": "C6",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KC7",
+      "name": "C7",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT1",
+      "name": "T1",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT2",
+      "name": "T2",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT3",
+      "name": "T3",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT4",
+      "name": "T4",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT5",
+      "name": "T5",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT6",
+      "name": "T6",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT7",
+      "name": "T7",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT8",
+      "name": "T8",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT9",
+      "name": "T9",
+      "supertype": "K-129"
+    },
+    {
+      "id": "KT10",
+      "name": "T10",
+      "supertype": "K-129"
     }
   ],
   "materials": [
@@ -357,21 +444,35 @@
       ]
     },
     {
-      "id": "KM_27",
+      "id": "KM-27",
       "name": "White matter of CNS"
     },
     {
-      "id": "KM_28",
+      "id": "KM-28",
       "name": "Gray matter of CNS"
     }
   ],
-  "links": [
+  "chains": [
     {
       "id": "c1",
-      "conveyingLyph": "K_129",
-      "source": "c1_s",
-      "target": "c1_t",
+      "conveyingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7",
+        "KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"],
+      "source": "s_c1",
+      "target": "t_c1",
       "length": 100
+    }
+  ],
+  "trees" : [
+    {
+      "id"          : "t1",
+      "numLevels"   : 7,
+      "levels"      : [{}, {}, {}, {}, {}, {}, {"target": "n1"}],
+      "housingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7"]
+    },
+    {
+      "id"          : "t2",
+      "root"        : "n1",
+      "housingLyphs": ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"]
     }
   ]
 }

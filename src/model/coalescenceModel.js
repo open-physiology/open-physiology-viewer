@@ -1,7 +1,7 @@
 import { Resource } from './resourceModel';
 import {logger} from "./logger";
 import { keys, values, uniqBy} from 'lodash-bound';
-import {$Field, $Class, COALESCENCE_TOPOLOGY} from "./utils";
+import {$Field, $Class, COALESCENCE_TOPOLOGY, getGenID} from "./utils";
 
 /**
  * Coalescence model
@@ -24,7 +24,10 @@ export class Coalescence extends Resource{
         if (!lyph) { return; }
         let lyphMap = {};
 
-        (this.lyphs||[]).forEach(lyphOrMat => {
+        //FIX ME - where do the undefined lyphs come from?
+        this.lyphs = (this.lyphs||[]).filter(x => !!x);
+
+        this.lyphs.forEach(lyphOrMat => {
             if (!lyphOrMat) {
                 logger.error("Unable to access lyph for coalescence definition", this.lyphs);
                 return;
@@ -41,7 +44,7 @@ export class Coalescence extends Resource{
             //coalescence was defined on abstract lyphs - generate coalescence instances
 
             //TODO why lyph is undefined?
-            (this.lyphs||[]).forEach(lyph => {
+            this.lyphs.forEach(lyph => {
                 lyphMap[lyph.id] = lyphMap[lyph.id] || [lyph];
             });
 
@@ -62,8 +65,7 @@ export class Coalescence extends Resource{
                 if (uniqueLyphs.length <= 1) { return; }
 
                 let instance = this.constructor.fromJSON({
-                    [$Field.id]           : `${this.id}_instance-${i + 1}`,
-                    [$Field.name]         : `${this.name} instance #${i + 1}`,
+                    [$Field.id]           : getGenID(this.id, $Prefix.instance, i + 1),
                     [$Field.generated]    : true,
                     [$Field.topology]     : this.topology,
                     [$Field.generatedFrom]: this,
@@ -85,8 +87,11 @@ export class Coalescence extends Resource{
         let lyph = this.lyphs[0];
         if (!lyph) { return; }
 
-        for (let i = 1; i < this.lyphs.length; i++) {
-            let lyph2 = this.lyphs[i];
+        //FIX ME - where do the undefined lyphs come from?
+        this.lyphs = (this.lyphs||[]).filter(x => !!x);
+
+        this.lyphs.forEach((lyph2, i) => {
+            if (i <= 0) {return; }
             if ((lyph2.layers||[]).find(x => x.id === lyph.id) || (lyph.layers||[]).find(x => x.id === lyph2.id)) {
                 logger.warn("A lyph coalesces with itself or its layers", lyph, lyph2);
             }
@@ -94,7 +99,7 @@ export class Coalescence extends Resource{
                 logger.warn("A coalescing lyph is missing an axis", !lyph.axis ? lyph : lyph2);
             }
             lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
-        }
+        })
     }
 
     /**

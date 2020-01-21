@@ -33,10 +33,30 @@ export const $Color = {
     InternalLink : "#ccc"
 };
 
-export const getNewID = entitiesByID => "new_" +
+export const $Prefix = {
+    node  : "node",     //generated node
+    source: "s",        //source node
+    target: "t",        //target node
+    link  : "lnk",      //generated link (edge)
+    lyph  : "lyph",     //generated lyph
+    group : "group",    //generated group
+    instance: "inst",   //instance
+    tree  : "tree",     //tree
+    channel: "ch",      //channel
+    coalescence: "cls", //coalescence instance
+    border  : "b",      //lyph border
+    villus  : "vls",    //villus template
+    layer   : "layer",  //generated lyph layer
+    template: "ref",    //from lyph template
+    material: "mat"     //from material reference
+};
+
+export const getNewID = entitiesByID => "new-" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
 export const getGenID = (...args) => args.join("_");
+
+export const getGenName = (...args) => args.join(" ");
 
 /**
  * Add color to the visual resources in the list that do not have color assigned yet

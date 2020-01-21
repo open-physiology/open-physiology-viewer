@@ -2,7 +2,7 @@ import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
 import {Link} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
-import {addColor, $Class, $Field, $Color} from './utils';
+import {getGenID, addColor, $Class, $Field, $Color, $Prefix} from './utils';
 import {logger} from './logger';
 import {Villus} from "./groupTemplateModel";
 
@@ -100,7 +100,7 @@ export class Group extends Resource {
                 let material = (json.materials || []).find(e => e.id === ref);
                 if (material) {
                     template = {
-                        [$Field.id]            : prefix + material.id,
+                        [$Field.id]            : getGenID($Prefix.material, material.id),
                         [$Field.name]          : material.name,
                         [$Field.isTemplate]    : true,
                         [$Field.materials]     : [material.id],
@@ -122,7 +122,7 @@ export class Group extends Resource {
             if (template) {
                 changedLyphs++;
                 let subtype = {
-                    [$Field.id]        : ref + "_" + parent.id,
+                    [$Field.id]        : getGenID($Prefix.template, ref, parent.id),
                     [$Field.name]      : template.name,
                     [$Field.supertype] : template.id,
                     [$Field.generated] : true

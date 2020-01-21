@@ -349,11 +349,11 @@ export class TestApp {
 
 	set model(model){
         this._model = model;
-        try{
+        // try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
-        } catch(err){
-            throw new Error(err);
-        }
+        // } catch(err){
+        //     throw new Error(err);
+        // }
         if (this._editor){
             this._editor.set(this._model);
         }

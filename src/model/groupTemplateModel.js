@@ -8,9 +8,11 @@ import {
     findResourceByID,
     getNewID,
     getGenID,
+    getGenName,
     addBorderNode,
     $Field,
-    $Color
+    $Color,
+    $Prefix
 } from "./utils";
 import {logger} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
@@ -28,7 +30,7 @@ export class GroupTemplate extends Resource{
     static createTemplateGroup(template, parentGroup){
         let group = template.group || {};
         group::defaults({
-            [$Field.id]        : getGenID("group", template.id),
+            [$Field.id]        : getGenID($Prefix.group, template.id),
             [$Field.name]      : template.name,
             [$Field.generated] : true
         });
@@ -116,7 +118,7 @@ export class Tree extends GroupTemplate {
                 logger.error(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
             }
             let newNode = {
-                [$Field.id]        : getGenID(tree.id, "node", i),
+                [$Field.id]        : getGenID(tree.id, $Prefix.node, i),
                 [$Field.color]     : $Color.Node,
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
@@ -175,8 +177,7 @@ export class Tree extends GroupTemplate {
             //Do not override existing properties
             let link = tree.levels[i];
             link::defaults({
-                [$Field.id]        : getGenID(tree.id, "lnk", i+1),
-                [$Field.name]      : `${tree.name || ""}: level ${i}`,
+                [$Field.id]        : getGenID(tree.id, $Prefix.link, i+1),
                 [$Field.source]    : getID(sources[i]),
                 [$Field.target]    : getID(sources[i + 1]),
                 [$Field.color]     : $Color.Link,
@@ -189,7 +190,7 @@ export class Tree extends GroupTemplate {
             if (template && !tree.levels[i].conveyingLyph){
                 //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
                 let lyph = {
-                    [$Field.id]         : getGenID(tree.id, "lyph", i+1),
+                    [$Field.id]         : getGenID(tree.id, $Prefix.lyph, i+1),
                     [$Field.supertype]  : tree.lyphTemplate,
                     [$Field.conveys]    : tree.levels[i].id,
                     [$Field.topology]   : getTopology(i, N, template),
@@ -224,13 +225,12 @@ export class Tree extends GroupTemplate {
 
         /**
          * Create a tree instance
-         * @param prefix - instance id/name prefix
+         * @param instanceIndex - instance id/name instanceIndex
          * @returns Group
          */
-        function createInstance(prefix){
+        function createInstance(instanceIndex){
             let instance = {
-                [$Field.id]        : getGenID(tree.id, "instance", prefix),
-                [$Field.name]      : `${tree.name} instance #${prefix}`,
+                [$Field.id]        : getGenID(tree.id, $Prefix.tree, instanceIndex),
                 [$Field.generated] : true
             };
             [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
@@ -279,7 +279,7 @@ export class Tree extends GroupTemplate {
                         let prev_id = base[0].source;
                         for (let j = i; j < tree.levels.length; j++) {
                             let baseResources = levelResources[j][0];
-                            let [lnk, trg, lyph] = baseResources.map(r => (r ? { [$Field.id] : getGenID(r.id, i+1, m+1, prefix) }: r));
+                            let [lnk, trg, lyph] = baseResources.map(r => (r ? { [$Field.id] : getGenID(r.id, i+1, m+1, instanceIndex) }: r));
                             lnk.target = trg.id;
                             lnk.conveyingLyph = lyph ? lyph.id : null;
                             lnk.source = prev_id;
@@ -354,8 +354,7 @@ export class Tree extends GroupTemplate {
 
             //Coalescence is always defined with the main housing lyph
             let lyphCoalescence = {
-                [$Field.id]       : getGenID(lyph.id, "tree", level.conveyingLyph),
-                [$Field.name]     : `${lyph.name} tree #${level.conveyingLyph}`,
+                [$Field.id]       : getGenID(lyph.id, $Prefix.coalescence, level.conveyingLyph),
                 [$Field.generated]: true,
                 [$Field.topology] : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                 [$Field.lyphs]    : [lyph.id, level.conveyingLyph]
@@ -443,8 +442,7 @@ export class Channel extends GroupTemplate {
 
         for (let i = 0; i < CHANNEL_LENGTH + 1; i++) {
             let node = {
-                [$Field.id]       : getGenID(channel.id, "node", i),
-                [$Field.name]     : channel.name + ": node " + i,
+                [$Field.id]       : getGenID(channel.id, $Prefix.node, i),
                 [$Field.color]    : $Color.Node,
                 [$Field.skipLabel]: true,
                 [$Field.generated]: true
@@ -453,8 +451,7 @@ export class Channel extends GroupTemplate {
         }
         for (let i = 0; i < CHANNEL_LENGTH; i++) {
             let lyph = {
-                [$Field.id]       : getGenID(channel.id, mcLyphs[i].id),
-                [$Field.name]     : `${mcLyphs[i].name} of ${channel.name || "?"}`,
+                [$Field.id]       : getGenID(channel.id, $Prefix.lyph, mcLyphs[i].id),
                 [$Field.supertype]: mcLyphs[i].id,
                 [$Field.generated]: true
             };
@@ -463,8 +460,7 @@ export class Channel extends GroupTemplate {
             //Associate each Diffusive Edge with the material payload
 
             let link = {
-                [$Field.id]           : getGenID(channel.id, "lnk", i + 1),
-                [$Field.name]         : `${channel.name || ""}: level ${i}`,
+                [$Field.id]           : getGenID(channel.id, $Prefix.link, i + 1),
                 [$Field.source]       : channel.group.nodes[i],
                 [$Field.target]       : channel.group.nodes[i + 1],
                 [$Field.conveyingLyph]: lyph.id,
@@ -545,13 +541,12 @@ export class Channel extends GroupTemplate {
 
         /**
          * Create a channel instance
-         * @param prefix - instance id/name prefix
+         * @param parentLyph - instance id/name parentLyph
          * @returns Group
          */
-        function createInstance(prefix) {
+        function createInstance(parentLyph) {
             let instance = {
-                [$Field.id]        : getGenID(channel.id, "instance", prefix),
-                [$Field.name]      : `${channel.name} instance for lyph ${prefix}`,
+                [$Field.id]        : getGenID(channel.id, $Prefix.instance, parentLyph),
                 [$Field.generated] : true
             };
             [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
@@ -566,7 +561,7 @@ export class Channel extends GroupTemplate {
                 return instance;
             }
             let src = {
-                [$Field.id]: getGenID(baseSrc.id, prefix),
+                [$Field.id]: getGenID(baseSrc.id, parentLyph),
                 [$Field.generated]: true
             };
             Node.clone(baseSrc, src);
@@ -579,7 +574,7 @@ export class Channel extends GroupTemplate {
                 let baseTrg = findResourceByID(parentGroup.nodes, baseLnk.target);
                 let baseLyph = findResourceByID(parentGroup.lyphs, baseLnk.conveyingLyph);
                 let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r ? {
-                    [$Field.id]: getGenID(r.id, prefix),
+                    [$Field.id]: getGenID(r.id, parentLyph),
                     [$Field.generated]: true
                 } : r));
                 lnk.source = prev_id;
@@ -625,8 +620,7 @@ export class Channel extends GroupTemplate {
                 }
 
                 let layerCoalescence = {
-                    [$Field.id]       : getGenID(layer.id, "channel", instance.lyphs[i]),
-                    [$Field.name]     : `${layer.name} channel #${instance.lyphs[i]}`,
+                    [$Field.id]       : getGenID(layer.id, $Prefix.channel, instance.lyphs[i]),
                     [$Field.generated]: true,
                     [$Field.topology] : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                     [$Field.lyphs]    : [layer.id, instance.lyphs[i]]
@@ -706,14 +700,13 @@ export class Chain extends GroupTemplate {
         let [start, end] = [$Field.source, $Field.target].map(prop => findResourceByID(parentGroup.nodes, chain[prop]));
 
         for (let i = 0; i < lyphs.length + 1; i++) {
-            let nodeID = (i === 0 && chain.start)? chain.start: (i === lyphs.length && chain.end)? chain.end : chain.id + "_node" + i;
+            let nodeID = (i === 0 && chain.start)? chain.start: (i === lyphs.length && chain.end)? chain.end : getGenID(chain.id, $Prefix.node, i);
             let node = (i === 0 && start)
                 ? start
                 : (i === lyphs.length && end)
                     ? end
                     : {
                         [$Field.id]        : nodeID,
-                        [$Field.name]      : chain.name + ": node " + i,
                         [$Field.color]     : $Color.Node,
                         [$Field.skipLabel] : true,
                         [$Field.generated] : true
@@ -723,8 +716,7 @@ export class Chain extends GroupTemplate {
 
         for (let i = 0; i < lyphs.length; i++) {
             let link = {
-                [$Field.id]                 : getGenID(chain.id, "lnk", i + 1),
-                [$Field.name]               : `${chain.name || ""}: level ${i}`,
+                [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
                 [$Field.source]             : chain.group.nodes[i],
                 [$Field.target]             : chain.group.nodes[i + 1],
                 [$Field.conveyingLyph]      : lyphs[i].id,
@@ -796,7 +788,7 @@ export class Villus extends GroupTemplate{
             layer.border.borders = layer.border.borders || [{}, {}, {}, {}];
 
             let node1 = (i === villus.numLayers - 1)? {
-                [$Field.id]: getGenID("villus", "node", layer.id, 0),
+                [$Field.id]: getGenID($Prefix.villus, $Prefix.node, layer.id, 0),
                 [$Field.generated]: true
             }: prev;
 
@@ -805,7 +797,7 @@ export class Villus extends GroupTemplate{
                 mergeGenResource(villus.group, parentGroup, node1, $Field.nodes);
             }
             let node2 = {
-                [$Field.id]: getGenID("villus", "node", lyph.id, layer.id, i + 1),
+                [$Field.id]: getGenID($Prefix.villus, $Prefix.node, lyph.id, layer.id, i + 1),
                 [$Field.generated]: true
             };
             addBorderNode(layer.border.borders[0], node2.id);
@@ -826,7 +818,7 @@ export class Villus extends GroupTemplate{
             villus_layers = villus_layers.map(x => x.id);
 
             let villusLyph = {
-                [$Field.id]      : getGenID("villus", "lyph", lyph.id, layer.id),
+                [$Field.id]      : getGenID($Prefix.villus, $Prefix.lyph, lyph.id, layer.id),
                 [$Field.layers]  : villus_layers.reverse(),
                 [$Field.topology]: (i===0)? Lyph.LYPH_TOPOLOGY.BAG : Lyph.LYPH_TOPOLOGY.TUBE,
                 [$Field.scale]   : {"width": 40 * (villus.numLayers - i), "height": 80},
@@ -842,7 +834,7 @@ export class Villus extends GroupTemplate{
             mergeGenResource(villus.group, parentGroup, villusLyph, $Field.lyphs);
 
             let link = {
-                [$Field.id]            : getGenID("villus", "link", layer.id),
+                [$Field.id]            : getGenID($Prefix.villus, $Prefix.link, layer.id),
                 [$Field.source]        : node1.id,
                 [$Field.target]        : node2.id,
                 [$Field.conveyingLyph] : villusLyph.id,

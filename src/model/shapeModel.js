@@ -1,7 +1,7 @@
 import {Link, VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isPlainObject} from 'lodash-bound';
 import {logger} from './logger';
-import {$Field, getGenID, findResourceByID, getNewID, LYPH_TOPOLOGY} from './utils';
+import {$Field, $Prefix, getGenID, getGenName, findResourceByID, getNewID, LYPH_TOPOLOGY} from './utils';
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -25,14 +25,14 @@ export class Shape extends VisualResource {
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         json.id     = json.id || getNewID(entitiesByID);
         json.border = json.border || {};
-        json.border.id = json.border.id || (json.id + "_border");
+        json.border.id = json.border.id || getGenID($Prefix.border, json.id);
         json.border.borders = json.border.borders || [];
-        for (let i = 0; i < json.numBorders ; i++){
+        for (let i = 0; i < json.numBorders; i++){
             let id = getGenID(json.border.id, i);
             json.border.borders[i]::merge({
                 [$Field.id]       : id,
-                [$Field.source]   : { id: getGenID("s", id) },
-                [$Field.target]   : { id: getGenID("t", id) },
+                [$Field.source]   : { id: getGenID($Prefix.source, id) },
+                [$Field.target]   : { id: getGenID($Prefix.target, id) },
                 [$Field.geometry] : Link.LINK_GEOMETRY.INVISIBLE,
                 [$Field.generated]: true
             });
@@ -133,7 +133,7 @@ export class Lyph extends Shape {
             if (sourceLyph.villus){
                 targetLyph.villus = sourceLyph.villus::clone();
                 if (targetLyph.villus.id){
-                    targetLyph.villus.id = targetLyph.id + "_" + targetLyph.villus.id
+                    targetLyph.villus.id = getGenID(targetLyph.id, $Prefix.villus, targetLyph.villus.id)
                 }
                 if (targetLyph.villus.villusOf){
                     targetLyph.villus.villusOf = targetLyph.id || targetLyph;
@@ -152,15 +152,15 @@ export class Lyph extends Shape {
             return;
         }
 
-        (sourceLyph.layers || []).forEach(layerRef => {
+        (sourceLyph.layers || []).forEach((layerRef, i) => {
             let sourceLayer = findResourceByID(lyphs, layerRef);
             if (!sourceLayer) {
                 logger.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
             let targetLayer = {
-                [$Field.id]        : getGenID(sourceLayer.id, targetLyph.id),
-                [$Field.name]      : `${sourceLayer.name || '?'} in ${targetLyph.name || '?'}`,
+                [$Field.id]        : getGenID(sourceLayer.id, targetLyph.id, i+1),
+                [$Field.name]      : getGenName(sourceLayer.name || '?', "in", targetLyph.name || '?', "layer", i+1),
                 [$Field.generated] : true
             };
             lyphs.push(targetLayer);

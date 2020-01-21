@@ -17,7 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
-import {$Field, $Class, $Color} from "./utils";
+import {$Field, $Class, $Color, $Prefix, getGenID} from "./utils";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -238,10 +238,9 @@ export class Graph extends Group{
      */
     createAxesForInternalLyphs(modelClasses, entitiesByID){
         const createAxis = lyph => {
-            let [sNode, tNode] = ["s", "t"].map(prefix => (
+            let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
                 Node.fromJSON({
-                    [$Field.id]        : `${prefix}${lyph.id}`,
-                    [$Field.name]      : `${prefix}${lyph.id}`,
+                    [$Field.id]        : getGenID(prefix, lyph.id),
                     [$Field.color]     : $Color.InternalNode,
                     [$Field.val]       : 0.1,
                     [$Field.skipLabel] : true,
@@ -249,7 +248,7 @@ export class Graph extends Group{
                 }, modelClasses, entitiesByID)));
 
             let link = Link.fromJSON({
-                [$Field.id]           : `${lyph.id}-lnk`,
+                [$Field.id]           : getGenID($Prefix.link, lyph.id),
                 [$Field.source]       : sNode,
                 [$Field.target]       : tNode,
                 [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
