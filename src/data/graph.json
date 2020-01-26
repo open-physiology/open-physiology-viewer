@@ -78,7 +78,11 @@
         "K-78",
         "K-77",
         "KM-27"
-      ]
+      ],
+      "scale": {
+        "width" : 500,
+        "height": 60
+      }
     },
     {
       "id": "KC1",
@@ -164,6 +168,19 @@
       "id": "KT10",
       "name": "T10",
       "supertype": "K-129"
+    },
+    {
+      "id": "229",
+      "name": "Segment of neuron",
+      "isTemplate": true,
+      "external": [
+        "CL:0000540"
+      ],
+      "layers": [
+        "54",
+        "56",
+        "116"
+      ]
     }
   ],
   "materials": [
@@ -465,13 +482,15 @@
   "trees" : [
     {
       "id"          : "t1",
-      "numLevels"   : 7,
-      "levels"      : [{}, {}, {}, {}, {}, {}, {"target": "n1"}],
-      "housingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7"]
+      "root"        : "n1",
+      "lyphTemplate": "229",
+      "housingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7"],
+      "levels": [{},{},{},{},{},{},{"target": "n2"}]
     },
     {
       "id"          : "t2",
-      "root"        : "n1",
+      "root"        : "n2",
+      "lyphTemplate": "229",
       "housingLyphs": ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"]
     }
   ]

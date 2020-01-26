@@ -342,13 +342,18 @@ export class Tree extends GroupTemplate {
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
                 if (i === 0){
                     addInternalNode(hostLyph, level.source);
+                    //addBorderNode(hostLyph.border.borders[1], level.source);
                 } else {
                     addBorderNode(hostLyph.border.borders[3], level.source);
                 }
                 if (i === tree.housingLyphs.length - 1){
                     addInternalNode(hostLyph, level.target);
+                    //addBorderNode(hostLyph.border.borders[3], level.target);
                 } else {
                     addBorderNode(hostLyph.border.borders[1], level.target);
+                    //Add the ID of a node clone to the tree group, the clone and the collapsible link will be created in Group.replaceBorderNodes
+                    //Important: this may not work if the generated tree node IDs are placed on more borders
+                    tree.group.nodes.push(getGenID(level.target, $Prefix.clone, 1));
                 }
             }
 
@@ -644,7 +649,8 @@ export class Channel extends GroupTemplate {
                     if (!isOk) {
                         isOk = membraneMaterial && lyph.layers[1].containsMaterial(membraneMaterial.id);
                         if (!isOk) {
-                            logger.warn(`Second layer of a housing lyph is not a (subtype of) membrane (externals - GO:0016020, id - ${membraneLyph? membraneLyph.id: membraneMaterial.id} ): `, lyph.layers[1]);
+                            logger.warn(`Second layer of a housing lyph is not a (subtype of) membrane (externals - GO:0016020, id - 
+                                ${membraneLyph? membraneLyph.id: membraneMaterial.id} ): `, lyph.layers[1]);
                         }
                     }
                     return isOk;
@@ -682,11 +688,12 @@ export class Chain extends GroupTemplate {
             return;
         }
 
-        chain.group = this.createTemplateGroup(chain, parentGroup);
-
         if (!chain.conveyingLyphs::isArray() || chain.conveyingLyphs.length <= 0){
             logger.warn(`Skipped chain template - no conveying lyphs given!`);
+            return;
         }
+
+        chain.group = this.createTemplateGroup(chain, parentGroup);
 
         let lyphs = chain.conveyingLyphs.map(lyphID => findResourceByID(parentGroup.lyphs, lyphID));
 

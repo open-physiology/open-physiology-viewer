@@ -34,21 +34,22 @@ export const $Color = {
 };
 
 export const $Prefix = {
-    node  : "node",     //generated node
-    source: "s",        //source node
-    target: "t",        //target node
-    link  : "lnk",      //generated link (edge)
-    lyph  : "lyph",     //generated lyph
-    group : "group",    //generated group
+    node    : "node",   //generated node
+    source  : "s",      //source node
+    target  : "t",      //target node
+    link    : "lnk",    //generated link (edge)
+    lyph    : "lyph",   //generated lyph
+    group   : "group",  //generated group
     instance: "inst",   //instance
-    tree  : "tree",     //tree
-    channel: "ch",      //channel
+    tree    : "tree",   //tree
+    channel : "ch",     //channel
     coalescence: "cls", //coalescence instance
     border  : "b",      //lyph border
     villus  : "vls",    //villus template
     layer   : "layer",  //generated lyph layer
     template: "ref",    //from lyph template
-    material: "mat"     //from material reference
+    material: "mat",    //from material reference
+    clone   : "clone"   //node clone
 };
 
 export const getNewID = entitiesByID => "new-" +

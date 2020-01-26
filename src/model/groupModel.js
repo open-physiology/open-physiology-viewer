@@ -2,7 +2,7 @@ import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
 import {Link} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
-import {getGenID, addColor, $Class, $Field, $Color, $Prefix} from './utils';
+import {getGenID, addColor, $Class, $Field, $Color, $Prefix, findResourceByID} from './utils';
 import {logger} from './logger';
 import {Villus} from "./groupTemplateModel";
 
@@ -54,7 +54,6 @@ export class Group extends Resource {
 
         //create instances of group templates (e.g., trees and channels)
         this.createTemplateInstances(json, modelClasses);
-        /******************************************************************************************************/
 
         //New entities will be auto-generated in the raw JSON format
         this.replaceBorderNodes(json);
@@ -269,10 +268,11 @@ export class Group extends Resource {
                 borderNodesByID[nodeID] = borderNodesByID[nodeID].reverse();
 
                 for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
+                    let cloneID = getGenID(nodeID, $Prefix.clone, i);
                     let nodeClone = node::cloneDeep()::merge({
-                        [$Field.id]       : nodeID + `_${i}`,
+                        [$Field.id]       : cloneID,
                         [$Field.cloneOf]  : nodeID,
-                        [$Field.class]    : "Node",
+                        [$Field.class]    : $Class.Node,
                         [$Field.charge]   : 0,
                         [$Field.collide]  : 0,
                         [$Field.generated]: true
@@ -289,7 +289,7 @@ export class Group extends Resource {
                     });
                     //create a collapsible link
                     let lnk = {
-                        [$Field.id]         : `${prev}_${nodeClone.id}`,
+                        [$Field.id]         : getGenID(prev, nodeClone.id),
                         [$Field.source]     : `${prev}`,
                         [$Field.target]     : `${nodeClone.id}`,
                         [$Field.stroke]     : Link.LINK_STROKE.DASHED,
