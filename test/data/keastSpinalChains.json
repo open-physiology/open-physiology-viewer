@@ -85,91 +85,6 @@
       }
     },
     {
-      "id": "KC1",
-      "name": "C1",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KC2",
-      "name": "C2",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KC3",
-      "name": "C3",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KC4",
-      "name": "C4",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KC5",
-      "name": "C5",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KC6",
-      "name": "C6",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KC7",
-      "name": "C7",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT1",
-      "name": "T1",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT2",
-      "name": "T2",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT3",
-      "name": "T3",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT4",
-      "name": "T4",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT5",
-      "name": "T5",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT6",
-      "name": "T6",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT7",
-      "name": "T7",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT8",
-      "name": "T8",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT9",
-      "name": "T9",
-      "supertype": "K-129"
-    },
-    {
-      "id": "KT10",
-      "name": "T10",
-      "supertype": "K-129"
-    },
-    {
       "id": "229",
       "name": "Segment of neuron",
       "isTemplate": true,
@@ -471,21 +386,18 @@
   ],
   "chains": [
     {
-      "id": "c1",
-      "conveyingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7",
-        "KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"],
+      "id"    : "c1",
+      "lyphs" : ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7", "KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"],
       "source": "s_c1",
       "target": "t_c1",
       "length": 100
-    }
-  ],
-  "trees" : [
+    },
     {
       "id"          : "t1",
       "source"      : "n1",
       "lyphTemplate": "229",
       "housingChain": "c1",
-      "housingRange": { "min": 0, "max": 6}
+      "housingRange": {"min": 0, "max": 6}
     },
     {
       "id"          : "t2",

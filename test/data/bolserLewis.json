@@ -658,14 +658,14 @@
     {
       "id": "114in226",
       "supertype": "114",
-      "bundlesTrees": [
+      "bundlesChains": [
         "t3"
       ]
     },
     {
       "id": "112in227",
       "supertype": "112",
-      "bundlesTrees": [
+      "bundlesChains": [
         "t3"
       ]
     }

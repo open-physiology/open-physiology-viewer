@@ -97,7 +97,6 @@
     "npm": "^6.4.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "6.3.3",
-    "save-dev": "^2.0.0",
     "three": "^0.111.0",
     "three-js-csg": "^72.0.0",
     "three-text2d": "^0.4.1",

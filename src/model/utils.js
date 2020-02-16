@@ -20,7 +20,7 @@ export const $Field = $Class::keys().map(className => definitions[className].pro
 
 export const LINK_GEOMETRY = definitions[$Class.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LINK_STROKE   = definitions[$Class.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const PROCESS_TYPE  = definitions[$Class.Link].properties[$Field.conveyingType].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const PROCESS_TYPE  = definitions[$Class.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const LYPH_TOPOLOGY  = definitions[$Class.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const COALESCENCE_TOPOLOGY = definitions[$Class.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();

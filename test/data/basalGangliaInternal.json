@@ -7,7 +7,7 @@
     {
       "id"          : "dendrite",
       "name"        : "Dendrite omega tree",
-      "root"        : "n1",
+      "source"        : "n1",
       "numLevels"   : 1,
       "lyphTemplate": "neuronBag",
       "length": 2
@@ -15,7 +15,7 @@
     {
       "id"          : "axonal",
       "name"        : "Axonal omega tree",
-      "root"        : "n2",
+      "source"        : "n2",
       "numLevels"   : 5,
       "lyphTemplate": "neuronBag",
       "length": 10

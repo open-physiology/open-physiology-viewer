@@ -69,7 +69,7 @@ export class Shape extends VisualResource {
  * @property inMaterials
  * @property inCoalescences
  * @property bundles
- * @property bundlesTrees
+ * @property bundlesChains
  * @property prev
  * @property next
  * @property villus
@@ -124,7 +124,7 @@ export class Lyph extends Shape {
         }
 
         targetLyph::merge(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.external, $Field.description, $Field.materials, $Field.create3d, $Field.channels, $Field.bundlesTrees]));
+            $Field.thickness, $Field.external, $Field.description, $Field.materials, $Field.create3d, $Field.channels, $Field.bundlesChains]));
 
         if (sourceLyph.isTemplate){
             targetLyph.supertype = sourceLyph.id;

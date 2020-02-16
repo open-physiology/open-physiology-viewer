@@ -1220,7 +1220,7 @@
       "external": [
         "FMA:7159"
       ],
-      "root": "node1A",
+      "source": "node1A",
       "numLevels": 21,
       "levels": [
         "lnk1",

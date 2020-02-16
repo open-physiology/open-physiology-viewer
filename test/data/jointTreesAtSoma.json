@@ -19,12 +19,12 @@
   "trees": [
     {
       "id": "t1",
-      "root": "n1",
+      "source": "n1",
       "numLevels": 5
     },
     {
       "id": "t2",
-      "root": "n2",
+      "source": "n2",
       "numLevels": 5
     }
   ]

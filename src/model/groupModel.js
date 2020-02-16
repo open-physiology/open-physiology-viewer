@@ -50,7 +50,7 @@ export class Group extends Resource {
         /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
 
         //align generated groups and housing lyphs
-        (json.trees||[]).forEach(tree => modelClasses.Tree.embedToHousingLyphs(json, tree));
+        (json.chains||[]).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
 
         //create instances of group templates (e.g., trees and channels)
         this.createTemplateInstances(json, modelClasses);
@@ -93,13 +93,13 @@ export class Group extends Resource {
         let changedMaterials = 0;
 
         const replaceRefToMaterial = (ref) => {
-            const prefix = "lyphMat_";
-            let template = (json.lyphs || []).find(e => (e.id === prefix + ref) && e.isTemplate);
+            let lyphID = getGenID($Prefix.material, ref);
+            let template = (json.lyphs || []).find(e => (e.id === lyphID) && e.isTemplate);
             if (!template){
                 let material = (json.materials || []).find(e => e.id === ref);
                 if (material) {
                     template = {
-                        [$Field.id]            : getGenID($Prefix.material, material.id),
+                        [$Field.id]            : lyphID,
                         [$Field.name]          : material.name,
                         [$Field.isTemplate]    : true,
                         [$Field.materials]     : [material.id],
@@ -126,8 +126,10 @@ export class Group extends Resource {
                     [$Field.supertype] : template.id,
                     [$Field.generated] : true
                 };
-                json.lyphs.push(subtype);
-                replaceAbstractRefs(subtype, $Field.layers);
+                if (!findResourceByID(json.lyphs, subtype.id)){
+                    json.lyphs.push(subtype);
+                    replaceAbstractRefs(subtype, $Field.layers);
+                }
                 return subtype.id;
             }
             return ref;
@@ -178,7 +180,7 @@ export class Group extends Resource {
     static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
         let relClassNames = modelClasses[this.name].Model.relClassNames;
-        [$Field.trees, $Field.channels, $Field.chains].forEach(relName => {
+        [$Field.channels, $Field.chains].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)

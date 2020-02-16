@@ -471,27 +471,36 @@
   ],
   "chains": [
     {
-      "id": "c1",
-      "conveyingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7",
-        "KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"],
-      "source": "s_c1",
-      "target": "t_c1",
-      "length": 100
+      "id"     : "c1",
+      "lyphs"  : ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7", "KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"],
+      "source" : "s_c1",
+      "target" : "t_c1",
+      "length" : 100
+    },
+    {
+      "id"           : "t1",
+      "source"       : "n1",
+      "target"       : "n2",
+      "lyphTemplate" : "229",
+      "housingChain" : "c1",
+      "housingRange" : {"min": 0, "max": 7},
+      "housingLayers": [6,3,4,6,6,6,6]
+    },
+    {
+      "id"           : "t2",
+      "source"       : "n2",
+      "lyphTemplate" : "229",
+      "housingLyphs" : ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"]
     }
   ],
   "trees" : [
     {
-      "id"          : "t1",
-      "root"        : "n1",
-      "lyphTemplate": "229",
-      "housingLyphs": ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7"],
-      "levels": [{},{},{},{},{},{},{"target": "n2"}]
+      "chain"      : "t1",
+      "branchingFactors" : [1,2,2,3]
     },
     {
-      "id"          : "t2",
-      "root"        : "n2",
-      "lyphTemplate": "229",
-      "housingLyphs": ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"]
+      "chain"      : "t2",
+      "branchingFactors" : [1,2,1,3]
     }
   ]
 }

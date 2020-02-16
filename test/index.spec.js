@@ -151,4 +151,6 @@ describe("Generate groups from templates - UOT with channels", () => {
     });
 });
 
+//TODO test creation of trees as chains, i.e., using source, target and conveyingLyphs properties
+
 //TODO add regression test for channels to make sure generated lyph order works

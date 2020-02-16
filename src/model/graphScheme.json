@@ -122,6 +122,14 @@
       "description": "JSONPath query to select resources",
       "type": "string"
     },
+    "ProcessTypeScheme": {
+      "description": "Process types",
+      "type": "string",
+      "enum": [
+        "ADVECTIVE",
+        "DIFFUSIVE"
+      ]
+    },
     "Resource": {
       "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model",
       "type": "object",
@@ -468,6 +476,9 @@
         }
       }
     },
+    "Connector": {
+
+    },
     "Link"    : {
       "description": "Graph link schematically representing a (part of) physiological process. ",
       "allOf":[{
@@ -528,11 +539,7 @@
         },
         "conveyingType" : {
           "description": "Process type",
-          "type": "string",
-          "enum": [
-            "ADVECTIVE",
-            "DIFFUSIVE"
-          ]
+          "$ref": "#/definitions/ProcessTypeScheme"
         },
         "conveyingMaterials": {
           "description": "Materials conveyed by a diffusive process, must be subset of materials in the innermost layer of the conveying lyph",
@@ -573,7 +580,7 @@
           ],
           "relatedTo": "bundles"
         },
-        "length"       : {
+        "length" : {
           "description": "The length of the link",
           "type": "number",
           "minimum": 0,
@@ -841,7 +848,7 @@
           "default": {},
           "advanced": "true"
         },
-        "length"         : {
+        "length" : {
           "description": "Anatomical lyph length defined in the form of power of 1/10",
           "type": "object",
           "properties": {
@@ -911,8 +918,7 @@
               }
             ]
           },
-          "relatedTo": "layerIn",
-          "uniqueItems": true
+          "relatedTo": "layerIn"
         },
         "layerIn"        : {
           "description": "A lyph in which the current lyph is hosted as layer",
@@ -985,8 +991,8 @@
           },
           "relatedTo": "fasciculatesIn"
         },
-        "bundlesTrees"   : {
-          "description" : "Trees that generate links that pass through the lyph. The property is used to override default bundling of tree links to the outermost layer of a lyph",
+        "bundlesChain"   : {
+          "description" : "Chains that generate links that pass through the lyph. The property is used to override default bundling of tree links to the outermost layer of a lyph",
           "type": "array",
           "items": {
             "anyOf": [
@@ -994,7 +1000,7 @@
                 "type": "string"
               },
               {
-                "$ref": "#/definitions/Tree"
+                "$ref": "#/definitions/Chain"
               }
             ]
           }
@@ -1062,7 +1068,6 @@
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
           "type": "number",
           "minimum": 0,
-          "maximum": 100,
           "advanced": true
         },
         "height"         : {
@@ -1078,8 +1083,7 @@
           "properties": {
             "width": {
               "type": "number",
-              "minimum": 0,
-              "maximum": 100
+              "minimum": 0
             },
             "height": {
               "type": "number",
@@ -1209,12 +1213,16 @@
           "readOnly": true,
           "relatedTo": "generatedFrom"
         },
-        "length"       : {
-          "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
-          "type"       : "number",
-          "minimum"    : 0,
-          "maximum"    : 100,
-          "advanced"   : true
+        "length"        : {
+          "description" : "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
+          "type"        : "number",
+          "minimum"     : 0,
+          "maximum"     : 100,
+          "advanced"    : true
+        },
+        "conveyingType" : {
+          "description": "Process type associated with links in the group derived from the template",
+          "$ref": "#/definitions/ProcessTypeScheme"
         }
       }
     },
@@ -1256,8 +1264,8 @@
           "relatedTo": "channels",
           "default": []
         },
-        "instances"    : {
-          "description": "Groups (subgraphs) that contain instances of channels housed by lyph instances",
+        "instances"     : {
+          "description": "Groups (subgraphs) that contain generated channel instances",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Group"
@@ -1273,7 +1281,29 @@
         "$ref": "#/definitions/GroupTemplate"
       }],
       "properties": {
-        "conveyingLyphs" : {
+        "source"         : {
+          "description": "The source node of the chain",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ]
+        },
+        "target"         : {
+          "description": "The target node of the chain",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ]
+        },
+        "lyphs"          : {
           "description": "Ordered set of lyphs to form a chain",
           "type": "array",
           "items": {
@@ -1288,27 +1318,127 @@
           },
           "default": []
         },
-        "source": {
-          "description": "The source node of the chain",
+        "lyphTemplate"   : {
+          "description": "Lyph template to generate lyphs conveyed by the omega-tree branches.",
           "anyOf": [
             {
               "type": "string"
             },
             {
-              "$ref": "#/definitions/Node"
+              "$ref": "#/definitions/Lyph"
             }
           ]
         },
-        "target": {
-          "description": "The target node of the chain",
+        "numLevels"      : {
+          "description": "Number of levels in the generated chain. Nodes and links are auto-created",
+          "type": "number",
+          "default": 1
+        },
+        "levels"         : {
+          "description": "Optional references to links or link properties that must be associated with the chain level",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          }
+        },
+        "housingLyphs"   : {
+          "description": "A set of lyphs that house the tree",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          }
+        },
+        "housingChain"   : {
+          "description": "A chain that houses the chain",
           "anyOf": [
             {
               "type": "string"
             },
             {
-              "$ref": "#/definitions/Node"
+              "$ref": "#/definitions/Chain"
             }
           ]
+        },
+        "housingRange"   : {
+          "description": "Index range to define the chain part that houses the tree",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Start index for tree embedding",
+              "type": "number",
+              "minimum": 1
+            },
+            "max": {
+              "description": "End index for tree embedding",
+              "type": "number",
+              "minimum": 1
+            }
+          },
+          "advanced": true
+        },
+        "housingLayers"  : {
+          "description": "Indices of the layers in housing lyphs to embed the tree levels",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "Tree"  : {
+      "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
+      "allOf":[{
+        "$ref": "#/definitions/GroupTemplate"
+      }],
+      "properties": {
+        "chain": {
+          "description": "A chain resource defining the structural composition of the tree, i.e., lyphs that convey tree levels",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ]
+        },
+        "branchingFactors": {
+          "description": "Branching factors define a mean value of branches at each tree level",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "instances"     : {
+          "description": "Groups (subgraphs) that contain generated tree instances",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
+          "readOnly": true,
+          "advanced": true
+        },
+        "numInstances"  : {
+          "description": "Indicates how many tree instances to create",
+          "type"       : "number",
+          "default"    : 0,
+          "advanced"   : true
         }
       }
     },
@@ -1338,92 +1468,6 @@
               "$ref": "#/definitions/Lyph"
             }
           ]
-        }
-      }
-    },
-    "Tree"  : {
-      "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
-      "allOf":[{
-        "$ref": "#/definitions/GroupTemplate"
-      }],
-      "properties": {
-        "root"            : {
-          "description": "Root of the tree",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ]
-        },
-        "numLevels"       : {
-          "description": "Number of levels in the generated omega tree. Nodes and links are auto-created",
-          "type": "number",
-          "default": 1
-        },
-        "levels"          : {
-          "description": "Optional references to links or link properties that must be associated with the tree level",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          }
-        },
-        "lyphTemplate"    : {
-          "description": "Lyph template to generate lyphs conveyed by the omega-tree branches.",
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ]
-        },
-        "branchingFactors": {
-          "description": "Branching factors define a mean value of branches at each tree level",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "default": 1
-          }
-        },
-        "numInstances"    : {
-          "description": "Indicates how many tree instances to create",
-          "type"       : "number",
-          "default"    : 0,
-          "advanced"   : true
-        },
-        "instances"       : {
-          "description": "Groups (subgraphs) that contain instances of omega trees for the given template",
-          "type" : "array",
-          "items": {
-            "$ref": "#/definitions/Group"
-          },
-          "readOnly": true,
-          "advanced": true
-        },
-        "housingLyphs"    : {
-          "description": "A set of lyphs that house the tree",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          }
         }
       }
     },
