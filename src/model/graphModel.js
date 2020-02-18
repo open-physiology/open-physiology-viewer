@@ -133,7 +133,6 @@ export class Graph extends Group{
         const borderNames = ["inner", "radial1", "outer", "radial2"];
 
         model::keys().forEach(relName => {
-            console.log(relName);
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
@@ -204,7 +203,6 @@ export class Graph extends Group{
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    console.log(headers[i]);
                     if (!headers[j]) {
                         logger.error("No column name");
                         return;

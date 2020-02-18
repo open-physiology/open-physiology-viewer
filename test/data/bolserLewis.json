@@ -1,7 +1,7 @@
 {
-  "id"  : "bolserLewis",
+  "id"  : "bolserLewisNew",
   "name": "Bolser-Lewis model",
-  "description": "A demo model with chains and trees (initial version)",
+  "description": "A demo model with chains and trees (updated bolserLewis.json with neuron data)",
   "nodes": [
     {
       "id": "c1_s",
@@ -90,6 +90,9 @@
       ]
     },
     {
+      "id": "lnk1",
+      "source": "1a",
+      "target": "1b",
       "conveyingLyph": "217",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -97,6 +100,9 @@
       ]
     },
     {
+      "id": "lnk2",
+      "source": "2a",
+      "target": "2b",
       "conveyingLyph": "218",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -104,6 +110,9 @@
       ]
     },
     {
+      "id": "lnk3",
+      "source": "3a",
+      "target": "3b",
       "conveyingLyph": "219",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -111,6 +120,9 @@
       ]
     },
     {
+      "id": "lnk4",
+      "source": "4a",
+      "target": "4b",
       "conveyingLyph": "220",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -118,6 +130,9 @@
       ]
     },
     {
+      "id": "lnk5",
+      "source": "5a",
+      "target": "5b",
       "conveyingLyph": "230",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -125,6 +140,9 @@
       ]
     },
     {
+      "id": "lnk6",
+      "source": "6a",
+      "target": "6b",
       "conveyingLyph": "231",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -132,6 +150,9 @@
       ]
     },
     {
+      "id": "lnk7",
+      "source": "7a",
+      "target": "7b",
       "conveyingLyph": "232",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -139,6 +160,9 @@
       ]
     },
     {
+      "id": "lnk8",
+      "source": "8a",
+      "target": "8b",
       "conveyingLyph": "233",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -146,6 +170,9 @@
       ]
     },
     {
+      "id": "lnk9",
+      "source": "9a",
+      "target": "9b",
       "conveyingLyph": "234",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -153,6 +180,9 @@
       ]
     },
     {
+      "id": "lnk10",
+      "source": "10a",
+      "target": "10b",
       "conveyingLyph": "235",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -160,6 +190,9 @@
       ]
     },
     {
+      "id": "lnk11",
+      "source": "11a",
+      "target": "11b",
       "conveyingLyph": "236",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -167,6 +200,9 @@
       ]
     },
     {
+      "id": "lnk12",
+      "source": "12a",
+      "target": "12b",
       "conveyingLyph": "237",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -174,6 +210,9 @@
       ]
     },
     {
+      "id": "lnk13",
+      "source": "13a",
+      "target": "13b",
       "conveyingLyph": "238",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -181,6 +220,9 @@
       ]
     },
     {
+      "id": "lnk14",
+      "source": "14a",
+      "target": "14b",
       "conveyingLyph": "239",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -188,6 +230,9 @@
       ]
     },
     {
+      "id": "lnk15",
+      "source": "15a",
+      "target": "15b",
       "conveyingLyph": "240",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
@@ -195,11 +240,159 @@
       ]
     },
     {
+      "id": "lnk16",
+      "source": "16a",
+      "target": "16b",
       "conveyingLyph": "241",
       "conveyingType": "ADVECTIVE",
       "conveyingMaterials": [
         "116"
       ]
+    },
+    {
+      "source": "s202",
+      "target": "t202",
+      "conveyingLyph": "soma202"
+    },
+    {
+      "source": "s228",
+      "target": "t228",
+      "conveyingLyph": "soma228"
+    },
+    {
+      "source": "s107in214",
+      "target": "t107in214",
+      "conveyingLyph": "soma107in214"
+    },
+    {
+      "source": "s265",
+      "target": "t265",
+      "conveyingLyph": "soma265"
+    },
+    {
+      "source": "s266",
+      "target": "t266",
+      "conveyingLyph": "soma266"
+    },
+    {
+      "source": "s262",
+      "target": "t262",
+      "conveyingLyph": "soma262"
+    },
+    {
+      "source": "s264",
+      "target": "t264",
+      "conveyingLyph": "soma264"
+    },
+    {
+      "source": "s249_1",
+      "target": "t249_1",
+      "conveyingLyph": "soma249_1"
+    },
+    {
+      "source": "s249_2",
+      "target": "t249_2",
+      "conveyingLyph": "soma249_2"
+    },
+    {
+      "source": "s249_3",
+      "target": "t249_3",
+      "conveyingLyph": "soma249_2"
+    },
+    {
+      "source": "s248_1",
+      "target": "t248_1",
+      "conveyingLyph": "soma248_1"
+    },
+    {
+      "source": "s248_2",
+      "target": "t248_2",
+      "conveyingLyph": "soma248_2"
+    },
+    {
+      "source": "s220_1",
+      "target": "t220_1",
+      "conveyingLyph": "soma220_1"
+    },
+    {
+      "source": "s220_2",
+      "target": "t220_2",
+      "conveyingLyph": "soma220_2"
+    },
+    {
+      "source": "s220_3",
+      "target": "t220_3",
+      "conveyingLyph": "soma220_3"
+    },
+    {
+      "source": "s220_4",
+      "target": "t220_4",
+      "conveyingLyph": "soma220_4"
+    },
+    {
+      "source": "s220_5",
+      "target": "t220_5",
+      "conveyingLyph": "soma220_5"
+    },
+    {
+      "source": "s220_6",
+      "target": "t220_6",
+      "conveyingLyph": "soma220_6"
+    },
+    {
+      "source": "s220_7",
+      "target": "t220_7",
+      "conveyingLyph": "soma220_7"
+    },
+    {
+      "source": "s220_8",
+      "target": "t220_8",
+      "conveyingLyph": "soma220_8"
+    },
+    {
+      "source": "s220_9",
+      "target": "t220_9",
+      "conveyingLyph": "soma220_9"
+    },
+    {
+      "source": "s220_10",
+      "target": "t220_10",
+      "conveyingLyph": "soma220_10"
+    },
+    {
+      "source": "s220_11",
+      "target": "t220_11",
+      "conveyingLyph": "soma220_11"
+    },
+    {
+      "source": "s220_12",
+      "target": "t220_12",
+      "conveyingLyph": "soma220_12"
+    },
+    {
+      "source": "s220_13",
+      "target": "t220_13",
+      "conveyingLyph": "soma220_13"
+    },
+    {
+      "source": "s220_14",
+      "target": "t220_14",
+      "conveyingLyph": "soma220_14"
+    },
+    {
+      "source": "s220_15",
+      "target": "t220_15",
+      "conveyingLyph": "soma220_15"
+    },
+    {
+      "source": "s220_16",
+      "target": "t220_16",
+      "conveyingLyph": "soma220_16"
+    },
+    {
+      "source": "s220_17",
+      "target": "t220_17",
+      "conveyingLyph": "soma220_17"
     }
   ],
   "lyphs": [
@@ -207,7 +400,8 @@
       "id": "200",
       "name": "Diencephalon",
       "external": [
-        "UBERON:0001894"
+        "UBERON:0001894",
+        "NCBITaxon:99999"
       ],
       "layers": [
         "104",
@@ -529,6 +723,9 @@
     {
       "id": "229",
       "name": "Segment of neuron",
+      "external": [
+        "CL:0000540"
+      ],
       "isTemplate": true,
       "layers": [
         "54",
@@ -573,6 +770,9 @@
     {
       "id": "232",
       "name": "T1-ICG sympathetic cord",
+      "external": [
+        "ILX:0738291"
+      ],
       "layers": [
         "117"
       ]
@@ -580,6 +780,9 @@
     {
       "id": "233",
       "name": "ICG-MCG sympathetic cord",
+      "external": [
+        "ILX:0738290"
+      ],
       "layers": [
         "117"
       ]
@@ -587,6 +790,9 @@
     {
       "id": "234",
       "name": "MCG-SCG sympathetic cord",
+      "external": [
+        "ILX:0738292"
+      ],
       "layers": [
         "117"
       ]
@@ -604,6 +810,9 @@
     {
       "id": "236",
       "name": "Ganglioglomerular nerve",
+      "external": [
+        "ILX:0738293"
+      ],
       "layers": [
         "117"
       ]
@@ -668,6 +877,238 @@
       "bundlesChains": [
         "t3"
       ]
+    },
+    {
+      "id": "soma202",
+      "name": "Soma in Paraventricular nucleus",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma228",
+      "name": "Soma in T1 Rexed Lamina VII",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma107in214",
+      "name": "Soma in Central nervous system of T1 spinal segment",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma265",
+      "name": "Soma in 265",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma266",
+      "name": "Soma in 266",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma262",
+      "name": "Soma in 262",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma264",
+      "name": "Soma in 264",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma249_1",
+      "name": "Soma in 249 (1)",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma249_2",
+      "name": "Soma in 249 (2)",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma249_3",
+      "name": "Soma in 249 (3)",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma248_1",
+      "name": "Soma in 248 (1)",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma248_2",
+      "name": "Soma in 248 (2)",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_1",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_2",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_3",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_4",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_5",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_6",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_7",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_8",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_9",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_10",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_11",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_12",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_13",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_14",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_15",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_16",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "soma220_17",
+      "name": "Soma in Superior cervical ganglion",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
     }
   ],
   "materials": [
@@ -950,7 +1391,11 @@
     {}
   ],
   "references": [
-    {}
+    {
+      "id": "NCBITaxon:99999",
+      "type": "species",
+      "name": "cat"
+    }
   ],
   "coalescences": [
     {}
@@ -959,7 +1404,7 @@
   "chains": [
     {
       "id": "c1",
-      "conveyingLyphs": [
+      "lyphs": [
         "200",
         "203",
         "204",
@@ -979,12 +1424,382 @@
       "start": "c1_s",
       "end": "c1_t",
       "length": 100
-    }
-  ],
-  "trees": [
+    },
     {
-      "id": "t1",
-      "name": "PVN T1 projection neuron",
+      "id": "PVN-IML1",
+      "name": "Axon PVN-IML1",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s202",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "202"
+      ]
+    },
+    {
+      "id": "IML1-SCG",
+      "name": "Axon IML1-SCG",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s228",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "228"
+      ]
+    },
+    {
+      "id": "T1-INTERCOSTAL",
+      "name": "Axon T1-INTERCOSTAL",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s107in214",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "107in214"
+      ]
+    },
+    {
+      "id": "P4-DIAPHRGM",
+      "name": "Axon P4-DIAPHRGM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s265",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "265"
+      ]
+    },
+    {
+      "id": "P5-DIAPHRGM",
+      "name": "Axon P5-DIAPHRGM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s266",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "266"
+      ]
+    },
+    {
+      "id": "NTS-IML1",
+      "name": "Axon NTS-IML1",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s262",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "262"
+      ]
+    },
+    {
+      "id": "RVLM-IML1",
+      "name": "Axon RVLM-IML1",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s264",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "264"
+      ]
+    },
+    {
+      "id": "AB-NTS",
+      "name": "Axon AB-NTS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s249_1",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "249",
+        "239",
+        "250",
+        "110in223",
+        "254"
+      ]
+    },
+    {
+      "id": "CB-NTS",
+      "name": "Axon CB-NTS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s248_1",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "248",
+        "240",
+        "251",
+        "110in224",
+        "255"
+      ]
+    },
+    {
+      "id": "CS-NTS",
+      "name": "Axon CS-NTS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s248_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "248",
+        "240",
+        "252",
+        "110in225",
+        "256"
+      ]
+    },
+    {
+      "id": "LM-NTS",
+      "name": "Axon LM-NTS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s249_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "249",
+        "239",
+        "242",
+        "108in221",
+        "257"
+      ]
+    },
+    {
+      "id": "EM-NTS",
+      "name": "Axon EM-NTS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s249_3",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "249",
+        "239",
+        "253",
+        "114in226",
+        "258"
+      ]
+    },
+    {
+      "id": "SCG-AB",
+      "name": "Axon SCG-AB",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_1",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-CB",
+      "name": "Axon SCG-CB",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-CS",
+      "name": "Axon SCG-CS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_3",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-eSLN-LRYNX",
+      "name": "Axon SCG-eSLN-LRYNX",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_4",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-iSLN-LRYNX",
+      "name": "Axon SCG-iSLN-LRYNX",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_5",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-eSLN-EM",
+      "name": "Axon SCG-eSLN-EM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_6",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-iSLN-EM",
+      "name": "Axon SCG-iSLN-EM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_7",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-eILN-EM",
+      "name": "Axon SCG-eILN-EM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_8",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-iILN-EM",
+      "name": "Axon SCG-iILN-EM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_9",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-ECN-TONG",
+      "name": "Axon SCG-ECN-TONG",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_10",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-ICN-TONG",
+      "name": "Axon SCG-ICN-TONG",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_11",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-TRCHA",
+      "name": "Axon SCG-TRCHA",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_12",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-ICN-TRCHA",
+      "name": "Axon SCG-ICN-TRCHA",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_13",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-PVN",
+      "name": "Axon SCG-PVN",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_14",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-RTRPZ",
+      "name": "Axon SCG-RTRPZ",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_15",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-RVLM",
+      "name": "Axon SCG-RVLM",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_16",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-NTS",
+      "name": "Axon SCG-NTS",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "source": "s220_17",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "PVN-IML1-d",
+      "name": "Dendrite PVN-IML1",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t202",
       "lyphTemplate": "229",
       "housingLyphs": [
         "202",
@@ -1003,12 +1818,15 @@
         "213",
         "214",
         "228"
-      ],
-      "length": 50
+      ]
     },
     {
-      "id": "t2",
-      "name": "Pre-ganglionic sympathetic projection from T1 to SCG",
+      "id": "IML1-SCG-d",
+      "name": "Dendrite IML1-SCG",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t228",
       "lyphTemplate": "229",
       "housingLyphs": [
         "228",
@@ -1022,22 +1840,440 @@
         "219",
         "234",
         "220"
-      ],
-      "length": 35
+      ]
     },
     {
-      "id": "t3",
-      "name": "Post-ganglionic sympathetic projection from SCG to epiglottis",
+      "id": "T1-INTERCOSTAL-d",
+      "name": "Dendrite T1-INTERCOSTAL",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t107in214",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "107in214",
+        "230",
+        "260"
+      ]
+    },
+    {
+      "id": "P4-DIAPHRGM-d",
+      "name": "Dendrite P4-DIAPHRGM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t265",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "265",
+        "107in209",
+        "238",
+        "261"
+      ]
+    },
+    {
+      "id": "P5-DIAPHRGM-d",
+      "name": "Dendrite P5-DIAPHRGM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t266",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "266",
+        "107in210",
+        "238",
+        "261"
+      ]
+    },
+    {
+      "id": "NTS-IML1-d",
+      "name": "Dendrite NTS-IML1",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t262",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "262",
+        "107in205",
+        "206",
+        "207",
+        "208",
+        "209",
+        "210",
+        "211",
+        "212",
+        "213",
+        "214",
+        "228"
+      ]
+    },
+    {
+      "id": "RVLM-IML1-d",
+      "name": "Dendrite RVLM-IML1",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t264",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "264",
+        "107in205",
+        "206",
+        "207",
+        "208",
+        "209",
+        "210",
+        "211",
+        "212",
+        "213",
+        "214",
+        "228"
+      ]
+    },
+    {
+      "id": "AB-NTS-d",
+      "name": "Dendrite AB-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t249_1",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "249",
+        "239",
+        "107in205",
+        "262"
+      ]
+    },
+    {
+      "id": "CB-NTS-d",
+      "name": "Dendrite CB-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t248_1",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "248",
+        "240",
+        "107in205",
+        "262"
+      ]
+    },
+    {
+      "id": "CS-NTS-d",
+      "name": "Dendrite CS-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t248_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "248",
+        "240",
+        "107in205",
+        "262"
+      ]
+    },
+    {
+      "id": "LM-NTS-d",
+      "name": "Dendrite LM-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t249_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "249",
+        "239",
+        "107in205",
+        "262"
+      ]
+    },
+    {
+      "id": "EM-NTS-d",
+      "name": "Dendrite EM-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t249_3",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "249",
+        "239",
+        "107in205",
+        "262"
+      ]
+    },
+    {
+      "id": "SCG-AB-d",
+      "name": "Dendrite SCG-AB",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_1",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
-        "238",
-        "239",
-        "240",
-        "241",
-        "226"
+        "234",
+        "219",
+        "233",
+        "218",
+        "110in223",
+        "254"
+      ]
+    },
+    {
+      "id": "SCG-CB-d",
+      "name": "Dendrite SCG-CB",
+      "external": [
+        "SAO:1211023249"
       ],
-      "length": 20
+      "source": "t220_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "236",
+        "110in224",
+        "255"
+      ]
+    },
+    {
+      "id": "SCG-CS-d",
+      "name": "Dendrite SCG-CS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_3",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "236",
+        "110in225",
+        "256"
+      ]
+    },
+    {
+      "id": "SCG-eSLN-LRYNX-d",
+      "name": "Dendrite SCG-eSLN-LRYNX",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_4",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "239",
+        "242",
+        "243",
+        "108in221"
+      ]
+    },
+    {
+      "id": "SCG-iSLN-LRYNX-d",
+      "name": "Dendrite SCG-iSLN-LRYNX",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_5",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "239",
+        "242",
+        "244",
+        "108in221"
+      ]
+    },
+    {
+      "id": "SCG-eSLN-EM-d",
+      "name": "Dendrite SCG-eSLN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_6",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "239",
+        "242",
+        "243",
+        "114in226"
+      ]
+    },
+    {
+      "id": "SCG-iSLN-EM-d",
+      "name": "Dendrite SCG-iSLN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_7",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "239",
+        "242",
+        "244",
+        "114in226"
+      ]
+    },
+    {
+      "id": "SCG-eILN-EM-d",
+      "name": "Dendrite SCG-eILN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_8",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "239",
+        "245",
+        "246",
+        "114in226"
+      ]
+    },
+    {
+      "id": "SCG-iILN-EM-d",
+      "name": "Dendrite SCG-iILN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_9",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "239",
+        "245",
+        "247",
+        "114in226"
+      ]
+    },
+    {
+      "id": "SCG-ECN-TONG-d",
+      "name": "Dendrite SCG-ECN-TONG",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_10",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "235",
+        "112in227"
+      ]
+    },
+    {
+      "id": "SCG-ICN-TONG-d",
+      "name": "Dendrite SCG-ICN-TONG",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_11",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "237",
+        "112in227"
+      ]
+    },
+    {
+      "id": "SCG-TRCHA-d",
+      "name": "Dendrite SCG-TRCHA",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_12",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "109in222"
+      ]
+    },
+    {
+      "id": "SCG-ICN-TRCHA-d",
+      "name": "Dendrite SCG-ICN-TRCHA",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_13",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "237",
+        "109in222"
+      ]
+    },
+    {
+      "id": "SCG-PVN-d",
+      "name": "Dendrite SCG-PVN",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_14",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "237",
+        "200",
+        "201",
+        "202"
+      ]
+    },
+    {
+      "id": "SCG-RTRPZ-d",
+      "name": "Dendrite SCG-RTRPZ",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_15",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "237",
+        "107in205",
+        "263"
+      ]
+    },
+    {
+      "id": "SCG-RVLM-d",
+      "name": "Dendrite SCG-RVLM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_16",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "237",
+        "107in205",
+        "264"
+      ]
+    },
+    {
+      "id": "SCG-NTS-d",
+      "name": "Dendrite SCG-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "source": "t220_17",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220",
+        "237",
+        "107in205",
+        "262"
+      ]
     }
   ],
   "groups": [
@@ -1072,6 +2308,62 @@
         "201",
         "228",
         "202"
+      ]
+    },
+    {
+      "id": "b3",
+      "name": "Housing lyphs",
+      "nodes": [
+        "1a",
+        "2a",
+        "3a",
+        "4a",
+        "5a",
+        "6a",
+        "7a",
+        "8a",
+        "9a",
+        "10a",
+        "11a",
+        "12a",
+        "13a",
+        "14a",
+        "15a",
+        "16a",
+        "1b",
+        "2b",
+        "3b",
+        "4b",
+        "5b",
+        "6b",
+        "7b",
+        "8b",
+        "9b",
+        "10b",
+        "11b",
+        "12b",
+        "13b",
+        "14b",
+        "15b",
+        "16b"
+      ],
+      "links": [
+        "lnk1",
+        "lnk2",
+        "lnk3",
+        "lnk4",
+        "lnk5",
+        "lnk6",
+        "lnk7",
+        "lnk8",
+        "lnk9",
+        "lnk10",
+        "lnk11",
+        "lnk12",
+        "lnk13",
+        "lnk14",
+        "lnk15",
+        "lnk16"
       ]
     }
   ]

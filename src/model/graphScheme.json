@@ -1437,7 +1437,7 @@
         "numInstances"  : {
           "description": "Indicates how many tree instances to create",
           "type"       : "number",
-          "default"    : 0,
+          "default"    : 1,
           "advanced"   : true
         }
       }

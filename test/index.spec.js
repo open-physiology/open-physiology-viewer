@@ -10,6 +10,7 @@ import uotWithChannels from './data/uotWithChannels.json';
 import respiratory from './data/respiratory.json';
 import villus from './data/villus';
 import lyphOnBorder from './data/basicLyphOnBorder';
+import keastSpinal from './data/keastSpinal';
 
 import {keys, entries} from 'lodash-bound';
 
@@ -54,7 +55,6 @@ describe("JSON Schema read correctly", () => {
     });
 });
 
-
 describe("Produce generated model - Basal Ganglia", () => {
     let graphData;
     beforeEach(() => {
@@ -79,8 +79,8 @@ describe("Produce generated model - Basal Ganglia", () => {
         expect(graphData).to.have.a.property("groups");
         expect(graphData.groups[0]).to.be.instanceOf(modelClasses.Group);
 
-        expect(graphData).to.have.a.property("trees");
-        expect(graphData.trees[0]).to.be.instanceOf(modelClasses.Tree);
+        expect(graphData).to.have.a.property("chains");
+        expect(graphData.chains[0]).to.be.instanceOf(modelClasses.Chain);
 
         expect(graphData).to.have.a.property("materials");
         expect(graphData).to.have.a.property("references");

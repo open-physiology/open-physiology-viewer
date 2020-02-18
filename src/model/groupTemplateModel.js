@@ -461,6 +461,7 @@ export class Tree extends GroupTemplate {
             let levels = tree.chain.levels || [];
 
             let levelResources = {};
+
             for (let i = 0; i < levels.length; i++) {
                 let lnk  = findResourceByID(parentGroup.links, levels[i]);
                 let trg  = findResourceByID(parentGroup.nodes, lnk.target);
@@ -492,7 +493,7 @@ export class Tree extends GroupTemplate {
             let count = 0;
             for (let i = 0; i < Math.min(levels.length, tree.branchingFactors.length); i++){
                 levelResources[i].forEach((base, m) => {
-                    for (let k = 1; k < tree.branchingFactors[i]; k++){ //Instances reuse the canonic tree objects
+                    for (let k = 1; k < tree.branchingFactors[i]; k++){ //Instances reuse chain objects
                         if (count > MAX_GEN_RESOURCES){
                             throw new Error(`Reached maximum allowed number of generated resources per tree instance (${MAX_GEN_RESOURCES})!`);
                         }

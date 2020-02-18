@@ -2,7 +2,7 @@
   "id"  : "neuronTreeWithLevels",
   "name": "Neuron",
   "description": "Demo model of an omega tree with existing links working as tree branches",
-  "trees": [
+  "chains": [
     {
       "id"          : "tree1",
       "name"        : "Neuron tree",

@@ -16,7 +16,7 @@
       "id": "soma"
     }
   ],
-  "trees": [
+  "chains": [
     {
       "id": "t1",
       "source": "n1",

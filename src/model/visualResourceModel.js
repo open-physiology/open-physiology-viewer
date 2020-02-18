@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import { getNewID, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE } from "./utils";
+import { getNewID, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE, getGenID, $Field, $Prefix} from "./utils";
 import { merge, pick } from "lodash-bound";
 
 /**
@@ -47,7 +47,7 @@ export class Node extends VisualResource {
     static clone(sourceNode, targetNode){
         if (!sourceNode || !targetNode) { return; }
         targetNode.cloneOf = sourceNode.id;
-        targetNode::merge(sourceNode::pick(["color", "skipLabel", "generated"]));
+        targetNode::merge(sourceNode::pick([$Field.color, $Field.skipLabel, $Field.generated]));
     }
 
     /**
@@ -82,15 +82,15 @@ export class Link extends VisualResource {
 
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         json.id = json.id || getNewID(entitiesByID);
-        json.source = json.source || `s_${json.id}`;
-        json.target = json.target || `t_${json.id}`;
+        json.source = json.source || getGenID($Prefix.source, json.id);
+        json.target = json.target || getGenID($Prefix.target, json.id);
         return super.fromJSON(json, modelClasses, entitiesByID);
     }
 
     static clone(sourceLink, targetLink){
         if (!sourceLink || !targetLink) { return; }
         targetLink.cloneOf = sourceLink.id;
-        targetLink::merge(sourceLink::pick(["conveyingType", "conveyingMaterials", "color", "generated"]));
+        targetLink::merge(sourceLink::pick([$Field.conveyingType, $Field.conveyingMaterials, $Field.color, $Field.generated]));
     }
 
     get isVisible(){

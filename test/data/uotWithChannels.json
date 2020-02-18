@@ -1213,7 +1213,7 @@
       ]
     }
   ],
-  "trees": [
+  "chains":[
     {
       "id": "uot",
       "name": "Urinary Tract",
@@ -1244,7 +1244,12 @@
         "lnk19",
         "lnk20",
         "lnk21"
-      ],
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "chain": "uot",
       "branchingFactors": [
         1,
         1,

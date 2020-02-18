@@ -3,7 +3,7 @@
   "id"  : "basalGanglia",
   "name": "Basal Ganglia",
   "description": "Basal Ganglia as in basalGanglia.json but without explicitly declared nodes - generated from the tree template node ID's are used to position lyphs on borders",
-  "trees": [
+  "chains": [
     {
       "id"          : "dendrite",
       "name"        : "Dendrite omega tree",

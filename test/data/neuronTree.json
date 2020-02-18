@@ -3,7 +3,7 @@
   "name": "Neuron",
   "description": "Demo model of an omega tree",
   "author": "Natallia Kokash",
-  "trees": [
+  "chains": [
     {
       "id"          : "tree1",
       "name"        : "Neuron tree",

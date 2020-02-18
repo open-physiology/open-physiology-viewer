@@ -6,8 +6,6 @@ import {getGenID, addColor, $Class, $Field, $Color, $Prefix, findResourceByID} f
 import {logger} from './logger';
 import {Villus} from "./groupTemplateModel";
 
-const groupClsNames = ["Graph", "Group"];
-
 /**
  *  Group (subgraph) model
  * @class
@@ -180,13 +178,13 @@ export class Group extends Resource {
     static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
         let relClassNames = modelClasses[this.name].Model.relClassNames;
-        [$Field.channels, $Field.chains].forEach(relName => {
+        [$Field.channels, $Field.chains, $Field.trees].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)
             }
             (json[relName]||[]).forEach((field, i) => {
-                    field.id = field.id || `${json.id}_${relName}_${i}`;
+                    field.id = field.id || getGenID(json.id, relName, i);
                     modelClasses[clsName].expandTemplate(json, field);
                 }
             );
@@ -205,14 +203,8 @@ export class Group extends Resource {
 
         [$Field.trees, $Field.channels].forEach(relName => {
             let clsName = relClassNames[relName];
-            if (!clsName){
-                logger.error(`Could not find class definition for the field ${relName}`)
-            }
-            (json[relName]||[]).forEach((field) => {
-                if (!field.group) { return; }
-                    modelClasses[clsName].createInstances(json, field);
-                }
-            );
+            if (!clsName){ logger.error(`Could not find class definition for the field ${relName}`); }
+            (json[relName]||[]).forEach(field => modelClasses[clsName].createInstances(json, field));
         })
     }
 

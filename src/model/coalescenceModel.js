@@ -1,7 +1,7 @@
 import { Resource } from './resourceModel';
 import {logger} from "./logger";
 import { keys, values, uniqBy} from 'lodash-bound';
-import {$Field, $Class, COALESCENCE_TOPOLOGY, getGenID} from "./utils";
+import {$Field, $Class, $Prefix, COALESCENCE_TOPOLOGY, getGenID} from "./utils";
 
 /**
  * Coalescence model
