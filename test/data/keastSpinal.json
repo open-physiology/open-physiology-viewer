@@ -473,14 +473,14 @@
     {
       "id"     : "c1",
       "lyphs"  : ["KC1", "KC2", "KC3", "KC4", "KC5", "KC6", "KC7", "KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"],
-      "source" : "s_c1",
-      "target" : "t_c1",
+      "root"   : "s_c1",
+      "leaf"   : "t_c1",
       "length" : 100
     },
     {
       "id"           : "t1",
-      "source"       : "n1",
-      "target"       : "n2",
+      "root"         : "n1",
+      "leaf"         : "n2",
       "lyphTemplate" : "229",
       "housingChain" : "c1",
       "housingRange" : {"min": 0, "max": 7},
@@ -488,7 +488,7 @@
     },
     {
       "id"           : "t2",
-      "source"       : "n2",
+      "root"         : "n2",
       "lyphTemplate" : "229",
       "housingLyphs" : ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8", "KT9", "KT10"]
     }

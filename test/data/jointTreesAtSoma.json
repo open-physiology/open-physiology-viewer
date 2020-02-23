@@ -19,12 +19,12 @@
   "chains": [
     {
       "id": "t1",
-      "source": "n1",
+      "root": "n1",
       "numLevels": 5
     },
     {
       "id": "t2",
-      "source": "n2",
+      "root": "n2",
       "numLevels": 5
     }
   ]

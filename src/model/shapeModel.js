@@ -112,7 +112,8 @@ export class Lyph extends Shape {
      * @returns {Lyph} the target lyph
      */
     static clone(lyphs, sourceLyph, targetLyph){
-        if (!sourceLyph || !targetLyph) { return; }
+        if (!sourceLyph) { return; }
+        targetLyph = targetLyph || {};
         if (!lyphs) {lyphs = [];}
 
         if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
@@ -124,7 +125,9 @@ export class Lyph extends Shape {
         }
 
         targetLyph::merge(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.external, $Field.description, $Field.materials, $Field.create3d, $Field.channels, $Field.bundlesChains]));
+            $Field.thickness, $Field.description, $Field.create3d, $Field.external, $Field.materials, $Field.channels, $Field.bundlesChains]));
+
+        //TODO revise cloning of multi-fields to merge with values in the targetLyph if they are defined
 
         if (sourceLyph.isTemplate){
             targetLyph.supertype = sourceLyph.id;
@@ -144,12 +147,11 @@ export class Lyph extends Shape {
         }
 
         if (!targetLyph.name) {
-            targetLyph.name = sourceLyph.name + (sourceLyph.name && sourceLyph.name.endsWith("clone)")? "": " (clone)");
+            targetLyph.name = getGenName(sourceLyph.name, (sourceLyph.name||"").endsWith("clone")? "": "clone");
         }
 
         if ((targetLyph.layers||[]).length > 0) {
-            logger.warn("Subtype lyph already has layers and will not inherit them from the supertype template", targetLyph);
-            return;
+            logger.warn("Subtype lyph already has layers, conflicts with generated layer definitions possible", targetLyph);
         }
 
         (sourceLyph.layers || []).forEach((layerRef, i) => {
@@ -158,11 +160,16 @@ export class Lyph extends Shape {
                 logger.warn("Generation error: template layer object not found: ", layerRef);
                 return;
             }
-            let targetLayer = {
+
+            let targetLayer = {};
+            if ((targetLyph.layers||[]).length > i){
+                targetLayer = targetLyph.layers[i];
+            }
+            targetLayer = targetLayer::merge({
                 [$Field.id]        : getGenID(sourceLayer.id, targetLyph.id, i+1),
                 [$Field.name]      : getGenName(sourceLayer.name || '?', "in", targetLyph.name || '?', "layer", i+1),
                 [$Field.generated] : true
-            };
+            });
             lyphs.push(targetLayer);
             this.clone(lyphs, sourceLayer, targetLayer);
 

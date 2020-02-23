@@ -45,9 +45,14 @@ export class VisualResource extends Resource{
 export class Node extends VisualResource {
 
     static clone(sourceNode, targetNode){
-        if (!sourceNode || !targetNode) { return; }
+        if (!sourceNode) { return; }
+        targetNode = targetNode || {};
         targetNode.cloneOf = sourceNode.id;
+        targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone);
         targetNode::merge(sourceNode::pick([$Field.color, $Field.skipLabel, $Field.generated]));
+        if (!sourceNode.clones){ sourceNode.clones = []; }
+        sourceNode.clones.push(targetNode.id);
+        return targetNode;
     }
 
     /**
@@ -91,6 +96,19 @@ export class Link extends VisualResource {
         if (!sourceLink || !targetLink) { return; }
         targetLink.cloneOf = sourceLink.id;
         targetLink::merge(sourceLink::pick([$Field.conveyingType, $Field.conveyingMaterials, $Field.color, $Field.generated]));
+    }
+
+    static createCollapsibleLink(sourceID, targetID){
+        return {
+            [$Field.id]         : getGenID($Prefix.link, sourceID, targetID),
+            [$Field.source]     : sourceID,
+            [$Field.target]     : targetID,
+            [$Field.stroke]     : LINK_STROKE.DASHED,
+            [$Field.length]     : 1,
+            [$Field.strength]   : 1,
+            [$Field.collapsible]: true,
+            [$Field.generated]  : true
+        };
     }
 
     get isVisible(){

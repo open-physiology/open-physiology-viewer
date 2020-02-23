@@ -1,0 +1,258 @@
+{
+    "nodes": [
+        {
+            "id": "n1",
+            "layout": {
+                "x": -100
+            }
+        },
+        {
+            "id": "n2",
+            "layout": {
+                "x": 100
+            }
+        }
+    ],
+    "lyphs": [
+        {
+            "id": "K_129",
+            "name": "Segment of Spinal Cord",
+            "external": [
+                "UBERON_0005844"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "K_86",
+                "KM_27",
+                "K_85",
+                "K_84",
+                "K_83",
+                "K_82",
+                "K_81",
+                "K_80",
+                "K_79",
+                "K_78",
+                "K_77",
+                "KM_27"
+            ]
+        },
+        {
+            "id": "c1",
+            "name": "C1",
+            "supertype": "K_129"
+        },
+        {
+            "id": "t1",
+            "name": "T1",
+            "supertype": "K_129"
+        },
+        {
+            "id": "l1",
+            "name": "L1",
+            "supertype": "K_129"
+        },
+        {
+            "id": "s1",
+            "name": "S1",
+            "supertype": "K_129"
+        }
+    ],
+    "materials": [
+        {
+            "id": "KM_1",
+            "name": "Urine",
+            "external": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "KM_2KM_3",
+                "KM_4",
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_2",
+            "name": "Water"
+        },
+        {
+            "id": "KM_3",
+            "name": "Urea"
+        },
+        {
+            "id": "KM_4",
+            "name": "Uric Acid"
+        },
+        {
+            "id": "KM_5",
+            "name": "Extracellular fluid"
+        },
+        {
+            "id": "KM_6",
+            "name": "Endothelium",
+            "external": [
+                "UBERON:0001986"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_7",
+            "name": "Blood",
+            "external": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_8",
+            "name": "Aqueous solution",
+            "materials": [
+                "KM_12",
+                "KM_13",
+                "KM_14",
+                "KM_15",
+                "KM_16",
+                "KM_17",
+                "KM_18",
+                "KM_19",
+                "KM_20",
+                "KM_21"
+            ]
+        },
+        {
+            "id": "KM_9",
+            "name": "Cerebrospinal fluid",
+            "external": [
+                "UBERON:0001359"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_10",
+            "name": "Smooth muscle ",
+            "external": [
+                "UBERON:0001135"
+            ]
+        },
+        {
+            "id": "KM_11",
+            "name": "Connective Tissue",
+            "external": [
+                "UBERON:0002384"
+            ]
+        },
+        {
+            "id": "KM_12",
+            "name": "Water"
+        },
+        {
+            "id": "KM_13",
+            "name": "Sodium ion"
+        },
+        {
+            "id": "KM_14",
+            "name": "Potassium ion"
+        },
+        {
+            "id": "KM_15",
+            "name": "Calcium ion"
+        },
+        {
+            "id": "KM_16",
+            "name": "Chloride ion"
+        },
+        {
+            "id": "KM_17",
+            "name": "Hydrogen ion"
+        },
+        {
+            "id": "KM_18",
+            "name": "Hydroxide ion"
+        },
+        {
+            "id": "KM_19",
+            "name": "Bicarbonate ion "
+        },
+        {
+            "id": "KM_20",
+            "name": "Liquid"
+        },
+        {
+            "id": "KM_21",
+            "name": "Fluid"
+        },
+        {
+            "id": "KM_22",
+            "name": "Peripheral nervous system tissue",
+            "external": [
+                "UBERON:0000010"
+            ],
+            "materials": [
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_23",
+            "name": "Ependyma",
+            "external": [
+                "UBERON:0004670"
+            ]
+        },
+        {
+            "id": "KM_24",
+            "name": "Pia mater",
+            "external": [
+                "UBERON:0002361"
+            ]
+        },
+        {
+            "id": "KM_25",
+            "name": "Central nervous system tissue",
+            "external": [
+                "UBERON:0001017"
+            ],
+            "materials": [
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_26",
+            "name": "Wall of vessel",
+            "external": [
+                "UBERON:0035965"
+            ],
+            "materials": [
+                "KM_11"
+            ]
+        },
+        {
+            "id": "KM_27",
+            "name": "White matter of CNS"
+        },
+        {
+            "id": "KM_28",
+            "name": "Gray matter of CNS"
+        }
+    ],
+    "chains": [
+        {
+            "id": "ch1",
+            "lyphs": [
+                "c1",
+                "t1",
+                "l1",
+                "s1"
+            ],
+            "root": "n1",
+            "leaf": "n2",
+            "length": 100
+        }
+    ]
+}

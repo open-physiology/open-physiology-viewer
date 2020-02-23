@@ -473,11 +473,32 @@
           },
           "relatedTo": "target",
           "advanced": true
+        },
+        "rootOf"         : {
+          "description": "The chain that starts in this node",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "root"
+        },
+        "leafOf"         : {
+          "description": "The chain that ends in this node",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "leaf"
         }
       }
-    },
-    "Connector": {
-
     },
     "Link"    : {
       "description": "Graph link schematically representing a (part of) physiological process. ",
@@ -749,6 +770,14 @@
           "default": 1,
           "advanced": true
         },
+        "internalLyphsInLayers"  : {
+          "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
         "internalLyphs": {
           "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
           "type": "array",
@@ -763,6 +792,14 @@
             ]
           },
           "relatedTo": "internalIn"
+        },
+        "internalNodesInLayers"  : {
+          "description": "Indices of layers to position internal nodes. The field should be used when layers are generated and not known in advance",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 1
+          }
         },
         "internalNodes": {
           "description": "Nodes that should be positioned on the given region",
@@ -1281,8 +1318,8 @@
         "$ref": "#/definitions/GroupTemplate"
       }],
       "properties": {
-        "source"         : {
-          "description": "The source node of the chain",
+        "root"         : {
+          "description": "The source node of the chain (tree root)",
           "anyOf": [
             {
               "type": "string"
@@ -1290,9 +1327,10 @@
             {
               "$ref": "#/definitions/Node"
             }
-          ]
+          ],
+          "relatedTo": "rootOf"
         },
-        "target"         : {
+        "leaf"  : {
           "description": "The target node of the chain",
           "anyOf": [
             {
@@ -1301,9 +1339,10 @@
             {
               "$ref": "#/definitions/Node"
             }
-          ]
+          ],
+          "relatedTo": "leafOf"
         },
-        "lyphs"          : {
+        "lyphs" : {
           "description": "Ordered set of lyphs to form a chain",
           "type": "array",
           "items": {
@@ -1391,7 +1430,7 @@
           "advanced": true
         },
         "housingLayers"  : {
-          "description": "Indices of the layers in housing lyphs to embed the tree levels",
+          "description": "Indices of the layers in housing lyphs to embed the chain levels. The field should be used when the housing lyph layers are generated and not known in advance.",
           "type": "array",
           "items": {
             "type": "number",

@@ -11,7 +11,7 @@ import {
     addBorderNode,
     $Field,
     $Color,
-    $Prefix
+    $Prefix, $Class
 } from "./utils";
 import {logger} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
@@ -79,7 +79,7 @@ export class Chain extends GroupTemplate {
         if ( !(chain.numLevels || isDefined(chain.levels) || isDefined(chain.lyphs) ||
             isDefined(chain.housingLyphs) || chain.housingChain)) {
             logger.warn(`Skipped chain template - it must have "numLevels" set to a positive number, provide a non-empty 
-                "${$Field.lyphs}", "${$Field.levels}", or "${$Field.housingLyphs}" array, or a "${$Field.housingChain}" reference`);
+                "${$Field.lyphs}", "${$Field.levels}", or "${$Field.housingLyphs}" array, or a "${$Field.housingChain}" reference`, chain);
             return;
         }
 
@@ -146,10 +146,10 @@ export class Chain extends GroupTemplate {
                 logger.warn("Incorrectly defined chain pattern - innermost layers do not convey the same material!", chain.lyphs);
             }
 
-            let [start, end] = [$Field.source, $Field.target].map(prop => findResourceByID(parentGroup.nodes, chain[prop]));
+            let [start, end] = [$Field.root, $Field.leaf].map(prop => findResourceByID(parentGroup.nodes, chain[prop]));
 
             for (let i = 0; i < lyphs.length + 1; i++) {
-                let nodeID = (i === 0 && chain.start)? chain.start: (i === lyphs.length && chain.end)? chain.end : getGenID(chain.id, $Prefix.node, i);
+                let nodeID = (i === 0 && chain.start)? chain.start: (i === lyphs.length && chain.leaf)? chain.leaf: getGenID(chain.id, $Prefix.node, i);
                 let node = (i === 0 && start)
                     ? start
                     : (i === lyphs.length && end)
@@ -234,12 +234,12 @@ export class Chain extends GroupTemplate {
             }
             let N = chain.numLevels;
 
-            if (chain.target){
-                chain.levels[N - 1].target = chain.target;
+            if (chain.leaf){
+                chain.levels[N - 1].target = chain.leaf;
             }
 
             let sources = [...chain.levels.map(l => l? l.source: null), null];
-            let targets = [chain.source,...chain.levels.map(l => l? l.target: null)];
+            let targets = [chain.root,...chain.levels.map(l => l? l.target: null)];
 
             for (let i = 0; i < sources.length; i++){
                 if (sources[i] && targets[i] && !match(sources[i], targets[i])){
@@ -254,9 +254,9 @@ export class Chain extends GroupTemplate {
                 sources[i] = sources[i] || targets[i] || newNode;
                 mergeGenResource(chain.group, parentGroup, sources[i], "nodes");
             }
-            targets[targets.length - 1] = targets[targets.length - 1] || chain.target;
+            targets[targets.length - 1] = targets[targets.length - 1] || chain.leaf;
 
-            chain.source = getID(sources[0]);
+            chain.root = getID(sources[0]);
             let template = getTemplate();
 
             //Create levels
@@ -359,10 +359,11 @@ export class Chain extends GroupTemplate {
 
             if (!hostLyph.isTemplate) {
                 hostLyph.bundles  = hostLyph.bundles ||[];
-                hostLyph.bundles.push(level);
+                hostLyph.bundles.push(level.id);
 
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
+
                 if (i === 0){
                     addInternalNode(hostLyph, level.source);
                     //addBorderNode(hostLyph.border.borders[1], level.source);
@@ -373,10 +374,13 @@ export class Chain extends GroupTemplate {
                     addInternalNode(hostLyph, level.target);
                     //addBorderNode(hostLyph.border.borders[3], level.target);
                 } else {
-                    addBorderNode(hostLyph.border.borders[1], level.target);
-                    //Add the ID of a node clone to the tree group, the clone and the collapsible link will be created in Group.replaceBorderNodes
-                    //Important: this may not work if the generated tree node IDs are placed on more borders
-                    chain.group.nodes.push(getGenID(level.target, $Prefix.clone, 1));
+                    let targetNode = findResourceByID(parentGroup.nodes, level.target);
+                    let targetClone = Node.clone(targetNode);
+                    addBorderNode(hostLyph.border.borders[1], targetClone.id);
+                    let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
+                    level.target = targetClone.id;
+                    chain.group.nodes.push(targetClone);
+                    chain.group.links.push(lnk);
                 }
             } else {
                 logger.warn("Housing lyph or its layer is a template", hostLyph);
@@ -404,31 +408,19 @@ export class Chain extends GroupTemplate {
 export class Tree extends GroupTemplate {
 
     /**
-     * Generate a group from tree template
-     * @param parentGroup - model resources that may be referred from the template
-     * @param tree - tree template in JSON
-     */
-    static expandTemplate(parentGroup, tree){
-        if (!tree.chain){
-            logger.warn("Incorrect tree template: canonical chain must be specified");
-            return;
-        }
-        let chain = findResourceByID(parentGroup.chains, tree.chain);
-        if (!chain){
-            logger.warn("Incorrect tree template: canonical chain not found");
-            return;
-        }
-        tree.chain = chain;
-    }
-
-    /**
      * Generate instances of a given omega tree
      * @param parentGroup - model resources that may be referred from the template
      * @param tree - omega tree object
      */
     static createInstances(parentGroup, tree){
-        if (!tree || !tree.chain || !tree.chain.group || !tree.chain.levels){
+        if (!tree || !tree.chain){
             logger.warn("Cannot create omega tree instances: canonical tree chain undefined!");
+            return;
+        }
+
+        let chain = findResourceByID(parentGroup.chains, tree.chain);
+        if (!chain || !chain.group || !chain.levels){
+            logger.warn("Cannot create omega tree instances: canonical tree chain not found or empty");
             return;
         }
 
@@ -445,7 +437,7 @@ export class Tree extends GroupTemplate {
          * @returns Group
          */
         function createInstance(instanceIndex){
-            tree.id = tree.id || getGenID(tree.chain.id, $Prefix.tree);
+            tree.id = tree.id || getGenID(chain.id, $Prefix.tree);
 
             let instance = {
                 [$Field.id]        : getGenID(tree.id, instanceIndex),
@@ -455,10 +447,10 @@ export class Tree extends GroupTemplate {
                 instance[prop] = instance[prop] || [];
             });
 
-            let root  = findResourceByID(parentGroup.nodes, tree.chain.source);
+            let root  = findResourceByID(parentGroup.nodes, chain.root);
             mergeGenResource(instance, parentGroup, root, $Field.nodes);
 
-            let levels = tree.chain.levels || [];
+            let levels = chain.levels || [];
 
             let levelResources = {};
 
