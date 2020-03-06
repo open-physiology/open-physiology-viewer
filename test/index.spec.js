@@ -29,6 +29,7 @@ describe("JSON Schema read correctly", () => {
         expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("ARC"); //TODO new link type, add tests to check that it is drawn
     });
 
+
     it("Link stroke types are loaded", () => {
         expect(modelClasses.Link.LINK_STROKE).to.have.property("DASHED");
         expect(modelClasses.Link.LINK_STROKE).to.have.property("THICK");

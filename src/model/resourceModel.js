@@ -14,7 +14,7 @@ import {
 } from 'lodash-bound';
 
 import JSONPath from 'JSONPath';
-import {getClassName, schemaClassModels, isClassAbstract, getNewID, $Field} from "./utils";
+import {getClassName, schemaClassModels, isClassAbstract, getNewID, $Field, $SchemaType} from "./utils";
 import {logger} from './logger';
 /**
  * JSON Path validator
@@ -152,7 +152,7 @@ export class Resource{
                 res[key] = res[key].map(value => createObj(res, key, value, spec));
             } else {
                 res[key] = createObj(res, key, res[key], spec);
-                if (spec.type === "array"){//The spec expects multiple values, replace an object with an array of objects
+                if (spec.type === $SchemaType.ARRAY){ //The spec expects multiple values, replace an object with an array of objects
                     res[key] = [res[key]];
                 }
             }
@@ -321,7 +321,7 @@ export class Resource{
 
             const syncProperty = (obj) => {
                 if (!obj || !obj::isObject()) { return; }
-                if (otherSpec.type === "array") {
+                if (otherSpec.type === $SchemaType.ARRAY) {
                     if (!obj[key2]) { obj[key2] = []; }
                     if (!(obj[key2]::isArray())) {
                         logger.warn(`Object's property '${key2}' should contain an array:`, obj);

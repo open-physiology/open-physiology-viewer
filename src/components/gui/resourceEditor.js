@@ -23,7 +23,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {getClassName} from '../../model/index';
 import {annotations} from "./config";
 import {FieldTableEditorModule} from "./fieldTableEditor";
-import {$Field, $Class, getNewID, getGenID} from "../../model/utils";
+import {$Field, $SchemaClass, $SchemaType, getNewID, getGenID} from "../../model/utils";
 
 @Component({
     selector: 'resourceEditor',
@@ -184,7 +184,7 @@ export class ResourceEditor {
             : { [$Field.id]: getNewID(),
                 [$Field.class]: className
             };
-        if (spec.type === "array") {
+        if (spec.type === $SchemaType.ARRAY) {
             if (!this.resource[key]){ this.resource[key] = []; }
             this.resource[key].push(newResource);
             this.resource[key] = [...this.resource[key]];
@@ -209,7 +209,7 @@ export class ResourceEditor {
                     [$Field.name]  : e[config.mapping.name]::isArray()? e[config.mapping.name][0]: e[config.mapping.name],
                     [$Field.uri]   : e[config.mapping.uri],
                     [$Field.type]  : config.type,
-                    [$Field.class] : $Class.External
+                    [$Field.class] : $SchemaClass.External
                     }));
                 newResources.forEach(resource => {
                     if (!this.modelResources[resource.id]) {

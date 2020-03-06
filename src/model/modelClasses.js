@@ -5,31 +5,31 @@ import { Resource, External } from './resourceModel'
 import { VisualResource, Material, Node, Link } from './visualResourceModel'
 import { Shape, Lyph, Region, Border } from './shapeModel'
 import { Coalescence } from './coalescenceModel';
-import {$Class} from './utils';
+import {$SchemaClass} from './utils';
 
 export const modelClasses = {
     /*Abstract */
-    [$Class.Resource]       : Resource,
-    [$Class.VisualResource] : VisualResource,
-    [$Class.GroupTemplate]  : GroupTemplate,
-    [$Class.Shape]          : Shape,
+    [$SchemaClass.Resource]       : Resource,
+    [$SchemaClass.VisualResource] : VisualResource,
+    [$SchemaClass.GroupTemplate]  : GroupTemplate,
+    [$SchemaClass.Shape]          : Shape,
 
     /*Resources */
-    [$Class.External]     : External,
-    [$Class.Coalescence]  : Coalescence,
-    [$Class.Channel]      : Channel,
-    [$Class.Chain]        : Chain,
-    [$Class.Tree]         : Tree,
-    [$Class.Villus]       : Villus,
-    [$Class.Group]        : Group,
-    [$Class.Graph]        : Graph,
+    [$SchemaClass.External]     : External,
+    [$SchemaClass.Coalescence]  : Coalescence,
+    [$SchemaClass.Channel]      : Channel,
+    [$SchemaClass.Chain]        : Chain,
+    [$SchemaClass.Tree]         : Tree,
+    [$SchemaClass.Villus]       : Villus,
+    [$SchemaClass.Group]        : Group,
+    [$SchemaClass.Graph]        : Graph,
 
     /*Visual resources */
-    [$Class.Node]         : Node,
-    [$Class.Link]         : Link,
+    [$SchemaClass.Node]         : Node,
+    [$SchemaClass.Link]         : Link,
     /* Shapes */
-    [$Class.Material]     : Material,
-    [$Class.Region]       : Region,
-    [$Class.Lyph]         : Lyph,
-    [$Class.Border]       : Border
+    [$SchemaClass.Material]     : Material,
+    [$SchemaClass.Region]       : Region,
+    [$SchemaClass.Lyph]         : Lyph,
+    [$SchemaClass.Border]       : Border
 };

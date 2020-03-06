@@ -248,8 +248,8 @@ export class FieldEditor {
      * @returns {string} string that describes the schema field type: 'input', 'select', 'array', 'object', or 'other'
      */
     getFieldType(clsName, spec){
-        if (!spec) {
-            return this.FIELD_TYPES.INPUT;
+        if (!spec || !spec.type) {
+            return this.FIELD_TYPES.INPUT; //TODO make sure ID pattern applies
         }
 
         if (spec.type === this.SCHEMA_TYPES.STRING && spec.format === this.SCHEMA_TYPES.DATE){

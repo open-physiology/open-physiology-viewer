@@ -14,7 +14,7 @@ import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import {$Class, modelClasses, schema} from '../model/index';
+import {$SchemaClass, modelClasses, schema} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';

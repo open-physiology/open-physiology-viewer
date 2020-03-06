@@ -1,6 +1,6 @@
 import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
-import {getGenID, addColor, $Class, $Field, $Color, $Prefix, findResourceByID} from './utils';
+import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
 import {logger} from './logger';
 import {Link, Node} from './visualResourceModel';
 import {Lyph} from "./shapeModel";
@@ -159,7 +159,7 @@ export class Group extends Resource {
             if (!resources::isArray()) { return; }
             let classNames = modelClasses[this.name].Model.relClassNames;
             if (classNames[relName]) {
-                let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames($Class.Lyph);
+                let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames($SchemaClass.Lyph);
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
@@ -329,7 +329,7 @@ export class Group extends Resource {
                 logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames([$Class.Group, $Class.GroupTemplate]);
+            let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate]);
             relFieldNames.forEach(property => {
                 if (group[property]::isArray()){
                     this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
@@ -387,7 +387,7 @@ export class Group extends Resource {
      */
     get resources(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames([$Class.Group]);
+        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group]);
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
         return res.filter(e => !!e && e::isObject());
     }

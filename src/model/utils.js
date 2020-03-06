@@ -15,15 +15,22 @@ import {logger} from './logger';
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
-export const $Class = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
-export const $Field = $Class::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
+export const $SchemaType = {
+    ARRAY  : "array",
+    OBJECT : "object",
+    STRING : "string",
+    NUMBER : "number",
+    BOOLEAN: "boolean"
+};
+export const $SchemaClass = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
+export const $Field = $SchemaClass::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
-export const LINK_GEOMETRY = definitions[$Class.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LINK_STROKE   = definitions[$Class.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const PROCESS_TYPE  = definitions[$Class.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LINK_GEOMETRY = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LINK_STROKE   = definitions[$SchemaClass.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const PROCESS_TYPE  = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
-export const LYPH_TOPOLOGY  = definitions[$Class.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const COALESCENCE_TOPOLOGY = definitions[$Class.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LYPH_TOPOLOGY  = definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const COALESCENCE_TOPOLOGY = definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const $Color = {
     Link   : "#000",
@@ -80,7 +87,7 @@ export const getClassName = (spec) => {
     if (spec::isString()) {
         ref = spec;
     } else {
-        let refs = getRefs(spec);
+        let refs = getClassRefs(spec);
         ref = refs && refs[0];
     }
     if (ref){
@@ -89,6 +96,9 @@ export const getClassName = (spec) => {
         return clsName;
     }
 };
+
+export const getSchemaClass = (spec) => definitions[getClassName(spec)];
+
 /**
  * Places a given node on a given border
  * @param border
@@ -112,13 +122,13 @@ export const findResourceByID = (eArray, e) => e::isPlainObject()? e: (eArray||[
  * @param spec - schema definition
  * @returns {*} - list of references
  */
-export const getRefs = (spec) => {
+const getClassRefs = (spec) => {
     if (!spec){ return null; }
     if (spec.$ref) { return [spec.$ref]; }
-    if (spec.items) { return getRefs(spec.items); }
+    if (spec.items) { return getClassRefs(spec.items); }
     let expr = spec.oneOf || spec.anyOf || spec.allOf;
     if (expr){
-        return expr.filter(e => e.$ref).map(e => e.$ref);
+        return expr.filter(e => e.$ref && !e.$ref.endsWith("Scheme")).map(e => e.$ref);
     }
 };
 
@@ -162,14 +172,14 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
  */
 export const mergeGenResources = (group, parentGroup, level) => {
     let [lnk, trg, lyph] = level;
-    mergeGenResource(group, parentGroup, lnk, "links");
-    mergeGenResource(group, parentGroup, trg, "nodes");
-    mergeGenResource(group, parentGroup, lyph, "lyphs");
+    mergeGenResource(group, parentGroup, lnk, $Field.links);
+    mergeGenResource(group, parentGroup, trg, $Field.nodes);
+    mergeGenResource(group, parentGroup, lyph, $Field.lyphs);
 };
 
 
 /**
- * Determines if given schema references extend a certain class
+ * Determines if at least one of the given schema references extend a certain class
  * @param {Array<string>} refs  - schema references
  * @param {string} value        - class name
  * @returns {boolean}           - returns true if at least one reference extends the given class
@@ -184,7 +194,7 @@ const extendsClass = (refs, value) => {
                 res = true;
             } else {
                 let def = definitions[clsName];
-                res = res || def && extendsClass(getRefs(def), value);
+                res = res || def && extendsClass(getClassRefs(def), value);
             }
         }
     });
@@ -197,7 +207,7 @@ const extendsClass = (refs, value) => {
  */
 const getFieldDefaultValues = (className) => {
     const getDefault = (specObj) => specObj.type ?
-        specObj.type === "string" ? "" : specObj.type === "boolean" ? false : specObj.type === "number" ? 0 : null
+        specObj.type === $SchemaType.STRING ? "" : specObj.type === $SchemaType.BOOLEAN ? false : specObj.type === $SchemaType.NUMBER ? 0 : null
         : null;
     const initValue = (specObj) => {
         return specObj.default?
@@ -222,7 +232,7 @@ const recurseSchema = (className, handler) => {
     while (stack[i]){
         let clsName = stack[i];
         if (definitions[clsName]){
-            let refs = getRefs(definitions[clsName]);
+            let refs = getClassRefs(definitions[clsName]);
             (refs||[]).forEach(ref => {
                 stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
             })
@@ -257,7 +267,7 @@ export class SchemaClass {
             recurseSchema(this.schemaClsName, (currName) => res2::merge(definitions[currName].properties));
             this.fields = res2::entries();
 
-            this.relationships = this.fields.filter(([key, spec]) => extendsClass(getRefs(spec), "Resource"));
+            this.relationships = this.fields.filter(([key, spec]) => extendsClass(getClassRefs(spec), $SchemaClass.Resource));
             this.properties = this.fields.filter(([key,]) => !this.relationships.find(([key2,]) => key2 === key));
             this.fieldMap = this.fields::fromPairs();
             this.propertyMap = this.properties::fromPairs();
@@ -274,12 +284,12 @@ export class SchemaClass {
     }
 
     /**
-     * Check whther the resource extends a given class
+     * Check whether the resource extends a given class
      * @param clsName - class name
      * @returns {boolean}
      */
     extendsClass(clsName) {
-        return (clsName === this.schemaClsName) || extendsClass(getRefs(this.schema), clsName);
+        return (clsName === this.schemaClsName) || extendsClass(getClassRefs(this.schema), clsName);
     }
 
     /**

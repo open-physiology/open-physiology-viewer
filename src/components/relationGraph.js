@@ -10,7 +10,7 @@ import FileSaver from "file-saver";
 import {ResourceInfoModule} from "./gui/resourceInfo";
 import {MatSliderModule} from "@angular/material";
 import {SearchBarModule} from "./gui/searchBar";
-import {$Field, $Class} from "../model/utils";
+import {$Field, $SchemaClass} from "../model/utils";
 
 @Component({
     selector: 'relGraph',
@@ -180,8 +180,8 @@ export class RelGraph {
 
             this.data.nodes.filter(e => e::isObject()).forEach(e => {
                 e.relClass = e.class;
-                if (e.class === $Class.Lyph && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
-                if (e.class === $Class.Coalescence && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }
+                if (e.class === $SchemaClass.Lyph && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
+                if (e.class === $SchemaClass.Coalescence && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }
             });
 
             const getNode = (d) => this.data.nodes.find(e => d && (e === d || e.id === d.id));

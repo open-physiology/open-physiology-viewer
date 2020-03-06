@@ -9,8 +9,9 @@ import {
 import {FieldEditorDialog} from './fieldEditorDialog';
 import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {isArray, isObject, entries} from "lodash-bound";
-import {getClassName, $Class} from '../../model/index';
+import {getClassName, $SchemaClass} from '../../model/index';
 import {printFieldValue, parseFieldValue} from "./utils";
+import {$SchemaType} from "../../model/utils";
 
 @Component({
     selector: 'fieldTableEditor',
@@ -87,8 +88,7 @@ export class FieldTableEditor {
     _resourceModel;
     @Input('resourceModel') set resourceModel(newModel) {
         this._resourceModel = newModel;
-        this._showExternal = this._resourceModel.schemaClsName === $Class.External;
-        //this._showGroup = this._resourceModel.schemaClsName === $Class.Group;
+        this._showExternal = this._resourceModel.schemaClsName === $SchemaClass.External;
         this.fieldNames = this._resourceModel.cudFields.filter(([key, spec]) => !spec.advanced).map(([key,]) => key);
         this.displayedColumns = [...this.fieldNames, 'actions'];
     }
@@ -144,7 +144,7 @@ export class FieldTableEditor {
         if (fieldSpec){
             let classNames = [getClassName(fieldSpec)];
             if (fieldName === "layers"){
-                classNames.push($Class.Material);
+                classNames.push($SchemaClass.Material);
             }
             const dialogRef = this.dialog.open(ResourceSelectDialog, {
                 width: '50%',
@@ -153,7 +153,7 @@ export class FieldTableEditor {
                     modelResources : this.modelResources,
                     resource       : fieldValue,
                     classNames     : classNames,
-                    multiSelect    : fieldSpec.type === "array"
+                    multiSelect    : fieldSpec.type === $SchemaType.ARRAY
                 }
             });
 
@@ -164,7 +164,7 @@ export class FieldTableEditor {
                         if (res.length < 1){
                             delete this.resources[index][fieldName];
                         } else {
-                            if (fieldSpec.type === "array"){
+                            if (fieldSpec.type === $SchemaType.ARRAY){
                                 this.resources[index][fieldName] = res;
                             } else {
                                 this.resources[index][fieldName] = res[0];

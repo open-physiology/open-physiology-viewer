@@ -8,16 +8,16 @@ import {isArray, isObject} from 'lodash-bound';
         <section *ngFor="let property of resource?.infoFields || []">
             <section>
                 <label class="w3-label">{{property}}: </label>
-                <span *ngIf="_fieldMap[property] === 'text'">
+                <span *ngIf="_fieldMap[property] === FIELD_TYPES.TEXT">
                     {{resource[property] || "?"}}
                 </span>
 
-                <span *ngIf="_fieldMap[property] === 'object'">
+                <span *ngIf="_fieldMap[property] === FIELD_TYPES.OBJECT">
                     {{resource[property]?.id || "?"}} - {{resource[property]?.name || "?"}}
                     {{"(" + (resource[property]?.class || "?") + ")"}}
                 </span>
 
-                <section *ngIf="_fieldMap[property] === 'array'">
+                <section *ngIf="_fieldMap[property] === FIELD_TYPES.ARRAY">
                     <ul *ngFor="let item of resource[property]" class="w3-ul">
                         <li>{{item.id}} - {{item.name || "?"}}
                     </ul>
@@ -32,6 +32,12 @@ import {isArray, isObject} from 'lodash-bound';
 export class ResourceInfoPanel {
     _resource;
 
+    FIELD_TYPES = {
+        ARRAY  : "array",
+        OBJECT : "object",
+        TEXT   : "text"
+    };
+
     @Input('resource') set resource(newValue){
         this._resource = newValue;
         if (this.resource && this.resource.constructor) {
@@ -39,15 +45,15 @@ export class ResourceInfoPanel {
             (this._resource.infoFields||[]).forEach(key => {
                 if (this._resource[key]){
                     if (this._resource[key]::isArray()){
-                        this._fieldMap[key] = "array";
+                        this._fieldMap[key] = this.FIELD_TYPES.ARRAY;
                     } else {
                         if (this._resource[key]::isObject()){
-                            this._fieldMap[key] = "object";
+                            this._fieldMap[key] = this.FIELD_TYPES.OBJECT;
                         }
                     }
                 }
                 if (!this._fieldMap[key]){
-                    this._fieldMap[key] = "text";
+                    this._fieldMap[key] = this.FIELD_TYPES.STRING;
                 }
             })
         }

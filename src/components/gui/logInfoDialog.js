@@ -17,13 +17,6 @@ const LEVEL = {
     selector: 'logInfoDialog',
     template:`
         <div mat-dialog-content>
-            <!--<span *ngFor="let level of levels">-->
-            <!--<mat-checkbox matTooltip="Toggle message group" labelPosition="after" class="w3-margin-left"-->
-            <!--(change) = "toggleGroup(group)"-->
-            <!--[checked]= "showGroup(group)"> {{level}}-->
-            <!--</mat-checkbox>-->
-            <!--</span>-->
-
             <section *ngFor="let entry of data" class="w3-margin-bottom">
                 <section [class]="msgTextColor(entry.level)">
                     {{entry.msg}}

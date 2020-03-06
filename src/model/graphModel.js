@@ -17,7 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
-import {$Field, $Class, $Color, $Prefix, getGenID} from "./utils";
+import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getSchemaClass, $SchemaType} from "./utils";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -136,13 +136,35 @@ export class Graph extends Group{
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
-            let clsName = relName === "main"? $Class.Graph: graphSchema.relClassNames[relName];
+            let clsName = relName === "main"? $SchemaClass.Graph: graphSchema.relClassNames[relName];
             if (!modelClasses[clsName]) {
                 logger.warn("Class name not found:", relName);
                 return;
             }
             let fields = modelClasses[clsName].Model.fieldMap;
             let propNames = modelClasses[clsName].Model.propertyNames;
+
+
+            /**
+             * Get expected field type
+             * @param schema
+             * @returns {*|string}
+             */
+            function getItemType(schema){
+                let itemType = schema.type || $SchemaType.STRING;
+                if (schema.$ref) {
+                    let cls = getSchemaClass(schema.$ref);
+                    if (cls) {
+                        itemType = getItemType(cls);
+                    } else {
+                        itemType = $SchemaType.OBJECT;
+                    }
+                }
+                if (schema.type === $SchemaType.ARRAY || schema.items) {
+                    itemType = getItemType(schema.items);
+                }
+                return itemType;
+            }
 
             const convertValue = (key, value) => {
                 if (!fields[key]) {
@@ -152,26 +174,23 @@ export class Graph extends Group{
                 let res = value.toString();
                 if (res.length === 0) { return; } //skip empty properties
 
-                let itemType = fields[key].type;
-                if (fields[key].type === "array") {
-                    itemType = fields[key].items && fields[key].items.type;
-                }
-                if (fields[key].$ref) {
-                    itemType = "object";
+                let itemType = getItemType(fields[key]);
+                if (!itemType){
+                    logger.error("Failed to extract data type: ", relName, key, value);
                 }
 
-                if (!(itemType === "string" && propNames.includes(key))) {
+                if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
                     res = res.replace(/\s/g, '');
                 }
-                const strToValue = x => (itemType === "number") ? parseInt(x)
-                    : (itemType === "boolean") ? (x.toLowerCase() === "true")
-                        : (itemType === "object")? JSON.parse(x)
-                            : x;
+                const strToValue = x => (itemType === $SchemaType.NUMBER) ? parseInt(x)
+                            : (itemType === $SchemaType.BOOLEAN) ? (x.toLowerCase().trim() === "true")
+                            : (itemType === $SchemaType.OBJECT) ? JSON.parse(x)
+                                : x;
 
-                if (relName === "lyphs" && (key === "length" || key === "thickness")) {
+                if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
                     res = {min: parseInt(res), max: parseInt(res)};
                 } else {
-                    if (key === "assign") {
+                    if (key === $Field.assign) {
                         res = res.split(";").map(expr => {
                             let [path, value] = expr.split("=");
                             let [propName, propValue] = value.split(":").map(x => x.trim());
@@ -190,7 +209,7 @@ export class Graph extends Group{
                             return {"path": "$." + path, "value": value}
                         });
                     } else {
-                        if (fields[key].type === "array") {
+                        if (fields[key].type === $SchemaType.ARRAY) {
                             res = res.split(",").map(x => strToValue(x));
                         } else {
                             res = strToValue(res);

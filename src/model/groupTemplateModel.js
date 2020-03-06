@@ -11,7 +11,7 @@ import {
     addBorderNode,
     $Field,
     $Color,
-    $Prefix, $Class
+    $Prefix, $SchemaClass
 } from "./utils";
 import {logger} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
