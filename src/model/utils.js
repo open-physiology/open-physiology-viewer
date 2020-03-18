@@ -7,7 +7,7 @@ import {
     merge,
     keys,
     isPlainObject,
-    flatten
+    flatten, isArray, unionBy, mergeWith
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -65,6 +65,27 @@ export const getNewID = entitiesByID => "new-" +
 export const getGenID = (...args) => args.join("_");
 
 export const getGenName = (...args) => args.join(" ");
+
+export const getID  = (e) => e::isObject()? e.id : e;
+
+export const compareResources  = (e1, e2) => getID(e1) === getID(e2);
+
+export function mergeResources(a, b) {
+    if (a::isArray()){
+        if (b::isArray()) {
+            let ab = a.map(x => x::merge(b.find(y => y[$Field.id] === x[$Field.id])));
+            return ab::unionBy(b, $Field.id);
+        } else {
+            return a.push(b);
+        }
+    } else {
+        if (a::isObject()){
+            return b::isObject()? a::mergeWith(b, mergeResources): a;
+        } else {
+            return a;
+        }
+    }
+}
 
 /**
  * Add color to the visual resources in the list that do not have color assigned yet

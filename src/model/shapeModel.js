@@ -1,7 +1,16 @@
 import {Link, VisualResource} from './visualResourceModel';
-import {clone, merge, pick, isPlainObject} from 'lodash-bound';
+import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
 import {logger} from './logger';
-import {$Field, $Prefix, getGenID, getGenName, findResourceByID, getNewID, LYPH_TOPOLOGY} from './utils';
+import {
+    $Field,
+    $Prefix,
+    getGenID,
+    getGenName,
+    findResourceByID,
+    getNewID,
+    LYPH_TOPOLOGY,
+    mergeResources
+} from './utils';
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -42,17 +51,6 @@ export class Shape extends VisualResource {
         res.border.host = res;
         return res;
     }
-
-    // toggleBorder(){
-    //     if (!this.viewObjects || !this.viewObjects['main']) { return; }
-    //     if (this.viewObjects['border']){
-    //         if (this.viewObjects['main'].children.find(this.viewObjects['border'])){
-    //             this.viewObjects['main'].children.remove(this.viewObjects['border']);
-    //         } else {
-    //             this.viewObjects['main'].add(this.viewObjects['border']);
-    //         }
-    //     }
-    // }
 }
 
 /**
@@ -73,6 +71,11 @@ export class Shape extends VisualResource {
  * @property prev
  * @property next
  * @property villus
+ * @property width
+ * @property height
+ * @property length
+ * @property thickness
+ * @property internalNodesInLayers
  */
 export class Lyph extends Shape {
     static LYPH_TOPOLOGY = LYPH_TOPOLOGY;
@@ -92,12 +95,12 @@ export class Lyph extends Shape {
 
         //Validate subtype
         (template.subtypes||[]).forEach(s => {
-            if (s::isPlainObject() && s.id && !lyphs.find(e => e.id === s.id)){
+            if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
                 lyphs.push(s); //generate a lyph for the template supertype
             }
         });
         //Template supertype must contain id's for correct generation
-        template.subtypes = (template.subtypes||[]).map(e => e::isPlainObject()? e.id: e);
+        template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
         let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
         subtypes.forEach(subtype => this.clone(lyphs, template, subtype));
 
@@ -124,10 +127,9 @@ export class Lyph extends Shape {
             }
         }
 
-        targetLyph::merge(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.description, $Field.create3d, $Field.external, $Field.materials, $Field.channels, $Field.bundlesChains]));
-
-        //TODO revise cloning of multi-fields to merge with values in the targetLyph if they are defined
+        targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
+            $Field.thickness, $Field.description, $Field.create3d, $Field.materials, $Field.channels, $Field.bundlesChains]),
+            mergeResources);
 
         if (sourceLyph.isTemplate){
             targetLyph.supertype = sourceLyph.id;

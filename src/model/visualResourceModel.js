@@ -9,6 +9,7 @@ import { merge, pick } from "lodash-bound";
  * @property {Map<string, Object>} viewObjects - visual objects representing the resource
  * @property {boolean} hidden    - indicates whether the resource is currently hidden (invisible in the scene)
  * @property {boolean} skipLabel - excludes resource labels from the view
+ * @property {Object} cloneOf
  */
 export class VisualResource extends Resource{
 

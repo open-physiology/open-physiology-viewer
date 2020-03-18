@@ -31,7 +31,7 @@ import {logger} from './logger';
  * @property {Object} JSON
  * @property {Array<Object>} assign
  * @property {Array<Object>} interpolate
- *
+ * @property {Object} generatedFrom
  */
 export class Resource{
     static get Model(){return schemaClassModels[this.name]};
@@ -170,7 +170,7 @@ export class Resource{
         try{
             [...(this.assign||[])].forEach(({path, value}) => {
                 if (!path || !value) { return;}
-                //TODO create a timer here as JSONPath can get stuck?
+                //TODO - fix me: we may need to call JSONPath asynchronously and race with the timer as JSONPath may get stuck
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){

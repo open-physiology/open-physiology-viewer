@@ -1,7 +1,4 @@
 {
-  "id"  : "bolserLewisNew",
-  "name": "Bolser-Lewis model",
-  "description": "A demo model with chains and trees (updated bolserLewis.json with neuron data)",
   "nodes": [
     {
       "id": "c1_s",
@@ -401,7 +398,8 @@
       "name": "Diencephalon",
       "external": [
         "UBERON:0001894",
-        "NCBITaxon:99999"
+        "NCBITaxon:99999",
+        "ILX:0103217"
       ],
       "layers": [
         "104",
@@ -413,7 +411,8 @@
       "id": "201",
       "name": "Hypothalamus",
       "external": [
-        "UBERON:0001898"
+        "UBERON:0001898",
+        "ILX:0105177"
       ],
       "internalLyphs": [
         "202"
@@ -424,13 +423,17 @@
       "name": "Paraventricular nucleus",
       "external": [
         "UBERON:0001920"
+      ],
+      "internalLyphs": [
+        "soma202"
       ]
     },
     {
       "id": "203",
       "name": "Midbrain",
       "external": [
-        "UBERON:0001891"
+        "UBERON:0001891",
+        "ILX:0106935"
       ],
       "layers": [
         "104",
@@ -442,7 +445,8 @@
       "id": "204",
       "name": "Pons",
       "external": [
-        "UBERON:0000988"
+        "UBERON:0000988",
+        "ILX:0109019"
       ],
       "layers": [
         "104",
@@ -454,12 +458,13 @@
       "id": "205",
       "name": "Medulla",
       "external": [
-        "UBERON:0001896"
+        "UBERON:0001896",
+        "ILX:0738301"
       ],
       "layers": [
         "104",
         "105",
-        "107"
+        "107in205"
       ]
     },
     {
@@ -507,7 +512,7 @@
       "layers": [
         "104",
         "105",
-        "107"
+        "107in209"
       ]
     },
     {
@@ -519,7 +524,7 @@
       "layers": [
         "104",
         "105",
-        "107"
+        "107in210"
       ]
     },
     {
@@ -608,7 +613,8 @@
       "id": "218",
       "name": "Inferior cervical ganglion",
       "external": [
-        "UBERON:0002440"
+        "UBERON:0002440",
+        "ILX:0734766"
       ],
       "layers": [
         "117"
@@ -618,7 +624,8 @@
       "id": "219",
       "name": "Middle cervical ganglion",
       "external": [
-        "UBERON:0001990"
+        "UBERON:0001990",
+        "ILX:0726454"
       ],
       "layers": [
         "117"
@@ -628,43 +635,65 @@
       "id": "220",
       "name": "Superior cervical ganglion",
       "external": [
-        "UBERON:0001989"
+        "UBERON:0001989",
+        "ILX:0725956"
       ],
       "layers": [
         "117"
+      ],
+      "internalLyphs": [
+        "soma220_1",
+        "soma220_2.soma220_3",
+        "soma220_4",
+        "soma220_5",
+        "soma220_6",
+        "soma220_7",
+        "soma220_8",
+        "soma220_9",
+        "soma220_10",
+        "soma220_11",
+        "soma220_12",
+        "soma220_13",
+        "soma220_14",
+        "soma220_15",
+        "soma220_16",
+        "soma220_17"
       ]
     },
     {
       "id": "221",
       "name": "Larynx",
       "external": [
-        "UBERON:0001737"
+        "UBERON:0001737",
+        "ILX:0727818"
       ],
       "layers": [
         "103",
-        "108"
+        "108in221"
       ]
     },
     {
       "id": "222",
       "name": "Trachea",
       "external": [
-        "UBERON:0003126"
+        "UBERON:0003126",
+        "ILX:0729183"
       ],
       "layers": [
         "103",
-        "109"
+        "109in222"
       ]
     },
     {
       "id": "223",
       "name": "Aortic arch",
       "external": [
-        "UBERON:0001508"
+        "UBERON:0001508",
+        "ILX:0738302"
       ],
       "layers": [
         "41",
-        "110"
+        "110in223"
       ]
     },
     {
@@ -675,25 +704,60 @@
       ],
       "layers": [
         "41",
-        "110"
+        "110in224"
       ]
     },
     {
       "id": "225",
       "name": "Internal carotid artery",
       "external": [
-        "UBERON:0001532"
+        "UBERON:0001532",
+        "ILX:0736647"
       ],
       "layers": [
         "41",
-        "110"
+        "110in225"
+      ]
+    },
+    {
+      "id": "110in223",
+      "name": "Wall of aortic arch",
+      "external": [
+        "ILX:0738304"
+      ],
+      "supertype": "110",
+      "internalLyphs": [
+        "254"
+      ]
+    },
+    {
+      "id": "110in224",
+      "name": "Wall of common carotid artery",
+      "external": [
+        "FMA:66284"
+      ],
+      "supertype": "110",
+      "internalLyphs": [
+        "255"
+      ]
+    },
+    {
+      "id": "110in225",
+      "name": "Wall of internal carotid artery",
+      "external": [
+        "ILX:0738305"
+      ],
+      "supertype": "110",
+      "internalLyphs": [
+        "256"
       ]
     },
     {
       "id": "226",
       "name": "Epiglottis",
       "external": [
-        "UBERON:0000388"
+        "UBERON:0000388",
+        "ILX:0103886"
       ],
       "layers": [
         "115",
@@ -705,7 +769,8 @@
       "id": "227",
       "name": "Tongue",
       "external": [
-        "UBERON:0001723"
+        "UBERON:0001723",
+        "ILX:0111810"
       ],
       "layers": [
         "113",
@@ -715,9 +780,12 @@
     },
     {
       "id": "228",
-      "name": "T1 Rexed Lamina VII",
+      "name": "Rexed Lamina VII of T1",
       "external": [
         "FMA:68868"
+      ],
+      "internalLyphs": [
+        "soma228"
       ]
     },
     {
@@ -735,13 +803,22 @@
     },
     {
       "id": "107in214",
+      "name": "Neural tissue of T1",
+      "external": [
+        "ILX:0738306"
+      ],
       "supertype": "107",
       "internalLyphs": [
-        "228"
+        "228",
+        "soma107in214"
       ]
     },
     {
       "id": "107in200",
+      "name": "Neural tissue of the diencephalon",
+      "external": [
+        "ILX:0738307"
+      ],
       "supertype": "107",
       "internalLyphs": [
         "201"
@@ -829,7 +906,11 @@
     },
     {
       "id": "238",
-      "name": "Superior cervical ganglion branch to vagus nerve",
+      "name": "Phrenic nerve",
+      "external": [
+        "UBERON:0001884",
+        "ILX:0736057"
+      ],
       "layers": [
         "117"
       ]
@@ -838,24 +919,81 @@
       "id": "239",
       "name": "Vagus nerve",
       "external": [
-        "UBERON:0001759"
+        "UBERON:0001759",
+        "ILX:0733375"
       ],
       "layers": [
         "117"
+      ],
+      "internalLyphs": [
+        "249"
       ]
     },
     {
       "id": "240",
-      "name": "Superior laryngeal nerve",
+      "name": "Glossopharyngeal nerve",
       "external": [
-        "UBERON:0011326"
+        "UBERON:0001649",
+        "ILX:0723837"
+      ],
+      "layers": [
+        "117"
+      ],
+      "internalLyphs": [
+        "248"
+      ]
+    },
+    {
+      "id": "241",
+      "name": "Hypoglossal nerve",
+      "external": [
+        "UBERON:0001650",
+        "ILX:0730771"
       ],
       "layers": [
         "117"
       ]
     },
     {
-      "id": "241",
+      "id": "114in226",
+      "name": "Mucosa of epiglottis",
+      "external": [
+        "UBERON:0004982",
+        "ILX:0736652"
+      ],
+      "supertype": "114",
+      "internalLyphs": [
+        "258"
+      ],
+      "bundlesChains": [
+        "t3"
+      ]
+    },
+    {
+      "id": "112in227",
+      "name": "Mucosa of tongue",
+      "external": [
+        "UBERON:0005020",
+        "ILX:0731712"
+      ],
+      "supertype": "112",
+      "bundlesChains": [
+        "t3"
+      ]
+    },
+    {
+      "id": "242",
+      "name": "Superior laryngeal nerve",
+      "external": [
+        "UBERON:0011326",
+        "ILX:0731053"
+      ],
+      "layers": [
+        "117"
+      ]
+    },
+    {
+      "id": "243",
       "name": "External branch of superior laryngeal nerve",
       "external": [
         "FMA:6243"
@@ -865,18 +1003,242 @@
       ]
     },
     {
-      "id": "114in226",
-      "supertype": "114",
-      "bundlesChains": [
-        "t3"
+      "id": "244",
+      "name": "Internal branch of superior laryngeal nerve",
+      "external": [
+        "FMA:6240"
       ]
     },
     {
-      "id": "112in227",
-      "supertype": "112",
-      "bundlesChains": [
-        "t3"
+      "id": "245",
+      "name": "Inferior laryngeal nerve",
+      "external": [
+        "UBERON:0003716"
       ]
+    },
+    {
+      "id": "246",
+      "name": "External branch of inferior laryngeal nerve",
+      "external": [
+        "ILX:0738308"
+      ]
+    },
+    {
+      "id": "247",
+      "name": "Internal branch of inferior laryngeal nerve",
+      "external": [
+        "ILX:0738309"
+      ]
+    },
+    {
+      "id": "248",
+      "name": "Petrosal ganglion of the Glossopharyngeal nerve",
+      "external": [
+        "ILX:0738310"
+      ],
+      "internalLyphs": [
+        "soma248_1",
+        "soma248_2"
+      ]
+    },
+    {
+      "id": "249",
+      "name": "Nodose ganglion of the Vagus nerve",
+      "external": [
+        "ILX:0738311"
+      ],
+      "internalLyphs": [
+        "soma249_1",
+        "soma249_2",
+        "soma249_3"
+      ]
+    },
+    {
+      "id": "250",
+      "name": "Aortic arch depressor nerve",
+      "external": [
+        "ILX:0738312"
+      ]
+    },
+    {
+      "id": "251",
+      "name": "Rami glomi carotici",
+      "external": [
+        "ILX:0738313"
+      ]
+    },
+    {
+      "id": "252",
+      "name": "Herning's nerve",
+      "external": [
+        "ILX:0738314"
+      ]
+    },
+    {
+      "id": "253",
+      "name": "Pharyngeal branch of the Hypoglossal nerve",
+      "external": [
+        "ILX:0738315"
+      ]
+    },
+    {
+      "id": "254",
+      "name": "Aortic arch baroreceptors",
+      "external": [
+        "ILX:0738316"
+      ]
+    },
+    {
+      "id": "255",
+      "name": "Carotid body",
+      "external": [
+        "UBERON:0001629",
+        "ILX:0736966"
+      ]
+    },
+    {
+      "id": "256",
+      "name": "Carotid sinus",
+      "external": [
+        "UBERON:0003708",
+        "ILX:0731873"
+      ]
+    },
+    {
+      "id": "257",
+      "name": "Laryngeal mechanoreceptors",
+      "external": [
+        "ILX:0738317"
+      ]
+    },
+    {
+      "id": "258",
+      "name": "Epiglottic mechanoreceptors",
+      "external": [
+        "ILX:0738318"
+      ]
+    },
+    {
+      "id": "259",
+      "name": "Oesophafgus",
+      "external": [
+        "UBERON:0001043"
+      ]
+    },
+    {
+      "id": "260",
+      "name": "T1-T2 intercostal muscle",
+      "external": [
+        "ILX:0738319"
+      ]
+    },
+    {
+      "id": "261",
+      "name": "Diaphragm",
+      "external": [
+        "UBERON:0001103"
+      ]
+    },
+    {
+      "id": "107in205",
+      "name": "Neural tissue of medulla",
+      "external": [
+        "ILX:0738320"
+      ],
+      "supertype": "107",
+      "internalLyphs": [
+        "262",
+        "263",
+        "264"
+      ]
+    },
+    {
+      "id": "107in209",
+      "name": "Neural tissue of C4",
+      "external": [
+        "ILX:0738321"
+      ],
+      "supertype": "107",
+      "internalLyphs": [
+        "265"
+      ]
+    },
+    {
+      "id": "107in210",
+      "name": "Neural tissue of C5",
+      "external": [
+        "ILX:0738322"
+      ],
+      "supertype": "107",
+      "internalLyphs": [
+        "266"
+      ]
+    },
+    {
+      "id": "262",
+      "name": "Nucleus tractus solitarius",
+      "external": [
+        "ILX:0738323"
+      ],
+      "internalLyphs": [
+        "soma262"
+      ]
+    },
+    {
+      "id": "263",
+      "name": "Retrotrapezoid nucleus",
+      "external": [
+        "ILX:0110082"
+      ]
+    },
+    {
+      "id": "264",
+      "name": "Rostral ventrolateral medulla",
+      "external": [
+        "ILX:0730074"
+      ],
+      "internalLyphs": [
+        "soma264"
+      ]
+    },
+    {
+      "id": "265",
+      "name": "Phrenic nucleus of C4",
+      "external": [
+        "ILX:0738324"
+      ],
+      "internalLyphs": [
+        "soma265"
+      ]
+    },
+    {
+      "id": "266",
+      "name": "Phrenic nucleus of C5",
+      "external": [
+        "ILX:0738325"
+      ],
+      "internalLyphs": [
+        "soma266"
+      ]
+    },
+    {
+      "id": "108in221",
+      "name": "Wall of larynx",
+      "external": [
+        "ILX:0738326"
+      ],
+      "supertype": "108",
+      "internalLyphs": [
+        "257"
+      ]
+    },
+    {
+      "id": "109in222",
+      "name": "Mucosa of trachea",
+      "external": [
+        "ILX:0738327"
+      ],
+      "supertype": "109"
     },
     {
       "id": "soma202",
@@ -1387,8 +1749,7 @@
       "materials": [
         "116"
       ]
-    },
-    {}
+    }
   ],
   "references": [
     {
@@ -1397,13 +1758,13 @@
       "name": "cat"
     }
   ],
-  "coalescences": [
-    {}
-  ],
+  "coalescences": [],
   "channels": [],
   "chains": [
     {
       "id": "c1",
+      "root": "c1_s",
+      "leaf": "c1_t",
       "lyphs": [
         "200",
         "203",
@@ -1421,101 +1782,99 @@
         "215",
         "216"
       ],
-      "root": "c1_s",
-      "leaf": "c1_t",
       "length": 100
     },
     {
-      "id": "PVN-IML1",
-      "name": "Axon PVN-IML1",
+      "id": "PVN-IML1-d",
+      "name": "Dnd PVN-IML1",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s202",
+      "root": "s202",
       "lyphTemplate": "229",
       "housingLyphs": [
         "202"
       ]
     },
     {
-      "id": "IML1-SCG",
-      "name": "Axon IML1-SCG",
+      "id": "IML1-SCG-d",
+      "name": "Dnd IML1-SCG",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s228",
+      "root": "s228",
       "lyphTemplate": "229",
       "housingLyphs": [
         "228"
       ]
     },
     {
-      "id": "T1-INTERCOSTAL",
-      "name": "Axon T1-INTERCOSTAL",
+      "id": "T1-INTERCOSTAL-d",
+      "name": "Dnd T1-INTERCOSTAL",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s107in214",
+      "root": "s107in214",
       "lyphTemplate": "229",
       "housingLyphs": [
         "107in214"
       ]
     },
     {
-      "id": "P4-DIAPHRGM",
-      "name": "Axon P4-DIAPHRGM",
+      "id": "P4-DIAPHRGM-d",
+      "name": "Dnd P4-DIAPHRGM",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s265",
+      "root": "s265",
       "lyphTemplate": "229",
       "housingLyphs": [
         "265"
       ]
     },
     {
-      "id": "P5-DIAPHRGM",
-      "name": "Axon P5-DIAPHRGM",
+      "id": "P5-DIAPHRGM-d",
+      "name": "Dnd P5-DIAPHRGM",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s266",
+      "root": "s266",
       "lyphTemplate": "229",
       "housingLyphs": [
         "266"
       ]
     },
     {
-      "id": "NTS-IML1",
-      "name": "Axon NTS-IML1",
+      "id": "NTS-IML1-d",
+      "name": "Dnd NTS-IML1",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s262",
+      "root": "s262",
       "lyphTemplate": "229",
       "housingLyphs": [
         "262"
       ]
     },
     {
-      "id": "RVLM-IML1",
-      "name": "Axon RVLM-IML1",
+      "id": "RVLM-IML1-d",
+      "name": "Dnd RVLM-IML1",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s264",
+      "root": "s264",
       "lyphTemplate": "229",
       "housingLyphs": [
         "264"
       ]
     },
     {
-      "id": "AB-NTS",
-      "name": "Axon AB-NTS",
+      "id": "AB-NTS-d",
+      "name": "Dnd AB-NTS",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s249_1",
+      "root": "s249_1",
       "lyphTemplate": "229",
       "housingLyphs": [
         "249",
@@ -1526,12 +1885,12 @@
       ]
     },
     {
-      "id": "CB-NTS",
-      "name": "Axon CB-NTS",
+      "id": "CB-NTS-d",
+      "name": "Dnd CB-NTS",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s248_1",
+      "root": "s248_1",
       "lyphTemplate": "229",
       "housingLyphs": [
         "248",
@@ -1542,12 +1901,12 @@
       ]
     },
     {
-      "id": "CS-NTS",
-      "name": "Axon CS-NTS",
+      "id": "CS-NTS-d",
+      "name": "Dnd CS-NTS",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s248_2",
+      "root": "s248_2",
       "lyphTemplate": "229",
       "housingLyphs": [
         "248",
@@ -1558,12 +1917,12 @@
       ]
     },
     {
-      "id": "LM-NTS",
-      "name": "Axon LM-NTS",
+      "id": "LM-NTS-d",
+      "name": "Dnd LM-NTS",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s249_2",
+      "root": "s249_2",
       "lyphTemplate": "229",
       "housingLyphs": [
         "249",
@@ -1574,12 +1933,12 @@
       ]
     },
     {
-      "id": "EM-NTS",
-      "name": "Axon EM-NTS",
+      "id": "EM-NTS-d",
+      "name": "Dnd EM-NTS",
       "external": [
-        "SAO:1770195789"
+        "SAO:1211023249"
       ],
-      "source": "s249_3",
+      "root": "s249_3",
       "lyphTemplate": "229",
       "housingLyphs": [
         "249",
@@ -1590,216 +1949,216 @@
       ]
     },
     {
-      "id": "SCG-AB",
-      "name": "Axon SCG-AB",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_1",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-CB",
-      "name": "Axon SCG-CB",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_2",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-CS",
-      "name": "Axon SCG-CS",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_3",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-eSLN-LRYNX",
-      "name": "Axon SCG-eSLN-LRYNX",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_4",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-iSLN-LRYNX",
-      "name": "Axon SCG-iSLN-LRYNX",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_5",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-eSLN-EM",
-      "name": "Axon SCG-eSLN-EM",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_6",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-iSLN-EM",
-      "name": "Axon SCG-iSLN-EM",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_7",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-eILN-EM",
-      "name": "Axon SCG-eILN-EM",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_8",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-iILN-EM",
-      "name": "Axon SCG-iILN-EM",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_9",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-ECN-TONG",
-      "name": "Axon SCG-ECN-TONG",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_10",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-ICN-TONG",
-      "name": "Axon SCG-ICN-TONG",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_11",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-TRCHA",
-      "name": "Axon SCG-TRCHA",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_12",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-ICN-TRCHA",
-      "name": "Axon SCG-ICN-TRCHA",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_13",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-PVN",
-      "name": "Axon SCG-PVN",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_14",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-RTRPZ",
-      "name": "Axon SCG-RTRPZ",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_15",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-RVLM",
-      "name": "Axon SCG-RVLM",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_16",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "SCG-NTS",
-      "name": "Axon SCG-NTS",
-      "external": [
-        "SAO:1770195789"
-      ],
-      "source": "s220_17",
-      "lyphTemplate": "229",
-      "housingLyphs": [
-        "220"
-      ]
-    },
-    {
-      "id": "PVN-IML1-d",
-      "name": "Dendrite PVN-IML1",
+      "id": "SCG-AB-d",
+      "name": "Dnd SCG-AB",
       "external": [
         "SAO:1211023249"
       ],
-      "source": "t202",
+      "root": "s220_1",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-CB-d",
+      "name": "Dnd SCG-CB",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_2",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-CS-d",
+      "name": "Dnd SCG-CS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_3",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-eSLN-LRYNX-d",
+      "name": "Dnd SCG-eSLN-LRYNX",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_4",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-iSLN-LRYNX-d",
+      "name": "Dnd SCG-iSLN-LRYNX",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_5",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-eSLN-EM-d",
+      "name": "Dnd SCG-eSLN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_6",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-iSLN-EM-d",
+      "name": "Dnd SCG-iSLN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_7",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-eILN-EM-d",
+      "name": "Dnd SCG-eILN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_8",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-iILN-EM-d",
+      "name": "Dnd SCG-iILN-EM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_9",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-ECN-TONG-d",
+      "name": "Dnd SCG-ECN-TONG",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_10",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-ICN-TONG-d",
+      "name": "Dnd SCG-ICN-TONG",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_11",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-TRCHA-d",
+      "name": "Dnd SCG-TRCHA",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_12",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-ICN-TRCHA-d",
+      "name": "Dnd SCG-ICN-TRCHA",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_13",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-PVN-d",
+      "name": "Dnd SCG-PVN",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_14",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-RTRPZ-d",
+      "name": "Dnd SCG-RTRPZ",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_15",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-RVLM-d",
+      "name": "Dnd SCG-RVLM",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_16",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "SCG-NTS-d",
+      "name": "Dnd SCG-NTS",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "root": "s220_17",
+      "lyphTemplate": "229",
+      "housingLyphs": [
+        "220"
+      ]
+    },
+    {
+      "id": "PVN-IML1-a",
+      "name": "Axn PVN-IML1",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "root": "t202",
       "lyphTemplate": "229",
       "housingLyphs": [
         "202",
@@ -1821,12 +2180,12 @@
       ]
     },
     {
-      "id": "IML1-SCG-d",
-      "name": "Dendrite IML1-SCG",
+      "id": "IML1-SCG-a",
+      "name": "Axn IML1-SCG",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t228",
+      "root": "t228",
       "lyphTemplate": "229",
       "housingLyphs": [
         "228",
@@ -1843,12 +2202,12 @@
       ]
     },
     {
-      "id": "T1-INTERCOSTAL-d",
-      "name": "Dendrite T1-INTERCOSTAL",
+      "id": "T1-INTERCOSTAL-a",
+      "name": "Axn T1-INTERCOSTAL",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t107in214",
+      "root": "t107in214",
       "lyphTemplate": "229",
       "housingLyphs": [
         "107in214",
@@ -1857,12 +2216,12 @@
       ]
     },
     {
-      "id": "P4-DIAPHRGM-d",
-      "name": "Dendrite P4-DIAPHRGM",
+      "id": "P4-DIAPHRGM-a",
+      "name": "Axn P4-DIAPHRGM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t265",
+      "root": "t265",
       "lyphTemplate": "229",
       "housingLyphs": [
         "265",
@@ -1872,12 +2231,12 @@
       ]
     },
     {
-      "id": "P5-DIAPHRGM-d",
-      "name": "Dendrite P5-DIAPHRGM",
+      "id": "P5-DIAPHRGM-a",
+      "name": "Axn P5-DIAPHRGM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t266",
+      "root": "t266",
       "lyphTemplate": "229",
       "housingLyphs": [
         "266",
@@ -1887,12 +2246,12 @@
       ]
     },
     {
-      "id": "NTS-IML1-d",
-      "name": "Dendrite NTS-IML1",
+      "id": "NTS-IML1-a",
+      "name": "Axn NTS-IML1",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t262",
+      "root": "t262",
       "lyphTemplate": "229",
       "housingLyphs": [
         "262",
@@ -1910,12 +2269,12 @@
       ]
     },
     {
-      "id": "RVLM-IML1-d",
-      "name": "Dendrite RVLM-IML1",
+      "id": "RVLM-IML1-a",
+      "name": "Axn RVLM-IML1",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t264",
+      "root": "t264",
       "lyphTemplate": "229",
       "housingLyphs": [
         "264",
@@ -1933,12 +2292,12 @@
       ]
     },
     {
-      "id": "AB-NTS-d",
-      "name": "Dendrite AB-NTS",
+      "id": "AB-NTS-a",
+      "name": "Axn AB-NTS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t249_1",
+      "root": "t249_1",
       "lyphTemplate": "229",
       "housingLyphs": [
         "249",
@@ -1948,12 +2307,12 @@
       ]
     },
     {
-      "id": "CB-NTS-d",
-      "name": "Dendrite CB-NTS",
+      "id": "CB-NTS-a",
+      "name": "Axn CB-NTS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t248_1",
+      "root": "t248_1",
       "lyphTemplate": "229",
       "housingLyphs": [
         "248",
@@ -1963,12 +2322,12 @@
       ]
     },
     {
-      "id": "CS-NTS-d",
-      "name": "Dendrite CS-NTS",
+      "id": "CS-NTS-a",
+      "name": "Axn CS-NTS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t248_2",
+      "root": "t248_2",
       "lyphTemplate": "229",
       "housingLyphs": [
         "248",
@@ -1978,12 +2337,12 @@
       ]
     },
     {
-      "id": "LM-NTS-d",
-      "name": "Dendrite LM-NTS",
+      "id": "LM-NTS-a",
+      "name": "Axn LM-NTS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t249_2",
+      "root": "t249_2",
       "lyphTemplate": "229",
       "housingLyphs": [
         "249",
@@ -1993,12 +2352,12 @@
       ]
     },
     {
-      "id": "EM-NTS-d",
-      "name": "Dendrite EM-NTS",
+      "id": "EM-NTS-a",
+      "name": "Axn EM-NTS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t249_3",
+      "root": "t249_3",
       "lyphTemplate": "229",
       "housingLyphs": [
         "249",
@@ -2008,12 +2367,12 @@
       ]
     },
     {
-      "id": "SCG-AB-d",
-      "name": "Dendrite SCG-AB",
+      "id": "SCG-AB-a",
+      "name": "Axn SCG-AB",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_1",
+      "root": "t220_1",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2026,12 +2385,12 @@
       ]
     },
     {
-      "id": "SCG-CB-d",
-      "name": "Dendrite SCG-CB",
+      "id": "SCG-CB-a",
+      "name": "Axn SCG-CB",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_2",
+      "root": "t220_2",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2042,12 +2401,12 @@
       ]
     },
     {
-      "id": "SCG-CS-d",
-      "name": "Dendrite SCG-CS",
+      "id": "SCG-CS-a",
+      "name": "Axn SCG-CS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_3",
+      "root": "t220_3",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2058,12 +2417,12 @@
       ]
     },
     {
-      "id": "SCG-eSLN-LRYNX-d",
-      "name": "Dendrite SCG-eSLN-LRYNX",
+      "id": "SCG-eSLN-LRYNX-a",
+      "name": "Axn SCG-eSLN-LRYNX",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_4",
+      "root": "t220_4",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2075,12 +2434,12 @@
       ]
     },
     {
-      "id": "SCG-iSLN-LRYNX-d",
-      "name": "Dendrite SCG-iSLN-LRYNX",
+      "id": "SCG-iSLN-LRYNX-a",
+      "name": "Axn SCG-iSLN-LRYNX",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_5",
+      "root": "t220_5",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2092,12 +2451,12 @@
       ]
     },
     {
-      "id": "SCG-eSLN-EM-d",
-      "name": "Dendrite SCG-eSLN-EM",
+      "id": "SCG-eSLN-EM-a",
+      "name": "Axn SCG-eSLN-EM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_6",
+      "root": "t220_6",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2109,12 +2468,12 @@
       ]
     },
     {
-      "id": "SCG-iSLN-EM-d",
-      "name": "Dendrite SCG-iSLN-EM",
+      "id": "SCG-iSLN-EM-a",
+      "name": "Axn SCG-iSLN-EM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_7",
+      "root": "t220_7",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2126,12 +2485,12 @@
       ]
     },
     {
-      "id": "SCG-eILN-EM-d",
-      "name": "Dendrite SCG-eILN-EM",
+      "id": "SCG-eILN-EM-a",
+      "name": "Axn SCG-eILN-EM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_8",
+      "root": "t220_8",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2143,12 +2502,12 @@
       ]
     },
     {
-      "id": "SCG-iILN-EM-d",
-      "name": "Dendrite SCG-iILN-EM",
+      "id": "SCG-iILN-EM-a",
+      "name": "Axn SCG-iILN-EM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_9",
+      "root": "t220_9",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2160,12 +2519,12 @@
       ]
     },
     {
-      "id": "SCG-ECN-TONG-d",
-      "name": "Dendrite SCG-ECN-TONG",
+      "id": "SCG-ECN-TONG-a",
+      "name": "Axn SCG-ECN-TONG",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_10",
+      "root": "t220_10",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2174,12 +2533,12 @@
       ]
     },
     {
-      "id": "SCG-ICN-TONG-d",
-      "name": "Dendrite SCG-ICN-TONG",
+      "id": "SCG-ICN-TONG-a",
+      "name": "Axn SCG-ICN-TONG",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_11",
+      "root": "t220_11",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2188,12 +2547,12 @@
       ]
     },
     {
-      "id": "SCG-TRCHA-d",
-      "name": "Dendrite SCG-TRCHA",
+      "id": "SCG-TRCHA-a",
+      "name": "Axn SCG-TRCHA",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_12",
+      "root": "t220_12",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2201,12 +2560,12 @@
       ]
     },
     {
-      "id": "SCG-ICN-TRCHA-d",
-      "name": "Dendrite SCG-ICN-TRCHA",
+      "id": "SCG-ICN-TRCHA-a",
+      "name": "Axn SCG-ICN-TRCHA",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_13",
+      "root": "t220_13",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2215,12 +2574,12 @@
       ]
     },
     {
-      "id": "SCG-PVN-d",
-      "name": "Dendrite SCG-PVN",
+      "id": "SCG-PVN-a",
+      "name": "Axn SCG-PVN",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_14",
+      "root": "t220_14",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2231,12 +2590,12 @@
       ]
     },
     {
-      "id": "SCG-RTRPZ-d",
-      "name": "Dendrite SCG-RTRPZ",
+      "id": "SCG-RTRPZ-a",
+      "name": "Axn SCG-RTRPZ",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_15",
+      "root": "t220_15",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2246,12 +2605,12 @@
       ]
     },
     {
-      "id": "SCG-RVLM-d",
-      "name": "Dendrite SCG-RVLM",
+      "id": "SCG-RVLM-a",
+      "name": "Axn SCG-RVLM",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_16",
+      "root": "t220_16",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2261,12 +2620,12 @@
       ]
     },
     {
-      "id": "SCG-NTS-d",
-      "name": "Dendrite SCG-NTS",
+      "id": "SCG-NTS-a",
+      "name": "Axn SCG-NTS",
       "external": [
-        "SAO:1211023249"
+        "SAO:1770195789"
       ],
-      "source": "t220_17",
+      "root": "t220_17",
       "lyphTemplate": "229",
       "housingLyphs": [
         "220",
@@ -2307,7 +2666,19 @@
       "lyphs": [
         "201",
         "228",
-        "202"
+        "202",
+        "248",
+        "249",
+        "254",
+        "255",
+        "256",
+        "257",
+        "258",
+        "262",
+        "263",
+        "264",
+        "265",
+        "266"
       ]
     },
     {
@@ -2366,5 +2737,7 @@
         "lnk16"
       ]
     }
-  ]
+  ],
+  "id": "bolserLewis2",
+  "name": "Bolser-Lewis map"
 }

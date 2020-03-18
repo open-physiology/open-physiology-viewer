@@ -14,7 +14,7 @@ import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import {$SchemaClass, modelClasses, schema} from '../model/index';
+import { modelClasses, schema} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -25,7 +25,7 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import * as XLSX from 'xlsx';
-import {$Field} from "../model/utils";
+import {$Field, mergeResources} from "../model/utils";
 
 const {Graph} = modelClasses;
 const ace = require('ace-builds');
@@ -280,24 +280,7 @@ export class TestApp {
             const reader = new FileReader();
             reader.onload = () => {
                 let newModel = JSON.parse(reader.result);
-                this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, merger));
-
-                function merger(a, b) {
-                    if (a::isArray()){
-                        if (b::isArray()) {
-                            let ab = a.map(x => x::merge(b.find(y => y[$Field.id] === x[$Field.id])));
-                            return ab::unionBy(b, $Field.id);
-                        } else {
-                            return a.push(b);
-                        }
-                    } else {
-                        if (a::isObject()){
-                            return b::isObject()? a::mergeWith(b, merger): a;
-                        } else {
-                            return a;
-                        }
-                    }
-                }
+                this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, mergeResources));
             };
             try {
                 reader.readAsText(files[0]);

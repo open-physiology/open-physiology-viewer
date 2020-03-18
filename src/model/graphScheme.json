@@ -935,6 +935,21 @@
           ],
           "relatedTo": "subtypes"
         },
+        "inheritedExternal": {
+          "description": "Identifiers of external resources inherited from all ancestors (supertypes)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/External"
+              }
+            ]
+          },
+          "readOnly": true
+        },
         "conveys"     : {
           "description": "A link conveying the lyph",
           "anyOf": [

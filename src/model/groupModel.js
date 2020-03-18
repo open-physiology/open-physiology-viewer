@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import {isObject, unionBy, merge, keys, cloneDeep, entries, isArray, pick} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
 import {logger} from './logger';
 import {Link, Node} from './visualResourceModel';
@@ -7,7 +7,7 @@ import {Lyph} from "./shapeModel";
 import {Villus} from "./groupTemplateModel";
 
 /**
- *  Group (subgraph) model
+ * Group (subgraph) model
  * @class
  * @property nodes
  * @property links
@@ -59,7 +59,7 @@ export class Group extends Resource {
         this.replaceBorderNodes(json);
 
         //Reposition internal resources
-        this.internalResourcesToLayers(json);
+        this.internalResourcesToLayers(json.lyphs);
 
         /******************************************************************************************************/
         //create graph resource
@@ -282,11 +282,14 @@ export class Group extends Resource {
         });
     }
 
-
-    static internalResourcesToLayers(json){
+    /**
+     * Assign internal resources to generated lyph layers
+     * @param lyphs
+     */
+    static internalResourcesToLayers(lyphs){
         function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers.length){
-                let layer = findResourceByID(json.lyphs, lyph.layers[layerIndex]);
+                let layer = findResourceByID(lyphs, lyph.layers[layerIndex]);
                 if (layer){
                     layer[prop] = layer[prop] || [];
                     let internalResourceID = lyph[prop][resourceIndex]::isObject()? lyph[prop][resourceIndex].id: lyph[prop][resourceIndex];
@@ -302,27 +305,25 @@ export class Group extends Resource {
                 logger.warn("Failed to relocate internal lyph to layer: layer index out of range", layerIndex, lyph.layers.length);
             }
         }
-        (json.lyphs||[]).filter(lyph => lyph.layers && lyph.internalLyphs && lyph.internalLyphsInLayers).forEach(lyph=> {
+        (lyphs||[]).filter(lyph => lyph.layers && lyph.internalLyphs && lyph.internalLyphsInLayers).forEach(lyph=> {
             for (let i = 0; i < Math.min(lyph.internalLyphs.length, lyph.internalLyphsInLayers.length); i++){
                 moveResourceToLayer(i, lyph.internalLyphsInLayers[i], lyph, $Field.internalLyphs);
             }
             lyph.internalLyphs = lyph.internalLyphs.filter(x => !!x);
         });
 
-        (json.lyphs||[]).filter(lyph => lyph.layers && lyph.internalNodes && lyph.internalNodesInLayers).forEach(lyph=> {
+        (lyphs||[]).filter(lyph => lyph.layers && lyph.internalNodes && lyph.internalNodesInLayers).forEach(lyph=> {
             for (let i = 0; i < Math.min(lyph.internalNodes.length, lyph.internalNodesInLayers.length); i++){
                 moveResourceToLayer(i, lyph.internalNodesInLayers[i], lyph, $Field.internalNodes);
             }
             lyph.internalNodes = lyph.internalNodes.filter(x => !!x);
         });
-
     }
 
     /**
      * Add entities from subgroups to the current group
      */
     mergeSubgroupEntities(){
-
         //Place references to subgroup resources to the current group
         (this.groups||[]).forEach(group => {
             if (group.id === this.id) {
@@ -407,8 +408,6 @@ export class Group extends Resource {
      */
     hide(){
         this.resources.forEach(entity => entity.hidden = true);
-        //TODO rewire links to hide collapsible links with unconstrained ends
-        // (this.links||[]).filter(lnk => lnk.collapsible).forEach(lnk => {})
     }
 
     /**
@@ -416,7 +415,6 @@ export class Group extends Resource {
      */
     show(){
         this.resources.forEach(entity => delete entity.hidden);
-        //TODO rewire links to show collapsible links with constrained ends
     }
 
     findGeneratedFromIDs(ids){

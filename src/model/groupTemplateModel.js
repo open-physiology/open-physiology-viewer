@@ -9,6 +9,8 @@ import {
     getNewID,
     getGenID,
     addBorderNode,
+    getID,
+    compareResources,
     $Field,
     $Color,
     $Prefix, $SchemaClass
@@ -186,9 +188,6 @@ export class Chain extends GroupTemplate {
         }
 
         function deriveFromLevels(){
-            const getID  = (e) => e::isObject()? e.id : e;
-            const match  = (e1, e2) => getID(e1) === getID(e2);
-
             if (chain.housingChain){
                 if (chain.housingLyphs){
                     logger.warn(`Conflicting chain specification: both "${$Field.housingLyphs}" and "${$Field.housingChain}" are given. Proceeding with "${$Field.housingLyphs}".`)
@@ -242,7 +241,7 @@ export class Chain extends GroupTemplate {
             let targets = [chain.root,...chain.levels.map(l => l? l.target: null)];
 
             for (let i = 0; i < sources.length; i++){
-                if (sources[i] && targets[i] && !match(sources[i], targets[i])){
+                if (sources[i] && targets[i] && !compareResources(sources[i], targets[i])){
                     logger.error(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
                 }
                 let newNode = {

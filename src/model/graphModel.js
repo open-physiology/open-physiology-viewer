@@ -102,6 +102,25 @@ export class Graph extends Group{
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
         }
 
+        //Collect inherited externals
+        (res.lyphs||[]).filter(lyph => lyph.supertype).forEach(lyph => {
+            const externals = lyph.inheritedExternal || [];
+            const ids = externals.map(x => x.id);
+            let curr = lyph.supertype;
+            while (curr){
+                (curr.external||[]).forEach(e => {
+                    if (!ids.includes(e.id)){
+                        externals.push(e);
+                        ids.push(e.id);
+                    }
+                });
+                curr = curr.supertype;
+            }
+            if (externals.length > 0){
+                lyph.inheritedExternal = externals;
+            }
+        });
+
         //Validate coalescences
         (res.coalescences || []).forEach(r => r.validate());
 

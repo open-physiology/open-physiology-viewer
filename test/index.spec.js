@@ -6,19 +6,15 @@ import {
 	expect,
 } from './test.helper';
 import basalGanglia from './data/basalGanglia.json';
-import uotWithChannels from './data/uotWithChannels.json';
 import respiratory from './data/respiratory.json';
 import villus from './data/villus';
 import lyphOnBorder from './data/basicLyphOnBorder';
-import keastSpinal from './data/keastSpinal';
 
 import {keys, entries} from 'lodash-bound';
 
 import {modelClasses} from '../src/model/index';
 
-//TODO for every test model, check that logger does not contain unexpected warnings
-
-describe("JSON Schema read correctly", () => {
+describe("JSON Schema loads correctly", () => {
     it("Link geometry types are loaded", () => {
         expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("LINK");
         expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("SEMICIRCLE");
@@ -28,7 +24,6 @@ describe("JSON Schema read correctly", () => {
         expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("INVISIBLE");
         expect(modelClasses.Link.LINK_GEOMETRY).to.have.property("ARC"); //TODO new link type, add tests to check that it is drawn
     });
-
 
     it("Link stroke types are loaded", () => {
         expect(modelClasses.Link.LINK_STROKE).to.have.property("DASHED");
@@ -47,7 +42,6 @@ describe("JSON Schema read correctly", () => {
         expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG2");
         expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG-");
         expect(modelClasses.Lyph.LYPH_TOPOLOGY).to.have.property("BAG+");
-        //TODO create models to test BAG- and BAG+ options
     });
 
     it("Coalescence topology types are loaded", () => {
@@ -56,7 +50,7 @@ describe("JSON Schema read correctly", () => {
     });
 });
 
-describe("Produce generated model - Basal Ganglia", () => {
+describe("Generate model (Basal Ganglia)", () => {
     let graphData;
     beforeEach(() => {
         graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
@@ -90,7 +84,57 @@ describe("Produce generated model - Basal Ganglia", () => {
         expect(graphData).to.have.a.property("chains");
 
         //"generatedFrom" should not be populated from subgroups
-        expect(graphData.generatedFrom).to.be.null;
+        expect(graphData.generatedFrom).to.be.a('null');
+    });
+
+    it("Related properties synchronized", () => {
+        //Link.conveyingLyphs vs Lyph.conveys
+        const bg = graphData.lyphs.find(x => x.id === "bg");
+        expect(bg).to.have.a.property("conveys");
+        expect(bg.conveys).to.be.instanceOf(modelClasses.Link);
+        expect(bg.conveys).to.have.property("id").that.equal("main");
+
+        //Link.source vs Node.sourceOf
+        const nodeA = graphData.nodes.find(x => x.id === "a");
+        expect(nodeA).to.have.a.property("sourceOf");
+        expect(nodeA.sourceOf).to.be.an('array').that.has.length(1);
+        expect(nodeA.sourceOf[0]).to.be.instanceOf(modelClasses.Link);
+        expect(nodeA.sourceOf[0]).to.have.a.property("id").that.equal("main");
+
+        //Link.target vs Node.targetOf
+        const nodeB = graphData.nodes.find(x => x.id === "b");
+        expect(nodeB).to.have.a.property("targetOf");
+        expect(nodeB.targetOf).to.be.an('array').that.has.length(1);
+        expect(nodeB.targetOf[0]).to.be.instanceOf(modelClasses.Link);
+        expect(nodeB.targetOf[0]).to.have.a.property("id").that.equal("main");
+
+        //Lyph.layers vs Lyph.layerIn (on abstract lyph)
+        [ "cytosol", "plasma", "fluid"].forEach(id => {
+            let lyph = graphData.lyphs.find(x => x.id === id);
+            expect(lyph).to.be.instanceOf(modelClasses.Lyph);
+            expect(lyph).to.have.a.property("layerIn");
+            expect(lyph.layerIn).to.have.a.property("id").that.equal("neuronBag");
+        });
+
+        //Lyph.internalLyphs vs Lyph.internalIn
+        ["putamen", "gpe", "gpi"].forEach(id => {
+            let lyph = graphData.lyphs.find(x => x.id === id);
+            expect(lyph).to.be.instanceOf(modelClasses.Lyph);
+            expect(lyph).to.have.a.property("internalIn");
+            expect(lyph.internalIn).to.have.a.property("id").that.equal("bg");
+        });
+
+        //Lyph.subtypes vs Lyph.supertype
+        const neuron = graphData.lyphs.find(x => x.id === "neuronBag");
+        expect(neuron).to.have.a.property("subtypes");
+        expect(neuron.subtypes).to.be.an('array').that.has.length(7);
+        let subtypes = neuron.subtypes.map(x => x.id);
+        expect(subtypes).to.include("hillock");
+
+        //Border.hostedNodes vs Node.hostedBy
+        const n3 = graphData.nodes.find(x => x.id === "n3");
+        expect(n3).to.have.a.property("hostedBy");
+        expect(n3.hostedBy).to.be.instanceOf(modelClasses.Link);
     });
 
     afterEach(() => {
@@ -99,8 +143,7 @@ describe("Produce generated model - Basal Ganglia", () => {
 
 describe("Serialize data", () => {
     let graphData;
-    beforeEach(() => {
-    });
+    beforeEach(() => {});
 
     it("All necessary fields serialized (respiratory system)", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
@@ -116,7 +159,7 @@ describe("Serialize data", () => {
         graphData = modelClasses.Graph.fromJSON(villus, modelClasses);
         let serializedGraphData = graphData.toJSON(3, {"villus": 3});
         let lyph = serializedGraphData.lyphs.find(e => e.id === "l1");
-        expect(lyph).to.be.defined;
+        expect(lyph).to.be.an('object');
         expect(lyph).to.have.property("villus");
         expect(lyph.villus).to.have.property("id");
         expect(lyph.villus).to.have.property("class");
@@ -127,7 +170,7 @@ describe("Serialize data", () => {
         graphData = modelClasses.Graph.fromJSON(lyphOnBorder, modelClasses);
         let serializedGraphData = graphData.toJSON(3, {"border": 3, "borders": 3});
         let lyph = serializedGraphData.lyphs.find(lyph => lyph.id === "3");
-        expect(lyph).to.be.defined;
+        expect(lyph).to.be.an('object');
         expect(lyph).to.have.property("border");
         expect(lyph.border).to.have.property("borders");
         expect(lyph.border.borders).to.have.property("length");
@@ -140,18 +183,3 @@ describe("Serialize data", () => {
     });
 });
 
-describe("Generate groups from templates - UOT with channels", () => {
-    let graphData;
-    beforeEach(() => {
-        graphData = modelClasses.Graph.fromJSON(uotWithChannels, modelClasses);
-    });
-
-    //TODO check errors in logs
-
-    afterEach(() => {
-    });
-});
-
-//TODO test creation of trees as chains, i.e., using source, target and conveyingLyphs properties
-
-//TODO add regression test for channels to make sure generated lyph order works
