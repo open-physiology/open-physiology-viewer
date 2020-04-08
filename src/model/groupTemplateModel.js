@@ -166,6 +166,7 @@ export class Chain extends GroupTemplate {
             }
 
             chain.levels = [];
+            let prev;
             for (let i = 0; i < lyphs.length; i++) {
                 let link = {
                     [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
@@ -180,7 +181,10 @@ export class Chain extends GroupTemplate {
                 if (chain.length){
                     link.length = chain.length / lyphs.length;
                 }
-                //TODO check why duplicates are created
+                if (prev){
+                    prev.next = link.id;
+                }
+                prev = link;
                 mergeGenResource(chain.group, parentGroup, link, $Field.links);
                 chain.levels[i] = link.id;
             }
@@ -260,6 +264,7 @@ export class Chain extends GroupTemplate {
 
             //Create levels
             chain.lyphs = [];
+            let prev;
             for (let i = 0; i < N; i++){
                 if (!chain.levels[i]){ chain.levels[i] = {}; }
                 //Do not override existing properties
@@ -274,6 +279,10 @@ export class Chain extends GroupTemplate {
                 if (chain.length){
                     link.length = chain.length / N;
                 }
+                if (prev){
+                    prev.next = link;
+                }
+                prev = link;
 
                 if (template && !chain.levels[i].conveyingLyph){
                     //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
@@ -304,6 +313,8 @@ export class Chain extends GroupTemplate {
             deriveFromLevels(parentGroup, chain);
         }
 
+
+
     }
 
     /**
@@ -331,7 +342,7 @@ export class Chain extends GroupTemplate {
                 return;
             }
 
-            //A tree level can be "hosted" by the lyph or by its outermost layer.
+            //A chain level can be "hosted" by the lyph, by its outermost layer, or by any other layer that bundles the chain or referred to .
             let hostLyph = housingLyph;
             if (hostLyph.layers){
                 let layers = hostLyph.layers.map(layerID => findResourceByID(parentGroup.lyphs, layerID));
@@ -459,14 +470,14 @@ export class Tree extends GroupTemplate {
                 let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
 
                 if (!lnk) {
-                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, i, levels[i]);
+                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, levels[i], i);
                     lnk = {
                         [$Field.id]: levels[i],
                         [$Field.generated]: true
                     };
                 }
                 if (!trg){
-                    logger.warn("Failed to find tree level target node (created to proceed): ", tree.id, i, lnk);
+                    logger.warn("Failed to find tree level target node (created to proceed): ", tree.id, lnk.id, lnk.target);
                     trg = {
                         [$Field.id]: lnk.target,
                         [$Field.generated]: true

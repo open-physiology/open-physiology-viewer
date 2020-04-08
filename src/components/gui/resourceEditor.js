@@ -18,7 +18,7 @@ import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule} from "./fieldEditor";
 import {ExternalSelectDialog} from "./externalSelectDialog";
 import {UtilsModule} from "./utils";
-import {isPlainObject, isArray, isString, fromPairs, merge, values, entries, cloneDeep} from 'lodash-bound';
+import {isArray, fromPairs, merge, values, entries, cloneDeep} from 'lodash-bound';
 import {HttpClientModule} from '@angular/common/http';
 import {getClassName} from '../../model/index';
 import {annotations} from "./config";
@@ -111,27 +111,6 @@ export class ResourceEditor {
 
     get className(){
         return this._className;
-    }
-
-    updateViewMode(){
-    }
-
-    // noinspection JSMethodCanBeStatic
-    isPlainObject(value){
-        return value::isPlainObject();
-    }
-
-    // noinspection JSMethodCanBeStatic
-    isArray(value){
-        return value::isArray();
-    }
-
-    // noinspection JSMethodCanBeStatic
-    getLabel(obj){
-        if (obj::isString()) { return obj || "?"; }
-        if (obj::isPlainObject()){
-            return (obj.id || "?" ) + " - " + (obj.name || "?")
-        }
     }
 
     getFieldModel(spec){

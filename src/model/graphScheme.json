@@ -482,26 +482,32 @@
         },
         "rootOf"         : {
           "description": "The chain that starts in this node",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
           "relatedTo": "root"
         },
         "leafOf"         : {
           "description": "The chain that ends in this node",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
           "relatedTo": "leaf"
         }
       }
@@ -675,6 +681,40 @@
           "type": "number",
           "advanced": true
         },
+        "prev": {
+          "description": "References to preceding links in ordered chains that pass through the current link",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "next",
+          "readOnly": true,
+          "advanced": true
+        },
+        "next": {
+          "description": "References to following links in ordered chains that pass through the current link",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "prev",
+          "readOnly": true,
+          "advanced": true
+        },
         "arcCenter"    : {
           "description": "Center of an elliptic curve for an arc link",
           "$ref": "#/definitions/Point3Scheme"
@@ -781,7 +821,7 @@
           "type": "array",
           "items": {
             "type": "number",
-            "minimum": 1
+            "minimum": 0
           }
         },
         "internalLyphs": {
@@ -804,7 +844,7 @@
           "type": "array",
           "items": {
             "type": "number",
-            "minimum": 1
+            "minimum": 0
           }
         },
         "internalNodes": {
@@ -1274,7 +1314,7 @@
       "abstract": "true",
       "allOf": [{"$ref": "#/definitions/Resource"}],
       "properties": {
-        "group"        : {
+        "group"         : {
           "description": "Group (subgraph) that encompasses generated group resources",
           "anyOf": [
             {
@@ -1474,7 +1514,7 @@
           "type": "array",
           "items": {
             "type": "number",
-            "minimum": 1
+            "minimum": 0
           }
         }
       }

@@ -118,7 +118,7 @@ export class Resource{
 
             if (value.id && entitiesByID[value.id]) {
                 if (value !== entitiesByID[value.id]) {
-                    logger.warn("Duplicate resource definition:", value, entitiesByID[value.id]);
+                    logger.warn("Duplicate resource definition:", res.id, key, value, entitiesByID[value.id]);
                 }
                 return entitiesByID[value.id];
             }

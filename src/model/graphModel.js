@@ -299,6 +299,8 @@ export class Graph extends Group{
                 [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
             }, modelClasses, entitiesByID);
+
+            //TODO consider removing these 2 lines (test!)
             lyph.conveys = link;
             sNode.sourceOf  = [link];
             tNode.targetOf  = [link];

@@ -170,7 +170,7 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
     if (!resource) { return; }
     if (group){
         group[prop] = group[prop] || [];
-        if (resource::isPlainObject()){
+        if (resource::isObject()){
             if (resource.id){
                 if (!group[prop].find(x => x === resource.id || x.id === resource.id)){
                     group[prop].push(resource.id);

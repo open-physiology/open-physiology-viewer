@@ -32,14 +32,14 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
         const n1 = graphData.nodes.find(x => x.id === "n1");
         expect(n1).to.be.an('object');
         expect(n1).to.have.property("rootOf");
-        expect(n1.rootOf).to.be.an('object');
-        expect(n1.rootOf).to.have.property("id").that.equal("ch1");
+        expect(n1.rootOf).to.be.an('array').that.has.length(1);
+        expect(n1.rootOf[0]).to.have.property("id").that.equal("ch1");
 
         const n2 = graphData.nodes.find(x => x.id === "n2");
         expect(n2).to.be.an('object');
         expect(n2).to.have.property("leafOf");
-        expect(n2.leafOf).to.be.an('object');
-        expect(n2.leafOf).to.have.property("id").that.equal("ch1");
+        expect(n2.leafOf).to.be.an('array').that.has.length(1);
+        expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
         expect(graphData).to.have.a.property("groups");
         expect(graphData.groups).to.be.an('array').that.has.length(3);
@@ -57,6 +57,12 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
 
         expect(gr1).to.have.property("links").that.is.an('array');
         expect(gr1.links.length).to.be.equal(16);
+        expect(gr1.links[0]).to.have.property("next");
+        expect(gr1.links[0].next).to.be.an('array').that.has.length(1);
+        expect(gr1.links[0].next[0]).to.have.property("id").that.equals(gr1.links[1].id);
+        expect(gr1.links[1]).to.have.property("prev");
+        expect(gr1.links[1].prev).to.be.an('array').that.has.length(1);
+        expect(gr1.links[1].prev[0]).to.have.property("id").that.equals(gr1.links[0].id);
     });
 
     it("Tree chains are generated", () => {
@@ -87,12 +93,34 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
     });
 
     it("Lyphs retain own annotations", () => {
-        const c1 = graphData.lyphs.find(x => x.id == "c1");
+        const c1 = graphData.lyphs.find(x => x.id === "c1");
         expect(c1).to.have.property("external");
         expect(c1.external).to.be.an('array').that.has.length(1);
         expect(c1.external[0]).to.be.instanceOf(modelClasses.External);
         expect(c1.external[0]).to.have.property("id").that.equal("UBERON:0006469");
     });
+
+    it("Internal lyphs are rebased into generated layers", () => {
+        const c3 = graphData.lyphs.find(x => x.id === "c3");
+        expect(c3).to.have.property("internalLyphs");
+        //the input model contains "soma" as internal lyph of c3 which is removed from the generated model and placed to c3's layer
+        expect(c3.internalLyphs).to.be.an('array').that.has.length(0);
+        expect(c3).to.have.property("internalLyphsInLayers");
+        expect(c3.internalLyphsInLayers).to.be.an('array').that.has.length(1);
+        expect(c3.internalLyphsInLayers[0]).to.be.equal(3);
+
+        expect(c3).to.have.property("layers");
+        expect(c3.layers).to.be.an('array').that.has.length(14);
+        //assuming counting of layers from 0
+        expect(c3.layers[3]).to.have.property("id").that.equal("ref_mat_KM_27_K_129_c3_4");
+        expect(c3.layers[3]).to.have.property("internalLyphs");
+        expect(c3.layers[3].internalLyphs).to.be.an('array').that.has.length(1);
+        expect(c3.layers[3].internalLyphs[0]).to.be.an('object');
+        expect(c3.layers[3].internalLyphs[0]).to.have.property("class").that.equal("Lyph");
+        expect(c3.layers[3].internalLyphs[0]).to.have.property("id").that.equal("soma");
+    });
+
+    //TODO check that neuron trees are embedded to the correct housing lyph layers
 
     afterEach(() => {});
 });
