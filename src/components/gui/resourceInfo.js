@@ -43,6 +43,7 @@ export class ResourceInfoPanel {
         if (this.resource && this.resource.constructor) {
             this._fieldMap = {};
             (this._resource.infoFields||[]).forEach(key => {
+                if (!key) { return; }
                 if (this._resource[key]){
                     if (this._resource[key]::isArray()){
                         this._fieldMap[key] = this.FIELD_TYPES.ARRAY;
@@ -53,9 +54,9 @@ export class ResourceInfoPanel {
                     }
                 }
                 if (!this._fieldMap[key]){
-                    this._fieldMap[key] = this.FIELD_TYPES.STRING;
+                    this._fieldMap[key] = this.FIELD_TYPES.TEXT;
                 }
-            })
+            });
         }
     };
 

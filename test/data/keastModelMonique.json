@@ -1,0 +1,968 @@
+{
+    "nodes": [
+        {
+            "id": "cn1",
+            "layout": {
+                "x": -100
+            }
+        },
+        {
+            "id": "cn2",
+            "layout": {
+                "x": 100
+            }
+        }
+    ],
+    "links": [
+        {
+            "id": "lnk-soma",
+            "source": "ns1",
+            "target": "ns2",
+            "length": 10,
+            "conveyingLyph": "sn1"
+        }
+    ],
+    "lyphs": [
+        {
+            "id": "K1",
+            "name": "C1",
+            "external": [
+                "UBERON:0006469"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K2",
+            "name": "C2",
+            "external": [
+                "UBERON:0006489"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K3",
+            "name": "C3",
+            "external": [
+                "UBERON:0006488"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K4",
+            "name": "C4",
+            "external": [
+                "UBERON:0006490"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K5",
+            "name": "C5",
+            "external": [
+                "UBERON:0006491"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K6",
+            "name": "C6",
+            "external": [
+                "UBERON:0006492"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K7",
+            "name": "C7",
+            "external": [
+                "UBERON:0006493"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K8",
+            "name": "C8",
+            "external": [
+                "UBERON:0006470"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K9",
+            "name": "T1",
+            "external": [
+                "UBERON:0006457"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K10",
+            "name": "T2",
+            "external": [
+                "UBERON:0006458"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K11",
+            "name": "T3",
+            "external": [
+                "UBERON:0006459"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K12",
+            "name": "T4",
+            "external": [
+                "UBERON:0006452"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K13",
+            "name": "T5",
+            "external": [
+                "UBERON:0006453"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K14",
+            "name": "T6",
+            "external": [
+                "UBERON:0006454"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K15",
+            "name": "T7",
+            "external": [
+                "UBERON:0006455"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K16",
+            "name": "T8",
+            "external": [
+                "UBERON:0006456"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K17",
+            "name": "T9",
+            "external": [
+                "UBERON:0006465"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K18",
+            "name": "T10",
+            "external": [
+                "UBERON:0006466"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K19",
+            "name": "T11",
+            "external": [
+                "UBERON:0006467"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K20",
+            "name": "T12",
+            "external": [
+                "UBERON:0006468"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K21",
+            "name": "T13",
+            "external": [
+                "EMAPA:19554"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K22",
+            "name": "L1",
+            "external": [
+                "UBERON:0006448"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K23",
+            "name": "L2",
+            "external": [
+                "UBERON:0006450"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K24",
+            "name": "L3",
+            "external": [
+                "UBERON:0006449"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K25",
+            "name": "L4",
+            "external": [
+                "UBERON:0006451"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K26",
+            "name": "L5",
+            "external": [
+                "UBERON:0006447"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K27",
+            "name": "L6",
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K28",
+            "name": "S1",
+            "external": [
+                "UBERON:0006460"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K29",
+            "name": "S2",
+            "external": [
+                "UBERON:0006461"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K30",
+            "name": "S3",
+            "external": [
+                "UBERON:0006462"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K31",
+            "name": "S4",
+            "external": [
+                "UBERON:0006463"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K32",
+            "name": "Cx1",
+            "external": [
+                "FMA:256635"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K33",
+            "name": "Cx2",
+            "external": [
+                "FMA:256635"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K34",
+            "name": "Cx3",
+            "external": [
+                "FMA:256635"
+            ],
+            "topology": "BAG",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K_129",
+            "name": "Segment of Spinal Cord",
+            "external": [
+                "UBERON:0005844"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "K_86",
+                "KM_27",
+                "K_85",
+                "K_84",
+                "K_83",
+                "K_82",
+                "K_81",
+                "K_80",
+                "K_79",
+                "K_78",
+                "K_77",
+                "KM_27"
+            ]
+        },
+        {
+            "id": "K35",
+            "name": "Midbrain",
+            "external": [
+                "UBERON:0001891",
+                "ILX:0106935"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K36"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "K36",
+            "name": "ventrolateral periaqueductal gray",
+            "external": [
+                "UBERON:0003040"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn1"
+            ]
+        },
+        {
+            "id": "K37",
+            "name": "bed nucleus of the stria terminalis",
+            "external": [
+                "UBERON:0001880"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K38",
+            "name": "central nucleus of the amygdala",
+            "external": [
+                "UBERON:0002883"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K39",
+            "name": "Diencephalon",
+            "external": [
+                "UBERON:0001894"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K40",
+                "K41",
+                "K42",
+                "K43"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "K40",
+            "name": "medial preoptic area",
+            "external": [
+                "UBERON:0007769"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K41",
+            "name": "lateral preoptic area",
+            "external": [
+                "UBERON:0001931"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K42",
+            "name": "lateral hypothalamic area",
+            "external": [
+                "UBERON:0002430"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K43",
+            "name": "median preoptic nucleus",
+            "external": [
+                "UBERON:0002625"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K44",
+            "name": "Pons",
+            "external": [
+                "UBERON:0000988"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K45"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "K45",
+            "name": "Barrington's nucleus",
+            "external": [
+                "UBERON:0007632"
+            ],
+            "materials": [
+                "KM_28"
+            ]
+        },
+        {
+            "id": "K52",
+            "name": "Medulla",
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ]
+        },
+        {
+            "id": "K53",
+            "name": "Telencephalon",
+            "topology": "BAG2",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K37",
+                "K38"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "229",
+            "name": "Segment of neuron",
+            "external": [
+                "CL:0000540"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "54",
+                "56",
+                "116"
+            ]
+        },
+        {
+            "id": "sn1",
+            "name": "Soma of neuron 1",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229"
+        },
+        {
+            "id": "229bag",
+            "name": "Segment of neuron",
+            "isTemplate": true,
+            "topology": "BAG",
+            "supertype": "229"
+        }
+    ],
+    "materials": [
+        {
+            "id": "KM_1",
+            "name": "Urine",
+            "external": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "KM_2",
+                "KM_3",
+                "KM_4",
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_2",
+            "name": "Water",
+            "external": [
+                "CHEBI:15377"
+            ]
+        },
+        {
+            "id": "KM_3",
+            "name": "Urea",
+            "external": [
+                "CHEBI:16199"
+            ]
+        },
+        {
+            "id": "KM_4",
+            "name": "Uric Acid",
+            "external": [
+                "CHEBI:27226"
+            ]
+        },
+        {
+            "id": "KM_5",
+            "name": "Extracellular fluid",
+            "external": [
+                "CHEBI:24839"
+            ]
+        },
+        {
+            "id": "KM_6",
+            "name": "Endothelium",
+            "external": [
+                "UBERON:0001986"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_7",
+            "name": "Blood",
+            "external": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_8",
+            "name": "Aqueous solution",
+            "external": [
+                "FMA:85815"
+            ],
+            "materials": [
+                "KM_2",
+                "KM_13",
+                "KM_14",
+                "KM_15",
+                "KM_16",
+                "KM_17",
+                "KM_18",
+                "KM_19",
+                "KM_20",
+                "KM_21"
+            ]
+        },
+        {
+            "id": "KM_9",
+            "name": "Cerebrospinal fluid",
+            "external": [
+                "UBERON:0001359"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_10",
+            "name": "Smooth muscle ",
+            "external": [
+                "UBERON:0001135"
+            ]
+        },
+        {
+            "id": "KM_11",
+            "name": "Connective Tissue",
+            "external": [
+                "UBERON:0002384"
+            ]
+        },
+        {
+            "id": "KM_13",
+            "name": "Sodium ion",
+            "external": [
+                "CHEBI:29101"
+            ]
+        },
+        {
+            "id": "KM_14",
+            "name": "Potassium ion",
+            "external": [
+                "CHEBI:29103"
+            ]
+        },
+        {
+            "id": "KM_15",
+            "name": "Calcium ion",
+            "external": [
+                "CHEBI:29108"
+            ]
+        },
+        {
+            "id": "KM_16",
+            "name": "Chloride ion",
+            "external": [
+                "CHEBI:17996"
+            ]
+        },
+        {
+            "id": "KM_17",
+            "name": "Hydrogen ion",
+            "external": [
+                "CHEBI:24636"
+            ]
+        },
+        {
+            "id": "KM_18",
+            "name": "Hydroxide ion",
+            "external": [
+                "CHEBI:16234"
+            ]
+        },
+        {
+            "id": "KM_19",
+            "name": "Bicarbonate ion ",
+            "external": [
+                "CHEBI:17544"
+            ]
+        },
+        {
+            "id": "KM_20",
+            "name": "Liquid",
+            "external": [
+                "NCIT:C45298"
+            ]
+        },
+        {
+            "id": "KM_21",
+            "name": "Fluid",
+            "external": [
+                "NCIT:C25278"
+            ]
+        },
+        {
+            "id": "KM_22",
+            "name": "Peripheral nervous system tissue",
+            "external": [
+                "UBERON:0000010"
+            ],
+            "materials": [
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_23",
+            "name": "Ependyma",
+            "external": [
+                "UBERON:0004670"
+            ]
+        },
+        {
+            "id": "KM_24",
+            "name": "Pia mater",
+            "external": [
+                "UBERON:0002361"
+            ]
+        },
+        {
+            "id": "KM_25",
+            "name": "Central nervous system tissue",
+            "external": [
+                "UBERON:0001017"
+            ],
+            "materials": [
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_26",
+            "name": "Wall of vessel",
+            "external": [
+                "UBERON:0035965"
+            ],
+            "materials": [
+                "KM_11"
+            ]
+        },
+        {
+            "id": "KM_27",
+            "name": "White matter of CNS",
+            "external": [
+                "UBERON:0016549"
+            ]
+        },
+        {
+            "id": "KM_28",
+            "name": "Gray matter of CNS",
+            "external": [
+                "UBERON:0016548"
+            ]
+        },
+        {
+            "id": "K_77",
+            "name": "lamina I of gray matter of spinal cord",
+            "external": [
+                "UBERON:0006118"
+            ]
+        },
+        {
+            "id": "K_78",
+            "name": "lamina II of gray matter of spinal cord",
+            "external": [
+                "UBERON:0002181"
+            ]
+        },
+        {
+            "id": "K_79",
+            "name": "lamina III of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016574"
+            ]
+        },
+        {
+            "id": "K_80",
+            "name": "lamina IV of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016575"
+            ]
+        },
+        {
+            "id": "K_81",
+            "name": "lamina V of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016576"
+            ]
+        },
+        {
+            "id": "K_82",
+            "name": "lamina VI of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016577"
+            ]
+        },
+        {
+            "id": "K_83",
+            "name": "lamina VII of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016578"
+            ]
+        },
+        {
+            "id": "K_84",
+            "name": "lamina VIII of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016579"
+            ]
+        },
+        {
+            "id": "K_85",
+            "name": "lamina IX of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016580"
+            ]
+        },
+        {
+            "id": "K_86",
+            "name": "lamina X of gray matter of spinal cord",
+            "external": [
+                "UBERON:0004677"
+            ]
+        },
+        {
+            "id": "54",
+            "name": "Cytosol",
+            "external": [
+                "GO:0005829"
+            ]
+        },
+        {
+            "id": "55",
+            "name": "Membrane",
+            "external": [
+                "GO:0016020"
+            ]
+        },
+        {
+            "id": "56",
+            "name": "Plasma membrane",
+            "external": [
+                "GO:0005886"
+            ]
+        },
+        {
+            "id": "116",
+            "name": "Extracellular fluid",
+            "external": [
+                "GO:0005615"
+            ]
+        }
+    ],
+    "chains": [
+        {
+            "id": "ch1",
+            "lyphs": [
+                "K53",
+                "K39",
+                "K35",
+                "K44",
+                "K52",
+                "K1",
+                "K2",
+                "K3",
+                "K4",
+                "K5",
+                "K6",
+                "K7",
+                "K8",
+                "K9",
+                "K10",
+                "K11",
+                "K12",
+                "K13",
+                "K14",
+                "K15",
+                "K16",
+                "K17",
+                "K18",
+                "K19",
+                "K20",
+                "K21",
+                "K22",
+                "K23",
+                "K24",
+                "K25",
+                "K26",
+                "K27",
+                "K28",
+                "K29",
+                "K30",
+                "K31",
+                "K32",
+                "K33",
+                "K34"
+            ],
+            "root": "cn1",
+            "leaf": "cn2",
+            "length": 100
+        },
+        {
+            "id": "dcn1",
+            "name": "VLPAG dendrite chain",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "leaf": "ns1",
+            "lyphTemplate": "229bag",
+            "housingLyphs": [
+                "K36"
+            ]
+        },
+        {
+            "id": "acn1",
+            "name": "VLPAG axon chain",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "root": "ns2",
+            "lyphTemplate": "229bag",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K36",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "Internal lyphs",
+            "lyphs": ["K36", "K37", "K38", "K40", "K41", "K42", "K43", "K45"]
+        }
+    ],
+    "id": "model1",
+    "name": "Test Keast Model"
+}

@@ -120,7 +120,17 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
         expect(c3.layers[3].internalLyphs[0]).to.have.property("id").that.equal("soma");
     });
 
+    it("Neuron chains are embedded to the correct housing lyph layers", () => {
+        const t1 = graphData.chains.find(chain => chain.id === "ch1");
+        expect(t1).to.be.an('object');
+        expect(t1).to.have.property("housingLayers").that.is.an('array');
+        //expect(t1).to
+
+    });
+
     //TODO check that neuron trees are embedded to the correct housing lyph layers
+    // "KM_9", "KM_23", "K_86", "KM_27", "K_85", "K_84", "K_83", "K_82", "K_81", "K_80", "K_79", "K_78", "K_77", "KM_27"
+    //  2, 3, 4, 5, 6, 7, 8
 
     afterEach(() => {});
 });

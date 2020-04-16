@@ -174,7 +174,7 @@ Link.prototype.createViewObjects = function(state){
             obj.add(arrow);
         }
 
-        if (this.geometry === Link.LINK_GEOMETRY.SPLINE) {
+        if (this.geometry === Link.LINK_GEOMETRY.SPLINE && (!this.prev || !this.next)) {
             this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x !== this);
             this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x !== this);
         }

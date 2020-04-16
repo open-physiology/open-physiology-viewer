@@ -106,13 +106,14 @@ export class Chain extends GroupTemplate {
             return template;
         }
 
+        //TODO test
         function getTopology(level, N, template){
             if (template){
+                if (template.topology === Lyph.LYPH_TOPOLOGY.CYST && N === 1){
+                    return Lyph.LYPH_TOPOLOGY.CYST;
+                }
                 if (level === 0) {
                     if ([Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
-                        if (N === 1){
-                            return Lyph.LYPH_TOPOLOGY.CYST;
-                        }
                         return Lyph.LYPH_TOPOLOGY.BAG2;
                     }
                 }
@@ -280,7 +281,7 @@ export class Chain extends GroupTemplate {
                     link.length = chain.length / N;
                 }
                 if (prev){
-                    prev.next = link;
+                    prev.next = link.id;
                 }
                 prev = link;
 

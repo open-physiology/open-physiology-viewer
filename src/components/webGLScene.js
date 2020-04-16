@@ -164,6 +164,7 @@ export class WebGLSceneComponent {
             this._graphData.showGroups(new Set(this._graphData.findGeneratedFromIDs(this.config.showGroups)));
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.scaleFactor);
+            this.selected = null;
             if (this.graph) { this.graph.graphData(this._graphData); }
         }
     }
