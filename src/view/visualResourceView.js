@@ -13,7 +13,7 @@ import {
     getCenterOfMass
 } from "./utils";
 
-import '../three/lines/Line2.js';
+import './/lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Link, Node} = modelClasses;

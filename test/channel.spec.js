@@ -8,14 +8,14 @@ import {
 import uotWithChannels from './data/uotWithChannels.json';
 import {modelClasses} from '../src/model/index';
 
-describe("Generate groups from templates - UOT with channels", () => {
+describe("Generate groups from channel templates (UOT)", () => {
     let graphData;
     beforeEach(() => {
         graphData = modelClasses.Graph.fromJSON(uotWithChannels, modelClasses);
     });
 
     it("Channel templates expanded", () => {
-        expect(graphData).to.have.a.property("channels");
+        expect(graphData).to.have.property("channels");
         expect(graphData.channels).to.be.an('array').that.has.length(2);
 
         const ch1 = graphData.channels[0];

@@ -16,7 +16,7 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
     });
 
     it("Housing chain template expanded", () => {
-        expect(graphData).to.have.a.property("chains");
+        expect(graphData).to.have.property("chains");
         expect(graphData.chains).to.be.an('array').that.has.length(3);
 
         const ch1 = graphData.chains[0];
@@ -26,7 +26,7 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
         expect(ch1).to.have.property("levels").that.is.an('array');
         expect(ch1.levels.length).to.be.equal(16);
 
-        expect(graphData).to.have.a.property("nodes");
+        expect(graphData).to.have.property("nodes");
         expect(graphData.nodes).to.be.an('array');
 
         const n1 = graphData.nodes.find(x => x.id === "n1");
@@ -41,7 +41,7 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
         expect(n2.leafOf).to.be.an('array').that.has.length(1);
         expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
-        expect(graphData).to.have.a.property("groups");
+        expect(graphData).to.have.property("groups");
         expect(graphData.groups).to.be.an('array').that.has.length(3);
         const gr1 = graphData.groups[0];
         expect(gr1).to.be.an('object');
@@ -72,7 +72,7 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
         expect(t1).to.have.property("numLevels").that.equal(7);
         expect(t1).to.have.property("levels").that.is.an('array');
         expect(t1.levels.length).to.be.equal(7);
-        expect(graphData).to.have.a.property("lyphs");
+        expect(graphData).to.have.property("lyphs");
         expect(graphData.lyphs).to.be.an('array');
         const genLyphs = graphData.lyphs.filter(e => e.id && e.id.startsWith("nn1_"));
         expect(genLyphs).to.be.an('array');
@@ -121,17 +121,34 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
     });
 
     it("Neuron chains are embedded to the correct housing lyph layers", () => {
-        const t1 = graphData.chains.find(chain => chain.id === "ch1");
-        expect(t1).to.be.an('object');
-        expect(t1).to.have.property("housingLayers").that.is.an('array');
-        //expect(t1).to
+        const ch1 = graphData.chains.find(chain => chain.id === "ch1");
+        expect(ch1).to.be.an('object');
+        expect(ch1).to.have.property("lyphs");
+        expect(ch1.lyphs).to.be.an('array').that.has.length(16);
 
+        const nn1 = graphData.chains.find(chain => chain.id === "nn1");
+        expect(nn1).to.be.an('object');
+        expect(nn1).to.have.property("housingChain");
+        expect(nn1).to.have.property("housingRange");
+        expect(nn1).to.have.property("housingLayers");
+        expect(nn1.housingRange).to.have.property("min").that.equals(2);
+        expect(nn1.housingRange).to.have.property("max").that.equals(9);
+        expect(nn1.housingLayers).to.be.an('array').that.has.length(7);
+
+        for (let i = nn1.housingRange.min; i < nn1.housingRange.max; i++){
+            expect(ch1.lyphs[i]).to.be.an('object');
+            expect(ch1.lyphs[i]).to.have.property('layers');
+            let j = nn1.housingLayers[i - nn1.housingRange.min];
+            expect(ch1.lyphs[i].layers).to.be.an('array').that.has.length.above(j);
+            expect(ch1.lyphs[i].layers[j]).to.be.an('object');
+            expect(ch1.lyphs[i].layers[j]).to.have.property('bundles');
+            let lnk = ch1.lyphs[i].layers[j].bundles;
+            expect(lnk).to.be.an('array').that.has.length.above(0);
+            expect(lnk[0]).to.be.an('object');
+            expect(lnk[0]).to.have.property('class').that.equal('Link');
+            //To do check that there is a link that a link with conveying neuron
+        }
     });
-
-    //TODO check that neuron trees are embedded to the correct housing lyph layers
-    // "KM_9", "KM_23", "K_86", "KM_27", "K_85", "K_84", "K_83", "K_82", "K_81", "K_80", "K_79", "K_78", "K_77", "KM_27"
-    //  2, 3, 4, 5, 6, 7, 8
-
     afterEach(() => {});
 });
 

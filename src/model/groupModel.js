@@ -2,9 +2,7 @@ import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
 import {logger} from './logger';
-import {Link, Node} from './visualResourceModel';
-import {Lyph} from "./shapeModel";
-import {Villus} from "./groupTemplateModel";
+import {Villus} from "./villusModel";
 
 /**
  * Group (subgraph) model
@@ -41,10 +39,10 @@ export class Group extends Resource {
         this.expandGroupTemplates(json, modelClasses);
 
         //create lyphs that inherit properties from templates
-        this.expandLyphTemplates(json.lyphs);
+        this.expandLyphTemplates(json.lyphs, modelClasses);
 
         //create villi
-        this.createVilli(json);
+        this.createVilli(json, modelClasses);
 
         /******************************************************************************************************/
         /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
@@ -56,7 +54,7 @@ export class Group extends Resource {
         this.createTemplateInstances(json, modelClasses);
 
         //Clone nodes simultaneously required to be on two or more lyph borders
-        this.replaceBorderNodes(json);
+        this.replaceBorderNodes(json, modelClasses);
 
         //Reposition internal resources
         this.internalResourcesToLayers(json.lyphs);
@@ -76,7 +74,7 @@ export class Group extends Resource {
         });
 
         //validate process edges
-        res.validateProcessEdges();
+        res.validateProcessEdges(modelClasses);
 
         //Assign color to visual resources with no color in the spec
         addColor(res.regions, $Color.Region);
@@ -216,31 +214,34 @@ export class Group extends Resource {
     /**
      * Create lyphs that inherit properties from templates
      * @param lyphs
+     * @param modelClasses
      */
-    static expandLyphTemplates(lyphs){
+    static expandLyphTemplates(lyphs, modelClasses){
         let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
-        templates.forEach(template => Lyph.expandTemplate(lyphs, template));
+        templates.forEach(template => modelClasses.Lyph.expandTemplate(lyphs, template));
         templates.forEach(template => delete template._inactive);
     }
 
     /**
      * Generate subgraphs to model villi
      * @param json
+     * @param modelClasses
      */
-    static createVilli(json){
+    static createVilli(json, modelClasses){
         (json.lyphs||[]).filter(lyph => lyph.villus).forEach(lyph => {
             lyph.villus.villusOf = lyph.id;
-            Villus.expandTemplate(json, lyph.villus);
+            modelClasses.Villus.expandTemplate(json, lyph.villus);
         })
     }
 
     /**
      * Replicate border nodes and create collapsible links
      * The effect of this procedure depends on the order in which lyphs that share border nodes are selected
-     * If the added dashed links create an overlap, one has to change the order of lyphs in the input file!
-     * @param json - group model defined by user
+     * If the added dashed links create an overlap, change the order of lyphs in the input file
+     * @param json
+     * @param modelClasses
      */
-    static replaceBorderNodes(json){
+    static replaceBorderNodes(json, modelClasses){
         let borderNodesByID = {};
         let lyphsWithBorders = (json.lyphs||[]).filter(lyph => lyph.border && (lyph.border.borders||[])
             .find(b => b && b.hostedNodes));
@@ -266,7 +267,7 @@ export class Group extends Resource {
 
                 for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
                     let nodeClone = { [$Field.id]: getGenID(nodeID, $Prefix.clone, i)};
-                    Node.clone(node, nodeClone);
+                    modelClasses.Node.clone(node, nodeClone);
                     json.nodes.push(nodeClone);
 
                     links.forEach(lnk => {lnk.target = nodeClone.id});
@@ -274,7 +275,7 @@ export class Group extends Resource {
                         let k = (b.hostedNodes||[]).indexOf(nodeID);
                         if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
                     });
-                    let lnk = Link.createCollapsibleLink(prev, nodeClone.id);
+                    let lnk = modelClasses.Link.createCollapsibleLink(prev, nodeClone.id);
                     json.links.push(lnk);
                     prev = nodeClone.id;
                 }
@@ -356,13 +357,14 @@ export class Group extends Resource {
 
     /**
      * Validate process edges
+     * @param modelClasses
      */
-    validateProcessEdges(){
+    validateProcessEdges(modelClasses){
         (this.links||[]).forEach(lnk => {
             if (lnk.conveyingLyph){
                 let layers = lnk.conveyingLyph.layers || [lnk.conveyingLyph];
                 if (layers[0] && layers[0].materials){
-                    if (lnk.conveyingType === Link.PROCESS_TYPE.ADVECTIVE){
+                    if (lnk.conveyingType === modelClasses.Link.PROCESS_TYPE.ADVECTIVE){
                         if (!lnk.conveyingMaterials || lnk.conveyingMaterials.length === 0){
                             lnk.conveyingMaterials = layers[0].materials;
                         } else {
