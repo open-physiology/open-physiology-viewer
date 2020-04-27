@@ -240,7 +240,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "generated" ],
+          "default": [ "id", "name", "class", "generated"],
           "advanced": true
         }
       }
@@ -480,7 +480,7 @@
           "relatedTo": "target",
           "advanced": true
         },
-        "rootOf"         : {
+        "rootOf"  : {
           "description": "The chain that starts in this node",
           "type": "array",
           "items": {
@@ -495,7 +495,7 @@
           },
           "relatedTo": "root"
         },
-        "leafOf"         : {
+        "leafOf"  : {
           "description": "The chain that ends in this node",
           "type": "array",
           "items": {

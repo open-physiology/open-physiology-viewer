@@ -297,7 +297,7 @@ export class Group extends Resource {
                     if (internalResourceID && !layer[prop].find(x => x === internalResourceID)){
                         layer[prop].push(internalResourceID);
                     }
-                    logger.info("Placed resource into layer", internalResourceID, layer);
+                    logger.info("Placed resource into layer", internalResourceID, layer.id, prop, layer[prop]);
                     lyph[prop][resourceIndex] = null;
                 } else {
                     logger.warn("Failed to locate layer lyph to reposition internal lyphs", lyph, layerIndex, lyph.layers[layerIndex]);

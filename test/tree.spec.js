@@ -7,7 +7,7 @@ import {
 } from './test.helper';
 import uot from './data/uot';
 
-import {modelClasses} from '../src/model/index';
+
 
 describe("Generate groups from tree templates", () => {
     let graphData;

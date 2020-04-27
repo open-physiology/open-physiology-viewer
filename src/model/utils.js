@@ -48,6 +48,7 @@ export const $Prefix = {
     lyph    : "lyph",   //generated lyph
     group   : "group",  //generated group
     instance: "inst",   //instance
+    chain   : "chain",  //chain
     tree    : "tree",   //tree
     channel : "ch",     //channel
     coalescence: "cls", //coalescence instance

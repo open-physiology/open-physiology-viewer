@@ -149,6 +149,11 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
             //To do check that there is a link that a link with conveying neuron
         }
     });
+
+    it("Collapsible links collapse", () => {
+
+    });
+
     afterEach(() => {});
 });
 

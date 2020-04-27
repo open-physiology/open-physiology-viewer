@@ -211,7 +211,8 @@ export class Lyph extends Shape {
      * @returns {boolean}
      */
     get isVisible() {
-        return super.isVisible && (!this.layerIn || this.layerIn.isVisible);
+        return super.isVisible &&
+            (this.layerIn && this.layerIn.isVisible || this.conveys && this.conveys.isVisible); //either a visible layer or must convey a visible link
     }
 
     /**

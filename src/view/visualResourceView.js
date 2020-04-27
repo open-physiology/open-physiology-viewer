@@ -24,7 +24,7 @@ const {VisualResource, Link, Node} = modelClasses;
  */
 VisualResource.prototype.createLabels = function(state){
 
-    if (this.skipLabel) { return; }
+    if (this.skipLabel || !state.showLabels) { return; }
     let labelKey = state.labels[this.constructor.name];
     this.labels = this.labels || {};
 
@@ -48,12 +48,13 @@ VisualResource.prototype.createLabels = function(state){
 VisualResource.prototype.updateLabels = function(state, position){
     if (this.skipLabel || !state.showLabels) { return; }
     let labelKey  = state.labels[this.constructor.name];
-    let isVisible = state.showLabels[this.constructor.name];
     if (this.labels[labelKey]){
-        this.labels[labelKey].visible = isVisible;
-        this.labels[labelKey].scale.set(state.labelRelSize , state.labelRelSize , state.labelRelSize );
-        copyCoords(this.labels[labelKey].position, position);
-        this.viewObjects['label'] = this.labels[labelKey];
+        this.labels[labelKey].visible = state.showLabels[this.constructor.name];
+        if (this.labels[labelKey].visible) {
+            this.labels[labelKey].scale.set(state.labelRelSize, state.labelRelSize, state.labelRelSize);
+            copyCoords(this.labels[labelKey].position, position);
+            this.viewObjects['label'] = this.labels[labelKey];
+        }
     } else {
         delete this.viewObjects['label'];
     }
@@ -263,15 +264,16 @@ Link.prototype.updateViewObjects = function(state) {
 
     //Merge nodes of a collapsible link
     if (this.collapsible){
-        if (!this.source.isConstrained && !this.target.isConstrained) {
+          if (!this.source.isConstrained && !this.target.isConstrained) {
             copyCoords(this.source, this.center);
             copyCoords(this.target, this.center);
         } else {
             if (!this.source.isConstrained) {
                 copyCoords(this.source, this.target);
-            }
-            if (!this.target.isConstrained) {
-                copyCoords(this.target, this.source);
+            } else {
+                if (!this.target.isConstrained) {
+                    copyCoords(this.target, this.source);
+                }
             }
         }
     }

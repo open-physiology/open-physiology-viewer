@@ -213,7 +213,7 @@ export class WebGLSceneComponent {
             },
             "groups": true,
             "labels": {
-                "Node"  : true,
+                "Node"  : false,
                 "Link"  : false,
                 "Lyph"  : false,
                 "Region": false

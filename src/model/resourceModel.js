@@ -337,7 +337,7 @@ export class Resource{
                     else {
                         if (obj[key2] !== res) {
                             logger.warn(`Property "${key2}" of the first resource (${obj.class}) should match the second resource:`,
-                                obj, res, obj[key2].id, res.id);
+                                obj, res.id);
                         }
                     }
                 }

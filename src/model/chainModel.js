@@ -29,13 +29,13 @@ import {defaults, isObject, isArray, flatten} from 'lodash-bound';
 export class Chain extends GroupTemplate {
 
     /**
-     * Generate a group from tree template
+     * Generate a group from chain template
      * @param parentGroup - model resources that may be referred from the template
      * @param chain - chain template in JSON
      */
     static expandTemplate(parentGroup, chain){
         if (!chain){
-            logger.warn("Cannot expand undefined tree template");
+            logger.warn("Cannot expand undefined chain template");
             return;
         }
 
@@ -43,7 +43,7 @@ export class Chain extends GroupTemplate {
             return; //skip already expanded
         }
 
-        chain.id = chain.id || getGenID("tree", getNewID());
+        chain.id = chain.id || getGenID($Prefix.chain, getNewID());
 
         const isDefined = value => value && value::isArray() && value.length > 0;
 
@@ -64,7 +64,7 @@ export class Chain extends GroupTemplate {
                     mergeGenResource(chain.group, parentGroup, template, $Field.lyphs);
                     chain.lyphTemplate = template.id;
                 } else {
-                    //find lyph template to establish topology of the tree
+                    //find lyph template to establish chain topology
                     template = (parentGroup.lyphs||[]).find(e => e.id === chain.lyphTemplate);
                     if (!template){
                         logger.error("Failed to find the lyph template definition in the parent group: ",
@@ -75,7 +75,6 @@ export class Chain extends GroupTemplate {
             return template;
         }
 
-        //TODO test
         function getTopology(level, N, template){
             if (template){
                 if (template.topology === Lyph.LYPH_TOPOLOGY.CYST && N === 1){
@@ -120,9 +119,8 @@ export class Chain extends GroupTemplate {
 
             let [start, end] = [$Field.root, $Field.leaf].map(prop => findResourceByID(parentGroup.nodes, chain[prop]));
 
-            //TODO add layout property with estimated coordinates
             for (let i = 0; i < lyphs.length + 1; i++) {
-                let nodeID = (i === 0 && chain.start)? chain.start: (i === lyphs.length && chain.leaf)? chain.leaf: getGenID(chain.id, $Prefix.node, i);
+                let nodeID = (i === 0 && chain.root)? chain.root: (i === lyphs.length && chain.leaf)? chain.leaf: getGenID(chain.id, $Prefix.node, i);
                 let node = (i === 0 && start)
                     ? start
                     : (i === lyphs.length && end)
@@ -133,6 +131,15 @@ export class Chain extends GroupTemplate {
                             [$Field.skipLabel] : true,
                             [$Field.generated] : true
                         };
+                if (start && start.layout && end && end.layout){
+                    if (i > 0 && i < lyphs.length) {
+                        //we can interpolate chain node positions for quicker layout
+                        node.layout = {};
+                        ["x", "y", "z"].forEach(dim => {
+                            node.layout[dim] = (start.layout[dim] || 0) + ((end.layout[dim] || 0) - (start.layout[dim] || 0)) / lyphs.length * (i + 1);
+                        });
+                    }
+                }
                 mergeGenResource(chain.group, parentGroup, node, $Field.nodes);
             }
 
@@ -196,11 +203,11 @@ export class Chain extends GroupTemplate {
                 chain.levels[i] = findResourceByID(parentGroup.links, chain.levels[i]) || {};
             }
 
-            //Match number of requested levels with the tree.levels[i] array length
+            //Match number of requested levels with the levels[i] array length
             if (chain.levels.length !== chain.numLevels){
                 let min = Math.min(chain.levels.length, chain.numLevels || 100);
                 let max = Math.max(chain.levels.length, chain.numLevels || 0);
-                logger.info(`Corrected number of levels in the tree from ${min} to ${max}` );
+                logger.info(`Corrected number of levels in the chain from ${min} to ${max}` );
                 for (let i = min; i < max; i++){
                     chain.levels.push({});
                 }
@@ -283,13 +290,11 @@ export class Chain extends GroupTemplate {
         } else {
             deriveFromLevels(parentGroup, chain);
         }
-
-
-
     }
 
+
     /**
-     * Align tree levels along housing lyphs
+     * Align chain levels along housing lyphs
      * @param parentGroup
      * @param chain
      */
@@ -317,6 +322,11 @@ export class Chain extends GroupTemplate {
             let hostLyph = housingLyph;
             if (hostLyph.layers){
                 let layers = hostLyph.layers.map(layerID => findResourceByID(parentGroup.lyphs, layerID));
+                layers = layers.filter(layer => !!layer);
+                if (layers.length < hostLyph.layers){
+                    logger.warn("Failed to find all lyph layers: ", hostLyph.layers);
+                    return;
+                }
                 let bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id));
                 let index = layers.length - 1;
                 if (chain.housingLayers && chain.housingLayers.length > i){
@@ -334,7 +344,7 @@ export class Chain extends GroupTemplate {
             let level = findResourceByID(parentGroup.links, chain.levels[i]);
 
             if (!hostLyph || !level)  {
-                logger.warn(`Could not house a tree level ${chain.levels[i]} in a lyph ${housingLyph.id}`, level, hostLyph);
+                logger.warn(`Could not house a chain level ${chain.levels[i]} in a lyph ${housingLyph.id}`, level, hostLyph);
                 return;
             }
 

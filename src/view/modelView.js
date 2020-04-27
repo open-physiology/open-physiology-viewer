@@ -1,10 +1,7 @@
 import {values} from 'lodash-bound';
 import {modelClasses} from "../model/index.js";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
-import {copyCoords,
-    extractCoords
-} from "./utils";
-
+import {copyCoords, extractCoords} from "./utils";
 import './visualResourceView';
 import './shapeView';
 

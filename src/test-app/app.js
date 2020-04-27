@@ -12,6 +12,7 @@ import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
+import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
 import { modelClasses, schema} from '../model/index';
@@ -135,6 +136,12 @@ const ace = require('ace-builds');
                         </button>
                     </section>
                     <section #jsonEditor id="json-editor" > </section>
+                </mat-tab>
+                
+                <!--Repository models-->
+                <mat-tab class="w3-margin">
+                    <ng-template mat-tab-label><i class="fa fa-wpforms"> Repository </i></ng-template>
+                    <modelRepoPanel></modelRepoPanel>
                 </mat-tab>
 
             </mat-tab-group>
@@ -400,7 +407,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
-        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule],
+        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule],
 	declarations: [ TestApp, StopPropagation ],
     bootstrap   : [ TestApp ],
     providers   : [

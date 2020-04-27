@@ -2,7 +2,6 @@ import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
-import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {HttpClient} from "@angular/common/http";
 
 /**
@@ -12,6 +11,10 @@ import {HttpClient} from "@angular/common/http";
     selector: 'modelRepoPanel',
     template: ` 
             <section class="w3-padding-small">
+                <button class="w3-bar-item w3-hover-light-grey"
+                        (click)="executeQuery()" title="Load models">
+                    <i class="fa fa-database"> </i>
+                </button>
             </section>
     `,
     styles: [`
@@ -22,21 +25,28 @@ import {HttpClient} from "@angular/common/http";
     `]
 })
 export class ModelRepoPanel {
-
-    @Input() models;
-
+    models;
     /**
      * Load ApiNATOMY models from GitHub repository
      * @param http
      */
     constructor(http: HttpClient) {
+        this.http  = http;
+    }
+
+    executeQuery(){
+        let url = "https://api.github.com/users/albatros/repos";
+
+        this.http.get(url).subscribe(res => {
+            this.result = JSON.stringify(res);
+            console.log(this.result);
+        })
     }
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, LogInfoModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule],
     declarations: [ModelRepoPanel],
-    entryComponents: [LogInfoDialog],
     exports: [ModelRepoPanel]
 })
 export class ModelRepoPanelModule {
