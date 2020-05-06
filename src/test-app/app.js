@@ -58,7 +58,6 @@ const ace = require('ace-builds');
 				<a href="http://open-physiology-viewer-docs.surge.sh"><i class="fa fa-home"> </i></a>
             </span>
         </header>
-        
 
         <!--Left toolbar-->
 
@@ -81,17 +80,33 @@ const ace = require('ace-builds');
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
                 <i class="fa fa-object-group"> </i>
             </button>
+            <button *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+                    (click)="showRepoPanel = !showRepoPanel" title="Show model repository">
+                <i class="fa fa-database"> </i>
+            </button>
+            <button *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+                    (click)="showRepoPanel = !showRepoPanel" title="Hide model repository">
+                <i class="fa fa-window-close"> </i>
+            </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i>
             </button>
-        </section> 
+        </section>        
+       
 
         <!--Views-->
         
         <section id="main-panel">
+            <section id="repo-panel" *ngIf="showRepoPanel" class="w3-quarter w3-gray w3-border-right w3-border-white">
+                <section class="w3-padding-small">
+                    <i class="fa fa-database"> Model Repository </i>
+                </section>
+                <modelRepoPanel></modelRepoPanel>
+            </section>
+            
             <mat-tab-group animationDuration="0ms">
                 <!--Viewer-->
-                <mat-tab class="w3-margin">
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-heartbeat"> Viewer </i></ng-template>
                     <webGLScene
                             [modelClasses]          = "modelClasses"
@@ -103,13 +118,13 @@ const ace = require('ace-builds');
                 </mat-tab>
 
                 <!--Relationship graph-->
-                <mat-tab class="w3-margin">
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
                     <relGraph [graphData] = "_graphData"></relGraph>
                 </mat-tab>
 
                 <!--Table editor-->
-                <mat-tab class="w3-margin">
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-wpforms"> Resources </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyTableEditorChanges()" title="Apply changes">
@@ -128,7 +143,7 @@ const ace = require('ace-builds');
                 </mat-tab>
 
                 <!--Code editor-->
-                <mat-tab class="w3-margin">
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-edit"> Code </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()" title="Apply changes">
@@ -136,13 +151,7 @@ const ace = require('ace-builds');
                         </button>
                     </section>
                     <section #jsonEditor id="json-editor" > </section>
-                </mat-tab>
-                
-                <!--Repository models-->
-                <mat-tab class="w3-margin">
-                    <ng-template mat-tab-label><i class="fa fa-wpforms"> Repository </i></ng-template>
-                    <modelRepoPanel></modelRepoPanel>
-                </mat-tab>
+                </mat-tab>                       
 
             </mat-tab-group>
         </section>            
@@ -178,6 +187,10 @@ const ace = require('ace-builds');
             height : 100vh;
             width  : calc(100% - 48px);
         }
+        
+        #repo-panel{
+            height : 100vh;
+        }
 
         footer{
             margin-top: 10px;
@@ -190,6 +203,7 @@ export class TestApp {
     _dialog;
     _editor;
     modelClasses = modelClasses;
+    showRepoPanel = false;
 
     @ViewChild('jsonEditor') _container: ElementRef;
 

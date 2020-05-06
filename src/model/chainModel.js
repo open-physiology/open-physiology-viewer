@@ -355,6 +355,7 @@ export class Chain extends GroupTemplate {
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
 
+                //Start and end nodes
                 if (i === 0){
                     addInternalNode(hostLyph, level.source);
                     //addBorderNode(hostLyph.border.borders[1], level.source);
@@ -363,9 +364,10 @@ export class Chain extends GroupTemplate {
                 }
                 if (i === chain.housingLyphs.length - 1){
                     addInternalNode(hostLyph, level.target);
+                    //To bound to the border
                     //addBorderNode(hostLyph.border.borders[3], level.target);
                 } else {
-                    let targetNode = findResourceByID(parentGroup.nodes, level.target);
+                    let targetNode = findResourceByID(parentGroup.nodes, level.target) || {[$Field.id]: level.target};
                     let targetClone = Node.clone(targetNode);
                     addBorderNode(hostLyph.border.borders[1], targetClone.id);
                     let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
