@@ -1,0 +1,3857 @@
+{
+  "nodes": [
+    {
+      "id": "cn1",
+      "layout": {
+        "x": -100
+      }
+    },
+    {
+      "id": "cn2",
+      "layout": {
+        "x": 100
+      }
+    },
+    {
+      "id": "ns28",
+      "layout": {
+        "x": -70,
+        "y": 20
+      },
+      "fixed": true
+    },
+    {
+      "id": "ns49",
+      "layout": {
+        "x": 70,
+        "y": 20
+      },
+      "fixed": true
+    },
+    {
+      "id": "abc1",
+      "layout": {
+        "x": -100,
+        "y": 10
+      }
+    },
+    {
+      "id": "abc2",
+      "layout": {
+        "x": 100,
+        "y": 10
+      }
+    },
+    {
+      "id": "ns70",
+      "layout": {
+        "x": -100
+      }
+    },
+    {
+      "id": "ns101",
+      "layout": {
+        "x": 100
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk-soma",
+      "source": "ns1",
+      "target": "ns2",
+      "conveyingLyph": "sn1",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma2",
+      "source": "ns3",
+      "target": "ns4",
+      "conveyingLyph": "sn2",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma3",
+      "source": "ns5",
+      "target": "ns6",
+      "conveyingLyph": "sn3",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma4",
+      "source": "ns7",
+      "target": "ns8",
+      "conveyingLyph": "sn4",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma5",
+      "source": "ns9",
+      "target": "ns10",
+      "conveyingLyph": "sn5",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma6",
+      "source": "ns11",
+      "target": "ns12",
+      "conveyingLyph": "sn6",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma7",
+      "source": "ns13",
+      "target": "ns14",
+      "conveyingLyph": "sn7",
+      "length": 4
+    },
+    {
+      "id": "lnk-soma8",
+      "source": "ns15",
+      "target": "ns16",
+      "conveyingLyph": "sn8",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl16 ",
+      "source": "ns19",
+      "target": "ns20",
+      "conveyingLyph": "snl16",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl26 ",
+      "source": "ns21",
+      "target": "ns22",
+      "conveyingLyph": "snl26",
+      "length": 4
+    },
+    {
+      "id": "lnk-K102",
+      "source": "g102a",
+      "target": "g102b",
+      "conveyingLyph": "K102",
+      "length": 16
+    },
+    {
+      "id": "lnk-K104",
+      "source": "g104a",
+      "target": "g104b",
+      "conveyingLyph": "K104",
+      "length": 16
+    },
+    {
+      "id": "lnk-snl18",
+      "source": "ns24",
+      "target": "ns25",
+      "conveyingLyph": "snl18",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl28",
+      "source": "ns26",
+      "target": "ns27",
+      "conveyingLyph": "snl28",
+      "length": 4
+    },
+    {
+      "id": "lnk-t12sgs",
+      "source": "ns28",
+      "target": "ns29",
+      "conveyingLyph": "t12sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-t12-t13iss",
+      "source": "ns29",
+      "target": "ns30",
+      "conveyingLyph": "t12-t13iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-t13sgs2",
+      "source": "ns30",
+      "target": "ns31",
+      "conveyingLyph": "t13sgs2",
+      "length": 4
+    },
+    {
+      "id": "lnk-t13sgs",
+      "source": "ns31",
+      "target": "ns32",
+      "conveyingLyph": "t13sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-t13-l1iss",
+      "source": "ns31",
+      "target": "ns33",
+      "conveyingLyph": "t13-l1iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-l1sgs2",
+      "source": "ns33",
+      "target": "ns34",
+      "conveyingLyph": "l1sgs2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l1sgs",
+      "source": "ns34",
+      "target": "ns35",
+      "conveyingLyph": "l1sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-l1-l2iss",
+      "source": "ns34",
+      "target": "ns36",
+      "conveyingLyph": "l1-l2iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-l2sgs2",
+      "source": "ns36",
+      "target": "ns37",
+      "conveyingLyph": "l2sgs2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l2sgs",
+      "source": "ns37",
+      "target": "ns38",
+      "conveyingLyph": "l2sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-l2-l3iss",
+      "source": "ns37",
+      "target": "ns39",
+      "conveyingLyph": "l2-l3iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-l3sgs2",
+      "source": "ns39",
+      "target": "ns40",
+      "conveyingLyph": "l3sgs2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l3sgs",
+      "source": "ns40",
+      "target": "ns41",
+      "conveyingLyph": "l3sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-l3-l4iss",
+      "source": "ns40",
+      "target": "ns42",
+      "conveyingLyph": "l3-l4iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-l4sgs2",
+      "source": "ns42",
+      "target": "ns43",
+      "conveyingLyph": "l4sgs2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l4sgs",
+      "source": "ns43",
+      "target": "ns44",
+      "conveyingLyph": "l4sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-l4-l5iss",
+      "source": "ns43",
+      "target": "ns45",
+      "conveyingLyph": "l4-l5iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-l5sgs2",
+      "source": "ns45",
+      "target": "ns46",
+      "conveyingLyph": "l5sgs2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l5sgs",
+      "source": "ns46",
+      "target": "ns47",
+      "conveyingLyph": "l5sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-l5-l6iss",
+      "source": "ns46",
+      "target": "ns48",
+      "conveyingLyph": "l5-l6iss",
+      "length": 4
+    },
+    {
+      "id": "lnk-l6sgs",
+      "source": "ns48",
+      "target": "ns49",
+      "conveyingLyph": "l6sgs",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl17",
+      "source": "ns51",
+      "target": "ns52",
+      "conveyingLyph": "snl17",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl27",
+      "source": "ns53",
+      "target": "ns54",
+      "conveyingLyph": "snl27",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl59",
+      "source": "ns56",
+      "target": "ns57",
+      "conveyingLyph": "snl59",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl69",
+      "source": "ns58",
+      "target": "ns59",
+      "conveyingLyph": "snl69",
+      "length": 4
+    },
+    {
+      "id": "lnk-snl65",
+      "source": "ns62",
+      "target": "ns63",
+      "conveyingLyph": "snl65",
+      "length": 4
+    },
+    {
+      "id": "lnk-sns15",
+      "source": "ns64",
+      "target": "ns65",
+      "conveyingLyph": "sns15",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgt12",
+      "source": "ns70",
+      "target": "ns71",
+      "conveyingLyph": "sn-sgt12",
+      "length": 4
+    },
+    {
+      "id": "lnk-t12-t13iss_4",
+      "source": "ns71",
+      "target": "ns72",
+      "conveyingLyph": "t12-t13iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgt13",
+      "source": "ns72",
+      "target": "ns73",
+      "conveyingLyph": "sn-sgt13",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgt13_2",
+      "source": "ns73",
+      "target": "ns74",
+      "conveyingLyph": "sn-sgt13_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-t13-l1iss_4",
+      "source": "ns73",
+      "target": "ns75",
+      "conveyingLyph": "t13-l1iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl1",
+      "source": "ns75",
+      "target": "ns76",
+      "conveyingLyph": "sn-sgl1",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl1_2",
+      "source": "ns76",
+      "target": "ns77",
+      "conveyingLyph": "sn-sgl1_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l1-l2iss_4",
+      "source": "ns76",
+      "target": "ns78",
+      "conveyingLyph": "l1-l2iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl2",
+      "source": "ns78",
+      "target": "ns79",
+      "conveyingLyph": "sn-sgl2",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl2_2",
+      "source": "ns79",
+      "target": "ns80",
+      "conveyingLyph": "sn-sgl2_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l2-l3iss_4",
+      "source": "ns79",
+      "target": "ns81",
+      "conveyingLyph": "l2-l3iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl3",
+      "source": "ns81",
+      "target": "ns82",
+      "conveyingLyph": "sn-sgl3",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl3_2",
+      "source": "ns82",
+      "target": "ns83",
+      "conveyingLyph": "sn-sgl3_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l3-l4iss_4",
+      "source": "ns82",
+      "target": "ns84",
+      "conveyingLyph": "l3-l4iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl4",
+      "source": "ns84",
+      "target": "ns85",
+      "conveyingLyph": "sn-sgl4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl4_2",
+      "source": "ns85",
+      "target": "ns86",
+      "conveyingLyph": "sn-sgl4_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l4-l5iss_4",
+      "source": "ns85",
+      "target": "ns87",
+      "conveyingLyph": "l4-l5iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl5",
+      "source": "ns87",
+      "target": "ns88",
+      "conveyingLyph": "sn-sgl5",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl5_2",
+      "source": "ns88",
+      "target": "ns89",
+      "conveyingLyph": "sn-sgl5_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-l5-l6iss_4",
+      "source": "ns88",
+      "target": "ns90",
+      "conveyingLyph": "l5-l6iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl6",
+      "source": "ns90",
+      "target": "ns91",
+      "conveyingLyph": "sn-sgl6",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl6_2",
+      "source": "ns91",
+      "target": "ns92",
+      "conveyingLyph": "sn-sgl6_2",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgl6_3",
+      "source": "ns91",
+      "target": "ns93",
+      "conveyingLyph": "sn-sgl6_3",
+      "length": 4
+    },
+    {
+      "id": "lnk-l6-s1iss_4",
+      "source": "ns91",
+      "target": "ns94",
+      "conveyingLyph": "l6-s1iss_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-sgs1",
+      "source": "ns94",
+      "target": "ns95",
+      "conveyingLyph": "sn-sgs1",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-sgl6_gr",
+      "source": "ns93",
+      "target": "n96",
+      "conveyingLyph": "an-sgl6_gr",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-sgs1_gr",
+      "source": "ns95",
+      "target": "ns96",
+      "conveyingLyph": "an-sgs1_gr",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-pg_4",
+      "source": "ns96",
+      "target": "ns97",
+      "conveyingLyph": "an-pg_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bn_4",
+      "source": "ns97",
+      "target": "ns98",
+      "conveyingLyph": "an-bn_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bn_bv_4",
+      "source": "ns96",
+      "target": "ns100",
+      "conveyingLyph": "an-bn_bv_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bd_4",
+      "source": "ns97",
+      "target": "ns99",
+      "conveyingLyph": "an-bd_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bd_bv_4",
+      "source": "ns99",
+      "target": "ns101",
+      "conveyingLyph": "an-bd_bv_4",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-drgl1_11",
+      "source": "ns120",
+      "target": "ns121",
+      "conveyingLyph": "sn-drgl1_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l113_11",
+      "source": "ns120",
+      "target": "ns122",
+      "conveyingLyph": "an-l113_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l112_11",
+      "source": "ns122",
+      "target": "ns123",
+      "conveyingLyph": "an-l112_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l111_11",
+      "source": "ns122",
+      "target": "ns124",
+      "conveyingLyph": "an-l111_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l18_11",
+      "source": "ns122",
+      "target": "ns125",
+      "conveyingLyph": "an-l18_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l16_11",
+      "source": "ns122",
+      "target": "ns126",
+      "conveyingLyph": "an-l16_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l12_11",
+      "source": "ns122",
+      "target": "ns127",
+      "conveyingLyph": "an-l12_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-img_11",
+      "source": "ns121",
+      "target": "ns141",
+      "conveyingLyph": "an-img_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-sn-drgl2_11",
+      "source": "ns130",
+      "target": "ns121",
+      "conveyingLyph": "sn-drgl2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l213_11",
+      "source": "ns130",
+      "target": "ns131",
+      "conveyingLyph": "an-l213_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l212_11",
+      "source": "ns131",
+      "target": "ns134",
+      "conveyingLyph": "an-l212_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l211_11",
+      "source": "ns131",
+      "target": "ns135",
+      "conveyingLyph": "an-l211_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l28_11",
+      "source": "ns131",
+      "target": "ns136",
+      "conveyingLyph": "an-l28_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l26_11",
+      "source": "ns131",
+      "target": "ns137",
+      "conveyingLyph": "an-l26_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-l22_11",
+      "source": "ns131",
+      "target": "ns138",
+      "conveyingLyph": "an-l22_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-pg_11",
+      "source": "ns141",
+      "target": "ns142",
+      "conveyingLyph": "an-pg_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bnl3_11",
+      "source": "ns142",
+      "target": "ns143",
+      "conveyingLyph": "an-bnl3_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bnv_11",
+      "source": "ns142",
+      "target": "ns144",
+      "conveyingLyph": "an-bnv_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bnl3-2_11",
+      "source": "ns142",
+      "target": "ns145",
+      "conveyingLyph": "an-bnl3-2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an_bnl2_11",
+      "source": "ns142",
+      "target": "ns146",
+      "conveyingLyph": "an_bnl2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bn3-3_11",
+      "source": "ns142",
+      "target": "ns147",
+      "conveyingLyph": "an-bn3-3_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bnl2-2_11",
+      "source": "ns142",
+      "target": "ns148",
+      "conveyingLyph": "an-bnl2-2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bnl1_11",
+      "conveyingLyph": "an-bnl1_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bdl3_11",
+      "conveyingLyph": "an-bdl3_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bdv_11",
+      "conveyingLyph": "an-bdv_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bdl3-2_11",
+      "conveyingLyph": "an-bdl3-2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an_bdl2_11",
+      "conveyingLyph": "an_bdl2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bd3-3_11",
+      "conveyingLyph": "an-bd3-3_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bdl2-2_11",
+      "conveyingLyph": "an-bdl2-2_11",
+      "length": 4
+    },
+    {
+      "id": "lnk-an-bdl1_11",
+      "conveyingLyph": "an-bdl1_11",
+      "length": 4
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "K1",
+      "name": "C1",
+      "external": [
+        "UBERON:0006469"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K2",
+      "name": "C2",
+      "external": [
+        "UBERON:0006489"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K3",
+      "name": "C3",
+      "external": [
+        "UBERON:0006488"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K4",
+      "name": "C4",
+      "external": [
+        "UBERON:0006490"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K5",
+      "name": "C5",
+      "external": [
+        "UBERON:0006491"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K6",
+      "name": "C6",
+      "external": [
+        "UBERON:0006492"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K7",
+      "name": "C7",
+      "external": [
+        "UBERON:0006493"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K8",
+      "name": "C8",
+      "external": [
+        "UBERON:0006470"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K9",
+      "name": "T1",
+      "external": [
+        "UBERON:0006457"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K10",
+      "name": "T2",
+      "external": [
+        "UBERON:0006458"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K11",
+      "name": "T3",
+      "external": [
+        "UBERON:0006459"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K12",
+      "name": "T4",
+      "external": [
+        "UBERON:0006452"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K13",
+      "name": "T5",
+      "external": [
+        "UBERON:0006453"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K14",
+      "name": "T6",
+      "external": [
+        "UBERON:0006454"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K15",
+      "name": "T7",
+      "external": [
+        "UBERON:0006455"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K16",
+      "name": "T8",
+      "external": [
+        "UBERON:0006456"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K17",
+      "name": "T9",
+      "external": [
+        "UBERON:0006465"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K18",
+      "name": "T10",
+      "external": [
+        "UBERON:0006466"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K19",
+      "name": "T11",
+      "external": [
+        "UBERON:0006467"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K20",
+      "name": "T12",
+      "external": [
+        "UBERON:0006468"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K21",
+      "name": "T13",
+      "external": [
+        "EMAPA:19554"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K22",
+      "name": "L1",
+      "external": [
+        "UBERON:0006448"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129",
+      "internalLyphs": [
+        "snl16",
+        "snl18",
+        "snl17",
+        "anl1_11_L12",
+        "anl1_11_L11",
+        "anl1_11_L8",
+        "anl1_11_L6",
+        "anl1_11_L2"
+      ],
+      "internalLyphsInLayers": [
+        6,
+        6,
+        6,
+        12,
+        11,
+        8,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "K23",
+      "name": "L2",
+      "external": [
+        "UBERON:0006450"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129",
+      "internalLyphs": [
+        "snl26",
+        "snl28",
+        "snl27",
+        "anl2_11_L12",
+        "anl2_11_L11",
+        "anl3_11_L8",
+        "anl4_11_L6",
+        "anl5_11_L2"
+      ],
+      "internalLyphsInLayers": [
+        6,
+        6,
+        6,
+        12,
+        11,
+        8,
+        6,
+        2
+      ]
+    },
+    {
+      "id": "K24",
+      "name": "L3",
+      "external": [
+        "UBERON:0006449"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K25",
+      "name": "L4",
+      "external": [
+        "UBERON:0006451"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K26",
+      "name": "L5",
+      "external": [
+        "UBERON:0006447"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129",
+      "internalLyphs": [
+        "snl59"
+      ],
+      "internalLyphsInLayers": [
+        4
+      ]
+    },
+    {
+      "id": "K27",
+      "name": "L6",
+      "topology": "TUBE",
+      "supertype": "K_129",
+      "internalLyphs": [
+        "snl69",
+        "snl65"
+      ],
+      "internalLyphsInLayers": [
+        4,
+        6
+      ]
+    },
+    {
+      "id": "K28",
+      "name": "S1",
+      "external": [
+        "UBERON:0006460"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129",
+      "internalLyphs": [
+        "sns15"
+      ],
+      "internalLyphsInLayers": [
+        6
+      ]
+    },
+    {
+      "id": "K29",
+      "name": "S2",
+      "external": [
+        "UBERON:0006461"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K30",
+      "name": "S3",
+      "external": [
+        "UBERON:0006462"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K31",
+      "name": "S4",
+      "external": [
+        "UBERON:0006463"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K32",
+      "name": "Cx1",
+      "external": [
+        "FMA:256635"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K33",
+      "name": "Cx2",
+      "external": [
+        "FMA:256635"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K34",
+      "name": "Cx3",
+      "external": [
+        "FMA:256635"
+      ],
+      "topology": "BAG",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K_129",
+      "name": "Segment of Spinal Cord",
+      "external": [
+        "UBERON:0005844"
+      ],
+      "isTemplate": true,
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "K_86",
+        "KM_27",
+        "K_85",
+        "K_84",
+        "K_83",
+        "K_82",
+        "K_81",
+        "K_80",
+        "K_79",
+        "K_78",
+        "K_77",
+        "KM_27"
+      ]
+    },
+    {
+      "id": "K35",
+      "name": "Midbrain",
+      "external": [
+        "UBERON:0001891",
+        "ILX:0106935"
+      ],
+      "topology": "TUBE",
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "KM_25"
+      ],
+      "internalLyphs": [
+        "K36"
+      ],
+      "internalLyphsInLayers": [
+        2
+      ]
+    },
+    {
+      "id": "K36",
+      "name": "ventrolateral periaqueductal gray",
+      "external": [
+        "UBERON:0003040"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn1"
+      ]
+    },
+    {
+      "id": "K37",
+      "name": "bed nucleus of the stria terminalis",
+      "external": [
+        "UBERON:0001880"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn3"
+      ]
+    },
+    {
+      "id": "K38",
+      "name": "central nucleus of the amygdala",
+      "external": [
+        "UBERON:0002883"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn4"
+      ]
+    },
+    {
+      "id": "K39",
+      "name": "Diencephalon",
+      "external": [
+        "UBERON:0001894"
+      ],
+      "topology": "TUBE",
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "KM_25"
+      ],
+      "internalLyphs": [
+        "K40",
+        "K41",
+        "K42",
+        "K43"
+      ],
+      "internalLyphsInLayers": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "K40",
+      "name": "medial preoptic area",
+      "external": [
+        "UBERON:0007769"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn5"
+      ]
+    },
+    {
+      "id": "K41",
+      "name": "lateral preoptic area",
+      "external": [
+        "UBERON:0001931"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn6"
+      ]
+    },
+    {
+      "id": "K42",
+      "name": "lateral hypothalamic area",
+      "external": [
+        "UBERON:0002430"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn7"
+      ]
+    },
+    {
+      "id": "K43",
+      "name": "median preoptic nucleus",
+      "external": [
+        "UBERON:0002625"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn2"
+      ]
+    },
+    {
+      "id": "K44",
+      "name": "Pons",
+      "external": [
+        "UBERON:0000988"
+      ],
+      "topology": "TUBE",
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "KM_25"
+      ],
+      "internalLyphs": [
+        "K45"
+      ],
+      "internalLyphsInLayers": [
+        2
+      ]
+    },
+    {
+      "id": "K45",
+      "name": "Barrington's nucleus",
+      "external": [
+        "UBERON:0007632"
+      ],
+      "materials": [
+        "KM_28"
+      ],
+      "internalLyphs": [
+        "sn8"
+      ]
+    },
+    {
+      "id": "K52",
+      "name": "Medulla",
+      "external": [
+        "UBERON:0001896"
+      ],
+      "topology": "TUBE",
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "KM_25"
+      ]
+    },
+    {
+      "id": "K53",
+      "name": "Telencephalon",
+      "external": [
+        "UBERON:0001893"
+      ],
+      "topology": "BAG2",
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "KM_25"
+      ],
+      "internalLyphs": [
+        "K37",
+        "K38"
+      ],
+      "internalLyphsInLayers": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "229",
+      "name": "Segment of neuron",
+      "external": [
+        "CL:0000540"
+      ],
+      "isTemplate": true,
+      "layers": [
+        "54",
+        "56",
+        "116"
+      ]
+    },
+    {
+      "id": "sn1",
+      "name": "Soma of neuron 1",
+      "external": [
+        "NLX:154731"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "229bag2",
+      "name": "Segment of neuron ",
+      "isTemplate": true,
+      "topology": "BAG2",
+      "supertype": "229"
+    },
+    {
+      "id": "229bag",
+      "name": "Segment of neuron",
+      "isTemplate": true,
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "sn2",
+      "name": "Soma of neuron 2",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn3",
+      "name": "Soma of neuron 3",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn4",
+      "name": "Soma of neuron 4",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn5",
+      "name": "Soma of neuron 5",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn6",
+      "name": "Soma of neuron 6",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn7",
+      "name": "Soma of neuron 7",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn8",
+      "name": "Soma of neuron 8",
+      "external": [
+        "CL:0000540"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "K54",
+      "name": "T12 Dorsal Root gangion",
+      "external": [
+        "UBERON:0002855"
+      ]
+    },
+    {
+      "id": "K55",
+      "name": "T13 Dorsal Root gangion",
+      "external": [
+        "EMAPA:25186"
+      ]
+    },
+    {
+      "id": "K56",
+      "name": "L1 Dorsal Root gangion",
+      "external": [
+        "UBERON:0002857"
+      ],
+      "internalLyphs": [
+        "snl1_11"
+      ],
+      "internalLyphsInLayers": [
+        0
+      ]
+    },
+    {
+      "id": "K57",
+      "name": "L2 Dorsal Root gangion",
+      "external": [
+        "UBERON:0002856"
+      ],
+      "internalLyphs": [
+        "snl2_11"
+      ],
+      "internalLyphsInLayers": [
+        0
+      ]
+    },
+    {
+      "id": "K58",
+      "name": "L3 Dorsal Root gangion",
+      "external": [
+        "UBERON:0002858"
+      ]
+    },
+    {
+      "id": "K59",
+      "name": "L4 Dorsal Root gangion",
+      "external": [
+        "UBERON:0003943"
+      ]
+    },
+    {
+      "id": "K60",
+      "name": "L5 Dorsal Root gangion",
+      "external": [
+        "UBERON:0002859"
+      ]
+    },
+    {
+      "id": "K61",
+      "name": "L6 Dorsal Root gangion",
+      "external": [
+        "EMAPA:25169"
+      ]
+    },
+    {
+      "id": "K62",
+      "name": "S1 Dorsal root ganglion",
+      "external": [
+        "UBERON:0002860"
+      ]
+    },
+    {
+      "id": "K63",
+      "name": "L1 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K64",
+      "name": "L2 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K65",
+      "name": "L3 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K66",
+      "name": "L4 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K67",
+      "name": "L5 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K68",
+      "name": "L6 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K69",
+      "name": "S1 ventral root",
+      "external": [
+        "UBERON:0023623"
+      ]
+    },
+    {
+      "id": "K70",
+      "name": "T12 - T13 Interganglonic segment",
+      "internalLyphs": [
+        "t12-t13iss",
+        "t12-t13iss_4"
+      ]
+    },
+    {
+      "id": "K71",
+      "name": "T13 - L1 Interganglonic segment",
+      "internalLyphs": [
+        "t13-l1iss",
+        "t13-l1iss_4"
+      ]
+    },
+    {
+      "id": "K72",
+      "name": "L1 - L2 Interganglonic segment",
+      "internalLyphs": [
+        "l1-l2iss",
+        "l1-l2iss_4"
+      ]
+    },
+    {
+      "id": "K73",
+      "name": "L2 - L3 Interganglonic segment",
+      "internalLyphs": [
+        "l2-l3iss",
+        "l2-l3iss_4"
+      ]
+    },
+    {
+      "id": "K74",
+      "name": "L3 - L4 Interganglonic segment",
+      "internalLyphs": [
+        "l3-l4iss",
+        "l3-l4iss_4"
+      ]
+    },
+    {
+      "id": "K75",
+      "name": "L4 - L5 Interganglonic segment",
+      "internalLyphs": [
+        "l4-l5iss",
+        "l4-l5iss_4"
+      ]
+    },
+    {
+      "id": "K76",
+      "name": "L5 - L6 Interganglonic segment",
+      "internalLyphs": [
+        "l5-l6iss",
+        "l5-l6iss_4"
+      ]
+    },
+    {
+      "id": "K77",
+      "name": "L6 - S1 Interganglonic segment",
+      "internalLyphs": [
+        "l6-s1iss_4"
+      ]
+    },
+    {
+      "id": "K78",
+      "name": "T12 sympathetic ganglion",
+      "external": [
+        "FMA:6485"
+      ],
+      "internalLyphs": [
+        "t12sgs",
+        "sn-sgt12"
+      ]
+    },
+    {
+      "id": "K79",
+      "name": "T13 sympathetic ganglion",
+      "internalLyphs": [
+        "t13sgs",
+        "t13sgs2",
+        "sn-sgt13",
+        "sn-sgt13_2"
+      ]
+    },
+    {
+      "id": "K80",
+      "name": "L1 sympathetic ganglion",
+      "external": [
+        "FMA:6540"
+      ],
+      "internalLyphs": [
+        "l1sgs",
+        "l1sgs2",
+        "sn-sgl1",
+        "sn-sgl1_2"
+      ]
+    },
+    {
+      "id": "K81",
+      "name": "L2 sympathetic ganglion",
+      "external": [
+        "FMA:6541"
+      ],
+      "internalLyphs": [
+        "l2sgs",
+        "l2sgs2",
+        "sn-sgl2",
+        "sn-sgl2"
+      ]
+    },
+    {
+      "id": "K82",
+      "name": "L3 sympathetic ganglion",
+      "external": [
+        "FMA:6542"
+      ],
+      "internalLyphs": [
+        "l3sgs",
+        "l3sgs2",
+        "sn-sgl3",
+        "sn-sgl3_2"
+      ]
+    },
+    {
+      "id": "K83",
+      "name": "L4 sympathetic ganglion",
+      "external": [
+        "FMA:6543"
+      ],
+      "internalLyphs": [
+        "l4sgs",
+        "l4sgs2",
+        "sn-sgl4",
+        "sn-sgl4_2"
+      ]
+    },
+    {
+      "id": "K84",
+      "name": "L5 sympathetic ganglion",
+      "internalLyphs": [
+        "l5sgs",
+        "l5sgs2",
+        "sn-sgl5_2"
+      ]
+    },
+    {
+      "id": "K85",
+      "name": "L6 sympathetic ganglion",
+      "internalLyphs": [
+        "l6sgs",
+        "sn-sgl5",
+        "sn-sgl6_2",
+        "sn-sgl6_3",
+        "an-sgl6-gr"
+      ]
+    },
+    {
+      "id": "K86",
+      "name": "S1 sympathetic ganglion",
+      "external": [
+        "FMA:6552"
+      ],
+      "internalLyphs": [
+        "sn-sgs1",
+        "an-sgs1-gr"
+      ]
+    },
+    {
+      "id": "K87",
+      "name": "T12 white ramus",
+      "external": [
+        "FMA:14056"
+      ]
+    },
+    {
+      "id": "K88",
+      "name": "L1 white ramus",
+      "external": [
+        "FMA:12697"
+      ]
+    },
+    {
+      "id": "K89",
+      "name": "L2 white ramus",
+      "external": [
+        "FMA:12698"
+      ]
+    },
+    {
+      "id": "K90",
+      "name": "L3 white ramus",
+      "external": [
+        "FMA:12699"
+      ]
+    },
+    {
+      "id": "K91",
+      "name": "T12 gray ramus"
+    },
+    {
+      "id": "K92",
+      "name": "L1 gray ramus",
+      "external": [
+        "FMA:65910"
+      ]
+    },
+    {
+      "id": "K93",
+      "name": "L2 gray ramus",
+      "external": [
+        "FMA:65911"
+      ]
+    },
+    {
+      "id": "K94",
+      "name": "L3 gray ramus",
+      "external": [
+        "FMA:65912"
+      ]
+    },
+    {
+      "id": "K95",
+      "name": "L4 gray ramus",
+      "external": [
+        "FMA:65913"
+      ]
+    },
+    {
+      "id": "K96",
+      "name": "L5 gray ramus",
+      "external": [
+        "FMA:65914"
+      ]
+    },
+    {
+      "id": "K97",
+      "name": "L6 gray ramus",
+      "internalLyphs": [
+        "an-sgl6-gr"
+      ]
+    },
+    {
+      "id": "K98",
+      "name": "S1 gray ramus",
+      "external": [
+        "FMA:65986"
+      ]
+    },
+    {
+      "id": "K99",
+      "name": "Bladder Dome",
+      "external": [
+        "NCIT:C12332"
+      ],
+      "layers": [
+        "KM_1",
+        "KM_87",
+        "KM_10",
+        "KM_11"
+      ],
+      "internalLyphs": [
+        "K106",
+        "an-bd_4"
+      ],
+      "internalLyphsInLayers": [
+        3,
+        3
+      ]
+    },
+    {
+      "id": "K100",
+      "name": "Bladder neck",
+      "external": [
+        "UBERON:0001258"
+      ],
+      "layers": [
+        "KM_1",
+        "KM_87",
+        "KM_10",
+        "KM_11"
+      ],
+      "internalLyphs": [
+        "K105",
+        "an-bn_4"
+      ],
+      "internalLyphsInLayers": [
+        3,
+        3
+      ]
+    },
+    {
+      "id": "K101",
+      "name": "Urethra",
+      "external": [
+        "UBERON:0000057"
+      ],
+      "layers": [
+        "KM_1",
+        "KM_87",
+        "KM_10",
+        "KM_11",
+        "KM_88"
+      ]
+    },
+    {
+      "id": "K102",
+      "name": "Inferior Mesenteric Ganglion",
+      "external": [
+        "UBERON:0005453"
+      ]
+    },
+    {
+      "id": "K103",
+      "name": "Blood vessel",
+      "external": [
+        "UBERON:0001981"
+      ],
+      "isTemplate": true,
+      "layers": [
+        "KM_7",
+        "KM_6",
+        "KM_89"
+      ]
+    },
+    {
+      "id": "K104",
+      "name": "Pelvic ganglia",
+      "external": [
+        "UBERON:0016508"
+      ],
+      "internalLyphs": [
+        "an-pg_4"
+      ]
+    },
+    {
+      "id": "K105",
+      "name": "Blood vessel of bladder neck",
+      "external": [
+        "UBERON:0001981"
+      ],
+      "supertype": "K103",
+      "internalLyphs": [
+        "an-bn-bv_4"
+      ],
+      "internalLyphsInLayers": [
+        2
+      ]
+    },
+    {
+      "id": "K106",
+      "name": "Blood vessel of bladder dome",
+      "external": [
+        "UBERON:0001981"
+      ],
+      "supertype": "K103",
+      "internalLyphs": [
+        "an-bd-bv_4"
+      ],
+      "internalLyphsInLayers": [
+        2
+      ]
+    },
+    {
+      "id": "snl16",
+      "name": "Soma of SPR neuron in L1_6",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl26",
+      "name": "Soma of SPR neuron in L2_6",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl18",
+      "name": "Soma of SPR neuron in L1_8",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl28",
+      "name": "Soma of SPR neuron in L2_8",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "t12sgs",
+      "name": "T12 sympathetic ganglion seg",
+      "topology": "BAG2",
+      "supertype": "229"
+    },
+    {
+      "id": "t12-t13iss",
+      "name": "T12-T13 interganglionic segment seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "t13sgs",
+      "name": "T13 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "t13sgs2",
+      "name": "T13 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "t13-l1iss",
+      "name": "T13-L1 interganglionic seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l1sgs",
+      "name": "L1 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l1sgs2",
+      "name": "L1 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l1-l2iss",
+      "name": "L1-L2 interganglionic segment seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l2sgs",
+      "name": "L2 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l2sgs2",
+      "name": "L2 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l2-l3iss",
+      "name": "L2-L3 interganglionic segment seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l3sgs",
+      "name": "L3 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l3sgs2",
+      "name": "L3 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l3-l4iss",
+      "name": "L3-L4 interganglionic segment seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l4sgs",
+      "name": "L4 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l4sgs2",
+      "name": "L4 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l4-l5iss",
+      "name": "L4-L5 interganglionic segment seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l5sgs",
+      "name": "L5 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l5sgs2",
+      "name": "L5 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l5-l6iss",
+      "name": "L5-L6 interganglionic segment seg",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l6sgs",
+      "name": "L6 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "snl17",
+      "name": "Soma of SPR neuron in L1_7",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl27",
+      "name": "Soma of SPR neuron in L2_7",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl59",
+      "name": "Soma of SLM neuron in L5_9",
+      "external": [
+        "FMA:84632"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl69",
+      "name": "Soma of SLM neuron in L6_9",
+      "external": [
+        "FMA:84632"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl65",
+      "name": "Soma of PSPR neuron in L6_5",
+      "external": [
+        "UBERON:0011929"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sns15",
+      "name": "Soma of PSPR neuron in S1_5",
+      "external": [
+        "UBERON:0011929"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgt12",
+      "name": "Soma of SPO neuron in T12sg_4",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "t12-t13iss_4",
+      "name": "T12-T13_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgt13",
+      "name": "Axon of SPO neuron in T13sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgt13_2",
+      "name": "Soma of SPO neuron in T13sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "t13-l1iss_4",
+      "name": "T13-L1_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl1",
+      "name": "Axon of SPO neuron in L1sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl1_2",
+      "name": "Soma of SPO neuron in L1sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "l1-l2iss_4",
+      "name": "L1-L2_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl2",
+      "name": "Axon of SPO neuron in L2sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl2_2",
+      "name": "Soma of SPO neuron in L2sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "l2-l3iss_4",
+      "name": "L2-L3_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl3",
+      "name": "Axon of SPO neuron in L3sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl3_2",
+      "name": "Soma of SPO neuron in L3sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "l3-l4iss_4",
+      "name": "L3-L4_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl4",
+      "name": "Axon of SPO neuron in L4sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl4_2",
+      "name": "Soma of SPO neuron in L4sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "l4-l5iss_4",
+      "name": "L4-L5_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl5",
+      "name": "Axon of SPO neuron in L5sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl5_2",
+      "name": "Soma of SPO neuron in L5sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "l5-l6iss_4",
+      "name": "L5-L6_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl6",
+      "name": "Soma of SPO neuron in L6sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl6_1",
+      "name": "Axon of SPO neuron in L6sg_4_1",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl6_2",
+      "name": "Axon of SPO neuron in L6sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl6_3",
+      "name": "Axon of SPO neuron in L6sg_4_3",
+      "supertype": "229"
+    },
+    {
+      "id": "l6-s1iss_4",
+      "name": "L6-S1_4 interganglionic segment seg",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgs1",
+      "name": "S1_4 sympathetic ganglion",
+      "supertype": "229"
+    },
+    {
+      "id": "an-sgl6_gr",
+      "name": "L6_axon through GR",
+      "supertype": "229"
+    },
+    {
+      "id": "an-sgs1_gr",
+      "name": "S1_axon through GR",
+      "supertype": "229"
+    },
+    {
+      "id": "an-pg_4",
+      "name": "Axon through pelvic ganglia axon_4",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bn_4",
+      "name": "Axon through bladder neck_4",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bn_bv_4",
+      "name": "Axon to bladder neck blood vessel",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bd_4",
+      "name": "Axon through bladder dome_4",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bd_bv_4",
+      "name": "Axon to bladder dome blood vessel",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-drgl1_11",
+      "name": "Soma of FOS in L1 DRG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l113_11",
+      "name": "Axon of FOS through L1 layer 13",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l112_11",
+      "name": "Axon of FOS to L1 layer 12",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l111_11",
+      "name": "Axon of FOS to L1 layer 11",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l18_11",
+      "name": "Axon of FOS to L1 layer 8",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l16_11",
+      "name": "Axon of FOS to L1 layer 6",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l12_11",
+      "name": "Axon of FOS to L1 layer 2",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-img_11",
+      "name": "Axon of FOS to IMG from DRG",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-drgl2_11",
+      "name": "Soma of FOS in L2 DRG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l213_11",
+      "name": "Axon of FOS through L2 layer 13",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l212_11",
+      "name": "Axon of FOS to L2 layer 12",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l211_11",
+      "name": "Axon of FOS to L2 layer 11",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l28_11",
+      "name": "Axon of FOS to L2 layer 8",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l26_11",
+      "name": "Axon of FOS to L2 layer 6",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-l22_11",
+      "name": "Axon of FOS to L2 layer 2",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-pg_11",
+      "name": "Axon of POS through PG",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bnl3_11",
+      "name": "Axon to bladder neck layer 3 for vessel",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bnv_11",
+      "name": "Axon to bladder neck from layer 3 to vessel",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bnl3-2_11",
+      "name": "Axon to bladder neck layer 3 for layer 2",
+      "supertype": "229"
+    },
+    {
+      "id": "an_bnl2_11",
+      "name": "Axon to bladder neck from layer 3 to layer 2",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bn3-3_11",
+      "name": "Axon to bladder neck layer 3 for layer 1",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bnl2-2_11",
+      "name": "Axon to bladder neck for layer 1 from layer 3 to layer 2",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bnl1_11",
+      "name": "Axon to bladder neck from layer 2 to layer 1",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bdl3_11",
+      "name": "Axon to bladder dome layer 3 for vessel",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bdv_11",
+      "name": "Axon to bladder dome from layer 3 to vessel",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bdl3-2_11",
+      "name": "Axon to bladder neck layer 3 for layer 2",
+      "supertype": "229"
+    },
+    {
+      "id": "an_bdl2_11",
+      "name": "Axon to bladder dome from layer  3 to layer 2",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bd3-3_11",
+      "name": "Axon to bladder neck layer 3 for layer 1",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bdl2-2_11",
+      "name": "Axon to bladder dome from layer 3 to layer 2",
+      "supertype": "229"
+    },
+    {
+      "id": "an-bdl1_11",
+      "name": "Axon to bladder neck from layer 2 to layer 1",
+      "supertype": "229"
+    }
+  ],
+  "materials": [
+    {
+      "id": "KM_1",
+      "name": "Urine",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "KM_2",
+        "KM_3",
+        "KM_4",
+        "KM_5"
+      ]
+    },
+    {
+      "id": "KM_2",
+      "name": "Water",
+      "external": [
+        "CHEBI:15377"
+      ]
+    },
+    {
+      "id": "KM_3",
+      "name": "Urea",
+      "external": [
+        "CHEBI:16199"
+      ]
+    },
+    {
+      "id": "KM_4",
+      "name": "Uric Acid",
+      "external": [
+        "CHEBI:27226"
+      ]
+    },
+    {
+      "id": "KM_5",
+      "name": "Extracellular fluid",
+      "external": [
+        "CHEBI:24839"
+      ]
+    },
+    {
+      "id": "KM_6",
+      "name": "Endothelium",
+      "external": [
+        "UBERON:0001986"
+      ],
+      "materials": [
+        "KM_8"
+      ]
+    },
+    {
+      "id": "KM_7",
+      "name": "Blood",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "KM_8"
+      ]
+    },
+    {
+      "id": "KM_8",
+      "name": "Aqueous solution",
+      "external": [
+        "FMA:85815"
+      ],
+      "materials": [
+        "KM_2",
+        "KM_13",
+        "KM_14",
+        "KM_15",
+        "KM_16",
+        "KM_17",
+        "KM_18",
+        "KM_19",
+        "KM_20",
+        "KM_21"
+      ]
+    },
+    {
+      "id": "KM_9",
+      "name": "Cerebrospinal fluid",
+      "external": [
+        "UBERON:0001359"
+      ],
+      "materials": [
+        "KM_8"
+      ]
+    },
+    {
+      "id": "KM_10",
+      "name": "Smooth muscle ",
+      "external": [
+        "UBERON:0001135"
+      ]
+    },
+    {
+      "id": "KM_11",
+      "name": "Connective Tissue",
+      "external": [
+        "UBERON:0002384"
+      ]
+    },
+    {
+      "id": "KM_13",
+      "name": "Sodium ion",
+      "external": [
+        "CHEBI:29101"
+      ]
+    },
+    {
+      "id": "KM_14",
+      "name": "Potassium ion",
+      "external": [
+        "CHEBI:29103"
+      ]
+    },
+    {
+      "id": "KM_15",
+      "name": "Calcium ion",
+      "external": [
+        "CHEBI:29108"
+      ]
+    },
+    {
+      "id": "KM_16",
+      "name": "Chloride ion",
+      "external": [
+        "CHEBI:17996"
+      ]
+    },
+    {
+      "id": "KM_17",
+      "name": "Hydrogen ion",
+      "external": [
+        "CHEBI:24636"
+      ]
+    },
+    {
+      "id": "KM_18",
+      "name": "Hydroxide ion",
+      "external": [
+        "CHEBI:16234"
+      ]
+    },
+    {
+      "id": "KM_19",
+      "name": "Bicarbonate ion ",
+      "external": [
+        "CHEBI:17544"
+      ]
+    },
+    {
+      "id": "KM_20",
+      "name": "Liquid",
+      "external": [
+        "NCIT:C45298"
+      ]
+    },
+    {
+      "id": "KM_21",
+      "name": "Fluid",
+      "external": [
+        "NCIT:C25278"
+      ]
+    },
+    {
+      "id": "KM_22",
+      "name": "Peripheral nervous system tissue",
+      "external": [
+        "UBERON:0000010"
+      ],
+      "materials": [
+        "KM_5"
+      ]
+    },
+    {
+      "id": "KM_23",
+      "name": "Ependyma",
+      "external": [
+        "UBERON:0004670"
+      ]
+    },
+    {
+      "id": "KM_24",
+      "name": "Pia mater",
+      "external": [
+        "UBERON:0002361"
+      ]
+    },
+    {
+      "id": "KM_25",
+      "name": "Central nervous system tissue",
+      "external": [
+        "UBERON:0001017"
+      ],
+      "materials": [
+        "KM_5"
+      ]
+    },
+    {
+      "id": "KM_26",
+      "name": "Wall of vessel",
+      "external": [
+        "UBERON:0035965"
+      ],
+      "materials": [
+        "KM_11"
+      ]
+    },
+    {
+      "id": "KM_27",
+      "name": "White matter of CNS",
+      "external": [
+        "UBERON:0016549"
+      ]
+    },
+    {
+      "id": "KM_28",
+      "name": "Gray matter of CNS",
+      "external": [
+        "UBERON:0016548"
+      ]
+    },
+    {
+      "id": "K_77",
+      "name": "lamina I of gray matter of spinal cord",
+      "external": [
+        "UBERON:0006118"
+      ]
+    },
+    {
+      "id": "K_78",
+      "name": "lamina II of gray matter of spinal cord",
+      "external": [
+        "UBERON:0002181"
+      ]
+    },
+    {
+      "id": "K_79",
+      "name": "lamina III of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016574"
+      ]
+    },
+    {
+      "id": "K_80",
+      "name": "lamina IV of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016575"
+      ]
+    },
+    {
+      "id": "K_81",
+      "name": "lamina V of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016576"
+      ]
+    },
+    {
+      "id": "K_82",
+      "name": "lamina VI of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016577"
+      ]
+    },
+    {
+      "id": "K_83",
+      "name": "lamina VII of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016578"
+      ]
+    },
+    {
+      "id": "K_84",
+      "name": "lamina VIII of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016579"
+      ]
+    },
+    {
+      "id": "K_85",
+      "name": "lamina IX of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016580"
+      ]
+    },
+    {
+      "id": "K_86",
+      "name": "lamina X of gray matter of spinal cord",
+      "external": [
+        "UBERON:0004677"
+      ]
+    },
+    {
+      "id": "54",
+      "name": "Cytosol",
+      "external": [
+        "GO:0005829"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Membrane",
+      "external": [
+        "GO:0016020"
+      ]
+    },
+    {
+      "id": "56",
+      "name": "Plasma membrane",
+      "external": [
+        "GO:0005886"
+      ]
+    },
+    {
+      "id": "116",
+      "name": "Extracellular fluid",
+      "external": [
+        "GO:0005615"
+      ]
+    },
+    {
+      "id": "K_87",
+      "name": "Epithelium",
+      "external": [
+        "UBERON:0000483"
+      ]
+    },
+    {
+      "id": "K_88",
+      "name": "Rhabdosphincter"
+    },
+    {
+      "id": "KM_89",
+      "name": "Basement membrane"
+    }
+  ],
+  "chains": [
+    {
+      "id": "ch1",
+      "lyphs": [
+        "K53",
+        "K39",
+        "K35",
+        "K44",
+        "K52",
+        "K1",
+        "K2",
+        "K3",
+        "K4",
+        "K5",
+        "K6",
+        "K7",
+        "K8",
+        "K9",
+        "K10",
+        "K11",
+        "K12",
+        "K13",
+        "K14",
+        "K15",
+        "K16",
+        "K17",
+        "K18",
+        "K19",
+        "K20",
+        "K21",
+        "K22",
+        "K23",
+        "K24",
+        "K25",
+        "K26",
+        "K27",
+        "K28",
+        "K29",
+        "K30",
+        "K31",
+        "K32",
+        "K33",
+        "K34"
+      ],
+      "root": "cn1",
+      "leaf": "cn2",
+      "length": 100
+    },
+    {
+      "id": "dcn1",
+      "name": "VLPAG dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns1",
+      "length": 4,
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K36"
+      ]
+    },
+    {
+      "id": "acn1",
+      "name": "VLPAG axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns2",
+      "length": 10,
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K36",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn2",
+      "name": "MnPO dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns3",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K43"
+      ]
+    },
+    {
+      "id": "acn2",
+      "name": "MnPO axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns4",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K43",
+        "K39",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn3",
+      "name": "BNST dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns5",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K37"
+      ]
+    },
+    {
+      "id": "acn3",
+      "name": "BNST axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns6",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K37",
+        "K53",
+        "K39",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn4",
+      "name": "CeA dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns7",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K38"
+      ]
+    },
+    {
+      "id": "acn4",
+      "name": "CeA axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns8",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K38",
+        "K53",
+        "K39",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn5",
+      "name": "MPOA dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns9",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K40"
+      ]
+    },
+    {
+      "id": "acn5",
+      "name": "MPOA axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns10",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K40",
+        "K39",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn6",
+      "name": "LPOA dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns11",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K41"
+      ]
+    },
+    {
+      "id": "acn6",
+      "name": "LPOA axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns12",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K41",
+        "K39",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn7",
+      "name": "LHA dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns13",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K42"
+      ]
+    },
+    {
+      "id": "acn7",
+      "name": "LHA axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns14",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "housingLyphs": [
+        "K42",
+        "K39",
+        "K35",
+        "K44",
+        "K45"
+      ]
+    },
+    {
+      "id": "dcn8",
+      "name": "BRGTN dendrite chain",
+      "external": [
+        "SAO:1211023249"
+      ],
+      "leaf": "ns15",
+      "lyphTemplate": "229bag",
+      "housingLyphs": [
+        "K45"
+      ]
+    },
+    {
+      "id": "acn8",
+      "name": "BRGTN axon chain",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "leaf": "ns16",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        2,
+        2,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13
+      ],
+      "housingLyphs": [
+        "K45",
+        "K44",
+        "K52",
+        "K1",
+        "K2",
+        "K3",
+        "K4",
+        "K5",
+        "K6",
+        "K7",
+        "K8",
+        "K9",
+        "K10",
+        "K11",
+        "K12",
+        "K13",
+        "K14",
+        "K15",
+        "K16",
+        "K17",
+        "K18",
+        "K19",
+        "K20",
+        "K21",
+        "K22",
+        "K23",
+        "K24",
+        "K25",
+        "K26"
+      ]
+    },
+    {
+      "id": "acn8b",
+      "name": "BRGTN axon chainb",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "root": "ns16",
+      "leaf": "ns17",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        13,
+        6
+      ],
+      "housingLyphs": [
+        "K26",
+        "K27"
+      ]
+    },
+    {
+      "id": "acn8c",
+      "name": "BRGTN axon chainc",
+      "external": [
+        "SAO:1770195789"
+      ],
+      "root": "ns16",
+      "leaf": "ns18",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        13,
+        13,
+        6
+      ],
+      "housingLyphs": [
+        "K26",
+        "K27",
+        "K28"
+      ]
+    },
+    {
+      "id": "dc-snl16",
+      "name": "L1-6 SPR dendrite chain",
+      "leaf": "ns19",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K22"
+      ]
+    },
+    {
+      "id": "ac-snl16",
+      "name": "L1-6 SPR axon chain",
+      "root": "ns20",
+      "leaf": "ns23",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K22",
+        "K22",
+        "K63",
+        "K88",
+        "K80",
+        "K92"
+      ]
+    },
+    {
+      "id": "dc-snl26",
+      "name": "L2-6 SPR dendrite chain",
+      "leaf": "ns21",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K23"
+      ]
+    },
+    {
+      "id": "ac-snl26",
+      "name": "L2-6 SPR axon chain",
+      "root": "ns22",
+      "leaf": "ns23",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K23",
+        "K23",
+        "K64",
+        "K89",
+        "K81",
+        "K93"
+      ]
+    },
+    {
+      "id": "ac-l1l26a",
+      "name": "L1-6 L2-6 SPR axon chain ",
+      "root": "ns23",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K102",
+        "K104"
+      ]
+    },
+    {
+      "id": "dc-snl18",
+      "name": "L1-8 SPR dendrite chain",
+      "leaf": "ns24",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K22"
+      ]
+    },
+    {
+      "id": "ac-snl18",
+      "name": "L1-8 SPR axon chain",
+      "root": "ns25",
+      "leaf": "ns34",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K22",
+        "K22",
+        "K63",
+        "K88",
+        "K80"
+      ]
+    },
+    {
+      "id": "dc-snl28",
+      "name": "L2-8 SPR dendrite chain",
+      "leaf": "ns26",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K23"
+      ]
+    },
+    {
+      "id": "ac-snl28",
+      "name": "L2-8 SPR axon chain",
+      "root": "ns27",
+      "leaf": "ns37",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K23",
+        "K23",
+        "K64",
+        "K89",
+        "K81"
+      ]
+    },
+    {
+      "id": "dc-snl17",
+      "name": "L1-7 SPR dendrite chain",
+      "leaf": "ns51",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K22"
+      ]
+    },
+    {
+      "id": "ac-snl17",
+      "name": "L1-7 SPR axon chain",
+      "root": "ns52",
+      "leaf": "ns55",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K22",
+        "K22",
+        "K63",
+        "K88",
+        "K80",
+        "K92"
+      ]
+    },
+    {
+      "id": "dc-snl27",
+      "name": "L2-7 SPR dendrite chain",
+      "leaf": "ns53",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K23"
+      ]
+    },
+    {
+      "id": "ac-snl27",
+      "name": "L2-7 SPR axon chain",
+      "root": "ns54",
+      "leaf": "ns55",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K23",
+        "K23",
+        "K64",
+        "K89",
+        "K81",
+        "K93"
+      ]
+    },
+    {
+      "id": "ac-snl1l2",
+      "name": "L1-7 L2-7 SPR axon chain",
+      "root": "ns55",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K102"
+      ]
+    },
+    {
+      "id": "dc-snl59",
+      "name": "L5-9 SLM dendrite chain",
+      "leaf": "ns56",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        4
+      ],
+      "housingLyphs": [
+        "K26"
+      ]
+    },
+    {
+      "id": "ac-snl59",
+      "name": "L5-9 SLM axon chain",
+      "root": "ns57",
+      "leaf": "ns60",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        4,
+        13,
+        0
+      ],
+      "housingLyphs": [
+        "K26",
+        "K26",
+        "K67"
+      ]
+    },
+    {
+      "id": "dc-snl69",
+      "name": "L6-9 SLM dendrite chain",
+      "leaf": "ns58",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        4
+      ],
+      "housingLyphs": [
+        "K27"
+      ]
+    },
+    {
+      "id": "ac-snl69",
+      "name": "L6-9 SLM axon chain",
+      "root": "ns59",
+      "leaf": "ns60",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        4,
+        13,
+        0
+      ],
+      "housingLyphs": [
+        "K27",
+        "K27",
+        "K68"
+      ]
+    },
+    {
+      "id": "ac-snl5l6",
+      "name": "L5-9 L6-9 SLM axon chain",
+      "leaf": "ns61",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        4
+      ],
+      "housingLyphs": [
+        "K101"
+      ]
+    },
+    {
+      "id": "dc-snl65",
+      "name": "L6-5 PSPO dendrite chain",
+      "leaf": "ns62",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K27"
+      ]
+    },
+    {
+      "id": "ac-snl65",
+      "name": "L6-5 PSPO axon chain",
+      "root": "ns63",
+      "leaf": "ns66",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0
+      ],
+      "housingLyphs": [
+        "K27",
+        "K27",
+        "K68"
+      ]
+    },
+    {
+      "id": "dc-sns15",
+      "name": "S1-5 PSPO dendrite chain",
+      "leaf": "ns64",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K28"
+      ]
+    },
+    {
+      "id": "ac-sns15",
+      "name": "S1-5 PSPO axon chain",
+      "root": "ns65",
+      "leaf": "ns66",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0
+      ],
+      "housingLyphs": [
+        "K28",
+        "K28",
+        "K69"
+      ]
+    },
+    {
+      "id": "ac-snl6s1",
+      "name": "L6-5 S1-5 PSPO axon chain",
+      "leaf": "ns67",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K104"
+      ]
+    },
+    {
+      "id": "Sympchain",
+      "name": "Sympathetic Chain",
+      "lyphs": [
+        "K78",
+        "K70",
+        "K79",
+        "K71",
+        "K80",
+        "K72",
+        "K81",
+        "K73",
+        "K82",
+        "K74",
+        "K83",
+        "K75",
+        "K84",
+        "K76",
+        "K85",
+        "K77",
+        "K86"
+      ],
+      "root": "abc1",
+      "leaf": "abc2",
+      "length": 100
+    },
+    {
+      "id": "dc-sn-sgt12",
+      "name": "T12sg_4 SPO dendrite chain",
+      "leaf": "ns70",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K78"
+      ]
+    },
+    {
+      "id": "dc-sn-sgt13",
+      "name": "T13sg_4 SPO dendrite chain",
+      "leaf": "ns74",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K79"
+      ]
+    },
+    {
+      "id": "dc-sn-sgl1",
+      "name": "L1sg_4 SPO dendrite chain",
+      "leaf": "ns77",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K80"
+      ]
+    },
+    {
+      "id": "dc-sn-sgl2",
+      "name": "L2sg_4 SPO dendrite chain",
+      "leaf": "ns80",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K81"
+      ]
+    },
+    {
+      "id": "dc-sn-sgl3",
+      "name": "L3sg_4 SPO dendrite chain",
+      "leaf": "ns83",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K82"
+      ]
+    },
+    {
+      "id": "dc-sn-sgl4",
+      "name": "L4sg_4 SPO dendrite chain",
+      "leaf": "ns86",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K83"
+      ]
+    },
+    {
+      "id": "ac-sn-sgl5",
+      "name": "L5sg_4 SPO dendrite chain",
+      "leaf": "ns89",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K84"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "internal",
+      "name": "Internal",
+      "lyphs": [
+        "K36",
+        "K37",
+        "K38",
+        "K40",
+        "K41",
+        "K42",
+        "K43",
+        "K45",
+        "K105",
+        "K106"
+      ]
+    },
+    {
+      "id": "neuron8",
+      "name": "Neuron8",
+      "links": [
+        "lnk-snl18",
+        "lnk-snl28",
+        "lnk-t12sgs",
+        "lnk-t12-t13iss",
+        "lnk-t13sgs2",
+        "lnk-t13sgs",
+        "lnk-t13-l1iss",
+        "lnk-l1sgs2",
+        "lnk-l1sgs",
+        "lnk-l1-l2iss",
+        "lnk-l2sgs2",
+        "lnk-l2sgs",
+        "lnk-l2-l3iss",
+        "lnk-l3sgs2",
+        "lnk-l3sgs",
+        "lnk-l3-l4iss",
+        "lnk-l4sgs2",
+        "lnk-l4sgs",
+        "lnk-l4-l5iss",
+        "lnk-l5sgs2",
+        "lnk-l5sgs",
+        "lnk-l5-l6iss",
+        "lnk-l6sgs"
+      ]
+    },
+    {
+      "id": "housingLyphs",
+      "name": "K102, K104",
+      "links": [
+        "lnk-K102",
+        "lnk-K104"
+      ],
+      "nodes": [
+        "g102a",
+        "g102b",
+        "g104a",
+        "g104b"
+      ]
+    },
+    {
+      "id": "somata",
+      "name": "Somata",
+      "links": [
+        "lnk-snl17",
+        "lnk-snl27",
+        "lnk-sns15",
+        "lnk-snl59",
+        "lnk-snl69",
+        "lnk-snl65"
+      ]
+    },
+    {
+      "id": "neuron4",
+      "name": "Neuron4",
+      "links": [
+        "lnk-sn-sgt12",
+        "lnk-t12-t13iss_4",
+        "lnk-sn-sgt13",
+        "lnk-sn-sgt13_2",
+        "lnk-t13-l1iss_4",
+        "lnk-sn-sgl1",
+        "lnk-sn-sgl1_2",
+        "lnk-l1-l2iss_4",
+        "lnk-sn-sgl2",
+        "lnk-sn-sgl2_2",
+        "lnk-l2-l3iss_4",
+        "lnk-sn-sgl3",
+        "lnk-sn-sgl3_2",
+        "lnk-l3-l4iss_4",
+        "lnk-sn-sgl4",
+        "lnk-sn-sgl4_2",
+        "lnk-l4-l5iss_4",
+        "lnk-sn-sgl5",
+        "lnk-sn-sgl5_2",
+        "lnk-l5-l6iss_4",
+        "lnk-sn-sgl6",
+        "lnk-sn-sgl6_2",
+        "lnk-sn-sgl6_3",
+        "lnk-l6-s1iss_4",
+        "lnk-sn-sgs1",
+        "lnk-an-sgl6_gr",
+        "lnk-an-sgs1_gr",
+        "lnk-an-pg_4",
+        "lnk-an-bn_4",
+        "lnk-an-bn_bv_4",
+        "lnk-an-bd_4",
+        "lnk-an-bd_bv_4"
+      ],
+      "nodes": [
+        "ns70",
+        "ns71",
+        "ns72",
+        "ns73",
+        "ns74",
+        "ns75",
+        "ns76",
+        "ns77",
+        "ns78",
+        "ns79",
+        "ns80",
+        "ns81",
+        "ns82",
+        "ns83",
+        "ns84",
+        "ns85",
+        "ns86",
+        "ns87",
+        "ns88",
+        "ns89",
+        "ns90",
+        "ns91",
+        "ns92",
+        "ns93",
+        "ns94",
+        "ns95",
+        "ns96",
+        "ns97",
+        "ns98",
+        "ns99",
+        "ns100",
+        "ns101"
+      ]
+    },
+    {
+      "id": "neuron11",
+      "name": "Neuron11"
+    }
+  ],
+  "id": "model1",
+  "name": "Test Keast Model"
+}

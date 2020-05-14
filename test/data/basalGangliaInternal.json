@@ -117,13 +117,13 @@
           {},
           {
             "hostedNodes": [
-              "axonal_node2"
+              "axonal_node_2"
             ]
           },
           {},
           {
             "hostedNodes": [
-              "axonal_node1"
+              "axonal_node_1"
             ]
           }
         ]
@@ -141,14 +141,14 @@
           {},
           {
             "hostedNodes": [
-              "axonal_node3"
+              "axonal_node_3"
             ]
           }
         ]
       },
       "hostedLyphs": [
-        "axonal_lyph4",
-        "axonal_lyph5"
+        "axonal_lyph_4",
+        "axonal_lyph_5"
       ]
     }
   ]

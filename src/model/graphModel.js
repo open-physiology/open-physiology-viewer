@@ -85,7 +85,13 @@ export class Graph extends Group{
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
+            added = added.filter(id => entitiesByID[id].class != $SchemaClass.External);
             logger.warn("Auto-created missing resources:", added);
+
+            let externals = added.filter(id => entitiesByID[id].class == $SchemaClass.External);
+            if (externals.length > 0){
+                logger.warn("Auto-created missing external resources:", externals);
+            }
         }
 
         if ((entitiesByID.waitingList)::keys().length > 0){
@@ -97,8 +103,6 @@ export class Graph extends Group{
 
         if (!res.generated) {
             res.createAxesForInternalLyphs(modelClasses, entitiesByID);
-
-            //Generate coalescence instances
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
         }
 

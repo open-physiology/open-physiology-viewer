@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import {cloneDeep, isArray, isObject, keys, merge, mergeWith, unionBy, add} from 'lodash-bound';
+import {cloneDeep, isArray, isObject, isString, keys, merge, mergeWith, unionBy, add} from 'lodash-bound';
 
 import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -30,6 +30,7 @@ import {$Field, mergeResources} from "../model/utils";
 
 const {Graph} = modelClasses;
 const ace = require('ace-builds');
+const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
 	selector: 'test-app',
@@ -101,7 +102,8 @@ const ace = require('ace-builds');
                 <section class="w3-padding-small">
                     <i class="fa fa-database"> Model Repository </i>
                 </section>
-                <modelRepoPanel></modelRepoPanel>
+                <modelRepoPanel (onModelLoad)="loadFromRepo($event)"> 
+                </modelRepoPanel>
             </section>
             
             <mat-tab-group animationDuration="0ms">
@@ -239,27 +241,11 @@ export class TestApp {
 	load(files) {
         if (files && files[0]){
             this._fileName = files[0].name;
-            let [fileName, extension]  = files[0].name.split('.').slice(0,2);
+            let [name, extension] = fileExtensionRe.exec(files[0].name);
             extension = extension.toLowerCase();
 
             const reader = new FileReader();
-            reader.onload = () => {
-                if (extension === "xlsx"){
-                    let model = {};
-                    let wb  = XLSX.read(reader.result, {type: "binary"});
-                    wb.SheetNames.forEach(sheetName => {
-                        let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
-                        if(roa.length) { model[sheetName] = roa; }
-                    });
-                    model[$Field.id] = fileName;
-                    this.model = modelClasses.Graph.excelToJSON(model, this.modelClasses);
-                } else {
-                    if (extension === "json") {
-                        this.model = JSON.parse(reader.result);
-                    }
-                }
-            };
-
+            reader.onload = () => this.loadModel(reader.result, name, extension);
             try {
                 if (extension === "json"){
                     reader.readAsText(files[0]);
@@ -273,6 +259,33 @@ export class TestApp {
             }
         }
 	}
+
+	loadModel(content, name, extension){
+        if (extension === "xlsx"){
+            let model = {};
+            let wb = XLSX.read(content, {type: "binary"});
+            wb.SheetNames.forEach(sheetName => {
+                let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
+                if(roa.length) { model[sheetName] = roa; }
+            });
+            model[$Field.id] = name;
+            this.model = modelClasses.Graph.excelToJSON(model, this.modelClasses);
+        } else {
+            if (extension === "json") {
+                if (content::isString()){
+                    this.model = JSON.parse(content);
+                } else {
+                    this.model = content;
+                }
+            }
+        }
+    }
+
+    loadFromRepo({fileName, fileContent}){
+        let [name, extension]  = fileExtensionRe.exec(fileName);
+        extension = extension.toLowerCase();
+        this.loadModel(fileContent, name, extension);
+    }
 
     join(files) {
         if (files && files[0]){
@@ -353,11 +366,11 @@ export class TestApp {
 
 	set model(model){
         this._model = model;
-        // try{
+        try{
             this._graphData = Graph.fromJSON(this._model, this.modelClasses);
-        // } catch(err){
-        //     throw new Error(err);
-        // }
+        } catch(err){
+            throw new Error(err);
+        }
         if (this._editor){
             this._editor.set(this._model);
         }

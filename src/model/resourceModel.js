@@ -199,7 +199,7 @@ export class Resource{
                 });
             })
         } catch (err){
-            logger.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
+            logger.error(`Failed to process assignment statements for ${this.id}`, this.assign);
         }
     };
 
@@ -224,7 +224,7 @@ export class Resource{
                });
             })
         } catch (err){
-            logger.error(`Failed to process assignment statement ${this.assign} for ${this.id}`, err);
+            logger.error(`Failed to process assignment statements for ${this.id}`, this.assign);
         }
     };
 

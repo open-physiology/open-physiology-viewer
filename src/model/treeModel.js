@@ -1,22 +1,15 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
 import {Link, Node} from "./visualResourceModel";
-import {Coalescence} from "./coalescenceModel";
 import {
     mergeGenResource,
     mergeGenResources,
     findResourceByID,
-    getNewID,
     getGenID,
-    addBorderNode,
-    getID,
-    compareResources,
     $Field,
-    $Color,
     $Prefix
 } from "./utils";
 import {logger} from './logger';
-import {defaults, isObject, isArray, flatten} from 'lodash-bound';
 
 /**
  * Tree model

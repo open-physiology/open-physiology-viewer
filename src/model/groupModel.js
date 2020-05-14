@@ -303,7 +303,7 @@ export class Group extends Resource {
                     logger.warn("Failed to locate layer lyph to reposition internal lyphs", lyph, layerIndex, lyph.layers[layerIndex]);
                 }
             } else {
-                logger.warn("Failed to relocate internal lyph to layer: layer index out of range", layerIndex, lyph.layers.length);
+                logger.warn("Failed to relocate internal lyph to layer: layer index out of range", layerIndex, lyph.layers.length, lyph.id, resourceIndex);
             }
         }
         (lyphs||[]).filter(lyph => lyph.layers && lyph.internalLyphs && lyph.internalLyphsInLayers).forEach(lyph=> {

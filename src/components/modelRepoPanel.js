@@ -34,7 +34,7 @@ import {repoURL} from './config';
                     <mat-nav-list id="modelList">                
                         <mat-list-item *ngFor="let fileName of fileNames">
                             <button mat-icon-button (dblclick)="loadModel(fileName)">
-                                <i class="fa fa-file"> {{fileName}} </i>
+                                <i class="fa fa-file"> {{fileName}} </i> 
                             </button>
                         </mat-list-item>
                     </mat-nav-list>
@@ -55,7 +55,7 @@ import {repoURL} from './config';
             font-size: 90%;
             text-align: right;
         }
-       
+
         #modelRepo {
             height: 100vh;
             overflow-y: scroll;
@@ -66,6 +66,8 @@ export class ModelRepoPanel {
     models = {};
     fileNames = [];
     url = repoURL;
+
+    @Output() onModelLoad = new EventEmitter();
 
     /**
      * Load ApiNATOMY models from GitHub repository
@@ -78,9 +80,11 @@ export class ModelRepoPanel {
     executeQuery(){
         this.models = {};
         this.fileNames = [];
+        const getFileExt = (fileName) => /(?:\.([^.]+))?$/.exec(fileName)[1].toLowerCase();
         try {
             this.http.get(this.url).subscribe(res => {
                 this.fileNames = (res||[]).map(model => model.name);
+                this.fileNames = this.fileNames.filter(fileName => getFileExt(fileName) === "json" );
                 (res || []).forEach(model => {
                     this.models[model.name] = model;
                 });
@@ -96,7 +100,7 @@ export class ModelRepoPanel {
         }
         try {
             this.http.get(this.models[fileName].download_url).subscribe(res => {
-                console.log(JSON.stringify(res));
+                this.onModelLoad.emit({fileName: fileName, fileContent: res});
             })
         } catch (e){
             throw new Error("Failed to download the model!");
