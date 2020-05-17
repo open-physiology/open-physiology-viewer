@@ -84,19 +84,21 @@ export class Graph extends Group{
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
-            added = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
-            logger.warn("Auto-created missing resources:", added);
+            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
+            if (resources.length > 0) {
+                logger.warn(...$GenEventMsg.AUTO_GEN(resources));
+            }
 
             let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
-            console.log($SchemaClass.External, externals.length);
             if (externals.length > 0){
-                logger.warn("Auto-created missing external resources:", externals);
+                logger.warn(...$GenEventMsg.AUTO_GEN_EXTERNAL(externals));
             }
         }
 
         if ((entitiesByID.waitingList)::keys().length > 0){
-            logger.warn("Incorrect model - found references to undefined resources: ", entitiesByID.waitingList);
+            logger.warn("Remaining references to undefined resources: ", entitiesByID.waitingList);
         }
+
         res.syncRelationships(modelClasses, entitiesByID);
 
         res.entitiesByID = entitiesByID;
@@ -104,6 +106,7 @@ export class Graph extends Group{
         if (!res.generated) {
             res.createAxesForInternalLyphs(modelClasses, entitiesByID);
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
+            res.createAxesForAllLyphs(modelClasses, entitiesByID);
         }
 
         //Collect inherited externals
@@ -327,7 +330,6 @@ export class Graph extends Group{
         [...(this.lyphs||[]), ...(this.regions||[])]
             .filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
     }
-
 
     createAxesForAllLyphs(modelClasses, entitiesByID){
         const createAxis = lyph => {

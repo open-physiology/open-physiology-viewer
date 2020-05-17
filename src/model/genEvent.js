@@ -9,6 +9,8 @@ export const $GenEventMsg = {
     GEN_RESOURCES: num => ["Number of resources in the generated model",      num],
 
     //Warning
+    AUTO_GEN: resources => ["Auto-created missing resources:", resources],
+    AUTO_GEN_EXTERNAL: resources => ["Auto-created missing external resources:", resources],
     CHAIN_UNDEFINED: "Cannot expand undefined chain template",
     CHAIN_SKIPPED: chain => [`Skipped faulty chain template. A correct chain template must have one of the following conditions met:
                 (1) "${$Field.numLevels}" set to a positive number and non-empty "${$Field.lyphTemplate}",\n
@@ -17,6 +19,7 @@ export const $GenEventMsg = {
                 (4) non-empty list of "${$Field.housingLyphs}",\n 
                 (5) non-empty "${$Field.housingChain}" reference with optional ${$Field.housingRange} parameter`,
                 chain]
+
 };
 
 
