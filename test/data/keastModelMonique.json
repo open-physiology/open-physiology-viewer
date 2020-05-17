@@ -566,6 +566,216 @@
             "target": "ns101",
             "conveyingLyph": "an-bd_bv_4",
             "length": 4
+        },
+        {
+            "id": "lnk-sn-drgl1_11",
+            "source": "ns120",
+            "target": "ns121",
+            "conveyingLyph": "sn-drgl1_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l113_11",
+            "source": "ns120",
+            "target": "ns122",
+            "conveyingLyph": "an-l113_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l112_11",
+            "source": "ns122",
+            "target": "ns123",
+            "conveyingLyph": "an-l112_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l111_11",
+            "source": "ns122",
+            "target": "ns124",
+            "conveyingLyph": "an-l111_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l18_11",
+            "source": "ns122",
+            "target": "ns125",
+            "conveyingLyph": "an-l18_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l16_11",
+            "source": "ns122",
+            "target": "ns126",
+            "conveyingLyph": "an-l16_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l12_11",
+            "source": "ns122",
+            "target": "ns127",
+            "conveyingLyph": "an-l12_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-img_11",
+            "source": "ns121",
+            "target": "ns141",
+            "conveyingLyph": "an-img_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drgl2_11",
+            "source": "ns130",
+            "target": "ns121",
+            "conveyingLyph": "sn-drgl2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l213_11",
+            "source": "ns130",
+            "target": "ns131",
+            "conveyingLyph": "an-l213_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l212_11",
+            "source": "ns131",
+            "target": "ns134",
+            "conveyingLyph": "an-l212_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l211_11",
+            "source": "ns131",
+            "target": "ns135",
+            "conveyingLyph": "an-l211_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l28_11",
+            "source": "ns131",
+            "target": "ns136",
+            "conveyingLyph": "an-l28_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l26_11",
+            "source": "ns131",
+            "target": "ns137",
+            "conveyingLyph": "an-l26_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-l22_11",
+            "source": "ns131",
+            "target": "ns138",
+            "conveyingLyph": "an-l22_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-pg_11",
+            "source": "ns141",
+            "target": "ns142",
+            "conveyingLyph": "an-pg_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bnl3_11",
+            "source": "ns142",
+            "target": "ns143",
+            "conveyingLyph": "an-bnl3_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bnv_11",
+            "source": "ns143",
+            "target": "ns144",
+            "conveyingLyph": "an-bnv_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bnl3-2_11",
+            "source": "ns142",
+            "target": "ns145",
+            "conveyingLyph": "an-bnl3-2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an_bnl2_11",
+            "source": "ns145",
+            "target": "ns146",
+            "conveyingLyph": "an_bnl2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bn3-3_11",
+            "source": "ns142",
+            "target": "ns147",
+            "conveyingLyph": "an-bn3-3_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bnl2-2_11",
+            "source": "ns147",
+            "target": "ns148",
+            "conveyingLyph": "an-bnl2-2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bnl1_11",
+            "source": "ns148",
+            "target": "ns149",
+            "conveyingLyph": "an-bnl1_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bdl3_11",
+            "source": "ns142",
+            "target": "ns150",
+            "conveyingLyph": "an-bdl3_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bdv_11",
+            "source": "ns150",
+            "target": "ns151",
+            "conveyingLyph": "an-bdv_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bdl3-2_11",
+            "source": "ns142",
+            "target": "ns152",
+            "conveyingLyph": "an-bdl3-2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an_bdl2_11",
+            "source": "ns152",
+            "target": "ns153",
+            "conveyingLyph": "an_bdl2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bd3-3_11",
+            "source": "ns142",
+            "target": "ns154",
+            "conveyingLyph": "an-bd3-3_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bdl2-2_11",
+            "source": "ns154",
+            "target": "ns155",
+            "conveyingLyph": "an-bdl2-2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-an-bdl1_11",
+            "source": "ns155",
+            "target": "ns156",
+            "conveyingLyph": "an-bdl1_11",
+            "length": 4
         }
     ],
     "lyphs": [
@@ -774,12 +984,24 @@
                 "anl1_11_L11",
                 "anl1_11_L8",
                 "anl1_11_L6",
-                "anl1_11_L2"
+                "anl1_11_L2",
+                "an-l113_11",
+                "an-l112_11",
+                "an-l111_11",
+                "an-l18_11",
+                "an-l16_11",
+                "an-l12_11"
             ],
             "internalLyphsInLayers": [
                 6,
                 6,
                 6,
+                12,
+                11,
+                8,
+                6,
+                2,
+                13,
                 12,
                 11,
                 8,
@@ -803,12 +1025,24 @@
                 "anl2_11_L11",
                 "anl3_11_L8",
                 "anl4_11_L6",
-                "anl5_11_L2"
+                "anl5_11_L2",
+                "an-l213_11",
+                "an-l212_11",
+                "an-l211_11",
+                "an-l28_11",
+                "an-l26_11",
+                "an-l22_11"
             ],
             "internalLyphsInLayers": [
                 6,
                 6,
                 6,
+                12,
+                11,
+                8,
+                6,
+                2,
+                13,
                 12,
                 11,
                 8,
@@ -1270,7 +1504,8 @@
                 "UBERON:0002857"
             ],
             "internalLyphs": [
-                "snl1_11"
+                "snl1_11",
+                "sn-drgl1_11"
             ],
             "internalLyphsInLayers": [
                 0
@@ -1283,7 +1518,8 @@
                 "UBERON:0002856"
             ],
             "internalLyphs": [
-                "snl2_11"
+                "snl2_11",
+                "sn-drgl2_11"
             ],
             "internalLyphsInLayers": [
                 0
@@ -1656,11 +1892,24 @@
             ],
             "internalLyphs": [
                 "K105",
-                "an-bn_4"
+                "an-bn_4",
+                "an-bnl3_11",
+                "an-bnv_11",
+                "an-bnl3-2_11",
+                "an_bnl2_11",
+                "an-bn3-3_11",
+                "an-bnl2-2_11",
+                "an-bnl1_11"
             ],
             "internalLyphsInLayers": [
                 3,
-                3
+                3,
+                3,
+                3,
+                3,
+                3,
+                2,
+                1
             ]
         },
         {
@@ -1675,6 +1924,9 @@
                 "KM_10",
                 "KM_11",
                 "KM_88"
+            ],
+            "internalLyphs": [
+                "an-img_11"
             ]
         },
         {
@@ -1695,6 +1947,9 @@
                 "KM_7",
                 "KM_6",
                 "KM_89"
+            ],
+            "internalLyphs": [
+                "an-pg_11"
             ]
         },
         {
@@ -2105,6 +2360,166 @@
         {
             "id": "an-bd_bv_4",
             "name": "Axon to bladder dome blood vessel",
+            "supertype": "229"
+        },
+        {
+            "id": "sn-drgl1_11",
+            "name": "Soma of FOS in L1 DRG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l113_11",
+            "name": "Axon of FOS through L1 layer 13",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l112_11",
+            "name": "Axon of FOS to L1 layer 12",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l111_11",
+            "name": "Axon of FOS to L1 layer 11",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l18_11",
+            "name": "Axon of FOS to L1 layer 8",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l16_11",
+            "name": "Axon of FOS to L1 layer 6",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l12_11",
+            "name": "Axon of FOS to L1 layer 2",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-img_11",
+            "name": "Axon of FOS to IMG from DRG",
+            "supertype": "229"
+        },
+        {
+            "id": "sn-drgl2_11",
+            "name": "Soma of FOS in L2 DRG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l213_11",
+            "name": "Axon of FOS through L2 layer 13",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l212_11",
+            "name": "Axon of FOS to L2 layer 12",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l211_11",
+            "name": "Axon of FOS to L2 layer 11",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l28_11",
+            "name": "Axon of FOS to L2 layer 8",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l26_11",
+            "name": "Axon of FOS to L2 layer 6",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-l22_11",
+            "name": "Axon of FOS to L2 layer 2",
+            "topology": "BAG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-pg_11",
+            "name": "Axon of POS through PG",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bnl3_11",
+            "name": "Axon to bladder neck layer 3 for vessel",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bnv_11",
+            "name": "Axon to bladder neck from layer 3 to vessel",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bnl3-2_11",
+            "name": "Axon to bladder neck layer 3 for layer 2",
+            "supertype": "229"
+        },
+        {
+            "id": "an_bnl2_11",
+            "name": "Axon to bladder neck from layer 3 to layer 2",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bn3-3_11",
+            "name": "Axon to bladder neck layer 3 for layer 1",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bnl2-2_11",
+            "name": "Axon to bladder neck for layer 1 from layer 3 to layer 2",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bnl1_11",
+            "name": "Axon to bladder neck from layer 2 to layer 1",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bdl3_11",
+            "name": "Axon to bladder dome layer 3 for vessel",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bdv_11",
+            "name": "Axon to bladder dome from layer 3 to vessel",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bdl3-2_11",
+            "name": "Axon to bladder neck layer 3 for layer 2",
+            "supertype": "229"
+        },
+        {
+            "id": "an_bdl2_11",
+            "name": "Axon to bladder dome from layer  3 to layer 2",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bd3-3_11",
+            "name": "Axon to bladder neck layer 3 for layer 1",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bdl2-2_11",
+            "name": "Axon to bladder dome from layer 3 to layer 2",
+            "supertype": "229"
+        },
+        {
+            "id": "an-bdl1_11",
+            "name": "Axon to bladder neck from layer 2 to layer 1",
             "supertype": "229"
         }
     ],
@@ -3347,6 +3762,30 @@
             "housingLyphs": [
                 "K84"
             ]
+        },
+        {
+            "id": "ac-sn-drgl1",
+            "name": "L1 DRG POS dendrite chain",
+            "root": "ns120",
+            "lyphTemplate": "229bag",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "K56"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2",
+            "name": "L2 DRG POS dendrite chain",
+            "root": "ns130",
+            "lyphTemplate": "229bag",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "K57"
+            ]
         }
     ],
     "groups": [
@@ -3495,7 +3934,72 @@
         },
         {
             "id": "neuron11",
-            "name": "Neuron11"
+            "name": "Neuron11",
+            "links": [
+                "lnk-sn-drgl1_11",
+                "lnk-an-l113_11",
+                "lnk-an-l112_11",
+                "lnk-an-l111_11",
+                "lnk-an-l18_11",
+                "lnk-an-l16_11",
+                "lnk-an-l12_11",
+                "lnk-an-img_11",
+                "lnk-sn-drgl2_11",
+                "lnk-an-l213_11",
+                "lnk-an-l212_11",
+                "lnk-an-l211_11",
+                "lnk-an-l28_11",
+                "lnk-an-l26_11",
+                "lnk-an-l22_11",
+                "lnk-an-pg_11",
+                "lnk-an-bnl3_11",
+                "lnk-an-bnv_11",
+                "lnk-an-bnl3-2_11",
+                "lnk-an_bnl2_11",
+                "lnk-an-bn3-3_11",
+                "lnk-an-bnl2-2_11",
+                "lnk-an-bnl1_11",
+                "lnk-an-bdl3_11",
+                "lnk-an-bdv_11",
+                "lnk-an-bdl3-2_11",
+                "lnk-an_bdl2_11",
+                "lnk-an-bd3-3_11",
+                "lnk-an-bdl2-2_11",
+                "lnk-an-bdl1_11"
+            ],
+            "nodes": [
+                "ns120",
+                "ns121",
+                "ns122",
+                "ns123",
+                "ns124",
+                "ns125",
+                "ns126",
+                "ns127",
+                "ns141",
+                "ns121",
+                "ns131",
+                "ns134",
+                "ns135",
+                "ns136",
+                "ns137",
+                "ns138",
+                "ns142",
+                "ns143",
+                "ns144",
+                "ns145",
+                "ns146",
+                "ns147",
+                "ns148",
+                "ns149",
+                "ns150",
+                "ns151",
+                "ns152",
+                "ns153",
+                "ns154",
+                "ns155",
+                "ns156"
+            ]
         }
     ],
     "id": "model1",

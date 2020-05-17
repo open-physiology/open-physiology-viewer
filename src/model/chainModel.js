@@ -4,7 +4,6 @@ import {Link, Node} from "./visualResourceModel";
 import {Coalescence} from "./coalescenceModel";
 import {
     mergeGenResource,
-    mergeGenResources,
     findResourceByID,
     getNewID,
     getGenID,
@@ -17,6 +16,7 @@ import {
 } from "./utils";
 import {logger} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
+import {$GenEventMsg} from "./genEvent";
 
 /**
  * Chain model
@@ -35,13 +35,11 @@ export class Chain extends GroupTemplate {
      */
     static expandTemplate(parentGroup, chain){
         if (!chain){
-            logger.warn("Cannot expand undefined chain template");
+            logger.warn(...$GenEventMsg.CHAIN_UNDEFINED);
             return;
         }
 
-        if (chain.generated){
-            return; //skip already expanded
-        }
+        if (chain.generated){return;}
 
         chain.id = chain.id || getGenID($Prefix.chain, getNewID());
 
@@ -49,8 +47,7 @@ export class Chain extends GroupTemplate {
 
         if ( !(chain.numLevels || isDefined(chain.levels) || isDefined(chain.lyphs) ||
             isDefined(chain.housingLyphs) || chain.housingChain)) {
-            logger.warn(`Skipped chain template - it must have "numLevels" set to a positive number, provide a non-empty 
-                "${$Field.lyphs}", "${$Field.levels}", or "${$Field.housingLyphs}" array, or a "${$Field.housingChain}" reference`, chain);
+            logger.warn(...$GenEventMsg.CHAIN_SKIPPED(chain));
             return;
         }
 

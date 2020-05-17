@@ -18,6 +18,7 @@ import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
 import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getSchemaClass, $SchemaType} from "./utils";
+import {$GenEventMsg} from "./genEvent";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -44,9 +45,7 @@ export class Graph extends Group{
             logger.warn(resVal);
         }
 
-        let model = json::cloneDeep()::defaults({
-            id: "mainGraph"
-        });
+        let model = json::cloneDeep()::defaults({id: "mainGraph"});
 
         //Copy existing entities to a map to enable nested model instantiation
 
@@ -81,14 +80,15 @@ export class Graph extends Group{
             }
         });
 
-        logger.info("Number of resources in the generated model:", entitiesByID::keys().length);
+        logger.info(...$GenEventMsg.GEN_RESOURCES(entitiesByID::keys().length));
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
-            added = added.filter(id => entitiesByID[id].class != $SchemaClass.External);
+            added = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
             logger.warn("Auto-created missing resources:", added);
 
-            let externals = added.filter(id => entitiesByID[id].class == $SchemaClass.External);
+            let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
+            console.log($SchemaClass.External, externals.length);
             if (externals.length > 0){
                 logger.warn("Auto-created missing external resources:", externals);
             }
@@ -304,7 +304,6 @@ export class Graph extends Group{
                 [$Field.generated]    : true
             }, modelClasses, entitiesByID);
 
-            //TODO consider removing these 2 lines (test!)
             lyph.conveys = link;
             sNode.sourceOf  = [link];
             tNode.targetOf  = [link];
@@ -314,7 +313,7 @@ export class Graph extends Group{
         };
 
         [...(this.lyphs||[]), ...(this.regions||[])]
-            .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph, lyph.internalIn));
+            .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph));
 
         const assignAxisLength = (lyph, container) => {
             if (container.axis) {
@@ -327,6 +326,39 @@ export class Graph extends Group{
 
         [...(this.lyphs||[]), ...(this.regions||[])]
             .filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
+    }
+
+
+    createAxesForAllLyphs(modelClasses, entitiesByID){
+        const createAxis = lyph => {
+            let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
+                Node.fromJSON({
+                    [$Field.id]        : getGenID(prefix, lyph.id),
+                    [$Field.color]     : $Color.Node,
+                    [$Field.generated] : true
+                }, modelClasses, entitiesByID))
+            );
+
+            let link = Link.fromJSON({
+                [$Field.id]           : getGenID($Prefix.link, lyph.id),
+                [$Field.source]       : sNode,
+                [$Field.target]       : tNode,
+                [$Field.geometry]     : Link.LINK_GEOMETRY.LINK,
+                [$Field.color]        : $Color.Link,
+                [$Field.conveyingLyph]: lyph,
+                [$Field.generated]    : true
+            }, modelClasses, entitiesByID);
+
+            lyph.conveys = link;
+            sNode.sourceOf  = [link];
+            tNode.targetOf  = [link];
+
+            this.links.push(link);
+            [sNode, tNode].forEach(node => this.nodes.push(node));
+        };
+
+        (this.lyphs||[]).filter(lyph => !lyph.axis).forEach(lyph => createAxis(lyph));
+
     }
 
     /**

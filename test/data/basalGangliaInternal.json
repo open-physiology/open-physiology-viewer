@@ -82,8 +82,7 @@
       "name"  : "Basal Ganglia",
       "color" : "#d1d2d4",
       "internalLyphColumns": 3,
-      "internalLyphs": [ "putamen", "gpe", "gpi" ],
-      "internalIn": "ganglia"
+      "internalLyphs": [ "putamen", "gpe", "gpi" ]
     },
     {
       "id"   : "putamen",
@@ -104,7 +103,7 @@
       },
       "hostedLyphs": [
         "hillock",
-        "dendrite_lyph1"
+        "dendrite_lyph_1"
       ]
     },
     {

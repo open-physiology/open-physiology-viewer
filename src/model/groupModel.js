@@ -2,7 +2,7 @@ import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
 import {logger} from './logger';
-import {Villus} from "./villusModel";
+import {$GenEventMsg} from "./genEvent";
 
 /**
  * Group (subgraph) model
@@ -167,10 +167,10 @@ export class Group extends Resource {
             }
         });
         if (changedLyphs > 0){
-            logger.info("Replaced references to lyph templates:", changedLyphs);
+            logger.info(...$GenEventMsg.REF_TO_LYPH(changedLyphs));
         }
         if (changedMaterials > 0){
-            logger.info("Replaced references to materials:", changedMaterials);
+            logger.info(...$GenEventMsg.REF_TO_MAT(changedMaterials));
         }
     }
 
