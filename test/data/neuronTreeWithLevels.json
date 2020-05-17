@@ -11,6 +11,10 @@
       "levels"      : [ {}, "lnk2"]
     }
   ],
+  "nodes": [{
+    "id": "nodeX",
+    "color": "#FF00FF"
+  }],
   "links": [{
     "id": "lnk2",
     "source": "nodeX"

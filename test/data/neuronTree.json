@@ -1,24 +1,24 @@
 {
   "id"  : "neuronTree",
-  "name": "Neuron",
+  "name": "Neuron tree",
   "description": "Demo model of an omega tree",
   "author": "Natallia Kokash",
   "chains": [
     {
-      "id"          : "tree1",
-      "name"        : "Neuron tree",
+      "id"          : "neuronChain",
+      "name"        : "Neuron",
       "numLevels"   : 4,
       "lyphTemplate": "neuronLyph"
     }
   ],
   "nodes": [
     {
-      "id": "tree1_node0",
+      "id": "tree1_node_0",
       "layout": {"x": -25, "y": 0, "z": 0},
       "color": "#000"
     },
     {
-      "id": "tree1_node4",
+      "id": "tree1_node_4",
       "layout": {"x": 25, "y": 0, "z": 0},
       "color": "#000"
     },

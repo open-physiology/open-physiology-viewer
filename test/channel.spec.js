@@ -1,8 +1,8 @@
 import {
     describe,
     it,
-    beforeEach,
-    afterEach,
+    before,
+    after,
     expect,
 } from './test.helper';
 import uotWithChannels from './data/uotWithChannels.json';
@@ -10,7 +10,7 @@ import {modelClasses} from '../src/model/index';
 
 describe("Generate groups from channel templates (UOT)", () => {
     let graphData;
-    beforeEach(() => {
+    before(() => {
         graphData = modelClasses.Graph.fromJSON(uotWithChannels, modelClasses);
     });
 
@@ -64,6 +64,6 @@ describe("Generate groups from channel templates (UOT)", () => {
         // the material in the channel object is copied to the `conveyingMaterials` property of the link.
     });
 
-    afterEach(() => {});
+    after(() => {});
 });
 

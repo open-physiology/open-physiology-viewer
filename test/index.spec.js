@@ -1,8 +1,8 @@
 import {
 	describe,
 	it,
-	beforeEach,
-	afterEach,
+	before,
+	after,
 	expect,
 } from './test.helper';
 import basalGanglia from './data/basalGanglia.json';
@@ -52,7 +52,7 @@ describe("JSON Schema loads correctly", () => {
 
 describe("Generate model (Basal Ganglia)", () => {
     let graphData;
-    beforeEach(() => {
+    before(() => {
         graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
     });
 
@@ -137,13 +137,13 @@ describe("Generate model (Basal Ganglia)", () => {
         expect(n3.hostedBy).to.be.instanceOf(modelClasses.Link);
     });
 
-    afterEach(() => {
+    after(() => {
     });
 });
 
 describe("Serialize data", () => {
     let graphData;
-    beforeEach(() => {});
+    before(() => {});
 
     it("All necessary fields serialized (respiratory system)", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
@@ -179,7 +179,7 @@ describe("Serialize data", () => {
         expect(lyph.border.borders[0].class).to.be.equal("Link");
     });
 
-    afterEach(() => {
+    after(() => {
     });
 });
 

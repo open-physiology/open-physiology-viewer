@@ -1,8 +1,8 @@
 import {
     describe,
     it,
-    beforeEach,
-    afterEach,
+    before,
+    after,
     expect,
 } from './test.helper';
 import keastSpinalTest from './data/keastSpinalTest';
@@ -11,7 +11,7 @@ import {modelClasses} from '../src/model/index';
 
 describe("Generate groups from chain templates (Keast Spinal)", () => {
     let graphData;
-    beforeEach(() => {
+    before(() => {
         graphData = modelClasses.Graph.fromJSON(keastSpinalTest, modelClasses);
     });
 
@@ -151,9 +151,8 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
     });
 
     it("Collapsible links collapse", () => {
-
     });
 
-    afterEach(() => {});
+    after(() => {});
 });
 
