@@ -89,4 +89,3 @@ The group-in-a-box algorithm creates a good initial graph layout. It is used in 
 An any moment, the positions of the nodes in the graph can be saved and reloaded using the dedicated buttons from the right-hand panel.
  The file created at this process contains only node identifiers with the corresponding coordinates. To avoid compatibility issues when a user tries to load a relationship graph coordinates after modifying an ApiNATOMY model, we do not store other information such as node and link classes/types. Nodes which do not have saved coordinates in a certain file simply remain in their initial locations.
  Note that switching the view modes between the relationship graph and the main ApiNATOMY visualization resets the relationship graph node positions.
-

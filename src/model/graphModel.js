@@ -295,28 +295,32 @@ export class Graph extends Group{
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 }, modelClasses, entitiesByID)));
+            this.nodes.push(sNode);
+            this.nodes.push(tNode);
 
             let link = Link.fromJSON({
                 [$Field.id]           : getGenID($Prefix.link, lyph.id),
-                [$Field.source]       : sNode,
-                [$Field.target]       : tNode,
+                [$Field.source]       : sNode.id,
+                [$Field.target]       : tNode.id,
                 [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
                 [$Field.color]        : $Color.InternalLink,
-                [$Field.conveyingLyph]: lyph,
+                [$Field.conveyingLyph]: lyph.id,
                 [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
             }, modelClasses, entitiesByID);
-
+            sNode.sourceOf = [link];
+            tNode.targetOf = [link];
             lyph.conveys = link;
-            sNode.sourceOf  = [link];
-            tNode.targetOf  = [link];
 
             this.links.push(link);
             [sNode, tNode].forEach(node => this.nodes.push(node));
         };
 
-        [...(this.lyphs||[]), ...(this.regions||[])]
-            .filter(lyph => lyph.internalIn && !lyph.axis).forEach(lyph => createAxis(lyph));
+        let internalLyphsWithNoAxis = [...(this.lyphs||[]), ...(this.regions||[])].filter(lyph => lyph.internalIn && !lyph.axis);
+        internalLyphsWithNoAxis.forEach(lyph => createAxis(lyph));
+        if (internalLyphsWithNoAxis.length > 0){
+            logger.info("Generated links for internal lyphs", internalLyphsWithNoAxis.length);
+        }
 
         const assignAxisLength = (lyph, container) => {
             if (container.axis) {
@@ -327,40 +331,43 @@ export class Graph extends Group{
             }
         };
 
-        [...(this.lyphs||[]), ...(this.regions||[])]
-            .filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
+        [...(this.lyphs||[]), ...(this.regions||[])].filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
     }
 
     createAxesForAllLyphs(modelClasses, entitiesByID){
         const createAxis = lyph => {
-            let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
-                Node.fromJSON({
+            let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => Node.fromJSON({
                     [$Field.id]        : getGenID(prefix, lyph.id),
                     [$Field.color]     : $Color.Node,
                     [$Field.generated] : true
-                }, modelClasses, entitiesByID))
+                }, modelClasses, entitiesByID)
             );
+            this.nodes.push(sNode);
+            this.nodes.push(tNode);
 
             let link = Link.fromJSON({
                 [$Field.id]           : getGenID($Prefix.link, lyph.id),
-                [$Field.source]       : sNode,
-                [$Field.target]       : tNode,
+                [$Field.source]       : sNode.id,
+                [$Field.target]       : tNode.id,
                 [$Field.geometry]     : Link.LINK_GEOMETRY.LINK,
                 [$Field.color]        : $Color.Link,
-                [$Field.conveyingLyph]: lyph,
+                [$Field.conveyingLyph]: lyph.id,
                 [$Field.generated]    : true
             }, modelClasses, entitiesByID);
 
+            sNode.sourceOf = [link];
+            tNode.targetOf = [link];
             lyph.conveys = link;
-            sNode.sourceOf  = [link];
-            tNode.targetOf  = [link];
 
             this.links.push(link);
             [sNode, tNode].forEach(node => this.nodes.push(node));
         };
 
-        (this.lyphs||[]).filter(lyph => !lyph.axis).forEach(lyph => createAxis(lyph));
-
+        let lyphsWithoutAxis = (this.lyphs||[]).filter(lyph => !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
+        lyphsWithoutAxis.forEach(lyph => createAxis(lyph));
+        if (lyphsWithoutAxis.length > 0){
+            logger.info("Generated links for lyphs without axes", lyphsWithoutAxis.length);
+        }
     }
 
     /**

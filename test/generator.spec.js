@@ -17,6 +17,7 @@ import basicLyphOnBorder from './data/basicLyphOnBorder';
 import basicLyphTypes from './data/basicLyphTypes';
 import basicHousedTree from './data/basicHousedTree';
 import basicJointTrees from './data/basicJointTrees';
+import basicLyphWithNoAxis from './data/basicLyphWithNoAxis';
 
 import bolserLewis from './data/bolserLewis';
 import villus from './data/villus';
@@ -122,6 +123,13 @@ describe("BasicHousedTree", () => {
 describe("BasicJointTrees", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicJointTrees, modelClasses));
+    it("Model generated without errors", () => expectNoWarnings(graphData));
+    after(() => {});
+});
+
+describe("BasicLyphsWithNoAxis", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicLyphWithNoAxis, modelClasses));
     it("Model generated without errors", () => expectNoWarnings(graphData));
     after(() => {});
 });
