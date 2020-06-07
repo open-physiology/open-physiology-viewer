@@ -85,6 +85,21 @@ export class Lyph extends Shape {
         return super.fromJSON(json, modelClasses, entitiesByID);
     }
 
+    static markAsTemplate(lyphs){
+        //TODO fix this, it does not work
+        // (lyphs||[]).forEach(lyph => {
+        //     if (lyph.isTemplate){
+        //         (lyph.layers||[]).forEach(e => {
+        //             let layer = findResourceByID(lyphs, e);
+        //             if (layer && !layer.isTemplate){
+        //                 layer.isTemplate = true;
+        //                 logger.warn("Lyph template layer was marked as template", layer.id)
+        //             }
+        //         })
+        //     }
+        // });
+    }
+
     /**
      * Generate new layers for subtypes and replicate template properties
      * @param lyphs - lyph set that contains target subtypes
@@ -164,7 +179,8 @@ export class Lyph extends Shape {
             }
 
             let targetLayer = {};
-            if ((targetLyph.layers||[]).length > i){
+            const n = (targetLyph.layers||[]).length;
+            if (n > i){
                 targetLayer = targetLyph.layers[i];
             }
             targetLayer = targetLayer::merge({
@@ -181,6 +197,24 @@ export class Lyph extends Shape {
         });
 
         return targetLyph;
+    }
+
+    collectInheritedExternals(){
+        const externals = this.inheritedExternal || [];
+        const ids = externals.map(x => x.id);
+        let curr = this.supertype;
+        while (curr){
+            (curr.external||[]).forEach(e => {
+                if (!ids.includes(e.id)){
+                    externals.push(e);
+                    ids.push(e.id);
+                }
+            });
+            curr = curr.supertype;
+        }
+        if (externals.length > 0){
+            this.inheritedExternal = externals;
+        }
     }
 
     /**

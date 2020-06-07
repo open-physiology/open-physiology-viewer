@@ -1,0 +1,92 @@
+{
+  "id": "basicCollapsibleLinks",
+  "name": "Basic collapsible links demo",
+  "class": "Graph",
+  "description": "Demo model with a node on border of two lyphs",
+  "nodes": [
+    {
+      "id": "h1",
+      "layout": {"x": -20, "y": 0}
+    },
+    {
+      "id": "h2"
+    },
+    {
+      "id": "h3"
+    },
+    {
+      "id": "h4",
+      "layout": {"x": 20, "y": 0}
+    },
+    {
+      "id": "n1"
+    },
+    {
+      "id": "n2"
+    },
+    {
+      "id": "n3"
+    }
+  ],
+  "links":[
+    {
+      "id": "lnk1",
+      "source": "n1",
+      "target": "n2"
+    },
+    {
+      "id": "lnk2",
+      "source": "n2",
+      "target": "n3"
+    },
+    {
+      "id": "lnk3",
+      "source": "n4",
+      "target": "n3"
+    },
+    {
+      "id": "lnk_lyph3",
+      "source": "h4",
+      "target": "h3",
+      "conveyingLyph": "lyph3"
+    },
+    {
+      "id": "lnk_lyph2",
+      "source": "h3",
+      "target": "h2",
+      "conveyingLyph": "lyph2"
+    },
+    {
+      "id": "lnk_lyph1",
+      "source": "h2",
+      "target": "h1",
+      "conveyingLyph": "lyph1"
+    }
+  ],
+  "lyphs":[
+    {
+      "id": "lyph1",
+      "border": {
+        "borders":[
+          {},{"hostedNodes": ["n1"]},{},{"hostedNodes": ["n2"]}
+        ]
+      }
+    },
+    {
+      "id": "lyph2",
+      "border": {
+        "borders":[
+          {},{"hostedNodes": ["n2"]},{},{"hostedNodes": ["n3"]}
+        ]
+      }
+    },
+    {
+      "id": "lyph3",
+      "border": {
+        "borders":[
+          {},{"hostedNodes": ["n3"]},{},{"hostedNodes": ["n4"]}
+        ]
+      }
+    }
+  ]
+}

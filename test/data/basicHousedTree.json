@@ -299,6 +299,7 @@
       "external": [
         "UBERON:0001737"
       ],
+      "isTemplate": true,
       "layers": [
         "103",
         "108"

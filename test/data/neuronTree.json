@@ -13,12 +13,12 @@
   ],
   "nodes": [
     {
-      "id": "tree1_node_0",
+      "id": "neuronChain_node_0",
       "layout": {"x": -25, "y": 0, "z": 0},
       "color": "#000"
     },
     {
-      "id": "tree1_node_4",
+      "id": "neuronChain_node_4",
       "layout": {"x": 25, "y": 0, "z": 0},
       "color": "#000"
     },

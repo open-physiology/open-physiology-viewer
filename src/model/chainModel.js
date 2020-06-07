@@ -15,7 +15,7 @@ import {
     $Prefix
 } from "./utils";
 import {logger} from './logger';
-import {defaults, isObject, isArray, flatten} from 'lodash-bound';
+import {defaults, isObject, isArray, isString, flatten} from 'lodash-bound';
 import {$GenEventMsg} from "./genEvent";
 
 /**
@@ -57,15 +57,14 @@ export class Chain extends GroupTemplate {
             let template = chain.lyphTemplate;
             if (template){
                 if (template::isObject()){
-                    if (!template.id) { template.id = getGenID(chain.id, "template"); }
+                    if (!template.id) { template.id = getGenID($Prefix.template, chain.id); }
                     mergeGenResource(chain.group, parentGroup, template, $Field.lyphs);
                     chain.lyphTemplate = template.id;
                 } else {
                     //find lyph template to establish chain topology
                     template = (parentGroup.lyphs||[]).find(e => e.id === chain.lyphTemplate);
                     if (!template){
-                        logger.error("Failed to find the lyph template definition in the parent group: ",
-                            chain.lyphTemplate);
+                        logger.error(...$GenEventMsg.CHAIN_LYPH_TEMPLATE_MISSING(chain.lyphTemplate));
                     }
                 }
             }
@@ -133,7 +132,7 @@ export class Chain extends GroupTemplate {
                         //we can interpolate chain node positions for quicker layout
                         node.layout = {};
                         ["x", "y", "z"].forEach(dim => {
-                            node.layout[dim] = (start.layout[dim] || 0) + ((end.layout[dim] || 0) - (start.layout[dim] || 0)) / lyphs.length * (i + 1);
+                            node.layout[dim] = (start.layout[dim] || 0) + ((end.layout[dim] || 0) - (start.layout[dim] || 0)) / (lyphs.length + 1) * (i + 1);
                         });
                     }
                 }
@@ -355,14 +354,11 @@ export class Chain extends GroupTemplate {
                 //Start and end nodes
                 if (i === 0){
                     addInternalNode(hostLyph, level.source);
-                    //addBorderNode(hostLyph.border.borders[1], level.source);
                 } else {
                     addBorderNode(hostLyph.border.borders[3], level.source);
                 }
                 if (i === chain.housingLyphs.length - 1){
                     addInternalNode(hostLyph, level.target);
-                    //To bound to the border
-                    //addBorderNode(hostLyph.border.borders[3], level.target);
                 } else {
                     let targetNode = findResourceByID(parentGroup.nodes, level.target) || {[$Field.id]: level.target};
                     let targetClone = Node.clone(targetNode);

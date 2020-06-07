@@ -57,7 +57,8 @@ export const $Prefix = {
     layer   : "layer",  //generated lyph layer
     template: "ref",    //from lyph template
     material: "mat",    //from material reference
-    clone   : "clone"   //node clone
+    clone   : "clone",  //node clone
+    join    : "join"   //joint node
 };
 
 export const getNewID = entitiesByID => "new-" +
@@ -130,6 +131,7 @@ export const addBorderNode = (border, node) => {
     border.hostedNodes = border.hostedNodes || [];
     border.hostedNodes.push(node);
 };
+
 
 /**
  * Finds a resource object in the parent group given an object or an ID

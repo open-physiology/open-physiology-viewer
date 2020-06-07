@@ -11,6 +11,7 @@ import {
 import basalGanglia from './data/basalGanglia';
 import basalGangliaAuto from './data/basalGangliaAuto';
 import basalGangliaInternal from './data/basalGangliaInternal';
+
 import basic from './data/basic';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
@@ -18,6 +19,10 @@ import basicLyphTypes from './data/basicLyphTypes';
 import basicHousedTree from './data/basicHousedTree';
 import basicJointTrees from './data/basicJointTrees';
 import basicLyphWithNoAxis from './data/basicLyphWithNoAxis';
+import basicSharedNodes from './data/basicSharedNodes';
+
+import fullBody from './data/fullBody';
+import fullBodyRegions from './data/fullBodyRegions';
 
 import bolserLewis from './data/bolserLewis';
 import villus from './data/villus';
@@ -46,7 +51,7 @@ function expectNoWarnings(graphData){
     expect(warnings).to.have.length(0);
 }
 
-function expectAutoGen(graphData){
+function expectAutoGenResources(graphData){
     expectNoErrors(graphData);
     expect (graphData.logger.status).to.be.equal(Logger.STATUS.WARNING);
     let logEvents = graphData.logger.entries;
@@ -55,7 +60,7 @@ function expectAutoGen(graphData){
     expect(warnings[0]).to.have.property("msg").that.equals($GenEventMsg.AUTO_GEN()[0]);
 }
 
-function expectAutoGenExternal(graphData){
+function expectAutoGenExternals(graphData){
     expectNoErrors(graphData);
     expect (graphData.logger.status).to.be.equal(Logger.STATUS.WARNING);
     let logEvents = graphData.logger.entries;
@@ -63,6 +68,17 @@ function expectAutoGenExternal(graphData){
     expect(warnings).to.have.length(1);
     expect(warnings[0]).to.have.property("msg").that.equals($GenEventMsg.AUTO_GEN_EXTERNAL()[0]);
 }
+
+function expectAutoGenResourcesAndExternals(graphData){
+    expectNoErrors(graphData);
+    expect (graphData.logger.status).to.be.equal(Logger.STATUS.WARNING);
+    let logEvents = graphData.logger.entries;
+    let warnings = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.WARN);
+    expect(warnings).to.have.length(2);
+    expect(warnings[0]).to.have.property("msg").that.equals($GenEventMsg.AUTO_GEN()[0]);
+    expect(warnings[1]).to.have.property("msg").that.equals($GenEventMsg.AUTO_GEN_EXTERNAL()[0]);
+}
+
 
 describe("BasalGanglia", () => {
     let graphData;
@@ -116,7 +132,7 @@ describe("BasicLyphTypes", () => {
 describe("BasicHousedTree", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicHousedTree, modelClasses));
-    it("Model generated without errors", () => expectAutoGenExternal(graphData));
+    it("Model generated without errors", () => expectAutoGenExternals(graphData));
     after(() => {});
 });
 
@@ -134,6 +150,27 @@ describe("BasicLyphsWithNoAxis", () => {
     after(() => {});
 });
 
+// describe("BasicSharedNodes", () => {
+//     let graphData;
+//     before(() => graphData = modelClasses.Graph.fromJSON(basicSharedNodes, modelClasses));
+//     it("Model generated without errors", () => expectNoWarnings(graphData));
+//     after(() => {});
+// });
+
+describe("FullBody", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(fullBody, modelClasses));
+    it("Model generated without errors", () => expectAutoGenResourcesAndExternals(graphData));
+    after(() => {});
+});
+
+describe("FullBodyRegions", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(fullBodyRegions, modelClasses));
+    it("Model generated without errors", () => expectAutoGenResourcesAndExternals(graphData));
+    after(() => {});
+});
+
 // describe("EllipseArc", () => {
 //     let graphData;
 //     before(() => graphData = modelClasses.Graph.fromJSON(ellipseArc, modelClasses));
@@ -147,16 +184,6 @@ describe("BasicLyphsWithNoAxis", () => {
 //     it("Model generated without errors", () => testModel(graphData));
 //     after(() => {});
 // });
-
-// describe("FullBody", () => {
-//     let graphData;
-//     before(() => graphData = modelClasses.Graph.fromJSON(fullBody, modelClasses));
-//     it("Model generated without errors", () => testModel(graphData));
-//     after(() => {});
-// });
-
-
-//fullBodyRegions.json
 
 // keastModelMonique.json
 // keastSpinal.json

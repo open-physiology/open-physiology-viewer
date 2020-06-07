@@ -71,14 +71,14 @@ export class Tree extends GroupTemplate {
                 let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
 
                 if (!lnk) {
-                    logger.warn("Failed to find tree level link (created to proceed): ", tree.id, levels[i], i);
+                    logger.info("Failed to find tree level link (created to proceed): ", tree.id, levels[i], i);
                     lnk = {
                         [$Field.id]: levels[i],
                         [$Field.generated]: true
                     };
                 }
                 if (!trg){
-                    logger.warn("Failed to find tree level target node (created to proceed): ", tree.id, lnk.id, lnk.target);
+                    logger.info("Failed to find tree level target node (created to proceed): ", tree.id, lnk.id, lnk.target);
                     trg = {
                         [$Field.id]: lnk.target,
                         [$Field.generated]: true

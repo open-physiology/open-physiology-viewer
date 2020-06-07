@@ -521,7 +521,7 @@
         {
             "id": "lnk-an-sgl6_gr",
             "source": "ns93",
-            "target": "n96",
+            "target": "ns96",
             "conveyingLyph": "an-sgl6_gr",
             "length": 4
         },
@@ -1188,7 +1188,11 @@
                 "K_78",
                 "K_77",
                 "KM_27"
-            ]
+            ],
+            "scale": {
+                "width": 500,
+                "height": 60
+            }
         },
         {
             "id": "K35",
@@ -1907,6 +1911,7 @@
                 3,
                 3,
                 3,
+                2,
                 3,
                 2,
                 1
@@ -2848,14 +2853,14 @@
             ]
         },
         {
-            "id": "K_87",
+            "id": "KM_87",
             "name": "Epithelium",
             "external": [
                 "UBERON:0000483"
             ]
         },
         {
-            "id": "K_88",
+            "id": "KM_88",
             "name": "Rhabdosphincter"
         },
         {
@@ -3832,6 +3837,34 @@
                 "lnk-l5sgs",
                 "lnk-l5-l6iss",
                 "lnk-l6sgs"
+            ],
+            "nodes": [
+                "ns24",
+                "ns25",
+                "ns26",
+                "ns27",
+                "ns28",
+                "ns29",
+                "ns30",
+                "ns31",
+                "ns32",
+                "ns33",
+                "ns34",
+                "ns35",
+                "ns36",
+                "ns37",
+                "ns38",
+                "ns39",
+                "ns40",
+                "ns42",
+                "ns41",
+                "ns43",
+                "ns44",
+                "ns45",
+                "ns46",
+                "ns47",
+                "ns48",
+                "ns49"
             ]
         },
         {
@@ -3999,6 +4032,76 @@
                 "ns154",
                 "ns155",
                 "ns156"
+            ]
+        },
+        {
+            "id": "neuron 7",
+            "name": "Neuron 7",
+            "links": [
+                "lnk-snl17",
+                "lnk-snl27"
+            ],
+            "nodes": [
+                "ns51",
+                "ns52",
+                "ns53",
+                "ns54",
+                "ns55"
+            ],
+            "groups": [
+                "group_dc-snl17",
+                "group_ac-snl17",
+                "group_dc-snl27",
+                "group_ac-snl27",
+                "group_ac-snl1l2"
+            ]
+        },
+        {
+            "id": "neuron 9",
+            "name": "Neuron 9",
+            "links": [
+                "lnk-snl59",
+                "lnk-snl69"
+            ],
+            "nodes": [
+                "ns56",
+                "ns57",
+                "ns58",
+                "ns59",
+                "ns60",
+                "ns61"
+            ]
+        },
+        {
+            "id": "neuron 5",
+            "name": "Neuron 5",
+            "links": [
+                "lnk-snl65",
+                "lnk-sns15"
+            ],
+            "nodes": [
+                "ns62",
+                "ns63",
+                "ns64",
+                "ns65",
+                "ns66",
+                "ns67",
+                "ns68"
+            ]
+        },
+        {
+            "id": "neuron 6",
+            "name": "Neuron 6",
+            "links": [
+                "lnk-snl16",
+                "lnk-snl26"
+            ],
+            "nodes": [
+                "ns19",
+                "ns20",
+                "ns21",
+                "ns22",
+                "ns23"
             ]
         }
     ],

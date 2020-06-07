@@ -1584,76 +1584,6 @@
   ],
   "lyphs": [
     {
-      "id": "1",
-      "name": "kidney",
-      "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 1,
-        "max": 1
-      },
-      "external": "FMA:7203",
-      "layers": [
-        "2",
-        "3",
-        "4"
-      ]
-    },
-    {
-      "id": "2",
-      "name": "Renal Hilum",
-      "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 1,
-        "max": 1
-      },
-      "external": "FMA:15610"
-    },
-    {
-      "id": "3",
-      "name": "Renal Parenchyma",
-      "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 1,
-        "max": 1
-      },
-      "border": {
-        "borders": [
-          {},
-          {},
-          {},
-          {
-            "conveyingLyph": "5"
-          }
-        ]
-      }
-    },
-    {
-      "id": "4",
-      "name": "Renal Capsule",
-      "topology": "BAG",
-      "thickness": {
-        "min": 2,
-        "max": 2
-      },
-      "length": {
-        "min": 1,
-        "max": 1
-      },
-      "external": "FMA:66610"
-    },
-    {
       "id": "5",
       "name": "Kidney Lobus",
       "topology": "BAG",
@@ -1698,8 +1628,7 @@
             ]
           }
         ]
-      },
-      "hostedBy": "3"
+      }
     },
     {
       "id": "6",

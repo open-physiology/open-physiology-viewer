@@ -17,7 +17,7 @@ import {
 import { Validator} from 'jsonschema';
 import * as schema from './graphScheme.json';
 import {logger} from './logger';
-import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getSchemaClass, $SchemaType} from "./utils";
+import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getGenName, getSchemaClass, $SchemaType} from "./utils";
 import {$GenEventMsg} from "./genEvent";
 
 export { schema };
@@ -80,6 +80,7 @@ export class Graph extends Group{
             }
         });
 
+        //Log info about the number of generated resources
         logger.info(...$GenEventMsg.GEN_RESOURCES(entitiesByID::keys().length));
 
         if (added.length > 0){
@@ -105,28 +106,12 @@ export class Graph extends Group{
 
         if (!res.generated) {
             res.createAxesForInternalLyphs(modelClasses, entitiesByID);
-            (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             res.createAxesForAllLyphs(modelClasses, entitiesByID);
+            (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
         }
 
         //Collect inherited externals
-        (res.lyphs||[]).filter(lyph => lyph.supertype).forEach(lyph => {
-            const externals = lyph.inheritedExternal || [];
-            const ids = externals.map(x => x.id);
-            let curr = lyph.supertype;
-            while (curr){
-                (curr.external||[]).forEach(e => {
-                    if (!ids.includes(e.id)){
-                        externals.push(e);
-                        ids.push(e.id);
-                    }
-                });
-                curr = curr.supertype;
-            }
-            if (externals.length > 0){
-                lyph.inheritedExternal = externals;
-            }
-        });
+        (res.lyphs||[]).filter(lyph => lyph.supertype).forEach(r => r.collectInheritedExternals());
 
         //Validate coalescences
         (res.coalescences || []).forEach(r => r.validate());
@@ -295,8 +280,6 @@ export class Graph extends Group{
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 }, modelClasses, entitiesByID)));
-            this.nodes.push(sNode);
-            this.nodes.push(tNode);
 
             let link = Link.fromJSON({
                 [$Field.id]           : getGenID($Prefix.link, lyph.id),
@@ -334,16 +317,26 @@ export class Graph extends Group{
         [...(this.lyphs||[]), ...(this.regions||[])].filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
     }
 
+    /**
+     * Auto-generate links for lyphs without axes which are not layers or templates
+     * @param modelClasses - model resource classes
+     * @param entitiesByID - a global resource map to include the generated resources
+     */
     createAxesForAllLyphs(modelClasses, entitiesByID){
+        let group = {
+            [$Field.id]        : getGenID($Prefix.group, this.id, "auto-links"),
+            [$Field.name]      : "Generated links",
+            [$Field.generated] : true,
+            [$Field.links]     : [],
+            [$Field.nodes]     : []
+        };
+
         const createAxis = lyph => {
             let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => Node.fromJSON({
-                    [$Field.id]        : getGenID(prefix, lyph.id),
-                    [$Field.color]     : $Color.Node,
-                    [$Field.generated] : true
-                }, modelClasses, entitiesByID)
-            );
-            this.nodes.push(sNode);
-            this.nodes.push(tNode);
+                [$Field.id]        : getGenID(prefix, lyph.id),
+                [$Field.color]     : $Color.Node,
+                [$Field.generated] : true
+            }, modelClasses, entitiesByID));
 
             let link = Link.fromJSON({
                 [$Field.id]           : getGenID($Prefix.link, lyph.id),
@@ -360,13 +353,25 @@ export class Graph extends Group{
             lyph.conveys = link;
 
             this.links.push(link);
-            [sNode, tNode].forEach(node => this.nodes.push(node));
+            group.links.push(link.id);
+            [sNode, tNode].forEach(node => {
+                this.nodes.push(node);
+                group.nodes.push(node.id);
+            });
         };
 
         let lyphsWithoutAxis = (this.lyphs||[]).filter(lyph => !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
         lyphsWithoutAxis.forEach(lyph => createAxis(lyph));
         if (lyphsWithoutAxis.length > 0){
             logger.info("Generated links for lyphs without axes", lyphsWithoutAxis.length);
+        }
+
+        if (group.links.length > 0){
+            if (!this.groups){
+                this.groups = [];
+            }
+            group = Group.fromJSON(group, modelClasses, entitiesByID);
+            this.groups.push(group);
         }
     }
 

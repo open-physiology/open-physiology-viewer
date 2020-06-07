@@ -1,6 +1,6 @@
 import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
-import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
+import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, getID} from './utils';
 import {logger} from './logger';
 import {$GenEventMsg} from "./genEvent";
 
@@ -32,6 +32,9 @@ export class Group extends Resource {
             return super.fromJSON(json, modelClasses, entitiesByID);
         }
 
+        //correct lyph definitions by marking layers of templates as templates
+        modelClasses.Lyph.markAsTemplate(json.lyphs);
+
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
 
@@ -54,10 +57,13 @@ export class Group extends Resource {
         this.createTemplateInstances(json, modelClasses);
 
         //Clone nodes simultaneously required to be on two or more lyph borders
-        this.replaceBorderNodes(json, modelClasses);
+        this.replicateBorderNodes(json, modelClasses);
+
+        //Clone nodes simultaneously required to be on two or more lyphs
+        this.replicateInternalNodes(json, modelClasses);
 
         //Reposition internal resources
-        this.internalResourcesToLayers(json.lyphs);
+        this.mapInternalResourcesToLayers(json.lyphs);
 
         /******************************************************************************************************/
         //create graph resource
@@ -187,11 +193,17 @@ export class Group extends Resource {
             if (!clsName){
                 logger.error(`Could not find class definition for the field ${relName}`)
             }
-            (json[relName]||[]).forEach((field, i) => {
-                    field.id = field.id || getGenID(json.id, relName, i);
-                    modelClasses[clsName].expandTemplate(json, field);
+            (json[relName]||[]).forEach((template, i) => {
+                if (template::isObject()) {//expand group templates, but not references
+                    template.id = template.id || getGenID(json.id, relName, i);
+                    modelClasses[clsName].expandTemplate(json, template);
+                } else {
+                    logger.info("Found template defined in another group", template);
+                    //logger.info("Added references to generated groups", template);
+                    json[$Field.groups] = json[$Field.groups] || [];
+                    json[$Field.groups].push(getGenID($Prefix.group, template));
                 }
-            );
+            });
         });
     }
 
@@ -213,8 +225,8 @@ export class Group extends Resource {
 
     /**
      * Create lyphs that inherit properties from templates
-     * @param lyphs
-     * @param modelClasses
+     * @param lyphs - input model lyphs
+     * @param modelClasses - model resource classes
      */
     static expandLyphTemplates(lyphs, modelClasses){
         let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
@@ -224,8 +236,8 @@ export class Group extends Resource {
 
     /**
      * Generate subgraphs to model villi
-     * @param json
-     * @param modelClasses
+     * @param json - input model
+     * @param modelClasses - model resource classes
      */
     static createVilli(json, modelClasses){
         (json.lyphs||[]).filter(lyph => lyph.villus).forEach(lyph => {
@@ -234,51 +246,106 @@ export class Group extends Resource {
         })
     }
 
+    static getOrCreateNode(nodes, nodeID){
+        let node  = (nodes||[]).find(e => e.id === nodeID);
+        if (!node){
+            node = {[$Field.id]: nodeID};
+            if (!nodes){ nodes = []; }
+            nodes.push(node);
+        }
+        return node;
+    }
+
     /**
      * Replicate border nodes and create collapsible links
-     * The effect of this procedure depends on the order in which lyphs that share border nodes are selected
-     * If the added dashed links create an overlap, change the order of lyphs in the input file
      * @param json
      * @param modelClasses
      */
-    static replaceBorderNodes(json, modelClasses){
+    static replicateBorderNodes(json, modelClasses){
         let borderNodesByID = {};
-        let lyphsWithBorders = (json.lyphs||[]).filter(lyph => lyph.border && (lyph.border.borders||[])
-            .find(b => b && b.hostedNodes));
-
-        lyphsWithBorders.forEach(lyph => {
-            lyph.border.borders.forEach(b => {
-                (b.hostedNodes||[]).forEach(nodeID => {
-                    if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
-                    borderNodesByID[nodeID].push(lyph);
-                });
-            })
+        (json.lyphs||[]).forEach(lyph => {
+            if (lyph.border && lyph.border.borders) {
+                lyph.border.borders.forEach(b => {
+                    (b.hostedNodes||[]).forEach(nodeID => {
+                        if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
+                        borderNodesByID[nodeID].push(lyph);
+                    });
+                })
+            }
         });
 
+        const nodeOnBorder = (node, lyphID) => (borderNodesByID[getID(node)]||[]).find(e => e.id === lyphID);
+
         borderNodesByID::keys().forEach(nodeID => {
-            if (borderNodesByID[nodeID].length > 1){
-                //links affected by the border node constraints
-                let links = (json.links||[]).filter(e => e.target === nodeID);
-                let node  = (json.nodes||[]).find(e => e.id === nodeID);
-                //Unknown nodes will be detected by validation later, no need for logging here
-                if (!node){return;}
-
-                borderNodesByID[nodeID] = borderNodesByID[nodeID].reverse();
-
-                for (let i = 1, prev = nodeID; i < borderNodesByID[nodeID].length; i++){
-                    let nodeClone = { [$Field.id]: getGenID(nodeID, $Prefix.clone, i)};
+            let hostLyphs = borderNodesByID[nodeID];
+            if (hostLyphs.length > 1){
+                let node  = Group.getOrCreateNode(json.nodes, nodeID);
+                let prev = nodeID;
+                hostLyphs.forEach((hostLyph, i) => {
+                    if (i < 1) { return; }
+                    let nodeClone = {[$Field.id]: getGenID(nodeID, $Prefix.clone, i)};
                     modelClasses.Node.clone(node, nodeClone);
                     json.nodes.push(nodeClone);
 
-                    links.forEach(lnk => {lnk.target = nodeClone.id});
-                    borderNodesByID[nodeID][i].border.borders.forEach(b => {
+                    //rewire affected links
+                    //TODO test that it is possible to select affected links based on bundles/fascilitatesIn properties
+                    // let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && getID(e.fasciculatesIn) === hostLyph.id);
+                    // let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && getID(e.fasciculatesIn) === hostLyph.id);
+                    let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
+                    let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
+                    targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
+                    sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
+
+                    hostLyphs[i].border.borders.forEach(b => {
                         let k = (b.hostedNodes||[]).indexOf(nodeID);
                         if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
                     });
                     let lnk = modelClasses.Link.createCollapsibleLink(prev, nodeClone.id);
                     json.links.push(lnk);
                     prev = nodeClone.id;
+                })
+            }
+        });
+    }
+
+    static replicateInternalNodes(json, modelClasses){
+        let internalNodesByID = {};
+        (json.lyphs||[]).forEach(lyph => {
+            (lyph.internalNodes||[]).forEach(nodeID => {
+                if (!internalNodesByID[nodeID]){ internalNodesByID[nodeID] = []; }
+                internalNodesByID[nodeID].push(lyph);
+            });
+        });
+
+        const isBundledLink = (link, lyph) => (lyph.bundles||[]).find(e => getID(e) === link.id);
+
+        internalNodesByID::keys().forEach(nodeID => {
+            let hostLyphs = internalNodesByID[nodeID];
+            if (hostLyphs.length > 1){
+                let node = Group.getOrCreateNode(json.nodes, nodeID);
+                if (node.generated) {
+                    //if the node was generated, its internalIn property may be incorrectly set by chain generator
+                    delete node.internalIn;
                 }
+
+                hostLyphs.forEach((hostLyph, i) => {
+                    let nodeClone = {[$Field.id]: getGenID(nodeID, $Prefix.join, i)};
+                    modelClasses.Node.clone(node, nodeClone);
+                    json.nodes.push(nodeClone);
+                    let k = hostLyph.internalNodes.indexOf(nodeID);
+                    if (k > -1){ hostLyph.internalNodes[k] = nodeClone.id; }
+
+                    //rewire affected links
+                    let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && isBundledLink(e, hostLyph));
+                    let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && isBundledLink(e, hostLyph));
+                    targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
+                    sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
+
+                    //TODO reset rootOf and leafOf?
+
+                    let lnk = modelClasses.Link.createCollapsibleLink(node.id, nodeClone.id);
+                    json.links.push(lnk);
+                });
             }
         });
     }
@@ -287,7 +354,8 @@ export class Group extends Resource {
      * Assign internal resources to generated lyph layers
      * @param lyphs
      */
-    static internalResourcesToLayers(lyphs){
+    static mapInternalResourcesToLayers(lyphs){
+        //TODO check that properties like fascilitatesIn and bundles are also updated
         function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers.length){
                 let layer = findResourceByID(lyphs, lyph.layers[layerIndex]);
