@@ -247,6 +247,7 @@ export class Chain extends GroupTemplate {
                     [$Field.id]        : getGenID(chain.id, $Prefix.link, i+1),
                     [$Field.source]    : getID(sources[i]),
                     [$Field.target]    : getID(sources[i + 1]),
+                    [$Field.levelIn]   : chain.id,
                     [$Field.color]     : $Color.Link,
                     [$Field.generated] : true
                 });

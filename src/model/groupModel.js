@@ -44,8 +44,8 @@ export class Group extends Resource {
         //create lyphs that inherit properties from templates
         this.expandLyphTemplates(json.lyphs, modelClasses);
 
-        //create villi
-        this.createVilli(json, modelClasses);
+        //create villus
+        this.expandVillusTemplates(json, modelClasses);
 
         /******************************************************************************************************/
         /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
@@ -239,7 +239,7 @@ export class Group extends Resource {
      * @param json - input model
      * @param modelClasses - model resource classes
      */
-    static createVilli(json, modelClasses){
+    static expandVillusTemplates(json, modelClasses){
         (json.lyphs||[]).filter(lyph => lyph.villus).forEach(lyph => {
             lyph.villus.villusOf = lyph.id;
             modelClasses.Villus.expandTemplate(json, lyph.villus);
@@ -274,6 +274,7 @@ export class Group extends Resource {
             }
         });
 
+        //const isBundledLink = (link, lyph) => (lyph.bundles||[]).find(e => getID(e) === link.id);
         const nodeOnBorder = (node, lyphID) => (borderNodesByID[getID(node)]||[]).find(e => e.id === lyphID);
 
         borderNodesByID::keys().forEach(nodeID => {
@@ -287,12 +288,10 @@ export class Group extends Resource {
                     modelClasses.Node.clone(node, nodeClone);
                     json.nodes.push(nodeClone);
 
-                    //rewire affected links
-                    //TODO test that it is possible to select affected links based on bundles/fascilitatesIn properties
-                    // let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && getID(e.fasciculatesIn) === hostLyph.id);
-                    // let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && getID(e.fasciculatesIn) === hostLyph.id);
                     let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
                     let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
+                    // let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && isBundledLink(e, hostLyph));
+                    // let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && isBundledLink(e, hostLyph));
                     targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
                     sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
 
@@ -341,11 +340,37 @@ export class Group extends Resource {
                     targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
                     sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
 
-                    //TODO reset rootOf and leafOf?
+                    let leafChains = targetOfLinks.map(e => e.levelIn);
+                    let rootChains = sourceOfLinks.map(e => e.levelIn);
 
-                    let lnk = modelClasses.Link.createCollapsibleLink(node.id, nodeClone.id);
+                    //Reset rootOf and leafOf and include generated node into relevant chain groups
+                    const fixNodeChainRels = (chains, prop) => {
+                        if (chains.length > 0){
+                            nodeClone[prop] = chains;
+                            if (node[prop]) {
+                                node[prop] = node[prop].filter(e => !chains.includes(e));
+                            }
+                            chains.forEach(e => {
+                                let chain = findResourceByID(json.chains, e);
+                                if (chain && chain.group){
+                                    chain.group.nodes.push(nodeClone.id);
+                                    let relatedProp = prop === $Field.leafOf? $Field.leaf: $Field.root;
+                                    chain[relatedProp] = nodeClone.id;
+                                }
+                            })
+                        }
+                    };
+
+                    fixNodeChainRels(leafChains, $Field.leafOf);
+                    fixNodeChainRels(rootChains, $Field.rootOf);
+
+                    let lnk = (rootChains.length > 0)? modelClasses.Link.createCollapsibleLink(node.id, nodeClone.id):
+                        modelClasses.Link.createCollapsibleLink(nodeClone.id, node.id);
                     json.links.push(lnk);
                 });
+
+                node.controlNodes = node.clones;
+                logger.info("Cloned node to join housed chain ends", node.id, node.clones);
             }
         });
     }

@@ -371,7 +371,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "hostedBy", "generated" ]
+          "default": [ "id", "name", "class", "sourceOf", "targetOf", "rootOf", "leafOf", "internalIn", "generated" ]
         },
         "hostedBy": {
           "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
@@ -600,6 +600,20 @@
           ],
           "relatedTo": "borders",
           "advanced": true
+        },
+        "levelIn":{
+          "description": "A chain that contains the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "levels",
+          "advanced": true,
+          "readOnly": true
         },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
@@ -1462,7 +1476,8 @@
               {
                 "$ref": "#/definitions/Link"
               }
-            ]
+            ],
+            "relatedTo": "levelIn"
           }
         },
         "housingLyphs"   : {

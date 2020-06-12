@@ -50,7 +50,8 @@ export class Node extends VisualResource {
         targetNode = targetNode || {};
         targetNode.cloneOf = sourceNode.id;
         targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone);
-        targetNode::merge(sourceNode::pick([$Field.color, $Field.skipLabel, $Field.generated]));
+        targetNode::merge(sourceNode::pick([$Field.color, $Field.skipLabel]));
+        targetNode.generated = true;
         if (!sourceNode.clones){ sourceNode.clones = []; }
         sourceNode.clones.push(targetNode.id);
         return targetNode;
@@ -61,7 +62,7 @@ export class Node extends VisualResource {
      */
     get isConstrained() {
         return !!((this.fixed && this.layout) ||
-            (this.controlNodes && this.controlNodes.length > 0) ||
+            //(this.controlNodes && this.controlNodes.length > 0) ||
             (this.hostedBy && this.hostedBy.isVisible) ||
             (this.internalIn && this.internalIn.isVisible));
     }

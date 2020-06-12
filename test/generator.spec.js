@@ -24,6 +24,8 @@ import basicSharedNodes from './data/basicSharedNodes';
 import fullBody from './data/fullBody';
 import fullBodyRegions from './data/fullBodyRegions';
 
+import keastSpinal from './data/keastSpinal';
+
 import bolserLewis from './data/bolserLewis';
 import villus from './data/villus';
 
@@ -132,7 +134,7 @@ describe("BasicLyphTypes", () => {
 describe("BasicHousedTree", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicHousedTree, modelClasses));
-    it("Model generated without errors", () => expectAutoGenExternals(graphData));
+    it("Model generated without errors", () => expectNoWarnings(graphData));
     after(() => {});
 });
 
@@ -150,12 +152,12 @@ describe("BasicLyphsWithNoAxis", () => {
     after(() => {});
 });
 
-// describe("BasicSharedNodes", () => {
-//     let graphData;
-//     before(() => graphData = modelClasses.Graph.fromJSON(basicSharedNodes, modelClasses));
-//     it("Model generated without errors", () => expectNoWarnings(graphData));
-//     after(() => {});
-// });
+describe("BasicSharedNodes", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicSharedNodes, modelClasses));
+    it("Model generated without errors", () => expectNoWarnings(graphData));
+    after(() => {});
+});
 
 describe("FullBody", () => {
     let graphData;
@@ -186,7 +188,14 @@ describe("FullBodyRegions", () => {
 // });
 
 // keastModelMonique.json
-// keastSpinal.json
+
+describe("KeastSpinal", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(keastSpinal, modelClasses));
+    it("Model generated without errors", () => expectNoWarnings(graphData));
+    after(() => {});
+});
+
 // keastSpinalTest.json
 
 // neuron.json

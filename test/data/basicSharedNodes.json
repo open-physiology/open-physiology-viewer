@@ -26,6 +26,9 @@
     },
     {
       "id": "n3"
+    },
+    {
+      "id": "n4"
     }
   ],
   "links":[
@@ -41,8 +44,8 @@
     },
     {
       "id": "lnk3",
-      "source": "n4",
-      "target": "n3"
+      "source": "n3",
+      "target": "n4"
     },
     {
       "id": "lnk_lyph3",

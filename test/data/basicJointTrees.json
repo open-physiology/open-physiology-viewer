@@ -4,8 +4,20 @@
   "description": "Demo model with two generated omega trees connected to a common lyph",
   "author": "Natallia Kokash",
   "nodes": [
-    {"id": "n1"},
-    {"id": "n2"}
+    {
+      "id": "n1"
+    },
+    {
+      "id": "n2"
+    },
+    {
+      "id": "t1_leaf",
+      "layout": {"x": -100}
+    },
+    {
+      "id": "t2_leaf",
+      "layout": {"x": 100}
+    }
   ],
   "links": [
     {
@@ -18,18 +30,30 @@
   "lyphs": [
     {
       "id": "soma"
+    },
+    {
+      "id": "template1",
+      "isTemplate": true
+    },
+    {
+      "id": "template2",
+      "isTemplate": true
     }
   ],
   "chains": [
     {
       "id": "t1",
       "root": "n1",
-      "numLevels": 5
+      "lyphTemplate": "template1",
+      "numLevels": 5,
+      "levels": [{}, {}, {}, {}, {"target": "t1_leaf"}]
     },
     {
       "id": "t2",
       "root": "n2",
-      "numLevels": 5
+      "lyphTemplate": "template2",
+      "numLevels": 5,
+      "levels": [{}, {}, {}, {}, {"target": "t2_leaf"}]
     }
   ]
 }

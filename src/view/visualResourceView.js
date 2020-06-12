@@ -97,7 +97,7 @@ Node.prototype.updateViewObjects = function(state) {
     if (this.fixed) { copyCoords(this, this.layout); }
 
     if (this.controlNodes) {
-        copyCoords(this, getCenterOfMass(this.controlNodes).multiplyScalar(2)); //double the distance from center
+        copyCoords(this, getCenterOfMass(this.controlNodes));
     }
 
     copyCoords(this.viewObjects["main"].position, this);

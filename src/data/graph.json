@@ -479,7 +479,6 @@
     },
     {
       "id"           : "t1",
-      "root"         : "n1",
       "leaf"         : "n2",
       "lyphTemplate" : "229",
       "housingChain" : "c1",
@@ -502,5 +501,38 @@
       "chain"      : "t2",
       "branchingFactors" : [1,2,1,3]
     }
+  ],
+  "references": [
+    {"id": "CL:0000540"},
+    {"id": "UBERON:0001359"},
+    {"id": "UBERON:0004670"},
+    {"id": "GO:0005829"},
+    {"id": "GO:0005886"},
+    {"id": "ILX:0492026"},
+    {"id": "FMA:85815"},
+    {"id": "CHEBI:15377"},
+    {"id": "CHEBI:29101"},
+    {"id": "CHEBI:29103"},
+    {"id": "CHEBI:29108"},
+    {"id": "CHEBI:17996"},
+    {"id": "CHEBI:24636"},
+    {"id": "CHEBI:16234"},
+    {"id": "GO:0016020"},
+    {"id": "CHEBI:17544"},
+    {"id": "UBERON:0005769"},
+    {"id": "PMID:31102947"},
+    {"id": "UBERON:0001986"},
+    {"id": "UBERON:0000178"},
+    {"id": "UBERON:0002361"},
+    {"id": "UBERON:0001017"},
+    {"id": "FMA:64182"},
+    {"id": "FMA:7470"},
+    {"id": "UBERON:0000415"},
+    {"id": "UBERON:0002384"},
+    {"id": "FMA:54807"},
+    {"id": "FMA:4668"},
+    {"id": "UBERON:0004982"},
+    {"id": "FMA:55112"},
+    {"id": "UBERON:0000010"}
   ]
 }
