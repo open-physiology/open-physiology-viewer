@@ -132,7 +132,6 @@ export const addBorderNode = (border, node) => {
     border.hostedNodes.push(node);
 };
 
-
 /**
  * Finds a resource object in the parent group given an object or an ID
  * @param eArray

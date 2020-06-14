@@ -35,9 +35,9 @@
     {"id": "n1" },
     {"id": "n2", "layout": {"x": -70} },
     {"id": "n3", "offset": 0.25 },
-    {"id": "n4", "offset": 0.75 },
+    {"id": "n4", "offset": 0.25 },
     {"id": "n5", "offset": 0.25 },
-    {"id": "n6", "offset": 0.75 },
+    {"id": "n6", "offset": 0.25 },
     {"id": "n7" },
     {"id": "n8", "layout": {"x": 70} }
   ],

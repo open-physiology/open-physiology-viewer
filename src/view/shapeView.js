@@ -445,14 +445,16 @@ Border.prototype.updateViewObjects = function(state){
         //Position hostedNodes exactly on the link shape
         if (this.borders[i].hostedNodes){
             //position nodes on the lyph border (exact shape)
-            const offset = 1 / (this.borders[i].hostedNodes.length + 1);
+            let n = this.borders[i].hostedNodes.length;
+            const offset = 1 / (n + 1);
             let V = this.host.points[i + 1].clone().sub(this.host.points[i]);
             this.borders[i].hostedNodes.forEach((node, j) => {
+                //For borders 2 and 3 position nodes in the reversed order to have parallel links?
                 let d_i = node.offset ? node.offset : offset * (j + 1);
-                // let p = this.viewObjects["shape"][i].getPoint(d_i);
-                // p = new THREE.Vector3(p.x, p.y, 1);
-                // copyCoords(node, this.host.translate(p));
-                //TODO this only works for tubes, cysts may have shifted nodes on layer borders
+                if (i > 1){
+                    d_i = 1 - d_i;
+                }
+                //TODO cysts may have shifted nodes on layer borders
                 copyCoords(node, this.host.points[i].clone().add(V.clone().multiplyScalar(d_i)));
             })
         }

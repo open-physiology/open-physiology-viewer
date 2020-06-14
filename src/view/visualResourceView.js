@@ -278,7 +278,7 @@ Link.prototype.updateViewObjects = function(state) {
         }
     }
 
-    //Position omega tree roots
+    //Position hosted nodes
     (this.hostedNodes||[]).forEach((node, i) => {
         let d_i = node.offset? node.offset: 1 / (this.hostedNodes.length + 1) * (i + 1);
         const pos = getPoint(curve, _start, _end, d_i);
@@ -294,13 +294,6 @@ Link.prototype.updateViewObjects = function(state) {
 
         let edgeObj = this.viewObjects["edge"];
         if (edgeObj){
-            // let points = [this.conveyingLyph.points[0], this.conveyingLyph.points[1]];
-            // let linkPos = edgeObj.geometry.attributes && edgeObj.geometry.attributes.position;
-            // if (linkPos) {
-            //     points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
-            //     // linkPos.needsUpdate = true;
-            //     // edgeObj.geometry.computeBoundingSphere();
-            // }
             copyCoords(edgeObj.position, this.conveyingLyph.center);
         }
     }

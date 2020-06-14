@@ -400,7 +400,27 @@
     },
     {
       "id": "nLRPS02"
-    }
+    },
+    {"id": "R_1_MCS"},
+    {"id": "R_2_MCS"},
+    {"id": "R_3_MCS"},
+    {"id": "R_4_MCS"},
+    {"id": "R_5_MCS"},
+    {"id": "R_1_MCP"},
+    {"id": "R_2_MCP"},
+    {"id": "R_3_MCP"},
+    {"id": "R_4_MCP"},
+    {"id": "R_5_MCP"},
+    {"id": "L_1_MCP"},
+    {"id": "L_2_MCP"},
+    {"id": "L_3_MCP"},
+    {"id": "L_4_MCP"},
+    {"id": "L_5_MCP"},
+    {"id": "L_1_MCS"},
+    {"id": "L_2_MCS"},
+    {"id": "L_3_MCS"},
+    {"id": "L_4_MCS"},
+    {"id": "L_5_MCS"}
   ],
   "links" : [
     {
@@ -840,224 +860,224 @@
       "id": "LR00",
       "source": "nLR00",
       "target": "nLR01",
-      "external": "ref_B",
+      "name": "B",
       "conveyingLyph": "99"
     },
     {
       "id": "LR01",
       "source": "nLR01",
       "target": "nLR02",
-      "external": "ref_C",
+      "name": "C",
       "conveyingLyph": "114"
     },
     {
       "id": "LR02",
       "source": "nLR02",
       "target": "nLR03",
-      "external": "ref_D",
+      "name": "D",
       "conveyingLyph": "51"
     },
     {
       "id": "LR03",
       "source": "nLR03",
       "target": "nLR04",
-      "external": "ref_E",
+      "name": "E",
       "conveyingLyph": "54"
     },
     {
       "id": "LR04",
       "source": "nLR04",
       "target": "nLR05",
-      "external": "ref_F",
+      "name": "F",
       "conveyingLyph": "57"
     },
     {
       "id": "LR10",
       "source": "nLR10",
       "target": "nLR11",
-      "external": "ref_P",
+      "name": "P",
       "conveyingLyph": "102"
     },
     {
       "id": "LR11",
       "source": "nLR11",
       "target": "nLR12",
-      "external": "ref_O",
+      "name": "O",
       "conveyingLyph": "117"
     },
     {
       "id": "LR12",
       "source": "nLR12",
       "target": "nLR13",
-      "external": "ref_N",
+      "name": "N",
       "conveyingLyph": "75"
     },
     {
       "id": "LR13",
       "source": "nLR13",
       "target": "nLR14",
-      "external": "ref_M",
+      "name": "M",
       "conveyingLyph": "72"
     },
     {
       "id": "LR14",
       "source": "nLR14",
       "target": "nLR15",
-      "external": "ref_L",
+      "name": "L",
       "conveyingLyph": "69"
     },
     {
       "id": "LR15",
       "source": "nLR15",
       "target": "nLR16",
-      "external": "ref_K",
+      "name": "K",
       "conveyingLyph": "66"
     },
     {
       "id": "PS00",
       "source": "nPS00",
       "target": "nPS01",
-      "external": "ref_B",
+      "name": "B",
       "conveyingLyph": "108"
     },
     {
       "id": "PS01",
       "source": "nPS01",
       "target": "nPS02",
-      "external": "ref_C",
+      "name": "C",
       "conveyingLyph": "111"
     },
     {
       "id": "PS02",
       "source": "nPS02",
       "target": "nPS03",
-      "external": "ref_D",
+      "name": "D",
       "conveyingLyph": "81"
     },
     {
       "id": "PS03",
       "source": "nPS03",
       "target": "nPS04",
-      "external": "ref_E",
+      "name": "E",
       "conveyingLyph": "84"
     },
     {
       "id": "PS04",
       "source": "nPS04",
       "target": "nPS05",
-      "external": "ref_F",
+      "name": "F",
       "conveyingLyph": "87"
     },
     {
       "id": "PS05",
       "source": "nPS05",
       "target": "nPS06",
-      "external": "ref_F'",
+      "name": "F'",
       "conveyingLyph": "90"
     },
     {
       "id": "PS06",
       "source": "nPS06",
       "target": "nPS07",
-      "external": "ref_G",
+      "name": "G",
       "conveyingLyph": "93"
     },
     {
       "id": "PS07",
       "source": "nPS07",
       "target": "nPS08",
-      "external": "ref_H",
+      "name": "H",
       "conveyingLyph": "96"
     },
     {
       "id": "PS08",
       "source": "nPS08",
       "target": "nPS09",
-      "external": "ref_I",
+      "name": "I",
       "conveyingLyph": "48"
     },
     {
       "id": "PS09",
       "source": "nPS09",
       "target": "nPS010",
-      "external": "ref_J",
+      "name": "J",
       "conveyingLyph": "45"
     },
     {
       "id": "PS010",
       "source": "nPS010",
       "target": "nPS011",
-      "external": "ref_K",
+      "name": "K",
       "conveyingLyph": "42"
     },
     {
       "id": "PS011",
       "source": "nPS011",
       "target": "nPS012",
-      "external": "ref_L",
+      "name": "L",
       "conveyingLyph": "39"
     },
     {
       "id": "PS012",
       "source": "nPS012",
       "target": "nPS013",
-      "external": "ref_M",
+      "name": "M",
       "conveyingLyph": "36"
     },
     {
       "id": "PS013",
       "source": "nPS013",
       "target": "nPS014",
-      "external": "ref_N",
+      "name": "N",
       "conveyingLyph": "33"
     },
     {
       "id": "PS014",
       "source": "nPS014",
       "target": "nPS015",
-      "external": "ref_O",
+      "name": "O",
       "conveyingLyph": "30"
     },
     {
       "id": "PS015",
       "source": "nPS015",
       "target": "nPS016",
-      "external": "ref_P",
+      "name": "P",
       "conveyingLyph": "27"
     },
     {
       "id": "PS016",
       "source": "nPS016",
       "target": "nPS017",
-      "external": "ref_Q",
+      "name": "Q",
       "conveyingLyph": "24"
     },
     {
       "id": "LRPS00",
       "source": "nLR05",
       "target": "nLRPS00",
-      "external": "ref_G",
+      "name": "G",
       "conveyingLyph": "60"
     },
     {
       "id": "LRPS01",
       "source": "nLRPS00",
       "target": "nLRPS01",
-      "external": "ref_H",
+      "name": "H",
       "conveyingLyph": "78"
     },
     {
       "id": "LRPS02",
       "source": "nLRPS01",
       "target": "nLRPS02",
-      "external": "ref_I",
+      "name": "I",
       "conveyingLyph": "63"
     },
     {
       "id": "LRPS03",
       "source": "nLRPS02",
       "target": "nLR16",
-      "external": "ref_J",
+      "name": "J",
       "conveyingLyph": "105"
     }
   ],
@@ -1071,7 +1091,7 @@
     { "id": "regions",
       "name": "Regions",
       "regions": [
-        "prt1", "prt2","prt3", "prt4", "prt5","prt6", "prt7", "prt8","prt9","prt10","prt11", "prt12", "prt13", "prt14", "prt15"]
+        "prt1", "prt2", "prt3", "prt4", "prt5", "prt6", "prt7", "prt8", "prt9", "prt10", "prt11", "prt12", "prt13", "prt14", "prt15"]
     },
     {
       "id": "kidney",
@@ -1587,7 +1607,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:17881",
+      "external": "FMA:17881",
       "layers": [
         "7",
         "6"
@@ -1785,7 +1805,7 @@
         "min": 5,
         "max": 6
       },
-      "external": "ref_FMA:66768"
+      "external": "FMA:66768"
     },
     {
       "id": "16",
@@ -1829,7 +1849,7 @@
         "min": 0,
         "max": 6
       },
-      "external": "ref_FMA:63183",
+      "external": "FMA:63183",
       "layers": [
         "19",
         "21"
@@ -1863,7 +1883,7 @@
         "min": 0,
         "max": 6
       },
-      "external": "ref_FMA:312610",
+      "external": "FMA:312610",
       "subtypes": [
         "52",
         "55",
@@ -1890,7 +1910,7 @@
       "id": "20",
       "name": "Endothelial Cell",
       "topology": "CYST",
-      "external": "ref_FMA:66772"
+      "external": "FMA:66772"
     },
     {
       "id": "21",
@@ -1903,7 +1923,7 @@
         "min": 0,
         "max": 6
       },
-      "external": "ref_FMA:67473",
+      "external": "FMA:67473",
       "subtypes": [
         "53",
         "56",
@@ -1934,7 +1954,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:74273",
+      "external": "FMA:74273",
       "layers": [
         "25",
         "26"
@@ -1982,7 +2002,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:74272",
+      "external": "FMA:74272",
       "layers": [
         "28",
         "29"
@@ -2030,7 +2050,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17693",
+      "external": "FMA:17693",
       "layers": [
         "31",
         "32"
@@ -2078,7 +2098,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17716",
+      "external": "FMA:17716",
       "layers": [
         "34",
         "35"
@@ -2126,7 +2146,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17716",
+      "external": "FMA:17716",
       "layers": [
         "37",
         "38"
@@ -2174,7 +2194,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17719",
+      "external": "FMA:17719",
       "layers": [
         "40",
         "41"
@@ -2222,7 +2242,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17720",
+      "external": "FMA:17720",
       "layers": [
         "43",
         "44"
@@ -2270,7 +2290,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17720",
+      "external": "FMA:17720",
       "layers": [
         "46",
         "47"
@@ -2318,7 +2338,7 @@
         "min": 4,
         "max": 5
       },
-      "external": "ref_FMA:17721",
+      "external": "FMA:17721",
       "layers": [
         "49",
         "50"
@@ -2366,7 +2386,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:70496",
+      "external": "FMA:70496",
       "layers": [
         "52",
         "53"
@@ -2410,7 +2430,7 @@
         "min": 6,
         "max": 6
       },
-      "external": "ref_FMA:70497",
+      "external": "FMA:70497",
       "length": {
         "min": 5,
         "max": 5
@@ -2462,7 +2482,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:86339",
+      "external": "FMA:86339",
       "layers": [
         "58",
         "59"
@@ -2510,7 +2530,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:77042",
+      "external": "FMA:77042",
       "layers": [
         "61",
         "62"
@@ -2558,7 +2578,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:77043",
+      "external": "FMA:77043",
       "layers": [
         "64",
         "65"
@@ -2747,7 +2767,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:71631",
+      "external": "FMA:71631",
       "layers": [
         "76",
         "77"
@@ -2795,7 +2815,7 @@
         "min": 5,
         "max": 5
       },
-      "external": "ref_FMA:15624",
+      "external": "FMA:15624",
       "layers": [
         "79",
         "80"
@@ -2843,7 +2863,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:15613",
+      "external": "FMA:15613",
       "layers": [
         "82",
         "83"
@@ -2891,7 +2911,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:15614",
+      "external": "FMA:15614",
       "layers": [
         "85",
         "86"
@@ -2939,7 +2959,7 @@
         "min": 3,
         "max": 5
       },
-      "external": "ref_FMA:15628",
+      "external": "FMA:15628",
       "layers": [
         "88",
         "89"
@@ -2987,7 +3007,7 @@
         "min": 3,
         "max": 5
       },
-      "external": "ref_FMA:15628",
+      "external": "FMA:15628",
       "layers": [
         "91",
         "92"
@@ -3035,7 +3055,7 @@
         "min": 3,
         "max": 5
       },
-      "external": "ref_FMA:15628",
+      "external": "FMA:15628",
       "layers": [
         "94",
         "95"
@@ -3130,7 +3150,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:14751",
+      "external": "FMA:14751",
       "layers": [
         "100",
         "101"
@@ -3178,7 +3198,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:14334",
+      "external": "FMA:14334",
       "layers": [
         "103",
         "104"
@@ -3273,7 +3293,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:9704",
+      "external": "FMA:9704",
       "layers": [
         "109",
         "110"
@@ -3321,7 +3341,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:15575",
+      "external": "FMA:15575",
       "layers": [
         "112",
         "113"
@@ -3369,7 +3389,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:70494",
+      "external": "FMA:70494",
       "layers": [
         "115",
         "116"
@@ -3464,7 +3484,7 @@
         "min": 1,
         "max": 1
       },
-      "external": "ref_FMA:50801",
+      "external": "FMA:50801",
       "layers": [
         "123",
         "124",
@@ -3525,7 +3545,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:84013",
+      "external": "FMA:84013",
       "layers": [
         "128",
         "129",
@@ -3583,7 +3603,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:62001",
+      "external": "FMA:62001",
       "layers": [
         "133",
         "134",
@@ -3648,7 +3668,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:61993",
+      "external": "FMA:61993",
       "layers": [
         "138",
         "139",
@@ -3723,7 +3743,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:67943",
+      "external": "FMA:67943",
       "layers": [
         "143",
         "144",
@@ -3794,7 +3814,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:62004",
+      "external": "FMA:62004",
       "layers": [
         "148",
         "149",
@@ -3858,7 +3878,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:7647",
+      "external": "FMA:7647",
       "layers": [
         "153",
         "154",
@@ -3922,7 +3942,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:67944",
+      "external": "FMA:67944",
       "layers": [
         "158",
         "159",
@@ -3983,7 +4003,7 @@
         "min": 0,
         "max": 2
       },
-      "external": "ref_FMA:9591",
+      "external": "FMA:9591",
       "layers": [
         "163",
         "207"
@@ -4014,7 +4034,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:54448",
+      "external": "FMA:54448",
       "layers": [
         "165",
         "166",
@@ -4100,7 +4120,7 @@
         "min": 0,
         "max": 1
       },
-      "external": "ref_FMA:7163",
+      "external": "FMA:7163",
       "layers": [
         "171",
         "172",
@@ -4151,7 +4171,7 @@
         "min": 0,
         "max": 1
       },
-      "external": "ref_FMA:70596"
+      "external": "FMA:70596"
     },
     {
       "id": "173",
@@ -4165,7 +4185,7 @@
         "min": 0,
         "max": 1
       },
-      "external": "ref_FMA:70323"
+      "external": "FMA:70323"
     },
     {
       "id": "174",
@@ -4179,7 +4199,7 @@
         "min": 0,
         "max": 1
       },
-      "external": "ref_FMA:3734",
+      "external": "FMA:3734",
       "layers": [
         "176",
         "175"
@@ -4223,7 +4243,7 @@
         "min": 0,
         "max": 1
       },
-      "external": "ref_FMA:10951",
+      "external": "FMA:10951",
       "layers": [
         "179",
         "178"
@@ -4267,7 +4287,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:7165",
+      "external": "FMA:7165",
       "layers": [
         "182",
         "181"
@@ -4311,7 +4331,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:7166",
+      "external": "FMA:7166",
       "layers": [
         "185",
         "184"
@@ -4469,7 +4489,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:30319"
+      "external": "FMA:30319"
     },
     {
       "id": "195",
@@ -4483,7 +4503,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:37377"
+      "external": "FMA:37377"
     },
     {
       "id": "196",
@@ -4497,7 +4517,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:14069"
+      "external": "FMA:14069"
     },
     {
       "id": "197",
@@ -4511,7 +4531,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:83140",
+      "external": "FMA:83140",
       "internalLyphs": [
         "99010"
       ]
@@ -4528,7 +4548,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:256530",
+      "external": "FMA:256530",
       "internalNodes": ["N16"],
       "border": {
         "borders": [
@@ -4556,7 +4576,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:77023"
+      "external": "FMA:77023"
     },
     {
       "id": "200",
@@ -4570,7 +4590,7 @@
         "min": 1,
         "max": 2
       },
-      "external": "ref_FMA:256541",
+      "external": "FMA:256541",
       "internalLyphs": [
         "99001"
       ]
@@ -4587,7 +4607,7 @@
         "min": 2,
         "max": 3
       },
-      "external": "ref_FMA:72602",
+      "external": "FMA:72602",
       "border": {
         "borders": [
           {},
@@ -4632,7 +4652,7 @@
         "min": 2,
         "max": 4
       },
-      "external": "ref_FMA:62403"
+      "external": "FMA:62403"
     },
     {
       "id": "204",
@@ -4646,7 +4666,7 @@
         "min": 2,
         "max": 4
       },
-      "external": "ref_FMA:62200",
+      "external": "FMA:62200",
       "border": {
         "borders": [
           {},
@@ -4678,7 +4698,7 @@
         "min": 2,
         "max": 4
       },
-      "external": "ref_FMA:62320"
+      "external": "FMA:62320"
     },
     {
       "id": "206",
@@ -4692,7 +4712,7 @@
         "min": 2,
         "max": 2
       },
-      "external": "ref_FMA:61894"
+      "external": "FMA:61894"
     },
     {
       "id": "207",
@@ -4944,14 +4964,14 @@
       "name": "Right Fibrous Ring of Heart",
       "topology": "CYST",
       "color": "#F5F5DC",
-      "external": "ref_FMA:77125"
+      "external": "FMA:77125"
     },
     {
       "id": "996",
       "name": "Left Fibrous Ring of Heart",
       "topology": "CYST",
       "color": "#F5F5DC",
-      "external": "ref_FMA:77124"
+      "external": "FMA:77124"
     },
     {
       "id": "997",
@@ -4971,7 +4991,7 @@
     {
       "id": "1000",
       "name": "Right Ventricle",
-      "external": "ref_FMA:7098",
+      "external": "FMA:7098",
       "scale": {
         "width": 80,
         "height": 80
@@ -4980,7 +5000,7 @@
     {
       "id": "1001",
       "name": "Right Atrium",
-      "external": "ref_FMA:7096",
+      "external": "FMA:7096",
       "scale": {
         "width": 80,
         "height": 80
@@ -4989,7 +5009,7 @@
     {
       "id": "1002",
       "name": "Right Auricle/atrial Appendage",
-      "external": "ref_FMA:7218",
+      "external": "FMA:7218",
       "scale": {
         "width": 80,
         "height": 80
@@ -4998,7 +5018,7 @@
     {
       "id": "1003",
       "name": "Right Inferior Pulmonary Vein",
-      "external": "ref_FMA:49911",
+      "external": "FMA:49911",
       "scale": {
         "width": 80,
         "height": 80
@@ -5007,12 +5027,12 @@
     {
       "id": "1004",
       "name": "Right Superior Pulmonary Vein",
-      "external": "ref_FMA:49914"
+      "external": "FMA:49914"
     },
     {
       "id": "1005",
       "name": "Right Fibrous Trigone",
-      "external": "ref_FMA:9505",
+      "external": "FMA:9505",
       "scale": {
         "width": 80,
         "height": 80
@@ -5021,7 +5041,7 @@
     {
       "id": "1006",
       "name": "Right Fibrous Ring",
-      "external": "ref_FMA:77125",
+      "external": "FMA:77125",
       "scale": {
         "width": 80,
         "height": 80
@@ -5030,7 +5050,7 @@
     {
       "id": "1007",
       "name": "Right Anterior Papillary Muscle",
-      "external": "ref_FMA:7260",
+      "external": "FMA:7260",
       "scale": {
         "width": 80,
         "height": 80
@@ -5039,7 +5059,7 @@
     {
       "id": "1008",
       "name": "Right Posterior Papillary Muscle",
-      "external": "ref_FMA:7261",
+      "external": "FMA:7261",
       "scale": {
         "width": 80,
         "height": 80
@@ -5048,7 +5068,7 @@
     {
       "id": "1009",
       "name": "Right Coronary Outlet",
-      "external": "ref_FMA:50039",
+      "external": "FMA:50039",
       "scale": {
         "width": 80,
         "height": 80
@@ -5057,7 +5077,7 @@
     {
       "id": "1010",
       "name": "Left Ventricle",
-      "external": "ref_FMA:7101",
+      "external": "FMA:7101",
       "scale": {
         "width": 80,
         "height": 80
@@ -5066,7 +5086,7 @@
     {
       "id": "1011",
       "name": "Left Atrium",
-      "external": "ref_FMA:7097",
+      "external": "FMA:7097",
       "scale": {
         "width": 80,
         "height": 80
@@ -5075,7 +5095,7 @@
     {
       "id": "1012",
       "name": "Left Auricle/atrial Appendage",
-      "external": "ref_FMA:7219",
+      "external": "FMA:7219",
       "scale": {
         "width": 80,
         "height": 80
@@ -5084,7 +5104,7 @@
     {
       "id": "1013",
       "name": "Left Inferior Pulmonary Vein",
-      "external": "ref_FMA:49913",
+      "external": "FMA:49913",
       "scale": {
         "width": 80,
         "height": 80
@@ -5093,7 +5113,7 @@
     {
       "id": "1014",
       "name": "Left Superior Pulmonary Vein",
-      "external": "ref_FMA:49916",
+      "external": "FMA:49916",
       "scale": {
         "width": 80,
         "height": 80
@@ -5102,7 +5122,7 @@
     {
       "id": "1015",
       "name": "Left Fibrous Trigone",
-      "external": "ref_FMA:9508",
+      "external": "FMA:9508",
       "scale": {
         "width": 80,
         "height": 80
@@ -5111,7 +5131,7 @@
     {
       "id": "1016",
       "name": "Left Fibrous Ring",
-      "external": "ref_FMA:77124",
+      "external": "FMA:77124",
       "scale": {
         "width": 80,
         "height": 80
@@ -5120,7 +5140,7 @@
     {
       "id": "1017",
       "name": "Left Anterior Papillary Muscle",
-      "external": "ref_FMA:7264",
+      "external": "FMA:7264",
       "scale": {
         "width": 80,
         "height": 80
@@ -5129,7 +5149,7 @@
     {
       "id": "1018",
       "name": "Left Posterior Papillary Muscle",
-      "external": "ref_FMA:7266",
+      "external": "FMA:7266",
       "scale": {
         "width": 80,
         "height": 80
@@ -5138,7 +5158,7 @@
     {
       "id": "1019",
       "name": "Left Coronary Outlet",
-      "external": "ref_FMA:50040",
+      "external": "FMA:50040",
       "scale": {
         "width": 80,
         "height": 80
@@ -5147,7 +5167,7 @@
     {
       "id": "1020",
       "name": "Apex of Heart",
-      "external": "ref_FMA:7164",
+      "external": "FMA:7164",
       "scale": {
         "width": 80,
         "height": 80
@@ -5156,7 +5176,7 @@
     {
       "id": "1021",
       "name": "Vortex of Heart",
-      "external": "ref_FMA:84628",
+      "external": "FMA:84628",
       "scale": {
         "width": 80,
         "height": 80
@@ -5165,7 +5185,7 @@
     {
       "id": "1022",
       "name": "Root of Aorta",
-      "external": "ref_FMA:3740",
+      "external": "FMA:3740",
       "scale": {
         "width": 80,
         "height": 80
@@ -5174,7 +5194,7 @@
     {
       "id": "1023",
       "name": "Root of Pulmonary Trunk",
-      "external": "ref_FMA:8612",
+      "external": "FMA:8612",
       "scale": {
         "width": 80,
         "height": 80
@@ -5191,7 +5211,7 @@
     {
       "id": "1025",
       "name": "Coronary Sulcus",
-      "external": "ref_FMA:7174",
+      "external": "FMA:7174",
       "scale": {
         "width": 80,
         "height": 80
@@ -5200,7 +5220,7 @@
     {
       "id": "1026",
       "name": "Anterior Interventricular Sulcus",
-      "external": "ref_FMA:7177",
+      "external": "FMA:7177",
       "scale": {
         "width": 80,
         "height": 80
@@ -5209,7 +5229,7 @@
     {
       "id": "1027",
       "name": "Posterior Interventricular Sulcus",
-      "external": "ref_FMA:7178",
+      "external": "FMA:7178",
       "scale": {
         "width": 80,
         "height": 80
@@ -5218,7 +5238,7 @@
     {
       "id": "1028",
       "name": "Inferior Vena Cava Inlet",
-      "external": "ref_FMA:10951",
+      "external": "FMA:10951",
       "scale": {
         "width": 80,
         "height": 80
@@ -5227,7 +5247,7 @@
     {
       "id": "1029",
       "name": "Superior Vena Cava Inlet",
-      "external": "ref_FMA:4720",
+      "external": "FMA:4720",
       "scale": {
         "width": 80,
         "height": 80
@@ -5236,7 +5256,7 @@
     {
       "id": "1030",
       "name": "Anterior Cusp of Pulmonary Valve",
-      "external": "ref_FMA:7249",
+      "external": "FMA:7249",
       "scale": {
         "width": 80,
         "height": 80
@@ -5245,7 +5265,7 @@
     {
       "id": "1031",
       "name": "Left Cusp of Pulmonary Valve",
-      "external": "ref_FMA:7247",
+      "external": "FMA:7247",
       "scale": {
         "width": 80,
         "height": 80
@@ -5254,7 +5274,7 @@
     {
       "id": "1032",
       "name": "Posterior Cusp of Pulmonary Valve",
-      "external": "ref_FMA:7250",
+      "external": "FMA:7250",
       "scale": {
         "width": 80,
         "height": 80
@@ -5263,7 +5283,7 @@
     {
       "id": "1033",
       "name": "Anterior Cusp of Aortic Valve",
-      "external": "ref_FMA:7253",
+      "external": "FMA:7253",
       "scale": {
         "width": 80,
         "height": 80
@@ -5272,7 +5292,7 @@
     {
       "id": "1034",
       "name": "Left Cusp of Aortic Valve",
-      "external": "ref_FMA:7251",
+      "external": "FMA:7251",
       "scale": {
         "width": 80,
         "height": 80
@@ -5281,7 +5301,7 @@
     {
       "id": "1035",
       "name": "Right Cusp of Aortic Valve",
-      "external": "ref_FMA:7252",
+      "external": "FMA:7252",
       "scale": {
         "width": 80,
         "height": 80
@@ -5290,7 +5310,7 @@
     {
       "id": "1036",
       "name": "Anterior Cusp of Tricuspid Valve",
-      "external": "ref_FMA:7238",
+      "external": "FMA:7238",
       "scale": {
         "width": 80,
         "height": 80
@@ -5299,7 +5319,7 @@
     {
       "id": "1037",
       "name": "Posterior Cusp of Tricuspid Valve",
-      "external": "ref_FMA:7239",
+      "external": "FMA:7239",
       "scale": {
         "width": 80,
         "height": 80
@@ -5308,7 +5328,7 @@
     {
       "id": "1038",
       "name": "Septal Cusp of Tricuspid Valve",
-      "external": "ref_FMA:7240",
+      "external": "FMA:7240",
       "scale": {
         "width": 80,
         "height": 80
@@ -5317,7 +5337,7 @@
     {
       "id": "1039",
       "name": "Anterior Cusp of Mitral Valve",
-      "external": "ref_FMA:7242",
+      "external": "FMA:7242",
       "scale": {
         "width": 80,
         "height": 80
@@ -5326,7 +5346,7 @@
     {
       "id": "1040",
       "name": "Posterior Cusp of Mitral Valve",
-      "external": "ref_FMA:7243",
+      "external": "FMA:7243",
       "scale": {
         "width": 80,
         "height": 80
@@ -5343,7 +5363,7 @@
     {
       "id": "1042",
       "name": "Fossa Ovalis",
-      "external": "ref_FMA:9246",
+      "external": "FMA:9246",
       "scale": {
         "width": 80,
         "height": 80
@@ -5352,7 +5372,7 @@
     {
       "id": "1043",
       "name": "Interatrial Septum",
-      "external": "ref_FMA:7108",
+      "external": "FMA:7108",
       "scale": {
         "width": 80,
         "height": 80
@@ -5361,7 +5381,7 @@
     {
       "id": "1044",
       "name": "Interventricular Septum",
-      "external": "ref_FMA:7133",
+      "external": "FMA:7133",
       "scale": {
         "width": 80,
         "height": 80
@@ -5370,7 +5390,7 @@
     {
       "id": "1045",
       "name": "Koch's Triangle",
-      "external": "ref_FMA:77435",
+      "external": "FMA:77435",
       "scale": {
         "width": 80,
         "height": 80
@@ -5379,7 +5399,7 @@
     {
       "id": "1046",
       "name": "Coronary Sinus Inlet",
-      "external": "ref_FMA:4706",
+      "external": "FMA:4706",
       "scale": {
         "width": 80,
         "height": 80
@@ -5388,7 +5408,7 @@
     {
       "id": "1047",
       "name": "SA Node",
-      "external": "ref_FMA:9477",
+      "external": "FMA:9477",
       "scale": {
         "width": 80,
         "height": 80
@@ -5397,7 +5417,7 @@
     {
       "id": "1048",
       "name": "AV Node",
-      "external": "ref_FMA:9478",
+      "external": "FMA:9478",
       "scale": {
         "width": 80,
         "height": 80
@@ -6100,17 +6120,17 @@
     {
       "id": "18",
       "name": "blood",
-      "external": "ref_FMA:9670"
+      "external": "FMA:9670"
     },
     {
       "id": "22",
       "name": "Urinary Filtrate",
-      "external": "ref_FMA:280587"
+      "external": "FMA:280587"
     },
     {
       "id": "23",
       "name": "urine",
-      "external": "ref_FMA:12274"
+      "external": "FMA:12274"
     }
   ],
   "assign": [
@@ -6121,5 +6141,113 @@
         "collide": 15
       }
     }
+  ],
+  "references": [
+    {"id": "FMA:17881"},
+    {"id": "FMA:66768"},
+    {"id": "FMA:63183"},
+    {"id": "FMA:312610"},
+    {"id": "FMA:66772"},
+    {"id": "FMA:67473"},
+    {"id": "FMA:74273"},
+    {"id": "FMA:74272"},
+    {"id": "FMA:17693"},
+    {"id": "FMA:17716"},
+    {"id": "FMA:17719"},
+    {"id": "FMA:17720"},
+    {"id": "FMA:17721"},
+    {"id": "FMA:70496"},
+    {"id": "FMA:70497"},
+    {"id": "FMA:86339"},
+    {"id": "FMA:77042"},
+    {"id": "FMA:77043"},
+    {"id": "FMA:71631"},
+    {"id": "FMA:15624"},
+    {"id": "FMA:15613"},
+    {"id": "FMA:15614"},
+    {"id": "FMA:15628"},
+    {"id": "FMA:14751"},
+    {"id": "FMA:14334"},
+    {"id": "FMA:9704"},
+    {"id": "FMA:15575"},
+    {"id": "FMA:70494"},
+    {"id": "FMA:50801"},
+    {"id": "FMA:84013"},
+    {"id": "FMA:62001"},
+    {"id": "FMA:61993"},
+    {"id": "FMA:67943"},
+    {"id": "FMA:62004"},
+    {"id": "FMA:7647"},
+    {"id": "FMA:67944"},
+    {"id": "FMA:9591"},
+    {"id": "FMA:54448"},
+    {"id": "FMA:7163"},
+    {"id": "FMA:70596"},
+    {"id": "FMA:70323"},
+    {"id": "FMA:3734"},
+    {"id": "FMA:10951"},
+    {"id": "FMA:7165"},
+    {"id": "FMA:7166"},
+    {"id": "FMA:30319"},
+    {"id": "FMA:37377"},
+    {"id": "FMA:14069"},
+    {"id": "FMA:83140"},
+    {"id": "FMA:256530"},
+    {"id": "FMA:77023"},
+    {"id": "FMA:256541"},
+    {"id": "FMA:72602"},
+    {"id": "FMA:62403"},
+    {"id": "FMA:62200"},
+    {"id": "FMA:62320"},
+    {"id": "FMA:61894"},
+    {"id": "FMA:77125"},
+    {"id": "FMA:77124"},
+    {"id": "FMA:7098"},
+    {"id": "FMA:7096"},
+    {"id": "FMA:7218"},
+    {"id": "FMA:49911"},
+    {"id": "FMA:49914"},
+    {"id": "FMA:9505"},
+    {"id": "FMA:7260"},
+    {"id": "FMA:7261"},
+    {"id": "FMA:50039"},
+    {"id": "FMA:7101"},
+    {"id": "FMA:7097"},
+    {"id": "FMA:7219"},
+    {"id": "FMA:49913"},
+    {"id": "FMA:49916"},
+    {"id": "FMA:9508"},
+    {"id": "FMA:7264"},
+    {"id": "FMA:7266"},
+    {"id": "FMA:50040"},
+    {"id": "FMA:7164"},
+    {"id": "FMA:84628"},
+    {"id": "FMA:3740"},
+    {"id": "FMA:8612"},
+    {"id": "FMA:7174"},
+    {"id": "FMA:7177"},
+    {"id": "FMA:7178"},
+    {"id": "FMA:4720"},
+    {"id": "FMA:7249"},
+    {"id": "FMA:7247"},
+    {"id": "FMA:7250"},
+    {"id": "FMA:7253"},
+    {"id": "FMA:7251"},
+    {"id": "FMA:7252"},
+    {"id": "FMA:7238"},
+    {"id": "FMA:7239"},
+    {"id": "FMA:7240"},
+    {"id": "FMA:7242"},
+    {"id": "FMA:7243"},
+    {"id": "FMA:9246"},
+    {"id": "FMA:7108"},
+    {"id": "FMA:7133"},
+    {"id": "FMA:77435"},
+    {"id": "FMA:4706"},
+    {"id": "FMA:9477"},
+    {"id": "FMA:9478"},
+    {"id": "FMA:9670"},
+    {"id": "FMA:280587"},
+    {"id": "FMA:12274"}
   ]
 }

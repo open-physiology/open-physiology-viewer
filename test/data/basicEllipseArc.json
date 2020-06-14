@@ -1,7 +1,7 @@
 {
-  "id"  : "basicLyph",
-  "name": "Basic lyph",
-  "description": "Demo model to show 2d visualization of a lyph",
+  "id"  : "basicEllipseArch",
+  "name": "Ellipse arc",
+  "description": "Test model to render a link in the shape of an elliptic arc (work-in-progress)",
   "author": "Natallia Kokash",
   "nodes": [
     {

@@ -1,4 +1,10 @@
 {
+  "id": "bolserLewis",
+  "name": "Bolser-Lewis map",
+  "description": "Bolser-Lewis map, generated from https://docs.google.com/spreadsheets/d/1rNnobNekjfC4njdD4nwFKcDaVtS9DbwilahmZkpTsGg/edit#gid=2050665547",
+  "created": "2019-09-15",
+  "updated": "2020-06-13",
+  "author": "Bernard de Bono",
   "nodes": [
     {
       "id": "c1_s",
@@ -294,7 +300,7 @@
     {
       "source": "s249_3",
       "target": "t249_3",
-      "conveyingLyph": "soma249_2"
+      "conveyingLyph": "soma249_3"
     },
     {
       "source": "s248_1",
@@ -643,7 +649,8 @@
       ],
       "internalLyphs": [
         "soma220_1",
-        "soma220_2.soma220_3",
+        "soma220_2",
+        "soma220_3",
         "soma220_4",
         "soma220_5",
         "soma220_6",
@@ -1781,6 +1788,17 @@
         "214",
         "215",
         "216"
+      ],
+      "assign": [
+        {
+          "path": "$.lyphs[*]",
+          "value": {
+            "scale": {
+              "width": 200,
+              "height": 80
+            }
+          }
+        }
       ],
       "length": 100
     },
