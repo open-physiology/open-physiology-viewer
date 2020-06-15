@@ -38,7 +38,7 @@ export class Tree extends GroupTemplate {
         for (let i = 0; i < tree.numInstances; i++){
             let instance  = createInstance(i + 1);
             tree.instances = tree.instances || [];
-            tree.instances.push(instance);
+            tree.instances.push(instance.id);
             parentGroup.groups.push(instance);
         }
 
@@ -103,7 +103,7 @@ export class Tree extends GroupTemplate {
                         let prev_id = base[0].source;
                         for (let j = i; j < levels.length; j++) {
                             let baseResources = levelResources[j][0];
-                            let [lnk, trg, lyph] = baseResources.map(r => (r ? { [$Field.id] : getGenID(r.id, i+1, m+1, instanceIndex) }: r));
+                            let [lnk, trg, lyph] = baseResources.map(r => (r ? { [$Field.id] : getGenID(r.id, i+1, m+1, k, instanceIndex) }: r));
                             lnk.target = trg.id;
                             lnk.conveyingLyph = lyph ? lyph.id : null;
                             lnk.source = prev_id;

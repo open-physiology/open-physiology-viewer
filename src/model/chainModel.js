@@ -12,7 +12,7 @@ import {
     compareResources,
     $Field,
     $Color,
-    $Prefix
+    $Prefix, getGenName
 } from "./utils";
 import {logger} from './logger';
 import {defaults, isObject, isArray, isString, flatten} from 'lodash-bound';
@@ -42,6 +42,7 @@ export class Chain extends GroupTemplate {
         if (chain.generated){return;}
 
         chain.id = chain.id || getGenID($Prefix.chain, getNewID());
+        chain.name = chain.name || getGenName(chain.name || chain.id, $Prefix.group);
 
         const isDefined = value => value && value::isArray() && value.length > 0;
 
@@ -229,7 +230,7 @@ export class Chain extends GroupTemplate {
                     [$Field.generated] : true
                 };
                 sources[i] = sources[i] || targets[i] || newNode;
-                mergeGenResource(chain.group, parentGroup, sources[i], "nodes");
+                mergeGenResource(chain.group, parentGroup, sources[i], $Field.nodes);
             }
             targets[targets.length - 1] = targets[targets.length - 1] || chain.leaf;
 

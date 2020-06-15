@@ -7,7 +7,7 @@ import {
 } from './test.helper';
 import basalGanglia from './data/basalGanglia.json';
 import respiratory from './data/respiratory.json';
-import villus from './data/villus';
+import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
 
 import {keys, entries} from 'lodash-bound';

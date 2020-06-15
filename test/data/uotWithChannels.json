@@ -1,8 +1,71 @@
 {
-  "id"  : "uotWithChannels",
+  "id": "uotWithChannels",
   "name": "Urinary Omega Tree",
   "description": "Urinary Omega Tree, generated from Excel model, with channels",
   "nodes": [
+    {
+      "id": "node1C"
+    },
+    {
+      "id": "node1E"
+    },
+    {
+      "id": "node1F"
+    },
+    {
+      "id": "node1G"
+    },
+    {
+      "id": "node1H"
+    },
+    {
+      "id": "node1J"
+    },
+    {
+      "id": "node1K"
+    },
+    {
+      "id": "node1L"
+    },
+    {
+      "id": "node1M"
+    },
+    {
+      "id": "node1N"
+    },
+    {
+      "id": "node1O"
+    },
+    {
+      "id": "node1P"
+    },
+    {
+      "id": "node1Q"
+    },
+    {
+      "id": "node1R"
+    },
+    {
+      "id": "node1S"
+    },
+    {
+      "id": "node1T"
+    },
+    {
+      "id": "node1U"
+    },
+    {
+      "id": "node2A"
+    },
+    {
+      "id": "node2B"
+    },
+    {
+      "id": "node2C"
+    },
+    {
+      "id": "node2D"
+    },
     {
       "id": "node1D",
       "name": "Ureterovesical junction",
@@ -27,14 +90,18 @@
     {
       "id": "node1A",
       "name": "Urethral meatus",
-      "layout": {"x": -100},
+      "layout": {
+        "x": -100
+      },
       "external": [
         "UBERON:0012240"
       ]
     },
     {
       "id": "node1V",
-      "layout": {"x": 100}
+      "layout": {
+        "x": 100
+      }
     }
   ],
   "links": [
@@ -1162,13 +1229,6 @@
       ]
     }
   ],
-  "references": [
-    {
-      "id": "GO:0016020",
-      "uri": "http://amigo.geneontology.org/amigo/term/GO:0016020",
-      "type": "Gene Ontology"
-    }
-  ],
   "coalescences": [
     {
       "id": "47",
@@ -1213,7 +1273,7 @@
       ]
     }
   ],
-  "chains":[
+  "chains": [
     {
       "id": "uot",
       "name": "Urinary Tract",
@@ -1368,6 +1428,219 @@
       "36",
       "37"
     ],
-    "showGroups": ["uot"]
-  }
+    "showGroups": [
+      "uot"
+    ]
+  },
+  "references": [
+    {
+      "id": "UBERON:0009973"
+    },
+    {
+      "id": "FMA:74311"
+    },
+    {
+      "id": "UBERON:0012242"
+    },
+    {
+      "id": "UBERON:0012240"
+    },
+    {
+      "id": "UBERON:0000074"
+    },
+    {
+      "id": "UBERON:0005751"
+    },
+    {
+      "id": "CL_0002098"
+    },
+    {
+      "id": "GO:0016528"
+    },
+    {
+      "id": "GO:0042383"
+    },
+    {
+      "id": "GO:0016529"
+    },
+    {
+      "id": "GO:0005623"
+    },
+    {
+      "id": "UBERON:0000057"
+    },
+    {
+      "id": "UBERON:0000381"
+    },
+    {
+      "id": "UBERON:0006912"
+    },
+    {
+      "id": "FMA:45637"
+    },
+    {
+      "id": "UBERON:0001255"
+    },
+    {
+      "id": "UBERON:0000056"
+    },
+    {
+      "id": "UBERON:0001224"
+    },
+    {
+      "id": "UBERON:0001226"
+    },
+    {
+      "id": "UBERON:0001227"
+    },
+    {
+      "id": "UBERON:0004205"
+    },
+    {
+      "id": "UBERON:0004204"
+    },
+    {
+      "id": "UBERON:0004203"
+    },
+    {
+      "id": "UBERON:0005097"
+    },
+    {
+      "id": "UBERON:0001292"
+    },
+    {
+      "id": "UBERON:0001291"
+    },
+    {
+      "id": "UBERON:0004193"
+    },
+    {
+      "id": "UBERON:0005096"
+    },
+    {
+      "id": "UBERON:0001290"
+    },
+    {
+      "id": "UBERON:0001287"
+    },
+    {
+      "id": "UBERON:0005750"
+    },
+    {
+      "id": "UBERON:0004639"
+    },
+    {
+      "id": "UBERON:0004640"
+    },
+    {
+      "id": "UBERON:0000178"
+    },
+    {
+      "id": "UBERON:0001986"
+    },
+    {
+      "id": "UBERON:0005769"
+    },
+    {
+      "id": "UBERON:0001088"
+    },
+    {
+      "id": "UBERON:0000487"
+    },
+    {
+      "id": "GO:0033018"
+    },
+    {
+      "id": "GO:0033017"
+    },
+    {
+      "id": "GO:0005829"
+    },
+    {
+      "id": "GO:0005886"
+    },
+    {
+      "id": "FMA:85815"
+    },
+    {
+      "id": "UBERON:0000344"
+    },
+    {
+      "id": "UBERON:0012368"
+    },
+    {
+      "id": "UBERON:0012369"
+    },
+    {
+      "id": "UBERON:0000009"
+    },
+    {
+      "id": "UBERON:0034933"
+    },
+    {
+      "id": "UBERON:0000365"
+    },
+    {
+      "id": "UBERON:0000485"
+    },
+    {
+      "id": "ILX:0104048"
+    },
+    {
+      "id": "UBERON:0000484"
+    },
+    {
+      "id": "UBERON:0004236"
+    },
+    {
+      "id": "CHEBI:15377"
+    },
+    {
+      "id": "CHEBI:29101"
+    },
+    {
+      "id": "CHEBI:29103"
+    },
+    {
+      "id": "CHEBI:29108"
+    },
+    {
+      "id": "CHEBI:17996"
+    },
+    {
+      "id": "CHEBI:24636"
+    },
+    {
+      "id": "CHEBI:16234"
+    },
+    {
+      "id": "CHEBI:17544"
+    },
+    {
+      "id": "UBERON:0000030"
+    },
+    {
+      "id": "UBERON:0001229"
+    },
+    {
+      "id": "PR:Q01728"
+    },
+    {
+      "id": "PR:P16615"
+    },
+    {
+      "id": "FMA:7159"
+    },
+    {
+      "id": "UBERON:0001285"
+    },
+    {
+      "id": "UBERON:0001288"
+    },
+    {
+      "id": "GO:0016020",
+      "uri": "http://amigo.geneontology.org/amigo/term/GO:0016020",
+      "type": "Gene Ontology"
+    }
+  ]
 }

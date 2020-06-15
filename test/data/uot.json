@@ -1,38 +1,59 @@
 {
-  "id"  : "uot",
+  "id": "uot",
   "name": "Urinary Omega Tree",
   "description": "Urinary Omega Tree, simple model",
-  "nodes" : [
+  "nodes": [
     {
       "id": "uot-a",
       "name": "Urethral meatus",
-      "external": ["UBERON:0012240"],
-      "layout": {"x": -100}
+      "external": [
+        "UBERON:0012240"
+      ],
+      "layout": {
+        "x": -100
+      }
     },
     {
       "id": "uot-b",
       "name": "Internal urethral orifice",
-      "external": ["UBERON:0012242"]
+      "external": [
+        "UBERON:0012242"
+      ]
     },
     {
       "id": "uot-d",
       "name": "Ureterovesical junction",
-      "external": ["UBERON:0009973"]
+      "external": [
+        "UBERON:0009973"
+      ]
     },
     {
       "id": "uot-i",
       "name": "Cribriform area",
-      "external": ["FMA:74311"]
+      "external": [
+        "FMA:74311"
+      ]
     },
     {
       "id": "uot-v",
-      "layout": {"x": 100}
+      "layout": {
+        "x": 100
+      }
     },
     {
       "id": "cs-a"
+    },
+    {
+      "id": "cs-b"
+    },
+    {
+      "id": "cs-c"
+    },
+    {
+      "id": "cs-d"
     }
   ],
-  "links" : [
+  "links": [
     {
       "id": "uot-lnk1",
       "source": "uot-a",
@@ -178,56 +199,74 @@
       "conveyingLyph": "EA"
     }
   ],
-  "lyphs" : [
+  "lyphs": [
     {
-      "id" : "URN",
+      "id": "URN",
       "name": "Urine",
       "color": "#f9ed32",
       "isTemplate": true,
-      "external": ["UBERON:0001088"]
+      "external": [
+        "UBERON:0001088"
+      ]
     },
     {
       "id": "TE",
       "name": "Transitional Epithelium",
       "color": "#c49a6c",
       "isTemplate": true,
-      "external": ["UBERON:0000365"]
+      "external": [
+        "UBERON:0000365"
+      ]
     },
     {
       "id": "BM",
       "name": "Basement Membrane",
       "color": "#dc9e5a",
       "isTemplate": true,
-      "external": ["UBERON:0005769"]
+      "external": [
+        "UBERON:0005769"
+      ]
     },
     {
-      "id"   : "LP",
-      "name" : "Lamina Propria",
+      "id": "LP",
+      "name": "Lamina Propria",
       "color": "#edaa5f",
       "isTemplate": true,
-      "external": ["UBERON:0000030"]
+      "external": [
+        "UBERON:0000030"
+      ]
     },
     {
       "id": "Mcs",
       "name": "Muscosa",
       "isTemplate": true,
       "color": "#f7e6cd",
-      "layers": ["TE", "BM", "LP"],
-      "external": ["UBERON:0000344"]
+      "layers": [
+        "TE",
+        "BM",
+        "LP"
+      ],
+      "external": [
+        "UBERON:0000344"
+      ]
     },
     {
       "id": "Ms1",
       "name": "Muscularis",
       "color": "#f7941e",
       "isTemplate": true,
-      "external": ["UBERON:0006912"]
+      "external": [
+        "UBERON:0006912"
+      ]
     },
     {
       "id": "Sub",
       "name": "Submucosa",
       "color": "#ec008c",
       "isTemplate": true,
-      "external": ["UBERON:0000009"]
+      "external": [
+        "UBERON:0000009"
+      ]
     },
     {
       "id": "ILF",
@@ -240,30 +279,46 @@
       "name": "Circular Muscle Fibres",
       "color": "#d48d23",
       "isTemplate": true,
-      "external": ["UBERON:0012368"]
+      "external": [
+        "UBERON:0012368"
+      ]
     },
     {
       "id": "OLF",
       "name": "Outer Layer of Longitudinal Muscle Fibres",
       "color": "#c27d15",
       "isTemplate": true,
-      "external": ["UBERON:0012369"]
+      "external": [
+        "UBERON:0012369"
+      ]
     },
     {
       "id": "ICO",
       "isTemplate": true,
-      "layers": ["ILF", "CMF", "OLF"]
+      "layers": [
+        "ILF",
+        "CMF",
+        "OLF"
+      ]
     },
     {
       "id": "Det",
       "name": "Detrusor",
       "topology": "TUBE",
-      "length"   : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
       "supertype": "ICO",
       "color": "#d4b079",
       "isTemplate": true,
-      "external": ["UBERON:0000381"]
+      "external": [
+        "UBERON:0000381"
+      ]
     },
     {
       "id": "Ms2",
@@ -272,7 +327,9 @@
       "isTemplate": true,
       "supertype": "ICO",
       "color": "#f7941e",
-      "external": ["UBERON:0006912"]
+      "external": [
+        "UBERON:0006912"
+      ]
     },
     {
       "id": "IM",
@@ -295,32 +352,60 @@
       "topology": "TUBE",
       "isTemplate": true,
       "color": "#8dc63f",
-      "external": ["FMA:45637"]
+      "external": [
+        "FMA:45637"
+      ]
     },
     {
-      "id"       : "IU",
-      "name"     : "Intravesical urethra",
-      "topology" : "TUBE",
-      "length"   : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers"   : ["URN", "Mcs", "Ms1"],
-      "external" : ["UBERON:0000057"],
-      "width"    : 5
+      "id": "IU",
+      "name": "Intravesical urethra",
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "URN",
+        "Mcs",
+        "Ms1"
+      ],
+      "external": [
+        "UBERON:0000057"
+      ],
+      "width": 5
     },
     {
-      "id"       : "UB",
-      "name"     : "Urinary bladder",
-      "topology" : "TUBE",
-      "length"   : {"min": 2, "max": 2},
-      "thickness": {"min": 2, "max": 2},
-      "layers"   : ["URN", "Mcs", "Sub", "Det", "AS"],
-      "external" : ["UBERON:0001255"],
-      "width"    : 9
+      "id": "UB",
+      "name": "Urinary bladder",
+      "topology": "TUBE",
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 2,
+        "max": 2
+      },
+      "layers": [
+        "URN",
+        "Mcs",
+        "Sub",
+        "Det",
+        "AS"
+      ],
+      "external": [
+        "UBERON:0001255"
+      ],
+      "width": 9
     },
     {
-      "id"      : "IUT",
-      "name"    : "Intravesical ureter",
-      "length"  : {
+      "id": "IUT",
+      "name": "Intravesical ureter",
+      "length": {
         "min": 3,
         "max": 3
       },
@@ -329,81 +414,150 @@
         "max": 3
       },
       "topology": "TUBE",
-      "layers"  : ["URN", "Mcs", "Ms2"],
-      "external": ["UBERON:0000056"],
-      "width"    : 7
+      "layers": [
+        "URN",
+        "Mcs",
+        "Ms2"
+      ],
+      "external": [
+        "UBERON:0000056"
+      ],
+      "width": 7
     },
     {
       "id": "DFU",
       "name": "Distal free ureter",
       "topology": "TUBE",
-      "length"  : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "Ms2", "AS"],
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "URN",
+        "Mcs",
+        "Ms2",
+        "AS"
+      ],
       "external": [
         "UBERON:0000056"
       ],
-      "width"    : 8
+      "width": 8
     },
     {
       "id": "ISML",
       "name": "Inner smooth muscle layer",
       "isTemplate": true,
-      "external": ["UBERON:0034933"]
+      "external": [
+        "UBERON:0034933"
+      ]
     },
     {
       "id": "OSML",
       "name": "Outer smooth muscle layer",
       "isTemplate": true,
-      "external": ["UBERON:0034933"]
+      "external": [
+        "UBERON:0034933"
+      ]
     },
     {
       "id": "PFU",
       "name": "Proximal free ureter",
       "topology": "TUBE",
-      "length"  : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "ISML", "OSML", "AS"],
-      "external": [
-          "UBERON:0000056"
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "URN",
+        "Mcs",
+        "ISML",
+        "OSML",
+        "AS"
       ],
-      "width"    : 7
+      "external": [
+        "UBERON:0000056"
+      ],
+      "width": 7
     },
     {
       "id": "RP",
       "name": "Renal pelvis",
       "topology": "TUBE",
-      "length"  : {"min": 2, "max": 2},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "ISML", "OSML", "AS"],
+      "length": {
+        "min": 2,
+        "max": 2
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "URN",
+        "Mcs",
+        "ISML",
+        "OSML",
+        "AS"
+      ],
       "external": [
         "UBERON:0001224"
       ],
-      "width"    : 7
+      "width": 7
     },
     {
       "id": "majorC",
       "name": "Major calyx",
       "topology": "TUBE",
-      "length"  : {"min": 3, "max": 3},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "Mcs", "ISML", "OSML", "AS"],
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "URN",
+        "Mcs",
+        "ISML",
+        "OSML",
+        "AS"
+      ],
       "external": [
         "UBERON:0001226"
       ],
-      "width"    : 7
+      "width": 7
     },
     {
       "id": "minorC",
       "name": "Minor calyx",
       "topology": "TUBE",
-      "length"  : {"min": 3, "max": 3},
-      "thickness": {"min": 3, "max": 3},
-      "layers": ["URN", "TE", "BM", "ISML", "AS"],
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 3,
+        "max": 3
+      },
+      "layers": [
+        "URN",
+        "TE",
+        "BM",
+        "ISML",
+        "AS"
+      ],
       "external": [
         "UBERON:0001227"
       ],
-      "width"    : 7
+      "width": 7
     },
     {
       "id": "SColE",
@@ -425,17 +579,33 @@
       "id": "EM",
       "name": "Extracellular matrix",
       "isTemplate": true,
-      "external": ["ILX:0104048"]
+      "external": [
+        "ILX:0104048"
+      ]
     },
     {
-      "id"       : "IMCD",
-      "name"     : "Inner medullary collecting duct",
-      "topology" : "TUBE",
-      "length"   : {"min": 3, "max": 3},
-      "thickness": {"min": 4, "max": 4},
-      "layers"   : ["URN", "SColE", "BM", "ISML", "EM"],
-      "external" : ["UBERON:0004205"],
-      "width"    : 5
+      "id": "IMCD",
+      "name": "Inner medullary collecting duct",
+      "topology": "TUBE",
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
+      "layers": [
+        "URN",
+        "SColE",
+        "BM",
+        "ISML",
+        "EM"
+      ],
+      "external": [
+        "UBERON:0004205"
+      ],
+      "width": 5
     },
     {
       "id": "OMCD",
@@ -459,14 +629,20 @@
       "external": [
         "UBERON:0004204"
       ],
-      "width"    : 5
+      "width": 5
     },
     {
       "id": "CCT",
       "name": "Cortical collecting tubule",
       "topology": "TUBE",
-      "length"  : {"min": 3, "max": 3},
-      "thickness": {"min": 4, "max": 4},
+      "length": {
+        "min": 3,
+        "max": 3
+      },
+      "thickness": {
+        "min": 4,
+        "max": 4
+      },
       "layers": [
         "URN",
         "SCubE",
@@ -477,14 +653,20 @@
       "external": [
         "UBERON:0004203"
       ],
-      "width"    : 5
+      "width": 5
     },
     {
       "id": "CT",
       "name": "Connecting tubule",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
       "layers": [
         "URN",
         "SCubE",
@@ -495,7 +677,7 @@
       "external": [
         "UBERON:0005097"
       ],
-      "width"    : 5
+      "width": 5
     },
     {
       "id": "DCT",
@@ -518,14 +700,20 @@
       "external": [
         "UBERON: 0001292"
       ],
-      "width"    : 4
+      "width": 4
     },
     {
       "id": "FPofTAL",
       "name": "Final portion of thick ascending limb",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
       "layers": [
         "URN",
         "SCubE",
@@ -535,15 +723,21 @@
       "external": [
         "UBERON:0001291"
       ],
-      "width"    : 4
+      "width": 4
     },
     {
       "id": "DST",
       "name": "Distal straight tubule",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
-        "layers": [
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
         "URN",
         "SCubE",
         "BM",
@@ -552,14 +746,20 @@
       "external": [
         "UBERON:0001291"
       ],
-      "width"    : 4
+      "width": 4
     },
     {
       "id": "ATL",
       "name": "Ascending thin limb",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
       "layers": [
         "URN",
         "SCubE",
@@ -569,14 +769,21 @@
       "external": [
         "UBERON:0004193"
       ],
-      "width"    : 4
+      "width": 4
     },
     {
       "id": "DTL",
       "name": "Descending thin limb",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},"layers": [
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
+      "layers": [
         "URN",
         "SCubE",
         "BM",
@@ -585,14 +792,20 @@
       "external": [
         "UBERON:0005096"
       ],
-      "width"    : 4
+      "width": 4
     },
     {
       "id": "PST",
       "name": "Proximal straight tubule",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
       "layers": [
         "URN",
         "SCubE",
@@ -602,158 +815,478 @@
       "external": [
         "UBERON:0001290"
       ],
-      "width"    : 4
+      "width": 4
     },
     {
       "id": "PCT",
       "name": "Proximal convoluted tubule",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 5, "max": 5},
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 5,
+        "max": 5
+      },
       "layers": [
         "URN",
         "SCubE",
         "BM",
         "EM"
       ],
-      "external": ["UBERON:0001287"],
-      "width"    : 4
+      "external": [
+        "UBERON:0001287"
+      ],
+      "width": 4
     },
     {
       "id": "SSE",
       "name": "Simple squamous epithelium",
       "isTemplate": true,
-      "external": ["UBERON:0000487"]
+      "external": [
+        "UBERON:0000487"
+      ]
     },
     {
       "id": "PBC",
       "name": "Parietal Bowman's capsule",
       "topology": "TUBE",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["URN", "SSE", "BM", "EM"],
-      "external": ["UBERON:0005750"]},
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "URN",
+        "SSE",
+        "BM",
+        "EM"
+      ],
+      "external": [
+        "UBERON:0005750"
+      ]
+    },
     {
       "id": "VBC",
       "name": "Visceral Bowman's capsule",
       "topology": "BAG",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["URN", "SSE", "BM"],
-      "external": ["UBERON:0005751"]
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "URN",
+        "SSE",
+        "BM"
+      ],
+      "external": [
+        "UBERON:0005751"
+      ]
     },
     {
       "id": "blood",
       "name": "Blood",
       "isTemplate": true,
-      "external": ["UBERON:0000178"]
+      "external": [
+        "UBERON:0000178"
+      ]
     },
     {
       "id": "endoth",
       "name": "Endothelium",
       "isTemplate": true,
-      "external": ["UBERON:0001986"]
+      "external": [
+        "UBERON:0001986"
+      ]
     },
     {
       "id": "ASML",
       "name": "Arteriolar smooth muscle layer",
       "isTemplate": true,
-      "external": ["UBERON:0004236"]
+      "external": [
+        "UBERON:0004236"
+      ]
     },
     {
       "id": "AA",
       "name": "Afferent arteriole",
       "topology": "TUBE",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["blood", "endoth", "BM", "ASML", "EM"],
-      "external": ["UBERON:0004639"]
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "blood",
+        "endoth",
+        "BM",
+        "ASML",
+        "EM"
+      ],
+      "external": [
+        "UBERON:0004639"
+      ]
     },
     {
       "id": "Glo",
       "name": "Glomerulus",
       "topology": "TUBE",
-      "length"  : {"min": 4, "max": 4},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["blood", "endoth", "BM"],
-      "external": ["UBERON:0000074"]
+      "length": {
+        "min": 4,
+        "max": 4
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "blood",
+        "endoth",
+        "BM"
+      ],
+      "external": [
+        "UBERON:0000074"
+      ]
     },
     {
       "id": "EA",
       "name": "Efferent arteriole",
       "topology": "TUBE",
-      "length"  : {"min": 5, "max": 5},
-      "thickness": {"min": 6, "max": 6},
-      "layers": ["blood", "endoth", "BM", "ASML", "EM"],
-      "external": ["UBERON:0004640"]
-    }
-  ],
-  "chains" : [
-    {
-      "id"          : "UOT",
-      "name"        : "Urinary Omega Tree",
-      "root"        : "uot-a",
-      "numLevels"   : 21,
-      "levels"      : [
-        "uot-lnk1", "uot-lnk2", "uot-lnk3", "uot-lnk4", "uot-lnk5", "uot-lnk6", "uot-lnk7", "uot-lnk8",
-        "uot-lnk9", "uot-lnk10", "uot-lnk11", "uot-lnk12","uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16",
-        "uot-lnk17","uot-lnk18","uot-lnk19", "uot-lnk20", "uot-lnk21"
+      "length": {
+        "min": 5,
+        "max": 5
+      },
+      "thickness": {
+        "min": 6,
+        "max": 6
+      },
+      "layers": [
+        "blood",
+        "endoth",
+        "BM",
+        "ASML",
+        "EM"
+      ],
+      "external": [
+        "UBERON:0004640"
       ]
     }
   ],
-  "trees" : [
+  "chains": [
     {
-      "chain"       : "UOT",
+      "id": "UOT",
+      "name": "Urinary Omega Tree",
+      "root": "uot-a",
+      "numLevels": 21,
+      "levels": [
+        "uot-lnk1",
+        "uot-lnk2",
+        "uot-lnk3",
+        "uot-lnk4",
+        "uot-lnk5",
+        "uot-lnk6",
+        "uot-lnk7",
+        "uot-lnk8",
+        "uot-lnk9",
+        "uot-lnk10",
+        "uot-lnk11",
+        "uot-lnk12",
+        "uot-lnk13",
+        "uot-lnk14",
+        "uot-lnk15",
+        "uot-lnk16",
+        "uot-lnk17",
+        "uot-lnk18",
+        "uot-lnk19",
+        "uot-lnk20",
+        "uot-lnk21"
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "chain": "UOT",
       "numInstances": 1,
-      "branchingFactors": [1, 1, 2, 1, 1, 1, 3],
+      "branchingFactors": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1,
+        3
+      ],
       "description": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
     }
   ],
   "groups": [
     {
-      "id"    : "nephron",
-      "name"  : "Nephron",
-      "nodes" : ["uot-m", "uot-n", "uot-o","uot-p","uot-q","uot-r","uot-s","uot-t","uot-u","uot-v"],
-      "links" : [ "uot-lnk13", "uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17", "uot-lnk18", "uot-lnk19", "uot-lnk20", "uot-lnk21"],
-      "lyphs" : ["DCT", "FPofTAL", "DST", "ATL", "DTL", "PST", "PCT", "PBC", "VBC"],
-      "external": ["UBERON:0001285"]
+      "id": "nephron",
+      "name": "Nephron",
+      "nodes": [
+        "uot-m",
+        "uot-n",
+        "uot-o",
+        "uot-p",
+        "uot-q",
+        "uot-r",
+        "uot-s",
+        "uot-t",
+        "uot-u",
+        "uot-v"
+      ],
+      "links": [
+        "uot-lnk13",
+        "uot-lnk14",
+        "uot-lnk15",
+        "uot-lnk16",
+        "uot-lnk17",
+        "uot-lnk18",
+        "uot-lnk19",
+        "uot-lnk20",
+        "uot-lnk21"
+      ],
+      "lyphs": [
+        "DCT",
+        "FPofTAL",
+        "DST",
+        "ATL",
+        "DTL",
+        "PST",
+        "PCT",
+        "PBC",
+        "VBC"
+      ],
+      "external": [
+        "UBERON:0001285"
+      ]
     },
     {
-      "id"    : "henle",
-      "name"  : "Loop of Henle",
-      "nodes" : ["uot-n","uot-o","uot-p","uot-q","uot-r"],
-      "links" : ["uot-lnk14", "uot-lnk15", "uot-lnk16", "uot-lnk17"],
-      "lyphs" : ["FPofTAL", "DST", "ATL", "DTL"],
-      "external": ["UBERON:0001288"]
+      "id": "henle",
+      "name": "Loop of Henle",
+      "nodes": [
+        "uot-n",
+        "uot-o",
+        "uot-p",
+        "uot-q",
+        "uot-r"
+      ],
+      "links": [
+        "uot-lnk14",
+        "uot-lnk15",
+        "uot-lnk16",
+        "uot-lnk17"
+      ],
+      "lyphs": [
+        "FPofTAL",
+        "DST",
+        "ATL",
+        "DTL"
+      ],
+      "external": [
+        "UBERON:0001288"
+      ]
     },
     {
-      "id"    : "CST",
-      "name"  : "Cardiovascular Segment",
-      "links" : ["cs-lnk1", "cs-lnk2", "cs-lnk3"],
-      "lyphs" : ["AA", "Glo", "EA"],
-      "nodes" : ["cs-a", "cs-b", "cs-c", "cs-d"]
+      "id": "CST",
+      "name": "Cardiovascular Segment",
+      "links": [
+        "cs-lnk1",
+        "cs-lnk2",
+        "cs-lnk3"
+      ],
+      "lyphs": [
+        "AA",
+        "Glo",
+        "EA"
+      ],
+      "nodes": [
+        "cs-a",
+        "cs-b",
+        "cs-c",
+        "cs-d"
+      ]
     },
     {
-      "id"      : "RC",
-      "name"    : "Renal corpuscle",
-      "lyphs"   : ["VBC", "Glo"],
-      "external": ["UBERON:0001229"],
+      "id": "RC",
+      "name": "Renal corpuscle",
+      "lyphs": [
+        "VBC",
+        "Glo"
+      ],
+      "external": [
+        "UBERON:0001229"
+      ],
       "inactive": true
     }
   ],
   "assign": [
     {
-      "path" : "$.nodes[*]",
+      "path": "$.nodes[*]",
       "value": {
-        "color" : "red",
-        "val"   : "1"
+        "color": "red",
+        "val": "1"
       }
     },
     {
-      "path"  : "$.links[*].conveyingLyph",
-      "value" : {
-        "color" : "#ccc"
+      "path": "$.links[*].conveyingLyph",
+      "value": {
+        "color": "#ccc"
       }
     }
-  ] 
+  ],
+  "references": [
+    {
+      "id": "UBERON:0012240"
+    },
+    {
+      "id": "UBERON:0012242"
+    },
+    {
+      "id": "UBERON:0009973"
+    },
+    {
+      "id": "FMA:74311"
+    },
+    {
+      "id": "UBERON:0001088"
+    },
+    {
+      "id": "UBERON:0000365"
+    },
+    {
+      "id": "UBERON:0005769"
+    },
+    {
+      "id": "UBERON:0000030"
+    },
+    {
+      "id": "UBERON:0000344"
+    },
+    {
+      "id": "UBERON:0006912"
+    },
+    {
+      "id": "UBERON:0000009"
+    },
+    {
+      "id": "UBERON:0012368"
+    },
+    {
+      "id": "UBERON:0012369"
+    },
+    {
+      "id": "UBERON:0000381"
+    },
+    {
+      "id": "FMA:45637"
+    },
+    {
+      "id": "UBERON:0000057"
+    },
+    {
+      "id": "UBERON:0001255"
+    },
+    {
+      "id": "UBERON:0000056"
+    },
+    {
+      "id": "UBERON:0034933"
+    },
+    {
+      "id": "UBERON:0001224"
+    },
+    {
+      "id": "UBERON:0001226"
+    },
+    {
+      "id": "UBERON:0001227"
+    },
+    {
+      "id": "UBERON:0000485"
+    },
+    {
+      "id": "UBERON:0000484"
+    },
+    {
+      "id": "ILX:0104048"
+    },
+    {
+      "id": "UBERON:0004205"
+    },
+    {
+      "id": "UBERON:0004204"
+    },
+    {
+      "id": "UBERON:0004203"
+    },
+    {
+      "id": "UBERON:0005097"
+    },
+    {
+      "id": "UBERON: 0001292"
+    },
+    {
+      "id": "UBERON:0001291"
+    },
+    {
+      "id": "UBERON:0004193"
+    },
+    {
+      "id": "UBERON:0005096"
+    },
+    {
+      "id": "UBERON:0001290"
+    },
+    {
+      "id": "UBERON:0001287"
+    },
+    {
+      "id": "UBERON:0000487"
+    },
+    {
+      "id": "UBERON:0005750"
+    },
+    {
+      "id": "UBERON:0005751"
+    },
+    {
+      "id": "UBERON:0000178"
+    },
+    {
+      "id": "UBERON:0001986"
+    },
+    {
+      "id": "UBERON:0004236"
+    },
+    {
+      "id": "UBERON:0004639"
+    },
+    {
+      "id": "UBERON:0000074"
+    },
+    {
+      "id": "UBERON:0004640"
+    },
+    {
+      "id": "UBERON:0001285"
+    },
+    {
+      "id": "UBERON:0001288"
+    },
+    {
+      "id": "UBERON:0001229"
+    }
+  ]
 }

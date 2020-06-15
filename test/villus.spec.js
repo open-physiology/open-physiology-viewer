@@ -5,7 +5,7 @@ import {
     afterEach,
     expect,
 } from './test.helper';
-import villus from './data/villus';
+import villus from './data/basicVillus';
 
 import {modelClasses} from '../src/model/index';
 

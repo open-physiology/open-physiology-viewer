@@ -436,9 +436,11 @@ export class Group extends Resource {
         //Add auto-created clones of boundary nodes and collapsible links they connect to the group that contains the original node
         (this.nodes||[]).filter(node => node && node.clones).forEach(node => {
             node.clones.forEach(clone => {
-                this.nodes.push(clone);
                 let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
                 spacerLinks.forEach(lnk => this.links.push(lnk));
+                if (spacerLinks.length > 0){
+                    this.nodes.push(clone);
+                }
 
                 if (clone.hostedBy) {
                     clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
