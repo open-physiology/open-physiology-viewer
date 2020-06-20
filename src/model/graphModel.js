@@ -23,6 +23,57 @@ import {$GenEventMsg} from "./genEvent";
 export { schema };
 const DEFAULT_LENGTH = 4;
 
+let base_context = {
+    "@version": 1.1,
+    "apinatomy": "https://apinatomy.org/uris/readable/",
+    "elements": "https://apinatomy.org/uris/elements/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "name": "rdfs:label",
+    "id": "@id",
+    "class": {"@id": "rdf:type",
+              "@type": "@id",
+              "@context": {"@base": "https://apinatomy.org/uris/elements/"}},
+    "topology": {"@id": "apinatomy:topology",
+                 "@type": "@id",
+                 "@context": {"@base": "https://apinatomy.org/uris/readable/"}},
+};
+
+/**
+ * Generate a json-ld context from
+ *
+ */
+function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
+    function schemaIsId(scm) {
+        return scm::isObject() && (
+            scm["$ref"] == "#/definitions/IdentifierScheme" ||
+                scm.items && schemaIsId(scm.items) ||
+                scm.anyOf && scm.anyOf.filter(schemaIsId).length !== 0);
+    };
+
+    if (schema.definitions) {
+        schema.definitions::entries()
+            .forEach(([did, def]) => {
+                schemaToContext(def, context);});
+    } else if (id !== null && schemaIsId(schema)) {
+        context[id] = {"@id": prefix.concat(id),
+                       "@type": "@id"};
+    } else {
+        if (schema.properties) {
+            schema.properties::entries()
+                .forEach(([pid, prop]) =>
+                    context[pid] = schemaIsId(prop) ?
+                        {"@id": prefix.concat(pid),
+                         "@type": "@id"} :
+                    prefix.concat(pid));
+        }
+    }
+    return context;
+};
+
+let schema_context = schemaToContext(schema, {});
+
 /**
  * The main model graph (the group with configuration options for the model viewer)
  * @class
@@ -402,7 +453,64 @@ export class Graph extends Group{
             "id": this.id,
             "resources": {}
         };
-        (this.entitiesByID||{})::entries().forEach(([id,obj]) => res.resources[id] = (obj instanceof Resource) ? obj.toJSON(): obj);
+        (this.entitiesByID||{})::entries().forEach(([id,obj]) =>
+            res.resources[id] = (obj instanceof Resource) ? obj.toJSON() : obj);
+        return res;
+    }
+
+    /**
+     * Serialize the map of all resources to JSONLD
+     */
+    entitiesToJSONLD(){
+        let empty_prefix = ":"; // FIXME not sure what the issue is here with "" ...
+        let m = "https://apinatomy.org/uris/models/";
+        let uri = m.concat(this.id);
+
+        // FIXME derive from spreadsheet etc.
+        this.curies = {
+            "UBERON": "http://obolibrary.org/obo/UBERON_",
+            "CHEBI": "http://obolibrary.org/obo/CHEBI_",
+            "FMA": "http://purl.org/sig/ont/fma/fma",
+            "GO": "http://purl.obolibrary.org/obo/GO_",
+            "ILX": "http://uri.interlex.org/base/ilx_",
+        };
+
+        let curies_context = {};
+        this.curies::entries().forEach(([prefix, namespace]) =>
+            curies_context[prefix] = {"@id": namespace, "@prefix": true});
+
+        let local_context = {
+            "@base": uri.concat("/ids/"),
+            // empty_prefix: uri.concat("/ids/"),  // that's a WAT right there kids!
+        };
+
+        local_context[empty_prefix] = local_context["@base"];
+
+        // local first so that any accidental collisions don't break everything
+        // raw last so that it can override the autogen behavior
+        let context = {};
+        let contexts = [local_context,
+                        curies_context,
+                        schema_context,
+                        base_context];
+        contexts.forEach((source_context) =>
+            context::merge(source_context));
+
+        let res = {
+            "@context": context,
+            "@graph": [
+                {"@id": uri,
+                 "@type": ["apinatomy:GraphMetadata", "owl:Ontology"],
+                 "rdfs:label": this.name,
+                 "apinatomy:hasGraph": context[empty_prefix].concat(this.id),
+                }
+            ]
+        };
+
+        (this.entitiesByID||{})::entries()
+            .forEach(([id,obj]) =>
+                res["@graph"].push((obj instanceof Resource) ? obj.toJSON() : obj));
+
         return res;
     }
 }
