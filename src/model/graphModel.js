@@ -473,6 +473,12 @@ export class Graph extends Group{
             "FMA": "http://purl.org/sig/ont/fma/fma",
             "GO": "http://purl.obolibrary.org/obo/GO_",
             "ILX": "http://uri.interlex.org/base/ilx_",
+            "NLX": "http://uri.interlex.org/base/ilx_",
+            "NLX": "http://uri.neuinfo.org/nif/nifstd/nlx_",
+            "SAO": "http://uri.neuinfo.org/nif/nifstd/sao",
+            "PMID": "http://www.ncbi.nlm.nih.gov/pubmed/",
+            "EMAPA": "http://purl.obolibrary.org/obo/EMAPA_",
+            "CL": "http://purl.obolibrary.org/obo/CL_",
         };
 
         let curies_context = {};
