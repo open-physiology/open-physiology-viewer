@@ -430,14 +430,14 @@
           "advanced": true
         },
         "offset": {
-          "description": "Defines position of the node on its host link, i.e, fraction of the link's length starting from the source node",
+          "description": "Defines position of the node on its host link, i.e, fraction of the link's length starting from the source node.",
           "type": "number",
           "minimum": 0,
           "maximum": 1,
           "advanced": true
         },
         "charge": {
-          "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph",
+          "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph.",
           "type": "number",
           "default": 0,
           "advanced": true
@@ -726,6 +726,40 @@
             ]
           },
           "relatedTo": "prev",
+          "readOnly": true,
+          "advanced": true
+        },
+        "prevChainEndLevels": {
+          "description": "References to end levels of chains preceding the chains in which the current link is a level.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "nextChainStartLevels",
+          "readOnly": true,
+          "advanced": true
+        },
+        "nextChainStartLevels": {
+          "description": "References to start levels of chains following the chain in which the current link is a level.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "prevChainEndLevels",
           "readOnly": true,
           "advanced": true
         },

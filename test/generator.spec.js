@@ -225,7 +225,7 @@ describe("KeastSpinal", () => {
 });
 
 // keastSpinalTest.json
-// keastModelMonique.json
+
 
 describe("Neuron", () => {
     let graphData;

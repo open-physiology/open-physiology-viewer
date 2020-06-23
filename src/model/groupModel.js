@@ -327,6 +327,9 @@ export class Group extends Resource {
                     delete node.internalIn;
                 }
 
+                let allTargetLinks = [];
+                let allSourceLinks = [];
+
                 hostLyphs.forEach((hostLyph, i) => {
                     let nodeClone = {[$Field.id]: getGenID(nodeID, $Prefix.join, i)};
                     modelClasses.Node.clone(node, nodeClone);
@@ -337,8 +340,14 @@ export class Group extends Resource {
                     //rewire affected links
                     let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && isBundledLink(e, hostLyph));
                     let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && isBundledLink(e, hostLyph));
-                    targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
-                    sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
+                    targetOfLinks.forEach(lnk => {
+                        lnk.target = nodeClone.id;
+                        allTargetLinks.push(lnk);
+                    });
+                    sourceOfLinks.forEach(lnk => {
+                        lnk.source = nodeClone.id;
+                        allSourceLinks.push(lnk);
+                    });
 
                     let leafChains = targetOfLinks.map(e => e.levelIn);
                     let rootChains = sourceOfLinks.map(e => e.levelIn);
@@ -364,10 +373,21 @@ export class Group extends Resource {
                     fixNodeChainRels(leafChains, $Field.leafOf);
                     fixNodeChainRels(rootChains, $Field.rootOf);
 
-                    let lnk = (rootChains.length > 0)? modelClasses.Link.createCollapsibleLink(node.id, nodeClone.id):
-                        modelClasses.Link.createCollapsibleLink(nodeClone.id, node.id);
+                    let lnk;
+                    if (rootChains.length > 0) {
+                        lnk = modelClasses.Link.createCollapsibleLink(node.id, nodeClone.id);
+                    } else {
+                        lnk = modelClasses.Link.createCollapsibleLink(nodeClone.id, node.id);
+                    }
                     json.links.push(lnk);
                 });
+
+                if (allSourceLinks.length > 0){
+                    allTargetLinks.forEach(e => e.nextChainStartLevels = allSourceLinks.map(x => x.id));
+                }
+                if (allTargetLinks.length > 0) {
+                    allSourceLinks.forEach(e => e.prevChainEndLevels = allTargetLinks.map(x => x.id));
+                }
 
                 node.controlNodes = node.clones;
                 logger.info("Cloned node to join housed chain ends", node.id, node.clones);
@@ -441,7 +461,6 @@ export class Group extends Resource {
                 if (spacerLinks.length > 0){
                     this.nodes.push(clone);
                 }
-
                 if (clone.hostedBy) {
                     clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
                     clone.hostedBy.hostedNodes.push(clone);

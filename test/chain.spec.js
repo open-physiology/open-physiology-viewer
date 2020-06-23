@@ -6,10 +6,11 @@ import {
     expect,
 } from './test.helper';
 import keastSpinalTest from './data/keastSpinalTest';
+import keastSpinal from './data/keastSpinal';
 
 import {modelClasses} from '../src/model/index';
 
-describe("Generate groups from chain templates (Keast Spinal)", () => {
+describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
     before(() => {
         graphData = modelClasses.Graph.fromJSON(keastSpinalTest, modelClasses);
@@ -150,9 +151,46 @@ describe("Generate groups from chain templates (Keast Spinal)", () => {
         }
     });
 
-    it("Collapsible links collapse", () => {
+    after(() => {});
+});
+
+describe("Link joint chains (Keast Spinal)", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(keastSpinal, modelClasses);
+    });
+
+    it("Collapsible links created for join nodes", () => {
+        const collapsibleLinks = graphData.links.filter(lnk => lnk.collapsible);
+        const chain1 = graphData.chains.find(ch => ch.id === "t1");
+        const chain2 = graphData.chains.find(ch => ch.id === "t2");
+        expect(chain1).has.property('levels').that.has.length.of(7);
+        expect(chain2).has.property('levels').that.has.length.of(10);
+        expect(collapsibleLinks).has.length.of(17);
+    });
+
+    it("Chain joining node was cloned", () => {
+        const joinNode = graphData.nodes.find(node => node.id === "n2");
+        expect(joinNode).to.be.an('object');
+        expect(joinNode).to.have.property('clones').that.has.length.of(2);
+    });
+
+    it("Joint chains are linked together", () => {
+        const chain1 = graphData.chains.find(ch => ch.id === "t1");
+        const chain2 = graphData.chains.find(ch => ch.id === "t2");
+        const lastInChain1 = chain1.levels[chain1.levels.length-1];
+        const firstInChain2 = chain2.levels[0];
+        expect(lastInChain1).to.be.an('object');
+        expect(firstInChain2).to.be.an('object');
+        expect(lastInChain1).to.have.property('nextChainStartLevels');
+        expect(firstInChain2).to.have.property('prevChainEndLevels');
+        expect(lastInChain1.nextChainStartLevels).to.be.an('array').that.has.length.of(1);
+        expect(firstInChain2.prevChainEndLevels).to.be.an('array').that.has.length.of(1);
+        expect(lastInChain1.nextChainStartLevels[0]).to.be.an('object');
+        expect(firstInChain2.prevChainEndLevels[0]).to.be.an('object');
+        expect(lastInChain1.nextChainStartLevels[0]).to.have.property('id').that.equals(firstInChain2.id);
+        expect(firstInChain2.prevChainEndLevels[0]).to.have.property('id').that.equals(lastInChain1.id);
     });
 
     after(() => {});
 });
-

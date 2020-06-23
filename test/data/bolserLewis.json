@@ -3,7 +3,7 @@
   "name": "Bolser-Lewis map",
   "description": "Bolser-Lewis map, generated from https://docs.google.com/spreadsheets/d/1rNnobNekjfC4njdD4nwFKcDaVtS9DbwilahmZkpTsGg/edit#gid=2050665547",
   "created": "2019-09-15",
-  "updated": "2020-06-13",
+  "lastUpdated": "2020-06-13",
   "author": "Bernard de Bono",
   "nodes": [
     {
@@ -511,7 +511,7 @@
     },
     {
       "id": "209",
-      "name": "C4 spinal segment",
+      "name": "4th spinal segment",
       "external": [
         "UBERON:0006490"
       ],

@@ -310,7 +310,7 @@ export class Graph extends Group{
                 if (!container.axis.length && container.container) {
                     assignAxisLength(container, container.container);
                 }
-                lyph.axis.length = container.axis.length ? container.axis.length * 0.8 : DEFAULT_LENGTH;
+                lyph.axis.length = container.axis && container.axis.length ? container.axis.length * 0.8 : DEFAULT_LENGTH;
             }
         };
 
