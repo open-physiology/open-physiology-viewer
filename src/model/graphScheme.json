@@ -128,6 +128,32 @@
       "description": "JSONPath query to select resources",
       "type": "string"
     },
+    "AnnotationSchema" : {
+      "description": "Metadata for ApiNATOMY model",
+      "properties": {
+        "version": {
+          "description": "Model version",
+          "type": "string",
+          "pattern": "^(?:(d+).)?(?:(d+).)?(d+)$"
+        },
+        "created": {
+          "description": "Date of the model creation",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "lastUpdated": {
+          "description": "Date of the model last update",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "author": {
+          "description": "Name of the model author",
+          "type": "string"
+        }
+      }
+    },
     "ProcessTypeScheme": {
       "description": "Process types",
       "type": "string",
@@ -512,7 +538,7 @@
         }
       }
     },
-    "Link"    : {
+    "Link": {
       "description": "Graph link schematically representing a (part of) physiological process. ",
       "allOf":[{
         "$ref": "#/definitions/VisualResource"
@@ -1825,30 +1851,9 @@
       }
     },
     "Graph" : {
-      "description": "An ApiNATOMY model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "allOf": [ {"$ref": "#/definitions/Group"} ],
+      "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
+      "allOf": [ {"$ref": "#/definitions/Group"}, {"$ref": "#/definitions/AnnotationSchema"} ],
       "properties": {
-        "version": {
-          "description": "Model version",
-          "type": "string",
-          "pattern": "^(?:(d+).)?(?:(d+).)?(d+)$"
-        },
-        "created": {
-          "description": "Date of the model creation",
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "lastUpdated": {
-          "description": "Date of the model last update",
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "author": {
-          "description": "Name of the model author",
-          "type": "string"
-        },
         "config": {
           "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
           "type": "object",
@@ -1871,7 +1876,43 @@
           "advanced": true
         }
       }
+    },
+    "Scaffold" : {
+      "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
+      "allOf":[{"$ref": "#/definitions/Resource"}, {"$ref": "#/definitions/AnnotationSchema"} ],
+      "properties": {
+        "nodes": {
+          "description": "Scaffold anchor nodes (property-restricted version of nodes?) ",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          },
+          "default": []
+        },
+        "links": {
+          "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Link"
+          },
+          "default": []
+        },
+        "regions": {
+          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Region"
+          }
+        }
+      }
     }
   },
-  "$ref": "#/definitions/Graph"
+  "anyOf": [
+    {
+      "$ref": "#/definitions/Graph"
+    },
+    {
+      "$ref": "#/definitions/Scaffold"
+    }
+  ]
 }

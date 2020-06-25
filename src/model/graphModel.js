@@ -194,7 +194,7 @@ export class Graph extends Group{
                     res = res.replace(/\s/g, '');
                 }
                 const strToValue = x => (itemType === $SchemaType.NUMBER) ? parseInt(x)
-                            : (itemType === $SchemaType.BOOLEAN) ? (x.toLowerCase().trim() === "true")
+                            : (itemType === $SchemaType.BOOLEAN) ? (x.toLowerCase() === "true")
                             : (itemType === $SchemaType.OBJECT) ? JSON.parse(x)
                                 : x;
 
@@ -221,9 +221,9 @@ export class Graph extends Group{
                         });
                     } else {
                         if (fields[key].type === $SchemaType.ARRAY) {
-                            res = res.split(",").map(x => strToValue(x));
+                            res = res.split(",").map(x => strToValue(x.trim()));
                         } else {
-                            res = strToValue(res);
+                            res = strToValue(res.trim());
                         }
                     }
                 }
@@ -302,7 +302,7 @@ export class Graph extends Group{
         let internalLyphsWithNoAxis = [...(this.lyphs||[]), ...(this.regions||[])].filter(lyph => lyph.internalIn && !lyph.axis);
         internalLyphsWithNoAxis.forEach(lyph => createAxis(lyph));
         if (internalLyphsWithNoAxis.length > 0){
-            logger.info("Generated links for internal lyphs", internalLyphsWithNoAxis.length);
+            logger.info("Generated links for internal lyphs", internalLyphsWithNoAxis.map(x => x.id));
         }
 
         const assignAxisLength = (lyph, container) => {
@@ -363,7 +363,7 @@ export class Graph extends Group{
         let lyphsWithoutAxis = (this.lyphs||[]).filter(lyph => !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
         lyphsWithoutAxis.forEach(lyph => createAxis(lyph));
         if (lyphsWithoutAxis.length > 0){
-            logger.info("Generated links for lyphs without axes", lyphsWithoutAxis.length);
+            logger.info("Generated links for lyphs without axes", lyphsWithoutAxis.map(x => x.id));
         }
 
         if (group.links.length > 0){

@@ -336,8 +336,7 @@ export class Resource{
                     }
                     else {
                         if (obj[key2] !== res) {
-                            logger.warn(`Property "${key2}" of the first resource (${obj.class}) should match the second resource:`,
-                                obj, res.id);
+                            logger.warn(`Resource property cannot refer to two distinct resources:`, obj.id, key2, obj[key2].id, res.id);
                         }
                     }
                 }
