@@ -23,7 +23,7 @@ import {$GenEventMsg} from "./genEvent";
 export { schema };
 const DEFAULT_LENGTH = 4;
 
-let base_context = {
+let baseContext = {
     "@version": 1.1,
     "apinatomy": "https://apinatomy.org/uris/readable/",
     "elements": "https://apinatomy.org/uris/elements/",
@@ -41,7 +41,7 @@ let base_context = {
 };
 
 /**
- * Generate a json-ld context from
+ * Generate a json-ld context from a json schema
  *
  */
 function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
@@ -72,7 +72,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
     return context;
 };
 
-let schema_context = schemaToContext(schema, {});
+let schemaContext = schemaToContext(schema, {});
 
 /**
  * The main model graph (the group with configuration options for the model viewer)
@@ -191,13 +191,31 @@ export class Graph extends Group{
      */
     static excelToJSON(inputModel, modelClasses = {}){
         let graphSchema = modelClasses[this.name].Model;
-        let model = inputModel::pick(graphSchema.relationshipNames.concat(["main"]));
+        let model = inputModel::pick(graphSchema.relationshipNames.concat(["main", "localConventions"]));
         const borderNames = ["inner", "radial1", "outer", "radial2"];
 
         model::keys().forEach(relName => {
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
+            if (relName === "localConventions") {  // local conventions are not a reasource
+                for (let i = 1; i < table.length; i++) {
+                    let convention = {};
+                    table[i].forEach((value, j) => {
+                        if (!headers[j]) {
+                            logger.error("No column name");
+                            return;
+                        }
+                        let key = headers[j].trim();
+                        let res = value;
+                        if (res){ convention[key] = res; }
+                    });
+
+                    table[i] = convention;
+                }
+                model[relName] = model[relName].slice(1);
+                return;
+            }
             let clsName = relName === "main"? $SchemaClass.Graph: graphSchema.relClassNames[relName];
             if (!modelClasses[clsName]) {
                 logger.warn("Class name not found:", relName);
@@ -462,45 +480,30 @@ export class Graph extends Group{
      * Serialize the map of all resources to JSONLD
      */
     entitiesToJSONLD(){
-        let empty_prefix = ":"; // FIXME not sure what the issue is here with "" ...
         let m = "https://apinatomy.org/uris/models/";
         let uri = m.concat(this.id);
 
-        // FIXME derive from spreadsheet etc.
-        this.curies = {
-            "UBERON": "http://obolibrary.org/obo/UBERON_",
-            "CHEBI": "http://obolibrary.org/obo/CHEBI_",
-            "FMA": "http://purl.org/sig/ont/fma/fma",
-            "GO": "http://purl.obolibrary.org/obo/GO_",
-            "ILX": "http://uri.interlex.org/base/ilx_",
-            "NLX": "http://uri.interlex.org/base/ilx_",
-            "NLX": "http://uri.neuinfo.org/nif/nifstd/nlx_",
-            "SAO": "http://uri.neuinfo.org/nif/nifstd/sao",
-            "PMID": "http://www.ncbi.nlm.nih.gov/pubmed/",
-            "EMAPA": "http://purl.obolibrary.org/obo/EMAPA_",
-            "CL": "http://purl.obolibrary.org/obo/CL_",
-        };
+        let curiesContext = {};
+        this.localConventions.forEach((obj) =>
+            // FIXME warn on duplicate curies?
+            curiesContext[obj.prefix] = {"@id": obj.namespace, "@prefix": true});
 
-        let curies_context = {};
-        this.curies::entries().forEach(([prefix, namespace]) =>
-            curies_context[prefix] = {"@id": namespace, "@prefix": true});
-
-        let local_context = {
+        let localContext = {
             "@base": uri.concat("/ids/"),
-            // empty_prefix: uri.concat("/ids/"),  // that's a WAT right there kids!
         };
 
-        local_context[empty_prefix] = local_context["@base"];
+        //let contextPrefix = "_fc:"; // FIXME not sure what the issue is here with "" ...
+        //localContext[contextPrefix] = localContext["@base"];
 
         // local first so that any accidental collisions don't break everything
         // raw last so that it can override the autogen behavior
         let context = {};
-        let contexts = [local_context,
-                        curies_context,
-                        schema_context,
-                        base_context];
-        contexts.forEach((source_context) =>
-            context::merge(source_context));
+        let contexts = [localContext,
+                        curiesContext,
+                        schemaContext,
+                        baseContext];
+        contexts.forEach((sourceContext) =>
+            context::merge(sourceContext));
 
         let res = {
             "@context": context,
@@ -508,7 +511,7 @@ export class Graph extends Group{
                 {"@id": uri,
                  "@type": ["apinatomy:GraphMetadata", "owl:Ontology"],
                  "rdfs:label": this.name,
-                 "apinatomy:hasGraph": context[empty_prefix].concat(this.id),
+                 "apinatomy:hasGraph": context["@base"].concat(this.id),
                 }
             ]
         };
