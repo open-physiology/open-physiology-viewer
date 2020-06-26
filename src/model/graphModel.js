@@ -19,17 +19,23 @@ import * as schema from './graphScheme.json';
 import {logger} from './logger';
 import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getGenName, getSchemaClass, $SchemaType} from "./utils";
 import {$GenEventMsg} from "./genEvent";
+import * as jsonld from 'jsonld';
 
 export { schema };
 const DEFAULT_LENGTH = 4;
 
 let baseContext = {
     "@version": 1.1,
-    "apinatomy": "https://apinatomy.org/uris/readable/",
-    "elements": "https://apinatomy.org/uris/elements/",
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "apinatomy": {"@id": "https://apinatomy.org/uris/readable/",
+                  "@prefix": true},
+    "elements": {"@id": "https://apinatomy.org/uris/elements/",
+                 "@prefix": true},
+    "owl": {"@id": "http://www.w3.org/2002/07/owl#",
+            "@prefix": true},
+    "rdf": {"@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            "@prefix": true},
+    "rdfs": {"@id": "http://www.w3.org/2000/01/rdf-schema#",
+             "@prefix": true},
     "name": "rdfs:label",
     "id": "@id",
     "class": {"@id": "rdf:type",
@@ -484,7 +490,8 @@ export class Graph extends Group{
         let uri = m.concat(this.id);
 
         let curiesContext = {};
-        this.localConventions.forEach((obj) =>
+        let localConventions = this.localConventions || [];
+        localConventions.forEach((obj) =>
             // FIXME warn on duplicate curies?
             curiesContext[obj.prefix] = {"@id": obj.namespace, "@prefix": true});
 
@@ -492,8 +499,8 @@ export class Graph extends Group{
             "@base": uri.concat("/ids/"),
         };
 
-        //let contextPrefix = "_fc:"; // FIXME not sure what the issue is here with "" ...
-        //localContext[contextPrefix] = localContext["@base"];
+        let contextPrefix = "local"; // FIXME not sure what the issue is here with "" ...
+        localContext[contextPrefix] = localContext["@base"];
 
         // local first so that any accidental collisions don't break everything
         // raw last so that it can override the autogen behavior
@@ -522,6 +529,23 @@ export class Graph extends Group{
 
         return res;
     }
+
+    /**
+     * Serialize the map of all resources to flattened jsonld
+     */
+    entitiesToJSONLDFlat(callback){
+        let res = this.entitiesToJSONLD();
+        let context = {};
+        res['@context']::entries().forEach(([k, v]) => {
+            if (v::isObject() && "@id" in v && v["@id"].includes("apinatomy:")) {
+            } else if (typeof(v) === "string" && v.includes("apinatomy:")) {
+            } else if (k === "class") { // class uses @context @base which is not 1.0 compatible
+            } else {
+                context[k] = v;
+            }});
+        // TODO reattach context for rdflib-jsonld prefix construction
+        jsonld.flatten(res).then(flat => {
+            jsonld.compact(flat, context).then(compact => {
+                callback(compact)})});
+    }
 }
-
-

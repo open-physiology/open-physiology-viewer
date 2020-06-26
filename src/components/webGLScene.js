@@ -64,6 +64,10 @@ const WindowResize = require('three-window-resize');
                                 (click)="exportResourceMapLD()" title="Export json-ld resource map">
                             <i class="fa fa-file-code-o"> </i>
                         </button>
+                        <button class="w3-bar-item w3-hover-light-grey"
+                                (click)="exportResourceMapLDFlat()" title="Export flattened json-ld resource map">
+                            <i class="fa fa-file-code-o"> </i>
+                        </button>
                         <button *ngIf="graphData?.logger" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showReport()" title="Show logs">
                             <i *ngIf="graphData.logger.status === graphData.logger.statusOptions.ERROR"
@@ -313,6 +317,18 @@ export class WebGLSceneComponent {
             let result = JSON.stringify(this._graphData.entitiesToJSONLD(), null, 2);
             const blob = new Blob([result], {type: 'application/ld+json'});
             FileSaver.saveAs(blob, this._graphData.id + '-resourceMap.jsonld');
+        }
+    }
+
+    exportResourceMapLDFlat(){
+        if (this._graphData){
+            let filename = this._graphData.id + '-resourceMap-flattened.jsonld';
+            function callback (res) {
+                let result = JSON.stringify(res, null, 2);
+                const blob = new Blob([result], {type: 'application/ld+json'});
+                FileSaver.saveAs(blob, filename);
+            };
+            this._graphData.entitiesToJSONLDFlat(callback)
         }
     }
 
