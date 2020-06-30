@@ -523,9 +523,16 @@ export class Graph extends Group{
             ]
         };
 
+        function addType(obj) {
+            obj.class === "External" ?
+                obj["@type"] = "owl:Class" :
+                obj["@type"] = "owl:NamedIndividual" ;
+            return obj;
+        }
+
         (this.entitiesByID||{})::entries()
             .forEach(([id,obj]) =>
-                res["@graph"].push((obj instanceof Resource) ? obj.toJSON() : obj));
+                res["@graph"].push((obj instanceof Resource) ? addType(obj.toJSON()) : obj));
 
         return res;
     }
