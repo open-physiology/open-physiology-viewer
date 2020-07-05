@@ -13,7 +13,7 @@ import {
     getCenterOfMass
 } from "./utils";
 
-import './/lines/Line2.js';
+import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Link, Node} = modelClasses;
@@ -261,6 +261,9 @@ Link.prototype.updateViewObjects = function(state) {
     let curve = updateCurve(_start, _end);
     this.center = getPoint(curve, _start, _end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
+    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+        console.log(this.points);
+    }
 
     //Merge nodes of a collapsible link
     if (this.collapsible){

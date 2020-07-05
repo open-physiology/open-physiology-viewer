@@ -1,8 +1,7 @@
 import * as three from 'three';
 const THREE = window.THREE || three;
 import {clone, merge} from 'lodash-bound';
-import {colorStr2Hex} from './utils';
-
+import tinycolor from 'tinycolor2';
 
 const defaultParams = {
     transparent: true,
@@ -13,6 +12,13 @@ const defaultParams = {
     polygonOffset      : true,
     polygonOffsetFactor: 0
 };
+
+/**
+ * Convert color string to hex
+ * @param {string} str - string with color
+ * @returns {number} - color hex
+ */
+const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : str;
 
 /**
  * The class to create materials with predefined default parameters
