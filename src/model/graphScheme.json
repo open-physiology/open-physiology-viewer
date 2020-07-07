@@ -975,8 +975,7 @@
             ]
           },
           "relatedTo": "facetIn",
-          "uniqueItems": true,
-          "minItems": 3
+          "uniqueItems": true
         }
       }
     },

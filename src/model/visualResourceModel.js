@@ -120,6 +120,7 @@ export class Link extends VisualResource {
     get isVisible(){
         return (this.onBorder? this.onBorder.isVisible : super.isVisible) && this.source && this.source.isVisible && this.target && this.target.isVisible;
     }
+
 }
 
 /**

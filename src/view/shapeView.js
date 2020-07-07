@@ -259,8 +259,18 @@ Region.prototype.translate = function (p0) {
  * @param state
  */
 Region.prototype.createViewObjects = function(state) {
-    this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
+    if (this.facets){
+        this.points = [];
+        this.facets.forEach(lnk => {
+            let pointLength = (!lnk.geometry || lnk.geometry === Link.LINK_GEOMETRY.LINK)? 2 : (lnk.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.linkResolution;
+            for (let i = 0; i < pointLength-1; i++){
+                this.points.push({x: 0, y: 0});
+            }
+        });
+    }
+
     let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
+    this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
     this.center = getCenterOfMass(this.points);
 
     let obj = createMeshWithBorder(shape, {
@@ -278,6 +288,20 @@ Region.prototype.createViewObjects = function(state) {
  * @param {Object} state - graph configuration
  */
 Region.prototype.updateViewObjects = function(state) {
+    // if (this.facets && this.facets.length > 0){
+    //     this.facets.forEach(lnk => {
+    //         lnk.updateViewObjects(state);
+    //
+    //     });
+    // }
+    // let obj = this.viewObjects['main'];
+    // let pos = obj.geometry.attributes && obj.geometry.attributes.position;
+    // if (pos) {
+    //     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => pos.array[3 * i + j] = p[dim]));
+    //     pos.needsUpdate = true;
+    //     obj.geometry.computeBoundingSphere();
+    // }
+
     this.border.updateViewObjects(state);
     this.updateLabels(state,  this.center.clone().addScalar(state.labelOffset.Region));
 };

@@ -95,6 +95,10 @@
     }
   ],
   "regions": [
-
+    {
+      "id": "f2",
+      "name": "F2",
+      "facets": ["lnk-F-B", "lnk-B-O", "lnk-F-O"]
+    }
   ]
 }
