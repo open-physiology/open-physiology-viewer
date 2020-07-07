@@ -641,6 +641,20 @@
           "advanced": true,
           "readOnly": true
         },
+        "facetIn":{
+          "description": "A region that contains the link as its facet",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "facets",
+          "advanced": true,
+          "readOnly": true
+        },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
           "anyOf": [
@@ -975,8 +989,7 @@
             ]
           },
           "relatedTo": "facetIn",
-          "uniqueItems": true,
-          "minItems": 3
+          "uniqueItems": true
         }
       }
     },
