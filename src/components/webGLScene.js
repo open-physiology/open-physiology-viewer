@@ -6,13 +6,12 @@ import FileSaver  from 'file-saver';
 import {keys, values, defaults, isObject, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph   from '../view/threeForceGraph';
-import { forceX, forceY, forceZ } from 'd3-force-3d';
+import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field} from "../model";
 
 const WindowResize = require('three-window-resize');
 
@@ -53,12 +52,12 @@ const WindowResize = require('three-window-resize');
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="export()" title="Export generated model">
-                            <i class="fa fa-file-text-o"> </i>
+                                (click)="exportResourceMapLD()" title="Export json-ld resource map">
+                            <i class="fa fa-file-code-o"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportResourceMap()" title="Export resource map">
-                            <i class="fa fa-file-code-o"> </i>
+                                (click)="exportResourceMapLDFlat()" title="Export flattened json-ld resource map">
+                            <i class="fa fa-file-text-o"> </i>
                         </button>
                         <button *ngIf="graphData?.logger" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showReport()" title="Show logs">
@@ -288,19 +287,23 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
-    export(){
+    exportResourceMapLD(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(3, {[$Field.border]: 3, [$Field.borders]: 3, [$Field.villus]: 3}), null, 2);
-            const blob = new Blob([result], {type: 'text/plain'});
-            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
+            let result = JSON.stringify(this._graphData.entitiesToJSONLD(), null, 2);
+            const blob = new Blob([result], {type: 'application/ld+json'});
+            FileSaver.saveAs(blob, this._graphData.id + '-resourceMap.jsonld');
         }
     }
 
-    exportResourceMap(){
+    exportResourceMapLDFlat(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.entitiesToJSON(), null, 2);
-            const blob = new Blob([result], {type: 'text/plain'});
-            FileSaver.saveAs(blob, this._graphData.id + '-resourceMap.json');
+            let filename = this._graphData.id + '-resourceMap-flattened.jsonld';
+            const callback = res => {
+                let result = JSON.stringify(res, null, 2);
+                const blob = new Blob([result], {type: 'application/ld+json'});
+                FileSaver.saveAs(blob, filename);
+            };
+            this._graphData.entitiesToJSONLDFlat(callback);
         }
     }
 
@@ -310,9 +313,11 @@ export class WebGLSceneComponent {
             data  : this.graphData.logger.print()
         });
 
-        dialogRef.afterClosed().subscribe(result => {
-            if (result !== undefined){
-                //save to file
+        dialogRef.afterClosed().subscribe(res => {
+            if (res !== undefined){
+                let result = JSON.stringify(res, null, 2);
+                const blob = new Blob([result], {type: 'application/txt'});
+                FileSaver.saveAs(blob, this._graphData.id + '-log.json');
             }
         });
     }

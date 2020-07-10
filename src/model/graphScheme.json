@@ -76,6 +76,21 @@
         "interpolateViridis"
       ]
     },
+    "CurieMapping": {
+      "description": "List of mappings used for external identifiers.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prefix": {
+          "type": "string",
+          "pattern": "[A-Za-z_][A-Za-z0-9.-_]"
+        },
+        "namespace": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
     "GroupColorScheme": {
       "description": "Scheme to specify color interpolation for a group of resources",
       "type": "object",
@@ -184,6 +199,13 @@
           "description": "Resource description, comments, modeling assumptions, etc.",
           "type": "string",
           "advanced": true
+        },
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
+          }
         },
         "external": {
           "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
