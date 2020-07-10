@@ -13,7 +13,7 @@ import {
     getCenterOfMass
 } from "./utils";
 
-import './/lines/Line2.js';
+import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Link, Node} = modelClasses;
@@ -148,15 +148,8 @@ Link.prototype.createViewObjects = function(state){
             }
             obj = new THREE.Line(geometry, material);
         }
-        this.pointLength =
-            (this.geometry === Link.LINK_GEOMETRY.SEMICIRCLE
-                || this.geometry === Link.LINK_GEOMETRY.RECTANGLE
-                || this.geometry === Link.LINK_GEOMETRY.ARC
-                || this.geometry === Link.LINK_GEOMETRY.SPLINE)
-            ? state.linkResolution
-            : (this.geometry === Link.LINK_GEOMETRY.PATH)
-                ? 67 // Edge bundling breaks a link into 66 points
-                : 2;
+        // Edge bundling breaks a link into 66 points
+        this.pointLength = (!this.geometry || this.geometry === Link.LINK_GEOMETRY.LINK)? 2 : (this.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.linkResolution;
         if (this.stroke === Link.LINK_STROKE.DASHED) {
             geometry.vertices = new Array(this.pointLength);
             for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
@@ -180,8 +173,8 @@ Link.prototype.createViewObjects = function(state){
             this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x !== this);
         }
 
-        obj.renderOrder = 10;  // Prevepointnt visual glitches of dark lines on top of nodes by rendering them last
-        obj.userData = this;     // Attach link data
+        obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
+        obj.userData = this;   // Attach link data
 
         this.viewObjects["main"] = obj;
     }

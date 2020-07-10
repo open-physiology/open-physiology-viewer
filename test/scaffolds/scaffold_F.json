@@ -1,0 +1,104 @@
+{
+  "id"     : "scaffold_f",
+  "name"   : "Scaffold f",
+  "author" : "Natallia Kokash",
+  "created": "2020-06-29",
+  "nodes": [
+    {
+      "id": "F",
+      "layout": {"x": 0, "y": 0, "z": 0},
+      "fixed": true
+    },
+    {
+      "id": "R",
+      "layout": {"x": -100, "y": 0, "z": 0},
+      "fixed": true
+    },
+    {
+      "id": "B",
+      "layout": {"x": 100, "y": 0, "z": 0},
+      "fixed": true
+    },
+    {
+      "id": "O",
+      "layout": {"x": 0, "y": 100, "z": 0},
+      "fixed": true
+    },
+    {
+      "id": "M",
+      "layout": {"x": 0, "y": -100, "z": 0},
+      "fixed": true
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk-B-O",
+      "source": "B",
+      "target": "O",
+      "length": 157,
+      "geometry": "arc",
+      "color": "green"
+    },
+    {
+      "id": "lnk-O-R",
+      "source": "O",
+      "target": "R",
+      "length": 157,
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0, "z": 0},
+      "color": "green"
+    },
+    {
+      "id": "lnk-R-M",
+      "source": "R",
+      "target": "M",
+      "length": 157,
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0, "z": 0},
+      "color": "green"
+    },
+    {
+      "id": "lnk-M-B",
+      "source": "M",
+      "target": "B",
+      "length": 157,
+      "geometry": "arc",
+      "color": "green"
+    },
+    {
+      "id": "lnk-F-B",
+      "source": "F",
+      "target": "B",
+      "length": 100,
+      "color": "black"
+    },
+    {
+      "id": "lnk-F-O",
+      "source": "F",
+      "target": "O",
+      "length": 100,
+      "color": "black"
+    },
+    {
+      "id": "lnk-F-R",
+      "source": "F",
+      "target": "R",
+      "length": 100,
+      "color": "black"
+    },
+    {
+      "id": "lnk-F-M",
+      "source": "F",
+      "target": "M",
+      "length": 100,
+      "color": "black"
+    }
+  ],
+  "regions": [
+    {
+      "id": "f2",
+      "name": "F2",
+      "facets": ["lnk-F-B", "lnk-B-O", "lnk-F-O"]
+    }
+  ]
+}

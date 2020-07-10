@@ -1,10 +1,11 @@
 import * as three from 'three';
 export const THREE = window.THREE || three;
 import {MaterialFactory} from './materialFactory';
+import './lines/EllipseCurve3.js';
 import {defaults} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
-
 const ThreeBSP = require('three-js-csg')(THREE);
+
 
 /**
  * Determines whether two lyphs have a common supertype
@@ -175,14 +176,6 @@ export function d3Lyph(outer, params) {
     return new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
 }
 
-
-/**
- * Convert color string to hex
- * @param {string} str - string with color
- * @returns {number} - color hex
- */
-export const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : str;
-
 /**
  * Create lyph layer shape
  * @param {Array} inner - preceding (inner) lyph border shape parameters (@see lyphShape)
@@ -333,7 +326,6 @@ export function rectangleCurve(startV, endV){
     return curvePath;
 }
 
-//TODO fix this method
 export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
     let p = startV.clone().sub(centerV);
     let q = endV.clone().sub(centerV);
@@ -344,11 +336,12 @@ export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
     let dot = p.dot(q);
     let theta = Math.acos( dot / (p.length() * q.length()) );
 
-    let curve = new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false, 0);
-    return curve;
-
+    return new THREE.EllipseCurve3(centerV.x, centerV.y, 0, a2, b2, 0, theta, false);
 }
 
+/**************************************************************
+ *	Ellipse curve
+ **************************************************************/
 
 /**
  * Create a cubic Bezier curve resembling a semicircle

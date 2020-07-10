@@ -324,6 +324,8 @@ export class Region extends Shape {
      * @returns {Shape} - ApiNATOMY Shape resource
      */
     static fromJSON(json, modelClasses = {}, entitiesByID) {
+
+
         if (!json.points || json.points.length < 3) {
             json.points = [
                 {"x": -10, "y": -10 },
@@ -344,7 +346,6 @@ export class Region extends Shape {
  * @class
  * @property host
  * @property borders
- *
  */
 export class Border extends VisualResource {
     get isVisible(){

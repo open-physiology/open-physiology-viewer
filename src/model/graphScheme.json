@@ -663,6 +663,20 @@
           "advanced": true,
           "readOnly": true
         },
+        "facetIn":{
+          "description": "A region that contains the link as its facet",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "facets",
+          "advanced": true,
+          "readOnly": true
+        },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
           "anyOf": [
@@ -982,7 +996,24 @@
       "allOf":[{
         "$ref": "#/definitions/Shape"
       }],
-      "properties": {}
+      "properties": {
+        "facets": {
+          "description": "A set of links that define boundaries of the region. Facet links may have complex geometry and do not need to be ordered. Points and boundaries can be generated from facets to visualize regions",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "facetIn",
+          "uniqueItems": true
+        }
+      }
     },
     "Lyph"    : {
       "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
@@ -1025,7 +1056,7 @@
             }
           },
           "default": {},
-          "advanced": "true"
+          "advanced": true
         },
         "length" : {
           "description": "Anatomical lyph length defined in the form of power of 1/10",
@@ -1041,7 +1072,7 @@
             }
           },
           "default": {},
-          "advanced": "true"
+          "advanced": true
         },
         "subtypes"       : {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
