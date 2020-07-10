@@ -28,9 +28,7 @@ const LEVEL = {
         </div>
         <div mat-dialog-actions align="end">
             <button mat-button (click)="onNoClick()">Close</button>
-            <!--
-                        <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Save</button>
-            -->
+            <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Save</button>
         </div>
     `
 })
