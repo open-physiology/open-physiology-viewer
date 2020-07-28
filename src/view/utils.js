@@ -1,11 +1,9 @@
 import * as three from 'three';
 export const THREE = window.THREE || three;
 import {MaterialFactory} from './materialFactory';
-import './lines/EllipseCurve3.js';
 import {defaults} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 const ThreeBSP = require('three-js-csg')(THREE);
-
 
 /**
  * Determines whether two lyphs have a common supertype
@@ -326,6 +324,13 @@ export function rectangleCurve(startV, endV){
     return curvePath;
 }
 
+/**
+ * Draw a 2d elliptic curve given 2 poinst on it and the center
+ * @param startV - 2d point on the ellipse
+ * @param endV - 2d point on the ellipse
+ * @param centerV - center of the ellipse
+ * @returns {EllipseCurve}
+ */
 export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
     let p = startV.clone().sub(centerV);
     let q = endV.clone().sub(centerV);
@@ -334,9 +339,8 @@ export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
     let b2 = Math.abs((q.x^2)*(p.y^2) - (p.x^2)*(q.y^2)) / (p.x^2 - q.x^2);
 
     let dot = p.dot(q);
-    let theta = Math.acos( dot / (p.length() * q.length()) );
-
-    return new THREE.EllipseCurve3(centerV.x, centerV.y, 0, a2, b2, 0, theta, false);
+    let theta = Math.acos( dot / (p.length() * q.length())) ;
+    return new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false);
 }
 
 /**************************************************************

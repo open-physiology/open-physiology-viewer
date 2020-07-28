@@ -16,7 +16,7 @@ import {
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
-const {VisualResource, Link, Node} = modelClasses;
+const {VisualResource, Link, Node, Anchor, Wire} = modelClasses;
 
 /**
  * Create resource labels
@@ -61,10 +61,27 @@ VisualResource.prototype.updateLabels = function(state, position){
 };
 
 /**
+ * Create visual object for abstract visual resource
+ * @param state
+ */
+VisualResource.prototype.createViewObjects = function(state) {
+};
+
+
+/**
+ * Update visual object for abstract visual resource
+ * @param state
+ */
+VisualResource.prototype.updateViewObjects = function(state) {
+};
+
+
+/**
  * Create visual objects for a node
  * @param state
  */
 Node.prototype.createViewObjects = function(state) {
+
     //Nodes
     if (!this.viewObjects["main"]) {
         let geometry = new THREE.SphereGeometry(this.val * state.nodeRelSize,
@@ -102,8 +119,7 @@ Node.prototype.updateViewObjects = function(state) {
 
     copyCoords(this.viewObjects["main"].position, this);
 
-    this.updateLabels(state,
-        this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
+    this.updateLabels(state, this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
 };
 
 /**
@@ -339,3 +355,52 @@ Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
             (this[prop].polygonOffsetFactor || 0) - 1: 0));
     }
 });
+
+
+Anchor.prototype.createViewObjects = function(state){
+    if (!this.viewObjects["main"]) {
+        let geometry = new THREE.CircleGeometry(10);
+        let material = MaterialFactory.createMeshBasicMaterial({
+            color: this.color,
+            polygonOffsetFactor: this.polygonOffsetFactor
+        });
+        let obj = new THREE.Mesh(geometry, material);
+        // Attach node data
+        obj.userData = this;
+        this.viewObjects["main"] = obj;
+    }
+
+    //Labels
+    this.createLabels(state);
+};
+
+Anchor.prototype.updateViewObjects = function(state) {
+    if (!this.viewObjects["main"] ||
+        (!this.skipLabel && !this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
+        this.createViewObjects(state);
+    }
+    if (this.layout) {
+        copyCoords(this, extractCoords(this.layout));
+    }
+    if (this.hostedBy) {
+        let wire = this.hostedBy;
+        let start = extractCoords(wire.source);
+        let end = extractCoords(wire.target);
+        let curve = (wire.geometry === "arc") ? arcCurve(start, end, extractCoords(wire.arcCenter)) :
+            new THREE.Line3(start, end);
+        let offset = this.offset;
+        if (!offset && (wire.hostedAnchors || []).length > 0) {
+            let idx = wire.hostedAnchors.indexOf(this);
+            if (idx > -1) {
+                offset = idx * 1. / wire.hostedAnchors.length;
+            } else {
+                offset = 0.5;
+            }
+        }
+        let point = getPoint(curve, start, end, offset);
+        copyCoords(this, extractCoords(point));
+    }
+
+    copyCoords(this.viewObjects["main"].position, this);
+    this.updateLabels(state, this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
+};

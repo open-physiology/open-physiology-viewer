@@ -663,20 +663,6 @@
           "advanced": true,
           "readOnly": true
         },
-        "facetIn":{
-          "description": "A region that contains the link as its facet",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Region"
-            }
-          ],
-          "relatedTo": "facets",
-          "advanced": true,
-          "readOnly": true
-        },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
           "anyOf": [
@@ -991,14 +977,50 @@
         }
       }
     },
-    "Region"  : {
-      "description": "Area occupied by bordy part of subsystem",
+    "Anchor": {
+      "description": "Anchor defines a special point in a scaffold. Anchor points can join wires.",
       "allOf":[{
-        "$ref": "#/definitions/Shape"
+        "$ref": "#/definitions/VisualResource"
       }],
       "properties": {
-        "facets": {
-          "description": "A set of links that define boundaries of the region. Facet links may have complex geometry and do not need to be ordered. Points and boundaries can be generated from facets to visualize regions",
+        "layout"    : {
+          "description": "Provided 2d coordinates for the anchor",
+          "$ref": "#/definitions/Point2Scheme",
+          "default": {}
+        },
+        "offset"    : {
+          "description": "Defines position of the anchor on its host wire",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "advanced": true
+        },
+        "hostedBy"  : {
+          "description": "A wire on which the given anchor is positioned",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Wire"
+            }
+          ],
+          "relatedTo": "hostedAnchors"
+        },
+        "internalIn": {
+          "description": "ID or reference of the region on which this anchor must be positioned",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "internalAnchors"
+        },
+        "sourceOf"  : {
+          "description": "Wires that start in this anchor",
           "type": "array",
           "items": {
             "anyOf": [
@@ -1006,11 +1028,165 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Link"
+                "$ref": "#/definitions/Wire"
+              }
+            ]
+          },
+          "relatedTo": "source",
+          "advanced": true
+        },
+        "targetOf"  : {
+          "description": "Wires that end in this anchor",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
+              }
+            ]
+          },
+          "relatedTo": "target",
+          "advanced": true
+        }
+      }
+    },
+    "Wire": {
+      "description": "Wire models a curve in a scaffold",
+      "allOf":[{
+        "$ref": "#/definitions/VisualResource"
+      }],
+      "properties": {
+        "source"        : {
+          "description": "Start of the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ],
+          "relatedTo": "sourceOf"
+        },
+        "target"        : {
+          "description": "End of the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ],
+          "relatedTo": "targetOf"
+        },
+        "hostedAnchors" : {
+          "description": "Anchors that are positioned on a wire.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
+          },
+          "relatedTo": "hostedBy",
+          "uniqueItems": true
+        },
+        "geometry"      : {
+          "description": "Defines the geometry of the wire in the scaffold.",
+          "type": "string",
+          "enum": [
+            "link",
+            "arc"
+          ],
+          "default": "link"
+        },
+        "stroke"        : {
+          "description": "Wire stroke",
+          "type": "string",
+          "enum": [
+            "dashed",
+            "thick"
+          ],
+          "default": "",
+          "advanced": true
+        },
+        "lineWidth"     : {
+          "description": "Wire line width, used in combination with `stroke` set to `dashed`",
+          "type": "number",
+          "default": "0.003",
+          "advanced": true
+        },
+        "arcCenter"     : {
+          "description": "Center of an elliptic curve for an arc link",
+          "$ref": "#/definitions/Point2Scheme",
+          "default": {}
+        },
+        "facetIn"       : {
+          "description": "ID or reference of the region on which this wire is a facet",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          },
+          "relatedTo": "facets",
+          "readOnly": true
+        }
+      },
+      "dependencies" : {
+        "lineWidth": ["stroke"],
+        "arcCenter": ["geometry"]
+      }
+    },
+    "Region"  : {
+      "description": "Area occupied by bordy part of subsystem",
+      "allOf":[{
+        "$ref": "#/definitions/Shape"
+      }],
+      "properties": {
+        "facets": {
+          "description": "A set of wires that define boundaries of the region. Shape points and boundaries can be generated from facets to visualize regions",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
               }
             ]
           },
           "relatedTo": "facetIn",
+          "uniqueItems": true
+        },
+        "internalAnchors": {
+          "description": "Internal anchors in the region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
+          },
+          "relatedTo": "internalIn",
           "uniqueItems": true
         }
       }
@@ -1900,6 +2076,22 @@
             }
           ],
           "readOnly": true
+        },
+        "anchors": {
+          "description": "Scaffold anchor points",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Anchor"
+          },
+          "default": []
+        },
+        "wires": {
+          "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Wire"
+          },
+          "default": []
         }
       }
     },
@@ -1934,23 +2126,23 @@
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
       "allOf":[{"$ref": "#/definitions/Resource"}, {"$ref": "#/definitions/AnnotationSchema"} ],
       "properties": {
-        "nodes": {
-          "description": "Scaffold anchor nodes (property-restricted version of nodes?) ",
+        "anchors": {
+          "description": "Scaffold anchor points",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Node"
+            "$ref": "#/definitions/Anchor"
           },
           "default": []
         },
-        "links": {
+        "wires": {
           "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Link"
+            "$ref": "#/definitions/Wire"
           },
           "default": []
         },
-        "regions": {
+        "regions":   {
           "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
           "type": "array",
           "items": {

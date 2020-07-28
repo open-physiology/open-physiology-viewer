@@ -14,7 +14,7 @@ import {
 } from 'lodash-bound';
 
 import JSONPath from 'JSONPath';
-import {getClassName, schemaClassModels, isClassAbstract, getNewID, $Field, $SchemaType} from "./utils";
+import {getClassName, schemaClassModels, isClassAbstract, getNewID, getID, $Field, $SchemaType} from "./utils";
 import {logger} from './logger';
 /**
  * JSON Path validator
@@ -410,6 +410,15 @@ export class Resource{
             res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
         });
         return res;
+    }
+
+    /**
+     * Check if this resource is generated from ID
+     * @param id
+     * @returns {boolean|Object}
+     */
+    isGeneratedFromID(id){
+        return (this.id === id) || (getID(this.generatedFrom) === id);
     }
 
     /**

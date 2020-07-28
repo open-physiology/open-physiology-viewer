@@ -1,0 +1,112 @@
+{
+  "id"     : "scaffold_d",
+  "name"   : "Scaffold D",
+  "author" : "Natallia Kokash",
+  "created": "2020-07-29",
+  "anchors": [
+    {
+      "id": "D",
+      "layout": {"x": 0, "y": 0}
+    },
+    {
+      "id": "L",
+      "layout": {"x": 90, "y": 0}
+    },
+    {
+      "id": "P",
+      "layout": {"x": 0, "y": 70}
+    },
+    {
+      "id": "S",
+      "layout": {"x": -90, "y": 0}
+    },
+    {
+      "id": "A",
+      "layout": {"x": 0, "y": -70}
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-L-P",
+      "source": "L",
+      "target": "P",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "purple"
+    },
+    {
+      "id": "w-P-S",
+      "source": "P",
+      "target": "S",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "purple"
+    },
+    {
+      "id": "w-S-A",
+      "source": "S",
+      "target": "A",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "purple"
+    },
+    {
+      "id": "w-A-L",
+      "source": "A",
+      "target": "L",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "purple"
+    },
+    {
+      "id": "w-D-L",
+      "source": "D",
+      "target": "L",
+      "color": "black"
+    },
+    {
+      "id": "w-D-P",
+      "source": "D",
+      "target": "P",
+      "color": "black"
+    },
+    {
+      "id": "w-D-S",
+      "source": "D",
+      "target": "S",
+      "color": "black"
+    },
+    {
+      "id": "w-D-A",
+      "source": "D",
+      "target": "A",
+      "color": "black"
+    }
+  ],
+  "regions": [
+    {
+      "id": "d2",
+      "name": "D2",
+      "color": "#f2e6ff",
+      "facets": ["w-D-L", "w-L-P", "w-D-P"]
+    },
+    {
+      "id": "d1",
+      "name": "D1",
+      "color": "#e6ccff",
+      "facets": ["w-D-P", "w-P-S", "w-D-S"]
+    },
+    {
+      "id": "d3",
+      "name": "D3",
+      "color": "#d9b3ff",
+      "facets": ["w-D-S", "w-S-A", "w-D-A"]
+    },
+    {
+      "id": "d4",
+      "name": "D4",
+      "color": "#cc99ff",
+      "facets": ["w-D-A", "w-A-L", "w-D-L"]
+    }
+  ]
+}

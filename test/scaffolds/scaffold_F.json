@@ -1,96 +1,115 @@
 {
   "id"     : "scaffold_f",
-  "name"   : "Scaffold f",
+  "name"   : "Scaffold F",
   "author" : "Natallia Kokash",
   "created": "2020-06-29",
-  "nodes": [
+  "anchors": [
     {
       "id": "F",
-      "layout": {"x": 0, "y": 0, "z": 0},
-      "fixed": true
+      "layout": {"x": 0, "y": 0}
     },
     {
       "id": "R",
-      "layout": {"x": -100, "y": 0, "z": 0},
-      "fixed": true
-    },
-    {
-      "id": "B",
-      "layout": {"x": 100, "y": 0, "z": 0},
-      "fixed": true
+      "layout": {"x": -100, "y": 0}
     },
     {
       "id": "O",
-      "layout": {"x": 0, "y": 100, "z": 0},
-      "fixed": true
+      "layout": {"x": 0, "y": 80}
+    },
+    {
+      "id": "B",
+      "layout": {"x": 100, "y": 0}
     },
     {
       "id": "M",
-      "layout": {"x": 0, "y": -100, "z": 0},
-      "fixed": true
+      "layout": {"x": 0, "y": -80}
+    },
+    {
+      "id": "X",
+      "hostedBy": "w-B-O",
+      "offset": 0.2
+    },
+    {
+      "id": "V",
+      "hostedBy": "w-M-B",
+      "offset": 0.2
+    },
+    {
+      "id": "J",
+      "hostedBy": "w-M-B",
+      "offset": 0.3
+    },
+    {
+      "id": "W",
+      "hostedBy": "w-M-B",
+      "offset": 0.5
+    },
+    {
+      "id": "U",
+      "hostedBy": "w-R-M",
+      "offset": 0.3
+    },
+    {
+      "id": "G",
+      "hostedBy": "w-R-M",
+      "offset": 0.4
     }
   ],
-  "links": [
+  "wires": [
     {
-      "id": "lnk-B-O",
+      "id": "w-B-O",
       "source": "B",
       "target": "O",
-      "length": 157,
       "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
       "color": "green"
     },
     {
-      "id": "lnk-O-R",
+      "id": "w-O-R",
       "source": "O",
       "target": "R",
-      "length": 157,
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0, "z": 0},
+      "arcCenter": {"x": 0, "y": 0},
       "color": "green"
     },
     {
-      "id": "lnk-R-M",
+      "id": "w-R-M",
       "source": "R",
       "target": "M",
-      "length": 157,
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0, "z": 0},
+      "arcCenter": {"x": 0, "y": 0},
       "color": "green"
     },
     {
-      "id": "lnk-M-B",
+      "id": "w-M-B",
       "source": "M",
       "target": "B",
-      "length": 157,
       "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
       "color": "green"
     },
     {
-      "id": "lnk-F-B",
+      "id": "w-F-B",
       "source": "F",
       "target": "B",
-      "length": 100,
       "color": "black"
     },
     {
-      "id": "lnk-F-O",
+      "id": "w-F-O",
       "source": "F",
       "target": "O",
-      "length": 100,
       "color": "black"
     },
     {
-      "id": "lnk-F-R",
+      "id": "w-F-R",
       "source": "F",
       "target": "R",
-      "length": 100,
       "color": "black"
     },
     {
-      "id": "lnk-F-M",
+      "id": "w-F-M",
       "source": "F",
       "target": "M",
-      "length": 100,
       "color": "black"
     }
   ],
@@ -98,7 +117,27 @@
     {
       "id": "f2",
       "name": "F2",
-      "facets": ["lnk-F-B", "lnk-B-O", "lnk-F-O"]
+      "color": "#ecf9f2",
+      "facets": ["w-F-B", "w-B-O", "w-F-O"]
+    },
+    {
+      "id": "f1",
+      "name": "F1",
+      "color": "#d9f2e6",
+      "facets": ["w-F-O", "w-O-R", "w-F-R"]
+    },
+    {
+      "id": "f3",
+      "name": "F3",
+      "color": "#c6ecd9",
+      "facets": ["w-F-R", "w-R-M", "w-F-M"]
+    },
+    {
+      "id": "f4",
+      "name": "F4",
+      "color": "#b3e6cc",
+      "facets": ["w-F-M", "w-M-B", "w-F-B"]
     }
+
   ]
 }

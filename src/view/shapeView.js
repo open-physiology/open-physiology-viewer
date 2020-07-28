@@ -14,7 +14,7 @@ import {
     boundToPolygon,
     boundToRectangle,
     isInRange,
-    THREE
+    THREE, arcCurve
 } from "./utils";
 
 const {Region, Lyph, Border, Link} = modelClasses;
@@ -261,14 +261,35 @@ Region.prototype.translate = function (p0) {
 Region.prototype.createViewObjects = function(state) {
     if (this.facets){
         this.points = [];
-        this.facets.forEach(lnk => {
-            let pointLength = (!lnk.geometry || lnk.geometry === Link.LINK_GEOMETRY.LINK)? 2 : (lnk.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.linkResolution;
-            for (let i = 0; i < pointLength-1; i++){
-                this.points.push({x: 0, y: 0});
+        let prevAnchor = null;
+        this.facets.forEach(wire => {
+            if (!wire.source || !wire.target){
+                return;
             }
+            let start = extractCoords(wire.source.layout);
+            let end = extractCoords(wire.target.layout);
+            if (prevAnchor === wire.target.id) {
+                let tmp = start;
+                start = end;
+                end = tmp;
+                prevAnchor = wire.source.id;
+            } else {
+                prevAnchor = wire.target.id;
+            }
+            this.points.push(start);
+            if (wire.geometry === "arc"){
+                let center = extractCoords(wire.arcCenter);
+                let curve = arcCurve(start, end, center);
+                let points = curve.getPoints(state.linkResolution);
+                let first = extractCoords(points[0]);
+                if (start.clone().sub(first).length() > end.clone().sub(first).length()){
+                    points = points.reverse();
+                }
+                this.points.push(...points);
+            }
+            this.points.push(end);
         });
     }
-
     let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
     this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
     this.center = getCenterOfMass(this.points);
@@ -288,20 +309,6 @@ Region.prototype.createViewObjects = function(state) {
  * @param {Object} state - graph configuration
  */
 Region.prototype.updateViewObjects = function(state) {
-    // if (this.facets && this.facets.length > 0){
-    //     this.facets.forEach(lnk => {
-    //         lnk.updateViewObjects(state);
-    //
-    //     });
-    // }
-    // let obj = this.viewObjects['main'];
-    // let pos = obj.geometry.attributes && obj.geometry.attributes.position;
-    // if (pos) {
-    //     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => pos.array[3 * i + j] = p[dim]));
-    //     pos.needsUpdate = true;
-    //     obj.geometry.computeBoundingSphere();
-    // }
-
     this.border.updateViewObjects(state);
     this.updateLabels(state,  this.center.clone().addScalar(state.labelOffset.Region));
 };

@@ -5,7 +5,7 @@ import {copyCoords, extractCoords} from "./utils";
 import './visualResourceView';
 import './shapeView';
 
-const {Group, Link, Coalescence} = modelClasses;
+const {Group, Link, Coalescence, Scaffold} = modelClasses;
 
 /**
  * Create visual objects for group resources
@@ -62,7 +62,6 @@ Group.prototype.updateViewObjects = function(state){
 
     this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
 
-
     (this.coalescences||[]).forEach(coalescence => {
         if (coalescence.abstract || !coalescence.lyphs) { return }
         let lyph = coalescence.lyphs[0];
@@ -99,4 +98,36 @@ Group.prototype.updateViewObjects = function(state){
     });
 
     this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
+};
+
+
+/**
+ * Create visual objects for Scaffold resources
+ * @param state
+ */
+Scaffold.prototype.createViewObjects = function(state){
+    this.visibleAnchors.forEach(resource => {
+        resource.createViewObjects(state);
+        resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    });
+
+    this.visibleWires.forEach(resource => {
+        resource.createViewObjects(state);
+        resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    });
+
+    this.visibleRegions.forEach(resource => {
+        resource.createViewObjects(state);
+        resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    });
+};
+
+/**
+ * Update visual objects for group resources
+ * @param state
+ */
+Scaffold.prototype.updateViewObjects = function(state){
+    this.visibleAnchors.forEach(resource => { resource.updateViewObjects(state); });
+    this.visibleWires.forEach(resource => { resource.updateViewObjects(state); });
+    this.visibleRegions.forEach(resource => { resource.updateViewObjects(state); });
 };

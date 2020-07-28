@@ -1,0 +1,117 @@
+{
+  "id"     : "scaffold_n",
+  "name"   : "Scaffold N",
+  "author" : "Natallia Kokash",
+  "created": "2020-07-29",
+  "anchors": [
+    {
+      "id": "N",
+      "layout": {"x": 0, "y": 0}
+    },
+    {
+      "id": "H",
+      "layout": {"x": 80, "y": 0}
+    },
+    {
+      "id": "E",
+      "layout": {"x": 0, "y": 60}
+    },
+    {
+      "id": "T",
+      "layout": {"x": -80, "y": 0}
+    },
+    {
+      "id": "K",
+      "layout": {"x": 0, "y": -60}
+    },
+    {
+      "id": "C",
+      "hostedBy": "w-N-K",
+      "offset": 0.3
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-H-E",
+      "source": "H",
+      "target": "E",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "black"
+    },
+    {
+      "id": "w-E-T",
+      "source": "E",
+      "target": "T",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "black"
+    },
+    {
+      "id": "w-T-K",
+      "source": "T",
+      "target": "K",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "black"
+    },
+    {
+      "id": "w-K-H",
+      "source": "K",
+      "target": "H",
+      "geometry": "arc",
+      "arcCenter": {"x": 0, "y": 0},
+      "color": "black"
+    },
+    {
+      "id": "w-N-H",
+      "source": "N",
+      "target": "H",
+      "color": "black"
+    },
+    {
+      "id": "w-N-E",
+      "source": "N",
+      "target": "E",
+      "color": "black"
+    },
+    {
+      "id": "w-N-T",
+      "source": "N",
+      "target": "T",
+      "color": "black"
+    },
+    {
+      "id": "w-N-K",
+      "source": "N",
+      "target": "K",
+      "color": "black"
+    }
+  ],
+  "regions": [
+    {
+      "id": "n2",
+      "name": "N2",
+      "color": "#f2f2f2",
+      "facets": ["w-N-H", "w-H-E", "w-N-E"]
+    },
+    {
+      "id": "n1",
+      "name": "N1",
+      "color": "#e6e6e6",
+      "facets": ["w-N-E", "w-E-T", "w-N-T"]
+    },
+    {
+      "id": "n3",
+      "name": "N3",
+      "color": "#d9d9d9",
+      "facets": ["w-N-T", "w-T-K", "w-N-K"]
+    },
+    {
+      "id": "n4",
+      "name": "N4",
+      "color": "#cccccc",
+      "facets": ["w-N-K", "w-K-H", "w-N-H"]
+    }
+  ]
+}

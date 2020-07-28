@@ -25,6 +25,7 @@ export const $SchemaType = {
 export const $SchemaClass = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $SchemaClass::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
+export const WIRE_GEOMETRY = definitions[$SchemaClass.Wire].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LINK_GEOMETRY = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LINK_STROKE   = definitions[$SchemaClass.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const PROCESS_TYPE  = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
@@ -68,10 +69,27 @@ export const getGenID = (...args) => args.join("_");
 
 export const getGenName = (...args) => args.join(" ");
 
+/**
+ * Get resource ID
+ * @param e - resource or its identifier
+ * @returns {*} resource identifier
+ */
 export const getID  = (e) => e::isObject()? e.id : e;
 
+/**
+ * Compares resources
+ * @param e1 - identifier or a reference of the first resource
+ * @param e2 - identifier or a reference of the second resource
+ * @returns {boolean} true if resource identifier match, false otherwise
+ */
 export const compareResources  = (e1, e2) => getID(e1) === getID(e2);
 
+/**
+ * Merge resource definitions
+ * @param a - first resource or resource list
+ * @param b - second resource or resource list
+ * @returns {Resource} merged resource or a union of resource lists where resources with the same id have been merged
+ */
 export function mergeResources(a, b) {
     if (a::isArray()){
         if (b::isArray()) {
@@ -200,7 +218,6 @@ export const mergeGenResources = (group, parentGroup, level) => {
     mergeGenResource(group, parentGroup, lyph, $Field.lyphs);
 };
 
-
 /**
  * Determines if at least one of the given schema references extend a certain class
  * @param {Array<string>} refs  - schema references
@@ -243,7 +260,6 @@ const getFieldDefaultValues = (className) => {
     return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
 };
 
-
 /**
  * Recursively applies a given operation to the classes in schema definitions
  * @param {string} className - initial class
@@ -268,7 +284,9 @@ const recurseSchema = (className, handler) => {
     }
 };
 
-
+/**
+ * A class that provides helper properties for schema-based resource classes
+ */
 export class SchemaClass {
     schemaClsName;
     defaultValues = {};
@@ -334,5 +352,8 @@ export class SchemaClass {
     }
 }
 
+/**
+ * Definition of all schema-based resource classes
+ */
 export const schemaClassModels = definitions::keys().map(schemaClsName => [schemaClsName, new SchemaClass(schemaClsName)])::fromPairs();
 

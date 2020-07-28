@@ -24,11 +24,11 @@ export default Kapsule({
             default: 3,
             onChange(numDim, state) {
                 if (numDim < 3) {
-                    eraseDimension(state.graphData.visibleNodes, 'z');
+                    eraseDimension(state.graphData.visibleNodes||[], 'z');
                 }
 
                 function eraseDimension(nodes, dim) {
-                    nodes.forEach(node => {
+                    (nodes||[]).forEach(node => {
                         node[dim] = 0;          // position, set to 0 instead of deleting
                         delete node[`v${dim}`]; // velocity
                     });
@@ -47,7 +47,7 @@ export default Kapsule({
         showCoalescences : { default: false},
         showLabels       : { default: {}},
 
-        labels           : { default: {Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
+        labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize     : { default: 0.1},
         labelOffset      : { default: {Node: 5, Link: 5, Lyph: 0, Region: 0}},
         fontParams       : { default: { font: '24px Arial', fillStyle: '#000', antialias: true }},
@@ -96,11 +96,10 @@ export default Kapsule({
         state.onFrame = null; // Pause simulation
         state.onLoading();
 
-        if (state.graphData.visibleNodes.length || state.graphData.visibleLinks.length) {
-
+        if (state.graphData.visibleNodes || state.graphData.visibleLinks) {
             console.info('force-graph loading',
-                state.graphData.visibleNodes.length + ' nodes',
-                state.graphData.visibleLinks.length + ' links');
+                (state.graphData.visibleNodes||[]).length + ' nodes',
+                (state.graphData.visibleLinks||[]).length + ' links');
         }
 
         while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place
@@ -117,9 +116,9 @@ export default Kapsule({
             .alphaDecay(state.d3AlphaDecay)
             .velocityDecay(state.d3VelocityDecay)
             .numDimensions(state.numDimensions)
-            .nodes(state.graphData.visibleNodes);
+            .nodes(state.graphData.visibleNodes||[]);
 
-        layout.force('link').id(d => d.id).links(state.graphData.visibleLinks);
+        layout.force('link').id(d => d.id).links(state.graphData.visibleLinks||[]);
 
         // Initial ticks before starting to render
         for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }

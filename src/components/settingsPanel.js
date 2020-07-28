@@ -48,7 +48,7 @@ import {$Field} from "../model/utils";
 
                 <!--SciGraph search-->
                 
-                <fieldset class="w3-card w3-round w3-margin-small">
+                <fieldset *ngIf="!!groups" class="w3-card w3-round w3-margin-small">
                     <legend>SciGraph search</legend>
                     <sciGraphSearch [selected]="_selected"></sciGraphSearch>
                 </fieldset>

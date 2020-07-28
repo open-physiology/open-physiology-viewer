@@ -74,7 +74,7 @@ const WindowResize = require('three-window-resize');
                     <canvas #canvas> </canvas>
                 </section>
             </section>
-            <section id="apiLayoutSettingsPanel" *ngIf="showPanel" class="w3-quarter">
+            <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
                         [config]="config"
                         [selected]="_selected"
@@ -92,7 +92,7 @@ const WindowResize = require('three-window-resize');
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
             </section>
-        </section>
+        </section> 
     `,
     styles: [` 
 
@@ -152,6 +152,7 @@ export class WebGLSceneComponent {
     scaleFactor    = 8; //TODO make this a graph parameter with complete layout update on change
     labelRelSize   = 0.1 * this.scaleFactor;
     lockControls   = false;
+    isConnectivity = true;
 
     @Input() modelClasses;
 
@@ -160,7 +161,9 @@ export class WebGLSceneComponent {
             this._graphData = newGraphData;
             this.config = (this._graphData.config||{})::defaults(this.defaultConfig);
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
-            this._graphData.showGroups(new Set(this._graphData.findGeneratedFromIDs(this.config.showGroups)));
+            if (this.graphData instanceof this.modelClasses.Graph) {
+                this._graphData.showGroups(new Set(this._graphData.findGeneratedFromIDs(this.config.showGroups)));
+            }
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.scaleFactor);
             this.selected = null;
@@ -212,6 +215,8 @@ export class WebGLSceneComponent {
             },
             "groups": true,
             "labels": {
+                "Wire"  : false,
+                "Anchor": false,
                 "Node"  : false,
                 "Link"  : false,
                 "Lyph"  : false,
@@ -395,7 +400,6 @@ export class WebGLSceneComponent {
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
     }
-
 
     getMouseOverEntity() {
         if (!this.graph) { return; }

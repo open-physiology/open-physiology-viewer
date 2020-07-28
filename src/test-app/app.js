@@ -15,7 +15,7 @@ import { RelGraphModule } from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses, schema} from '../model/index';
+import { modelClasses, schema, excelToJSON, fromJSON} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -28,7 +28,6 @@ import "./styles/material.scss";
 import * as XLSX from 'xlsx';
 import {$Field, mergeResources} from "../model/utils";
 
-const {Graph} = modelClasses;
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -269,7 +268,7 @@ export class TestApp {
                 if(roa.length) { model[sheetName] = roa; }
             });
             model[$Field.id] = name;
-            this.model = modelClasses.Graph.excelToJSON(model, this.modelClasses);
+            this.model = excelToJSON(model);
         } else {
             if (extension === "json") {
                 if (content::isString()){
@@ -324,32 +323,15 @@ export class TestApp {
         }
     }
 
-    //TODO fix me
-    secureMerge(files) {
-        if (files && files[0]){
-            const reader = new FileReader();
-            reader.onload = () => {
-                let newModel = JSON.parse(reader.result);
-                let newGraph = Graph.fromJSON(newModel, this.modelClasses);
-                //this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, merger));
-            };
-            try {
-                reader.readAsText(files[0]);
-            } catch (err){
-                throw new Error("Failed to open the input file: " + err);
-            }
-        }
-    }
-
     applyJSONEditorChanges() {
         if (this._editor){
-            this._graphData = Graph.fromJSON({}, this.modelClasses);
+            this._graphData = fromJSON({});
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
     }
 
     applyTableEditorChanges(){
-        this._graphData = Graph.fromJSON({}, this.modelClasses);
+        this._graphData = fromJSON({});
         this._model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
         this.model = this._model;
     }
@@ -366,11 +348,11 @@ export class TestApp {
 
 	set model(model){
         this._model = model;
-        try{
-            this._graphData = Graph.fromJSON(this._model, this.modelClasses);
-        } catch(err){
-            throw new Error(err);
-        }
+        //try{
+            this._graphData = fromJSON(this._model);
+        //} catch(err){
+        //    throw new Error(err);
+        //}
         if (this._editor){
             this._editor.set(this._model);
         }

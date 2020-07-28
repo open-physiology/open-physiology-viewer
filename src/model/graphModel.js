@@ -56,7 +56,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
             scm["$ref"] == "#/definitions/IdentifierScheme" ||
                 scm.items && schemaIsId(scm.items) ||
                 scm.anyOf && scm.anyOf.filter(schemaIsId).length !== 0);
-    };
+    }
 
     if (schema.definitions) {
         schema.definitions::entries()
@@ -76,7 +76,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
         }
     }
     return context;
-};
+}
 
 let schemaContext = schemaToContext(schema, {});
 
@@ -374,7 +374,7 @@ export class Graph extends Group{
             [sNode, tNode].forEach(node => this.nodes.push(node));
         };
 
-        let internalLyphsWithNoAxis = [...(this.lyphs||[]), ...(this.regions||[])].filter(lyph => lyph.internalIn && !lyph.axis);
+        let internalLyphsWithNoAxis = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
         internalLyphsWithNoAxis.forEach(lyph => createAxis(lyph));
         if (internalLyphsWithNoAxis.length > 0){
             logger.info("Generated links for internal lyphs", internalLyphsWithNoAxis.map(x => x.id));

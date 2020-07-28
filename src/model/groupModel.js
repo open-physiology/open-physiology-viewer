@@ -38,6 +38,10 @@ export class Group extends Resource {
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
 
+        (json.regions||[]).forEach(region => {
+            modelClasses.Region.expandTemplate(json, region);
+        });
+
         //create group resources from templates
         this.expandGroupTemplates(json, modelClasses);
 
@@ -533,13 +537,14 @@ export class Group extends Resource {
         this.resources.forEach(entity => delete entity.hidden);
     }
 
+    /**
+     * Find groups generated from given resource IDs
+     * @param ids - resource IDs
+     * @returns {*}
+     */
     findGeneratedFromIDs(ids){
         if (!ids || !ids::isArray()) {return [];}
         return (this.groups||[]).filter(g => ids.find(id => g.isGeneratedFromID(id)));
-    }
-
-    isGeneratedFromID(id){
-        return (this.id === id) || (this.generatedFrom && this.generatedFrom.id === id);
     }
 
     /**

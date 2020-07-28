@@ -27,6 +27,18 @@ export class VisualResource extends Resource{
 }
 
 /**
+ * The class to represent scaffold anchor points
+ */
+export class Anchor extends VisualResource {
+}
+
+/**
+ * The class to represent scaffold wires
+ */
+export class Wire extends VisualResource {
+}
+
+/**
  *  The class to visualize Node resources in the force-directed graphs
  * @class
  * @property {number} val
@@ -66,10 +78,6 @@ export class Node extends VisualResource {
             (this.hostedBy && this.hostedBy.isVisible) ||
             (this.internalIn && this.internalIn.isVisible));
     }
-
-    // get isVisible(){
-    //     return super.isVisible && (!this.hostedBy || this.hostedBy.isVisible) || (!this.internalIn || this.internalIn.isVisible);
-    // }
 }
 
 /**
@@ -120,7 +128,6 @@ export class Link extends VisualResource {
     get isVisible(){
         return (this.onBorder? this.onBorder.isVisible : super.isVisible) && this.source && this.source.isVisible && this.target && this.target.isVisible;
     }
-
 }
 
 /**

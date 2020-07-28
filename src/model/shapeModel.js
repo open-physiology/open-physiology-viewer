@@ -9,8 +9,10 @@ import {
     findResourceByID,
     getNewID,
     LYPH_TOPOLOGY,
+    WIRE_GEOMETRY,
     mergeResources
 } from './utils';
+import {THREE} from "../view/utils";
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -324,9 +326,7 @@ export class Region extends Shape {
      * @returns {Shape} - ApiNATOMY Shape resource
      */
     static fromJSON(json, modelClasses = {}, entitiesByID) {
-
-
-        if (!json.points || json.points.length < 3) {
+        if (!json.points || (json.points.length < 3)) {
             json.points = [
                 {"x": -10, "y": -10 },
                 {"x": -10, "y":  10 },
@@ -339,6 +339,29 @@ export class Region extends Shape {
         res.points.push(res.points[0]::clone()); //make closed shape
         return res;
     }
+
+    static validateTemplate(json, template){
+        if (template.facets){
+            template.points = [];
+            template.facets.forEach(wireRef => {
+                let wire = findResourceByID(json.wires, wireRef);
+                if (!wire || !wire.source || !wire.target){
+                    logger.warn("Incorrectly defined region facets, skipping definition", wire);
+                    return;
+                }
+                let sourceAnchor = findResourceByID(json.anchors, wire.source);
+                let targetAnchor = findResourceByID(json.anchors, wire.target);
+                if (!sourceAnchor || !targetAnchor){
+                    logger.warn("Incorrectly defined region facets, source or target anchors not defined, skipping definition", wire.source, wire.target);
+                    return;
+                }
+                if (!sourceAnchor.layout || !targetAnchor.layout){
+                    logger.warn("Incorrectly defined region facets, source or target anchor layout not defined, skipping definition", wire.source, wire.target);
+                    return;
+                }
+            });
+        }
+    }
 }
 
 /**
@@ -346,6 +369,7 @@ export class Region extends Shape {
  * @class
  * @property host
  * @property borders
+ *
  */
 export class Border extends VisualResource {
     get isVisible(){
