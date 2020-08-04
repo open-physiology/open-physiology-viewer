@@ -5,7 +5,7 @@ import {copyCoords, extractCoords} from "./utils";
 import './visualResourceView';
 import './shapeView';
 
-const {Group, Link, Coalescence, Scaffold} = modelClasses;
+const {Group, Link, Coalescence, Component} = modelClasses;
 
 /**
  * Create visual objects for group resources
@@ -105,7 +105,7 @@ Group.prototype.updateViewObjects = function(state){
  * Create visual objects for Scaffold resources
  * @param state
  */
-Scaffold.prototype.createViewObjects = function(state){
+Component.prototype.createViewObjects = function(state){
     this.visibleAnchors.forEach(resource => {
         resource.createViewObjects(state);
         resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
@@ -126,7 +126,7 @@ Scaffold.prototype.createViewObjects = function(state){
  * Update visual objects for group resources
  * @param state
  */
-Scaffold.prototype.updateViewObjects = function(state){
+Component.prototype.updateViewObjects = function(state){
     this.visibleAnchors.forEach(resource => { resource.updateViewObjects(state); });
     this.visibleWires.forEach(resource => { resource.updateViewObjects(state); });
     this.visibleRegions.forEach(resource => { resource.updateViewObjects(state); });

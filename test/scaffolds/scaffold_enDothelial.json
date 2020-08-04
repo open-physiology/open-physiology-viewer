@@ -1,0 +1,44 @@
+{
+  "id"     : "scaffold_d",
+  "name"   : "Scaffold D",
+  "author" : "Natallia Kokash",
+  "created": "2020-07-29",
+  "anchors": [
+    {
+      "id": "L",
+      "name": "LUNG CAPILLARY"
+    },
+    {
+      "id": "P",
+      "name": "PULMONARY"
+    },
+    {
+      "id": "S",
+      "name": "SYSTEMIC CAPILLARY"
+    },
+    {
+      "id": "A",
+      "name": "AORTIC"
+    }
+  ],
+  "regions": [
+    {
+      "id": "spleen",
+      "name": "Spleen",
+      "color": "lightpink",
+      "points": [
+        {"x": -50, "y": 40},
+        {"x": -50, "y": 50},
+        {"x": -40, "y": 50},
+        {"x": -40, "y": 40}
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id"  : "regions",
+      "name": "Regions",
+      "regions": ["d1", "d2", "d3", "d4"]
+    }
+  ]
+}

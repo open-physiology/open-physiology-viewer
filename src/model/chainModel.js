@@ -151,6 +151,7 @@ export class Chain extends GroupTemplate {
                     [$Field.conveyingType]      : chain.conveyingType || Link.PROCESS_TYPE.ADVECTIVE,
                     [$Field.conveyingMaterials] : conveyingMaterials,
                     [$Field.color]              : $Color.Link,
+                    [$Field.skipLabel]          : true,
                     [$Field.generated]          : true
                 };
                 if (chain.length){
@@ -250,6 +251,7 @@ export class Chain extends GroupTemplate {
                     [$Field.target]    : getID(sources[i + 1]),
                     [$Field.levelIn]   : chain.id,
                     [$Field.color]     : $Color.Link,
+                    [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 });
                 if (chain.length){
@@ -267,6 +269,7 @@ export class Chain extends GroupTemplate {
                         [$Field.supertype]  : chain.lyphTemplate,
                         [$Field.conveys]    : chain.levels[i].id,
                         [$Field.topology]   : getTopology(i, N, template),
+                        [$Field.skipLabel]  : true,
                         [$Field.generated]  : true
                     };
                     chain.levels[i].conveyingLyph = lyph.id;
@@ -362,7 +365,11 @@ export class Chain extends GroupTemplate {
                 if (i === chain.housingLyphs.length - 1){
                     addInternalNode(hostLyph, level.target);
                 } else {
-                    let targetNode = findResourceByID(parentGroup.nodes, level.target) || {[$Field.id]: level.target};
+                    let targetNode = findResourceByID(parentGroup.nodes, level.target) || {
+                        [$Field.id] : level.target,
+                        [$Field.skipLabel] : true,
+                        [$Field.generated] : true
+                    };
                     let targetClone = Node.clone(targetNode);
                     addBorderNode(hostLyph.border.borders[1], targetClone.id);
                     let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);

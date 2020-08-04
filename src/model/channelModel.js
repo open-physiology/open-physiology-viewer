@@ -103,6 +103,7 @@ export class Channel extends GroupTemplate {
             let lyph = {
                 [$Field.id]       : getGenID(channel.id, $Prefix.lyph, mcLyphs[i].id),
                 [$Field.supertype]: mcLyphs[i].id,
+                [$Field.skipLabel]: true,
                 [$Field.generated]: true
             };
 
@@ -117,12 +118,12 @@ export class Channel extends GroupTemplate {
                 [$Field.conveyingType]: channel.conveyingType || Link.PROCESS_TYPE.DIFFUSIVE,
                 [$Field.conveyingMaterials]: channel.materials,
                 [$Field.color]        : $Color.Link,
+                [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
             };
             if (channel.length){
                 link.length = channel.length / CHANNEL_LENGTH;
             }
-
             mergeGenResource(channel.group, parentGroup, lyph, $Field.lyphs);
             mergeGenResource(channel.group, parentGroup, link, $Field.links);
         }
@@ -197,6 +198,7 @@ export class Channel extends GroupTemplate {
         function createInstance(parentLyph) {
             let instance = {
                 [$Field.id]        : getGenID(channel.id, $Prefix.instance, parentLyph),
+                [$Field.skipLabel] : true,
                 [$Field.generated] : true
             };
             [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
@@ -212,6 +214,7 @@ export class Channel extends GroupTemplate {
             }
             let src = {
                 [$Field.id]: getGenID(baseSrc.id, parentLyph),
+                [$Field.skipLabel]: true,
                 [$Field.generated]: true
             };
             Node.clone(baseSrc, src);
@@ -225,6 +228,7 @@ export class Channel extends GroupTemplate {
                 let baseLyph = findResourceByID(parentGroup.lyphs, baseLnk.conveyingLyph);
                 let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r ? {
                     [$Field.id]: getGenID(r.id, parentLyph),
+                    [$Field.skipLabel]: true,
                     [$Field.generated]: true
                 } : r));
                 lnk.source = prev_id;
@@ -272,6 +276,7 @@ export class Channel extends GroupTemplate {
                 let layerCoalescence = {
                     [$Field.id]       : getGenID(layer.id, $Prefix.channel, instance.lyphs[i]),
                     [$Field.generated]: true,
+                    [$Field.skipLabel]: true,
                     [$Field.topology] : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                     [$Field.lyphs]    : [layer.id, instance.lyphs[i]]
                 };

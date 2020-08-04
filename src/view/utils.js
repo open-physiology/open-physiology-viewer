@@ -445,6 +445,22 @@ export function getCenterPoint(mesh) {
 }
 
 /**
+ * Computes a default control point for quadratic Bezier curve
+ * @param startV
+ * @param endV
+ * @returns {Vector}
+ */
+export function getDefaultControlPoint(startV, endV){
+    if (!startV || !endV){
+        return new THREE.Vector3();
+    }
+    let edgeV  = endV.clone().sub(startV);
+    let pEdgeV = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
+    let center = startV.clone().add(endV).multiplyScalar(0.5);
+    return center.add(pEdgeV.multiplyScalar(0.25));
+}
+
+/**
  * Get bounding box for a mesh geometry
  * @param {Mesh} mesh  triangular polygon mesh based object
  * @returns {Box3}     bounding box for the mesh geometry

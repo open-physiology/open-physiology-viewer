@@ -32,15 +32,23 @@ export class Group extends Resource {
             return super.fromJSON(json, modelClasses, entitiesByID);
         }
 
+        //Regions in groups are simple areas, facets and anchors can be used in scaffolds only
+        (json.regions||[]).forEach(region => {
+            if ((region.facets||[]).length > 0){
+                logger.warn("Removed facets from region definition in group", json.id, region.id, region.facets);
+            }
+            delete region.facets;
+            if ((region.internalAnchors||[]).length > 0){
+                logger.warn("Removed internal anchors from region definition in group", json.id, region.id, region.internalAnchors);
+            }
+            delete region.internalAnchors;
+        });
+
         //correct lyph definitions by marking layers of templates as templates
         modelClasses.Lyph.markAsTemplate(json.lyphs);
 
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
-
-        (json.regions||[]).forEach(region => {
-            modelClasses.Region.expandTemplate(json, region);
-        });
 
         //create group resources from templates
         this.expandGroupTemplates(json, modelClasses);
@@ -116,6 +124,7 @@ export class Group extends Resource {
                         [$Field.isTemplate]    : true,
                         [$Field.materials]     : [material.id],
                         [$Field.generatedFrom] : material.id,
+                        [$Field.skipLabel]     : true,
                         [$Field.generated]     : true
                     };
                     template::merge(material::pick([$Field.name, $Field.external, $Field.color]));
@@ -136,6 +145,7 @@ export class Group extends Resource {
                     [$Field.id]        : getGenID($Prefix.template, ref, parent.id),
                     [$Field.name]      : template.name,
                     [$Field.supertype] : template.id,
+                    [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 };
                 if (!findResourceByID(json.lyphs, subtype.id)){
@@ -253,7 +263,11 @@ export class Group extends Resource {
     static getOrCreateNode(nodes, nodeID){
         let node  = (nodes||[]).find(e => e.id === nodeID);
         if (!node){
-            node = {[$Field.id]: nodeID};
+            node = {
+                [$Field.id]: nodeID,
+                [$Field.skipLabel]: true,
+                [$Field.generated]: true
+            };
             if (!nodes){ nodes = []; }
             nodes.push(node);
         }
@@ -288,7 +302,11 @@ export class Group extends Resource {
                 let prev = nodeID;
                 hostLyphs.forEach((hostLyph, i) => {
                     if (i < 1) { return; }
-                    let nodeClone = {[$Field.id]: getGenID(nodeID, $Prefix.clone, i)};
+                    let nodeClone = {
+                        [$Field.id]: getGenID(nodeID, $Prefix.clone, i),
+                        [$Field.skipLabel]: true,
+                        [$Field.generated]: true
+                    };
                     modelClasses.Node.clone(node, nodeClone);
                     json.nodes.push(nodeClone);
 
@@ -335,7 +353,11 @@ export class Group extends Resource {
                 let allSourceLinks = [];
 
                 hostLyphs.forEach((hostLyph, i) => {
-                    let nodeClone = {[$Field.id]: getGenID(nodeID, $Prefix.join, i)};
+                    let nodeClone = {
+                        [$Field.id]: getGenID(nodeID, $Prefix.join, i),
+                        [$Field.skipLabel]: true,
+                        [$Field.generated]: true
+                    };
                     modelClasses.Node.clone(node, nodeClone);
                     json.nodes.push(nodeClone);
                     let k = hostLyph.internalNodes.indexOf(nodeID);

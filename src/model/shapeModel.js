@@ -45,6 +45,7 @@ export class Shape extends VisualResource {
                 [$Field.source]   : { id: getGenID($Prefix.source, id) },
                 [$Field.target]   : { id: getGenID($Prefix.target, id) },
                 [$Field.geometry] : Link.LINK_GEOMETRY.INVISIBLE,
+                [$Field.skipLabel]: true,
                 [$Field.generated]: true
             });
         }
@@ -135,7 +136,7 @@ export class Lyph extends Shape {
         if (!sourceLyph) { return; }
         targetLyph = targetLyph || {};
         if (!lyphs) {lyphs = [];}
-
+ 
         if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
             //expand the supertype - the sourceLyph may need to get its layers from the supertype first
             let supertype = findResourceByID(lyphs, sourceLyph.supertype);
@@ -188,6 +189,7 @@ export class Lyph extends Shape {
             targetLayer = targetLayer::merge({
                 [$Field.id]        : getGenID(sourceLayer.id, targetLyph.id, i+1),
                 [$Field.name]      : getGenName(sourceLayer.name || '?', "in", targetLyph.name || '?', "layer", i+1),
+                [$Field.skipLabel] : true,
                 [$Field.generated] : true
             });
             lyphs.push(targetLayer);

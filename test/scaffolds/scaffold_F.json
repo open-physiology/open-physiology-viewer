@@ -6,53 +6,64 @@
   "anchors": [
     {
       "id": "F",
-      "layout": {"x": 0, "y": 0}
+      "layout": {"x": 0, "y": 0},
+      "color": "orange"
     },
     {
       "id": "R",
-      "layout": {"x": -100, "y": 0}
+      "layout": {"x": -100, "y": 0},
+      "color": "red"
     },
     {
       "id": "O",
-      "layout": {"x": 0, "y": 80}
+      "layout": {"x": 0, "y": 80},
+      "color": "red"
     },
     {
       "id": "B",
-      "layout": {"x": 100, "y": 0}
+      "layout": {"x": 100, "y": 0},
+      "color": "red"
     },
     {
       "id": "M",
-      "layout": {"x": 0, "y": -80}
+      "layout": {"x": 0, "y": -80},
+      "color": "red"
     },
     {
       "id": "X",
       "hostedBy": "w-B-O",
-      "offset": 0.2
+      "offset": 0.2,
+      "color": "green"
     },
     {
       "id": "V",
       "hostedBy": "w-M-B",
-      "offset": 0.2
+      "offset": 0.2,
+      "color": "green"
     },
     {
       "id": "J",
       "hostedBy": "w-M-B",
-      "offset": 0.3
+      "offset": 0.3,
+      "color": "green"
     },
     {
       "id": "W",
       "hostedBy": "w-M-B",
-      "offset": 0.5
+      "offset": 0.5,
+      "color": "green"
     },
     {
       "id": "U",
       "hostedBy": "w-R-M",
-      "offset": 0.3
+      "offset": 0.3,
+      "color": "green"
     },
     {
       "id": "G",
       "hostedBy": "w-R-M",
-      "offset": 0.4
+      "offset": 0.4,
+      "color": "green"
     }
   ],
   "wires": [
@@ -115,14 +126,14 @@
   ],
   "regions": [
     {
-      "id": "f2",
-      "name": "F2",
+      "id": "f1",
+      "name": "F1",
       "color": "#ecf9f2",
       "facets": ["w-F-B", "w-B-O", "w-F-O"]
     },
     {
-      "id": "f1",
-      "name": "F1",
+      "id": "f2",
+      "name": "F2",
       "color": "#d9f2e6",
       "facets": ["w-F-O", "w-O-R", "w-F-R"]
     },
@@ -138,6 +149,12 @@
       "color": "#b3e6cc",
       "facets": ["w-F-M", "w-M-B", "w-F-B"]
     }
-
+  ],
+  "components": [
+    {
+      "id"  : "regions",
+      "name": "Regions",
+      "regions": ["f1", "f2", "f3", "f4"]
+    }
   ]
 }

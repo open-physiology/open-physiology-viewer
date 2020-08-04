@@ -10,7 +10,8 @@ import {
     rectangleCurve,
     arcCurve,
     getPoint,
-    getCenterOfMass
+    getCenterOfMass,
+    getDefaultControlPoint
 } from "./utils";
 
 import './lines/Line2.js';
@@ -23,7 +24,6 @@ const {VisualResource, Link, Node, Anchor, Wire} = modelClasses;
  * @param {Object} state - graph configuration, relevant parameters: fontParams
  */
 VisualResource.prototype.createLabels = function(state){
-
     if (this.skipLabel || !state.showLabels) { return; }
     let labelKey = state.labels[this.constructor.name];
     this.labels = this.labels || {};
@@ -121,6 +121,11 @@ Node.prototype.updateViewObjects = function(state) {
 
     this.updateLabels(state, this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
 };
+
+Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
+    get: function() { return 0; }
+});
+
 
 /**
  * Create visual objects for a link
@@ -271,6 +276,10 @@ Link.prototype.updateViewObjects = function(state) {
     this.center = getPoint(curve, _start, _end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
 
+    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+        this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
+    }
+
     //Merge nodes of a collapsible link
     if (this.collapsible){
           if (!this.source.isConstrained && !this.target.isConstrained) {
@@ -345,10 +354,6 @@ Link.prototype.updateViewObjects = function(state) {
     }
 };
 
-Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
-    get: function() { return 0; }
-});
-
 Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
     get: function() {
         return Math.min(...["source", "target"].map(prop => this[prop]?
@@ -356,7 +361,10 @@ Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
     }
 });
 
-
+/**
+ * Create visual resources for an anchor
+ * @param state
+ */
 Anchor.prototype.createViewObjects = function(state){
     if (!this.viewObjects["main"]) {
         let geometry = new THREE.CircleGeometry(10);
@@ -374,6 +382,10 @@ Anchor.prototype.createViewObjects = function(state){
     this.createLabels(state);
 };
 
+/**
+ * Update visual resources for an anchor
+ * @param state
+ */
 Anchor.prototype.updateViewObjects = function(state) {
     if (!this.viewObjects["main"] ||
         (!this.skipLabel && !this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
@@ -404,3 +416,145 @@ Anchor.prototype.updateViewObjects = function(state) {
     copyCoords(this.viewObjects["main"].position, this);
     this.updateLabels(state, this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
 };
+
+
+Object.defineProperty(Anchor.prototype, "polygonOffsetFactor", {
+    get: function() { return 0; }
+});
+
+/**
+ * Create visual objects for a wire
+ * @param state
+ */
+Wire.prototype.createViewObjects = function(state){
+
+    if (!this.viewObjects["main"]) {
+        let material;
+        if (this.stroke === Link.LINK_STROKE.DASHED) {
+            material = MaterialFactory.createLineDashedMaterial({color: this.color});
+        } else {
+            //Thick lines
+            if (this.stroke === Link.LINK_STROKE.THICK) {
+                // Line 2 method: draws thick lines
+                material = MaterialFactory.createLine2Material({
+                    color: this.color,
+                    lineWidth: this.lineWidth,
+                    polygonOffsetFactor: this.polygonOffsetFactor
+                });
+            } else {
+                //Normal lines
+                material = MaterialFactory.createLineBasicMaterial({
+                    color: this.color,
+                    polygonOffsetFactor: this.polygonOffsetFactor
+                });
+            }
+        }
+
+        let geometry, obj;
+        if (this.stroke === Link.LINK_STROKE.THICK) {
+            geometry = new THREE.LineGeometry();
+            obj = new THREE.Line2(geometry, material);
+        } else {
+            //Thick lines
+            if (this.stroke === Link.LINK_STROKE.DASHED) {
+                geometry = new THREE.Geometry();
+            } else {
+                geometry = new THREE.BufferGeometry();
+            }
+            obj = new THREE.Line(geometry, material);
+        }
+        // Edge bundling breaks a link into 66 points
+        this.pointLength = (!this.geometry || this.geometry === Link.LINK_GEOMETRY.LINK)? 2 : state.linkResolution;
+        if (this.stroke === Link.LINK_STROKE.DASHED) {
+            geometry.vertices = new Array(this.pointLength);
+            for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
+        } else {
+            //Buffered geometry
+            if (this.stroke !== Link.LINK_STROKE.THICK){
+                geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
+            }
+        }
+
+        obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
+        obj.userData = this;   // Attach link data
+        this.viewObjects["main"] = obj;
+    }
+
+    //Wire label
+    this.createLabels(state);
+};
+
+/**
+ * Update visual objects for a wire
+ * @param state
+ */
+Wire.prototype.updateViewObjects = function(state) {
+    const updateCurve = (start, end) => {
+        let curve = new THREE.Line3(start, end);
+        switch (this.geometry) {
+            case Link.LINK_GEOMETRY.ARC:
+                curve = arcCurve(start, end, extractCoords(this.arcCenter));
+                break;
+            case Link.LINK_GEOMETRY.SPLINE:
+                let control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
+                curve = new THREE.QuadraticBezierCurve3(start, control, end);
+        }
+        return curve;
+    };
+
+    if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
+        this.createViewObjects(state);
+    }
+    const obj = this.viewObjects["main"];
+
+    let _start = extractCoords(this.source);
+    let _end   = extractCoords(this.target);
+
+    let curve = updateCurve(_start, _end);
+    this.center = getPoint(curve, _start, _end, 0.5);
+    this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
+
+    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+        this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
+    }
+
+    (this.hostedAnchors||[]).forEach((anchor, i) => {
+        let d_i = anchor.offset? anchor.offset: 1. / (this.hostedAnchors.length + 1) * (i + 1);
+        let pos = getPoint(curve, _start, _end, d_i);
+        pos = new THREE.Vector3(pos.x, pos.y, 0); //Arc wires are rendered in 2d
+        copyCoords(anchor, pos);
+        copyCoords(anchor.viewObjects["main"].position, anchor);
+    });
+
+    this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Link));
+
+    //Do not update wires?
+
+    if (obj) {
+        if (this.stroke === Link.LINK_STROKE.THICK){
+            let coordArray = [];
+            this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
+            obj.geometry.setPositions(coordArray);
+        } else {
+            if (obj && this.stroke === Link.LINK_STROKE.DASHED) {
+                obj.geometry.setFromPoints(this.points);
+                obj.geometry.verticesNeedUpdate = true;
+                obj.computeLineDistances();
+            } else {
+                let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
+                if (linkPos) {
+                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    linkPos.needsUpdate = true;
+                    obj.geometry.computeBoundingSphere();
+                }
+            }
+        }
+    }
+};
+
+Object.defineProperty(Wire.prototype, "polygonOffsetFactor", {
+    get: function() {
+        return Math.min(...["source", "target"].map(prop => this[prop]?
+            (this[prop].polygonOffsetFactor || 0) - 1: 0));
+    }
+});

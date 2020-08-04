@@ -1,12 +1,14 @@
 import {Resource} from "./resourceModel";
+import {Component} from "./componentModel";
 import {Validator} from "jsonschema";
 import * as schema from "./graphScheme";
 import {logger} from "./logger";
 import {cloneDeep, defaults, entries, isNumber, isObject, keys} from "lodash-bound";
 import {$Field, $SchemaClass} from "./utils";
 import {$GenEventMsg} from "./genEvent";
+import * as jsonld from "jsonld";
 
-export class Scaffold extends Resource {
+export class Scaffold extends Component {
 
     /**
      * Create expanded Graph model from the given JSON input model
@@ -27,10 +29,6 @@ export class Scaffold extends Resource {
         //Copy existing entities to a map to enable nested model instantiation
         let entitiesByID = {waitingList: {}};
 
-        (model.regions||[]).forEach(region => {
-            modelClasses.Region.validateTemplate(model, region);
-        });
-
         //Create scaffold
         let res = super.fromJSON(model, modelClasses, entitiesByID);
 
@@ -43,6 +41,7 @@ export class Scaffold extends Resource {
                 if (clsName && !modelClasses[clsName].Model.schema.abstract) {
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]: id,
+                        [$Field.skipLabel] : true,
                         [$Field.generated]: true
                     }, modelClasses, entitiesByID);
 
@@ -94,30 +93,6 @@ export class Scaffold extends Resource {
         (this.regions||[]).filter(region => region.points).forEach(region => region.points.forEach(p => scalePoint(p)));
     }
 
-    /**
-     * Visible anchors
-     * @returns {*[]}
-     */
-    get visibleAnchors(){
-        return (this.anchors||[]).filter(e => e.isVisible);
-    }
-
-    /**
-     * Visible wires
-     * @returns {*[]}
-     */
-    get visibleWires(){
-        return (this.wires||[]).filter(e => e.isVisible);
-    }
-
-    /**
-     * Visible regions
-     * @returns {*[]}
-     */
-    get visibleRegions(){
-        return (this.regions||[]).filter(e => e.isVisible);
-    }
-
     static excelToJSON(inputModel, modelClasses = {}){
     }
 
@@ -132,5 +107,24 @@ export class Scaffold extends Resource {
         (this.entitiesByID||{})::entries().forEach(([id,obj]) =>
             res.resources[id] = (obj instanceof Resource) ? obj.toJSON() : obj);
         return res;
+    }
+
+    /**
+     * Serialize the map of all resources to flattened jsonld
+     */
+    entitiesToJSONLDFlat(callback){
+        let res = this.entitiesToJSONLD();
+        let context = {};
+        res['@context']::entries().forEach(([k, v]) => {
+            if (v::isObject() && "@id" in v && v["@id"].includes("apinatomy:")) {
+            } else if (typeof(v) === "string" && v.includes("apinatomy:")) {
+            } else if (k === "class") { // class uses @context @base which is not 1.0 compatible
+            } else {
+                context[k] = v;
+            }});
+        // TODO reattach context for rdflib-jsonld prefix construction
+        jsonld.flatten(res).then(flat => {
+            jsonld.compact(flat, context).then(compact => {
+                callback(compact)})});
     }
 }

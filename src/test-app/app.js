@@ -15,7 +15,7 @@ import { RelGraphModule } from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import { StopPropagation } from "../components/stopPropagation";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses, schema, excelToJSON, fromJSON} from '../model/index';
+import { modelClasses, schema, excelToJSON, fromJSON, joinModels} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -211,6 +211,7 @@ export class TestApp {
     constructor(dialog: MatDialog){
         this.model = initModel;
         this._dialog = dialog;
+        this.isJoint = false;
     }
 
     ngAfterViewInit(){
@@ -227,8 +228,10 @@ export class TestApp {
     newModel(){
         this._fileName = "";
         this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate};
+        this.isJoint = false;
     }
 
+    // noinspection JSMethodCanBeStatic
     get currentDate(){
         let today = new Date();
         let [yyyy, mm, dd] = [today.getFullYear(), (today.getMonth()+1), today.getDate()];
@@ -278,6 +281,7 @@ export class TestApp {
                 }
             }
         }
+        this.isJoint = false;
     }
 
     loadFromRepo({fileName, fileContent}){
@@ -290,15 +294,11 @@ export class TestApp {
         if (files && files[0]){
             const reader = new FileReader();
             reader.onload = () => {
-
                 let newModel = JSON.parse(reader.result);
-                let newConfig = (this._model.config||{})::merge(newModel.config);
-                schema.definitions.Graph.properties::keys().forEach(property => {
-                    delete newModel[property];
-                    delete this._model[property];
-                });
-                newConfig::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
-                this.model = {[$Field.groups]: [this._model, newModel], [$Field.config]: newConfig};
+                let jointModel = joinModels(this._model, newModel, this.isJoint);
+                this.isJoint = true;
+                jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+                this.model = jointModel;
             };
             try {
                 reader.readAsText(files[0]);

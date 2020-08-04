@@ -735,7 +735,6 @@
         "lineWidth"    : {
           "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
           "type": "number",
-          "default": "0.003",
           "advanced": true
         },
         "strength"     : {
@@ -1104,9 +1103,21 @@
           "type": "string",
           "enum": [
             "link",
-            "arc"
+            "arc",
+            "spline"
           ],
           "default": "link"
+        },
+        "controlPoint" : {
+          "description": "Control point for the spline wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ]
         },
         "stroke"        : {
           "description": "Wire stroke",
@@ -1148,7 +1159,8 @@
       },
       "dependencies" : {
         "lineWidth": ["stroke"],
-        "arcCenter": ["geometry"]
+        "arcCenter": ["geometry"],
+        "controlPoint": ["geometry"]
       }
     },
     "Region"  : {
@@ -1896,9 +1908,7 @@
     },
     "Group" : {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
-      "allOf":[{
-        "$ref": "#/definitions/Resource"
-      }],
+      "allOf":[{"$ref": "#/definitions/Resource"},{"$ref": "#/definitions/AnnotationSchema"}],
       "properties": {
         "inactive": {
           "description": "A boolean flag to indicate that this group should not appear in the view panel",
@@ -2077,6 +2087,20 @@
           ],
           "readOnly": true
         },
+        "scaffolds":{
+          "description": "Layout scaffolds that define connectivity graph layout",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Scaffold"
+          },
+          "advanced": true
+        }
+      }
+    },
+    "Component": {
+      "description": "Scaffold component includes resources to describe graphical layout for connectivity models",
+      "allOf":[{"$ref": "#/definitions/Resource"}, {"$ref": "#/definitions/AnnotationSchema"}],
+      "properties": {
         "anchors": {
           "description": "Scaffold anchor points",
           "type": "array",
@@ -2092,12 +2116,35 @@
             "$ref": "#/definitions/Wire"
           },
           "default": []
+        },
+        "regions": {
+          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Region"
+          }
+        },
+        "components": {
+          "description": "Nested components",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Component"
+              }
+            ]
+          },
+          "advanced": true,
+          "default": []
         }
       }
     },
     "Graph" : {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "allOf": [ {"$ref": "#/definitions/Group"}, {"$ref": "#/definitions/AnnotationSchema"} ],
+      "allOf": [ {"$ref": "#/definitions/Group"}],
       "properties": {
         "config": {
           "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
@@ -2124,31 +2171,8 @@
     },
     "Scaffold" : {
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
-      "allOf":[{"$ref": "#/definitions/Resource"}, {"$ref": "#/definitions/AnnotationSchema"} ],
+      "allOf":[{"$ref": "#/definitions/Component"}],
       "properties": {
-        "anchors": {
-          "description": "Scaffold anchor points",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Anchor"
-          },
-          "default": []
-        },
-        "wires": {
-          "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Wire"
-          },
-          "default": []
-        },
-        "regions":   {
-          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Region"
-          }
-        }
       }
     }
   },

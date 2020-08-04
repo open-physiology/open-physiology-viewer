@@ -1,0 +1,178 @@
+{
+  "id"     : "scaffold_facade",
+  "name"   : "Scaffold Facade",
+  "author" : "Natallia Kokash",
+  "created": "2020-08-04",
+  "anchors": [
+    {
+      "id": "R",
+      "name": "RECTAL"
+    },
+    {
+      "id": "O",
+      "name": "ODDI"
+    },
+    {
+      "id": "B",
+      "name": "BUCCAL"
+    },
+    {
+      "id": "M",
+      "name": "MAMMARY"
+    },
+    {
+      "id": "U",
+      "offset": 0.4
+    },
+    {
+      "id": "G",
+      "offset": 0.3
+    },
+    {
+      "id": "tLiver",
+      "layout":  {"x": -10, "y": 50}
+    },
+    {
+      "id": "tPancreas",
+      "layout":  {"x": 10, "y": 50}
+    },
+    {
+      "id": "tLung",
+      "layout": {"x": 20, "y": 20}
+    },
+    {
+      "id": "lambda1",
+      "layout": {"x": 80, "y": -10}
+    },
+    {
+      "id": "lambda2",
+      "hostedBy": "Nasal",
+      "offset": 0.9
+    },
+    {
+      "id": "tLacrimal",
+      "layout": {"x": 70, "y": -40}
+    },
+    {
+      "id": "tCentral",
+      "layout": {"x": -70, "y": -10}
+    },
+    {
+      "id": "tUrinary",
+      "layout": {"x": -60, "y": -40}
+    },
+    {
+      "id": "tMiddleEar",
+      "layout": {"x": 50, "y": -38}
+    },
+    {
+      "id": "tExtEar",
+      "layout": {"x": 50, "y": -40}
+    },
+    {
+      "id": "sHP",
+      "layout": {"x": -20, "y": 50}
+    },
+    {
+      "id": "tHP",
+      "layout": {"x": -25, "y": 55}
+    }
+  ],
+  "wires": [
+    {
+      "id"      : "Liver",
+      "name"    : "LIVER",
+      "source"  : "O",
+      "target"  : "tLiver",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Pancreas",
+      "name"    : "PANCREAS",
+      "source"  : "O",
+      "target"  : "tPancreas",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Lung",
+      "name"    : "LUNG",
+      "source"  : "X",
+      "target"  : "tLung",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Oral",
+      "name"    : "ORAL",
+      "source"  : "X",
+      "target"  : "B",
+      "color"   : "green"
+    },
+    {
+      "id"      : "NasalPharynx",
+      "name"    : "NASAL PHARYNX",
+      "source"  : "X",
+      "target"  : "lambda1",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Nasal",
+      "name"    : "NASAL",
+      "source"  : "lambda1",
+      "target"  : "V",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Lacrimal",
+      "name"    : "LACRIMAL",
+      "source"  : "J",
+      "target"  : "tLacrimal",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Central",
+      "name"    : "CENTRAL",
+      "source"  : "G",
+      "target"  : "tCentral",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "Urinary",
+      "name"    : "URINARY",
+      "source"  : "U",
+      "target"  : "tUrinary",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "MiddleEar",
+      "name"    : "MIDDLE EAR",
+      "source"  : "lambda2",
+      "target"  : "tMiddleEar",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "ExtEar",
+      "name"    : "EXTERNAL EAR",
+      "source"  : "W",
+      "target"  : "tExtEar",
+      "geometry": "spline",
+      "color"   : "green"
+    },
+    {
+      "id"      : "hp",
+      "name"    : "HEPATOPORTAL",
+      "source"  : "sHP",
+      "target"  : "tHP",
+      "geometry": "spline",
+      "color"   : "pink"
+    }
+  ]
+}

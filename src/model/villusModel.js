@@ -68,6 +68,7 @@ export class Villus extends GroupTemplate{
 
             let node1 = (i === villus.numLayers - 1)? {
                 [$Field.id]: getGenID($Prefix.villus, $Prefix.node, layer.id, 0),
+                [$Field.skipLabel]: true,
                 [$Field.generated]: true
             }: prev;
 
@@ -77,6 +78,7 @@ export class Villus extends GroupTemplate{
             }
             let node2 = {
                 [$Field.id]: getGenID($Prefix.villus, $Prefix.node, lyph.id, layer.id, i + 1),
+                [$Field.skipLabel]: true,
                 [$Field.generated]: true
             };
             addBorderNode(layer.border.borders[0], node2.id);
@@ -85,6 +87,7 @@ export class Villus extends GroupTemplate{
             let villus_layers = sourceLayers.slice(0, villus.numLayers - i).reverse().map(sourceLyph => {
                 let targetLyph =  {
                     [$Field.id] : getGenID(lyph.id, layer.id, sourceLyph.id),
+                    [$Field.skipLabel]: true,
                     [$Field.generated] : true
                 };
                 Lyph.clone(parentGroup.lyphs, sourceLyph, targetLyph);
@@ -101,6 +104,7 @@ export class Villus extends GroupTemplate{
                 [$Field.layers]  : villus_layers.reverse(),
                 [$Field.topology]: (i===0)? Lyph.LYPH_TOPOLOGY.BAG : Lyph.LYPH_TOPOLOGY.TUBE,
                 [$Field.scale]   : {"width": 40 * (villus.numLayers - i), "height": 80},
+                [$Field.skipLabel]: true,
                 [$Field.generated] : true
             };
             // if (i === 0 && villus.numLevels > 0){
@@ -118,6 +122,7 @@ export class Villus extends GroupTemplate{
                 [$Field.target]        : node2.id,
                 [$Field.conveyingLyph] : villusLyph.id,
                 [$Field.geometry]      : Link.LINK_GEOMETRY.INVISIBLE,
+                [$Field.skipLabel]     : true,
                 [$Field.generated]     : true
             };
             mergeGenResource(villus.group, parentGroup, link, $Field.links);

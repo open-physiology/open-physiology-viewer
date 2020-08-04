@@ -62,7 +62,8 @@ export class Node extends VisualResource {
         targetNode = targetNode || {};
         targetNode.cloneOf = sourceNode.id;
         targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone);
-        targetNode::merge(sourceNode::pick([$Field.color, $Field.skipLabel]));
+        targetNode::merge(sourceNode::pick([$Field.color]));
+        targetNode.skipLabel = true;
         targetNode.generated = true;
         if (!sourceNode.clones){ sourceNode.clones = []; }
         sourceNode.clones.push(targetNode.id);
@@ -109,7 +110,9 @@ export class Link extends VisualResource {
     static clone(sourceLink, targetLink){
         if (!sourceLink || !targetLink) { return; }
         targetLink.cloneOf = sourceLink.id;
-        targetLink::merge(sourceLink::pick([$Field.conveyingType, $Field.conveyingMaterials, $Field.color, $Field.generated]));
+        targetLink::merge(sourceLink::pick([$Field.conveyingType, $Field.conveyingMaterials, $Field.color]));
+        targetLink.skipLabel = true;
+        targetLink.generated = true;
     }
 
     static createCollapsibleLink(sourceID, targetID){
@@ -121,6 +124,7 @@ export class Link extends VisualResource {
             [$Field.length]     : 1,
             [$Field.strength]   : 1,
             [$Field.collapsible]: true,
+            [$Field.skipLabel]  : true,
             [$Field.generated]  : true
         };
     }

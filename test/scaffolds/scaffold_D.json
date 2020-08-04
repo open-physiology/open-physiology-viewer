@@ -6,23 +6,28 @@
   "anchors": [
     {
       "id": "D",
-      "layout": {"x": 0, "y": 0}
+      "layout": {"x": 0, "y": 0},
+      "color": "orange"
     },
     {
       "id": "L",
-      "layout": {"x": 90, "y": 0}
+      "layout": {"x": 90, "y": 0},
+      "color": "red"
     },
     {
       "id": "P",
-      "layout": {"x": 0, "y": 70}
+      "layout": {"x": 0, "y": 70},
+      "color": "red"
     },
     {
       "id": "S",
-      "layout": {"x": -90, "y": 0}
+      "layout": {"x": -90, "y": 0},
+      "color": "red"
     },
     {
       "id": "A",
-      "layout": {"x": 0, "y": -70}
+      "layout": {"x": 0, "y": -70},
+      "color": "red"
     }
   ],
   "wires": [
@@ -85,14 +90,14 @@
   ],
   "regions": [
     {
-      "id": "d2",
-      "name": "D2",
+      "id": "d1",
+      "name": "D1",
       "color": "#f2e6ff",
       "facets": ["w-D-L", "w-L-P", "w-D-P"]
     },
     {
-      "id": "d1",
-      "name": "D1",
+      "id": "d2",
+      "name": "D2",
       "color": "#e6ccff",
       "facets": ["w-D-P", "w-P-S", "w-D-S"]
     },
@@ -107,6 +112,13 @@
       "name": "D4",
       "color": "#cc99ff",
       "facets": ["w-D-A", "w-A-L", "w-D-L"]
+    }
+  ],
+  "components": [
+    {
+      "id"  : "regions",
+      "name": "Regions",
+      "regions": ["d1", "d2", "d3", "d4"]
     }
   ]
 }

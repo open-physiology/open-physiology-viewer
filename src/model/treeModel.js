@@ -74,6 +74,7 @@ export class Tree extends GroupTemplate {
                     logger.info("Failed to find tree level link (created to proceed): ", tree.id, levels[i], i);
                     lnk = {
                         [$Field.id]: levels[i],
+                        [$Field.skipLabel]: true,
                         [$Field.generated]: true
                     };
                 }
@@ -81,6 +82,7 @@ export class Tree extends GroupTemplate {
                     logger.info("Failed to find tree level target node (created to proceed): ", tree.id, lnk.id, lnk.target);
                     trg = {
                         [$Field.id]: lnk.target,
+                        [$Field.skipLabel]: true,
                         [$Field.generated]: true
                     };
                 }
@@ -103,7 +105,11 @@ export class Tree extends GroupTemplate {
                         let prev_id = base[0].source;
                         for (let j = i; j < levels.length; j++) {
                             let baseResources = levelResources[j][0];
-                            let [lnk, trg, lyph] = baseResources.map(r => (r ? { [$Field.id] : getGenID(r.id, i+1, m+1, k, instanceIndex) }: r));
+                            let [lnk, trg, lyph] = baseResources.map(r => (r ? {
+                                [$Field.id] : getGenID(r.id, i+1, m+1, k, instanceIndex),
+                                [$Field.skipLabel]: true,
+                                [$Field.generated]: true
+                            }: r));
                             lnk.target = trg.id;
                             lnk.conveyingLyph = lyph ? lyph.id : null;
                             lnk.source = prev_id;

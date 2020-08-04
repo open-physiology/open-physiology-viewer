@@ -122,6 +122,7 @@ export class Graph extends Group{
                 if (clsName && !modelClasses[clsName].Model.schema.abstract){
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]        : id,
+                        [$Field.skipLabel] : true,
                         [$Field.generated] : true
                     }, modelClasses, entitiesByID);
 
@@ -410,6 +411,7 @@ export class Graph extends Group{
             let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => Node.fromJSON({
                 [$Field.id]        : getGenID(prefix, lyph.id),
                 [$Field.color]     : $Color.Node,
+                [$Field.skipLabel] : true,
                 [$Field.generated] : true
             }, modelClasses, entitiesByID));
 
@@ -420,6 +422,7 @@ export class Graph extends Group{
                 [$Field.geometry]     : Link.LINK_GEOMETRY.LINK,
                 [$Field.color]        : $Color.Link,
                 [$Field.conveyingLyph]: lyph.id,
+                [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
             }, modelClasses, entitiesByID);
 
