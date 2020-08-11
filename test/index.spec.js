@@ -9,10 +9,11 @@ import basalGanglia from './data/basalGanglia.json';
 import respiratory from './data/respiratory.json';
 import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
+import keast from './data/keastSpinalFull.json';
 
 import {keys, entries} from 'lodash-bound';
-
 import {modelClasses} from '../src/model/index';
+
 
 describe("JSON Schema loads correctly", () => {
     it("Link geometry types are loaded", () => {
@@ -137,13 +138,10 @@ describe("Generate model (Basal Ganglia)", () => {
         expect(n3.hostedBy).to.be.instanceOf(modelClasses.Link);
     });
 
-    after(() => {
-    });
 });
 
 describe("Serialize data", () => {
     let graphData;
-    before(() => {});
 
     it("All necessary fields serialized (respiratory system)", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
@@ -178,8 +176,37 @@ describe("Serialize data", () => {
         expect(lyph.border.borders[0]).to.have.property("class");
         expect(lyph.border.borders[0].class).to.be.equal("Link");
     });
-
-    after(() => {
-    });
 });
 
+describe("Serialize data to JSON-LD", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(keast, modelClasses);
+    });
+
+    it("JSON-LD context generated for Keast model", () => {
+        let res = graphData.entitiesToJSONLD();
+        expect(res).to.be.an('object');
+        expect(res).to.have.property('@context');
+        expect(res).to.have.property('@graph');
+        let context = res['@context'];
+        let graph = res['@graph'];
+        expect(context).to.be.an('object');
+        expect(graph).to.be.an('array');
+        expect(context).to.have.property('@base');
+        expect(context).to.have.property('local');
+        expect(context).to.have.property('class');
+        expect(context).to.have.property('namespace');
+        expect(context).to.have.property('description');
+    });
+
+    it("JSON-LD flat context generated for Keast model", () => {
+        const callback = res => {
+            expect(res).to.be.an('object');
+            expect(res).to.have.property('@context');
+            expect(res).to.have.property('@graph');
+        };
+        graphData.entitiesToJSONLDFlat(callback);
+    });
+
+});

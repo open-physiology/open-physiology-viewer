@@ -1,12 +1,12 @@
 import {Resource} from "./resourceModel";
 import {Component} from "./componentModel";
 import {Validator} from "jsonschema";
-import * as schema from "./graphScheme";
+import schema from "./graphScheme";
 import {logger} from "./logger";
 import {cloneDeep, defaults, entries, isNumber, isObject, keys} from "lodash-bound";
 import {$Field, $SchemaClass} from "./utils";
 import {$GenEventMsg} from "./genEvent";
-import * as jsonld from "jsonld";
+import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 export class Scaffold extends Component {
 

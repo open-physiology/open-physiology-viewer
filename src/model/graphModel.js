@@ -15,11 +15,11 @@ import {
     merge
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
-import * as schema from './graphScheme.json';
+import schema from './graphScheme.json';
 import {logger} from './logger';
-import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getGenName, getSchemaClass, $SchemaType} from "./utils";
+import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getSchemaClass, $SchemaType} from "./utils";
 import {$GenEventMsg} from "./genEvent";
-import * as jsonld from 'jsonld';
+import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -51,6 +51,8 @@ let baseContext = {
  *
  */
 function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
+
+
     function schemaIsId(scm) {
         return scm::isObject() && (
             scm["$ref"] == "#/definitions/IdentifierScheme" ||
@@ -62,23 +64,23 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
         schema.definitions::entries()
             .forEach(([did, def]) => {
                 schemaToContext(def, context);});
-    } else if (id !== null && schemaIsId(schema)) {
-        context[id] = {"@id": prefix.concat(id),
-                       "@type": "@id"};
     } else {
-        if (schema.properties) {
-            schema.properties::entries()
-                .forEach(([pid, prop]) =>
-                    context[pid] = schemaIsId(prop) ?
-                        {"@id": prefix.concat(pid),
-                         "@type": "@id"} :
-                    prefix.concat(pid));
+        if (id !== null && schemaIsId(schema)) {
+            context[id] = {"@id": prefix.concat(id),
+                "@type": "@id"};
+        } else {
+            if (schema.properties) {
+                schema.properties::entries()
+                    .forEach(([pid, prop]) =>
+                        context[pid] = schemaIsId(prop) ?
+                            {"@id": prefix.concat(pid),
+                                "@type": "@id"} :
+                            prefix.concat(pid));
+            }
         }
     }
     return context;
 }
-
-let schemaContext = schemaToContext(schema, {});
 
 /**
  * The main model graph (the group with configuration options for the model viewer)
@@ -505,15 +507,15 @@ export class Graph extends Group{
         let contextPrefix = "local"; // FIXME not sure what the issue is here with "" ...
         localContext[contextPrefix] = localContext["@base"];
 
+        let schemaContext = schemaToContext(schema, {});
         // local first so that any accidental collisions don't break everything
         // raw last so that it can override the autogen behavior
-        let context = {};
         let contexts = [localContext,
                         curiesContext,
                         schemaContext,
                         baseContext];
-        contexts.forEach((sourceContext) =>
-            context::merge(sourceContext));
+        let context = {};
+        contexts.forEach(sourceContext => context::merge(sourceContext));
 
         let res = {
             "@context": context,
