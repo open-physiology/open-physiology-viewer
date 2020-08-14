@@ -21,14 +21,6 @@
       "name": "MAMMARY"
     },
     {
-      "id": "U",
-      "offset": 0.4
-    },
-    {
-      "id": "G",
-      "offset": 0.3
-    },
-    {
       "id": "tLiver",
       "layout":  {"x": -10, "y": 50}
     },
@@ -54,7 +46,7 @@
       "layout": {"x": 70, "y": -40}
     },
     {
-      "id": "tCentral",
+      "id": "tGenital",
       "layout": {"x": -70, "y": -10}
     },
     {
@@ -135,10 +127,10 @@
       "color"   : "green"
     },
     {
-      "id"      : "Central",
-      "name"    : "CENTRAL",
+      "id"      : "Genital",
+      "name"    : "GENITAL",
       "source"  : "G",
-      "target"  : "tCentral",
+      "target"  : "tGenital",
       "geometry": "spline",
       "color"   : "green"
     },

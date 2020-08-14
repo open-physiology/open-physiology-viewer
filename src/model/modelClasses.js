@@ -53,9 +53,9 @@ export function isScaffold(model){
 
 export function excelToJSON(model) {
     if (isScaffold(model)){
-        Scaffold.excelToJSON(model, modelClasses);
+       return Scaffold.excelToJSON(model, modelClasses);
     } else {
-        Graph.excelToJSON(model, modelClasses);
+       return Graph.excelToJSON(model, modelClasses);
     }
 }
 
