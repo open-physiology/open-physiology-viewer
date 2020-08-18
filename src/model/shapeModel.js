@@ -10,7 +10,7 @@ import {
     getNewID,
     LYPH_TOPOLOGY,
     WIRE_GEOMETRY,
-    mergeResources
+    mergeResources, $Color
 } from './utils';
 import {THREE} from "../view/utils";
 
@@ -359,9 +359,40 @@ export class Region extends Shape {
                 }
                 if (!sourceAnchor.layout || !targetAnchor.layout){
                     logger.warn("Incorrectly defined region facets, source or target anchor layout not defined, skipping definition", wire.source, wire.target);
-                    return;
                 }
             });
+        }
+    }
+
+    static expandTemplate(json, template){
+        if (!template.facets && (template.points||[]).length > 1){
+            template.id = template.id || getGenID(json.id, json.regions.length);
+            //generate facets from points
+            let anchors = [];
+            template.points.forEach((p,i) => {
+                anchors.push({
+                    [$Field.id]        : getGenID($Prefix.anchor, template.id, i),
+                    [$Field.layout]    : p,
+                    [$Field.skipLabel] : true,
+                    [$Field.generated] : true
+                });
+            });
+            json.anchors = json.anchors||[];
+            json.anchors.push(...anchors);
+            let wires = [];
+            for (let i = 1; i < anchors.length + 1; i++){
+                wires.push({
+                    [$Field.id]           : getGenID($Prefix.wire, template.id, i),
+                    [$Field.source]       : anchors[i-1].id,
+                    [$Field.target]       : anchors[i % anchors.length].id,
+                    [$Field.color]        : $Color.Link,
+                    [$Field.skipLabel]    : true,
+                    [$Field.generated]    : true
+                });
+            }
+            json.wires = json.wires||[];
+            json.wires.push(...wires);
+            template.facets = wires.map(f => f.id);
         }
     }
 }

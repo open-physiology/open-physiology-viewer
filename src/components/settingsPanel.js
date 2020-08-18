@@ -22,7 +22,7 @@ import {$Field} from "../model/utils";
 
                 <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
                     <legend>Highlighted</legend>
-                    <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"></resourceInfoPanel>
+                    <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"> </resourceInfoPanel>
                 </fieldset>
 
                 <!--Search bar-->
@@ -50,7 +50,8 @@ import {$Field} from "../model/utils";
                 
                 <fieldset *ngIf="!!groups" class="w3-card w3-round w3-margin-small">
                     <legend>SciGraph search</legend>
-                    <sciGraphSearch [selected]="_selected"></sciGraphSearch>
+                    <sciGraphSearch [selected]="_selected"> 
+                    </sciGraphSearch>
                 </fieldset>
                 
                 <!--Group controls-->
@@ -86,8 +87,7 @@ import {$Field} from "../model/utils";
                     </mat-checkbox>
                     <mat-checkbox matTooltip="Toggle 3D lyphs" labelPosition="after" 
                                   [disabled]="!config.layout.showLyphs" class="w3-margin-left"
-                                  (change)="toggleLayout('showLyphs3d')"
-                                  matTooltip="Shows 3D geometry for resources with property 'create3d' set to true"
+                                  (change)="toggleLayout('showLyphs3d')"                                 
                                   [checked]="config.layout.showLyphs3d"> Lyphs 3D
                     </mat-checkbox>
                     <mat-checkbox matTooltip="Toggle coalescences" labelPosition="after"
@@ -160,18 +160,16 @@ export class SettingsPanel {
     @Input() groups;
 
     @Input('config') set config(newConfig) {
-        if (this._config != newConfig) {
+        if (this._config !== newConfig) {
             this._config = newConfig;
             this._labelClasses = this._config[$Field.labels]::keys();
             let ids = this._config.showGroups || [];
-            if (!ids::isArray()) {ids = []; }
-            let defaultGroups = (this.groups||[]).filter(g => ids.find(id => g.isGeneratedFromID(id)));
-            this._showGroups = new Set(defaultGroups);
+            this._showGroups = new Set((this.groups||[]).filter(g => ids.includes(g.id)));
         }
     }
 
     @Input('helperKeys') set helperKeys(newHelperKeys){
-        if (this._helperKeys != newHelperKeys) {
+        if (this._helperKeys !== newHelperKeys) {
             this._helperKeys = newHelperKeys;
             this._showHelpers = new Set([]);
         }

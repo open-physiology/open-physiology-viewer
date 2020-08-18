@@ -2121,7 +2121,14 @@
           "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Region"
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
           }
         },
         "components": {

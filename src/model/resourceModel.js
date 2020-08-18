@@ -412,13 +412,8 @@ export class Resource{
         return res;
     }
 
-    /**
-     * Check if this resource is generated from ID
-     * @param id
-     * @returns {boolean|Object}
-     */
-    isGeneratedFromID(id){
-        return (this.id === id) || (getID(this.generatedFrom) === id);
+    isGeneratedFrom(id){
+        return (this.id === id || this.generatedFrom && this.generatedFrom.id === id);
     }
 
     /**

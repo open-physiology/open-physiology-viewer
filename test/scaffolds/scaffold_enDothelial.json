@@ -33,12 +33,5 @@
         {"x": -40, "y": 40}
       ]
     }
-  ],
-  "components": [
-    {
-      "id"  : "regions",
-      "name": "Regions",
-      "regions": ["d1", "d2", "d3", "d4"]
-    }
   ]
 }

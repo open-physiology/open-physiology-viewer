@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule, MatDialog, MatDialogModule} from '@angular/material'
 import FileSaver  from 'file-saver';
-import {keys, values, defaults, isObject, cloneDeep} from 'lodash-bound';
+import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph   from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
@@ -52,8 +52,12 @@ const WindowResize = require('three-window-resize');
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportResourceMapLD()" title="Export json-ld resource map">
+                                (click)="exportJSON()" title="Export json ">
                             <i class="fa fa-file-code-o"> </i>
+                        </button>
+                        <button class="w3-bar-item w3-hover-light-grey"
+                                (click)="exportResourceMapLD()" title="Export json-ld resource map">
+                            <i class="fa fa-file-text"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="exportResourceMapLDFlat()" title="Export flattened json-ld resource map">
@@ -159,11 +163,21 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this.config = (this._graphData.config||{})::defaults(this.defaultConfig);
+            let newConfig = (this._graphData.config||{})::defaults(this.defaultConfig);
+
+            //Add to the default set of visible groups groups from given identifiers
+            if (!newConfig.showGroups || !newConfig.showGroups::isArray()) { newConfig.showGroups = []; }
+            let ids = newConfig.showGroups;
+            ids.forEach(id  => {
+                let genIDs = (this._graphData.activeGroups || []).filter(g => (g.generatedFrom||{}).id === id);
+                if (genIDs){
+                    newConfig.showGroups.push(...genIDs);
+                }
+            });
+            this.config = newConfig;
+
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
-            if (this.graphData instanceof this.modelClasses.Graph) {
-                this._graphData.showGroups(new Set(this._graphData.findGeneratedFromIDs(this.config.showGroups)));
-            }
+            this._graphData.showGroups(this.config.showGroups);
             /*Map initial positional constraints to match the scaled image*/
             this._graphData.scale(this.scaleFactor);
             this.selected = null;
@@ -256,7 +270,6 @@ export class WebGLSceneComponent {
         this.ray = new THREE.Raycaster();
         this.scene = new THREE.Scene();
 
-
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.controls.minDistance = 10;
@@ -267,14 +280,8 @@ export class WebGLSceneComponent {
 
         this.controls.enablePan = true;
 
-        //this.controls.enableRotate = false;
-        //this.controls.autoRotate = true;
-
         this.controls.minPolarAngle = 0;
         this.controls.maxPolarAngle = Math.PI/2;
-
-        // this.controls.minAzimuthAngle = 0;
-        // this.controls.maxAzimuthAngle = 0;
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
@@ -290,6 +297,14 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
+    }
+
+    exportJSON(){
+        if (this._graphData){
+            let result = JSON.stringify(this._graphData.toJSON(), null, 2);
+            const blob = new Blob([result], {type: 'application/json'});
+            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
+        }
     }
 
     exportResourceMapLD(){
@@ -501,7 +516,8 @@ export class WebGLSceneComponent {
 
     toggleGroup(showGroups) {
         if (!this._graphData){ return; }
-        this._graphData.showGroups(showGroups);
+        let groupIDs = [...showGroups].map(g => g.id);
+        this._graphData.showGroups(groupIDs);
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 }

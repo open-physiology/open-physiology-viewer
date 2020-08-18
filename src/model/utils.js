@@ -34,8 +34,10 @@ export const LYPH_TOPOLOGY  = definitions[$SchemaClass.Lyph].properties[$Field.t
 export const COALESCENCE_TOPOLOGY = definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const $Color = {
+    Wire   : "#000",
     Link   : "#000",
     Node   : "#000",
+    Anchor : "#fff",
     Region : "#c0c0c0",
     InternalNode : "#ccc",
     InternalLink : "#ccc"
@@ -59,7 +61,9 @@ export const $Prefix = {
     template: "ref",    //from lyph template
     material: "mat",    //from material reference
     clone   : "clone",  //node clone
-    join    : "join"   //joint node
+    join    : "join",   //joint node
+    anchor  : "p",      //anchor point
+    wire    : "wire"    //wire
 };
 
 export const getNewID = entitiesByID => "new-" +

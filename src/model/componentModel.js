@@ -1,6 +1,7 @@
 import {Resource} from "./resourceModel";
 import {isArray, isNumber, isObject, keys, unionBy} from "lodash-bound";
-import {$Field, $SchemaClass} from "./utils";
+import {$Color, $Field, $Prefix, $SchemaClass, getGenID, getID, getNewID} from "./utils";
+import {Link} from "./visualResourceModel";
 
 export class Component extends Resource {
 
@@ -14,6 +15,7 @@ export class Component extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         (json.regions||[]).forEach(region => {
+            modelClasses.Region.expandTemplate(json, region);
             modelClasses.Region.validateTemplate(json, region);
         });
 
@@ -32,13 +34,19 @@ export class Component extends Resource {
     }
 
     /**
-     * Show subgroups of the current component. A resources is shown if it belongs to at least one visible component
-     * @param groups - selected subgroups
+     * Show sub-components of the current component. A resources is shown if it belongs to at least one visible component
+     * @param ids - selected component IDs
      */
-    showGroups(groups){
-        this.show(); //show all entities that are in the main group
-        (this.components || []).filter(g => (g instanceof Component) && !groups.has(g)).forEach(g => g.hide()); //hide entities from hidden groups
-        (this.components || []).filter(g => (g instanceof Component) && groups.has(g)).forEach(g => g.show());  //show entities that are in visible groups
+    showGroups(ids){
+        this.show();
+        if (!ids) {return;}
+        (this.components||[]).forEach(g => {
+            if (ids.includes(g.id)){
+                g.show();
+            } else {
+                g.hide();
+            }
+        });
     }
 
     /**

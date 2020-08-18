@@ -62,13 +62,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         <!--Left toolbar-->
 
         <section class="w3-sidebar w3-bar-block vertical-toolbar">
-            <input #fileInput type  = "file" accept = ".json,.xlsx" [style.display] = "'none'" 
-                   (change) = "load(fileInput.files)"/>
-            <input #fileInput1 type = "file" accept = ".json" [style.display] = "'none'"
-                   (change) = "join(fileInput1.files)"/>
-            <input #fileInput2 type = "file" accept = ".json" [style.display] = "'none'"
-                   (change) = "merge(fileInput2.files)"/>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="newModel()" title="Create model">
+            <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
+                   (change)="load(fileInput.files)"/>
+            <input #fileInput1 type="file" accept=".json" [style.display]="'none'"
+                   (change)="join(fileInput1.files)"/>
+            <input #fileInput2 type="file" accept=".json" [style.display]="'none'"
+                   (change)="merge(fileInput2.files)"/>
+            <button class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
                 <i class="fa fa-plus"> </i>
             </button>
             <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
@@ -91,53 +91,54 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i>
             </button>
-        </section>        
-       
+        </section>
+
 
         <!--Views-->
-        
+
         <section id="main-panel">
             <section id="repo-panel" *ngIf="showRepoPanel" class="w3-quarter w3-gray w3-border-right w3-border-white">
                 <section class="w3-padding-small">
                     <i class="fa fa-database"> Model Repository </i>
                 </section>
-                <modelRepoPanel (onModelLoad)="loadFromRepo($event)"> 
+                <modelRepoPanel (onModelLoad)="loadFromRepo($event)">
                 </modelRepoPanel>
             </section>
-            
+
             <mat-tab-group animationDuration="0ms">
                 <!--Viewer-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-heartbeat"> Viewer </i></ng-template>
                     <webGLScene
-                            [modelClasses]          = "modelClasses"
-                            [graphData]             = "_graphData"
-                            (selectedItemChange)    = "onSelectedItemChange($event)"
-                            (highlightedItemChange) = "onHighlightedItemChange($event)"
-                            (editResource)          = "onEditResource($event)" >
+                            [modelClasses]="modelClasses"
+                            [graphData]="_graphData"
+                            (selectedItemChange)="onSelectedItemChange($event)"
+                            (highlightedItemChange)="onHighlightedItemChange($event)"
+                            (editResource)="onEditResource($event)">
                     </webGLScene>
                 </mat-tab>
 
                 <!--Relationship graph-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
-                    <relGraph [graphData] = "_graphData"></relGraph>
+                    <relGraph [graphData]="_graphData"></relGraph>
                 </mat-tab>
 
                 <!--Table editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-wpforms"> Resources </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyTableEditorChanges()" title="Apply changes">
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyTableEditorChanges()"
+                                title="Apply changes">
                             <i class="fa fa-check"> </i>
                         </button>
                     </section>
                     <section id="resource-editor">
                         <resourceEditor
-                            [modelClasses]   = "modelClasses"
-                            [modelResources] = "_graphData.entitiesByID || {}"
-                            [resource]       = "_model"
-                            className        = "Graph"
+                                [modelClasses]="modelClasses"
+                                [modelResources]="_graphData.entitiesByID || {}"
+                                [resource]="_model"
+                                className="Graph"
                         >
                         </resourceEditor>
                     </section>
@@ -147,15 +148,16 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-edit"> Code </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()" title="Apply changes">
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()"
+                                title="Apply changes">
                             <i class="fa fa-check"> </i>
                         </button>
                     </section>
-                    <section #jsonEditor id="json-editor" > </section>
-                </mat-tab>                       
+                    <section #jsonEditor id="json-editor"></section>
+                </mat-tab>
 
             </mat-tab-group>
-        </section>            
+        </section>
 
         <!-- Footer -->
 
@@ -225,9 +227,12 @@ export class TestApp {
         this._editor.set(this._model);
     }
 
-    newModel(){
+    create(){
         this._fileName = "";
-        this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate};
+        this.model = {
+            [$Field.created]: this.currentDate,
+            [$Field.lastUpdated]: this.currentDate
+        };
         this.isJoint = false;
     }
 
@@ -348,11 +353,11 @@ export class TestApp {
 
 	set model(model){
         this._model = model;
-        //try{
+        try{
             this._graphData = fromJSON(this._model);
-        //} catch(err){
-        //    throw new Error(err);
-        //}
+        } catch(err){
+           throw new Error(err);
+        }
         if (this._editor){
             this._editor.set(this._model);
         }

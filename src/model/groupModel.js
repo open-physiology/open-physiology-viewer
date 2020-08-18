@@ -537,12 +537,18 @@ export class Group extends Resource {
 
     /**
      * Show subgroups of the current group. A resources is shown if it belongs to at least one visible subgroup
-     * @param groups - selected subgroups
+     * @param ids- selected subgroup identifiers
      */
-    showGroups(groups){
-        this.show(); //show all entities that are in the main group
-        (this.groups || []).filter(g => (g instanceof Group) && !groups.has(g)).forEach(g => g.hide()); //hide entities from hidden groups
-        (this.groups || []).filter(g => (g instanceof Group) && groups.has(g)).forEach(g => g.show());  //show entities that are in visible groups
+    showGroups(ids){
+        this.show();
+        if (!ids) {return;}
+        (this.groups||[]).forEach(g => {
+            if (ids.find(id => g.isGeneratedFrom(id))){
+                g.show();
+            } else {
+                g.hide();
+            }
+        });
     }
 
     /**
@@ -557,16 +563,6 @@ export class Group extends Resource {
      */
     show(){
         this.resources.forEach(entity => delete entity.hidden);
-    }
-
-    /**
-     * Find groups generated from given resource IDs
-     * @param ids - resource IDs
-     * @returns {*}
-     */
-    findGeneratedFromIDs(ids){
-        if (!ids || !ids::isArray()) {return [];}
-        return (this.groups||[]).filter(g => ids.find(id => g.isGeneratedFromID(id)));
     }
 
     /**

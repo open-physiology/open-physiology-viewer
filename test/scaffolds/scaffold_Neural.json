@@ -1,0 +1,173 @@
+{
+  "id": "scaffold_Neural",
+  "name": "Scaffold Neural",
+  "author": "Natallia Kokash",
+  "created": "2020-08-13",
+  "anchors": [
+    {
+      "id": "H",
+      "name": "HEAD"
+    },
+    {
+      "id": "E",
+      "name": "ENDOCRINE"
+    },
+    {
+      "id": "T",
+      "name": "TAIL"
+    },
+    {
+      "id": "K",
+      "name": "KNOTEN (SA, AV, PURKINJE)"
+    },
+    {
+      "id": "C",
+      "name": "Cistern"
+    },
+    {
+      "id": "sHypo",
+      "layout": {"x": 50, "y": 10}
+    },
+    {
+      "id": "tHypo",
+      "layout": {"x": 50, "y": 20}
+    }
+  ],
+  "wires":[
+    {
+      "id": "w-N-H",
+      "name": "CENTRAL NERVOUS SYSTEM"
+    },
+    {
+      "id": "hypophyseal",
+      "name": "HYPOPHYSEAL",
+      "source": "sHypo",
+      "target": "tHypo",
+      "color": "purple",
+      "geometry": "spline"
+    }
+  ],
+  "regions":[
+    {
+      "id": "ganglia",
+      "name": "Ganglia",
+      "points": [
+        {"x": -60, "y": 5},
+        {"x": -60, "y": 15},
+        {"x": -5, "y": 15},
+        {"x": -5, "y": 5}
+      ],
+      "color": "#eeffff"
+    },
+    {
+      "id": "axial_sk",
+      "name": "Axial skeleton",
+      "points": [
+        {"x": -60, "y": -15},
+        {"x": -60, "y": -5},
+        {"x": -5, "y": -5},
+        {"x": -5, "y": -15}
+      ]
+    },
+    {
+      "id": "sk_mus",
+      "name": "Skeletal musculature",
+      "points": [
+        {"x": -60, "y": -27},
+        {"x": -60, "y": -17},
+        {"x": -5, "y": -17},
+        {"x": -5, "y": -27}
+      ]
+    },
+    {
+      "id": "ll_sk",
+      "name": "LL skeleton",
+      "points": [
+        {"x": -60, "y": -40},
+        {"x": -60, "y": -30},
+        {"x": -40, "y": -30},
+        {"x": -40, "y": -40}
+      ]
+    },
+    {
+      "id": "ul_sk",
+      "name": "UL skeleton",
+      "points": [
+        {"x": -25, "y": -40},
+        {"x": -25, "y": -30},
+        {"x": -5, "y": -30},
+        {"x": -5, "y": -40}
+      ]
+    },
+    {
+      "id": "olf",
+      "name": "Olfactory",
+      "points": [
+        {"x": 60, "y": -15},
+        {"x": 60, "y": -5},
+        {"x": 70, "y": -5},
+        {"x": 70, "y": -15}
+      ]
+    },
+    {
+      "id": "retinal",
+      "name": "Retinal",
+      "points": [
+        {"x": 50, "y": -30},
+        {"x": 50, "y": -20},
+        {"x": 60, "y": -20},
+        {"x": 60, "y": -30}
+      ]
+    },
+    {
+      "id": "vst",
+      "name": "Vestibulococchlear",
+      "points": [
+        {"x": 40, "y": -45},
+        {"x": 40, "y": -35},
+        {"x": 50, "y": -35},
+        {"x": 50, "y": -45}
+      ]
+    },
+    {
+      "id": "adrenal",
+      "name": "Adrenal",
+      "points": [
+        {"x": 0, "y": 50},
+        {"x": 0, "y": 60},
+        {"x": 10, "y": 60},
+        {"x": 10, "y": 50}
+      ]
+    },
+    {
+      "id": "parathyroid",
+      "name": "Parathyroid",
+      "points": [
+        {"x": 12, "y": 45},
+        {"x": 12, "y": 55},
+        {"x": 22, "y": 55},
+        {"x": 22, "y": 45}
+      ]
+    },
+    {
+      "id": "thyroid",
+      "name": "Thyroid",
+      "points": [
+        {"x": 24, "y": 40},
+        {"x": 24, "y": 50},
+        {"x": 34, "y": 50},
+        {"x": 34, "y": 40}
+      ]
+    },
+    {
+      "id": "pituitary",
+      "name": "Pituitary",
+      "points": [
+        {"x": 36, "y": 35},
+        {"x": 36, "y": 45},
+        {"x": 46, "y": 45},
+        {"x": 46, "y": 35}
+      ]
+    }
+  ]
+}
