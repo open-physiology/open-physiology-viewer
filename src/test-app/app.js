@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import {cloneDeep, isArray, isObject, isString, keys, merge, mergeWith, unionBy, add} from 'lodash-bound';
+import { cloneDeep, isArray, isObject, keys, merge, mergeWith} from 'lodash-bound';
 
 import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -8,14 +8,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
+import { MainToolbar } from "../components/mainToolbar";
+import { StopPropagation } from "../components/stopPropagation";
+
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
-import {ModelRepoPanelModule} from "../components/modelRepoPanel";
-import { StopPropagation } from "../components/stopPropagation";
+import { ModelRepoPanelModule } from "../components/modelRepoPanel";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses, schema, excelToJSON, fromJSON, joinModels} from '../model/index';
+import { modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -25,7 +27,6 @@ import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
-import * as XLSX from 'xlsx';
 import {$Field, mergeResources} from "../model/utils";
 
 const ace = require('ace-builds');
@@ -47,7 +48,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"> </i></a>
 			</span>
             <span class="w3-bar-item">
-                Model: {{_fileName || _graphData?.name || "?"}}
+                Model: {{_modelName}}
             </span>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
@@ -61,38 +62,15 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
         <!--Left toolbar-->
 
-        <section class="w3-sidebar w3-bar-block vertical-toolbar">
-            <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="load(fileInput.files)"/>
-            <input #fileInput1 type="file" accept=".json" [style.display]="'none'"
-                   (change)="join(fileInput1.files)"/>
-            <input #fileInput2 type="file" accept=".json" [style.display]="'none'"
-                   (change)="merge(fileInput2.files)"/>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
-                <i class="fa fa-plus"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
-                <i class="fa fa-folder"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
-                <i class="fa fa-object-ungroup"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
-                <i class="fa fa-object-group"> </i>
-            </button>
-            <button *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
-                    (click)="showRepoPanel = !showRepoPanel" title="Show model repository">
-                <i class="fa fa-database"> </i>
-            </button>
-            <button *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
-                    (click)="showRepoPanel = !showRepoPanel" title="Hide model repository">
-                <i class="fa fa-window-close"> </i>
-            </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
-                <i class="fa fa-save"> </i>
-            </button>
-        </section>
-
+        <main-toolbar
+            [shoRepoPanel]      = "showRepoPanel"
+            (onCreateModel)     = "create()"
+            (onLoadModel)       = "load($event)"
+            (onJoinModel)       = "join($event)"
+            (onMergeModel)      = "merge($event)"
+            (onExportModel)     = "save()"
+            (onToggleRepoPanel) = "toggleRepoPanel()">     
+        </main-toolbar>
 
         <!--Views-->
 
@@ -203,8 +181,11 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 export class TestApp {
     _graphData;
     _model = {};
+    _modelName;
     _dialog;
     _editor;
+    _flattenGroups;
+    _counter = 1;
     modelClasses = modelClasses;
     showRepoPanel = false;
 
@@ -213,7 +194,7 @@ export class TestApp {
     constructor(dialog: MatDialog){
         this.model = initModel;
         this._dialog = dialog;
-        this.isJoint = false;
+        this._flattenGroups = false;
     }
 
     ngAfterViewInit(){
@@ -227,15 +208,6 @@ export class TestApp {
         this._editor.set(this._model);
     }
 
-    create(){
-        this._fileName = "";
-        this.model = {
-            [$Field.created]: this.currentDate,
-            [$Field.lastUpdated]: this.currentDate
-        };
-        this.isJoint = false;
-    }
-
     // noinspection JSMethodCanBeStatic
     get currentDate(){
         let today = new Date();
@@ -245,87 +217,54 @@ export class TestApp {
         return [yyyy,mm,dd].join("-");
     }
 
-	load(files) {
-        if (files && files[0]){
-            this._fileName = files[0].name;
-            let [name, extension] = fileExtensionRe.exec(files[0].name);
-            extension = extension.toLowerCase();
+    toggleRepoPanel(){
+        this.showRepoPanel = !this.showRepoPanel;
+    }
 
-            const reader = new FileReader();
-            reader.onload = () => this.loadModel(reader.result, name, extension);
-            try {
-                if (extension === "json"){
-                    reader.readAsText(files[0]);
-                } else {
-                    if (extension === "xlsx"){
-                        reader.readAsBinaryString(files[0]);
-                    }
-                }
-            } catch (err){
-                throw new Error("Failed to open the input file: " + err);
-            }
-        }
-	}
+    create(){
+        this.model = {
+            [$Field.name]: "newModel-" + this._counter++,
+            [$Field.created]: this.currentDate,
+            [$Field.lastUpdated]: this.currentDate
+        };
+        this._flattenGroups = false;
+    }
 
-	loadModel(content, name, extension){
-        if (extension === "xlsx"){
-            let model = {};
-            let wb = XLSX.read(content, {type: "binary"});
-            wb.SheetNames.forEach(sheetName => {
-                let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
-                if(roa.length) { model[sheetName] = roa; }
-            });
-            model[$Field.id] = name;
-            this.model = excelToJSON(model);
-        } else {
-            if (extension === "json") {
-                if (content::isString()){
-                    this.model = JSON.parse(content);
-                } else {
-                    this.model = content;
-                }
-            }
+    load(newModel) {
+        this.model = newModel;
+        this._flattenGroups = false;
+    }
+
+    join(newModel) {
+        if (this._model.id === newModel.id){
+            throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
-        this.isJoint = false;
+        if (isScaffold(this._model) !== isScaffold(newModel)){
+            throw new Error("Cannot join models of different resource types: scaffold and connectivity model!");
+        }
+        let jointModel = joinModels(this._model, newModel, this._flattenGroups);
+        jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+        this.model = jointModel;
+        this._flattenGroups = true;
+    }
+
+    merge(newModel) {
+        if (isScaffold(this._model) !== isScaffold(newModel)){
+            throw new Error("Cannot merge models of different resource types: scaffold and connectivity model!");
+        }
+        this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, mergeResources));
+    }
+
+    save(){
+        let result = JSON.stringify(this._model, null, 4);
+        const blob = new Blob([result], {type: 'text/plain'});
+        FileSaver.saveAs(blob, (this._model.id? this._model.id: 'mainGraph') + '-model.json');
     }
 
     loadFromRepo({fileName, fileContent}){
         let [name, extension]  = fileExtensionRe.exec(fileName);
         extension = extension.toLowerCase();
-        this.loadModel(fileContent, name, extension);
-    }
-
-    join(files) {
-        if (files && files[0]){
-            const reader = new FileReader();
-            reader.onload = () => {
-                let newModel = JSON.parse(reader.result);
-                let jointModel = joinModels(this._model, newModel, this.isJoint);
-                this.isJoint = true;
-                jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
-                this.model = jointModel;
-            };
-            try {
-                reader.readAsText(files[0]);
-            } catch (err){
-                throw new Error("Failed to open the input file: " + err);
-            }
-        }
-    }
-
-    merge(files) {
-        if (files && files[0]){
-            const reader = new FileReader();
-            reader.onload = () => {
-                let newModel = JSON.parse(reader.result);
-                this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, mergeResources));
-            };
-            try {
-                reader.readAsText(files[0]);
-            } catch (err){
-                throw new Error("Failed to open the input file: " + err);
-            }
-        }
+        this.model = loadModel(fileContent, name, extension);
     }
 
     applyJSONEditorChanges() {
@@ -341,12 +280,6 @@ export class TestApp {
         this.model = this._model;
     }
 
-    save(){
-        let result = JSON.stringify(this._model, null, 4);
-        const blob = new Blob([result], {type: 'text/plain'});
-        FileSaver.saveAs(blob, (this._model.id? this._model.id: 'mainGraph') + '-model.json');
-    }
-
     onSelectedItemChange(item){}
 
 	onHighlightedItemChange(item){}
@@ -354,6 +287,7 @@ export class TestApp {
 	set model(model){
         this._model = model;
         try{
+            this._modelName = this._model.name || "?";
             this._graphData = fromJSON(this._model);
         } catch(err){
            throw new Error(err);
@@ -422,7 +356,7 @@ export class TestApp {
 @NgModule({
 	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
         BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule],
-	declarations: [ TestApp, StopPropagation ],
+	declarations: [ TestApp, StopPropagation, MainToolbar ],
     bootstrap   : [ TestApp ],
     providers   : [
         {

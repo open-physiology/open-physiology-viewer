@@ -13,7 +13,7 @@ import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angula
                    placeholder="Search"
                    matTooltip="Describe resource you want to find"
                    type="text"
-                   aria-label="Number"
+                   aria-label="Find resource"
                    [value]="selected"
                    [formControl]="_myControl" 
                    [matAutocomplete]="auto"

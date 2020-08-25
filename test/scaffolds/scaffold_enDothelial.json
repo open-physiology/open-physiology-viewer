@@ -1,6 +1,6 @@
 {
-  "id"     : "scaffold_d",
-  "name"   : "Scaffold D",
+  "id"     : "scaffold_enDothelial",
+  "name"   : "Scaffold enDothelial",
   "author" : "Natallia Kokash",
   "created": "2020-07-29",
   "anchors": [
@@ -25,7 +25,7 @@
     {
       "id": "spleen",
       "name": "Spleen",
-      "color": "lightpink",
+      "color": "#FFF0F5",
       "points": [
         {"x": -50, "y": 40},
         {"x": -50, "y": 50},

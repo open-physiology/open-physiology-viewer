@@ -12,7 +12,7 @@ import {VisualResource, Material, Node, Link, Anchor, Wire} from './visualResour
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {$Field, $SchemaClass} from './utils';
-import {keys, merge} from "lodash-bound";
+import {isString, keys, merge} from "lodash-bound";
 import * as schema from "./graphScheme";
 
 export const modelClasses = {
@@ -47,8 +47,32 @@ export const modelClasses = {
     [$SchemaClass.Border]       : Border
 };
 
+export function loadModel(content, name, extension){
+    let newModel = {};
+    if (extension === "xlsx"){
+        let excelModel = {};
+        let wb = XLSX.read(content, {type: "binary"});
+        wb.SheetNames.forEach(sheetName => {
+            let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
+            if(roa.length) { excelModel[sheetName] = roa; }
+        });
+        excelModel[$Field.id] = excelModel[$Field.id] || name;
+        newModel = excelToJSON(excelModel);
+    } else {
+        if (extension === "json") {
+            if (content::isString()){
+                newModel = JSON.parse(content);
+            } else {
+                newModel = content;
+            }
+        }
+    }
+    newModel[$Field.name] = newModel[$Field.name] || name;
+    return newModel;
+}
+
 export function isScaffold(model){
-    return (model.components || model.anchors || model.wires);
+    return !!(model.components || model.anchors || model.wires);
 }
 
 export function excelToJSON(model) {

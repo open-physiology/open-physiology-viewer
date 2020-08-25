@@ -77,7 +77,7 @@
       "source"  : "O",
       "target"  : "tLiver",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Pancreas",
@@ -85,7 +85,7 @@
       "source"  : "O",
       "target"  : "tPancreas",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Lung",
@@ -93,14 +93,14 @@
       "source"  : "X",
       "target"  : "tLung",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Oral",
       "name"    : "ORAL",
       "source"  : "X",
       "target"  : "B",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "NasalPharynx",
@@ -108,7 +108,7 @@
       "source"  : "X",
       "target"  : "lambda1",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Nasal",
@@ -116,7 +116,7 @@
       "source"  : "lambda1",
       "target"  : "V",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Lacrimal",
@@ -124,7 +124,7 @@
       "source"  : "J",
       "target"  : "tLacrimal",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Genital",
@@ -132,7 +132,7 @@
       "source"  : "G",
       "target"  : "tGenital",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "Urinary",
@@ -140,7 +140,7 @@
       "source"  : "U",
       "target"  : "tUrinary",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "MiddleEar",
@@ -148,7 +148,7 @@
       "source"  : "lambda2",
       "target"  : "tMiddleEar",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "ExtEar",
@@ -156,7 +156,7 @@
       "source"  : "W",
       "target"  : "tExtEar",
       "geometry": "spline",
-      "color"   : "green"
+      "color"   : "#006400"
     },
     {
       "id"      : "hp",
@@ -164,7 +164,7 @@
       "source"  : "sHP",
       "target"  : "tHP",
       "geometry": "spline",
-      "color"   : "pink"
+      "color"   : "#FFC0CB"
     }
   ]
 }

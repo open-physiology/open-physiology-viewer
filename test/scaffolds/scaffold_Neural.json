@@ -43,7 +43,7 @@
       "name": "HYPOPHYSEAL",
       "source": "sHypo",
       "target": "tHypo",
-      "color": "purple",
+      "color": "#800080",
       "geometry": "spline"
     }
   ],

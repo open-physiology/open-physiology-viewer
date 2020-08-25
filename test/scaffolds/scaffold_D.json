@@ -7,27 +7,27 @@
     {
       "id": "D",
       "layout": {"x": 0, "y": 0},
-      "color": "orange"
+      "color": "#FFA500"
     },
     {
       "id": "L",
       "layout": {"x": 90, "y": 0},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "P",
       "layout": {"x": 0, "y": 70},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "S",
       "layout": {"x": -90, "y": 0},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "A",
       "layout": {"x": 0, "y": -70},
-      "color": "red"
+      "color": "#FF0000"
     }
   ],
   "wires": [
@@ -37,7 +37,7 @@
       "target": "P",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "purple"
+      "color": "#9370DB"
     },
     {
       "id": "w-P-S",
@@ -45,7 +45,7 @@
       "target": "S",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "purple"
+      "color": "#9370DB"
     },
     {
       "id": "w-S-A",
@@ -53,7 +53,7 @@
       "target": "A",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "purple"
+      "color": "#9370DB"
     },
     {
       "id": "w-A-L",
@@ -61,31 +61,31 @@
       "target": "L",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "purple"
+      "color": "#9370DB"
     },
     {
       "id": "w-D-L",
       "source": "D",
       "target": "L",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-D-P",
       "source": "D",
       "target": "P",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-D-S",
       "source": "D",
       "target": "S",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-D-A",
       "source": "D",
       "target": "A",
-      "color": "black"
+      "color": "#000"
     }
   ],
   "regions": [

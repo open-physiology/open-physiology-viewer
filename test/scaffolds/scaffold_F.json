@@ -7,63 +7,63 @@
     {
       "id": "F",
       "layout": {"x": 0, "y": 0},
-      "color": "orange"
+      "color": "#FFA500"
     },
     {
       "id": "R",
       "layout": {"x": -100, "y": 0},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "O",
       "layout": {"x": 0, "y": 80},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "B",
       "layout": {"x": 100, "y": 0},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "M",
       "layout": {"x": 0, "y": -80},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "X",
       "hostedBy": "w-B-O",
       "offset": 0.2,
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "V",
       "hostedBy": "w-M-B",
       "offset": 0.2,
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "J",
       "hostedBy": "w-M-B",
       "offset": 0.3,
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "W",
       "hostedBy": "w-M-B",
       "offset": 0.5,
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "U",
       "hostedBy": "w-R-M",
       "offset": 0.4,
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "G",
       "hostedBy": "w-R-M",
       "offset": 0.3,
-      "color": "green"
+      "color": "#006400"
     }
   ],
   "wires": [
@@ -73,7 +73,7 @@
       "target": "O",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "w-O-R",
@@ -81,7 +81,7 @@
       "target": "R",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "w-R-M",
@@ -89,7 +89,7 @@
       "target": "M",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "w-M-B",
@@ -97,31 +97,31 @@
       "target": "B",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "green"
+      "color": "#006400"
     },
     {
       "id": "w-F-B",
       "source": "F",
       "target": "B",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-F-O",
       "source": "F",
       "target": "O",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-F-R",
       "source": "F",
       "target": "R",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-F-M",
       "source": "F",
       "target": "M",
-      "color": "black"
+      "color": "#000"
     }
   ],
   "regions": [

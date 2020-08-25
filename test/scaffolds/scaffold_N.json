@@ -7,33 +7,33 @@
     {
       "id": "N",
       "layout": {"x": 0, "y": 0},
-      "color": "orange"
+      "color": "#FFA500"
     },
     {
       "id": "H",
       "layout": {"x": 80, "y": 0},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "E",
       "layout": {"x": 0, "y": 60},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "T",
       "layout": {"x": -80, "y": 0},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "K",
       "layout": {"x": 0, "y": -60},
-      "color": "red"
+      "color": "#FF0000"
     },
     {
       "id": "C",
       "hostedBy": "w-N-K",
       "offset": 0.3,
-      "color": "red"
+      "color": "#FF0000"
     }
   ],
   "wires": [
@@ -43,7 +43,7 @@
       "target": "E",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-E-T",
@@ -51,7 +51,7 @@
       "target": "T",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-T-K",
@@ -59,7 +59,7 @@
       "target": "K",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-K-H",
@@ -67,52 +67,52 @@
       "target": "H",
       "geometry": "arc",
       "arcCenter": {"x": 0, "y": 0},
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-N-H",
       "source": "N",
       "target": "H",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-N-E",
       "source": "N",
       "target": "E",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-N-T",
       "source": "N",
       "target": "T",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-N-K",
       "source": "N",
       "target": "K",
-      "color": "black"
+      "color": "#000"
     },
     {
       "id": "w-NT",
       "source": "N",
       "target": "T",
       "stroke": "thick",
-      "color": "lightblue"
+      "color": "#ADD8E6"
     },
     {
       "id": "w-NH",
       "source": "N",
       "target": "H",
       "stroke": "thick",
-      "color": "lightblue"
+      "color": "#ADD8E6"
     },
     {
       "id": "w-NC",
       "source": "N",
       "target": "C",
       "stroke": "thick",
-      "color": "lightblue"
+      "color": "#ADD8E6"
     }
   ],
   "regions": [

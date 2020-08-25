@@ -523,7 +523,9 @@ Wire.prototype.updateViewObjects = function(state) {
         let pos = getPoint(curve, _start, _end, d_i);
         pos = new THREE.Vector3(pos.x, pos.y, 0); //Arc wires are rendered in 2d
         copyCoords(anchor, pos);
-        copyCoords(anchor.viewObjects["main"].position, anchor);
+        if (anchor.viewObjects["main"]) {
+            copyCoords(anchor.viewObjects["main"].position, anchor);
+        }
     });
 
     this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Link));
