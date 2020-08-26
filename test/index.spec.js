@@ -82,7 +82,6 @@ describe("Generate model (Basal Ganglia)", () => {
         expect(graphData).to.have.property("references");
         expect(graphData).to.have.property("coalescences");
         expect(graphData).to.have.property("channels");
-        expect(graphData).to.have.property("chains");
 
         //"generatedFrom" should not be populated from subgroups
         expect(graphData.generatedFrom).to.be.a('null');

@@ -124,9 +124,13 @@ export class Graph extends Group{
                 if (clsName && !modelClasses[clsName].Model.schema.abstract){
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]        : id,
-                        [$Field.skipLabel] : true,
                         [$Field.generated] : true
                     }, modelClasses, entitiesByID);
+
+                    //Do not show labels for generated visual resources
+                    if (e.prototype instanceof modelClasses[$SchemaClass.VisualResource]){
+                        e.skipLabel = true;
+                    }
 
                     //Include newly created entity to the main graph
                     let prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];

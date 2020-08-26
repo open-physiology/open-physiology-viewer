@@ -13,27 +13,27 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                    (change)="join(fileInput1.files)"/>
             <input #fileInput2 type="file" accept=".json" [style.display]="'none'"
                    (change)="merge(fileInput2.files)"/>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
+            <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
                 <i class="fa fa-plus"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
+            <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
+            <button id="joinBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
                 <i class="fa fa-object-ungroup"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
+            <button id="mergeBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
                 <i class="fa fa-object-group"> </i>
             </button>
-            <button *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+            <button id="showRepoBtn" *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
                     (click)="toggleRepoPanel()" title="Show model repository">
                 <i class="fa fa-database"> </i>
             </button>
-            <button *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+            <button id="hideRepoBtn" *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
                     (click)="toggleRepoPanel()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
+            <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i> 
             </button>
         </section>
@@ -88,7 +88,6 @@ export class MainToolbar {
             }
         }
     }
-
 
     join(files) {
         if (files && files[0]){

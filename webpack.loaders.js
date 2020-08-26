@@ -19,6 +19,9 @@ module.exports = [
         test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         use: ["url-loader"]
     },
+    {   test: /\.xlsx$/,
+        loader: "webpack-xlsx-loader"
+    },
     {
         test: /\.scss$/,
         exclude: /node_modules/,

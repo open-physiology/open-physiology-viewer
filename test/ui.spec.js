@@ -19,7 +19,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {
     MatAutocompleteModule,
     MatDialogModule,
-    MatFormFieldModule, MatInputModule, MatSliderModule,
+    MatFormFieldModule, MatInputModule, MatSliderModule
 } from "@angular/material";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
@@ -35,6 +35,7 @@ import {WebGLSceneComponent} from "../src/components/webGLScene";
 
 import basalGanglia from './data/basalGanglia.json';
 import {modelClasses} from "../src/model";
+import {MainToolbar} from "../src/components/mainToolbar";
 
 let graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
 
@@ -86,7 +87,6 @@ describe("Search bar component", () => {
 
     it("SearchBar finds Cytosol", () => {
         sendInput('Cyto').then(() => {
-            fixture.detectChanges();
             let options = Array.from(containerElement.querySelectorAll('mat-option'));
             expect(options.length).to.equal(resourceNames.filter(e => e.includes('Cyto')).length);
         });
@@ -94,7 +94,6 @@ describe("Search bar component", () => {
 
     it("SearchBar finds Plasma", () => {
         sendInput('Plasma').then(() => {
-            fixture.detectChanges();
             let options = Array.from(containerElement.querySelectorAll('mat-option'));
             expect(options.length).to.equal(resourceNames.filter(e => e.includes('Plasma')).length);
         });
@@ -157,11 +156,73 @@ describe("Model viewer component", () => {
     afterEach(() => {});
 });
 
-//TODO add tests for MainToolbar
-// //trigger the click
-// const nativeElement = fixture.nativeElement;
-// const button = nativeElement.querySelector('button');
-// button.dispatchEvent(new Event('click'));
+describe("Main toolbar component", () => {
+    let toolbar;
+    let fixture;
+    beforeEach(() => {
+        TestBed.resetTestEnvironment();
+        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
+            platformBrowserDynamicTesting());
 
+        TestBed.configureTestingModule({
+            imports     : [CommonModule, FormsModule, BrowserModule],
+            declarations: [
+                MainToolbar
+            ]
+        });
+
+        fixture = TestBed.createComponent(MainToolbar);
+        toolbar = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    it("Main toolbar created", () => {
+        expect(toolbar).to.be.an('object');
+    });
+
+    it("Create new model button works", () => {
+        const button = fixture.nativeElement.querySelector('#createBtn');
+        button.dispatchEvent(new Event('click'));
+        //TODO expectations
+    });
+
+    it("Load model from file button works", () => {
+        const button = fixture.nativeElement.querySelector('#loadBtn');
+        button.dispatchEvent(new Event('click'));
+        //TODO expectations
+    });
+
+    it("Join models button works", () => {
+        const button = fixture.nativeElement.querySelector('#joinBtn');
+        button.dispatchEvent(new Event('click'));
+        //TODO expectations
+    });
+
+    it("Merge models button works", () => {
+        const button = fixture.nativeElement.querySelector('#mergeBtn');
+        button.dispatchEvent(new Event('click'));
+        //TODO expectations
+    });
+
+    it("Toggle model repo buttons work", () => {
+        const showBtn = fixture.nativeElement.querySelector('#showRepoBtn');
+        showBtn.dispatchEvent(new Event('click'));
+        //TODO expectations
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            const hideBtn = fixture.nativeElement.querySelector('#hideRepoBtn');
+            hideBtn.dispatchEvent(new Event('click'));
+            //TODO expectations
+        });
+    });
+
+    it("Export model button works", () => {
+        const button = fixture.nativeElement.querySelector('#saveBtn');
+        button.dispatchEvent(new Event('click'));
+        //TODO expectations
+    });
+
+    afterEach(() => {});
+});
 
 

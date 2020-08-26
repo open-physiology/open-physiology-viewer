@@ -15,6 +15,8 @@ import {$Field, $SchemaClass} from './utils';
 import {isString, keys, merge} from "lodash-bound";
 import * as schema from "./graphScheme";
 
+import * as XLSX from 'xlsx';
+
 export const modelClasses = {
     /*Abstract */
     [$SchemaClass.Resource]       : Resource,
