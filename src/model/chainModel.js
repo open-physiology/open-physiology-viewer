@@ -382,14 +382,18 @@ export class Chain extends GroupTemplate {
             }
 
             //Coalescence is always defined with the main housing lyph
-            let lyphCoalescence = {
-                [$Field.id]       : getGenID(housingLyph.id, $Prefix.coalescence, level.conveyingLyph),
-                [$Field.generated]: true,
-                [$Field.topology] : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
-                [$Field.lyphs]    : [housingLyph.id, level.conveyingLyph]
-            };
+            if (level.conveyingLyph) {
+                let lyphCoalescence = {
+                    [$Field.id]: getGenID(housingLyph.id, $Prefix.coalescence, level.conveyingLyph),
+                    [$Field.generated]: true,
+                    [$Field.topology]: Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
+                    [$Field.lyphs]: [housingLyph.id, level.conveyingLyph]
+                };
 
-            parentGroup.coalescences.push(lyphCoalescence);
+                parentGroup.coalescences.push(lyphCoalescence);
+            } else {
+                logger.warn("Skipped a coalescence between a housing lyph and a conveying lyph of the chain level it bundles: the conveying lyph is not defined", housingLyph.id, level.id);
+            }
         }
     }
 }

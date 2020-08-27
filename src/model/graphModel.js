@@ -161,7 +161,7 @@ export class Graph extends Group{
         }
 
         if ((entitiesByID.waitingList)::keys().length > 0){
-            logger.warn("Remaining references to undefined resources: ", entitiesByID.waitingList);
+            logger.error("Remaining references to undefined resources: ", entitiesByID.waitingList);
         }
 
         res.syncRelationships(modelClasses, entitiesByID);

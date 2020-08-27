@@ -183,7 +183,10 @@ describe("Main toolbar component", () => {
     it("Create new model button works", () => {
         const button = fixture.nativeElement.querySelector('#createBtn');
         button.dispatchEvent(new Event('click'));
-        //TODO expectations
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            //TODO expectations
+        });
     });
 
     it("Load model from file button works", () => {
