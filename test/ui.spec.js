@@ -15,31 +15,95 @@ import {
 
 import sinon from 'sinon';
 
-import {BrowserModule} from "@angular/platform-browser";
 import {
     MatAutocompleteModule,
-    MatDialogModule,
-    MatFormFieldModule, MatInputModule, MatSliderModule
-} from "@angular/material";
+    MatFormFieldModule, MatInputModule, MatDialogModule, MatSelectModule, MatListModule, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material";
+
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
-import {LogInfoModule} from "../src/components/gui/logInfoDialog";
-import {SettingsPanelModule} from "../src/components/settingsPanel";
 import {HttpClientModule} from "@angular/common/http";
 
 import {SearchBar} from "../src/components/gui/searchBar";
 import {ExternalSearchBar} from "../src/components/gui/externalSearchBar";
-import {WebGLSceneComponent} from "../src/components/webGLScene";
+import {ExternalSelectDialog} from "../src/components/gui/externalSelectDialog";
 
 import basalGanglia from './data/basalGanglia.json';
 import {modelClasses} from "../src/model";
-import {MainToolbar} from "../src/components/mainToolbar";
 
 let graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
 
-describe("Search bar component", () => {
+describe("ExternalSearchBar component", () => {
+    let searchBar;
+    let fixture;
+    beforeEach(() => {
+        TestBed.resetTestEnvironment();
+        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
+            platformBrowserDynamicTesting());
+
+        TestBed.configureTestingModule({
+            imports: [CommonModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule,  MatAutocompleteModule, MatFormFieldModule, MatInputModule, HttpClientModule],
+            declarations: [ ExternalSearchBar ]
+        });
+        fixture = TestBed.createComponent(ExternalSearchBar);
+        searchBar = fixture.componentInstance;
+    });
+
+    it("ExternalSearchBar is created", () => {
+        expect(searchBar).to.be.an('object');
+        //fixture.detectChanges();
+        //add conditions
+    });
+
+    it("ExternalSearchBar gets annotations for 'blood'", () =>{
+        //const query = "https://scigraph.olympiangods.org/scigraph/cypher/execute?cypherQuery=MATCH p=( o { label: 'blood'})-[r*]-(x) RETURN p";
+        // searchBar.selected = {
+        //     "id"  : "lyph_blood",
+        //     "name": "blood"
+        // };
+        // const button = fixture.nativeElement.querySelector('button');
+        // button.dispatchEvent(new Event('click'));
+        // fixture.detectChanges();
+        // fixture.whenStable().then(() => {
+        //     console.log(searchBar.result);
+        //     //TODO expectations - executeQuery called, http request executed, searchBar.result field set to show query results
+        // });
+    });
+
+    afterEach(() => {});
+});
+
+describe("ExternalSelectDialog component", () => {
+    let dialog;
+    let fixture;
+    beforeEach(() => {
+        TestBed.resetTestEnvironment();
+        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
+            platformBrowserDynamicTesting());
+
+        TestBed.configureTestingModule({
+            imports: [CommonModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatListModule, MatDialogModule, MatSelectModule, HttpClientModule],
+            providers: [
+                {provide: MatDialogRef, useValue: {close: (dialogResult) => {} }},
+                {provide: MAT_DIALOG_DATA, useValue: {}},
+            ],
+            declarations: [ ExternalSelectDialog ]
+        });
+        fixture = TestBed.createComponent(ExternalSelectDialog);
+        dialog = fixture.componentInstance;
+    });
+
+    it("ExternalSelectDialog is created", () => {
+        expect(dialog).to.be.an('object');
+        //fixture.detectChanges();
+        //add conditions
+    });
+
+    afterEach(() => {});
+});
+
+describe("SearchBar component", () => {
     let searchBar;
     let fixture;
     let container;
@@ -102,130 +166,6 @@ describe("Search bar component", () => {
     afterEach(() => {});
 });
 
-describe("External search bar component", () => {
-    let searchBar;
-    let fixture;
-    beforeEach(() => {
-        TestBed.resetTestEnvironment();
-        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
-            platformBrowserDynamicTesting());
 
-        TestBed.configureTestingModule({
-            imports: [CommonModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule,  MatAutocompleteModule, MatFormFieldModule, MatInputModule, HttpClientModule],
-            declarations: [ ExternalSearchBar ]
-        });
-        fixture = TestBed.createComponent(ExternalSearchBar);
-        searchBar = fixture.componentInstance;
-    });
-
-    it("ExternalSearchBar is created", () => {
-        expect(searchBar).to.be.an('object');
-        //fixture.detectChanges();
-        //add conditions
-    });
-
-    afterEach(() => {});
-});
-
-describe("Model viewer component", () => {
-    let viewer;
-    let fixture;
-    beforeEach(() => {
-        TestBed.resetTestEnvironment();
-        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
-            platformBrowserDynamicTesting());
-
-        TestBed.configureTestingModule({
-            imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
-                BrowserAnimationsModule],
-            declarations: [
-                WebGLSceneComponent
-            ]
-        });
-
-        fixture = TestBed.createComponent(WebGLSceneComponent);
-        viewer = fixture.componentInstance;
-    });
-
-    it("ApiNATOMY viewer created", () => {
-        expect(viewer).to.be.an('object');
-
-        //add conditions
-    });
-
-    afterEach(() => {});
-});
-
-describe("Main toolbar component", () => {
-    let toolbar;
-    let fixture;
-    beforeEach(() => {
-        TestBed.resetTestEnvironment();
-        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
-            platformBrowserDynamicTesting());
-
-        TestBed.configureTestingModule({
-            imports     : [CommonModule, FormsModule, BrowserModule],
-            declarations: [
-                MainToolbar
-            ]
-        });
-
-        fixture = TestBed.createComponent(MainToolbar);
-        toolbar = fixture.componentInstance;
-        fixture.detectChanges();
-    });
-
-    it("Main toolbar created", () => {
-        expect(toolbar).to.be.an('object');
-    });
-
-    it("Create new model button works", () => {
-        const button = fixture.nativeElement.querySelector('#createBtn');
-        button.dispatchEvent(new Event('click'));
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            //TODO expectations
-        });
-    });
-
-    it("Load model from file button works", () => {
-        const button = fixture.nativeElement.querySelector('#loadBtn');
-        button.dispatchEvent(new Event('click'));
-        //TODO expectations
-    });
-
-    it("Join models button works", () => {
-        const button = fixture.nativeElement.querySelector('#joinBtn');
-        button.dispatchEvent(new Event('click'));
-        //TODO expectations
-    });
-
-    it("Merge models button works", () => {
-        const button = fixture.nativeElement.querySelector('#mergeBtn');
-        button.dispatchEvent(new Event('click'));
-        //TODO expectations
-    });
-
-    it("Toggle model repo buttons work", () => {
-        const showBtn = fixture.nativeElement.querySelector('#showRepoBtn');
-        showBtn.dispatchEvent(new Event('click'));
-        //TODO expectations
-        fixture.detectChanges();
-        fixture.whenStable().then(() => {
-            const hideBtn = fixture.nativeElement.querySelector('#hideRepoBtn');
-            hideBtn.dispatchEvent(new Event('click'));
-            //TODO expectations
-        });
-    });
-
-    it("Export model button works", () => {
-        const button = fixture.nativeElement.querySelector('#saveBtn');
-        button.dispatchEvent(new Event('click'));
-        //TODO expectations
-    });
-
-    afterEach(() => {});
-});
 
 

@@ -44,7 +44,7 @@ export class ExternalSearchBar {
 
     @Input('selected') set resource(newSelected) {
         const nameQuery = (sName) => `cypher/execute?cypherQuery=MATCH p=( o { label: "${sName}"})-[r*]-(x) RETURN p`;
-        const idQuery = (id) => `graph/reachablefrom/${id}`;
+        //const idQuery = (id) => `graph/reachablefrom/${id}`;
 
         this._selected = newSelected;
         this.query = "";

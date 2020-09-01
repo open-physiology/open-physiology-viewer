@@ -60,6 +60,8 @@ export class ExternalSelectDialog {
     dialogRef;
     data;
 
+    //TODO add "to lower case setting" - SciGraph cannot find "Blood" but can find "blood"
+
     constructor(http: HttpClient, dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.http  = http;
         this.dialogRef = dialogRef;

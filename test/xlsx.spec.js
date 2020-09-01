@@ -11,14 +11,14 @@ import {loadModel} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
 
-describe("Generate groups from villus templates", () => {
+describe("Load Excel templates", () => {
     let graphData;
     beforeEach(() => {
-        let keastModel = loadModel(keastExcelModel, "KeastModel", "xlsx");
+        let keastModel = loadModel(keastExcelModel, "KeastModel", "xlsx", false);
         graphData = modelClasses.Graph.fromJSON(keastModel, modelClasses);
     });
 
-    it("Excel model imported", () => {
+    it("Excel model imported (KeastModel)", () => {
         expect(graphData).to.have.property("class");
         expect(graphData).to.be.instanceOf(modelClasses.Graph);
 

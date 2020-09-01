@@ -388,7 +388,12 @@ export class Graph extends Group{
         }
 
         const assignAxisLength = (lyph, container) => {
+            if (!lyph.axis){
+                logger.warn("Failed to compute axis length for an internal lyph - axis undefined", lyph);
+                return;
+            }
             if (container.axis) {
+                //TODO lyph can be internal in a region - dynamically compute length based on region width or length
                 if (!container.axis.length && container.container) {
                     assignAxisLength(container, container.container);
                 }
