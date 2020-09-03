@@ -1,6 +1,12 @@
-import {Component, Output, EventEmitter, Input} from '@angular/core';
+import {Component, Output, EventEmitter, Input, NgModule} from '@angular/core';
 
 import {loadModel} from '../model/modelClasses';
+import {ImportExcelModelDialog} from "./gui/importExcelModelDialog";
+import {MatDialog, MatDialogModule, MatFormFieldModule, MatInputModule} from '@angular/material';
+import {CommonModule} from "@angular/common";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {HttpClient} from "@angular/common/http";
+
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
@@ -33,7 +39,10 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     (click)="toggleRepoPanel()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
             </button>
-            <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
+            <!--<button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">-->
+               <!--<i class="fa fa-file-excel-o"> </i>-->
+            <!--</button>-->
+           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i> 
             </button>
         </section>
@@ -41,10 +50,6 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     styles: [`
         .vertical-toolbar{
             width : 48px; 
-        }
-
-        #repo-panel{
-            height : 100vh;
         }
 	`]
 })
@@ -56,9 +61,29 @@ export class MainToolbar {
     @Output() onMergeModel      = new EventEmitter();
     @Output() onExportModel     = new EventEmitter();
     @Output() onToggleRepoPanel = new EventEmitter();
+    @Output() onImportExcelModel = new EventEmitter();
+
+    constructor(http: HttpClient, dialog: MatDialog){
+        this._http = http;
+        this._dialog = dialog;
+    }
 
     toggleRepoPanel(){
         this.onToggleRepoPanel.emit();
+    }
+
+    importExcel(){
+        const dialogRef = this._dialog.open(ImportExcelModelDialog, {width: '75%'});
+
+        dialogRef.afterClosed().subscribe(spreadsheetID => {
+            if (spreadsheetID !== undefined){
+                let url = `https://docs.google.com/spreadsheets/d/${spreadsheetID}/export?format=xlsx`;
+                this._http.get(url).subscribe(res => {
+                    let model = loadModel(res, spreadsheetID, "xlsx");
+                    this.onImportExcelModel.emit(model);
+                });
+            }
+        });
     }
 
     create(){
@@ -123,4 +148,11 @@ export class MainToolbar {
         this.onExportModel.emit();
     }
 }
-
+@NgModule({
+    imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule],
+    declarations: [MainToolbar, ImportExcelModelDialog],
+    entryComponents: [ImportExcelModelDialog],
+    exports: [MainToolbar]
+})
+export class MainToolbarModule {
+}

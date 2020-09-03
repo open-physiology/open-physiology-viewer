@@ -131,8 +131,6 @@ const WindowResize = require('three-window-resize');
  */
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
-    logDialog: MatDialog;
-
     showPanel = false;
     scene;
     camera;

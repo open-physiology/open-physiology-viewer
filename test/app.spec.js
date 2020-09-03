@@ -14,16 +14,25 @@ import {
 import sinon from 'sinon';
 
 import {BrowserModule} from "@angular/platform-browser";
-import { MatDialogModule, MatSliderModule} from "@angular/material";
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSliderModule
+} from "@angular/material";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 import {LogInfoModule} from "../src/components/gui/logInfoDialog";
 import {SettingsPanelModule} from "../src/components/settingsPanel";
 import {WebGLSceneComponent} from "../src/components/webGLScene";
 
 import {MainToolbar} from "../src/components/mainToolbar";
+import {ImportExcelModelDialog} from "../src/components/gui/importExcelModelDialog";
+import {HttpClientModule} from "@angular/common/http";
 
 describe("MainToolbar component", () => {
     let toolbar;
@@ -34,10 +43,13 @@ describe("MainToolbar component", () => {
             platformBrowserDynamicTesting());
 
         TestBed.configureTestingModule({
-            imports     : [CommonModule, FormsModule, BrowserModule],
+            imports     : [CommonModule, FormsModule, BrowserModule, MatDialogModule, MatFormFieldModule, MatInputModule, HttpClientModule],
             declarations: [
-                MainToolbar
-            ]
+                MainToolbar, ImportExcelModelDialog
+            ],
+            providers: [
+                {provide: MatDialogRef, useValue: {close: (dialogResult) => {} }}
+            ],
         });
 
         fixture = TestBed.createComponent(MainToolbar);

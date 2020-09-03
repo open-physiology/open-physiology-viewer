@@ -8,8 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
-import { MainToolbar } from "../components/mainToolbar";
-
+import { MainToolbarModule } from "../components/mainToolbar";
 import { WebGLSceneModule } from '../components/webGLScene';
 import { ResourceEditorModule } from '../components/gui/resourceEditor';
 import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
@@ -27,6 +26,8 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import {$Field, mergeResources} from "../model/utils";
+import {ImportExcelModelDialog} from "../components/gui/importExcelModelDialog";
+import {FormsModule} from "@angular/forms";
 
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
@@ -68,6 +69,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             (onJoinModel)       = "join($event)"
             (onMergeModel)      = "merge($event)"
             (onExportModel)     = "save()"
+            (onImportExcelModel)= "load($event)" 
             (onToggleRepoPanel) = "toggleRepoPanel()">     
         </main-toolbar>
 
@@ -353,10 +355,10 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [ BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
-        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule],
-	declarations: [ TestApp, MainToolbar ],
-    bootstrap   : [ TestApp ],
+	imports     : [BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
+        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule, MainToolbarModule],
+	declarations: [TestApp],
+    bootstrap   : [TestApp],
     providers   : [
         {
             provide: ErrorHandler,
