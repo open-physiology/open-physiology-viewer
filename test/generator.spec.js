@@ -1,8 +1,6 @@
 import {
     describe,
     it,
-    beforeEach,
-    afterEach,
     before,
     after,
     expect,
@@ -23,8 +21,6 @@ import basicJointTrees from './data/basicJointTrees';
 import basicLyphWithNoAxis from './data/basicLyphWithNoAxis';
 import basicSharedNodes from './data/basicSharedNodes';
 import basicVillus from './data/basicVillus';
-
-import bolserLewis from './data/bolserLewis';
 
 import fullBody from './data/fullBody';
 import fullBodyRegions from './data/fullBodyRegions';

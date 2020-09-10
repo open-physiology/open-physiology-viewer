@@ -2087,7 +2087,7 @@
           ],
           "readOnly": true
         },
-        "scaffolds":{
+        "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",
           "type": "array",
           "items": {

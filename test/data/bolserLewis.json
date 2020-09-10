@@ -2754,6 +2754,15 @@
         "lnk15",
         "lnk16"
       ]
+    },
+    {
+      "id": "chainUnion",
+      "name": "Chain union group",
+      "chains": [
+        "CB-NTS-d",
+        "CS-NTS-d",
+        "AB-NTS-d"
+      ]
     }
   ],
   "id": "bolserLewis2",

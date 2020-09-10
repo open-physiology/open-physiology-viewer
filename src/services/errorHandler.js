@@ -9,7 +9,6 @@ export class GlobalErrorHandler implements ErrorHandler {
     constructor(snackBar: MatSnackBar) {
         this._snackBar = snackBar;
         this.config.panelClass = ['w3-panel', 'w3-red'];
-        this.config.duration = 3000;
     }
 
     handleError(error) {

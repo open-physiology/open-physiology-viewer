@@ -13,6 +13,7 @@ import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field} from "../model/utils";
+import sciCrunch from "../data/sciCrunch";
 
 const WindowResize = require('three-window-resize');
 
@@ -53,7 +54,11 @@ const WindowResize = require('three-window-resize');
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportJSON()" title="Export json ">
+                                (click)="addQueryGroup()" title="Show query result as group">
+                            <i class="fa fa-question-circle-o"> </i>
+                        </button>
+                        <button class="w3-bar-item w3-hover-light-grey"
+                                (click)="exportJSON()" title="Export json">
                             <i class="fa fa-file-code-o"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
@@ -296,6 +301,34 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
+    }
+
+    addQueryGroup(){
+        let nodeIDs  = (sciCrunch.nodes||[]).map(r => (r.id||"").substr(r.id.indexOf(":") + 1));
+        let linkIDs =  (sciCrunch.edges||[]).map(r => (r.sub||"").substr(r.sub.indexOf(":") + 1));
+        if (this.graphData){
+            let nodes  = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
+            let links = (this.graphData.links||[]).filter(e => linkIDs.includes(e.id));
+            if (nodes.length || links.length){
+                (links||[]).forEach(lnk => {
+                    if (!nodes.find(node => node.id === lnk.source.id)){
+                        nodes.push(lnk.source);
+                    }
+                    if (!nodes.find(node => node.id === lnk.target.id)){
+                        nodes.push(lnk.target);
+                    }
+                });
+                //Add new group
+                let group = this.modelClasses.Group.fromJSON({
+                    "id": "query",
+                    "name": "Query response",
+                    "nodes": nodes,
+                    "links": links
+                }, this.modelClasses);
+                this.graphData.groups = this.graphData.groups || [];
+                this.graphData.groups.push(group);
+            }
+        }
     }
 
     exportJSON(){

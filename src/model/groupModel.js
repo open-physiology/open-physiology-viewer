@@ -5,7 +5,7 @@ import {logger} from './logger';
 import {$GenEventMsg} from "./genEvent";
 
 /**
- * Group (subgraph) model
+ * Group (subgraph) in the connectivity model
  * @class
  * @property nodes
  * @property links
@@ -43,9 +43,6 @@ export class Group extends Resource {
             }
             delete region.internalAnchors;
         });
-
-        //correct lyph definitions by marking layers of templates as templates
-        modelClasses.Lyph.markAsTemplate(json.lyphs);
 
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
@@ -213,7 +210,6 @@ export class Group extends Resource {
                     modelClasses[clsName].expandTemplate(json, template);
                 } else {
                     logger.info("Found template defined in another group", template);
-                    //logger.info("Added references to generated groups", template);
                     json[$Field.groups] = json[$Field.groups] || [];
                     json[$Field.groups].push(getGenID($Prefix.group, template));
                 }
@@ -544,6 +540,12 @@ export class Group extends Resource {
         if (!ids) {return;}
         (this.groups||[]).forEach(g => {
             if (ids.find(id => g.isGeneratedFrom(id))){
+                //Show also nested groups of included groups
+                (g.groups||[]).forEach(g2 => {
+                  if (!ids.find(id2 => g2.isGeneratedFrom(id2))){
+                      ids.push(g2.id);
+                  }
+                });
                 g.show();
             } else {
                 g.hide();

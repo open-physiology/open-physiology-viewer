@@ -39,9 +39,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     (click)="toggleRepoPanel()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
             </button>
-            <!--<button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">-->
-               <!--<i class="fa fa-file-excel-o"> </i>-->
-            <!--</button>-->
+            <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
+               <i class="fa fa-file-excel-o"> </i>
+            </button>
            <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i> 
             </button>
@@ -77,11 +77,16 @@ export class MainToolbar {
 
         dialogRef.afterClosed().subscribe(spreadsheetID => {
             if (spreadsheetID !== undefined){
-                let url = `https://docs.google.com/spreadsheets/d/${spreadsheetID}/export?format=xlsx`;
-                this._http.get(url).subscribe(res => {
-                    let model = loadModel(res, spreadsheetID, "xlsx");
-                    this.onImportExcelModel.emit(model);
-                });
+                let url = `https://docs.google.com/spreadsheets/d/e/${spreadsheetID}/pub?output=xlsx`;
+                this._http.get(url).subscribe(
+                    res => {
+                        let model = loadModel(res, spreadsheetID, "xlsx");
+                        this.onImportExcelModel.emit(model);
+                    },
+                    err => {
+                        throw new Error("Failed to import Google spreadsheet model!");
+                    }
+                );
             }
         });
     }

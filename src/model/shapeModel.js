@@ -9,10 +9,8 @@ import {
     findResourceByID,
     getNewID,
     LYPH_TOPOLOGY,
-    WIRE_GEOMETRY,
     mergeResources, $Color
 } from './utils';
-import {THREE} from "../view/utils";
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -86,21 +84,6 @@ export class Lyph extends Shape {
     static fromJSON(json, modelClasses = {}, entitiesByID) {
         json.numBorders = 4;
         return super.fromJSON(json, modelClasses, entitiesByID);
-    }
-
-    static markAsTemplate(lyphs){
-        //TODO fix this, it does not work
-        // (lyphs||[]).forEach(lyph => {
-        //     if (lyph.isTemplate){
-        //         (lyph.layers||[]).forEach(e => {
-        //             let layer = findResourceByID(lyphs, e);
-        //             if (layer && !layer.isTemplate){
-        //                 layer.isTemplate = true;
-        //                 logger.warn("Lyph template layer was marked as template", layer.id)
-        //             }
-        //         })
-        //     }
-        // });
     }
 
     /**
@@ -409,5 +392,3 @@ export class Border extends VisualResource {
         return this.host? this.host.isVisible: super.isVisible;
     }
 }
-
-
