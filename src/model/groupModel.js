@@ -1,8 +1,7 @@
 import { Resource } from './resourceModel';
 import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, getID} from './utils';
-import {logger} from './logger';
-import {$GenEventMsg} from "./genEvent";
+import {logger, $LogMsg} from './logger';
 
 /**
  * Group (subgraph) in the connectivity model
@@ -184,10 +183,10 @@ export class Group extends Resource {
             }
         });
         if (changedLyphs > 0){
-            logger.info(...$GenEventMsg.REF_TO_LYPH(changedLyphs));
+            logger.info($LogMsg.REF_TO_LYPH, changedLyphs);
         }
         if (changedMaterials > 0){
-            logger.info(...$GenEventMsg.REF_TO_MAT(changedMaterials));
+            logger.info($LogMsg.REF_TO_MAT, changedMaterials);
         }
     }
 

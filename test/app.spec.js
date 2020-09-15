@@ -94,8 +94,8 @@ describe("MainToolbar component", () => {
         //TODO expectations
         fixture.detectChanges();
         fixture.whenStable().then(() => {
-            const hideBtn = fixture.nativeElement.querySelector('#hideRepoBtn');
-            hideBtn.dispatchEvent(new Event('click'));
+            // const hideBtn = fixture.nativeElement.querySelector('#hideRepoBtn');
+            // hideBtn.dispatchEvent(new Event('click'));
             //TODO expectations
         });
     });

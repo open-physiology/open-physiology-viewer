@@ -2,10 +2,9 @@ import {Resource} from "./resourceModel";
 import {Component} from "./componentModel";
 import {Validator} from "jsonschema";
 import schema from "./graphScheme";
-import {logger} from "./logger";
+import {logger, $LogMsg} from "./logger";
 import {cloneDeep, defaults, entries, isNumber, isObject, keys} from "lodash-bound";
 import {$Field, $SchemaClass} from "./utils";
-import {$GenEventMsg} from "./genEvent";
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 export class Scaffold extends Component {
@@ -58,13 +57,13 @@ export class Scaffold extends Component {
         });
 
         //Log info about the number of generated resources
-        logger.info(...$GenEventMsg.GEN_RESOURCES(entitiesByID::keys().length));
+        logger.info($LogMsg.REF_GEN, entitiesByID::keys().length);
 
         if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);
             let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
             if (resources.length > 0) {
-                logger.warn(...$GenEventMsg.AUTO_GEN(resources));
+                logger.warn($LogMsg.AUTO_GEN, resources);
             }
         }
 

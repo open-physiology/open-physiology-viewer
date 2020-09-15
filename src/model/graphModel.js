@@ -1,5 +1,5 @@
 import { Group } from './groupModel';
-import {Resource} from "./resourceModel";
+import { Resource } from "./resourceModel";
 import { Node, Link } from "./visualResourceModel";
 import {
     entries,
@@ -16,9 +16,8 @@ import {
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getSchemaClass, $SchemaType} from "./utils";
-import {$GenEventMsg} from "./genEvent";
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 export { schema };
@@ -145,23 +144,23 @@ export class Graph extends Group{
         });
 
         //Log info about the number of generated resources
-        logger.info(...$GenEventMsg.GEN_RESOURCES(entitiesByID::keys().length));
+        logger.info($LogMsg.REF_GEN, entitiesByID::keys().length);
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
             let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
             if (resources.length > 0) {
-                logger.warn(...$GenEventMsg.AUTO_GEN(resources));
+                logger.warn($LogMsg.AUTO_GEN, resources);
             }
 
             let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
             if (externals.length > 0){
-                logger.warn(...$GenEventMsg.AUTO_GEN_EXTERNAL(externals));
+                logger.warn($LogMsg.AUTO_GEN_EXTERNAL, externals);
             }
         }
 
         if ((entitiesByID.waitingList)::keys().length > 0){
-            logger.error("Remaining references to undefined resources: ", entitiesByID.waitingList);
+            logger.error($LogMsg.REF_UNDEFINED, entitiesByID.waitingList);
         }
 
         res.syncRelationships(modelClasses, entitiesByID);

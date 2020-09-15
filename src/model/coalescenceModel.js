@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import {logger} from "./logger";
+import {logger, $LogMsg} from "./logger";
 import { keys, values, uniqBy} from 'lodash-bound';
 import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID} from "./utils";
 
@@ -19,20 +19,17 @@ export class Coalescence extends Resource{
      * @param modelClasses - model resource classes
      */
     createInstances(parentGroup, modelClasses){
-        if (this.abstract) {return; }
-        let lyph = this.lyphs[0];
-        if (!lyph) { return; }
+        if (this.abstract || !this.lyphs) {return; }
         let lyphMap = {};
-
-        //FIX ME - where do the undefined lyphs come from?
-        this.lyphs = (this.lyphs||[]).filter(x => !!x);
 
         this.lyphs.forEach(lyphOrMat => {
             if (!lyphOrMat) {
-                logger.error("Unable to access lyph for coalescence definition", this.lyphs);
+                logger.error($LogMsg.COALESCENCE_NO_LYPH, this.id, this.lyphs);
                 return;
             }
             if (lyphOrMat.isTemplate){
+                //TODO find derived lyph instances recursively?
+                //TODO do not define coalescences for layers of abstract lyphs?
                 lyphMap[lyphOrMat.id] = lyphOrMat.subtypes || [];
             } else {
                 if (lyphOrMat.class === $SchemaClass.Material) {
@@ -42,8 +39,6 @@ export class Coalescence extends Resource{
         });
         if (lyphMap::keys().length > 0){
             //coalescence was defined on abstract lyphs - generate coalescence instances
-
-            //TODO why lyph is undefined?
             this.lyphs.forEach(lyph => {
                 lyphMap[lyph.id] = lyphMap[lyph.id] || [lyph];
             });
@@ -51,7 +46,7 @@ export class Coalescence extends Resource{
             let lyphInstances = lyphMap::values();
             let emptySet = lyphInstances.find(lyphs => lyphs.length === 0);
             if (emptySet){
-                logger.warn("No lyph instances found for abstract coalescence", this, lyphInstances);
+                logger.warn($LogMsg.COALESCENCE_NO_INSTANCE, this, lyphInstances);
                 return;
             }
 
@@ -83,20 +78,15 @@ export class Coalescence extends Resource{
      * Validate whether the lyphs in the coalescence template are allowed to coalesce (e.g., lyph layers cannot coalesce with their container, etc.)
      */
     validate(){
-        if (this.abstract || !this.lyphs) { return; }
+        if (this.abstract || !this.lyphs || !this.lyphs[0]) { return; }
         let lyph = this.lyphs[0];
-        if (!lyph) { return; }
-
-        //FIX ME - where do the undefined lyphs come from?
-        this.lyphs = (this.lyphs||[]).filter(x => !!x);
-
         this.lyphs.forEach((lyph2, i) => {
             if (i <= 0) {return; }
             if ((lyph2.layers||[]).find(x => x.id === lyph.id) || (lyph.layers||[]).find(x => x.id === lyph2.id)) {
-                logger.warn("A lyph coalesces with itself or its layers", lyph, lyph2);
+                logger.warn($LogMsg.COALESCENCE_SELF, lyph, lyph2);
             }
             if (!lyph.axis || !lyph2.axis) {
-                logger.warn("A coalescing lyph is missing an axis", !lyph.axis ? lyph : lyph2);
+                logger.warn($LogMsg.COALESCENCE_NO_AXIS, !lyph.axis ? lyph : lyph2);
             }
             lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
         })

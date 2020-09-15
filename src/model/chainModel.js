@@ -14,9 +14,8 @@ import {
     $Color,
     $Prefix, getGenName
 } from "./utils";
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, isString, flatten} from 'lodash-bound';
-import {$GenEventMsg} from "./genEvent";
 
 /**
  * Chain model
@@ -35,7 +34,7 @@ export class Chain extends GroupTemplate {
      */
     static expandTemplate(parentGroup, chain){
         if (!chain){
-            logger.warn(...$GenEventMsg.CHAIN_UNDEFINED);
+            logger.warn($LogMsg.CHAIN_UNDEFINED);
             return;
         }
 
@@ -48,7 +47,7 @@ export class Chain extends GroupTemplate {
 
         if ( !(chain.numLevels || isDefined(chain.levels) || isDefined(chain.lyphs) ||
             isDefined(chain.housingLyphs) || chain.housingChain)) {
-            logger.warn(...$GenEventMsg.CHAIN_SKIPPED(chain));
+            logger.warn($LogMsg.CHAIN_SKIPPED, chain);
             return;
         }
 
@@ -65,7 +64,7 @@ export class Chain extends GroupTemplate {
                     //find lyph template to establish chain topology
                     template = (parentGroup.lyphs||[]).find(e => e.id === chain.lyphTemplate);
                     if (!template){
-                        logger.error(...$GenEventMsg.CHAIN_LYPH_TEMPLATE_MISSING(chain.lyphTemplate));
+                        logger.error($LogMsg.CHAIN_LYPH_TEMPLATE_MISSING, chain.lyphTemplate);
                     }
                 }
             }
@@ -111,7 +110,7 @@ export class Chain extends GroupTemplate {
             conveyingMaterials = [...new Set(conveyingMaterials)];
 
             if (conveyingMaterials.length > 0){
-                logger.warn("Incorrectly defined chain pattern - innermost layers do not convey the same material!", chain.lyphs);
+                logger.warn($LogMsg.CHAIN_MAT_DIFF, chain.lyphs);
             }
 
             let [start, end] = [$Field.root, $Field.leaf].map(prop => findResourceByID(parentGroup.nodes, chain[prop]));
@@ -170,12 +169,12 @@ export class Chain extends GroupTemplate {
         function deriveFromLevels(){
             if (chain.housingChain){
                 if (chain.housingLyphs){
-                    logger.warn(`Conflicting chain specification: both "${$Field.housingLyphs}" and "${$Field.housingChain}" are given. Proceeding with "${$Field.housingLyphs}".`)
+                    logger.warn($LogMsg.CHAIN_CONFLICT, chain);
                 } else {
                     //Retrieve lyphs from housing chain
                     let housingChain = findResourceByID(parentGroup.chains, chain.housingChain);
                     if (!housingChain){
-                        logger.warn(`Incorrect chain specification: "${$Field.housingChain}" not found!`);
+                        logger.warn($LogMsg.CHAIN_NO_HOUSING, chain.id);
                         return;
                     }
                     chain.housingLyphs = housingChain.lyphs || [];
@@ -183,9 +182,8 @@ export class Chain extends GroupTemplate {
                         let min = Math.max(chain.housingRange.min, 0);
                         let max = Math.min(chain.housingRange.max, chain.housingLyphs.length);
                         chain.housingLyphs = chain.housingLyphs.slice(min, max);
+                        logger.info($LogMsg.CHAIN_SLICE, housingChain.id, chain.housingLyphs.length);
                     }
-                    //Slice to the range
-                    logger.info(`Found ${chain.housingLyphs.length} lyphs in the housing chain ${housingChain.id}`);
                 }
             }
 
@@ -205,7 +203,7 @@ export class Chain extends GroupTemplate {
             if (chain.levels.length !== chain.numLevels){
                 let min = Math.min(chain.levels.length, chain.numLevels || 100);
                 let max = Math.max(chain.levels.length, chain.numLevels || 0);
-                logger.info(`Corrected number of levels in the chain from ${min} to ${max}` );
+                logger.info($LogMsg.CHAIN_NUM_LEVELS, min, max);
                 for (let i = min; i < max; i++){
                     chain.levels.push({});
                 }
@@ -222,7 +220,7 @@ export class Chain extends GroupTemplate {
 
             for (let i = 0; i < sources.length; i++){
                 if (sources[i] && targets[i] && !compareResources(sources[i], targets[i])){
-                    logger.error(`A mismatch between link ends found at level ${i}: `, sources[i], targets[i]);
+                    logger.error($LogMsg.CHAIN_LEVEL_ERROR, i, sources[i], targets[i]);
                 }
                 let newNode = {
                     [$Field.id]        : getGenID(chain.id, $Prefix.node, i),
@@ -285,7 +283,7 @@ export class Chain extends GroupTemplate {
 
         if (isDefined(chain.lyphs)){
             if (isDefined(chain.levels)){
-                logger.warn(`Conflicting chain specification: both "${$Field.lyphs}" and "${$Field.levels}" arrays are given. Proceeding with "${$Field.lyphs}".`)
+                logger.warn($LogMsg.CHAIN_CONFLICT2);
             }
             deriveFromLyphs(parentGroup, chain)
         } else {
@@ -315,7 +313,7 @@ export class Chain extends GroupTemplate {
             if (!chain.housingLyphs[i]) {return; }
             let housingLyph = findResourceByID(parentGroup.lyphs, chain.housingLyphs[i]);
             if (!housingLyph) {
-                logger.warn("Failed to find a housing lyph", chain.housingLyphs[i]);
+                logger.warn($LogMsg.CHAIN_NO_HOUSING_LYPH, chain.housingLyphs[i]);
                 return;
             }
 
@@ -325,7 +323,7 @@ export class Chain extends GroupTemplate {
                 let layers = hostLyph.layers.map(layerID => findResourceByID(parentGroup.lyphs, layerID));
                 layers = layers.filter(layer => !!layer);
                 if (layers.length < hostLyph.layers){
-                    logger.warn("Failed to find all lyph layers: ", hostLyph.layers);
+                    logger.warn($LogMsg.CHAIN_NO_HOUSING_LAYERS, hostLyph.layers, hostLyph.id);
                     return;
                 }
                 let bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id));
@@ -334,7 +332,7 @@ export class Chain extends GroupTemplate {
                     if (chain.housingLayers[i] < index){
                         index = Math.max(0, chain.housingLayers[i]);
                         if (bundlingLayer && (bundlingLayer !== layers[index])){
-                            logger.warn(`Conflicting specification of housing layer: layer's ${$Field.bundlesChains} property disagrees with the chain's ${$Field.housingLayers} property`,
+                            logger.warn($LogMsg.CHAIN_CONFLICT3,
                                 bundlingLayer.id, layers[index].id);
                         }
                     }
@@ -345,7 +343,7 @@ export class Chain extends GroupTemplate {
             let level = findResourceByID(parentGroup.links, chain.levels[i]);
 
             if (!hostLyph || !level)  {
-                logger.warn(`Could not house a chain level ${chain.levels[i]} in a lyph ${housingLyph.id}`, level, hostLyph);
+                logger.warn($LogMsg.CHAIN_NO_HOUSING_LYPH, housingLyph.id, chain.levels[i], level, hostLyph);
                 return;
             }
 
@@ -378,21 +376,20 @@ export class Chain extends GroupTemplate {
                     chain.group.links.push(lnk);
                 }
             } else {
-                logger.warn("Housing lyph or its layer is a template", hostLyph);
+                logger.warn($LogMsg.CHAIN_HOUSING_TEMPLATE, hostLyph);
             }
 
             //Coalescence is always defined with the main housing lyph
             if (level.conveyingLyph) {
                 let lyphCoalescence = {
-                    [$Field.id]: getGenID(housingLyph.id, $Prefix.coalescence, level.conveyingLyph),
-                    [$Field.generated]: true,
-                    [$Field.topology]: Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
-                    [$Field.lyphs]: [housingLyph.id, level.conveyingLyph]
+                    [$Field.id]        : getGenID(housingLyph.id, $Prefix.coalescence, level.conveyingLyph),
+                    [$Field.generated] : true,
+                    [$Field.topology]  : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
+                    [$Field.lyphs]     : [housingLyph.id, level.conveyingLyph]
                 };
-
                 parentGroup.coalescences.push(lyphCoalescence);
             } else {
-                logger.warn("Skipped a coalescence between a housing lyph and a conveying lyph of the chain level it bundles: the conveying lyph is not defined", housingLyph.id, level.id);
+                logger.warn($LogMsg.CHAIN_NO_COALESCENCE, housingLyph.id, level.id);
             }
         }
     }

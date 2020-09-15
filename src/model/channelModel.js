@@ -276,7 +276,6 @@ export class Channel extends GroupTemplate {
                 let layerCoalescence = {
                     [$Field.id]       : getGenID(layer.id, $Prefix.channel, instance.lyphs[i]),
                     [$Field.generated]: true,
-                    [$Field.skipLabel]: true,
                     [$Field.topology] : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                     [$Field.lyphs]    : [layer.id, instance.lyphs[i]]
                 };
