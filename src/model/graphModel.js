@@ -144,7 +144,7 @@ export class Graph extends Group{
         });
 
         //Log info about the number of generated resources
-        logger.info($LogMsg.REF_GEN, entitiesByID::keys().length);
+        logger.info($LogMsg.RESOURCE_NUM, entitiesByID::keys().length);
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
@@ -215,7 +215,7 @@ export class Graph extends Group{
                     let convention = {};
                     table[i].forEach((value, j) => {
                         if (!headers[j]) {
-                            logger.error("No column name");
+                            logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
                             return;
                         }
                         let key = headers[j].trim();
@@ -230,12 +230,11 @@ export class Graph extends Group{
             }
             let clsName = relName === "main"? $SchemaClass.Graph: graphSchema.relClassNames[relName];
             if (!modelClasses[clsName]) {
-                logger.warn("Class name not found:", relName);
+                logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
                 return;
             }
             let fields = modelClasses[clsName].Model.fieldMap;
             let propNames = modelClasses[clsName].Model.propertyNames;
-
 
             /**
              * Get expected field type
@@ -260,7 +259,7 @@ export class Graph extends Group{
 
             const convertValue = (key, value) => {
                 if (!fields[key]) {
-                    logger.warn("Unrecognized property:", clsName, key);
+                    logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
                     return;
                 }
                 let res = value.toString();
@@ -268,7 +267,7 @@ export class Graph extends Group{
 
                 let itemType = getItemType(fields[key]);
                 if (!itemType){
-                    logger.error("Failed to extract data type: ", relName, key, value);
+                    logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
                 }
 
                 if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
@@ -296,7 +295,7 @@ export class Graph extends Group{
                                     value = {[propName]: propValue};
                                 }
                             } else {
-                                logger.error("Assign value error:", value);
+                                logger.error($LogMsg.EXCEL_WRONG_ASSIGN_VALUE, value);
                             }
                             return {"path": "$." + path, "value": value}
                         });
@@ -315,7 +314,7 @@ export class Graph extends Group{
                 let resource = {};
                 table[i].forEach((value, j) => {
                     if (!headers[j]) {
-                        logger.error("No column name");
+                        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
                         return;
                     }
                     let key = headers[j].trim();
@@ -383,12 +382,12 @@ export class Graph extends Group{
         let internalLyphsWithNoAxis = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
         internalLyphsWithNoAxis.forEach(lyph => createAxis(lyph));
         if (internalLyphsWithNoAxis.length > 0){
-            logger.info("Generated links for internal lyphs", internalLyphsWithNoAxis.map(x => x.id));
+            logger.info($LogMsg.GRAPH_GEN_AXIS_INTERNAL, internalLyphsWithNoAxis.map(x => x.id));
         }
 
         const assignAxisLength = (lyph, container) => {
             if (!lyph.axis){
-                logger.warn("Failed to compute axis length for an internal lyph - axis undefined", lyph);
+                logger.warn($LogMsg.GRAPH_LYPH_NO_AXIS, lyph);
                 return;
             }
             if (container.axis) {
@@ -451,7 +450,7 @@ export class Graph extends Group{
         let lyphsWithoutAxis = (this.lyphs||[]).filter(lyph => !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
         lyphsWithoutAxis.forEach(lyph => createAxis(lyph));
         if (lyphsWithoutAxis.length > 0){
-            logger.info("Generated links for lyphs without axes", lyphsWithoutAxis.map(x => x.id));
+            logger.info($LogMsg.GRAPH_GEN_AXIS_ALL, lyphsWithoutAxis.map(x => x.id));
         }
 
         if (group.links.length > 0){

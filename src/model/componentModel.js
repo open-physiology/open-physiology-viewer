@@ -1,10 +1,9 @@
 import {Resource} from "./resourceModel";
-import {isArray, isNumber, isObject, keys, unionBy} from "lodash-bound";
-import {$Color, $Field, $Prefix, $SchemaClass, getGenID, getID, getNewID} from "./utils";
-import {Link} from "./visualResourceModel";
+import {isArray, isObject, unionBy} from "lodash-bound";
+import {$Field, $SchemaClass} from "./utils";
+import {logger, $LogMsg} from "./logger";
 
 export class Component extends Resource {
-
 
     /**
      * Create a scaffold model from JSON specification
@@ -105,7 +104,7 @@ export class Component extends Resource {
         //Place references to subcomponent resources to the current component
         (this.components||[]).forEach(component => {
             if (component.id === this.id) {
-                logger.warn("The model contains self-references or cyclic component dependencies: ", this.id, component.id);
+                logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);
                 return;
             }
             let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);

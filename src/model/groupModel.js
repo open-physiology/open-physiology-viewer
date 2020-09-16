@@ -183,10 +183,10 @@ export class Group extends Resource {
             }
         });
         if (changedLyphs > 0){
-            logger.info($LogMsg.REF_TO_LYPH, changedLyphs);
+            logger.info($LogMsg.GROUP_REF_TO_LYPH, changedLyphs);
         }
         if (changedMaterials > 0){
-            logger.info($LogMsg.REF_TO_MAT, changedMaterials);
+            logger.info($LogMsg.GROUP_REF_TO_MAT, changedMaterials);
         }
     }
 

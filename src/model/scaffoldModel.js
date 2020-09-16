@@ -57,7 +57,7 @@ export class Scaffold extends Component {
         });
 
         //Log info about the number of generated resources
-        logger.info($LogMsg.REF_GEN, entitiesByID::keys().length);
+        logger.info($LogMsg.RESOURCE_NUM, entitiesByID::keys().length);
 
         if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);

@@ -6,14 +6,13 @@ import {
     mergeGenResource,
     mergeGenResources,
     findResourceByID,
-    getNewID,
     getGenID,
     addBorderNode,
     $Field,
     $Color,
     $Prefix
 } from "./utils";
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 
 /**
  * Channel model
@@ -29,12 +28,12 @@ export class Channel extends GroupTemplate {
      */
     static expandTemplate(parentGroup, channel) {
         if (!channel){
-            logger.warn("Cannot expand undefined channel template");
+            logger.warn($LogMsg.CHANNEL_UNDEFINED);
             return;
         }
 
         if (!channel.id) {
-            logger.warn(`Skipped channel template - it must have (non-empty) ID!`);
+            logger.warn($LogMsg.CHANNEL_NO_ID);
             return;
         }
 
@@ -134,7 +133,7 @@ export class Channel extends GroupTemplate {
         channel.housingLyphs.forEach(lyphRef => {
             let lyph = findResourceByID(parentGroup.lyphs, lyphRef);
             if (!lyph) {
-                logger.warn("Housing lyph not found while processing channel group", lyphRef);
+                logger.warn($LogMsg.CHANNEL_NO_HOUSING_LYPH, lyphRef, channel.id);
                 return;
             }
             lyph.channels = lyph.channels || [];
@@ -152,29 +151,26 @@ export class Channel extends GroupTemplate {
     static createInstances(parentGroup, channel) {
 
         if (!channel.group) {
-            logger.warn("Cannot create channel instances: canonical group not found!");
+            logger.warn($LogMsg.CHANNEL_NO_GROUP);
             return;
         }
 
         //This is needed to merge Lyph.channels for generated lyphs back to Channel.housingLyph
         (parentGroup.lyphs||[]).forEach(lyph => {
             if (lyph.channels && lyph.channels.includes(channel.id) && !channel.housingLyphs.includes(lyph.id)) {
-                logger.info("Found derivative of a housing lyph", lyph.id);
                 channel.housingLyphs.push(lyph.id);
             }
         });
 
         (channel.housingLyphs||[]).forEach(lyphRef => {
-            logger.info("Processing channel instance for lyph", lyphRef);
             let lyph = findResourceByID(parentGroup.lyphs, lyphRef);
-
             if (!lyph) {
-                logger.warn("Housing lyph not found while creating instances", lyphRef);
+                logger.warn($LogMsg.CHANNEL_NO_HOUSING_LYPH, lyphRef, channel.id);
                 return;
             }
 
             if ((lyph.layers||[]).length !== (channel.group.links||[]).length) {
-                logger.warn("The number of layers in the housing lyph does not match the number of links in its membrane channel",
+                logger.warn($LogMsg.CHANNEL_WRONG_NUM_LAYERS,
                     lyph, (lyph.layers||[]).length, (channel.group.links||[]).length);
                 return;
             }
@@ -209,7 +205,7 @@ export class Channel extends GroupTemplate {
             let prev_id = channel.group.nodes[0];
             let baseSrc = findResourceByID(parentGroup.nodes, prev_id);
             if (!baseSrc) {
-                logger.error("Failed to find first node of the channel group", prev_id);
+                logger.error($LogMsg.CHANNEL_NO_NODE, prev_id);
                 return instance;
             }
             let src = {
@@ -260,7 +256,7 @@ export class Channel extends GroupTemplate {
             for (let i = 0; i < layers.length; i++) {
                 let layer = findResourceByID(parentGroup.lyphs, lyph.layers[i]);
                 if (!layer) {
-                    logger.warn("Housing lyph layer not found", lyph, layers[i]);
+                    logger.warn($LogMsg.CHANNEL_NO_HOUSING_LAYER, lyph, layers[i]);
                     return;
                 }
 
@@ -286,7 +282,7 @@ export class Channel extends GroupTemplate {
     }
 
     validate(parentGroup){
-        let MEMBRANE_ANNOTATION = "GO:0016020";
+        const MEMBRANE_ANNOTATION = "GO:0016020";
         const findMembrane = (array) => (array||[]).find(e => (e.external || []).find(x => (x.id? x.id: x) === MEMBRANE_ANNOTATION));
 
         let membraneLyph     = findMembrane(parentGroup.lyphs);
@@ -298,15 +294,14 @@ export class Channel extends GroupTemplate {
                     if (!isOk) {
                         isOk = membraneMaterial && lyph.layers[1].containsMaterial(membraneMaterial.id);
                         if (!isOk) {
-                            logger.warn(`Second layer of a housing lyph is not a (subtype of) membrane (externals - GO:0016020, id - 
-                                ${membraneLyph? membraneLyph.id: membraneMaterial.id} ): `, lyph.layers[1]);
+                            logger.warn($LogMsg.CHANNEL_WRONG_LAYER, membraneLyph? membraneLyph.id: membraneMaterial.id, lyph.layers[1]);
                         }
                     }
                     return isOk;
                 }
             })
         } else {
-            logger.warn("Did not find a reference to a membrane lyph or material - validation of the housing lyphs is skipped");
+            logger.warn($LogMsg.CHANNEL_VALIDATION_SKIPPED);
         }
     }
 }

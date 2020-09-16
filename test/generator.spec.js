@@ -40,7 +40,7 @@ import uot from './data/uot';
 import {expectNoWarnings, expectAutoGenResources} from "./test.helper";
 import uotWithChannels from './data/uotWithChannels';
 
-import {modelClasses} from '../src/model/index';
+import {modelClasses, fromJSON} from '../src/model/index';
 
 
 describe("BasalGanglia", () => {
@@ -222,8 +222,8 @@ describe("RespiratoryInternalLyphsInLayers", () => {
 
 describe("Uot", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(uot, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
+    before(() => graphData = fromJSON(uot, modelClasses));
+    it("Model generated without warnings, auto-detected connectivity model", () => expectNoWarnings(graphData));
     after(() => {});
 });
 
