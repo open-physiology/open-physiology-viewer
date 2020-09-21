@@ -11,7 +11,6 @@ import {
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
-import {logger} from './logger';
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
@@ -300,7 +299,7 @@ export class SchemaClass {
     constructor(schemaClsName) {
         this.schemaClsName = schemaClsName;
         if (!definitions[schemaClsName]) {
-            logger.error("Failed to find schema definition for class: ", schemaClsName);
+            throw Error("Failed to find schema definition for class: " + schemaClsName);
         } else {
             this.schema = definitions[this.schemaClsName];
 

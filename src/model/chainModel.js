@@ -10,12 +10,13 @@ import {
     addBorderNode,
     getID,
     compareResources,
+    getGenName,
     $Field,
     $Color,
-    $Prefix, getGenName
+    $Prefix
 } from "./utils";
 import {logger, $LogMsg} from './logger';
-import {defaults, isObject, isArray, isString, flatten} from 'lodash-bound';
+import {defaults, isObject, isArray, flatten} from 'lodash-bound';
 
 /**
  * Chain model

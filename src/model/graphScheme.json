@@ -557,6 +557,17 @@
             ]
           },
           "relatedTo": "leaf"
+        },
+        "anchoredTo": {
+          "description": "Scaffold anchor that defines position of the node",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ]
         }
       }
     },
@@ -1832,6 +1843,17 @@
             "type": "number",
             "minimum": 0
           }
+        },
+        "wiredTo": {
+          "description": "Scaffold wire that defines layout of the chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Wire"
+            }
+          ]
         }
       }
     },
