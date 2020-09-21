@@ -3,7 +3,7 @@ import {Component} from "./componentModel";
 import {Validator} from "jsonschema";
 import schema from "./graphScheme";
 import {logger, $LogMsg} from "./logger";
-import {cloneDeep, defaults, entries, isNumber, isObject, keys} from "lodash-bound";
+import {cloneDeep, defaults, entries, isNumber, isObject, keys, unionBy} from "lodash-bound";
 import {$Field, $SchemaClass} from "./utils";
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 

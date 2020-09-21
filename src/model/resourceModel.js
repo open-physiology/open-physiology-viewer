@@ -88,7 +88,7 @@ export class Resource{
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
      */
     replaceIDs(modelClasses, entitiesByID){
-        const skip = (value) => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
+        const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
         const createObj = (res, key, value, spec) => {
             if (skip(value)) { return value; }

@@ -299,7 +299,7 @@ export class SchemaClass {
     constructor(schemaClsName) {
         this.schemaClsName = schemaClsName;
         if (!definitions[schemaClsName]) {
-            throw Error("Failed to find schema definition for class: " + schemaClsName);
+            throw new Error("Failed to find schema definition for class: " + schemaClsName);
         } else {
             this.schema = definitions[this.schemaClsName];
 

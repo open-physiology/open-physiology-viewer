@@ -2,7 +2,7 @@ import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
-import {difference, keys, isArray} from 'lodash-bound';
+import {keys} from 'lodash-bound';
 import {SearchBarModule} from './gui/searchBar';
 
 import {ResourceInfoModule} from './gui/resourceInfo';
@@ -48,7 +48,7 @@ import {$Field} from "../model/utils";
 
                 <!--SciGraph search-->
                 
-                <fieldset *ngIf="!!groups" class="w3-card w3-round w3-margin-small">
+                <fieldset class="w3-card w3-round w3-margin-small">
                     <legend>SciGraph search</legend>
                     <sciGraphSearch [selected]="_selected"> 
                     </sciGraphSearch>
@@ -56,13 +56,26 @@ import {$Field} from "../model/utils";
                 
                 <!--Group controls-->
 
-                <fieldset class="w3-card w3-round w3-margin-small">
+                <fieldset *ngIf="!!groups" class="w3-card w3-round w3-margin-small">
                     <legend>Groups</legend>
                     <span *ngFor="let group of groups">
                         <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
                                       [checked] = "_showGroups.has(group)"
                                       (change)  = "toggleGroup(group)"> 
                             {{group.name || group.id}}
+                        </mat-checkbox>
+                    </span>
+                </fieldset>
+
+                <!--Scaffold controls-->
+
+                <fieldset *ngIf="!!scaffolds" class="w3-card w3-round w3-margin-small">
+                    <legend>Scaffolds</legend>
+                    <span *ngFor="let scaffold of scaffolds">
+                        <mat-checkbox matTooltip="Toggle scaffolds" labelPosition="after" class="w3-margin-left"
+                                      [checked] = "_showScaffolds.has(scaffold)"
+                                      (change)  = "toggleScaffold(scaffold)"> 
+                            {{scaffold.name || scaffold.id}}
                         </mat-checkbox>
                     </span>
                 </fieldset>
@@ -151,6 +164,8 @@ import {$Field} from "../model/utils";
 export class SettingsPanel {
     _config;
     _showGroups;
+    _scaffolds;
+    _showScaffolds;
     _helperKeys;
     _showHelpers;
     _labelProps;
@@ -158,6 +173,11 @@ export class SettingsPanel {
     _selectedName;
 
     @Input() groups;
+
+    @Input('scaffolds') set scaffolds(newScaffolds){
+        this._scaffolds = newScaffolds;
+        this._showScaffolds = new Set(this._scaffolds||[]);
+    }
 
     @Input('config') set config(newConfig) {
         if (this._config !== newConfig) {
@@ -188,6 +208,7 @@ export class SettingsPanel {
     @Output() onUpdateLabels       = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup        = new EventEmitter();
+    @Output() onToggleScaffold     = new EventEmitter();
     @Output() onToggleMode         = new EventEmitter();
     @Output() onToggleLayout       = new EventEmitter();
     @Output() onToggleHelperPlane  = new EventEmitter();
@@ -196,6 +217,7 @@ export class SettingsPanel {
         this._labelProps   = [$Field.id, $Field.name];
         this._labels       = {Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showGroups   = new Set([]);
+        this._showScaffolds = new Set([]);
         this._showHelpers  = new Set([]);
     }
 
@@ -205,6 +227,10 @@ export class SettingsPanel {
 
     get selected(){
         return this._selected;
+    }
+
+    get scaffolds(){
+        return this._scaffolds;
     }
 
     selectBySearch(name) {
@@ -237,6 +263,16 @@ export class SettingsPanel {
             this._showGroups.add(group);
         }
         this.onToggleGroup.emit(this._showGroups);
+    }
+
+    toggleScaffold(scaffold){
+        if (!scaffold) { return; }
+        if (this._showScaffolds.has(scaffold)){
+            this._showScaffolds.delete(scaffold);
+        } else {
+            this._showScaffolds.add(scaffold);
+        }
+        this.onToggleScaffold.emit(this._showScaffolds);
     }
 
     toggleHelperPlane(helper) {

@@ -91,6 +91,7 @@ const WindowResize = require('three-window-resize');
                         [highlighted]="_highlighted"
                         [helperKeys]="_helperKeys"
                         [groups]="graphData?.activeGroups"
+                        [scaffolds]="graphData?.scaffolds"
                         [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
                         (onEditResource)="editResource.emit($event)"
@@ -98,6 +99,7 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
+                        (onToggleScaffold)="toggleScaffold($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
@@ -333,7 +335,12 @@ export class WebGLSceneComponent {
 
     exportJSON(){
         if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(3, {[$Field.border]: 3, [$Field.borders]: 3, [$Field.villus]: 3}), null, 2);
+            let result = JSON.stringify(this._graphData.toJSON(3, {
+                    [$Field.border]: 3,
+                    [$Field.borders]: 3,
+                    [$Field.villus]: 3,
+                    [$Field.scaffolds]: 5
+            }), null, 2);
             const blob = new Blob([result], {type: 'application/json'});
             FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
         }
@@ -548,10 +555,24 @@ export class WebGLSceneComponent {
 
     toggleGroup(showGroups) {
         if (!this._graphData){ return; }
-        let groupIDs = [...showGroups].map(g => g.id);
-        this._graphData.showGroups(groupIDs);
+        let ids = [...showGroups].map(g => g.id);
+        this._graphData.showGroups(ids);
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
+
+    toggleScaffold(showScaffolds) {
+        if (!this._graphData){ return; }
+        let ids = [...showScaffolds].map(g => g.id);
+        (this._graphData.scaffolds||[]).forEach(g => {
+            if (ids.includes(g.id)){
+                g.show();
+            } else {
+                g.hide();
+            }
+        });
+        if (this.graph) { this.graph.graphData(this.graphData); }
+    }
+
 }
 
 @NgModule({

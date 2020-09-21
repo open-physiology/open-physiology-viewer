@@ -477,8 +477,9 @@ export class Graph extends Group{
         });
         (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
         (this.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= scaleFactor);
-        (this.regions||[]).filter(region => region.points).forEach(region =>
-           region.points.forEach(p => scalePoint(p)));
+        (this.regions||[]).filter(region => region.points).forEach(region => region.points.forEach(p => scalePoint(p)));
+
+        (this.scaffolds||[]).filter(scaffold => scaffold.scale).forEach(scaffold => scaffold.scale(scaleFactor));
     }
 
     /**

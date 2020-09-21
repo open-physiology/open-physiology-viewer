@@ -15,7 +15,7 @@ import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
 import { RelGraphModule } from "../components/relationGraph";
 import { ModelRepoPanelModule } from "../components/modelRepoPanel";
 import { GlobalErrorHandler } from '../services/errorHandler';
-import { modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold} from '../model/index';
+import {modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold, $SchemaClass} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -26,9 +26,6 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import {$Field, mergeResources} from "../model/utils";
-import {ImportExcelModelDialog} from "../components/gui/importExcelModelDialog";
-import {FormsModule} from "@angular/forms";
-
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -100,7 +97,8 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 <!--Relationship graph-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
-                    <relGraph [graphData]="_graphData"></relGraph>
+                    <relGraph [graphData]="_graphData"> 
+                    </relGraph>
                 </mat-tab>
 
                 <!--Table editor-->
@@ -117,8 +115,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                                 [modelClasses]="modelClasses"
                                 [modelResources]="_graphData.entitiesByID || {}"
                                 [resource]="_model"
-                                className="Graph"
-                        >
+                                [className]="className">
                         </resourceEditor>
                     </section>
                 </mat-tab>
@@ -132,9 +129,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             <i class="fa fa-check"> </i>
                         </button>
                     </section>
-                    <section #jsonEditor id="json-editor"></section>
+                    <section #jsonEditor id="json-editor">                        
+                    </section>
                 </mat-tab>
-
             </mat-tab-group>
         </section>
 
@@ -218,6 +215,10 @@ export class TestApp {
         return [yyyy,mm,dd].join("-");
     }
 
+    get className(){
+        return isScaffold(this._model)? $SchemaClass.Scaffold: $SchemaClass.Graph;
+    }
+
     toggleRepoPanel(){
         this.showRepoPanel = !this.showRepoPanel;
     }
@@ -236,24 +237,50 @@ export class TestApp {
         this._flattenGroups = false;
     }
 
+    applyScaffold(modelA, modelB){
+        const applyScaffold = (model, scaffold) => {
+            model.scaffolds = model.scaffolds || [];
+            if (!model.scaffolds.find(s => s.id === scaffold.id)){
+                model.scaffolds.push(scaffold);
+            } else {
+                throw new Error("Scaffold with such identifier is already attached to the model!");
+            }
+            //TODO update all identifiers in the scaffold with scaffold id prefix
+
+            //Apply changes
+            this.model = model;
+        };
+
+        if (isScaffold(modelA)){
+            applyScaffold(modelB, modelA);
+        } else {
+            applyScaffold(modelA, modelB);
+        }
+    }
+
     join(newModel) {
         if (this._model.id === newModel.id){
             throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
         if (isScaffold(this._model) !== isScaffold(newModel)){
-            throw new Error("Cannot join models of different resource types: scaffold and connectivity model!");
+            this.applyScaffold(this._model, newModel);
+        } else {
+            let jointModel = joinModels(this._model, newModel, this._flattenGroups);
+            jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+            this.model = jointModel;
+            this._flattenGroups = true;
         }
-        let jointModel = joinModels(this._model, newModel, this._flattenGroups);
-        jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
-        this.model = jointModel;
-        this._flattenGroups = true;
     }
 
     merge(newModel) {
         if (isScaffold(this._model) !== isScaffold(newModel)){
-            throw new Error("Cannot merge models of different resource types: scaffold and connectivity model!");
+            this.applyScaffold(this._model, newModel);
+        } else {
+            this.model = {
+                [$Field.created]: this.currentDate,
+                [$Field.lastUpdated]: this.currentDate
+            }::merge(this._model::mergeWith(newModel, mergeResources));
         }
-        this.model = {[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate}::merge(this._model::mergeWith(newModel, mergeResources));
     }
 
     save(){

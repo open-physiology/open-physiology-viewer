@@ -16,6 +16,7 @@ import {logger, $LogMsg} from './logger';
  * @property trees
  * @property channels
  * @property coalescences
+ * @property scaffolds
  */
 export class Group extends Resource {
     /**

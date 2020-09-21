@@ -29,6 +29,12 @@ Group.prototype.createViewObjects = function(state){
         region.createViewObjects(state);
         region.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
+
+    (this.scaffolds||[]).forEach(scaffold => {
+        scaffold.createViewObjects(state);
+        scaffold.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    });
+
 };
 
 /**
@@ -98,6 +104,8 @@ Group.prototype.updateViewObjects = function(state){
     });
 
     this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
+
+    (this.scaffolds||[]).forEach(scaffold => {scaffold.updateViewObjects(state); });
 };
 
 
