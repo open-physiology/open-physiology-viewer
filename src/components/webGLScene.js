@@ -12,8 +12,8 @@ import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field} from "../model/utils";
-import sciCrunch from "../data/sciCrunch";
+import {$Field, getNewID} from "../model/utils";
+import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 
 const WindowResize = require('three-window-resize');
 
@@ -54,7 +54,7 @@ const WindowResize = require('three-window-resize');
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="addQueryGroup()" title="Show query result as group">
+                                (click)="processQuery()" title="Show query result as group">
                             <i class="fa fa-question-circle-o"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
@@ -305,9 +305,26 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
-    addQueryGroup(){
-        let nodeIDs  = (sciCrunch.nodes||[]).map(r => (r.id||"").substr(r.id.indexOf(":") + 1));
-        let linkIDs =  (sciCrunch.edges||[]).map(r => (r.sub||"").substr(r.sub.indexOf(":") + 1));
+
+    queryCounter = 0;
+
+    processQuery(){
+        let config = {
+            parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
+            baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
+        };
+        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '75%', data: config });
+        dialogRef.afterClosed().subscribe(result => {
+            if (result !== undefined){
+                this.queryCounter++;
+                this.createDynamicGroup(result);
+            }
+        })
+    }
+
+    createDynamicGroup(queryRes){
+        let nodeIDs  = (queryRes.nodes||[]).map(r => (r.id||"").substr(r.id.indexOf(":") + 1));
+        let linkIDs =  (queryRes.edges||[]).map(r => (r.sub||"").substr(r.sub.indexOf(":") + 1));
         if (this.graphData){
             let nodes  = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
             let links = (this.graphData.links||[]).filter(e => linkIDs.includes(e.id));
@@ -322,8 +339,8 @@ export class WebGLSceneComponent {
                 });
                 //Add new group
                 let group = this.modelClasses.Group.fromJSON({
-                    "id": "query",
-                    "name": "Query response",
+                    "id"   : "query" + this.queryCounter,
+                    "name" : "Query response " + this.queryCounter,
                     "nodes": nodes,
                     "links": links
                 }, this.modelClasses);
@@ -576,9 +593,9 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule],
     declarations: [WebGLSceneComponent],
-    entryComponents: [LogInfoDialog],
+    entryComponents: [LogInfoDialog, QuerySelectDialog],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

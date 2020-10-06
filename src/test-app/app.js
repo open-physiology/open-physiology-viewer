@@ -8,13 +8,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
-import { MainToolbarModule } from "../components/mainToolbar";
-import { WebGLSceneModule } from '../components/webGLScene';
-import { ResourceEditorModule } from '../components/gui/resourceEditor';
-import { ResourceEditorDialog } from '../components/gui/resourceEditorDialog';
-import { RelGraphModule } from "../components/relationGraph";
-import { ModelRepoPanelModule } from "../components/modelRepoPanel";
-import { GlobalErrorHandler } from '../services/errorHandler';
+import {MainToolbarModule} from "../components/mainToolbar";
+import {WebGLSceneModule} from '../components/webGLScene';
+import {ResourceEditorModule} from '../components/gui/resourceEditor';
+import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
+import {LayoutEditorModule} from "../components/layoutEditor";
+import {RelGraphModule} from "../components/relationGraph";
+import {ModelRepoPanelModule} from "../components/modelRepoPanel";
+import {GlobalErrorHandler} from '../services/errorHandler';
 import {modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold, $SchemaClass} from '../model/index';
 
 import 'hammerjs';
@@ -101,11 +102,11 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     </relGraph>
                 </mat-tab>
 
-                <!--Table editor-->
+                <!--Resource editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-wpforms"> Resources </i></ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyTableEditorChanges()"
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
                                 title="Apply changes">
                             <i class="fa fa-check"> </i>
                         </button>
@@ -117,6 +118,23 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                                 [resource]="_model"
                                 [className]="className">
                         </resourceEditor>
+                    </section>
+                </mat-tab>
+                
+                <!--Layout editor-->
+                <mat-tab *ngIf="!!_model?.scaffolds" class="w3-margin" [class.w3-threequarter]="showRepoPanel">
+                    <ng-template mat-tab-label><i class="fa fa-wpforms"> Layout </i></ng-template>
+                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
+                                title="Apply changes">
+                            <i class="fa fa-check"> </i>
+                        </button>
+                    </section>
+                    <section id="layout-editor">
+                        <layoutEditor
+                                [modelClasses]="modelClasses"
+                                [resource]="_model">                            
+                        </layoutEditor>
                     </section>
                 </mat-tab>
 
@@ -131,7 +149,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     </section>
                     <section #jsonEditor id="json-editor">                        
                     </section>
-                </mat-tab>
+                </mat-tab>               
             </mat-tab-group>
         </section>
 
@@ -302,10 +320,9 @@ export class TestApp {
         }
     }
 
-    applyTableEditorChanges(){
+    applyChanges(){
         this._graphData = fromJSON({});
-        this._model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
-        this.model = this._model;
+        this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
     onSelectedItemChange(item){}
@@ -383,7 +400,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
-        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule, MainToolbarModule],
+        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule, MainToolbarModule, LayoutEditorModule],
 	declarations: [TestApp],
     bootstrap   : [TestApp],
     providers   : [

@@ -63,6 +63,7 @@ export const $LogMsg = {
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
 
     EXCEL_NO_COLUMN_NAME        : "Excel to JSON: no column name",
+    EXCEL_INVALID_COLUMN_NAME   : "Excel to JSON: invalid column name",
     EXCEL_PROPERTY_UNKNOWN      : "Excel to JSON: unrecognized property",
     EXCEL_DATA_TYPE_UNKNOWN     : "Excel to JSON: failed to determine data type",
     EXCEL_WRONG_ASSIGN_VALUE    : "Excel to JSON: wrong assign value"

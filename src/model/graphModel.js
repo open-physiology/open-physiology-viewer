@@ -9,6 +9,7 @@ import {
     defaults,
     isArray,
     isObject,
+    isString,
     pick,
     values,
     omit,
@@ -214,13 +215,17 @@ export class Graph extends Group{
                 for (let i = 1; i < table.length; i++) {
                     let convention = {};
                     table[i].forEach((value, j) => {
+                        if (!value) { return; }
                         if (!headers[j]) {
                             logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
                             return;
                         }
+                        if (!headers[j]::isString()) {
+                            logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
+                            return;
+                        }
                         let key = headers[j].trim();
-                        let res = value;
-                        if (res){ convention[key] = res; }
+                        convention[key] = value;
                     });
 
                     table[i] = convention;
@@ -313,8 +318,13 @@ export class Graph extends Group{
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
+                    if (!value){ return; }
                     if (!headers[j]) {
                         logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+                        return;
+                    }
+                    if (!headers[j]::isString()) {
+                        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
                         return;
                     }
                     let key = headers[j].trim();
