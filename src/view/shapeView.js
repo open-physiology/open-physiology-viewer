@@ -14,10 +14,10 @@ import {
     boundToPolygon,
     boundToRectangle,
     isInRange,
-    THREE, arcCurve
+    THREE
 } from "./utils";
 
-const {Region, Lyph, Border, Link} = modelClasses;
+const {Region, Lyph, Border, Wire} = modelClasses;
 
 /**
  * @property center
@@ -267,7 +267,7 @@ Region.prototype.createViewObjects = function(state) {
                 return;
             }
             let start = extractCoords(wire.source.layout);
-            let end = extractCoords(wire.target.layout);
+            let end   = extractCoords(wire.target.layout);
             if (prevAnchor === wire.target.id) {
                 let tmp = start;
                 start = end;
@@ -277,15 +277,16 @@ Region.prototype.createViewObjects = function(state) {
                 prevAnchor = wire.target.id;
             }
             this.points.push(start);
-            if (wire.geometry === "arc"){
-                let center = extractCoords(wire.arcCenter);
-                let curve = arcCurve(start, end, center);
-                let points = curve.getPoints(state.linkResolution);
-                let first = extractCoords(points[0]);
-                if (start.clone().sub(first).length() > end.clone().sub(first).length()){
-                    points = points.reverse();
+            if (wire.geometry !== Wire.WIRE_GEOMETRY.LINK){
+                let curve = wire.getCurve(start, end);
+                if (curve.getPoints) {
+                    let points = curve.getPoints(state.linkResolution);
+                    let first = extractCoords(points[0]);
+                    if (start.clone().sub(first).length() > end.clone().sub(first).length()) {
+                        points = points.reverse();
+                    }
+                    this.points.push(...points);
                 }
-                this.points.push(...points);
             }
             this.points.push(end);
         });

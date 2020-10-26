@@ -128,15 +128,6 @@ export class Chain extends GroupTemplate {
                             [$Field.skipLabel] : true,
                             [$Field.generated] : true
                         };
-                if (start && start.layout && end && end.layout){
-                    if (i > 0 && i < lyphs.length) {
-                        //we can interpolate chain node positions for quicker layout
-                        node.layout = {};
-                        ["x", "y", "z"].forEach(dim => {
-                            node.layout[dim] = (start.layout[dim] || 0) + ((end.layout[dim] || 0) - (start.layout[dim] || 0)) / (lyphs.length + 1) * (i + 1);
-                        });
-                    }
-                }
                 mergeGenResource(chain.group, parentGroup, node, $Field.nodes);
             }
 
@@ -291,7 +282,6 @@ export class Chain extends GroupTemplate {
             deriveFromLevels(parentGroup, chain);
         }
     }
-
 
     /**
      * Align chain levels along housing lyphs

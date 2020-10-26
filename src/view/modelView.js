@@ -1,20 +1,57 @@
 import {values} from 'lodash-bound';
 import {modelClasses} from "../model/index.js";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
-import {copyCoords, extractCoords} from "./utils";
+import {copyCoords, extractCoords, getPoint, THREE} from "./utils";
 import './visualResourceView';
 import './shapeView';
 
 const {Group, Link, Coalescence, Component} = modelClasses;
+
+function updateChain(chain, curve, start, end){
+    if (!chain || !start || !end){ return; }
+    chain.length = (curve && curve.getLength)? curve.getLength(): end.distanceTo(start);
+    copyCoords(chain.root.layout, start);
+    chain.root.fixed = true;
+    for (let i = 0; i < chain.levels.length; i++) {
+        //Interpolate chain node positions for quicker layout
+        chain.levels[i].length = chain.length / chain.levels.length;
+        let node = chain.levels[i].target;
+        if (node && !node.anchoredTo) {
+            let p = getPoint(curve, start, end, (i + 1) / chain.levels.length);
+            copyCoords(node.layout, p);
+            node.fixed = true;
+        }
+    }
+    copyCoords(chain.leaf.layout, end);
+}
 
 /**
  * Create visual objects for group resources
  * @param state
  */
 Group.prototype.createViewObjects = function(state){
+    (this.scaffolds||[]).forEach(scaffold => {
+        scaffold.createViewObjects(state);
+        scaffold.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    });
+
     this.visibleNodes.forEach(node => {
         node.createViewObjects(state);
         node.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    });
+
+    (this.chains||[]).forEach(chain => {
+        if (!chain.root || !chain.leaf){ return; }
+        let start, end, curve;
+        if (chain.wiredTo) {
+            start = extractCoords(chain.wiredTo.source);
+            end   = extractCoords(chain.wiredTo.target);
+            curve = chain.wiredTo.getCurve(start, end);
+        } else {
+            start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root);
+            end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf);
+        }
+        updateChain(chain, curve, start, end);
     });
 
     this.visibleLinks.forEach(link => {
@@ -29,12 +66,6 @@ Group.prototype.createViewObjects = function(state){
         region.createViewObjects(state);
         region.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
-
-    (this.scaffolds||[]).forEach(scaffold => {
-        scaffold.createViewObjects(state);
-        scaffold.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
-    });
-
 };
 
 /**
@@ -42,8 +73,28 @@ Group.prototype.createViewObjects = function(state){
  * @param state
  */
 Group.prototype.updateViewObjects = function(state){
-    // Update nodes positions
+    //Update scaffolds
+    (this.scaffolds||[]).forEach(scaffold => {scaffold.updateViewObjects(state); });
+
+    //Update nodes positions
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
+
+    (this.chains||[]).forEach(chain => {
+        if (!chain.root || !chain.leaf){ return; }
+        let start, end;
+        if (chain.wiredTo) {
+            start = extractCoords(chain.wiredTo.source);
+            end   = extractCoords(chain.wiredTo.target);
+            chain.wiredTo.getCurve(start, end);
+        } else {
+            start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root);
+            end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf);
+        }
+        //update if chain ends are dynamic
+        if (start && start.hostedBy || end && end.hostedBy) {
+            updateChain(chain, curve, start, end);
+        }
+    });
 
     //Edge bundling
     const fBundling = ForceEdgeBundling()
@@ -104,8 +155,6 @@ Group.prototype.updateViewObjects = function(state){
     });
 
     this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
-
-    (this.scaffolds||[]).forEach(scaffold => {scaffold.updateViewObjects(state); });
 };
 
 

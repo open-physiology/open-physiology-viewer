@@ -289,7 +289,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "generated"],
+          "default": [ "id", "name", "class"],
           "advanced": true
         }
       }
@@ -1869,6 +1869,18 @@
             }
           ],
           "advanced": true
+        },
+        "hostedBy"       : {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Shape"
+            }
+          ],
+          "advanced": true
         }
       }
     },
@@ -2123,6 +2135,18 @@
             }
           ],
           "readOnly": true
+        },
+        "hostedBy"       : {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Shape"
+            }
+          ],
+          "advanced": true
         },
         "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",

@@ -111,10 +111,15 @@ Node.prototype.updateViewObjects = function(state) {
         this.createViewObjects(state);
     }
 
-    if (this.fixed) { copyCoords(this, this.layout); }
-
-    if (this.controlNodes) {
-        copyCoords(this, getCenterOfMass(this.controlNodes));
+    if (this.anchoredTo){
+        copyCoords(this, this.anchoredTo);
+    } else {
+        if (this.fixed) {
+            copyCoords(this, this.layout);
+        }
+        if (this.controlNodes) {
+            copyCoords(this, getCenterOfMass(this.controlNodes));
+        }
     }
 
     copyCoords(this.viewObjects["main"].position, this);
@@ -226,55 +231,55 @@ Link.prototype.createViewObjects = function(state){
     }
 };
 
+Link.prototype.getCurve = function(start, end){
+    let curve = new THREE.Line3(start, end);
+    switch (this.geometry) {
+        case Link.LINK_GEOMETRY.SEMICIRCLE:
+            curve = semicircleCurve(start, end);
+            break;
+        case Link.LINK_GEOMETRY.RECTANGLE:
+            curve = rectangleCurve(start, end);
+            break;
+        case Link.LINK_GEOMETRY.ARC:
+            curve = arcCurve(start, end, extractCoords(this.arcCenter));
+            break;
+        case Link.LINK_GEOMETRY.PATH:
+            if (this.path){
+                curve = new THREE.CatmullRomCurve3(this.path);
+            }
+            break;
+        case Link.LINK_GEOMETRY.SPLINE:
+            let prev = this.prev ? direction(this.prev.center, start).multiplyScalar(2) : null;
+            let next = this.next ? direction(this.next.center, end).multiplyScalar(2) : null;
+            if (prev) {
+                curve = next
+                    ? new THREE.CubicBezierCurve3(start, start.clone().add(prev), end.clone().add(next), end)
+                    : new THREE.QuadraticBezierCurve3(start, start.clone().add(prev), end);
+            } else {
+                if (next) {
+                    curve = new THREE.QuadraticBezierCurve3(start, end.clone().add(next), end);
+                }
+            }
+    }
+    return curve;
+};
+
 /**
  * Update visual objects for a link
  * @param state
  */
 Link.prototype.updateViewObjects = function(state) {
-    const updateCurve = (start, end) => {
-        let curve = new THREE.Line3(start, end);
-        switch (this.geometry) {
-            case Link.LINK_GEOMETRY.SEMICIRCLE:
-                curve = semicircleCurve(start, end);
-                break;
-            case Link.LINK_GEOMETRY.RECTANGLE:
-                curve = rectangleCurve(start, end);
-                break;
-            case Link.LINK_GEOMETRY.ARC:
-                curve = arcCurve(start, end, extractCoords(this.arcCenter));
-                break;
-            case Link.LINK_GEOMETRY.PATH:
-                if (this.path){
-                    curve = new THREE.CatmullRomCurve3(this.path);
-                }
-                break;
-            case Link.LINK_GEOMETRY.SPLINE:
-                let prev = this.prev ? direction(this.prev.center, start).multiplyScalar(2) : null;
-                let next = this.next ? direction(this.next.center, end).multiplyScalar(2) : null;
-                if (prev) {
-                    curve = next
-                        ? new THREE.CubicBezierCurve3(start, start.clone().add(prev), end.clone().add(next), end)
-                        : new THREE.QuadraticBezierCurve3(start, start.clone().add(prev), end);
-                } else {
-                    if (next) {
-                        curve = new THREE.QuadraticBezierCurve3(start, end.clone().add(next), end);
-                    }
-                }
-        }
-        return curve;
-    };
-
     if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
         this.createViewObjects(state);
     }
     const obj = this.viewObjects["main"];
 
-    let _start = extractCoords(this.source);
-    let _end   = extractCoords(this.target);
+    let start = extractCoords(this.source);
+    let end   = extractCoords(this.target);
 
-    let curve = updateCurve(_start, _end);
-    this.center = getPoint(curve, _start, _end, 0.5);
-    this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
+    let curve = this.getCurve(start, end);
+    this.center = getPoint(curve, start, end, 0.5);
+    this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
     if (this.geometry === Link.LINK_GEOMETRY.ARC){
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
@@ -298,8 +303,8 @@ Link.prototype.updateViewObjects = function(state) {
 
     //Position hosted nodes
     (this.hostedNodes||[]).forEach((node, i) => {
-        let d_i = node.offset? node.offset: 1 / (this.hostedNodes.length + 1) * (i + 1);
-        const pos = getPoint(curve, _start, _end, d_i);
+        let d_i = node.offset? node.offset: 1. / (this.hostedNodes.length + 1) * (i + 1);
+        const pos = getPoint(curve, start, end, d_i);
         copyCoords(node, pos);
     });
 
@@ -329,7 +334,7 @@ Link.prototype.updateViewObjects = function(state) {
             if (curve && curve.getTangent){
                 dir = curve.getTangent(1 - t);
             }
-            let pos = getPoint(curve, _start, _end, 1 - t);
+            let pos = getPoint(curve, start, end, 1 - t);
             copyCoords(arrow.position, pos);
             arrow.setDirection(dir.normalize());
         }
@@ -398,16 +403,11 @@ Anchor.prototype.updateViewObjects = function(state) {
         let wire = this.hostedBy;
         let start = extractCoords(wire.source);
         let end = extractCoords(wire.target);
-        let curve = (wire.geometry === "arc") ? arcCurve(start, end, extractCoords(wire.arcCenter)) :
-            new THREE.Line3(start, end);
+        let curve = wire.getCurve(start, end);
         let offset = this.offset;
         if (!offset && (wire.hostedAnchors || []).length > 0) {
             let idx = wire.hostedAnchors.indexOf(this);
-            if (idx > -1) {
-                offset = idx * 1. / wire.hostedAnchors.length;
-            } else {
-                offset = 0.5;
-            }
+            offset = ((idx > -1))? idx * 1. / wire.hostedAnchors.length: 0.5;
         }
         let point = getPoint(curve, start, end, offset);
         copyCoords(this, extractCoords(point));
@@ -421,6 +421,7 @@ Anchor.prototype.updateViewObjects = function(state) {
 Object.defineProperty(Anchor.prototype, "polygonOffsetFactor", {
     get: function() { return 0; }
 });
+
 
 /**
  * Create visual objects for a wire
@@ -484,35 +485,35 @@ Wire.prototype.createViewObjects = function(state){
     this.createLabels(state);
 };
 
+Wire.prototype.getCurve = function(start, end){
+    let curve = new THREE.Line3(start, end);
+    switch (this.geometry) {
+        case Wire.WIRE_GEOMETRY.ARC:
+            curve = arcCurve(start, end, extractCoords(this.arcCenter));
+            break;
+        case Wire.WIRE_GEOMETRY.SPLINE:
+            let control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
+            curve = new THREE.QuadraticBezierCurve3(start, control, end);
+    }
+    return curve;
+};
+
 /**
  * Update visual objects for a wire
  * @param state
  */
 Wire.prototype.updateViewObjects = function(state) {
-    const updateCurve = (start, end) => {
-        let curve = new THREE.Line3(start, end);
-        switch (this.geometry) {
-            case Link.LINK_GEOMETRY.ARC:
-                curve = arcCurve(start, end, extractCoords(this.arcCenter));
-                break;
-            case Link.LINK_GEOMETRY.SPLINE:
-                let control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
-                curve = new THREE.QuadraticBezierCurve3(start, control, end);
-        }
-        return curve;
-    };
-
     if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
         this.createViewObjects(state);
     }
     const obj = this.viewObjects["main"];
 
-    let _start = extractCoords(this.source);
-    let _end   = extractCoords(this.target);
+    let start = extractCoords(this.source);
+    let end   = extractCoords(this.target);
 
-    let curve = updateCurve(_start, _end);
-    this.center = getPoint(curve, _start, _end, 0.5);
-    this.points = curve.getPoints? curve.getPoints(this.pointLength): [_start, _end];
+    let curve = this.getCurve(start, end);
+    this.center = getPoint(curve, start, end, 0.5);
+    this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
     if (this.geometry === Link.LINK_GEOMETRY.ARC){
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
@@ -520,7 +521,7 @@ Wire.prototype.updateViewObjects = function(state) {
 
     (this.hostedAnchors||[]).forEach((anchor, i) => {
         let d_i = anchor.offset? anchor.offset: 1. / (this.hostedAnchors.length + 1) * (i + 1);
-        let pos = getPoint(curve, _start, _end, d_i);
+        let pos = getPoint(curve, start, end, d_i);
         pos = new THREE.Vector3(pos.x, pos.y, 0); //Arc wires are rendered in 2d
         copyCoords(anchor, pos);
         if (anchor.viewObjects["main"]) {

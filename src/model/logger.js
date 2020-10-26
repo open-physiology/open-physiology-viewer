@@ -10,14 +10,14 @@ export const $LogMsg = {
     GRAPH_GEN_AXIS_INTERNAL     : "Generated links for internal lyphs",
     GRAPH_GEN_AXIS_ALL          : "Generated links for lyphs without axes",
 
+    GROUP_TEMPLATE_OTHER:       "Found template defined in another group",
+
     CHAIN_SLICE                 : "Sliced housing chain to match the number of lyphs in the housing range",
     CHAIN_NUM_LEVELS            : "Corrected number of levels in the chain",
 
     //Warnings
     AUTO_GEN                    : "Auto-created missing resources",
     AUTO_GEN_EXTERNAL           : "Auto-created missing external resources",
-
-    GRAPH_LYPH_NO_AXIS          : "Failed to compute axis length for an internal lyph: axis undefined",
 
     CHAIN_UNDEFINED             : "Cannot expand undefined chain template",
     CHAIN_SKIPPED               : `Skipped faulty chain template. A correct chain template must have one of the following conditions met:
@@ -52,7 +52,12 @@ export const $LogMsg = {
 
     COMPONENT_SELF              : "The model contains self-references or cyclic component dependencies",
 
+    GRAPH_LYPH_NO_AXIS          : "Failed to compute axis length for an internal lyph: axis undefined",
+
     EXCEL_NO_CLASS_NAME         : "Excel to JSON: class name not found",
+
+    REGION_FACETS_REMOVED       : "Removed facets from region definition in group",
+    REGION_ANCHORS_REMOVED      : "Removed internal anchors from region definition in group",
 
     //Errors
     REF_UNDEFINED               : "Remaining references to undefined resources",
@@ -61,6 +66,8 @@ export const $LogMsg = {
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
 
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
+
+    GROUP_TEMPLATE_NO_CLASS              : "Could not find class definition for the field",
 
     EXCEL_NO_COLUMN_NAME        : "Excel to JSON: no column name",
     EXCEL_INVALID_COLUMN_NAME   : "Excel to JSON: invalid column name",

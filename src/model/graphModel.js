@@ -481,6 +481,8 @@ export class Graph extends Group{
                 p[key] *= scaleFactor;
             });
 
+        (this.scaffolds||[]).filter(scaffold => scaffold.scale).forEach(scaffold => scaffold.scale(scaleFactor));
+
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}
@@ -489,7 +491,6 @@ export class Graph extends Group{
         (this.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= scaleFactor);
         (this.regions||[]).filter(region => region.points).forEach(region => region.points.forEach(p => scalePoint(p)));
 
-        (this.scaffolds||[]).filter(scaffold => scaffold.scale).forEach(scaffold => scaffold.scale(scaleFactor));
     }
 
     /**

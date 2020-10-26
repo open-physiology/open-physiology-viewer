@@ -53,8 +53,7 @@ import {entries} from "lodash-bound";
                               [checked]="_includePrefix"
                               (change)="togglePrefix($event.checked)">
                     Include prefix
-                </mat-checkbox>
-                
+                </mat-checkbox>              
                 
             </mat-card>
 
@@ -69,26 +68,32 @@ import {entries} from "lodash-bound";
                     <mat-card *ngIf="!!_activeScaffold" class="w3-card">
                         <mat-nav-list id="scaffoldResources">
                             <mat-list-item *ngFor="let scaffoldResource of _activeScaffold[field[0]]">
-                                <span class="w3-row">
+                                <section class="full-width">
                                     <section class="w3-half">
                                         {{scaffoldResource.id}} - {{scaffoldResource.name || "?"}}
                                     </section>
                                     <section class="w3-half">
-                                        Options...
+                                        <mat-select
+                                                placeholder="resource"
+                                                [value]="value"
+                                                (selectionChange)="updateValue($event.value, scaffoldResource, field[0])">
+                                            <mat-option *ngFor="let option of selectOptions(field[0])" [value]="option">
+                                                {{option.id}} - {{option.name || "?"}}
+                                            </mat-option>
+                                        </mat-select>
                                     </section>
-                                </span>
+                                </section>
                             </mat-list-item>
-                        </mat-nav-list>
-                        
+                        </mat-nav-list>                        
                     </mat-card>
                 </mat-tab>
-            </mat-tab-group>
-            
-            
+            </mat-tab-group>                       
         </mat-card>
     `,
-    styles: [`      
-        
+    styles: [`
+        .full-width {
+            width: 100%;
+        } 
     `]
 })
 export class LayoutEditor {
@@ -96,8 +101,13 @@ export class LayoutEditor {
     _activeScaffold;
     _relatedFields = {
         [$Field.anchors]: [$Field.nodes],
-        [$Field.wires]  : [$Field.links, $Field.chains],
-        [$Field.regions]: [$Field.group]
+        [$Field.wires]  : [$Field.chains],
+        [$Field.regions]: [$Field.groups, $Field.chains]
+    };
+    _resourceRelationships = {
+        [$Field.anchors]: $Field.anchoredTo,
+        [$Field.wires]  : $Field.wiredTo,
+        [$Field.regions]: $Field.hostedBy
     };
     _includePrefix = true;
 
@@ -106,16 +116,21 @@ export class LayoutEditor {
 
     @Input('modelClasses') set modelClasses(newValue) {
         this._modelClasses = newValue;
-        this._relationshipFields = this._modelClasses.Component.Model.schema.properties::entries().filter(([key, spec]) => !spec.readOnly);
+        this._relationshipFields = this._modelClasses.Component.Model.schema.properties::entries().filter(([key, spec]) => !spec.readOnly && !spec.advanced);
     }
 
     get modelClasses() {
         return this._modelClasses;
     }
 
-    getRelatedField(fieldName){
-        return this._relatedFields[fieldName];
-        //TODO mapping options
+    selectOptions(fieldName){
+        let res = [];
+        (this._relatedFields[fieldName] || []).forEach(prop => {
+            if (this.resource[prop]) {
+                res.push(...this.resource[prop]);
+            }
+        });
+        return res;
     }
 
     removeScaffold(){
@@ -136,9 +151,14 @@ export class LayoutEditor {
 
     }
 
+    updateValue(modelResource, scaffoldResource, fieldName){
+        let prop = this._resourceRelationships[fieldName];
+        if (!prop){ throw new Error("Unknown resource-scaffold relationship!"); }
+        modelResource[prop] = scaffoldResource.id;
+    }
+
     selectScaffold(scaffold){
         this._activeScaffold = scaffold;
-
     }
 }
 

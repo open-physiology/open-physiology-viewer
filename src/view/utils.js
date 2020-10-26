@@ -38,7 +38,9 @@ export const commonTemplate = (lyph1, lyph2) => {
  * @param offset - curve length fraction to find a point at (e.g., 0.25, 0.5, 0.75, etc.)
  * @returns {*}  - coordinates of a point on a curve
  */
-export const getPoint = (curve, s, t, offset) => (curve && curve.getPoint)? curve.getPoint(offset): s.clone().add(t).multiplyScalar(offset);
+export const getPoint = (curve, s, t, offset) => (curve && curve.getPoint)?
+    curve.getPoint(offset):
+    s.clone().add(t.clone().sub(s).multiplyScalar(offset));
 
 /**
  * Checks that the angle is between given angles

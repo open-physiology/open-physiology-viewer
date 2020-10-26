@@ -13,9 +13,10 @@ export class Scaffold extends Component {
      * Create expanded Graph model from the given JSON input model
      * @param json - input model
      * @param modelClasses - classes to represent model resources
+     * @param entitiesByID - global map of model resources
      * @returns {Graph}
      */
-    static fromJSON(json, modelClasses = {}) {
+    static fromJSON(json, modelClasses = {}, entitiesByID) {
         const V = new Validator();
         let resVal = V.validate(json, schema);
         logger.clear();
@@ -26,7 +27,7 @@ export class Scaffold extends Component {
         let model = json::cloneDeep()::defaults({id: "mainScaffold"});
 
         //Copy existing entities to a map to enable nested model instantiation
-        let entitiesByID = {waitingList: {}};
+        entitiesByID = entitiesByID || {waitingList: {}};
 
         //Create scaffold
         let res = super.fromJSON(model, modelClasses, entitiesByID);
@@ -40,7 +41,6 @@ export class Scaffold extends Component {
                 if (clsName && !modelClasses[clsName].Model.schema.abstract) {
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]: id,
-                        [$Field.skipLabel] : true,
                         [$Field.generated]: true
                     }, modelClasses, entitiesByID);
 

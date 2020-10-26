@@ -1,4 +1,4 @@
-import {Link, VisualResource} from './visualResourceModel';
+import {VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
 import {logger} from './logger';
 import {
@@ -42,7 +42,7 @@ export class Shape extends VisualResource {
                 [$Field.id]       : id,
                 [$Field.source]   : { id: getGenID($Prefix.source, id) },
                 [$Field.target]   : { id: getGenID($Prefix.target, id) },
-                [$Field.geometry] : Link.LINK_GEOMETRY.INVISIBLE,
+                [$Field.geometry] : VisualResource.LINK_GEOMETRY.INVISIBLE,
                 [$Field.skipLabel]: true,
                 [$Field.generated]: true
             });

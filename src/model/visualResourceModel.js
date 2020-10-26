@@ -1,5 +1,5 @@
 import { Resource } from './resourceModel';
-import { getNewID, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE, getGenID, $Field, $Prefix} from "./utils";
+import { getNewID, LINK_GEOMETRY, LINK_STROKE, PROCESS_TYPE, WIRE_GEOMETRY, getGenID, $Field, $Prefix} from "./utils";
 import { merge, pick } from "lodash-bound";
 
 /**
@@ -16,6 +16,7 @@ export class VisualResource extends Resource{
     static LINK_GEOMETRY = LINK_GEOMETRY;
     static LINK_STROKE   = LINK_STROKE;
     static PROCESS_TYPE  = PROCESS_TYPE;
+    static WIRE_GEOMETRY = WIRE_GEOMETRY;
 
     /**
      * Determines whether the resource should appear in the scheme based on its 'hidden' attribute and other resource dependencies

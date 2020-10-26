@@ -95,6 +95,8 @@ export class QuerySelectDialog {
     status = "NEW";
     statusInfo = "";
 
+    //load queries from http://sparc-data.scicrunch.io:9000/scigraph/swagger.json
+
     constructor(http: HttpClient, dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.http  = http;
         this.dialogRef = dialogRef;

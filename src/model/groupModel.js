@@ -35,11 +35,11 @@ export class Group extends Resource {
         //Regions in groups are simple areas, facets and anchors can be used in scaffolds only
         (json.regions||[]).forEach(region => {
             if ((region.facets||[]).length > 0){
-                logger.warn("Removed facets from region definition in group", json.id, region.id, region.facets);
+                logger.warn($LogMsg.REGION_FACETS_REMOVED, json.id, region.id, region.facets);
             }
             delete region.facets;
             if ((region.internalAnchors||[]).length > 0){
-                logger.warn("Removed internal anchors from region definition in group", json.id, region.id, region.internalAnchors);
+                logger.warn($LogMsg.REGION_ANCHORS_REMOVED, json.id, region.id, region.internalAnchors);
             }
             delete region.internalAnchors;
         });
@@ -90,6 +90,18 @@ export class Group extends Resource {
 
         //validate process edges
         res.validateProcessEdges(modelClasses);
+
+        //If a group is hosted by a region, each its leaf is hosted by the region
+        (this.groups||[]).forEach(group => {
+            let host = group.hostedBy || group.generatedFrom && group.generatedFrom.hostedBy;
+            if (host){
+                (group.links||[]).forEach(link => {
+                    if (link.conveyingLyph) {
+                        link.conveyingLyph.hostedBy = host;
+                    }
+                });
+            }
+        });
 
         //Assign color to visual resources with no color in the spec
         addColor(res.regions, $Color.Region);
@@ -202,14 +214,14 @@ export class Group extends Resource {
         [$Field.channels, $Field.chains].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
-                logger.error(`Could not find class definition for the field ${relName}`)
+                logger.error($LogMsg.GROUP_TEMPLATE_NO_CLASS, relName);
             }
             (json[relName]||[]).forEach((template, i) => {
                 if (template::isObject()) {//expand group templates, but not references
                     template.id = template.id || getGenID(json.id, relName, i);
                     modelClasses[clsName].expandTemplate(json, template);
                 } else {
-                    logger.info("Found template defined in another group", template);
+                    logger.info($LogMsg.GROUP_TEMPLATE_OTHER, template);
                     json[$Field.groups] = json[$Field.groups] || [];
                     json[$Field.groups].push(getGenID($Prefix.group, template));
                 }
@@ -228,7 +240,9 @@ export class Group extends Resource {
         let relClassNames = this.Model.relClassNames;
         [$Field.trees, $Field.channels].forEach(relName => {
             let clsName = relClassNames[relName];
-            if (!clsName){ logger.error(`Could not find class definition for the field ${relName}`); }
+            if (!clsName){
+                logger.error($LogMsg.GROUP_TEMPLATE_NO_CLASS, relName);
+            }
             (json[relName]||[]).forEach(field => modelClasses[clsName].createInstances(json, field));
         })
     }
