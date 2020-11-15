@@ -710,6 +710,25 @@
           "regions": ["d1", "d2", "d3", "d4"]
         }
       ]
+    },
+    {
+      "id"     : "scaffold_enDothelial",
+      "name"   : "Scaffold enDothelial",
+      "author" : "Natallia Kokash",
+      "created": "2020-07-29",
+      "regions": [
+        {
+          "id": "spleen",
+          "name": "Spleen",
+          "color": "#FFF0F5",
+          "points": [
+            {"x": -50, "y": 40},
+            {"x": -50, "y": 50},
+            {"x": -40, "y": 50},
+            {"x": -40, "y": 40}
+          ]
+        }
+      ]
     }
   ]
 }

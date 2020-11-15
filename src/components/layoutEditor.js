@@ -28,7 +28,7 @@ import {entries} from "lodash-bound";
             
             <mat-card class="w3-padding-small">
                 <mat-form-field>
-                    <mat-select
+                    <mat-select 
                             placeholder="Select a scaffold"
                             matTooltip="Scaffold"
                             [value]="_activeScaffold"
@@ -46,14 +46,14 @@ import {entries} from "lodash-bound";
                     </i>
                 </button>
 
-                <mat-checkbox class= "w3-margin-left" 
-                              [disabled]="!_activeScaffold"
-                              matTooltip="Include prefix to scaffold resource reference"
-                              labelPosition="before"
-                              [checked]="_includePrefix"
-                              (change)="togglePrefix($event.checked)">
-                    Include prefix
-                </mat-checkbox>              
+                <!--<mat-checkbox class= "w3-margin-left" -->
+                              <!--[disabled]="!_activeScaffold"-->
+                              <!--matTooltip="Include prefix to scaffold resource references. Prefix can be used to resolve name conflicts across scaffolds."-->
+                              <!--labelPosition="before"-->
+                              <!--[checked]="_includePrefix"-->
+                              <!--(change)="togglePrefix($event.checked)">-->
+                    <!--Include prefix-->
+                <!--</mat-checkbox>              -->
                 
             </mat-card>
 
@@ -72,13 +72,13 @@ import {entries} from "lodash-bound";
                                     <section class="w3-half">
                                         {{scaffoldResource.id}} - {{scaffoldResource.name || "?"}}
                                     </section>
-                                    <section class="w3-half">
+                                    <section class="w3-half"> 
                                         <mat-select
                                                 placeholder="resource"
                                                 [value]="value"
                                                 (selectionChange)="updateValue($event.value, scaffoldResource, field[0])">
                                             <mat-option *ngFor="let option of selectOptions(field[0])" [value]="option">
-                                                {{option.id}} - {{option.name || "?"}}
+                                                {{option? option.id + " - " + (option.name || "?"): ""}}
                                             </mat-option>
                                         </mat-select>
                                     </section>
@@ -104,15 +104,24 @@ export class LayoutEditor {
         [$Field.wires]  : [$Field.chains],
         [$Field.regions]: [$Field.groups, $Field.chains]
     };
+
     _resourceRelationships = {
         [$Field.anchors]: $Field.anchoredTo,
         [$Field.wires]  : $Field.wiredTo,
         [$Field.regions]: $Field.hostedBy
     };
+
+    _scaffoldRelationships = {
+        [$Field.anchors]: $Field.anchoredNode,
+        [$Field.wires]  : $Field.wiredChain,
+        [$Field.regions]: $Field.hostedGroup
+    };
+
     _includePrefix = true;
 
     @Input() resource;
     @Input() _modelClasses;
+    @Input() modelResources;
 
     @Input('modelClasses') set modelClasses(newValue) {
         this._modelClasses = newValue;
@@ -124,13 +133,21 @@ export class LayoutEditor {
     }
 
     selectOptions(fieldName){
-        let res = [];
+        let res = [null];
         (this._relatedFields[fieldName] || []).forEach(prop => {
             if (this.resource[prop]) {
                 res.push(...this.resource[prop]);
             }
         });
         return res;
+    }
+
+    getCurrentValue(scaffoldResource, fieldName){
+        let sResource = this.modelResources[scaffoldResource.id];
+        if (sResource) {
+            return sResource[this._scaffoldRelationships[fieldName]];
+        }
+        return null;
     }
 
     removeScaffold(){
@@ -153,8 +170,22 @@ export class LayoutEditor {
 
     updateValue(modelResource, scaffoldResource, fieldName){
         let prop = this._resourceRelationships[fieldName];
-        if (!prop){ throw new Error("Unknown resource-scaffold relationship!"); }
-        modelResource[prop] = scaffoldResource.id;
+        let relatedProp = this._scaffoldRelationships[fieldName];
+        if (!prop || !relatedProp){
+            throw new Error("Unknown resource-scaffold relationship!");
+        }
+        let sResource = this.modelResources[scaffoldResource.id];
+        if (!sResource) {
+            throw new Error("Failed to find scaffold resource!");
+        }
+        if (modelResource == null){
+            delete scaffoldResource[relatedProp];
+            delete sResource[relatedProp];
+        } else {
+            sResource[relatedProp] = modelResource;
+            scaffoldResource[relatedProp] = modelResource.id;
+            modelResource[prop] = scaffoldResource.id;
+        }
     }
 
     selectScaffold(scaffold){

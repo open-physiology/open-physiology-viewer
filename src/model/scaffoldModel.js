@@ -88,8 +88,9 @@ export class Scaffold extends Component {
      */
     scale(scaleFactor){
         const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {p[key] *= scaleFactor;});
-        (this.anchors||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
-        (this.regions||[]).filter(region => region.points).forEach(region => region.points.forEach(p => scalePoint(p)));
+        (this.anchors||[]).filter(e => e.layout).forEach(e => scalePoint(e.layout));
+        (this.wires||[]).filter(e => e::isObject() && !!e.length).forEach(e => e.length *= scaleFactor);
+        (this.regions||[]).filter(e => e.points).forEach(e => e.points.forEach(p => scalePoint(p)));
     }
 
     static excelToJSON(inputModel, modelClasses = {}){

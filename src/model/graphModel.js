@@ -481,16 +481,18 @@ export class Graph extends Group{
                 p[key] *= scaleFactor;
             });
 
-        (this.scaffolds||[]).filter(scaffold => scaffold.scale).forEach(scaffold => scaffold.scale(scaleFactor));
+        //TODO resolve name conflicts not to scale same resources twice
+        //Merge all scaffolds to one, mark resources as
+        (this.scaffolds||[]).forEach(scaffold => scaffold.scale(scaleFactor));
 
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}
         });
-        (this.nodes||[]).filter(node => node.layout).forEach(node => scalePoint(node.layout));
-        (this.links||[]).filter(link => link::isObject() && !!link.length).forEach(link => link.length *= scaleFactor);
-        (this.regions||[]).filter(region => region.points).forEach(region => region.points.forEach(p => scalePoint(p)));
 
+        (this.nodes||[]).filter(e => e.layout).forEach(e => scalePoint(e.layout));
+        (this.links||[]).filter(e => e::isObject() && !!e.length).forEach(e => e.length *= scaleFactor);
+        (this.regions||[]).filter(e => e.points).forEach(e => e.points.forEach(p => scalePoint(p)));
     }
 
     /**

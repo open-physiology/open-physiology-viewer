@@ -339,10 +339,10 @@ export class WebGLSceneComponent {
                 });
                 //Add new group
                 let group = this.modelClasses.Group.fromJSON({
-                    "id"   : "query" + this.queryCounter,
-                    "name" : "Query response " + this.queryCounter,
-                    "nodes": nodes,
-                    "links": links
+                    [$Field.id]    : "query" + this.queryCounter,
+                    [$Field.name]  : "Query response " + this.queryCounter,
+                    [$Field.nodes] : nodes,
+                    [$Field.links] : links
                 }, this.modelClasses);
                 this.graphData.groups = this.graphData.groups || [];
                 this.graphData.groups.push(group);
@@ -353,9 +353,9 @@ export class WebGLSceneComponent {
     exportJSON(){
         if (this._graphData){
             let result = JSON.stringify(this._graphData.toJSON(3, {
-                    [$Field.border]: 3,
-                    [$Field.borders]: 3,
-                    [$Field.villus]: 3,
+                    [$Field.border]   : 3,
+                    [$Field.borders]  : 3,
+                    [$Field.villus]   : 3,
                     [$Field.scaffolds]: 5
             }), null, 2);
             const blob = new Blob([result], {type: 'application/json'});

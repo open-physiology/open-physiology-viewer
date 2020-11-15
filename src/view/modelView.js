@@ -7,6 +7,23 @@ import './shapeView';
 
 const {Group, Link, Coalescence, Component} = modelClasses;
 
+function getWiredChain(chain){
+    let start, end;
+    if (chain.wiredTo) {
+        start = extractCoords(chain.wiredTo.source);
+        end   = extractCoords(chain.wiredTo.target);
+    } else {
+        start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root.layout);
+        end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf.layout);
+    }
+    if (chain.reversed){
+        let tmp = start;
+        let start = end;
+        let end = tmp;
+    }
+    return {start, end};
+}
+
 function updateChain(chain, curve, start, end){
     if (!chain || !start || !end){ return; }
     chain.length = (curve && curve.getLength)? curve.getLength(): end.distanceTo(start);
@@ -42,15 +59,8 @@ Group.prototype.createViewObjects = function(state){
 
     (this.chains||[]).forEach(chain => {
         if (!chain.root || !chain.leaf){ return; }
-        let start, end, curve;
-        if (chain.wiredTo) {
-            start = extractCoords(chain.wiredTo.source);
-            end   = extractCoords(chain.wiredTo.target);
-            curve = chain.wiredTo.getCurve(start, end);
-        } else {
-            start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root);
-            end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf);
-        }
+        let {start, end} = getWiredChain(chain);
+        let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
         updateChain(chain, curve, start, end);
     });
 
@@ -81,15 +91,8 @@ Group.prototype.updateViewObjects = function(state){
 
     (this.chains||[]).forEach(chain => {
         if (!chain.root || !chain.leaf){ return; }
-        let start, end;
-        if (chain.wiredTo) {
-            start = extractCoords(chain.wiredTo.source);
-            end   = extractCoords(chain.wiredTo.target);
-            chain.wiredTo.getCurve(start, end);
-        } else {
-            start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root);
-            end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf);
-        }
+        let {start, end} = getWiredChain(chain);
+        let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
         //update if chain ends are dynamic
         if (start && start.hostedBy || end && end.hostedBy) {
             updateChain(chain, curve, start, end);
