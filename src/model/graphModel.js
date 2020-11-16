@@ -13,7 +13,7 @@ import {
     pick,
     values,
     omit,
-    merge
+    merge, unionBy
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
@@ -191,6 +191,7 @@ export class Graph extends Group{
         delete res.waitingList;
 
         res.generated = true;
+        res.mergeScaffoldResources();
 
         res.logger = logger;
         return res;
@@ -473,18 +474,37 @@ export class Graph extends Group{
     }
 
     /**
+     * Add entities from sub-components to the current component
+     */
+    mergeScaffoldResources(){
+        let scaffoldResources = {};
+        (this.scaffolds||[]).forEach(scaffold => {
+            let relFieldNames = scaffold.constructor.Model.filteredRelNames([$SchemaClass.Component]);
+            relFieldNames.forEach(property => {
+                if (scaffold[property]::isArray()){
+                    scaffoldResources[property] = (scaffoldResources[property]||[])::unionBy(scaffold[property], $Field.id);
+                    scaffoldResources[property] = scaffoldResources[property].filter(x => x.class);
+                }
+            });
+        });
+        this.scaffoldResources = scaffoldResources;
+    }
+
+    /**
      * Scale dimensions of visual resources (length, height and width, coordinates of border points)
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
         const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
-                p[key] *= scaleFactor;
-            });
+            p[key] *= scaleFactor;
+        });
 
-        //TODO resolve name conflicts not to scale same resources twice
-        //Merge all scaffolds to one, mark resources as
-        (this.scaffolds||[]).forEach(scaffold => scaffold.scale(scaleFactor));
-
+        if (this.scaffoldResources) {
+            (this.scaffoldResources.anchors || []).filter(e => e.layout).forEach(e => scalePoint(e.layout));
+            (this.scaffoldResources.wires || []).filter(e => e::isObject() && !!e.length).forEach(e => e.length *= scaleFactor);
+            (this.scaffoldResources.regions || []).filter(e => e.points).forEach(e => e.points.forEach(p => scalePoint(p)));
+        }
+        
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}

@@ -45,16 +45,7 @@ import {entries} from "lodash-bound";
                     <i class="fa fa-trash">
                     </i>
                 </button>
-
-                <!--<mat-checkbox class= "w3-margin-left" -->
-                              <!--[disabled]="!_activeScaffold"-->
-                              <!--matTooltip="Include prefix to scaffold resource references. Prefix can be used to resolve name conflicts across scaffolds."-->
-                              <!--labelPosition="before"-->
-                              <!--[checked]="_includePrefix"-->
-                              <!--(change)="togglePrefix($event.checked)">-->
-                    <!--Include prefix-->
-                <!--</mat-checkbox>              -->
-                
+              
             </mat-card>
 
             <mat-tab-group animationDuration="0ms">
@@ -117,8 +108,6 @@ export class LayoutEditor {
         [$Field.regions]: $Field.hostedGroup
     };
 
-    _includePrefix = true;
-
     @Input() resource;
     @Input() _modelClasses;
     @Input() modelResources;
@@ -161,11 +150,6 @@ export class LayoutEditor {
         } else {
             throw new Error("Failed to find the requested scaffold!");
         }
-    }
-
-    togglePrefix(){
-        this._includePrefix = !this._includePrefix;
-
     }
 
     updateValue(modelResource, scaffoldResource, fieldName){

@@ -20,7 +20,7 @@ export class Component extends Resource {
 
         //Create scaffold
         let res = super.fromJSON(json, modelClasses, entitiesByID);
-        res.mergeSubgroupEntities();
+        res.mergeSubgroupResources();
         return res;
     }
 
@@ -98,16 +98,16 @@ export class Component extends Resource {
     }
 
     /**
-     * Add entities from sub-components to the current component
+     * Add resources from sub-components to the current component
      */
-    mergeSubgroupEntities(){
+    mergeSubgroupResources(){
         //Place references to subcomponent resources to the current component
+        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
         (this.components||[]).forEach(component => {
             if (component.id === this.id) {
                 logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
             relFieldNames.forEach(property => {
                 if (component[property]::isArray()){
                     this[property] = (this[property]||[])::unionBy(component[property], $Field.id);

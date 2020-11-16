@@ -79,7 +79,7 @@ export class Group extends Resource {
         let res  = super.fromJSON(json, modelClasses, entitiesByID);
 
         //copy nested references to resources to the parent group
-        res.mergeSubgroupEntities();
+        res.mergeSubgroupResources();
 
         //Add conveying lyphs to groups that contain links
         (res.links||[]).forEach(link => {
@@ -471,16 +471,16 @@ export class Group extends Resource {
     }
 
     /**
-     * Add entities from subgroups to the current group
+     * Add resources from subgroups to the current group
      */
-    mergeSubgroupEntities(){
+    mergeSubgroupResources(){
         //Place references to subgroup resources to the current group
+        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate]);
         (this.groups||[]).forEach(group => {
             if (group.id === this.id) {
                 logger.warn("The model contains self-references or cyclic group dependencies: ", this.id, group.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate]);
             relFieldNames.forEach(property => {
                 if (group[property]::isArray()){
                     this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
