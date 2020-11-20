@@ -1,6 +1,6 @@
 import {VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
-import {logger} from './logger';
+import {$LogMsg, logger} from './logger';
 import {
     $Field,
     $Prefix,
@@ -184,6 +184,46 @@ export class Lyph extends Shape {
         });
 
         return targetLyph;
+    }
+
+
+    /**
+     * Assign internal resources to generated lyph layers
+     * @param lyphs
+     */
+    static mapInternalResourcesToLayers(lyphs){
+        //TODO check that properties like fascilitatesIn and bundles are also updated
+        function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
+            if (layerIndex < lyph.layers.length){
+                let layer = findResourceByID(lyphs, lyph.layers[layerIndex]);
+                if (layer){
+                    layer[prop] = layer[prop] || [];
+                    let internalResourceID = lyph[prop][resourceIndex]::isObject()? lyph[prop][resourceIndex].id: lyph[prop][resourceIndex];
+                    if (internalResourceID && !layer[prop].find(x => x === internalResourceID)){
+                        layer[prop].push(internalResourceID);
+                    }
+                    logger.info($LogMsg.RESOURCE_TO_LAYER, internalResourceID, layer.id, prop, layer[prop]);
+                    lyph[prop][resourceIndex] = null;
+                } else {
+                    logger.warn($LogMsg.LYPH_INTERNAL_NO_LAYER, lyph, layerIndex, lyph.layers[layerIndex]);
+                }
+            } else {
+                logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers.length, lyph.id, resourceIndex);
+            }
+        }
+        (lyphs||[]).filter(lyph => lyph.layers && lyph.internalLyphs && lyph.internalLyphsInLayers).forEach(lyph=> {
+            for (let i = 0; i < Math.min(lyph.internalLyphs.length, lyph.internalLyphsInLayers.length); i++){
+                moveResourceToLayer(i, lyph.internalLyphsInLayers[i], lyph, $Field.internalLyphs);
+            }
+            lyph.internalLyphs = lyph.internalLyphs.filter(x => !!x);
+        });
+
+        (lyphs||[]).filter(lyph => lyph.layers && lyph.internalNodes && lyph.internalNodesInLayers).forEach(lyph=> {
+            for (let i = 0; i < Math.min(lyph.internalNodes.length, lyph.internalNodesInLayers.length); i++){
+                moveResourceToLayer(i, lyph.internalNodesInLayers[i], lyph, $Field.internalNodes);
+            }
+            lyph.internalNodes = lyph.internalNodes.filter(x => !!x);
+        });
     }
 
     collectInheritedExternals(){

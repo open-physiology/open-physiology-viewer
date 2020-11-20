@@ -3,8 +3,18 @@ import {Component} from "./componentModel";
 import {Validator} from "jsonschema";
 import schema from "./graphScheme";
 import {logger, $LogMsg} from "./logger";
-import {cloneDeep, defaults, entries, isNumber, isObject, keys, unionBy} from "lodash-bound";
-import {$Field, $SchemaClass} from "./utils";
+import {
+    cloneDeep,
+    defaults,
+    entries, isArray,
+    isNumber,
+    isObject,
+    isString,
+    keys, merge,
+    pick
+} from "lodash-bound";
+import {$Field, $SchemaClass, $SchemaType} from "./utils";
+import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 export class Scaffold extends Component {
@@ -93,7 +103,118 @@ export class Scaffold extends Component {
         (this.regions||[]).filter(e => e.points).forEach(e => e.points.forEach(p => scalePoint(p)));
     }
 
+    /**
+     * Generate the JSON input model from an Excel file (.xlsx)
+     * @param inputModel   - Excel ApiNATOMY scaffolding
+     * @param modelClasses - model resource classes
+     * @returns {*}
+     */
     static excelToJSON(inputModel, modelClasses = {}){
+        let scaffoldSchema = modelClasses[this.name].Model;
+        let model = inputModel::pick(scaffoldSchema.relationshipNames.concat(["main", "localConventions"]));
+
+        model::keys().forEach(relName => {
+            let table = model[relName];
+            if (!table) { return; }
+            let headers = table[0] || [];
+            if (relName === "localConventions") {  // local conventions are not a reasource
+                for (let i = 1; i < table.length; i++) {
+                    let convention = {};
+                    table[i].forEach((value, j) => {
+                        if (!value) { return; }
+                        if (!headers[j]) {
+                            logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+                            return;
+                        }
+                        if (!headers[j]::isString()) {
+                            logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
+                            return;
+                        }
+                        let key = headers[j].trim();
+                        convention[key] = value;
+                    });
+
+                    table[i] = convention;
+                }
+                model[relName] = model[relName].slice(1);
+                return;
+            }
+            let clsName = relName === "main"? $SchemaClass.Scaffold: scaffoldSchema.relClassNames[relName];
+            if (!modelClasses[clsName]) {
+                logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
+                return;
+            }
+            let fields = modelClasses[clsName].Model.fieldMap;
+            let propNames = modelClasses[clsName].Model.propertyNames;
+
+            const convertValue = (key, value) => {
+                if (!fields[key]) {
+                    logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
+                    return;
+                }
+                let res = value.toString();
+                if (res.length === 0) { return; } //skip empty properties
+
+                let itemType = getItemType(fields[key]);
+                if (!itemType){
+                    logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
+                }
+
+                if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
+                    res = res.replace(/\s/g, '');
+                }
+
+                if (key === $Field.assign) {
+                    res = res.split(";").map(expr => {
+                        let [path, value] = expr.split("=");
+                        let [propName, propValue] = value.split(":").map(x => x.trim());
+                        if (propName && propValue) {
+                            propValue = propValue.toString().split(",");
+                            value = {[propName]: propValue};
+                        } else {
+                            logger.error($LogMsg.EXCEL_WRONG_ASSIGN_VALUE, value);
+                        }
+                        return {"path": "$." + path, "value": value}
+                    });
+                } else {
+                    res = strToValue(fields[key].type === $SchemaType.ARRAY, itemType, res);
+                }
+                return res;
+            };
+
+            for (let i = 1; i < table.length; i++) {
+                let resource = {};
+                table[i].forEach((value, j) => {
+                    if (!value){ return; }
+                    if (!headers[j]) {
+                        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+                        return;
+                    }
+                    if (!headers[j]::isString()) {
+                        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
+                        return;
+                    }
+                    let key = headers[j].trim();
+                    let res = convertValue(key, value);
+                    if (res){ resource[key] = res; }
+                });
+
+                table[i] = resource;
+            }
+            model[relName] = model[relName].slice(1);
+        });
+
+        if (model.main){
+            if (model.main[0]::isArray()){
+                model.main[0].forEach(({key: value}) => model[key] = value);
+            } else {
+                if (model.main[0]::isObject()){
+                    model::merge(model.main[0]);
+                }
+            }
+            delete model.main;
+        }
+        return model;
     }
 
     /**

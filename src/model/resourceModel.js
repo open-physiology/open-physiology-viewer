@@ -15,7 +15,7 @@ import {
 
 import JSONPath from 'JSONPath';
 import {getClassName, schemaClassModels, isClassAbstract, getNewID, getID, $Field, $SchemaType} from "./utils";
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 /**
  * JSON Path validator
  * @type {JSONPath}
@@ -66,12 +66,12 @@ export class Resource{
             if (!res.id) { res.id = getNewID(entitiesByID); }
             if (res.id::isNumber()){
                 res.id = res.id.toString();
-                logger.warn(`Converted numeric ID ${res.id} to string`);
+                logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
             }
 
             if (entitiesByID[res.id]) {
                 if (entitiesByID[res.id] !== res){
-                    logger.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
+                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.id], res);
                 }
             } else {
                 entitiesByID[res.id] = res;
@@ -95,12 +95,12 @@ export class Resource{
 
             if (value::isNumber()) {
                 value = value.toString();
-                logger.warn(`Converted numeric value ${value} of resource's ${res.id} field ${key} to string`);
+                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, res.id, key);
             }
 
             let clsName = getClassName(spec);
             if (!clsName){
-                logger.warn("Cannot extract the object class: property specification does not imply a reference",
+                logger.warn($LogMsg.RESOURCE_NO_CLASS,
                     spec, value);
                 return value;
             }
@@ -118,7 +118,7 @@ export class Resource{
 
             if (value.id && entitiesByID[value.id]) {
                 if (value !== entitiesByID[value.id]) {
-                    logger.warn("Duplicate resource definition:", res.id, key, value, entitiesByID[value.id]);
+                    logger.warn($LogMsg.RESOURCE_DUPLICATE, res.id, key, value, entitiesByID[value.id]);
                 }
                 return entitiesByID[value.id];
             }
@@ -174,7 +174,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        logger.warn("Cannot create a relationship: unknown resource class", e);
+                        logger.warn($LogMsg.RESOURCE_CLASS_UNKNOWN, e);
                     } else {
                         let relNames = modelClasses[e.class].Model.relationshipNames;
                         let relMaps  = modelClasses[e.class].Model.relationshipMap;
@@ -186,7 +186,7 @@ export class Resource{
                                 } else {
                                     newValue[key] = entitiesByID[newValue[key]];
                                 }
-                                logger.info(`Created relationship via dynamic assignment: `, key, e.id);
+                                logger.info($LogMsg.RESOURCE_JSON_PATH, key, e.id);
                             }
                         });
                         e::merge(newValue);
@@ -247,7 +247,7 @@ export class Resource{
             if (color){
                 let {scheme, length, reversed = false, offset} = color;
                 if (!colorSchemes[scheme]) {
-                    logger.warn("Unrecognized color scheme: ", scheme);
+                    logger.warn($LogMsg.RESOURCE_COLOR_UNKNOWN, scheme);
                     return;
                 }
                 if (!length) { length = resources.length; }
@@ -257,7 +257,7 @@ export class Resource{
                 const assignColor = items => {
                     (items||[]).forEach((item, i) => {
                         if (!item::isObject()) {
-                            logger.warn("Cannot assign color to a non-object value");
+                            logger.warn($LogMsg.RESOURCE_COLOR_NO_OBJECT);
                             return;
                         }
                         //If entity is an array, the schema is applied to each of it's items

@@ -18,8 +18,10 @@ import {
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
-import {$Field, $SchemaClass, $Color, $Prefix, getGenID, getSchemaClass, $SchemaType} from "./utils";
+import {$Field, $SchemaClass, $Color, $Prefix, $SchemaType, getGenID} from "./utils";
+import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
+
 
 export { schema };
 const DEFAULT_LENGTH = 4;
@@ -199,7 +201,7 @@ export class Graph extends Group{
 
     /**
      * Generate the JSON input model from an Excel file (.xlsx)
-     * @param inputModel   - Excel ApiNATOMY model
+     * @param inputModel   - Excel ApiNATOMY connectivity model
      * @param modelClasses - model resource classes
      * @returns {*}
      */
@@ -242,27 +244,6 @@ export class Graph extends Group{
             let fields = modelClasses[clsName].Model.fieldMap;
             let propNames = modelClasses[clsName].Model.propertyNames;
 
-            /**
-             * Get expected field type
-             * @param schema
-             * @returns {*|string}
-             */
-            function getItemType(schema){
-                let itemType = schema.type || $SchemaType.STRING;
-                if (schema.$ref) {
-                    let cls = getSchemaClass(schema.$ref);
-                    if (cls) {
-                        itemType = getItemType(cls);
-                    } else {
-                        itemType = $SchemaType.OBJECT;
-                    }
-                }
-                if (schema.type === $SchemaType.ARRAY || schema.items) {
-                    itemType = getItemType(schema.items);
-                }
-                return itemType;
-            }
-
             const convertValue = (key, value) => {
                 if (!fields[key]) {
                     logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
@@ -271,22 +252,17 @@ export class Graph extends Group{
                 let res = value.toString();
                 if (res.length === 0) { return; } //skip empty properties
 
-                let itemType = getItemType(fields[key]);
-                if (!itemType){
-                    logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
-                }
-
-                if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
-                    res = res.replace(/\s/g, '');
-                }
-                const strToValue = x => (itemType === $SchemaType.NUMBER) ? parseInt(x)
-                            : (itemType === $SchemaType.BOOLEAN) ? (x.toLowerCase() === "true")
-                            : (itemType === $SchemaType.OBJECT) ? JSON.parse(x)
-                                : x;
-
                 if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
                     res = {min: parseInt(res), max: parseInt(res)};
                 } else {
+                    let itemType = getItemType(fields[key]);
+                    if (!itemType){
+                        logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
+                    }
+
+                    if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
+                        res = res.replace(/\s/g, '');
+                    }
                     if (key === $Field.assign) {
                         res = res.split(";").map(expr => {
                             let [path, value] = expr.split("=");
@@ -306,11 +282,7 @@ export class Graph extends Group{
                             return {"path": "$." + path, "value": value}
                         });
                     } else {
-                        if (fields[key].type === $SchemaType.ARRAY) {
-                            res = res.split(",").map(x => strToValue(x.trim()));
-                        } else {
-                            res = strToValue(res.trim());
-                        }
+                        res = strToValue(fields[key].type === $SchemaType.ARRAY, itemType, res);
                     }
                 }
                 return res;
