@@ -147,6 +147,10 @@
     "AnnotationSchema" : {
       "description": "Metadata for ApiNATOMY model",
       "properties": {
+        "namespace":{
+          "description": "Model namespace",
+          "type": "string"
+        },
         "version": {
           "description": "Model version",
           "type": "string",
@@ -569,7 +573,8 @@
               "$ref": "#/definitions/Anchor"
             }
           ],
-          "advanced": true
+          "advanced": true,
+          "relatedTo": "anchoredNode"
         }
       }
     },
@@ -732,7 +737,6 @@
         "reversed"     : {
           "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
           "type": "boolean",
-          "default": false,
           "advanced": true
         },
         "stroke"       : {
@@ -1068,6 +1072,19 @@
           "$ref": "#/definitions/Scaffold",
           "readOnly" : true,
           "relatedTo": "anchors"
+        },
+        "anchoredNode" : {
+          "description": "Node anchored by the current anchor point",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "anchorTo",
+          "advanced": true
         }
       }
     },
@@ -1173,6 +1190,7 @@
             ]
           },
           "relatedTo": "facets",
+          "advanced": true,
           "readOnly": true
         },
         "partOf"        : {
@@ -1180,6 +1198,19 @@
           "$ref": "#/definitions/Scaffold",
           "readOnly" : true,
           "relatedTo": "wires"
+        },
+        "wiredChain"    : {
+          "description": "A chain constrained by the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "wiredTo",
+          "advanced": true
         }
       },
       "dependencies" : {
@@ -1225,6 +1256,22 @@
           },
           "relatedTo": "internalIn",
           "uniqueItems": true
+        },
+        "hostedGroup": {
+          "description": "Resource group hosted by the region",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Group"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "hostedBy"
         }
       }
     },
@@ -1868,7 +1915,12 @@
               "$ref": "#/definitions/Wire"
             }
           ],
-          "advanced": true
+          "advanced": true,
+          "relatedTo": "wiredChain"
+        },
+        "reversed"     : {
+          "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
+          "type": "boolean"
         },
         "hostedBy"       : {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -2143,10 +2195,11 @@
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/Shape"
+              "$ref": "#/definitions/Region"
             }
           ],
-          "advanced": true
+          "advanced": true,
+          "relatedTo": "hostedGroup"
         },
         "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",

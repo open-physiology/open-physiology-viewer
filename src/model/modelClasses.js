@@ -16,6 +16,7 @@ import {isString, keys, merge} from "lodash-bound";
 import * as schema from "./graphScheme";
 
 import * as XLSX from 'xlsx';
+import FileSaver from "file-saver";
 
 export const modelClasses = {
     /*Abstract */
@@ -60,6 +61,9 @@ export function loadModel(content, name, extension, isBinary = true){
         });
         excelModel[$Field.id] = excelModel[$Field.id] || name;
         newModel = excelToJSON(excelModel);
+
+        // let result = JSON.stringify(newModel, null, 4);
+        // console.log("Excel to JSON converter", result);
     } else {
         if (extension === "json") {
             if (content::isString()){

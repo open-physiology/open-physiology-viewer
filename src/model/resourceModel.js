@@ -14,8 +14,8 @@ import {
 } from 'lodash-bound';
 
 import JSONPath from 'JSONPath';
-import {getClassName, schemaClassModels, isClassAbstract, getNewID, getID, $Field, $SchemaType} from "./utils";
-import {logger} from './logger';
+import {getClassName, schemaClassModels, isClassAbstract, getNewID, $Field, $SchemaType} from "./utils";
+import {logger, $LogMsg} from './logger';
 /**
  * JSON Path validator
  * @type {JSONPath}
@@ -57,7 +57,7 @@ export class Resource{
         //spec
         let difference = json::keys().filter(x => !modelClasses[clsName].Model.fieldNames.find(y => y === x)).filter(x => !["_inactive"].includes(x));
         if (difference.length > 0) {
-            logger.warn(`Unknown parameter(s) in class ${this.name} may be ignored: `, difference.join(","));
+            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, difference.join(","));
         }
 
         res::assign(json);
@@ -66,12 +66,12 @@ export class Resource{
             if (!res.id) { res.id = getNewID(entitiesByID); }
             if (res.id::isNumber()){
                 res.id = res.id.toString();
-                logger.warn(`Converted numeric ID ${res.id} to string`);
+                logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
             }
 
             if (entitiesByID[res.id]) {
                 if (entitiesByID[res.id] !== res){
-                    logger.warn("Resources IDs are not unique: ", entitiesByID[res.id], res);
+                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.id], res);
                 }
             } else {
                 entitiesByID[res.id] = res;
@@ -95,12 +95,12 @@ export class Resource{
 
             if (value::isNumber()) {
                 value = value.toString();
-                logger.warn(`Converted numeric value ${value} of resource's ${res.id} field ${key} to string`);
+                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, res.id, key);
             }
 
             let clsName = getClassName(spec);
             if (!clsName){
-                logger.warn("Cannot extract the object class: property specification does not imply a reference",
+                logger.warn($LogMsg.RESOURCE_NO_CLASS,
                     spec, value);
                 return value;
             }
@@ -118,7 +118,7 @@ export class Resource{
 
             if (value.id && entitiesByID[value.id]) {
                 if (value !== entitiesByID[value.id]) {
-                    logger.warn("Duplicate resource definition:", res.id, key, value, entitiesByID[value.id]);
+                    logger.warn($LogMsg.RESOURCE_DUPLICATE, res.id, key, value, entitiesByID[value.id]);
                 }
                 return entitiesByID[value.id];
             }
@@ -128,11 +128,10 @@ export class Resource{
                 if (value.class) {
                     clsName = value.class;
                     if (!modelClasses[clsName]){
-                        logger.error("Failed to find class definition", value.class, value);
+                        logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, value.class, value);
                     }
                 } else {
-                    logger.error("An abstract relationship field expects a reference to an existing resource " +
-                        " or 'class' field in its value definition: ", value);
+                    logger.error($LogMsg.RESOURCE_NO_ABSTRACT_CLASS, value);
                     return null;
                 }
             }
@@ -140,7 +139,7 @@ export class Resource{
         };
 
         if (!modelClasses[this.class]){
-            logger.error("Class definitions not passed to resource constructor:", modelClasses, this.class);
+            logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, modelClasses, this.class);
             return;
         }
 
@@ -160,7 +159,7 @@ export class Resource{
     };
 
     /**
-     * Create relationships defined with the help of JSON path expressions in the resource 'assign' statements
+     * Create relationships defined with the help of JSONPath expressions in the resource 'assign' statements
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
      */
@@ -174,7 +173,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        logger.warn("Cannot create a relationship: unknown resource class", e);
+                        logger.warn($LogMsg.RESOURCE_CLASS_UNKNOWN, e);
                     } else {
                         let relNames = modelClasses[e.class].Model.relationshipNames;
                         let relMaps  = modelClasses[e.class].Model.relationshipMap;
@@ -186,7 +185,7 @@ export class Resource{
                                 } else {
                                     newValue[key] = entitiesByID[newValue[key]];
                                 }
-                                logger.info(`Created relationship via dynamic assignment: `, key, e.id);
+                                logger.info($LogMsg.RESOURCE_JSON_PATH, key, e.id);
                             }
                         });
                         e::merge(newValue);
@@ -199,7 +198,7 @@ export class Resource{
                 });
             })
         } catch (err){
-            logger.error(`Failed to process assignment statements for ${this.id}`, this.assign);
+            logger.error($LogMsg.RESOURCE_JSON_PATH_ERROR, this.id, this.assign);
         }
     };
 
@@ -216,7 +215,7 @@ export class Resource{
                 let entities = (JSONPath({json: this, path: path}) || []).filter(e => !!e);
                 entities.forEach(e => {
                     if (!modelClasses[e.class]){
-                        logger.warn("Cannot assign a property: unknown resource class", e);
+                        logger.warn($LogMsg.RESOURCE_CLASS_UNKNOWN, e);
                     } else {
                         let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== $Field.id);
                         e::merge(value::pick(propNames));
@@ -224,7 +223,7 @@ export class Resource{
                });
             })
         } catch (err){
-            logger.error(`Failed to process assignment statements for ${this.id}`, this.assign);
+            logger.error($LogMsg.RESOURCE_JSON_PATH_ERROR, this.id, this.assign);
         }
     };
 
@@ -239,15 +238,15 @@ export class Resource{
             if (offset){
                 offset::defaults({
                     "start": 0,
-                    "end": 1,
-                    "step": (offset.end - offset.start) / (resources.length + 1)
+                    "end"  : 1,
+                    "step" : (offset.end - offset.start) / (resources.length + 1)
                 });
                 resources.forEach((e, i) => e.offset = offset.start + offset.step * ( i + 1 ) );
             }
             if (color){
                 let {scheme, length, reversed = false, offset} = color;
                 if (!colorSchemes[scheme]) {
-                    logger.warn("Unrecognized color scheme: ", scheme);
+                    logger.warn($LogMsg.RESOURCE_COLOR_UNKNOWN, scheme);
                     return;
                 }
                 if (!length) { length = resources.length; }
@@ -257,7 +256,7 @@ export class Resource{
                 const assignColor = items => {
                     (items||[]).forEach((item, i) => {
                         if (!item::isObject()) {
-                            logger.warn("Cannot assign color to a non-object value");
+                            logger.warn($LogMsg.RESOURCE_COLOR_NO_OBJECT);
                             return;
                         }
                         //If entity is an array, the schema is applied to each of it's items
@@ -309,13 +308,13 @@ export class Resource{
         if (key2) {
             let otherClassName = getClassName(spec);
             if (!otherClassName) {
-                logger.error("Class not defined: ", spec);
+                logger.error($LogMsg.RESOURCE_NO_REL_CLASS, spec);
                 return;
             }
 
             let otherSpec = modelClasses[otherClassName].Model.relationshipMap[key2];
             if (!otherSpec) {
-                logger.error(`Property specification '${key2}' is not found in class:`, otherClassName);
+                logger.error($LogMsg.RESOURCE_NO_REL_PROPERTY, key2, otherClassName);
                 return;
             }
 
@@ -324,7 +323,7 @@ export class Resource{
                 if (otherSpec.type === $SchemaType.ARRAY) {
                     if (!obj[key2]) { obj[key2] = []; }
                     if (!(obj[key2]::isArray())) {
-                        logger.warn(`Object's property '${key2}' should contain an array:`, obj);
+                        logger.warn($LogMsg.RESOURCE_ARRAY_EXPECTED, key2, obj);
                         obj[key2] = [obj[key2]];
                     }
                     if (!obj[key2].find(obj2 => obj2 === res)) {
@@ -336,7 +335,7 @@ export class Resource{
                     }
                     else {
                         if (obj[key2] !== res) {
-                            logger.warn(`Resource property cannot refer to two distinct resources:`, obj.id, key2, obj[key2].id, res.id);
+                            logger.warn($LogMsg.RESOURCE_DOUBLE_REF, obj.id, key2, obj[key2].id, res.id);
                         }
                     }
                 }

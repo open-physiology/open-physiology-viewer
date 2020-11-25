@@ -1,5 +1,5 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
-import { BrowserModule }    from '@angular/platform-browser';
+import { BrowserModule } from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys, merge, mergeWith} from 'lodash-bound';
 
 import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
@@ -133,6 +133,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <section id="layout-editor">
                         <layoutEditor
                                 [modelClasses]="modelClasses"
+                                [modelResources]="_graphData.entitiesByID || {}"
                                 [resource]="_model">                            
                         </layoutEditor>
                     </section>

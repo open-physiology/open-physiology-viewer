@@ -5,11 +5,15 @@
   "nodes": [
     {
       "id": "n1",
-      "anchoredTo": "P"
+      "layout": {
+        "x": -100
+      }
     },
     {
       "id": "n2",
-      "anchoredTo": "A"
+      "layout": {
+        "x": 100
+      }
     }
   ],
   "links": [
@@ -488,8 +492,9 @@
   ],
   "chains": [
     {
-      "id": "ch1",
-      "lyphs": [
+      "id"    : "ch1",
+      "name"  : "Sympathetic chain",
+      "lyphs" : [
         "c1",
         "c2",
         "c3",
@@ -507,8 +512,8 @@
         "s3",
         "s4"
       ],
-      "root": "n1",
-      "leaf": "n2",
+      "root"  : "n1",
+      "leaf"  : "n2",
       "length": 100
     },
     {
@@ -575,6 +580,7 @@
       "root": "wh2_n1",
       "leaf": "wh2_n2",
       "numLevels": 6,
+      "length": 30,
       "lyphTemplate": "229"
     },
     {
@@ -583,7 +589,9 @@
       "root": "wh3_n1",
       "leaf": "wh3_n2",
       "numLevels": 7,
-      "lyphTemplate": "229"
+      "length": 40,
+      "lyphTemplate": "229",
+      "hostedBy": "d1"
     }
   ],
   "scaffolds": [
@@ -708,6 +716,25 @@
           "id"  : "regions",
           "name": "Regions",
           "regions": ["d1", "d2", "d3", "d4"]
+        }
+      ]
+    },
+    {
+      "id"     : "scaffold_enDothelial",
+      "name"   : "Scaffold enDothelial",
+      "author" : "Natallia Kokash",
+      "created": "2020-07-29",
+      "regions": [
+        {
+          "id": "spleen",
+          "name": "Spleen",
+          "color": "#FFF0F5",
+          "points": [
+            {"x": -50, "y": 40},
+            {"x": -50, "y": 50},
+            {"x": -40, "y": 50},
+            {"x": -40, "y": 40}
+          ]
         }
       ]
     }

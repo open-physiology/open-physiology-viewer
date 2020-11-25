@@ -127,7 +127,7 @@ describe("WebGLScene component", () => {
         TestBed.initTestEnvironment(BrowserDynamicTestingModule,
             platformBrowserDynamicTesting());
 
-        TestBed.configureTeFstingModule({
+        TestBed.configureTestingModule({
             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
                 BrowserAnimationsModule],
             declarations: [

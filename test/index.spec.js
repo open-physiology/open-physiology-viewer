@@ -145,10 +145,10 @@ describe("Serialize data", () => {
     it("All necessary fields serialized (respiratory system)", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
         let serializedGraphData = graphData.toJSON();
-        let excluded = ["infoFields", "entitiesByID", "logger"];
+        let excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger"];
         let exported = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key));
-        expect(serializedGraphData::keys().length).to.be.equal(exported.length);
         let serializedLogs = graphData.logger.print();
+        expect(serializedGraphData::keys().length).to.be.equal(exported.length);
         expect(serializedLogs.length).to.be.equal(graphData.logger.entries.length);
     });
 

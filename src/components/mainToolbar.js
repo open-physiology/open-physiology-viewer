@@ -4,7 +4,7 @@ import {loadModel} from '../model/modelClasses';
 import {ImportExcelModelDialog} from "./gui/importExcelModelDialog";
 import {MatDialog, MatDialogModule, MatFormFieldModule, MatInputModule} from '@angular/material';
 import {CommonModule} from "@angular/common";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
@@ -15,9 +15,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
             <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="load(fileInput.files)"/>
-            <input #fileInput1 type="file" accept=".json" [style.display]="'none'"
+            <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="join(fileInput1.files)"/>
-            <input #fileInput2 type="file" accept=".json" [style.display]="'none'"
+            <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="merge(fileInput2.files)"/>
             <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
                 <i class="fa fa-plus"> </i>

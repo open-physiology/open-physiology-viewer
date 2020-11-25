@@ -9,7 +9,7 @@ import {
     $Field,
     $Prefix
 } from "./utils";
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 
 /**
  * Tree model
@@ -25,13 +25,13 @@ export class Tree extends GroupTemplate {
      */
     static createInstances(parentGroup, tree){
         if (!tree || !tree.chain){
-            logger.warn("Cannot create omega tree instances: canonical tree chain undefined!");
+            logger.warn($LogMsg.TREE_CHAIN_UNDEFINED, tree.id);
             return;
         }
 
         let chain = findResourceByID(parentGroup.chains, tree.chain);
         if (!chain || !chain.group || !chain.levels){
-            logger.warn("Cannot create omega tree instances: canonical tree chain not found or empty");
+            logger.warn($LogMsg.TREE_NO_CHAIN, tree.id, tree.chain);
             return;
         }
 
@@ -71,7 +71,7 @@ export class Tree extends GroupTemplate {
                 let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
 
                 if (!lnk) {
-                    logger.info("Failed to find tree level link (created to proceed): ", tree.id, levels[i], i);
+                    logger.info($LogMsg.TREE_NO_LEVEL_LINK, tree.id, levels[i], i);
                     lnk = {
                         [$Field.id]: levels[i],
                         [$Field.skipLabel]: true,
@@ -79,7 +79,7 @@ export class Tree extends GroupTemplate {
                     };
                 }
                 if (!trg){
-                    logger.info("Failed to find tree level target node (created to proceed): ", tree.id, lnk.id, lnk.target);
+                    logger.info($LogMsg.TREE_NO_LEVEL_TARGET, tree.id, lnk.id, lnk.target);
                     trg = {
                         [$Field.id]: lnk.target,
                         [$Field.skipLabel]: true,
@@ -94,13 +94,13 @@ export class Tree extends GroupTemplate {
 
             tree.branchingFactors = tree.branchingFactors || [];
 
-            const MAX_GEN_RESOURCES = 1000;
+            const MAX_GEN_RESOURCES = 1024;
             let count = 0;
             for (let i = 0; i < Math.min(levels.length, tree.branchingFactors.length); i++){
                 levelResources[i].forEach((base, m) => {
                     for (let k = 1; k < tree.branchingFactors[i]; k++){ //Instances reuse chain objects
                         if (count > MAX_GEN_RESOURCES){
-                            throw new Error(`Reached maximum allowed number of generated resources per tree instance (${MAX_GEN_RESOURCES})!`);
+                            throw new Error($LogMsg.TREE_GEN_LIMIT, MAX_GEN_RESOURCES);
                         }
                         let prev_id = base[0].source;
                         for (let j = i; j < levels.length; j++) {

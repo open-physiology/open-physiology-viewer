@@ -154,6 +154,25 @@ export const addBorderNode = (border, node) => {
 };
 
 /**
+ * Find or create node with given identifier
+ * @param nodes - node array
+ * @param nodeID - node identifier
+ */
+export function getOrCreateNode(nodes, nodeID){
+    let node  = (nodes||[]).find(e => e.id === nodeID);
+    if (!node){
+        node = {
+            [$Field.id]: nodeID,
+            [$Field.skipLabel]: true,
+            [$Field.generated]: true
+        };
+        if (!nodes){ nodes = []; }
+        nodes.push(node);
+    }
+    return node;
+}
+
+/**
  * Finds a resource object in the parent group given an object or an ID
  * @param eArray
  * @param e

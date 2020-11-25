@@ -4,7 +4,7 @@ import {
     $Field,
     $Prefix
 } from "./utils";
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 import {defaults} from 'lodash-bound';
 
 /**
@@ -26,8 +26,8 @@ export class GroupTemplate extends Resource{
         });
         [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
             group[prop] = group[prop] || [];
-            if ( group[prop].length > 0){
-                logger.warn(`Generated group contains extra ${prop}: ${group[prop]}!`)
+            if (group[prop].length > 0){
+                logger.warn($LogMsg.GROUP_GEN_NOT_EMPTY, prop, group[prop])
             }
         });
 

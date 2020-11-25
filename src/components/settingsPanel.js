@@ -214,11 +214,11 @@ export class SettingsPanel {
     @Output() onToggleHelperPlane  = new EventEmitter();
 
     constructor() {
-        this._labelProps   = [$Field.id, $Field.name];
-        this._labels       = {Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
-        this._showGroups   = new Set([]);
+        this._labelProps    = [$Field.id, $Field.name];
+        this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
+        this._showGroups    = new Set([]);
         this._showScaffolds = new Set([]);
-        this._showHelpers  = new Set([]);
+        this._showHelpers   = new Set([]);
     }
 
     get config() {

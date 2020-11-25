@@ -192,6 +192,7 @@ Lyph.prototype.updateViewObjects = function(state) {
     if (!viewObj) {
         this.createViewObjects(state);
         viewObj = this.viewObjects["main"];
+        if (!viewObj) { return; }
     }
 
     if (state.showLyphs3d && this.viewObjects["3d"]){
@@ -400,7 +401,7 @@ Border.prototype.updateViewObjects = function(state){
      */
     const placeNodeInside = (node, i, n, center) => {//TODO this will only work well for rectangular shapes
         if (!node || !node.class) {
-            console.warn(`Cannot place a node inside border ${this.id}`, node);
+            console.warn("Cannot place a node inside border" , this.id, node);
             return;
         }
         let [min, max] = this.getBoundingBox();

@@ -492,6 +492,7 @@
   "chains": [
     {
       "id": "ch1",
+      "name": "Sympathetic chain",
       "lyphs": [
         "c1",
         "c2",

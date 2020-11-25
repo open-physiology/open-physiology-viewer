@@ -1,6 +1,6 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Field, $SchemaClass} from "./utils";
+import {$Color, $Field, $SchemaClass, addColor} from "./utils";
 import {logger, $LogMsg} from "./logger";
 
 export class Component extends Resource {
@@ -20,7 +20,12 @@ export class Component extends Resource {
 
         //Create scaffold
         let res = super.fromJSON(json, modelClasses, entitiesByID);
-        res.mergeSubgroupEntities();
+        res.mergeSubgroupResources();
+
+        //Assign color to visual resources with no color in the spec
+        addColor(res.regions, $Color.Region);
+        addColor(res.wires, $Color.Wire);
+
         return res;
     }
 
@@ -98,16 +103,16 @@ export class Component extends Resource {
     }
 
     /**
-     * Add entities from sub-components to the current component
+     * Add resources from sub-components to the current component
      */
-    mergeSubgroupEntities(){
+    mergeSubgroupResources(){
         //Place references to subcomponent resources to the current component
+        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
         (this.components||[]).forEach(component => {
             if (component.id === this.id) {
                 logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);
                 return;
             }
-            let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
             relFieldNames.forEach(property => {
                 if (component[property]::isArray()){
                     this[property] = (this[property]||[])::unionBy(component[property], $Field.id);

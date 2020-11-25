@@ -10,7 +10,7 @@ import {
     $Field,
     $Prefix
 } from "./utils";
-import {logger} from './logger';
+import {logger, $LogMsg} from './logger';
 
 /**
  * Villus model
@@ -22,28 +22,28 @@ export class Villus extends GroupTemplate{
 
     static expandTemplate(parentGroup, villus){
         if (!villus) {
-            logger.warn("Cannot expand undefined villus template");
+            logger.warn($LogMsg.VILLUS_UNDEFINED);
             return;
         }
 
         if (!villus.villusOf){
-            logger.warn("Incomplete villus definition - hosting lyph is missing", villus);
+            logger.warn($LogMsg.VILLUS_NO_HOST, villus);
             return;
         }
 
         let lyph = findResourceByID(parentGroup.lyphs, villus.villusOf);
         if (!lyph){
-            logger.error("Could not find the villus hosting lyph definition in the parent group", villus);
+            logger.warn($LogMsg.VILLUS_NO_HOST_FOUND, villus);
             return;
         }
 
         if (lyph.isTemplate){
-            logger.warn("Skipping generation of villus group for lyph template", lyph);
+            logger.warn($LogMsg.VILLUS_ABSTRACT_HOST, lyph);
             return;
         }
 
         if (villus.numLayers > lyph.layers.length){
-            logger.warn(`Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the lyph`, lyph);
+            logger.warn($LogMsg.VILLUS_TOO_LONG, lyph);
             return;
         }
 
@@ -60,7 +60,7 @@ export class Villus extends GroupTemplate{
         for (let i = villus.numLayers - 1; i >= 0; i--){
             let layer = lyphLayers[i];
             if (!layer){
-                logger.error(`Error while generating a villus object - could not locate a layer resource: `, lyph.layers[i]);
+                logger.warn($LogMsg.VILLUS_NO_HOST_LAYER, lyph.layers[i]);
                 return;
             }
             layer.border = layer.border || {};

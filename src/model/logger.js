@@ -2,18 +2,24 @@ import {$Field} from "./utils";
 
 export const $LogMsg = {
     //Info
-    RESOURCE_NUM                : "Number of resources in the generated model",
+    CHAIN_SLICE                 : "Sliced housing chain to match the number of lyphs in the housing range",
+    CHAIN_NUM_LEVELS            : "Corrected number of levels in the chain",
 
     GROUP_REF_TO_LYPH           : "Number of replaced references to lyph templates",
     GROUP_REF_TO_MAT            : "Number of replaced references to materials",
+    GROUP_TEMPLATE_OTHER        : "Found template defined in another group",
 
     GRAPH_GEN_AXIS_INTERNAL     : "Generated links for internal lyphs",
     GRAPH_GEN_AXIS_ALL          : "Generated links for lyphs without axes",
 
-    GROUP_TEMPLATE_OTHER:       "Found template defined in another group",
+    NODE_CLONE_INTERNAL         : "Cloned node to join housed chain ends",
 
-    CHAIN_SLICE                 : "Sliced housing chain to match the number of lyphs in the housing range",
-    CHAIN_NUM_LEVELS            : "Corrected number of levels in the chain",
+    RESOURCE_NUM                : "Number of resources in the generated model",
+    RESOURCE_TO_LAYER           : "Placed resource into layer",
+    RESOURCE_JSON_PATH          : "Created relationship via dynamic assignment (JSONPath expression)",
+    TREE_NO_LEVEL_LINK          : "Failed to find the tree level link, created to proceed",
+    TREE_NO_LEVEL_TARGET        : "Failed to find tree level target node, created to proceed",
+    TREE_GEN_LIMIT              : "Reached maximum allowed number of generated resources per tree instance",
 
     //Warnings
     AUTO_GEN                    : "Auto-created missing resources",
@@ -52,28 +58,70 @@ export const $LogMsg = {
 
     COMPONENT_SELF              : "The model contains self-references or cyclic component dependencies",
 
-    GRAPH_LYPH_NO_AXIS          : "Failed to compute axis length for an internal lyph: axis undefined",
-
     EXCEL_NO_CLASS_NAME         : "Excel to JSON: class name not found",
+
+    GRAPH_LYPH_NO_AXIS          : "Failed to compute axis length for an internal lyph: axis undefined",
+    GROUP_SELF                  : "The model contains self-references or cyclic group dependencies",
+    GROUP_GEN_NOT_EMPTY         : "Generated group already contains resources",
+
+    LYPH_INTERNAL_NO_LAYER      : "Failed to locate layer lyph to reposition internal lyphs",
+    LYPH_INTERNAL_OUT_RANGE     : "Failed to relocate internal lyph to layer: layer index out of range",
+    LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
+    LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
+    LYPH_NO_TEMPLATE_LAYER      : "Template layer object not found",
+
+    PROCESS_NOT_ADVECTIVE       : "Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link",
+    PROCESS_NOT_DIFFUSIVE       : "Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:",
 
     REGION_FACETS_REMOVED       : "Removed facets from region definition in group",
     REGION_ANCHORS_REMOVED      : "Removed internal anchors from region definition in group",
+    REGION_FACET_ERROR          : "Incorrectly defined region facet, skipping definition",
+    REGION_FACET_NO_ANCHORS     : "Incorrectly defined region facet, source or target anchors not defined, skipping definition",
+    REGION_FACET_NO_LAYOUT      : "Incorrectly defined region facet, source or target anchor layout not defined, skipping definition",
 
-    //Errors
-    REF_UNDEFINED               : "Remaining references to undefined resources",
+    RESOURCE_NUM_ID_TO_STR      : "Converted numeric ID to string",
+    RESOURCE_NUM_VAL_TO_STR     : "Converted numeric value of the given resource field to string",
+    RESOURCE_NOT_UNIQUE         : "Resource IDs are not unique",
+    RESOURCE_NO_CLASS           : "Cannot find resource class: property specification does not imply a reference",
+    RESOURCE_NO_CLASS_DEF       : "Cannot find resource class definition",
+    RESOURCE_DUPLICATE          : "Duplicate resource definition",
+    RESOURCE_CLASS_UNKNOWN      : "Cannot create a relationship: unknown resource class",
+    RESOURCE_COLOR_UNKNOWN      : "Unrecognized color scheme",
+    RESOURCE_COLOR_NO_OBJECT    : "Cannot assign color to a non-object value",
+    RESOURCE_IGNORE_FIELDS      : "Unknown parameter(s) may be ignored",
+    RESOURCE_ARRAY_EXPECTED     : "Resource property should contain an array",
+    RESOURCE_DOUBLE_REF         : "Resource property should not refer to two distinct resources",
 
+    TREE_CHAIN_UNDEFINED        : "Cannot create omega tree instances: canonical tree chain undefined!",
+    TREE_NO_CHAIN               : "Cannot create omega tree instances: canonical tree chain not found or empty",
+
+    VILLUS_UNDEFINED            : "Cannot expand undefined villus template",
+    VILLUS_NO_HOST              : "Incomplete villus definition: hosting lyph is missing",
+    VILLUS_NO_HOST_FOUND        : "Could not find the villus hosting lyph definition in the parent group",
+    VILLUS_ABSTRACT_HOST        : "Skipping generation of villus group for lyph template",
+    VILLUS_TOO_LONG             : "Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the hosting lyph",
+    VILLUS_NO_HOST_LAYER        : "Failed to generate a villus resource: hosting lyph layer is missing",
+
+//Errors
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
 
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
 
-    GROUP_TEMPLATE_NO_CLASS              : "Could not find class definition for the field",
-
     EXCEL_NO_COLUMN_NAME        : "Excel to JSON: no column name",
     EXCEL_INVALID_COLUMN_NAME   : "Excel to JSON: invalid column name",
     EXCEL_PROPERTY_UNKNOWN      : "Excel to JSON: unrecognized property",
     EXCEL_DATA_TYPE_UNKNOWN     : "Excel to JSON: failed to determine data type",
-    EXCEL_WRONG_ASSIGN_VALUE    : "Excel to JSON: wrong assign value"
+    EXCEL_WRONG_ASSIGN_VALUE    : "Excel to JSON: wrong assign value",
+
+    GROUP_TEMPLATE_NO_CLASS     : "Could not find class definition for the field",
+    GROUP_NO_LINK_VALIDATE      : "Link has no validateProcess function. Possible cause - misclassified resource",
+
+    REF_UNDEFINED               : "Remaining references to undefined resources",
+    RESOURCE_JSON_PATH_ERROR    : "Failed to process JSONPath assignment statement",
+    RESOURCE_NO_REL_CLASS       : "Related resource class is undefined",
+    RESOURCE_NO_REL_PROPERTY    : "Related property specification is not found in the expected class",
+    RESOURCE_NO_ABSTRACT_CLASS  : "An abstract relationship field expects a reference to an existing resource or 'class' field in its value definition"
 
 };
 
@@ -138,4 +186,3 @@ export class Logger {
 }
 
 export const logger = new Logger();
-
