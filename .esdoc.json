@@ -33,7 +33,8 @@
              "./manual/overview.md",
              "./manual/usage.md",
              "./manual/model.md",
-             "./manual/examples.md"
+             "./manual/examples.md",
+             "./manual/errors.md"
            ]
          }
        }

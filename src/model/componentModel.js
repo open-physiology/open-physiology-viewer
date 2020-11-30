@@ -12,14 +12,14 @@ export class Component extends Resource {
      * @param entitiesByID
      * @returns {Resource}
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         (json.regions||[]).forEach(region => {
             modelClasses.Region.expandTemplate(json, region);
             modelClasses.Region.validateTemplate(json, region);
         });
 
         //Create scaffold
-        let res = super.fromJSON(json, modelClasses, entitiesByID);
+        let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec

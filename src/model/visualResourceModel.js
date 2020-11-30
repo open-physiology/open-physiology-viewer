@@ -24,6 +24,15 @@ import {$LogMsg, logger} from "./logger";
  */
 export class VisualResource extends Resource{
 
+    /**
+     * @property INVISIBLE
+     * @property LINK
+     * @property SEMICIRCLE
+     * @property RECTANGLE
+     * @property ARC
+     * @property SPLINE
+     * @property PATH
+     */
     static LINK_GEOMETRY = LINK_GEOMETRY;
     static LINK_STROKE   = LINK_STROKE;
     static PROCESS_TYPE  = PROCESS_TYPE;
@@ -259,11 +268,11 @@ export class Node extends VisualResource {
  */
 export class Link extends VisualResource {
 
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
         json.source = json.source || getGenID($Prefix.source, json.id);
         json.target = json.target || getGenID($Prefix.target, json.id);
-        return super.fromJSON(json, modelClasses, entitiesByID);
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
     static clone(sourceLink, targetLink){

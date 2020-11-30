@@ -15,10 +15,10 @@ export class Coalescence extends Resource{
 
     /**
      * Replicates coalescences defined on abstract lyphs to their subtypes
-     * @param parentGroup  - global group/graph (to refer to other resources)
+     * @param inputModel  - global group/graph (to refer to other resources)
      * @param modelClasses - model resource classes
      */
-    createInstances(parentGroup, modelClasses){
+    createInstances(inputModel, modelClasses){
         if (this.abstract || !this.lyphs) {return; }
         let lyphMap = {};
 
@@ -33,7 +33,7 @@ export class Coalescence extends Resource{
                 lyphMap[lyphOrMat.id] = lyphOrMat.subtypes || [];
             } else {
                 if (lyphOrMat.class === $SchemaClass.Material) {
-                    lyphMap[lyphOrMat.id] = (parentGroup.lyphs||[]).filter(e => e.generatedFrom === lyphOrMat);
+                    lyphMap[lyphOrMat.id] = (inputModel.lyphs||[]).filter(e => e.generatedFrom === lyphOrMat);
                 }
             }
         });
@@ -65,10 +65,10 @@ export class Coalescence extends Resource{
                     [$Field.topology]     : this.topology,
                     [$Field.generatedFrom]: this,
                     [$Field.lyphs]        : uniqueLyphs
-                }, modelClasses, parentGroup.entitiesByID);
+                }, modelClasses, inputModel.entitiesByID, inputModel.namespace);
 
                 //it is ok to add newly create coalescences to the parent group coalescence set as they won't be further processed
-                parentGroup.coalescences.push(instance);
+                inputModel.coalescences.push(instance);
             });
             this.abstract = true;
         }

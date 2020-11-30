@@ -16,7 +16,6 @@ import {isString, keys, merge} from "lodash-bound";
 import * as schema from "./graphScheme";
 
 import * as XLSX from 'xlsx';
-import FileSaver from "file-saver";
 
 export const modelClasses = {
     /*Abstract */
@@ -26,30 +25,37 @@ export const modelClasses = {
     [$SchemaClass.Shape]          : Shape,
 
     /*Resources */
-    [$SchemaClass.External]     : External,
-    [$SchemaClass.Coalescence]  : Coalescence,
-    [$SchemaClass.Channel]      : Channel,
-    [$SchemaClass.Chain]        : Chain,
-    [$SchemaClass.Tree]         : Tree,
-    [$SchemaClass.Villus]       : Villus,
-    [$SchemaClass.Group]        : Group,
-    [$SchemaClass.Graph]        : Graph,
-    [$SchemaClass.Component]    : Component,
-    [$SchemaClass.Scaffold]     : Scaffold,
+    [$SchemaClass.External]      : External,
+    [$SchemaClass.Coalescence]   : Coalescence,
+    [$SchemaClass.Channel]       : Channel,
+    [$SchemaClass.Chain]         : Chain,
+    [$SchemaClass.Tree]          : Tree,
+    [$SchemaClass.Villus]        : Villus,
+    [$SchemaClass.Group]         : Group,
+    [$SchemaClass.Graph]         : Graph,
+    [$SchemaClass.Component]     : Component,
+    [$SchemaClass.Scaffold]      : Scaffold,
 
     /*Visual resources */
-    [$SchemaClass.Anchor]       : Anchor,
-    [$SchemaClass.Wire]         : Wire,
-    [$SchemaClass.Node]         : Node,
-    [$SchemaClass.Link]         : Link,
+    [$SchemaClass.Anchor]        : Anchor,
+    [$SchemaClass.Wire]          : Wire,
+    [$SchemaClass.Node]          : Node,
+    [$SchemaClass.Link]          : Link,
 
     /* Shapes */
-    [$SchemaClass.Material]     : Material,
-    [$SchemaClass.Region]       : Region,
-    [$SchemaClass.Lyph]         : Lyph,
-    [$SchemaClass.Border]       : Border
+    [$SchemaClass.Material]      : Material,
+    [$SchemaClass.Region]        : Region,
+    [$SchemaClass.Lyph]          : Lyph,
+    [$SchemaClass.Border]        : Border
 };
 
+/**
+ * Parses input specification in XLSX (Excel file) or JSON format
+ * @param content   - input model content
+ * @param name      - file name
+ * @param extension - file extension
+ * @param isBinary  - Boolean flag that indicates whether the input model is in binary format
+ */
 export function loadModel(content, name, extension, isBinary = true){
     let newModel = {};
     if (extension === "xlsx"){
@@ -61,9 +67,6 @@ export function loadModel(content, name, extension, isBinary = true){
         });
         excelModel[$Field.id] = excelModel[$Field.id] || name;
         newModel = excelToJSON(excelModel);
-
-        // let result = JSON.stringify(newModel, null, 4);
-        // console.log("Excel to JSON converter", result);
     } else {
         if (extension === "json") {
             if (content::isString()){
@@ -77,61 +80,88 @@ export function loadModel(content, name, extension, isBinary = true){
     return newModel;
 }
 
-export function isScaffold(model){
-    return !!(model.components || model.anchors || model.wires);
+/**
+ * Determines whether the given JSON specification defines a scaffold
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isScaffold(inputModel){
+    return !!(inputModel.components || inputModel.anchors || inputModel.wires);
 }
 
-export function excelToJSON(model) {
-    if (isScaffold(model)){
-       return Scaffold.excelToJSON(model, modelClasses);
+/**
+ * Convert model from Excel template to JSON input specification
+ * @param inputModel - Excel input specification of connectivity model or scaffold
+ * @returns {*}
+ */
+export function excelToJSON(inputModel) {
+    if (isScaffold(inputModel)){
+       return Scaffold.excelToJSON(inputModel, modelClasses);
     } else {
-       return Graph.excelToJSON(model, modelClasses);
+       return Graph.excelToJSON(inputModel, modelClasses);
     }
 }
 
-export function fromJSON(model) {
-    if (isScaffold(model)){
-        return Scaffold.fromJSON(model, modelClasses);
+/**
+ * Create complete typed model from JSON input specification
+ * @param inputModel - JSON input specification of connectivity model or scaffold
+ * @returns {Graph}
+ */
+export function fromJSON(inputModel) {
+    if (isScaffold(inputModel)){
+        return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
-        return Graph.fromJSON(model, modelClasses);
+        return Graph.fromJSON(inputModel, modelClasses);
     }
 }
 
-export function joinModels(model, newModel, flattenGroups = false){
-    if (isScaffold(model)){
-        if (isScaffold(newModel)) {
-            //Both scaffolds
+/**
+ * Join two input models. Models can be joint:
+ *  (1) by placing model B into model A,
+ *  (2) by creating a new model where A and B are groups/components,
+ *  (3) by placing scaffold into model, model types are defined automatically based on schema
+ * @param inputModelA - first input model
+ * @param inputModelB - second input model
+ * @param flattenGroups - Boolean flag that indicates whether model B should be joined to model A as its group
+ * @returns {*}
+ */
+export function joinModels(inputModelA, inputModelB, flattenGroups = false){
+    if (isScaffold(inputModelA)){
+        if (isScaffold(inputModelB)) {
+            //Both specifications define scaffolds
             schema.definitions.Scaffold.properties::keys().forEach(property => {
-                delete newModel[property];
-                delete model[property];
+                delete inputModelB[property];
+                delete inputModelA[property];
             });
             if (flattenGroups){
-                model.components = model.components || [];
-                model.components.push(newModel);
-                return model;
+                inputModelA.components = inputModelA.components || [];
+                inputModelA.components.push(inputModelB);
+                return inputModelA;
             }
-            return {[$Field.components]: [model, newModel]};
+            return {[$Field.components]: [inputModelA, inputModelB]};
         } else {
-            newModel.scaffolds = newModel.scaffolds || [];
-            newModel.scaffolds.push(model);
-            return newModel;
+            //Connectivity model B gets constrained by scaffold A
+            inputModelB.scaffolds = inputModelB.scaffolds || [];
+            inputModelB.scaffolds.push(inputModelA);
+            return inputModelB;
         }
     } else {
-        if (isScaffold(newModel)) {
-            model.scaffolds = model.scaffolds || [];
-            model.scaffolds.push(newModel);
-            return model;
+        //Connectivity model A gets constrained by scaffold B
+        if (isScaffold(inputModelB)) {
+            inputModelA.scaffolds = inputModelA.scaffolds || [];
+            inputModelA.scaffolds.push(inputModelB);
+            return inputModelA;
         }
     }
-    //Both  connectivity models
-    let newConfig = (model.config||{})::merge(newModel.config);
+    //Both specifications define connectivity models
+    let newConfig = (inputModelA.config||{})::merge(inputModelB.config);
     schema.definitions.Graph.properties::keys().forEach(property => {
-        delete newModel[property];
-        delete model[property];
+        delete inputModelB[property];
+        delete inputModelA[property];
     });
     if (flattenGroups) {
-        model.groups = model.groups || [];
-        model.groups.push(newModel);
+        inputModelA.groups = inputModelA.groups || [];
+        inputModelA.groups.push(inputModelB);
     }
-    return {[$Field.groups]: [model, newModel], [$Field.config]: newConfig};
+    return {[$Field.groups]: [inputModelA, inputModelB], [$Field.config]: newConfig};
 }

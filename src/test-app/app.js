@@ -244,9 +244,9 @@ export class TestApp {
 
     create(){
         this.model = {
-            [$Field.name]: "newModel-" + this._counter++,
-            [$Field.created]: this.currentDate,
-            [$Field.lastUpdated]: this.currentDate
+            [$Field.name]        : "newModel-" + this._counter++,
+            [$Field.created]     : this.currentDate,
+            [$Field.lastUpdated] : this.currentDate
         };
         this._flattenGroups = false;
     }
@@ -264,9 +264,6 @@ export class TestApp {
             } else {
                 throw new Error("Scaffold with such identifier is already attached to the model!");
             }
-            //TODO update all identifiers in the scaffold with scaffold id prefix
-
-            //Apply changes
             this.model = model;
         };
 

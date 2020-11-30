@@ -1,6 +1,6 @@
 import {Resource} from './resourceModel';
 import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
-import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, getID} from './utils';
+import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
 import {logger, $LogMsg} from './logger';
 
 /**
@@ -24,15 +24,16 @@ export class Group extends Resource {
      * @param json - input model
      * @param modelClasses - model resource classes
      * @param entitiesByID - global map of model resources
+     * @param namespace
      * @returns {*} - Graph model - model suitable for visualization
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
 
         if (json.generated) {
-            return super.fromJSON(json, modelClasses, entitiesByID);
+            return super.fromJSON(json, modelClasses, entitiesByID, namespace);
         }
 
-        //Regions in groups are simple areas, facets and anchors can be used in scaffolds only
+        //Regions in groups are simple areas, ignore facets and anchors
         (json.regions||[]).forEach(region => {
             if ((region.facets||[]).length > 0){
                 logger.warn($LogMsg.REGION_FACETS_REMOVED, json.id, region.id, region.facets);
@@ -76,7 +77,7 @@ export class Group extends Resource {
 
         /******************************************************************************************************/
         //create graph resource
-        let res  = super.fromJSON(json, modelClasses, entitiesByID);
+        let res  = super.fromJSON(json, modelClasses, entitiesByID, namespace);
 
         //copy nested references to resources to the parent group
         res.mergeSubgroupResources();
@@ -323,7 +324,7 @@ export class Group extends Resource {
 
     /**
      * Show subgroups of the current group. A resources is shown if it belongs to at least one visible subgroup
-     * @param ids- selected subgroup identifiers
+     * @param ids - selected subgroup identifiers
      */
     showGroups(ids){
         this.show();

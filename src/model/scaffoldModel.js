@@ -13,7 +13,7 @@ import {
     keys, merge,
     pick
 } from "lodash-bound";
-import {$Field, $SchemaClass, $SchemaType} from "./utils";
+import {$Field, $SchemaClass, $SchemaType, getFullID} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
@@ -24,9 +24,10 @@ export class Scaffold extends Component {
      * @param json - input model
      * @param modelClasses - classes to represent model resources
      * @param entitiesByID - global map of model resources
+     * @param modelNamespace - connectivity model namespace
      * @returns {Graph}
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, modelNamespace) {
         const V = new Validator();
         let resVal = V.validate(json, schema);
         logger.clear();
@@ -34,13 +35,15 @@ export class Scaffold extends Component {
             logger.warn(resVal);
         }
 
-        let model = json::cloneDeep()::defaults({id: "mainScaffold"});
+        let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
 
         //Copy existing entities to a map to enable nested model instantiation
         entitiesByID = entitiesByID || {waitingList: {}};
 
+        let namespace = inputModel.namespace || modelNamespace;
+
         //Create scaffold
-        let res = super.fromJSON(model, modelClasses, entitiesByID);
+        let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
 
         //Auto-create missing definitions for used references
         let added = [];
@@ -52,7 +55,7 @@ export class Scaffold extends Component {
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]: id,
                         [$Field.generated]: true
-                    }, modelClasses, entitiesByID);
+                    }, modelClasses, entitiesByID, namespace);
 
                     //Include newly created entity to the main graph
                     let prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
@@ -60,7 +63,8 @@ export class Scaffold extends Component {
                         res[prop] = res[prop] || [];
                         res[prop].push(e);
                     }
-                    entitiesByID[e.id] = e;
+                    let fullID = getFullID(namespace, e.id);
+                    entitiesByID[fullID] = e;
                     added.push(e.id);
                 }
             }
@@ -71,7 +75,7 @@ export class Scaffold extends Component {
 
         if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);
-            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
+            let resources = added.filter(id => entitiesByID[getFullID(namespace,id)].class !== $SchemaClass.External);
             if (resources.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN, resources);
             }
@@ -81,7 +85,7 @@ export class Scaffold extends Component {
             logger.error($LogMsg.REF_UNDEFINED, entitiesByID.waitingList);
         }
 
-        res.syncRelationships(modelClasses, entitiesByID);
+        res.syncRelationships(modelClasses, entitiesByID, namespace);
 
         res.entitiesByID = entitiesByID;
         delete res.waitingList;

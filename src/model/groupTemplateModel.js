@@ -24,6 +24,9 @@ export class GroupTemplate extends Resource{
             [$Field.name]      : template.name,
             [$Field.generated] : true
         });
+        if (parentGroup.namespace){
+            group.namespace = parentGroup.namespace;
+        }
         [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
             group[prop] = group[prop] || [];
             if (group[prop].length > 0){

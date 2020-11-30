@@ -4,22 +4,25 @@ import {$LogMsg, logger} from './logger';
 import {
     $Field,
     $Prefix,
+    $Color,
     getGenID,
     getGenName,
     findResourceByID,
     getNewID,
     LYPH_TOPOLOGY,
-    mergeResources, $Color
+    mergeResources
 } from './utils';
 
 /**
  * Class that specifies borders of lyphs and regions
  * @class
  * @property border
- * @property internalLyphs
- * @property internalNodes
- * @property internalLyphColumns
  * @property points
+ * @property internalLyphColumns
+ * @property internalLyphs
+ * @property internalLyphsInLayers
+ * @property internalNodes
+ * @property internalNodesInLayers
  * @property hostedLyphs
  */
 export class Shape extends VisualResource {
@@ -29,9 +32,10 @@ export class Shape extends VisualResource {
      * @param   {Object} json                          - resource definition
      * @param   {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
      * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
+     * @param   {String} namespace
      * @returns {Shape} - ApiNATOMY Shape resource
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id     = json.id || getNewID(entitiesByID);
         json.border = json.border || {};
         json.border.id = json.border.id || getGenID($Prefix.border, json.id);
@@ -48,7 +52,7 @@ export class Shape extends VisualResource {
             });
         }
         delete json.numBorders;
-        let res = super.fromJSON(json, modelClasses, entitiesByID);
+        let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.border.host = res;
         return res;
     }
@@ -61,6 +65,8 @@ export class Shape extends VisualResource {
  * @property angle
  * @property scale
  * @property isTemplate
+ * @property supertype
+ * @property subtypes
  * @property conveys
  * @property layers
  * @property layerIn
@@ -79,11 +85,17 @@ export class Shape extends VisualResource {
  * @property internalNodesInLayers
  */
 export class Lyph extends Shape {
+    /**
+     * @property TUBE
+     * @property BAG
+     * @property BAG2
+     * @property CYST
+     */
     static LYPH_TOPOLOGY = LYPH_TOPOLOGY;
 
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.numBorders = 4;
-        return super.fromJSON(json, modelClasses, entitiesByID);
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
     /**
@@ -346,6 +358,10 @@ export class Lyph extends Shape {
 
 /**
  * Class that models regions
+ * @class
+ * @property facets
+ * @property internalAnchors
+ * @property hostedGroup
  */
 export class Region extends Shape {
 
@@ -357,7 +373,7 @@ export class Region extends Shape {
      * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
      * @returns {Shape} - ApiNATOMY Shape resource
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         if (!json.points || (json.points.length < 3)) {
             json.points = [
                 {"x": -10, "y": -10 },
@@ -367,7 +383,7 @@ export class Region extends Shape {
                 ];
         }
         json.numBorders = json.points.length;
-        let res = super.fromJSON(json, modelClasses, entitiesByID);
+        let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.points.push(res.points[0]::clone()); //make closed shape
         return res;
     }

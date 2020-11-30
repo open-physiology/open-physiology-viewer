@@ -2,23 +2,15 @@ import { Group } from './groupModel';
 import { Resource } from "./resourceModel";
 import { Node, Link } from "./visualResourceModel";
 import {
-    entries,
-    keys,
-    isNumber,
-    cloneDeep,
-    defaults,
-    isArray,
-    isObject,
-    isString,
-    pick,
-    values,
-    omit,
-    merge, unionBy
+    entries, keys, values,
+    isNumber, isArray, isObject, isString,
+    pick, omit, merge,
+    cloneDeep, defaults, unionBy
 } from 'lodash-bound';
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
-import {$Field, $SchemaClass, $Color, $Prefix, $SchemaType, getGenID} from "./utils";
+import {$Field, $SchemaClass, $Color, $Prefix, $SchemaType, getGenID, getFullID} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
@@ -30,22 +22,36 @@ let baseContext = {
     "@version": 1.1,
     "apinatomy": {"@id": "https://apinatomy.org/uris/readable/",
                   "@prefix": true},
-    "elements": {"@id": "https://apinatomy.org/uris/elements/",
-                 "@prefix": true},
-    "owl": {"@id": "http://www.w3.org/2002/07/owl#",
-            "@prefix": true},
-    "rdf": {"@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            "@prefix": true},
-    "rdfs": {"@id": "http://www.w3.org/2000/01/rdf-schema#",
-             "@prefix": true},
+    "elements": {
+        "@id": "https://apinatomy.org/uris/elements/",
+        "@prefix": true
+    },
+    "owl": {
+        "@id": "http://www.w3.org/2002/07/owl#",
+        "@prefix": true
+    },
+    "rdf": {
+        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "@prefix": true
+    },
+    "rdfs": {
+        "@id": "http://www.w3.org/2000/01/rdf-schema#",
+        "@prefix": true
+    },
     "name": "rdfs:label",
     "id": "@id",
-    "class": {"@id": "rdf:type",
-              "@type": "@id",
-              "@context": {"@base": "https://apinatomy.org/uris/elements/"}},
-    "topology": {"@id": "apinatomy:topology",
-                 "@type": "@id",
-                 "@context": {"@base": "https://apinatomy.org/uris/readable/"}},
+    "class": {
+        "@id": "rdf:type",
+        "@type": "@id",
+        "@context": {
+            "@base": "https://apinatomy.org/uris/elements/"
+        }
+    },
+    "topology": {
+        "@id": "apinatomy:topology",
+        "@type": "@id",
+        "@context": {"@base": "https://apinatomy.org/uris/readable/"}
+    },
 };
 
 /**
@@ -54,10 +60,9 @@ let baseContext = {
  */
 function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
 
-
     function schemaIsId(scm) {
         return scm::isObject() && (
-            scm["$ref"] == "#/definitions/IdentifierScheme" ||
+            scm["$ref"] === "#/definitions/IdentifierScheme" ||
                 scm.items && schemaIsId(scm.items) ||
                 scm.anyOf && scm.anyOf.filter(schemaIsId).length !== 0);
     }
@@ -106,7 +111,7 @@ export class Graph extends Group{
             logger.warn(resVal);
         }
 
-        let model = json::cloneDeep()::defaults({id: "mainGraph"});
+        let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
 
         //Copy existing entities to a map to enable nested model instantiation
 
@@ -114,8 +119,10 @@ export class Graph extends Group{
             waitingList: {}
         };
 
+        let namespace = inputModel.namespace;
+
         //Create graph
-        let res = super.fromJSON(model, modelClasses, entitiesByID);
+        let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
 
         //Auto-create missing definitions for used references
         let added = [];
@@ -127,10 +134,10 @@ export class Graph extends Group{
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]        : id,
                         [$Field.generated] : true
-                    }, modelClasses, entitiesByID);
+                    }, modelClasses, entitiesByID, namespace);
 
                     //Do not show labels for generated visual resources
-                    if (e.prototype instanceof modelClasses[$SchemaClass.VisualResource]){
+                    if (e.prototype instanceof modelClasses.VisualResource){
                         e.skipLabel = true;
                     }
 
@@ -140,7 +147,8 @@ export class Graph extends Group{
                         res[prop] = res[prop] ||[];
                         res[prop].push(e);
                     }
-                    entitiesByID[e.id] = e;
+                    let fullID = getFullID(namespace, e.id);
+                    entitiesByID[fullID] = e;
                     added.push(e.id);
                 }
             }
@@ -151,12 +159,12 @@ export class Graph extends Group{
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
-            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
+            let resources = added.filter(id => entitiesByID[getFullID(namespace,id)].class !== $SchemaClass.External);
             if (resources.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN, resources);
             }
 
-            let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
+            let externals = added.filter(id => entitiesByID[getFullID(namespace,id)].class === $SchemaClass.External);
             if (externals.length > 0){
                 logger.warn($LogMsg.AUTO_GEN_EXTERNAL, externals);
             }
@@ -166,13 +174,13 @@ export class Graph extends Group{
             logger.error($LogMsg.REF_UNDEFINED, entitiesByID.waitingList);
         }
 
-        res.syncRelationships(modelClasses, entitiesByID);
+        res.syncRelationships(modelClasses, entitiesByID, namespace);
 
         res.entitiesByID = entitiesByID;
 
         if (!res.generated) {
-            res.createAxesForInternalLyphs(modelClasses, entitiesByID);
-            res.createAxesForAllLyphs(modelClasses, entitiesByID);
+            res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
+            res.createAxesForAllLyphs(modelClasses, entitiesByID, namespace);
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
         }
 
@@ -297,7 +305,7 @@ export class Graph extends Group{
                         return;
                     }
                     if (!headers[j]::isString()) {
-                        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
+                        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j])
                         return;
                     }
                     let key = headers[j].trim();
@@ -332,8 +340,9 @@ export class Graph extends Group{
      * Auto-generates links for internal lyphs
      * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
+     * @param namespace
      */
-    createAxesForInternalLyphs(modelClasses, entitiesByID){
+    createAxesForInternalLyphs(modelClasses, entitiesByID, namespace){
         const createAxis = lyph => {
 
             let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
@@ -343,7 +352,7 @@ export class Graph extends Group{
                     [$Field.val]       : 0.1,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
-                }, modelClasses, entitiesByID)));
+                }, modelClasses, entitiesByID, namespace)));
 
             let link = Link.fromJSON({
                 [$Field.id]           : getGenID($Prefix.link, lyph.id),
@@ -354,7 +363,7 @@ export class Graph extends Group{
                 [$Field.conveyingLyph]: lyph.id,
                 [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
-            }, modelClasses, entitiesByID);
+            }, modelClasses, entitiesByID, namespace);
             sNode.sourceOf = [link];
             tNode.targetOf = [link];
             lyph.conveys = link;
@@ -390,8 +399,9 @@ export class Graph extends Group{
      * Auto-generate links for lyphs without axes which are not layers or templates
      * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
+     * @param namespace
      */
-    createAxesForAllLyphs(modelClasses, entitiesByID){
+    createAxesForAllLyphs(modelClasses, entitiesByID, namespace){
         let group = {
             [$Field.id]        : getGenID($Prefix.group, this.id, "auto-links"),
             [$Field.name]      : "Generated links",
@@ -407,7 +417,7 @@ export class Graph extends Group{
                 [$Field.color]     : $Color.Node,
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
-            }, modelClasses, entitiesByID));
+            }, modelClasses, entitiesByID, namespace));
 
             let link = Link.fromJSON({
                 [$Field.id]           : getGenID($Prefix.link, lyph.id),
@@ -418,7 +428,7 @@ export class Graph extends Group{
                 [$Field.conveyingLyph]: lyph.id,
                 [$Field.skipLabel]    : true,
                 [$Field.generated]    : true
-            }, modelClasses, entitiesByID);
+            }, modelClasses, entitiesByID, namespace);
 
             sNode.sourceOf = [link];
             tNode.targetOf = [link];
@@ -442,7 +452,7 @@ export class Graph extends Group{
             if (!this.groups){
                 this.groups = [];
             }
-            group = Group.fromJSON(group, modelClasses, entitiesByID);
+            group = Group.fromJSON(group, modelClasses, entitiesByID, namespace);
             this.groups.push(group);
         }
     }
@@ -564,15 +574,18 @@ export class Graph extends Group{
         let res = this.entitiesToJSONLD();
         let context = {};
         res['@context']::entries().forEach(([k, v]) => {
-            if (v::isObject() && "@id" in v && v["@id"].includes("apinatomy:")) {
-            } else if (typeof(v) === "string" && v.includes("apinatomy:")) {
-            } else if (k === "class") { // class uses @context @base which is not 1.0 compatible
+            if (v::isObject() && ("@id" in v) && v["@id"].includes("apinatomy:")) {
             } else {
-                context[k] = v;
-            }});
+                if (typeof(v) === "string" && v.includes("apinatomy:")) {
+                } else {
+                    if (k === "class") { // class uses @context @base which is not 1.0 compatible
+                    } else {
+                        context[k] = v;
+                    }
+                }
+            }
+        });
         // TODO reattach context for rdflib-jsonld prefix construction
-        jsonld.flatten(res).then(flat => {
-            jsonld.compact(flat, context).then(compact => {
-                callback(compact)})});
+        jsonld.flatten(res).then(flat => jsonld.compact(flat, context).then(compact => callback(compact)));
     }
 }

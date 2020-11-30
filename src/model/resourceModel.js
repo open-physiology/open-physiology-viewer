@@ -14,13 +14,17 @@ import {
 } from 'lodash-bound';
 
 import JSONPath from 'JSONPath';
-import {getClassName, schemaClassModels, isClassAbstract, getNewID, $Field, $SchemaType} from "./utils";
+import {
+    schemaClassModels,
+    $Field,
+    $SchemaType,
+    isClassAbstract,
+    getClassName,
+    getNewID,
+    getFullID,
+    getID
+} from "./utils";
 import {logger, $LogMsg} from './logger';
-/**
- * JSON Path validator
- * @type {JSONPath}
- */
-
 
 /**
  * The class defining common methods for all resources
@@ -46,9 +50,10 @@ export class Resource{
      * @param   {Object} json                          - resource definition
      * @param   {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
      * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
+     * @param   {string} namespace
      * @returns {Resource} - ApiNATOMY resource
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID ){
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace){
 
         let clsName = json.class || this.name;
         const cls = this || modelClasses[clsName];
@@ -69,14 +74,15 @@ export class Resource{
                 logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
             }
 
-            if (entitiesByID[res.id]) {
-                if (entitiesByID[res.id] !== res){
-                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.id], res);
+            let fullResID = getFullID(namespace, res.id);
+            if (entitiesByID[fullResID]) {
+                if (entitiesByID[fullResID] !== res){
+                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[fullResID], res);
                 }
             } else {
-                entitiesByID[res.id] = res;
-                res.reviseWaitingList(entitiesByID.waitingList);
-                res.replaceIDs(modelClasses, entitiesByID);
+                entitiesByID[fullResID] = res;
+                res.reviseWaitingList(entitiesByID.waitingList, namespace);
+                res.replaceIDs(modelClasses, entitiesByID, namespace);
             }
         }
         return res;
@@ -86,16 +92,18 @@ export class Resource{
      * Replace IDs with object references
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+     * @param namespace
      */
-    replaceIDs(modelClasses, entitiesByID){
+    replaceIDs(modelClasses, entitiesByID, namespace){
         const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
         const createObj = (res, key, value, spec) => {
             if (skip(value)) { return value; }
 
+            let fullResID = getFullID(namespace, res.id);
             if (value::isNumber()) {
                 value = value.toString();
-                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, res.id, key);
+                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, fullResID, key);
             }
 
             let clsName = getClassName(spec);
@@ -106,21 +114,25 @@ export class Resource{
             }
 
             if (value && value::isString()) {
-                if (!entitiesByID[value]) {
+                let fullValueID = getFullID(namespace, value);
+                if (!entitiesByID[fullValueID]) {
                     //put to a wait list instead
                     entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
                     entitiesByID.waitingList[value].push([res, key]);
                     return value;
                 } else {
-                    return entitiesByID[value];
+                    return entitiesByID[fullValueID];
                 }
             }
 
-            if (value.id && entitiesByID[value.id]) {
-                if (value !== entitiesByID[value.id]) {
-                    logger.warn($LogMsg.RESOURCE_DUPLICATE, res.id, key, value, entitiesByID[value.id]);
+            if (value.id) {
+                let fullValueID = getFullID(namespace, value.id);
+                if (entitiesByID[fullValueID]) {
+                    if (value !== entitiesByID[fullValueID]) {
+                        logger.warn($LogMsg.RESOURCE_DUPLICATE, fullResID, key, value, entitiesByID[fullValueID]);
+                    }
+                    return entitiesByID[fullValueID];
                 }
-                return entitiesByID[value.id];
             }
 
             //value is an object and it is not in the map
@@ -135,7 +147,7 @@ export class Resource{
                     return null;
                 }
             }
-            return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID);
+            return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID, namespace);
         };
 
         if (!modelClasses[this.class]){
@@ -163,7 +175,7 @@ export class Resource{
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
      */
-    assignPathRelationships(modelClasses, entitiesByID){
+    assignPathRelationships(modelClasses, entitiesByID, namespace){
         if (!this.assign){ return;  }
         //Filter the value to assign only valid class properties
         try{
@@ -181,9 +193,9 @@ export class Resource{
                         newValue::keys().forEach(key => {
                             if (relMaps[key]) {
                                 if (newValue[key]::isArray()) {
-                                    newValue[key] = newValue[key].map(id => entitiesByID[id])
+                                    newValue[key] = newValue[key].map(id => entitiesByID[getFullID(namespace,id)])
                                 } else {
-                                    newValue[key] = entitiesByID[newValue[key]];
+                                    newValue[key] = entitiesByID[getFullID(namespace, newValue[key])];
                                 }
                                 logger.info($LogMsg.RESOURCE_JSON_PATH, key, e.id);
                             }
@@ -277,15 +289,16 @@ export class Resource{
      * When a new resource definition is found or created, all resources that referenced this resource by ID get the
      * corresponding object reference instead
      * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
+     * @param namespace
      */
-    reviseWaitingList(waitingList){
+    reviseWaitingList(waitingList, namespace){
         let res = this;
         (waitingList[res.id]||[]).forEach(([obj, key]) => {
             if (obj[key]::isArray()){
                 obj[key].forEach((e, i) => {
-                   if (e === res.id){
+                    if (e === res.id){
                        obj[key][i] = res;
-                   }
+                    }
                 });
             } else {
                 if (obj[key] === res.id){
@@ -293,7 +306,7 @@ export class Resource{
                 }
             }
         });
-        delete waitingList[this.id];
+        delete waitingList[res.id];
     }
 
     /**
@@ -301,6 +314,7 @@ export class Resource{
      * @param {string} key    - property field that points to the related resource
      * @param {Object} spec   - JSON schema specification of the relationship field
      * @param {Object} modelClasses -  map of class names vs implementation of ApiNATOMY resources
+     *
      */
     syncRelationship(key, spec, modelClasses){
         let res = this;
@@ -353,33 +367,36 @@ export class Resource{
      * Synchronize all relationship properties of the resource
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+     * @param namespace
      */
-    syncRelationships(modelClasses, entitiesByID){
-        entitiesByID::keys().forEach(id => {
-            if (!entitiesByID[id].class){ return; }
-             let refFields = entitiesByID[id].constructor.Model.relationships;
+    syncRelationships(modelClasses, entitiesByID, namespace){
+        entitiesByID::keys().forEach(entityID => {
+             if (!entitiesByID[entityID].class){ return; }
+             let refFields = entitiesByID[entityID].constructor.Model.relationships;
              (refFields || []).forEach(([key, spec]) => {
-                 if (!entitiesByID[id][key]) { return; }
-                 entitiesByID[id].syncRelationship(key, spec, modelClasses);
+                 if (!entitiesByID[entityID][key]) { return; }
+                 entitiesByID[entityID].syncRelationship(key, spec, modelClasses);
              });
         });
 
-        entitiesByID::keys().forEach(id => {
-            if (!entitiesByID[id].class){ return; }
-            entitiesByID[id].assignPathRelationships(modelClasses, entitiesByID);
+        entitiesByID::keys().forEach(entityID => {
+            if (!entitiesByID[entityID].class){ return; }
+            entitiesByID[entityID].assignPathRelationships(modelClasses, entitiesByID, namespace);
         });
 
         //Assign visual properties to a complete map
-        entitiesByID::keys().forEach(id => {
-            if (!entitiesByID[id].class){ return; }
-            entitiesByID[id].assignPathProperties(modelClasses);
-            entitiesByID[id].interpolatePathProperties();
+        entitiesByID::keys().forEach(entityID => {
+            if (!entitiesByID[entityID].class){ return; }
+            entitiesByID[entityID].assignPathProperties(modelClasses);
+            entitiesByID[entityID].interpolatePathProperties();
         });
     }
 
     /**
      * Prepare a circular resource object to be serialized in JSON.
-     * @param depth     - depth of nested objects in the recursive calls
+     * @param depth - number of nested objects that are exported in full, helps to output resources with recursive dependencies
+     * @param inlineResources - a set of properties that refer to inline resources that should not be replaced with their identifiers
+     * @returns JSON object with serializable properties of current the resource
      */
     toJSON(depth = 1, inlineResources = {}){
         /**

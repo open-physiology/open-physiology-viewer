@@ -21,54 +21,93 @@ export const $SchemaType = {
     NUMBER : "number",
     BOOLEAN: "boolean"
 };
+/**
+ * @property IdentifierScheme
+ * @property RGBColorScheme
+ * @property ColorScheme
+ * @property GroupColorScheme
+ * @property CurieMapping
+ * @property Point2Scheme
+ * @property Point3Scheme
+ * @property ProcessTypeScheme
+ * @property Resource
+ * @property External
+ * @property VisualResource
+ * @property Node
+ * @property Link
+ * @property Material
+ * @property Border
+ * @property Shape
+ * @property Lyph
+ * @property Region
+ * @property Anchor
+ * @property Wire
+ * @property Component
+ * @property Group
+ * @property GroupTemplate
+ * @property Coalescence
+ * @property Chain
+ * @property Tree
+ * @property Villus
+ * @property Scaffold
+ * @property Graph
+ */
 export const $SchemaClass = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $SchemaClass::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
-export const WIRE_GEOMETRY = definitions[$SchemaClass.Wire].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LINK_GEOMETRY = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LINK_STROKE   = definitions[$SchemaClass.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const PROCESS_TYPE  = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-
-export const LYPH_TOPOLOGY  = definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const WIRE_GEOMETRY        = definitions[$SchemaClass.Wire].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LINK_GEOMETRY        = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LINK_STROKE          = definitions[$SchemaClass.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const PROCESS_TYPE         = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LYPH_TOPOLOGY        = definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const COALESCENCE_TOPOLOGY = definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const $Color = {
-    Wire   : "#000",
-    Link   : "#000",
-    Node   : "#000",
-    Anchor : "#fff",
-    Region : "#c0c0c0",
+    Wire         : "#000",
+    Link         : "#000",
+    Node         : "#000",
+    Anchor       : "#fff",
+    Region       : "#c0c0c0",
     InternalNode : "#ccc",
     InternalLink : "#ccc"
 };
 
 export const $Prefix = {
-    node    : "node",   //generated node
-    source  : "s",      //source node
-    target  : "t",      //target node
-    link    : "lnk",    //generated link (edge)
-    lyph    : "lyph",   //generated lyph
-    group   : "group",  //generated group
-    instance: "inst",   //instance
-    chain   : "chain",  //chain
-    tree    : "tree",   //tree
-    channel : "ch",     //channel
-    coalescence: "cls", //coalescence instance
-    border  : "b",      //lyph border
-    villus  : "vls",    //villus template
-    layer   : "layer",  //generated lyph layer
-    template: "ref",    //from lyph template
-    material: "mat",    //from material reference
-    clone   : "clone",  //node clone
-    join    : "join",   //joint node
-    anchor  : "p",      //anchor point
-    wire    : "wire"    //wire
+    node        : "node",   //generated node
+    source      : "s",      //source node
+    target      : "t",      //target node
+    link        : "lnk",    //generated link (edge)
+    lyph        : "lyph",   //generated lyph
+    group       : "group",  //generated group
+    instance    : "inst",   //instance
+    chain       : "chain",  //chain
+    tree        : "tree",   //tree
+    channel     : "ch",     //channel
+    coalescence : "cls",    //coalescence instance
+    border      : "b",      //lyph border
+    villus      : "vls",    //villus template
+    layer       : "layer",  //generated lyph layer
+    template    : "ref",    //from lyph template
+    material    : "mat",    //from material reference
+    clone       : "clone",  //node clone
+    join        : "join",   //joint node
+    anchor      : "p",      //anchor point
+    wire        : "wire"    //wire
 };
 
 export const getNewID = entitiesByID => "new-" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
 export const getGenID = (...args) => args.join("_");
+
+export const getFullID = (namespace, id) => {
+    if (!id) return "";
+    if (id::isString() && id.indexOf("#") > -1) {
+        //TODO log references to other namespaces for testing
+        return id;
+    }
+    return (namespace? namespace + "#" : "") + id;
+};
 
 export const getGenName = (...args) => args.join(" ");
 
@@ -308,12 +347,19 @@ const recurseSchema = (className, handler) => {
 
 /**
  * A class that provides helper properties for schema-based resource classes
+ * @property schema
+ * @property schemaClassName
+ * @property defaultValues
+ * @property fields
+ * @property relationships
+ * @property relClassNames
  */
 export class SchemaClass {
     schemaClsName;
     defaultValues = {};
-    fields = [];
     relClassNames = {};
+    fields = [];
+    relationships = [];
 
     constructor(schemaClsName) {
         this.schemaClsName = schemaClsName;
