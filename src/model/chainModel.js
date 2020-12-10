@@ -21,10 +21,16 @@ import {defaults, isObject, isArray, flatten} from 'lodash-bound';
 /**
  * Chain model
  * @property lyphs
+ * @property lyphTemplate
+ * @property levels
+ * @property numLevels
  * @property housingLyphs
  * @property housingChain
  * @property housingRange
  * @property housingLayers
+ * @property wiredTo
+ * @property startFromLeaf
+ * @property hostedBy
  */
 export class Chain extends GroupTemplate {
 

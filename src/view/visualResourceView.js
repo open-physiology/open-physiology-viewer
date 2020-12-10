@@ -546,7 +546,7 @@ Wire.prototype.updateViewObjects = function(state) {
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
-                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    this.points.filter(p => !!p).forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     linkPos.needsUpdate = true;
                     obj.geometry.computeBoundingSphere();
                 }

@@ -63,10 +63,10 @@ export const LYPH_TOPOLOGY        = definitions[$SchemaClass.Lyph].properties[$F
 export const COALESCENCE_TOPOLOGY = definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const $Color = {
+    Anchor       : "#ccc",
     Wire         : "#000",
     Link         : "#000",
     Node         : "#000",
-    Anchor       : "#fff",
     Region       : "#c0c0c0",
     InternalNode : "#ccc",
     InternalLink : "#ccc"

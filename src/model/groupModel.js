@@ -24,11 +24,12 @@ export class Group extends Resource {
      * @param json - input model
      * @param modelClasses - model resource classes
      * @param entitiesByID - global map of model resources
-     * @param namespace
+     * @param defaultNamespace
      * @returns {*} - Graph model - model suitable for visualization
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
 
+        let namespace = json.namespace || defaultNamespace;
         if (json.generated) {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);
         }

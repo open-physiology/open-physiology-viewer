@@ -5,7 +5,7 @@ import {copyCoords, extractCoords, getPoint, THREE} from "./utils";
 import './visualResourceView';
 import './shapeView';
 
-const {Group, Link, Coalescence, Component} = modelClasses;
+const {Group, Link, Coalescence, Component, Chain, Node, Region} = modelClasses;
 
 function getWiredChain(chain){
     let start, end;
@@ -16,7 +16,7 @@ function getWiredChain(chain){
         start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root.layout);
         end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf.layout);
     }
-    if (chain.reversed){
+    if (chain.startFromLeaf){
         let tmp = start;
         let start = end;
         let end = tmp;
@@ -50,16 +50,19 @@ function updateChain(chain, curve, start, end){
  */
 Group.prototype.createViewObjects = function(state){
     (this.scaffolds||[]).forEach(scaffold => {
+        if (!(scaffold instanceof Component)){ return; }
         scaffold.createViewObjects(state);
         scaffold.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
 
     this.visibleNodes.forEach(node => {
+        if (!(node instanceof Node)){ return; }
         node.createViewObjects(state);
         node.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
 
     (this.chains||[]).forEach(chain => {
+        if (!(chain instanceof Chain)){ return; }
         if (!chain.root || !chain.leaf){ return; }
         let {start, end} = getWiredChain(chain);
         let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
@@ -67,6 +70,7 @@ Group.prototype.createViewObjects = function(state){
     });
 
     this.visibleLinks.forEach(link => {
+        if (!(link instanceof Link)){ return; }
         link.createViewObjects(state);
         link.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE){
@@ -75,6 +79,7 @@ Group.prototype.createViewObjects = function(state){
     });
 
     this.visibleRegions.forEach(region => {
+        if (!(region instanceof Region)){ return; }
         region.createViewObjects(state);
         region.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });

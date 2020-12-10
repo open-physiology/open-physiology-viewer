@@ -1024,7 +1024,7 @@
           "relatedTo": "hostedAnchors"
         },
         "internalIn": {
-          "description": "ID or reference of the region on which this anchor must be positioned",
+          "description": "ID or reference of the region in which this anchor must be positioned",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -1034,6 +1034,18 @@
             }
           ],
           "relatedTo": "internalAnchors"
+        },
+        "onBorder": {
+          "description": "ID or reference of the region in which this anchor defines a border point",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "borderAnchors"
         },
         "sourceOf"  : {
           "description": "Wires that start in this anchor",
@@ -1239,6 +1251,22 @@
             ]
           },
           "relatedTo": "facetIn",
+          "uniqueItems": true
+        },
+        "borderAnchors": {
+          "description": "Border anchors of the region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
+          },
+          "relatedTo": "onBorder",
           "uniqueItems": true
         },
         "internalAnchors": {
@@ -1918,7 +1946,7 @@
           "advanced": true,
           "relatedTo": "wiredChain"
         },
-        "reversed"     : {
+        "startFromLeaf" : {
           "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
           "type": "boolean"
         },
@@ -2076,7 +2104,7 @@
           }
         },
         "regions": {
-          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the current ApiNATOMY model but are useful for general context",
+          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
           "type": "array",
           "items": {
             "anyOf": [

@@ -77,6 +77,15 @@
 <li data-ice="manualNav" class="indent-h2" data-link="manual/examples.html"><a href="manual/examples.html#bolser-lewis-map" data-ice="link">Bolser-Lewis map</a></li>
 </ul>
   </div>
+<div data-ice="manual">
+    <ul class="manual-toc">
+      
+    <li data-ice="manualNav" class="indent-h1" data-link="manual/errors.html"><a href="manual/errors.html" data-ice="link">Validation messages</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/errors.html"><a href="manual/errors.html#errors" data-ice="link">Errors</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/errors.html"><a href="manual/errors.html#warnings" data-ice="link">Warnings</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/errors.html"><a href="manual/errors.html#information" data-ice="link">Information</a></li>
+</ul>
+  </div>
 </div>
 </nav>
 
@@ -280,10 +289,7 @@ by JSONPath queries for every resource in the model with <code>assign</code> and
 <li><code>spline</code> to draw link connectors that smoothly join preceding and following links</li>
 <li><code>rectangle</code> to draw splines that resemble a semi-square connector with rounded corners</li>
 <li><p><code>path</code> to draw graph edges bundled together by the <a href="https://bl.ocks.org/vasturiano/7c5f24ef7d4237f7eb33f17e59a6976e">d3.js edge bundling method</a>.</p>
-<p>There are also two auxiliary link types:</p>
-</li>
-<li><code>invisible</code> links are never displayed themselves but serve as axes for the lyphs they convey. The <code>invisible</code> links can either be defined explicitly in the model or auto-generated if a lyph that is an <code>internalLyph</code> of some other lyph is not conveyed by any user-defined link in the model;</li>
-<li><p><code>force</code> links have no corresponding visual objects and only serve the purpose of binding together selected nodes.</p>
+<p>There are also auxiliary links: <code>invisible</code> links are never displayed themselves but serve as axes for the lyphs they convey. The <code>invisible</code> links can either be defined explicitly in the model or auto-generated, e.g., when a lyph that is an <code>internalLyph</code> of some other lyph is not conveyed by any user-defined link in the model;</p>
 <p>The property <code>stroke</code> set to <code>dashed</code> yields a dashed line while its property <code>thick</code> set to <code>true</code> indicates that the link should be drawn as a thick line. This option was introduced to overcome a well-known WebGL <a href="https://mattdesl.svbtle.com/drawing-lines-is-hard">issue</a> with drawing thick lines. It instructs the lyph viewer to use a custom vertex shader. The optional property <code>lineWidth</code> can be used to specify how thick such links should be (the default value is 0.003).</p>
 <p>The property <code>length</code> defines the desired distance between the link ends in terms of the percentage from the maximal allowed length (which is equal to the main axis length in the lyph viewer). The link force from the <a href="https://github.com/vasturiano/d3-force-3d#links">d3-force-3d</a> module pushes the link&apos;s source and target nodes together or apart according to the desired distance. More details about these parameters can be found in the documentation of the module. </p>
 <p>A link of any type can be set to be <code>collapsible</code>. A collapsible link exists only if its ends are <code>constrained</code> by the visible entities in the view, i.e., the link&apos;s source and target nodes must be inside of visible lyphs, on separate lyph borders or are hosted by other visible links. If this is not the case, the source and target nodes of the collapsible link are attracted to each other until they collide to look like a single node.</p>
@@ -523,7 +529,7 @@ Generally, lyphs originating from a lyph template inherit its topology. However,
   &quot;lyphTemplate&quot;: &quot;229&quot;,
   &quot;housingLyphs&quot;: [&quot;202&quot;, &quot;201&quot;, &quot;200&quot;, &quot;203&quot;, &quot;204&quot;, &quot;205&quot;, &quot;206&quot;, &quot;207&quot;, &quot;208&quot;, &quot;209&quot;, &quot;210&quot;, &quot;211&quot;, &quot;212&quot;, &quot;213&quot;, &quot;214&quot;, &quot;228&quot;]
 }</code>
-</code></pre><p>The image below shows a neuron tree aligned along the chain of housing lyphs.</p><p><img src="./manual/asset/chain-housedTreeCoalescence.png" width="75%" caption="An omega tree housed by a set of lyphs which are part of the chain group"></p><p>Semantically, lyphs in contiguous chains of lyphs have a common border, but because the chosen ApiNATOMY visualization approach depicts lyphs as centered icons with separate borders, the alignment of the omega trees that respects the border constraints set by the rules above require the non-terminal level link ends to be placed on two separate lines. To address this problem, we rely on node <code>clones</code> and <code>collapsible</code> links (drawn as dashed lines) that connect two copies of the same node. Developers who plan to work with the ApiNATOMY models should keep this in mind when traversing the ApiNATOMY graph - two semantically adjacent graph links can be separated by an auxiliary collapsible link that does not convey any lyphs. Hence, to access a link that models the next level in the generated tree group, starting from the tree level link <code>L1</code>,one may need to use the following 3 step traversals:</p><p><code>L1.target.clones[0].sourceOf =&gt; L2</code></p><p>Here, <code>L1.target</code> gives the target node of <code>L1</code>, then <code>clones[0]</code> field gives a reference to its clone (there can be more clones of the same node as this mechanism is not limited by the canonical tree level alignment), an, finally, <code>sourceOf</code> field would provide the following link, <code>L2</code>.</p><p>For the transition in the reverse direction, the similar path can be used via the opposite <code>cloneOf</code> field that links the cloned node to its prototype:</p><p><code>L2.source.cloneOf.targetOf =&gt; L1</code></p><h3>Channel</h3><p>The <code>Channel</code> resource class provides fields to define a template that will instruct the model generator to create specialized assemblies (groups, subgraphs) that represent membrane channels incorporated into the given housing lyphs.</p><p>To create membrane channel components, a model author provides:</p><ul>
+</code></pre><p>The image below shows a neuron tree aligned along the chain of housing lyphs.</p><p><img src="./manual/asset/chain-housedTreeCoalescence.png" width="75%" caption="An omega tree housed by a set of lyphs which are part of the chain group"></p><p>Semantically, lyphs in contiguous chains of lyphs have a common border, but because the chosen ApiNATOMY visualization approach depicts lyphs as centered icons with separate borders, the alignment of an omega tree that respects the border constraints set by the rules above requires the non-terminal level link ends to be placed on two separate lines. To address this problem, we rely on the node <code>clones</code> and <code>collapsible</code> links (drawn as dashed lines) that connect two copies of the same node. Developers who plan to work with the ApiNATOMY models should keep this in mind when traversing the ApiNATOMY graph - two semantically adjacent graph links can be separated by an auxiliary collapsible link that does not convey any lyphs. Hence, to access a link that models the next level in the generated tree group, starting from the tree level link <code>L1</code>,one may need to use the following 3 step traversals:</p><p><code>L1.target.clones[0].sourceOf =&gt; L2</code></p><p>Here, <code>L1.target</code> gives the target node of <code>L1</code>, then <code>clones[0]</code> field gives a reference to its clone (there can be more clones of the same node as this mechanism is not limited by the canonical tree level alignment), and, finally, <code>sourceOf</code> field would provide the following link, <code>L2</code>.</p><p>For the transition in the reverse direction, the similar path can be used via the opposite <code>cloneOf</code> field that links the cloned node to its prototype:</p><p><code>L2.source.cloneOf.targetOf =&gt; L1</code></p><h3>Channel</h3><p>The <code>Channel</code> resource class provides fields to define a template that will instruct the model generator to create specialized assemblies (groups, subgraphs) that represent membrane channels incorporated into the given housing lyphs.</p><p>To create membrane channel components, a model author provides:</p><ul>
 <li>an identifier for the channel alone with optional characteristics shared by all ApiNATOMY resources, i.e., name, external annotations, etc.;</li>
 <li>identifiers of housing lyphs. A <code>housing lyph</code> is a lyph of at least three layers representing some cell or organelle (e.g. Sarcoplasmic Reticulum) such that the middle layer of this lyph is a membrane;</li>
 <li>the material payload that is conveyed by the diffusive edge;</li>
@@ -704,6 +710,140 @@ This is the case when there is no common lyph template that applies to all tree 
 </code></pre><h2>Bolser-Lewis map</h2><p>Please note that this example shows a rough work-in-progress model that demonstrates the use of modeling concepts rather than preserves the physiological accuracy!</p><p>The example is based on a mock-up for the Bolser-Lewis model</p><p><img src="./manual/asset/bolserLewis.png" width="75%" caption="Bolser-Lewis model mock-up"></p><p>The model author defined the necessary resources in the Excel format. The image below shows the snapshot of the Excel template we developed as alternative to the text-based JSON format. The model from the Excel template can be exported as an .xlsx file and opened from the ApiNATOMY model viewer. The integrated converter translates the model to the JSON-based input format.</p><p><img src="./manual/asset/bolserLewis-excelLyphs.png" width="75%" caption="Bolser-Lewis model Excel page: lyphs"></p><p>The model shows the neuron tree passing through a chain of body compartments. As a requirement, the author wanted to generate the chain given an ordered list of conveying lyphs:</p><p><img src="./manual/asset/bolserLewis-excelChain.png" width="75%" caption="Bolser-Lewis model Excel page: chains"></p><p>The chain template shown in the image above produces a chain of connected links that convey the lyphs from the chain&apos;s <code>conveyingLyphs</code> property:</p><p><img src="./manual/asset/chain.png" width="75%" caption="A group generated from the chain template"></p><p>The neuron tree needs to be generated to match the number of housing lyphs:</p><p><img src="./manual/asset/bolserLewis-excelTree.png" width="75%" caption="Bolser-Lewis model Excel page: trees"></p><p>The specification above does not set <code>numLevels</code> or <code>levels</code> fields; instead the size of the <code>housingLyphs</code> array here is used to determine the number of generated tree levels; each tree level is then &quot;embedded&quot; to the corresponding housing lyph. This implies that the tree level link ends are hosted by the housing lyph or, in case of layered lyphs, its outermost layer
 (<code>hostedBy</code> relationship is set).</p><p><img src="./manual/asset/chain-housedTree.png" width="75%" caption="An omega tree housed by a set of lyphs which are part of the chain group"></p><p>Moreover, an embedding coalescence is defined between the pairs of the housing lyphs and the conveying lyphs of the tree levels they house.</p><p><img src="./manual/asset/chain-housedTreeCoalescence.png" width="75%" caption="Embedded lyphs coalesce with their housing lyphs"></p><p>One can observe that the generated omega tree has collapsible &quot;spacer&quot; links. These links should disappear in the views that do not require the same node to appear in two different locations (i.e., on borders of adjacent lyphs which are displayed with a gap). The lyph viewer determines whether spacer link ends are constrained based on the visibility of the related resources.</p><p><img src="./manual/asset/chain-tree.png" width="75%" caption="A group generated from the tree template"></p></div>
         <a data-ice="link" href="manual/examples.html"></a>
+      </div>
+    </div>
+<div class="manual-card-wrap" data-ice="cards">
+      <div class="manual-card">
+        <div data-ice="card"><h1>Validation messages</h1><p>The ApiNATOMY viewer allows users to create, edit, load and compose model specifications.
+Naturally, such specifications may be incomplete or obsolete.
+They may contain errors, inconsistencies, or conflicting definitions.
+It is not possible to prevent all errors with just syntactic JSON-schema-based validation.
+While creating resource map from serialized input model, the tool checks whether assumed constraints are satisfied and provides
+corresponding log messages that may help users to debug and fix the model.</p><h2>Errors</h2><pre><code class="lang-json"><code class="source-code prettyprint">{
+    CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
+    CHAIN_LYPH_TEMPLATE_MISSING : &quot;Failed to find the lyph template definition in the parent group&quot;,
+
+    COALESCENCE_NO_LYPH         : &quot;Unable to access lyph for coalescence definition&quot;,
+
+    EXCEL_DATA_TYPE_UNKNOWN     : &quot;Excel to JSON: failed to determine data type&quot;,
+    EXCEL_INVALID_COLUMN_NAME   : &quot;Excel to JSON: invalid column name&quot;,
+    EXCEL_NO_COLUMN_NAME        : &quot;Excel to JSON: no column name&quot;,
+    EXCEL_PROPERTY_UNKNOWN      : &quot;Excel to JSON: unrecognized property&quot;,
+    EXCEL_WRONG_ASSIGN_VALUE    : &quot;Excel to JSON: wrong assign value&quot;,
+
+    GROUP_NO_LINK_VALIDATE      : &quot;Link has no validateProcess function. Possible cause - misclassified resource&quot;,
+    GROUP_TEMPLATE_NO_CLASS     : &quot;Could not find class definition for the field&quot;,
+
+    RESOURCE_JSON_PATH_ERROR    : &quot;Failed to process JSONPath assignment statement&quot;,
+    RESOURCE_NO_REL_CLASS       : &quot;Related resource class is undefined&quot;,
+    RESOURCE_NO_REL_PROPERTY    : &quot;Related property specification is not found in the expected class&quot;,
+    RESOURCE_NO_ABSTRACT_CLASS  : &quot;An abstract relationship field expects a reference to an existing resource or &apos;class&apos; field in its value definition&quot;,
+    REF_UNDEFINED               : &quot;Remaining references to undefined resources&quot;
+}</code>
+</code></pre><h2>Warnings</h2><pre><code class="lang-json"><code class="source-code prettyprint"> {
+     AUTO_GEN                    : &quot;Auto-created missing resources&quot;,
+     AUTO_GEN_EXTERNAL           : &quot;Auto-created missing external resources&quot;,
+
+     CHAIN_CONFLICT              : `Conflicting chain specification: both &quot;housingLyphs&quot; and &quot;housingChain&quot; are given. Proceeding with &quot;housingLyphs&quot;`,
+     CHAIN_CONFLICT2             : `Conflicting chain specification: both &quot;lyphs&quot; and &quot;levels&quot; arrays are given. Proceeding with &quot;lyphs&quot;`,
+     CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer&apos;s bundlesChains} property disagrees with the chain&apos;s housingLayers} property`,
+     CHAIN_HOUSING_TEMPLATE      : &quot;Housing lyph or its layer is a template&quot;,
+     CHAIN_MAT_DIFF              : &quot;Incorrectly defined chain pattern - innermost layers do not convey the same material&quot;,
+     CHAIN_NO_COALESCENCE        : &quot;Skipped a coalescence between a housing lyph and a conveying lyph of the chain level it bundles: the conveying lyph is not defined&quot;,
+     CHAIN_NO_HOUSING            : `Incorrect chain specification: &quot;housingChain&quot; not found!`,
+     CHAIN_NO_HOUSING_LYPH       : &quot;Failed to find chain level housing lyph&quot;,
+     CHAIN_NO_HOUSING_LAYERS     : &quot;Failed to find all layers of the housing lyph&quot;,
+     CHAIN_SKIPPED               : `Skipped faulty chain template. A correct chain template must have one of the following conditions met:
+                                     (1) &quot;numLevels&quot; set to a positive number and non-empty &quot;lyphTemplate&quot;,\n
+                                     (2) non-empty list of &quot;lyphs&quot; to join to a chain,\n
+                                     (3) non-empty list of &quot;levels&quot; which are (partially defined) links to join to a chain,\n
+                                     (4) non-empty list of &quot;housingLyphs&quot;,\n
+                                     (5) non-empty &quot;housingChain&quot; reference with optional &quot;housingRange&quot; parameter`,
+     CHAIN_UNDEFINED             : &quot;Cannot expand undefined chain template&quot;,
+
+     CHANNEL_NO_GROUP            : &quot;Cannot create channel instances: canonical group not found&quot;,
+     CHANNEL_NO_ID               : &quot;Skipped channel template - it must have (non-empty) identifier&quot;,
+     CHANNEL_NO_HOUSING_LYPH     : &quot;Failed to find channel housing lyph&quot;,
+     CHANNEL_NO_HOUSING_LAYER    : &quot;Failed to find channel housing lyph layer&quot;,
+     CHANNEL_NO_NODE             : &quot;Failed to find channel group node&quot;,
+     CHANNEL_UNDEFINED           : &quot;Cannot expand undefined channel template&quot;,
+     CHANNEL_VALIDATION_SKIPPED  : &quot;Skipped validation of channel housing lyph: failed to find membrane lyph or material (GO:0016020)&quot;,
+     CHANNEL_WRONG_LAYER         : &quot;Second layer of the housing lyph is not a (subtype of) membrane (GO:0016020)&quot;,
+     CHANNEL_WRONG_NUM_LAYERS    : &quot;The number of layers in the housing lyph does not match the number of links in its membrane channel&quot;,
+
+     COALESCENCE_NO_AXIS         : &quot;A coalescing lyph is missing an axis&quot;,
+     COALESCENCE_NO_INSTANCE     : &quot;No lyph instances found for abstract coalescence&quot;,
+     COALESCENCE_SELF            : &quot;A lyph coalesces with itself or its layers&quot;,
+
+     COMPONENT_SELF              : &quot;The model contains self-references or cyclic component dependencies&quot;,
+
+     EXCEL_NO_CLASS_NAME         : &quot;Excel to JSON: class name not found&quot;,
+
+     GROUP_GEN_NOT_EMPTY         : &quot;Generated group already contains resources&quot;,
+     GRAPH_LYPH_NO_AXIS          : &quot;Failed to compute axis length for an internal lyph: axis undefined&quot;,
+     GROUP_SELF                  : &quot;The model contains self-references or cyclic group dependencies&quot;,
+
+     LYPH_INTERNAL_NO_LAYER      : &quot;Failed to locate layer lyph to reposition internal lyphs&quot;,
+     LYPH_INTERNAL_OUT_RANGE     : &quot;Failed to relocate internal lyph to layer: layer index out of range&quot;,
+     LYPH_NO_TEMPLATE_LAYER      : &quot;Template layer object not found&quot;,
+     LYPH_SELF                   : &quot;The lyph contains self-references or cyclic lyph dependencies&quot;,
+     LYPH_SUBTYPE_HAS_OWN_LAYERS : &quot;Subtype lyph already has layers, conflicts with generated layer definitions possible&quot;,
+
+     PROCESS_NOT_ADVECTIVE       : &quot;Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link&quot;,
+     PROCESS_NOT_DIFFUSIVE       : &quot;Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:&quot;,
+
+     REGION_ANCHORS_REMOVED      : &quot;Removed internal anchors from region definition in group&quot;,
+     REGION_FACETS_REMOVED       : &quot;Removed facets from region definition in group&quot;,
+     REGION_FACET_ERROR          : &quot;Incorrectly defined region facet, skipping definition&quot;,
+     REGION_FACET_NO_ANCHORS     : &quot;Incorrectly defined region facet, source or target anchors not defined, skipping definition&quot;,
+     REGION_FACET_NO_LAYOUT      : &quot;Incorrectly defined region facet, source or target anchor layout not defined, skipping definition&quot;,
+
+     RESOURCE_ARRAY_EXPECTED     : &quot;Resource property should contain an array&quot;,
+     RESOURCE_CLASS_UNKNOWN      : &quot;Cannot create a relationship: unknown resource class&quot;,
+     RESOURCE_COLOR_UNKNOWN      : &quot;Unrecognized color scheme&quot;,
+     RESOURCE_COLOR_NO_OBJECT    : &quot;Cannot assign color to a non-object value&quot;,
+     RESOURCE_DOUBLE_REF         : &quot;Resource property should not refer to two distinct resources&quot;,
+     RESOURCE_DUPLICATE          : &quot;Duplicate resource definition&quot;,
+     RESOURCE_IGNORE_FIELDS      : &quot;Unknown parameter(s) may be ignored&quot;,
+     RESOURCE_NUM_ID_TO_STR      : &quot;Converted numeric ID to string&quot;,
+     RESOURCE_NUM_VAL_TO_STR     : &quot;Converted numeric value of the given resource field to string&quot;,
+     RESOURCE_NO_CLASS           : &quot;Cannot find resource class: property specification does not imply a reference&quot;,
+     RESOURCE_NO_CLASS_DEF       : &quot;Cannot find resource class definition&quot;,
+     RESOURCE_NOT_UNIQUE         : &quot;Resource IDs are not unique&quot;,
+
+     TREE_CHAIN_UNDEFINED        : &quot;Cannot create omega tree instances: canonical tree chain undefined!&quot;,
+     TREE_NO_CHAIN               : &quot;Cannot create omega tree instances: canonical tree chain not found or empty&quot;,
+
+     VILLUS_ABSTRACT_HOST        : &quot;Skipping generation of villus group for lyph template&quot;,
+     VILLUS_NO_HOST              : &quot;Incomplete villus definition: hosting lyph is missing&quot;,
+     VILLUS_NO_HOST_FOUND        : &quot;Could not find the villus hosting lyph definition in the parent group&quot;,
+     VILLUS_NO_HOST_LAYER        : &quot;Failed to generate a villus resource: hosting lyph layer is missing&quot;,
+     VILLUS_TOO_LONG             : &quot;Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the hosting lyph&quot;,
+     VILLUS_UNDEFINED            : &quot;Cannot expand undefined villus template&quot;
+}</code>
+</code></pre><h2>Information</h2><pre><code class="lang-json"><code class="source-code prettyprint">{
+    CHAIN_NUM_LEVELS            : &quot;Corrected number of levels in the chain&quot;,
+    CHAIN_SLICE                 : &quot;Sliced housing chain to match the number of lyphs in the housing range&quot;,
+
+    GROUP_REF_TO_LYPH           : &quot;Number of replaced references to lyph templates&quot;,
+    GROUP_REF_TO_MAT            : &quot;Number of replaced references to materials&quot;,
+    GROUP_TEMPLATE_OTHER        : &quot;Found template defined in another group&quot;,
+
+    GRAPH_GEN_AXIS_ALL          : &quot;Generated links for lyphs without axes&quot;,
+    GRAPH_GEN_AXIS_INTERNAL     : &quot;Generated links for internal lyphs&quot;,
+
+    NODE_CLONE_INTERNAL         : &quot;Cloned node to join housed chain ends&quot;,
+
+    RESOURCE_JSON_PATH          : &quot;Created relationship via dynamic assignment (JSONPath expression)&quot;,
+    RESOURCE_NUM                : &quot;Number of resources in the generated model&quot;,
+    RESOURCE_TO_LAYER           : &quot;Placed resource into layer&quot;,
+
+    TREE_GEN_LIMIT              : &quot;Reached maximum allowed number of generated resources per tree instance&quot;,
+    TREE_NO_LEVEL_LINK          : &quot;Failed to find the tree level link, created to proceed&quot;,
+    TREE_NO_LEVEL_TARGET        : &quot;Failed to find tree level target node, created to proceed&quot;
+}</code>
+</code></pre></div>
+        <a data-ice="link" href="manual/errors.html"></a>
       </div>
     </div>
 </div>

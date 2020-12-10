@@ -44,7 +44,8 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 
 		return function raycast( raycaster, intersects ) {
 
-			let precisionSq =  raycaster.linePrecision *  raycaster.linePrecision;
+			//let precisionSq =  raycaster.linePrecision *  raycaster.linePrecision;
+            let precisionSq =  raycaster.params.Line.threshold * raycaster.params.Line.threshold;
 
 			let geometry = this.geometry;
 			let matrixWorld = this.matrixWorld;

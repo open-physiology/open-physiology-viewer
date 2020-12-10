@@ -10,21 +10,24 @@ export class Component extends Resource {
      * @param json -
      * @param modelClasses
      * @param entitiesByID
+     * @param defaultNamespace
      * @returns {Resource}
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
         (json.regions||[]).forEach(region => {
             modelClasses.Region.expandTemplate(json, region);
             modelClasses.Region.validateTemplate(json, region);
         });
 
+        let namespace = json.namespace || defaultNamespace;
         //Create scaffold
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec
-        addColor(res.regions, $Color.Region);
+        //addColor(res.regions, $Color.Region);
         addColor(res.wires, $Color.Wire);
+        addColor(res.anchors, $Color.Anchor);
 
         return res;
     }

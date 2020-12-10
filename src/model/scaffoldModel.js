@@ -24,10 +24,10 @@ export class Scaffold extends Component {
      * @param json - input model
      * @param modelClasses - classes to represent model resources
      * @param entitiesByID - global map of model resources
-     * @param modelNamespace - connectivity model namespace
+     * @param defaultNamespace - connectivity model namespace
      * @returns {Graph}
      */
-    static fromJSON(json, modelClasses = {}, entitiesByID, modelNamespace) {
+    static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
         const V = new Validator();
         let resVal = V.validate(json, schema);
         logger.clear();
@@ -40,7 +40,7 @@ export class Scaffold extends Component {
         //Copy existing entities to a map to enable nested model instantiation
         entitiesByID = entitiesByID || {waitingList: {}};
 
-        let namespace = inputModel.namespace || modelNamespace;
+        let namespace = inputModel.namespace || defaultNamespace;
 
         //Create scaffold
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
@@ -91,8 +91,8 @@ export class Scaffold extends Component {
         delete res.waitingList;
 
         res.generated = true;
-
         res.logger = logger;
+
         return res;
     }
 

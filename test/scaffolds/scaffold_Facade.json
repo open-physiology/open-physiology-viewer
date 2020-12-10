@@ -2,6 +2,7 @@
   "id"     : "scaffold_facade",
   "name"   : "Scaffold Facade",
   "author" : "Natallia Kokash",
+  "namespace": "scaffold_f",
   "created": "2020-08-04",
   "anchors": [
     {
@@ -21,150 +22,200 @@
       "name": "MAMMARY"
     },
     {
-      "id": "tLiver",
-      "layout":  {"x": -10, "y": 50}
+      "id": "f1L",
+      "layout": {"x": 80, "y": 40}
     },
     {
-      "id": "tPancreas",
-      "layout":  {"x": 10, "y": 50}
+      "id": "f1P",
+      "layout":  {"x": 10, "y": 75}
     },
     {
-      "id": "tLung",
-      "layout": {"x": 20, "y": 20}
+      "id": "f1S",
+      "layout": {"x": 90, "y": 5}
     },
     {
-      "id": "lambda1",
-      "layout": {"x": 80, "y": -10}
+      "id": "f2L",
+      "layout":  {"x": -10, "y": 75}
     },
     {
-      "id": "lambda2",
-      "hostedBy": "Nasal",
+      "id": "f3G",
+      "layout": {"x": -80, "y": -30}
+    },
+    {
+      "id": "f3K",
+      "layout": {"x": -70, "y": -40}
+    },
+    {
+      "id": "f3M",
+      "layout": {"x": -10, "y": -70}
+    },
+    {
+      "id": "f4E",
+      "hostedBy": "w-X-V",
       "offset": 0.9
     },
     {
-      "id": "tLacrimal",
+      "id": "f4N",
+      "hostedBy": "w-X-V",
+      "offset": 0.95
+    },
+    {
+      "id": "f4M",
+      "layout": {"x": 60, "y": -50}
+    },
+    {
+      "id": "f4C",
+      "layout": {"x": 60, "y": -55}
+    },
+    {
+      "id": "f4P",
+      "layout": {"x": 80, "y": -30}
+    },
+    {
+      "id": "f4L",
       "layout": {"x": 70, "y": -40}
-    },
-    {
-      "id": "tGenital",
-      "layout": {"x": -70, "y": -10}
-    },
-    {
-      "id": "tUrinary",
-      "layout": {"x": -60, "y": -40}
-    },
-    {
-      "id": "tMiddleEar",
-      "layout": {"x": 50, "y": -38}
-    },
-    {
-      "id": "tExtEar",
-      "layout": {"x": 50, "y": -40}
-    },
-    {
-      "id": "sHP",
-      "layout": {"x": -20, "y": 50}
-    },
-    {
-      "id": "tHP",
-      "layout": {"x": -25, "y": 55}
     }
   ],
   "wires": [
     {
-      "id"      : "Liver",
-      "name"    : "LIVER",
+      "id"      : "w-O-f2L",
+      "name"    : "Biliary Tract",
       "source"  : "O",
-      "target"  : "tLiver",
+      "target"  : "f2L",
       "geometry": "spline",
       "color"   : "#006400"
     },
     {
-      "id"      : "Pancreas",
-      "name"    : "PANCREAS",
-      "source"  : "O",
-      "target"  : "tPancreas",
+      "id"      : "w-f1P-O",
+      "name"    : "Pancreatic Tract",
+      "source"  : "f1P",
+      "target"  : "O",
       "geometry": "spline",
       "color"   : "#006400"
     },
     {
-      "id"      : "Lung",
-      "name"    : "LUNG",
+      "id"      : "w-X-f1L",
+      "name"    : "Airways",
       "source"  : "X",
-      "target"  : "tLung",
+      "target"  : "f1L",
       "geometry": "spline",
       "color"   : "#006400"
     },
     {
-      "id"      : "Oral",
-      "name"    : "ORAL",
-      "source"  : "X",
-      "target"  : "B",
+      "id"      : "w-B-I",
+      "name"    : "Oral Mucosa",
+      "source"  : "B",
+      "target"  : "I",
       "color"   : "#006400"
     },
     {
-      "id"      : "NasalPharynx",
-      "name"    : "NASAL PHARYNX",
-      "source"  : "X",
-      "target"  : "lambda1",
-      "geometry": "spline",
+      "id"      : "w-I-X",
+      "name"    : "Tongue",
+      "source"  : "I",
+      "target"  : "X",
       "color"   : "#006400"
     },
     {
-      "id"      : "Nasal",
-      "name"    : "NASAL",
-      "source"  : "lambda1",
+      "id"      : "w-X-V",
+      "name"    : "Nasopharynx",
+      "source"  : "X",
       "target"  : "V",
       "geometry": "spline",
+      "controlPoint": "F",
       "color"   : "#006400"
     },
     {
-      "id"      : "Lacrimal",
-      "name"    : "LACRIMAL",
-      "source"  : "J",
-      "target"  : "tLacrimal",
+      "id"      : "w-B-V",
+      "name"    : "Pfiltrum skin",
+      "source"  : "B",
+      "target"  : "V",
+      "color"   : "#006400"
+    },
+    {
+      "id"      : "w-I-f1S",
+      "name"    : "Salivary tract",
+      "source"  : "I",
+      "target"  : "f1S",
       "geometry": "spline",
       "color"   : "#006400"
     },
     {
-      "id"      : "Genital",
-      "name"    : "GENITAL",
+      "id": "w-J-f4P",
+      "name": "Conjunctiva",
+      "source": "J",
+      "target": "f4P",
+      "geometry": "spline",
+      "color": "#006400"
+    },
+    {
+      "id": "w-f4N-f4P",
+      "name": "Nasolacrimal Duct",
+      "source": "f4N",
+      "target": "f4P",
+      "geometry": "spline",
+      "color": "#006400"
+    },
+    {
+      "id": "w-W-f4C",
+      "name": "External Ear Canal",
+      "source": "W",
+      "target": "f4C",
+      "geometry": "spline",
+      "color": "#006400"
+    },
+    {
+      "id": "w-f4E-f4M",
+      "name": "Eustachian Tube",
+      "source": "f4E",
+      "target": "f4M",
+      "geometry": "spline",
+      "color": "#006400"
+    },
+    {
+      "id": "w-f4E-f4N",
+      "name": "Turbinate Mucosa",
+      "source": "f4E",
+      "target": "f4N",
+      "color": "#006400"
+    },
+    {
+      "id": "w-f4N-V",
+      "name": "Nasal Skin",
+      "source": "f4N",
+      "target": "V",
+      "color": "#006400"
+    },
+    {
+      "id": "v-f4L-f4P",
+      "name": "Lacrimal Tract",
+      "source": "f4L",
+      "target": "f4P",
+      "geometry": "spline",
+      "color": "#006400"
+    },
+    {
+      "id"      : "w-G-f3G",
+      "name"    : "Genital Mucosa",
       "source"  : "G",
-      "target"  : "tGenital",
+      "target"  : "f3G",
       "geometry": "spline",
       "color"   : "#006400"
     },
     {
-      "id"      : "Urinary",
-      "name"    : "URINARY",
+      "id"      : "w-U-f3K",
+      "name"    : "Urinary",
       "source"  : "U",
-      "target"  : "tUrinary",
+      "target"  : "f3K",
       "geometry": "spline",
       "color"   : "#006400"
     },
     {
-      "id"      : "MiddleEar",
-      "name"    : "MIDDLE EAR",
-      "source"  : "lambda2",
-      "target"  : "tMiddleEar",
+      "id": "w-M-f3M",
+      "name": "Lactiferous Tract",
+      "source": "M",
+      "target": "f3M",
       "geometry": "spline",
       "color"   : "#006400"
-    },
-    {
-      "id"      : "ExtEar",
-      "name"    : "EXTERNAL EAR",
-      "source"  : "W",
-      "target"  : "tExtEar",
-      "geometry": "spline",
-      "color"   : "#006400"
-    },
-    {
-      "id"      : "hp",
-      "name"    : "HEPATOPORTAL",
-      "source"  : "sHP",
-      "target"  : "tHP",
-      "geometry": "spline",
-      "color"   : "#FFC0CB"
     }
   ]
 }

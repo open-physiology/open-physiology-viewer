@@ -3,6 +3,7 @@
   "name"   : "Scaffold F",
   "author" : "Natallia Kokash",
   "created": "2020-06-29",
+  "namespace": "scaffold_f",
   "anchors": [
     {
       "id": "F",
@@ -33,6 +34,12 @@
       "id": "X",
       "hostedBy": "w-B-O",
       "offset": 0.2,
+      "color": "#006400"
+    },
+    {
+      "id": "I",
+      "hostedBy": "w-B-O",
+      "offset": 0.1,
       "color": "#006400"
     },
     {
@@ -69,6 +76,7 @@
   "wires": [
     {
       "id": "w-B-O",
+      "name": "Upper Gastrointestinal",
       "source": "B",
       "target": "O",
       "geometry": "arc",
@@ -77,6 +85,7 @@
     },
     {
       "id": "w-O-R",
+      "name": "Lower Gastrointestinal",
       "source": "O",
       "target": "R",
       "geometry": "arc",
@@ -129,31 +138,35 @@
       "id": "f1",
       "name": "F1",
       "color": "#ecf9f2",
+      "inactive": true,
       "facets": ["w-F-B", "w-B-O", "w-F-O"]
     },
     {
       "id": "f2",
       "name": "F2",
       "color": "#d9f2e6",
+      "inactive": true,
       "facets": ["w-F-O", "w-O-R", "w-F-R"]
     },
     {
       "id": "f3",
       "name": "F3",
       "color": "#c6ecd9",
+      "inactive": true,
       "facets": ["w-F-R", "w-R-M", "w-F-M"]
     },
     {
       "id": "f4",
       "name": "F4",
       "color": "#b3e6cc",
+      "inactive": true,
       "facets": ["w-F-M", "w-M-B", "w-F-B"]
     }
   ],
   "components": [
     {
-      "id"  : "regions",
-      "name": "Regions",
+      "id"  : "sRegions",
+      "name": "Scaffold regions",
       "regions": ["f1", "f2", "f3", "f4"]
     }
   ]
