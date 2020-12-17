@@ -323,12 +323,20 @@ export class WebGLSceneComponent {
     }
 
     createDynamicGroup(queryRes){
-        let nodeIDs  = (queryRes.nodes||[]).map(r => (r.id||"").substr(r.id.indexOf(":") + 1));
-        let linkIDs =  (queryRes.edges||[]).map(r => (r.sub||"").substr(r.sub.indexOf(":") + 1));
+        // let nodeIDs  = (queryRes.nodes||[]).map(r => (r.id||"").substr(r.id.indexOf(":") + 1));
+        // let edgeIDs =  (queryRes.edges||[]).map(r => (r.sub||"").substr(r.sub.indexOf(":") + 1));
+        let nodeIDs  = (queryRes.nodes||[]).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
+        let edgeIDs =  (queryRes.edges||[]).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
         if (this.graphData){
-            let nodes  = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
-            let links = (this.graphData.links||[]).filter(e => linkIDs.includes(e.id));
-            if (nodes.length || links.length){
+            let nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
+            let links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
+            let lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
+            if (nodes.length || links.length || lyphs.length){
+                (lyphs||[]).filter(lyph => lyph.conveys).forEach(lyph => {
+                    if (!links.find(link => link.id === lyph.conveys.id)){
+                        links.push(lyph.conveys);
+                    }
+                });
                 (links||[]).forEach(lnk => {
                     if (!nodes.find(node => node.id === lnk.source.id)){
                         nodes.push(lnk.source);
@@ -342,10 +350,15 @@ export class WebGLSceneComponent {
                     [$Field.id]    : "query" + this.queryCounter,
                     [$Field.name]  : "Query response " + this.queryCounter,
                     [$Field.nodes] : nodes,
-                    [$Field.links] : links
-                }, this.modelClasses);
+                    [$Field.links] : links,
+                    [$Field.lyphs] : lyphs
+                }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
                 this.graphData.groups = this.graphData.groups || [];
                 this.graphData.groups.push(group);
+
+                this.graphData.logger.info(`A dynamic group containing ${nodes.length} nodes, ${links.length}, links and ${lyphs.length} lyphs was created`, group.id);
+            } else {
+                this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
             }
         }
     }

@@ -139,8 +139,6 @@ export class Node extends VisualResource {
 
                     let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
                     let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
-                    // let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && isBundledLink(e, hostLyph));
-                    // let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && isBundledLink(e, hostLyph));
                     targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
                     sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
 
