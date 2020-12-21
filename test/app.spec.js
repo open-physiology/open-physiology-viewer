@@ -11,11 +11,8 @@ import {
     expect,
 } from './test.helper';
 
-import sinon from 'sinon';
-
 import {BrowserModule} from "@angular/platform-browser";
 import {
-    MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
     MatFormFieldModule,
@@ -24,7 +21,7 @@ import {
 } from "@angular/material";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 
 import {LogInfoModule} from "../src/components/gui/logInfoDialog";
 import {SettingsPanelModule} from "../src/components/settingsPanel";
@@ -141,7 +138,6 @@ describe("WebGLScene component", () => {
 
     it("ApiNATOMY viewer created", () => {
         expect(viewer).to.be.an('object');
-
         //add conditions
     });
 

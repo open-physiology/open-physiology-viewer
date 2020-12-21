@@ -174,6 +174,7 @@ describe("Serialize data", () => {
         expect(lyph.border.borders.length).to.be.equal(4);
         expect(lyph.border.borders[0]).to.have.property("class");
         expect(lyph.border.borders[0].class).to.be.equal("Link");
+        expect(lyph.border.borders[3]).to.have.property("conveyingLyph");
     });
 });
 

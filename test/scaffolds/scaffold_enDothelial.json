@@ -2,6 +2,7 @@
   "id"     : "scaffold_enDothelial",
   "name"   : "Scaffold enDothelial",
   "author" : "Natallia Kokash",
+  "namespace": "scaffold_d",
   "created": "2020-07-29",
   "anchors": [
     {

@@ -13,8 +13,6 @@ import {
     expect,
 } from './test.helper';
 
-import sinon from 'sinon';
-
 import {
     MatAutocompleteModule,
     MatFormFieldModule, MatInputModule, MatDialogModule, MatSelectModule, MatListModule, MatDialogRef, MAT_DIALOG_DATA} from "@angular/material";

@@ -62,8 +62,7 @@ Group.prototype.createViewObjects = function(state){
     });
 
     (this.chains||[]).forEach(chain => {
-        if (!(chain instanceof Chain)){ return; }
-        if (!chain.root || !chain.leaf){ return; }
+        if (!(chain instanceof Chain) || !chain.root || !chain.leaf){ return; }
         let {start, end} = getWiredChain(chain);
         let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
         updateChain(chain, curve, start, end);
@@ -173,19 +172,19 @@ Group.prototype.updateViewObjects = function(state){
  * @param state
  */
 Component.prototype.createViewObjects = function(state){
-    this.visibleAnchors.forEach(resource => {
-        resource.createViewObjects(state);
-        resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    this.visibleAnchors.forEach(anchor => {
+        anchor.createViewObjects(state);
+        anchor.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
 
-    this.visibleWires.forEach(resource => {
-        resource.createViewObjects(state);
-        resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    this.visibleWires.forEach(wire => {
+        wire.createViewObjects(state);
+        wire.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
 
-    this.visibleRegions.forEach(resource => {
-        resource.createViewObjects(state);
-        resource.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+    this.visibleRegions.forEach(region => {
+        region.createViewObjects(state);
+        region.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
     });
 };
 
@@ -194,7 +193,7 @@ Component.prototype.createViewObjects = function(state){
  * @param state
  */
 Component.prototype.updateViewObjects = function(state){
-    this.visibleAnchors.forEach(resource => { resource.updateViewObjects(state); });
-    this.visibleWires.forEach(resource => { resource.updateViewObjects(state); });
-    this.visibleRegions.forEach(resource => { resource.updateViewObjects(state); });
+    this.visibleAnchors.forEach(anchor => { anchor.updateViewObjects(state); });
+    this.visibleWires.forEach(wire => { wire.updateViewObjects(state); });
+    this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
 };

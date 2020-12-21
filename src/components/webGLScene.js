@@ -12,7 +12,7 @@ import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field, getNewID} from "../model/utils";
+import {$Field} from "../model/utils";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 
 const WindowResize = require('three-window-resize');
@@ -245,7 +245,7 @@ export class WebGLSceneComponent {
             "highlighted": true,
             "selected"   : true
         };
-        this.config = this.defaultColor::cloneDeep();
+        this.config = this.defaultConfig::cloneDeep();
     }
 
     onScaleChange(newLabelScale){
@@ -304,7 +304,6 @@ export class WebGLSceneComponent {
         this.createGraph();
         this.animate();
     }
-
 
     queryCounter = 0;
 
@@ -366,10 +365,10 @@ export class WebGLSceneComponent {
     exportJSON(){
         if (this._graphData){
             let result = JSON.stringify(this._graphData.toJSON(3, {
-                    [$Field.border]   : 3,
-                    [$Field.borders]  : 3,
-                    [$Field.villus]   : 3,
-                    [$Field.scaffolds]: 5
+                [$Field.border]   : 3,
+                [$Field.borders]  : 3,
+                [$Field.villus]   : 3,
+                [$Field.scaffolds]: 5
             }), null, 2);
             const blob = new Blob([result], {type: 'application/json'});
             FileSaver.saveAs(blob, this._graphData.id + '-generated.json');

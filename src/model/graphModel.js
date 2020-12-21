@@ -574,18 +574,15 @@ export class Graph extends Group{
         let res = this.entitiesToJSONLD();
         let context = {};
         res['@context']::entries().forEach(([k, v]) => {
-            if (v::isObject() && ("@id" in v) && v["@id"].includes("apinatomy:")) {
-            } else {
-                if (typeof(v) === "string" && v.includes("apinatomy:")) {
-                } else {
-                    if (k === "class") { // class uses @context @base which is not 1.0 compatible
-                    } else {
+            if (!(v::isObject() && ("@id" in v) && v["@id"].includes("apinatomy:"))) {
+                if (!(typeof(v) === "string" && v.includes("apinatomy:"))) {
+                    if (k !== "class") {
+                        //console.log(k, v);
                         context[k] = v;
                     }
                 }
             }
         });
-        // TODO reattach context for rdflib-jsonld prefix construction
         jsonld.flatten(res).then(flat => jsonld.compact(flat, context).then(compact => callback(compact)));
     }
 }

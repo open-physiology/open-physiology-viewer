@@ -147,7 +147,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
             expect(lnk).to.be.an('array').that.has.length.above(0);
             expect(lnk[0]).to.be.an('object');
             expect(lnk[0]).to.have.property('class').that.equal('Link');
-            //To do check that there is a link that a link with conveying neuron
+            //TODO check that there is a link that a link with conveying neuron
         }
     });
 

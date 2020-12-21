@@ -1,5 +1,5 @@
 import {modelClasses} from "../model/index.js";
-import {merge} from 'lodash-bound';
+import {merge, values} from 'lodash-bound';
 import {
     align,
     copyCoords,
@@ -349,7 +349,7 @@ Border.prototype.createViewObjects = function(state){
         if (this.borders[i].conveyingLyph) {
             this.borders[i].conveyingLyph.conveys = this.borders[i];
             this.borders[i].createViewObjects(state);
-            state.graphScene.add(this.borders[i].conveyingLyph.viewObjects["main"]);
+            this.borders[i].conveyingLyph.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
         }
     }
 };
@@ -416,24 +416,6 @@ Border.prototype.updateViewObjects = function(state){
         node.z += 1;
     };
 
-    const pushNodeInside = (node) => {
-        const delta = 5;
-        let points = this.host.points.map(p => p.clone());
-        let [min, max] = this.getBoundingBox();
-        if (Math.abs(max.z - min.z) <= delta) {
-            node.z = points[0].z + 1;
-        } else {
-            //Project links with hosted lyphs to the container lyph plane
-            let plane = new THREE.Plane();
-            plane.setFromCoplanarPoints(...points.slice(0,3));
-            let point = extractCoords(node);
-            plane.projectPoint(point, point);
-            node.z += 1;
-            copyCoords(node, point);
-        }
-        boundToRectangle(node, min, max);
-    };
-
     /**
      * Push existing link inside of the border
      * @param link
@@ -476,6 +458,10 @@ Border.prototype.updateViewObjects = function(state){
         copyCoords(this.borders[i].target, this.host.points[i + 1]);
         this.borders[i].updateViewObjects(state);
         //Position hostedNodes exactly on the link shape
+        let borderLyph = this.borders[i].conveyingLyph;
+        if (borderLyph && borderLyph.viewObjects) {
+            borderLyph.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        }
         if (this.borders[i].hostedNodes){
             //position nodes on the lyph border (exact shape)
             let n = this.borders[i].hostedNodes.length;
