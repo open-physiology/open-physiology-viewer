@@ -10,13 +10,11 @@ import {
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
-import {$Field, $SchemaClass, $Color, $Prefix, $SchemaType, getGenID, getFullID} from "./utils";
+import {$Field, $SchemaClass, $Color, $Prefix, $SchemaType, getGenID, getFullID, getID} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
-
 export { schema };
-const DEFAULT_LENGTH = 4;
 
 let baseContext = {
     "@version": 1.1,
@@ -111,15 +109,23 @@ export class Graph extends Group{
             logger.warn(resVal);
         }
 
-        let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
-
         //Copy existing entities to a map to enable nested model instantiation
+        let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
+        let namespace = inputModel.namespace;
+
+        inputModel.groups = inputModel.groups || [];
+        let group = {
+            [$Field.id]: getGenID($Prefix.group, $Prefix.default),
+            [$Field.name]: "Default",
+            [$Field.generated]: true,
+            [$Field.links]: (inputModel.links || []).map(e => getID(e)),
+            [$Field.nodes]: (inputModel.nodes || []).map(e => getID(e))
+        };
+        inputModel.groups.unshift(group);
 
         let entitiesByID = {
             waitingList: {}
         };
-
-        let namespace = inputModel.namespace;
 
         //Create graph
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
@@ -177,9 +183,9 @@ export class Graph extends Group{
         res.syncRelationships(modelClasses, entitiesByID, namespace);
 
         res.entitiesByID = entitiesByID;
+        delete res.waitingList;
 
         if (!res.generated) {
-            res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
             res.createAxesForAllLyphs(modelClasses, entitiesByID, namespace);
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
         }
@@ -194,11 +200,9 @@ export class Graph extends Group{
         (res.channels || []).forEach(r => r.validate(res));
 
         //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
-        (res.links||[]).filter(link => link::isObject()).forEach(link => {
-            if (!link.length) { link.length = DEFAULT_LENGTH; }
-            link.length *= 2
-        }); 
-        delete res.waitingList;
+        (res.links || []).forEach(link => {
+            link.length = (link.length || 5) * 2;
+        });
 
         res.generated = true;
         res.mergeScaffoldResources();
@@ -337,124 +341,34 @@ export class Graph extends Group{
     }
 
     /**
-     * Auto-generates links for internal lyphs
-     * @param modelClasses - model resource classes
-     * @param entitiesByID - a global resource map to include the generated resources
-     * @param namespace
-     */
-    createAxesForInternalLyphs(modelClasses, entitiesByID, namespace){
-        const createAxis = lyph => {
-
-            let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
-                Node.fromJSON({
-                    [$Field.id]        : getGenID(prefix, lyph.id),
-                    [$Field.color]     : $Color.InternalNode,
-                    [$Field.val]       : 0.1,
-                    [$Field.skipLabel] : true,
-                    [$Field.generated] : true
-                }, modelClasses, entitiesByID, namespace)));
-
-            let link = Link.fromJSON({
-                [$Field.id]           : getGenID($Prefix.link, lyph.id),
-                [$Field.source]       : sNode.id,
-                [$Field.target]       : tNode.id,
-                [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
-                [$Field.color]        : $Color.InternalLink,
-                [$Field.conveyingLyph]: lyph.id,
-                [$Field.skipLabel]    : true,
-                [$Field.generated]    : true
-            }, modelClasses, entitiesByID, namespace);
-            sNode.sourceOf = [link];
-            tNode.targetOf = [link];
-            lyph.conveys = link;
-
-            this.links.push(link);
-            [sNode, tNode].forEach(node => this.nodes.push(node));
-        };
-
-        let internalLyphsWithNoAxis = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
-        internalLyphsWithNoAxis.forEach(lyph => createAxis(lyph));
-        if (internalLyphsWithNoAxis.length > 0){
-            logger.info($LogMsg.GRAPH_GEN_AXIS_INTERNAL, internalLyphsWithNoAxis.map(x => x.id));
-        }
-
-        const assignAxisLength = (lyph, container) => {
-            if (!lyph.axis){
-                logger.warn($LogMsg.GRAPH_LYPH_NO_AXIS, lyph);
-                return;
-            }
-            if (container.axis) {
-                //TODO lyph can be internal in a region - dynamically compute length based on region width or length
-                if (!container.axis.length && container.container) {
-                    assignAxisLength(container, container.container);
-                }
-                lyph.axis.length = container.axis && container.axis.length ? container.axis.length * 0.8 : DEFAULT_LENGTH;
-            }
-        };
-
-        [...(this.lyphs||[]), ...(this.regions||[])].filter(lyph => lyph.internalIn).forEach(lyph => assignAxisLength(lyph, lyph.internalIn));
-    }
-
-    /**
      * Auto-generate links for lyphs without axes which are not layers or templates
      * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
      * @param namespace
      */
     createAxesForAllLyphs(modelClasses, entitiesByID, namespace){
-        let group = {
-            [$Field.id]        : getGenID($Prefix.group, this.id, "auto-links"),
-            [$Field.name]      : "Generated links",
-            [$Field.generated] : true,
-            [$Field.links]     : [],
-            [$Field.nodes]     : []
-        };
+        let noAxisLyphs = (this.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
 
-        const createAxis = lyph => {
+        let group = (this.groups||[]).find(g => g.id === getGenID($Prefix.group, $Prefix.default));
 
-            let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => Node.fromJSON({
-                [$Field.id]        : getGenID(prefix, lyph.id),
-                [$Field.color]     : $Color.Node,
-                [$Field.skipLabel] : true,
-                [$Field.generated] : true
-            }, modelClasses, entitiesByID, namespace));
-
-            let link = Link.fromJSON({
-                [$Field.id]           : getGenID($Prefix.link, lyph.id),
-                [$Field.source]       : sNode.id,
-                [$Field.target]       : tNode.id,
-                [$Field.geometry]     : Link.LINK_GEOMETRY.LINK,
-                [$Field.color]        : $Color.Link,
-                [$Field.conveyingLyph]: lyph.id,
-                [$Field.skipLabel]    : true,
-                [$Field.generated]    : true
-            }, modelClasses, entitiesByID, namespace);
-
-            sNode.sourceOf = [link];
-            tNode.targetOf = [link];
-            lyph.conveys = link;
-
+        noAxisLyphs.forEach(lyph => {
+            let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
             this.links.push(link);
-            group.links.push(link.id);
-            [sNode, tNode].forEach(node => {
-                this.nodes.push(node);
-                group.nodes.push(node.id);
+            [$Field.source, $Field.target].forEach(prop => {
+                this.nodes.push(link[prop]);
             });
-        };
-
-        let lyphsWithoutAxis = (this.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
-        lyphsWithoutAxis.forEach(lyph => createAxis(lyph));
-        if (lyphsWithoutAxis.length > 0){
-            logger.info($LogMsg.GRAPH_GEN_AXIS_ALL, lyphsWithoutAxis.map(x => x.id));
-        }
-
-        if (group.links.length > 0){
-            if (!this.groups){
-                this.groups = [];
+            if (group){
+                group.links.push(link);
+                [$Field.source, $Field.target].forEach(prop => {
+                    group.nodes.push(link[prop]);
+                });
             }
-            group = Group.fromJSON(group, modelClasses, entitiesByID, namespace);
-            this.groups.push(group);
+        });
+
+        if (noAxisLyphs.length > 0){
+            logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
         }
+        noAxisLyphs.forEach(lyph => lyph.assignAxisLength());
     }
 
     /**

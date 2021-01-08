@@ -316,6 +316,7 @@ export class Chain extends GroupTemplate {
 
             //A chain level can be "hosted" by the lyph, by its outermost layer, or by any other layer that bundles the chain or referred to .
             let hostLyph = housingLyph;
+            let bundlingLayer;
             if (hostLyph.layers){
                 let layers = hostLyph.layers.map(layerID => findResourceByID(parentGroup.lyphs, layerID));
                 layers = layers.filter(layer => !!layer);
@@ -323,7 +324,7 @@ export class Chain extends GroupTemplate {
                     logger.warn($LogMsg.CHAIN_NO_HOUSING_LAYERS, hostLyph.layers, hostLyph.id);
                     return;
                 }
-                let bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id));
+                bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id));
                 let index = layers.length - 1;
                 if (chain.housingLayers && chain.housingLayers.length > i){
                     if (chain.housingLayers[i] < index){
@@ -345,7 +346,7 @@ export class Chain extends GroupTemplate {
             }
 
             if (!hostLyph.isTemplate) {
-                hostLyph.bundles  = hostLyph.bundles ||[];
+                hostLyph.bundles = hostLyph.bundles ||[];
                 hostLyph.bundles.push(level.id);
 
                 hostLyph.border = hostLyph.border || {};

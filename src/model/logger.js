@@ -6,9 +6,7 @@ export const $LogMsg = {
     GROUP_REF_TO_LYPH           : "Number of replaced references to lyph templates",
     GROUP_REF_TO_MAT            : "Number of replaced references to materials",
     GROUP_TEMPLATE_OTHER        : "Found template defined in another group",
-
-    GRAPH_GEN_AXIS_ALL          : "Generated links for lyphs without axes",
-    GRAPH_GEN_AXIS_INTERNAL     : "Generated links for internal lyphs",
+    GROUP_GEN_LYPH_AXIS         : "Generated links for lyphs without axes",
 
     NODE_CLONE_INTERNAL         : "Cloned node to join housed chain ends",
 

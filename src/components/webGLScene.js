@@ -12,7 +12,7 @@ import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field} from "../model/utils";
+import {$Field, $Prefix, getGenID} from "../model/utils";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 
 const WindowResize = require('three-window-resize');
@@ -172,7 +172,10 @@ export class WebGLSceneComponent {
             let newConfig = (this._graphData.config||{})::defaults(this.defaultConfig);
 
             //Add to the default set of visible groups groups from given identifiers
-            if (!newConfig.showGroups || !newConfig.showGroups::isArray()) { newConfig.showGroups = []; }
+            if (!newConfig.showGroups || !newConfig.showGroups::isArray()) {
+                newConfig.showGroups = [];
+            }
+            newConfig.showGroups.push(getGenID($Prefix.group, $Prefix.default));
             let ids = newConfig.showGroups;
             ids.forEach(id  => {
                 let genIDs = (this._graphData.activeGroups || []).filter(g => (g.generatedFrom||{}).id === id);
@@ -346,7 +349,7 @@ export class WebGLSceneComponent {
                 });
                 //Add new group
                 let group = this.modelClasses.Group.fromJSON({
-                    [$Field.id]    : "query" + this.queryCounter,
+                    [$Field.id]    : getGenID($Prefix.query, this.queryCounter),
                     [$Field.name]  : "Query response " + this.queryCounter,
                     [$Field.nodes] : nodes,
                     [$Field.links] : links,

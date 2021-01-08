@@ -104,6 +104,17 @@ Lyph.prototype.createViewObjects = function(state) {
         this.width = this.width || this.size.width;
         this.height = this.height || this.size.height;
 
+        if (this.generated){
+            let host = (this.conveys && this.conveys.fasciculatesIn) || this.internalIn;
+            if (host && host.isVisible){
+                this.width = (host.width || host.size.width);
+                let length = (host.length || host.size.length);
+                if (this.length > length){
+                    this.length = length;
+                }
+            }
+        }
+
         let params = {
             color: this.color,
             polygonOffsetFactor: this.polygonOffsetFactor

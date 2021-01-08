@@ -68,31 +68,33 @@ export const $Color = {
     Link         : "#000",
     Node         : "#000",
     Region       : "#c0c0c0",
-    InternalNode : "#ccc",
-    InternalLink : "#ccc"
+    InternalNode : "#ccc"
 };
 
 export const $Prefix = {
-    node        : "node",   //generated node
+    node        : "n",      //generated node
     source      : "s",      //source node
     target      : "t",      //target node
     link        : "lnk",    //generated link (edge)
-    lyph        : "lyph",   //generated lyph
-    group       : "group",  //generated group
-    instance    : "inst",   //instance
-    chain       : "chain",  //chain
-    tree        : "tree",   //tree
-    channel     : "ch",     //channel
+    lyph        : "l",      //generated lyph
+    group       : "g",      //generated group
+    instance    : "i",      //instance
+    chain       : "ch",     //chain
+    tree        : "tr",     //tree
+    channel     : "chnl",    //channel
     coalescence : "cls",    //coalescence instance
     border      : "b",      //lyph border
     villus      : "vls",    //villus template
-    layer       : "layer",  //generated lyph layer
+    layer       : "lr",    //generated lyph layer
     template    : "ref",    //from lyph template
     material    : "mat",    //from material reference
     clone       : "clone",  //node clone
     join        : "join",   //joint node
     anchor      : "p",      //anchor point
-    wire        : "wire"    //wire
+    wire        : "wire",   //wire
+    //TODO create a separate object with generated resource ids and names
+    query       : "query",  //dynamic query
+    default     : "default" //default group ID
 };
 
 export const getNewID = entitiesByID => "new-" +

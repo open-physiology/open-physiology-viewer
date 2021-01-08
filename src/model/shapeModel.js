@@ -1,4 +1,4 @@
-import {VisualResource} from './visualResourceModel';
+import {Link, Node, VisualResource} from './visualResourceModel';
 import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
@@ -205,7 +205,6 @@ export class Lyph extends Shape {
         return targetLyph;
     }
 
-
     /**
      * Assign internal resources to generated lyph layers
      * @param lyphs
@@ -327,7 +326,8 @@ export class Lyph extends Shape {
      * @returns {{height: number, width: number}}
      */
     get size() {
-        let res = {height: this.axis.length || 1, width: this.axis.length || 1};
+        const length = this.axis && this.axis.length;
+        let res = {height: length || 1, width: length || 1};
         if (this.scale) {
             res.width  *= this.scale.width / 100;
             res.height *= this.scale.height / 100;
@@ -354,6 +354,59 @@ export class Lyph extends Shape {
         }
         return offset;
     }
+
+    createAxis(modelClasses, entitiesByID, namespace) {
+        let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
+            Node.fromJSON({
+                [$Field.id]        : getGenID(prefix, this.id),
+                [$Field.color]     : $Color.Node,
+                [$Field.skipLabel] : true,
+                [$Field.generated] : true
+            }, modelClasses, entitiesByID, namespace)));
+
+        let link = Link.fromJSON({
+            [$Field.id]           : getGenID($Prefix.link, this.id),
+            [$Field.source]       : sNode.id,
+            [$Field.target]       : tNode.id,
+            [$Field.color]        : $Color.Link,
+            [$Field.conveyingLyph]: this.id,
+            [$Field.skipLabel]    : true,
+            [$Field.generated]    : true
+        }, modelClasses, entitiesByID, namespace);
+
+        if (this.internalIn) {
+            link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
+            [$Field.source, $Field.target].forEach(prop => {
+                link[prop].color = $Color.InternalNode;
+                link[prop].val = 0.1;
+            });
+        }
+
+        link.source.sourceOf = [link];
+        link.target.targetOf = [link];
+        this.conveys = link;
+
+        return link;
+    };
+
+    assignAxisLength() {
+        if (!this.axis){
+            logger.warn($LogMsg.GRAPH_LYPH_NO_AXIS, this);
+            return;
+        }
+        let container = this.container;
+        if (container) {
+            if (container.axis) {
+                if (!container.axis.length) {
+                    container.assignAxisLength();
+                }
+                this.axis.length = container.axis.length * 0.8;
+            } else {
+                //TODO lyph can be internal in a region - dynamically compute length based on region width or length
+            }
+            this.axis.length  = this.axis.length || 5;
+        }
+    };
 }
 
 /**

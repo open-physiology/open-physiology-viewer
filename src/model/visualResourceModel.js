@@ -263,6 +263,7 @@ export class Node extends VisualResource {
  * @property lineWidth
  * @property hostedNodes
  * @property onBorder
+ * @property levelIn 
  */
 export class Link extends VisualResource {
 

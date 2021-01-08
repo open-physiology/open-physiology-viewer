@@ -80,8 +80,31 @@ export class Group extends Resource {
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID, namespace);
 
-        //copy nested references to resources to the parent group
-        res.mergeSubgroupResources();
+        //Resize generated chain lyphs to fit into hosting lyphs (housing lyph or its layer)
+        (res.lyphs||[]).forEach(host => (host.bundles||[]).forEach(lnk => {
+            if (lnk.conveyingLyph && lnk.conveyingLyph.generated){
+                lnk.conveyingLyph.width = (host.width || host.size.width);
+                if (host.layerIn){
+                    lnk.conveyingLyph.width /= host.layerIn.layers.length;
+                }
+            }
+        }));
+
+        res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
+
+        //Add internal nodes and internal lyphs to the group that contains the original lyph
+        (res.lyphs||[]).forEach(lyph => {
+            (lyph.internalLyphs||[]).forEach(internal => {
+                if (!res.lyphs.find(e => e.id === internal.id)){
+                    res.lyphs.push(internal);
+                }
+            });
+            (lyph.internalNodes||[]).forEach(internal => {
+                if (!(res.nodes||[]).find(e => e.id === internal.id)){
+                    res.nodes.push(internal);
+                }
+            });
+        });
 
         //Add conveying lyphs to groups that contain links
         (res.links||[]).forEach(link => {
@@ -95,7 +118,10 @@ export class Group extends Resource {
             }
         });
 
-        //If a group is hosted by a region, each its leaf is hosted by the region
+        //copy nested references to resources to the parent group
+        res.mergeSubgroupResources();
+
+        //If a group is hosted by a region, each its lyph is hosted by the region
         (res.groups||[]).forEach(group => {
             let host = group.hostedBy || group.generatedFrom && group.generatedFrom.hostedBy;
             if (host){
@@ -116,6 +142,26 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         return res;
+    }
+
+    /**
+     * Auto-generates links for internal lyphs
+     * @param modelClasses - model resource classes
+     * @param entitiesByID - a global resource map to include the generated resources
+     * @param namespace
+     */
+    createAxesForInternalLyphs(modelClasses, entitiesByID, namespace){
+        let noAxisLyphs = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
+        noAxisLyphs.forEach(lyph => {
+            let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
+            this.links.push(link);
+            this.nodes.push(link.source);
+            this.nodes.push(link.target);
+        });
+        if (noAxisLyphs.length > 0){
+            logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
+        }
+        noAxisLyphs.forEach(lyph => lyph.assignAxisLength());
     }
 
     /**
@@ -297,8 +343,12 @@ export class Group extends Resource {
         });
 
         //Add auto-created clones of boundary nodes and collapsible links they connect to the group that contains the original node
-        (this.nodes||[]).filter(node => node && node.clones).forEach(node => {
-            node.clones.forEach(clone => {
+        (this.nodes||[]).forEach(node => {
+            if (!node){
+                //TODO warning
+                return;
+            }
+            (node.clones||[]).forEach(clone => {
                 let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
                 spacerLinks.forEach(lnk => this.links.push(lnk));
                 if (spacerLinks.length > 0){
