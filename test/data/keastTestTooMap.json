@@ -2508,7 +2508,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K78",
-            "leaf": "dc-4-K78",
+            "leaf": "leaf-dc-4-K78",
             "housingLyphs": [
                 "K78"
             ]
@@ -2521,7 +2521,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K79",
-            "leaf": "dc-4-K79",
+            "leaf": "leaf-dc-4-K79",
             "housingLyphs": [
                 "K79"
             ]
@@ -2534,7 +2534,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K80",
-            "leaf": "dc-4-K80",
+            "leaf": "leaf-dc-4-K80",
             "housingLyphs": [
                 "K80"
             ]
@@ -2547,7 +2547,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K81",
-            "leaf": "dc-4-K81",
+            "leaf": "leaf-dc-4-K81",
             "housingLyphs": [
                 "K81"
             ]
@@ -2560,7 +2560,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K82",
-            "leaf": "dc-4-K82",
+            "leaf": "leaf-dc-4-K82",
             "housingLyphs": [
                 "K82"
             ]
@@ -2573,7 +2573,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K83",
-            "leaf": "dc-4-K83",
+            "leaf": "leaf-dc-4-K83",
             "housingLyphs": [
                 "K83"
             ]
@@ -2586,7 +2586,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K84",
-            "leaf": "dc-4-K84",
+            "leaf": "leaf-dc-4-K84",
             "housingLyphs": [
                 "K84"
             ]
@@ -2599,7 +2599,7 @@
             ],
             "lyphTemplate": "229",
             "root": "root-dc-4-K85",
-            "leaf": "dc-4-K85",
+            "leaf": "leaf-dc-4-K85",
             "housingLyphs": [
                 "K85"
             ]
@@ -3009,15 +3009,14 @@
                 "lnk-sn-sgl6_4"
             ],
             "nodes": [
-                "dc-4-K78",
-                "dc-4-K79",
-                "dc-4-K80",
-                "dc-4-K81",
-                "dc-4-K82",
-                "dc-4-K83",
-                "dc-4-K84",
-                "dc-4-K85",
-                "",
+                "leaf-dc-4-K78",
+                "leaf-dc-4-K79",
+                "leaf-dc-4-K80",
+                "leaf-dc-4-K81",
+                "leaf-dc-4-K82",
+                "leaf-dc-4-K83",
+                "leaf-dc-4-K84",
+                "leaf-dc-4-K85",
                 "leaf-ac-4-K85-all",
                 "leaf-ac-4-K85-all",
                 "leaf-ac-4-K85-all",
