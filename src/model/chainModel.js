@@ -130,7 +130,8 @@ export class Chain extends GroupTemplate {
                         ? end
                         : {
                             [$Field.id]        : nodeID,
-                            [$Field.color]     : $Color.Node,
+                            [$Field.color]     : $Color.InternalNode,
+                            [$Field.val]       : 1,
                             [$Field.skipLabel] : true,
                             [$Field.generated] : true
                         };
@@ -222,7 +223,8 @@ export class Chain extends GroupTemplate {
                 }
                 let newNode = {
                     [$Field.id]        : getGenID(chain.id, $Prefix.node, i),
-                    [$Field.color]     : $Color.Node,
+                    [$Field.color]     : $Color.InternalNode,
+                    [$Field.val]       : 1,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 };

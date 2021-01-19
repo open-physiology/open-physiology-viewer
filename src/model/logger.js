@@ -111,7 +111,9 @@ export const $LogMsg = {
     EXCEL_PROPERTY_UNKNOWN      : "Excel to JSON: unrecognized property",
     EXCEL_WRONG_ASSIGN_VALUE    : "Excel to JSON: wrong assign value",
 
-    GROUP_NO_LINK_VALIDATE      : "Link has no validateProcess function. Possible cause - misclassified resource",
+    CLASS_ERROR_UNDEFINED       : "Illegal resource class",
+    CLASS_ERROR_RESOURCE        : "No class function is available. Possible cause - misclassified resource",
+
     GROUP_TEMPLATE_NO_CLASS     : "Could not find class definition for the field",
 
     RESOURCE_JSON_PATH_ERROR    : "Failed to process JSONPath assignment statement",

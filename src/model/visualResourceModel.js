@@ -68,6 +68,8 @@ export class Wire extends VisualResource {
  * @property {Link} sourceOf
  * @property {Link} targetOf
  * @property {Shape} internalIn
+ * @property {Node} clones
+ * @property {Node} cloneOf
  * @property {boolean} fixed
  * @property {Object} layout
  * @property {number} collide
@@ -245,6 +247,20 @@ export class Node extends VisualResource {
             }
         });
     }
+
+    includeRelated(group){
+        (this.clones||[]).forEach(clone => {
+            let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
+            spacerLinks.forEach(lnk => group.links.push(lnk));
+            if (spacerLinks.length > 0){
+                group.nodes.push(clone);
+            }
+            if (clone.hostedBy) {
+                clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
+                clone.hostedBy.hostedNodes.push(clone);
+            }
+        });
+    }
 }
 
 /**
@@ -298,6 +314,14 @@ export class Link extends VisualResource {
 
     get isVisible(){
         return (this.onBorder? this.onBorder.isVisible : super.isVisible) && this.source && this.source.isVisible && this.target && this.target.isVisible;
+    }
+
+    includeRelated(group){
+        if (this.conveyingLyph) {
+            if (!group.lyphs.find(lyph => lyph.id === this.conveyingLyph.id)){
+                group.lyphs.push(this.conveyingLyph);
+            }
+        }
     }
 
     validateProcess(){

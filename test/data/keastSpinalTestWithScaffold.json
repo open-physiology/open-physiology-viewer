@@ -575,6 +575,7 @@
           "target": "P",
           "geometry": "arc",
           "arcCenter": {"x": 0, "y": 0},
+          "stroke": "thick",
           "color": "#9370DB"
         },
         {
@@ -583,6 +584,7 @@
           "target": "S",
           "geometry": "arc",
           "arcCenter": {"x": 0, "y": 0},
+          "stroke": "thick",
           "color": "#9370DB"
         },
         {
@@ -591,6 +593,7 @@
           "target": "A",
           "geometry": "arc",
           "arcCenter": {"x": 0, "y": 0},
+          "stroke": "thick",
           "color": "#9370DB"
         },
         {
@@ -599,6 +602,7 @@
           "target": "L",
           "geometry": "arc",
           "arcCenter": {"x": 0, "y": 0},
+          "stroke": "thick",
           "color": "#9370DB"
         },
         {

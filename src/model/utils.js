@@ -72,20 +72,20 @@ export const $Color = {
 };
 
 export const $Prefix = {
-    node        : "n",      //generated node
+    node        : "node",   //generated node
     source      : "s",      //source node
     target      : "t",      //target node
     link        : "lnk",    //generated link (edge)
-    lyph        : "l",      //generated lyph
-    group       : "g",      //generated group
-    instance    : "i",      //instance
-    chain       : "ch",     //chain
-    tree        : "tr",     //tree
-    channel     : "chnl",    //channel
+    lyph        : "lyph",   //generated lyph
+    group       : "group",  //generated group
+    instance    : "inst",   //instance
+    chain       : "chain",  //chain
+    tree        : "tree",   //tree
+    channel     : "ch",     //channel
     coalescence : "cls",    //coalescence instance
     border      : "b",      //lyph border
     villus      : "vls",    //villus template
-    layer       : "lr",    //generated lyph layer
+    layer       : "layer",  //generated lyph layer
     template    : "ref",    //from lyph template
     material    : "mat",    //from material reference
     clone       : "clone",  //node clone

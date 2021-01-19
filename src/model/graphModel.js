@@ -1,6 +1,5 @@
 import { Group } from './groupModel';
 import { Resource } from "./resourceModel";
-import { Node, Link } from "./visualResourceModel";
 import {
     entries, keys, values,
     isNumber, isArray, isObject, isString,
@@ -10,7 +9,7 @@ import {
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
-import {$Field, $SchemaClass, $Color, $Prefix, $SchemaType, getGenID, getFullID, getID} from "./utils";
+import {$Field, $SchemaClass, $Prefix, $SchemaType, getGenID, getFullID, getID} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
@@ -115,11 +114,11 @@ export class Graph extends Group{
 
         inputModel.groups = inputModel.groups || [];
         let group = {
-            [$Field.id]: getGenID($Prefix.group, $Prefix.default),
-            [$Field.name]: "Default",
+            [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
+            [$Field.name]     : "Default",
             [$Field.generated]: true,
-            [$Field.links]: (inputModel.links || []).map(e => getID(e)),
-            [$Field.nodes]: (inputModel.nodes || []).map(e => getID(e))
+            [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
+            [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
         };
         inputModel.groups.unshift(group);
 
@@ -137,25 +136,19 @@ export class Graph extends Group{
             if (obj && obj.class){
                 let clsName = modelClasses[obj.class].Model.relClassNames[key];
                 if (clsName && !modelClasses[clsName].Model.schema.abstract){
-                    let e = modelClasses[clsName].fromJSON({
-                        [$Field.id]        : id,
-                        [$Field.generated] : true
-                    }, modelClasses, entitiesByID, namespace);
-
-                    //Do not show labels for generated visual resources
-                    if (e.prototype instanceof modelClasses.VisualResource){
-                        e.skipLabel = true;
-                    }
-
-                    //Include newly created entity to the main graph
-                    let prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
-                    if (prop) {
-                        res[prop] = res[prop] ||[];
-                        res[prop].push(e);
-                    }
-                    let fullID = getFullID(namespace, e.id);
-                    entitiesByID[fullID] = e;
+                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
                     added.push(e.id);
+                    //A created link needs end nodes
+                    if (e instanceof modelClasses.Link) {
+                        [$Field.source, $Field.target].forEach(prop => {
+                            if (e[prop]::isString()) {
+                                let s = modelClasses.Resource.createResource(e[prop], "Node", res, modelClasses, entitiesByID, namespace);
+                                s[prop + "Of"]= e;
+                                e[prop] = s;
+                                added.push(s.id);
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -176,6 +169,8 @@ export class Graph extends Group{
             }
         }
 
+        //TODO create resources created to support missing resources, i.e., end nodes for created link
+
         if ((entitiesByID.waitingList)::keys().length > 0){
             logger.error($LogMsg.REF_UNDEFINED, entitiesByID.waitingList);
         }
@@ -186,12 +181,23 @@ export class Graph extends Group{
         delete res.waitingList;
 
         if (!res.generated) {
+            res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
             res.createAxesForAllLyphs(modelClasses, entitiesByID, namespace);
+            //res.validate(modelClasses);
+            (res.groups||[]).forEach(group => group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
+            //Collect inherited externals
+            (res.lyphs||[]).filter(lyph => lyph.supertype).forEach(r => r.collectInheritedExternals());
         }
 
-        //Collect inherited externals
-        (res.lyphs||[]).filter(lyph => lyph.supertype).forEach(r => r.collectInheritedExternals());
+        //Validate link processes
+        (res.links||[]).forEach(link => {
+            if (link.validateProcess){
+                link.validateProcess();
+            } else {
+                logger.error($LogMsg.CLASS_ERROR_RESOURCE, "validateProcess", link);
+            }
+        });
 
         //Validate coalescences
         (res.coalescences || []).forEach(r => r.validate());
@@ -209,6 +215,30 @@ export class Graph extends Group{
 
         res.logger = logger;
         return res;
+    }
+
+    validate(modelClasses){
+        let relClassNames = this.constructor.Model.relClassNames;
+
+        const isClassValid = (r, clsName) => {
+            let res = r instanceof modelClasses[clsName];
+            if (!res){
+                logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r);
+            }
+            return res;
+        };
+
+        relClassNames.forEach(([key, clsName]) => {
+            if (this[key]) {
+                if (this[key]::isArray()) {
+                    this[key] = this[key].filter(r => isClassValid(r, clsName));
+                } else {
+                    if (isClassValid(this[key], clsName)){
+                        this[key] = null;
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -338,6 +368,26 @@ export class Graph extends Group{
             delete model.main;
         }
         return model;
+    }
+
+    /**
+     * Auto-generates links for internal lyphs
+     * @param modelClasses - model resource classes
+     * @param entitiesByID - a global resource map to include the generated resources
+     * @param namespace
+     */
+    createAxesForInternalLyphs(modelClasses, entitiesByID, namespace){
+        let noAxisLyphs = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
+        noAxisLyphs.forEach(lyph => {
+            let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
+            this.links.push(link);
+            this.nodes.push(link.source);
+            this.nodes.push(link.target);
+        });
+        if (noAxisLyphs.length > 0){
+            logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
+        }
+        noAxisLyphs.forEach(lyph => lyph.assignAxisLength());
     }
 
     /**

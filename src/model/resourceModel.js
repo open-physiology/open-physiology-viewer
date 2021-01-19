@@ -88,6 +88,28 @@ export class Resource{
         return res;
     }
 
+    static createResource(id, clsName, group, modelClasses, entitiesByID, namespace){
+        let e = modelClasses[clsName].fromJSON({
+            [$Field.id]        : id,
+            [$Field.generated] : true
+        }, modelClasses, entitiesByID, namespace);
+
+        //Do not show labels for generated visual resources
+        if (e.prototype instanceof modelClasses.VisualResource){
+            e.skipLabel = true;
+        }
+
+        //Include newly created entity to the main graph
+        let prop = modelClasses[group.class].Model.selectedRelNames(clsName)[0];
+        if (prop) {
+            group[prop] = group[prop] ||[];
+            group[prop].push(e);
+        }
+        let fullID = getFullID(namespace, e.id);
+        entitiesByID[fullID] = e;
+        return e;
+    }
+
     /**
      * Replace IDs with object references
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
@@ -475,6 +497,14 @@ export class Resource{
             res = this.generatedFrom.containsMaterial(materialID)
         }
         return res;
+    }
+
+    /**
+     * A stub to make sure call for includeRelated on misclassified resorce does not cause exception
+     * @param group
+     */
+    includeRelated(group){
+        logger.error($LogMsg.CLASS_ERROR_RESOURCE, this.id, this.class);
     }
 }
 

@@ -355,11 +355,35 @@ export class Lyph extends Shape {
         return offset;
     }
 
+    includeRelated(group){
+        (this.layers||[]).forEach(layer => {
+            layer.includeRelated(group);
+        });
+        (this.internalLyphs||[]).forEach(internal => {
+            if (!group.lyphs.find(e => e.id === internal.id)){
+                group.lyphs.push(internal);
+                if (internal.conveys){
+                    group.links.push(internal.conveys);
+                }
+                internal.includeRelated(group);
+            }
+        });
+        (this.internalNodes||[]).forEach(internal => {
+            if (!(group.nodes||[]).find(e => e.id === internal.id)){
+                group.nodes.push(internal);
+                (internal.clones||[]).forEach(clone => {
+                    group.nodes.push(clone);
+                });
+            }
+        });
+    }
+
     createAxis(modelClasses, entitiesByID, namespace) {
         let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
             Node.fromJSON({
                 [$Field.id]        : getGenID(prefix, this.id),
                 [$Field.color]     : $Color.Node,
+                [$Field.val]       : 1,
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
             }, modelClasses, entitiesByID, namespace)));
@@ -378,7 +402,6 @@ export class Lyph extends Shape {
             link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
             [$Field.source, $Field.target].forEach(prop => {
                 link[prop].color = $Color.InternalNode;
-                link[prop].val = 0.1;
             });
         }
 

@@ -17,6 +17,7 @@ import {logger, $LogMsg} from './logger';
  * @property channels
  * @property coalescences
  * @property scaffolds
+ * @property hostedBy
  */
 export class Group extends Resource {
     /**
@@ -90,51 +91,8 @@ export class Group extends Resource {
             }
         }));
 
-        res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
-
-        //Add internal nodes and internal lyphs to the group that contains the original lyph
-        (res.lyphs||[]).forEach(lyph => {
-            (lyph.internalLyphs||[]).forEach(internal => {
-                if (!res.lyphs.find(e => e.id === internal.id)){
-                    res.lyphs.push(internal);
-                }
-            });
-            (lyph.internalNodes||[]).forEach(internal => {
-                if (!(res.nodes||[]).find(e => e.id === internal.id)){
-                    res.nodes.push(internal);
-                }
-            });
-        });
-
-        //Add conveying lyphs to groups that contain links
-        (res.links||[]).forEach(link => {
-            if (link.conveyingLyph && !res.lyphs.find(lyph => lyph.id === link.conveyingLyph.id)){
-                res.lyphs.push(link.conveyingLyph);
-            }
-            if (link.validateProcess){
-                link.validateProcess();
-            } else {
-                logger.error($LogMsg.GROUP_NO_LINK_VALIDATE, link);
-            }
-        });
-
         //copy nested references to resources to the parent group
         res.mergeSubgroupResources();
-
-        //If a group is hosted by a region, each its lyph is hosted by the region
-        (res.groups||[]).forEach(group => {
-            let host = group.hostedBy || group.generatedFrom && group.generatedFrom.hostedBy;
-            if (host){
-                (group.links||[]).forEach(link => {
-                    if (link.conveyingLyph) {
-                        link.conveyingLyph.hostedBy = host;
-                    }
-                });
-                (group.nodes||[]).forEach(node => {
-                    node.charge = 20;
-                });
-            }
-        });
 
         //Assign color to visual resources with no color in the spec
         addColor(res.regions, $Color.Region);
@@ -145,23 +103,35 @@ export class Group extends Resource {
     }
 
     /**
-     * Auto-generates links for internal lyphs
-     * @param modelClasses - model resource classes
-     * @param entitiesByID - a global resource map to include the generated resources
-     * @param namespace
+     * Include related to resources to the group: node clones, internal lyphs and nodes
      */
-    createAxesForInternalLyphs(modelClasses, entitiesByID, namespace){
-        let noAxisLyphs = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
-        noAxisLyphs.forEach(lyph => {
-            let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
-            this.links.push(link);
-            this.nodes.push(link.source);
-            this.nodes.push(link.target);
+    includeRelated(){
+        [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
+            this[prop].forEach(r => {
+                if (r && r.includeRelated) {
+                    r.includeRelated(this);
+                } else {
+                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", r, this.id, prop);
+                }
+            });
         });
-        if (noAxisLyphs.length > 0){
-            logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
+        //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
+        //internal nodes and internal lyphs to the group that contains the original lyph
+
+        //If a group is hosted by a region, each its lyph is hosted by the region
+        let host = this.hostedBy || this.generatedFrom && this.generatedFrom.hostedBy;
+        if (host){
+            host.hostedLyphs = host.hostedLyphs || [];
+            (this.links||[]).filter(link => link.conveyingLyph && !link.conveyingLyph.internalIn).forEach(link => {
+                link.conveyingLyph.hostedBy = host;
+                if (!host.hostedLyphs.find(e => e.id === link.conveyingLyph.id)){
+                    host.hostedLyphs.push(link.conveyingLyph);
+                }
+            });
+            (this.nodes||[]).forEach(node => {
+                node.charge = 20;
+            });
         }
-        noAxisLyphs.forEach(lyph => lyph.assignAxisLength());
     }
 
     /**
@@ -341,25 +311,6 @@ export class Group extends Resource {
                 }
             });
         });
-
-        //Add auto-created clones of boundary nodes and collapsible links they connect to the group that contains the original node
-        (this.nodes||[]).forEach(node => {
-            if (!node){
-                //TODO warning
-                return;
-            }
-            (node.clones||[]).forEach(clone => {
-                let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
-                spacerLinks.forEach(lnk => this.links.push(lnk));
-                if (spacerLinks.length > 0){
-                    this.nodes.push(clone);
-                }
-                if (clone.hostedBy) {
-                    clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
-                    clone.hostedBy.hostedNodes.push(clone);
-                }
-            });
-        });
     }
 
     /**
@@ -370,7 +321,7 @@ export class Group extends Resource {
         let res = [];
         let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group]);
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
-        return res.filter(e => !!e && e::isObject());
+        return res::res.filter(r => !!r && r::isObject());
     }
 
     /**

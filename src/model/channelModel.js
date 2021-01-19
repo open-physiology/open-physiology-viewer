@@ -92,7 +92,8 @@ export class Channel extends GroupTemplate {
         for (let i = 0; i < CHANNEL_LENGTH + 1; i++) {
             let node = {
                 [$Field.id]       : getGenID(channel.id, $Prefix.node, i),
-                [$Field.color]    : $Color.Node,
+                [$Field.color]    : $Color.InternalNode,
+                [$Field.val]      : 1,
                 [$Field.skipLabel]: true,
                 [$Field.generated]: true
             };
