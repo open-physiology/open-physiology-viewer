@@ -105,7 +105,7 @@
       "color": "#000"
     },
     {
-      "id": "w-N-T",
+      "id": "w-NT",
       "name": "Infraventricular CSF Tract",
       "source": "N",
       "target": "T",
@@ -113,7 +113,7 @@
       "color": "#ADD8E6"
     },
     {
-      "id": "w-N-H",
+      "id": "w-NH",
       "name": "Supraventricular CSF Tract",
       "source": "N",
       "target": "H",
