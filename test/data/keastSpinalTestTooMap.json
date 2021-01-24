@@ -974,7 +974,7 @@
         },
         {
             "id": "K54",
-            "name": "T12 Dorsal Root gangion",
+            "name": "T12 Dorsal Root ganglion",
             "external": [
                 "UBERON:0002855"
             ],
@@ -982,7 +982,7 @@
         },
         {
             "id": "K55",
-            "name": "T13 Dorsal Root gangion",
+            "name": "T13 Dorsal Root ganglion",
             "external": [
                 "EMAPA:25186"
             ],
@@ -990,7 +990,7 @@
         },
         {
             "id": "K56",
-            "name": "L1 Dorsal Root gangion",
+            "name": "L1 Dorsal Root ganglion",
             "external": [
                 "UBERON:0002857"
             ],
@@ -998,7 +998,7 @@
         },
         {
             "id": "K57",
-            "name": "L2 Dorsal Root gangion",
+            "name": "L2 Dorsal Root ganglion",
             "external": [
                 "UBERON:0002856"
             ],
@@ -1006,7 +1006,7 @@
         },
         {
             "id": "K58",
-            "name": "L3 Dorsal Root gangion",
+            "name": "L3 Dorsal Root ganglion",
             "external": [
                 "UBERON:0002858"
             ],
@@ -1014,7 +1014,7 @@
         },
         {
             "id": "K59",
-            "name": "L4 Dorsal Root gangion",
+            "name": "L4 Dorsal Root ganglion",
             "external": [
                 "UBERON:0003943"
             ],
@@ -1022,7 +1022,7 @@
         },
         {
             "id": "K60",
-            "name": "L5 Dorsal Root gangion",
+            "name": "L5 Dorsal Root ganglion",
             "external": [
                 "UBERON:0002859"
             ],
@@ -1030,7 +1030,7 @@
         },
         {
             "id": "K61",
-            "name": "L6 Dorsal Root gangion",
+            "name": "L6 Dorsal Root ganglion",
             "external": [
                 "EMAPA:25169"
             ],
@@ -3154,6 +3154,7 @@
     ],
     "id": "keast-bladder-simple-test",
     "name": "Keast Bladder Model",
+    "namespace": "org.apinatomy.keast-bladder",
     "scaffolds": [
         {
             "created": "2020-12-01",
@@ -3816,6 +3817,7 @@
                         "y": 0
                     },
                     "color": "#000",
+                    "hidden": true,
                     "stroke": "dashed"
                 },
                 {
@@ -3828,6 +3830,7 @@
                         "y": 0
                     },
                     "color": "#000",
+                    "hidden": true,
                     "stroke": "dashed"
                 },
                 {
@@ -3840,6 +3843,7 @@
                         "y": 0
                     },
                     "color": "#000",
+                    "hidden": true,
                     "stroke": "dashed"
                 },
                 {
@@ -3852,6 +3856,7 @@
                         "y": 0
                     },
                     "color": "#000",
+                    "hidden": true,
                     "stroke": "dashed"
                 },
                 {
@@ -4413,6 +4418,11 @@
                         "n4R",
                         "n4V"
                     ]
+                },
+                {
+                    "id": "innerRing",
+                    "name": "Helper ring",
+                    "wires": ["w-H-E", "w-E-T", "w-T-K", "w-K-H"]
                 }
             ]
         }

@@ -140,12 +140,13 @@ export class Graph extends Group{
                     added.push(e.id);
                     //A created link needs end nodes
                     if (e instanceof modelClasses.Link) {
-                        [$Field.source, $Field.target].forEach(prop => {
-                            if (e[prop]::isString()) {
-                                let s = modelClasses.Resource.createResource(e[prop], "Node", res, modelClasses, entitiesByID, namespace);
-                                s[prop + "Of"]= e;
-                                e[prop] = s;
+                        let i = 0;
+                        const related = [$Field.sourceOf, $Field.targetOf];
+                        e.applyToEndNodes((end) => {
+                            if (end::isString()) {
+                                let s = modelClasses.Resource.createResource(end, $SchemaClass.Node, res, modelClasses, entitiesByID, namespace);
                                 added.push(s.id);
+                                s[related[i]] = e;
                             }
                         });
                     }
@@ -404,14 +405,10 @@ export class Graph extends Group{
         noAxisLyphs.forEach(lyph => {
             let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
             this.links.push(link);
-            [$Field.source, $Field.target].forEach(prop => {
-                this.nodes.push(link[prop]);
-            });
+            link.applyToEndNodes(end => this.nodes.push(end));
             if (group){
                 group.links.push(link);
-                [$Field.source, $Field.target].forEach(prop => {
-                    group.nodes.push(link[prop]);
-                });
+                link.applyToEndNodes(end => group.nodes.push(end));
             }
         });
 

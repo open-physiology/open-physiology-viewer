@@ -504,7 +504,7 @@ export class Resource{
      * @param group
      */
     includeRelated(group){
-        logger.error($LogMsg.CLASS_ERROR_RESOURCE, this.id, this.class);
+        logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
     }
 }
 

@@ -188,8 +188,9 @@ export class ResourceEditor {
                     [$Field.name]  : e[config.mapping.name]::isArray()? e[config.mapping.name][0]: e[config.mapping.name],
                     [$Field.uri]   : e[config.mapping.uri],
                     [$Field.type]  : config.type,
-                    [$Field.class] : $SchemaClass.External
-                    }));
+                    [$Field.class] : $SchemaClass.External,
+                    [$Field.generated] : true
+                 }));
                 newResources.forEach(resource => {
                     if (!this.modelResources[resource.id]) {
                         this.modelResources[resource.id] = resource;

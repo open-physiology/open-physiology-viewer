@@ -9,6 +9,7 @@ import {
     getGenName,
     findResourceByID,
     getNewID,
+    getID,
     LYPH_TOPOLOGY,
     mergeResources
 } from './utils';
@@ -210,17 +211,18 @@ export class Lyph extends Shape {
      * @param lyphs
      */
     static mapInternalResourcesToLayers(lyphs){
+
         //TODO check that properties like fascilitatesIn and bundles are also updated
         function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers.length){
                 let layer = findResourceByID(lyphs, lyph.layers[layerIndex]);
                 if (layer){
                     layer[prop] = layer[prop] || [];
-                    let internalResourceID = lyph[prop][resourceIndex]::isObject()? lyph[prop][resourceIndex].id: lyph[prop][resourceIndex];
-                    if (internalResourceID && !layer[prop].find(x => x === internalResourceID)){
-                        layer[prop].push(internalResourceID);
+                    let internalID = getID(lyph[prop][resourceIndex]);
+                    if (internalID && !layer[prop].find(x => x === internalID)){
+                        layer[prop].push(internalID);
                     }
-                    logger.info($LogMsg.RESOURCE_TO_LAYER, internalResourceID, layer.id, prop, layer[prop]);
+                    logger.info($LogMsg.RESOURCE_TO_LAYER, internalID, layer.id, prop, layer[prop]);
                     lyph[prop][resourceIndex] = null;
                 } else {
                     logger.warn($LogMsg.LYPH_INTERNAL_NO_LAYER, lyph, layerIndex, lyph.layers[layerIndex]);
@@ -229,6 +231,7 @@ export class Lyph extends Shape {
                 logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers.length, lyph.id, resourceIndex);
             }
         }
+
         (lyphs||[]).filter(lyph => lyph.layers && lyph.internalLyphs && lyph.internalLyphsInLayers).forEach(lyph=> {
             for (let i = 0; i < Math.min(lyph.internalLyphs.length, lyph.internalLyphsInLayers.length); i++){
                 moveResourceToLayer(i, lyph.internalLyphsInLayers[i], lyph, $Field.internalLyphs);
@@ -364,6 +367,7 @@ export class Lyph extends Shape {
                 group.lyphs.push(internal);
                 if (internal.conveys){
                     group.links.push(internal.conveys);
+                    internal.conveys.includeRelated(group);
                 }
                 internal.includeRelated(group);
             }
@@ -400,9 +404,7 @@ export class Lyph extends Shape {
 
         if (this.internalIn) {
             link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
-            [$Field.source, $Field.target].forEach(prop => {
-                link[prop].color = $Color.InternalNode;
-            });
+            link.applyToEndNodes(end => end.color = $Color.InternalNode);
         }
 
         link.source.sourceOf = [link];

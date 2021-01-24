@@ -67,6 +67,8 @@ export const $LogMsg = {
     LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
     LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
 
+    LINK_NO_END_NODE            : "Failed to process link with undefined end node",
+
     PROCESS_NOT_ADVECTIVE       : "Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link",
     PROCESS_NOT_DIFFUSIVE       : "Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:",
 

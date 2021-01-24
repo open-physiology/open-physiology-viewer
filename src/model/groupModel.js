@@ -106,17 +106,11 @@ export class Group extends Resource {
      * Include related to resources to the group: node clones, internal lyphs and nodes
      */
     includeRelated(){
-        [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
-            this[prop].forEach(r => {
-                if (r && r.includeRelated) {
-                    r.includeRelated(this);
-                } else {
-                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", r, this.id, prop);
-                }
-            });
-        });
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
+        [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
+            this[prop].filter(res => res instanceof Resource).forEach(res => res.includeRelated(this));
+        });
 
         //If a group is hosted by a region, each its lyph is hosted by the region
         let host = this.hostedBy || this.generatedFrom && this.generatedFrom.hostedBy;
@@ -128,9 +122,7 @@ export class Group extends Resource {
                     host.hostedLyphs.push(link.conveyingLyph);
                 }
             });
-            (this.nodes||[]).forEach(node => {
-                node.charge = 20;
-            });
+            (this.nodes||[]).forEach(node => node.charge = 20);
         }
     }
 
@@ -307,7 +299,7 @@ export class Group extends Resource {
             relFieldNames.forEach(property => {
                 if (group[property]::isArray()){
                     this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
-                    this[property] = this[property].filter(x => x.class);
+                    this[property] = this[property].filter(x => !!x && x.class);
                 }
             });
         });

@@ -316,12 +316,30 @@ export class Link extends VisualResource {
         return (this.onBorder? this.onBorder.isVisible : super.isVisible) && this.source && this.source.isVisible && this.target && this.target.isVisible;
     }
 
+    applyToEndNodes(handler){
+        [$Field.source, $Field.target].forEach(prop => {
+            if (this[prop]){
+                handler(this[prop]);
+            } else {
+                logger.error($LogMsg.LINK_NO_END_NODE, this);
+            }
+        });
+    }
+
     includeRelated(group){
         if (this.conveyingLyph) {
             if (!group.lyphs.find(lyph => lyph.id === this.conveyingLyph.id)){
                 group.lyphs.push(this.conveyingLyph);
             }
         }
+        //include generated source and target nodes to the same group
+        this.applyToEndNodes(
+            (end) => {
+                if (end.generated && !group.nodes.find(node => node.id === end.id)) {
+                    group.nodes.push(end);
+                }
+            }
+        )
     }
 
     validateProcess(){

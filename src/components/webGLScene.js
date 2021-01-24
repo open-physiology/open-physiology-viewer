@@ -12,7 +12,7 @@ import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field, $Prefix, getGenID} from "../model/utils";
+import {$Field, $Prefix, getGenID, $SchemaClass} from "../model/utils";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 
 const WindowResize = require('three-window-resize');
@@ -238,12 +238,12 @@ export class WebGLSceneComponent {
             },
             "groups": true,
             "labels": {
-                "Wire"  : false,
-                "Anchor": false,
-                "Node"  : false,
-                "Link"  : false,
-                "Lyph"  : false,
-                "Region": false
+                [$SchemaClass.Wire]  : false,
+                [$SchemaClass.Anchor]: false,
+                [$SchemaClass.Node]  : false,
+                [$SchemaClass.Link]  : false,
+                [$SchemaClass.Lyph]  : false,
+                [$SchemaClass.Region]: false
             },
             "highlighted": true,
             "selected"   : true
