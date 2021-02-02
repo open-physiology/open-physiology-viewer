@@ -359,7 +359,7 @@ export class Resource{
                 if (otherSpec.type === $SchemaType.ARRAY) {
                     if (!obj[key2]) { obj[key2] = []; }
                     if (!(obj[key2]::isArray())) {
-                        logger.warn($LogMsg.RESOURCE_ARRAY_EXPECTED, key2, obj);
+                        logger.warn($LogMsg.RESOURCE_ARRAY_EXPECTED, key2, obj, typeof(obj));
                         obj[key2] = [obj[key2]];
                     }
                     if (!obj[key2].find(obj2 => obj2 === res)) {

@@ -219,8 +219,8 @@ export class Channel extends GroupTemplate {
 
             //Clone the rest of the chain resources: link, target node, conveying lyph
             prev_id = src.id;
-            let links = parentGroup.links.filter(lnk => channel.group.links.includes(lnk.id));
-            links.forEach(baseLnk => {
+            parentGroup.links.forEach(baseLnk => {
+                if (!channel.group.links.includes(lnk.id)){ return; }
                 let baseTrg = findResourceByID(parentGroup.nodes, baseLnk.target);
                 let baseLyph = findResourceByID(parentGroup.lyphs, baseLnk.conveyingLyph);
                 let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r ? {

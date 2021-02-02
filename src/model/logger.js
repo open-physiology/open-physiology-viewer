@@ -90,6 +90,7 @@ export const $LogMsg = {
     RESOURCE_NO_CLASS           : "Cannot find resource class: property specification does not imply a reference",
     RESOURCE_NO_CLASS_DEF       : "Cannot find resource class definition",
     RESOURCE_NOT_UNIQUE         : "Resource IDs are not unique",
+    RESOURCE_NO_ID              : "Resource ID is not a string: generated name can be affected",
 
     TREE_CHAIN_UNDEFINED        : "Cannot create omega tree instances: canonical tree chain undefined!",
     TREE_NO_CHAIN               : "Cannot create omega tree instances: canonical tree chain not found or empty",
@@ -101,7 +102,7 @@ export const $LogMsg = {
     VILLUS_TOO_LONG             : "Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the hosting lyph",
     VILLUS_UNDEFINED            : "Cannot expand undefined villus template",
 
-//Errors
+    //Errors
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
 
@@ -118,11 +119,14 @@ export const $LogMsg = {
 
     GROUP_TEMPLATE_NO_CLASS     : "Could not find class definition for the field",
 
+    REGION_BORDER_ERROR         : "Incorrectly defined region: cannot identify border points or anchors. At least 3 border points are needed to define a region",
+
     RESOURCE_JSON_PATH_ERROR    : "Failed to process JSONPath assignment statement",
     RESOURCE_NO_REL_CLASS       : "Related resource class is undefined",
     RESOURCE_NO_REL_PROPERTY    : "Related property specification is not found in the expected class",
     RESOURCE_NO_ABSTRACT_CLASS  : "An abstract relationship field expects a reference to an existing resource or 'class' field in its value definition",
-    REF_UNDEFINED               : "Remaining references to undefined resources"
+    REF_UNDEFINED               : "Remaining references to undefined resources",
+    RESOURCE_NO_OBJECT          : "Resource reference is not an object"
 };
 
 const LEVEL = {

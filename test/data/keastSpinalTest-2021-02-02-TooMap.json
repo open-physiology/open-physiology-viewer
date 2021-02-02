@@ -107,227 +107,11 @@
             "length": 16
         },
         {
-            "id": "lnk-snl18",
-            "name": "Link-Soma of SPR neuron in L1_Neuron 8",
-            "source": "ns24",
-            "target": "ns25",
-            "conveyingLyph": "snl18",
-            "length": 4
-        },
-        {
-            "id": "lnk-snl28",
-            "name": "Link-Soma of SPR neuron in L2_Neuron 8",
-            "source": "ns26",
-            "target": "ns27",
-            "conveyingLyph": "snl28",
-            "length": 4
-        },
-        {
-            "id": "lnk-t12sgs",
-            "name": "Link-T12 sympathetic ganglion seg_Neuron 8",
-            "source": "ns28",
-            "target": "ns29",
-            "conveyingLyph": "t12sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-t12-t13iss",
-            "name": "Link-T12-T13 interganglionic segment seg_Neuron 8",
-            "source": "ns29",
-            "target": "ns30",
-            "conveyingLyph": "t12-t13iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-t13sgs2",
-            "name": "Link-T13 sympathetic ganglion seg_Neuron 8",
-            "source": "ns30",
-            "target": "ns31",
-            "conveyingLyph": "t13sgs2",
-            "length": 4
-        },
-        {
-            "id": "lnk-t13sgs",
-            "name": "Link-T13 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns31",
-            "target": "ns32",
-            "conveyingLyph": "t13sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-t13-l1iss",
-            "name": "Link-T13-L1 interganglionic seg_Neuron 8",
-            "source": "ns31",
-            "target": "ns33",
-            "conveyingLyph": "t13-l1iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-l1sgs2",
-            "name": "Link-L1 sympathetic ganglion seg_Neuron 8",
-            "source": "ns33",
-            "target": "ns34",
-            "conveyingLyph": "l1sgs2",
-            "length": 4
-        },
-        {
-            "id": "lnk-l1sgs",
-            "name": "Link-L1 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns34",
-            "target": "ns35",
-            "conveyingLyph": "l1sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-l1-l2iss",
-            "name": "Link-L1-L2 interganglionic segment seg_Neuron 8",
-            "source": "ns34",
-            "target": "ns36",
-            "conveyingLyph": "l1-l2iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-l2sgs2",
-            "name": "Link-L2 sympathetic ganglion seg_Neuron 8",
-            "source": "ns36",
-            "target": "ns37",
-            "conveyingLyph": "l2sgs2",
-            "length": 4
-        },
-        {
-            "id": "lnk-l2sgs",
-            "name": "Link-L2 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns37",
-            "target": "ns38",
-            "conveyingLyph": "l2sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-l2-l3iss",
-            "name": "Link-L2-L3 interganglionic segment seg_Neuron 8",
-            "source": "ns37",
-            "target": "ns39",
-            "conveyingLyph": "l2-l3iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-l3sgs2",
-            "name": "Link-L3 sympathetic ganglion seg_Neuron 8",
-            "source": "ns39",
-            "target": "ns40",
-            "conveyingLyph": "l3sgs2",
-            "length": 4
-        },
-        {
-            "id": "lnk-l3sgs",
-            "name": "Link-L3 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns40",
-            "target": "ns41",
-            "conveyingLyph": "l3sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-l3-l4iss",
-            "name": "Link-L3-L4 interganglionic segment seg_Neuron 8",
-            "source": "ns40",
-            "target": "ns42",
-            "conveyingLyph": "l3-l4iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-l4sgs2",
-            "name": "Link-L4 sympathetic ganglion seg_Neuron 8",
-            "source": "ns42",
-            "target": "ns43",
-            "conveyingLyph": "l4sgs2",
-            "length": 4
-        },
-        {
-            "id": "lnk-l4sgs",
-            "name": "Link-L4 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns43",
-            "target": "ns44",
-            "conveyingLyph": "l4sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-l4-l5iss",
-            "name": "Link-L4-L5 interganglionic segment seg_Neuron 8",
-            "source": "ns43",
-            "target": "ns45",
-            "conveyingLyph": "l4-l5iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-l5sgs2",
-            "name": "Link-L5 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns45",
-            "target": "ns46",
-            "conveyingLyph": "l5sgs2",
-            "length": 4
-        },
-        {
-            "id": "lnk-l5sgs",
-            "name": "Link-L5 sympathetic ganglion seg2_Neuron 8",
-            "source": "ns46",
-            "target": "ns47",
-            "conveyingLyph": "l5sgs",
-            "length": 4
-        },
-        {
-            "id": "lnk-l5-l6iss",
-            "name": "Link-L5-L6 interganglionic segment seg_Neuron 8",
-            "source": "ns46",
-            "target": "ns48",
-            "conveyingLyph": "l5-l6iss",
-            "length": 4
-        },
-        {
-            "id": "lnk-l6sgs",
-            "name": "Link-L6 sympathetic ganglion seg_Neuron 8",
-            "source": "ns48",
-            "target": "ns49",
-            "conveyingLyph": "l6sgs",
-            "length": 4
-        },
-        {
             "id": "lnk-sn-pg_2",
             "name": "Link-Soma to SPOG neuron 2 in pelvic ganglia_Neuron 2",
             "source": "ns250",
             "target": "ns251",
             "conveyingLyph": "sn-pg_2",
-            "length": 4
-        },
-        {
-            "id": "lnk-an-bn0_2",
-            "name": "Link-Axon to SPOG neuron 2 in bladder neck layer 0_Neuron 2",
-            "source": "ns250",
-            "target": "ns252",
-            "conveyingLyph": "an-bn0_2",
-            "length": 4
-        },
-        {
-            "id": "lnk-an-bn1_2",
-            "name": "Link-Axon to SPOG neuron 2 in bladder neck layer 1_Neuron 2",
-            "source": "ns252",
-            "target": "ns253",
-            "conveyingLyph": "an-bn1_2",
-            "length": 4
-        },
-        {
-            "id": "lnk-an_bd0_2",
-            "name": "Link-Axon to SPOG neuron 2 in bladder dome layer 0_Neuron 2",
-            "source": "ns250",
-            "target": "ns254",
-            "conveyingLyph": "an_bd0_2",
-            "length": 4
-        },
-        {
-            "id": "lnk-an-bd1_2",
-            "name": "Link-Axon to SPOG neuron 2 in bladder dome layer 1_Neuron 2",
-            "source": "ns254",
-            "target": "ns255",
-            "conveyingLyph": "an-bd1_2",
             "length": 4
         },
         {
@@ -711,7 +495,7 @@
             "id": "K32",
             "name": "Cx1 spinal segment",
             "external": [
-                "FMA:256635"
+                "ILX:0777083"
             ],
             "topology": "TUBE",
             "supertype": "K_129"
@@ -720,7 +504,7 @@
             "id": "K33",
             "name": "Cx2 spinal segment",
             "external": [
-                "FMA:256635"
+                "ILX:0777084"
             ],
             "topology": "TUBE",
             "supertype": "K_129"
@@ -729,7 +513,7 @@
             "id": "K34",
             "name": "Cx3 spinal segment",
             "external": [
-                "FMA:256635"
+                "ILX:0777085"
             ],
             "topology": "BAG",
             "supertype": "K_129"
@@ -974,7 +758,7 @@
         },
         {
             "id": "K54",
-            "name": "T12 Dorsal Root ganglion",
+            "name": "T12 Dorsal Root gangion",
             "external": [
                 "UBERON:0002855"
             ],
@@ -982,7 +766,7 @@
         },
         {
             "id": "K55",
-            "name": "T13 Dorsal Root ganglion",
+            "name": "T13 Dorsal Root gangion",
             "external": [
                 "EMAPA:25186"
             ],
@@ -990,7 +774,7 @@
         },
         {
             "id": "K56",
-            "name": "L1 Dorsal Root ganglion",
+            "name": "L1 Dorsal Root gangion",
             "external": [
                 "UBERON:0002857"
             ],
@@ -998,7 +782,7 @@
         },
         {
             "id": "K57",
-            "name": "L2 Dorsal Root ganglion",
+            "name": "L2 Dorsal Root gangion",
             "external": [
                 "UBERON:0002856"
             ],
@@ -1006,7 +790,7 @@
         },
         {
             "id": "K58",
-            "name": "L3 Dorsal Root ganglion",
+            "name": "L3 Dorsal Root gangion",
             "external": [
                 "UBERON:0002858"
             ],
@@ -1014,7 +798,7 @@
         },
         {
             "id": "K59",
-            "name": "L4 Dorsal Root ganglion",
+            "name": "L4 Dorsal Root gangion",
             "external": [
                 "UBERON:0003943"
             ],
@@ -1022,7 +806,7 @@
         },
         {
             "id": "K60",
-            "name": "L5 Dorsal Root ganglion",
+            "name": "L5 Dorsal Root gangion",
             "external": [
                 "UBERON:0002859"
             ],
@@ -1030,7 +814,7 @@
         },
         {
             "id": "K61",
-            "name": "L6 Dorsal Root ganglion",
+            "name": "L6 Dorsal Root gangion",
             "external": [
                 "EMAPA:25169"
             ],
@@ -1048,7 +832,7 @@
             "id": "K63",
             "name": "L1 ventral root",
             "external": [
-                "UBERON:0024382"
+                "EMAPA:25269"
             ],
             "hostedBy": "n2G"
         },
@@ -1056,7 +840,7 @@
             "id": "K64",
             "name": "L2 ventral root",
             "external": [
-                "UBERON:0024382"
+                "EMAPA:25271"
             ],
             "hostedBy": "n2G"
         },
@@ -1064,7 +848,7 @@
             "id": "K65",
             "name": "L3 ventral root",
             "external": [
-                "UBERON:0024382"
+                "EMAPA:25273"
             ],
             "hostedBy": "n2G"
         },
@@ -1072,7 +856,7 @@
             "id": "K66",
             "name": "L4 ventral root",
             "external": [
-                "UBERON:0024382"
+                "EMAPA:25275"
             ],
             "hostedBy": "n2G"
         },
@@ -1080,7 +864,7 @@
             "id": "K67",
             "name": "L5 ventral root",
             "external": [
-                "UBERON:0024382"
+                "EMAPA:25277"
             ],
             "hostedBy": "n2G"
         },
@@ -1088,7 +872,7 @@
             "id": "K68",
             "name": "L6 ventral root",
             "external": [
-                "UBERON:0024382"
+                "EMAPA:25279"
             ],
             "hostedBy": "n2G"
         },
@@ -1096,7 +880,7 @@
             "id": "K69",
             "name": "S1 ventral root",
             "external": [
-                "UBERON:0023623"
+                "EMAPA:25281"
             ],
             "hostedBy": "n2G"
         },
@@ -1104,7 +888,7 @@
             "id": "K70",
             "name": "T12 - T13 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777086"
             ],
             "internalLyphs": [
                 "t12-t13iss"
@@ -1117,7 +901,7 @@
             "id": "K71",
             "name": "T13 - L1 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777087"
             ],
             "internalLyphs": [
                 "t13-l1iss"
@@ -1130,7 +914,7 @@
             "id": "K72",
             "name": "L1 - L2 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777088"
             ],
             "internalLyphs": [
                 "l1-l2iss"
@@ -1143,7 +927,7 @@
             "id": "K73",
             "name": "L2 - L3 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777089"
             ],
             "internalLyphs": [
                 "l2-l3iss"
@@ -1156,7 +940,7 @@
             "id": "K74",
             "name": "L3 - L4 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777090"
             ],
             "internalLyphs": [
                 "l3-l4iss"
@@ -1169,7 +953,7 @@
             "id": "K75",
             "name": "L4 - L5 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777091"
             ],
             "internalLyphs": [
                 "l4-l5iss"
@@ -1182,7 +966,7 @@
             "id": "K76",
             "name": "L5 - L6 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777092"
             ],
             "internalLyphs": [
                 "l5-l6iss"
@@ -1195,7 +979,7 @@
             "id": "K77",
             "name": "L6 - S1 Interganglonic segment",
             "external": [
-                "UBERON:0000407"
+                "ILX:0777093"
             ]
         },
         {
@@ -1443,20 +1227,17 @@
             ],
             "topology": "TUBE",
             "layers": [
-                "KM_1",
-                "KM_87",
+                "KM_11",
                 "KM_10",
-                "KM_11"
+                "KM_87",
+                "KM_1"
             ],
             "internalLyphs": [
-                "K106",
-                "an-bd1_2"
+                "K106"
             ],
             "internalLyphsInLayers": [
-                3,
-                1
-            ],
-            "hostedBy": "F"
+                0
+            ]
         },
         {
             "id": "K100",
@@ -1466,22 +1247,17 @@
             ],
             "topology": "TUBE",
             "layers": [
-                "KM_1",
-                "KM_87",
+                "KM_11",
                 "KM_10",
-                "KM_11"
+                "KM_87",
+                "KM_1"
             ],
             "internalLyphs": [
-                "K105",
-                "an-bn0_2",
-                "an-bn1_2"
+                "K105"
             ],
             "internalLyphsInLayers": [
-                3,
-                1,
                 0
-            ],
-            "hostedBy": "F"
+            ]
         },
         {
             "id": "K101",
@@ -1523,14 +1299,6 @@
             "name": "Pelvic ganglia",
             "external": [
                 "UBERON:0016508"
-            ],
-            "internalLyphs": [
-                "an-pg_4",
-                "sn-pg_2"
-            ],
-            "internalLyphsInLayers": [
-                0,
-                0
             ],
             "hostedBy": "n2G"
         },
@@ -1889,7 +1657,7 @@
             "external": [
                 "UBERON:0005303"
             ],
-            "hostedBy": "N"
+            "hostedBy": "n2"
         },
         {
             "id": "n-blad",
@@ -1905,7 +1673,7 @@
                 0,
                 0
             ],
-            "hostedBy": "N"
+            "hostedBy": "n2"
         },
         {
             "id": "n-pud",
@@ -1913,7 +1681,7 @@
             "external": [
                 "UBERON:0011390"
             ],
-            "hostedBy": "N"
+            "hostedBy": "n2"
         },
         {
             "id": "n-lumspl",
@@ -2501,6 +2269,64 @@
             ]
         },
         {
+            "id": "ac-pg_2",
+            "name": "Pelvic Ganglia SPO axon chain_Neuron 2",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns250",
+            "leaf": "ns251",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "ac-bn1_2",
+            "name": "Axon to SPOG in bladder neck layer 1_Neuron 2",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns251",
+            "leaf": "ns253",
+            "housingLayers": [
+                0,
+                0,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac_bd1_2",
+            "name": "Axon to SPOG in bladder dome layer 1_Neuron 2",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns251",
+            "leaf": "ns255",
+            "housingLayers": [
+                0,
+                0,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99"
+            ]
+        },
+        {
             "id": "dc-4-K78",
             "name": "T12 sympathetic ganglia SP0 dendrite chain _Neuron 4",
             "external": [
@@ -3072,32 +2898,6 @@
             ]
         },
         {
-            "id": "neuron-2",
-            "name": "Neuron 2",
-            "links": [
-                "lnk-sn-pg_2",
-                "lnk-an-bn0_2",
-                "lnk-an-bn1_2",
-                "lnk-an_bd0_2",
-                "lnk-an-bn1_2"
-            ],
-            "nodes": [
-                "ns250",
-                "ns251",
-                "ns252",
-                "ns253",
-                "ns254",
-                "ns255"
-            ],
-            "publications": [
-                "PMID:2713886",
-                "PMID:2713886",
-                "PMID:11382385",
-                "PMID:11382385",
-                "PMID:4700666"
-            ]
-        },
-        {
             "id": "nerves",
             "name": "Nerves",
             "links": [
@@ -3152,7 +2952,7 @@
             "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
         }
     ],
-    "id": "keast-bladder-simple-test",
+    "id": "scaffold-test",
     "name": "Keast Bladder Model",
     "namespace": "org.apinatomy.keast-bladder",
     "scaffolds": [
@@ -3298,87 +3098,100 @@
                     "layout": {
                         "x": 80,
                         "y": 40
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f1P",
                     "layout": {
                         "x": 10,
                         "y": 75
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f1S",
                     "layout": {
                         "x": 90,
                         "y": 5
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f2L",
                     "layout": {
                         "x": -10,
                         "y": 75
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f3G",
                     "layout": {
                         "x": -80,
                         "y": -30
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f3K",
                     "layout": {
                         "x": -70,
                         "y": -40
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f3M",
                     "layout": {
                         "x": -10,
                         "y": -70
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f4E",
                     "hostedBy": "w-X-V",
-                    "offset": 0.9
+                    "offset": 0.9,
+                    "skipLabel": true
                 },
                 {
                     "id": "f4N",
                     "hostedBy": "w-X-V",
-                    "offset": 0.95
+                    "offset": 0.95,
+                    "skipLabel": true
                 },
                 {
                     "id": "f4M",
                     "layout": {
                         "x": 60,
                         "y": -50
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f4C",
                     "layout": {
                         "x": 60,
                         "y": -55
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f4P",
                     "layout": {
                         "x": 80,
                         "y": -30
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "f4L",
                     "layout": {
                         "x": 70,
                         "y": -40
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "N",
@@ -3442,35 +3255,40 @@
                     "layout": {
                         "x": 50,
                         "y": 10
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "d1H",
                     "layout": {
                         "x": 50,
                         "y": 20
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "d2G",
                     "layout": {
                         "x": -20,
                         "y": 75
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "d2H",
                     "layout": {
                         "x": -10,
                         "y": 70
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "d2L",
                     "layout": {
                         "x": -30,
                         "y": 75
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "Y",
@@ -3482,28 +3300,32 @@
                     "layout": {
                         "x": -10,
                         "y": -50
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "n4A",
                     "layout": {
                         "x": 10,
                         "y": -50
-                    }
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "n2GA",
                     "layout": {
-                        "x": -60,
-                        "y": 10
-                    }
+                        "x": -80,
+                        "y": 17.5
+                    },
+                    "skipLabel": true
                 },
                 {
                     "id": "n2GB",
                     "layout": {
                         "x": -5,
-                        "y": 10
-                    }
+                        "y": 17.5
+                    },
+                    "skipLabel": true
                 }
             ],
             "wires": [
@@ -4207,20 +4029,20 @@
                     "name": "Infracervical Ganglia",
                     "points": [
                         {
-                            "x": -60,
+                            "x": -5,
+                            "y": 5
+                        },
+                        {
+                            "x": -80,
                             "y": 5
                         },
                         {
-                            "x": -60,
-                            "y": 15
+                            "x": -80,
+                            "y": 30
                         },
                         {
                             "x": -5,
-                            "y": 15
-                        },
-                        {
-                            "x": -5,
-                            "y": 5
+                            "y": 30
                         }
                     ],
                     "color": "#eeffff"

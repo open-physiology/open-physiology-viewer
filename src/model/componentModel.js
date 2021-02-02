@@ -1,6 +1,6 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Color, $Field, $SchemaClass, addColor} from "./utils";
+import {$Color, $Field, $Prefix, $SchemaClass, addColor, getGenID} from "./utils";
 import {logger, $LogMsg} from "./logger";
 
 export class Component extends Resource {
@@ -15,8 +15,10 @@ export class Component extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
         (json.regions||[]).forEach(region => {
-            modelClasses.Region.expandTemplate(json, region);
-            modelClasses.Region.validateTemplate(json, region);
+            if (region::isObject()) {//process regions, but not references to regions
+                modelClasses.Region.expandTemplate(json, region);
+                modelClasses.Region.validateTemplate(json, region);
+            }
         });
 
         let namespace = json.namespace || defaultNamespace;

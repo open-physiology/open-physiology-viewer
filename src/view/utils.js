@@ -374,8 +374,9 @@ export function semicircleCurve(startV, endV){
  * @returns {Vector3}     - 3d vector
  */
 export function extractCoords(source){
-    if (!source) { return; }
-    return new THREE.Vector3(source.x || 0, source.y || 0, source.z || 0);
+    if (source) {
+        return new THREE.Vector3(source.x || 0, source.y || 0, source.z || 0);
+    }
 }
 
 /**

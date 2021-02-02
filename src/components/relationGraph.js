@@ -210,7 +210,8 @@ export class RelGraph {
                 })
             });
 
-            (this._graphData.lyphs||[]).filter(e => getNode(e)).forEach(lyph => {
+            (this._graphData.lyphs||[]).forEach(lyph => {
+                if (!getNode(lyph)) {return;}
                 if (getNode(lyph.layerIn)){
                     this.data.links.push({"source": lyph.layerIn.id, "target": lyph.id, "type"  : "layer"});
                 }
@@ -227,7 +228,8 @@ export class RelGraph {
                 })
             });
 
-            (this._graphData.materials||[]).filter(e => getNode(e)).forEach(material => {
+            (this._graphData.materials||[]).forEach(material => {
+                if (!getNode(material)) {return;}
                 (material.materials||[]).forEach(material2 => {
                     if (getNode(material2)){
                         this.data.links.push({"source": material.id, "target": material2.id, "type" : "material"});
@@ -235,7 +237,8 @@ export class RelGraph {
                 })
             });
 
-            (this._graphData.coalescences||[]).filter(e => getNode(e)).forEach(coalescence => {
+            (this._graphData.coalescences||[]).forEach(coalescence => {
+                if (getNode(coalescence)) {return;}
                 (coalescence.lyphs||[]).filter(e => getNode(e)).forEach(lyph  => {
                     this.data.links.push({"source": lyph.id, "target": coalescence.id, "type" : "coalescence"})
                 })

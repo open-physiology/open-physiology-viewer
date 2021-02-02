@@ -142,11 +142,11 @@ export class Graph extends Group{
                     if (e instanceof modelClasses.Link) {
                         let i = 0;
                         const related = [$Field.sourceOf, $Field.targetOf];
-                        e.applyToEndNodes((end) => {
+                        e.applyToEndNodes(end => {
                             if (end::isString()) {
                                 let s = modelClasses.Resource.createResource(end, $SchemaClass.Node, res, modelClasses, entitiesByID, namespace);
                                 added.push(s.id);
-                                s[related[i]] = e;
+                                s[related[i]] = [e];
                             }
                         });
                     }
@@ -170,16 +170,12 @@ export class Graph extends Group{
             }
         }
 
-        //TODO create resources created to support missing resources, i.e., end nodes for created link
-
-        if ((entitiesByID.waitingList)::keys().length > 0){
-            logger.error($LogMsg.REF_UNDEFINED, entitiesByID.waitingList);
+        if (entitiesByID.waitingList::keys().length > 0){
+            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID.waitingList::keys());
         }
 
         res.syncRelationships(modelClasses, entitiesByID, namespace);
-
         res.entitiesByID = entitiesByID;
-        delete res.waitingList;
 
         if (!res.generated) {
             res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
@@ -188,7 +184,11 @@ export class Graph extends Group{
             (res.groups||[]).forEach(group => group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             //Collect inherited externals
-            (res.lyphs||[]).filter(lyph => lyph.supertype).forEach(r => r.collectInheritedExternals());
+            (res.lyphs||[]).forEach(lyph => {
+                if (lyph.supertype) {
+                    lyph.collectInheritedExternals();
+                }
+            });
         }
 
         //Validate link processes
@@ -440,14 +440,28 @@ export class Graph extends Group{
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => p::keys().filter(key => p[key]::isNumber()).forEach(key => {
-            p[key] *= scaleFactor;
+        const scalePoint = p => p::keys().forEach(key => {
+            if (p[key]::isNumber()) {
+                p[key] *= scaleFactor;
+            }
         });
 
         if (this.scaffoldResources) {
-            (this.scaffoldResources.anchors || []).filter(e => e.layout).forEach(e => scalePoint(e.layout));
-            (this.scaffoldResources.wires || []).filter(e => e::isObject() && !!e.length).forEach(e => e.length *= scaleFactor);
-            (this.scaffoldResources.regions || []).filter(e => e.points).forEach(e => e.points.forEach(p => scalePoint(p)));
+            (this.scaffoldResources.anchors || []).forEach(e => {
+                if (e.layout) {
+                    scalePoint(e.layout);
+                }
+            });
+            (this.scaffoldResources.wires || []).forEach(e => {
+                if (e::isObject() && !!e.length){
+                    e.length *= scaleFactor;
+                }
+            });
+            (this.scaffoldResources.regions || []).forEach(e => {
+                if (e.points) {
+                    e.points.forEach(p => scalePoint(p));
+                }
+            });
         }
         
         (this.lyphs||[]).forEach(lyph => {
@@ -455,9 +469,21 @@ export class Graph extends Group{
             if (lyph.height) {lyph.height *= scaleFactor}
         });
 
-        (this.nodes||[]).filter(e => e.layout).forEach(e => scalePoint(e.layout));
-        (this.links||[]).filter(e => e::isObject() && !!e.length).forEach(e => e.length *= scaleFactor);
-        (this.regions||[]).filter(e => e.points).forEach(e => e.points.forEach(p => scalePoint(p)));
+        (this.nodes||[]).forEach(e => {
+            if (e.layout) {
+                scalePoint(e.layout);
+            }
+        });
+        (this.links||[]).forEach(e => {
+            if (e::isObject() && !!e.length) {
+                e.length *= scaleFactor
+            }
+        });
+        (this.regions||[]).forEach(e => {
+            if (e.points) {
+                e.points.forEach(p => scalePoint(p));
+            }
+        });
     }
 
     /**

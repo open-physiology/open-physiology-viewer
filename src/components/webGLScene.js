@@ -271,7 +271,7 @@ export class WebGLSceneComponent {
         let height = this.container.clientHeight;
 
         this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
-        this.camera.position.set(200, 0, 100 * this.scaleFactor );
+        this.camera.position.set(0, -200, 100 * this.scaleFactor );
         this.camera.aspect = width / height;
         this.camera.up.set( 0, 0, 1 );
         this.camera.updateProjectionMatrix();
@@ -325,21 +325,26 @@ export class WebGLSceneComponent {
     }
 
     createDynamicGroup(queryRes){
-        // let nodeIDs  = (queryRes.nodes||[]).map(r => (r.id||"").substr(r.id.indexOf(":") + 1));
-        // let edgeIDs =  (queryRes.edges||[]).map(r => (r.sub||"").substr(r.sub.indexOf(":") + 1));
-        let nodeIDs  = (queryRes.nodes||[]).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
-        let edgeIDs =  (queryRes.edges||[]).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
         if (this.graphData){
+            let nodeIDs  = (queryRes.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
+            let edgeIDs =  (queryRes.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
             let nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
             let links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
             let lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
             if (nodes.length || links.length || lyphs.length){
-                (lyphs||[]).filter(lyph => lyph.conveys).forEach(lyph => {
-                    if (!links.find(link => link.id === lyph.conveys.id)){
-                        links.push(lyph.conveys);
+                (lyphs||[]).forEach(lyph => {
+                    if (lyph.conveys) {
+                        if (!links.find(link => link.id === lyph.conveys.id)) {
+                            links.push(lyph.conveys);
+                        }
                     }
                 });
                 (links||[]).forEach(lnk => {
+                    if (lnk.conveyingLyph) {
+                        if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
+                            links.push(lnk.conveyingLyph);
+                        }
+                    }
                     if (!nodes.find(node => node.id === lnk.source.id)){
                         nodes.push(lnk.source);
                     }
@@ -347,13 +352,21 @@ export class WebGLSceneComponent {
                         nodes.push(lnk.target);
                     }
                 });
+                (this.graphData.links||[]).forEach(lnk => {
+                    if (lnk.collapsible &&
+                        nodes.find(node => node.id === lnk.source.id) &&
+                        nodes.find(node => node.id === lnk.target.id)){
+                        links.push(lnk);
+                    }
+                });
+
                 //Add new group
                 let group = this.modelClasses.Group.fromJSON({
                     [$Field.id]    : getGenID($Prefix.query, this.queryCounter),
                     [$Field.name]  : "Query response " + this.queryCounter,
-                    [$Field.nodes] : nodes,
-                    [$Field.links] : links,
-                    [$Field.lyphs] : lyphs
+                    [$Field.nodes] : nodes.map(e => e.id),
+                    [$Field.links] : links.map(e => e.id),
+                    [$Field.lyphs] : lyphs.map(e => e.id)
                 }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
                 this.graphData.groups = this.graphData.groups || [];
                 this.graphData.groups.push(group);
@@ -493,7 +506,7 @@ export class WebGLSceneComponent {
 
         const selectLayer = (entity) => {
             //Refine selection to layers
-            if (entity && entity.layers) {
+            if (entity && entity.layers && this.config.layout["showLayers"]) {
                 let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
                 let layerIntersects = this.ray.intersectObjects(layerMeshes);
                 if (layerIntersects.length > 0) {
@@ -526,15 +539,19 @@ export class WebGLSceneComponent {
             // store color of closest object (for later restoration)
             if (rememberColor){
                 obj.currentHex = obj.material.color.getHex();
-                (obj.children || []).filter(child => child.material).forEach(child => {
-                    child.currentHex = child.material.color.getHex();
+                (obj.children || []).forEach(child => {
+                    if (child.material) {
+                        child.currentHex = child.material.color.getHex();
+                    }
                 });
             }
 
             // set a new color for closest object
             obj.material.color.setHex(color);
-            (obj.children || []).filter(child => child.material).forEach(child => {
-                child.material.color.setHex(color);
+            (obj.children || []).forEach(child => {
+                if (child.material) {
+                    child.material.color.setHex(color);
+                }
             });
         }
     }
@@ -546,8 +563,10 @@ export class WebGLSceneComponent {
             if (obj.material){
                 obj.material.color.setHex( obj.currentHex || this.defaultColor);
             }
-            (obj.children || []).filter(child => child.material).forEach(child => {
-                child.material.color.setHex( child.currentHex || this.defaultColor);
+            (obj.children || []).forEach(child => {
+                if (child.material) {
+                    child.material.color.setHex(child.currentHex || this.defaultColor);
+                }
             })
         }
     }

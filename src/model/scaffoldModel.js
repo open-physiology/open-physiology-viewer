@@ -37,6 +37,8 @@ export class Scaffold extends Component {
 
         let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
 
+        let standalone = entitiesByID === undefined;
+
         //Copy existing entities to a map to enable nested model instantiation
         entitiesByID = entitiesByID || {waitingList: {}};
 
@@ -81,8 +83,8 @@ export class Scaffold extends Component {
             }
         }
 
-        if ((entitiesByID.waitingList)::keys().length > 0) {
-            logger.error($LogMsg.REF_UNDEFINED, entitiesByID.waitingList);
+        if (standalone && entitiesByID.waitingList::keys().length > 0) {
+            logger.error($LogMsg.REF_UNDEFINED, "scaffold", entitiesByID.waitingList::keys());
         }
 
         res.syncRelationships(modelClasses, entitiesByID, namespace);

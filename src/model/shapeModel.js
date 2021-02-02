@@ -169,6 +169,7 @@ export class Lyph extends Shape {
             targetLyph.cloneOf = sourceLyph.id;
         }
 
+        //TODO how to derive names
         if (!targetLyph.name) {
             targetLyph.name = getGenName(sourceLyph.name, (sourceLyph.name||"").endsWith("clone")? "": "clone");
         }
@@ -212,7 +213,6 @@ export class Lyph extends Shape {
      */
     static mapInternalResourcesToLayers(lyphs){
 
-        //TODO check that properties like fascilitatesIn and bundles are also updated
         function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers.length){
                 let layer = findResourceByID(lyphs, lyph.layers[layerIndex]);
@@ -232,19 +232,19 @@ export class Lyph extends Shape {
             }
         }
 
-        (lyphs||[]).filter(lyph => lyph.layers && lyph.internalLyphs && lyph.internalLyphsInLayers).forEach(lyph=> {
-            for (let i = 0; i < Math.min(lyph.internalLyphs.length, lyph.internalLyphsInLayers.length); i++){
-                moveResourceToLayer(i, lyph.internalLyphsInLayers[i], lyph, $Field.internalLyphs);
-            }
-            lyph.internalLyphs = lyph.internalLyphs.filter(x => !!x);
-        });
+        function processLyphs(key1, key2){
+            (lyphs||[]).forEach(lyph => {
+                if (lyph.layers && lyph[key1] && lyph[key2]) {
+                    for (let i = 0; i < Math.min(lyph[key1].length, lyph[key2].length); i++) {
+                        moveResourceToLayer(i, lyph[key2][i], lyph, $Field.internalLyphs);
+                    }
+                    lyph[key1] = lyph[key1].filter(x => !!x);
+                }
+            });
+        }
 
-        (lyphs||[]).filter(lyph => lyph.layers && lyph.internalNodes && lyph.internalNodesInLayers).forEach(lyph=> {
-            for (let i = 0; i < Math.min(lyph.internalNodes.length, lyph.internalNodesInLayers.length); i++){
-                moveResourceToLayer(i, lyph.internalNodesInLayers[i], lyph, $Field.internalNodes);
-            }
-            lyph.internalNodes = lyph.internalNodes.filter(x => !!x);
-        });
+        processLyphs($Field.internalLyphs, $Field.internalLyphsInLayers);
+        processLyphs($Field.internalNodes, $Field.internalNodesInLayers);
     }
 
     collectInheritedExternals(){
@@ -387,7 +387,7 @@ export class Lyph extends Shape {
             Node.fromJSON({
                 [$Field.id]        : getGenID(prefix, this.id),
                 [$Field.color]     : $Color.Node,
-                [$Field.val]       : 1,
+                [$Field.val]       : this.internalIn? 0.1: 1,
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
             }, modelClasses, entitiesByID, namespace)));
@@ -446,20 +446,19 @@ export class Region extends Shape {
     /**
      * Create a Region resource from its JSON specification.
      * The method checks and sets default values to the region corner points if they are undefined.
-     * @param   {Object} json                          - resource definition
-     * @param   {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
-     * @param   {Map<string, Resource>} [entitiesByID] - map of resources in the global model
+     * @param {Object} json                          - resource definition
+     * @param {Object} [modelClasses]                - map of class names vs implementation of ApiNATOMY resources
+     * @param {Map<string, Resource>} [entitiesByID] - map of resources in the global model
+     * @param {String} namespace                     - model namespace
      * @returns {Shape} - ApiNATOMY Shape resource
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-        if (!json.points || (json.points.length < 3)) {
-            json.points = [
-                {"x": -10, "y": -10 },
-                {"x": -10, "y":  10 },
-                {"x":  10, "y":  10 },
-                {"x":  10, "y": -10 }
-                ];
-        }
+        json.points = json.points || [
+            {"x": -10, "y": -10 },
+            {"x": -10, "y":  10 },
+            {"x":  10, "y":  10 },
+            {"x":  10, "y": -10 }
+        ];
         json.numBorders = json.points.length;
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.points.push(res.points[0]::clone()); //make closed shape
@@ -489,34 +488,47 @@ export class Region extends Shape {
     }
 
     static expandTemplate(json, template){
-        if (!template.facets && (template.points||[]).length > 1){
-            template.id = template.id || getGenID(json.id, json.regions.length);
+        if (!template::isObject()){
+            logger.error($LogMsg.RESOURCE_NO_OBJECT, template);
+            return;
+        }
+        template.id = template.id || getGenID(json.id, (json.regions||[]).length);
+        let anchors = [];
+        if (!template.borderAnchors) {
             //generate facets from points
-            let anchors = [];
-            template.points.forEach((p,i) => {
+            (template.points||[]).forEach((p, i) => {
                 anchors.push({
-                    [$Field.id]        : getGenID($Prefix.anchor, template.id, i),
-                    [$Field.layout]    : p,
-                    [$Field.skipLabel] : true,
-                    [$Field.generated] : true
+                    [$Field.id]: getGenID($Prefix.anchor, template.id, i),
+                    [$Field.layout]: p,
+                    [$Field.skipLabel]: true,
+                    [$Field.generated]: true
                 });
             });
-            json.anchors = json.anchors||[];
+            json.anchors = json.anchors || [];
             json.anchors.push(...anchors);
+            template.borderAnchors = anchors.map(e => e.id);
+        } else {
+            anchors = template.borderAnchors.map(e => findResourceByID(e)).filter(e => !!e);
+        }
+        if (!template.facets) {
+            if (anchors.length < 3){
+                logger.error($LogMsg.REGION_BORDER_ERROR, template.id);
+                return;
+            }
             let wires = [];
-            for (let i = 1; i < anchors.length + 1; i++){
+            for (let i = 1; i < anchors.length + 1; i++) {
                 wires.push({
-                    [$Field.id]           : getGenID($Prefix.wire, template.id, i),
-                    [$Field.source]       : anchors[i-1].id,
-                    [$Field.target]       : anchors[i % anchors.length].id,
-                    [$Field.color]        : $Color.Link,
-                    [$Field.skipLabel]    : true,
-                    [$Field.generated]    : true
+                    [$Field.id]: getGenID($Prefix.wire, template.id, i),
+                    [$Field.source]: anchors[i - 1].id,
+                    [$Field.target]: anchors[i % anchors.length].id,
+                    [$Field.color]: $Color.Link,
+                    [$Field.skipLabel]: true,
+                    [$Field.generated]: true
                 });
             }
-            json.wires = json.wires||[];
+            json.wires = json.wires || [];
             json.wires.push(...wires);
-            template.facets = wires.map(f => f.id);
+            template.facets = wires.map(e => e.id);
         }
     }
 }

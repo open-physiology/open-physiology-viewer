@@ -10,7 +10,7 @@ import {
     $Prefix,
     getID, findResourceByID, getOrCreateNode
 } from "./utils";
-import {keys, merge, pick} from "lodash-bound";
+import {keys, merge, pick, isString} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
 /**
@@ -113,7 +113,12 @@ export class Node extends VisualResource {
         (json.lyphs||[]).forEach(lyph => {
             if (lyph.border && lyph.border.borders) {
                 lyph.border.borders.forEach(b => {
-                    (b.hostedNodes||[]).forEach(nodeID => {
+                    (b.hostedNodes||[]).forEach(e => {
+                        let nodeID = getID(e);
+                        if (!nodeID || !nodeID::isString()){
+                            logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);
+                            return;
+                        }
                         if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
                         borderNodesByID[nodeID].push(lyph);
                     });
@@ -159,7 +164,12 @@ export class Node extends VisualResource {
     static replicateInternalNodes(json, modelClasses){
         let internalNodesByID = {};
         (json.lyphs||[]).forEach(lyph => {
-            (lyph.internalNodes||[]).forEach(nodeID => {
+            (lyph.internalNodes||[]).forEach(e => {
+                let nodeID = getID(e);
+                if (!nodeID || !nodeID::isString()){
+                    logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);
+                    return;
+                }
                 if (!internalNodesByID[nodeID]){ internalNodesByID[nodeID] = []; }
                 internalNodesByID[nodeID].push(lyph);
             });
@@ -243,7 +253,9 @@ export class Node extends VisualResource {
                 }
 
                 node.controlNodes = node.clones;
-                logger.info($LogMsg.NODE_CLONE_INTERNAL, node.id, node.clones);
+                if ((node.clones || []).length > 0) {
+                    logger.info($LogMsg.NODE_CLONE_INTERNAL, node.id, node.clones);
+                }
             }
         });
     }

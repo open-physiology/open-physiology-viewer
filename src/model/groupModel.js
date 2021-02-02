@@ -15,6 +15,7 @@ import {logger, $LogMsg} from './logger';
  * @property groups
  * @property trees
  * @property channels
+ * @property chains
  * @property coalescences
  * @property scaffolds
  * @property hostedBy
@@ -109,7 +110,7 @@ export class Group extends Resource {
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
-            this[prop].filter(res => res instanceof Resource).forEach(res => res.includeRelated(this));
+            this[prop].forEach(res => res instanceof Resource && res.includeRelated(this));
         });
 
         //If a group is hosted by a region, each its lyph is hosted by the region
@@ -279,10 +280,12 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static expandVillusTemplates(json, modelClasses){
-        (json.lyphs||[]).filter(lyph => lyph.villus).forEach(lyph => {
-            lyph.villus.villusOf = lyph.id;
-            modelClasses.Villus.expandTemplate(json, lyph.villus);
-        })
+        (json.lyphs||[]).forEach(lyph => {
+            if (lyph.villus) {
+                lyph.villus.villusOf = lyph.id;
+                modelClasses.Villus.expandTemplate(json, lyph.villus);
+            }
+        });
     }
 
     /**

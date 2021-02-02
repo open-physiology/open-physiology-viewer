@@ -109,6 +109,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(c3).to.have.property("internalLyphsInLayers");
         expect(c3.internalLyphsInLayers).to.be.an('array').that.has.length(1);
         expect(c3.internalLyphsInLayers[0]).to.be.equal(3);
+        //TODO check that properties like fascilitatesIn and bundles are updated after mapInternalResourcesToLayers
 
         expect(c3).to.have.property("layers");
         expect(c3.layers).to.be.an('array').that.has.length(14);

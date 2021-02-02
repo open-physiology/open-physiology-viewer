@@ -42,7 +42,6 @@ import uotWithChannels from './data/uotWithChannels';
 
 import {modelClasses, fromJSON} from '../src/model/index';
 
-
 describe("BasalGanglia", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses));

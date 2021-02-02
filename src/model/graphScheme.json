@@ -1590,7 +1590,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "description", "class", "topology", "conveys", "external", "supertype", "cloneOf", "generated"],
+          "default": [ "id", "name", "class", "topology", "external", "internalIn", "bundles", "fasciculatesIn", "supertype", "cloneOf", "generated"],
           "advanced": true
         },
         "width"          : {
