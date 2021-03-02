@@ -135,8 +135,6 @@ export class Lyph extends Shape {
             return;
         }
 
-        //TODO add prevention and tests for self-recursion
-
         targetLyph = targetLyph || {};
         if (!lyphs) {lyphs = [];}
  
@@ -169,9 +167,8 @@ export class Lyph extends Shape {
             targetLyph.cloneOf = sourceLyph.id;
         }
 
-        //TODO how to derive names
         if (!targetLyph.name) {
-            targetLyph.name = getGenName(sourceLyph.name, (sourceLyph.name||"").endsWith("clone")? "": "clone");
+            targetLyph.name = getGenName(sourceLyph.name);
         }
 
         if ((targetLyph.layers||[]).length > 0) {
@@ -303,6 +300,10 @@ export class Lyph extends Shape {
      */
     get axis() {
         return this.conveys || ((this.layerIn)? this.layerIn.axis : null);
+    }
+
+    get host() {
+        return (this.conveys && this.conveys.fasciculatesIn) || this.internalIn;
     }
 
     get container(){

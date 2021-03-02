@@ -27,7 +27,7 @@
     {
       "id": "cn2",
       "layout": {
-        "x": 100
+        "x": 0
       }
     },
     {
@@ -2119,7 +2119,7 @@
       ],
       "root": "cn1",
       "leaf": "cn2",
-      "length": 100
+      "length": 50
     },
     {
       "id": "dc-snl16",
@@ -3013,6 +3013,7 @@
             "x": 0,
             "y": 0
           },
+          "skipLabel": true,
           "color": "#FFA500"
         },
         {
@@ -3199,6 +3200,7 @@
             "x": 0,
             "y": 0
           },
+          "skipLabel": true,
           "color": "#FFA500"
         },
         {

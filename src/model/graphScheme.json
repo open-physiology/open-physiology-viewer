@@ -445,7 +445,7 @@
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/Shape"
+              "$ref": "#/definitions/Lyph"
             }
           ],
           "relatedTo": "internalNodes"
@@ -726,7 +726,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "source", "target", "conveyingLyph", "generated" ]
+          "default": [ "id", "name", "class", "source", "target", "conveyingLyph", "fasciculatesIn", "generated" ]
         },
         "directed"     : {
           "description": "When set to true, defines a directed edge with arrow at the end",
@@ -920,75 +920,6 @@
             "$ref": "#/definitions/Point2Scheme"
           },
           "readOnly": true,
-          "advanced": true
-        },
-        "internalLyphColumns": {
-          "description": "Defines number of columns in the grid layout for the internal lyphs",
-          "type": "number",
-          "default": 1,
-          "advanced": true
-        },
-        "internalLyphsInLayers"  : {
-          "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "internalLyphs": {
-          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "internalIn"
-        },
-        "internalNodesInLayers"  : {
-          "description": "Indices of layers to position internal nodes. The field should be used when layers are generated and not known in advance",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "internalNodes": {
-          "description": "Nodes that should be positioned on the given region",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "relatedTo": "internalIn",
-          "uniqueItems": true
-        },
-        "hostedLyphs": {
-          "description": "Lyphs that should be projected to a given lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "hostedBy",
           "advanced": true
         }
       }
@@ -1300,6 +1231,22 @@
           ],
           "advanced": true,
           "relatedTo": "hostedBy"
+        },
+        "hostedLyphs": {
+          "description": "Lyphs that should be projected to a given lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "hostedBy",
+          "advanced": true
         }
       }
     },
@@ -1454,11 +1401,64 @@
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/Shape"
+              "$ref": "#/definitions/Lyph"
             }
           ],
           "relatedTo": "internalLyphs",
           "advanced": true
+        },
+        "internalLyphColumns": {
+          "description": "Defines number of columns in the grid layout for the internal lyphs",
+          "type": "number",
+          "default": 1,
+          "advanced": true
+        },
+        "internalLyphs": {
+          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "internalIn"
+        },
+        "internalNodes": {
+          "description": "Nodes that should be positioned on the given region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          },
+          "relatedTo": "internalIn",
+          "uniqueItems": true
+        },
+        "internalLyphsInLayers"  : {
+          "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "internalNodesInLayers"  : {
+          "description": "Indices of layers to position internal nodes. The field should be used when layers are generated and not known in advance",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
         },
         "hostedBy"       : {
           "description": "ID or reference of the lyph which this lyph must be projected to",
@@ -1467,7 +1467,7 @@
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/Shape"
+              "$ref": "#/definitions/Region"
             }
           ],
           "relatedTo": "hostedLyphs",
@@ -1590,7 +1590,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "external", "internalIn", "bundles", "fasciculatesIn", "supertype", "cloneOf", "generated"],
+          "default": [ "id", "name", "class", "topology", "external", "internalIn", "bundles", "supertype", "cloneOf", "generated"],
           "advanced": true
         },
         "width"          : {

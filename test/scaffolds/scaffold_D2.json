@@ -1,0 +1,133 @@
+{
+  "id"     : "scaffold_d",
+  "name"   : "Scaffold D",
+  "author" : "Natallia Kokash",
+  "created": "2020-07-29",
+  "namespace": "scaffold_d",
+  "anchors": [
+    {
+      "id": "D",
+      "layout": {"x": 10, "y": -10},
+      "color": "#FFA500"
+    },
+    {
+      "id": "L",
+      "layout": {"x": 90, "y": -10},
+      "color": "#FF0000"
+    },
+    {
+      "id": "P",
+      "layout": {"x": 10, "y": 70},
+      "color": "#FF0000"
+    },
+    {
+      "id": "S",
+      "layout": {"x": -90, "y": -10},
+      "color": "#FF0000"
+    },
+    {
+      "id": "A",
+      "layout": {"x": 10, "y": -70},
+      "color": "#FF0000"
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-L-P",
+      "name": "Pulmonary Arterial",
+      "source": "L",
+      "target": "P",
+      "geometry": "arc",
+      "arcCenter": {"x": 10, "y": -10},
+      "color": "#9370DB"
+    },
+    {
+      "id": "w-P-S",
+      "name": "Systemic Pre-lymphatic Venous",
+      "source": "P",
+      "target": "S",
+      "geometry": "arc",
+      "arcCenter": {"x": 10, "y": -10},
+      "color": "#9370DB"
+    },
+    {
+      "id": "w-S-A",
+      "name": "Systemic Arterial",
+      "source": "S",
+      "target": "A",
+      "geometry": "arc",
+      "arcCenter": {"x": 10, "y": -10},
+      "color": "#9370DB"
+    },
+    {
+      "id": "w-A-L",
+      "name": "Pulmonary Venous",
+      "source": "A",
+      "target": "L",
+      "geometry": "arc",
+      "arcCenter": {"x": 10, "y": -10},
+      "color": "#9370DB"
+    },
+    {
+      "id": "w-D-L",
+      "source": "D",
+      "target": "L",
+      "color": "#000"
+    },
+    {
+      "id": "w-D-P",
+      "source": "D",
+      "target": "P",
+      "color": "#000"
+    },
+    {
+      "id": "w-D-S",
+      "source": "D",
+      "target": "S",
+      "color": "#000"
+    },
+    {
+      "id": "w-D-A",
+      "source": "D",
+      "target": "A",
+      "color": "#000"
+    }
+  ],
+  "regions": [
+    {
+      "id": "d1",
+      "name": "D1",
+      "color": "#f2e6ff",
+      "inactive": true,
+      "facets": ["w-D-L", "w-L-P", "w-D-P"]
+    },
+    {
+      "id": "d2",
+      "name": "D2",
+      "color": "#e6ccff",
+      "inactive": true,
+      "facets": ["w-D-P", "w-P-S", "w-D-S"]
+    },
+    {
+      "id": "d3",
+      "name": "D3",
+      "color": "#d9b3ff",
+      "inactive": true,
+      "facets": ["w-D-S", "w-S-A", "w-D-A"]
+    },
+    {
+      "id": "d4",
+      "name": "D4",
+      "color": "#cc99ff",
+      "inactive": true,
+      "facets": ["w-D-A", "w-A-L", "w-D-L"]
+    }
+  ],
+  "components": [
+    {
+      "id"  : "sRegions",
+      "name": "Scaffold regions",
+      "regions": ["d1", "d2", "d3", "d4"]
+    }
+  ]
+}

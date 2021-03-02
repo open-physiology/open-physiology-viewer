@@ -115,7 +115,7 @@ export class Graph extends Group{
         inputModel.groups = inputModel.groups || [];
         let group = {
             [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
-            [$Field.name]     : "Default",
+            [$Field.name]     : "Ungrouped",
             [$Field.generated]: true,
             [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
             [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
@@ -475,8 +475,13 @@ export class Graph extends Group{
             }
         });
         (this.links||[]).forEach(e => {
-            if (e::isObject() && !!e.length) {
-                e.length *= scaleFactor
+            if (e::isObject()) {
+                if (!!e.length) {
+                    e.length *= scaleFactor;
+                }
+                if (!!e.arcCenter) {
+                    scalePoint(e.arcCenter);
+                }
             }
         });
         (this.regions||[]).forEach(e => {

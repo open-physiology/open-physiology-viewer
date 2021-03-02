@@ -104,16 +104,15 @@ Lyph.prototype.createViewObjects = function(state) {
         this.width = this.width || this.size.width;
         this.height = this.height || this.size.height;
 
-        let host = (this.conveys && this.conveys.fasciculatesIn) || this.internalIn;
-        if (host && host.isVisible){
-            this.width = (host.width || host.size.width);
-            let height = 0.8 * (host.height || host.size.height);
-            if (this.height > height){
-                this.height = height;
-            }
+        if (this.host){
+            ["width", "height"].forEach(prop => {
+                let val = 0.5 * (this.host[prop] || this.host.size[prop]);
+                if (this[prop] > val){
+                    this[prop] = val;
+                }
+            });
         }
-
-        let params = {
+       let params = {
             color: this.color,
             polygonOffsetFactor: this.polygonOffsetFactor
         };

@@ -1,6 +1,6 @@
 import {Resource} from './resourceModel';
 import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
-import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID} from './utils';
+import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, showGroups} from './utils';
 import {logger, $LogMsg} from './logger';
 
 /**
@@ -82,12 +82,17 @@ export class Group extends Resource {
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID, namespace);
 
+        //TODO resize lyphs in chains to be of the same width?
         //Resize generated chain lyphs to fit into hosting lyphs (housing lyph or its layer)
         (res.lyphs||[]).forEach(host => (host.bundles||[]).forEach(lnk => {
             if (lnk.conveyingLyph && lnk.conveyingLyph.generated){
                 lnk.conveyingLyph.width = (host.width || host.size.width);
                 if (host.layerIn){
                     lnk.conveyingLyph.width /= host.layerIn.layers.length;
+                }
+                //Keep it visible
+                if (lnk.conveyingLyph.width < 5){
+                    lnk.conveyingLyph.width = 5;
                 }
             }
         }));
@@ -324,21 +329,8 @@ export class Group extends Resource {
      * @param ids - selected subgroup identifiers
      */
     showGroups(ids){
-        this.show();
-        if (!ids) {return;}
-        (this.groups||[]).forEach(g => {
-            if (ids.find(id => g.isGeneratedFrom(id))){
-                //Show also nested groups of included groups
-                (g.groups||[]).forEach(g2 => {
-                  if (!ids.find(id2 => g2.isGeneratedFrom(id2))){
-                      ids.push(g2.id);
-                  }
-                });
-                g.show();
-            } else {
-                g.hide();
-            }
-        });
+        //this.show();
+        showGroups(this.groups||[], ids);
     }
 
     /**
@@ -384,7 +376,20 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get visibleLinks(){
-        return (this.links||[]).filter(e => e.isVisible);
+        return (this.links||[]).filter(e => e.isVisible)
+            // .sort((a, b) => {
+            // //Sort links for processing: lyphs that are not hostd by other lyphs can be processed first
+            // if (a.conveyingLyph && b.conveyingLyph){
+            //     if (!a.conveyingLyph.host) {
+            //         return -1;
+            //     } else {
+            //         if (!b.conveyingLyph.host){
+            //             return 1;
+            //         }
+            //     }
+            // }
+            // return 0;})
+            ;
     }
 
     /**

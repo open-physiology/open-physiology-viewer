@@ -102,7 +102,7 @@
       "id": "n5",
       "name": "Neuron 5",
       "topology": "BAG",
-      "hostedLyphs": [
+      "internalLyphs": [
         "n5-d",
         "n5-h",
         "n5-s1",

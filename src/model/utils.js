@@ -282,6 +282,29 @@ export const mergeGenResources = (group, parentGroup, level) => {
 };
 
 /**
+ * Sets visibility properties for given set of resource groups
+ * @param groups
+ * @param ids
+ */
+export const showGroups = (groups, ids) => {
+    if (!ids) {return;}
+    let groupsToShow = new Set();
+    (groups||[]).forEach(g => {
+        g.hide();
+        if (ids.find(id => g.isGeneratedFrom(id))){
+            groupsToShow.add(g);
+            // (groups||[]).forEach(g2 => {
+            //     //Show also nested groups of included groups
+            //     if (!ids.find(id2 => g2.isGeneratedFrom(id2))){
+            //         groupsToShow.add(g2);
+            //     }
+            // });
+        }
+    });
+    [...groupsToShow].forEach(g => g.show());
+};
+
+/**
  * Determines if at least one of the given schema references extend a certain class
  * @param {Array<string>} refs  - schema references
  * @param {string} value        - class name

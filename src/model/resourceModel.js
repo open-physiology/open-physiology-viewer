@@ -21,8 +21,7 @@ import {
     isClassAbstract,
     getClassName,
     getNewID,
-    getFullID,
-    getID
+    getFullID
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 

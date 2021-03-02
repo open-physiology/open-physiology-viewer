@@ -35,6 +35,14 @@ const WindowResize = require('three-window-resize');
                                 (click)="toggleLockControls()" title="Unlock controls">
                             <i class="fa fa-unlock"> </i>
                         </button>
+                        <button *ngIf="!antialias" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleAntialias()" title="Enable antialiasing">
+                            <i class="fa fa-paper-plane-o"> </i>
+                        </button>
+                        <button *ngIf="antialias" class="w3-bar-item w3-hover-light-grey"
+                                (click)="toggleAntialias()" title="Disable antialiasing">
+                            <i class="fa fa-paper-plane"> </i>
+                        </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="graph?.graphData(graphData)"
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
@@ -147,6 +155,7 @@ export class WebGLSceneComponent {
     ray;
     mouse;
     windowResize;
+    antialias = true;
 
     _highlighted = null;
     _selected    = null;
@@ -239,7 +248,7 @@ export class WebGLSceneComponent {
             "groups": true,
             "labels": {
                 [$SchemaClass.Wire]  : false,
-                [$SchemaClass.Anchor]: false,
+                [$SchemaClass.Anchor]: true,
                 [$SchemaClass.Node]  : false,
                 [$SchemaClass.Link]  : false,
                 [$SchemaClass.Lyph]  : false,
@@ -263,7 +272,7 @@ export class WebGLSceneComponent {
     ngAfterViewInit() {
         if (this.renderer) {  return; }
 
-        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement});
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias});
         this.renderer.setClearColor(0xffffff);
 
         this.container = document.getElementById('apiLayoutContainer');
@@ -319,12 +328,45 @@ export class WebGLSceneComponent {
         dialogRef.afterClosed().subscribe(result => {
             if (result !== undefined){
                 this.queryCounter++;
-                this.createDynamicGroup(result);
+                this.createDynamicGroup(result.query, result.response);
             }
         })
     }
 
-    createDynamicGroup(queryRes){
+    createDynamicGroup(queryName, queryRes){
+        const addRelatedToLyphs = (lyphs, links) => {
+            (lyphs||[]).forEach(lyph => {
+                if (lyph.conveys) {
+                    if (!links.find(link => link.id === lyph.conveys.id)) {
+                        links.push(lyph.conveys);
+                    }
+                }
+            });
+        };
+
+        const addRelatedToLinks = (links, lyphs, nodes) => {
+            (links||[]).forEach(lnk => {
+                if (lnk.conveyingLyph) {
+                    if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
+                        links.push(lnk.conveyingLyph);
+                    }
+                }
+                if (!nodes.find(node => node.id === lnk.source.id)){
+                    nodes.push(lnk.source);
+                }
+                if (!nodes.find(node => node.id === lnk.target.id)){
+                    nodes.push(lnk.target);
+                }
+            });
+            (this.graphData.links||[]).forEach(lnk => {
+                if (lnk.collapsible &&
+                    nodes.find(node => node.id === lnk.source.id) &&
+                    nodes.find(node => node.id === lnk.target.id)){
+                    links.push(lnk);
+                }
+            });
+        };
+
         if (this.graphData){
             let nodeIDs  = (queryRes.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
             let edgeIDs =  (queryRes.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
@@ -332,44 +374,54 @@ export class WebGLSceneComponent {
             let links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
             let lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
             if (nodes.length || links.length || lyphs.length){
-                (lyphs||[]).forEach(lyph => {
-                    if (lyph.conveys) {
-                        if (!links.find(link => link.id === lyph.conveys.id)) {
-                            links.push(lyph.conveys);
-                        }
-                    }
-                });
-                (links||[]).forEach(lnk => {
-                    if (lnk.conveyingLyph) {
-                        if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
-                            links.push(lnk.conveyingLyph);
-                        }
-                    }
-                    if (!nodes.find(node => node.id === lnk.source.id)){
-                        nodes.push(lnk.source);
-                    }
-                    if (!nodes.find(node => node.id === lnk.target.id)){
-                        nodes.push(lnk.target);
-                    }
-                });
-                (this.graphData.links||[]).forEach(lnk => {
-                    if (lnk.collapsible &&
-                        nodes.find(node => node.id === lnk.source.id) &&
-                        nodes.find(node => node.id === lnk.target.id)){
-                        links.push(lnk);
-                    }
-                });
+                this.graphData.groups = this.graphData.groups || [];
+                addRelatedToLyphs(lyphs, links);
+                addRelatedToLinks(links, lyphs, nodes);
 
-                //Add new group
+                //Query response group
+                let queryLabel = (queryName? ": " + queryName : "");
                 let group = this.modelClasses.Group.fromJSON({
                     [$Field.id]    : getGenID($Prefix.query, this.queryCounter),
-                    [$Field.name]  : "Query response " + this.queryCounter,
+                    [$Field.name]  : `QR ${this.queryCounter}${queryLabel}`,
                     [$Field.nodes] : nodes.map(e => e.id),
                     [$Field.links] : links.map(e => e.id),
                     [$Field.lyphs] : lyphs.map(e => e.id)
                 }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
-                this.graphData.groups = this.graphData.groups || [];
                 this.graphData.groups.push(group);
+
+                //Only chains
+                let chainLinks = links.filter(e => e.fasciculatesIn);
+                let chainNodes = [];
+                let chainLyphs = [];
+                addRelatedToLinks(chainLinks, chainLyphs, chainNodes);
+                let chainGroup = this.modelClasses.Group.fromJSON({
+                    [$Field.id]    : getGenID($Prefix.query, this.queryCounter, "chains"),
+                    [$Field.name]  : `QR ${this.queryCounter}: chains`,
+                    [$Field.nodes] : chainNodes.map(e => e.id),
+                    [$Field.links] : chainLinks.map(e => e.id),
+                    [$Field.lyphs] : chainLyphs.map(e => e.id)
+                }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
+                this.graphData.groups.push(chainGroup);
+
+                //Only housing lyphs
+                let housingLyphs = lyphs.filter(e => e.bundles);
+                housingLyphs.forEach(e => {
+                    if (e.layerIn){
+                        housingLyphs.push(e.layerIn);
+                    }
+                });
+                let housingLinks = [];
+                let housingNodes = [];
+                addRelatedToLyphs(housingLyphs, housingLinks);
+                addRelatedToLinks(housingLinks, housingLyphs, housingNodes);
+                let housingGroup = this.modelClasses.Group.fromJSON({
+                    [$Field.id]    : getGenID($Prefix.query, this.queryCounter, "housing"),
+                    [$Field.name]  : `QR ${this.queryCounter}: housing`,
+                    [$Field.nodes] : housingNodes.map(e => e.id),
+                    [$Field.links] : housingLinks.map(e => e.id),
+                    [$Field.lyphs] : housingLyphs.map(e => e.id)
+                }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
+                this.graphData.groups.push(housingGroup);
 
                 this.graphData.logger.info(`A dynamic group containing ${nodes.length} nodes, ${links.length}, links and ${lyphs.length} lyphs was created`, group.id);
             } else {
@@ -500,6 +552,11 @@ export class WebGLSceneComponent {
         this.controls.enabled = !this.lockControls;
     }
 
+    toggleAntialias(){
+        this.antialias = !this.antialias;
+        this.renderer.antialias = this.antialias;
+    }
+
     getMouseOverEntity() {
         if (!this.graph) { return; }
         this.ray.setFromCamera( this.mouse, this.camera );
@@ -615,15 +672,15 @@ export class WebGLSceneComponent {
         if (!this._graphData){ return; }
         let ids = [...showScaffolds].map(g => g.id);
         (this._graphData.scaffolds||[]).forEach(g => {
+            if (!ids.includes(g.id)){
+                g.hide();
+            }
             if (ids.includes(g.id)){
                 g.show();
-            } else {
-                g.hide();
             }
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
-
 }
 
 @NgModule({

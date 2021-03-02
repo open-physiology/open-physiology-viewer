@@ -1616,7 +1616,7 @@
         "width": 50,
         "height": 50
       },
-      "hostedLyphs": [
+      "internalLyphs": [
         "60",
         "105",
         "63",
@@ -4558,7 +4558,7 @@
           {"hostedNodes": ["N19"]}
         ]
       },
-      "hostedLyphs": [
+      "internalLyphs": [
         "L56",
         "L60",
         "L64"
@@ -4623,7 +4623,7 @@
       "internalNodes": [
         "N8"
       ],
-      "hostedLyphs": [
+      "internalLyphs": [
         "L28"
       ]
     },
@@ -4682,7 +4682,7 @@
       "internalNodes": [
         "N25"
       ],
-      "hostedLyphs": [
+      "internalLyphs": [
         "L88"
       ]
     },
@@ -6004,7 +6004,7 @@
     {
       "id": "L116",
       "name": "Peripheral Nervous System",
-      "hostedLyphs": [
+      "internalLyphs": [
         "L92",
         "L93",
         "L107"

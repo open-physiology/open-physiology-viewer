@@ -1846,13 +1846,13 @@
       "id"   : "prt12",
       "name" : "Thorax",
       "points": [{"x": -30, "y": -100}, {"x": -30, "y": -75}, {"x": 30, "y": -75}, {"x": 30, "y": -100}],
-      "internalLyphs": ["dia"]
+      "hostedLyphs": ["dia"]
     },
     {
       "id"   : "prt13",
       "name" : "Abdomen",
       "points": [{"x": -75, "y": -100}, {"x": -75, "y": -75}, {"x": -30, "y": -75}, {"x": -30, "y": -100}],
-      "internalLyphs": ["abd_m"]
+      "hostedLyphs": ["abd_m"]
     },
     {
       "id"   : "prt14",

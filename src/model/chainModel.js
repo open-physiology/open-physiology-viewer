@@ -99,9 +99,7 @@ export class Chain extends GroupTemplate {
 
         function deriveFromLyphs(){
 
-            let lyphs = chain.lyphs.map(lyphID => findResourceByID(parentGroup.lyphs, lyphID) || {
-                "id": lyphID
-            });
+            let lyphs = chain.lyphs.map(lyphID => findResourceByID(parentGroup.lyphs, lyphID) || {[$Field.id]: lyphID});
 
             if (chain.lyphTemplate){
                 let template = getTemplate();

@@ -97,7 +97,7 @@
           {}
         ]
       },
-      "hostedLyphs": [
+      "internalLyphs": [
         "hillock",
         "dendrite_lyph_1"
       ]
@@ -141,7 +141,7 @@
           }
         ]
       },
-      "hostedLyphs": [
+      "internalLyphs": [
         "axonal_lyph_4",
         "axonal_lyph_5"
       ]

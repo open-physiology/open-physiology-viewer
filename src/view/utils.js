@@ -334,6 +334,7 @@ export function rectangleCurve(startV, endV){
  * @returns {EllipseCurve}
  */
 export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
+    console.log(startV, endV, centerV);
     let p = startV.clone().sub(centerV);
     let q = endV.clone().sub(centerV);
 

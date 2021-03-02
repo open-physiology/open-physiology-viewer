@@ -13,9 +13,7 @@ import {keys, entries} from 'lodash-bound';
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
-
 const QUERY_PREFIX = "/dynamic/demos/apinat/";
-
 
 @Component({
     selector: 'querySelectDialog',
@@ -95,7 +93,7 @@ export class QuerySelectDialog {
     status = "NEW";
     statusInfo = "";
 
-    //load queries from http://sparc-data.scicrunch.io:9000/scigraph/swagger.json
+    //TODO load queries from http://sparc-data.scicrunch.io:9000/scigraph/swagger.json
 
     constructor(http: HttpClient, dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.http  = http;
@@ -156,7 +154,7 @@ export class QuerySelectDialog {
                 res => {
                     this.status = res ? "OK" : "ERROR";
                     if (res !== undefined) {
-                        this.response = res;
+                        this.response = {query: this.selectedDescription, response: res};
                         this.statusInfo = "Retrieved subgraph with: " + (res.nodes||[]).length + " nodes and " + (res.edges||[]).length + " edges";
                     }
                 },

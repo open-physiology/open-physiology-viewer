@@ -1,6 +1,6 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Color, $Field, $Prefix, $SchemaClass, addColor, getGenID} from "./utils";
+import {$Color, $Field, $Prefix, $SchemaClass, addColor, showGroups} from "./utils";
 import {logger, $LogMsg} from "./logger";
 
 export class Component extends Resource {
@@ -47,15 +47,8 @@ export class Component extends Resource {
      * @param ids - selected component IDs
      */
     showGroups(ids){
-        this.show();
-        if (!ids) {return;}
-        (this.components||[]).forEach(g => {
-            if (ids.includes(g.id)){
-                g.show();
-            } else {
-                g.hide();
-            }
-        });
+        //this.show();
+        showGroups(this.components||[], ids);
     }
 
     /**
