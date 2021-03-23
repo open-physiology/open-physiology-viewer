@@ -17,7 +17,21 @@ import {
     THREE
 } from "./utils";
 
-const {Region, Lyph, Border, Wire} = modelClasses;
+const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
+
+/**
+ * Create visual object for shape
+ */
+Shape.prototype.createViewObjects = function(state) {
+    VisualResource.prototype.createViewObjects.call(this, state);
+};
+
+/**
+ * Update visual object for shape
+ */
+Shape.prototype.updateViewObjects = function(state) {
+    VisualResource.prototype.updateViewObjects.call(this, state);
+};
 
 /**
  * @property center
@@ -69,7 +83,7 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
 /**
  * Positions the point on the lyph surface
  * @param p0 - initial point (coordinates)
- * @returns {Vector3} transformed point (coordinates)
+ * @returns {Object} transformed point (coordinates)
  */
 Lyph.prototype.translate = function(p0) {
     let transformedLyph = this.layerIn ? this.layerIn : this;
@@ -92,6 +106,7 @@ Lyph.prototype.createViewObjects = function(state) {
         console.warn("Creating visual objects for an abstract lyph", this);
         return;
     }
+    Shape.prototype.createViewObjects.call(this, state);
 
     for (let i = 1; i < (this.layers || []).length; i++) {
         this.layers[i].prev = this.layers[i - 1];
@@ -186,45 +201,40 @@ Lyph.prototype.createViewObjects = function(state) {
     }
     //Do not create labels for layers and nested lyphs
     if (this.layerIn || this.internalIn) { return; }
-    this.createLabels(state);
+    this.createLabels();
 };
 
 /**
  * Update visual objects for a lyph
- * @param state
  */
 Lyph.prototype.updateViewObjects = function(state) {
+    Shape.prototype.updateViewObjects.call(this, state);
+
     if (!this.axis) { return; }
 
-    let viewObj = this.viewObjects["main"] = this.viewObjects["2d"];
-    if (!viewObj) {
-        this.createViewObjects(state);
-        viewObj = this.viewObjects["main"];
-        if (!viewObj) { return; }
-    }
-
-    if (state.showLyphs3d && this.viewObjects["3d"]){
-        viewObj = this.viewObjects["main"] = this.viewObjects["3d"];
+    let obj = this.viewObjects["main"] = this.viewObjects["2d"];
+    if (this.state.showLyphs3d && this.viewObjects["3d"]){
+        obj = this.viewObjects["main"] = this.viewObjects["3d"];
     }
 
     if (!this.layerIn) {//update label
         if (!this.internalIn) {
             if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
-                this.createViewObjects(state);
+                this.createViewObjects(this.state);
             }
         }
         //update lyph
-        viewObj.visible = this.isVisible && state.showLyphs;
+        obj.visible = this.isVisible && this.state.showLyphs;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
-        copyCoords(viewObj.position, this.center);
+        copyCoords(obj.position, this.center);
 
-        align(this.axis, viewObj, this.axis.reversed);
+        align(this.axis, obj, this.axis.reversed);
         if (this.angle){
             this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
         }
     } else {
-        viewObj.visible = state.showLayers;
+        obj.visible = this.state.showLayers;
     }
 
     //update layers
@@ -235,9 +245,8 @@ Lyph.prototype.updateViewObjects = function(state) {
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
 
-    this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Lyph));
+    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Lyph));
 };
-
 
 /**
  * @property polygonOffsetFactor
@@ -246,7 +255,7 @@ Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
     get: function() {
         return Math.min(
             ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
-                (this[prop].polygonOffsetFactor || 0) - 1: 0));
+                (this[prop].polygonOffsetFactor || -1) - 1: -1));
     }
 });
 
@@ -256,7 +265,7 @@ Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
 /**
  * Positions a point on a region surface
  * @param p0 - initial point (coordinates)
- * @returns {Vector3} transformed point (coordinates)
+ * @returns {Object} transformed point (coordinates)
  */
 Region.prototype.translate = function (p0) {
     if (!p0 || !this.viewObjects["main"]) { return; }
@@ -268,6 +277,7 @@ Region.prototype.translate = function (p0) {
  * @param state
  */
 Region.prototype.createViewObjects = function(state) {
+    Shape.prototype.createViewObjects.call(this, state);
     if (this.facets){
         this.points = [];
         let prevAnchor = null;
@@ -311,26 +321,34 @@ Region.prototype.createViewObjects = function(state) {
     obj.userData = this;
     this.viewObjects['main'] = obj;
     this.border.createViewObjects(state);
-    this.createLabels(state);
+    this.createLabels();
 };
 
 /**
  * Update visual objects of a region
- * @param {Object} state - graph configuration
  */
 Region.prototype.updateViewObjects = function(state) {
+    Shape.prototype.updateViewObjects.call(this, state);
     this.border.updateViewObjects(state);
-    this.updateLabels(state,  this.center.clone().addScalar(state.labelOffset.Region));
+    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 };
 
+Region.prototype.relocate = function (delta){
+    (this.borderAnchors||[]).forEach(anchor => {
+        anchor.relocate(delta);
+    });
+    (this.facets||[]).forEach(facet => facet.updateViewObjects(this.state));
+    this.updateViewObjects(this.state);
+}
 
 /**
  * @property polygonOffsetFactor
  */
 Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
-    get: function() { return 1; }
+    get: function() {
+        return this.internalIn? (this.internalIn.polygonOffsetFactor || 0) - 1 : 0;
+    }
 });
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -349,6 +367,7 @@ Border.prototype.getBoundingBox = function(){
  * @param state
  */
 Border.prototype.createViewObjects = function(state){
+    VisualResource.prototype.createViewObjects.call(this, state);
     //Make sure we always have border objects regardless of data input
     for (let i = 0; i < this.borders.length; i++){
         this.borders[i]::merge({
@@ -364,10 +383,9 @@ Border.prototype.createViewObjects = function(state){
 
 /**
  * Update visual objects for a shape border
- * @param state
  */
 Border.prototype.updateViewObjects = function(state){
-
+    VisualResource.prototype.updateViewObjects.call(this, state);
     /**
      * Assigns fixed position on a grid inside border
      * @param link    - link to place inside border
@@ -421,8 +439,6 @@ Border.prototype.updateViewObjects = function(state){
 
         copyCoords(link.source, v1);
         copyCoords(link.target, v2);
-
-        //link.polygonOffsetFactor = this.polygonOffsetFactor - 1;
     };
 
     /**
@@ -492,7 +508,7 @@ Border.prototype.updateViewObjects = function(state){
         //Position hostedNodes exactly on the link shape
         let borderLyph = this.borders[i].conveyingLyph;
         if (borderLyph && borderLyph.viewObjects) {
-            borderLyph.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+            borderLyph.viewObjects::values().filter(obj => !!obj).forEach(obj => this.state.graphScene.add(obj));
         }
         if (this.borders[i].hostedNodes){
             //position nodes on the lyph border (exact shape)

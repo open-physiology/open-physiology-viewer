@@ -790,7 +790,8 @@
           "x": -40,
           "y": 40
         }
-      ]
+      ],
+      "internalIn": "d2"
     },
     {
       "id": "f1",
@@ -840,7 +841,8 @@
         "w-N-H",
         "w-H-E",
         "w-N-E"
-      ]
+      ],
+      "internalRegions": ["n1A", "n1P", "n1T", "n1H", "n1G"]
     },
     {
       "id": "n2",
@@ -860,6 +862,12 @@
         "w-N-T",
         "w-T-K",
         "w-N-K"
+      ],
+      "internalRegions": [
+        "n3A",
+        "n3M",
+        "n3L",
+        "n3U"
       ]
     },
     {
@@ -870,6 +878,11 @@
         "w-N-K",
         "w-K-H",
         "w-N-H"
+      ],
+      "internalRegions": [
+        "n4O",
+        "n4R",
+        "n4V"
       ]
     },
     {
@@ -992,6 +1005,7 @@
           "y": 5
         }
       ],
+      "internalIn": "n2",
       "color": "#eeffff"
     },
     {

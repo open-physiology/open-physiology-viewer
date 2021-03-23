@@ -967,16 +967,21 @@
           "relatedTo": "internalAnchors"
         },
         "onBorder": {
-          "description": "ID or reference of the region in which this anchor defines a border point",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Region"
-            }
-          ],
-          "relatedTo": "borderAnchors"
+          "description": "IDs or references of the region in which this anchor defines a border point",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          },
+          "relatedTo": "borderAnchors",
+          "advanced": true,
+          "readOnly": true
         },
         "sourceOf"  : {
           "description": "Wires that start in this anchor",
@@ -1247,6 +1252,34 @@
           },
           "relatedTo": "hostedBy",
           "advanced": true
+        },
+        "internalIn"     : {
+          "description": "ID or reference of the region that contains the current region as its part",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "internalRegions",
+          "advanced": true
+        },
+        "internalRegions": {
+          "description": "Regions that are internal parts of the given region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          },
+          "relatedTo": "internalIn"
         }
       }
     },
@@ -1395,7 +1428,7 @@
           "advanced": true
         },
         "internalIn"     : {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "description": "ID or reference of the lyph that contains the given lyph as its part",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -1407,14 +1440,8 @@
           "relatedTo": "internalLyphs",
           "advanced": true
         },
-        "internalLyphColumns": {
-          "description": "Defines number of columns in the grid layout for the internal lyphs",
-          "type": "number",
-          "default": 1,
-          "advanced": true
-        },
         "internalLyphs": {
-          "description": "Lyphs that should be positioned on the given lyph (corresponding axis (link and two nodes) is generated)",
+          "description": "Lyphs that are internal parts of the given lyph",
           "type": "array",
           "items": {
             "anyOf": [
@@ -1443,6 +1470,12 @@
           },
           "relatedTo": "internalIn",
           "uniqueItems": true
+        },
+        "internalLyphColumns": {
+          "description": "Defines number of columns in the grid layout for the internal lyphs",
+          "type": "number",
+          "default": 1,
+          "advanced": true
         },
         "internalLyphsInLayers"  : {
           "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",

@@ -5,7 +5,7 @@ import {MatSliderModule, MatDialog, MatDialogModule} from '@angular/material'
 import FileSaver  from 'file-saver';
 import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';
-import ThreeForceGraph   from '../view/threeForceGraph';
+import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
@@ -23,7 +23,7 @@ const WindowResize = require('three-window-resize');
 @Component({
     selector: 'webGLScene',
     template: `
-        <section id="apiLayoutPanel" class="w3-row">
+        <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right" style="position:absolute; right:0">
@@ -86,11 +86,21 @@ const WindowResize = require('three-window-resize');
                             <i *ngIf="graphData.logger.status === graphData.logger.statusOptions.OK"
                                class="fa fa-check-circle" style="color:green"> </i>
                         </button>
+<!--                        <button class="w3-bar-item w3-hover-light-grey"-->
+<!--                                (click)="testRelocate()" title="Reposition selected anchor">-->
+<!--                            <i class="fa fa-train"> </i>-->
+<!--                        </button>-->
+<!--                        <button class="w3-bar-item w3-hover-light-grey"-->
+<!--                                (click)="testResize()" title="Expand selected anchor">-->
+<!--                            <i class="fa fa-truck"> </i>-->
+<!--                        </button>-->
+
                     </section>
 
                     <!--Main content-->
-                    <canvas #canvas> </canvas>
+<!--                    <div id="graph"></div>-->                   
                 </section>
+                <canvas #canvas> </canvas>
             </section>
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
@@ -168,9 +178,9 @@ export class WebGLSceneComponent {
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
-    scaleFactor    = 8; //TODO make this a graph parameter with complete layout update on change
+    scaleFactor    = 10;
     labelRelSize   = 0.1 * this.scaleFactor;
-    lockControls   = false;
+    lockControls   = true;
     isConnectivity = true;
 
     @Input() modelClasses;
@@ -197,9 +207,11 @@ export class WebGLSceneComponent {
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
             this._graphData.showGroups(this.config.showGroups);
             /*Map initial positional constraints to match the scaled image*/
-            this._graphData.scale(this.scaleFactor);
             this.selected = null;
-            if (this.graph) { this.graph.graphData(this._graphData); }
+            this._graphData.scale(this.scaleFactor);
+            if (this.graph) {
+                this.graph.graphData(this._graphData)
+            }
         }
     }
 
@@ -213,6 +225,11 @@ export class WebGLSceneComponent {
         this.highlight(entity, this.highlightColor, entity !== this._selected);
         this._highlighted = entity;
         this.highlightedItemChange.emit(entity);
+
+        if (this.graph && this.lockControls) {
+            const obj = entity && entity.viewObjects? entity.viewObjects["main"]: null;
+            this.graph.select(obj);
+        }
     }
 
     @Input('selected') set selected(entity){
@@ -297,9 +314,9 @@ export class WebGLSceneComponent {
         this.controls.maxZoom = 10;
 
         this.controls.enablePan = true;
-
-        this.controls.minPolarAngle = 0;
+        this.controls.minPolparAngle = 0;
         this.controls.maxPolarAngle = Math.PI/2;
+        this.controls.enabled = !this.lockControls;
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
@@ -527,7 +544,19 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
-        this.graph = new ThreeForceGraph().graphData(this.graphData);
+        this.graph = new ThreeForceGraph()
+            .canvas(this.canvas.nativeElement)
+            .scaleFactor(this.scaleFactor)
+            .onAnchorDragEnd((obj, delta) => {
+                obj.userData.resizeRegion(delta);
+            })
+            .onWireDragEnd((obj, delta) => {
+                obj.userData.relocate(delta);
+            })
+            .onRegionDragEnd((obj, delta) => {
+                obj.userData.relocate(delta);
+            })
+            .graphData(this.graphData);
 
         const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && (typeof layout[key] !== 'undefined');
         const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
@@ -545,6 +574,16 @@ export class WebGLSceneComponent {
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
+
+        // const elem = document.getElementById('graph');
+        // const Graph = ForceGraph()(elem)
+        //     .nodeRelSize(6)
+        //     .nodeAutoColorBy('id')
+        //     .linkColor(() => 'rgba(0,0,0,0.2)')
+        //     .linkDirectionalParticles(1)
+        //     .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
+        //     .onNodeClick(node => {})
+        //     .graphData(this.graphData);
     }
 
     toggleLockControls(){
@@ -644,9 +683,13 @@ export class WebGLSceneComponent {
         this.selected = this.getMouseOverEntity();
     }
 
+    onClick() {
+    }
+
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('dblclick', () => this.onDblClick(), false );
+        //window.addEventListener('click', () => this.onClick(), false );
     }
 
     onMouseMove(evt) {
@@ -681,6 +724,19 @@ export class WebGLSceneComponent {
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
+
+    // testRelocate(){
+    //     if (this.selected && this.selected.class === "Anchor"){
+    //         this.selected.relocateRegion({x: 10, y: 10});
+    //     }
+    // }
+    //
+    // testResize(){
+    //     if (this.selected && this.selected.class === "Anchor"){
+    //         this.selected.resizeRegion({x: -10, y: -10});
+    //     }
+    // }
+
 }
 
 @NgModule({

@@ -1,7 +1,7 @@
 import {values} from 'lodash-bound';
 import {modelClasses} from "../model/index.js";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
-import {copyCoords, extractCoords, getPoint, THREE} from "./utils";
+import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
 import './shapeView';
 
@@ -86,7 +86,6 @@ Group.prototype.createViewObjects = function(state){
 
 /**
  * Update visual objects for group resources
- * @param state
  */
 Group.prototype.updateViewObjects = function(state){
     //Update scaffolds
@@ -139,7 +138,6 @@ Group.prototype.updateViewObjects = function(state){
             let layers2 = lyph2.layers || [lyph2];
             if (coalescence.topology === Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING) {
                 //Non-symmetric - first lyph is a "housing lyph"
-                //let same = commonTemplate(lyph, layers2[layers2.length - 1]);
                 if (layers2.length > 0){
                     layers2[layers2.length - 1].setMaterialVisibility( !state.showCoalescences);// || !same);
                 }
@@ -166,7 +164,6 @@ Group.prototype.updateViewObjects = function(state){
     this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
 };
 
-
 /**
  * Create visual objects for Scaffold resources
  * @param state
@@ -190,7 +187,6 @@ Component.prototype.createViewObjects = function(state){
 
 /**
  * Update visual objects for group resources
- * @param state
  */
 Component.prototype.updateViewObjects = function(state){
     this.visibleAnchors.forEach(anchor => { anchor.updateViewObjects(state); });

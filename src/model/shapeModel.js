@@ -83,6 +83,7 @@ export class Shape extends VisualResource {
  * @property height
  * @property length
  * @property thickness
+ * @property fasciculatesIn
  * @property internalNodesInLayers
  */
 export class Lyph extends Shape {
@@ -413,7 +414,7 @@ export class Lyph extends Shape {
         this.conveys = link;
 
         return link;
-    };
+    }
 
     assignAxisLength() {
         if (!this.axis){
@@ -432,14 +433,43 @@ export class Lyph extends Shape {
             }
             this.axis.length  = this.axis.length || 5;
         }
-    };
+    }
+
+    /**
+     * Determine whether the lyph has a common supertype with a given lyph
+     * @param lyph
+     * @returns {*}
+     */
+    static hasCommonTemplateWith(lyph){
+        if (!lyph) { return false; }
+        if (this === lyph)  { return true; }
+        if (this.generatedFrom && this.generatedFrom === lyph.generatedFrom) { return true; }
+        let res = false;
+        if (this.supertype) {
+            res = this.supertype.hasCommonTemplateWith(lyph);
+        }
+        if (!res && this.cloneOf){
+            res = this.cloneOf.hasCommonTemplateWith(lyph);
+        }
+        if (!res && lyph.supertype){
+            res = this.hasCommonTemplateWith(lyph.supertype);
+        }
+        if (!res && lyph.cloneOf){
+            res = this.hasCommonTemplateWith(lyph.cloneOf);
+        }
+        return res;
+    }
+
 }
 
 /**
  * Class that models regions
  * @class
  * @property facets
+ * @property borderAnchors
  * @property internalAnchors
+ * @property internalRegions
+ * @property internalIn
  * @property hostedGroup
  */
 export class Region extends Shape {

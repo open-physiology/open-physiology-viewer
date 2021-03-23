@@ -1,4 +1,4 @@
-import {modelClasses} from "../model/index.js";
+import {modelClasses} from "../model";
 import {SpriteText2D} from "three-text2d";
 
 import {
@@ -21,15 +21,14 @@ const {VisualResource, Link, Node, Anchor, Wire} = modelClasses;
 
 /**
  * Create resource labels
- * @param {Object} state - graph configuration, relevant parameters: fontParams
  */
-VisualResource.prototype.createLabels = function(state){
-    if (this.skipLabel || !state.showLabels) { return; }
-    let labelKey = state.labels[this.constructor.name];
+VisualResource.prototype.createLabels = function(){
+    if (this.skipLabel || !this.state.showLabels) { return; }
+    let labelKey = this.state.labels[this.constructor.name];
     this.labels = this.labels || {};
 
     if (!this.labels[labelKey] && this[labelKey]) {
-        this.labels[labelKey] = new SpriteText2D(this[labelKey], state.fontParams);
+        this.labels[labelKey] = new SpriteText2D(this[labelKey], this.state.fontParams);
     }
 
     if (this.labels[labelKey]){
@@ -42,16 +41,15 @@ VisualResource.prototype.createLabels = function(state){
 
 /**
  * Updates resource labels
- * @param {Object}  state    - graph configuration, relevant parameters: showLabels and labelRelSize
- * @param {Vector3} position - label position
+ * @param {Object} position - label position
  */
-VisualResource.prototype.updateLabels = function(state, position){
-    if (this.skipLabel || !state.showLabels) { return; }
-    let labelKey  = state.labels[this.constructor.name];
+VisualResource.prototype.updateLabels = function(position){
+    if (this.skipLabel || !this.state.showLabels) { return; }
+    let labelKey = this.state.labels[this.constructor.name];
     if (this.labels[labelKey]){
-        this.labels[labelKey].visible = state.showLabels[this.constructor.name];
+        this.labels[labelKey].visible = this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
-            this.labels[labelKey].scale.set(state.labelRelSize, state.labelRelSize, state.labelRelSize);
+            this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
             copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];
         }
@@ -62,27 +60,27 @@ VisualResource.prototype.updateLabels = function(state, position){
 
 /**
  * Create visual object for abstract visual resource
- * @param state
  */
 VisualResource.prototype.createViewObjects = function(state) {
+    this.state = state; //Save graph state
 };
-
 
 /**
  * Update visual object for abstract visual resource
- * @param state
  */
 VisualResource.prototype.updateViewObjects = function(state) {
+    let labelKey = state.labels[this.constructor.name];
+    if (!this.viewObjects["main"] || (!this.skipLabel && !this.labels[labelKey] && this[labelKey])) {
+        this.createViewObjects(state);
+    }
 };
-
 
 /**
  * Create visual objects for a node
  * @param state
  */
 Node.prototype.createViewObjects = function(state) {
-
-    //Nodes
+    VisualResource.prototype.createViewObjects.call(this, state);
     if (!this.viewObjects["main"]) {
         let geometry = new THREE.SphereGeometry(this.val * state.nodeRelSize,
             state.nodeResolution, state.nodeResolution);
@@ -97,20 +95,14 @@ Node.prototype.createViewObjects = function(state) {
     }
 
     //Labels
-    this.createLabels(state);
+    this.createLabels();
 };
 
 /**
  * Update visual objects for a node
- * @param state
  */
 Node.prototype.updateViewObjects = function(state) {
-    //Node
-    if (!this.viewObjects["main"] ||
-        (!this.skipLabel && !this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
-        this.createViewObjects(state);
-    }
-
+    VisualResource.prototype.updateViewObjects.call(this, state);
     if (this.anchoredTo){
         copyCoords(this, this.anchoredTo);
     } else {
@@ -121,23 +113,21 @@ Node.prototype.updateViewObjects = function(state) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
     }
-
     copyCoords(this.viewObjects["main"].position, this);
 
-    this.updateLabels(state, this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
+    this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Node));
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
     get: function() { return 0; }
 });
 
-
 /**
  * Create visual objects for a link
  * @param state
  */
 Link.prototype.createViewObjects = function(state){
-
+    VisualResource.prototype.createViewObjects.call(this, state);
     //Link
     if (!this.viewObjects["main"]) {
         let material;
@@ -206,7 +196,7 @@ Link.prototype.createViewObjects = function(state){
     }
 
     //Link label
-    this.createLabels(state);
+    this.createLabels();
 
     //Icon (lyph)
     if (this.conveyingLyph) {
@@ -266,14 +256,11 @@ Link.prototype.getCurve = function(start, end){
 
 /**
  * Update visual objects for a link
- * @param state
  */
 Link.prototype.updateViewObjects = function(state) {
-    if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
-        this.createViewObjects(state);
-    }
-    const obj = this.viewObjects["main"];
+    VisualResource.prototype.updateViewObjects.call(this, state);
 
+    const obj = this.viewObjects["main"];
     let start = extractCoords(this.source);
     let end   = extractCoords(this.target);
 
@@ -308,7 +295,7 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Link));
+    this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Link));
 
     if (this.conveyingLyph){
         this.conveyingLyph.updateViewObjects(state);
@@ -330,7 +317,7 @@ Link.prototype.updateViewObjects = function(state) {
             let arrow  = obj.children[0];
             let dir = direction(this.source, this.target);
             let length = curve && curve.getLength? curve.getLength(): dir.length();
-            let t = state.arrowLength / length;
+            let t = this.state.arrowLength / length;
             if (curve && curve.getTangent){
                 dir = curve.getTangent(1 - t);
             }
@@ -366,11 +353,13 @@ Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
     }
 });
 
+
 /**
  * Create visual resources for an anchor
  * @param state
  */
 Anchor.prototype.createViewObjects = function(state){
+    VisualResource.prototype.createViewObjects.call(this, state);
     if (!this.viewObjects["main"]) {
         let geometry = new THREE.CircleGeometry(10);
         let material = MaterialFactory.createMeshBasicMaterial({
@@ -384,20 +373,18 @@ Anchor.prototype.createViewObjects = function(state){
     }
 
     //Labels
-    this.createLabels(state);
+    this.createLabels();
 };
 
 /**
  * Update visual resources for an anchor
- * @param state
  */
 Anchor.prototype.updateViewObjects = function(state) {
-    if (!this.viewObjects["main"] ||
-        (!this.skipLabel && !this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
-        this.createViewObjects(state);
-    }
+    VisualResource.prototype.updateViewObjects.call(this, state);
     if (this.layout) {
-        copyCoords(this, extractCoords(this.layout));
+        let coords = extractCoords(this.layout);
+        coords.z = 1; //put anchors in front of regions
+        copyCoords(this, coords);
     }
     if (this.hostedBy) {
         let wire = this.hostedBy;
@@ -414,21 +401,70 @@ Anchor.prototype.updateViewObjects = function(state) {
     }
 
     copyCoords(this.viewObjects["main"].position, this);
-    this.updateLabels(state, this.viewObjects["main"].position.clone().addScalar(state.labelOffset.Node));
+    this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Anchor));
 };
 
+Anchor.prototype.relocate = function(delta){
+    let v = extractCoords(delta);
+    let p0 = extractCoords(this);
+    let p = p0.clone().add(v);
+    copyCoords(this.layout, p);
+    this.updateViewObjects(this.state);
+}
+
+Anchor.prototype.resizeRegion = function(delta) {
+    this.relocate(delta);
+    (this.onBorder||[]).forEach(region => {
+        region.updateViewObjects(this.state);
+    });
+
+    //let base = extractCoords(this);
+    // let dr = 10;
+    // let relocateY = new Set();
+    // let relocateX = new Set();
+    //
+    // function relocateAdjacent(wire, prop){
+    //     if ((wire[prop].x - base.x) < dr) {
+    //         relocateX.add(wire[prop]);
+    //     } else {
+    //         if ((wire[prop].y - base.y) < dr){
+    //             relocateY.add(wire[prop]);
+    //         }
+    //     }
+    // }
+    //
+    // (this.sourceOf||[]).forEach(wire => relocateAdjacent(wire, "target"));
+    // (this.targetOf||[]).forEach(wire => relocateAdjacent(wire, "source"));
+    //
+    // let rYs = [...relocateY];
+    // let rXs = [...relocateX];
+    //
+    // let d = new THREE.Vector3(0, delta.y, 0);
+    // rYs.forEach(anchor => anchor.relocate(d));
+    //
+    // d = new THREE.Vector3(delta.x, 0, 0);
+    // rXs.forEach(anchor => anchor.relocate(d));
+    //
+    // const updateWires = (wire, prop) => {
+    //     wire.updateViewObjects(this.state);
+    //     (wire[prop].sourceOf||[]).forEach(w => w.updateViewObjects(this.state));
+    //     (wire[prop].targetOf||[]).forEach(w => w.updateViewObjects(this.state));
+    // }
+    //
+    // (this.sourceOf||[]).forEach(wire => updateWires(wire, "target"));
+    // (this.targetOf||[]).forEach(wire => updateWires(wire, "source"));
+}
 
 Object.defineProperty(Anchor.prototype, "polygonOffsetFactor", {
-    get: function() { return 0; }
+    get: function() { return -10; }
 });
-
 
 /**
  * Create visual objects for a wire
  * @param state
  */
 Wire.prototype.createViewObjects = function(state){
-
+    VisualResource.prototype.createViewObjects.call(this, state);
     if (!this.viewObjects["main"]) {
         let material;
         if (this.stroke === Link.LINK_STROKE.DASHED) {
@@ -482,7 +518,7 @@ Wire.prototype.createViewObjects = function(state){
     }
 
     //Wire label
-    this.createLabels(state);
+    this.createLabels();
 };
 
 Wire.prototype.getCurve = function(start, end){
@@ -498,19 +534,21 @@ Wire.prototype.getCurve = function(start, end){
     return curve;
 };
 
+Wire.prototype.relocate = function(delta){
+    ['source', 'target'].forEach(prop =>
+        this[prop].relocate(delta)
+    )
+    this.updateViewObjects(this.state);
+}
+
 /**
  * Update visual objects for a wire
- * @param state
  */
 Wire.prototype.updateViewObjects = function(state) {
-    if (!this.viewObjects["main"] || (!this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
-        this.createViewObjects(state);
-    }
-    const obj = this.viewObjects["main"];
+    VisualResource.prototype.updateViewObjects.call(this, state);
 
     let start = extractCoords(this.source);
     let end   = extractCoords(this.target);
-
     let curve = this.getCurve(start, end);
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
@@ -529,10 +567,9 @@ Wire.prototype.updateViewObjects = function(state) {
         }
     });
 
-    this.updateLabels(state, this.center.clone().addScalar(state.labelOffset.Link));
+    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Wire));
 
-    //Do not update wires?
-
+    const obj = this.viewObjects["main"];
     if (obj) {
         if (this.stroke === Link.LINK_STROKE.THICK){
             let coordArray = [];

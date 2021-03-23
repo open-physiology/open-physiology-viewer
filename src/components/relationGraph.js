@@ -366,7 +366,7 @@ export class RelGraph {
 
         //Drag
 
-        const nodeDrag = d3.drag()
+        const AnchorDrag = d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended);
@@ -415,7 +415,7 @@ export class RelGraph {
                 d.viewObjects["node"] = this;
             });
 
-            node.call(nodeDrag);
+            node.call(AnchorDrag);
         });
 
         //Update

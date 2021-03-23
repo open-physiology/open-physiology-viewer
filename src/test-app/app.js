@@ -13,7 +13,7 @@ import {WebGLSceneModule} from '../components/webGLScene';
 import {ResourceEditorModule} from '../components/gui/resourceEditor';
 import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
 import {LayoutEditorModule} from "../components/layoutEditor";
-import {RelGraphModule} from "../components/relationGraph";
+//import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
 import {modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold, $SchemaClass} from '../model/index';
@@ -96,11 +96,11 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 </mat-tab>
 
                 <!--Relationship graph-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
-                    <relGraph [graphData]="_graphData"> 
-                    </relGraph>
-                </mat-tab>
+<!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
+<!--                    <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>-->
+<!--                    <relGraph [graphData]="_graphData"> -->
+<!--                    </relGraph>-->
+<!--                </mat-tab>-->
 
                 <!--Resource editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
@@ -398,7 +398,9 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
-        BrowserAnimationsModule, ResourceEditorModule, RelGraphModule, MatTabsModule, ModelRepoPanelModule, MainToolbarModule, LayoutEditorModule],
+        BrowserAnimationsModule, ResourceEditorModule,
+        //RelGraphModule,
+        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, LayoutEditorModule],
 	declarations: [TestApp],
     bootstrap   : [TestApp],
     providers   : [

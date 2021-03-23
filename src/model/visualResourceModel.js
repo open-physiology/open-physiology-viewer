@@ -48,18 +48,6 @@ export class VisualResource extends Resource{
 }
 
 /**
- * The class to represent scaffold anchor points
- */
-export class Anchor extends VisualResource {
-}
-
-/**
- * The class to represent scaffold wires
- */
-export class Wire extends VisualResource {
-}
-
-/**
  *  The class to visualize Node resources in the force-directed graphs
  * @class
  * @property {number} val
@@ -382,3 +370,15 @@ export class Link extends VisualResource {
  * The class to model Material resources
  */
 export class Material extends VisualResource {}
+
+/**
+ * The class to represent scaffold anchor points
+ */
+export class Anchor extends VisualResource {
+}
+
+/**
+ * The class to represent scaffold wires
+ */
+export class Wire extends VisualResource {
+}

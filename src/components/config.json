@@ -8,5 +8,6 @@
       "uri" : "iri"
     }
   },
+  "mainURL": "https://github.com/open-physiology/apinatomy-models",
   "repoURL": "https://api.github.com/repos/open-physiology/open-physiology-viewer/contents/test/data"
 }

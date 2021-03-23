@@ -310,6 +310,7 @@
       "source": "L",
       "target": "P",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {
         "x": 0,
         "y": 0
@@ -322,6 +323,7 @@
       "source": "P",
       "target": "S",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {
         "x": 0,
         "y": 0
@@ -334,6 +336,7 @@
       "source": "S",
       "target": "A",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {
         "x": 0,
         "y": 0
@@ -346,6 +349,7 @@
       "source": "A",
       "target": "L",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {
         "x": 0,
         "y": 0
@@ -382,6 +386,7 @@
       "source": "B",
       "target": "O",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {"x": 0, "y": 0},
       "color": "#006400"
     },
@@ -391,6 +396,7 @@
       "source": "O",
       "target": "R",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {"x": 0, "y": 0},
       "color": "#006400"
     },
@@ -400,6 +406,7 @@
       "source": "R",
       "target": "M",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {"x": 0, "y": 0},
       "color": "#006400"
     },
@@ -409,6 +416,7 @@
       "source": "M",
       "target": "B",
       "geometry": "arc",
+      "stroke": "thick",
       "arcCenter": {"x": 0, "y": 0},
       "color": "#006400"
     },
@@ -782,7 +790,8 @@
           "x": -40,
           "y": 40
         }
-      ]
+      ],
+      "internalIn": "d2"
     },
     {
       "id": "f1",
@@ -832,7 +841,8 @@
         "w-N-H",
         "w-H-E",
         "w-N-E"
-      ]
+      ],
+      "internalRegions": ["n1A", "n1P", "n1T", "n1H", "n1G"]
     },
     {
       "id": "n2",
@@ -852,6 +862,12 @@
         "w-N-T",
         "w-T-K",
         "w-N-K"
+      ],
+      "internalRegions": [
+        "n3A",
+        "n3M",
+        "n3L",
+        "n3U"
       ]
     },
     {
@@ -862,6 +878,11 @@
         "w-N-K",
         "w-K-H",
         "w-N-H"
+      ],
+      "internalRegions": [
+        "n4O",
+        "n4R",
+        "n4V"
       ]
     },
     {
@@ -984,6 +1005,7 @@
           "y": 5
         }
       ],
+      "internalIn": "n2",
       "color": "#eeffff"
     },
     {

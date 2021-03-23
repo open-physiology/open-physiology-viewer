@@ -6,31 +6,6 @@ import tinycolor from 'tinycolor2';
 const ThreeBSP = require('three-js-csg')(THREE);
 
 /**
- * Determines whether two lyphs have a common supertype
- * @param lyph1
- * @param lyph2
- * @returns {*}
- */
-export const commonTemplate = (lyph1, lyph2) => {
-    if (!lyph1 || !lyph2) { return false; }
-    if (lyph1 === lyph2)  { return true; }
-    if (lyph1.generatedFrom && lyph1.generatedFrom === lyph2.generatedFrom) { return true; }
-    if (lyph1.supertype) {
-        if (lyph2.supertype) {
-            return commonTemplate(lyph1.supertype, lyph2.supertype);
-        }
-        if (lyph2.cloneOf){
-            return commonTemplate(lyph1, lyph2.cloneOf);
-        }
-    }
-    if (lyph1.cloneOf){
-        return commonTemplate(lyph2, lyph1.cloneOf);
-    }
-    return false;
-};
-
-
-/**
  * Get a point on a curve
  * @param curve  - THREE.js curve
  * @param s      - start point at the curve
@@ -284,7 +259,7 @@ export function createMeshWithBorder(shape, params = {}) {
 
     let borderParams = params::defaults({
         color   : tinycolor(params.color).darken(20), //20% darker color than surface
-        opacity : 1,
+        opacity : 0.5,
         polygonOffsetFactor: params.polygonOffsetFactor - 1
     });
     let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
@@ -295,8 +270,8 @@ export function createMeshWithBorder(shape, params = {}) {
 
 /**
  * Create a curve path resembling a semi-rectangle with rounded corners
- * @param {Vector3} startV                  - start coordinates
- * @param {Vector3} endV                    - end coordinates
+ * @param {Object} startV                  - start coordinates
+ * @param {Object} endV                    - end coordinates
  * @returns {CurvePath<Vector> | CurvePath} - curve path
  */
 export function rectangleCurve(startV, endV){
@@ -334,7 +309,6 @@ export function rectangleCurve(startV, endV){
  * @returns {EllipseCurve}
  */
 export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
-    console.log(startV, endV, centerV);
     let p = startV.clone().sub(centerV);
     let q = endV.clone().sub(centerV);
 
@@ -352,8 +326,8 @@ export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
 
 /**
  * Create a cubic Bezier curve resembling a semicircle
- * @param {Vector3} startV      - start coordinates
- * @param {Vector3} endV        - end coordinates
+ * @param {Object} startV      - start coordinates
+ * @param {Object} endV        - end coordinates
  * @returns {CubicBezierCurve3} - cubic Bezier curve
  */
 export function semicircleCurve(startV, endV){
@@ -372,7 +346,7 @@ export function semicircleCurve(startV, endV){
 /**
  * Create a vector from an object that contains coordinate fields x, y, and z
  * @param {Object} source - object with fields x, y, and z
- * @returns {Vector3}     - 3d vector
+ * @returns {Object}     - 3d vector
  */
 export function extractCoords(source){
     if (source) {
@@ -395,8 +369,8 @@ export function align(link, obj, reversed = false){
 
 /**
  * Compute the angle between two 3d vectors
- * @param {Vector3} v1 first vector
- * @param {Vector3} v2 second vector
+ * @param {Object} v1 first vector
+ * @param {Object} v2 second vector
  * @returns {number} computed angle between the given vectors
  */
 export function angle(v1, v2){
@@ -406,8 +380,8 @@ export function angle(v1, v2){
 
 /**
  * Create a vector between two 3d points
- * @param {Vector3} source  source coordinates
- * @param {Vector3} target  target coordinates
+ * @param {Object} source  source coordinates
+ * @param {Object} target  target coordinates
  * @returns {null}
  */
 export function direction(source, target){
@@ -422,7 +396,7 @@ export function direction(source, target){
 /**
  * Return the center of mass given a set of control points
  * @param {Array<Vector3>} points   control points
- * @returns {Vector3}               coordinates of the center of mass
+ * @returns {Object}               coordinates of the center of mass
  */
 export function getCenterOfMass(points){
     let middle = new THREE.Vector3(0, 0, 0);
@@ -438,7 +412,7 @@ export function getCenterOfMass(points){
 /**
  * Find coordinates of the central point of the given mesh
  * @param {Mesh} mesh three.js mesh object
- * @returns {Vector3} coordinates of the mesh center
+ * @returns {Object} coordinates of the mesh center
  */
 export function getCenterPoint(mesh) {
     let boundingBox = getBoundingBox(mesh);
