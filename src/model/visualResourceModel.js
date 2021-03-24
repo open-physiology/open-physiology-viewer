@@ -375,6 +375,13 @@ export class Material extends VisualResource {}
  * The class to represent scaffold anchor points
  */
 export class Anchor extends VisualResource {
+    /**
+     * Determines whether the anchor's position is constrained in the model
+     */
+    get isConstrained() {
+        return (this.hostedBy && this.hostedBy.isVisible) ||
+            (this.internalIn && this.internalIn.isVisible);
+    }
 }
 
 /**

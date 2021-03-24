@@ -185,6 +185,8 @@ export class WebGLSceneComponent {
 
     @Input() modelClasses;
 
+    //TODO add button to return camera to initial position
+
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
@@ -548,7 +550,7 @@ export class WebGLSceneComponent {
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)
             .onAnchorDragEnd((obj, delta) => {
-                obj.userData.resizeRegion(delta);
+                obj.userData.relocate(delta);
             })
             .onWireDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
@@ -574,16 +576,6 @@ export class WebGLSceneComponent {
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
-
-        // const elem = document.getElementById('graph');
-        // const Graph = ForceGraph()(elem)
-        //     .nodeRelSize(6)
-        //     .nodeAutoColorBy('id')
-        //     .linkColor(() => 'rgba(0,0,0,0.2)')
-        //     .linkDirectionalParticles(1)
-        //     .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
-        //     .onNodeClick(node => {})
-        //     .graphData(this.graphData);
     }
 
     toggleLockControls(){

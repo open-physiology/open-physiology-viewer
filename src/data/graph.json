@@ -3315,18 +3315,12 @@
         },
         {
           "id": "n2GA",
-          "layout": {
-            "x": -80,
-            "y": 17.5
-          },
+          "hostedBy": "wire_n2G_2",
           "skipLabel": true
         },
         {
           "id": "n2GB",
-          "layout": {
-            "x": -5,
-            "y": 17.5
-          },
+          "hostedBy": "wire_n2G_4",
           "skipLabel": true
         }
       ],

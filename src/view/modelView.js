@@ -1,5 +1,5 @@
 import {values} from 'lodash-bound';
-import {modelClasses} from "../model/index.js";
+import {modelClasses} from "../model";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
 import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
@@ -52,13 +52,13 @@ Group.prototype.createViewObjects = function(state){
     (this.scaffolds||[]).forEach(scaffold => {
         if (!(scaffold instanceof Component)){ return; }
         scaffold.createViewObjects(state);
-        scaffold.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        scaffold.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
     this.visibleNodes.forEach(node => {
         if (!(node instanceof Node)){ return; }
         node.createViewObjects(state);
-        node.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        node.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
     (this.chains||[]).forEach(chain => {
@@ -71,7 +71,7 @@ Group.prototype.createViewObjects = function(state){
     this.visibleLinks.forEach(link => {
         if (!(link instanceof Link)){ return; }
         link.createViewObjects(state);
-        link.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        link.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE){
             link.viewObjects["main"].material.visible = false;
         }
@@ -80,7 +80,7 @@ Group.prototype.createViewObjects = function(state){
     this.visibleRegions.forEach(region => {
         if (!(region instanceof Region)){ return; }
         region.createViewObjects(state);
-        region.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        region.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 };
 
@@ -89,7 +89,7 @@ Group.prototype.createViewObjects = function(state){
  */
 Group.prototype.updateViewObjects = function(state){
     //Update scaffolds
-    (this.scaffolds||[]).forEach(scaffold => {scaffold.updateViewObjects(state); });
+    (this.scaffolds||[]).forEach(scaffold => scaffold.updateViewObjects(state));
 
     //Update nodes positions
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
@@ -125,7 +125,7 @@ Group.prototype.updateViewObjects = function(state){
         }
     });
 
-    this.visibleLinks.forEach(link => { link.updateViewObjects(state); });
+    this.visibleLinks.forEach(link => link.updateViewObjects(state));
 
     (this.coalescences||[]).forEach(coalescence => {
         if (coalescence.abstract || !coalescence.lyphs) { return }
@@ -161,7 +161,7 @@ Group.prototype.updateViewObjects = function(state){
         }
     });
 
-    this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
+    this.visibleRegions.forEach(region => region.updateViewObjects(state));
 };
 
 /**
@@ -171,17 +171,17 @@ Group.prototype.updateViewObjects = function(state){
 Component.prototype.createViewObjects = function(state){
     this.visibleAnchors.forEach(anchor => {
         anchor.createViewObjects(state);
-        anchor.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        anchor.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
     this.visibleWires.forEach(wire => {
         wire.createViewObjects(state);
-        wire.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        wire.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
     this.visibleRegions.forEach(region => {
         region.createViewObjects(state);
-        region.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+        region.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 };
 
@@ -189,7 +189,7 @@ Component.prototype.createViewObjects = function(state){
  * Update visual objects for group resources
  */
 Component.prototype.updateViewObjects = function(state){
-    this.visibleAnchors.forEach(anchor => { anchor.updateViewObjects(state); });
-    this.visibleWires.forEach(wire => { wire.updateViewObjects(state); });
-    this.visibleRegions.forEach(region => { region.updateViewObjects(state); });
+    this.visibleAnchors.forEach(anchor => anchor.updateViewObjects(state));
+    this.visibleWires.forEach(wire => wire.updateViewObjects(state));
+    this.visibleRegions.forEach(region => region.updateViewObjects(state));
 };

@@ -386,73 +386,28 @@ Anchor.prototype.updateViewObjects = function(state) {
         coords.z = 1; //put anchors in front of regions
         copyCoords(this, coords);
     }
-    if (this.hostedBy) {
-        let wire = this.hostedBy;
-        let start = extractCoords(wire.source);
-        let end = extractCoords(wire.target);
-        let curve = wire.getCurve(start, end);
-        let offset = this.offset;
-        if (!offset && (wire.hostedAnchors || []).length > 0) {
-            let idx = wire.hostedAnchors.indexOf(this);
-            offset = ((idx > -1))? idx * 1. / wire.hostedAnchors.length: 0.5;
-        }
-        let point = getPoint(curve, start, end, offset);
-        copyCoords(this, extractCoords(point));
-    }
-
     copyCoords(this.viewObjects["main"].position, this);
     this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Anchor));
 };
 
-Anchor.prototype.relocate = function(delta){
+Anchor.prototype.relocate = function(delta, updateDependent = true){
     let v = extractCoords(delta);
     let p0 = extractCoords(this);
     let p = p0.clone().add(v);
+
+    if (updateDependent) {
+        (this.onBorder || []).forEach(region => region.resize(this, delta));
+    }
     copyCoords(this.layout, p);
     this.updateViewObjects(this.state);
-}
 
-Anchor.prototype.resizeRegion = function(delta) {
-    this.relocate(delta);
-    (this.onBorder||[]).forEach(region => {
-        region.updateViewObjects(this.state);
-    });
-
-    //let base = extractCoords(this);
-    // let dr = 10;
-    // let relocateY = new Set();
-    // let relocateX = new Set();
-    //
-    // function relocateAdjacent(wire, prop){
-    //     if ((wire[prop].x - base.x) < dr) {
-    //         relocateX.add(wire[prop]);
-    //     } else {
-    //         if ((wire[prop].y - base.y) < dr){
-    //             relocateY.add(wire[prop]);
-    //         }
-    //     }
-    // }
-    //
-    // (this.sourceOf||[]).forEach(wire => relocateAdjacent(wire, "target"));
-    // (this.targetOf||[]).forEach(wire => relocateAdjacent(wire, "source"));
-    //
-    // let rYs = [...relocateY];
-    // let rXs = [...relocateX];
-    //
-    // let d = new THREE.Vector3(0, delta.y, 0);
-    // rYs.forEach(anchor => anchor.relocate(d));
-    //
-    // d = new THREE.Vector3(delta.x, 0, 0);
-    // rXs.forEach(anchor => anchor.relocate(d));
-    //
-    // const updateWires = (wire, prop) => {
-    //     wire.updateViewObjects(this.state);
-    //     (wire[prop].sourceOf||[]).forEach(w => w.updateViewObjects(this.state));
-    //     (wire[prop].targetOf||[]).forEach(w => w.updateViewObjects(this.state));
-    // }
-    //
-    // (this.sourceOf||[]).forEach(wire => updateWires(wire, "target"));
-    // (this.targetOf||[]).forEach(wire => updateWires(wire, "source"));
+    const updateWires = (wire, prop) => {
+        wire.updateViewObjects(this.state);
+        (wire[prop].sourceOf || []).forEach(w => w.updateViewObjects(this.state));
+        (wire[prop].targetOf || []).forEach(w => w.updateViewObjects(this.state));
+    }
+    (this.sourceOf || []).forEach(wire => updateWires(wire, "target"));
+    (this.targetOf || []).forEach(wire => updateWires(wire, "source"));
 }
 
 Object.defineProperty(Anchor.prototype, "polygonOffsetFactor", {
@@ -535,8 +490,10 @@ Wire.prototype.getCurve = function(start, end){
 };
 
 Wire.prototype.relocate = function(delta){
-    ['source', 'target'].forEach(prop =>
-        this[prop].relocate(delta)
+    ['source', 'target'].forEach(prop => {
+            this[prop].relocate(delta);
+            //TODO orthogonal lines relocate on x or y only
+        }
     )
     this.updateViewObjects(this.state);
 }
@@ -583,7 +540,7 @@ Wire.prototype.updateViewObjects = function(state) {
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
-                    this.points.filter(p => !!p).forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    this.points.forEach((p, i) => p && ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     linkPos.needsUpdate = true;
                     obj.geometry.computeBoundingSphere();
                 }

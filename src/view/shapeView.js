@@ -342,6 +342,31 @@ Region.prototype.relocate = function (delta){
 }
 
 /**
+ * Resizes the rectangle when a border anchor is dragged
+ * @param anchor - anchor on the region border being relocated
+ * @param delta - vector to shift the anchor
+ */
+Region.prototype.resize = function (anchor, delta) {
+    if (!anchor || !anchor.onBorder){ return; }
+    let base = extractCoords(anchor);
+    let dr = 5;
+    ["x", "y"].forEach(dim => {
+        function relocateAdjacent(wire, prop){
+            if (Math.abs(wire[prop][dim] - base[dim]) < dr) {
+                relocate.add(wire[prop]);
+            }
+        }
+        const relocate = new Set();
+        (anchor.sourceOf||[]).forEach(wire => relocateAdjacent(wire, "target"));
+        (anchor.targetOf||[]).forEach(wire => relocateAdjacent(wire, "source"));
+        const anchors = [...relocate];
+        let _delta = new THREE.Vector3(0, 0, 0);
+        _delta[dim] = delta[dim];
+        anchors.forEach(anchor => anchor.relocate(_delta, false));
+    });
+}
+
+/**
  * @property polygonOffsetFactor
  */
 Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
@@ -376,7 +401,7 @@ Border.prototype.createViewObjects = function(state){
         if (this.borders[i].conveyingLyph) {
             this.borders[i].conveyingLyph.conveys = this.borders[i];
             this.borders[i].createViewObjects(state);
-            this.borders[i].conveyingLyph.viewObjects::values().filter(obj => !!obj).forEach(obj => state.graphScene.add(obj));
+            this.borders[i].conveyingLyph.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
         }
     }
 };
@@ -508,7 +533,7 @@ Border.prototype.updateViewObjects = function(state){
         //Position hostedNodes exactly on the link shape
         let borderLyph = this.borders[i].conveyingLyph;
         if (borderLyph && borderLyph.viewObjects) {
-            borderLyph.viewObjects::values().filter(obj => !!obj).forEach(obj => this.state.graphScene.add(obj));
+            borderLyph.viewObjects::values().forEach(obj => obj && this.state.graphScene.add(obj));
         }
         if (this.borders[i].hostedNodes){
             //position nodes on the lyph border (exact shape)
@@ -516,7 +541,7 @@ Border.prototype.updateViewObjects = function(state){
             const offset = 1 / (n + 1);
             let V = this.host.points[i + 1].clone().sub(this.host.points[i]);
             this.borders[i].hostedNodes.forEach((node, j) => {
-                //For borders 2 and 3 position nodes in the reversed order to have parallel links?
+                //For borders 2 and 3 position nodes in the reversed order to have parallel links
                 let d_i = node.offset ? node.offset : offset * (j + 1);
                 if (i > 1){
                     d_i = 1 - d_i;

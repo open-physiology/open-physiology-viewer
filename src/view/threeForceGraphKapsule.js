@@ -40,11 +40,10 @@ export default Kapsule({
                 }
             }
         },
-
         scaleFactor: { default: 10 },
-
         canvas: {
             default: undefined,
+            triggerUpdate: false,
             onChange(canvas, state){
                 state.canvas = canvas;
                 if (!state.canvas){ return;}
@@ -123,7 +122,6 @@ export default Kapsule({
                     }, { passive: true })
                 );
 
-                // Handle click/touch events on anchors and wires
                 state.canvas.addEventListener('pointerup', ev => {
                     if (state.isPointerDragging) {
                         state.isPointerDragging = false;
@@ -153,6 +151,7 @@ export default Kapsule({
         },
         select: {
             default: undefined,
+            triggerUpdate: false,
             onChange(obj, state){
                 if (state.hoverObj) {
                     delete state.hoverObj.__isDraggable;
@@ -175,7 +174,7 @@ export default Kapsule({
         nodeResolution   : { default: 16 },     // how many slice segments in the sphere's circumference
 
         linkResolution   : { default: 20 },     // number of points on curved link
-        arrowLength      : { default: 40 },     // arrow length for directed links
+        arrowLength      : { default: 40 },     // arrow length for directed linksigger
 
         showLyphs        : { default: true},
         showLayers       : { default: true},
@@ -192,9 +191,9 @@ export default Kapsule({
         d3AlphaTarget    : { default: 0}, //triggerUpdate: false, onChange(alphaTarget, state) { state.simulation.alphaTarget(alphaTarget) }},
         d3VelocityDecay  : { default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
 
-        warmupTicks      : { default: 0 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks    : { default: 1000 },
-        cooldownTime     : { default: 2000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
+        warmupTicks      : { default: 10 }, // how many times to tick the force engine at init before starting to render
+        cooldownTicks    : { default: 100 },
+        cooldownTime     : { default: 1000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading        : { default: () => {}, triggerUpdate: false },
         onFinishLoading  : { default: () => {}, triggerUpdate: false },
 

@@ -178,7 +178,8 @@ export class RelGraph {
             let filter = (this._graphData.config && this._graphData.config.filter) || [];
             this.data.nodes = resources.filter(e => !!e && e.isSubtypeOf && !filter.find(x => e.isSubtypeOf(x)));
 
-            this.data.nodes.filter(e => e::isObject()).forEach(e => {
+            this.data.nodes.forEach(e => {
+                if (!e::isObject()){return; }
                 e.relClass = e.class;
                 if (e.class === $SchemaClass.Lyph && e.generatedFrom){ e.relClass = "LyphFromMaterial"; }
                 if (e.class === $SchemaClass.Coalescence && e.topology === "EMBEDDING"){ e.relClass = "EmbeddedCoalescence"; }
@@ -239,7 +240,8 @@ export class RelGraph {
 
             (this._graphData.coalescences||[]).forEach(coalescence => {
                 if (getNode(coalescence)) {return;}
-                (coalescence.lyphs||[]).filter(e => getNode(e)).forEach(lyph  => {
+                (coalescence.lyphs||[]).forEach(lyph  => {
+                    if (!getNode(e)) {return;}
                     this.data.links.push({"source": lyph.id, "target": coalescence.id, "type" : "coalescence"})
                 })
             });
