@@ -345,14 +345,14 @@ Region.prototype.relocate = function (delta){
  * Resizes the rectangle when a border anchor is dragged
  * @param anchor - anchor on the region border being relocated
  * @param delta - vector to shift the anchor
+ * @param epsilon - allowed distance between coordinates that are considered the same
  */
-Region.prototype.resize = function (anchor, delta) {
+Region.prototype.resize = function (anchor, delta, epsilon = 5) {
     if (!anchor || !anchor.onBorder){ return; }
     let base = extractCoords(anchor);
-    let dr = 5;
     ["x", "y"].forEach(dim => {
         function relocateAdjacent(wire, prop){
-            if (Math.abs(wire[prop][dim] - base[dim]) < dr) {
+            if (Math.abs(wire[prop][dim] - base[dim]) < epsilon) {
                 relocate.add(wire[prop]);
             }
         }

@@ -35,6 +35,10 @@ const WindowResize = require('three-window-resize');
                                 (click)="toggleLockControls()" title="Unlock controls">
                             <i class="fa fa-unlock"> </i>
                         </button>
+                        <button class="w3-bar-item w3-hover-light-grey"
+                                (click)="resetCamera()" title="Reset controls">
+                            <i class="fa fa-compass"> </i>
+                        </button>
                         <button *ngIf="!antialias" class="w3-bar-item w3-hover-light-grey"
                                 (click)="toggleAntialias()" title="Enable antialiasing">
                             <i class="fa fa-paper-plane-o"> </i>
@@ -86,19 +90,7 @@ const WindowResize = require('three-window-resize');
                             <i *ngIf="graphData.logger.status === graphData.logger.statusOptions.OK"
                                class="fa fa-check-circle" style="color:green"> </i>
                         </button>
-<!--                        <button class="w3-bar-item w3-hover-light-grey"-->
-<!--                                (click)="testRelocate()" title="Reposition selected anchor">-->
-<!--                            <i class="fa fa-train"> </i>-->
-<!--                        </button>-->
-<!--                        <button class="w3-bar-item w3-hover-light-grey"-->
-<!--                                (click)="testResize()" title="Expand selected anchor">-->
-<!--                            <i class="fa fa-truck"> </i>-->
-<!--                        </button>-->
-
                     </section>
-
-                    <!--Main content-->
-<!--                    <div id="graph"></div>-->                   
                 </section>
                 <canvas #canvas> </canvas>
             </section>
@@ -184,8 +176,6 @@ export class WebGLSceneComponent {
     isConnectivity = true;
 
     @Input() modelClasses;
-
-    //TODO add button to return camera to initial position
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
@@ -578,6 +568,10 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
+    resetCamera() {
+        this.camera.position.set(0, -200, 100 * this.scaleFactor);
+    }
+
     toggleLockControls(){
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
@@ -675,13 +669,9 @@ export class WebGLSceneComponent {
         this.selected = this.getMouseOverEntity();
     }
 
-    onClick() {
-    }
-
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('dblclick', () => this.onDblClick(), false );
-        //window.addEventListener('click', () => this.onClick(), false );
     }
 
     onMouseMove(evt) {

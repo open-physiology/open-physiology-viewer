@@ -489,10 +489,16 @@ Wire.prototype.getCurve = function(start, end){
     return curve;
 };
 
-Wire.prototype.relocate = function(delta){
+Wire.prototype.relocate = function(delta, epsilon = 5){
+    if (Math.abs(this.source.x - this.target.x) < epsilon) {
+        delta.y = 0;
+    } else {
+        if (Math.abs(this.source.y - this.target.y) < epsilon) {
+            delta.x = 0;
+        }
+    }
     ['source', 'target'].forEach(prop => {
             this[prop].relocate(delta);
-            //TODO orthogonal lines relocate on x or y only
         }
     )
     this.updateViewObjects(this.state);
