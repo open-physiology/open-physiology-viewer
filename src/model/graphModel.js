@@ -12,6 +12,7 @@ import {logger, $LogMsg} from './logger';
 import {$Field, $SchemaClass, $Prefix, $SchemaType, getGenID, getFullID, getID} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
+import {copyCoords, isInRange, THREE} from "../view/utils";
 
 export { schema };
 
@@ -211,6 +212,8 @@ export class Graph extends Group{
             link.length = (link.length || 5) * 2;
         });
 
+        (res.lyphs || []).forEach(lyph => lyph.internalLyphs && lyph.resizeInternal());
+
         res.generated = true;
         res.mergeScaffoldResources();
 
@@ -371,6 +374,76 @@ export class Graph extends Group{
         return model;
     }
 
+    createDynamicGroup(qNumber, qName, json, modelClasses = {}){
+        const addRelatedToLyphs = (lyphs, links) => {
+            (lyphs||[]).forEach(lyph => {
+                if (lyph.conveys) {
+                    if (!links.find(link => link.id === lyph.conveys.id)) {
+                        links.push(lyph.conveys);
+                    }
+                }
+            });
+        };
+
+        const addRelatedToLinks = (links, lyphs, nodes) => {
+            (links||[]).forEach(lnk => {
+                if (lnk.conveyingLyph) {
+                    if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
+                        links.push(lnk.conveyingLyph);
+                    }
+                }
+                if (!nodes.find(node => node.id === lnk.source.id)){
+                    nodes.push(lnk.source);
+                }
+                if (!nodes.find(node => node.id === lnk.target.id)){
+                    nodes.push(lnk.target);
+                }
+            });
+            (this.links||[]).forEach(lnk => {
+                if (lnk.collapsible &&
+                    nodes.find(node => node.id === lnk.source.id) &&
+                    nodes.find(node => node.id === lnk.target.id)){
+                    links.push(lnk);
+                }
+            });
+        };
+
+        const createGroup = (id, name, {nodes, links, lyphs}) => {
+            let group = modelClasses.Group.fromJSON({
+                [$Field.id]    : getID($Prefix.group, id),
+                [$Field.name]  : name,
+                [$Field.nodes] : nodes.map(e => e.id),
+                [$Field.links] : links.map(e => e.id),
+                [$Field.lyphs] : lyphs.map(e => e.id)
+            }, modelClasses, this.entitiesByID, this.namespace);
+            this.groups.push(group);
+        }
+
+        const {nodes, links, lyphs} = json;
+        this.groups = this.groups || [];
+
+        //Query response group
+        addRelatedToLyphs(lyphs, links);
+        addRelatedToLinks(links, lyphs, nodes);
+        createGroup(qNumber, `QR ${qNumber}: ${qName}`, json);
+
+        //Only chains
+        let chainLinks = links.filter(e => e.fasciculatesIn);
+        let chainNodes = [];
+        let chainLyphs = [];
+        addRelatedToLinks(chainLinks, chainLyphs, chainNodes);
+        createGroup(qNumber + "_chains", `$QR  ${qNumber}: chains`, {chainNodes, chainLinks, chainLyphs});
+
+        //Only housing lyphs
+        let housingLyphs = lyphs.filter(e => e.bundles);
+        housingLyphs.forEach(e => e.layerIn && housingLyphs.push(e.layerIn));
+        let housingLinks = [];
+        let housingNodes = [];
+        addRelatedToLyphs(housingLyphs, housingLinks);
+        addRelatedToLinks(housingLinks, housingLyphs, housingNodes);
+        createGroup(qNumber + "_housing", `QR ${qNumber}: housing`, {housingNodes, housingLinks, housingLyphs});
+    }
+
     /**
      * Auto-generates links for internal lyphs
      * @param modelClasses - model resource classes
@@ -440,48 +513,28 @@ export class Graph extends Group{
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => p::keys().forEach(key => {
-            if (p[key]::isNumber()) {
-                p[key] *= scaleFactor;
-            }
-        });
+        const scalePoint = p => p::keys().forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
 
         if (this.scaffoldResources) {
-            (this.scaffoldResources.anchors || []).forEach(e => {
-                if (e.layout) {
-                    scalePoint(e.layout);
-                }
-            });
+            (this.scaffoldResources.anchors || []).forEach(e => e.layout && scalePoint(e.layout));
             (this.scaffoldResources.wires || []).forEach(e => {
                 if (e::isObject() && !!e.length){
                     e.length *= scaleFactor;
                 }
             });
-            (this.scaffoldResources.regions || []).forEach(e => {
-                if (e.points) {
-                    e.points.forEach(p => scalePoint(p));
-                }
-            });
+            (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
         }
-        
+
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}
         });
-
-        (this.nodes||[]).forEach(e => {
-            if (e.layout) {
-                scalePoint(e.layout);
-            }
-        });
+        (this.nodes||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.links||[]).forEach(e => {
             if (e::isObject()) {
-                if (!!e.length) {
-                    e.length *= scaleFactor;
-                }
-                if (!!e.arcCenter) {
-                    scalePoint(e.arcCenter);
-                }
+                e.length && (length *= scaleFactor);
+                e.arcCenter && scalePoint(e.arcCenter);
+                e.controlPoint && scalePoint(e.controlPoint);
             }
         });
         (this.regions||[]).forEach(e => {

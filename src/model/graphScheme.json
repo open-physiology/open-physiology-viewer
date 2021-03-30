@@ -416,6 +416,8 @@
       "description": "Graph node joins two or more links (processes)",
       "allOf":[{
         "$ref": "#/definitions/VisualResource"
+      }, {
+        "$ref": "#/definitions/Point3Scheme"
       }],
       "properties": {
         "infoFields": {
@@ -829,7 +831,17 @@
         },
         "arcCenter"    : {
           "description": "Center of an elliptic curve for an arc link",
-          "$ref": "#/definitions/Point3Scheme"
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Point3Scheme"
+            },
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ]
         }
       },
       "dependencies" : {
@@ -928,7 +940,10 @@
       "description": "Anchor defines a special point in a scaffold. Anchor points can join wires.",
       "allOf":[{
         "$ref": "#/definitions/VisualResource"
-      }],
+      }, {
+        "$ref": "#/definitions/Point3Scheme"
+      }
+      ],
       "properties": {
         "layout"    : {
           "description": "Provided 2d coordinates for the anchor",
@@ -1066,6 +1081,14 @@
           ],
           "relatedTo": "targetOf"
         },
+        "infoFields"   : {
+          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [ "id", "name", "class", "source", "target", "wiredChain"]
+        },
         "hostedAnchors" : {
           "description": "Anchors that are positioned on a wire.",
           "type": "array",
@@ -1096,6 +1119,9 @@
           "description": "Control point for the spline wire",
           "anyOf": [
             {
+              "$ref": "#/definitions/Point2Scheme"
+            },
+            {
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
@@ -1121,7 +1147,17 @@
         },
         "arcCenter"     : {
           "description": "Center of an elliptic curve for an arc link",
-          "$ref": "#/definitions/Point2Scheme",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Point2Scheme"
+            },
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ],
           "default": {}
         },
         "facetIn"       : {

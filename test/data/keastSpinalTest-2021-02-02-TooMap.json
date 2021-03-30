@@ -3329,12 +3329,9 @@
                     "source": "L",
                     "target": "P",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
-                  "stroke": "thick",
-                  "color": "#9370DB"
+                    "arcCenter": "D",
+                    "stroke": "thick",
+                    "color": "#9370DB"
                 },
                 {
                     "id": "w-P-S",
@@ -3342,10 +3339,7 @@
                     "source": "P",
                     "target": "S",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "D",
                   "stroke": "thick",
                   "color": "#9370DB"
                 },
@@ -3355,11 +3349,8 @@
                     "source": "S",
                     "target": "A",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
-                  "stroke": "thick",
+                    "arcCenter": "D",
+                    "stroke": "thick",
                   "color": "#9370DB"
                 },
                 {
@@ -3368,11 +3359,8 @@
                     "source": "A",
                     "target": "L",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
-                  "stroke": "thick",
+                    "arcCenter": "D",
+                    "stroke": "thick",
                   "color": "#9370DB"
                 },
                 {
@@ -3405,11 +3393,8 @@
                     "source": "B",
                     "target": "O",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
-                  "stroke": "thick",
+                    "arcCenter": "F",
+                    "stroke": "thick",
                   "color": "#006400"
                 },
                 {
@@ -3418,10 +3403,7 @@
                     "source": "O",
                     "target": "R",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "F",
                   "stroke": "thick",
                   "color": "#006400"
                 },
@@ -3431,10 +3413,7 @@
                     "source": "R",
                     "target": "M",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "F",
                   "stroke": "thick",
                   "color": "#006400"
                 },
@@ -3444,10 +3423,7 @@
                     "source": "M",
                     "target": "B",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "F",
                   "stroke": "thick",
                   "color": "#006400"
                 },
@@ -3628,10 +3604,7 @@
                     "source": "H",
                     "target": "E",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "N",
                     "color": "#000",
                     "hidden": true,
                     "stroke": "dashed"
@@ -3641,10 +3614,7 @@
                     "source": "E",
                     "target": "T",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "N",
                     "color": "#000",
                     "hidden": true,
                     "stroke": "dashed"
@@ -3654,10 +3624,7 @@
                     "source": "T",
                     "target": "K",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "N",
                     "color": "#000",
                     "hidden": true,
                     "stroke": "dashed"
@@ -3667,10 +3634,7 @@
                     "source": "K",
                     "target": "H",
                     "geometry": "arc",
-                    "arcCenter": {
-                        "x": 0,
-                        "y": 0
-                    },
+                    "arcCenter": "N",
                     "color": "#000",
                     "hidden": true,
                     "stroke": "dashed"

@@ -394,13 +394,11 @@ Anchor.prototype.relocate = function(delta, updateDependent = true){
     let v = extractCoords(delta);
     let p0 = extractCoords(this);
     let p = p0.clone().add(v);
-
-    if (updateDependent) {
-        (this.onBorder || []).forEach(region => region.resize(this, delta));
-    }
     copyCoords(this.layout, p);
     this.updateViewObjects(this.state);
-
+    // if (updateDependent) {
+    //     (this.onBorder || []).forEach(region => region.resize(this, delta));
+    // }
     const updateWires = (wire, prop) => {
         wire.updateViewObjects(this.state);
         (wire[prop].sourceOf || []).forEach(w => w.updateViewObjects(this.state));
@@ -497,10 +495,7 @@ Wire.prototype.relocate = function(delta, epsilon = 5){
             delta.x = 0;
         }
     }
-    ['source', 'target'].forEach(prop => {
-            this[prop].relocate(delta);
-        }
-    )
+    ['source', 'target'].forEach(prop => this[prop].relocate(delta));
     this.updateViewObjects(this.state);
 }
 

@@ -273,20 +273,19 @@ Region.prototype.translate = function (p0) {
 };
 
 /**
- * Create visual objects of a region
- * @param state
+ * Compute region border points
+ * @param linkResolution
  */
-Region.prototype.createViewObjects = function(state) {
-    Shape.prototype.createViewObjects.call(this, state);
-    if (this.facets){
+Region.prototype.updatePoints = function(linkResolution){
+    if (this.facets) {
         this.points = [];
         let prevAnchor = null;
         this.facets.forEach(wire => {
-            if (!wire.source || !wire.target){
+            if (!wire.source || !wire.target) {
                 return;
             }
             let start = extractCoords(wire.source.layout);
-            let end   = extractCoords(wire.target.layout);
+            let end = extractCoords(wire.target.layout);
             if (prevAnchor === wire.target.id) {
                 let tmp = start;
                 start = end;
@@ -296,10 +295,10 @@ Region.prototype.createViewObjects = function(state) {
                 prevAnchor = wire.target.id;
             }
             this.points.push(start);
-            if (wire.geometry !== Wire.WIRE_GEOMETRY.LINK){
+            if (wire.geometry !== Wire.WIRE_GEOMETRY.LINK) {
                 let curve = wire.getCurve(start, end);
                 if (curve.getPoints) {
-                    let points = curve.getPoints(state.linkResolution);
+                    let points = curve.getPoints(linkResolution);
                     let first = extractCoords(points[0]);
                     if (start.clone().sub(first).length() > end.clone().sub(first).length()) {
                         points = points.reverse();
@@ -310,10 +309,18 @@ Region.prototype.createViewObjects = function(state) {
             this.points.push(end);
         });
     }
-    let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
     this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
     this.center = getCenterOfMass(this.points);
+}
 
+/**
+ * Create visual objects of a region
+ * @param state
+ */
+Region.prototype.createViewObjects = function(state) {
+    Shape.prototype.createViewObjects.call(this, state);
+    this.updatePoints(state.linkResolution);
+    let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
     let obj = createMeshWithBorder(shape, {
         color: this.color,
         polygonOffsetFactor: this.polygonOffsetFactor
@@ -343,16 +350,17 @@ Region.prototype.relocate = function (delta){
 
 /**
  * Resizes the rectangle when a border anchor is dragged
- * @param anchor - anchor on the region border being relocated
- * @param delta - vector to shift the anchor
+ * @param anchor  - anchor on the region border that has been relocated
+ * @param delta   - vector to shift the anchor
  * @param epsilon - allowed distance between coordinates that are considered the same
  */
 Region.prototype.resize = function (anchor, delta, epsilon = 5) {
     if (!anchor || !anchor.onBorder){ return; }
     let base = extractCoords(anchor);
     ["x", "y"].forEach(dim => {
+        //shift horizontal and vertical wires to keep the rectangular shape
         function relocateAdjacent(wire, prop){
-            if (Math.abs(wire[prop][dim] - base[dim]) < epsilon) {
+            if (Math.abs(wire[prop][dim] - (base[dim] - delta[dim])) < epsilon) {
                 relocate.add(wire[prop]);
             }
         }
@@ -364,6 +372,8 @@ Region.prototype.resize = function (anchor, delta, epsilon = 5) {
         _delta[dim] = delta[dim];
         anchors.forEach(anchor => anchor.relocate(_delta, false));
     });
+    (this.facets||[]).forEach(facet => facet.updateViewObjects(this.state));
+    this.updatePoints(this.state.linkResolution);
 }
 
 /**
@@ -555,16 +565,14 @@ Border.prototype.updateViewObjects = function(state){
     //By doing the update here, we also support inner content in the region
     const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
 
-    let hostedLinks   = lyphsToLinks(this.host.hostedLyphs);
-    let internalLinks = lyphsToLinks(this.host.internalLyphs);
-
-    //hostedLinks.forEach(link => pushLinkInside(link));
+    const hostedLinks = lyphsToLinks(this.host.hostedLyphs);
     hostedLinks.forEach((link, i) => placeLinkInside(link, i, Math.floor(Math.sqrt(hostedLinks.length||1)), hostedLinks.length));
 
-    let numCols = this.host.internalLyphColumns || 1;
+    const numCols = this.host.internalLyphColumns || 1;
+    const internalLinks = lyphsToLinks(this.host.internalLyphs);
     internalLinks.forEach((link, i) => placeLinkInside(link, i, numCols, internalLinks.length));
 
-    let center = getCenterOfMass(this.host.points);
+    const center = getCenterOfMass(this.host.points);
     (this.host.internalNodes || []).forEach((node, i) => placeNodeInside(node, i, this.host.internalNodes.length, center));
 };
 

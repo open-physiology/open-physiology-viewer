@@ -435,6 +435,14 @@ export class Lyph extends Shape {
         }
     }
 
+    resizeInternal(){
+        // if (!this.length) { return; }
+        // const numCols = this.host.internalLyphColumns || 1
+        // let numRows = Math.ceil(this.length / numCols);
+        //
+        // let [dW, dH] = [W / numCols, H / numRows];
+    }
+
     /**
      * Determine whether the lyph has a common supertype with a given lyph
      * @param lyph
@@ -518,6 +526,15 @@ export class Region extends Shape {
         }
     }
 
+    static reduceGroupTemplate(json, template){
+        [$Field.facets, $Field.borderAnchors, $Field.internalAnchors].forEach(prop => {
+            if ((template[prop] || []).length > 0) {
+                logger.warn($LogMsg.REGION_IN_GROUP_TEMPLATE, prop, json && json.id, template.id, template[prop]);
+            }
+            delete template[prop];
+        });
+    }
+
     static expandTemplate(json, template){
         if (!template::isObject()){
             logger.error($LogMsg.RESOURCE_NO_OBJECT, template);
@@ -526,7 +543,7 @@ export class Region extends Shape {
         template.id = template.id || getGenID(json.id, (json.regions||[]).length);
         let anchors = [];
         if (!template.borderAnchors) {
-            //generate facets from points
+            //generate border anchors from points
             (template.points||[]).forEach((p, i) => {
                 anchors.push({
                     [$Field.id]: getGenID($Prefix.anchor, template.id, i),
@@ -542,6 +559,7 @@ export class Region extends Shape {
             anchors = template.borderAnchors.map(e => findResourceByID(e)).filter(e => !!e);
         }
         if (!template.facets) {
+            //generate facets from border anchors
             if (anchors.length < 3){
                 logger.error($LogMsg.REGION_BORDER_ERROR, template.id);
                 return;
@@ -560,6 +578,22 @@ export class Region extends Shape {
             json.wires = json.wires || [];
             json.wires.push(...wires);
             template.facets = wires.map(e => e.id);
+        } else {
+            //assign border anchors from facets
+            template.borderAnchors = template.borderAnchors || [];
+            if (template.borderAnchors.length > 0){
+                logger.warn($LogMsg.REGION_CONFLICT, template.id);
+                template.borderAnchors = [];
+            }
+            (template.facets||[]).forEach(facet => {
+                const f = findResourceByID(json.wires, facet);
+                const s = findResourceByID(json.anchors, f.source);
+                const t = findResourceByID(json.anchors, f.target);
+                s && t && template.borderAnchors.push(getID(s)) && template.borderAnchors.push(getID(t));
+            });
+            template.borderAnchors = [... new Set(template.borderAnchors)];
+
+            logger.info($LogMsg.REGION_BORDER_ANCHORS, template.id, template.borderAnchors);
         }
     }
 }

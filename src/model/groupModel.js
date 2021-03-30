@@ -36,17 +36,8 @@ export class Group extends Resource {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);
         }
 
-        //Regions in groups are simple areas, ignore facets and anchors
-        (json.regions||[]).forEach(region => {
-            if ((region.facets||[]).length > 0){
-                logger.warn($LogMsg.REGION_FACETS_REMOVED, json.id, region.id, region.facets);
-            }
-            delete region.facets;
-            if ((region.internalAnchors||[]).length > 0){
-                logger.warn($LogMsg.REGION_ANCHORS_REMOVED, json.id, region.id, region.internalAnchors);
-            }
-            delete region.internalAnchors;
-        });
+        //Regions in groups are simple areas, ignore facets and border anchors
+        (json.regions||[]).forEach(region => modelClasses.Region.reduceGroupTemplate(json, region));
 
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
@@ -82,20 +73,7 @@ export class Group extends Resource {
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID, namespace);
 
-        //TODO resize lyphs in chains to be of the same width?
-        //Resize generated chain lyphs to fit into hosting lyphs (housing lyph or its layer)
-        (res.lyphs||[]).forEach(host => (host.bundles||[]).forEach(lnk => {
-            if (lnk.conveyingLyph && lnk.conveyingLyph.generated){
-                lnk.conveyingLyph.width = (host.width || host.size.width);
-                if (host.layerIn){
-                    lnk.conveyingLyph.width /= host.layerIn.layers.length;
-                }
-                //Keep it visible
-                if (lnk.conveyingLyph.width < 5){
-                    lnk.conveyingLyph.width = 5;
-                }
-            }
-        }));
+        (res.chains||[]).forEach(chain => chain.resizeLyphs());
 
         //copy nested references to resources to the parent group
         res.mergeSubgroupResources();

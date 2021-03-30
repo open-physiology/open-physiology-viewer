@@ -311,10 +311,7 @@
       "target": "P",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "D",
       "color": "#9370DB"
     },
     {
@@ -324,10 +321,7 @@
       "target": "S",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "D",
       "color": "#9370DB"
     },
     {
@@ -337,10 +331,7 @@
       "target": "A",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "D",
       "color": "#9370DB"
     },
     {
@@ -350,10 +341,7 @@
       "target": "L",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "D",
       "color": "#9370DB"
     },
     {
@@ -387,7 +375,7 @@
       "target": "O",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -397,7 +385,7 @@
       "target": "R",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -407,7 +395,7 @@
       "target": "M",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -417,7 +405,7 @@
       "target": "B",
       "geometry": "arc",
       "stroke": "thick",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -597,10 +585,7 @@
       "source": "H",
       "target": "E",
       "geometry": "arc",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "N",
       "color": "#000",
       "stroke": "dashed"
     },
@@ -609,10 +594,7 @@
       "source": "E",
       "target": "T",
       "geometry": "arc",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "N",
       "color": "#000",
       "stroke": "dashed"
     },
@@ -621,10 +603,7 @@
       "source": "T",
       "target": "K",
       "geometry": "arc",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "N",
       "color": "#000",
       "stroke": "dashed"
     },
@@ -633,10 +612,7 @@
       "source": "K",
       "target": "H",
       "geometry": "arc",
-      "arcCenter": {
-        "x": 0,
-        "y": 0
-      },
+      "arcCenter": "N",
       "color": "#000",
       "stroke": "dashed"
     },

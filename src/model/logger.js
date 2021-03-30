@@ -10,6 +10,8 @@ export const $LogMsg = {
 
     NODE_CLONE_INTERNAL         : "Cloned node to join housed chain ends",
 
+    REGION_BORDER_ANCHORS       : "Created border anchors from facets",
+
     RESOURCE_JSON_PATH          : "Created relationship via dynamic assignment (JSONPath expression)",
     RESOURCE_NUM                : "Number of resources in the generated model",
     RESOURCE_TO_LAYER           : "Placed resource into layer",
@@ -27,6 +29,7 @@ export const $LogMsg = {
     CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains} property disagrees with the chain's housingLayers} property`,
     CHAIN_HOUSING_TEMPLATE      : "Housing lyph or its layer is a template",
     CHAIN_MAT_DIFF              : "Incorrectly defined chain pattern - innermost layers do not convey the same material",
+    CHAIN_NO_CONVEYING_LYPH     : "A chain link without conveying lyph found",
     CHAIN_NO_COALESCENCE        : "Skipped a coalescence between a housing lyph and a conveying lyph of the chain level it bundles: the conveying lyph is not defined",
     CHAIN_NO_HOUSING            : `Incorrect chain specification: "housingChain" not found!`,
     CHAIN_NO_HOUSING_LYPH       : "Failed to find chain level housing lyph",
@@ -70,10 +73,11 @@ export const $LogMsg = {
     LINK_NO_END_NODE            : "Failed to process link with undefined end node",
 
     PROCESS_NOT_ADVECTIVE       : "Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link",
-    PROCESS_NOT_DIFFUSIVE       : "Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:",
+    PROCESS_NOT_DIFFUSIVE       : "Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph",
 
-    REGION_ANCHORS_REMOVED      : "Removed internal anchors from region definition in group",
-    REGION_FACETS_REMOVED       : "Removed facets from region definition in group",
+    REGION_IN_GROUP_TEMPLATE    : "Removed scaffold elements from a region in a connectivity graph",
+
+    REGION_CONFLICT             : `Conflicting region specification: both "borderAnchors" and "facets" are given. Proceeding with "facets"`,
     REGION_FACET_ERROR          : "Incorrectly defined region facet, skipping definition",
     REGION_FACET_NO_ANCHORS     : "Incorrectly defined region facet, source or target anchors not defined, skipping definition",
     REGION_FACET_NO_LAYOUT      : "Incorrectly defined region facet, source or target anchor layout not defined, skipping definition",

@@ -80,7 +80,7 @@
       "source": "B",
       "target": "O",
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -89,7 +89,7 @@
       "source": "O",
       "target": "R",
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -97,7 +97,7 @@
       "source": "R",
       "target": "M",
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {
@@ -105,7 +105,7 @@
       "source": "M",
       "target": "B",
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0},
+      "arcCenter": "F",
       "color": "#006400"
     },
     {

@@ -391,6 +391,42 @@ export class Chain extends GroupTemplate {
             }
         }
     }
+
+    /**
+     * Resize generated chain lyphs to fit into hosting lyphs (housing lyph or its layer)
+     * Optionally, adjust lyph sizes to be the same for the entire chain
+     * @param sameWidth - boolean parameter to indicate that all chain lyphs should have the same width
+     * @param minSize - minimal size for the chain lyphs
+     */
+    resizeLyphs(sameWidth = true, minSize = {width: 5, height: 5}){
+        let minWidth = minSize.width;
+        (this.links||[]).forEach(lnk => {
+            let lyph = lnk.conveyingLyph;
+            if (!lyph){
+                logger.warn($LogMsg.CHAIN_NO_CONVEYING_LYPH, this.id, lnk.id)
+                return;
+            }arc
+            let host = lnk.fasciculatesIn;
+            if (host){
+                lyph.width = (host.width || host.size.width);
+                if (host.layerIn){
+                    lyph.width /= host.layerIn.layers.length;
+                }
+            }
+            [$Field.width, $Field.height].forEach(prop => {
+                //Keep chain conveying lyphs visible
+                if (lyph[prop] < minSize[prop]){
+                    lyph[prop] = minSize[prop];
+                }
+            });
+            if (minWidth < lyph.width) {
+                minWidth = lyph.width;
+            }
+        });
+        if (sameWidth){
+            (this.links||[]).forEach(lnk => lnk.conveyingLyph && (lnk.conveyingLyph.width = minWidth));
+        }
+    }
 }
 
 

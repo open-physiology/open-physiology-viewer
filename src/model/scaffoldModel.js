@@ -103,23 +103,12 @@ export class Scaffold extends Component {
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => p::keys().forEach(key => {
-            if (p[key]::isNumber()){
-                p[key] *= scaleFactor;
-            }
-        });
-        (this.anchors||[]).forEach(e => {
-            if (e.layout) {
-                scalePoint(e.layout);
-            }
-        });
+        const scalePoint = p => p::keys().forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
+        (this.anchors||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.wires||[]).forEach(e => {
-            if (!!e.length) {
-                e.length *= scaleFactor;
-            }
-            if (!!e.arcCenter) {
-                scalePoint(e.arcCenter);
-            }
+            e.length && (length *= scaleFactor);
+            e.arcCenter && scalePoint(e.arcCenter);
+            e.controlPoint && scalePoint(e.controlPoint);
         });
         (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
     }

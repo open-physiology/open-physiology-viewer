@@ -174,6 +174,9 @@ export class WebGLSceneComponent {
     labelRelSize   = 0.1 * this.scaleFactor;
     lockControls   = true;
     isConnectivity = true;
+    isCameraAtInit = true;
+
+    queryCounter = 0;
 
     @Input() modelClasses;
 
@@ -218,7 +221,7 @@ export class WebGLSceneComponent {
         this._highlighted = entity;
         this.highlightedItemChange.emit(entity);
 
-        if (this.graph && this.lockControls) {
+        if (this.graph && this.lockControls && this.isCameraAtInit) {
             const obj = entity && entity.viewObjects? entity.viewObjects["main"]: null;
             this.graph.select(obj);
         }
@@ -289,10 +292,8 @@ export class WebGLSceneComponent {
         let height = this.container.clientHeight;
 
         this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
-        this.camera.position.set(0, -200, 100 * this.scaleFactor );
         this.camera.aspect = width / height;
-        this.camera.up.set( 0, 0, 1 );
-        this.camera.updateProjectionMatrix();
+        this.resetCamera();
 
         this.ray = new THREE.Raycaster();
         this.scene = new THREE.Scene();
@@ -326,8 +327,6 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
-    queryCounter = 0;
-
     processQuery(){
         let config = {
             parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
@@ -337,106 +336,18 @@ export class WebGLSceneComponent {
         dialogRef.afterClosed().subscribe(result => {
             if (result !== undefined){
                 this.queryCounter++;
-                this.createDynamicGroup(result.query, result.response);
+                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
+                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
+                const nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
+                const links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
+                const lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
+                if (nodes.length || links.length || lyphs.length) {
+                    this.graphData && this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
+                } else {
+                    this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
+                }
             }
         })
-    }
-
-    createDynamicGroup(queryName, queryRes){
-        const addRelatedToLyphs = (lyphs, links) => {
-            (lyphs||[]).forEach(lyph => {
-                if (lyph.conveys) {
-                    if (!links.find(link => link.id === lyph.conveys.id)) {
-                        links.push(lyph.conveys);
-                    }
-                }
-            });
-        };
-
-        const addRelatedToLinks = (links, lyphs, nodes) => {
-            (links||[]).forEach(lnk => {
-                if (lnk.conveyingLyph) {
-                    if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
-                        links.push(lnk.conveyingLyph);
-                    }
-                }
-                if (!nodes.find(node => node.id === lnk.source.id)){
-                    nodes.push(lnk.source);
-                }
-                if (!nodes.find(node => node.id === lnk.target.id)){
-                    nodes.push(lnk.target);
-                }
-            });
-            (this.graphData.links||[]).forEach(lnk => {
-                if (lnk.collapsible &&
-                    nodes.find(node => node.id === lnk.source.id) &&
-                    nodes.find(node => node.id === lnk.target.id)){
-                    links.push(lnk);
-                }
-            });
-        };
-
-        if (this.graphData){
-            let nodeIDs  = (queryRes.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
-            let edgeIDs =  (queryRes.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
-            let nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
-            let links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
-            let lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
-            if (nodes.length || links.length || lyphs.length){
-                this.graphData.groups = this.graphData.groups || [];
-                addRelatedToLyphs(lyphs, links);
-                addRelatedToLinks(links, lyphs, nodes);
-
-                //Query response group
-                let queryLabel = (queryName? ": " + queryName : "");
-                let group = this.modelClasses.Group.fromJSON({
-                    [$Field.id]    : getGenID($Prefix.query, this.queryCounter),
-                    [$Field.name]  : `QR ${this.queryCounter}${queryLabel}`,
-                    [$Field.nodes] : nodes.map(e => e.id),
-                    [$Field.links] : links.map(e => e.id),
-                    [$Field.lyphs] : lyphs.map(e => e.id)
-                }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
-                this.graphData.groups.push(group);
-
-                //Only chains
-                let chainLinks = links.filter(e => e.fasciculatesIn);
-                let chainNodes = [];
-                let chainLyphs = [];
-                addRelatedToLinks(chainLinks, chainLyphs, chainNodes);
-                let chainGroup = this.modelClasses.Group.fromJSON({
-                    [$Field.id]    : getGenID($Prefix.query, this.queryCounter, "chains"),
-                    [$Field.name]  : `QR ${this.queryCounter}: chains`,
-                    [$Field.nodes] : chainNodes.map(e => e.id),
-                    [$Field.links] : chainLinks.map(e => e.id),
-                    [$Field.lyphs] : chainLyphs.map(e => e.id)
-                }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
-                this.graphData.groups.push(chainGroup);
-
-                //Only housing lyphs
-                let housingLyphs = lyphs.filter(e => e.bundles);
-                housingLyphs.forEach(e => {
-                    if (e.layerIn){
-                        housingLyphs.push(e.layerIn);
-                    }
-                });
-                let housingLinks = [];
-                let housingNodes = [];
-                addRelatedToLyphs(housingLyphs, housingLinks);
-                addRelatedToLinks(housingLinks, housingLyphs, housingNodes);
-                let housingGroup = this.modelClasses.Group.fromJSON({
-                    [$Field.id]    : getGenID($Prefix.query, this.queryCounter, "housing"),
-                    [$Field.name]  : `QR ${this.queryCounter}: housing`,
-                    [$Field.nodes] : housingNodes.map(e => e.id),
-                    [$Field.links] : housingLinks.map(e => e.id),
-                    [$Field.lyphs] : housingLyphs.map(e => e.id)
-                }, this.modelClasses, this.graphData.entitiesByID, this.graphData.namespace);
-                this.graphData.groups.push(housingGroup);
-
-                this.graphData.logger.info(`A dynamic group containing ${nodes.length} nodes, ${links.length}, links and ${lyphs.length} lyphs was created`, group.id);
-            } else {
-                this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
-            }
-        }
     }
 
     exportJSON(){
@@ -569,12 +480,18 @@ export class WebGLSceneComponent {
     }
 
     resetCamera() {
-        this.camera.position.set(0, -200, 100 * this.scaleFactor);
+        this.camera.position.set(0, -200, 100 * this.scaleFactor );
+        this.camera.up.set( 0, 0, 1 );
+        this.camera.updateProjectionMatrix();
+        this.isCameraAtInit = true;
     }
 
     toggleLockControls(){
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
+        if (!this.lockControls) {
+            this.isCameraAtInit = false;
+        }
     }
 
     toggleAntialias(){
@@ -706,18 +623,6 @@ export class WebGLSceneComponent {
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
-
-    // testRelocate(){
-    //     if (this.selected && this.selected.class === "Anchor"){
-    //         this.selected.relocateRegion({x: 10, y: 10});
-    //     }
-    // }
-    //
-    // testResize(){
-    //     if (this.selected && this.selected.class === "Anchor"){
-    //         this.selected.resizeRegion({x: -10, y: -10});
-    //     }
-    // }
 
 }
 
