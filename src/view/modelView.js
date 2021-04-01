@@ -34,6 +34,10 @@ function updateChain(chain, curve, start, end){
     for (let i = 0; i < chain.levels.length; i++) {
         //Interpolate chain node positions for quicker layout
         chain.levels[i].length = chain.length / chain.levels.length;
+        const lyph = chain.levels[i].conveyingLyph;
+        if (lyph){
+            lyph.updateSize();
+        }
         let node = chain.levels[i].target;
         if (node && !node.anchoredTo) {
             let p = getPoint(curve, start, end, (i + 1) / chain.levels.length);

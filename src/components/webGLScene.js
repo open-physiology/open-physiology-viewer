@@ -221,8 +221,9 @@ export class WebGLSceneComponent {
         this._highlighted = entity;
         this.highlightedItemChange.emit(entity);
 
-        if (this.graph && this.lockControls && this.isCameraAtInit) {
+        if (this.graph) {
             const obj = entity && entity.viewObjects? entity.viewObjects["main"]: null;
+            this.graph.enableDrag = this.lockControls && this.isCameraAtInit;
             this.graph.select(obj);
         }
     }
@@ -332,17 +333,17 @@ export class WebGLSceneComponent {
             parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
             baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
         };
-        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '75%', data: config });
+        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
         dialogRef.afterClosed().subscribe(result => {
             if (result !== undefined){
                 this.queryCounter++;
-                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
-                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
+                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
+                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
                 const nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
                 const links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
                 const lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
                 if (nodes.length || links.length || lyphs.length) {
-                    this.graphData && this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
+                    this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
                 } else {
                     this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
                 }
@@ -452,6 +453,7 @@ export class WebGLSceneComponent {
             .scaleFactor(this.scaleFactor)
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
+                //TODO emit event to update input model for serialization
             })
             .onWireDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
@@ -480,7 +482,7 @@ export class WebGLSceneComponent {
     }
 
     resetCamera() {
-        this.camera.position.set(0, -200, 100 * this.scaleFactor );
+        this.camera.position.set(0, -200, 120 * this.scaleFactor );
         this.camera.up.set( 0, 0, 1 );
         this.camera.updateProjectionMatrix();
         this.isCameraAtInit = true;

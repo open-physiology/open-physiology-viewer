@@ -8,10 +8,10 @@ import {
     direction,
     semicircleCurve,
     rectangleCurve,
-    arcCurve,
     getPoint,
     getCenterOfMass,
-    getDefaultControlPoint
+    getDefaultControlPoint,
+    getControlPointForArcCenter
 } from "./utils";
 
 import './lines/Line2.js';
@@ -24,7 +24,7 @@ const {VisualResource, Link, Node, Anchor, Wire} = modelClasses;
  */
 VisualResource.prototype.createLabels = function(){
     if (this.skipLabel || !this.state.showLabels) { return; }
-    let labelKey = this.state.labels[this.constructor.name];
+    const labelKey = this.state.labels[this.constructor.name];
     this.labels = this.labels || {};
 
     if (!this.labels[labelKey] && this[labelKey]) {
@@ -45,7 +45,7 @@ VisualResource.prototype.createLabels = function(){
  */
 VisualResource.prototype.updateLabels = function(position){
     if (this.skipLabel || !this.state.showLabels) { return; }
-    let labelKey = this.state.labels[this.constructor.name];
+    const labelKey = this.state.labels[this.constructor.name];
     if (this.labels[labelKey]){
         this.labels[labelKey].visible = this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
@@ -69,7 +69,7 @@ VisualResource.prototype.createViewObjects = function(state) {
  * Update visual object for abstract visual resource
  */
 VisualResource.prototype.updateViewObjects = function(state) {
-    let labelKey = state.labels[this.constructor.name];
+    const labelKey = state.labels[this.constructor.name];
     if (!this.viewObjects["main"] || (!this.skipLabel && !this.labels[labelKey] && this[labelKey])) {
         this.createViewObjects(state);
     }
@@ -231,7 +231,9 @@ Link.prototype.getCurve = function(start, end){
             curve = rectangleCurve(start, end);
             break;
         case Link.LINK_GEOMETRY.ARC:
-            curve = arcCurve(start, end, extractCoords(this.arcCenter));
+            const arcCenter = extractCoords(this.arcCenter);
+            const control = getControlPointForArcCenter(start, end, arcCenter);
+            curve = new THREE.QuadraticBezierCurve3(start, control, end);
             break;
         case Link.LINK_GEOMETRY.PATH:
             if (this.path){
@@ -396,9 +398,9 @@ Anchor.prototype.relocate = function(delta, updateDependent = true){
     let p = p0.clone().add(v);
     copyCoords(this.layout, p);
     this.updateViewObjects(this.state);
-    // if (updateDependent) {
-    //     (this.onBorder || []).forEach(region => region.resize(this, delta));
-    // }
+    if (updateDependent) {
+        (this.onBorder || []).forEach(region => region.resize(this, delta));
+    }
     const updateWires = (wire, prop) => {
         wire.updateViewObjects(this.state);
         (wire[prop].sourceOf || []).forEach(w => w.updateViewObjects(this.state));
@@ -476,12 +478,15 @@ Wire.prototype.createViewObjects = function(state){
 
 Wire.prototype.getCurve = function(start, end){
     let curve = new THREE.Line3(start, end);
+    let control;
     switch (this.geometry) {
         case Wire.WIRE_GEOMETRY.ARC:
-            curve = arcCurve(start, end, extractCoords(this.arcCenter));
+            const arcCenter = extractCoords(this.arcCenter);
+            control = getControlPointForArcCenter(start, end, arcCenter);
+            curve = new THREE.QuadraticBezierCurve3(start, control, end);
             break;
         case Wire.WIRE_GEOMETRY.SPLINE:
-            let control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
+            control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
             curve = new THREE.QuadraticBezierCurve3(start, control, end);
     }
     return curve;

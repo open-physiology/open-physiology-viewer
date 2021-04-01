@@ -3067,13 +3067,13 @@
         {
           "id": "V",
           "hostedBy": "w-M-B",
-          "offset": 0.2,
+          "offset": 0.8,
           "color": "#006400"
         },
         {
           "id": "J",
           "hostedBy": "w-M-B",
-          "offset": 0.3,
+          "offset": 0.7,
           "color": "#006400"
         },
         {
@@ -3295,7 +3295,7 @@
         {
           "id": "Y",
           "hostedBy": "w-P-S",
-          "offset": 0.8
+          "offset": 0.2
         },
         {
           "id": "n3V",

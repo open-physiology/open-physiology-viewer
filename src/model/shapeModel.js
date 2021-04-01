@@ -330,13 +330,15 @@ export class Lyph extends Shape {
      * Defines size of the conveying lyph based on the length of the link
      * @returns {{height: number, width: number}}
      */
-    get size() {
-        const length = this.axis && this.axis.length;
-        let res = {height: length || 1, width: length || 1};
+    get sizeFromAxis() {
+        const length = this.axis && this.axis.length || 10;
+        let res = {width: length, height: length};
         if (this.scale) {
-            res.width  *= this.scale.width / 100;
-            res.height *= this.scale.height / 100;
+            res.width  *= (this.scale.width / 100);
+            res.height *= (this.scale.height / 100);
         }
+        const minSize = {width: 8, height: 10};
+        [$Field.width, $Field.height].forEach(prop => this[prop] = Math.max(res[prop], minSize[prop]));
         return res;
     }
 
@@ -358,6 +360,24 @@ export class Lyph extends Shape {
             curr = curr.prev;
         }
         return offset;
+    }
+
+    updateSize(){
+        const size = this.sizeFromAxis;
+        [$Field.width, $Field.height].forEach(prop => this[prop] = this[prop] || size[prop]);
+        if (this.host){ //inside of other lyph
+            const hostSize = this.host.sizeFromAxis;
+            this.width = this.host.width || hostSize.width;
+            //If host is a layer, make sure lyph width does not exceed the layer's width
+            if (this.host.layerIn){
+                this.width /= this.host.layerIn.layers.length;
+            }
+            //Lyph cannot be bigger than 90% of its host lyph
+            [$Field.width, $Field.height].forEach(prop => {
+                let val = 0.9 * (this.host[prop] || hostSize[prop]);
+                this[prop] = Math.min(this[prop], val);
+            });
+        }
     }
 
     includeRelated(group){
@@ -433,14 +453,6 @@ export class Lyph extends Shape {
             }
             this.axis.length  = this.axis.length || 5;
         }
-    }
-
-    resizeInternal(){
-        // if (!this.length) { return; }
-        // const numCols = this.host.internalLyphColumns || 1
-        // let numRows = Math.ceil(this.length / numCols);
-        //
-        // let [dW, dH] = [W / numCols, H / numRows];
     }
 
     /**
@@ -592,8 +604,8 @@ export class Region extends Shape {
                 s && t && template.borderAnchors.push(getID(s)) && template.borderAnchors.push(getID(t));
             });
             template.borderAnchors = [... new Set(template.borderAnchors)];
-
-            logger.info($LogMsg.REGION_BORDER_ANCHORS, template.id, template.borderAnchors);
+            //TODO add test to check that borderAnchors -> facets and facets -> borderAnchors always auto-complete correctly
+            //logger.info($LogMsg.REGION_BORDER_ANCHORS, template.id, template.borderAnchors);
         }
     }
 }

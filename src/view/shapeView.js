@@ -1,4 +1,4 @@
-import {modelClasses} from "../model/index.js";
+import {modelClasses} from "../model";
 import {merge, values} from 'lodash-bound';
 import {
     align,
@@ -115,19 +115,9 @@ Lyph.prototype.createViewObjects = function(state) {
 
     //Create a lyph object
     if (!this.viewObjects["2d"]) {
-        //Either use given dimensions or set from axis
-        this.width = this.width || this.size.width;
-        this.height = this.height || this.size.height;
-
-        if (this.host){
-            ["width", "height"].forEach(prop => {
-                let val = 0.5 * (this.host[prop] || this.host.size[prop]);
-                if (this[prop] > val){
-                    this[prop] = val;
-                }
-            });
-        }
-       let params = {
+        //Either use given dimensions or compute based on axis length
+        this.updateSize();
+        let params = {
             color: this.color,
             polygonOffsetFactor: this.polygonOffsetFactor
         };
@@ -180,10 +170,10 @@ Lyph.prototype.createViewObjects = function(state) {
         let defaultWidth = (resizedLayers.length < numLayers) ?
             (100. - layerTotalWidth) / (numLayers - resizedLayers.length) : 0;
 
-
         let relOffset = 0;
         (this.layers || []).forEach(layer => {
             layer.create3d = this.create3d;
+            //TODO place sizing code for layers to Lyph.updateSize
             layer.layerWidth = layer.layerWidth || defaultWidth;
             layer.width = layer.layerWidth / 100 * this.width;
             layer.height = this.height;
@@ -219,7 +209,8 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if (!this.layerIn) {//update label
         if (!this.internalIn) {
-            if (!(this.labels[state.labels[this.constructor.name]] && this[state.labels[this.constructor.name]])) {
+            const labelKey = state.labels[this.constructor.name];
+            if (!(this.labels[labelKey] && this[labelKey])) {
                 this.createViewObjects(this.state);
             }
         }
@@ -299,10 +290,6 @@ Region.prototype.updatePoints = function(linkResolution){
                 let curve = wire.getCurve(start, end);
                 if (curve.getPoints) {
                     let points = curve.getPoints(linkResolution);
-                    let first = extractCoords(points[0]);
-                    if (start.clone().sub(first).length() > end.clone().sub(first).length()) {
-                        points = points.reverse();
-                    }
                     this.points.push(...points);
                 }
             }
@@ -447,7 +434,6 @@ Border.prototype.updateViewObjects = function(state){
         let p = [new THREE.Vector3(maxX, minY, 1), new THREE.Vector3(minX, minY, 1), new THREE.Vector3(minX, maxY, 1)];
 
         let isReversed = link.reversed || isInRange(90, 270, link.conveyingLyph.angle);
-
         let numRows = Math.ceil(length / numCols);
 
         let w = p[1].clone().sub(p[0]); //width
@@ -460,10 +446,6 @@ Border.prototype.updateViewObjects = function(state){
         let [dW, dH] = [W / numCols, H / numRows];
         let [dX, dY] = [j*dW, i*dH];
 
-        if (link.length > dW){
-            link.length = dW;
-        }
-
         let dy = dY + (isReversed? dH : 0);
         let offsetY  = h.clone().multiplyScalar(dy / H + delta);
         let sOffsetX = w.clone().multiplyScalar(dX / W + delta); //link.source.offset || 0;
@@ -474,6 +456,8 @@ Border.prototype.updateViewObjects = function(state){
 
         copyCoords(link.source, v1);
         copyCoords(link.target, v2);
+
+        link.length = dW;
     };
 
     /**
@@ -498,42 +482,6 @@ Border.prototype.updateViewObjects = function(state){
         let pos = center.clone().add(offset);
         copyCoords(node, pos);
         node.z += 1;
-    };
-
-    /**
-     * Push existing link inside of the border
-     * @param link
-     */
-    const pushLinkInside = (link) => {
-        if (!link.source || !link.target){ return; }
-        if (link.source.isConstrained || link.target.isConstrained){ return; }
-
-        const delta = 5;
-        let points = this.host.points.map(p => p.clone());
-        let [min, max] = this.getBoundingBox();
-        //Global force pushes content on top of lyph
-        if (Math.abs(max.z - min.z) <= delta) {
-            //Fast way to get projection for lyphs parallel to x-y plane
-            link.source.z = link.target.z = points[0].z + 1;
-        } else {
-            //Project links with hosted lyphs to the container lyph plane
-            let plane = new THREE.Plane();
-            plane.setFromCoplanarPoints(...points.slice(0,3));
-
-            ["source", "target"].forEach(key => {
-                let point = extractCoords(link[key]);
-                plane.projectPoint(point, point);
-                point.z += 1;
-                copyCoords(link[key], point);
-            });
-        }
-        boundToRectangle(link.source, min, max);
-        boundToRectangle(link.target, min, max);
-        let [dX, dY] = ["x", "y"].map(key => points.map(p => Math.min(p[key] - min[key], max[key] - p[key])));
-        if (Math.max(...[...dX,...dY]) > delta) { //if the shape is not rectangle
-            //Push the link to the tilted lyph rectangle
-            boundToPolygon(link, this.borders);
-        }
     };
 
     for (let i = 0; i < this.borders.length ; i++){

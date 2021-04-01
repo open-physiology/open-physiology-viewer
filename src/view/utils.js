@@ -302,29 +302,6 @@ export function rectangleCurve(startV, endV){
 }
 
 /**
- * Draw a 2d elliptic curve given 2 poinst on it and the center
- * @param startV - 2d point on the ellipse
- * @param endV - 2d point on the ellipse
- * @param centerV - center of the ellipse
- * @returns {EllipseCurve}
- */
-export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
-    let p = startV.clone().sub(centerV);
-    let q = endV.clone().sub(centerV);
-
-    let a2 = Math.abs((p.x^2)*(q.y^2) - (q.x^2)*(p.y^2)) / (q.y^2 - p.y^2);
-    let b2 = Math.abs((q.x^2)*(p.y^2) - (p.x^2)*(q.y^2)) / (p.x^2 - q.x^2);
-
-    let dot = p.dot(q);
-    let theta = Math.acos( dot / (p.length() * q.length())) ;
-    return new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false);
-}
-
-/**************************************************************
- *	Ellipse curve
- **************************************************************/
-
-/**
  * Create a cubic Bezier curve resembling a semicircle
  * @param {Object} startV      - start coordinates
  * @param {Object} endV        - end coordinates
@@ -423,6 +400,7 @@ export function getCenterPoint(mesh) {
 }
 
 /**
+ /**
  * Computes a default control point for quadratic Bezier curve
  * @param startV
  * @param endV
@@ -436,6 +414,19 @@ export function getDefaultControlPoint(startV, endV){
     let pEdgeV = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
     let center = startV.clone().add(endV).multiplyScalar(0.5);
     return center.add(pEdgeV.multiplyScalar(0.25));
+}
+
+export function getControlPointForArcCenter(startV, endV, arcCenter){
+    if (!startV || !endV){
+        return new THREE.Vector3();
+    }
+    if (!arcCenter) {
+        return getDefaultControlPoint(startV, endV);
+    }
+    let edgeV  = endV.clone().sub(startV);
+    let center = startV.clone().add(endV).multiplyScalar(0.5);
+    let pEdgeV = center.sub(arcCenter);
+    return center.add(pEdgeV);
 }
 
 /**

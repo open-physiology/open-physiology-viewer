@@ -146,7 +146,6 @@ export class ResourceEditor {
         return (this.modelResources||{})::entries().filter(([id, resource]) => resource && !resource.generated)::fromPairs();
     }
 
-
     /**
      * Add newly created resource to the global map to enable the possibility to refer to it
      * @param {string} key  - resource field that points to the other resource in the relationship

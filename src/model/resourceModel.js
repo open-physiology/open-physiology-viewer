@@ -499,7 +499,7 @@ export class Resource{
     }
 
     /**
-     * A stub to make sure call for includeRelated on misclassified resorce does not cause exception
+     * A stub to make sure call for includeRelated on misclassified resource does not cause exception
      * @param group
      */
     includeRelated(group){

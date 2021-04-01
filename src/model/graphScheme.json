@@ -728,7 +728,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "source", "target", "conveyingLyph", "fasciculatesIn", "generated" ]
+          "default": [ "id", "name", "class", "source", "target", "conveyingLyph", "fasciculatesIn", "generated", "length"]
         },
         "directed"     : {
           "description": "When set to true, defines a directed edge with arrow at the end",
@@ -1659,7 +1659,7 @@
           "items": {
             "type": "string"
           },
-          "default": [ "id", "name", "class", "topology", "external", "internalIn", "bundles", "supertype", "cloneOf", "generated"],
+          "default": [ "id", "name", "class", "topology", "external", "internalIn", "bundles", "supertype", "cloneOf", "generated", "width", "height"],
           "advanced": true
         },
         "width"          : {
