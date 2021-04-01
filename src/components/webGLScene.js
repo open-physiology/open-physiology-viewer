@@ -170,7 +170,7 @@ export class WebGLSceneComponent {
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
-    scaleFactor    = 10;
+    scaleFactor    = 8;
     labelRelSize   = 0.1 * this.scaleFactor;
     lockControls   = true;
     isConnectivity = true;
@@ -335,7 +335,7 @@ export class WebGLSceneComponent {
         };
         let dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
         dialogRef.afterClosed().subscribe(result => {
-            if (result !== undefined){
+            if (result && result.response){
                 this.queryCounter++;
                 const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
                 const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
@@ -625,7 +625,6 @@ export class WebGLSceneComponent {
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
-
 }
 
 @NgModule({

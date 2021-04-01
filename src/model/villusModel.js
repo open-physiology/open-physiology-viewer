@@ -1,6 +1,6 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
-import {Link} from "./visualResourceModel";
+import {Link} from "./linkModel";
 import {
     mergeGenResource,
     findResourceByID,

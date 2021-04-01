@@ -1,7 +1,9 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
-import {Link, Node} from "./visualResourceModel";
+import {Node} from "./nodeModel";
+import {Link} from "./linkModel";
 import {Coalescence} from "./coalescenceModel";
+
 import {
     mergeGenResource,
     findResourceByID,
@@ -17,6 +19,7 @@ import {
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
+import {extractCoords} from "../view/utils";
 
 /**
  * Chain model
@@ -412,6 +415,23 @@ export class Chain extends GroupTemplate {
         if (sameWidth && minWidth < MAX_WIDTH){
             (this.levels||[]).forEach(lnk => lnk.conveyingLyph && (lnk.conveyingLyph.width = minWidth));
         }
+    }
+
+    getWiredChainEnds(){
+        let start, end;
+        if (this.wiredTo) {
+            start = this.wiredTo.source;
+            end   = this.wiredTo.target;
+        } else {
+            start = this.root.anchoredTo? this.root.anchoredTo: this.root.layout;
+            end   = this.leaf.anchoredTo? this.leaf.anchoredTo: this.leaf.layout;
+        }
+        if (this.startFromLeaf){
+            let tmp = start;
+            let start = end;
+            let end = tmp;
+        }
+        return {start, end};
     }
 }
 

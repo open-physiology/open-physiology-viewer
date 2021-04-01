@@ -3,27 +3,15 @@ import {modelClasses} from "../model";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
 import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
+import './nodeView';
+import './linkView';
+import './anchorView';
+import './wireView';
 import './shapeView';
 
 const {Group, Link, Coalescence, Component, Chain, Node, Region} = modelClasses;
 
-function getWiredChain(chain){
-    let start, end;
-    if (chain.wiredTo) {
-        start = extractCoords(chain.wiredTo.source);
-        end   = extractCoords(chain.wiredTo.target);
-    } else {
-        start = extractCoords(chain.root.anchoredTo? chain.root.anchoredTo: chain.root.layout);
-        end   = extractCoords(chain.leaf.anchoredTo? chain.leaf.anchoredTo: chain.leaf.layout);
-    }
-    if (chain.startFromLeaf){
-        let tmp = start;
-        let start = end;
-        let end = tmp;
-    }
-    return {start, end};
-}
-
+//TODO move to model
 function updateChain(chain, curve, start, end){
     if (!chain || !start || !end){ return; }
     let length = (curve && curve.getLength)? curve.getLength(): end.distanceTo(start);
@@ -67,7 +55,9 @@ Group.prototype.createViewObjects = function(state){
 
     (this.chains||[]).forEach(chain => {
         if (!(chain instanceof Chain) || !chain.root || !chain.leaf){ return; }
-        let {start, end} = getWiredChain(chain);
+        let {start, end} = chain.getWiredChainEnds();
+        start = extractCoords(start);
+        end   = extractCoords(end);
         let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
         updateChain(chain, curve, start, end);
     });
@@ -100,7 +90,9 @@ Group.prototype.updateViewObjects = function(state){
 
     (this.chains||[]).forEach(chain => {
         if (!chain.root || !chain.leaf){ return; }
-        let {start, end} = getWiredChain(chain);
+        let {start, end} = chain.getWiredChainEnds();
+        start = extractCoords(start);
+        end   = extractCoords(end);
         let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
         //update if chain ends are dynamic
         if (start && start.hostedBy || end && end.hostedBy) {
@@ -173,20 +165,12 @@ Group.prototype.updateViewObjects = function(state){
  * @param state
  */
 Component.prototype.createViewObjects = function(state){
-    this.visibleAnchors.forEach(anchor => {
-        anchor.createViewObjects(state);
-        anchor.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
-    });
-
-    this.visibleWires.forEach(wire => {
-        wire.createViewObjects(state);
-        wire.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
-    });
-
-    this.visibleRegions.forEach(region => {
-        region.createViewObjects(state);
-        region.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
-    });
+    [this.visibleAnchors, this.visibleWires, this.visibleRegions].forEach(resArray =>
+        resArray.forEach(res => {
+            res.createViewObjects(state);
+            res.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
+        })
+    );
 };
 
 /**

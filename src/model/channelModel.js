@@ -1,6 +1,7 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
-import {Link, Node} from "./visualResourceModel";
+import {Node} from "./nodeModel";
+import {Link} from "./linkModel";
 import {Coalescence} from "./coalescenceModel";
 import {
     mergeGenResource,

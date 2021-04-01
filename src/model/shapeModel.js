@@ -1,4 +1,6 @@
-import {Link, Node, VisualResource} from './visualResourceModel';
+import {VisualResource} from './visualResourceModel';
+import {Node} from './nodeModel';
+import {Link} from './linkModel';
 import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
@@ -304,7 +306,7 @@ export class Lyph extends Shape {
     }
 
     get host() {
-        return (this.conveys && this.conveys.fasciculatesIn) || this.internalIn;
+        return (this.conveys && this.conveys.fasciculatesIn) || this.internalIn; // || this.hostedBy;
     }
 
     get container(){
@@ -333,12 +335,12 @@ export class Lyph extends Shape {
     get sizeFromAxis() {
         const length = this.axis && this.axis.length || 10;
         let res = {width: length, height: length};
-        if (this.scale) {
-            res.width  *= (this.scale.width / 100);
-            res.height *= (this.scale.height / 100);
+        this.scale = this.scale || {
+            [$Field.width] : 40,
+            [$Field.height]: 80
         }
-        const minSize = {width: 8, height: 10};
-        [$Field.width, $Field.height].forEach(prop => this[prop] = Math.max(res[prop], minSize[prop]));
+        res.width  *= (this.scale.width / 100);
+        res.height *= (this.scale.height / 100);
         return res;
     }
 
@@ -361,20 +363,24 @@ export class Lyph extends Shape {
         }
         return offset;
     }
-
+sh
     updateSize(){
         const size = this.sizeFromAxis;
         [$Field.width, $Field.height].forEach(prop => this[prop] = this[prop] || size[prop]);
-        if (this.host){ //inside of other lyph
+        if (this.host){
+            //inside of other lyph
             const hostSize = this.host.sizeFromAxis;
-            this.width = this.host.width || hostSize.width;
-            //If host is a layer, make sure lyph width does not exceed the layer's width
-            if (this.host.layerIn){
-                this.width /= this.host.layerIn.layers.length;
+            const maxWidth = this.host.width || hostSize.width;
+            if (this.width > maxWidth){
+                this.width = maxWidth;
             }
-            //Lyph cannot be bigger than 90% of its host lyph
+            //If host is a layer, make sure lyph width does not exceed the layer's width
+            // if (this.host.layerIn){
+            //     this.width /= this.host.layerIn.layers.length;
+            // }
+            //Lyph cannot be bigger than 95% of its host lyph
             [$Field.width, $Field.height].forEach(prop => {
-                let val = 0.9 * (this.host[prop] || hostSize[prop]);
+                let val = 0.95 * (this.host[prop] || hostSize[prop]);
                 this[prop] = Math.min(this[prop], val);
             });
         }
@@ -451,7 +457,7 @@ export class Lyph extends Shape {
             } else {
                 //TODO lyph can be internal in a region - dynamically compute length based on region width or length
             }
-            this.axis.length  = this.axis.length || 5;
+            this.axis.length = this.axis.length || 10;
         }
     }
 
@@ -559,7 +565,7 @@ export class Region extends Shape {
             (template.points||[]).forEach((p, i) => {
                 anchors.push({
                     [$Field.id]: getGenID($Prefix.anchor, template.id, i),
-                    [$Field.layout]: p,
+                    [$Field.layout]: p::clone(),
                     [$Field.skipLabel]: true,
                     [$Field.generated]: true
                 });
@@ -608,6 +614,55 @@ export class Region extends Shape {
             //logger.info($LogMsg.REGION_BORDER_ANCHORS, template.id, template.borderAnchors);
         }
     }
+    //
+    // get longestFacet() {
+    //     if (!this._longestFacet) {
+    //         let index = -1;
+    //         let length = -1;
+    //         for (let i = 0; i < (this.facets || []).length; i++) {
+    //             let fLength = this.facets[i].length;
+    //             if (fLength > length) {
+    //                 index = i;
+    //                 length = fLength;
+    //             }
+    //         }
+    //         this._longestFacet = (index >= 0) ? this.facets[index] : null;
+    //     }
+    //     return this._longestFacet;
+    // }
+    //
+    // get sizeFromAxis() {
+    //     return {[$Field.width]: this.width, [$Field.height]: this.height};
+    // }
+    //
+    // get height(){
+    //     if (!this._height) {
+    //         const h = this.longestFacet;
+    //         this._height = (h && h.length) || 10;
+    //     }
+    //     return this._height;
+    // }
+    //
+    // get width(){
+    //     if (!this._width) {
+    //         const h = this.longestFacet;
+    //         if (h) {
+    //             //wires adjacent to the longest facet
+    //             const w1 = h.source.targetOf && h.source.targetOf[0];
+    //             const w2 = h.target.sourceOf && h.target.sourceOf[0];
+    //             if (w1 && w2) {
+    //                 this._width = (w1.length + w2.length) / 200; // TODO fix this - compute width for any scaleFactor
+    //             }
+    //         } else {
+    //             this._width = 10;
+    //         }
+    //     }
+    //     return this._width;
+    // }
+    //
+    // updateSize(){
+    //     //TODO resize region to fit into hosting region
+    // }
 }
 
 /**

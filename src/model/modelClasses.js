@@ -7,8 +7,10 @@ import {Group}   from './groupModel';
 import {Component} from './componentModel';
 import {Graph}   from './graphModel';
 import {Scaffold} from './scaffoldModel';
-import {Resource, External} from './resourceModel'
-import {VisualResource, Material, Node, Link, Anchor, Wire} from './visualResourceModel'
+import {Resource, External} from './resourceModel';
+import {VisualResource, Material, Anchor, Wire} from './visualResourceModel';
+import {Node} from './nodeModel';
+import {Link} from './linkModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {$Field, $SchemaClass} from './utils';

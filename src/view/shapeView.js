@@ -11,8 +11,6 @@ import {
     layerShape,
     lyphShape,
     extractCoords,
-    boundToPolygon,
-    boundToRectangle,
     isInRange,
     THREE
 } from "./utils";
@@ -430,6 +428,8 @@ Border.prototype.updateViewObjects = function(state){
             avgZ += p.z;
         });
 
+        //TODO make projection if hosting layer is not on xy plane
+
         avgZ = avgZ / (this.host.points||[]).length;
         let p = [new THREE.Vector3(maxX, minY, 1), new THREE.Vector3(minX, minY, 1), new THREE.Vector3(minX, maxY, 1)];
 
@@ -456,8 +456,6 @@ Border.prototype.updateViewObjects = function(state){
 
         copyCoords(link.source, v1);
         copyCoords(link.target, v2);
-
-        link.length = dW;
     };
 
     /**

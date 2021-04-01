@@ -404,7 +404,7 @@ export function getCenterPoint(mesh) {
  * Computes a default control point for quadratic Bezier curve
  * @param startV
  * @param endV
- * @returns {Vector}
+ * @returns {Vector3}
  */
 export function getDefaultControlPoint(startV, endV){
     if (!startV || !endV){
@@ -441,98 +441,3 @@ export function getBoundingBox(mesh) {
     }
     return mesh.geometry.boundingBox;
 }
-
-/**
- * Pushes a point inside of a rectangle on a plane
- * @param {Vector2} point  point coordinates
- * @param {{x: number, y: number}} min    minimal coordinate values
- * @param {{x: number, y: number}} max    maximal coordinate values
- */
-export function boundToRectangle(point, min, max){
-    point.x = Math.max(Math.min(point.x, max.x) , min.x);
-    point.y = Math.max(Math.min(point.y, max.y) , min.y);
-}
-
-/**
- * Force link ends to stay inside of a polygon (reset coordinates to the intersection point)
- * @param {{source: Vector2, target: Vector2}} link - link between two points
- * @param {Array} boundaryLinks                     - links representing sides of a polygon
- */
-export function boundToPolygon(link, boundaryLinks=[]){
-    let sourceIn = pointInPolygon(link.source, boundaryLinks);
-    let targetIn = pointInPolygon(link.target, boundaryLinks);
-    if (!sourceIn || !targetIn) {
-        let res = getBoundaryPoint(link, boundaryLinks);
-        if (res){
-            if (!sourceIn){
-                //We first drag the source node to the rectangle,
-                //The target node should be dragged to it by the link force
-                link.source.x = res.x;
-                link.source.y = res.y;
-            }
-            else {
-                //If we place both source and target to the same point, they will repel
-                //So we push the target node to the rectangle only after the source node is already there
-                //I think it helps to reduce edge jumping, but optionally  we can remove the above 'else' statement
-                if (!targetIn){
-                    link.target.x = res.x;
-                    link.target.y = res.y;
-                }
-            }
-        }
-    }
-}
-
-/**
- * Check whether the point is in a polygon
- * @param {{x: number, y: number}} point  point coordinates
- * @param {Array} boundaryLinks           links representing sides of a polygon
- * @returns {boolean}   returns true if the point is within the polygon boundaries
- */
-function pointInPolygon (point, boundaryLinks=[]) {
-    let x = point.x, y = point.y, inside = false;
-    boundaryLinks.forEach(line2 => {
-        let xi = line2.source.x, yi = line2.source.y,
-            xj = line2.target.x, yj = line2.target.y;
-        let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) { inside = !inside; }
-    });
-    return inside;
-}
-
-/**
- * Find intersection of a line with polygon
- * @param {{source: Vector2, target: Vector2}} link    link between two points on a plane
- * @param {Array} boundaryLinks                        links representing sides of a polygon
- * @returns {null}
- */
-function getBoundaryPoint (link, boundaryLinks=[]){
-    for (let i = 0; i < boundaryLinks.length; i++){
-        let res = getLineIntersection(link, boundaryLinks[i]);
-        if (res){ return res; }
-    }
-}
-
-/**
- * Find intersection point of two lines
- * @param {{source: Vector2, target: Vector2}} line1  first line
- * @param {{source: Vector2, target: Vector2}} line2  second line
- * @returns {{x: number, y: number}}  coordinates of the intersection point or  null if the lines do not intersect
- */
-function getLineIntersection(line1, line2) {
-    let denominator, a, b, numerator1;//, numerator2;
-    denominator = ((line2.target.y - line2.source.y) * (line1.target.x - line1.source.x)) - ((line2.target.x - line2.source.x) * (line1.target.y - line1.source.y));
-    if (denominator === 0) { return }
-    a = line1.source.y - line2.source.y;
-    b = line1.source.x - line2.source.x;
-    numerator1 = ((line2.target.x - line2.source.x) * a) - ((line2.target.y - line2.source.y) * b);
-    a = numerator1 / denominator;
-    //numerator2 = ((line1.target.x - line1.source.x) * a) - ((line1.target.y - line1.source.y) * b);
-    //b = numerator2 / denominator;
-    return {
-        x: line1.source.x + (a * (line1.target.x - line1.source.x)),
-        y: line1.source.y + (a * (line1.target.y - line1.source.y))
-    };
-}
-
-

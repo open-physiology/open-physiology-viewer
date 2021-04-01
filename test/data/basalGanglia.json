@@ -46,7 +46,7 @@
       "id"       : "main",
       "source"   : "a",
       "target"   : "b",
-      "length"   : "100",
+      "length"   : 100,
       "geometry" : "invisible",
       "conveyingLyph": "bg"
     },

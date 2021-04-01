@@ -1689,10 +1689,6 @@
               "maximum": 100
             }
           },
-          "default": {
-            "width": 40,
-            "height": 80
-          },
           "advanced": true
         },
         "create3d"       : {

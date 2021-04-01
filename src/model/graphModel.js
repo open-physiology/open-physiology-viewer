@@ -66,8 +66,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
 
     if (schema.definitions) {
         schema.definitions::entries()
-            .forEach(([did, def]) => {
-                schemaToContext(def, context);});
+            .forEach(([did, def]) => schemaToContext(def, context));
     } else {
         if (id !== null && schemaIsId(schema)) {
             context[id] = {"@id": prefix.concat(id),
@@ -205,9 +204,6 @@ export class Graph extends Group{
 
         //Validate channels
         (res.channels || []).forEach(r => r.validate(res));
-
-        //Double link length so that 100% from the view length is turned into 100% from coordinate axis length
-        (res.links || []).forEach(link => link.length = (link.length || 10) * 2);
 
         res.generated = true;
         res.mergeScaffoldResources();
@@ -410,7 +406,6 @@ export class Graph extends Group{
                 [$Field.lyphs] : lyphs.map(e => e.id)
             }, modelClasses, this.entitiesByID, this.namespace);
             this.groups.push(group);
-            console.log(group);
         }
 
         const {nodes, links, lyphs} = json;
@@ -511,11 +506,7 @@ export class Graph extends Group{
 
         if (this.scaffoldResources) {
             (this.scaffoldResources.anchors || []).forEach(e => e.layout && scalePoint(e.layout));
-            (this.scaffoldResources.wires || []).forEach(e => {
-                if (e::isObject() && !!e.length){
-                    e.length *= scaleFactor;
-                }
-            });
+            (this.scaffoldResources.wires || []).forEach(e => e::isObject() && (e.length = (e.length || 10) * scaleFactor));
             (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
         }
 
@@ -526,16 +517,12 @@ export class Graph extends Group{
         (this.nodes||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.links||[]).forEach(e => {
             if (e::isObject()) {
-                e.length && (length *= scaleFactor);
+                e.length = (e.length || 10) * scaleFactor;
                 e.arcCenter && scalePoint(e.arcCenter);
                 e.controlPoint && scalePoint(e.controlPoint);
             }
         });
-        (this.regions||[]).forEach(e => {
-            if (e.points) {
-                e.points.forEach(p => scalePoint(p));
-            }
-        });
+        (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
     }
 
     /**
