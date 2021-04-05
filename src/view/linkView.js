@@ -8,7 +8,7 @@ import {
     semicircleCurve,
     rectangleCurve,
     getPoint,
-    getControlPointForArcCenter
+    arcCurve
 } from "./utils";
 
 import './lines/Line2.js';
@@ -125,9 +125,7 @@ Link.prototype.getCurve = function(start, end){
             curve = rectangleCurve(start, end);
             break;
         case Link.LINK_GEOMETRY.ARC:
-            const arcCenter = extractCoords(this.arcCenter);
-            const control = getControlPointForArcCenter(start, end, arcCenter);
-            curve = new THREE.QuadraticBezierCurve3(start, control, end);
+            curve = arcCurve(extractCoords(this.source), extractCoords(this.target), extractCoords(this.arcCenter));
             break;
         case Link.LINK_GEOMETRY.PATH:
             if (this.path){

@@ -339,13 +339,14 @@ Region.prototype.relocate = function (delta){
  * @param delta   - vector to shift the anchor
  * @param epsilon - allowed distance between coordinates that are considered the same
  */
-Region.prototype.resize = function (anchor, delta, epsilon = 5) {
+Region.prototype.resize = function (anchor, delta, epsilon = 10) {
     if (!anchor || !anchor.onBorder){ return; }
     let base = extractCoords(anchor);
     ["x", "y"].forEach(dim => {
-        //shift horizontal and vertical wires to keep the rectangular shape
+        //shift straight wires
         function relocateAdjacent(wire, prop){
-            if (Math.abs(wire[prop][dim] - (base[dim] - delta[dim])) < epsilon) {
+            if (wire.geometry === Wire.WIRE_GEOMETRY.LINK &&
+                Math.abs(wire[prop][dim] - (base[dim] - delta[dim])) < epsilon) {
                 relocate.add(wire[prop]);
             }
         }

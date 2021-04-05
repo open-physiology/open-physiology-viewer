@@ -4,6 +4,7 @@ import {
     THREE,
     copyCoords,
     getPoint,
+    arcCurve,
     getDefaultControlPoint,
     getControlPointForArcCenter
 } from "./utils";
@@ -77,26 +78,25 @@ Wire.prototype.createViewObjects = function(state){
 
 Wire.prototype.getCurve = function(start, end){
     let curve = new THREE.Line3(start, end);
-    let control;
     switch (this.geometry) {
         case Wire.WIRE_GEOMETRY.ARC:
-            const arcCenter = extractCoords(this.arcCenter);
-            control = getControlPointForArcCenter(start, end, arcCenter);
-            curve = new THREE.QuadraticBezierCurve3(start, control, end);
+            curve = arcCurve(extractCoords(this.source), extractCoords(this.target), extractCoords(this.arcCenter));
             break;
         case Wire.WIRE_GEOMETRY.SPLINE:
-            control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
+            const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
             curve = new THREE.QuadraticBezierCurve3(start, control, end);
     }
     return curve;
 };
 
-Wire.prototype.relocate = function(delta, epsilon = 5){
-    if (Math.abs(this.source.x - this.target.x) < epsilon) {
-        delta.y = 0;
-    } else {
-        if (Math.abs(this.source.y - this.target.y) < epsilon) {
-            delta.x = 0;
+Wire.prototype.relocate = function(delta, epsilon = 10){
+    if (this.geometry === Wire.WIRE_GEOMETRY.LINK) {
+        if (Math.abs(this.source.x - this.target.x) < epsilon) {
+            delta.y = 0;
+        } else {
+            if (Math.abs(this.source.y - this.target.y) < epsilon) {
+                delta.x = 0;
+            }
         }
     }
     ['source', 'target'].forEach(prop => this[prop].relocate(delta));

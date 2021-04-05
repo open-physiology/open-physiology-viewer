@@ -285,8 +285,8 @@ export class WebGLSceneComponent {
     ngAfterViewInit() {
         if (this.renderer) {  return; }
 
-        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias});
-        this.renderer.setClearColor(0xffffff);
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias, alpha: true});
+        this.renderer.setClearColor(0xffffff, 0);
 
         this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;
@@ -453,6 +453,7 @@ export class WebGLSceneComponent {
             .scaleFactor(this.scaleFactor)
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
+                //this.graph.update();
                 //TODO emit event to update input model for serialization
             })
             .onWireDragEnd((obj, delta) => {

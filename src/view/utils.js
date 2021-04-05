@@ -301,6 +301,25 @@ export function rectangleCurve(startV, endV){
     return curvePath;
 }
 
+export function arcCurve(source, target, arcCenter){
+    const delta = 10;
+    const v1 = source.clone().sub(arcCenter);
+    const v2 = target.clone().sub(arcCenter);
+    const sum = v1.clone().add(v2);
+    const q = sum.x > 0? (sum.y > 0? 1: 4): sum.y > 0? 2: 3;
+
+    const xRadius  = q%2 == 1? v1.length(): v2.length();
+    const yRadius  = q%2 == 0? v1.length(): v2.length();
+
+    return new THREE.EllipseCurve(
+        arcCenter.x,  arcCenter.y, // ax, aY
+        xRadius, yRadius, // xRadius, yRadius
+        Math.PI / 2 * (q - 1), Math.PI / 2 * q,  // aStartAngle, aEndAngle
+        false,            // aClockwise
+        0                 // aRotation
+    );
+}
+
 /**
  * Create a cubic Bezier curve resembling a semicircle
  * @param {Object} startV      - start coordinates
@@ -414,19 +433,6 @@ export function getDefaultControlPoint(startV, endV){
     let pEdgeV = edgeV.clone().applyAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI / 2);
     let center = startV.clone().add(endV).multiplyScalar(0.5);
     return center.add(pEdgeV.multiplyScalar(0.25));
-}
-
-export function getControlPointForArcCenter(startV, endV, arcCenter){
-    if (!startV || !endV){
-        return new THREE.Vector3();
-    }
-    if (!arcCenter) {
-        return getDefaultControlPoint(startV, endV);
-    }
-    let edgeV  = endV.clone().sub(startV);
-    let center = startV.clone().add(endV).multiplyScalar(0.5);
-    let pEdgeV = center.sub(arcCenter);
-    return center.add(pEdgeV);
 }
 
 /**
