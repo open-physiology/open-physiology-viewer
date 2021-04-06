@@ -417,14 +417,15 @@ sh
                 [$Field.color]     : $Color.Node,
                 [$Field.val]       : this.internalIn? 0.1: 1,
                 [$Field.skipLabel] : true,
-                [$Field.generated] : true
+                [$Field.generated] : true,
+                [$Field.invisible] : true
             }, modelClasses, entitiesByID, namespace)));
 
         let link = Link.fromJSON({
             [$Field.id]           : getGenID($Prefix.link, this.id),
             [$Field.source]       : sNode.id,
             [$Field.target]       : tNode.id,
-            [$Field.color]        : $Color.Link,
+            [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
             [$Field.conveyingLyph]: this.id,
             [$Field.skipLabel]    : true,
             [$Field.generated]    : true

@@ -13,6 +13,7 @@ import {$LogMsg, logger} from "./logger";
  * @class
  * @property {number} val
  * @property {Array<Node>} controlNodes
+ * @property {Boolean} invisible
  * @property {Link} hostedBy
  * @property {Link} sourceOf
  * @property {Link} targetOf

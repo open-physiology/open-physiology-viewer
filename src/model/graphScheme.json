@@ -420,6 +420,11 @@
         "$ref": "#/definitions/Point3Scheme"
       }],
       "properties": {
+        "invisible": {
+          "description": "A flag to indicate that this node should not be visualized (view object is not created)",
+          "type": "boolean",
+          "advanced": false
+        },
         "infoFields": {
           "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
           "type": "array",

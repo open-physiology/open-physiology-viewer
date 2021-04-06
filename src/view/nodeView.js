@@ -9,6 +9,7 @@ const {VisualResource, Node} = modelClasses;
  */
 Node.prototype.createViewObjects = function(state) {
     VisualResource.prototype.createViewObjects.call(this, state);
+    if (this.invisible){ return; }
     if (!this.viewObjects["main"]) {
         let geometry = new THREE.SphereGeometry(this.val * state.nodeRelSize,
             state.nodeResolution, state.nodeResolution);
@@ -41,9 +42,10 @@ Node.prototype.updateViewObjects = function(state) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
     }
-    copyCoords(this.viewObjects["main"].position, this);
-
-    this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Node));
+    if (!this.invisible) {
+        copyCoords(this.viewObjects["main"].position, this);
+        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Node));
+    }
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {

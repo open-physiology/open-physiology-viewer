@@ -194,6 +194,11 @@ export class Graph extends Group{
         (res.links||[]).forEach(link => {
             if (link instanceof modelClasses.Link){
                 link.validateProcess();
+                if (link.source.sourceOf.length === 1 && link.target.targetOf === 1){
+                    link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
+                    link.source.invisible = true;
+                    link.target.invisible = true;
+                }
             } else {
                 logger.error($LogMsg.CLASS_ERROR_RESOURCE, "validateProcess", link, modelClasses.Link.name);
             }
@@ -275,7 +280,7 @@ export class Graph extends Group{
                     });
                     table[i] = convention;
                 }
-                model[relName] = model[relName].filter((obj, i) => (i > 0) && obj::isEmpty());
+                model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
                 return;
             }
             let clsName = relName === "main"? $SchemaClass.Graph: graphSchema.relClassNames[relName];
@@ -347,7 +352,7 @@ export class Graph extends Group{
                 table[i] = resource::omit(borderNames);
             }
             //Remove headers and empty objects
-            model[relName] = model[relName].filter((obj, i) => (i > 0) && obj::isEmpty());
+            model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
         });
 
         if (model.main){
