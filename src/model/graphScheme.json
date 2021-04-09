@@ -412,19 +412,43 @@
 
       }
     },
-    "Node": {
-      "description": "Graph node joins two or more links (processes)",
+    "Vertice": {
+      "description": "A common abstract class for nodes and anchors",
       "allOf":[{
         "$ref": "#/definitions/VisualResource"
-      }, {
-        "$ref": "#/definitions/Point3Scheme"
-      }],
+        },
+        {
+          "$ref": "#/definitions/Point3Scheme"
+        }
+      ],
+      "abstract": true,
       "properties": {
         "invisible": {
           "description": "A flag to indicate that this node should not be visualized (view object is not created)",
           "type": "boolean",
           "advanced": false
         },
+        "val": {
+          "description": "A value that defines the size of the vertice",
+          "type": "number",
+          "minimum": 0,
+          "advanced": true
+        },
+        "offset": {
+          "description": "Defines position of the vertice on its host edge, i.e, fraction of the edge's length starting from the source vertice.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "advanced": true
+        }
+      }
+    },
+    "Node": {
+      "description": "Graph node joins two or more links (processes)",
+      "allOf":[{
+        "$ref": "#/definitions/Vertice"
+      }],
+      "properties": {
         "infoFields": {
           "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
           "type": "array",
@@ -480,20 +504,6 @@
         "fixed": {
           "description": "Fixed nodes are positioned to the desired location",
           "type": "boolean",
-          "advanced": true
-        },
-        "val": {
-          "description": "A value that defines the size of the node",
-          "type": "number",
-          "minimum": 0,
-          "default": 1,
-          "advanced": true
-        },
-        "offset": {
-          "description": "Defines position of the node on its host link, i.e, fraction of the link's length starting from the source node.",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
           "advanced": true
         },
         "charge": {
@@ -585,10 +595,53 @@
         }
       }
     },
+    "Edge": {
+      "description": "A common abstract class for Link and Wire",
+      "allOf":[{
+        "$ref": "#/definitions/VisualResource"
+      }],
+      "abstract": true,
+      "properties": {
+        "stroke"        : {
+          "description": "Special edge stroke: dashed or thick",
+          "type": "string",
+          "enum": [
+            "dashed",
+            "thick"
+          ],
+          "default": "",
+          "advanced": true
+        },
+        "lineWidth"     : {
+          "description": "Edge line width, used in combination with `stroke` set to `dashed`",
+          "type": "number",
+          "default": "0.003",
+          "advanced": true
+        },
+        "arcCenter"    : {
+          "description": "Center of an elliptic curve for an arc edge",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Point3Scheme"
+            },
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Vertice"
+            }
+          ]
+        }
+      },
+      "dependencies" : {
+        "lineWidth": ["stroke"],
+        "arcCenter": ["geometry"]
+      }
+    },
     "Link": {
       "description": "Graph link schematically representing a (part of) physiological process. ",
       "allOf":[{
-        "$ref": "#/definitions/VisualResource"
+        "$ref": "#/definitions/Edge"
       }],
       "properties": {
         "source"        : {
@@ -746,21 +799,6 @@
           "type": "boolean",
           "advanced": true
         },
-        "stroke"       : {
-          "description": "Property that defined appearance of the link: `dashed` corresponds to a dashed line while `thick` is an indication for the tool to use a special shader to draw thick lines",
-          "type": "string",
-          "enum": [
-            "dashed",
-            "thick"
-          ],
-          "default": "",
-          "advanced": true
-        },
-        "lineWidth"    : {
-          "description": "Link width for lines that are drawn using custom shader, makes sense in combination with `stroke` set to `dashed`",
-          "type": "number",
-          "advanced": true
-        },
         "strength"     : {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
           "type": "number",
@@ -833,25 +871,7 @@
           "relatedTo": "prevChainEndLevels",
           "readOnly": true,
           "advanced": true
-        },
-        "arcCenter"    : {
-          "description": "Center of an elliptic curve for an arc link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Point3Scheme"
-            },
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ]
         }
-      },
-      "dependencies" : {
-        "lineWidth": ["stroke"],
-        "arcCenter": ["geometry"]
       }
     },
     "Material": {
@@ -944,23 +964,13 @@
     "Anchor": {
       "description": "Anchor defines a special point in a scaffold. Anchor points can join wires.",
       "allOf":[{
-        "$ref": "#/definitions/VisualResource"
-      }, {
-        "$ref": "#/definitions/Point3Scheme"
-      }
-      ],
+        "$ref": "#/definitions/Vertice"
+      }],
       "properties": {
         "layout"    : {
           "description": "Provided 2d coordinates for the anchor",
           "$ref": "#/definitions/Point2Scheme",
           "default": {}
-        },
-        "offset"    : {
-          "description": "Defines position of the anchor on its host wire",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "advanced": true
         },
         "hostedBy"  : {
           "description": "A wire on which the given anchor is positioned",
@@ -986,7 +996,7 @@
           ],
           "relatedTo": "internalAnchors"
         },
-        "onBorder": {
+        "onBorderInRegion": {
           "description": "IDs or references of the region in which this anchor defines a border point",
           "type": "array",
           "items": {
@@ -1059,7 +1069,7 @@
     "Wire": {
       "description": "Wire models a curve in a scaffold",
       "allOf":[{
-        "$ref": "#/definitions/VisualResource"
+        "$ref": "#/definitions/Edge"
       }],
       "properties": {
         "source"        : {
@@ -1134,37 +1144,6 @@
             }
           ]
         },
-        "stroke"        : {
-          "description": "Wire stroke",
-          "type": "string",
-          "enum": [
-            "dashed",
-            "thick"
-          ],
-          "default": "",
-          "advanced": true
-        },
-        "lineWidth"     : {
-          "description": "Wire line width, used in combination with `stroke` set to `dashed`",
-          "type": "number",
-          "default": "0.003",
-          "advanced": true
-        },
-        "arcCenter"     : {
-          "description": "Center of an elliptic curve for an arc link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Point2Scheme"
-            },
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Anchor"
-            }
-          ],
-          "default": {}
-        },
         "facetIn"       : {
           "description": "ID or reference of the region on which this wire is a facet",
           "type": "array",
@@ -1203,8 +1182,6 @@
         }
       },
       "dependencies" : {
-        "lineWidth": ["stroke"],
-        "arcCenter": ["geometry"],
         "controlPoint": ["geometry"]
       }
     },
@@ -1243,7 +1220,7 @@
               }
             ]
           },
-          "relatedTo": "onBorder",
+          "relatedTo": "onBorderInRegion",
           "uniqueItems": true
         },
         "internalAnchors": {

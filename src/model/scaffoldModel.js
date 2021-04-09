@@ -92,6 +92,8 @@ export class Scaffold extends Component {
         res.entitiesByID = entitiesByID;
         delete res.waitingList;
 
+        (res.components||[]).forEach(component => component.includeRelated());
+
         res.generated = true;
         res.logger = logger;
 

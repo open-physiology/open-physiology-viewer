@@ -263,9 +263,9 @@ Region.prototype.translate = function (p0) {
 
 /**
  * Compute region border points
- * @param linkResolution
+ * @param edgeResolution
  */
-Region.prototype.updatePoints = function(linkResolution){
+Region.prototype.updatePoints = function(edgeResolution){
     if (this.facets) {
         this.points = [];
         let prevAnchor = null;
@@ -287,7 +287,7 @@ Region.prototype.updatePoints = function(linkResolution){
             if (wire.geometry !== Wire.WIRE_GEOMETRY.LINK) {
                 let curve = wire.getCurve(start, end);
                 if (curve.getPoints) {
-                    let points = curve.getPoints(linkResolution);
+                    let points = curve.getPoints(edgeResolution);
                     this.points.push(...points);
                 }
             }
@@ -304,7 +304,7 @@ Region.prototype.updatePoints = function(linkResolution){
  */
 Region.prototype.createViewObjects = function(state) {
     Shape.prototype.createViewObjects.call(this, state);
-    this.updatePoints(state.linkResolution);
+    this.updatePoints(state.edgeResolution);
     let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
     let obj = createMeshWithBorder(shape, {
         color: this.color,
@@ -340,7 +340,7 @@ Region.prototype.relocate = function (delta){
  * @param epsilon - allowed distance between coordinates that are considered the same
  */
 Region.prototype.resize = function (anchor, delta, epsilon = 10) {
-    if (!anchor || !anchor.onBorder){ return; }
+    if (!anchor || !anchor.onBorderInRegion){ return; }
     let base = extractCoords(anchor);
     ["x", "y"].forEach(dim => {
         //shift straight wires
@@ -359,7 +359,7 @@ Region.prototype.resize = function (anchor, delta, epsilon = 10) {
         anchors.forEach(anchor => anchor.relocate(_delta, false));
     });
     (this.facets||[]).forEach(facet => facet.updateViewObjects(this.state));
-    this.updatePoints(this.state.linkResolution);
+    this.updatePoints(this.state.edgeResolution);
 }
 
 /**

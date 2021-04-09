@@ -1,6 +1,6 @@
 import {VisualResource} from './visualResourceModel';
-import {Node} from './nodeModel';
-import {Link} from './linkModel';
+import {Node} from './verticeModel';
+import {Link} from './edgeModel';
 import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
@@ -13,7 +13,7 @@ import {
     getNewID,
     getID,
     LYPH_TOPOLOGY,
-    mergeResources
+    mergeResources, $SchemaClass
 } from './utils';
 
 /**
@@ -615,6 +615,23 @@ export class Region extends Shape {
             //logger.info($LogMsg.REGION_BORDER_ANCHORS, template.id, template.borderAnchors);
         }
     }
+
+    includeRelated(component){
+        (this.facets||[]).forEach(facet => {
+            if (!facet || facet.class !== $SchemaClass.Wire){ return; }
+            if (!(component.wires||[]).find(e => e.id === facet.id)){
+                component.wires.push(facet);
+                facet.includeRelated(component);
+            }
+        });
+        (this.internalAnchors||[]).forEach(internal => {
+            if (!internal || internal.class !== $SchemaClass.Anchor){ return; }
+            if (!(component.anchors||[]).find(e => e.id === internal.id)){
+                component.anchors.push(internal);
+            }
+        });
+    }
+
     //
     // get longestFacet() {
     //     if (!this._longestFacet) {

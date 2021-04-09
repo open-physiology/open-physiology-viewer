@@ -1,7 +1,7 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
-import {Node} from "./nodeModel";
-import {Link} from "./linkModel";
+import {Node} from "./verticeModel";
+import {Link} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
 
 import {
@@ -19,7 +19,6 @@ import {
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
-import {extractCoords} from "../view/utils";
 
 /**
  * Chain model

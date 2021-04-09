@@ -8,6 +8,25 @@ import {
 import {keys, merge, pick, isString} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
+export class Vertice extends VisualResource{
+    /**
+     * Determines whether the anchor's position is constrained in the model
+     */
+    get isConstrained() {
+        return (this.hostedBy && this.hostedBy.isVisible) ||
+            (this.internalIn && this.internalIn.isVisible);
+    }
+}
+
+/**
+ * The class to represent scaffold anchor points
+ * @class
+ * @property {Anchor} hostedAnchors
+ */
+export class Anchor extends Vertice {
+    includeRelated(group){}
+}
+
 /**
  * The class to visualize Node resources in the force-directed graphs
  * @class
@@ -29,7 +48,7 @@ import {$LogMsg, logger} from "./logger";
  * @property {number} z
  * @property {Anchor} anchoredTo
  */
-export class Node extends VisualResource {
+export class Node extends Vertice {
 
     static clone(sourceNode, targetNode){
         if (!sourceNode) { return; }
@@ -48,10 +67,7 @@ export class Node extends VisualResource {
      * Determines whether the node's position is constrained in the model
      */
     get isConstrained() {
-        return !!((this.fixed && this.layout) ||
-            //(this.controlNodes && this.controlNodes.length > 0) ||
-            (this.hostedBy && this.hostedBy.isVisible) ||
-            (this.internalIn && this.internalIn.isVisible));
+        return (this.fixed && this.layout) || super.isConstrained;
     }
 
     /**

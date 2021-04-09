@@ -308,8 +308,13 @@ export function arcCurve(source, target, arcCenter){
     const sum = v1.clone().add(v2);
     const q = sum.x > 0? (sum.y > 0? 1: 4): sum.y > 0? 2: 3;
 
-    const xRadius  = q%2 == 1? v1.length(): v2.length();
-    const yRadius  = q%2 == 0? v1.length(): v2.length();
+    const xRadius  = q%2 === 1? v1.length(): v2.length();
+    const yRadius  = q%2 === 0? v1.length(): v2.length();
+
+    // const xAxis = arcCenter.clone().normalize();
+    // xAxis.x += 1;
+    // const startAngle = xAxis.angleTo(v1.clone().normalize());
+    // const endAngle = xAxis.angleTo(v2.clone().normalize());
 
     return new THREE.EllipseCurve(
         arcCenter.x,  arcCenter.y, // ax, aY
@@ -319,6 +324,27 @@ export function arcCurve(source, target, arcCenter){
         0                 // aRotation
     );
 }
+
+
+// /**
+//  * Draw a 2d elliptic curve given 2 poinst on it and the center
+//  * @param startV - 2d point on the ellipse
+//  * @param endV - 2d point on the ellipse
+//  * @param centerV - center of the ellipse
+//  * @returns {EllipseCurve}
+//  */
+// export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
+//     let p = startV.clone().sub(centerV);
+//     let q = endV.clone().sub(centerV);
+//
+//     let a2 = Math.abs((p.x^2)*(q.y^2) - (q.x^2)*(p.y^2)) / (q.y^2 - p.y^2);
+//     let b2 = Math.abs((q.x^2)*(p.y^2) - (p.x^2)*(q.y^2)) / (p.x^2 - q.x^2);
+//
+//     let dot = p.dot(q);
+//     let theta = Math.acos( dot / (p.length() * q.length())) ;
+//     return new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false);
+// }
+
 
 /**
  * Create a cubic Bezier curve resembling a semicircle

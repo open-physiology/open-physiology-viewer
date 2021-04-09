@@ -101,7 +101,7 @@ const WindowResize = require('three-window-resize');
                         [highlighted]="_highlighted"
                         [helperKeys]="_helperKeys"
                         [groups]="graphData?.activeGroups"
-                        [scaffolds]="graphData?.scaffolds"
+                        [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
                         (onEditResource)="editResource.emit($event)"
@@ -109,7 +109,7 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
-                        (onToggleScaffold)="toggleScaffold($event)"
+                        (onToggleScaffold)="toggleScaffoldComponent($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
@@ -170,11 +170,10 @@ export class WebGLSceneComponent {
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
-    scaleFactor    = 8;
+    scaleFactor    = 10;
     labelRelSize   = 0.1 * this.scaleFactor;
     lockControls   = true;
     isConnectivity = true;
-    isCameraAtInit = true;
 
     queryCounter = 0;
 
@@ -204,9 +203,7 @@ export class WebGLSceneComponent {
             /*Map initial positional constraints to match the scaled image*/
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
-            if (this.graph) {
-                this.graph.graphData(this._graphData)
-            }
+            if (this.graph) {this.graph.graphData(this._graphData)}
         }
     }
 
@@ -223,7 +220,7 @@ export class WebGLSceneComponent {
 
         if (this.graph) {
             const obj = entity && entity.viewObjects? entity.viewObjects["main"]: null;
-            this.graph.enableDrag = this.lockControls && this.isCameraAtInit;
+            this.graph.enableDrag = this.lockControls;
             this.graph.select(obj);
         }
     }
@@ -453,15 +450,14 @@ export class WebGLSceneComponent {
             .scaleFactor(this.scaleFactor)
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
-                //this.graph.update();
-                //TODO emit event to update input model for serialization
+                this.graph.graphData(this.graphData);
             })
             .onWireDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
             })
-            .onRegionDragEnd((obj, delta) => {
-                obj.userData.relocate(delta);
-            })
+            .onRegionDrag((obj, delta) => obj.userData.relocate(delta))
+            .onRegionDragEnd(() => this.graph.graphData(this.graphData))
             .graphData(this.graphData);
 
         const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && (typeof layout[key] !== 'undefined');
@@ -483,18 +479,14 @@ export class WebGLSceneComponent {
     }
 
     resetCamera() {
-        this.camera.position.set(0, -200, 120 * this.scaleFactor );
+        this.camera.position.set(0, -100, 120 * this.scaleFactor);
         this.camera.up.set( 0, 0, 1 );
         this.camera.updateProjectionMatrix();
-        this.isCameraAtInit = true;
     }
 
     toggleLockControls(){
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
-        if (!this.lockControls) {
-            this.isCameraAtInit = false;
-        }
     }
 
     toggleAntialias(){
@@ -613,16 +605,25 @@ export class WebGLSceneComponent {
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 
-    toggleScaffold(showScaffolds) {
+    toggleScaffoldComponent(showScaffoldComponents) {
         if (!this._graphData){ return; }
-        let ids = [...showScaffolds].map(g => g.id);
-        (this._graphData.scaffolds||[]).forEach(g => {
-            if (!ids.includes(g.id)){
-                g.hide();
+        const processComponent = (ids, c) => {
+            if (!ids.includes(c.id)){
+                c.hide();
             }
-            if (ids.includes(g.id)){
-                g.show();
+            if (ids.includes(c.id)){
+                c.show();
             }
+        }
+        //scaffolds
+        let ids = [...showScaffoldComponents].filter(s => !s._parent).map(s => s.id);
+        (this._graphData.scaffolds||[]).forEach(s => {
+            processComponent(ids, s);
+        });
+        //components
+        ids = [...showScaffoldComponents].filter(s => s._parent).map(s => s.id);
+        (this._graphData.scaffolds||[]).forEach(s => {
+            (s.components||[]).forEach(c => c._parent && c._parent.id === s.id && processComponent(ids, c));
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
     }

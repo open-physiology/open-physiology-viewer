@@ -33,7 +33,9 @@ export const $SchemaType = {
  * @property Resource
  * @property External
  * @property VisualResource
+ * @property Vertice
  * @property Node
+ * @property Edge
  * @property Link
  * @property Material
  * @property Border
@@ -57,7 +59,7 @@ export const $Field = $SchemaClass::keys().map(className => definitions[classNam
 
 export const WIRE_GEOMETRY        = definitions[$SchemaClass.Wire].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LINK_GEOMETRY        = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LINK_STROKE          = definitions[$SchemaClass.Link].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const EDGE_STROKE          = definitions[$SchemaClass.Edge].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const PROCESS_TYPE         = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LYPH_TOPOLOGY        = definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const COALESCENCE_TOPOLOGY = definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();

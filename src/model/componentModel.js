@@ -119,4 +119,10 @@ export class Component extends Resource {
             });
         });
     }
+
+    includeRelated(){
+        [$Field.anchors, $Field.wires, $Field.regions].forEach(prop =>
+            (this[prop]||[]).forEach(res => res instanceof Resource && res.includeRelated(this))
+        );
+    }
 }

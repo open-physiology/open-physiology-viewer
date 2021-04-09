@@ -75,7 +75,7 @@ import {$Field} from "../model/utils";
                         <mat-checkbox matTooltip="Toggle scaffolds" labelPosition="after" class="w3-margin-left"
                                       [checked] = "_showScaffolds.has(scaffold)"
                                       (change)  = "toggleScaffold(scaffold)"> 
-                            {{scaffold.name || scaffold.id}}
+                            {{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}
                         </mat-checkbox>
                     </span>
                 </fieldset>

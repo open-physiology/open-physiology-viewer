@@ -170,10 +170,13 @@ export default Kapsule({
             }
         },
 
-        nodeRelSize      : { default: 3  },     // volume per val unit
-        nodeResolution   : { default: 16 },     // how many slice segments in the sphere's circumference
+        verticeRelSize   : { default: 3 },     // volume per val unit
+        verticeResolution: { default: 8 },     // how many slice segments in the sphere's circumference
 
-        linkResolution   : { default: 20 },     // number of points on curved link
+        nodeVal          : { default: 1},
+        anchorVal        : { default: 3},
+
+        edgeResolution   : { default: 20 },     // number of points on curved link
         arrowLength      : { default: 40 },     // arrow length for directed links
 
         showLyphs        : { default: true},
@@ -184,7 +187,7 @@ export default Kapsule({
 
         labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize     : { default: 0.1},
-        labelOffset      : { default: {Node: 5, Link: 5, Lyph: 0, Anchor: -5, Wire: -5, Region: 0}},
+        labelOffset      : { default: {Vertice: 10, Edge: 5, Lyph: 0, Region: 0}},
         fontParams       : { default: { font: '24px Arial', fillStyle: '#000', antialias: true }},
 
         d3AlphaDecay     : { default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},

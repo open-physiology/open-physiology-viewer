@@ -1,7 +1,59 @@
-import {$Field, $Prefix, getGenID, getNewID, LINK_STROKE, PROCESS_TYPE} from "./utils";
+import {$Field, $Prefix, getGenID, getNewID, EDGE_STROKE, PROCESS_TYPE} from "./utils";
 import {merge, pick} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 import {VisualResource} from "./visualResourceModel";
+
+export class Edge extends VisualResource{
+    get isVisible(){
+        return super.isVisible && this.source && this.source.isVisible && this.target && this.target.isVisible;
+    }
+}
+
+/**
+ * The class to represent scaffold wires
+ * @property stroke
+ * @property lineWidth
+ */
+export class Wire extends Edge {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+        json.id = json.id || getNewID(entitiesByID);
+        json.source = json.source || getGenID($Prefix.source, json.id);
+        json.target = json.target || getGenID($Prefix.target, json.id);
+        const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
+        //Wires are not in the force-field, so we set their length from end points
+        const s = res.source && res.source.layout;
+        const t = res.target && res.target.layout;
+        if (s && t){
+            const d = {};
+            ["x", "y"].forEach(dim => d[dim] =  (t[dim] || 0) - (s[dim] || 0));
+            res.length = Math.sqrt( d.x * d.x + d.y * d.y + d.z * d.z);
+        } else {
+            res.length = 10; //TODO replace with config constract
+        }
+        return res;
+    }
+
+    applyToEndAnchors(handler){
+        [$Field.source, $Field.target].forEach(prop => {
+            if (this[prop]){
+                handler(this[prop]);
+            } else {
+                logger.error($LogMsg.WIRE_NO_END_ANCHOR, this);
+            }
+        });
+    }
+
+    includeRelated(component){
+        (this.hostedAnchors||[]).forEach(anchor => component.anchors.push(anchor));
+        this.applyToEndAnchors(
+            (end) => {
+                if (end.generated && !component.anchors.find(anchor => anchor.id === end.id)) {
+                    component.anchors.push(end);
+                }
+            }
+        )
+    }
+}
 
 /**
  *  The class to visualize processes (edges)
@@ -14,14 +66,12 @@ import {VisualResource} from "./visualResourceModel";
  * @property conveyingLyph
  * @property conveyingType
  * @property conveyingMaterials
- * @property stroke
  * @property path
- * @property lineWidth
  * @property hostedNodes
  * @property onBorder
  * @property levelIn
  */
-export class Link extends VisualResource {
+export class Link extends Edge {
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
@@ -52,7 +102,7 @@ export class Link extends VisualResource {
             [$Field.id]         : getGenID($Prefix.link, sourceID, targetID),
             [$Field.source]     : sourceID,
             [$Field.target]     : targetID,
-            [$Field.stroke]     : LINK_STROKE.DASHED,
+            [$Field.stroke]     : EDGE_STROKE.DASHED,
             [$Field.length]     : 1,
             [$Field.strength]   : 1,
             [$Field.collapsible]: true,
@@ -62,7 +112,7 @@ export class Link extends VisualResource {
     }
 
     get isVisible(){
-        return (this.onBorder? this.onBorder.isVisible : super.isVisible) && this.source && this.source.isVisible && this.target && this.target.isVisible;
+        return this.onBorder? this.onBorder.isVisible : super.isVisible;
     }
 
     applyToEndNodes(handler){
@@ -81,6 +131,7 @@ export class Link extends VisualResource {
                 group.lyphs.push(this.conveyingLyph);
             }
         }
+        (this.hostedNodes||[]).forEach(node => group.nodes.push(node));
         //include generated source and target nodes to the same group
         this.applyToEndNodes(
             (end) => {

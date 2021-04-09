@@ -3,10 +3,8 @@ import {modelClasses} from "../model";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
 import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
-import './nodeView';
-import './linkView';
-import './anchorView';
-import './wireView';
+import './verticeView';
+import './edgeView';
 import './shapeView';
 
 const {Group, Link, Coalescence, Component, Chain, Node, Region} = modelClasses;

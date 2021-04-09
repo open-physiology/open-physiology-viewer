@@ -130,7 +130,9 @@ export const $LogMsg = {
     RESOURCE_NO_REL_PROPERTY    : "Related property specification is not found in the expected class",
     RESOURCE_NO_ABSTRACT_CLASS  : "An abstract relationship field expects a reference to an existing resource or 'class' field in its value definition",
     REF_UNDEFINED               : "Remaining references to undefined resources",
-    RESOURCE_NO_OBJECT          : "Resource reference is not an object"
+    RESOURCE_NO_OBJECT          : "Resource reference is not an object",
+
+    WIRE_NO_END_ANCHOR          : "Failed to process wire with undefined end acnhor"
 };
 
 const LEVEL = {

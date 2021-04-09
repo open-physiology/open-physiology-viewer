@@ -8,9 +8,9 @@ import {Component} from './componentModel';
 import {Graph}   from './graphModel';
 import {Scaffold} from './scaffoldModel';
 import {Resource, External} from './resourceModel';
-import {VisualResource, Material, Anchor, Wire} from './visualResourceModel';
-import {Node} from './nodeModel';
-import {Link} from './linkModel';
+import {VisualResource, Material} from './visualResourceModel';
+import {Vertice, Anchor, Node} from './verticeModel';
+import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {$Field, $SchemaClass} from './utils';
@@ -25,6 +25,8 @@ export const modelClasses = {
     [$SchemaClass.VisualResource] : VisualResource,
     [$SchemaClass.GroupTemplate]  : GroupTemplate,
     [$SchemaClass.Shape]          : Shape,
+    [$SchemaClass.Edge]           : Edge,
+    [$SchemaClass.Vertice]        : Vertice,
 
     /*Resources */
     [$SchemaClass.External]      : External,

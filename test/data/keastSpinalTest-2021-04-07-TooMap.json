@@ -3241,17 +3241,15 @@
         },
         {
           "id": "C",
-          "layout": {
-            "x": 0, "y": -15
-          },
+          "hostedBy": "w-N-K",
+          "offset": 0.2,
           "color": "#FF0000",
           "name": "Cistern"
         },
         {
           "id": "Q",
-          "layout": {
-            "x": 0, "y": -25
-          },
+          "hostedBy": "w-N-K",
+          "offset": 0.4,
           "color": "#FF0000"
         },
         {
@@ -3656,12 +3654,6 @@
           "color": "#000"
         },
         {
-          "id": "w-N-H",
-          "source": "N",
-          "target": "H",
-          "color" : "#000"
-        },
-        {
           "id": "w-N-K",
           "source": "N",
           "target": "K",
@@ -3676,7 +3668,7 @@
           "color": "#ADD8E6"
         },
         {
-          "id": "w-NH",
+          "id": "w-N-H",
           "name": "Supraventricular CSF Tract",
           "source": "N",
           "target": "H",
@@ -4186,7 +4178,7 @@
       ],
       "components": [
         {
-          "id": "oRegions",
+          "id": "sRegions",
           "name": "TooMap regions",
           "regions": [
             "f1",
@@ -4204,8 +4196,8 @@
           ]
         },
         {
-          "id": "iRegions",
-          "name": "Inner regions",
+          "id": "regions",
+          "name": "Regions",
           "regions": [
             "d2S",
             "n1A",
@@ -4224,58 +4216,7 @@
           ]
         },
         {
-          "id": "g_n2G",
-          "name": "Infracervical Ganglia (n2G)",
-          "regions": [
-            "n2G"
-          ]
-        },
-        {
-          "id": "central",
-          "name": "Central",
-          "anchors": ["N", "T", "H", "C", "Q"],
-          "wires": [
-            "w-NT",
-            "w-NH",
-            "w-N-C",
-            "w-C-Q"
-          ]
-        },
-        {
-          "id": "iWires",
-          "name": "Inner wires",
-          "anchors": ["D", "F"],
-          "wires": [
-            "w-D-L",
-            "w-D-P",
-            "w-D-S",
-            "w-D-A",
-            "w-F-B",
-            "w-F-O",
-            "w-F-R",
-            "w-F-M",
-            "w-N-E",
-            "w-N-T",
-            "w-N-K",
-            "w-N-H"
-          ]
-        },
-        {
-          "id": "oWires",
-          "name": "Outer wires",
-          "wires": [
-            "w-L-P",
-            "w-P-S",
-            "w-S-A",
-            "w-A-L",
-            "w-B-O",
-            "w-O-R",
-            "w-R-M",
-            "w-M-B"
-          ]
-        },
-        {
-          "id": "iRing",
+          "id": "innerRing",
           "name": "Helper ring",
           "wires": ["w-H-E", "w-E-T", "w-T-K", "w-K-H"]
         }

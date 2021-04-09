@@ -1,5 +1,5 @@
 import {Resource} from './resourceModel';
-import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick, flatten} from 'lodash-bound';
 import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, showGroups} from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -89,6 +89,7 @@ export class Group extends Resource {
         addColor(res.links, $Color.Link);
         addColor(res.lyphs);
 
+        res.assignScaffoldComponents();
         return res;
     }
 
@@ -339,8 +340,18 @@ export class Group extends Resource {
         return [...(this.groups||[])].filter(e => !e.inactive);
     }
 
+    assignScaffoldComponents(){
+        const res = [...(this.scaffolds||[])];
+        (this.scaffolds||[]).forEach(scaffold =>
+            (scaffold.components||[]).forEach(component => {
+                component._parent = scaffold;
+                res.push(component);
+            }));
+        this.scaffoldComponents = res;
+    }
+
     /**
-     * Visible regions
+     * Visible regionsf
      * @returns {*[]}
      */
     get visibleRegions(){
@@ -360,20 +371,7 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get visibleLinks(){
-        return (this.links||[]).filter(e => e.isVisible)
-            // .sort((a, b) => {
-            // //Sort links for processing: lyphs that are not hostd by other lyphs can be processed first
-            // if (a.conveyingLyph && b.conveyingLyph){
-            //     if (!a.conveyingLyph.host) {
-            //         return -1;
-            //     } else {
-            //         if (!b.conveyingLyph.host){
-            //             return 1;
-            //         }
-            //     }
-            // }
-            // return 0;})
-            ;
+        return (this.links||[]).filter(e => e.isVisible);
     }
 
     /**
