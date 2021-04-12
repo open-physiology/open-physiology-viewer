@@ -15,6 +15,7 @@ import {
     LYPH_TOPOLOGY,
     mergeResources, $SchemaClass
 } from './utils';
+import tinycolor from "tinycolor2";
 
 /**
  * Class that specifies borders of lyphs and regions
@@ -589,7 +590,7 @@ export class Region extends Shape {
                     [$Field.id]: getGenID($Prefix.wire, template.id, i),
                     [$Field.source]: anchors[i - 1].id,
                     [$Field.target]: anchors[i % anchors.length].id,
-                    [$Field.color]: $Color.Link,
+                    [$Field.color]: template.color? tinycolor(template.color).darken(25): $Color.Wire,
                     [$Field.skipLabel]: true,
                     [$Field.generated]: true
                 });

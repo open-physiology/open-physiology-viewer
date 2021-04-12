@@ -244,27 +244,26 @@ export function lyphShape(params) {
  * Create a 3d object with border
  * @param {Shape}  shape  - object shape
  * @param {Object} [params = {}] - object and border material params
+ * @param includeBorder - Boolean flag to indicate whether to create a shape border
  * @returns {Mesh}   3d object with child object that models its border
  */
-export function createMeshWithBorder(shape, params = {}) {
+export function createMeshWithBorder(shape, params = {}, includeBorder = true) {
     let geometry = new THREE.ShapeBufferGeometry(shape);
     let obj = new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
-
-    // Create border
-    let lineBorderGeometry = new THREE.Geometry();
-    shape.getPoints().forEach(point => {
-        point.z = 0;
-        lineBorderGeometry.vertices.push(point);
-    });
-
-    let borderParams = params::defaults({
-        color   : tinycolor(params.color).darken(20), //20% darker color than surface
-        opacity : 0.5,
-        polygonOffsetFactor: params.polygonOffsetFactor - 1
-    });
-    let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
-    obj.add(borderObj);
-
+    if (includeBorder) {
+        let lineBorderGeometry = new THREE.Geometry();
+        shape.getPoints().forEach(point => {
+            point.z = 0;
+            lineBorderGeometry.vertices.push(point);
+        });
+        let borderParams = params::defaults({
+            color   : tinycolor(params.color).darken(25), //darker border than surface
+            opacity : 0.5,
+            polygonOffsetFactor: params.polygonOffsetFactor - 1
+        });
+        let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
+        obj.add(borderObj);
+    }
     return obj;
 }
 
@@ -302,29 +301,19 @@ export function rectangleCurve(startV, endV){
 }
 
 export function arcCurve(source, target, arcCenter){
-    const delta = 10;
     const v1 = source.clone().sub(arcCenter);
     const v2 = target.clone().sub(arcCenter);
     const sum = v1.clone().add(v2);
     const q = sum.x > 0? (sum.y > 0? 1: 4): sum.y > 0? 2: 3;
 
-    const xRadius  = q%2 === 1? v1.length(): v2.length();
-    const yRadius  = q%2 === 0? v1.length(): v2.length();
-
-    // const xAxis = arcCenter.clone().normalize();
-    // xAxis.x += 1;
-    // const startAngle = xAxis.angleTo(v1.clone().normalize());
-    // const endAngle = xAxis.angleTo(v2.clone().normalize());
-
     return new THREE.EllipseCurve(
         arcCenter.x,  arcCenter.y, // ax, aY
-        xRadius, yRadius, // xRadius, yRadius
-        Math.PI / 2 * (q - 1), Math.PI / 2 * q,  // aStartAngle, aEndAngle
-        false,            // aClockwise
-        0                 // aRotation
+        v1.length(), v2.length(), // xRadius, yRadius
+        0, Math.PI / 2,  // aStartAngle, aEndAngle
+        false,               // aClockwise
+        Math.PI / 2 * (q - 1) // aRotation
     );
 }
-
 
 // /**
 //  * Draw a 2d elliptic curve given 2 poinst on it and the center

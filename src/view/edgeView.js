@@ -139,7 +139,7 @@ Link.prototype.getCurve = function(start, end){
             curve = rectangleCurve(start, end);
             break;
         case Link.LINK_GEOMETRY.ARC:
-            curve = arcCurve(extractCoords(this.source), extractCoords(this.target), extractCoords(this.arcCenter));
+            curve = arcCurve(start, end, extractCoords(this.arcCenter));
             break;
         case Link.LINK_GEOMETRY.PATH:
             if (this.path){
@@ -319,8 +319,6 @@ Wire.prototype.createViewObjects = function(state){
         obj.userData = this;   // Attach link data
         this.viewObjects["main"] = obj;
     }
-
-    //Wire label
     this.createLabels();
 };
 
@@ -328,7 +326,7 @@ Wire.prototype.getCurve = function(start, end){
     let curve = new THREE.Line3(start, end);
     switch (this.geometry) {
         case Wire.WIRE_GEOMETRY.ARC:
-            curve = arcCurve(extractCoords(this.source), extractCoords(this.target), extractCoords(this.arcCenter));
+            curve = arcCurve(start, end, extractCoords(this.arcCenter));
             break;
         case Wire.WIRE_GEOMETRY.SPLINE:
             const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);

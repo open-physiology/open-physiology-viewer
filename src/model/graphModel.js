@@ -369,7 +369,8 @@ export class Graph extends Group{
     }
 
     createDynamicGroup(qNumber, qName, json, modelClasses = {}){
-        const addRelatedToLyphs = (lyphs, links) => {
+        const includeLyphAxes = (lyphs, links) => {
+            links = links || [];
             (lyphs||[]).forEach(lyph => {
                 if (lyph.conveys) {
                     if (!links.find(link => link.id === lyph.conveys.id)) {
@@ -379,13 +380,21 @@ export class Graph extends Group{
             });
         };
 
-        const addRelatedToLinks = (links, lyphs, nodes) => {
+        const includeConveyingLyphs = (links, lyphs) => {
+            lyphs = lyphs || [];
             (links||[]).forEach(lnk => {
                 if (lnk.conveyingLyph) {
                     if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
-                        links.push(lnk.conveyingLyph);
+                        lyphs.push(lnk.conveyingLyph);
                     }
                 }
+            });
+        };
+
+
+        const includeLinkEnds = (links, nodes) => {
+            nodes = nodes || [];
+            (links||[]).forEach(lnk => {
                 if (!nodes.find(node => node.id === lnk.source.id)){
                     nodes.push(lnk.source);
                 }
@@ -402,7 +411,7 @@ export class Graph extends Group{
             });
         };
 
-        const createGroup = (id, name, nodes, links, lyphs) => {
+        const createGroup = (id, name, nodes = [], links = [], lyphs = []) => {
             let group = modelClasses.Group.fromJSON({
                 [$Field.id]    : getGenID($Prefix.group, id),
                 [$Field.name]  : name,
@@ -417,24 +426,30 @@ export class Graph extends Group{
         this.groups = this.groups || [];
 
         //Query response group
-        addRelatedToLyphs(lyphs, links);
-        addRelatedToLinks(links, lyphs, nodes);
+        includeLyphAxes(lyphs, links);
+        includeConveyingLyphs(links, lyphs);
+        includeLinkEnds(links, nodes);
         createGroup(qNumber, `QR ${qNumber}: ${qName}`, nodes, links, lyphs);
 
         //Only chains
         let chainLinks = links.filter(e => e.fasciculatesIn);
         let chainNodes = [];
+        includeLinkEnds(chainLinks, chainNodes);
+        createGroup(qNumber + "_chains", `QR ${qNumber}: chains`, chainNodes, chainLinks, []);
+
+        //Only chain lyphs
         let chainLyphs = [];
-        addRelatedToLinks(chainLinks, chainLyphs, chainNodes);
-        createGroup(qNumber + "_chains", `QR ${qNumber}: chains`, chainNodes, chainLinks, chainLyphs);
+        includeConveyingLyphs(chainLinks, chainLyphs);
+        createGroup(qNumber + "_chainLyphs", `QR ${qNumber}: chain lyphs`, [], [], chainLyphs);
 
         //Only housing lyphs
         let housingLyphs = lyphs.filter(e => e.bundles);
         housingLyphs.forEach(e => e.layerIn && housingLyphs.push(e.layerIn));
         let housingLinks = [];
         let housingNodes = [];
-        addRelatedToLyphs(housingLyphs, housingLinks);
-        addRelatedToLinks(housingLinks, housingLyphs, housingNodes);
+        includeLyphAxes(housingLyphs, housingLinks);
+        includeConveyingLyphs(housingLinks, housingLyphs);
+        includeLinkEnds(housingLinks, housingNodes);
         createGroup(qNumber + "_housing", `QR ${qNumber}: housing`, housingNodes, housingLinks, housingLyphs);
     }
 

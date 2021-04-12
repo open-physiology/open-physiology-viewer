@@ -283,7 +283,7 @@ export class WebGLSceneComponent {
         if (this.renderer) {  return; }
 
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias, alpha: true});
-        this.renderer.setClearColor(0xffffff, 0);
+        this.renderer.setClearColor(0xffffff, 0.5);
 
         this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;

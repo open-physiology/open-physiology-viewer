@@ -3742,6 +3742,8 @@
           "id": "d1",
           "name": "D1",
           "inactive": true,
+          "color": "#fadfda",
+          "depth": -1,
           "facets": [
             "w-D-L",
             "w-L-P",
@@ -3752,6 +3754,8 @@
           "id": "d2",
           "name": "D2",
           "inactive": true,
+          "color": "#fadcda",
+          "depth": -1,
           "facets": [
             "w-D-P",
             "w-P-S",
@@ -3762,6 +3766,8 @@
           "id": "d3",
           "name": "D3",
           "inactive": true,
+          "color": "#fadada",
+          "depth": -1,
           "facets": [
             "w-D-S",
             "w-S-A",
@@ -3772,6 +3778,8 @@
           "id": "d4",
           "name": "D4",
           "inactive": true,
+          "color": "#fadadd",
+          "depth": -1,
           "facets": [
             "w-D-A",
             "w-A-L",
@@ -3806,6 +3814,7 @@
           "id": "f1",
           "name": "F1",
           "inactive": true,
+          "color": "#ecf9f2",
           "facets": [
             "w-F-B",
             "w-B-O",
@@ -3816,6 +3825,7 @@
           "id": "f2",
           "name": "F2",
           "inactive": true,
+          "color": "#d9f2e6",
           "facets": [
             "w-F-O",
             "w-O-R",
@@ -3826,6 +3836,7 @@
           "id": "f3",
           "name": "F3",
           "inactive": true,
+          "color": "#c6ecd9",
           "facets": [
             "w-F-R",
             "w-R-M",
@@ -3836,6 +3847,7 @@
           "id": "f4",
           "name": "F4",
           "inactive": true,
+          "color": "#b3e6cc",
           "facets": [
             "w-F-M",
             "w-M-B",
@@ -3846,6 +3858,8 @@
           "id": "n1",
           "name": "N1",
           "inactive": true,
+          "color": "#f2f2f2",
+          "depth": -2,
           "facets": [
             "w-N-H",
             "w-H-E",
@@ -3856,6 +3870,8 @@
           "id": "n2",
           "name": "N2",
           "inactive": true,
+          "color": "#e6e6e6",
+          "depth": -2,
           "facets": [
             "w-N-E",
             "w-E-T",
@@ -3866,6 +3882,8 @@
           "id": "n3",
           "name": "N3",
           "inactive": true,
+          "color": "#d9d9d9",
+          "depth": -2,
           "facets": [
             "w-N-T",
             "w-T-K",
@@ -3876,6 +3894,8 @@
           "id": "n4",
           "name": "N4",
           "inactive": true,
+          "color": "#cccccc",
+          "depth": -2,
           "facets": [
             "w-N-K",
             "w-K-H",
@@ -4186,17 +4206,29 @@
       ],
       "components": [
         {
-          "id": "oRegions",
-          "name": "TooMap regions",
+          "id": "fRegions",
+          "name": "F regions",
           "regions": [
             "f1",
             "f2",
             "f3",
-            "f4",
+            "f4"
+          ]
+        },
+        {
+          "id": "dRegions",
+          "name": "D regions",
+          "regions": [
             "d1",
             "d2",
             "d3",
-            "d4",
+            "d4"
+          ]
+        },
+        {
+          "id": "nRegions",
+          "name": "N regions",
+          "regions": [
             "n1",
             "n2",
             "n3",

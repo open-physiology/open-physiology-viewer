@@ -1298,6 +1298,10 @@
             ]
           },
           "relatedTo": "internalIn"
+        },
+        "depth": {
+          "description": "Can be used to order flat shapes on the same plane (polygonOffsetFactor, currently only applies to regions)",
+          "type": "number"
         }
       }
     },

@@ -173,10 +173,10 @@ export default Kapsule({
         verticeRelSize   : { default: 3 },     // volume per val unit
         verticeResolution: { default: 8 },     // how many slice segments in the sphere's circumference
 
-        nodeVal          : { default: 1},
-        anchorVal        : { default: 3},
+        nodeVal          : { default: 1 },
+        anchorVal        : { default: 3 },
 
-        edgeResolution   : { default: 20 },     // number of points on curved link
+        edgeResolution   : { default: 16 },     // number of points on curved link
         arrowLength      : { default: 40 },     // arrow length for directed links
 
         showLyphs        : { default: true},

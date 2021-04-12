@@ -266,35 +266,32 @@ Region.prototype.translate = function (p0) {
  * @param edgeResolution
  */
 Region.prototype.updatePoints = function(edgeResolution){
-    if (this.facets) {
+    if (this.facets && this.facets.length > 1) {
         this.points = [];
-        let prevAnchor = null;
-        this.facets.forEach(wire => {
+        this.facets.forEach((wire, i) => {
             if (!wire.source || !wire.target) {
                 return;
             }
             let start = extractCoords(wire.source.layout);
             let end = extractCoords(wire.target.layout);
-            if (prevAnchor === wire.target.id) {
+            const next = this.facets[(i+1) % this.facets.length];
+            if ((wire.source.id === next.source.id) || (wire.source.id === next.target.id)) {
                 let tmp = start;
                 start = end;
                 end = tmp;
-                prevAnchor = wire.source.id;
-            } else {
-                prevAnchor = wire.target.id;
             }
-            this.points.push(start);
             if (wire.geometry !== Wire.WIRE_GEOMETRY.LINK) {
                 let curve = wire.getCurve(start, end);
                 if (curve.getPoints) {
-                    let points = curve.getPoints(edgeResolution);
+                    let points = curve.getPoints(edgeResolution-1);
                     this.points.push(...points);
                 }
+            } else {
+                this.points.push(start);
             }
-            this.points.push(end);
         });
     }
-    this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
+    this.points = this.points.map(p => new THREE.Vector3(p.x, p.y,0));
     this.center = getCenterOfMass(this.points);
 }
 
@@ -304,15 +301,19 @@ Region.prototype.updatePoints = function(edgeResolution){
  */
 Region.prototype.createViewObjects = function(state) {
     Shape.prototype.createViewObjects.call(this, state);
-    this.updatePoints(state.edgeResolution);
-    let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
-    let obj = createMeshWithBorder(shape, {
-        color: this.color,
-        polygonOffsetFactor: this.polygonOffsetFactor
-    });
-    obj.userData = this;
-    this.viewObjects['main'] = obj;
-    this.border.createViewObjects(state);
+    if (!this.viewObjects["main"]) {
+        this.updatePoints(state.edgeResolution);
+        let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
+        let obj = createMeshWithBorder(shape, {
+                color: this.color,
+                polygonOffsetFactor: this.polygonOffsetFactor
+            },
+            !this.facets // draw border if region is not defined by facets (e.g., to distinguish regions in connectivity models)
+        );
+        obj.userData = this;
+        this.viewObjects['main'] = obj;
+        this.border.createViewObjects(state);
+    }
     this.createLabels();
 };
 
@@ -321,6 +322,18 @@ Region.prototype.createViewObjects = function(state) {
  */
 Region.prototype.updateViewObjects = function(state) {
     Shape.prototype.updateViewObjects.call(this, state);
+
+    let obj = this.viewObjects["main"];
+    if (obj) {
+        let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
+        if (linkPos) {
+            this.updatePoints(state.edgeResolution);
+            this.points.forEach((p, i) => p && ["x", "y", "z"].forEach((dim, j) => linkPos.array[3 * i + j] = p[dim]));
+            linkPos.needsUpdate = true;
+            obj.geometry.computeBoundingSphere();
+        }
+    }
+
     this.border.updateViewObjects(state);
     this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 };
@@ -367,7 +380,8 @@ Region.prototype.resize = function (anchor, delta, epsilon = 10) {
  */
 Object.defineProperty(Region.prototype, "polygonOffsetFactor", {
     get: function() {
-        return this.internalIn? (this.internalIn.polygonOffsetFactor || 0) - 1 : 0;
+        const def = this.depth || 0;
+        return this.internalIn? (this.internalIn.polygonOffsetFactor || 0) - 1 : def;
     }
 });
 
