@@ -50,7 +50,7 @@ export class Villus extends GroupTemplate{
         villus.numLayers = villus.numLayers || 0;
         villus.numLevels = villus.numLevels || 1;
 
-        let prev;
+        let prev = null;
         villus.id = villus.id || getNewID();
         villus.group = GroupTemplate.createTemplateGroup(villus, parentGroup);
 

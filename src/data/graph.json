@@ -3743,7 +3743,7 @@
           "name": "D1",
           "inactive": true,
           "color": "#fadfda",
-          "depth": -1,
+          "depth": 2,
           "facets": [
             "w-D-L",
             "w-L-P",
@@ -3755,7 +3755,7 @@
           "name": "D2",
           "inactive": true,
           "color": "#fadcda",
-          "depth": -1,
+          "depth": 2,
           "facets": [
             "w-D-P",
             "w-P-S",
@@ -3767,7 +3767,7 @@
           "name": "D3",
           "inactive": true,
           "color": "#fadada",
-          "depth": -1,
+          "depth": 2,
           "facets": [
             "w-D-S",
             "w-S-A",
@@ -3779,7 +3779,7 @@
           "name": "D4",
           "inactive": true,
           "color": "#fadadd",
-          "depth": -1,
+          "depth": 2,
           "facets": [
             "w-D-A",
             "w-A-L",
@@ -3815,6 +3815,7 @@
           "name": "F1",
           "inactive": true,
           "color": "#ecf9f2",
+          "depth": 3,
           "facets": [
             "w-F-B",
             "w-B-O",
@@ -3826,6 +3827,7 @@
           "name": "F2",
           "inactive": true,
           "color": "#d9f2e6",
+          "depth": 3,
           "facets": [
             "w-F-O",
             "w-O-R",
@@ -3837,6 +3839,7 @@
           "name": "F3",
           "inactive": true,
           "color": "#c6ecd9",
+          "depth": 3,
           "facets": [
             "w-F-R",
             "w-R-M",
@@ -3848,6 +3851,7 @@
           "name": "F4",
           "inactive": true,
           "color": "#b3e6cc",
+          "depth": 3,
           "facets": [
             "w-F-M",
             "w-M-B",
@@ -3859,7 +3863,7 @@
           "name": "N1",
           "inactive": true,
           "color": "#f2f2f2",
-          "depth": -2,
+          "depth": 1,
           "facets": [
             "w-N-H",
             "w-H-E",
@@ -3871,7 +3875,7 @@
           "name": "N2",
           "inactive": true,
           "color": "#e6e6e6",
-          "depth": -2,
+          "depth": 1,
           "facets": [
             "w-N-E",
             "w-E-T",
@@ -3883,7 +3887,7 @@
           "name": "N3",
           "inactive": true,
           "color": "#d9d9d9",
-          "depth": -2,
+          "depth": 1,
           "facets": [
             "w-N-T",
             "w-T-K",
@@ -3895,7 +3899,7 @@
           "name": "N4",
           "inactive": true,
           "color": "#cccccc",
-          "depth": -2,
+          "depth": 1,
           "facets": [
             "w-N-K",
             "w-K-H",

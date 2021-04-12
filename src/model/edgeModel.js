@@ -1,9 +1,24 @@
-import {$Field, $Prefix, getGenID, getNewID, EDGE_STROKE, PROCESS_TYPE} from "./utils";
+import {$Field, $Prefix, getGenID, getNewID, EDGE_STROKE, PROCESS_TYPE, WIRE_GEOMETRY, LINK_GEOMETRY} from "./utils";
 import {merge, pick} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 import {VisualResource} from "./visualResourceModel";
 
+/**
+ * Abstract class to accommodate common for graph edges (Link, Wire) properties
+ * @class
+ * @property {EDGE_STROKE} stroke
+ * @property {Number} lineWidth
+ * @property {Number} length
+ * @property {{x: Number, y: Number, z: Number}} arcCenter
+ */
 export class Edge extends VisualResource{
+
+    /**
+     * @property THICK
+     * @property DASHED
+     */
+    static EDGE_STROKE   = EDGE_STROKE;
+
     get isVisible(){
         return super.isVisible && this.source && this.source.isVisible && this.target && this.target.isVisible;
     }
@@ -11,10 +26,20 @@ export class Edge extends VisualResource{
 
 /**
  * The class to represent scaffold wires
- * @property stroke
- * @property lineWidth
+ * @class
+ * @property {Anchor} source
+ * @property {Anchor} target
+ * @property {WIRE_GEOMETRY} geometry
  */
 export class Wire extends Edge {
+    /**
+     * @property LINK
+     * @property ARC
+     * @property SPLINE
+     * @property INVISIBLE
+     */
+    static WIRE_GEOMETRY = WIRE_GEOMETRY;
+
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
         json.source = json.source || getGenID($Prefix.source, json.id);
@@ -28,7 +53,7 @@ export class Wire extends Edge {
             ["x", "y"].forEach(dim => d[dim] =  (t[dim] || 0) - (s[dim] || 0));
             res.length = Math.sqrt( d.x * d.x + d.y * d.y + d.z * d.z);
         } else {
-            res.length = 10; //TODO replace with config constract
+            res.length = 10; //TODO replace with config construct
         }
         return res;
     }
@@ -72,11 +97,26 @@ export class Wire extends Edge {
  * @property levelIn
  */
 export class Link extends Edge {
+    /**
+     * @property LINK
+     * @property SEMICIRCLE
+     * @property RECTANGLE
+     * @property ARC
+     * @property SPLINE
+     * @property PATH
+     * @property INVISIBLE
+     */
+    static LINK_GEOMETRY = LINK_GEOMETRY;
+
+    /**
+     * @property ADVECTIVE
+     * @property DIFFUSIVE
+     */
+    static PROCESS_TYPE  = PROCESS_TYPE;
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
-        json.source = json.source || getGenID($Prefix.source, json.id);
-        json.target = json.target || getGenID($Prefix.target, json.id);
+        [$Field.source, $Field.target].forEach(prop => json[prop] = json[prop] || getGenID($Prefix[prop], json.id));
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //If the end nodes are fixed, compute actual link's length
         const s = res.source && res.source.layout;

@@ -4,40 +4,444 @@
   "title": "ApiNATOMY model",
   "description": "The ApiNATOMY model schema provides a contract for the JSON-based input data accepted by the ApiNATOMY lyph viewer, a web application that draws schematic models of physiology.",
   "definitions": {
-    "IdentifierScheme":{
-      "description": "Resource identifier",
-      "type": "string",
-      "pattern": "^[a-zA-Z0-9:_.\\-' ]{1,100}$"
-    },
-    "RGBColorScheme": {
-      "type": "string",
-      "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
-    },
-    "Point2Scheme": {
-      "description": "Coordinates of a 2d point",
-      "type": "object",
+    "Anchor": {
+      "description": "Anchor defines a special point in a scaffold. Anchor points can join wires.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Vertice"
+        }
+      ],
       "properties": {
-        "x": {
-          "type": "number",
-          "minimum": -100,
-          "maximum": 100
+        "layout": {
+          "description": "Provided 2d coordinates for the anchor",
+          "$ref": "#/definitions/Point2Scheme",
+          "default": {}
         },
-        "y": {
-          "type": "number",
-          "minimum": -100,
-          "maximum": 100
+        "hostedBy": {
+          "description": "A wire on which the given anchor is positioned",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Wire"
+            }
+          ],
+          "relatedTo": "hostedAnchors"
+        },
+        "internalIn": {
+          "description": "ID or reference of the region in which this anchor must be positioned",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "internalAnchors"
+        },
+        "onBorderInRegion": {
+          "description": "IDs or references of the region in which this anchor defines a border point",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          },
+          "relatedTo": "borderAnchors",
+          "advanced": true,
+          "readOnly": true
+        },
+        "sourceOf": {
+          "description": "Wires that start in this anchor",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
+              }
+            ]
+          },
+          "relatedTo": "source",
+          "advanced": true
+        },
+        "targetOf": {
+          "description": "Wires that end in this anchor",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
+              }
+            ]
+          },
+          "relatedTo": "target",
+          "advanced": true
+        },
+        "partOf": {
+          "description": "Scaffold that contains the anchor ",
+          "$ref": "#/definitions/Scaffold",
+          "readOnly": true,
+          "relatedTo": "anchors"
+        },
+        "anchoredNode": {
+          "description": "Node anchored by the current anchor point",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "anchorTo",
+          "advanced": true
         }
       }
     },
-    "Point3Scheme": {
-      "description": "Coordinates of a 3d point",
-      "type": "object",
-      "allOf": [ {"$ref": "#/definitions/Point2Scheme"} ],
+    "AnnotationSchema": {
+      "description": "Metadata for ApiNATOMY model",
       "properties": {
-        "z": {
+        "namespace": {
+          "description": "Model namespace",
+          "type": "string"
+        },
+        "version": {
+          "description": "Model version",
+          "type": "string",
+          "pattern": "^(?:(d+).)?(?:(d+).)?(d+)$"
+        },
+        "created": {
+          "description": "Date of the model creation",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "lastUpdated": {
+          "description": "Date of the model last update",
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "author": {
+          "description": "Name of the model author",
+          "type": "string"
+        }
+      }
+    },
+    "Border": {
+      "description": "Lyph border schematically models the inner and outer surfaces of a body part whose structure is   defined by the lyph. Each border consists of an array that defines two radial and two longitudinal borders. The inner longitudinal border is always parallel to the lyph's rotational axis.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/VisualResource"
+        }
+      ],
+      "properties": {
+        "borders": {
+          "description": "Lyph or region borders listed in the clockwise order (starting from the inner longitudinal border in lyph). If this property is included to the input model, it must contain as many objects as there are border sides.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "onBorder",
+          "default": []
+        },
+        "host": {
+          "description": "The ID or reference to the lyph or region object that owns this border. This property is set internally and should not be assigned.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Shape"
+            }
+          ],
+          "relatedTo": "border",
+          "readOnly": true
+        }
+      }
+    },
+    "Chain": {
+      "description": "Defines a chain of conveying lyphs",
+      "allOf": [
+        {
+          "$ref": "#/definitions/GroupTemplate"
+        }
+      ],
+      "properties": {
+        "root": {
+          "description": "The source node of the chain (tree root)",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "rootOf"
+        },
+        "leaf": {
+          "description": "The target node of the chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "leafOf"
+        },
+        "lyphs": {
+          "description": "Ordered set of lyphs to form a chain",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "inChain",
+          "default": []
+        },
+        "lyphTemplate": {
+          "description": "Lyph template to generate lyphs conveyed by the omega-tree branches.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ]
+        },
+        "numLevels": {
+          "description": "Number of levels in the generated chain. Nodes and links are auto-created",
           "type": "number",
-          "minimum": -100,
-          "maximum": 100
+          "default": 1
+        },
+        "levels": {
+          "description": "Optional references to links or link properties that must be associated with the chain level",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ],
+            "relatedTo": "levelIn"
+          }
+        },
+        "housingLyphs": {
+          "description": "A set of lyphs that house the tree",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "bundlesChains",
+          "default": []
+        },
+        "housingChain": {
+          "description": "A chain that houses the chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ]
+        },
+        "housingRange": {
+          "description": "Index range to define the chain part that houses the tree",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Start index for tree embedding",
+              "type": "number",
+              "minimum": 0
+            },
+            "max": {
+              "description": "End index for tree embedding",
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "advanced": true
+        },
+        "housingLayers": {
+          "description": "Indices of the layers in housing lyphs to embed the chain levels. The field should be used when the housing lyph layers are generated and not known in advance.",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "wiredTo": {
+          "description": "Scaffold wire that defines layout of the chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Wire"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "wiredChain"
+        },
+        "startFromLeaf": {
+          "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
+          "type": "boolean"
+        },
+        "hostedBy": {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Shape"
+            }
+          ],
+          "advanced": true
+        }
+      }
+    },
+    "Channel": {
+      "description": "Defines a chain of lyphs that transport materials",
+      "allOf": [
+        {
+          "$ref": "#/definitions/GroupTemplate"
+        }
+      ],
+      "properties": {
+        "materials": {
+          "description": "Biological materials, chemical elements and compounds, conveyed by the channel",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          },
+          "relatedTo": "transportedBy",
+          "default": []
+        },
+        "housingLyphs": {
+          "description": "Lyphs that house the channel",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "channels",
+          "default": []
+        },
+        "instances": {
+          "description": "Groups (subgraphs) that contain generated channel instances",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
+          "readOnly": true,
+          "advanced": true
+        }
+      }
+    },
+    "Coalescence": {
+      "description": "Defines a group of lyphs with overlapping layers",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "properties": {
+        "topology": {
+          "type": "string",
+          "enum": [
+            "CONNECTING",
+            "EMBEDDING"
+          ],
+          "default": "CONNECTING"
+        },
+        "abstract": {
+          "description": "A boolean flag to indicate that this coalescence is defined on abstract lyphs",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "generatedFrom": {
+          "description": "Coalescence with abstract lyphs or materials which was used to generate the current coalescence",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Coalescence"
+            }
+          ],
+          "readOnly": true,
+          "advanced": true
+        },
+        "lyphs": {
+          "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "inCoalescences",
+          "default": []
         }
       }
     },
@@ -77,6 +481,65 @@
         "interpolateViridis"
       ]
     },
+    "Component": {
+      "description": "Scaffold component includes resources to describe graphical layout for connectivity models",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        },
+        {
+          "$ref": "#/definitions/AnnotationSchema"
+        }
+      ],
+      "properties": {
+        "anchors": {
+          "description": "Scaffold anchor points",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Anchor"
+          },
+          "default": []
+        },
+        "wires": {
+          "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Wire"
+          },
+          "default": []
+        },
+        "regions": {
+          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          }
+        },
+        "components": {
+          "description": "Nested components",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Component"
+              }
+            ]
+          },
+          "advanced": true,
+          "default": []
+        }
+      }
+    },
     "CurieMapping": {
       "description": "List of mappings used for external identifiers",
       "type": "object",
@@ -92,282 +555,68 @@
         }
       }
     },
-    "GroupColorScheme": {
-      "description": "Scheme to specify color interpolation for a group of resources",
-      "type": "object",
-      "properties": {
-        "scheme": {
-          "description": "Interpolation scheme to apply to a group of resources",
-          "$ref": "#/definitions/ColorScheme"
-        },
-        "length": {
-          "description": "Number of distinct colors from the color scheme",
-          "type": "number",
-          "minimum": 1
-        },
-        "reversed": {
-          "description": "Boolean parameter that indicates whether to pick up colors from the color scheme in reverse order",
-          "type": "boolean"
-        },
-        "offset": {
-          "description": "Colors at the beginning and at the end of the color arrays may be too dark or too light, so we skip some percentage",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
+    "Edge": {
+      "description": "A common abstract class for Link and Wire",
+      "allOf": [
+        {
+          "$ref": "#/definitions/VisualResource"
         }
-      }
-    },
-    "OffsetScheme": {
-      "description": "Offset scheme defines the start and the end values as well as a step for incremental selection of values in an array",
-      "type": "object",
+      ],
+      "abstract": true,
       "properties": {
-        "start": {
+        "stroke": {
+          "description": "Special edge stroke: dashed or thick",
+          "type": "string",
+          "enum": [
+            "dashed",
+            "thick"
+          ],
+          "default": "",
+          "advanced": true
+        },
+        "lineWidth": {
+          "description": "Edge line width, used in combination with `stroke` set to `dashed`",
           "type": "number",
-          "default": 0,
-          "minimum": 0,
-          "maximum": 1
-        },
-        "end": {
-          "type": "number",
-          "default": 1,
-          "minimum": 0,
-          "maximum": 1
-        },
-        "step": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
-        }
-      }
-    },
-    "JSONPathScheme": {
-      "description": "JSONPath query to select resources",
-      "type": "string"
-    },
-    "AnnotationSchema" : {
-      "description": "Metadata for ApiNATOMY model",
-      "properties": {
-        "namespace":{
-          "description": "Model namespace",
-          "type": "string"
-        },
-        "version": {
-          "description": "Model version",
-          "type": "string",
-          "pattern": "^(?:(d+).)?(?:(d+).)?(d+)$"
-        },
-        "created": {
-          "description": "Date of the model creation",
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "lastUpdated": {
-          "description": "Date of the model last update",
-          "type": "string",
-          "format": "date",
-          "readOnly": true
-        },
-        "author": {
-          "description": "Name of the model author",
-          "type": "string"
-        }
-      }
-    },
-    "ProcessTypeScheme": {
-      "description": "Process types",
-      "type": "string",
-      "enum": [
-        "ADVECTIVE",
-        "DIFFUSIVE"
-      ]
-    },
-    "Resource": {
-      "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model",
-      "type": "object",
-      "abstract": "true",
-      "properties": {
-        "id": {
-          "description": "Unique resource identifier",
-          "$ref": "#/definitions/IdentifierScheme"
-        },
-        "name": {
-          "description": "Resource name",
-          "type": "string"
-        },
-        "class": {
-          "description": "Resource class",
-          "type": "string",
-          "readOnly": true
-        },
-        "description": {
-          "description": "Resource description, comments, modeling assumptions, etc.",
-          "type": "string",
+          "default": "0.003",
           "advanced": true
         },
-        "localConventions": {
-          "description": "Mapping from local identifiers to global identifiers.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CurieMapping"
-          }
-        },
-        "external": {
-          "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/External"
-              }
-            ]
-          },
-          "relatedTo": "annotates"
-        },
-        "publications": {
-          "description": "Identifier of an evidence publication in an external library, i.e., PubMed) ",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/External"
-              }
-            ]
-          },
-          "relatedTo": "documents"
-        },
-        "generated": {
-          "description": "A boolean flag to mark automatically generated resources",
-          "type" : "boolean",
-          "readOnly" : true
-        },
-        "assign": {
-          "description": "Dynamically assign properties to selected resources",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "path": {
-                "description": "JSONPath query to select resources",
-                "$ref": "#/definitions/JSONPathScheme"
-              },
-              "value": {
-                "description": "A set of fields to be assigned to all resources that match the query in the path",
-                "type": "object"
-              }
-            }
-          },
-          "advanced": true
-        },
-        "interpolate": {
-          "description": "Dynamically apply property interpolation schemes to selected resources",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "path": {
-                "description": "JSONPath query to select resources",
-                "$ref": "#/definitions/JSONPathScheme"
-              },
-              "color": {
-                "description": "Color interpolation schema for a group of resources",
-                "$ref": "#/definitions/GroupColorScheme"
-              },
-              "offset": {
-                "description": "Interpolation scheme to gradually set offsets for a set of resources",
-                "$ref": "#/definitions/OffsetScheme"
-              }
-            }
-          },
-          "advanced": true
-        },
-        "infoFields": {
-          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [ "id", "name", "class"],
-          "advanced": true
-        }
-      }
-    },
-    "VisualResource": {
-      "description": "An abstract visual resource that defines common properties for all types of visual resources in the ApiNATOMY model.",
-      "abstract": "true",
-      "allOf": [{"$ref": "#/definitions/Resource"}],
-      "properties": {
-        "color": {
-          "description": "Color",
-          "$ref": "#/definitions/RGBColorScheme"
-        },
-        "viewObjects": {
-          "description": "Graphical objects that represent the resource",
-          "type": "object",
-          "readOnly": true,
-          "default": {}
-        },
-        "labels": {
-          "description": "Graphical objects that represent resource labels",
-          "type": "object",
-          "readOnly": true,
-          "default": {}
-        },
-        "hidden": {
-          "description": "A flag to indicate that this resource should not be visualized",
-          "type": "boolean",
-          "advanced": true
-        },
-        "inactive": {
-          "description": "A boolean flag to indicate that this visual resource should not be highlighted",
-          "type": "boolean",
-          "advanced": true
-        },
-        "skipLabel": {
-          "description": "A flag to indicate that this resource is visualized without the corresponding text label",
-          "type": "boolean",
-          "advanced": true
-        },
-        "cloneOf": {
-          "description": "A resource that was copied to create the current resource. This field is used to link resource clones to the original resource. We clone nodes that are hosted by more than one lyph border, and nodes, links and lyphs to generate an instance of an omega tree.",
+        "arcCenter": {
+          "description": "Center of an elliptic curve for an arc edge",
           "anyOf": [
+            {
+              "$ref": "#/definitions/Point3Scheme"
+            },
             {
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/VisualResource"
+              "$ref": "#/definitions/Vertice"
             }
-          ],
-          "relatedTo": "clones",
-          "readOnly": true
+          ]
         },
-        "clones": {
-          "description": "Resources that are clones of the current resource. This field is used to link the resource to all its clones. We clone nodes that are hosted by more than one lyph border,  and nodes, links and lyphs to generate an instance of an omega tree.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/VisualResource"
-              }
-            ]
-          },
-          "relatedTo": "cloneOf",
-          "readOnly": true
+        "length": {
+          "description": "The length of the edge (for links can be set, for wires usually computed)",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
         }
+      },
+      "dependencies": {
+        "lineWidth": [
+          "stroke"
+        ],
+        "arcCenter": [
+          "geometry"
+        ]
       }
     },
     "External": {
       "description": "Reference to an external resource",
-      "allOf":[{"$ref": "#/definitions/Resource"}],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
       "properties": {
         "uri": {
           "description": "Reference to an external resource",
@@ -409,1686 +658,49 @@
           "relatedTo": "publications",
           "advanced": true
         }
-
       }
     },
-    "Vertice": {
-      "description": "A common abstract class for nodes and anchors",
-      "allOf":[{
-        "$ref": "#/definitions/VisualResource"
-        },
+    "Graph": {
+      "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
+      "allOf": [
         {
-          "$ref": "#/definitions/Point3Scheme"
-        }
-      ],
-      "abstract": true,
-      "properties": {
-        "invisible": {
-          "description": "A flag to indicate that this node should not be visualized (view object is not created)",
-          "type": "boolean",
-          "advanced": false
-        },
-        "val": {
-          "description": "A value that defines the size of the vertice",
-          "type": "number",
-          "minimum": 0,
-          "advanced": true
-        },
-        "offset": {
-          "description": "Defines position of the vertice on its host edge, i.e, fraction of the edge's length starting from the source vertice.",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1,
-          "advanced": true
-        }
-      }
-    },
-    "Node": {
-      "description": "Graph node joins two or more links (processes)",
-      "allOf":[{
-        "$ref": "#/definitions/Vertice"
-      }],
-      "properties": {
-        "infoFields": {
-          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [ "id", "name", "class", "sourceOf", "targetOf", "rootOf", "leafOf", "internalIn", "generated" ]
-        },
-        "hostedBy": {
-          "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Link"
-            }
-          ],
-          "relatedTo": "hostedNodes"
-        },
-        "internalIn": {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "internalNodes"
-        },
-        "controlNodes": {
-          "description": "A set of nodes that define the position of the current node as their center of mass",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "advanced": true
-        },
-        "layout": {
-          "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
-          "$ref": "#/definitions/Point3Scheme",
-          "default": {}
-        },
-        "fixed": {
-          "description": "Fixed nodes are positioned to the desired location",
-          "type": "boolean",
-          "advanced": true
-        },
-        "charge": {
-          "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph.",
-          "type": "number",
-          "default": 0,
-          "advanced": true
-        },
-        "collide": {
-          "description": "Defines the radius for the collision force in the force-directed layout. The collision force treats nodes as circles with a given radius, rather than points, and prevents nodes from overlapping.",
-          "type": "number",
-          "default": 5,
-          "advanced": true
-        },
-        "sourceOf": {
-          "description": "Links that start in this node",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "source",
-          "advanced": true
-        },
-        "targetOf": {
-          "description": "Links that end in this node",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "target",
-          "advanced": true
-        },
-        "rootOf"  : {
-          "description": "The chain that starts in this node",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Chain"
-              }
-            ]
-          },
-          "relatedTo": "root"
-        },
-        "leafOf"  : {
-          "description": "The chain that ends in this node",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Chain"
-              }
-            ]
-          },
-          "relatedTo": "leaf"
-        },
-        "anchoredTo": {
-          "description": "Scaffold anchor that defines node position",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Anchor"
-            }
-          ],
-          "advanced": true,
-          "relatedTo": "anchoredNode"
-        }
-      }
-    },
-    "Edge": {
-      "description": "A common abstract class for Link and Wire",
-      "allOf":[{
-        "$ref": "#/definitions/VisualResource"
-      }],
-      "abstract": true,
-      "properties": {
-        "stroke"        : {
-          "description": "Special edge stroke: dashed or thick",
-          "type": "string",
-          "enum": [
-            "dashed",
-            "thick"
-          ],
-          "default": "",
-          "advanced": true
-        },
-        "lineWidth"     : {
-          "description": "Edge line width, used in combination with `stroke` set to `dashed`",
-          "type": "number",
-          "default": "0.003",
-          "advanced": true
-        },
-        "arcCenter"    : {
-          "description": "Center of an elliptic curve for an arc edge",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Point3Scheme"
-            },
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Vertice"
-            }
-          ]
-        }
-      },
-      "dependencies" : {
-        "lineWidth": ["stroke"],
-        "arcCenter": ["geometry"]
-      }
-    },
-    "Link": {
-      "description": "Graph link schematically representing a (part of) physiological process. ",
-      "allOf":[{
-        "$ref": "#/definitions/Edge"
-      }],
-      "properties": {
-        "source"        : {
-          "description": "Source node of the link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "sourceOf"
-        },
-        "target"        : {
-          "description": "Target node of the link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "targetOf"
-        },
-        "hostedNodes"   : {
-          "description": "Nodes that are positioned on a link or border edge. If the same node is positioned on several edges, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "relatedTo": "hostedBy",
-          "uniqueItems": true
-        },
-        "conveyingLyph" : {
-          "description": "Conveying lyph for the process represented by the link (other side of 'axis')",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "conveys"
-        },
-        "conveyingType" : {
-          "description": "Process type",
-          "$ref": "#/definitions/ProcessTypeScheme"
-        },
-        "conveyingMaterials": {
-          "description": "Materials conveyed by a diffusive process, must be subset of materials in the innermost layer of the conveying lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          }
-        },
-        "onBorder"     :{
-          "description": "Border that contains this link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Border"
-            }
-          ],
-          "relatedTo": "borders",
-          "advanced": true
-        },
-        "levelIn":{
-          "description": "A chain that contains the link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
-          "relatedTo": "levels",
-          "advanced": true,
-          "readOnly": true
-        },
-        "fasciculatesIn": {
-          "description": "A lyph which bundles the link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "bundles"
-        },
-        "length" : {
-          "description": "The length of the link",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
-        "collapsible"  : {
-          "description": "Indicates that the link disappears when its end nodes are not both constrained",
-          "type": "boolean",
-          "readOnly": true,
-          "advanced": true
-
-        },
-        "geometry"     : {
-          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
-          "type": "string",
-          "enum": [
-            "link",
-            "semicircle",
-            "rectangle",
-            "arc",
-            "spline",
-            "path",
-            "invisible"
-          ],
-          "default": "link"
-        },
-        "infoFields"   : {
-          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [ "id", "name", "class", "source", "target", "conveyingLyph", "fasciculatesIn", "generated", "length"]
-        },
-        "directed"     : {
-          "description": "When set to true, defines a directed edge with arrow at the end",
-          "type": "boolean",
-          "default": false,
-          "advanced": true
-        },
-        "reversed"     : {
-          "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
-          "type": "boolean",
-          "advanced": true
-        },
-        "strength"     : {
-          "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
-          "type": "number",
-          "advanced": true
-        },
-        "prev": {
-          "description": "References to preceding links in ordered chains that pass through the current link",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "next",
-          "readOnly": true,
-          "advanced": true
-        },
-        "next": {
-          "description": "References to following links in ordered chains that pass through the current link",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "prev",
-          "readOnly": true,
-          "advanced": true
-        },
-        "prevChainEndLevels": {
-          "description": "References to end levels of chains preceding the chains in which the current link is a level.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "nextChainStartLevels",
-          "readOnly": true,
-          "advanced": true
-        },
-        "nextChainStartLevels": {
-          "description": "References to start levels of chains following the chain in which the current link is a level.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "prevChainEndLevels",
-          "readOnly": true,
-          "advanced": true
-        }
-      }
-    },
-    "Material": {
-      "description": "Biological materials, chemical elements and compounds",
-      "allOf":[{
-        "$ref": "#/definitions/VisualResource"
-      }],
-      "properties": {
-        "materials" : {
-          "description": "Materials as constituent part of the current material",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          },
-          "relatedTo": "inMaterials"
-        },
-        "inMaterials": {
-          "description": "Materials which contain the current material",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          },
-          "relatedTo": "materials",
-          "advanced": true
-        },
-        "transportedBy": {
-          "description": "Channels that transfer the current material",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Channel"
-              }
-            ]
-          },
-          "relatedTo": "materials",
-          "advanced": true
-        }
-      }
-    },
-    "Shape"   : {
-      "description": "A resource that occupies space within a border",
-      "allOf":[{
-        "$ref": "#/definitions/VisualResource"
-      }],
-      "abstract": true,
-      "properties": {
-        "border": {
-          "description": "Structure of the shape's border",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Border"
-            }
-          ],
-          "relatedTo": "host",
-          "default": {},
-          "advanced": true
-        },
-        "points": {
-          "description": "Points defining the border shape",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Point2Scheme"
-          },
-          "readOnly": true,
-          "advanced": true
-        }
-      }
-    },
-    "Anchor": {
-      "description": "Anchor defines a special point in a scaffold. Anchor points can join wires.",
-      "allOf":[{
-        "$ref": "#/definitions/Vertice"
-      }],
-      "properties": {
-        "layout"    : {
-          "description": "Provided 2d coordinates for the anchor",
-          "$ref": "#/definitions/Point2Scheme",
-          "default": {}
-        },
-        "hostedBy"  : {
-          "description": "A wire on which the given anchor is positioned",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Wire"
-            }
-          ],
-          "relatedTo": "hostedAnchors"
-        },
-        "internalIn": {
-          "description": "ID or reference of the region in which this anchor must be positioned",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Region"
-            }
-          ],
-          "relatedTo": "internalAnchors"
-        },
-        "onBorderInRegion": {
-          "description": "IDs or references of the region in which this anchor defines a border point",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Region"
-              }
-            ]
-          },
-          "relatedTo": "borderAnchors",
-          "advanced": true,
-          "readOnly": true
-        },
-        "sourceOf"  : {
-          "description": "Wires that start in this anchor",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Wire"
-              }
-            ]
-          },
-          "relatedTo": "source",
-          "advanced": true
-        },
-        "targetOf"  : {
-          "description": "Wires that end in this anchor",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Wire"
-              }
-            ]
-          },
-          "relatedTo": "target",
-          "advanced": true
-        },
-        "partOf"    : {
-          "description": "Scaffold that contains the anchor ",
-          "$ref": "#/definitions/Scaffold",
-          "readOnly" : true,
-          "relatedTo": "anchors"
-        },
-        "anchoredNode" : {
-          "description": "Node anchored by the current anchor point",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "anchorTo",
-          "advanced": true
-        }
-      }
-    },
-    "Wire": {
-      "description": "Wire models a curve in a scaffold",
-      "allOf":[{
-        "$ref": "#/definitions/Edge"
-      }],
-      "properties": {
-        "source"        : {
-          "description": "Start of the wire",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Anchor"
-            }
-          ],
-          "relatedTo": "sourceOf"
-        },
-        "target"        : {
-          "description": "End of the wire",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Anchor"
-            }
-          ],
-          "relatedTo": "targetOf"
-        },
-        "infoFields"   : {
-          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [ "id", "name", "class", "source", "target", "wiredChain"]
-        },
-        "hostedAnchors" : {
-          "description": "Anchors that are positioned on a wire.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Anchor"
-              }
-            ]
-          },
-          "relatedTo": "hostedBy",
-          "uniqueItems": true
-        },
-        "geometry"      : {
-          "description": "Defines the geometry of the wire in the scaffold.",
-          "type": "string",
-          "enum": [
-            "link",
-            "arc",
-            "spline"
-          ],
-          "default": "link"
-        },
-        "controlPoint"  : {
-          "description": "Control point for the spline wire",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Point2Scheme"
-            },
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Anchor"
-            }
-          ]
-        },
-        "facetIn"       : {
-          "description": "ID or reference of the region on which this wire is a facet",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Region"
-              }
-            ]
-          },
-          "relatedTo": "facets",
-          "advanced": true,
-          "readOnly": true
-        },
-        "partOf"        : {
-          "description": "Scaffold that contains the wire",
-          "$ref": "#/definitions/Scaffold",
-          "readOnly" : true,
-          "relatedTo": "wires"
-        },
-        "wiredChain"    : {
-          "description": "A chain constrained by the wire",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
-          "relatedTo": "wiredTo",
-          "advanced": true
-        }
-      },
-      "dependencies" : {
-        "controlPoint": ["geometry"]
-      }
-    },
-    "Region"  : {
-      "description": "Area occupied by bordy part of subsystem",
-      "allOf":[{
-        "$ref": "#/definitions/Shape"
-      }],
-      "properties": {
-        "facets": {
-          "description": "A set of wires that define boundaries of the region. Shape points and boundaries can be generated from facets to visualize regions",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Wire"
-              }
-            ]
-          },
-          "relatedTo": "facetIn",
-          "uniqueItems": true
-        },
-        "borderAnchors": {
-          "description": "Border anchors of the region",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Anchor"
-              }
-            ]
-          },
-          "relatedTo": "onBorderInRegion",
-          "uniqueItems": true
-        },
-        "internalAnchors": {
-          "description": "Internal anchors in the region",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Anchor"
-              }
-            ]
-          },
-          "relatedTo": "internalIn",
-          "uniqueItems": true
-        },
-        "hostedGroup": {
-          "description": "Resource group hosted by the region",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Group"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
-          "advanced": true,
-          "relatedTo": "hostedBy"
-        },
-        "hostedLyphs": {
-          "description": "Lyphs that should be projected to a given lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "hostedBy",
-          "advanced": true
-        },
-        "internalIn"     : {
-          "description": "ID or reference of the region that contains the current region as its part",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Region"
-            }
-          ],
-          "relatedTo": "internalRegions",
-          "advanced": true
-        },
-        "internalRegions": {
-          "description": "Regions that are internal parts of the given region",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Region"
-              }
-            ]
-          },
-          "relatedTo": "internalIn"
-        },
-        "depth": {
-          "description": "Can be used to order flat shapes on the same plane (polygonOffsetFactor, currently only applies to regions)",
-          "type": "number"
-        }
-      }
-    },
-    "Lyph"    : {
-      "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
-      "allOf":[
-        {
-        "$ref": "#/definitions/Shape"
-        },
-        {
-        "$ref": "#/definitions/Material"
+          "$ref": "#/definitions/Group"
         }
       ],
       "properties": {
-        "topology"       : {
-          "description": "Lyph topology defines its border shape",
-          "type": "string",
-          "enum": [
-            "TUBE",
-            "BAG-",
-            "BAG+",
-            "BAG",
-            "BAG2",
-            "CYST"
-          ]
-        },
-        "isTemplate"     : {
-          "description": "Indicates that the lyph defines layers for its subtypes",
-          "type": "boolean"
-        },
-        "thickness"      : {
-          "description": "Anatomical lyph thickness defined in the form of power of 1/10",
+        "config": {
+          "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
           "type": "object",
           "properties": {
-            "min": {
-              "description": "Minimal value",
-              "type": "number"
-            },
-            "max": {
-              "description": "Maximal value",
-              "type": "number"
-            }
-          },
-          "default": {},
-          "advanced": true
-        },
-        "length" : {
-          "description": "Anatomical lyph length defined in the form of power of 1/10",
-          "type": "object",
-          "properties": {
-            "min": {
-              "description": "Minimal value",
-              "type": "number"
-            },
-            "max": {
-              "description": "Maximal value",
-              "type": "number"
-            }
-          },
-          "default": {},
-          "advanced": true
-        },
-        "subtypes"       : {
-          "description": "Lyphs that are anatomical subtypes of the given lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
+            "filter": {
+              "description": "Identifiers of resources to exclude from the relationship graph",
+              "type": "array",
+              "items": {
                 "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
               }
-            ]
-          },
-          "relatedTo": "supertype",
-          "advanced": true
-        },
-        "supertype"      : {
-          "description": "Lyph which is an anatomical supertype of the given lyph",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
             },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "subtypes"
-        },
-        "inheritedExternal": {
-          "description": "Identifiers of external resources inherited from all ancestors (supertypes)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
+            "showGroups": {
+              "description": "Identifiers of visible by default groups or group templates",
+              "type": "array",
+              "items": {
                 "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/External"
               }
-            ]
-          },
-          "readOnly": true
-        },
-        "conveys"     : {
-          "description": "A link conveying the lyph",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Link"
-            }
-          ],
-          "relatedTo": "conveyingLyph",
-          "advanced": true
-        },
-        "layers"         : {
-          "description": "Lyph layers",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "layerIn"
-        },
-        "layerIn"        : {
-          "description": "A lyph in which the current lyph is hosted as layer",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "layers",
-          "readOnly" : true,
-          "advanced": true
-        },
-        "internalIn"     : {
-          "description": "ID or reference of the lyph that contains the given lyph as its part",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "internalLyphs",
-          "advanced": true
-        },
-        "internalLyphs": {
-          "description": "Lyphs that are internal parts of the given lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "internalIn"
-        },
-        "internalNodes": {
-          "description": "Nodes that should be positioned on the given region",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ]
-          },
-          "relatedTo": "internalIn",
-          "uniqueItems": true
-        },
-        "internalLyphColumns": {
-          "description": "Defines number of columns in the grid layout for the internal lyphs",
-          "type": "number",
-          "default": 1,
-          "advanced": true
-        },
-        "internalLyphsInLayers"  : {
-          "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "internalNodesInLayers"  : {
-          "description": "Indices of layers to position internal nodes. The field should be used when layers are generated and not known in advance",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "hostedBy"       : {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Region"
-            }
-          ],
-          "relatedTo": "hostedLyphs",
-          "advanced": true
-        },
-        "channels"       : {
-          "description": "ID or reference of the channel which this lyph houses",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Channel"
-              }
-            ]
-          },
-          "relatedTo": "housingLyphs",
-          "uniqueItems": true
-        },
-        "bundles"        : {
-          "description" : "A set of links (i.e., neural connections) that pass through the lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "fasciculatesIn"
-        },
-        "bundlesChains"   : {
-          "description" : "Chains that generate links that pass through the lyph. The property can be used to override default bundling of tree links to the outermost layer of a lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Chain"
-              }
-            ]
-          },
-          "relatedTo": "housingLyphs",
-          "advanced": true
-        },
-        "inChain": {
-          "description": "Chains in which the given lyph is a housing lyph",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
-          "advanced": true,
-          "readOnly": true,
-          "relatedTo": "lyphs"
-        },
-        "villus" : {
-          "description": "Small, finger-like projections that extend into the lumen",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Villus"
-            }
-          ],
-          "advanced": true,
-          "relatedTo": "villusOf"
-        },
-        "inCoalescences" : {
-          "description": "A set of coalescences that include the current lyph",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Coalescence"
-              }
-            ]
-          },
-          "relatedTo": "lyphs",
-          "default": [],
-          "advanced": true
-        },
-        "generatedFrom"  : {
-          "description": "Material which was used to generate the current lyph",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Material"
-            }
-          ],
-          "readOnly": true,
-          "advanced": true
-        },
-        "angle"          : {
-          "description": "Angle (in degrees) to rotate the lyph around its axis",
-          "type"   : "number",
-          "minimum" : 0,
-          "maximum" : 360,
-          "advanced": true
-        },
-        "infoFields"     : {
-          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [ "id", "name", "class", "topology", "external", "internalIn", "bundles", "supertype", "cloneOf", "generated", "width", "height"],
-          "advanced": true
-        },
-        "width"          : {
-          "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
-          "type": "number",
-          "minimum": 0,
-          "advanced": true
-        },
-        "height"         : {
-          "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100,
-          "advanced": true
-        },
-        "scale"          : {
-          "description": "Defines the size of the conveying lyph as percentage of its axis' length",
-          "type": "object",
-          "properties": {
-            "width": {
-              "type": "number",
-              "minimum": 0
-            },
-            "height": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100
             }
           },
-          "advanced": true
-        },
-        "create3d"       : {
-          "description": "Create 3d visual objects for this lyph",
-          "type": "boolean",
-          "advanced": true
-        },
-        "layerWidth"     : {
-          "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100,
           "advanced": true
         }
       }
     },
-    "Border"  : {
-      "description": "Lyph border schematically models the inner and outer surfaces of a body part whose structure is   defined by the lyph. Each border consists of an array that defines two radial and two longitudinal borders. The inner longitudinal border is always parallel to the lyph's rotational axis.",
-      "allOf":[{
-        "$ref": "#/definitions/VisualResource"
-      }],
-      "properties": {
-        "borders": {
-          "description": "Lyph or region borders listed in the clockwise order (starting from the inner longitudinal border in lyph). If this property is included to the input model, it must contain as many objects as there are border sides.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ]
-          },
-          "relatedTo": "onBorder",
-          "default": []
-        },
-        "host": {
-          "description": "The ID or reference to the lyph or region object that owns this border. This property is set internally and should not be assigned.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Shape"
-            }
-          ],
-          "relatedTo": "border",
-          "readOnly": true
-        }
-      }
-    },
-    "Coalescence": {
-      "description": "Defines a group of lyphs with overlapping layers",
-      "allOf":[{
-        "$ref": "#/definitions/Resource"
-      }],
-      "properties": {
-        "topology": {
-          "type": "string",
-          "enum": ["CONNECTING", "EMBEDDING"],
-          "default": "CONNECTING"
-        },
-        "abstract": {
-          "description": "A boolean flag to indicate that this coalescence is defined on abstract lyphs",
-          "type": "boolean",
-          "readOnly": true
-        },
-        "generatedFrom"   : {
-          "description": "Coalescence with abstract lyphs or materials which was used to generate the current coalescence",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Coalescence"
-            }
-          ],
-          "readOnly": true,
-          "advanced": true
-        },
-        "lyphs": {
-          "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "inCoalescences",
-          "default": []
-        }
-      }
-    },
-    "GroupTemplate": {
-      "description": "An abstract resource that defines common properties for all types of generated subgraphs",
-      "abstract": "true",
-      "allOf": [{"$ref": "#/definitions/Resource"}],
-      "properties": {
-        "group"         : {
-          "description": "Group (subgraph) that encompasses generated group resources",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Group"
-            }
-          ],
-          "readOnly": true,
-          "relatedTo": "generatedFrom"
-        },
-        "length"        : {
-          "description" : "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
-          "type"        : "number",
-          "minimum"     : 0,
-          "maximum"     : 100,
-          "advanced"    : true
-        },
-        "conveyingType" : {
-          "description": "Process type associated with links in the group derived from the template",
-          "$ref": "#/definitions/ProcessTypeScheme"
-        }
-      }
-    },
-    "Channel": {
-      "description": "Defines a chain of lyphs that transport materials",
-      "allOf":[{
-        "$ref": "#/definitions/GroupTemplate"
-      }],
-      "properties": {
-        "materials"    : {
-          "description": "Biological materials, chemical elements and compounds, conveyed by the channel",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Material"
-              }
-            ]
-          },
-          "relatedTo": "transportedBy",
-          "default": []
-        },
-        "housingLyphs" : {
-          "description": "Lyphs that house the channel",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "channels",
-          "default": []
-        },
-        "instances"     : {
-          "description": "Groups (subgraphs) that contain generated channel instances",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Group"
-          },
-          "readOnly": true,
-          "advanced": true
-        }
-      }
-    },
-    "Chain": {
-      "description": "Defines a chain of conveying lyphs",
-      "allOf":[{
-        "$ref": "#/definitions/GroupTemplate"
-      }],
-      "properties": {
-        "root"         : {
-          "description": "The source node of the chain (tree root)",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "rootOf"
-        },
-        "leaf"  : {
-          "description": "The target node of the chain",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "leafOf"
-        },
-        "lyphs" : {
-          "description": "Ordered set of lyphs to form a chain",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "inChain",
-          "default": []
-        },
-        "lyphTemplate"   : {
-          "description": "Lyph template to generate lyphs conveyed by the omega-tree branches.",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ]
-        },
-        "numLevels"      : {
-          "description": "Number of levels in the generated chain. Nodes and links are auto-created",
-          "type": "number",
-          "default": 1
-        },
-        "levels"         : {
-          "description": "Optional references to links or link properties that must be associated with the chain level",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Link"
-              }
-            ],
-            "relatedTo": "levelIn"
-          }
-        },
-        "housingLyphs"   : {
-          "description": "A set of lyphs that house the tree",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-            ]
-          },
-          "relatedTo": "bundlesChains",
-          "default": []
-        },
-        "housingChain"   : {
-          "description": "A chain that houses the chain",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ]
-        },
-        "housingRange"   : {
-          "description": "Index range to define the chain part that houses the tree",
-          "type": "object",
-          "properties": {
-            "min": {
-              "description": "Start index for tree embedding",
-              "type": "number",
-              "minimum": 0
-            },
-            "max": {
-              "description": "End index for tree embedding",
-              "type": "number",
-              "minimum": 0
-            }
-          },
-          "advanced": true
-        },
-        "housingLayers"  : {
-          "description": "Indices of the layers in housing lyphs to embed the chain levels. The field should be used when the housing lyph layers are generated and not known in advance.",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "minimum": 0
-          }
-        },
-        "wiredTo": {
-          "description": "Scaffold wire that defines layout of the chain",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Wire"
-            }
-          ],
-          "advanced": true,
-          "relatedTo": "wiredChain"
-        },
-        "startFromLeaf" : {
-          "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
-          "type": "boolean"
-        },
-        "hostedBy"       : {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Shape"
-            }
-          ],
-          "advanced": true
-        }
-      }
-    },
-    "Tree"  : {
-      "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
-      "allOf":[{
-        "$ref": "#/definitions/GroupTemplate"
-      }],
-      "properties": {
-        "chain": {
-          "description": "A chain resource defining the structural composition of the tree, i.e., lyphs that convey tree levels",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ]
-        },
-        "branchingFactors": {
-          "description": "Branching factors define a mean value of branches at each tree level",
-          "type": "array",
-          "items": {
-            "type": "number",
-            "default": 1
-          }
-        },
-        "instances"     : {
-          "description": "Groups (subgraphs) that contain generated tree instances",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Group"
-          },
-          "readOnly": true,
-          "advanced": true
-        },
-        "numInstances"  : {
-          "description": "Indicates how many tree instances to create",
-          "type"       : "number",
-          "default"    : 1,
-          "advanced"   : true
-        }
-      }
-    },
-    "Villus": {
-      "description": "Defines a group of resources forming an intestinal villus",
-      "allOf":[{
-        "$ref": "#/definitions/GroupTemplate"
-      }],
-      "properties": {
-        "numLayers": {
-          "description": "Number of layers in the villus, or, equivalently, a layer index from which a villus starts",
-          "type": "number",
-          "default": 1
-        },
-        "numLevels": {
-          "description": "Number of recursive micro-villi levels",
-          "type": "number",
-          "default": 1
-        },
-        "villusOf": {
-          "description": "Hosting lyph for the villus",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ]
-        }
-      }
-    },
-    "Group" : {
+    "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
-      "allOf":[{"$ref": "#/definitions/Resource"},{"$ref": "#/definitions/AnnotationSchema"}],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        },
+        {
+          "$ref": "#/definitions/AnnotationSchema"
+        }
+      ],
       "properties": {
         "inactive": {
           "description": "A boolean flag to indicate that this group should not appear in the view panel",
@@ -2255,7 +867,7 @@
           "advanced": true,
           "default": []
         },
-        "generatedFrom"  : {
+        "generatedFrom": {
           "description": "Group template which was used to generate the current lyph",
           "anyOf": [
             {
@@ -2267,7 +879,7 @@
           ],
           "readOnly": true
         },
-        "hostedBy"       : {
+        "hostedBy": {
           "description": "ID or reference of the lyph which this lyph must be projected to",
           "anyOf": [
             {
@@ -2290,28 +902,1106 @@
         }
       }
     },
-    "Component": {
-      "description": "Scaffold component includes resources to describe graphical layout for connectivity models",
-      "allOf":[{"$ref": "#/definitions/Resource"}, {"$ref": "#/definitions/AnnotationSchema"}],
+    "GroupColorScheme": {
+      "description": "Scheme to specify color interpolation for a group of resources",
+      "type": "object",
       "properties": {
-        "anchors": {
-          "description": "Scaffold anchor points",
+        "scheme": {
+          "description": "Interpolation scheme to apply to a group of resources",
+          "$ref": "#/definitions/ColorScheme"
+        },
+        "length": {
+          "description": "Number of distinct colors from the color scheme",
+          "type": "number",
+          "minimum": 1
+        },
+        "reversed": {
+          "description": "Boolean parameter that indicates whether to pick up colors from the color scheme in reverse order",
+          "type": "boolean"
+        },
+        "offset": {
+          "description": "Colors at the beginning and at the end of the color arrays may be too dark or too light, so we skip some percentage",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "GroupTemplate": {
+      "description": "An abstract resource that defines common properties for all types of generated subgraphs",
+      "abstract": "true",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "properties": {
+        "group": {
+          "description": "Group (subgraph) that encompasses generated group resources",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Group"
+            }
+          ],
+          "readOnly": true,
+          "relatedTo": "generatedFrom"
+        },
+        "length": {
+          "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "advanced": true
+        },
+        "conveyingType": {
+          "description": "Process type associated with links in the group derived from the template",
+          "$ref": "#/definitions/ProcessTypeScheme"
+        }
+      }
+    },
+    "IdentifierScheme": {
+      "description": "Resource identifier",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9:_.\\-' ]{1,100}$"
+    },
+    "JSONPathScheme": {
+      "description": "JSONPath query to select resources",
+      "type": "string"
+    },
+    "Link": {
+      "description": "Graph link schematically representing a (part of) physiological process. ",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Edge"
+        }
+      ],
+      "properties": {
+        "source": {
+          "description": "Source node of the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "sourceOf"
+        },
+        "target": {
+          "description": "Target node of the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "targetOf"
+        },
+        "hostedNodes": {
+          "description": "Nodes that are positioned on a link or border edge. If the same node is positioned on several edges, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Anchor"
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
           },
-          "default": []
+          "relatedTo": "hostedBy",
+          "uniqueItems": true
         },
-        "wires": {
-          "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
+        "conveyingLyph": {
+          "description": "Conveying lyph for the process represented by the link (other side of 'axis')",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "conveys"
+        },
+        "conveyingType": {
+          "description": "Process type",
+          "$ref": "#/definitions/ProcessTypeScheme"
+        },
+        "conveyingMaterials": {
+          "description": "Materials conveyed by a diffusive process, must be subset of materials in the innermost layer of the conveying lyph",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Wire"
-          },
-          "default": []
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          }
         },
-        "regions": {
-          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
+        "onBorder": {
+          "description": "Border that contains this link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Border"
+            }
+          ],
+          "relatedTo": "borders",
+          "advanced": true
+        },
+        "levelIn": {
+          "description": "A chain that contains the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "levels",
+          "advanced": true,
+          "readOnly": true
+        },
+        "fasciculatesIn": {
+          "description": "A lyph which bundles the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "bundles"
+        },
+        "collapsible": {
+          "description": "Indicates that the link disappears when its end nodes are not both constrained",
+          "type": "boolean",
+          "readOnly": true,
+          "advanced": true
+        },
+        "geometry": {
+          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+          "type": "string",
+          "enum": [
+            "link",
+            "semicircle",
+            "rectangle",
+            "arc",
+            "spline",
+            "path",
+            "invisible"
+          ],
+          "default": "link"
+        },
+        "infoFields": {
+          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "id",
+            "name",
+            "class",
+            "source",
+            "target",
+            "conveyingLyph",
+            "fasciculatesIn",
+            "generated",
+            "length"
+          ]
+        },
+        "directed": {
+          "description": "When set to true, defines a directed edge with arrow at the end",
+          "type": "boolean",
+          "default": false,
+          "advanced": true
+        },
+        "reversed": {
+          "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
+          "type": "boolean",
+          "advanced": true
+        },
+        "strength": {
+          "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
+          "type": "number",
+          "advanced": true
+        },
+        "prev": {
+          "description": "References to preceding links in ordered chains that pass through the current link",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "next",
+          "readOnly": true,
+          "advanced": true
+        },
+        "next": {
+          "description": "References to following links in ordered chains that pass through the current link",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "prev",
+          "readOnly": true,
+          "advanced": true
+        },
+        "prevChainEndLevels": {
+          "description": "References to end levels of chains preceding the chains in which the current link is a level.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "nextChainStartLevels",
+          "readOnly": true,
+          "advanced": true
+        },
+        "nextChainStartLevels": {
+          "description": "References to start levels of chains following the chain in which the current link is a level.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "prevChainEndLevels",
+          "readOnly": true,
+          "advanced": true
+        }
+      }
+    },
+    "Lyph": {
+      "description": "Data structure that defines the material composition and topology of body parts and physiological processes",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Shape"
+        },
+        {
+          "$ref": "#/definitions/Material"
+        }
+      ],
+      "properties": {
+        "topology": {
+          "description": "Lyph topology defines its border shape",
+          "type": "string",
+          "enum": [
+            "TUBE",
+            "BAG-",
+            "BAG+",
+            "BAG",
+            "BAG2",
+            "CYST"
+          ]
+        },
+        "isTemplate": {
+          "description": "Indicates that the lyph defines layers for its subtypes",
+          "type": "boolean"
+        },
+        "thickness": {
+          "description": "Anatomical lyph thickness defined in the form of power of 1/10",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Minimal value",
+              "type": "number"
+            },
+            "max": {
+              "description": "Maximal value",
+              "type": "number"
+            }
+          },
+          "default": {},
+          "advanced": true
+        },
+        "length": {
+          "description": "Anatomical lyph length defined in the form of power of 1/10",
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "Minimal value",
+              "type": "number"
+            },
+            "max": {
+              "description": "Maximal value",
+              "type": "number"
+            }
+          },
+          "default": {},
+          "advanced": true
+        },
+        "subtypes": {
+          "description": "Lyphs that are anatomical subtypes of the given lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "supertype",
+          "advanced": true
+        },
+        "supertype": {
+          "description": "Lyph which is an anatomical supertype of the given lyph",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "subtypes"
+        },
+        "inheritedExternal": {
+          "description": "Identifiers of external resources inherited from all ancestors (supertypes)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/External"
+              }
+            ]
+          },
+          "readOnly": true
+        },
+        "conveys": {
+          "description": "A link conveying the lyph",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Link"
+            }
+          ],
+          "relatedTo": "conveyingLyph",
+          "advanced": true
+        },
+        "layers": {
+          "description": "Lyph layers",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "layerIn"
+        },
+        "layerIn": {
+          "description": "A lyph in which the current lyph is hosted as layer",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "layers",
+          "readOnly": true,
+          "advanced": true
+        },
+        "internalIn": {
+          "description": "ID or reference of the lyph that contains the given lyph as its part",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "internalLyphs",
+          "advanced": true
+        },
+        "internalLyphs": {
+          "description": "Lyphs that are internal parts of the given lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "internalIn"
+        },
+        "internalNodes": {
+          "description": "Nodes that should be positioned on the given region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          },
+          "relatedTo": "internalIn",
+          "uniqueItems": true
+        },
+        "internalLyphColumns": {
+          "description": "Defines number of columns in the grid layout for the internal lyphs",
+          "type": "number",
+          "default": 1,
+          "advanced": true
+        },
+        "internalLyphsInLayers": {
+          "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "internalNodesInLayers": {
+          "description": "Indices of layers to position internal nodes. The field should be used when layers are generated and not known in advance",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "hostedBy": {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "hostedLyphs",
+          "advanced": true
+        },
+        "channels": {
+          "description": "ID or reference of the channel which this lyph houses",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Channel"
+              }
+            ]
+          },
+          "relatedTo": "housingLyphs",
+          "uniqueItems": true
+        },
+        "bundles": {
+          "description": "A set of links (i.e., neural connections) that pass through the lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "fasciculatesIn"
+        },
+        "bundlesChains": {
+          "description": "Chains that generate links that pass through the lyph. The property can be used to override default bundling of tree links to the outermost layer of a lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
+          "relatedTo": "housingLyphs",
+          "advanced": true
+        },
+        "inChain": {
+          "description": "Chains in which the given lyph is a housing lyph",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "advanced": true,
+          "readOnly": true,
+          "relatedTo": "lyphs"
+        },
+        "villus": {
+          "description": "Small, finger-like projections that extend into the lumen",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Villus"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "villusOf"
+        },
+        "inCoalescences": {
+          "description": "A set of coalescences that include the current lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Coalescence"
+              }
+            ]
+          },
+          "relatedTo": "lyphs",
+          "default": [],
+          "advanced": true
+        },
+        "generatedFrom": {
+          "description": "Material which was used to generate the current lyph",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Material"
+            }
+          ],
+          "readOnly": true,
+          "advanced": true
+        },
+        "angle": {
+          "description": "Angle (in degrees) to rotate the lyph around its axis",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360,
+          "advanced": true
+        },
+        "infoFields": {
+          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "id",
+            "name",
+            "class",
+            "topology",
+            "external",
+            "internalIn",
+            "bundles",
+            "supertype",
+            "cloneOf",
+            "generated",
+            "width",
+            "height"
+          ],
+          "advanced": true
+        },
+        "width": {
+          "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
+          "type": "number",
+          "minimum": 0,
+          "advanced": true
+        },
+        "height": {
+          "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "advanced": true
+        },
+        "scale": {
+          "description": "Defines the size of the conveying lyph as percentage of its axis' length",
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": "number",
+              "minimum": 0
+            },
+            "height": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "advanced": true
+        },
+        "create3d": {
+          "description": "Create 3d visual objects for this lyph",
+          "type": "boolean",
+          "advanced": true
+        },
+        "layerWidth": {
+          "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "advanced": true
+        }
+      }
+    },
+    "Material": {
+      "description": "Biological materials, chemical elements and compounds",
+      "allOf": [
+        {
+          "$ref": "#/definitions/VisualResource"
+        }
+      ],
+      "properties": {
+        "materials": {
+          "description": "Materials as constituent part of the current material",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          },
+          "relatedTo": "inMaterials"
+        },
+        "inMaterials": {
+          "description": "Materials which contain the current material",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          },
+          "relatedTo": "materials",
+          "advanced": true
+        },
+        "transportedBy": {
+          "description": "Channels that transfer the current material",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Channel"
+              }
+            ]
+          },
+          "relatedTo": "materials",
+          "advanced": true
+        }
+      }
+    },
+    "Node": {
+      "description": "Graph node joins two or more links (processes)",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Vertice"
+        }
+      ],
+      "properties": {
+        "infoFields": {
+          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "id",
+            "name",
+            "class",
+            "sourceOf",
+            "targetOf",
+            "rootOf",
+            "leafOf",
+            "internalIn",
+            "generated"
+          ]
+        },
+        "hostedBy": {
+          "description": "A link on which the given node is positioned (other side of 'hostedNodes').",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Link"
+            }
+          ],
+          "relatedTo": "hostedNodes"
+        },
+        "internalIn": {
+          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "internalNodes"
+        },
+        "controlNodes": {
+          "description": "A set of nodes that define the position of the current node as their center of mass",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ]
+          },
+          "advanced": true
+        },
+        "layout": {
+          "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
+          "$ref": "#/definitions/Point3Scheme",
+          "default": {}
+        },
+        "fixed": {
+          "description": "Fixed nodes are positioned to the desired location",
+          "type": "boolean",
+          "advanced": true
+        },
+        "charge": {
+          "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph.",
+          "type": "number",
+          "default": 0,
+          "advanced": true
+        },
+        "collide": {
+          "description": "Defines the radius for the collision force in the force-directed layout. The collision force treats nodes as circles with a given radius, rather than points, and prevents nodes from overlapping.",
+          "type": "number",
+          "default": 5,
+          "advanced": true
+        },
+        "sourceOf": {
+          "description": "Links that start in this node",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "source",
+          "advanced": true
+        },
+        "targetOf": {
+          "description": "Links that end in this node",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "target",
+          "advanced": true
+        },
+        "rootOf": {
+          "description": "The chain that starts in this node",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
+          "relatedTo": "root"
+        },
+        "leafOf": {
+          "description": "The chain that ends in this node",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
+          "relatedTo": "leaf"
+        },
+        "anchoredTo": {
+          "description": "Scaffold anchor that defines node position",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "anchoredNode"
+        }
+      }
+    },
+    "OffsetScheme": {
+      "description": "Offset scheme defines the start and the end values as well as a step for incremental selection of values in an array",
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "end": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "Point2Scheme": {
+      "description": "Coordinates of a 2d point",
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        },
+        "y": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        }
+      }
+    },
+    "Point3Scheme": {
+      "description": "Coordinates of a 3d point",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Point2Scheme"
+        }
+      ],
+      "properties": {
+        "z": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        }
+      }
+    },
+    "ProcessTypeScheme": {
+      "description": "Process types",
+      "type": "string",
+      "enum": [
+        "ADVECTIVE",
+        "DIFFUSIVE"
+      ]
+    },
+    "RGBColorScheme": {
+      "type": "string",
+      "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
+    },
+    "Region": {
+      "description": "Area occupied by bordy part of subsystem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Shape"
+        }
+      ],
+      "properties": {
+        "facets": {
+          "description": "A set of wires that define boundaries of the region. Shape points and boundaries can be generated from facets to visualize regions",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
+              }
+            ]
+          },
+          "relatedTo": "facetIn",
+          "uniqueItems": true
+        },
+        "borderAnchors": {
+          "description": "Border anchors of the region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
+          },
+          "relatedTo": "onBorderInRegion",
+          "uniqueItems": true
+        },
+        "internalAnchors": {
+          "description": "Internal anchors in the region",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
+          },
+          "relatedTo": "internalIn",
+          "uniqueItems": true
+        },
+        "hostedGroup": {
+          "description": "Resource group hosted by the region",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Group"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "hostedBy"
+        },
+        "hostedLyphs": {
+          "description": "Lyphs that should be projected to a given lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
+          "relatedTo": "hostedBy",
+          "advanced": true
+        },
+        "internalIn": {
+          "description": "ID or reference of the region that contains the current region as its part",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "relatedTo": "internalRegions",
+          "advanced": true
+        },
+        "internalRegions": {
+          "description": "Regions that are internal parts of the given region",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2322,10 +2012,47 @@
                 "$ref": "#/definitions/Region"
               }
             ]
+          },
+          "relatedTo": "internalIn"
+        },
+        "depth": {
+          "description": "Can be used to order flat shapes on the same plane (polygonOffsetFactor, currently only applies to regions)",
+          "type": "number"
+        }
+      }
+    },
+    "Resource": {
+      "description": "An abstract resource that defines common properties for all types of concepts in the ApiNATOMY model",
+      "type": "object",
+      "abstract": "true",
+      "properties": {
+        "id": {
+          "description": "Unique resource identifier",
+          "$ref": "#/definitions/IdentifierScheme"
+        },
+        "name": {
+          "description": "Resource name",
+          "type": "string"
+        },
+        "class": {
+          "description": "Resource class",
+          "type": "string",
+          "readOnly": true
+        },
+        "description": {
+          "description": "Resource description, comments, modeling assumptions, etc.",
+          "type": "string",
+          "advanced": true
+        },
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
           }
         },
-        "components": {
-          "description": "Nested components",
+        "external": {
+          "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2333,46 +2060,437 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Component"
+                "$ref": "#/definitions/External"
               }
             ]
           },
-          "advanced": true,
-          "default": []
-        }
-      }
-    },
-    "Graph" : {
-      "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "allOf": [ {"$ref": "#/definitions/Group"}],
-      "properties": {
-        "config": {
-          "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
-          "type": "object",
-          "properties": {
-            "filter": {
-              "description": "Identifiers of resources to exclude from the relationship graph",
-              "type": "array",
-              "items": {
+          "relatedTo": "annotates"
+        },
+        "publications": {
+          "description": "Identifier of an evidence publication in an external library, i.e., PubMed) ",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
                 "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/External"
               }
-            },
-            "showGroups": {
-              "description": "Identifiers of visible by default groups or group templates",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/IdentifierScheme"
+            ]
+          },
+          "relatedTo": "documents"
+        },
+        "generated": {
+          "description": "A boolean flag to mark automatically generated resources",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "assign": {
+          "description": "Dynamically assign properties to selected resources",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "description": "JSONPath query to select resources",
+                "$ref": "#/definitions/JSONPathScheme"
+              },
+              "value": {
+                "description": "A set of fields to be assigned to all resources that match the query in the path",
+                "type": "object"
               }
             }
           },
           "advanced": true
+        },
+        "interpolate": {
+          "description": "Dynamically apply property interpolation schemes to selected resources",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "description": "JSONPath query to select resources",
+                "$ref": "#/definitions/JSONPathScheme"
+              },
+              "color": {
+                "description": "Color interpolation schema for a group of resources",
+                "$ref": "#/definitions/GroupColorScheme"
+              },
+              "offset": {
+                "description": "Interpolation scheme to gradually set offsets for a set of resources",
+                "$ref": "#/definitions/OffsetScheme"
+              }
+            }
+          },
+          "advanced": true
+        },
+        "infoFields": {
+          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "id",
+            "name",
+            "class"
+          ],
+          "advanced": true
         }
       }
     },
-    "Scaffold" : {
+    "Scaffold": {
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
-      "allOf":[{"$ref": "#/definitions/Component"}],
+      "allOf": [
+        {
+          "$ref": "#/definitions/Component"
+        }
+      ],
       "properties": {
+      }
+    },
+    "Shape": {
+      "description": "A resource that occupies space within a border",
+      "allOf": [
+        {
+          "$ref": "#/definitions/VisualResource"
+        }
+      ],
+      "abstract": true,
+      "properties": {
+        "border": {
+          "description": "Structure of the shape's border",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Border"
+            }
+          ],
+          "relatedTo": "host",
+          "default": {},
+          "advanced": true
+        },
+        "points": {
+          "description": "Points defining the border shape",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Point2Scheme"
+          },
+          "readOnly": true,
+          "advanced": true
+        }
+      }
+    },
+    "Tree": {
+      "description": "Templates that define arborization patterns within anatomy models. Tree templates are used to automatically generate groups (subgraphs).",
+      "allOf": [
+        {
+          "$ref": "#/definitions/GroupTemplate"
+        }
+      ],
+      "properties": {
+        "chain": {
+          "description": "A chain resource defining the structural composition of the tree, i.e., lyphs that convey tree levels",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ]
+        },
+        "branchingFactors": {
+          "description": "Branching factors define a mean value of branches at each tree level",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "default": 1
+          }
+        },
+        "instances": {
+          "description": "Groups (subgraphs) that contain generated tree instances",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Group"
+          },
+          "readOnly": true,
+          "advanced": true
+        },
+        "numInstances": {
+          "description": "Indicates how many tree instances to create",
+          "type": "number",
+          "default": 1,
+          "advanced": true
+        }
+      }
+    },
+    "Vertice": {
+      "description": "A common abstract class for nodes and anchors",
+      "allOf": [
+        {
+          "$ref": "#/definitions/VisualResource"
+        },
+        {
+          "$ref": "#/definitions/Point3Scheme"
+        }
+      ],
+      "abstract": true,
+      "properties": {
+        "invisible": {
+          "description": "A flag to indicate that this node should not be visualized (view object is not created)",
+          "type": "boolean",
+          "advanced": false
+        },
+        "val": {
+          "description": "A value that defines the size of the vertice",
+          "type": "number",
+          "minimum": 0,
+          "advanced": true
+        },
+        "offset": {
+          "description": "Defines position of the vertice on its host edge, i.e, fraction of the edge's length starting from the source vertice.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "advanced": true
+        }
+      }
+    },
+    "Villus": {
+      "description": "Defines a group of resources forming an intestinal villus",
+      "allOf": [
+        {
+          "$ref": "#/definitions/GroupTemplate"
+        }
+      ],
+      "properties": {
+        "numLayers": {
+          "description": "Number of layers in the villus, or, equivalently, a layer index from which a villus starts",
+          "type": "number",
+          "default": 1
+        },
+        "numLevels": {
+          "description": "Number of recursive micro-villi levels",
+          "type": "number",
+          "default": 1
+        },
+        "villusOf": {
+          "description": "Hosting lyph for the villus",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ]
+        }
+      }
+    },
+    "VisualResource": {
+      "description": "An abstract visual resource that defines common properties for all types of visual resources in the ApiNATOMY model.",
+      "abstract": "true",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "properties": {
+        "color": {
+          "description": "Color",
+          "$ref": "#/definitions/RGBColorScheme"
+        },
+        "viewObjects": {
+          "description": "Graphical objects that represent the resource",
+          "type": "object",
+          "readOnly": true,
+          "default": {}
+        },
+        "labels": {
+          "description": "Graphical objects that represent resource labels",
+          "type": "object",
+          "readOnly": true,
+          "default": {}
+        },
+        "hidden": {
+          "description": "A flag to indicate that this resource should not be visualized",
+          "type": "boolean",
+          "advanced": true
+        },
+        "inactive": {
+          "description": "A boolean flag to indicate that this visual resource should not be highlighted",
+          "type": "boolean",
+          "advanced": true
+        },
+        "skipLabel": {
+          "description": "A flag to indicate that this resource is visualized without the corresponding text label",
+          "type": "boolean",
+          "advanced": true
+        },
+        "cloneOf": {
+          "description": "A resource that was copied to create the current resource. This field is used to link resource clones to the original resource. We clone nodes that are hosted by more than one lyph border, and nodes, links and lyphs to generate an instance of an omega tree.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/VisualResource"
+            }
+          ],
+          "relatedTo": "clones",
+          "readOnly": true
+        },
+        "clones": {
+          "description": "Resources that are clones of the current resource. This field is used to link the resource to all its clones. We clone nodes that are hosted by more than one lyph border,  and nodes, links and lyphs to generate an instance of an omega tree.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VisualResource"
+              }
+            ]
+          },
+          "relatedTo": "cloneOf",
+          "readOnly": true
+        }
+      }
+    },
+    "Wire": {
+      "description": "Wire models a curve in a scaffold",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Edge"
+        }
+      ],
+      "properties": {
+        "source": {
+          "description": "Start of the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ],
+          "relatedTo": "sourceOf"
+        },
+        "target": {
+          "description": "End of the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ],
+          "relatedTo": "targetOf"
+        },
+        "infoFields": {
+          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "id",
+            "name",
+            "class",
+            "source",
+            "target",
+            "wiredChain"
+          ]
+        },
+        "hostedAnchors": {
+          "description": "Anchors that are positioned on a wire.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
+          },
+          "relatedTo": "hostedBy",
+          "uniqueItems": true
+        },
+        "geometry": {
+          "description": "Defines the geometry of the wire in the scaffold.",
+          "type": "string",
+          "enum": [
+            "link",
+            "arc",
+            "spline"
+          ],
+          "default": "link"
+        },
+        "controlPoint": {
+          "description": "Control point for the spline wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Point2Scheme"
+            },
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Anchor"
+            }
+          ]
+        },
+        "facetIn": {
+          "description": "ID or reference of the region on which this wire is a facet",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Region"
+              }
+            ]
+          },
+          "relatedTo": "facets",
+          "advanced": true,
+          "readOnly": true
+        },
+        "partOf": {
+          "description": "Scaffold that contains the wire",
+          "$ref": "#/definitions/Scaffold",
+          "readOnly": true,
+          "relatedTo": "wires"
+        },
+        "wiredChain": {
+          "description": "A chain constrained by the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "wiredTo",
+          "advanced": true
+        }
+      },
+      "dependencies": {
+        "controlPoint": [
+          "geometry"
+        ]
       }
     }
   },

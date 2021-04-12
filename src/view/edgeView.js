@@ -335,7 +335,7 @@ Wire.prototype.getCurve = function(start, end){
     return curve;
 };
 
-Wire.prototype.relocate = function(delta, epsilon = 10){
+Wire.prototype.relocate = function(delta, epsilon = 5){
     if (this.geometry === Wire.WIRE_GEOMETRY.LINK) {
         if (Math.abs(this.source.x - this.target.x) < epsilon) {
             delta.y = 0;

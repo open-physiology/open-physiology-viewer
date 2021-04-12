@@ -1,5 +1,5 @@
 import {Resource} from './resourceModel';
-import {isObject, unionBy, merge, keys, entries, isArray, pick, flatten} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, showGroups} from './utils';
 import {logger, $LogMsg} from './logger';
 

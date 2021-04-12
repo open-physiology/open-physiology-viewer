@@ -50,7 +50,7 @@ export class Shape extends VisualResource {
                 [$Field.id]       : id,
                 [$Field.source]   : { id: getGenID($Prefix.source, id) },
                 [$Field.target]   : { id: getGenID($Prefix.target, id) },
-                [$Field.geometry] : VisualResource.LINK_GEOMETRY.INVISIBLE,
+                [$Field.geometry] : Link.LINK_GEOMETRY.INVISIBLE,
                 [$Field.skipLabel]: true,
                 [$Field.generated]: true
             });
@@ -488,17 +488,59 @@ sh
         return res;
     }
 
+    /**
+     * Checks if the current lyph carries a material.
+     * @param materialID
+     * @returns {*|void}
+     */
+    containsMaterial(materialID){
+        let res = false;
+        if (this.id === materialID) { res = true; }
+        if (!res){
+            res = (this.materials || []).find(e => e.containsMaterial(materialID));
+        }
+        if (!res && this.supertype) {
+            res = this.supertype.containsMaterial(materialID)
+        }
+        if (!res && this.cloneOf) {
+            res = this.cloneOf.containsMaterial(materialID)
+        }
+        if (!res && this.generatedFrom) {
+            res = this.generatedFrom.containsMaterial(materialID)
+        }
+        return res;
+    }
+
+    /**
+     * Checks if the current resource is derived from
+     * @param supertypeID
+     * @returns {boolean}
+     */
+    isSubtypeOf(supertypeID){
+        let res = false;
+        if (this.id === supertypeID) { res = true; }
+        if (!res && this.supertype) {
+            res = this.supertype.isSubtypeOf(supertypeID)
+        }
+        if (!res && this.cloneOf) {
+            res = this.cloneOf.isSubtypeOf(supertypeID)
+        }
+        if (!res && this.layerIn) {
+            res = this.layerIn.isSubtypeOf(supertypeID)
+        }
+        return res;
+    }
 }
 
 /**
  * Class that models regions
  * @class
- * @property facets
- * @property borderAnchors
- * @property internalAnchors
- * @property internalRegions
- * @property internalIn
- * @property hostedGroup
+ * @property {Array<Anchor>} borderAnchors
+ * @property {Array<Wire>} facets
+ * @property {Array<Anchor>} internalAnchors
+ * @property {Array<Region>} internalRegions
+ * @property {Region} internalIn
+ * @property {Group} hostedGroup
  */
 export class Region extends Shape {
 

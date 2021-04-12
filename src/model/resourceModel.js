@@ -31,6 +31,8 @@ import {logger, $LogMsg} from './logger';
  * @property {string} id
  * @property {string} name
  * @property {string} class
+ * @property {Boolean} generated
+ * @property {Object} infoFields
  * @property {Object} JSON
  * @property {Array<Object>} assign
  * @property {Array<Object>} interpolate
@@ -113,7 +115,7 @@ export class Resource{
      * Replace IDs with object references
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
-     * @param namespace
+     * @param {String} namespace - namespace for resource definition
      */
     replaceIDs(modelClasses, entitiesByID, namespace){
         const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
@@ -195,6 +197,7 @@ export class Resource{
      * Create relationships defined with the help of JSONPath expressions in the resource 'assign' statements
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+     * @param {String} namespace - namespace for resource definition
      */
     assignPathRelationships(modelClasses, entitiesByID, namespace){
         if (!this.assign){ return;  }
@@ -333,7 +336,7 @@ export class Resource{
     /**
      * Synchronize a relationship field of the resource with its counterpart (auto-fill a field that is involved into a bi-directional relationship based on its partial definition, i.e., A.child = B yields B.parent = A).
      * @param {string} key    - property field that points to the related resource
-     * @param {Object} spec   - JSON schema specification of the relationship field
+     * @param {{relatedTo: String}} spec   - JSON schema specification of the relationship field
      * @param {Object} modelClasses -  map of class names vs implementation of ApiNATOMY resources
      *
      */
@@ -454,48 +457,21 @@ export class Resource{
     }
 
     /**
-     * Checks if the current resource is derived from
-     * The method makes more sense for lyphs, but it is useful to be able to test any resource, this simplifies filtering
+     * Checks if the current resource is derived from a given resource
      * @param supertypeID
      * @returns {boolean}
      */
     isSubtypeOf(supertypeID){
-        let res = false;
-        if (this.id === supertypeID) { res = true; }
-        if (!res && this.supertype) {
-            res = this.supertype.isSubtypeOf(supertypeID)
-        }
-        if (!res && this.cloneOf) {
-            res = this.cloneOf.isSubtypeOf(supertypeID)
-        }
-        if (!res && this.layerIn) {
-            res = this.layerIn.isSubtypeOf(supertypeID)
-        }
-        return res;
+        return false;
     }
 
     /**
      * Checks if the current resource carries a material.
-     * The method makes more sense for lyphs, but it is useful to be able to test any resource, this simplifies filtering
      * @param materialID
      * @returns {*|void}
      */
     containsMaterial(materialID){
-        let res = false;
-        if (this.id === materialID) { res = true; }
-        if (!res){
-            res = (this.materials || []).find(e => e.containsMaterial(materialID));
-        }
-        if (!res && this.supertype) {
-            res = this.supertype.containsMaterial(materialID)
-        }
-        if (!res && this.cloneOf) {
-            res = this.cloneOf.containsMaterial(materialID)
-        }
-        if (!res && this.generatedFrom) {
-            res = this.generatedFrom.containsMaterial(materialID)
-        }
-        return res;
+        return false;
     }
 
     /**
@@ -505,7 +481,8 @@ export class Resource{
     includeRelated(group){
         logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
     }
+
+
 }
 
 export class External extends Resource {}
-

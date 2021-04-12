@@ -33,6 +33,8 @@ import {defaults, isObject, isArray, flatten} from 'lodash-bound';
  * @property wiredTo
  * @property startFromLeaf
  * @property hostedBy
+ * @property root
+ * @property leaf
  */
 export class Chain extends GroupTemplate {
 

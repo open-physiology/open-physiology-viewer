@@ -90,6 +90,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
  * @class
  * @property entitiesByID
  * @property config
+ * @property namespace
  */
 export class Graph extends Group{
 
@@ -121,6 +122,10 @@ export class Graph extends Group{
         };
         inputModel.groups.unshift(group);
 
+        /**
+         * @property waitingList
+         * @type {Object}
+         */
         let entitiesByID = {
             waitingList: {}
         };
@@ -195,7 +200,7 @@ export class Graph extends Group{
             if (link instanceof modelClasses.Link){
                 link.validateProcess();
                 if (link.source.sourceOf.length === 1 && link.target.targetOf === 1){
-                    link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
+                    link.geometry = modelClasses.Link.LINK_GEOMETRY.INVISIBLE;
                     link.source.invisible = true;
                     link.target.invisible = true;
                 }

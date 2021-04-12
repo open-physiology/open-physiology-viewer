@@ -352,7 +352,7 @@ Region.prototype.relocate = function (delta){
  * @param delta   - vector to shift the anchor
  * @param epsilon - allowed distance between coordinates that are considered the same
  */
-Region.prototype.resize = function (anchor, delta, epsilon = 10) {
+Region.prototype.resize = function (anchor, delta, epsilon = 5) {
     if (!anchor || !anchor.onBorderInRegion){ return; }
     let base = extractCoords(anchor);
     ["x", "y"].forEach(dim => {

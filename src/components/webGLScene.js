@@ -456,8 +456,10 @@ export class WebGLSceneComponent {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
             })
-            .onRegionDrag((obj, delta) => obj.userData.relocate(delta))
-            .onRegionDragEnd(() => this.graph.graphData(this.graphData))
+            .onRegionDragEnd((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+            })
             .graphData(this.graphData);
 
         const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && (typeof layout[key] !== 'undefined');

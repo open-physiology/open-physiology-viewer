@@ -11,6 +11,11 @@ import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID} from "./u
  */
 export class Coalescence extends Resource{
 
+    /**
+     * @property EMBEDDING
+     * @property CONNECTING
+     * @type {Object}
+     */
     static COALESCENCE_TOPOLOGY = COALESCENCE_TOPOLOGY;
 
     /**

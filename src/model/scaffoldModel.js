@@ -17,6 +17,9 @@ import {$Field, $SchemaClass, $SchemaType, getFullID} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
+/**
+ * @property logger
+ */
 export class Scaffold extends Component {
 
     /**
@@ -40,6 +43,10 @@ export class Scaffold extends Component {
         let standalone = entitiesByID === undefined;
 
         //Copy existing entities to a map to enable nested model instantiation
+        /**
+         * @property waitingList
+         * @type {Object}
+         */
         entitiesByID = entitiesByID || {waitingList: {}};
 
         let namespace = inputModel.namespace || defaultNamespace;
