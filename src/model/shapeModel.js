@@ -271,7 +271,7 @@ export class Lyph extends Shape {
      * @returns {Array}
      */
     get radialTypes() {
-        switch (this.topology) {
+        switch (this.topology || LYPH_TOPOLOGY.TUBE) {
             case Lyph.LYPH_TOPOLOGY["BAG-"]:
             case Lyph.LYPH_TOPOLOGY.BAG  :
                 return [true, false];

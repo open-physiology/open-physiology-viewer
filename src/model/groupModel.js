@@ -117,6 +117,58 @@ export class Group extends Resource {
         }
     }
 
+    createGroup(id, name, nodes = [], links = [], lyphs = [], modelClasses){
+        const group = modelClasses.Group.fromJSON({
+            [$Field.id]    : getGenID($Prefix.group, id),
+            [$Field.name]  : name,
+            [$Field.nodes] : nodes.map(e => e.id),
+            [$Field.links] : links.map(e => e.id),
+            [$Field.lyphs] : lyphs.map(e => e.id)
+        }, modelClasses, this.entitiesByID, this.namespace);
+        this.groups.push(group);
+    }
+
+    includeLyphAxes(lyphs, links){
+        links = links || [];
+        (lyphs||[]).forEach(lyph => {
+            if (lyph.conveys) {
+                if (!links.find(link => link.id === lyph.conveys.id)) {
+                    links.push(lyph.conveys);
+                }
+            }
+        });
+    };
+
+    includeLinkEnds(links, nodes){
+        nodes = nodes || [];
+        (links||[]).forEach(lnk => {
+            if (!nodes.find(node => node.id === lnk.source.id)){
+                nodes.push(lnk.source);
+            }
+            if (!nodes.find(node => node.id === lnk.target.id)){
+                nodes.push(lnk.target);
+            }
+        });
+        (this.links||[]).forEach(lnk => {
+            if (lnk.collapsible &&
+                nodes.find(node => node.id === lnk.source.id) &&
+                nodes.find(node => node.id === lnk.target.id)){
+                links.push(lnk);
+            }
+        });
+    };
+
+    includeConveyingLyphs(links, lyphs){
+        lyphs = lyphs || [];
+        (links||[]).forEach(lnk => {
+            if (lnk.conveyingLyph) {
+                if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
+                    lyphs.push(lnk.conveyingLyph);
+                }
+            }
+        });
+    };
+
     /**
      * Replace references to lyph templates with references to auto-generated lyphs that inherit properties from templates
      * @param json - input model

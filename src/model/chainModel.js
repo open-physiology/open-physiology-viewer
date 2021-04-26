@@ -82,9 +82,9 @@ export class Chain extends GroupTemplate {
             return template;
         }
 
-        function getTopology(level, N, template){
+        function getLevelTopology(level, n, template){
             if (template){
-                if (template.topology === Lyph.LYPH_TOPOLOGY.CYST && N === 1){
+                if (template.topology === Lyph.LYPH_TOPOLOGY.CYST && n === 1){
                     return Lyph.LYPH_TOPOLOGY.CYST;
                 }
                 if (level === 0) {
@@ -92,7 +92,7 @@ export class Chain extends GroupTemplate {
                         return Lyph.LYPH_TOPOLOGY.BAG2;
                     }
                 }
-                if (level === N - 1) {
+                if (level === n - 1) {
                     if ([Lyph.LYPH_TOPOLOGY["BAG-"], Lyph.LYPH_TOPOLOGY.BAG, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
                         return Lyph.LYPH_TOPOLOGY.BAG;
                     }
@@ -236,6 +236,7 @@ export class Chain extends GroupTemplate {
             targets[targets.length - 1] = targets[targets.length - 1] || chain.leaf;
 
             chain.root = getID(sources[0]);
+            chain.leaf = getID(targets[targets.length - 1]);
             let template = getTemplate();
 
             //Create levels
@@ -268,7 +269,7 @@ export class Chain extends GroupTemplate {
                         [$Field.id]         : getGenID(chain.id, $Prefix.lyph, i+1),
                         [$Field.supertype]  : chain.lyphTemplate,
                         [$Field.conveys]    : chain.levels[i].id,
-                        [$Field.topology]   : getTopology(i, N, template),
+                        [$Field.topology]   : getLevelTopology(i, N, template),
                         [$Field.skipLabel]  : true,
                         [$Field.generated]  : true
                     };
@@ -433,6 +434,29 @@ export class Chain extends GroupTemplate {
             let end = tmp;
         }
         return {start, end};
+    }
+
+    get topology() {
+        const n = (this.levels||[]).length - 1;
+        if (n < 0) { return undefined; }
+        for (let i = 1; i < n; i++) {
+            const lyph = this.levels[i].conveyingLyph;
+            if (lyph && (lyph.topology || Lyph.LYPH_TOPOLOGY.TUBE) !== Lyph.LYPH_TOPOLOGY.TUBE) {
+                return undefined;
+            }
+        }
+        const startLyph = this.levels[0].conveyingLyph;
+        const endLyph = this.levels[n].conveyingLyph;
+        if (startLyph && endLyph){
+            const startT = startLyph.radialTypes;
+            const endT = endLyph.radialTypes;
+            //console.log(this.id, startT, endT);
+            if (startT[0] || endT[1]) {
+                return undefined;
+            }
+            return [startT[1], endT[0]];
+        }
+        return undefined;
     }
 }
 

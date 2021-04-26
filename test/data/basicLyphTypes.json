@@ -13,20 +13,28 @@
       "layout": {"x": -50, "y": 50, "z": 0}
     },
     {
-      "id": "c",
+      "id": "c1",
       "layout": {"x": 0, "y": 0, "z": 0}
     },
     {
-      "id": "d",
+      "id": "d1",
       "layout": {"x": 0, "y": 50, "z": 0}
     },
     {
-      "id": "e",
+      "id": "c2",
       "layout": {"x": 50, "y": 0, "z": 0}
     },
     {
-      "id": "f",
+      "id": "d2",
       "layout": {"x": 50, "y": 50, "z": 0}
+    },
+    {
+      "id": "e",
+      "layout": {"x": 100, "y": 0, "z": 0}
+    },
+    {
+      "id": "f",
+      "layout": {"x": 100, "y": 50, "z": 0}
     }
   ],
   "links": [
@@ -38,11 +46,18 @@
       "conveyingLyph": "1"
     },
     {
-      "id": "lnk2",
-      "source": "c",
-      "target": "d",
+      "id": "lnk2a",
+      "source": "c1",
+      "target": "d1",
       "length": 30,
-      "conveyingLyph": "2"
+      "conveyingLyph": "2a"
+    },
+    {
+      "id": "lnk2b",
+      "source": "c2",
+      "target": "d2",
+      "length": 30,
+      "conveyingLyph": "2b"
     },
     {
       "id": "lnk3",
@@ -60,8 +75,14 @@
       "create3d": true
     },
     {
-      "id": "2",
+      "id": "2a",
       "topology": "BAG",
+      "supertype": "4",
+      "create3d": true
+    },
+    {
+      "id": "2b",
+      "topology": "BAG2",
       "supertype": "4",
       "create3d": true
     },

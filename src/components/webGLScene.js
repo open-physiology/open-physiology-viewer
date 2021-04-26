@@ -69,6 +69,10 @@ const WindowResize = require('three-window-resize');
                                 (click)="processQuery()" title="Show query result as group">
                             <i class="fa fa-question-circle-o"> </i>
                         </button>
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="neurulator()"
+                                title="Neurulator">
+                            <i class="fa fa-search-plus"> </i>
+                        </button>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="exportJSON()" title="Export json">
                             <i class="fa fa-file-code-o"> </i>
@@ -628,6 +632,12 @@ export class WebGLSceneComponent {
             (s.components||[]).forEach(c => c._parent && c._parent.id === s.id && processComponent(ids, c));
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
+    }
+
+    neurulator(){
+        if (this._graphData){
+            this._graphData.neurulator();
+        }
     }
 }
 

@@ -9,7 +9,17 @@ import {
 import { Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
-import {$Field, $SchemaClass, $Prefix, $SchemaType, getGenID, getFullID, getID} from "./utils";
+import {
+    $Field,
+    $SchemaClass,
+    $Prefix,
+    $SchemaType,
+    getGenID,
+    getFullID,
+    getID,
+    LYPH_TOPOLOGY,
+    getGenName
+} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
@@ -219,6 +229,7 @@ export class Graph extends Group{
         res.mergeScaffoldResources();
 
         res.logger = logger;
+        res.modelClasses = modelClasses;
         return res;
     }
 
@@ -374,88 +385,36 @@ export class Graph extends Group{
     }
 
     createDynamicGroup(qNumber, qName, json, modelClasses = {}){
-        const includeLyphAxes = (lyphs, links) => {
-            links = links || [];
-            (lyphs||[]).forEach(lyph => {
-                if (lyph.conveys) {
-                    if (!links.find(link => link.id === lyph.conveys.id)) {
-                        links.push(lyph.conveys);
-                    }
-                }
-            });
-        };
-
-        const includeConveyingLyphs = (links, lyphs) => {
-            lyphs = lyphs || [];
-            (links||[]).forEach(lnk => {
-                if (lnk.conveyingLyph) {
-                    if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
-                        lyphs.push(lnk.conveyingLyph);
-                    }
-                }
-            });
-        };
-
-
-        const includeLinkEnds = (links, nodes) => {
-            nodes = nodes || [];
-            (links||[]).forEach(lnk => {
-                if (!nodes.find(node => node.id === lnk.source.id)){
-                    nodes.push(lnk.source);
-                }
-                if (!nodes.find(node => node.id === lnk.target.id)){
-                    nodes.push(lnk.target);
-                }
-            });
-            (this.links||[]).forEach(lnk => {
-                if (lnk.collapsible &&
-                    nodes.find(node => node.id === lnk.source.id) &&
-                    nodes.find(node => node.id === lnk.target.id)){
-                    links.push(lnk);
-                }
-            });
-        };
-
-        const createGroup = (id, name, nodes = [], links = [], lyphs = []) => {
-            let group = modelClasses.Group.fromJSON({
-                [$Field.id]    : getGenID($Prefix.group, id),
-                [$Field.name]  : name,
-                [$Field.nodes] : nodes.map(e => e.id),
-                [$Field.links] : links.map(e => e.id),
-                [$Field.lyphs] : lyphs.map(e => e.id)
-            }, modelClasses, this.entitiesByID, this.namespace);
-            this.groups.push(group);
-        }
 
         const {nodes, links, lyphs} = json;
         this.groups = this.groups || [];
 
         //Query response group
-        includeLyphAxes(lyphs, links);
-        includeConveyingLyphs(links, lyphs);
-        includeLinkEnds(links, nodes);
-        createGroup(qNumber, `QR ${qNumber}: ${qName}`, nodes, links, lyphs);
+        this.includeLyphAxes(lyphs, links);
+        this.includeConveyingLyphs(links, lyphs);
+        this.includeLinkEnds(links, nodes);
+        this.createGroup(qNumber, `QR ${qNumber}: ${qName}`, nodes, links, lyphs, modelClasses);
 
         //Only chains
         let chainLinks = links.filter(e => e.fasciculatesIn);
         let chainNodes = [];
-        includeLinkEnds(chainLinks, chainNodes);
-        createGroup(qNumber + "_chains", `QR ${qNumber}: chains`, chainNodes, chainLinks, []);
+        this.includeLinkEnds(chainLinks, chainNodes);
+        this.createGroup(qNumber + "_chains", `QR ${qNumber}: chains`, chainNodes, chainLinks, [], modelClasses);
 
         //Only chain lyphs
         let chainLyphs = [];
-        includeConveyingLyphs(chainLinks, chainLyphs);
-        createGroup(qNumber + "_chainLyphs", `QR ${qNumber}: chain lyphs`, [], [], chainLyphs);
+        this.includeConveyingLyphs(chainLinks, chainLyphs);
+        this.createGroup(qNumber + "_chainLyphs", `QR ${qNumber}: chain lyphs`, [], [], chainLyphs, modelClasses);
 
         //Only housing lyphs
         let housingLyphs = lyphs.filter(e => e.bundles);
         housingLyphs.forEach(e => e.layerIn && housingLyphs.push(e.layerIn));
         let housingLinks = [];
         let housingNodes = [];
-        includeLyphAxes(housingLyphs, housingLinks);
-        includeConveyingLyphs(housingLinks, housingLyphs);
-        includeLinkEnds(housingLinks, housingNodes);
-        createGroup(qNumber + "_housing", `QR ${qNumber}: housing`, housingNodes, housingLinks, housingLyphs);
+        this.includeLyphAxes(housingLyphs, housingLinks);
+        this.includeConveyingLyphs(housingLinks, housingLyphs);
+        this.includeLinkEnds(housingLinks, housingNodes);
+        this.createGroup(qNumber + "_housing", `QR ${qNumber}: housing`, housingNodes, housingLinks, housingLyphs, modelClasses);
     }
 
     /**
@@ -635,5 +594,70 @@ export class Graph extends Group{
             }
         });
         jsonld.flatten(res).then(flat => jsonld.compact(flat, context).then(compact => callback(compact)));
+    }
+
+    //Find paths which are topologically similar to a cyst
+    neurulator(){
+        function getTopology(lnk){
+            return lnk.conveyingLyph && (lnk.conveyingLyph.topology || LYPH_TOPOLOGY.TUBE);
+        }
+        //TODO generalize - find start point by external resource
+        const targetResource = this.lyphs.find(l => l.id === "K53");
+        let lnk0 = targetResource.conveys;
+
+        let t0 = lnk0.conveyingLyph && lnk0.conveyingLyph.topology;
+        if (t0 === LYPH_TOPOLOGY.CYST) {
+            return [lnk0];
+        }
+
+        let groupLinks = [];
+        function bfs(lnk) {
+            if (lnk._processed) { return true; }
+            let t = getTopology(lnk);
+            if (t === LYPH_TOPOLOGY.CYST){
+                return false;
+            }
+            groupLinks.push(lnk);
+            const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible; //BAG = target closed, TODO check with "reversed"
+            const expandTarget = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG2) || lnk.collapsible;
+            lnk._processed = true;
+
+            let res = true;
+
+            const isValid = (lnk1, topology) => {
+                return lnk1._processed || (getTopology(lnk1) !== topology) && bfs(lnk1);
+            }
+
+            if (expandSource){
+                const node = lnk.source;
+                const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
+                if (n > 1) {
+                    node.sourceOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
+                    node.targetOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
+                } else {
+                    res = false;
+                }
+            }
+            if (expandTarget){
+                const node = lnk.target;
+                const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
+                if (n > 1) {
+                    node.sourceOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
+                    node.targetOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
+                } else {
+                    res = false;
+                }
+            }
+            delete lnk._processed;
+            return res;
+        }
+
+        if (bfs(lnk0)){
+            const groupNodes = [];
+            const groupLyphs = [];
+            this.includeLinkEnds(groupLinks, groupNodes);
+            this.includeConveyingLyphs(groupLinks, groupLyphs);
+            this.createGroup(getGenID("cyst", targetResource.id), getGenName("Cyst group from", targetResource.id), groupNodes, groupLinks, groupLyphs, this.modelClasses);
+        }
     }
 }
