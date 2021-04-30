@@ -91,7 +91,8 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             [graphData]="_graphData"
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
-                            (editResource)="onEditResource($event)">
+                            (editResource)="onEditResource($event)"
+                            (scaffoldUpdated)="onScaffoldUpdated($event)">
                     </webGLScene>
                 </mat-tab>
 
@@ -390,6 +391,17 @@ export class TestApp {
                 this.model = this._model;
             }
         });
+    }
+
+    onScaffoldUpdated(){
+        if (this._model && this._graphData){
+            (this._graphData.scaffolds||[]).forEach(scaffold => {
+                (scaffold.anchors||[]).forEach(anchor => {
+                    //TODO save updated anchor positions
+                    }
+                );
+            })
+        }
     }
 }
 

@@ -597,23 +597,31 @@ export class Graph extends Group{
     }
 
     //Find paths which are topologically similar to a cyst
-    neurulator(){
-        function getTopology(lnk){
-            return lnk.conveyingLyph && (lnk.conveyingLyph.topology || LYPH_TOPOLOGY.TUBE);
+    neurulator() {
+        const bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
+            [LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY["BAG-"], LYPH_TOPOLOGY["BAG+"], LYPH_TOPOLOGY["CYST"]].includes(lyph.topology));
+        while (bags.length > 0){
+            let targetLyph = bags.pop();
+            if (!bags._processed){
+                this.neurulateFromTarget(targetLyph);
+            }
         }
-        //TODO generalize - find start point by external resource
-        const targetResource = this.lyphs.find(l => l.id === "K53");
-        let lnk0 = targetResource.conveys;
+        (this.lyphs||[]).forEach(lyph => delete lyph._processed);
+    }
 
+    neurulateFromTarget(targetLyph){
+        targetLyph._processed = true;
+        let lnk0 = targetLyph.conveys;
+        if (!lnk0){ return; } //ignore lyphs without axes, e.g., templates or layers
         let t0 = lnk0.conveyingLyph && lnk0.conveyingLyph.topology;
         if (t0 === LYPH_TOPOLOGY.CYST) {
             return [lnk0];
         }
-
         let groupLinks = [];
-        function bfs(lnk) {
+
+        function dfs(lnk) {
             if (lnk._processed) { return true; }
-            let t = getTopology(lnk);
+            let t = lnk.conveyingTopology;
             if (t === LYPH_TOPOLOGY.CYST){
                 return false;
             }
@@ -625,15 +633,15 @@ export class Graph extends Group{
             let res = true;
 
             const isValid = (lnk1, topology) => {
-                return lnk1._processed || (getTopology(lnk1) !== topology) && bfs(lnk1);
+                return lnk1._processed || (lnk1.conveyingTopology !== topology) && dfs(lnk1);
             }
 
             if (expandSource){
                 const node = lnk.source;
                 const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
                 if (n > 1) {
-                    node.sourceOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
-                    node.targetOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
+                    (node.sourceOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
+                    (node.targetOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
                 } else {
                     res = false;
                 }
@@ -642,8 +650,8 @@ export class Graph extends Group{
                 const node = lnk.target;
                 const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
                 if (n > 1) {
-                    node.sourceOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
-                    node.targetOf.forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
+                    (node.sourceOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
+                    (node.targetOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
                 } else {
                     res = false;
                 }
@@ -652,12 +660,13 @@ export class Graph extends Group{
             return res;
         }
 
-        if (bfs(lnk0)){
+        if (dfs(lnk0)){
             const groupNodes = [];
             const groupLyphs = [];
             this.includeLinkEnds(groupLinks, groupNodes);
             this.includeConveyingLyphs(groupLinks, groupLyphs);
-            this.createGroup(getGenID("cyst", targetResource.id), getGenName("Cyst group from", targetResource.id), groupNodes, groupLinks, groupLyphs, this.modelClasses);
+            groupLyphs.forEach(lyph => lyph._processed = true); //exclude reachable lyphs
+            this.createGroup(getGenID("cyst", targetLyph.id), getGenName("Cyst group from", targetLyph.id), groupNodes, groupLinks, groupLyphs, this.modelClasses);
         }
     }
 }

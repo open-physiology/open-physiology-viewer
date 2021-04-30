@@ -71,7 +71,7 @@ const WindowResize = require('three-window-resize');
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="neurulator()"
                                 title="Neurulator">
-                            <i class="fa fa-search-plus"> </i>
+                            <i class="fa fa-sitemap"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="exportJSON()" title="Export json">
@@ -176,7 +176,7 @@ export class WebGLSceneComponent {
     defaultColor   = 0x000000;
     scaleFactor    = 10;
     labelRelSize   = 0.1 * this.scaleFactor;
-    lockControls   = true;
+    lockControls   = false;
     isConnectivity = true;
 
     queryCounter = 0;
@@ -247,7 +247,12 @@ export class WebGLSceneComponent {
      */
     @Output() selectedItemChange = new EventEmitter();
 
+    /**
+     * @emits editResource - a resource was edited
+     */
     @Output() editResource = new EventEmitter();
+
+    @Output() scaffoldUpdated = new EventEmitter();
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
@@ -455,14 +460,17 @@ export class WebGLSceneComponent {
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit();
             })
             .onWireDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit();
             })
             .onRegionDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit();
             })
             .graphData(this.graphData);
 

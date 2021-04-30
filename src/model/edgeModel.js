@@ -1,4 +1,14 @@
-import {$Field, $Prefix, getGenID, getNewID, EDGE_STROKE, PROCESS_TYPE, WIRE_GEOMETRY, LINK_GEOMETRY} from "./utils";
+import {
+    $Field,
+    $Prefix,
+    getGenID,
+    getNewID,
+    EDGE_STROKE,
+    PROCESS_TYPE,
+    WIRE_GEOMETRY,
+    LINK_GEOMETRY,
+    LYPH_TOPOLOGY
+} from "./utils";
 import {merge, pick} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 import {VisualResource} from "./visualResourceModel";
@@ -180,6 +190,17 @@ export class Link extends Edge {
                 }
             }
         )
+    }
+
+    get conveyingTopology(){
+        let res = this.conveyingLyph && (this.conveyingLyph.topology || LYPH_TOPOLOGY.TUBE);
+        if (res === LYPH_TOPOLOGY["BAG-"]){
+            return LYPH_TOPOLOGY.BAG;
+        }
+        if (res === LYPH_TOPOLOGY["BAG+"]){
+            return LYPH_TOPOLOGY.BAG2;
+        }
+        return res;
     }
 
     validateProcess(){
