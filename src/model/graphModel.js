@@ -192,8 +192,10 @@ export class Graph extends Group{
         res.entitiesByID = entitiesByID;
 
         if (!res.generated) {
-            res.createAxesForInternalLyphs(modelClasses, entitiesByID, namespace);
-            res.createAxesForAllLyphs(modelClasses, entitiesByID, namespace);
+            let noAxisLyphsInternal = (res.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
+            res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID, namespace);
+            let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
+            res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
             //res.validate(modelClasses);
             (res.groups||[]).forEach(group => group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
@@ -209,6 +211,16 @@ export class Graph extends Group{
         (res.links||[]).forEach(link => {
             if (link instanceof modelClasses.Link){
                 link.validateProcess();
+                if (!link.source.sourceOf){
+                    logger.error($LogMsg.NODE_NO_LINK_REF, link);
+                    console.log(link);
+                    return;
+                }
+                if (!link.target.targetOf){
+                    logger.error($LogMsg.NODE_NO_LINK_REF, link);
+                    console.log(link);
+                    return;
+                }
                 if (link.source.sourceOf.length === 1 && link.target.targetOf === 1){
                     link.geometry = modelClasses.Link.LINK_GEOMETRY.INVISIBLE;
                     link.source.invisible = true;
@@ -418,46 +430,22 @@ export class Graph extends Group{
     }
 
     /**
-     * Auto-generates links for internal lyphs
+     * Auto-generate links for lyphs without axes
      * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
      * @param namespace
      */
-    createAxesForInternalLyphs(modelClasses, entitiesByID, namespace){
-        let noAxisLyphs = (this.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
-        noAxisLyphs.forEach(lyph => {
-            let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
-            this.links.push(link);
-            this.nodes.push(link.source);
-            this.nodes.push(link.target);
-        });
-        if (noAxisLyphs.length > 0){
-            logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
-        }
-        noAxisLyphs.forEach(lyph => lyph.assignAxisLength());
-    }
-
-    /**
-     * Auto-generate links for lyphs without axes which are not layers or templates
-     * @param modelClasses - model resource classes
-     * @param entitiesByID - a global resource map to include the generated resources
-     * @param namespace
-     */
-    createAxesForAllLyphs(modelClasses, entitiesByID, namespace){
-        let noAxisLyphs = (this.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
-
+    createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace){
         let group = (this.groups||[]).find(g => g.id === getGenID($Prefix.group, $Prefix.default));
-
         noAxisLyphs.forEach(lyph => {
             let link = lyph.createAxis(modelClasses, entitiesByID, namespace);
             this.links.push(link);
             link.applyToEndNodes(end => this.nodes.push(end));
             if (group){
                 group.links.push(link);
-                link.applyToEndNodes(end => group.nodes.push(end));
+                link.applyToEndNodes(end => group.nodes.push(end.id));
             }
         });
-
         if (noAxisLyphs.length > 0){
             logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
         }
@@ -587,7 +575,6 @@ export class Graph extends Group{
             if (!(v::isObject() && ("@id" in v) && v["@id"].includes("apinatomy:"))) {
                 if (!(typeof(v) === "string" && v.includes("apinatomy:"))) {
                     if (k !== "class") {
-                        //console.log(k, v);
                         context[k] = v;
                     }
                 }

@@ -69,10 +69,6 @@ const WindowResize = require('three-window-resize');
                                 (click)="processQuery()" title="Show query result as group">
                             <i class="fa fa-question-circle-o"> </i>
                         </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="neurulator()"
-                                title="Neurulator">
-                            <i class="fa fa-sitemap"> </i>
-                        </button>
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="exportJSON()" title="Export json">
                             <i class="fa fa-file-code-o"> </i>
@@ -101,10 +97,11 @@ const WindowResize = require('three-window-resize');
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
                         [config]="config"
-                        [selected]="_selected"
+                        [selected]="_selected" 
                         [highlighted]="_highlighted"
                         [helperKeys]="_helperKeys"
                         [groups]="graphData?.activeGroups"
+                        [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
@@ -204,6 +201,7 @@ export class WebGLSceneComponent {
 
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
             this._graphData.showGroups(this.config.showGroups);
+            this._graphData.neurulator();
             /*Map initial positional constraints to match the scaled image*/
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
@@ -640,12 +638,6 @@ export class WebGLSceneComponent {
             (s.components||[]).forEach(c => c._parent && c._parent.id === s.id && processComponent(ids, c));
         });
         if (this.graph) { this.graph.graphData(this.graphData); }
-    }
-
-    neurulator(){
-        if (this._graphData){
-            this._graphData.neurulator();
-        }
     }
 }
 

@@ -1558,6 +1558,7 @@
             "class",
             "topology",
             "external",
+            "conveys",
             "internalIn",
             "bundles",
             "supertype",
@@ -1569,7 +1570,7 @@
           "advanced": true
         },
         "width": {
-          "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph  layout width)",
+          "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout width)",
           "type": "number",
           "minimum": 0,
           "advanced": true
@@ -2432,7 +2433,8 @@
           "enum": [
             "link",
             "arc",
-            "spline"
+            "spline",
+            "invisible"
           ],
           "default": "link"
         },

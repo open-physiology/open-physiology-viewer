@@ -15,7 +15,7 @@ import {
     getGenName,
     $Field,
     $Color,
-    $Prefix
+    $Prefix, LYPH_TOPOLOGY
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
@@ -35,8 +35,17 @@ import {defaults, isObject, isArray, flatten} from 'lodash-bound';
  * @property hostedBy
  * @property root
  * @property leaf
+ * @property chainTopology
  */
 export class Chain extends GroupTemplate {
+
+      static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+        let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
+        if (!res.validateTopology()) {
+            logger.error($LogMsg.CHAIN_WRONG_TOPOLOGY, res.id);
+        }
+        return res;
+    }
 
     /**
      * Generate a group from chain template
@@ -87,10 +96,9 @@ export class Chain extends GroupTemplate {
                 if (template.topology === Lyph.LYPH_TOPOLOGY.CYST && n === 1){
                     return Lyph.LYPH_TOPOLOGY.CYST;
                 }
-                if (level === 0) {
-                    if ([Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
-                        return Lyph.LYPH_TOPOLOGY.BAG2;
-                    }
+                if (level === 0 &&
+                    [Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
+                    return Lyph.LYPH_TOPOLOGY.BAG2;
                 }
                 if (level === n - 1) {
                     if ([Lyph.LYPH_TOPOLOGY["BAG-"], Lyph.LYPH_TOPOLOGY.BAG, Lyph.LYPH_TOPOLOGY.CYST].includes(template.topology)) {
@@ -202,7 +210,7 @@ export class Chain extends GroupTemplate {
 
             //Match number of requested levels with the levels[i] array length
             if (chain.levels.length !== chain.numLevels){
-                let min = Math.min(chain.levels.length, chain.numLevels || 100);
+                let min = Math.min(chain.levels.length, chain.numLevels || 1);
                 let max = Math.max(chain.levels.length, chain.numLevels || 0);
                 logger.info($LogMsg.CHAIN_NUM_LEVELS, min, max);
                 for (let i = min; i < max; i++){
@@ -212,31 +220,37 @@ export class Chain extends GroupTemplate {
             }
             let N = chain.numLevels;
 
-            if (chain.leaf){
-                chain.levels[N - 1].target = chain.leaf;
+            let sources = chain.levels.map(l => l? l.source: null);
+            let targets = chain.levels.map(l => l? l.target: null);
+            sources[0] = sources[0] || chain.root;
+            targets[N - 1] = targets[N - 1] || chain.leaf;
+
+            for (let i = 1; i < N; i++){
+                if (sources[i] && targets[i-1] && !compareResources(targets[i-1], sources[i])){
+                    logger.error($LogMsg.CHAIN_LEVEL_ERROR, i, targets[i-1], sources[i]);
+                }
             }
 
-            let sources = [...chain.levels.map(l => l? l.source: null), null];
-            let targets = [chain.root,...chain.levels.map(l => l? l.target: null)];
-
-            for (let i = 0; i < sources.length; i++){
-                if (sources[i] && targets[i] && !compareResources(sources[i], targets[i])){
-                    logger.error($LogMsg.CHAIN_LEVEL_ERROR, i, sources[i], targets[i]);
-                }
-                let newNode = {
+            const getNewNode = i => ({
                     [$Field.id]        : getGenID(chain.id, $Prefix.node, i),
                     [$Field.color]     : $Color.InternalNode,
                     [$Field.val]       : 1,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
-                };
-                sources[i] = sources[i] || targets[i] || newNode;
+                });
+
+            for (let i = 0; i < N; i++){
+                sources[i] = sources[i] || ((i > 0) && targets[i-1]) || getNewNode(i);
                 mergeGenResource(chain.group, parentGroup, sources[i], $Field.nodes);
             }
-            targets[targets.length - 1] = targets[targets.length - 1] || chain.leaf;
+            for (let i = 1; i < N; i++){
+                targets[i-1] = sources[i];
+            }
+            targets[N - 1] = targets[N - 1] || getNewNode(N);
+            mergeGenResource(chain.group, parentGroup, targets[N - 1], $Field.nodes);
 
             chain.root = getID(sources[0]);
-            chain.leaf = getID(targets[targets.length - 1]);
+            chain.leaf = getID(targets[N - 1]);
             let template = getTemplate();
 
             //Create levels
@@ -249,7 +263,7 @@ export class Chain extends GroupTemplate {
                 link::defaults({
                     [$Field.id]        : getGenID(chain.id, $Prefix.link, i+1),
                     [$Field.source]    : getID(sources[i]),
-                    [$Field.target]    : getID(sources[i + 1]),
+                    [$Field.target]    : getID(targets[i]),
                     [$Field.levelIn]   : chain.id,
                     [$Field.color]     : $Color.Link,
                     [$Field.skipLabel] : true,
@@ -319,9 +333,16 @@ export class Chain extends GroupTemplate {
                 return;
             }
 
+            let sameAsPrev = i > 0 && chain.housingLyphs[i] === chain.housingLyphs[i-1];
+            let sameAsNext = i < N - 1 && chain.housingLyphs[i] === chain.housingLyphs[i+1];
+            let sourceInternal = (i === 0);
+            let targetInternal = (i === N - 1) || sameAsNext && !sameAsPrev;
+
             //A chain level can be "hosted" by the lyph, by its outermost layer, or by any other layer that bundles the chain or referred to .
             let hostLyph = housingLyph;
             let bundlingLayer;
+            let sourceBorderIndex = 1;
+            let targetBorderIndex = 3;
             if (hostLyph.layers){
                 let layers = hostLyph.layers.map(layerID => findResourceByID(parentGroup.lyphs, layerID));
                 layers = layers.filter(layer => !!layer);
@@ -357,13 +378,20 @@ export class Chain extends GroupTemplate {
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
 
+                if (sameAsNext){
+                    sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i+1]? 0: 2;
+                }
+               if (sameAsPrev){
+                    targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i-1]? 2: 0;
+                }
+
                 //Start and end nodes
-                if (i === 0){
+                if (sourceInternal){
                     addInternalNode(hostLyph, level.source);
                 } else {
-                    addBorderNode(hostLyph.border.borders[3], level.source);
+                    addBorderNode(hostLyph.border.borders[targetBorderIndex], level.source);
                 }
-                if (i === chain.housingLyphs.length - 1){
+                if (targetInternal){
                     addInternalNode(hostLyph, level.target);
                 } else {
                     let targetNode = findResourceByID(parentGroup.nodes, level.target) || {
@@ -372,7 +400,7 @@ export class Chain extends GroupTemplate {
                         [$Field.generated] : true
                     };
                     let targetClone = Node.clone(targetNode);
-                    addBorderNode(hostLyph.border.borders[1], targetClone.id);
+                    addBorderNode(hostLyph.border.borders[sourceBorderIndex], targetClone.id);
                     let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
                     level.target = targetClone.id;
                     chain.group.nodes.push(targetClone);
@@ -436,27 +464,27 @@ export class Chain extends GroupTemplate {
         return {start, end};
     }
 
-    get topology() {
-        const n = (this.levels||[]).length - 1;
-        if (n < 0) { return undefined; }
-        for (let i = 1; i < n; i++) {
+    validateTopology() {
+        const n = (this.levels||[]).length;
+
+        if (n < 1) { return false; }
+        if (n === 1) { return true; }
+
+        for (let i = 1; i < n - 1; i++) {
             const lyph = this.levels[i].conveyingLyph;
             if (lyph && (lyph.topology || Lyph.LYPH_TOPOLOGY.TUBE) !== Lyph.LYPH_TOPOLOGY.TUBE) {
-                return undefined;
+                return false;
             }
         }
         const startLyph = this.levels[0].conveyingLyph;
-        const endLyph = this.levels[n].conveyingLyph;
-        if (startLyph && endLyph){
-            const startT = startLyph.radialTypes;
-            const endT = endLyph.radialTypes;
-            //console.log(this.id, startT, endT);
-            if (startT[0] || endT[1]) {
-                return undefined;
-            }
-            return [startT[1], endT[0]];
+        if (startLyph && [Lyph.LYPH_TOPOLOGY["BAG-"], Lyph.LYPH_TOPOLOGY.BAG, Lyph.LYPH_TOPOLOGY.CYST].includes(startLyph.topology)){
+            return false;
         }
-        return undefined;
+        const endLyph = this.levels[n - 1].conveyingLyph;
+        if (endLyph && [Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(endLyph.topology)){
+            return false;
+        }
+        return true;
     }
 }
 

@@ -118,14 +118,23 @@ export class Group extends Resource {
     }
 
     createGroup(id, name, nodes = [], links = [], lyphs = [], modelClasses){
-        const group = modelClasses.Group.fromJSON({
+        const json = {
             [$Field.id]    : getGenID($Prefix.group, id),
             [$Field.name]  : name,
+            [$Field.description]: "dynamic",
             [$Field.nodes] : nodes.map(e => e.id),
             [$Field.links] : links.map(e => e.id),
             [$Field.lyphs] : lyphs.map(e => e.id)
-        }, modelClasses, this.entitiesByID, this.namespace);
-        this.groups.push(group);
+        }
+        const groupIdx = this.groups.findIndex(x => x.id === json.id);
+        if (groupIdx > -1) {
+            this.groups[groupIdx]::merge(json);
+            return this.groups[groupIdx];
+        } else {
+            const group = modelClasses.Group.fromJSON(json, modelClasses, this.entitiesByID, this.namespace);
+            this.groups.push(group);
+            return group;
+        }
     }
 
     includeLyphAxes(lyphs, links){
@@ -389,7 +398,11 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get activeGroups(){
-        return [...(this.groups||[])].filter(e => !e.inactive);
+        return [...(this.groups||[])].filter(e => !e.inactive && (e.description !== "dynamic"));
+    }
+
+    get dynamicGroups(){
+        return [...(this.groups||[])].filter(e => e.description === "dynamic");
     }
 
     assignScaffoldComponents(){

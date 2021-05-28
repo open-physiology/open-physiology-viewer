@@ -30,7 +30,7 @@ export class Edge extends VisualResource{
     static EDGE_STROKE   = EDGE_STROKE;
 
     get isVisible(){
-        return super.isVisible && this.source && this.source.isVisible && this.target && this.target.isVisible;
+        return super.isVisible && (this.source && this.source.isVisible) && (this.target && this.target.isVisible);
     }
 }
 

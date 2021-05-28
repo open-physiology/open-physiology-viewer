@@ -24,7 +24,7 @@ VisualResource.prototype.createLabels = function(){
 
     if (this.labels[labelKey]){
         this.viewObjects["label"] = this.labels[labelKey];
-        this.viewObjects["label"].visible = this.isVisible;
+        this.viewObjects["label"].visible = !this.hidden;
     } else {
         delete this.viewObjects["label"];
     }

@@ -6,7 +6,7 @@ import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID} from "./u
 /**
  * Coalescence model
  * @property lyphs
- * @property topology
+ * @property chainTopology
  * @property generatedFrom
  */
 export class Coalescence extends Resource{
@@ -93,7 +93,9 @@ export class Coalescence extends Resource{
             if (!lyph.axis || !lyph2.axis) {
                 logger.warn($LogMsg.COALESCENCE_NO_AXIS, !lyph.axis ? lyph : lyph2);
             }
-            lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
+           if (this.topology === Coalescence.COALESCENCE_TOPOLOGY.CONNECTING) {
+               lyph2.angle = 180; //subordinate coalescing lyph should turn to its master
+           }
         })
     }
 

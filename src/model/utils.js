@@ -244,6 +244,8 @@ const getClassRefs = (spec) => {
  */
 export const isClassAbstract = (clsName) => definitions[clsName].abstract;
 
+
+
 /**
  * Add a given resource to a given group and a parent group if it does not exist
  * @param group - a group to add resources to

@@ -109,6 +109,7 @@ export const $LogMsg = {
     //Errors
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
+    CHAIN_WRONG_TOPOLOGY        : "Chain's topology is incorrect",
 
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
 
@@ -122,6 +123,8 @@ export const $LogMsg = {
     CLASS_ERROR_RESOURCE        : "No class function is available. Possible cause - misclassified resource",
 
     GROUP_TEMPLATE_NO_CLASS     : "Could not find class definition for the field",
+
+    NODE_NO_LINK_REF            : "Generated node has no reference to the link that ends in it",
 
     REGION_BORDER_ERROR         : "Incorrectly defined region: cannot identify border points or anchors. At least 3 border points are needed to define a region",
 

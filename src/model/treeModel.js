@@ -118,6 +118,7 @@ export class Tree extends GroupTemplate {
                             Link.clone(baseResources[0], lnk);
                             Node.clone(baseResources[1], trg);
                             Lyph.clone(parentGroup.lyphs, baseResources[2], lyph);
+                            lyph.topology = baseResources[2].topology;
                             mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
                             levelResources[j].push([lnk, trg, lyph]);
                             prev_id = lnk.target;

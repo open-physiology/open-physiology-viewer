@@ -65,7 +65,7 @@ export class Shape extends VisualResource {
 /**
  * Class that models lyphs
  * @class
- * @property topology
+ * @property chainTopology
  * @property angle
  * @property scale
  * @property isTemplate
@@ -271,22 +271,21 @@ export class Lyph extends Shape {
      * @returns {Array}
      */
     get radialTypes() {
-        switch (this.topology || LYPH_TOPOLOGY.TUBE) {
-            case Lyph.LYPH_TOPOLOGY["BAG-"]:
-            case Lyph.LYPH_TOPOLOGY.BAG  :
-                return [true, false];
-            case Lyph.LYPH_TOPOLOGY["BAG+"]:
-            case Lyph.LYPH_TOPOLOGY.BAG2 :
-                return [false, true];
-            case Lyph.LYPH_TOPOLOGY.CYST :
-                return [true, true];
-            case Lyph.LYPH_TOPOLOGY.TUBE :
-                return [false, false];
-        }
         if (this.layerIn){
             return this.layerIn.radialTypes;
         }
-        return [false, false];
+        let res = [false, false];
+        switch (this.topology || LYPH_TOPOLOGY.TUBE) {
+            case Lyph.LYPH_TOPOLOGY.CYST   : return [true, true];
+            case Lyph.LYPH_TOPOLOGY.BAG    : res[0] = true; break;
+            case Lyph.LYPH_TOPOLOGY.BAG2   : res[1] = true; break;
+            case Lyph.LYPH_TOPOLOGY["BAG-"]: res[0] = true; break;
+            case Lyph.LYPH_TOPOLOGY["BAG+"]: res[1] = true; break;
+        }
+        if (this.conveys && this.conveys.reversed){
+            return [res[1], res[0]];
+        }
+        return res;
     }
 
     /**
@@ -432,15 +431,17 @@ sh
             [$Field.generated]    : true
         }, modelClasses, entitiesByID, namespace);
 
+        link.source = sNode;
+        link.target = tNode;
+        link.conveyingLyph = this;
+
         if (this.internalIn) {
             link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
             link.applyToEndNodes(end => end.color = $Color.InternalNode);
         }
-
-        link.source.sourceOf = [link];
-        link.target.targetOf = [link];
+        sNode.sourceOf = [link];
+        tNode.targetOf = [link];
         this.conveys = link;
-
         return link;
     }
 

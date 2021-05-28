@@ -8,7 +8,8 @@ import {SearchBarModule} from './gui/searchBar';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
-import {$Field} from "../model/utils";
+import {$Field} from "../model";
+import {StopPropagation} from "./gui/stopPropagation";
 
 /**
  * @ignore
@@ -16,15 +17,15 @@ import {$Field} from "../model/utils";
 @Component({
     selector: 'settingsPanel',
     template: ` 
-            <section class="w3-padding-small">
-
+            <section class="w3-padding-small" stop-propagation> 
+ 
                 <!--Highlighted entity-->
 
                 <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
                     <legend>Highlighted</legend>
                     <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"> </resourceInfoPanel>
                 </fieldset>
-
+ 
                 <!--Search bar-->
 
                 <fieldset class="w3-card w3-round w3-margin-small-small">
@@ -67,6 +68,19 @@ import {$Field} from "../model/utils";
                     </span>
                 </fieldset>
 
+                <!--Dynamic groups-->
+                
+                <fieldset *ngIf="!!dynamicGroups" class="w3-card w3-round w3-margin-small">
+                    <legend>Dynamic groups</legend>
+                    <span *ngFor="let group of dynamicGroups">
+                        <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
+                                      [checked] = "_showGroups.has(group)"
+                                      (change)  = "toggleGroup(group, _showGroups)"> 
+                            {{group.name || group.id}}
+                        </mat-checkbox>
+                    </span>
+                </fieldset>
+                
                 <!--Scaffold controls-->
 
                 <fieldset *ngIf="!!scaffolds" class="w3-card w3-round w3-margin-small">
@@ -173,6 +187,8 @@ export class SettingsPanel {
     _selectedName;
 
     @Input() groups;
+
+    @Input() dynamicGroups;
 
     @Input('scaffolds') set scaffolds(newScaffolds){
         this._scaffolds = newScaffolds;
@@ -289,7 +305,7 @@ export class SettingsPanel {
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
         MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule],
-    declarations: [SettingsPanel],
+    declarations: [SettingsPanel, StopPropagation],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
 })
