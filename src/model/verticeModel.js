@@ -79,17 +79,8 @@ export class Node extends Vertice {
         let borderNodesByID = {};
         (json.lyphs||[]).forEach(lyph => {
             if (lyph.border && lyph.border.borders) {
-                lyph.border.borders.forEach(b => {
-                    (b.hostedNodes||[]).forEach(e => {
-                        let nodeID = getID(e);
-                        if (!nodeID || !nodeID::isString()){
-                            logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);
-                            return;
-                        }
-                        if (!borderNodesByID[nodeID]){ borderNodesByID[nodeID] = []; }
-                        borderNodesByID[nodeID].push(lyph);
-                    });
-                })
+                lyph.border.borders.forEach(b =>
+                    this.addLyphToHostMap(lyph, b.hostedNodes, borderNodesByID))
             }
         });
 
@@ -130,17 +121,7 @@ export class Node extends Vertice {
 
     static replicateInternalNodes(json, modelClasses){
         let internalNodesByID = {};
-        (json.lyphs||[]).forEach(lyph => {
-            (lyph.internalNodes||[]).forEach(e => {
-                let nodeID = getID(e);
-                if (!nodeID || !nodeID::isString()){
-                    logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);
-                    return;
-                }
-                if (!internalNodesByID[nodeID]){ internalNodesByID[nodeID] = []; }
-                internalNodesByID[nodeID].push(lyph);
-            });
-        });
+        (json.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID));
 
         const isBundledLink = (link, lyph) => (lyph.bundles||[]).find(e => getID(e) === link.id);
 
@@ -225,6 +206,21 @@ export class Node extends Vertice {
                 }
             }
         });
+    }
+
+    static addLyphToHostMap(hostLyph, array, resMap){
+        (array||[]).forEach(e => {
+            let nodeID = getID(e);
+            if (!nodeID || !nodeID::isString()) {
+                logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);
+            } else {
+                resMap[nodeID] = resMap[nodeID] || [];
+                if (!resMap[nodeID].find(lyph => lyph.id === hostLyph.id)) {
+                    resMap[nodeID].push(hostLyph);
+                }
+            }
+        });
+        return resMap;
     }
 
     includeRelated(group){
