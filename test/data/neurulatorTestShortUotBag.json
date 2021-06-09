@@ -536,6 +536,13 @@
       "description": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
     }
   ],
+  "groupAnnotations": [
+    {
+      "id": "a1",
+      "seed": "PFU",
+      "groupId": "myCystGroup"
+    }
+  ],
   "assign": [
     {
       "path": "$.nodes[*]",

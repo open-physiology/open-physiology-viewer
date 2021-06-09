@@ -47,8 +47,10 @@ export const $SchemaType = {
  * @property Component
  * @property Group
  * @property GroupTemplate
+ * @property GroupAnnotation
  * @property Coalescence
  * @property Chain
+ * @property Channel
  * @property Tree
  * @property Villus
  * @property Scaffold

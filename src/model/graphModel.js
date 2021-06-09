@@ -405,18 +405,18 @@ export class Graph extends Group{
         this.includeLyphAxes(lyphs, links);
         this.includeConveyingLyphs(links, lyphs);
         this.includeLinkEnds(links, nodes);
-        this.createGroup(qNumber, `QR ${qNumber}: ${qName}`, nodes, links, lyphs, modelClasses);
+        this.createGroup(getGenID($Prefix.group, qNumber), `QR ${qNumber}: ${qName}`, nodes, links, lyphs, modelClasses);
 
         //Only chains
         let chainLinks = links.filter(e => e.fasciculatesIn);
         let chainNodes = [];
         this.includeLinkEnds(chainLinks, chainNodes);
-        this.createGroup(qNumber + "_chains", `QR ${qNumber}: chains`, chainNodes, chainLinks, [], modelClasses);
+        this.createGroup(getGenID($Prefix.group, qNumber, "chains"), `QR ${qNumber}: chains`, chainNodes, chainLinks, [], modelClasses);
 
         //Only chain lyphs
         let chainLyphs = [];
         this.includeConveyingLyphs(chainLinks, chainLyphs);
-        this.createGroup(qNumber + "_chainLyphs", `QR ${qNumber}: chain lyphs`, [], [], chainLyphs, modelClasses);
+        this.createGroup(getGenID($Prefix.group, qNumber, "chainLyphs"), `QR ${qNumber}: chain lyphs`, [], [], chainLyphs, modelClasses);
 
         //Only housing lyphs
         let housingLyphs = lyphs.filter(e => e.bundles);
@@ -426,7 +426,7 @@ export class Graph extends Group{
         this.includeLyphAxes(housingLyphs, housingLinks);
         this.includeConveyingLyphs(housingLinks, housingLyphs);
         this.includeLinkEnds(housingLinks, housingNodes);
-        this.createGroup(qNumber + "_housing", `QR ${qNumber}: housing`, housingNodes, housingLinks, housingLyphs, modelClasses);
+        this.createGroup(getGenID($Prefix.group, qNumber, "housing"), `QR ${qNumber}: housing`, housingNodes, housingLinks, housingLyphs, modelClasses);
     }
 
     /**
@@ -588,17 +588,17 @@ export class Graph extends Group{
         const bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
             [LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY["BAG-"], LYPH_TOPOLOGY["BAG+"], LYPH_TOPOLOGY["CYST"]].includes(lyph.topology));
         while (bags.length > 0){
-            let targetLyph = bags.pop();
+            let seed = bags.pop();
             if (!bags._processed){
-                this.neurulateFromTarget(targetLyph);
+                this.neurulateFromSeed(seed);
             }
         }
         (this.lyphs||[]).forEach(lyph => delete lyph._processed);
     }
 
-    neurulateFromTarget(targetLyph){
-        targetLyph._processed = true;
-        let lnk0 = targetLyph.conveys;
+    neurulateFromSeed(seed){
+        seed._processed = true;
+        let lnk0 = seed.conveys;
         if (!lnk0){ return; } //ignore lyphs without axes, e.g., templates or layers
         let t0 = lnk0.conveyingLyph && lnk0.conveyingLyph.topology;
         if (t0 === LYPH_TOPOLOGY.CYST) {
@@ -653,7 +653,21 @@ export class Graph extends Group{
             this.includeLinkEnds(groupLinks, groupNodes);
             this.includeConveyingLyphs(groupLinks, groupLyphs);
             groupLyphs.forEach(lyph => lyph._processed = true); //exclude reachable lyphs
-            this.createGroup(getGenID("cyst", targetLyph.id), getGenName("Cyst group from", targetLyph.id), groupNodes, groupLinks, groupLyphs, this.modelClasses);
+
+            let groupId = getGenID($Prefix.group, seed.id);
+            let groupName = getGenName("Generated group for", seed.id);
+            //Find dynamic template for any lyph in groupLyphs
+            let groupTemplate = (this.groupAnnotations||[]).find(g => g.seed && groupLyphs.find(lyph => lyph.id === g.seed.id));
+            if (groupTemplate){
+                groupId = groupTemplate.groupId || groupId;
+                groupName = groupTemplate.name || groupName;
+            }
+            const genGroup = this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
+            if (groupTemplate){
+                genGroup.generatedFrom = groupTemplate;
+                genGroup::merge(groupTemplate.group);
+                groupTemplate.group = genGroup;
+            }
         }
     }
 }

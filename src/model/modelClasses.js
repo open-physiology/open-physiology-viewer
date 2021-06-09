@@ -3,6 +3,7 @@ import {Chain}   from './chainModel';
 import {Tree}    from './treeModel';
 import {Channel} from './channelModel';
 import {Villus}  from './villusModel';
+import {GroupAnnotation} from './groupAnnotationModel';
 import {Group}   from './groupModel';
 import {Component} from './componentModel';
 import {Graph}   from './graphModel';
@@ -29,28 +30,29 @@ export const modelClasses = {
     [$SchemaClass.Vertice]        : Vertice,
 
     /*Resources */
-    [$SchemaClass.External]      : External,
-    [$SchemaClass.Coalescence]   : Coalescence,
-    [$SchemaClass.Channel]       : Channel,
-    [$SchemaClass.Chain]         : Chain,
-    [$SchemaClass.Tree]          : Tree,
-    [$SchemaClass.Villus]        : Villus,
-    [$SchemaClass.Group]         : Group,
-    [$SchemaClass.Graph]         : Graph,
-    [$SchemaClass.Component]     : Component,
-    [$SchemaClass.Scaffold]      : Scaffold,
+    [$SchemaClass.External]       : External,
+    [$SchemaClass.Coalescence]    : Coalescence,
+    [$SchemaClass.Channel]        : Channel,
+    [$SchemaClass.Chain]          : Chain,
+    [$SchemaClass.Tree]           : Tree,
+    [$SchemaClass.Villus]         : Villus,
+    [$SchemaClass.GroupAnnotation]: GroupAnnotation,
+    [$SchemaClass.Group]          : Group,
+    [$SchemaClass.Graph]          : Graph,
+    [$SchemaClass.Component]      : Component,
+    [$SchemaClass.Scaffold]       : Scaffold,
 
     /*Visual resources */
-    [$SchemaClass.Anchor]        : Anchor,
-    [$SchemaClass.Wire]          : Wire,
-    [$SchemaClass.Node]          : Node,
-    [$SchemaClass.Link]          : Link,
+    [$SchemaClass.Anchor]         : Anchor,
+    [$SchemaClass.Wire]           : Wire,
+    [$SchemaClass.Node]           : Node,
+    [$SchemaClass.Link]           : Link,
 
     /* Shapes */
-    [$SchemaClass.Material]      : Material,
-    [$SchemaClass.Region]        : Region,
-    [$SchemaClass.Lyph]          : Lyph,
-    [$SchemaClass.Border]        : Border
+    [$SchemaClass.Material]       : Material,
+    [$SchemaClass.Region]         : Region,
+    [$SchemaClass.Lyph]           : Lyph,
+    [$SchemaClass.Border]         : Border
 };
 
 /**

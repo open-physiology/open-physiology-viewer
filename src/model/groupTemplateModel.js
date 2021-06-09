@@ -19,11 +19,18 @@ export class GroupTemplate extends Resource{
      */
     static createTemplateGroup(template, parentGroup){
         let group = template.group || {};
-        group::defaults({
-            [$Field.id]        : getGenID($Prefix.group, template.id),
-            [$Field.name]      : template.name,
-            [$Field.generated] : true
-        });
+        let groupID = template.groupID || getGenID($Prefix.group, template.id);
+        let existing = (parentGroup.groups||[]).find(g => g.id === groupID);
+        if (existing){
+            logger.warn($LogMsg.DYNAMIC_GROUP_EXISTS, groupID);
+            group = existing;
+        } else {
+            group::defaults({
+                [$Field.id]: groupID,
+                [$Field.name]: template.name,
+                [$Field.generated]: true
+            });
+        }
         if (parentGroup.namespace){
             group.namespace = parentGroup.namespace;
         }
@@ -33,6 +40,10 @@ export class GroupTemplate extends Resource{
                 logger.warn($LogMsg.GROUP_GEN_NOT_EMPTY, prop, group[prop])
             }
         });
+
+        if (template.external){
+            group.external = template.external;
+        }
 
         if (!parentGroup.groups) { parentGroup.groups = []; }
         parentGroup.groups.push(group.id);

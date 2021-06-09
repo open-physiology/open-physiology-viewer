@@ -106,10 +106,16 @@ export const $LogMsg = {
     VILLUS_TOO_LONG             : "Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the hosting lyph",
     VILLUS_UNDEFINED            : "Cannot expand undefined villus template",
 
+    DYNAMIC_GROUP_EXISTS        : "A group with such ID already exists, populating existing group from template",
+    DYNAMIC_UNDEFINED           : "Cannot expand undefined dynamic group template",
+    DYNAMIC_NO_SEED             : "Incomplete dynamic group annotation definition: seed lyph is missing",
+    DYNAMIC_NO_SEED_FOUND       : "Could not find the dynamic group seed lyph definition in the parent group",
+
     //Errors
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
     CHAIN_WRONG_TOPOLOGY        : "Chain's topology is incorrect",
+    DYNAMIC_ABSTRACT_SEED       : "Skipping annotation of a dynamic group seeded by a lyph template",
 
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
 

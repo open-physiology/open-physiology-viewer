@@ -851,6 +851,22 @@
             ]
           }
         },
+        "groupAnnotations": {
+          "description": "Dynamic group definitions to associate annotations with generated groups",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/GroupAnnotation"
+              }
+            ]
+          },
+          "advanced": true,
+          "default": []
+        },
         "groups": {
           "description": "Semantically meaningful groups of resources that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
           "type": "array",
@@ -948,6 +964,10 @@
           ],
           "readOnly": true,
           "relatedTo": "generatedFrom"
+        },
+        "groupId": {
+          "description": "Desired identifier for a group generated from the given group template",
+          "$ref": "#/definitions/IdentifierScheme"
         },
         "length": {
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
@@ -1495,6 +1515,20 @@
           "advanced": true,
           "readOnly": true,
           "relatedTo": "lyphs"
+        },
+        "inGroupAnnotation": {
+          "description": "Dynamic group in which the given lyph is a seed",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/GroupAnnotation"
+            }
+          ],
+          "advanced": true,
+          "readOnly": true,
+          "relatedTo": "seed"
         },
         "villus": {
           "description": "Small, finger-like projections that extend into the lumen",
@@ -2227,6 +2261,28 @@
           "type": "number",
           "default": 1,
           "advanced": true
+        }
+      }
+    },
+    "GroupAnnotation": {
+      "description": "Template that specifies annotations for closed cyst-like subgraph that includes a given lyph",
+      "allOf": [
+        {
+          "$ref": "#/definitions/GroupTemplate"
+        }
+      ],
+      "properties": {
+        "seed": {
+          "description": "A lyph from the group that gets annotation from this template",
+          "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+          ],
+          "relatedTo": "inGroupAnnotation"
         }
       }
     },

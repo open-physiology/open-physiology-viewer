@@ -117,9 +117,9 @@ export class Group extends Resource {
         }
     }
 
-    createGroup(id, name, nodes = [], links = [], lyphs = [], modelClasses){
+    createGroup(groupID, name, nodes = [], links = [], lyphs = [], modelClasses){
         const json = {
-            [$Field.id]    : getGenID($Prefix.group, id),
+            [$Field.id]    : groupID,
             [$Field.name]  : name,
             [$Field.description]: "dynamic",
             [$Field.nodes] : nodes.map(e => e.id),
