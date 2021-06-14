@@ -1,0 +1,24 @@
+{
+  "name": "wrapper",
+  "version": "1.0.0",
+  "description": "wrapper for apinatomy angular application",
+  "main": "bin/converter.js",
+  "scripts": {
+    "test": "mocha --reported tests/test1.js"
+  },
+  "author": "Dario Metacell",
+  "bin": {
+    "wrapper": "bin/converter.js"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "fs": "0.0.1-security",
+    "util": "^0.12.3",
+    "yargs": "^17.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0"
+  }
+}

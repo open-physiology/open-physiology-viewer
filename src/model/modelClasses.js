@@ -14,11 +14,24 @@ import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
-import {$Field, $SchemaClass} from './utils';
-import {isString, keys, merge} from "lodash-bound";
+import {isString, isObject, isArray, isNumber, isEmpty, keys, merge, assign} from "lodash-bound";
 import * as schema from "./graphScheme";
 
 import * as XLSX from 'xlsx';
+
+import * as jsonld from "jsonld/dist/node6/lib/jsonld";
+
+import { entries } from 'lodash-bound';
+
+import {
+    $Field,
+    $SchemaClass,
+    $SchemaType,
+    getNewID,
+    getFullID,
+    getClassName,
+    isClassAbstract
+} from "./utils";
 
 export const modelClasses = {
     /*Abstract */
@@ -106,9 +119,9 @@ export function isScaffold(inputModel){
  */
 export function excelToJSON(inputModel) {
     if (isScaffold(inputModel)){
-       return Scaffold.excelToJSON(inputModel, modelClasses);
+        return Scaffold.excelToJSON(inputModel, modelClasses);
     } else {
-       return Graph.excelToJSON(inputModel, modelClasses);
+        return Graph.excelToJSON(inputModel, modelClasses);
     }
 }
 
@@ -123,6 +136,251 @@ export function fromJSON(inputModel) {
     } else {
         return Graph.fromJSON(inputModel, modelClasses);
     }
+}
+
+/**
+ * @param {*} inputModel
+ * @returns
+ */
+export function fromJSONGenerated(inputModel) {
+    var namespace = inputModel.namespace || undefined;
+    var entitiesByID = {
+        waitingList: {}
+    };
+
+    const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
+
+    function replaceIDs(modelClasses, entitiesByID, namespace, context){
+        const createObj = (res, key, value, spec) => {
+            if (skip(value)) { return value; }
+
+            const fullResID = getFullID(namespace, res.id);
+            if (value::isNumber()) {
+                value = value.toString();
+            }
+
+            const clsName = getClassName(spec);
+            if (!clsName){
+                return value;
+            }
+
+            if (value && value::isString()) {
+                const fullValueID = getFullID(namespace, value);
+                if (!entitiesByID[fullValueID]) {
+                    //put to a wait list instead
+                    entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
+                    entitiesByID.waitingList[value].push([res, key]);
+                    return value;
+                } else {
+                    return entitiesByID[fullValueID];
+                }
+            }
+
+            if (value.id) {
+                const fullValueID = getFullID(namespace, value.id);
+                if (entitiesByID[fullValueID]) {
+                    return entitiesByID[fullValueID];
+                }
+            }
+
+            //value is an object and it is not in the map
+            if (isClassAbstract(clsName)){
+                if (value.class) {
+                    clsName = value.class;
+                    if (!modelClasses[clsName]){
+                    }
+                } else {
+                    return null;
+                }
+            }
+            return typeCast(value);
+        };
+
+        if (!modelClasses[context.class]){
+            return;
+        }
+
+        const refFields = context.constructor.Model.relationships;
+        let res = context;
+        refFields.map(([key, spec]) => {
+            if (skip(res[key])) { return; }
+            if (res[key]::isArray()){
+                res[key] = res[key].map(value => createObj(res, key, value, spec));
+            } else {
+                res[key] = createObj(res, key, res[key], spec);
+            }
+        });
+    };
+
+    function reviseWaitingList(waitingList, namespace, context){
+        let res = context;
+        (waitingList[res.id]||[]).map(([obj, key]) => {
+            if (obj[key]::isArray()){
+                obj[key].map((e, i) => {
+                    if (e === res.id) {
+                        obj[key][i] = res;
+                    }
+                });
+            } else {
+                if (obj[key] === res.id){
+                    obj[key] = res;
+                }
+            }
+        });
+        delete waitingList[res.id];
+    }
+
+    function typeCast(obj) {
+        if (obj instanceof Object && !(obj instanceof Array) && !(typeof obj === 'function') && obj['class'] !== undefined && modelClasses[obj['class']] !== undefined) {
+            const cls = modelClasses[obj['class']];
+            const res = new cls(obj.id);
+            res.class = obj['class'];
+            res::assign(obj);
+
+            if (entitiesByID){
+                if (!res.id) { res.id = getNewID(entitiesByID); }
+                if (res.id::isNumber()) {
+                    res.id = res.id.toString();
+                }
+                let fullResID = getFullID(namespace, res.id);
+                if (entitiesByID[fullResID]) {
+                    if (entitiesByID[fullResID] !== res){
+                        console.log("duplicate resource " + fullResID);
+                        //logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[fullResID], res);
+                    }
+                } else {
+                    entitiesByID[fullResID] = res;
+                    reviseWaitingList(entitiesByID.waitingList, namespace, res);
+                    replaceIDs(modelClasses, entitiesByID, namespace, res);
+                }
+            }
+            return res;
+        } else {
+            return obj
+        }
+    }
+
+    function _createResource(id, clsName, group, modelClasses, entitiesByID, namespace){
+        const e = typeCast({
+            [$Field.id]: id,
+            [$Field.class]: clsName,
+            [$Field.generated]: true
+        })
+
+        //Do not show labels for generated visual resources
+        if (e.prototype instanceof modelClasses.VisualResource){
+            e.skipLabel = true;
+        }
+
+        //Include newly created entity to the main graph
+        const prop = modelClasses[group.class].Model.selectedRelNames(clsName)[0];
+        if (prop) {
+            group[prop] = group[prop] ||[];
+            group[prop].push(e);
+        }
+        const fullID = getFullID(namespace, e.id);
+        entitiesByID[fullID] = e;
+        return e;
+    }
+
+    function processGraphWaitingList(model, entitiesList) {
+        const added = [];
+        (entitiesList.waitingList)::entries().map(([id, refs]) => {
+            const [obj, key] = refs[0];
+            if (obj && obj.class){
+                const clsName = modelClasses[obj.class].Model.relClassNames[key];
+                if (clsName && !modelClasses[clsName].Model.schema.abstract){
+                    const e = _createResource(id, clsName, model, modelClasses, entitiesList, namespace);
+                    added.push(e.id);
+                    //A created link needs end nodes
+                    if (e instanceof modelClasses.Link) {
+                        const i = 0;
+                        const related = [$Field.sourceOf, $Field.targetOf];
+                        e.applyToEndNodes(end => {
+                            if (end::isString()) {
+                                let s = _createResource(end, $SchemaClass.Node, model, modelClasses, entitiesList, namespace);
+                                added.push(s.id);
+                                s[related[i]] = [e];
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        if (added.length > 0){
+            added.map(id => delete entitiesList.waitingList[id]);
+        }
+
+        model.syncRelationships(modelClasses, entitiesList, namespace);
+        model.entitiesByID = entitiesList;
+    }
+
+    function processScaffoldWaitingList(model, entitiesList) {
+        //Auto-create missing definitions for used references
+        const added = [];
+        (entitiesList.waitingList)::entries().map(([id, refs]) => {
+            const [obj, key] = refs[0];
+            if (obj && obj.class) {
+                const clsName = modelClasses[obj.class].Model.relClassNames[key];
+                if (clsName && !modelClasses[clsName].Model.schema.abstract) {
+                    const e = typeCast({
+                        [$Field.id]: id,
+                        [$Field.class]: clsName,
+                        [$Field.generated]: true
+                    })
+
+                    //Include newly created entity to the main graph
+                    const prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
+                    if (prop) {
+                        model[prop] = model[prop] || [];
+                        model[prop].push(e);
+                    }
+                    const fullID = getFullID(namespace, e.id);
+                    entitiesList[fullID] = e;
+                    added.push(e.id);
+                }
+            }
+        });
+
+        if (added.length > 0) {
+            added.map(id => delete entitiesList.waitingList[id]);
+        }
+        model.syncRelationships(modelClasses, entitiesList, namespace);
+        model.entitiesByID = entitiesList;
+        delete model.waitingList;
+    };
+
+    var _casted_model = typeCast(inputModel);
+    if (_casted_model.class == "Graph") {
+        processGraphWaitingList(_casted_model, entitiesByID);
+    } else if (_casted_model.class == "Scaffold") {
+        processScaffoldWaitingList(_casted_model, entitiesByID);
+    }
+
+    return _casted_model;
+}
+
+
+/**
+ * @param {*} inputModel
+ * @returns
+ */
+
+
+export function fromJsonLD(inputModel, callback) {
+    let res = inputModel;
+    let context = {};
+    res['@context']::entries().map(([k, v]) => {
+        if (v::isObject() && "@id" in v && v["@id"].includes("apinatomy:")) {
+        } else if (typeof(v) === "string" && v.includes("apinatomy:")) {
+        } else if (k === "class") { // class uses @context @base which is not 1.0 compatible
+        } else {
+            context[k] = v;
+        }});
+    jsonld.flatten(res).then(flat => {
+        jsonld.compact(flat, context).then(compact => {
+            callback(compact)})});
 }
 
 /**
