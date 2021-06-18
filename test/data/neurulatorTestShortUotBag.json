@@ -536,11 +536,11 @@
       "description": "Branching factors for the rest of the tree removed to avoid model explosion ... 3, 20, 8, 9, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1"
     }
   ],
-  "groupAnnotations": [
+  "groups": [
     {
-      "id": "a1",
+      "id": "myCystGroup",
       "seed": "PFU",
-      "groupId": "myCystGroup"
+      "external": ["UBERON:1109090"]
     }
   ],
   "assign": [

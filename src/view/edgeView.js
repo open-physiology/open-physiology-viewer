@@ -1,4 +1,4 @@
-import {modelClasses} from "../model";
+import {$Field, modelClasses} from "../model";
 
 import {
     extractCoords,
@@ -345,8 +345,9 @@ Wire.prototype.relocate = function(delta, epsilon = 5){
             }
         }
     }
-    ['source', 'target'].forEach(prop => this[prop].relocate(delta));
+    [$Field.source, $Field.target].forEach(prop => this[prop].relocate(delta));
     this.updateViewObjects(this.state);
+    return [this.source, this.target];
 }
 
 /**

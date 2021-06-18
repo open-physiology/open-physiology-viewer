@@ -458,17 +458,17 @@ export class WebGLSceneComponent {
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
-                this.scaffoldUpdated.emit();
+                this.scaffoldUpdated.emit(obj);
             })
             .onWireDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
-                this.scaffoldUpdated.emit();
+                let updated = this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(updated);
             })
             .onRegionDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
-                this.scaffoldUpdated.emit();
+                this.scaffoldUpdated.emit(obj);
             })
             .graphData(this.graphData);
 

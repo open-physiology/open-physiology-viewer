@@ -1,6 +1,16 @@
 import {Resource} from './resourceModel';
-import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
-import {getGenID, addColor, $SchemaClass, $Field, $Color, $Prefix, findResourceByID, showGroups} from './utils';
+import {isObject, unionBy, merge, keys, entries, isArray, pick, defaults} from 'lodash-bound';
+import {
+    getGenID,
+    addColor,
+    $SchemaClass,
+    $Field,
+    $Color,
+    $Prefix,
+    findResourceByID,
+    showGroups,
+    mergeGenResource
+} from './utils';
 import {logger, $LogMsg} from './logger';
 
 /**
@@ -117,24 +127,29 @@ export class Group extends Resource {
         }
     }
 
-    createGroup(groupID, name, nodes = [], links = [], lyphs = [], modelClasses){
-        const json = {
+    createGroup(groupID, name, nodes, links, lyphs, modelClasses){
+        const resources = {
+            [$Field.nodes]: nodes,
+            [$Field.links]: links,
+            [$Field.lyphs]: lyphs
+        }
+        let group = (this.groups||[]).find(g => g.id === groupID);
+        let json = group || {
             [$Field.id]    : groupID,
-            [$Field.name]  : name,
-            [$Field.description]: "dynamic",
-            [$Field.nodes] : nodes.map(e => e.id),
-            [$Field.links] : links.map(e => e.id),
-            [$Field.lyphs] : lyphs.map(e => e.id)
+            [$Field.name]  : name
         }
-        const groupIdx = this.groups.findIndex(x => x.id === json.id);
-        if (groupIdx > -1) {
-            this.groups[groupIdx]::merge(json);
-            return this.groups[groupIdx];
+        if (group) {
+            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
+                group[prop] = (group[prop]||[])::unionBy(resources[prop], $Field.id);
+                group[prop] = group[prop].filter(x => !!x && x.class);
+            });
         } else {
-            const group = modelClasses.Group.fromJSON(json, modelClasses, this.entitiesByID, this.namespace);
+            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => json[prop] = resources[prop].map(e => e.id));
+            group = modelClasses.Group.fromJSON(json, modelClasses, this.entitiesByID, this.namespace);
             this.groups.push(group);
-            return group;
         }
+        group.description = "dynamic";
+        return group;
     }
 
     includeLyphAxes(lyphs, links){
@@ -350,10 +365,10 @@ export class Group extends Resource {
                 logger.warn($LogMsg.GROUP_SELF, this.id, group.id);
                 return;
             }
-            relFieldNames.forEach(property => {
-                if (group[property]::isArray()){
-                    this[property] = (this[property]||[])::unionBy(group[property], $Field.id);
-                    this[property] = this[property].filter(x => !!x && x.class);
+            relFieldNames.forEach(prop => {
+                if (group[prop]::isArray()){
+                    this[prop] = (this[prop]||[])::unionBy(group[prop], $Field.id);
+                    this[prop] = this[prop].filter(x => !!x && x.class);
                 }
             });
         });

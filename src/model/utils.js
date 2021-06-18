@@ -271,17 +271,19 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
     }
     if (parentGroup && resource.id){
         parentGroup[prop] = parentGroup[prop] || [];
-        if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){ parentGroup[prop].push(resource); }
+        if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){
+            parentGroup[prop].push(resource);
+        }
     }
 };
 
 /**
  * @param group - a group to add resources to
  * @param parentGroup - parent group
- * @param level - an array with a link, target node, and conveyed lyph
+ * @param edge - an array with a link, target node, and conveying lyph
  */
-export const mergeGenResources = (group, parentGroup, level) => {
-    let [lnk, trg, lyph] = level;
+export const mergeGenResources = (group, parentGroup, edge) => {
+    let [lnk, trg, lyph] = edge;
     mergeGenResource(group, parentGroup, lnk, $Field.links);
     mergeGenResource(group, parentGroup, trg, $Field.nodes);
     mergeGenResource(group, parentGroup, lyph, $Field.lyphs);

@@ -72,7 +72,7 @@ export class Component extends Resource {
     get resources(){
         let res = [];
         let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
-        relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
+        relFieldNames.forEach(prop => res = res::unionBy((this[prop] ||[]), $Field.id));
         return res.filter(e => !!e && e::isObject());
     }
 
@@ -111,10 +111,10 @@ export class Component extends Resource {
                 logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);
                 return;
             }
-            relFieldNames.forEach(property => {
-                if (component[property]::isArray()){
-                    this[property] = (this[property]||[])::unionBy(component[property], $Field.id);
-                    this[property] = this[property].filter(x => x.class);
+            relFieldNames.forEach(prop => {
+                if (component[prop]::isArray()){
+                    this[prop] = (this[prop]||[])::unionBy(component[prop], $Field.id);
+                    this[prop] = this[prop].filter(x => x.class);
                 }
             });
         });

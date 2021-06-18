@@ -63,6 +63,7 @@ export const $LogMsg = {
     GROUP_GEN_NOT_EMPTY         : "Generated group already contains resources",
     GRAPH_LYPH_NO_AXIS          : "Failed to compute axis length for an internal lyph: axis undefined",
     GROUP_SELF                  : "The model contains self-references or cyclic group dependencies",
+    GROUP_SEED_DUPLICATE        : "Duplicate seeds for dynamic groups found",
 
     LYPH_INTERNAL_NO_LAYER      : "Failed to locate layer lyph to reposition internal lyphs",
     LYPH_INTERNAL_OUT_RANGE     : "Failed to relocate internal lyph to layer: layer index out of range",

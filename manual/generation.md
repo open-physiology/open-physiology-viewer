@@ -5,7 +5,7 @@ We start from processing graph definitions.
 The first step is to validate the JSON schema to ensure that it is syntactically correct.
 If this is the case, the model processing algorithm proceeds with creation of the main group.
 
-describe most important relationship pairs
+Resource relationships are defined by pairs of related attributes, e.g.,
 * Lyph.layers - Lyph.layerIn
 * Lyph.internalNodes - Node.internalIn
 * Lyph.internalLyphs - Lyph.internalIn,

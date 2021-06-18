@@ -707,6 +707,19 @@
           "type": "boolean",
           "advanced": true
         },
+        "seed": {
+          "description": "A lyph that belongs to the group and serves as a starting point to populate the group",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "seedIn"
+        },
         "nodes": {
           "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
           "type": "array",
@@ -850,22 +863,6 @@
               }
             ]
           }
-        },
-        "groupAnnotations": {
-          "description": "Dynamic group definitions to associate annotations with generated groups",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/GroupAnnotation"
-              }
-            ]
-          },
-          "advanced": true,
-          "default": []
         },
         "groups": {
           "description": "Semantically meaningful groups of resources that share common properties and are manipulated as a group, e.g., hidden or shown in the viewer.",
@@ -1516,18 +1513,17 @@
           "readOnly": true,
           "relatedTo": "lyphs"
         },
-        "inGroupAnnotation": {
+        "seedIn": {
           "description": "Dynamic group in which the given lyph is a seed",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/GroupAnnotation"
+              "$ref": "#/definitions/Group"
             }
           ],
           "advanced": true,
-          "readOnly": true,
           "relatedTo": "seed"
         },
         "villus": {
@@ -2261,28 +2257,6 @@
           "type": "number",
           "default": 1,
           "advanced": true
-        }
-      }
-    },
-    "GroupAnnotation": {
-      "description": "Template that specifies annotations for closed cyst-like subgraph that includes a given lyph",
-      "allOf": [
-        {
-          "$ref": "#/definitions/GroupTemplate"
-        }
-      ],
-      "properties": {
-        "seed": {
-          "description": "A lyph from the group that gets annotation from this template",
-          "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Lyph"
-              }
-          ],
-          "relatedTo": "inGroupAnnotation"
         }
       }
     },

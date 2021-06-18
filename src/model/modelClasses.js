@@ -3,7 +3,6 @@ import {Chain}   from './chainModel';
 import {Tree}    from './treeModel';
 import {Channel} from './channelModel';
 import {Villus}  from './villusModel';
-import {GroupAnnotation} from './groupAnnotationModel';
 import {Group}   from './groupModel';
 import {Component} from './componentModel';
 import {Graph}   from './graphModel';
@@ -36,7 +35,6 @@ export const modelClasses = {
     [$SchemaClass.Chain]          : Chain,
     [$SchemaClass.Tree]           : Tree,
     [$SchemaClass.Villus]         : Villus,
-    [$SchemaClass.GroupAnnotation]: GroupAnnotation,
     [$SchemaClass.Group]          : Group,
     [$SchemaClass.Graph]          : Graph,
     [$SchemaClass.Component]      : Component,
@@ -135,9 +133,9 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
     if (isScaffold(inputModelA)){
         if (isScaffold(inputModelB)) {
             //Both specifications define scaffolds
-            schema.definitions.Scaffold.properties::keys().forEach(property => {
-                delete inputModelB[property];
-                delete inputModelA[property];
+            schema.definitions.Scaffold.properties::keys().forEach(prop => {
+                delete inputModelB[prop];
+                delete inputModelA[prop];
             });
             if (flattenGroups){
                 inputModelA.components = inputModelA.components || [];
@@ -161,9 +159,9 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
     }
     //Both specifications define connectivity models
     let newConfig = (inputModelA.config||{})::merge(inputModelB.config);
-    schema.definitions.Graph.properties::keys().forEach(property => {
-        delete inputModelB[property];
-        delete inputModelA[property];
+    schema.definitions.Graph.properties::keys().forEach(prop => {
+        delete inputModelB[prop];
+        delete inputModelA[prop];
     });
     if (flattenGroups) {
         inputModelA.groups = inputModelA.groups || [];

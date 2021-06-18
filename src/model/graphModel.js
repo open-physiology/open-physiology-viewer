@@ -416,7 +416,7 @@ export class Graph extends Group{
         //Only chain lyphs
         let chainLyphs = [];
         this.includeConveyingLyphs(chainLinks, chainLyphs);
-        this.createGroup(getGenID($Prefix.group, qNumber, "chainLyphs"), `QR ${qNumber}: chain lyphs`, [], [], chainLyphs, modelClasses);
+        this.createGroup(getGenID($Prefix.group, qNumber, "chainLyphs"), `QR ${qNumber}: chain lyphs`, [],[], chainLyphs, modelClasses);
 
         //Only housing lyphs
         let housingLyphs = lyphs.filter(e => e.bundles);
@@ -459,10 +459,10 @@ export class Graph extends Group{
         let scaffoldResources = {};
         (this.scaffolds||[]).forEach(scaffold => {
             let relFieldNames = scaffold.constructor.Model.filteredRelNames([$SchemaClass.Component]);
-            relFieldNames.forEach(property => {
-                if (scaffold[property]::isArray()){
-                    scaffoldResources[property] = (scaffoldResources[property]||[])::unionBy(scaffold[property], $Field.id);
-                    scaffoldResources[property] = scaffoldResources[property].filter(x => x.class);
+            relFieldNames.forEach(prop => {
+                if (scaffold[prop]::isArray()){
+                    scaffoldResources[prop] = (scaffoldResources[prop]||[])::unionBy(scaffold[prop], $Field.id);
+                    scaffoldResources[prop] = scaffoldResources[prop].filter(x => x.class);
                 }
             });
         });
@@ -656,18 +656,18 @@ export class Graph extends Group{
 
             let groupId = getGenID($Prefix.group, seed.id);
             let groupName = getGenName("Generated group for", seed.id);
-            //Find dynamic template for any lyph in groupLyphs
-            let groupTemplate = (this.groupAnnotations||[]).find(g => g.seed && groupLyphs.find(lyph => lyph.id === g.seed.id));
-            if (groupTemplate){
-                groupId = groupTemplate.groupId || groupId;
-                groupName = groupTemplate.name || groupName;
+
+            //Find a group with seed that contains any of the groups lyphs
+            let groups = (this.groups||[]).filter(g => g.seed && groupLyphs.find(lyph => lyph.id === g.seed.id));
+            if (groups.length === 1){
+                groupId = groups[0].id;
+                groupName = groups[0].name || groupName;
+            } else {
+                if (groups.length > 1) {
+                    logger.warn($LogMsg.GROUP_SEED_DUPLICATE, groups.map(g => g.seed.id));
+                }
             }
-            const genGroup = this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
-            if (groupTemplate){
-                genGroup.generatedFrom = groupTemplate;
-                genGroup::merge(groupTemplate.group);
-                groupTemplate.group = genGroup;
-            }
+            return this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
         }
     }
 }

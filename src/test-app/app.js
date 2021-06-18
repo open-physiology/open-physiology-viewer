@@ -26,7 +26,8 @@ import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
-import {$Field, mergeResources} from "../model/utils";
+import {$Field, findResourceByID, mergeResources} from "../model/utils";
+import {copyCoords} from "../view/utils";
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -394,10 +395,23 @@ export class TestApp {
     }
 
     onScaffoldUpdated(){
+        const scaleFactor = 10;
         if (this._model && this._graphData){
             (this._graphData.scaffolds||[]).forEach(scaffold => {
+                const srcScaffold = findResourceByID(this._model.scaffolds, scaffold.id);
+                if (!srcScaffold){
+                    throw new Error("Failed to find scaffold definition in input model: " + scaffold.id);
+                }
+                //TODO revise to save updates on anchors that are not explicitly defined, i.e., region corners or wire ends
                 (scaffold.anchors||[]).forEach(anchor => {
-                    //TODO save updated anchor positions
+                        const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
+                        if (srcAnchor) {
+                            srcAnchor.layout = srcAnchor.layout || {};
+                            srcAnchor.layout.x = anchor.layout.x / scaleFactor;
+                            srcAnchor.layout.y = anchor.layout.y / scaleFactor;
+                        } else {
+                            // throw new Error("Failed to find anchor definition in input scaffold:" + anchor.id + ", " + scaffold.id);
+                        }
                     }
                 );
             })
