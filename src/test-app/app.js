@@ -402,18 +402,32 @@ export class TestApp {
                 if (!srcScaffold){
                     throw new Error("Failed to find scaffold definition in input model: " + scaffold.id);
                 }
-                //TODO revise to save updates on anchors that are not explicitly defined, i.e., region corners or wire ends
                 (scaffold.anchors||[]).forEach(anchor => {
-                        const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
-                        if (srcAnchor) {
-                            srcAnchor.layout = srcAnchor.layout || {};
-                            srcAnchor.layout.x = anchor.layout.x / scaleFactor;
-                            srcAnchor.layout.y = anchor.layout.y / scaleFactor;
+                    const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
+                    if (srcAnchor) {
+                        srcAnchor.layout = srcAnchor.layout || {};
+                        ["x", "y"].forEach(dim => srcAnchor.layout[dim] =  anchor.layout[dim] / scaleFactor);
+                    }
+               });
+                (scaffold.regions||[]).forEach(region => {
+                    const srcRegion = findResourceByID(srcScaffold.regions, region.id);
+                    if (srcRegion){
+                        if (srcRegion.points){
+                            (srcRegion.points||[]).forEach((target, i) => {
+                                 ["x", "y"].forEach(dim => target[dim] = region.points[i][dim] / scaleFactor);
+                            })
                         } else {
-                            // throw new Error("Failed to find anchor definition in input scaffold:" + anchor.id + ", " + scaffold.id);
+                            //Currently, nested objects are not used in models, all anchors are defined in scaffolds and were updated by the loop above.
+                            //  if (srcRegion.borderAnchors){
+                            //     (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
+                            //         if (srcAnchor::isObject()){
+                            //             //Update inline region anchors
+                            //         }
+                            //     });
+                            //  }
                         }
                     }
-                );
+                })
             })
         }
     }
