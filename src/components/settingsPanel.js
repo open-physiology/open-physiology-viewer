@@ -17,7 +17,7 @@ import {StopPropagation} from "./gui/stopPropagation";
 @Component({
     selector: 'settingsPanel',
     template: ` 
-            <section class="w3-padding-small" stop-propagation> 
+            <section class="w3-padding-small"> 
  
                 <!--Highlighted entity-->
 

@@ -205,6 +205,7 @@ export class TestApp {
     _editor;
     _flattenGroups;
     _counter = 1;
+    _scaffoldUpdated = false;
     modelClasses = modelClasses;
     showRepoPanel = false;
 
@@ -302,6 +303,10 @@ export class TestApp {
     }
 
     save(){
+        if (this._scaffoldUpdated){
+            this.saveScaffoldUpdates();
+            this._scaffoldUpdated = false;
+        }
         let result = JSON.stringify(this._model, null, 4);
         const blob = new Blob([result], {type: 'text/plain'});
         FileSaver.saveAs(blob, (this._model.id? this._model.id: 'mainGraph') + '-model.json');
@@ -395,6 +400,10 @@ export class TestApp {
     }
 
     onScaffoldUpdated(){
+        this._scaffoldUpdated = true;
+    }
+
+    saveScaffoldUpdates(){
         const scaleFactor = 10;
         if (this._model && this._graphData){
             (this._graphData.scaffolds||[]).forEach(scaffold => {
