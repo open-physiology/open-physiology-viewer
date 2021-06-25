@@ -213,12 +213,10 @@ export class Graph extends Group{
                 link.validateProcess();
                 if (!link.source.sourceOf){
                     logger.error($LogMsg.NODE_NO_LINK_REF, link);
-                    console.log(link);
                     return;
                 }
                 if (!link.target.targetOf){
                     logger.error($LogMsg.NODE_NO_LINK_REF, link);
-                    console.log(link);
                     return;
                 }
                 if (link.source.sourceOf.length === 1 && link.target.targetOf === 1){
@@ -585,11 +583,11 @@ export class Graph extends Group{
 
     //Find paths which are topologically similar to a cyst
     neurulator() {
-        const bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
+        let bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
             [LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY["BAG-"], LYPH_TOPOLOGY["BAG+"], LYPH_TOPOLOGY["CYST"]].includes(lyph.topology));
         while (bags.length > 0){
             let seed = bags.pop();
-            if (!bags._processed){
+            if (!seed._processed){
                 this.neurulateFromSeed(seed);
             }
         }
@@ -620,9 +618,12 @@ export class Graph extends Group{
             let res = true;
 
             const isValid = (lnk1, topology) => {
-                return lnk1._processed || (lnk1.conveyingTopology !== topology) && dfs(lnk1);
+                const goodEnd = lnk1.conveyingTopology === topology;
+                if (goodEnd){
+                    groupLinks.push(lnk1);
+                }
+                return lnk1._processed || goodEnd || dfs(lnk1);
             }
-
             if (expandSource){
                 const node = lnk.source;
                 const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
@@ -657,7 +658,7 @@ export class Graph extends Group{
             let groupId = getGenID($Prefix.group, seed.id);
             let groupName = getGenName("Generated group for", seed.id);
 
-            //Find a group with seed that contains any of the groups lyphs
+            //Find a group with seed that contains any of the group lyphs
             let groups = (this.groups||[]).filter(g => g.seed && groupLyphs.find(lyph => lyph.id === g.seed.id));
             if (groups.length === 1){
                 groupId = groups[0].id;
