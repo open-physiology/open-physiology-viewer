@@ -186,22 +186,24 @@ export class WebGLSceneComponent {
             let newConfig = (this._graphData.config||{})::defaults(this.defaultConfig);
 
             //Add to the default set of visible groups groups from given identifiers
-            if (!newConfig.showGroups || !newConfig.showGroups::isArray()) {
-                newConfig.showGroups = [];
+            if (!newConfig.visibleGroups || !newConfig.visibleGroups::isArray()) {
+                newConfig.visibleGroups = [];
             }
-            newConfig.showGroups.push(getGenID($Prefix.group, $Prefix.default));
-            let ids = newConfig.showGroups;
+            newConfig.visibleGroups.push(getGenID($Prefix.group, $Prefix.default));
+            let ids = newConfig.visibleGroups;
             ids.forEach(id  => {
                 let genIDs = (this._graphData.activeGroups || []).filter(g => (g.generatedFrom||{}).id === id);
                 if (genIDs){
-                    newConfig.showGroups.push(...genIDs);
+                    newConfig.visibleGroups.push(...genIDs);
                 }
             });
             this.config = newConfig;
 
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
-            this._graphData.showGroups(this.config.showGroups);
-            this._graphData.neurulator();
+            this._graphData.showGroups(this.config.visibleGroups);
+            if (this._graphData.neurulator) {
+                this._graphData.neurulator();
+            }
             /*Map initial positional constraints to match the scaled image*/
             this.selected = null;
             this._graphData.scale(this.scaleFactor);

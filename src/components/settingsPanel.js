@@ -199,7 +199,7 @@ export class SettingsPanel {
         if (this._config !== newConfig) {
             this._config = newConfig;
             this._labelClasses = this._config[$Field.labels]::keys();
-            let ids = this._config.showGroups || [];
+            let ids = this._config.visibleGroups || [];
             this._showGroups = new Set((this.groups||[]).filter(g => ids.includes(g.id)));
         }
     }

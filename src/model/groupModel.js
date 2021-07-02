@@ -8,8 +8,7 @@ import {
     $Color,
     $Prefix,
     findResourceByID,
-    showGroups,
-    mergeGenResource
+    showGroups
 } from './utils';
 import {logger, $LogMsg} from './logger';
 

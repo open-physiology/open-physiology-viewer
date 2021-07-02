@@ -405,39 +405,48 @@ export class TestApp {
 
     saveScaffoldUpdates(){
         const scaleFactor = 10;
-        if (this._model && this._graphData){
-            (this._graphData.scaffolds||[]).forEach(scaffold => {
-                const srcScaffold = findResourceByID(this._model.scaffolds, scaffold.id);
-                if (!srcScaffold){
-                    throw new Error("Failed to find scaffold definition in input model: " + scaffold.id);
+
+        const updateScaffold = (scaffold, srcScaffold) => {
+            (scaffold.anchors || []).forEach(anchor => {
+                const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
+                if (srcAnchor) {
+                    srcAnchor.layout = srcAnchor.layout || {};
+                    ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
                 }
-                (scaffold.anchors||[]).forEach(anchor => {
-                    const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
-                    if (srcAnchor) {
-                        srcAnchor.layout = srcAnchor.layout || {};
-                        ["x", "y"].forEach(dim => srcAnchor.layout[dim] =  anchor.layout[dim] / scaleFactor);
+            });
+            (scaffold.regions || []).forEach(region => {
+                const srcRegion = findResourceByID(srcScaffold.regions, region.id);
+                if (srcRegion) {
+                    if (srcRegion.points) {
+                        (srcRegion.points || []).forEach((target, i) => {
+                            ["x", "y"].forEach(dim => target[dim] = region.points[i][dim] / scaleFactor);
+                        })
+                    } else {
+                        //Currently, nested objects are not used in models, all anchors are defined in scaffolds and were updated by the loop above.
+                        //  if (srcRegion.borderAnchors){
+                        //     (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
+                        //         if (srcAnchor::isObject()){
+                        //             //Update inline region anchors
+                        //         }
+                        //     });
+                        //  }
                     }
-               });
-                (scaffold.regions||[]).forEach(region => {
-                    const srcRegion = findResourceByID(srcScaffold.regions, region.id);
-                    if (srcRegion){
-                        if (srcRegion.points){
-                            (srcRegion.points||[]).forEach((target, i) => {
-                                 ["x", "y"].forEach(dim => target[dim] = region.points[i][dim] / scaleFactor);
-                            })
-                        } else {
-                            //Currently, nested objects are not used in models, all anchors are defined in scaffolds and were updated by the loop above.
-                            //  if (srcRegion.borderAnchors){
-                            //     (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
-                            //         if (srcAnchor::isObject()){
-                            //             //Update inline region anchors
-                            //         }
-                            //     });
-                            //  }
-                        }
-                    }
-                })
+                }
             })
+        }
+
+        if (this._model && this._graphData){
+            if (isScaffold(this._model)){
+                updateScaffold(this._graphData, this._model);
+            } else {
+                (this._graphData.scaffolds || []).forEach(scaffold => {
+                    const srcScaffold = findResourceByID(this._model.scaffolds, scaffold.id);
+                    if (!srcScaffold) {
+                        throw new Error("Failed to find scaffold definition in input model: " + scaffold.id);
+                    }
+                    updateScaffold(scaffold, srcScaffold);
+                })
+            }
         }
     }
 }

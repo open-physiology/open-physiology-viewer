@@ -679,7 +679,7 @@
                 "$ref": "#/definitions/IdentifierScheme"
               }
             },
-            "showGroups": {
+            "visibleGroups": {
               "description": "Identifiers of visible by default groups or group templates",
               "type": "array",
               "items": {
@@ -2179,8 +2179,7 @@
           "$ref": "#/definitions/Component"
         }
       ],
-      "properties": {
-      }
+      "properties": {}
     },
     "Shape": {
       "description": "A resource that occupies space within a border",
@@ -2524,6 +2523,63 @@
           "geometry"
         ]
       }
+    },
+    "State": {
+      "description": "Saves visual state of a connectivity model and associated scaffolds",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "properties": {
+        "visibleGroups": {
+            "description": "Identifiers of visible by default groups or group templates",
+            "type": "array",
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Group"
+              }
+            ]
+          }
+      }
+    },
+    "Snapshot": {
+      "description": "Saves visual state of a connectivity model and associated scaffolds",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        },
+        {
+          "$ref": "#/definitions/AnnotationSchema"
+        }
+      ],
+      "properties": {
+        "model": {
+          "description": "An identifier of the saved model",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Graph"
+            }
+          ]
+        },
+        "modelAnnotation": {
+          "description": "An identifier of the saved model",
+          "$ref": "#/definitions/AnnotationSchema"
+        },
+        "states": {
+          "description": "A list of saved states",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/State"
+          }
+        }
+      }
     }
   },
   "anyOf": [
@@ -2532,6 +2588,9 @@
     },
     {
       "$ref": "#/definitions/Scaffold"
+    },
+    {
+      "$ref": "#/definitions/Snapshot"
     }
   ]
 }

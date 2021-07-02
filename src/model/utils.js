@@ -301,12 +301,6 @@ export const showGroups = (groups, ids) => {
         g.hide();
         if (ids.find(id => g.isGeneratedFrom(id))){
             groupsToShow.add(g);
-            // (groups||[]).forEach(g2 => {
-            //     //Show also nested groups of included groups
-            //     if (!ids.find(id2 => g2.isGeneratedFrom(id2))){
-            //         groupsToShow.add(g2);
-            //     }
-            // });
         }
     });
     [...groupsToShow].forEach(g => g.show());
