@@ -107,6 +107,7 @@ export class ResourceEditor {
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
+        this.getData = (this.modelResources||{})::entries().filter(([id, resource]) => resource && !resource.generated)::fromPairs();
     }
 
     get className(){
@@ -143,7 +144,7 @@ export class ResourceEditor {
     }
 
     get inputModelResources(){
-        return (this.modelResources||{})::entries().filter(([id, resource]) => resource && !resource.generated)::fromPairs();
+        return this.getData;
     }
 
     /**
