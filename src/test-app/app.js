@@ -27,7 +27,10 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import {$Field, findResourceByID, mergeResources} from "../model/utils";
-import {copyCoords} from "../view/utils";
+import { enableProdMode } from '@angular/core';
+
+enableProdMode();
+
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
