@@ -33,6 +33,10 @@ import "./styles/material.scss";
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
+import { enableProdMode } from '@angular/core';
+
+enableProdMode();
+
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
