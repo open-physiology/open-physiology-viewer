@@ -1,0 +1,54 @@
+const fs = require('fs');
+const { expect } = require("chai");
+const { execSync } = require("child_process");
+
+/*
+ * keast-bladder: 1dy12y8mLp82Fe8NeWQa2NmxSiS5Ogy4ef1wbLU8-jGg
+ * bronchomotor: 1Nys8WJWZrWOI7OKVSIZX-fPY1QDxl_4E6tGoOJfvijg
+ * bolser-lewis: 1rNnobNekjfC4njdD4nwFKcDaVtS9DbwilahmZkpTsGg
+ * ard-arm-cardiac: 12MY09k0IubVaatTQZZFOBtRjCNACdh32IodqDQokTnM
+ * scaffold-test: 170gkwx9DwiB0j-KMeb8SXcfgcXtQilVDIbocfxQErEM
+ * sawg-distal-colon: 1eaMApU2QDzpAJJ-vug-4Hxd3_zQMqQDjygAjX2eRM38
+ */
+
+const test1 = () => {
+    var folder_content = ""
+    execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i 1dy12y8mLp82Fe8NeWQa2NmxSiS5Ogy4ef1wbLU8-jGg `);
+    fs.readdirSync("test1-folder").forEach(file => {
+        folder_content += file;
+        folder_content += "\n";
+    });
+    return folder_content.toString();
+};
+
+
+const test2 = () => {
+    var folder_content = ""
+    execSync(`node bin/converter.js -f xlsx -o test2-folder -i test1-folder/model.xlsx `);
+    fs.readdirSync("test2-folder").forEach(file => {
+        folder_content += file;
+        folder_content += "\n";
+    });
+    return folder_content.toString();
+};
+
+const test3 = () => {
+  var folder_content = ""
+  return execSync(`wc -l test2-folder/model.jsonld | awk '{print $1}' `).toString();
+};
+
+
+describe("CLI", () => {
+  it("Should generated the model.xlsx from the id", () => {
+    expect(test1()).to.have.string("model.xlsx");
+  }).timeout(15000);
+  it("Should generate all the other steps of the conversion", () => {
+    expect(test2()).to.have.string('model.json', 'model-generated.json', 'model.jsonld');
+  }).timeout(15000);
+  it("Should check the number of lines in the jsonld file", () => {
+    expect(test3()).to.have.string('175465');
+    fs.rmdirSync('test1-folder', { recursive: true });
+    fs.rmdirSync('test2-folder', { recursive: true });
+  }).timeout(15000);
+});
+
