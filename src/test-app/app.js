@@ -1,4 +1,4 @@
-import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
+import { NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys, merge, mergeWith} from 'lodash-bound';
 
@@ -36,6 +36,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
 	selector: 'test-app',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 
         <!-- Header -->
