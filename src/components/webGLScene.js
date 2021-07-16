@@ -24,7 +24,7 @@ const WindowResize = require('three-window-resize');
  */
 @Component({
     selector: 'webGLScene',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
