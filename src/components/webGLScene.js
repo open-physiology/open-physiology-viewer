@@ -12,7 +12,7 @@ import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field, $Prefix, getGenID, $SchemaClass} from "../model/utils";
+import {$Field, $SchemaClass} from "../model/utils";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 
 const WindowResize = require('three-window-resize');
@@ -110,7 +110,6 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
-                        (onToggleScaffold)="toggleScaffoldComponent($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
@@ -146,6 +145,7 @@ const WindowResize = require('three-window-resize');
  * @class
  * @property {Object} helpers
  * @property {Object} defaultConfig
+ * @property {Object} camera
  */
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
@@ -178,36 +178,22 @@ export class WebGLSceneComponent {
 
     queryCounter = 0;
 
+    @Input() visibleGroups = [];
+
     @Input() modelClasses;
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            let newConfig = (this._graphData.config||{})::defaults(this.defaultConfig);
-
-            //Add to the default set of visible groups groups from given identifiers
-            if (!newConfig.visibleGroups || !newConfig.visibleGroups::isArray()) {
-                newConfig.visibleGroups = [];
-            }
-            newConfig.visibleGroups.push(getGenID($Prefix.group, $Prefix.default));
-            let ids = newConfig.visibleGroups;
-            ids.forEach(id  => {
-                let genIDs = (this._graphData.activeGroups || []).filter(g => (g.generatedFrom||{}).id === id);
-                if (genIDs){
-                    newConfig.visibleGroups.push(...genIDs);
-                }
-            });
-            this.config = newConfig;
-
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
-            this._graphData.showGroups(this.config.visibleGroups);
             if (this._graphData.neurulator) {
                 this._graphData.neurulator();
             }
-            /*Map initial positional constraints to match the scaled image*/
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
-            if (this.graph) {this.graph.graphData(this._graphData)}
+            if (this.graph) {
+                this.graph.graphData(this._graphData)
+            }
         }
     }
 
@@ -492,10 +478,26 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
-    resetCamera() {
-        this.camera.position.set(0, -100, 120 * this.scaleFactor);
-        this.camera.up.set( 0, 0, 1 );
+    resetCamera(positionPoint, lookupPoint) {
+        let position = [0, -100, 120 * this.scaleFactor];
+        let lookup =  [0, 0, 1];
+        ["x", "y", "z"].forEach((dim, i) => {
+            if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
+                lookup[i] = lookupPoint[dim];
+            }
+            if (positionPoint && positionPoint.hasOwnProperty(dim)) {
+                position[i] = positionPoint[dim];
+            }
+        })
+        this.camera.position.set(...position);
+        this.camera.up.set(...lookup);
         this.camera.updateProjectionMatrix();
+    }
+
+    updateGraph(){
+        if (this.graph) {
+            this.graph.graphData(this._graphData);
+        }
     }
 
     toggleLockControls(){
@@ -612,33 +614,13 @@ export class WebGLSceneComponent {
         if (this.graph){ this.graph[prop](this.config.layout[prop]); }
     }
 
-    toggleGroup(showGroups) {
+    toggleGroup(group) {
         if (!this._graphData){ return; }
-        let ids = [...showGroups].map(g => g.id);
-        this._graphData.showGroups(ids);
-        if (this.graph) { this.graph.graphData(this.graphData); }
-    }
-
-    toggleScaffoldComponent(showScaffoldComponents) {
-        if (!this._graphData){ return; }
-        const processComponent = (ids, c) => {
-            if (!ids.includes(c.id)){
-                c.hide();
-            }
-            if (ids.includes(c.id)){
-                c.show();
-            }
+        if (group.hidden){
+            group.show();
+        } else {
+            group.hide();
         }
-        //scaffolds
-        let ids = [...showScaffoldComponents].filter(s => !s._parent).map(s => s.id);
-        (this._graphData.scaffolds||[]).forEach(s => {
-            processComponent(ids, s);
-        });
-        //components
-        ids = [...showScaffoldComponents].filter(s => s._parent).map(s => s.id);
-        (this._graphData.scaffolds||[]).forEach(s => {
-            (s.components||[]).forEach(c => c._parent && c._parent.id === s.id && processComponent(ids, c));
-        });
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 }

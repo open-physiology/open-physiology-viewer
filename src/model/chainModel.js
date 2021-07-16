@@ -134,6 +134,7 @@ export class Chain extends GroupTemplate {
 
             for (let i = 0; i < lyphs.length + 1; i++) {
                 let nodeID = (i === 0 && chain.root)? chain.root: (i === lyphs.length && chain.leaf)? chain.leaf: getGenID(chain.id, $Prefix.node, i);
+                //TODO find existing nodes via lyph.conveys or lnk.conveyingLyph === lyph.id
                 let node = (i === 0 && start)
                     ? start
                     : (i === lyphs.length && end)
@@ -151,6 +152,7 @@ export class Chain extends GroupTemplate {
             chain.levels = [];
             let prev;
             for (let i = 0; i < lyphs.length; i++) {
+                //TODO find existing nodes via lyph.conveys or lnk.conveyingLyph === lyph.id
                 let link = {
                     [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
                     [$Field.source]             : chain.group.nodes[i],

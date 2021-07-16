@@ -13,38 +13,38 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     selector: 'main-toolbar',
     template: `
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
-            <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
+           <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="load(fileInput.files)"/>
-            <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'"
+           <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="join(fileInput1.files)"/>
-            <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
+           <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="merge(fileInput2.files)"/>
-            <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
+           <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
                 <i class="fa fa-plus"> </i>
-            </button>
-            <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
+           </button>
+           <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
-            </button>
-            <button id="joinBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
+           </button>
+           <button id="joinBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
                 <i class="fa fa-object-ungroup"> </i>
-            </button>
-            <button id="mergeBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
+           </button>
+           <button id="mergeBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
                 <i class="fa fa-object-group"> </i>
-            </button>
-            <button id="showRepoBtn" *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+           </button>
+           <button id="showRepoBtn" *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
                     (click)="toggleRepoPanel()" title="Show model repository">
                 <i class="fa fa-database"> </i>
-            </button>
-            <button id="hideRepoBtn" *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+           </button>
+           <button id="hideRepoBtn" *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
                     (click)="toggleRepoPanel()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
-            </button>
-            <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
+           </button>
+           <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
                <i class="fa fa-file-excel-o"> </i>
-            </button>
+           </button>
            <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
                 <i class="fa fa-save"> </i> 
-            </button>
+           </button>
         </section>
     `,
     styles: [`
@@ -54,13 +54,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 	`]
 })
 export class MainToolbar {
-    @Input()  shoRepoPanel;
-    @Output() onCreateModel     = new EventEmitter();
-    @Output() onLoadModel       = new EventEmitter();
-    @Output() onJoinModel       = new EventEmitter();
-    @Output() onMergeModel      = new EventEmitter();
-    @Output() onExportModel     = new EventEmitter();
-    @Output() onToggleRepoPanel = new EventEmitter();
+    @Input()  showRepoPanel;
+    @Output() onCreateModel      = new EventEmitter();
+    @Output() onLoadModel        = new EventEmitter();
+    @Output() onJoinModel        = new EventEmitter();
+    @Output() onMergeModel       = new EventEmitter();
+    @Output() onExportModel      = new EventEmitter();
+    @Output() onToggleRepoPanel  = new EventEmitter();
     @Output() onImportExcelModel = new EventEmitter();
 
     constructor(http: HttpClient, dialog: MatDialog){

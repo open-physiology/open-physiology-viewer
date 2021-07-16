@@ -54,6 +54,8 @@ export const $SchemaType = {
  * @property Tree
  * @property Villus
  * @property Scaffold
+ * @property State
+ * @property Snapshot
  * @property Graph
  */
 export const $SchemaClass = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
@@ -246,8 +248,6 @@ const getClassRefs = (spec) => {
  */
 export const isClassAbstract = (clsName) => definitions[clsName].abstract;
 
-
-
 /**
  * Add a given resource to a given group and a parent group if it does not exist
  * @param group - a group to add resources to
@@ -264,6 +264,7 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
                 if (!group[prop].find(x => x === resource.id || x.id === resource.id)){
                     group[prop].push(resource.id);
                 }
+                resource.hidden = group.hidden;
             }
         } else {
             if (!group[prop].includes(resource)){ group[prop].push(resource); }

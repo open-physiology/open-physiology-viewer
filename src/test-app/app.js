@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { cloneDeep, isArray, isObject, keys, merge, mergeWith} from 'lodash-bound';
+import { cloneDeep, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
 
 import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -9,6 +9,7 @@ import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
 import {MainToolbarModule} from "../components/mainToolbar";
+import {SnapshotToolbarModule} from "../components/snapshotToolbar";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {ResourceEditorModule} from '../components/gui/resourceEditor';
 import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
@@ -26,8 +27,8 @@ import 'jsoneditor/dist/jsoneditor.min.css';
 import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
-import {$Field, findResourceByID, mergeResources} from "../model/utils";
-import {copyCoords} from "../view/utils";
+import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
+import {$LogMsg, logger} from "../model/logger";
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -49,6 +50,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <span class="w3-bar-item">
                 Model: {{_modelName}}
             </span>
+            <span *ngIf="_snapshot" class="w3-bar-item">
+                Loaded state: {{_snapshot.active? _snapshot.activeIndex: "-"}}
+            </span>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
 					<i class="fa fa-external-link"> </i>
@@ -61,16 +65,28 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
         <!--Left toolbar-->
 
-        <main-toolbar
-            [shoRepoPanel]      = "showRepoPanel"
-            (onCreateModel)     = "create()"
-            (onLoadModel)       = "load($event)"
-            (onJoinModel)       = "join($event)"
-            (onMergeModel)      = "merge($event)"
-            (onExportModel)     = "save()"
-            (onImportExcelModel)= "load($event)" 
-            (onToggleRepoPanel) = "toggleRepoPanel()">     
-        </main-toolbar>
+        <section>
+            <main-toolbar
+                [showRepoPanel]     = "showRepoPanel"
+                (onCreateModel)     = "create()"
+                (onLoadModel)       = "load($event)"
+                (onJoinModel)       = "join($event)"
+                (onMergeModel)      = "merge($event)"
+                (onExportModel)     = "save()"
+                (onImportExcelModel)= "load($event)" 
+                (onToggleRepoPanel) = "toggleRepoPanel()"   
+            >
+            </main-toolbar>
+            <snapshot-toolbar id="snapshot-toolbar"
+                (onCreateSnapshot) = "createSnapshot()"
+                (onLoadSnapshot)   = "loadSnapshot($event)"
+                (onSaveState)      = "saveState()"
+                (onPreviousState)  = "previousState()"  
+                (onNextState)      = "nextState()"  
+                (onSaveSnapshot)   = "saveSnapshot()"                              
+            >
+            </snapshot-toolbar>
+        </section>
 
         <!--Views-->
 
@@ -87,7 +103,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 <!--Viewer-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-heartbeat"> Viewer </i></ng-template>
-                    <webGLScene
+                    <webGLScene #webGLScene
                             [modelClasses]="modelClasses"
                             [graphData]="_graphData"
                             (selectedItemChange)="onSelectedItemChange($event)"
@@ -177,7 +193,8 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             width      : calc(100% - 48px);
             margin-top : 40px;
         }
-
+        
+       
         #json-editor{
             height : 100vh;
             width  : calc(100% - 48px);
@@ -198,6 +215,8 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 	`]
 })
 export class TestApp {
+    modelClasses = modelClasses;
+    showRepoPanel = false;
     _graphData;
     _model = {};
     _modelName;
@@ -206,9 +225,12 @@ export class TestApp {
     _flattenGroups;
     _counter = 1;
     _scaffoldUpdated = false;
-    modelClasses = modelClasses;
-    showRepoPanel = false;
 
+    _snapshot;
+    _snapshotCounter = 1
+
+
+    @ViewChild('webGLScene') _webGLScene: ElementRef;
     @ViewChild('jsonEditor') _container: ElementRef;
 
     constructor(dialog: MatDialog){
@@ -382,12 +404,12 @@ export class TestApp {
         const dialogRef = this._dialog.open(ResourceEditorDialog, {
             width: '75%',
             data: {
-                title          : `Update resource?`,
-                modelClasses   : modelClasses,
-                modelResources : this._graphData.entitiesByID || {},
+                title             : `Update resource?`,
+                modelClasses      : modelClasses,
+                modelResources    : this._graphData.entitiesByID || {},
                 filteredResources : [],
-                resource    : obj,
-                className   : resource.class
+                resource          : obj,
+                className         : resource.class
             }
         });
 
@@ -422,14 +444,12 @@ export class TestApp {
                             ["x", "y"].forEach(dim => target[dim] = region.points[i][dim] / scaleFactor);
                         })
                     } else {
-                        //Currently, nested objects are not used in models, all anchors are defined in scaffolds and were updated by the loop above.
-                        //  if (srcRegion.borderAnchors){
-                        //     (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
-                        //         if (srcAnchor::isObject()){
-                        //             //Update inline region anchors
-                        //         }
-                        //     });
-                        //  }
+                        (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
+                            if (srcAnchor::isObject()){
+                                srcAnchor.layout = srcAnchor.layout || {};
+                                ["x", "y"].forEach(dim => srcAnchor.layout[dim] = region.points[i][dim] / scaleFactor);
+                            }
+                        });
                     }
                 }
             })
@@ -449,6 +469,100 @@ export class TestApp {
             }
         }
     }
+
+    saveState(){
+        if (!this._snapshot) {
+            this.createSnapshot();
+        }
+        const annotationProperties = schema.definitions.AnnotationSchema.properties::keys();
+        this._snapshot.modelAnnotation = this._model::pick(annotationProperties);
+
+        let newState = this.modelClasses.State.fromJSON({
+            [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
+            [$Field.visibleGroups]: this._graphData.visibleGroups.map(g => g.id),
+            [$Field.scaffolds]: (this._graphData.scaffolds||[]).map(s => (
+                {
+                    [$Field.id]: s.id,
+                    [$Field.anchors]: (s.anchors||[]).map(a => ({
+                        [$Field.id]: a.id,
+                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
+                    })),
+                    "visibleComponents": s.visibleComponents.map(c => c.id)
+                })),
+            [$Field.camera]: {
+                position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
+                up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
+            },
+        }, this.modelClasses, this._graphData.entitiesByID);
+        this._snapshot.addState(newState);
+    }
+
+    restoreState(){
+        let activeState = this._snapshot.active;
+        if (activeState.visibleGroups){
+            this._graphData.showGroups(activeState.visibleGroups);
+        }
+        if (activeState.camera) {
+            this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up);
+        }
+
+        (activeState.scaffolds||[]).forEach(scaffold => {
+            const modelScaffold = (this._graphData.scaffolds||[]).find(s => s.id === scaffold.id);
+            if (modelScaffold){
+                (scaffold.anchors || []).forEach(anchor => {
+                    const modelAnchor = (modelScaffold.anchors||[]).find(a => a.id === anchor.id);
+                    if (modelAnchor){
+                        modelAnchor.layout.x = anchor.layout.x;
+                        modelAnchor.layout.y = anchor.layout.y;
+                    } else {
+                        this._graphData.logger.info($LogMsg.SNAPSHOT_NO_ANCHOR, anchor.id, scaffold.id);
+                    }
+                })
+                if (scaffold.visibleComponents){
+                    modelScaffold.showGroups(scaffold.visibleComponents);
+                }
+            } else {
+                this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);
+            }
+        })
+        this._webGLScene.updateGraph();
+    }
+
+    previousState(){
+        if (this._snapshot) {
+            this._snapshot.switchToPrev();
+            this.restoreState();
+        }
+    }
+
+    nextState(){
+        if (this._snapshot) {
+            this._snapshot.switchToNext();
+            this.restoreState();
+        }
+    }
+
+    createSnapshot(){
+        this._snapshot = this.modelClasses.Snapshot.fromJSON({
+            [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter++),
+            [$Field.name]: getGenName("Snapshot for", this._modelName),
+            [$Field.model]: this._model.id
+        }, this.modelClasses, this._graphData.entitiesByID);
+    }
+
+    loadSnapshot(newSnapshot){
+        this._snapshot = this.modelClasses.Snapshot.fromJSON(newSnapshot, this.modelClasses, this._graphData.entitiesByID);
+    }
+
+    saveSnapshot(){
+        if (this._snapshot) {
+            let result = JSON.stringify(this._snapshot.toJSON(2, {
+                [$Field.states]: 4
+            }), null, 2);
+            const blob = new Blob([result], {type: 'application/json'});
+            FileSaver.saveAs(blob, this._snapshot.id + '.json');
+        }
+    }
 }
 
 /**
@@ -458,7 +572,7 @@ export class TestApp {
 	imports     : [BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
         BrowserAnimationsModule, ResourceEditorModule,
         //RelGraphModule,
-        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, LayoutEditorModule],
+        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, LayoutEditorModule],
 	declarations: [TestApp],
     bootstrap   : [TestApp],
     providers   : [

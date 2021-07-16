@@ -13,6 +13,7 @@ import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
+import {State, Snapshot} from "./snapshotModel";
 import {$Field, $SchemaClass} from './utils';
 import {isString, keys, merge} from "lodash-bound";
 import * as schema from "./graphScheme";
@@ -50,7 +51,11 @@ export const modelClasses = {
     [$SchemaClass.Material]       : Material,
     [$SchemaClass.Region]         : Region,
     [$SchemaClass.Lyph]           : Lyph,
-    [$SchemaClass.Border]         : Border
+    [$SchemaClass.Border]         : Border,
+
+    /* Scaffold */
+    [$SchemaClass.State]          : State,
+    [$SchemaClass.Snapshot]       : Snapshot,
 };
 
 /**

@@ -666,30 +666,7 @@
         {
           "$ref": "#/definitions/Group"
         }
-      ],
-      "properties": {
-        "config": {
-          "description": "Global graph configuration options (reserved, the structure will be defined later, currently unused)",
-          "type": "object",
-          "properties": {
-            "filter": {
-              "description": "Identifiers of resources to exclude from the relationship graph",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/IdentifierScheme"
-              }
-            },
-            "visibleGroups": {
-              "description": "Identifiers of visible by default groups or group templates",
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/IdentifierScheme"
-              }
-            }
-          },
-          "advanced": true
-        }
-      }
+      ]
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
@@ -706,6 +683,11 @@
           "description": "A boolean flag to indicate that this group should not appear in the view panel",
           "type": "boolean",
           "advanced": true
+        },
+        "hidden": {
+          "description": "A boolean flag to indicate that this group is hidden",
+          "type": "boolean",
+          "default": true
         },
         "seed": {
           "description": "A lyph that belongs to the group and serves as a starting point to populate the group",
@@ -949,6 +931,11 @@
         }
       ],
       "properties": {
+        "hidden": {
+          "description": "A flag to indicate that group generated from this template will be hidden by default",
+          "type": "boolean",
+          "default": true
+        },
         "group": {
           "description": "Group (subgraph) that encompasses generated group resources",
           "anyOf": [
@@ -2532,18 +2519,64 @@
         }
       ],
       "properties": {
-        "visibleGroups": {
-            "description": "Identifiers of visible by default groups or group templates",
-            "type": "array",
-            "anyOf": [
-              {
+        "scaffolds": {
+          "description": "Scaffold properties to preserve (in practice, we save only relevant identifiers and anchor layout coordinates)",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "Scaffold identifier",
                 "$ref": "#/definitions/IdentifierScheme"
               },
-              {
-                "$ref": "#/definitions/Group"
+              "anchors": {
+                "description": "Scaffold anchor coordinates",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Anchor identifier",
+                      "$ref": "#/definitions/IdentifierScheme"
+                    },
+                    "layout": {
+                      "description": "Current anchor coordinates",
+                      "$ref": "#/definitions/Point2Scheme"
+                    }
+                  }
+                }
+              },
+              "visibleComponents": {
+                "description": "Identifiers of visible components",
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IdentifierScheme"
+                }
               }
-            ]
+            }
           }
+        },
+        "visibleGroups": {
+          "description": "Identifiers of visible groups",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IdentifierScheme"
+          }
+        },
+        "camera": {
+          "description": "Current setting of the scene camera",
+          "type": "object",
+          "properties": {
+            "position": {
+              "description": "Camera position",
+              "$ref": "#/definitions/Point3Scheme"
+            },
+            "up": {
+              "description": "Camera lookup point",
+              "$ref": "#/definitions/Point3Scheme"
+            }
+          }
+        }
       }
     },
     "Snapshot": {
@@ -2559,14 +2592,7 @@
       "properties": {
         "model": {
           "description": "An identifier of the saved model",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Graph"
-            }
-          ]
+          "$ref": "#/definitions/IdentifierScheme"
         },
         "modelAnnotation": {
           "description": "An identifier of the saved model",

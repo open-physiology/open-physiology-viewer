@@ -127,6 +127,7 @@ export class Graph extends Group{
             [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
             [$Field.name]     : "Ungrouped",
             [$Field.generated]: true,
+            [$Field.hidden]   : false,
             [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
             [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
         };
@@ -240,6 +241,7 @@ export class Graph extends Group{
 
         res.logger = logger;
         res.modelClasses = modelClasses;
+
         return res;
     }
 
@@ -429,6 +431,7 @@ export class Graph extends Group{
 
     /**
      * Auto-generate links for lyphs without axes
+     * @param noAxisLyphs - a list of lyphs without axis
      * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
      * @param namespace

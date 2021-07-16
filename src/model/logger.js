@@ -97,6 +97,9 @@ export const $LogMsg = {
     RESOURCE_NOT_UNIQUE         : "Resource IDs are not unique",
     RESOURCE_NO_ID              : "Resource ID is not a string: generated name can be affected",
 
+    SNAPSHOT_NO_SCAFFOLD        : "Failed to find snapshot state scaffold in the model",
+    SNAPSHOT_NO_ANCHOR          : "Failed to find snapshot state anchor in the model",
+
     TREE_CHAIN_UNDEFINED        : "Cannot create omega tree instances: canonical tree chain undefined!",
     TREE_NO_CHAIN               : "Cannot create omega tree instances: canonical tree chain not found or empty",
 

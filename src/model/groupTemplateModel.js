@@ -28,7 +28,8 @@ export class GroupTemplate extends Resource{
             group::defaults({
                 [$Field.id]: groupID,
                 [$Field.name]: template.name,
-                [$Field.generated]: true
+                [$Field.generated]: true,
+                [$Field.hidden]: true
             });
         }
         if (parentGroup.namespace){

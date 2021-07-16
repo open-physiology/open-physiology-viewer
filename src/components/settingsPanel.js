@@ -61,8 +61,8 @@ import {StopPropagation} from "./gui/stopPropagation";
                     <legend>Groups</legend>
                     <span *ngFor="let group of groups">
                         <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
-                                      [checked] = "_showGroups.has(group)"
-                                      (change)  = "toggleGroup(group)"> 
+                                      [checked] = "!group.hidden"
+                                      (change)  = "onToggleGroup.emit(group)"> 
                             {{group.name || group.id}}
                         </mat-checkbox>
                     </span>
@@ -74,8 +74,8 @@ import {StopPropagation} from "./gui/stopPropagation";
                     <legend>Dynamic groups</legend>
                     <span *ngFor="let group of dynamicGroups">
                         <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
-                                      [checked] = "_showGroups.has(group)"
-                                      (change)  = "toggleGroup(group, _showGroups)"> 
+                                      [checked] = "!group.hidden"
+                                      (change)  = "onToggleGroup.emit(group)"> 
                             {{group.name || group.id}}
                         </mat-checkbox>
                     </span>
@@ -87,8 +87,8 @@ import {StopPropagation} from "./gui/stopPropagation";
                     <legend>Scaffolds</legend>
                     <span *ngFor="let scaffold of scaffolds">
                         <mat-checkbox matTooltip="Toggle scaffolds" labelPosition="after" class="w3-margin-left"
-                                      [checked] = "_showScaffolds.has(scaffold)"
-                                      (change)  = "toggleScaffold(scaffold)"> 
+                                      [checked] = "!scaffold.hidden"
+                                      (change)  = "onToggleGroup.emit(scaffold)"> 
                             {{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}
                         </mat-checkbox>
                     </span>
@@ -177,9 +177,6 @@ import {StopPropagation} from "./gui/stopPropagation";
 })
 export class SettingsPanel {
     _config;
-    _showGroups;
-    _scaffolds;
-    _showScaffolds;
     _helperKeys;
     _showHelpers;
     _labelProps;
@@ -190,10 +187,7 @@ export class SettingsPanel {
 
     @Input() dynamicGroups;
 
-    @Input('scaffolds') set scaffolds(newScaffolds){
-        this._scaffolds = newScaffolds;
-        this._showScaffolds = new Set(this._scaffolds||[]);
-    }
+    @Input() scaffolds;
 
     @Input('config') set config(newConfig) {
         if (this._config !== newConfig) {
@@ -224,7 +218,6 @@ export class SettingsPanel {
     @Output() onUpdateLabels       = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup        = new EventEmitter();
-    @Output() onToggleScaffold     = new EventEmitter();
     @Output() onToggleMode         = new EventEmitter();
     @Output() onToggleLayout       = new EventEmitter();
     @Output() onToggleHelperPlane  = new EventEmitter();
@@ -232,8 +225,6 @@ export class SettingsPanel {
     constructor() {
         this._labelProps    = [$Field.id, $Field.name];
         this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
-        this._showGroups    = new Set([]);
-        this._showScaffolds = new Set([]);
         this._showHelpers   = new Set([]);
     }
 
@@ -269,26 +260,6 @@ export class SettingsPanel {
     updateLabels(labelClass) {
         this.config.labels[labelClass] = !this.config.labels[labelClass];
         this.onUpdateLabels.emit(this.config.labels||{});
-    }
-
-    toggleGroup(group) {
-        if (!group) { return; }
-        if (this._showGroups.has(group)){
-            this._showGroups.delete(group);
-        } else {
-            this._showGroups.add(group);
-        }
-        this.onToggleGroup.emit(this._showGroups);
-    }
-
-    toggleScaffold(scaffold){
-        if (!scaffold) { return; }
-        if (this._showScaffolds.has(scaffold)){
-            this._showScaffolds.delete(scaffold);
-        } else {
-            this._showScaffolds.add(scaffold);
-        }
-        this.onToggleScaffold.emit(this._showScaffolds);
     }
 
     toggleHelperPlane(helper) {

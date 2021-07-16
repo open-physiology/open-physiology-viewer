@@ -389,7 +389,6 @@ export class Group extends Resource {
      * @param ids - selected subgroup identifiers
      */
     showGroups(ids){
-        //this.show();
         showGroups(this.groups||[], ids);
     }
 
@@ -397,6 +396,7 @@ export class Group extends Resource {
      * Hide current group (=hide all its entities)
      */
     hide(){
+        this.hidden = true;
         this.resources.forEach(entity => entity.hidden = true);
     }
 
@@ -404,6 +404,7 @@ export class Group extends Resource {
      * Show current group (=show all its entities)
      */
     show(){
+        this.hidden = false;
         this.resources.forEach(entity => delete entity.hidden);
     }
 
@@ -417,6 +418,10 @@ export class Group extends Resource {
 
     get dynamicGroups(){
         return [...(this.groups||[])].filter(e => e.description === "dynamic");
+    }
+
+    get visibleGroups(){
+        return [...(this.groups||[])].filter(e => !e.hidden);
     }
 
     assignScaffoldComponents(){

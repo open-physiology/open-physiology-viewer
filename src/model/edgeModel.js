@@ -60,7 +60,7 @@ export class Wire extends Edge {
         const t = res.target && res.target.layout;
         if (s && t){
             const d = {};
-            ["x", "y"].forEach(dim => d[dim] =  (t[dim] || 0) - (s[dim] || 0));
+            ["x", "y"].forEach(dim => d[dim] = (t[dim] || 0) - (s[dim] || 0));
             res.length = Math.sqrt( d.x * d.x + d.y * d.y + d.z * d.z);
         } else {
             res.length = 10; //TODO replace with config construct

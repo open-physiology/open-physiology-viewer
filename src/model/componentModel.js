@@ -55,6 +55,7 @@ export class Component extends Resource {
      * Hide current group (=hide all its entities)
      */
     hide(){
+        this.hidden = true;
         this.resources.forEach(entity => entity.hidden = true);
     }
 
@@ -62,7 +63,12 @@ export class Component extends Resource {
      * Show current group (=show all its entities)
      */
     show(){
+        this.hidden = false;
         this.resources.forEach(entity => delete entity.hidden);
+    }
+
+    get visibleComponents(){
+        return [...(this.components||[])].filter(e => !e.hidden);
     }
 
     /**

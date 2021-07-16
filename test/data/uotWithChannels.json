@@ -1282,6 +1282,7 @@
       ],
       "root": "node1A",
       "numLevels": 21,
+      "hidden": false,
       "levels": [
         "lnk1",
         "lnk2",
@@ -1427,9 +1428,6 @@
       "35",
       "36",
       "37"
-    ],
-    "visibleGroups": [
-      "uot"
     ]
   },
   "references": [
