@@ -42,7 +42,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
 	selector: 'test-app',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
 	template: `
 
         <!-- Header -->

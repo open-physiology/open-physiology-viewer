@@ -14,7 +14,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
     selector: 'main-toolbar',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
            <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"

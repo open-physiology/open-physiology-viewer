@@ -18,7 +18,7 @@ import {StopPropagation} from "./gui/stopPropagation";
  */
 @Component({
     selector: 'settingsPanel',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
     template: ` 
             <section class="w3-padding-small"> 
  

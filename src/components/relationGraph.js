@@ -13,7 +13,7 @@ import {$Field, $SchemaClass} from "../model";
 
 @Component({
     selector: 'relGraph',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section id="relGraphPanel" class="w3-row">
             <section #relGraphContainer id="relGraphContainer" [class.w3-threequarter]="showPanel">
