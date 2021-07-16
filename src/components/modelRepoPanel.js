@@ -11,7 +11,7 @@ import {repoURL} from './config';
  */
 @Component({
     selector: 'modelRepoPanel',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="w3-padding-small">
             <section id="modelRepo" class="w3-padding-small w3-white">

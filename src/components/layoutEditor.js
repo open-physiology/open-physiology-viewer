@@ -20,7 +20,7 @@ import {entries} from "lodash-bound";
 
 @Component({
     selector: 'layoutEditor',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <mat-card class="w3-white w3-padding-small">
             <mat-card class="w3-padding-small">
