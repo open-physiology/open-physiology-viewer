@@ -1,4 +1,5 @@
 import {Resource} from "./resourceModel";
+import {$SchemaClass} from "./utils";
 
 
 /**
@@ -13,6 +14,12 @@ export class State extends Resource {
  * @property modelSnapshot
  */
 export class Snapshot extends Resource {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Snapshot;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+
     _activeIdx = -1;
 
     getStateIdx(state){
@@ -55,12 +62,14 @@ export class Snapshot extends Resource {
         if (this._activeIdx < (this.states||[]).length - 1){
             this._activeIdx += 1;
         }
+        return this.active;
     }
 
     switchToPrev(){
         if (this._activeIdx > 0){
             this._activeIdx -= 1;
         }
+        return this.active;
     }
 
     get active(){
@@ -69,6 +78,10 @@ export class Snapshot extends Resource {
 
     get activeIndex(){
         return this._activeIdx;
+    }
+
+    get length(){
+        return (this.states||[]).length;
     }
 }
 

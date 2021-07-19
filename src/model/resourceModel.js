@@ -21,7 +21,7 @@ import {
     isClassAbstract,
     getClassName,
     getNewID,
-    getFullID
+    getFullID, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -39,11 +39,10 @@ import {logger, $LogMsg} from './logger';
  * @property {Object} generatedFrom
  */
 export class Resource{
-    static get Model(){return schemaClassModels[this.name]};
-
-    constructor(id) {
-        this::merge(schemaClassModels[this.constructor.name].defaultValues);
+    constructor(id, clsName) {
+        this::merge(schemaClassModels[clsName].defaultValues);
         this.id = id;
+        this.class = clsName;
     }
 
     /**
@@ -56,12 +55,12 @@ export class Resource{
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace){
 
-        let clsName = json.class || this.name;
-        const cls = this || modelClasses[clsName];
-        const res = new cls(json.id);
-        res.class = clsName;
+        let clsName = json.class;
+        const cls = modelClasses[clsName] || this;
+        const res = new cls(json.id, clsName);
+
         //spec
-        let difference = json::keys().filter(x => !modelClasses[clsName].Model.fieldNames.find(y => y === x)).filter(x => !["_inactive"].includes(x));
+        let difference = json::keys().filter(x => !schemaClassModels[clsName].fieldNames.find(y => y === x)).filter(x => !["_inactive"].includes(x));
         if (difference.length > 0) {
             logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, difference.join(","));
         }
@@ -101,7 +100,7 @@ export class Resource{
         }
 
         //Include newly created entity to the main graph
-        let prop = modelClasses[group.class].Model.selectedRelNames(clsName)[0];
+        let prop = schemaClassModels[$SchemaClass.Group].selectedRelNames(clsName)[0];
         if (prop) {
             group[prop] = group[prop] ||[];
             group[prop].push(e);
@@ -178,7 +177,7 @@ export class Resource{
             return;
         }
 
-        let refFields = this.constructor.Model.relationships;
+        let refFields = schemaClassModels[this.class].relationships;
         let res = this;
         refFields.forEach(([key, spec]) => {
             if (skip(res[key])) { return; }
@@ -211,8 +210,8 @@ export class Resource{
                     if (!modelClasses[e.class]){
                         logger.warn($LogMsg.RESOURCE_CLASS_UNKNOWN, e);
                     } else {
-                        let relNames = modelClasses[e.class].Model.relationshipNames;
-                        let relMaps  = modelClasses[e.class].Model.relationshipMap;
+                        let relNames = schemaClassModels[e.class].relationshipNames;
+                        let relMaps  = schemaClassModels[e.class].relationshipMap;
                         let newValue = value::pick(relNames);
                         newValue::keys().forEach(key => {
                             if (relMaps[key]) {
@@ -253,7 +252,7 @@ export class Resource{
                     if (!modelClasses[e.class]){
                         logger.warn($LogMsg.RESOURCE_CLASS_UNKNOWN, e);
                     } else {
-                        let propNames = modelClasses[e.class].Model.propertyNames.filter(e => e !== $Field.id);
+                        let propNames = schemaClassModels[e.class].propertyNames.filter(e => e !== $Field.id);
                         e::merge(value::pick(propNames));
                     }
                });
@@ -350,7 +349,7 @@ export class Resource{
                 return;
             }
 
-            let otherSpec = modelClasses[otherClassName].Model.relationshipMap[key2];
+            let otherSpec = schemaClassModels[otherClassName].relationshipMap[key2];
             if (!otherSpec) {
                 logger.error($LogMsg.RESOURCE_NO_REL_PROPERTY, key2, otherClassName);
                 return;
@@ -396,7 +395,7 @@ export class Resource{
     syncRelationships(modelClasses, entitiesByID, namespace){
         entitiesByID::keys().forEach(entityID => {
              if (!entitiesByID[entityID].class){ return; }
-             let refFields = entitiesByID[entityID].constructor.Model.relationships;
+             let refFields = schemaClassModels[entitiesByID[entityID].class].relationships;
              (refFields || []).forEach(([key, spec]) => {
                  if (!entitiesByID[entityID][key]) { return; }
                  entitiesByID[entityID].syncRelationship(key, spec, modelClasses);
@@ -445,7 +444,7 @@ export class Resource{
         }
 
         let res = {};
-        const omitKeys = (this::keys())::difference(this.constructor.Model.fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
+        const omitKeys = (this::keys())::difference(schemaClassModels[this.class].fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
         this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
             res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
         });
@@ -485,4 +484,9 @@ export class Resource{
 
 }
 
-export class External extends Resource {}
+export class External extends Resource {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.External;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+}

@@ -22,10 +22,10 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="snapshotBtn" class="w3-bar-item w3-hover-light-grey" (click)="saveState()" title="Save model state">
                 <i class="fa fa-photo"> </i> 
            </button> 
-           <button id="snapshotBtn" class="w3-bar-item w3-hover-light-grey" (click)="previousState()" title="Return to saved state">
+           <button id="backwardBtn" class="w3-bar-item w3-hover-light-grey" (click)="previousState()" title="Next saved state">
                 <i class="fa fa-step-backward"> </i> 
            </button> 
-           <button id="snapshotBtn" class="w3-bar-item w3-hover-light-grey" (click)="nextState()" title="Return to saved state">
+           <button id="forwardBtn" class="w3-bar-item w3-hover-light-grey" (click)="nextState()" title="Previous saved state">
                 <i class="fa fa-step-forward"> </i> 
            </button> 
            <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">

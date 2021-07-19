@@ -13,6 +13,7 @@ import keast from './data/keastSpinalFull.json';
 
 import {keys, entries} from 'lodash-bound';
 import {modelClasses} from '../src/model/index';
+import {EDGE_STROKE} from "../src/model/utils";
 
 
 describe("JSON Schema loads correctly", () => {
@@ -27,8 +28,8 @@ describe("JSON Schema loads correctly", () => {
     });
 
     it("Link stroke types are loaded", () => {
-        expect(modelClasses.Link.LINK_STROKE).to.have.property("DASHED");
-        expect(modelClasses.Link.LINK_STROKE).to.have.property("THICK");
+        expect(modelClasses.Link.EDGE_STROKE).to.have.property("DASHED");
+        expect(modelClasses.Link.EDGE_STROKE).to.have.property("THICK");
     });
 
     it("Link process types are loaded", () => {
@@ -145,9 +146,10 @@ describe("Serialize data", () => {
     it("All necessary fields serialized (respiratory system)", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
         let serializedGraphData = graphData.toJSON();
-        let excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger"];
+        let excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger", "modelClasses"];
         let exported = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key));
         let serializedLogs = graphData.logger.print();
+        //TODO fix - scaffoldComponents are not serialized?
         expect(serializedGraphData::keys().length).to.be.equal(exported.length);
         expect(serializedLogs.length).to.be.equal(graphData.logger.entries.length);
     });

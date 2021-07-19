@@ -11,7 +11,7 @@ import {
     addBorderNode,
     $Field,
     $Color,
-    $Prefix
+    $Prefix, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -21,6 +21,11 @@ import {logger, $LogMsg} from './logger';
  * @property housingLyphs
  */
 export class Channel extends GroupTemplate {
+
+     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Channel;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+     }
 
     /**
      * Create membrane channel group

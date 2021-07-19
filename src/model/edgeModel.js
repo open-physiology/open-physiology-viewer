@@ -7,7 +7,7 @@ import {
     PROCESS_TYPE,
     WIRE_GEOMETRY,
     LINK_GEOMETRY,
-    LYPH_TOPOLOGY
+    LYPH_TOPOLOGY, $SchemaClass
 } from "./utils";
 import {merge, pick} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -54,6 +54,7 @@ export class Wire extends Edge {
         json.id = json.id || getNewID(entitiesByID);
         json.source = json.source || getGenID($Prefix.source, json.id);
         json.target = json.target || getGenID($Prefix.target, json.id);
+        json.class = json.class || $SchemaClass.Wire;
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //Wires are not in the force-field, so we set their length from end points
         const s = res.source && res.source.layout;
@@ -127,6 +128,7 @@ export class Link extends Edge {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
         [$Field.source, $Field.target].forEach(prop => json[prop] = json[prop] || getGenID($Prefix[prop], json.id));
+        json.class = json.class || $SchemaClass.Link;
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //If the end nodes are fixed, compute actual link's length
         const s = res.source && res.source.layout;

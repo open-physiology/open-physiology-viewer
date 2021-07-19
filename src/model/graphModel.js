@@ -18,7 +18,7 @@ import {
     getFullID,
     getID,
     LYPH_TOPOLOGY,
-    getGenName
+    getGenName, schemaClassModels
 } from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
@@ -142,6 +142,7 @@ export class Graph extends Group{
         };
 
         //Create graph
+        inputModel.class = $SchemaClass.Graph;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
 
         //Auto-create missing definitions for used references
@@ -149,8 +150,8 @@ export class Graph extends Group{
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
-                let clsName = modelClasses[obj.class].Model.relClassNames[key];
-                if (clsName && !modelClasses[clsName].Model.schema.abstract){
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract){
                     let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
                     added.push(e.id);
                     //A created link needs end nodes
@@ -246,7 +247,7 @@ export class Graph extends Group{
     }
 
     validate(modelClasses){
-        let relClassNames = this.constructor.Model.relClassNames;
+        let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames;
 
         const isClassValid = (r, clsName) => {
             let res = r instanceof modelClasses[clsName];
@@ -276,7 +277,7 @@ export class Graph extends Group{
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
-        let graphSchema = modelClasses[this.name].Model;
+        let graphSchema = schemaClassModels[$SchemaClass.Graph];
         let model = inputModel::pick(graphSchema.relationshipNames.concat(["main", "localConventions"]));
         const borderNames = ["inner", "radial1", "outer", "radial2"];
 
@@ -316,8 +317,8 @@ export class Graph extends Group{
                 logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
                 return;
             }
-            let fields = modelClasses[clsName].Model.fieldMap;
-            let propNames = modelClasses[clsName].Model.propertyNames;
+            let fields = schemaClassModels[clsName].fieldMap;
+            let propNames = schemaClassModels[clsName].propertyNames;
 
             const convertValue = (key, value) => {
                 if (!fields[key]) {
@@ -459,7 +460,7 @@ export class Graph extends Group{
     mergeScaffoldResources(){
         let scaffoldResources = {};
         (this.scaffolds||[]).forEach(scaffold => {
-            let relFieldNames = scaffold.constructor.Model.filteredRelNames([$SchemaClass.Component]);
+            let relFieldNames = schemaClassModels[$SchemaClass.Scaffold].filteredRelNames([$SchemaClass.Component]);
             relFieldNames.forEach(prop => {
                 if (scaffold[prop]::isArray()){
                     scaffoldResources[prop] = (scaffoldResources[prop]||[])::unionBy(scaffold[prop], $Field.id);

@@ -8,7 +8,7 @@ import {
     $Color,
     $Prefix,
     findResourceByID,
-    showGroups
+    showGroups, schemaClassModels
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -40,6 +40,7 @@ export class Group extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
 
+        json.class = json.class || $SchemaClass.Group;
         let namespace = json.namespace || defaultNamespace;
         if (json.generated) {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);
@@ -265,9 +266,9 @@ export class Group extends Resource {
 
         (json::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
-            let classNames = modelClasses[this.name].Model.relClassNames;
+            let classNames = schemaClassModels[$SchemaClass.Group].relClassNames;
             if (classNames[relName]) {
-                let refsToLyphs = modelClasses[classNames[relName]].Model.selectedRelNames($SchemaClass.Lyph);
+                let refsToLyphs = schemaClassModels[classNames[relName]].selectedRelNames($SchemaClass.Lyph);
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
@@ -291,7 +292,7 @@ export class Group extends Resource {
      */
     static expandGroupTemplates(json, modelClasses){
         if (!modelClasses){ return; }
-        let relClassNames = modelClasses[this.name].Model.relClassNames;
+        let relClassNames = schemaClassModels[$SchemaClass.Group].relClassNames;
         [$Field.channels, $Field.chains].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
@@ -318,7 +319,7 @@ export class Group extends Resource {
     static createTemplateInstances(json, modelClasses){
         if (!modelClasses){ return; }
 
-        let relClassNames = this.Model.relClassNames;
+        let relClassNames = schemaClassModels[$SchemaClass.Group].relClassNames;
         [$Field.trees, $Field.channels].forEach(relName => {
             let clsName = relClassNames[relName];
             if (!clsName){
@@ -358,7 +359,7 @@ export class Group extends Resource {
      */
     mergeSubgroupResources(){
         //Place references to subgroup resources to the current group
-        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate]);
+        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate]);
         (this.groups||[]).forEach(group => {
             if (group.id === this.id) {
                 logger.warn($LogMsg.GROUP_SELF, this.id, group.id);
@@ -379,7 +380,7 @@ export class Group extends Resource {
      */
     get resources(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Group]);
+        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.Group]);
         relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
         return res::res.filter(r => !!r && r::isObject());
     }

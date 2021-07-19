@@ -1,6 +1,6 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Color, $Field, $Prefix, $SchemaClass, addColor, showGroups} from "./utils";
+import {$Color, $Field, $Prefix, $SchemaClass, addColor, schemaClassModels, showGroups} from "./utils";
 import {logger, $LogMsg} from "./logger";
 
 export class Component extends Resource {
@@ -23,6 +23,7 @@ export class Component extends Resource {
 
         let namespace = json.namespace || defaultNamespace;
         //Create scaffold
+        json.class = json.class || $SchemaClass.Component;
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.mergeSubgroupResources();
 
@@ -30,7 +31,6 @@ export class Component extends Resource {
         //addColor(res.regions, $Color.Region);
         addColor(res.wires, $Color.Wire);
         addColor(res.anchors, $Color.Anchor);
-
         return res;
     }
 
@@ -77,7 +77,7 @@ export class Component extends Resource {
      */
     get resources(){
         let res = [];
-        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
+        let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames([$SchemaClass.Component]);
         relFieldNames.forEach(prop => res = res::unionBy((this[prop] ||[]), $Field.id));
         return res.filter(e => !!e && e::isObject());
     }
@@ -111,7 +111,7 @@ export class Component extends Resource {
      */
     mergeSubgroupResources(){
         //Place references to subcomponent resources to the current component
-        let relFieldNames = this.constructor.Model.filteredRelNames([$SchemaClass.Component]);
+        let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames([$SchemaClass.Component]);
         (this.components||[]).forEach(component => {
             if (component.id === this.id) {
                 logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);

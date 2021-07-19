@@ -15,7 +15,7 @@ import {
     MatCheckboxModule
 } from '@angular/material';
 
-import {$Field} from '../model/utils';
+import {$Field, $SchemaClass, schemaClassModels} from '../model/utils';
 import {entries} from "lodash-bound";
 
 @Component({
@@ -114,7 +114,7 @@ export class LayoutEditor {
 
     @Input('modelClasses') set modelClasses(newValue) {
         this._modelClasses = newValue;
-        this._relationshipFields = this._modelClasses.Component.Model.schema.properties::entries().filter(([key, spec]) => !spec.readOnly && !spec.advanced);
+        this._relationshipFields = schemaClassModels[$SchemaClass.Component].schema.properties::entries().filter(([key, spec]) => !spec.readOnly && !spec.advanced);
     }
 
     get modelClasses() {

@@ -13,7 +13,7 @@ import {
     keys, merge,
     pick
 } from "lodash-bound";
-import {$Field, $SchemaClass, $SchemaType, getFullID} from "./utils";
+import {$Field, $SchemaClass, $SchemaType, getFullID, schemaClassModels} from "./utils";
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
@@ -52,6 +52,7 @@ export class Scaffold extends Component {
         let namespace = inputModel.namespace || defaultNamespace;
 
         //Create scaffold
+        json.class = json.class || $SchemaClass.Scaffold;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
 
         //Auto-create missing definitions for used references
@@ -59,15 +60,15 @@ export class Scaffold extends Component {
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class) {
-                let clsName = modelClasses[obj.class].Model.relClassNames[key];
-                if (clsName && !modelClasses[clsName].Model.schema.abstract) {
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract) {
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]: id,
                         [$Field.generated]: true
                     }, modelClasses, entitiesByID, namespace);
 
                     //Include newly created entity to the main graph
-                    let prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
+                    let prop = schemaClassModels[$SchemaClass.Scaffold].selectedRelNames(clsName)[0];
                     if (prop) {
                         res[prop] = res[prop] || [];
                         res[prop].push(e);
@@ -129,7 +130,7 @@ export class Scaffold extends Component {
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
-        let scaffoldSchema = modelClasses[this.name].Model;
+        let scaffoldSchema = schemaClassModels[$SchemaClass.Scaffold];
         let model = inputModel::pick(scaffoldSchema.relationshipNames.concat(["main", "localConventions"]));
 
         model::keys().forEach(relName => {
@@ -163,8 +164,8 @@ export class Scaffold extends Component {
                 logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
                 return;
             }
-            let fields = modelClasses[clsName].Model.fieldMap;
-            let propNames = modelClasses[clsName].Model.propertyNames;
+            let fields = schemaClassModels[clsName].fieldMap;
+            let propNames = schemaClassModels[clsName].propertyNames;
 
             const convertValue = (key, value) => {
                 if (!fields[key]) {

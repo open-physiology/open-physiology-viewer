@@ -11,6 +11,11 @@ import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID} from "./u
  */
 export class Coalescence extends Resource{
 
+     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Coalescence;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+     }
+
     /**
      * @property EMBEDDING
      * @property CONNECTING

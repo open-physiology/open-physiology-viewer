@@ -580,12 +580,15 @@
           "default": "0.003",
           "advanced": true
         },
+        "length": {
+          "description": "The length of the edge (for links can be set, for wires usually computed)",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
         "arcCenter": {
           "description": "Center of an elliptic curve for an arc edge",
           "anyOf": [
-            {
-              "$ref": "#/definitions/Point3Scheme"
-            },
             {
               "$ref": "#/definitions/IdentifierScheme"
             },
@@ -593,12 +596,6 @@
               "$ref": "#/definitions/Vertice"
             }
           ]
-        },
-        "length": {
-          "description": "The length of the edge (for links can be set, for wires usually computed)",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
         }
       },
       "dependencies": {
@@ -2251,9 +2248,6 @@
       "allOf": [
         {
           "$ref": "#/definitions/VisualResource"
-        },
-        {
-          "$ref": "#/definitions/Point3Scheme"
         }
       ],
       "abstract": true,
@@ -2457,9 +2451,6 @@
         "controlPoint": {
           "description": "Control point for the spline wire",
           "anyOf": [
-            {
-              "$ref": "#/definitions/Point2Scheme"
-            },
             {
               "$ref": "#/definitions/IdentifierScheme"
             },

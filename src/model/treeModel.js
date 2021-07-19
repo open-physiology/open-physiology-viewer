@@ -9,7 +9,7 @@ import {
     findResourceByID,
     getGenID,
     $Field,
-    $Prefix
+    $Prefix, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -19,6 +19,11 @@ import {logger, $LogMsg} from './logger';
  * @property branchingFactors
  */
 export class Tree extends GroupTemplate {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Tree;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
 
     /**
      * Generate instances of a given omega tree

@@ -1,4 +1,5 @@
 import {Resource} from './resourceModel';
+import {$SchemaClass} from "./utils";
 /**
  * The class implementing common methods for the visual resources.
  * @class
@@ -22,4 +23,9 @@ export class VisualResource extends Resource{
 /**
  * The class to model Material resources
  */
-export class Material extends VisualResource {}
+export class Material extends VisualResource {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+        json.class = json.class || $SchemaClass.Material;
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+}

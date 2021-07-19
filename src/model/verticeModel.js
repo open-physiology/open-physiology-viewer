@@ -3,7 +3,7 @@ import {
     getGenID,
     $Field,
     $Prefix,
-    getID, findResourceByID, getOrCreateNode
+    getID, findResourceByID, getOrCreateNode, $SchemaClass
 } from "./utils";
 import {keys, merge, pick, isString} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -24,6 +24,12 @@ export class Vertice extends VisualResource{
  * @property {Anchor} hostedAnchors
  */
 export class Anchor extends Vertice {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Anchor;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+
     includeRelated(group){}
 }
 
@@ -49,6 +55,11 @@ export class Anchor extends Vertice {
  * @property {Anchor} anchoredTo
  */
 export class Node extends Vertice {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Node;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
 
     static clone(sourceNode, targetNode){
         if (!sourceNode) { return; }

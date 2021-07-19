@@ -10,6 +10,7 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
 import {MainToolbarModule} from "../components/mainToolbar";
 import {SnapshotToolbarModule} from "../components/snapshotToolbar";
+import {StateToolbarModule} from "../components/stateToolbar";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {ResourceEditorModule} from '../components/gui/resourceEditor';
 import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
@@ -28,7 +29,7 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
-import {$LogMsg, logger} from "../model/logger";
+import {$LogMsg} from "../model/logger";
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -51,8 +52,15 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 Model: {{_modelName}}
             </span>
             <span *ngIf="_snapshot" class="w3-bar-item">
-                Loaded state: {{_snapshot.active? _snapshot.activeIndex: "-"}}
+                Snapshot state: {{_snapshot.active? _snapshot.activeIndex: "-"}}
             </span>
+<!--            <state-toolbar id="state-toolbar"-->
+<!--                [activeIndex] = "_snapshot?.activeIndex"-->
+<!--                [total]= "_snapshot?.length"                            -->
+<!--                (onPreviousState)  = "previousState()"  -->
+<!--                (onNextState)      = "nextState()"  -->
+<!--            >-->
+<!--            </state-toolbar>-->
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
 					<i class="fa fa-external-link"> </i>
@@ -228,6 +236,8 @@ export class TestApp {
 
     _snapshot;
     _snapshotCounter = 1
+
+    _currentState;
 
 
     @ViewChild('webGLScene') _webGLScene: ElementRef;
@@ -572,7 +582,7 @@ export class TestApp {
 	imports     : [BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
         BrowserAnimationsModule, ResourceEditorModule,
         //RelGraphModule,
-        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, LayoutEditorModule],
+        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule],
 	declarations: [TestApp],
     bootstrap   : [TestApp],
     providers   : [

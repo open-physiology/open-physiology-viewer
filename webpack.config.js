@@ -1,11 +1,12 @@
+const path    = require('path');
 const loaders = require('./webpack.loaders.js');
 const plugins = require('./webpack.plugins.js');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
-	context: __dirname + '/src',
     devtool: 'source-map',
+  	context: path.resolve(__dirname, 'src/'),
     entry: {
         'test-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './test-app/index.js'],
         'open-physiology-viewer': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './index.js' ],

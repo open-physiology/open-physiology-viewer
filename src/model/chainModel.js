@@ -15,7 +15,7 @@ import {
     getGenName,
     $Field,
     $Color,
-    $Prefix, LYPH_TOPOLOGY
+    $Prefix, LYPH_TOPOLOGY, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
@@ -40,11 +40,12 @@ import {defaults, isObject, isArray, flatten} from 'lodash-bound';
 export class Chain extends GroupTemplate {
 
       static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-        let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
-        if (!res.validateTopology()) {
+          json.class = json.class || $SchemaClass.Chain;
+          let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
+          if (!res.validateTopology()) {
             logger.error($LogMsg.CHAIN_WRONG_TOPOLOGY, res.id);
-        }
-        return res;
+          }
+          return res;
     }
 
     /**
@@ -130,30 +131,60 @@ export class Chain extends GroupTemplate {
                 logger.warn($LogMsg.CHAIN_MAT_DIFF, chain.lyphs);
             }
 
-            let [start, end] = [$Field.root, $Field.leaf].map(prop => findResourceByID(parentGroup.nodes, chain[prop]));
+            const n = lyphs.length;
+            let existingLinks = new Array(n);
+            for (let i = 0; i < n; i++) {
+                 existingLinks[i] = lyphs[i].conveys? findResourceByID(parentGroup.links, lyphs[i].id):
+                    (parentGroup.links||[]).find(lnk => lnk.conveyingLyph === lyphs[i].id);
+            }
 
-            for (let i = 0; i < lyphs.length + 1; i++) {
-                let nodeID = (i === 0 && chain.root)? chain.root: (i === lyphs.length && chain.leaf)? chain.leaf: getGenID(chain.id, $Prefix.node, i);
-                //TODO find existing nodes via lyph.conveys or lnk.conveyingLyph === lyph.id
-                let node = (i === 0 && start)
-                    ? start
-                    : (i === lyphs.length && end)
-                        ? end
-                        : {
-                            [$Field.id]        : nodeID,
-                            [$Field.color]     : $Color.InternalNode,
-                            [$Field.val]       : 1,
-                            [$Field.skipLabel] : true,
-                            [$Field.generated] : true
-                        };
+            let nodeIDs = new Array(n + 1);
+            nodeIDs[0]   = chain.root;
+            nodeIDs[n-1] = chain.leaf;
+
+            let existingNodes = new Array(n + 1);
+            existingNodes[0] = findResourceByID(parentGroup.nodes, chain.root);
+            existingNodes[n-1] = findResourceByID(parentGroup.nodes, chain.leaf);
+
+            for (let i = 0; i < n; i++) {
+               if (existingLinks[i]) {
+                   if (existingLinks[i].source) {
+                       if (nodeIDs[i]) {
+                           if (nodeIDs[i] !== existingLinks[i].source) {
+                               logger.warn($LogMsg.CHAIN_NODE_CONFLICT, chain.id, i, existingLinks[i], nodeIDs[i], existingLinks[i].source);
+                           }
+                       } else {
+                           nodeIDs[i] = existingLinks[i].source;
+                       }
+                   }
+                   if (existingLinks[i].target) {
+                       if (nodeIDs[i + 1]) {
+                           if (nodeIDs[i + 1] !== existingLinks[i].target) {
+                               logger.warn($LogMsg.CHAIN_NODE_CONFLICT, chain.id, i, existingLinks[i], nodeIDs[i+1], existingLinks[i].source);
+                           }
+                       } else {
+                           nodeIDs[i + 1] = existingLinks[i].target;
+                       }
+                   }
+               }
+            }
+
+            for (let i = 0; i < n + 1; i++) {
+                nodeIDs[i] = nodeIDs[i] || getGenID(chain.id, $Prefix.node, i);
+                let node = existingNodes[i] || {
+                        [$Field.id]        : nodeIDs[i],
+                        [$Field.color]     : $Color.InternalNode,
+                        [$Field.val]       : 1,
+                        [$Field.skipLabel] : true,
+                        [$Field.generated] : true
+                    };
                 mergeGenResource(chain.group, parentGroup, node, $Field.nodes);
             }
 
             chain.levels = [];
             let prev;
-            for (let i = 0; i < lyphs.length; i++) {
-                //TODO find existing nodes via lyph.conveys or lnk.conveyingLyph === lyph.id
-                let link = {
+            for (let i = 0; i < n; i++) {
+                let link = existingLinks[i] || {
                     [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
                     [$Field.source]             : chain.group.nodes[i],
                     [$Field.target]             : chain.group.nodes[i + 1],

@@ -2844,14 +2844,7 @@
         "leaf-dc-4-K84",
         "leaf-dc-4-K85",
         "leaf-ac-4-K85-all",
-        "leaf-ac-4-K85-all",
-        "leaf-ac-4-K85-all",
-        "leaf-ac-4-K85-all",
-        "leaf-ac-4-K85-all",
-        "leaf-ac-4-K85-all",
-        "leaf-ac-4-K85-all",
         "leafroot-ac-4-K85-all",
-        "leafroot-ac-4-n-lumspl",
         "leafroot-ac-4-n-lumspl",
         "leafroot-ac-4-n-blad",
         "leaf-ac-4-K100",
@@ -2859,8 +2852,6 @@
       ],
       "publications": [
         "PMID:2713886",
-        "PMID:2713886",
-        "PMID:11382385",
         "PMID:11382385",
         "PMID:4700666",
         "PMID:1358408"
@@ -2870,8 +2861,7 @@
       "id": "neuron-6",
       "name": "Neuron 6",
       "links": [
-        "lnk-snl16",
-        "lnk-snl26"
+        "lnk-snl16"
       ],
       "nodes": [
         "ns19",

@@ -6,11 +6,11 @@
   "nodes": [
     {
       "id": "c",
-      "layout": {"x": 0, "y": 0, "z": 0}
+      "layout": {"x": 0, "y": -50, "z": 20}
     },
     {
       "id": "d",
-      "layout": {"x": 0, "y": 50, "z": 0}
+      "layout": {"x": 0, "y": 50, "z": 20}
     }
   ],
   "links": [
@@ -21,7 +21,10 @@
       "length": 30,
       "conveyingLyph": "1",
       "geometry": "arc",
-      "arcCenter": {"x": 0, "y": 0, "z": 0}
+      "arcCenter": {
+        "layout": {"x": 0, "y": 0, "z": 20},
+        "class": "Node"
+      }
     }
   ],
   "lyphs": [

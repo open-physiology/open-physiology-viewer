@@ -8,7 +8,7 @@ import {
     getGenID,
     addBorderNode,
     $Field,
-    $Prefix
+    $Prefix, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -19,6 +19,12 @@ import {logger, $LogMsg} from './logger';
  * @property villusOf
  */
 export class Villus extends GroupTemplate{
+
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Villus;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+
 
     static expandTemplate(parentGroup, villus){
         if (!villus) {

@@ -41,6 +41,7 @@ export const $LogMsg = {
                                     (4) non-empty list of "housingLyphs",\n 
                                     (5) non-empty "housingChain" reference with optional "housingRange" parameter`,
     CHAIN_UNDEFINED             : "Cannot expand undefined chain template",
+    CHAIN_NODE_CONFLICT         : "Trying to include a disconnected link to a chain",
 
     CHANNEL_NO_GROUP            : "Cannot create channel instances: canonical group not found",
     CHANNEL_NO_ID               : "Skipped channel template - it must have (non-empty) identifier",

@@ -100,6 +100,7 @@ export class Lyph extends Shape {
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.numBorders = 4;
+        json.class = $SchemaClass.Lyph;
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
@@ -562,6 +563,7 @@ export class Region extends Shape {
             {"x":  10, "y": -10 }
         ];
         json.numBorders = json.points.length;
+        json.class = $SchemaClass.Region;
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.points.push(res.points[0]::clone()); //make closed shape
         return res;
@@ -735,6 +737,12 @@ export class Region extends Shape {
  *
  */
 export class Border extends VisualResource {
+
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+        json.class = $SchemaClass.Border;
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+
     get isVisible(){
         return this.host? this.host.isVisible: super.isVisible;
     }
