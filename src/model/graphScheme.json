@@ -113,6 +113,7 @@
     },
     "AnnotationSchema": {
       "description": "Metadata for ApiNATOMY model",
+      "type": "object",
       "properties": {
         "namespace": {
           "description": "Model namespace",
@@ -138,6 +139,48 @@
         "author": {
           "description": "Name of the model author",
           "type": "string"
+        }
+      }
+    },
+    "ScaffoldStateSchema": {
+      "description": "Selected properties of the scaffold that get serialized in a snapshot model",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Scaffold identifier",
+          "$ref": "#/definitions/IdentifierScheme"
+        },
+        "hidden": {
+          "description": "Scaffold visibility status",
+          "type": "boolean"
+        },
+        "annotation": {
+          "description": "Annotation for the saved scaffold, e.g., version, author, etc.",
+          "$ref": "#/definitions/AnnotationSchema"
+        },
+        "anchors": {
+          "description": "Scaffold anchor coordinates",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "Anchor identifier",
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              "layout": {
+                "description": "Current anchor coordinates",
+                "$ref": "#/definitions/Point2Scheme"
+              }
+            }
+          }
+        },
+        "visibleComponents": {
+          "description": "Identifiers of visible components",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IdentifierScheme"
+          }
         }
       }
     },
@@ -2514,37 +2557,7 @@
           "description": "Scaffold properties to preserve (in practice, we save only relevant identifiers and anchor layout coordinates)",
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Scaffold identifier",
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              "anchors": {
-                "description": "Scaffold anchor coordinates",
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "description": "Anchor identifier",
-                      "$ref": "#/definitions/IdentifierScheme"
-                    },
-                    "layout": {
-                      "description": "Current anchor coordinates",
-                      "$ref": "#/definitions/Point2Scheme"
-                    }
-                  }
-                }
-              },
-              "visibleComponents": {
-                "description": "Identifiers of visible components",
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/IdentifierScheme"
-                }
-              }
-            }
+            "$ref": "#/definitions/ScaffoldStateSchema"
           }
         },
         "visibleGroups": {
@@ -2585,8 +2598,8 @@
           "description": "An identifier of the saved model",
           "$ref": "#/definitions/IdentifierScheme"
         },
-        "modelAnnotation": {
-          "description": "An identifier of the saved model",
+        "annotation": {
+          "description": "Annotation for the saved model, e.g., version, author, etc.",
           "$ref": "#/definitions/AnnotationSchema"
         },
         "states": {

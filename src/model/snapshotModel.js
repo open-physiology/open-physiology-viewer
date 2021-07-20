@@ -6,6 +6,10 @@ import {$SchemaClass} from "./utils";
  * @property logger
  */
 export class State extends Resource {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.State;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
 }
 
 /**

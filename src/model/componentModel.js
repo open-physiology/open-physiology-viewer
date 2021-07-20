@@ -47,7 +47,6 @@ export class Component extends Resource {
      * @param ids - selected component IDs
      */
     showGroups(ids){
-        //this.show();
         showGroups(this.components||[], ids);
     }
 

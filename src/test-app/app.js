@@ -485,7 +485,7 @@ export class TestApp {
             this.createSnapshot();
         }
         const annotationProperties = schema.definitions.AnnotationSchema.properties::keys();
-        this._snapshot.modelAnnotation = this._model::pick(annotationProperties);
+        this._snapshot.annotation = this._model::pick(annotationProperties);
 
         let newState = this.modelClasses.State.fromJSON({
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
@@ -493,6 +493,7 @@ export class TestApp {
             [$Field.scaffolds]: (this._graphData.scaffolds||[]).map(s => (
                 {
                     [$Field.id]: s.id,
+                    [$Field.hidden]: s.hidden,
                     [$Field.anchors]: (s.anchors||[]).map(a => ({
                         [$Field.id]: a.id,
                         [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
@@ -509,6 +510,9 @@ export class TestApp {
 
     restoreState(){
         let activeState = this._snapshot.active;
+
+        //TODO validate snapshot model, i.e., check that saved model version matches, issue a warning otherwise
+
         if (activeState.visibleGroups){
             this._graphData.showGroups(activeState.visibleGroups);
         }
@@ -519,6 +523,7 @@ export class TestApp {
         (activeState.scaffolds||[]).forEach(scaffold => {
             const modelScaffold = (this._graphData.scaffolds||[]).find(s => s.id === scaffold.id);
             if (modelScaffold){
+                modelScaffold.hidden = scaffold.hidden;
                 (scaffold.anchors || []).forEach(anchor => {
                     const modelAnchor = (modelScaffold.anchors||[]).find(a => a.id === anchor.id);
                     if (modelAnchor){
@@ -530,6 +535,9 @@ export class TestApp {
                 })
                 if (scaffold.visibleComponents){
                     modelScaffold.showGroups(scaffold.visibleComponents);
+                }
+                if (modelScaffold.hidden){
+                    modelScaffold.hide();
                 }
             } else {
                 this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);

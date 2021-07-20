@@ -12,7 +12,7 @@ import {FormsModule} from "@angular/forms";
                 <i class="fa fa-step-backward"> </i> 
            </button> 
            <span class="">
-               {{activeIndex}} / {{total}}
+               {{activeIndex}} / {{total}} 
            </span>
            <button id="forwardBtn" class="" (click)="nextState()" title="Previous saved state">
                 <i class="fa fa-step-forward"> </i> 
