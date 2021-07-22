@@ -149,7 +149,7 @@ class ConversionHandler {
 
     #cancelIntermediateSteps() {
         for (const step of Object.keys(conversionSteps)) {
-            if (conversionSteps[step] == this.to) {
+            if (this.to.includes(conversionSteps[step])) {
                 break;
             }
             let path = this._destination_folder + "/model" + convertedExtensions[conversionSteps[step]];
