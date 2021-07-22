@@ -92,7 +92,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
-            throw new Error('An error has been encoutered during the conversion from XLSX to Json.')
+            throw new Error('An error has been encoutered during the conversion from xlsx to input json.')
         }
     }
 
@@ -108,7 +108,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
-            throw new Error('An error has been encoutered during the conversion from XLSX to Json.')
+            throw new Error('An error has been encoutered during the conversion from input json to generated json.')
         }
     }
 
@@ -124,7 +124,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
-            throw new Error('An error has been encoutered during the conversion from XLSX to Json.')
+            throw new Error('An error has been encoutered during the conversion from generated json to jsonld.')
         }
     }
 
@@ -143,7 +143,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
-            throw new Error('An error has been encoutered during the conversion from XLSX to Json.')
+            throw new Error('An error has been encoutered during the conversion from jsonld to flattened jsonld.')
         }
     }
 
@@ -152,7 +152,10 @@ class ConversionHandler {
             if (conversionSteps[step] == this.to) {
                 break;
             }
-            fs.unlinkSync(this._destination_folder + "/model" + convertedExtensions[conversionSteps[step]]);
+            let path = this._destination_folder + "/model" + convertedExtensions[conversionSteps[step]];
+            if (fs.existsSync(path)) {
+                fs.unlinkSync(path);
+            }
         }
     }
 
