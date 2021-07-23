@@ -3,7 +3,9 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Observable}  from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {CommonModule} from "@angular/common";
-import {MatAutocompleteModule, MatFormFieldModule, MatInputModule} from "@angular/material";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
 
 @Component({
     selector: 'searchBar',

@@ -1,17 +1,14 @@
 import {Component, Inject, NgModule} from '@angular/core';
-import {
-    MatDialogRef,
-    MAT_DIALOG_DATA,
-    MatDialogModule,
-    MatInputModule,
-    MatSelectModule,
-    MatFormFieldModule
-} from '@angular/material';
-import { HttpClient } from '@angular/common/http';
-import querySpec from "../../data/queries";
-import {keys, entries} from 'lodash-bound';
+import {HttpClient} from '@angular/common/http';
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatDialogRef,MAT_DIALOG_DATA,MatDialogModule} from '@angular/material/dialog';
+import {MatSelectModule} from '@angular/material/select';
+
+import querySpec from "../../data/queries";
+import {keys} from 'lodash-bound';
 
 const QUERY_PREFIX = "/dynamic/demos/apinat/";
 

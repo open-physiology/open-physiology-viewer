@@ -1,6 +1,9 @@
 import {Component, Output, EventEmitter, Input, NgModule} from '@angular/core';
 
-import {MatDialog, MatDialogModule, MatFormFieldModule, MatInputModule} from '@angular/material';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
@@ -19,15 +22,6 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load snapshot model">
                 <i class="fa fa-folder"> </i>
            </button>
-           <button id="snapshotBtn" class="w3-bar-item w3-hover-light-grey" (click)="saveState()" title="Save model state">
-                <i class="fa fa-photo"> </i> 
-           </button> 
-           <button id="backwardBtn" class="w3-bar-item w3-hover-light-grey" (click)="previousState()" title="Next saved state">
-                <i class="fa fa-step-backward"> </i> 
-           </button> 
-           <button id="forwardBtn" class="w3-bar-item w3-hover-light-grey" (click)="nextState()" title="Previous saved state">
-                <i class="fa fa-step-forward"> </i> 
-           </button> 
            <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">
                 <i class="fa fa-save"> </i> 
            </button>

@@ -1,7 +1,9 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
+import {MatSliderModule} from '@angular/material/slider'
+import {MatCheckboxModule} from '@angular/material/checkbox'
+import {MatRadioModule} from '@angular/material/radio'
 import {keys} from 'lodash-bound';
 import {SearchBarModule} from './gui/searchBar';
 

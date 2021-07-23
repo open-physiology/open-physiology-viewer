@@ -38,19 +38,24 @@ export class Snapshot extends Resource {
 
     removeState(state){
         let idx = this.getStateIdx(state);
-        if (idx > -1){
+        this.removeByIdx(idx);
+    }
+
+    removeByIdx(idx){
+         if (idx > -1 && idx < this.length){
             this.states = this.states.splice(idx, 1);
             if (idx === this._activeIdx){
                 this._activeIdx = idx - 1;
             }
-        }
+         }
     }
 
-    updateState(state){
-        let idx = this.getStateIdx(state);
-        if (idx > -1){
-            this.states[idx] = state;
-        }
+    removeActive(){
+        this.removeByIdx(this._activeIdx);
+    }
+
+    updateActive(newState){
+        this.states[this._activeIdx] = newState;
     }
 
     switchToState(state){

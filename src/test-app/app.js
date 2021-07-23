@@ -2,8 +2,10 @@ import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angul
 import { BrowserModule } from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
 
-import { MatSnackBarModule, MatDialogModule, MatDialog, MatTabsModule } from '@angular/material';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatDialogModule, MatDialog} from '@angular/material/dialog';
+import {MatTabsModule} from '@angular/material/tabs';
+
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import FileSaver  from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
@@ -30,6 +32,7 @@ import "./styles/material.scss";
 
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg} from "../model/logger";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -52,15 +55,18 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 Model: {{_modelName}}
             </span>
             <span *ngIf="_snapshot" class="w3-bar-item">
-                Snapshot state: {{_snapshot.active? _snapshot.activeIndex: "-"}}
+                Snapshot model: {{_snapshot.name}}
             </span>
-<!--            <state-toolbar id="state-toolbar"-->
-<!--                [activeIndex] = "_snapshot?.activeIndex"-->
-<!--                [total]= "_snapshot?.length"                            -->
-<!--                (onPreviousState)  = "previousState()"  -->
-<!--                (onNextState)      = "nextState()"  -->
-<!--            >-->
-<!--            </state-toolbar>-->
+            <state-toolbar id="state-toolbar"
+                [activeIndex] = "_snapshot?.activeIndex"
+                [total]= "_snapshot?.length"                            
+                (onPreviousState)  = "previousState()"  
+                (onNextState)      = "nextState()" 
+                (onAddState)       = "saveState()"
+                (onDeleteState)    = "removeState()"
+                (onUpdateState)    = "replaceState()"
+           >
+            </state-toolbar>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
 					<i class="fa fa-external-link"> </i>
@@ -88,9 +94,6 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <snapshot-toolbar id="snapshot-toolbar"
                 (onCreateSnapshot) = "createSnapshot()"
                 (onLoadSnapshot)   = "loadSnapshot($event)"
-                (onSaveState)      = "saveState()"
-                (onPreviousState)  = "previousState()"  
-                (onNextState)      = "nextState()"  
                 (onSaveSnapshot)   = "saveSnapshot()"                              
             >
             </snapshot-toolbar>
@@ -498,7 +501,7 @@ export class TestApp {
                         [$Field.id]: a.id,
                         [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
                     })),
-                    "visibleComponents": s.visibleComponents.map(c => c.id)
+                    [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
                 })),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
@@ -533,6 +536,9 @@ export class TestApp {
                         this._graphData.logger.info($LogMsg.SNAPSHOT_NO_ANCHOR, anchor.id, scaffold.id);
                     }
                 })
+                if (!modelScaffold.hidden){
+                    modelScaffold.show();
+                }
                 if (scaffold.visibleComponents){
                     modelScaffold.showGroups(scaffold.visibleComponents);
                 }
@@ -560,12 +566,27 @@ export class TestApp {
         }
     }
 
+    removeState(){
+        if (this._snapshot){
+            this._snapshot.removeActive();
+            this.restoreState();
+        }
+    }
+
+    replaceState(){
+        if (this._snapshot){
+            this._snapshot.removeActive();
+            this.restoreState();
+        }
+    }
+
     createSnapshot(){
         this._snapshot = this.modelClasses.Snapshot.fromJSON({
-            [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter++),
-            [$Field.name]: getGenName("Snapshot for", this._modelName),
+            [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter),
+            [$Field.name]: getGenName("Snapshot for", this._modelName, this._snapshotCounter),
             [$Field.model]: this._model.id
         }, this.modelClasses, this._graphData.entitiesByID);
+        this._snapshotCounter += 1;
     }
 
     loadSnapshot(newSnapshot){
@@ -587,13 +608,16 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [BrowserModule, WebGLSceneModule, MatSnackBarModule, MatDialogModule,
-        BrowserAnimationsModule, ResourceEditorModule,
+	imports     : [BrowserModule, WebGLSceneModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, MatSnackBarModule,
         //RelGraphModule,
         MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule],
 	declarations: [TestApp],
-    bootstrap   : [TestApp],
+    bootstrap: [TestApp],
     providers   : [
+        {
+            provide: MatSnackBar,
+            useClass: MatSnackBarModule
+        },
         {
             provide: ErrorHandler,
             useClass: GlobalErrorHandler

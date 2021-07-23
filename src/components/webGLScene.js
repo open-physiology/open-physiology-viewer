@@ -1,7 +1,9 @@
 import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {MatSliderModule, MatDialog, MatDialogModule} from '@angular/material'
+import {MatSliderModule} from '@angular/material/slider';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+
 import FileSaver  from 'file-saver';
 import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';

@@ -1,19 +1,20 @@
 import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-    MatListModule,
-    MatDividerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatCardModule,
-    MatDialogModule,
-    MatDialog,
-    MatTabsModule,
-    MatCheckboxModule
-} from '@angular/material';
+
+import {MatListModule} from '@angular/material/list';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatCardModule} from '@angular/material/card';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialogModule, MatDialog} from '@angular/material/dialog';
+
+
+
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule} from "./fieldEditor";
 import {ExternalSelectDialog} from "./externalSelectDialog";

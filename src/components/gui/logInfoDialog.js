@@ -1,10 +1,6 @@
 import {Component, Inject, NgModule} from '@angular/core';
-import {
-    MatDialogRef,
-    MAT_DIALOG_DATA
-} from '@angular/material';
 import {CommonModule} from "@angular/common";
-import {MatDialogModule} from '@angular/material'
+import {MatDialogRef,MAT_DIALOG_DATA,MatDialogModule} from '@angular/material/dialog';
 
 //TODO import from Logger
 const LEVEL = {

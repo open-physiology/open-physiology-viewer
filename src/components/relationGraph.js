@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 window.d3 = d3;
-import {attrs} from 'd3-selection-multi';
 
 import {Component, ElementRef, Input, NgModule, ViewChild} from "@angular/core";
 import {CommonModule} from "@angular/common";
@@ -8,9 +7,9 @@ import {values, pick, flatten, keys, entries, isObject} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
 import FileSaver from "file-saver";
 import {ResourceInfoModule} from "./gui/resourceInfo";
-import {MatSliderModule} from "@angular/material";
+import {MatSliderModule} from "@angular/material/slider";
 import {SearchBarModule} from "./gui/searchBar";
-import {$Field, $SchemaClass} from "../model/utils";
+import {$Field, $SchemaClass} from "../model";
 
 @Component({
     selector: 'relGraph',

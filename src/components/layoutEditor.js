@@ -1,21 +1,20 @@
 import {NgModule, Component, Input} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-    MatListModule,
-    MatDividerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatCardModule,
-    MatDialogModule,
-    MatTabsModule,
-    MatSelectModule,
-    MatCheckboxModule
-} from '@angular/material';
+import {MatListModule} from '@angular/material/list';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
-import {$Field, $SchemaClass, schemaClassModels} from '../model/utils';
+
+import {$Field, $SchemaClass, schemaClassModels} from '../model';
 import {entries} from "lodash-bound";
 
 @Component({

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {
     MatDialogRef
-} from '@angular/material';
+} from '@angular/material/dialog';
 
 @Component({
     selector: 'importExcelModelDialog',

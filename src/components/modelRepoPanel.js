@@ -1,7 +1,7 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatListModule} from '@angular/material';
+import {MatListModule} from '@angular/material/list';
 
 import {HttpClient} from "@angular/common/http";
 import {repoURL} from './config';

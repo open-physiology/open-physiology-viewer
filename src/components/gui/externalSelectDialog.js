@@ -2,7 +2,7 @@ import {Component, Inject} from '@angular/core';
 import {
     MatDialogRef,
     MAT_DIALOG_DATA
-} from '@angular/material';
+} from '@angular/material/dialog';
 import {isArray} from 'lodash-bound';
 import { HttpClient } from '@angular/common/http';
 

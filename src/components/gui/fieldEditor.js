@@ -1,11 +1,20 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormsModule, FormControl} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-    MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatCheckboxModule,
-    MatCardModule, MatTooltipModule, MatDialogModule, MatDialog, MatSelectModule, MatDatepickerModule, MatNativeDateModule
-} from '@angular/material';
-import {getClassName, schemaClassModels} from '../../model/index.js';
+
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatCardModule} from '@angular/material/card';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialogModule, MatDialog} from '@angular/material/dialog';
+import {MatSelectModule} from '@angular/material/select';
+import {MatDatepickerModule,} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+
+import {getClassName, schemaClassModels} from '../../model';
 import {FieldEditorDialog} from './fieldEditorDialog';
 import { cloneDeep, isObject } from 'lodash-bound';
 

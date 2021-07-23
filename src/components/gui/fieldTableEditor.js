@@ -2,10 +2,15 @@ import {NgModule, Component, Input, Output, EventEmitter, ViewChild} from '@angu
 import {FormsModule} from '@angular/forms';
 import {SearchBarModule} from "./searchBar";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {
-    MatFormFieldModule, MatTooltipModule, MatDialogModule, MatTableModule, MatSortModule, MatSort, MatTableDataSource,
-    MatPaginatorModule, MatDialog, MatInputModule
-} from '@angular/material';
+import {MatTableModule, MatTableDataSource} from '@angular/material/table';
+import {MatSortModule, MatSort} from '@angular/material/sort';
+import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialogModule, MatDialog} from '@angular/material/dialog';
+
+
 import {FieldEditorDialog} from './fieldEditorDialog';
 import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {isArray, isObject, entries} from "lodash-bound";
