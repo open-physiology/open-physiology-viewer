@@ -127,7 +127,7 @@ const WindowResize = require('three-window-resize');
     styles: [` 
 
         #apiLayoutPanel {
-            height: 100vh;
+            height: 85vh;
         }
         
         #apiLayoutSettingsPanel{
