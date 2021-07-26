@@ -197,13 +197,23 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     `,
     styles: [`
         .vertical-toolbar{
-            width : 48px; 
+            width : 48px;
         }
                
         #main-panel{            
-            margin-left: 48px; 
-            width      : calc(100% - 48px);
             margin-top : 40px;
+            margin-left: 48px; 
+            width : calc(100% - 48px);
+            height : 90vh
+        }
+
+        #main-panel mat-tab-group{            
+            height : inherit;
+            width : calc(100%);
+        }
+
+        #viewer-panel {
+            width : 100%;
         }
         
        
@@ -222,7 +232,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         }
 
         footer{
-            margin-top: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
         }
 	`]
 })
