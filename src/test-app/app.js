@@ -1,4 +1,4 @@
-import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
+import { NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys, merge, mergeWith} from 'lodash-bound';
 
@@ -27,12 +27,16 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import {$Field, findResourceByID, mergeResources} from "../model/utils";
-import {copyCoords} from "../view/utils";
+import { enableProdMode } from '@angular/core';
+
+enableProdMode();
+
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
 	selector: 'test-app',
+    changeDetection: ChangeDetectionStrategy.Default,
 	template: `
 
         <!-- Header -->

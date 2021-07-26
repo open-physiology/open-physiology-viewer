@@ -1,4 +1,4 @@
-import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
+import {NgModule, Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material';
@@ -11,6 +11,7 @@ import {repoURL} from './config';
  */
 @Component({
     selector: 'modelRepoPanel',
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="w3-padding-small">
             <section id="modelRepo" class="w3-padding-small w3-white">

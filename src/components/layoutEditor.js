@@ -1,4 +1,4 @@
-import {NgModule, Component, Input} from '@angular/core';
+import {NgModule, Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
@@ -20,6 +20,7 @@ import {entries} from "lodash-bound";
 
 @Component({
     selector: 'layoutEditor',
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <mat-card class="w3-white w3-padding-small">
             <mat-card class="w3-padding-small">

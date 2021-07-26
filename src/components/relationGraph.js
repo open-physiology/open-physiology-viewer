@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 window.d3 = d3;
 import {attrs} from 'd3-selection-multi';
 
-import {Component, ElementRef, Input, NgModule, ViewChild} from "@angular/core";
+import {Component, ElementRef, Input, NgModule, ViewChild, ChangeDetectionStrategy} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {values, pick, flatten, keys, entries, isObject} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
@@ -14,6 +14,7 @@ import {$Field, $SchemaClass} from "../model/utils";
 
 @Component({
     selector: 'relGraph',
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section id="relGraphPanel" class="w3-row">
             <section #relGraphContainer id="relGraphContainer" [class.w3-threequarter]="showPanel">

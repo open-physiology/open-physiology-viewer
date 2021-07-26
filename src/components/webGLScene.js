@@ -1,4 +1,4 @@
-import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter} from '@angular/core';
+import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule, MatDialog, MatDialogModule} from '@angular/material'
@@ -22,6 +22,7 @@ const WindowResize = require('three-window-resize');
  */
 @Component({
     selector: 'webGLScene',
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">

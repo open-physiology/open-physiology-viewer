@@ -1,4 +1,4 @@
-import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
+import {NgModule, Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSliderModule, MatCheckboxModule, MatRadioModule} from '@angular/material'
@@ -16,6 +16,7 @@ import {StopPropagation} from "./gui/stopPropagation";
  */
 @Component({
     selector: 'settingsPanel',
+    changeDetection: ChangeDetectionStrategy.Default,
     template: ` 
             <section class="w3-padding-small"> 
  

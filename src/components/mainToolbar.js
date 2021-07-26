@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter, Input, NgModule} from '@angular/core';
+import {Component, Output, EventEmitter, Input, NgModule, ChangeDetectionStrategy} from '@angular/core';
 
 import {loadModel} from '../model/modelClasses';
 import {ImportExcelModelDialog} from "./gui/importExcelModelDialog";
@@ -11,6 +11,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
     selector: 'main-toolbar',
+    changeDetection: ChangeDetectionStrategy.Default,
     template: `
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
             <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
