@@ -25,7 +25,6 @@ export class Villus extends GroupTemplate{
           return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
-
     static expandTemplate(parentGroup, villus){
         if (!villus) {
             logger.warn($LogMsg.VILLUS_UNDEFINED);

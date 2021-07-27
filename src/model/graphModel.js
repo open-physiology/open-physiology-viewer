@@ -586,16 +586,19 @@ export class Graph extends Group{
     }
 
     //Find paths which are topologically similar to a cyst
-    neurulator() {
+    async neurulator() {
         let bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
             [LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY["BAG-"], LYPH_TOPOLOGY["BAG+"], LYPH_TOPOLOGY["CYST"]].includes(lyph.topology));
         while (bags.length > 0){
             let seed = bags.pop();
             if (!seed._processed){
+                // console.log("Neurulator", bags.length, seed);
                 this.neurulateFromSeed(seed);
             }
         }
         (this.lyphs||[]).forEach(lyph => delete lyph._processed);
+        (this.links||[]).forEach(link => delete link._processed);
+        return this;
     }
 
     neurulateFromSeed(seed){
@@ -610,23 +613,28 @@ export class Graph extends Group{
 
         function dfs(lnk) {
             if (lnk._processed) { return true; }
+            lnk._processed = true;
+
             let t = lnk.conveyingTopology;
             if (t === LYPH_TOPOLOGY.CYST){
                 return false;
             }
+
             groupLinks.push(lnk);
             const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible; //BAG = target closed, TODO check with "reversed"
             const expandTarget = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG2) || lnk.collapsible;
-            lnk._processed = true;
 
             let res = true;
 
             const isValid = (lnk1, topology) => {
+                if (lnk1._processed) {
+                    return true;
+                }
                 const goodEnd = lnk1.conveyingTopology === topology;
                 if (goodEnd){
                     groupLinks.push(lnk1);
                 }
-                return lnk1._processed || goodEnd || dfs(lnk1);
+                return goodEnd || dfs(lnk1);
             }
             if (expandSource){
                 const node = lnk.source;
@@ -648,7 +656,6 @@ export class Graph extends Group{
                     res = false;
                 }
             }
-            delete lnk._processed;
             return res;
         }
 

@@ -7,7 +7,7 @@ import {Group}   from './groupModel';
 import {Component} from './componentModel';
 import {Graph}   from './graphModel';
 import {Scaffold} from './scaffoldModel';
-import {Resource, External} from './resourceModel';
+import {Resource, External, Publication} from './resourceModel';
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
@@ -31,6 +31,7 @@ export const modelClasses = {
 
     /*Resources */
     [$SchemaClass.External]       : External,
+    [$SchemaClass.Publication]    : Publication,
     [$SchemaClass.Coalescence]    : Coalescence,
     [$SchemaClass.Channel]        : Channel,
     [$SchemaClass.Chain]          : Chain,

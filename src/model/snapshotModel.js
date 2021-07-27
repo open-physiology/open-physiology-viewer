@@ -68,7 +68,7 @@ export class Snapshot extends Resource {
     }
 
     switchToNext(){
-        if (this._activeIdx < (this.states||[]).length - 1){
+        if (this._activeIdx < this.length - 1){
             this._activeIdx += 1;
         }
         return this.active;
@@ -92,5 +92,19 @@ export class Snapshot extends Resource {
     get length(){
         return (this.states||[]).length;
     }
+
+    validate(model){
+        if (this.model !== model.id){
+            return -1;
+        }
+        if (this.annotation){
+            if (this.annotation.version !== model.version ||
+                this.annotation.lastUpdated !== model.lastUpdated){
+                return 0;
+            }
+        }
+        return 1;
+    }
+
 }
 

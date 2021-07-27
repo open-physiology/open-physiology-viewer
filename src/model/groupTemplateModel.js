@@ -29,7 +29,7 @@ export class GroupTemplate extends Resource{
                 [$Field.id]: groupID,
                 [$Field.name]: template.name,
                 [$Field.generated]: true,
-                [$Field.hidden]: true
+                [$Field.hidden]: template.hasOwnProperty($Field.hidden)? template.hidden: true
             });
         }
         if (parentGroup.namespace){

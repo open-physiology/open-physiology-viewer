@@ -10,13 +10,13 @@ import {FormsModule} from "@angular/forms";
     selector: 'state-toolbar',
     template: `
        <section class="w3-bar w3-light-grey w3-bottom state-toolbar" title="Snapshot model">
-           <button id="backwardBtn" class="" (click)="previousState()" title="Next saved state">
+           <button id="backwardBtn" [disabled]="disablePrev" (click)="previousState()" title="Previous saved state">
                 <i class="fa fa-step-backward"> </i> 
            </button> 
            <span class="">
-               {{activeIndex + 1}} / {{total}} 
+               {{currentState}} / {{total}} 
            </span>
-           <button id="forwardBtn" class="" (click)="nextState()" title="Previous saved state">
+           <button id="forwardBtn" [disabled]="disableNext" class="" (click)="nextState()" title="Next saved state">
                 <i class="fa fa-step-forward"> </i> 
            </button> 
            <button id="addBtn" class="w3-bar-item w3-hover-light-grey" (click)="addState()" title="Add model state">
@@ -25,9 +25,9 @@ import {FormsModule} from "@angular/forms";
            <button id="deleteBtn" class="w3-bar-item w3-hover-light-grey" (click)="deleteState()" title="Add model state">
                 <i class="fa fa-trash"> </i> 
            </button> 
-           <button id="replaceBtn" class="w3-bar-item w3-hover-light-grey" (click)="updateState()" title="Add model state">
-                <i class="fa fa-recycle"> </i> 
-           </button> 
+<!--           <button id="replaceBtn" class="w3-bar-item w3-hover-light-grey" (click)="updateState()" title="Add model state">-->
+<!--                <i class="fa fa-edit"> </i> -->
+<!--           </button> -->
         </section>
     `, styles: [`
         .state-toolbar{
@@ -64,6 +64,19 @@ export class StateToolbar {
     deleteState(){
         this.onDeleteState.emit();
     }
+
+    get currentState(){
+        return this.activeIndex + 1;
+    }
+
+    get disablePrev(){
+        return this.activeIndex <= 0;
+    }
+
+    get disableNext(){
+        return this.total === 0 || this.activeIndex === this.total - 1;
+    }
+
 }
 @NgModule({
     imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule],

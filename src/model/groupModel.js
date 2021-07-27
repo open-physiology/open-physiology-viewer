@@ -1,4 +1,8 @@
 import {Resource} from './resourceModel';
+import {Node} from './verticeModel';
+import {Link} from './edgeModel';
+import {Lyph} from './shapeModel';
+
 import {isObject, unionBy, merge, keys, entries, isArray, pick, defaults} from 'lodash-bound';
 import {
     getGenID,
@@ -11,6 +15,7 @@ import {
     showGroups, schemaClassModels
 } from './utils';
 import {logger, $LogMsg} from './logger';
+import {interpolateGreens} from "d3-scale-chromatic";
 
 /**
  * Group (subgraph) in the connectivity model
@@ -101,6 +106,19 @@ export class Group extends Resource {
 
         res.assignScaffoldComponents();
         return res;
+    }
+
+    contains(resource){
+        if (resource instanceof Node){
+            return this.nodes.find(e => e.id === resource.id);
+        }
+        if (resource instanceof Lyph){
+            return this.lyphs.find(e => e.id === resource.id);
+        }
+        if (resource instanceof Link){
+            return this.links.find(e => e.id === resource.id);
+        }
+        return false;
     }
 
     /**

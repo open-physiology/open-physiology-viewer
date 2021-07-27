@@ -1,7 +1,10 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Color, $Field, $Prefix, $SchemaClass, addColor, schemaClassModels, showGroups} from "./utils";
+import {$Color, $Field, $SchemaClass, addColor, schemaClassModels, showGroups} from "./utils";
 import {logger, $LogMsg} from "./logger";
+import {Anchor} from './verticeModel';
+import {Wire} from './edgeModel';
+import {Region} from './shapeModel';
 
 export class Component extends Resource {
 
@@ -79,6 +82,19 @@ export class Component extends Resource {
         let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames([$SchemaClass.Component]);
         relFieldNames.forEach(prop => res = res::unionBy((this[prop] ||[]), $Field.id));
         return res.filter(e => !!e && e::isObject());
+    }
+
+    contains(resource){
+        if (resource instanceof Anchor){
+            return this.anchors.find(e => e.id === resource.id);
+        }
+        if (resource instanceof Wire){
+            return this.wires.find(e => e.id === resource.id);
+        }
+        if (resource instanceof Region){
+            return this.regions.find(e => e.id === resource.id);
+        }
+        return false;
     }
 
     /**

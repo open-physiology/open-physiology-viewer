@@ -700,6 +700,32 @@
         }
       }
     },
+    "Publication": {
+      "description": "Reference to a publication",
+      "allOf": [
+        {
+          "$ref": "#/definitions/External"
+        }
+      ],
+      "properties": {
+        "documents": {
+          "description": "Model resources documented by the given external resource (publication)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Resource"
+              }
+            ]
+          },
+          "relatedTo": "publications",
+          "advanced": true
+        }
+      }
+    },
     "Graph": {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "allOf": [
@@ -2133,7 +2159,7 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/External"
+                "$ref": "#/definitions/Publication"
               }
             ]
           },

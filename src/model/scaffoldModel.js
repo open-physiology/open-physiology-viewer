@@ -17,6 +17,7 @@ import {$Field, $SchemaClass, $SchemaType, getFullID, schemaClassModels} from ".
 import {getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
+
 /**
  * @property logger
  */

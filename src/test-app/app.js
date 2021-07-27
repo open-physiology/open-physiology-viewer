@@ -58,13 +58,12 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 Snapshot model: {{_snapshot.name}}
             </span>
             <state-toolbar id="state-toolbar"
-                [activeIndex] = "_snapshot?.activeIndex"
-                [total]= "_snapshot?.length"                            
+                [activeIndex]      = "_snapshot?.activeIndex"
+                [total]            = "_snapshot?.length || 0"                            
                 (onPreviousState)  = "previousState()"  
                 (onNextState)      = "nextState()" 
                 (onAddState)       = "saveState()"
                 (onDeleteState)    = "removeState()"
-                (onUpdateState)    = "replaceState()"
            >
             </state-toolbar>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
@@ -238,9 +237,8 @@ export class TestApp {
     _scaffoldUpdated = false;
 
     _snapshot;
-    _snapshotCounter = 1
-
-    _currentState;
+    _snapshotCounter = 1;
+    _unsavedState;
 
 
     @ViewChild('webGLScene') _webGLScene: ElementRef;
@@ -487,8 +485,6 @@ export class TestApp {
         if (!this._snapshot) {
             this.createSnapshot();
         }
-        const annotationProperties = schema.definitions.AnnotationSchema.properties::keys();
-        this._snapshot.annotation = this._model::pick(annotationProperties);
 
         let newState = this.modelClasses.State.fromJSON({
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
@@ -509,13 +505,11 @@ export class TestApp {
             },
         }, this.modelClasses, this._graphData.entitiesByID);
         this._snapshot.addState(newState);
+        this._unsavedState = null;
     }
 
     restoreState(){
         let activeState = this._snapshot.active;
-
-        //TODO validate snapshot model, i.e., check that saved model version matches, issue a warning otherwise
-
         if (activeState.visibleGroups){
             this._graphData.showGroups(activeState.visibleGroups);
         }
@@ -573,13 +567,6 @@ export class TestApp {
         }
     }
 
-    replaceState(){
-        if (this._snapshot){
-            this._snapshot.removeActive();
-            this.restoreState();
-        }
-    }
-
     createSnapshot(){
         this._snapshot = this.modelClasses.Snapshot.fromJSON({
             [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter),
@@ -587,10 +574,19 @@ export class TestApp {
             [$Field.model]: this._model.id
         }, this.modelClasses, this._graphData.entitiesByID);
         this._snapshotCounter += 1;
+        const annotationProperties = schema.definitions.AnnotationSchema.properties::keys();
+        this._snapshot.annotation = this._model::pick(annotationProperties);
     }
 
-    loadSnapshot(newSnapshot){
-        this._snapshot = this.modelClasses.Snapshot.fromJSON(newSnapshot, this.modelClasses, this._graphData.entitiesByID);
+    loadSnapshot(value){
+        let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
+        const match = newSnapshot.validate(this._graphData);
+        if (match < 0) {
+            throw new Error("Snapshot model is not applicable to the model!");
+        } else {
+            //TODO show warning or ask whether to proceed
+        }
+        this._snapshot = newSnapshot;
     }
 
     saveSnapshot(){

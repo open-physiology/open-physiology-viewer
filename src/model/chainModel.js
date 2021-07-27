@@ -74,7 +74,7 @@ export class Chain extends GroupTemplate {
 
         chain.group = this.createTemplateGroup(chain, parentGroup);
 
-        function getTemplate(){
+        function getLyphTemplate(){
             let template = chain.lyphTemplate;
             if (template){
                 if (template::isObject()){
@@ -115,11 +115,11 @@ export class Chain extends GroupTemplate {
             let lyphs = chain.lyphs.map(lyphID => findResourceByID(parentGroup.lyphs, lyphID) || {[$Field.id]: lyphID});
 
             if (chain.lyphTemplate){
-                let template = getTemplate();
+                let lyphTemplate = getLyphTemplate();
                 lyphs.forEach(subtype => {
                     if (!subtype.supertype && !isDefined(subtype.layers)){
                         subtype.supertype = chain.lyphTemplate;
-                        Lyph.clone(parentGroup.lyphs, template, subtype)
+                        Lyph.clone(parentGroup.lyphs, lyphTemplate, subtype)
                     }
                 })
             }
@@ -284,7 +284,7 @@ export class Chain extends GroupTemplate {
 
             chain.root = getID(sources[0]);
             chain.leaf = getID(targets[N - 1]);
-            let template = getTemplate();
+            let lyphTemplate = getLyphTemplate();
 
             //Create levels
             chain.lyphs = [];
@@ -310,13 +310,13 @@ export class Chain extends GroupTemplate {
                 }
                 prev = link;
 
-                if (template && !chain.levels[i].conveyingLyph){
+                if (lyphTemplate && !chain.levels[i].conveyingLyph){
                     //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
                     let lyph = {
                         [$Field.id]         : getGenID(chain.id, $Prefix.lyph, i+1),
                         [$Field.supertype]  : chain.lyphTemplate,
                         [$Field.conveys]    : chain.levels[i].id,
-                        [$Field.topology]   : getLevelTopology(i, N, template),
+                        [$Field.topology]   : getLevelTopology(i, N, lyphTemplate),
                         [$Field.skipLabel]  : true,
                         [$Field.generated]  : true
                     };

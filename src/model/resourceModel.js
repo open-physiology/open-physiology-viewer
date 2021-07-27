@@ -490,3 +490,10 @@ export class External extends Resource {
           return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 }
+
+export class Publication extends External {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.Publication;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+}

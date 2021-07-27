@@ -392,19 +392,23 @@ sh
             layer.includeRelated(group);
         });
         (this.internalLyphs||[]).forEach(internal => {
-            if (!group.lyphs.find(e => e.id === internal.id)){
+            if (!group.contains(internal)){
                 group.lyphs.push(internal);
-                if (internal.conveys){
+                internal.hidden = group.hidden;
+                if (internal.conveys &&! group.contains(internal.conveys)){
                     group.links.push(internal.conveys);
+                    internal.conveys.hidden = group.hidden;
                     internal.conveys.includeRelated(group);
                 }
                 internal.includeRelated(group);
             }
         });
         (this.internalNodes||[]).forEach(internal => {
-            if (!(group.nodes||[]).find(e => e.id === internal.id)){
+            if (!group.contains(internal)){
                 group.nodes.push(internal);
+                internal.hidden = group.hidden;
                 (internal.clones||[]).forEach(clone => {
+                    //Clones can't be already in the group?
                     group.nodes.push(clone);
                 });
             }

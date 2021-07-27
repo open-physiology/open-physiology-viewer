@@ -83,8 +83,9 @@ export class Wire extends Edge {
         (this.hostedAnchors||[]).forEach(anchor => component.anchors.push(anchor));
         this.applyToEndAnchors(
             (end) => {
-                if (end.generated && !component.anchors.find(anchor => anchor.id === end.id)) {
+                if (end.generated && !component.contains(end)) {
                     component.anchors.push(end);
+                    end.hidden = component.hidden;
                 }
             }
         )
@@ -179,16 +180,23 @@ export class Link extends Edge {
 
     includeRelated(group){
         if (this.conveyingLyph) {
-            if (!group.lyphs.find(lyph => lyph.id === this.conveyingLyph.id)){
+            if (!group.contains(this.conveyingLyph)){
                 group.lyphs.push(this.conveyingLyph);
+                this.conveyingLyph.hidden = group.hidden;
             }
         }
-        (this.hostedNodes||[]).forEach(node => group.nodes.push(node));
+        (this.hostedNodes||[]).forEach(node => {
+           if (!group.contains(node)) {
+              group.nodes.push(node);
+              node.hidden = group.hidden;
+           }
+        });
         //include generated source and target nodes to the same group
         this.applyToEndNodes(
             (end) => {
-                if (end.generated && !group.nodes.find(node => node.id === end.id)) {
+                if (end.generated && !group.contains(end)) {
                     group.nodes.push(end);
+                    end.hidden = group.hidden;
                 }
             }
         )

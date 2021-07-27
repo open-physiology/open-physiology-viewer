@@ -188,13 +188,13 @@ export class WebGLSceneComponent {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
-            if (this._graphData.neurulator) {
-                this._graphData.neurulator();
-            }
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
             if (this.graph) {
                 this.graph.graphData(this._graphData)
+            }
+            if (this._graphData.neurulator) {
+                (async () => await this._graphData.neurulator())().then(model => console.log(model));
             }
         }
     }

@@ -92,7 +92,7 @@ export class Coalescence extends Resource{
         let lyph = this.lyphs[0];
         this.lyphs.forEach((lyph2, i) => {
             if (i <= 0) {return; }
-            if ((lyph2.layers||[]).find(x => x.id === lyph.id) || (lyph.layers||[]).find(x => x.id === lyph2.id)) {
+            if ((lyph.layerIn && lyph.layerIn.id === lyph2.id) || (lyph2.layerIn && lyph2.layerIn.id === lyph.id)) {
                 logger.warn($LogMsg.COALESCENCE_SELF, lyph, lyph2);
             }
             if (!lyph.axis || !lyph2.axis) {

@@ -32,6 +32,7 @@ export const $SchemaType = {
  * @property ProcessTypeScheme
  * @property Resource
  * @property External
+ * @property Publication
  * @property VisualResource
  * @property Vertice
  * @property Node
@@ -264,10 +265,12 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
                 if (!group[prop].find(x => x === resource.id || x.id === resource.id)){
                     group[prop].push(resource.id);
                 }
-                resource.hidden = group.hidden;
             }
+            resource.hidden = group.hidden;
         } else {
-            if (!group[prop].includes(resource)){ group[prop].push(resource); }
+            if (!group[prop].includes(resource)){
+                group[prop].push(resource);
+            }
         }
     }
     if (parentGroup && resource.id){
