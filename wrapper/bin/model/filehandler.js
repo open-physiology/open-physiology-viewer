@@ -92,6 +92,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
+            throw err;
             throw new Error('An error has been encoutered during the conversion from xlsx to input json.')
         }
     }
@@ -108,6 +109,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
+            throw err;
             throw new Error('An error has been encoutered during the conversion from input json to generated json.')
         }
     }
@@ -124,6 +126,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
+            throw err;
             throw new Error('An error has been encoutered during the conversion from generated json to jsonld.')
         }
     }
@@ -143,6 +146,7 @@ class ConversionHandler {
                 throw new Error('The file given in input does not exist or is not located where specified.')
             }
         } catch(err) {
+            throw err;
             throw new Error('An error has been encoutered during the conversion from jsonld to flattened jsonld.')
         }
     }
