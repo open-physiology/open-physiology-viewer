@@ -16,6 +16,11 @@ const options = yargs
 
 process.on('unhandledRejection', (reason, p) => {
     console.error('Unhandled Rejection at:', p, 'reason:', reason)
+    console.error('Was called with the following options',
+                  [options.f,
+                   options.t,
+                   (options.f.includes("id") ? options.i.slice(0, 5) : options.i),
+                   options.o])
     process.exit(1)
 });
 
