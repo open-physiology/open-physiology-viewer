@@ -592,7 +592,6 @@ export class Graph extends Group{
         while (bags.length > 0){
             let seed = bags.pop();
             if (!seed._processed){
-                // console.log("Neurulator", bags.length, seed);
                 this.neurulateFromSeed(seed);
             }
         }

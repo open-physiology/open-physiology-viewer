@@ -13,7 +13,6 @@ import keast from './data/keastSpinalFull.json';
 
 import {keys, entries} from 'lodash-bound';
 import {modelClasses} from '../src/model/index';
-import {EDGE_STROKE} from "../src/model/utils";
 
 
 describe("JSON Schema loads correctly", () => {
