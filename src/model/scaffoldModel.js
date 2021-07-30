@@ -39,6 +39,8 @@ export class Scaffold extends Component {
         logger.clear();
 
         let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
+        inputModel.class = inputModel.class || $SchemaClass.Scaffold;
+
         let standalone = entitiesByID === undefined;
 
         //Copy existing entities to a map to enable nested model instantiation
@@ -52,7 +54,6 @@ export class Scaffold extends Component {
         let namespace = inputModel.namespace || defaultNamespace;
 
         //Create scaffold
-        json.class = json.class || $SchemaClass.Scaffold;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
 
         if (resVal.errors && resVal.errors.length > 0) {
@@ -120,7 +121,7 @@ export class Scaffold extends Component {
         const scalePoint = p => p::keys().forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
         (this.anchors||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.wires||[]).forEach(e => {
-            e.length && (length *= scaleFactor);
+            e.length && (e.length *= scaleFactor);
             e.arcCenter && scalePoint(e.arcCenter);
             e.controlPoint && scalePoint(e.controlPoint);
         });
