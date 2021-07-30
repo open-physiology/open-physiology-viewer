@@ -539,7 +539,16 @@
           "description": "Scaffold anchor points",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Anchor"
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/IdentifierScheme"
+                },
+                {
+                  "$ref": "#/definitions/Anchor"
+                }
+              ]
+            }
           },
           "default": []
         },
@@ -547,7 +556,14 @@
           "description": "Scaffold edges (property-restricted version of links, e.g., scaffold links are not conveyed by lyphs?)",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Wire"
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
+              }
+            ]
           },
           "default": []
         },
@@ -728,11 +744,7 @@
     },
     "Graph": {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Group"
-        }
-      ]
+      "$ref": "#/definitions/Group"
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
@@ -2227,12 +2239,7 @@
     },
     "Scaffold": {
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Component"
-        }
-      ],
-      "properties": {}
+      "$ref": "#/definitions/Component"
     },
     "Shape": {
       "description": "A resource that occupies space within a border",
@@ -2638,7 +2645,7 @@
       }
     }
   },
-  "anyOf": [
+  "oneOf": [
     {
       "$ref": "#/definitions/Graph"
     },

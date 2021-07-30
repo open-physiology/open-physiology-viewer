@@ -15,7 +15,6 @@ import {
     showGroups, schemaClassModels
 } from './utils';
 import {logger, $LogMsg} from './logger';
-import {interpolateGreens} from "d3-scale-chromatic";
 
 /**
  * Group (subgraph) in the connectivity model

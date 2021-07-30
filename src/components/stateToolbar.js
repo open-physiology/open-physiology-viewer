@@ -10,13 +10,13 @@ import {FormsModule} from "@angular/forms";
     selector: 'state-toolbar',
     template: `
        <section class="w3-bar w3-light-grey w3-bottom state-toolbar" title="Snapshot model">
-           <button id="backwardBtn" [disabled]="disablePrev" (click)="previousState()" title="Previous saved state">
+           <button id="backwardBtn" [disabled]="disablePrev" class="w3-bar-item" (click)="previousState()" title="Previous saved state">
                 <i class="fa fa-step-backward"> </i> 
            </button> 
-           <span class="">
+           <span class="w3-bar-item">
                {{currentState}} / {{total}} 
            </span>
-           <button id="forwardBtn" [disabled]="disableNext" class="" (click)="nextState()" title="Next saved state">
+           <button id="forwardBtn" [disabled]="disableNext" class="w3-bar-item" (click)="nextState()" title="Next saved state">
                 <i class="fa fa-step-forward"> </i> 
            </button> 
            <button id="addBtn" class="w3-bar-item w3-hover-light-grey" (click)="addState()" title="Add model state">
@@ -25,9 +25,9 @@ import {FormsModule} from "@angular/forms";
            <button id="deleteBtn" class="w3-bar-item w3-hover-light-grey" (click)="deleteState()" title="Add model state">
                 <i class="fa fa-trash"> </i> 
            </button> 
-<!--           <button id="replaceBtn" class="w3-bar-item w3-hover-light-grey" (click)="updateState()" title="Add model state">-->
-<!--                <i class="fa fa-edit"> </i> -->
-<!--           </button> -->
+           <button id="resetBtn" [disabled]="!unsavedState" class="w3-bar-item w3-hover-light-grey" (click)="homeState()" title="Return to unsaved state prior to snapshot replay">
+                <i class="fa fa-stop"> </i> 
+           </button> 
         </section>
     `, styles: [`
         .state-toolbar{
@@ -38,10 +38,11 @@ import {FormsModule} from "@angular/forms";
 export class StateToolbar {
     @Input() activeIndex = -1;
     @Input() total = 0;
+    @Input() unsavedState = false;
 
     @Output() onAddState         = new EventEmitter();
     @Output() onDeleteState      = new EventEmitter();
-    @Output() onUpdateState      = new EventEmitter();
+    @Output() onHomeState        = new EventEmitter();
     @Output() onPreviousState    = new EventEmitter();
     @Output() onNextState        = new EventEmitter();
 
@@ -57,8 +58,8 @@ export class StateToolbar {
         this.onNextState.emit();
     }
 
-    updateState(){
-        this.onUpdateState.emit();
+    homeState(){
+        this.onHomeState.emit();
     }
 
     deleteState(){

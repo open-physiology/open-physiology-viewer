@@ -6,7 +6,7 @@ import {
     pick, omit, merge,
     cloneDeep, defaults, unionBy
 } from 'lodash-bound';
-import { Validator} from 'jsonschema';
+import {Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
 import {
@@ -112,11 +112,17 @@ export class Graph extends Group{
      */
     static fromJSON(json, modelClasses = {}) {
         const V = new Validator();
+
+        //Validate using Graph schema
+        delete schema.oneOf;
+        schema.$ref = "#/definitions/Graph";
         let resVal = V.validate(json, schema);
         logger.clear();
-        if (resVal.errors && resVal.errors.length > 0){
-            logger.warn(resVal);
-        }
+
+        //Why this is not shown in logger?
+        // if (resVal.errors && resVal.errors.length > 0){
+        //     logger.error("Schema validation error!", "UPD!");
+        // }
 
         //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
@@ -171,7 +177,11 @@ export class Graph extends Group{
         });
 
         //Log info about the number of generated resources
-        logger.info($LogMsg.RESOURCE_NUM, entitiesByID::keys().length);
+        logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
+
+        if (resVal.errors && resVal.errors.length > 0){
+            logger.error($LogMsg.SCHEMA_GRAPH_ERROR, ...resVal.errors.map(e => e::pick("message", "instance", "path")));
+        }
 
         if (added.length > 0){
             added.forEach(id => delete entitiesByID.waitingList[id]);
@@ -586,7 +596,7 @@ export class Graph extends Group{
     }
 
     //Find paths which are topologically similar to a cyst
-    async neurulator() {
+    neurulator() {
         let bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
             [LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY["BAG-"], LYPH_TOPOLOGY["BAG+"], LYPH_TOPOLOGY["CYST"]].includes(lyph.topology));
         while (bags.length > 0){

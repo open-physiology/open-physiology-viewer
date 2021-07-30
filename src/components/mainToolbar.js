@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter, Input, NgModule} from '@angular/core';
+import {Component, Output, EventEmitter, Input, NgModule, ErrorHandler} from '@angular/core';
 
 import {loadModel} from '../model';
 import {ImportExcelModelDialog} from "./gui/importExcelModelDialog";
@@ -9,6 +9,8 @@ import {MatInputModule} from '@angular/material/input';
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
+import {GlobalErrorHandler} from "../services/errorHandler";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 

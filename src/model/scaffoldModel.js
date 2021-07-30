@@ -33,14 +33,12 @@ export class Scaffold extends Component {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
         const V = new Validator();
+        delete schema.oneOf;
+        schema.$ref = "#/definitions/Scaffold";
         let resVal = V.validate(json, schema);
         logger.clear();
-        if (resVal.errors && resVal.errors.length > 0) {
-            logger.warn(resVal);
-        }
 
         let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
-
         let standalone = entitiesByID === undefined;
 
         //Copy existing entities to a map to enable nested model instantiation
@@ -49,12 +47,17 @@ export class Scaffold extends Component {
          * @type {Object}
          */
         entitiesByID = entitiesByID || {waitingList: {}};
+        const before = entitiesByID::keys().length;
 
         let namespace = inputModel.namespace || defaultNamespace;
 
         //Create scaffold
         json.class = json.class || $SchemaClass.Scaffold;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
+
+        if (resVal.errors && resVal.errors.length > 0) {
+            logger.error($LogMsg.SCHEMA_SCAFFOLD_ERROR, ...resVal.errors.map(e => e::pick("message", "instance", "path")));
+        }
 
         //Auto-create missing definitions for used references
         let added = [];
@@ -82,7 +85,7 @@ export class Scaffold extends Component {
         });
 
         //Log info about the number of generated resources
-        logger.info($LogMsg.RESOURCE_NUM, entitiesByID::keys().length);
+        logger.info($LogMsg.SCAFFOLD_RESOURCE_NUM, this.id, entitiesByID::keys().length - before);
 
         if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);

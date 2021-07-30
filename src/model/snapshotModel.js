@@ -1,5 +1,8 @@
 import {Resource} from "./resourceModel";
 import {$SchemaClass} from "./utils";
+import {Validator} from "jsonschema";
+import schema from "./graphScheme.json";
+import {$LogMsg, logger} from "./logger";
 
 
 /**
@@ -7,8 +10,19 @@ import {$SchemaClass} from "./utils";
  */
 export class State extends Resource {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-          json.class = json.class || $SchemaClass.State;
-          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+        const V = new Validator();
+        delete schema.oneOf;
+        schema.$ref = "#/definitions/Snapshot";
+        let resVal = V.validate(json, schema);
+        logger.clear();
+
+        json.class = json.class || $SchemaClass.State;
+        let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
+
+        if (resVal.errors && resVal.errors.length > 0){
+            logger.warn($LogMsg.SCHEMA_SNAPSHOT_ERROR, resVal.errors);
+        }
+        return res;
     }
 }
 
@@ -87,6 +101,14 @@ export class Snapshot extends Resource {
 
     get activeIndex(){
         return this._activeIdx;
+    }
+
+    set activeIndex(value){
+        if (value < this.length) {
+            this._activeIdx = value;
+        } else {
+            this._activeIdx = -1;
+        }
     }
 
     get length(){

@@ -13,7 +13,10 @@ export const $LogMsg = {
     REGION_BORDER_ANCHORS       : "Created border anchors from facets",
 
     RESOURCE_JSON_PATH          : "Created relationship via dynamic assignment (JSONPath expression)",
-    RESOURCE_NUM                : "Number of resources in the generated model",
+
+    GRAPH_RESOURCE_NUM          : "Number of resources in the generated model",
+    SCAFFOLD_RESOURCE_NUM       : "Number of resources in the generated scaffold",
+
     RESOURCE_TO_LAYER           : "Placed resource into layer",
 
     TREE_GEN_LIMIT              : "Reached maximum allowed number of generated resources per tree instance",
@@ -115,6 +118,10 @@ export const $LogMsg = {
     DYNAMIC_UNDEFINED           : "Cannot expand undefined dynamic group template",
     DYNAMIC_NO_SEED             : "Incomplete dynamic group annotation definition: seed lyph is missing",
     DYNAMIC_NO_SEED_FOUND       : "Could not find the dynamic group seed lyph definition in the parent group",
+
+    SCHEMA_GRAPH_ERROR          : "Connectivity model does not conform to schema",
+    SCHEMA_SCAFFOLD_ERROR       : "Scaffold model does not conform to schema",
+    SCHEMA_SNAPSHOT_ERROR       : "Snapshot model does not conform to schema",
 
     //Errors
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,

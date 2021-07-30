@@ -59,11 +59,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             </span>
             <state-toolbar id="state-toolbar"
                 [activeIndex]      = "_snapshot?.activeIndex"
-                [total]            = "_snapshot?.length || 0"                            
+                [total]            = "_snapshot?.length || 0"         
+                [unsavedState]     = "!!_unsavedState"                           
                 (onPreviousState)  = "previousState()"  
                 (onNextState)      = "nextState()" 
                 (onAddState)       = "saveState()"
                 (onDeleteState)    = "removeState()"
+                (onHomeState)      = "homeState()"
            >
             </state-toolbar>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
@@ -239,7 +241,6 @@ export class TestApp {
     _snapshot;
     _snapshotCounter = 1;
     _unsavedState;
-
 
     @ViewChild('webGLScene') _webGLScene: ElementRef;
     @ViewChild('jsonEditor') _container: ElementRef;
@@ -485,12 +486,24 @@ export class TestApp {
         if (!this._snapshot) {
             this.createSnapshot();
         }
+        this._snapshot.addState(this.getCurrentState());
+        this._unsavedState = null;
+    }
 
-        let newState = this.modelClasses.State.fromJSON({
+    homeState(){
+        if (this._unsavedState){
+            this.loadState(this._unsavedState);
+            if (this._snapshot){
+                this._snapshot.activeIndex = -1;
+            }
+        }
+    }
+
+    getCurrentState(){
+        return this.modelClasses.State.fromJSON({
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
             [$Field.visibleGroups]: this._graphData.visibleGroups.map(g => g.id),
-            [$Field.scaffolds]: (this._graphData.scaffolds||[]).map(s => (
-                {
+            [$Field.scaffolds]: (this._graphData.scaffolds||[]).map(s => ({
                     [$Field.id]: s.id,
                     [$Field.hidden]: s.hidden,
                     [$Field.anchors]: (s.anchors||[]).map(a => ({
@@ -504,12 +517,14 @@ export class TestApp {
                 up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
             },
         }, this.modelClasses, this._graphData.entitiesByID);
-        this._snapshot.addState(newState);
-        this._unsavedState = null;
     }
 
     restoreState(){
-        let activeState = this._snapshot.active;
+        this._unsavedState = this.getCurrentState();
+        this.loadState(this._snapshot.active);
+    }
+
+    loadState(activeState){
         if (activeState.visibleGroups){
             this._graphData.showGroups(activeState.visibleGroups);
         }
@@ -612,7 +627,7 @@ export class TestApp {
     providers   : [
         {
             provide: MatSnackBar,
-            useClass: MatSnackBarModule
+            useClass: MatSnackBar
         },
         {
             provide: ErrorHandler,
