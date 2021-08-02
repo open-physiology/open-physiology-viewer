@@ -239,8 +239,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             width  : calc(100% - 48px);
         }
         
-        #resource-editor{
-            height : 100vh;
+        #resource-editor, #layout-editor{
+            height : 100%;
+            overflow : auto;
             width  : calc(100% - 48px);
         }
         
