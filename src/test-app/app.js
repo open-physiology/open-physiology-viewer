@@ -216,7 +216,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
         #main-panel mat-tab-group{            
             height : inherit;
-            width : calc(100%);
+            // width : calc(100%);
         }
 
         #viewer-panel {
