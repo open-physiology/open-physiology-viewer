@@ -20,7 +20,7 @@ import {
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels
 } from "./utils";
-import {getItemType, strToValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 export { schema };
@@ -393,17 +393,7 @@ export class Graph extends Group{
             //Remove headers and empty objects
             model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
         });
-
-        if (model.main){
-            if (model.main[0]::isArray()){
-                model.main[0].forEach(({key: value}) => model[key] = value);
-            } else {
-                if (model.main[0]::isObject()){
-                    model::merge(model.main[0]);
-                }
-            }
-            delete model.main;
-        }
+        extractModelAnnotation(model);
         return model;
     }
 

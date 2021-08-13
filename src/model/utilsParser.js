@@ -1,4 +1,5 @@
 import {$SchemaType, getSchemaClass} from "./utils";
+import {isArray, isObject, merge} from "lodash-bound";
 
 /**
  * Get expected field type
@@ -49,4 +50,21 @@ export function strToValue(isArray, itemType, str){
         res = parseStr(str.trim());
     }
     return res;
+}
+
+/**
+ * Copy properties from Excel's "main" page to the model object
+ * @param model - generated JSON from Excel model
+ */
+export function extractModelAnnotation(model){
+    if (model.main){
+        if (model.main[0]::isArray()){
+            model.main[0].forEach(({key: value}) => model[key] = value);
+        } else {
+            if (model.main[0]::isObject()){
+                model::merge(model.main[0]);
+            }
+        }
+        delete model.main;
+    }
 }

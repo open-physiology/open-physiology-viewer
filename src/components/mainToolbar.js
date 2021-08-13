@@ -17,11 +17,11 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     template: `
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
            <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="load(fileInput.files)"/>
+                   (change)="load(fileInput.files, onLoadModel)"/>
            <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="join(fileInput1.files)"/>
+                   (change)="load(fileInput1.files, onJoinModel)"/>
            <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="merge(fileInput2.files)"/>
+                   (change)="load(fileInput2.files, onMergeModel)"/>
            <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
                 <i class="fa fa-plus"> </i>
            </button>
@@ -98,7 +98,7 @@ export class MainToolbar {
         this.onCreateModel.emit();
     }
 
-    load(files) {
+    load(files, event) {
         if (files && files[0]){
             let [name, extension] = fileExtensionRe.exec(files[0].name);
             extension = extension.toLowerCase();
@@ -106,7 +106,7 @@ export class MainToolbar {
             const reader = new FileReader();
             reader.onload = () => {
                 let model = loadModel(reader.result, name, extension);
-                this.onLoadModel.emit(model);
+                event.emit(model);
             };
             try {
                 if (extension === "json"){
@@ -116,36 +116,6 @@ export class MainToolbar {
                         reader.readAsBinaryString(files[0]);
                     }
                 }
-            } catch (err){
-                throw new Error("Failed to open the input file: " + err);
-            }
-        }
-    }
-
-    join(files) {
-        if (files && files[0]){
-            const reader = new FileReader();
-            reader.onload = () => {
-                let newModel = JSON.parse(reader.result);
-                this.onJoinModel.emit(newModel);
-            };
-            try {
-                reader.readAsText(files[0]);
-            } catch (err){
-                throw new Error("Failed to open the input file: " + err);
-            }
-        }
-    }
-
-    merge(files) {
-        if (files && files[0]){
-            const reader = new FileReader();
-            reader.onload = () => {
-                let newModel = JSON.parse(reader.result);
-                this.onMergeModel.emit(newModel);
-            };
-            try {
-                reader.readAsText(files[0]);
             } catch (err){
                 throw new Error("Failed to open the input file: " + err);
             }

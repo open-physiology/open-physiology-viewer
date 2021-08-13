@@ -14,7 +14,7 @@ import {
     pick
 } from "lodash-bound";
 import {$Field, $SchemaClass, $SchemaType, getFullID, schemaClassModels} from "./utils";
-import {getItemType, strToValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 
@@ -232,16 +232,7 @@ export class Scaffold extends Component {
             model[relName] = model[relName].slice(1);
         });
 
-        if (model.main){
-            if (model.main[0]::isArray()){
-                model.main[0].forEach(({key: value}) => model[key] = value);
-            } else {
-                if (model.main[0]::isObject()){
-                    model::merge(model.main[0]);
-                }
-            }
-            delete model.main;
-        }
+        extractModelAnnotation(model);
         return model;
     }
 
