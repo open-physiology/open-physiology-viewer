@@ -142,21 +142,22 @@ export class Scaffold extends Component {
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
-            if (relName === "localConventions") {  // local conventions are not a reasource
+            if (relName === "localConventions") { // local conventions are not a resource
                 for (let i = 1; i < table.length; i++) {
                     let convention = {};
                     table[i].forEach((value, j) => {
-                        if (!value) { return; }
-                        if (!headers[j]) {
-                            logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
-                            return;
+                        if (value) {
+                            if (!headers[j]) {
+                                logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+                                return;
+                            }
+                            if (!headers[j]::isString()) {
+                                logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
+                                return;
+                            }
+                            let key = headers[j].trim();
+                            convention[key] = value;
                         }
-                        if (!headers[j]::isString()) {
-                            logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
-                            return;
-                        }
-                        let key = headers[j].trim();
-                        convention[key] = value;
                     });
 
                     table[i] = convention;
@@ -221,7 +222,9 @@ export class Scaffold extends Component {
                     }
                     let key = headers[j].trim();
                     let res = convertValue(key, value);
-                    if (res){ resource[key] = res; }
+                    if (res) {
+                        resource[key] = res;
+                    }
                 });
 
                 table[i] = resource;

@@ -29,7 +29,7 @@ export function getItemType(schema){
  * @returns {*} resource value of the requested type
  */
 export function strToValue(isArray, itemType, str){
-    const parseStr = x => (itemType === $SchemaType.NUMBER) ? parseInt(x)
+    const parseStr = x => (itemType === $SchemaType.NUMBER) ? parseFloat(x)
         : (itemType === $SchemaType.BOOLEAN) ? (x.toLowerCase() === "true")
             : (itemType === $SchemaType.OBJECT) ? JSON.parse(x)
                 : x;
