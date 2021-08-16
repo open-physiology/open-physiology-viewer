@@ -10,9 +10,11 @@ import respiratory from './data/respiratory.json';
 import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
 import keast from './data/keastSpinalFull.json';
-
 import {keys, entries} from 'lodash-bound';
 import {modelClasses} from '../src/model/index';
+import schema from '../src/model/graphScheme.json';
+import {Validator} from "jsonschema";
+import {logger} from "../src/model/logger";
 
 
 describe("JSON Schema loads correctly", () => {
@@ -50,6 +52,35 @@ describe("JSON Schema loads correctly", () => {
         expect(modelClasses.Coalescence.COALESCENCE_TOPOLOGY).to.have.property("CONNECTING");
     });
 });
+
+
+describe("JSON Schema matches patterns", () => {
+    let v;
+    before(() => {
+        v = new Validator();
+    });
+
+    it("IdentifierSchema does not accept weird expressions as identifiers", () => {
+        const ids = ["a+b=c",
+            "2*2=4",
+            "Just some text with spaces"];
+        ids.forEach(id => {
+            let resVal = v.validate(id, schema.definitions.IdentifierScheme);
+            console.log(resVal.errors);
+            expect(resVal.errors).to.have.length.above(0);
+        });
+    })
+
+    it("IdentifierSchema accepts URIs", () => {
+        const ids = ["http://www.amazon.com/?isbn=0321154991",
+            "doi:10.1016/B978-0-444-53491-0.09985-5",
+            "doi:10.1016/j.mpaic.2008.08.005"];
+        ids.forEach(id => {
+            let resVal = v.validate(id, schema.definitions.IdentifierScheme);
+            expect(resVal.errors).to.have.length(0);
+        });
+    })
+})
 
 describe("Generate model (Basal Ganglia)", () => {
     let graphData;
@@ -145,11 +176,12 @@ describe("Serialize data", () => {
     it("All necessary fields serialized (respiratory system)", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
         let serializedGraphData = graphData.toJSON();
-        let excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger", "modelClasses"];
-        let exported = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key));
+        const excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger", "modelClasses", "scaffoldComponents"];
+        let expectedToBeSerialized = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key)).map(e => e[0]);
+        expect(serializedGraphData::keys().length).to.be.equal(expectedToBeSerialized.length);
+        let diff = expectedToBeSerialized.filter(x => !serializedGraphData::keys().find(e => e === x));
+        expect(diff).to.have.length(0);
         let serializedLogs = graphData.logger.print();
-        //TODO fix - scaffoldComponents are not serialized?
-        expect(serializedGraphData::keys().length).to.be.equal(exported.length);
         expect(serializedLogs.length).to.be.equal(graphData.logger.entries.length);
     });
 
