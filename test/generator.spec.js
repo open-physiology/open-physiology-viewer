@@ -23,10 +23,7 @@ import basicSharedNodes from './data/basicSharedNodes';
 import basicVillus from './data/basicVillus';
 
 import fullBody from './data/fullBody';
-import fullBodyRegions from './data/fullBodyRegions';
-
 import keastSpinal from './data/keastSpinal';
-
 import neuron from './data/neuron';
 import neuronTemplate from './data/neuronTemplate';
 import neuronTemplateRegion from './data/neuronTemplateRegion';
@@ -145,13 +142,6 @@ describe("FullBody", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(fullBody, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {});
-});
-
-describe("FullBodyRegions", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(fullBodyRegions, modelClasses));
-    it("Model generated without errors", () => expectAutoGenResources(graphData));
     after(() => {});
 });
 

@@ -496,7 +496,6 @@ export class Graph extends Group{
                 e.controlPoint && scalePoint(e.controlPoint);
             }
         });
-        (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
     }
 
     /**

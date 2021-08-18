@@ -12,9 +12,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
-
-
-
 import {ResourceInfoModule} from "./resourceInfo";
 import {FieldEditorModule} from "./fieldEditor";
 import {ExternalSelectDialog} from "./externalSelectDialog";

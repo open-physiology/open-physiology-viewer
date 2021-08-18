@@ -50,9 +50,6 @@ export class Group extends Resource {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);
         }
 
-        //Regions in groups are simple areas, ignore facets and border anchors
-        (json.regions||[]).forEach(region => modelClasses.Region.reduceGroupTemplate(json, region));
-
         //replace references to templates
         this.replaceReferencesToTemplates(json, modelClasses);
 
@@ -99,23 +96,21 @@ export class Group extends Resource {
         res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec
-        addColor(res.regions, $Color.Region);
         addColor(res.links, $Color.Link);
         addColor(res.lyphs);
-
         res.assignScaffoldComponents();
         return res;
     }
 
     contains(resource){
         if (resource instanceof Node){
-            return this.nodes.find(e => e.id === resource.id);
+            return this.nodes.find(e => e && e.id === resource.id);
         }
         if (resource instanceof Lyph){
-            return this.lyphs.find(e => e.id === resource.id);
+            return this.lyphs.find(e => e && e.id === resource.id);
         }
         if (resource instanceof Link){
-            return this.links.find(e => e.id === resource.id);
+            return this.links.find(e => e && e.id === resource.id);
         }
         return false;
     }
@@ -450,14 +445,6 @@ export class Group extends Resource {
                 res.push(component);
             }));
         this.scaffoldComponents = res;
-    }
-
-    /**
-     * Visible regionsf
-     * @returns {*[]}
-     */
-    get visibleRegions(){
-        return (this.regions||[]).filter(e => e.isVisible);
     }
 
     /**

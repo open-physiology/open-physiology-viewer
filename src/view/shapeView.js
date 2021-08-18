@@ -405,8 +405,9 @@ Border.prototype.createViewObjects = function(state){
     VisualResource.prototype.createViewObjects.call(this, state);
     //Make sure we always have border objects regardless of data input
     for (let i = 0; i < this.borders.length; i++){
+        let points = this.host.points;
         this.borders[i]::merge({
-            "length": this.host.points[i + 1].distanceTo(this.host.points[i])
+            "length": points[(i + 1) % points.length].distanceTo(points[i])
         });
         if (this.borders[i].conveyingLyph) {
             this.borders[i].conveyingLyph.conveys = this.borders[i];
@@ -499,14 +500,16 @@ Border.prototype.updateViewObjects = function(state){
 
     for (let i = 0; i < this.borders.length ; i++){
         copyCoords(this.borders[i].source, this.host.points[ i ]);
-        copyCoords(this.borders[i].target, this.host.points[i + 1]);
+        copyCoords(this.borders[i].target, this.host.points[ (i + 1) % this.borders.length]);
         this.borders[i].updateViewObjects(state);
-        //Position hostedNodes exactly on the link shape
+
+        //Position hostedNodes exactly on the edge shape
+        //TODO move this into Link class as this is not applicable to Wires
         let borderLyph = this.borders[i].conveyingLyph;
         if (borderLyph && borderLyph.viewObjects) {
             borderLyph.viewObjects::values().forEach(obj => obj && this.state.graphScene.add(obj));
         }
-        if (this.borders[i].hostedNodes){
+        if (this.borders[i].hostedNodes) {
             //position nodes on the lyph border (exact shape)
             let n = this.borders[i].hostedNodes.length;
             const offset = 1 / (n + 1);
@@ -514,7 +517,7 @@ Border.prototype.updateViewObjects = function(state){
             this.borders[i].hostedNodes.forEach((node, j) => {
                 //For borders 2 and 3 position nodes in the reversed order to have parallel links
                 let d_i = node.offset ? node.offset : offset * (j + 1);
-                if (i > 1){
+                if (i > 1) {
                     d_i = 1 - d_i;
                 }
                 //TODO cysts may have shifted nodes on layer borders
@@ -524,7 +527,7 @@ Border.prototype.updateViewObjects = function(state){
     }
 
     //By doing the update here, we also support inner content in the region
-    const lyphsToLinks = (lyphs) => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
+    const lyphsToLinks = lyphs => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
 
     const hostedLinks = lyphsToLinks(this.host.hostedLyphs);
     hostedLinks.forEach((link, i) => placeLinkInside(link, i, Math.floor(Math.sqrt(hostedLinks.length||1)), hostedLinks.length));

@@ -390,28 +390,22 @@ export class TestApp {
             if (!obj) { return; }
             let result = null;
             if (obj::isArray()) {
-                obj.some((item, i) => {
-                    result = findResourceDef(obj[i], obj, i);
-                    return result;
-                })
+                result = obj.find((item, i) => findResourceDef(obj[i], obj, i))
             }
             else {
                 if (obj::isObject()){
                     if (obj.id === resource.id) { return [parent, key]; }
-                    obj::keys().some(prop => {
-                        result = findResourceDef(obj[prop], obj, prop);
-                        return result;
-                    });
+                    result = obj::keys().find(prop => findResourceDef(obj[prop], obj, prop));
                 }
             }
             return result;
         }
 
-        let [parent, key] = findResourceDef(this._model);
-
-        if (!parent) {
+        let res = findResourceDef(this._model);
+        if (!res) {
             throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
         }
+        let [parent, key] = res;
         let obj = parent[key]::cloneDeep();
         const dialogRef = this._dialog.open(ResourceEditorDialog, {
             width: '75%',
@@ -419,7 +413,6 @@ export class TestApp {
                 title             : `Update resource?`,
                 modelClasses      : modelClasses,
                 modelResources    : this._graphData.entitiesByID || {},
-                filteredResources : [],
                 resource          : obj,
                 className         : resource.class
             }
@@ -622,8 +615,9 @@ export class TestApp {
 	imports     : [BrowserModule, WebGLSceneModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, MatSnackBarModule,
         //RelGraphModule,
         MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule],
-	declarations: [TestApp],
+	declarations: [TestApp, ResourceEditorDialog],
     bootstrap: [TestApp],
+    entryComponents: [ResourceEditorDialog],
     providers   : [
         {
             provide: MatSnackBar,

@@ -62,8 +62,9 @@ export const $SchemaType = {
 export const $SchemaClass = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $SchemaClass::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
-export const WIRE_GEOMETRY        = definitions[$SchemaClass.Wire].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LINK_GEOMETRY        = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const EDGE_GEOMETRY        = definitions.EdgeGeometrySchema.enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const WIRE_GEOMETRY        = EDGE_GEOMETRY;
+export const LINK_GEOMETRY        = definitions[$SchemaClass.Link].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
 export const EDGE_STROKE          = definitions[$SchemaClass.Edge].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const PROCESS_TYPE         = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LYPH_TOPOLOGY        = definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();

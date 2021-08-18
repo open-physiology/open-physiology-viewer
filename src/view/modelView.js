@@ -7,7 +7,7 @@ import './verticeView';
 import './edgeView';
 import './shapeView';
 
-const {Group, Link, Coalescence, Component, Chain, Node, Region} = modelClasses;
+const {Group, Link, Coalescence, Component, Chain, Node} = modelClasses;
 
 //TODO move to model
 function updateChain(chain, curve, start, end){
@@ -67,12 +67,6 @@ Group.prototype.createViewObjects = function(state){
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE){
             link.viewObjects["main"].material.visible = false;
         }
-    });
-
-    this.visibleRegions.forEach(region => {
-        if (!(region instanceof Region)){ return; }
-        region.createViewObjects(state);
-        region.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 };
 
@@ -154,8 +148,6 @@ Group.prototype.updateViewObjects = function(state){
             }
         }
     });
-
-    this.visibleRegions.forEach(region => region.updateViewObjects(state));
 };
 
 /**

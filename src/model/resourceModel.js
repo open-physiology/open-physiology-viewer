@@ -480,8 +480,6 @@ export class Resource{
     includeRelated(group){
         logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
     }
-
-
 }
 
 export class External extends Resource {

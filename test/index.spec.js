@@ -1,9 +1,8 @@
 import {
-	describe,
-	it,
-	before,
-	after,
-	expect,
+    describe,
+    it,
+    before,
+    expect
 } from './test.helper';
 import basalGanglia from './data/basalGanglia.json';
 import respiratory from './data/respiratory.json';
@@ -14,7 +13,6 @@ import {keys, entries} from 'lodash-bound';
 import {modelClasses} from '../src/model/index';
 import schema from '../src/model/graphScheme.json';
 import {Validator} from "jsonschema";
-import {logger} from "../src/model/logger";
 
 
 describe("JSON Schema loads correctly", () => {
@@ -66,7 +64,6 @@ describe("JSON Schema matches patterns", () => {
             "Just some text with spaces"];
         ids.forEach(id => {
             let resVal = v.validate(id, schema.definitions.IdentifierScheme);
-            console.log(resVal.errors);
             expect(resVal.errors).to.have.length.above(0);
         });
     })
@@ -74,11 +71,29 @@ describe("JSON Schema matches patterns", () => {
     it("IdentifierSchema accepts URIs", () => {
         const ids = ["http://www.amazon.com/?isbn=0321154991",
             "doi:10.1016/B978-0-444-53491-0.09985-5",
-            "doi:10.1016/j.mpaic.2008.08.005"];
+            "doi:10.1016/j.mpaic.2008.08.005",
+            "UBERON:0001288"];
         ids.forEach(id => {
             let resVal = v.validate(id, schema.definitions.IdentifierScheme);
             expect(resVal.errors).to.have.length(0);
         });
+    })
+
+    it("Link schema accepts link resource", () => {
+         const lnk = {
+            "id": "RL",
+            "source": "R",
+            "target": "L",
+            "name": "Pulmonary",
+            "geometry": "rectangle",
+            "length": 25,
+            "stroke": "thick",
+            "color": "#ee1d23",
+            "conveyingLyph": "br"
+        }
+        schema.$ref = "#/definitions/Link";
+        let resVal = v.validate(lnk, schema);
+        expect(resVal.errors).to.have.length(0);
     })
 })
 

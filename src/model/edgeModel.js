@@ -4,6 +4,7 @@ import {
     getGenID,
     getNewID,
     EDGE_STROKE,
+    EDGE_GEOMETRY,
     PROCESS_TYPE,
     WIRE_GEOMETRY,
     LINK_GEOMETRY,
@@ -28,6 +29,7 @@ export class Edge extends VisualResource{
      * @property DASHED
      */
     static EDGE_STROKE   = EDGE_STROKE;
+    static EDGE_GEOMETRY = EDGE_GEOMETRY;
 
     get isVisible(){
         return super.isVisible && (this.source && this.source.isVisible) && (this.target && this.target.isVisible);
