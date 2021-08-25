@@ -119,11 +119,6 @@ export class Graph extends Group{
         let resVal = V.validate(json, schema);
         logger.clear();
 
-        //Why this is not shown in logger?
-        // if (resVal.errors && resVal.errors.length > 0){
-        //     logger.error("Schema validation error!", "UPD!");
-        // }
-
         //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
         let namespace = inputModel.namespace;
@@ -157,6 +152,10 @@ export class Graph extends Group{
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if ([$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    console.log("Should I create: ", clsName, obj)
+                    return;
+                }
                 if (clsName && !schemaClassModels[clsName].schema.abstract){
                     let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
                     added.push(e.id);

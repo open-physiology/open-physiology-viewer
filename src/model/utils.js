@@ -456,4 +456,3 @@ export class SchemaClass {
  * Definition of all schema-based resource classes
  */
 export const schemaClassModels = definitions::keys().map(schemaClsName => [schemaClsName, new SchemaClass(schemaClsName)])::fromPairs();
-

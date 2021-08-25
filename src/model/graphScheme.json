@@ -170,7 +170,8 @@
               },
               "layout": {
                 "description": "Current anchor coordinates",
-                "$ref": "#/definitions/Point2Scheme"
+                "$ref": "#/definitions/Point2Scheme",
+                "default": {}
               }
             }
           }
@@ -1825,7 +1826,8 @@
         },
         "layout": {
           "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
-          "$ref": "#/definitions/Point3Scheme"
+          "$ref": "#/definitions/Point3Scheme",
+          "default": {}
         },
         "fixed": {
           "description": "Fixed nodes are positioned to the desired location",
