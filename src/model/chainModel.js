@@ -139,12 +139,12 @@ export class Chain extends GroupTemplate {
             }
 
             let nodeIDs = new Array(n + 1);
-            nodeIDs[0]   = chain.root;
-            nodeIDs[n-1] = chain.leaf;
+            nodeIDs[0] = chain.root;
+            nodeIDs[n] = chain.leaf;
 
             let existingNodes = new Array(n + 1);
             existingNodes[0] = findResourceByID(parentGroup.nodes, chain.root);
-            existingNodes[n-1] = findResourceByID(parentGroup.nodes, chain.leaf);
+            existingNodes[n] = findResourceByID(parentGroup.nodes, chain.leaf);
 
             for (let i = 0; i < n; i++) {
                if (existingLinks[i]) {
@@ -491,8 +491,8 @@ export class Chain extends GroupTemplate {
         }
         if (this.startFromLeaf){
             let tmp = start;
-            let start = end;
-            let end = tmp;
+            start = end;
+            end = tmp;
         }
         return {start, end};
     }

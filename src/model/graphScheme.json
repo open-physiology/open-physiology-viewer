@@ -170,8 +170,7 @@
               },
               "layout": {
                 "description": "Current anchor coordinates",
-                "$ref": "#/definitions/Point2Scheme",
-                "default": {}
+                "$ref": "#/definitions/Point2Scheme"
               }
             }
           }

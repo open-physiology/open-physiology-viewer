@@ -152,8 +152,8 @@ export class Graph extends Group{
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
+                //Do not create missing scaffold resources
                 if ([$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
-                    console.log("Should I create: ", clsName, obj)
                     return;
                 }
                 if (clsName && !schemaClassModels[clsName].schema.abstract){

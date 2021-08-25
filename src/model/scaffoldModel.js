@@ -65,14 +65,22 @@ export class Scaffold extends Component {
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class) {
+                //Only create missing scaffold resources
+                if (![$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    return;
+                }
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
+                //Do not create missing scaffold resources references from the connectivity model
+                if ([$SchemaClass.Chain, $SchemaClass.Node, $SchemaClass.Lyph, $SchemaClass.Group].includes(clsName)){
+                    return;
+                }
                 if (clsName && !schemaClassModels[clsName].schema.abstract) {
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]: id,
                         [$Field.generated]: true
                     }, modelClasses, entitiesByID, namespace);
 
-                    //Include newly created entity to the main graph
+                    //Include newly created entity to the main model
                     let prop = schemaClassModels[$SchemaClass.Scaffold].selectedRelNames(clsName)[0];
                     if (prop) {
                         res[prop] = res[prop] || [];
