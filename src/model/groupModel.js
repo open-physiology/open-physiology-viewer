@@ -127,7 +127,7 @@ export class Group extends Resource {
 
         //If a group is hosted by a region, each its lyph is hosted by the region
         let host = this.hostedBy || this.generatedFrom && this.generatedFrom.hostedBy;
-        if (host){
+        if (host && host::isObject()){
             host.hostedLyphs = host.hostedLyphs || [];
             (this.links||[]).filter(link => link.conveyingLyph && !link.conveyingLyph.internalIn).forEach(link => {
                 link.conveyingLyph.hostedBy = host;
