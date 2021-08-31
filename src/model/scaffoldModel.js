@@ -132,6 +132,7 @@ export class Scaffold extends Component {
             e.length && (e.length *= scaleFactor);
             e.arcCenter && scalePoint(e.arcCenter);
             e.controlPoint && scalePoint(e.controlPoint);
+            e.radius && scalePoint(e.radius);
         });
         (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
     }

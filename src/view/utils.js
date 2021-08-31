@@ -316,7 +316,7 @@ export function arcCurve(source, target, arcCenter){
 }
 
 // /**
-//  * Draw a 2d elliptic curve given 2 poinst on it and the center
+//  * Draw a 2d elliptic curve given 2 points on it and the center
 //  * @param startV - 2d point on the ellipse
 //  * @param endV - 2d point on the ellipse
 //  * @param centerV - center of the ellipse

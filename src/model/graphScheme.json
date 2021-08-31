@@ -974,13 +974,15 @@
         }
       }
     },
-    "EdgeGeometrySchema": {
+    "EdgeGeometryScheme": {
         "type": "string",
         "enum": [
             "link",
             "arc",
             "spline",
-            "invisible"
+            "invisible",
+            "semicircle",
+            "rectangle"
         ],
         "default": "link"
     },
@@ -1176,10 +1178,10 @@
           "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
           "anyOf": [
             {
-              "$ref": "#/definitions/EdgeGeometrySchema"
+              "$ref": "#/definitions/EdgeGeometryScheme"
             },{
               "type": "string",
-              "enum": [ "semicircle", "rectangle", "path"]
+              "enum": ["path"]
             }
           ],
           "default": "link"
@@ -2454,7 +2456,14 @@
       "properties": {
         "geometry": {
           "description": "Defines the geometry of the wire.",
-          "$ref": "#/definitions/EdgeGeometrySchema",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EdgeGeometryScheme"
+            },{
+              "type": "string",
+              "enum": ["ellipse"]
+            }
+          ],
           "default": "link"
         },
         "source": {
@@ -2480,6 +2489,11 @@
             }
           ],
           "relatedTo": "targetOf"
+        },
+        "radius": {
+          "description": "Provides parameters a and b for elliptic wire",
+          "$ref": "#/definitions/Point2Scheme",
+          "default": {"x": 100, "y": 80}
         },
         "infoFields": {
           "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",

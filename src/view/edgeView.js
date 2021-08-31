@@ -30,6 +30,75 @@ Edge.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
 };
 
+Edge.prototype.getViewObject = function (state){
+    let material;
+    if (this.stroke === Edge.EDGE_STROKE.DASHED) {
+        material = MaterialFactory.createLineDashedMaterial({color: this.color});
+    } else {
+        //Thick lines
+        if (this.stroke === Edge.EDGE_STROKE.THICK) {
+            // Line 2 method: draws thick lines
+            material = MaterialFactory.createLine2Material({
+                color: this.color,
+                lineWidth: this.lineWidth,
+                polygonOffsetFactor: this.polygonOffsetFactor
+            });
+        } else {
+            //Normal lines
+            material = MaterialFactory.createLineBasicMaterial({
+                color: this.color,
+                polygonOffsetFactor: this.polygonOffsetFactor
+            });
+        }
+    }
+    let geometry, obj;
+    if (this.stroke === Link.EDGE_STROKE.THICK) {
+        geometry = new THREE.LineGeometry();
+        obj = new THREE.Line2(geometry, material);
+    } else {
+        //Thick lines
+        if (this.stroke === Edge.EDGE_STROKE.DASHED) {
+            geometry = new THREE.Geometry();
+        } else {
+            geometry = new THREE.BufferGeometry();
+        }
+        obj = new THREE.Line(geometry, material);
+    }
+    // Edge bundling breaks a link into 66 points
+    this.pointLength = (!this.geometry || this.geometry === Edge.EDGE_GEOMETRY.LINK)? 2 : (this.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.edgeResolution;
+    if (this.geometry === Wire.WIRE_GEOMETRY.ELLIPSE){
+        this.pointLength *= 10;
+    }
+    if (this.stroke === Edge.EDGE_STROKE.DASHED) {
+        geometry.vertices = new Array(this.pointLength);
+        for (let i = 0; i < this.pointLength; i++ ){
+            geometry.vertices[i] = new THREE.Vector3(0, 0, 0);
+        }
+    } else {
+        //Buffered geometry
+        if (this.stroke !== Edge.EDGE_STROKE.THICK){
+            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
+        }
+    }
+    return obj;
+}
+
+Edge.prototype.getCurve = function() {
+    switch (this.geometry) {
+        case Edge.EDGE_GEOMETRY.ARC:
+            return arcCurve(start, end, extractCoords(this.arcCenter));
+        case Edge.EDGE_GEOMETRY.SEMICIRCLE:
+            return semicircleCurve(start, end);
+        case Edge.EDGE_GEOMETRY.RECTANGLE:
+            return rectangleCurve(start, end);
+        case Wire.WIRE_GEOMETRY.SPLINE:
+            const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
+            return new THREE.QuadraticBezierCurve3(start, control, end);
+        default:
+            return new THREE.Line3(start, end);
+    }
+};
+
 /**
  * Create visual objects for a link
  * @param state
@@ -38,51 +107,7 @@ Link.prototype.createViewObjects = function(state){
     Edge.prototype.createViewObjects.call(this, state);
     //Link
     if (!this.viewObjects["main"]) {
-        let material;
-        if (this.stroke === Link.EDGE_STROKE.DASHED) {
-            material = MaterialFactory.createLineDashedMaterial({color: this.color});
-        } else {
-            //Thick lines
-            if (this.stroke === Link.EDGE_STROKE.THICK) {
-                // Line 2 method: draws thick lines
-                material = MaterialFactory.createLine2Material({
-                    color: this.color,
-                    lineWidth: this.lineWidth,
-                    polygonOffsetFactor: this.polygonOffsetFactor
-                });
-            } else {
-                //Normal lines
-                material = MaterialFactory.createLineBasicMaterial({
-                    color: this.color,
-                    polygonOffsetFactor: this.polygonOffsetFactor
-                });
-            }
-        }
-
-        let geometry, obj;
-        if (this.stroke === Link.EDGE_STROKE.THICK) {
-            geometry = new THREE.LineGeometry();
-            obj = new THREE.Line2(geometry, material);
-        } else {
-            //Thick lines
-            if (this.stroke === Link.EDGE_STROKE.DASHED) {
-                geometry = new THREE.Geometry();
-            } else {
-                geometry = new THREE.BufferGeometry();
-            }
-            obj = new THREE.Line(geometry, material);
-        }
-        // Edge bundling breaks a link into 66 points
-        this.pointLength = (!this.geometry || this.geometry === Link.LINK_GEOMETRY.LINK)? 2 : (this.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.edgeResolution;
-        if (this.stroke === Link.EDGE_STROKE.DASHED) {
-            geometry.vertices = new Array(this.pointLength);
-            for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
-        } else {
-            //Buffered geometry
-            if (this.stroke !== Link.EDGE_STROKE.THICK){
-                geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
-            }
-        }
+        let obj = Edge.prototype.getViewObject.call(this, state);
 
         if (this.directed){
             let dir    = direction(this.source, this.target);
@@ -92,14 +117,8 @@ Link.prototype.createViewObjects = function(state){
             obj.add(arrow);
         }
 
-        if (this.geometry === Link.LINK_GEOMETRY.SPLINE && (!this.prev || !this.next)) {
-            this.prev = (this.source.targetOf || this.source.sourceOf || []).find(x => x !== this);
-            this.next = (this.target.sourceOf || this.target.targetOf || []).find(x => x !== this);
-        }
-
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
-
         this.viewObjects["main"] = obj;
     }
 
@@ -132,32 +151,13 @@ Link.prototype.createViewObjects = function(state){
 Link.prototype.getCurve = function(start, end){
     let curve = new THREE.Line3(start, end);
     switch (this.geometry) {
-        case Link.LINK_GEOMETRY.SEMICIRCLE:
-            curve = semicircleCurve(start, end);
-            break;
-        case Link.LINK_GEOMETRY.RECTANGLE:
-            curve = rectangleCurve(start, end);
-            break;
-        case Link.LINK_GEOMETRY.ARC:
-            curve = arcCurve(start, end, extractCoords(this.arcCenter));
-            break;
         case Link.LINK_GEOMETRY.PATH:
             if (this.path){
                 curve = new THREE.CatmullRomCurve3(this.path);
             }
             break;
-        case Link.LINK_GEOMETRY.SPLINE:
-            let prev = this.prev ? direction(this.prev.center, start).multiplyScalar(2) : null;
-            let next = this.next ? direction(this.next.center, end).multiplyScalar(2) : null;
-            if (prev) {
-                curve = next
-                    ? new THREE.CubicBezierCurve3(start, start.clone().add(prev), end.clone().add(next), end)
-                    : new THREE.QuadraticBezierCurve3(start, start.clone().add(prev), end);
-            } else {
-                if (next) {
-                    curve = new THREE.QuadraticBezierCurve3(start, end.clone().add(next), end);
-                }
-            }
+        default:
+            curve = Edge.prototype.getCurve.call(this, start, end);
     }
     return curve;
 };
@@ -171,7 +171,6 @@ Link.prototype.updateViewObjects = function(state) {
     const obj = this.viewObjects["main"];
     let start = extractCoords(this.source);
     let end   = extractCoords(this.target);
-
     let curve = this.getCurve(start, end);
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
@@ -268,53 +267,8 @@ Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
 Wire.prototype.createViewObjects = function(state){
     Edge.prototype.createViewObjects.call(this, state);
     if (!this.viewObjects["main"]) {
-        let material;
-        if (this.stroke === Link.EDGE_STROKE.DASHED) {
-            material = MaterialFactory.createLineDashedMaterial({color: this.color});
-        } else {
-            //Thick lines
-            if (this.stroke === Link.EDGE_STROKE.THICK) {
-                // Line 2 method: draws thick lines
-                material = MaterialFactory.createLine2Material({
-                    color: this.color,
-                    lineWidth: this.lineWidth,
-                    polygonOffsetFactor: this.polygonOffsetFactor
-                });
-            } else {
-                //Normal lines
-                material = MaterialFactory.createLineBasicMaterial({
-                    color: this.color,
-                    polygonOffsetFactor: this.polygonOffsetFactor
-                });
-            }
-        }
-
         if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
-        let geometry, obj;
-        if (this.stroke === Link.EDGE_STROKE.THICK) {
-            geometry = new THREE.LineGeometry();
-            obj = new THREE.Line2(geometry, material);
-        } else {
-            //Thick lines
-            if (this.stroke === Link.EDGE_STROKE.DASHED) {
-                geometry = new THREE.Geometry();
-            } else {
-                geometry = new THREE.BufferGeometry();
-            }
-            obj = new THREE.Line(geometry, material);
-        }
-        // Edge bundling breaks a link into 66 points
-        this.pointLength = (!this.geometry || this.geometry === Wire.WIRE_GEOMETRY.LINK)? 2 : state.edgeResolution;
-        if (this.stroke === Link.EDGE_STROKE.DASHED) {
-            geometry.vertices = new Array(this.pointLength);
-            for (let i = 0; i < this.pointLength; i++ ){ geometry.vertices[i] = new THREE.Vector3(0, 0, 0); }
-        } else {
-            //Buffered geometry
-            if (this.stroke !== Link.EDGE_STROKE.THICK){
-                geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
-            }
-        }
-
+        let obj = Edge.prototype.getViewObject.call(this, state);
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
         this.viewObjects["main"] = obj;
@@ -323,16 +277,13 @@ Wire.prototype.createViewObjects = function(state){
 };
 
 Wire.prototype.getCurve = function(start, end){
-    let curve = new THREE.Line3(start, end);
     switch (this.geometry) {
-        case Wire.WIRE_GEOMETRY.ARC:
-            curve = arcCurve(start, end, extractCoords(this.arcCenter));
-            break;
-        case Wire.WIRE_GEOMETRY.SPLINE:
-            const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
-            curve = new THREE.QuadraticBezierCurve3(start, control, end);
+        case Wire.WIRE_GEOMETRY.ELLIPSE:
+            let c = extractCoords(this.arcCenter);
+            return new THREE.EllipseCurve(c.x, c.y, this.radius.x, this.radius.y, 0, 2*Math.PI, false);
+        default:
+            return Edge.prototype.getCurve.call(this, start, end);
     }
-    return curve;
 };
 
 Wire.prototype.relocate = function(delta, epsilon = 5){
@@ -362,7 +313,7 @@ Wire.prototype.updateViewObjects = function(state) {
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
-    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+    if ([Wire.WIRE_GEOMETRY.ARC, Wire.WIRE_GEOMETRY.ELLIPSE].includes(this.geometry)){
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
     }
 
@@ -375,7 +326,7 @@ Wire.prototype.updateViewObjects = function(state) {
             copyCoords(anchor.viewObjects["main"].position, anchor);
             anchor.updateLabels(anchor.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
         }
-        //When hoated anchor was repositioned, the wires that end in it should be updated too
+        //When hosted anchor is repositioned, the wires that end in it should be updated too
         (anchor.sourceOf||[]).forEach(w => w.updateViewObjects(state));
         (anchor.targetOf||[]).forEach(w => w.updateViewObjects(state));
     });
@@ -386,12 +337,12 @@ Wire.prototype.updateViewObjects = function(state) {
 
     const obj = this.viewObjects["main"];
     if (obj) {
-        if (this.stroke === Link.EDGE_STROKE.THICK){
+        if (this.stroke === Wire.EDGE_STROKE.THICK){
             let coordArray = [];
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
         } else {
-            if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
+            if (obj && this.stroke === Wire.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();

@@ -21,6 +21,9 @@ import {VisualResource} from "./visualResourceModel";
  * @property {Number} lineWidth
  * @property {Number} length
  * @property {{x: Number, y: Number, z: Number}} arcCenter
+ * @property {Array<Anchor>} hostedAnchors
+ * @property {Vertice} source
+ * @property {Vertice} target
  */
 export class Edge extends VisualResource{
 
@@ -32,7 +35,7 @@ export class Edge extends VisualResource{
     static EDGE_GEOMETRY = EDGE_GEOMETRY;
 
     get isVisible(){
-        return super.isVisible && (this.source && this.source.isVisible) && (this.target && this.target.isVisible);
+        return super.isVisible && (!this.source || this.source.isVisible) && (!this.target || this.target.isVisible);
     }
 }
 
@@ -48,14 +51,19 @@ export class Wire extends Edge {
      * @property LINK
      * @property ARC
      * @property SPLINE
+     * @property SEMICIRCLE
+     * @property RECTANGLE
+     * @property ELLIPSE
      * @property INVISIBLE
      */
     static WIRE_GEOMETRY = WIRE_GEOMETRY;
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
-        json.source = json.source || getGenID($Prefix.source, json.id);
-        json.target = json.target || getGenID($Prefix.target, json.id);
+        if (json.geometry !== WIRE_GEOMETRY.ELLIPSE) {
+            json.source = json.source || getGenID($Prefix.source, json.id);
+            json.target = json.target || getGenID($Prefix.target, json.id);
+        }
         json.class = json.class || $SchemaClass.Wire;
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //Wires are not in the force-field, so we set their length from end points
@@ -95,7 +103,7 @@ export class Wire extends Edge {
 }
 
 /**
- *  The class to visualize processes (edges)
+ * The class to visualize processes (edges)
  * @class
  * @property source
  * @property target
@@ -109,6 +117,7 @@ export class Wire extends Edge {
  * @property hostedNodes
  * @property onBorder
  * @property levelIn
+ * @property controlPoint
  */
 export class Link extends Edge {
     /**
@@ -139,7 +148,7 @@ export class Link extends Edge {
         if (s && t && s.fixed && t.fixed){
             const d = {};
             ["x", "y", "z"].forEach(dim => d[dim] =  (t[dim] || 0) - (s[dim] || 0));
-            res.length = Math.sqrt( d.x * d.x + d.y * d.y + d.z * d.z);
+            res.length = Math.sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
         }
         return res;
     }
