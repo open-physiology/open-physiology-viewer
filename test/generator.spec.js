@@ -12,7 +12,6 @@ import basalGangliaInternal from './data/basalGangliaInternal';
 
 import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
-import basicEllipseArc from './data/basicEllipseArc';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
 import basicLyphTypes from './data/basicLyphTypes';
@@ -70,14 +69,6 @@ describe("Basic", () => {
 describe("BasicChainsInGroup", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicChainsInGroup, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {});
-});
-
-
-describe("BasicEllipseArc", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicEllipseArc, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {});
 });
