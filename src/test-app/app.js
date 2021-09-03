@@ -217,21 +217,20 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
         #main-panel mat-tab-group{            
             height : inherit;
-            width : calc(100%);
         }
 
         #viewer-panel {
             width : 100%;
         }
-        
-       
+
         #json-editor{
             height : 100vh;
             width  : calc(100% - 48px);
         }
         
-        #resource-editor{
-            height : 100vh;
+        #resource-editor, #layout-editor{
+            height : 100%;
+            overflow : auto;
             width  : calc(100% - 48px);
         }
         
