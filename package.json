@@ -89,6 +89,7 @@
     "d3-scale-chromatic": "^1.2.0",
     "d3-selection": "^2.0.0",
     "d3-selection-multi": "^1.0.1",
+    "enable3d": "^0.23.0",
     "events": "^3.0.0",
     "file-saver": "^2.0.2",
     "font-awesome": "^4.7.0",
@@ -104,12 +105,12 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "6.3.3",
     "sinon-chai": "^3.6.0",
-    "three": "^0.118.3",
-    "three-js-csg": "^72.0.0",
+    "three": "^0.125.1",
+    "three-js-csg-es6": "^73.0.0",
     "three-text2d": "^0.4.1",
     "three-window-resize": "^1.0.4",
     "tinycolor2": "^1.4.1",
-    "xlsx": "^0.14.1",
+    "xlsx": "^0.15.1",
     "zone.js": "^0.8.26"
   }
 }

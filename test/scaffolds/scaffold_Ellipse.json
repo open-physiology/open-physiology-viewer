@@ -19,12 +19,14 @@
       "id": "E",
       "name": "ENDOCRINE",
       "hostedBy": "w-N",
+      "offset": 0.3,
       "color": "#FF0000"
     },
     {
       "id": "T",
       "name": "TAIL",
       "hostedBy": "w-N",
+      "offset": 0.4,
       "color": "#FF0000"
     },
     {
@@ -50,6 +52,7 @@
       "id": "w-N",
       "geometry": "ellipse",
       "arcCenter": "N",
+      "radius": {"x": 50, "y": 60},
       "stroke": "thick",
       "color": "#000"
     }

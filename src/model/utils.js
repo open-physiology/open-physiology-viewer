@@ -7,7 +7,7 @@ import {
     merge,
     keys,
     isPlainObject,
-    flatten, isArray, unionBy, mergeWith
+    flatten, isArray, unionBy, mergeWith, isNumber
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";

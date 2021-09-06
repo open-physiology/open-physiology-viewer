@@ -13,6 +13,7 @@ import {
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
+import {WIRE_GEOMETRY} from "../model/utils";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
 
@@ -56,29 +57,17 @@ Edge.prototype.getViewObject = function (state){
         geometry = new THREE.LineGeometry();
         obj = new THREE.Line2(geometry, material);
     } else {
-        //Thick lines
-        if (this.stroke === Edge.EDGE_STROKE.DASHED) {
-            geometry = new THREE.Geometry();
-        } else {
-            geometry = new THREE.BufferGeometry();
-        }
+        geometry = new THREE.BufferGeometry();
         obj = new THREE.Line(geometry, material);
     }
     // Edge bundling breaks a link into 66 points
     this.pointLength = (!this.geometry || this.geometry === Edge.EDGE_GEOMETRY.LINK)? 2 : (this.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.edgeResolution;
+    // We need better resolution for elliptic wires
     if (this.geometry === Wire.WIRE_GEOMETRY.ELLIPSE){
         this.pointLength *= 10;
     }
-    if (this.stroke === Edge.EDGE_STROKE.DASHED) {
-        geometry.vertices = new Array(this.pointLength);
-        for (let i = 0; i < this.pointLength; i++ ){
-            geometry.vertices[i] = new THREE.Vector3(0, 0, 0);
-        }
-    } else {
-        //Buffered geometry
-        if (this.stroke !== Edge.EDGE_STROKE.THICK){
-            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
-        }
+    if (this.stroke !== Edge.EDGE_STROKE.THICK){
+         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
     }
     return obj;
 }
@@ -176,7 +165,7 @@ Link.prototype.updateViewObjects = function(state) {
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
     if (this.geometry === Link.LINK_GEOMETRY.ARC){
-        this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
+        this.points = this.points.map(p => new THREE.Vector3(p.x, p.y,0));
     }
 
     //Merge nodes of a collapsible link
@@ -197,7 +186,7 @@ Link.prototype.updateViewObjects = function(state) {
 
     //Position hosted nodes
     (this.hostedNodes||[]).forEach((node, i) => {
-        let d_i = node.offset? node.offset: 1. / (this.hostedNodes.length + 1) * (i + 1);
+        let d_i = node.hasOwnProperty($Field.offset)? node.offset: 1. / (this.hostedNodes.length + 1) * (i + 1);
         const pos = getPoint(curve, start, end, d_i);
         copyCoords(node, pos);
     });
@@ -318,7 +307,7 @@ Wire.prototype.updateViewObjects = function(state) {
     }
 
     (this.hostedAnchors||[]).forEach((anchor, i) => {
-        let d_i = anchor.offset? anchor.offset: 1. / (this.hostedAnchors.length + 1) * (i + 1);
+        let d_i = anchor.hasOwnProperty($Field.offset) ? anchor.offset : 1. / (this.hostedAnchors.length + 1) * (i + 1);
         let pos = getPoint(curve, start, end, d_i);
         pos = new THREE.Vector3(pos.x, pos.y, 0); //Arc wires are rendered in 2d
         copyCoords(anchor, pos);

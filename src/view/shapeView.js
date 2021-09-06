@@ -1,4 +1,4 @@
-import {modelClasses} from "../model";
+import {$Field, modelClasses} from "../model";
 import {merge, values} from 'lodash-bound';
 import {
     align,
@@ -134,19 +134,20 @@ Lyph.prototype.createViewObjects = function(state) {
         obj.userData = this;
         this.viewObjects['main'] = this.viewObjects['2d'] = obj;
 
-        if (this.create3d){
-            params.opacity = 0.5;
-            let obj3d = (offset > 0)
-                ? d3Layer(
-                    [ offset || 1, prev.height, radius, ...prev.radialTypes],
-                    [ offset + this.width, this.height, radius, ...this.radialTypes], params)
-                : d3Lyph([this.width, this.height, radius, ...this.radialTypes], params) ;
-            obj3d.userData = this;
-            this.viewObjects["3d"] = obj3d;
-            if (state.showLyphs3d){
-                this.viewObjects["main"] = this.viewObjects["3d"];
-            }
-        }
+        //TODO Restore after fixing solid geometry for THREE.js version > 1.125
+        // if (this.create3d){
+        //     params.opacity = 0.5;
+        //     let obj3d = (offset > 0)
+        //         ? d3Layer(
+        //             [ offset || 1, prev.height, radius, ...prev.radialTypes],
+        //             [ offset + this.width, this.height, radius, ...this.radialTypes], params)
+        //         : d3Lyph([this.width, this.height, radius, ...this.radialTypes], params) ;
+        //     obj3d.userData = this;
+        //     this.viewObjects["3d"] = obj3d;
+        //     if (state.showLyphs3d){
+        //         this.viewObjects["main"] = this.viewObjects["3d"];
+        //     }
+        // }
 
         this._points = [
             new THREE.Vector3(offset, -this.height / 2, 0),
@@ -170,7 +171,7 @@ Lyph.prototype.createViewObjects = function(state) {
 
         let relOffset = 0;
         (this.layers || []).forEach(layer => {
-            layer.create3d = this.create3d;
+            // layer.create3d = this.create3d;
             //TODO place sizing code for layers to Lyph.updateSize
             layer.layerWidth = layer.layerWidth || defaultWidth;
             layer.width = layer.layerWidth / 100 * this.width;
@@ -516,7 +517,7 @@ Border.prototype.updateViewObjects = function(state){
             let V = this.host.points[i + 1].clone().sub(this.host.points[i]);
             this.borders[i].hostedNodes.forEach((node, j) => {
                 //For borders 2 and 3 position nodes in the reversed order to have parallel links
-                let d_i = node.offset ? node.offset : offset * (j + 1);
+                let d_i = node.hasOwnProperty($Field.offset)? node.offset : offset * (j + 1);
                 if (i > 1) {
                     d_i = 1 - d_i;
                 }

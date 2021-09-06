@@ -475,14 +475,12 @@ export class Graph extends Group{
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => p::keys().forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
-
+        const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
         if (this.scaffoldResources) {
             (this.scaffoldResources.anchors || []).forEach(e => e.layout && scalePoint(e.layout));
             (this.scaffoldResources.wires || []).forEach(e => e::isObject() && (e.length = (e.length || 10) * scaleFactor));
-            (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
+            (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => !p.hostedBy && scalePoint(p)));
         }
-
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}

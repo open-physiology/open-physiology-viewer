@@ -3,7 +3,8 @@ export const THREE = window.THREE || three;
 import {MaterialFactory} from './materialFactory';
 import {defaults} from 'lodash-bound';
 import tinycolor from 'tinycolor2';
-const ThreeBSP = require('three-js-csg')(THREE);
+// const ThreeBSP = require('three-csg-ts')(THREE);
+// import { CSG } from '@enable3d/three-graphics/jsm/csg'
 
 /**
  * Get a point on a curve
@@ -54,10 +55,12 @@ export function copyCoords(target, source){
  * @param params    - material parameters
  */
 export function geometryDifference(smallGeom, largeGeom, params){
-    let smallBSP = new ThreeBSP(smallGeom);
-    let largeBSP = new ThreeBSP(largeGeom);
-    let intersectionBSP = largeBSP.subtract(smallBSP);
-    return intersectionBSP.toMesh( MaterialFactory.createMeshBasicMaterial(params) );
+    // let smallBSP = new CSG(smallGeom);
+    // let largeBSP = new ThreeBSP(largeGeom);
+    // let intersectionBSP = largeBSP.subtract(smallBSP);
+    // return intersectionBSP.toMesh( MaterialFactory.createMeshBasicMaterial(params) );
+    // let intersectionBSP = CSG.subtract(smallGeom);
+    // return intersectionBSP.toMesh( MaterialFactory.createMeshBasicMaterial(params) );
 }
 
 /**
@@ -66,10 +69,11 @@ export function geometryDifference(smallGeom, largeGeom, params){
  * @param cupTop     - top border
  * @param cupBottom  - bottom border
  * @param offset     - distance to shift cups wrt the tube center
- * @returns {Geometry|SEA3D.Geometry|*|THREE.Geometry}
+ * @returns {Three.BufferGeometry}
  */
 export function mergedGeometry(tube, cupTop, cupBottom, offset){
-    let singleGeometry = new THREE.Geometry();
+    // let singleGeometry = new THREE.Geometry();
+    let singleGeometry = new THREE.BufferGeometry();
     let tubeMesh       = new THREE.Mesh(tube);
     let cupTopMesh     = new THREE.Mesh(cupTop);
     let cupBottomMesh  = new THREE.Mesh(cupBottom);
@@ -251,17 +255,15 @@ export function createMeshWithBorder(shape, params = {}, includeBorder = true) {
     let geometry = new THREE.ShapeBufferGeometry(shape);
     let obj = new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
     if (includeBorder) {
-        let lineBorderGeometry = new THREE.Geometry();
-        shape.getPoints().forEach(point => {
-            point.z = 0;
-            lineBorderGeometry.vertices.push(point);
-        });
+        let borderGeometry = new THREE.BufferGeometry();
+        shape.getPoints().forEach(point => point.z = 0);
+        borderGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(shape.getPoints() * 3), 3));
         let borderParams = params::defaults({
             color   : tinycolor(params.color).darken(25), //darker border than surface
             opacity : 0.5,
             polygonOffsetFactor: params.polygonOffsetFactor - 1
         });
-        let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
+        let borderObj = new THREE.Line(borderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
         obj.add(borderObj);
     }
     return obj;
@@ -300,39 +302,47 @@ export function rectangleCurve(startV, endV){
     return curvePath;
 }
 
-export function arcCurve(source, target, arcCenter){
-    const v1 = source.clone().sub(arcCenter);
-    const v2 = target.clone().sub(arcCenter);
-    const sum = v1.clone().add(v2);
-    const q = sum.x > 0? (sum.y > 0? 1: 4): sum.y > 0? 2: 3;
 
-    return new THREE.EllipseCurve(
-        arcCenter.x,  arcCenter.y, // ax, aY
-        v1.length(), v2.length(), // xRadius, yRadius
-        0, Math.PI / 2,  // aStartAngle, aEndAngle
-        false,               // aClockwise
-        Math.PI / 2 * (q - 1) // aRotation
-    );
+/**
+ * Draw a 2d elliptic curve given 2 points on it and the center
+ * @param startV - 2d point on the ellipse
+ * @param endV - 2d point on the ellipse
+ * @param centerV - center of the ellipse
+ * @returns {EllipseCurve}
+ */
+export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
+    let p = startV.clone().sub(centerV);
+    let q = endV.clone().sub(centerV);
+    //TODO what to do with (0,0) points?
+    let dx2 = Math.abs(p.x*p.x - q.x*q.x);
+    let dy2 = Math.abs(q.y*q.y - p.y*p.y);
+    let a2, b2;
+    const epsilon = 0.001;
+    if (dx2 < epsilon && dy2 < epsilon){
+        //Ellipse is not uniquely defined, the same as if only one point was given, create a circular segment
+        a2 = b2 = p.length() * p.length();
+    } else {
+        if (dx2 < epsilon && dy2 > epsilon || dx2 > epsilon && dy2 < epsilon){
+            //Elliptic curve is not possible
+            return new THREE.Line3(startV, endV);
+        }
+        a2 = Math.abs(p.x * p.x * q.y * q.y - q.x * q.x * p.y * p.y) / dy2;
+        b2 = Math.abs(p.x * p.x * q.y * q.y - q.x * q.x * p.y * p.y) / dx2;
+    }
+    if (a2 < epsilon || b2 < epsilon){
+        //Elliptic curve is not possible
+        return new THREE.Line3(startV, endV);
+    }
+    let sAngle = Math.acos(new THREE.Vector2(1,0).dot(p) / p.length());
+    let tAngle = Math.acos(new THREE.Vector2(1,0).dot(q) / q.length());
+    if (p.y < 0){
+        sAngle = 2*Math.PI - sAngle;
+    }
+    if (q.y < 0){
+        tAngle = 2*Math.PI - tAngle;
+    }
+    return new THREE.EllipseCurve(centerV.x, centerV.y, Math.sqrt(a2), Math.sqrt(b2), sAngle, tAngle, false);
 }
-
-// /**
-//  * Draw a 2d elliptic curve given 2 points on it and the center
-//  * @param startV - 2d point on the ellipse
-//  * @param endV - 2d point on the ellipse
-//  * @param centerV - center of the ellipse
-//  * @returns {EllipseCurve}
-//  */
-// export function arcCurve(startV, endV, centerV = new THREE.Vector3()){
-//     let p = startV.clone().sub(centerV);
-//     let q = endV.clone().sub(centerV);
-//
-//     let a2 = Math.abs((p.x^2)*(q.y^2) - (q.x^2)*(p.y^2)) / (q.y^2 - p.y^2);
-//     let b2 = Math.abs((q.x^2)*(p.y^2) - (p.x^2)*(q.y^2)) / (p.x^2 - q.x^2);
-//
-//     let dot = p.dot(q);
-//     let theta = Math.acos( dot / (p.length() * q.length())) ;
-//     return new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false);
-// }
 
 
 /**
@@ -362,6 +372,8 @@ export function semicircleCurve(startV, endV){
 export function extractCoords(source){
     if (source) {
         return new THREE.Vector3(source.x || 0, source.y || 0, source.z || 0);
+    } else {
+        return {x: 0, y: 0, z: 0}
     }
 }
 
