@@ -14,8 +14,7 @@
       "properties": {
         "layout": {
           "description": "Provided 2d coordinates for the anchor",
-          "$ref": "#/definitions/Point2Scheme",
-          "default": {}
+          "$ref": "#/definitions/Point2Scheme"
         },
         "hostedBy": {
           "description": "A wire on which the given anchor is positioned",

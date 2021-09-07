@@ -134,20 +134,19 @@ Lyph.prototype.createViewObjects = function(state) {
         obj.userData = this;
         this.viewObjects['main'] = this.viewObjects['2d'] = obj;
 
-        //TODO Restore after fixing solid geometry for THREE.js version > 1.125
-        // if (this.create3d){
-        //     params.opacity = 0.5;
-        //     let obj3d = (offset > 0)
-        //         ? d3Layer(
-        //             [ offset || 1, prev.height, radius, ...prev.radialTypes],
-        //             [ offset + this.width, this.height, radius, ...this.radialTypes], params)
-        //         : d3Lyph([this.width, this.height, radius, ...this.radialTypes], params) ;
-        //     obj3d.userData = this;
-        //     this.viewObjects["3d"] = obj3d;
-        //     if (state.showLyphs3d){
-        //         this.viewObjects["main"] = this.viewObjects["3d"];
-        //     }
-        // }
+        if (this.create3d){
+            params.opacity = 0.5;
+            let obj3d = (offset > 0)
+                ? d3Layer(
+                    [ offset || 1, prev.height, radius, ...prev.radialTypes],
+                    [ offset + this.width, this.height, radius, ...this.radialTypes], params)
+                : d3Lyph([this.width, this.height, radius, ...this.radialTypes], params) ;
+            obj3d.userData = this;
+            this.viewObjects["3d"] = obj3d;
+            if (state.showLyphs3d){
+                this.viewObjects["main"] = this.viewObjects["3d"];
+            }
+        }
 
         this._points = [
             new THREE.Vector3(offset, -this.height / 2, 0),
@@ -171,7 +170,7 @@ Lyph.prototype.createViewObjects = function(state) {
 
         let relOffset = 0;
         (this.layers || []).forEach(layer => {
-            // layer.create3d = this.create3d;
+            layer.create3d = this.create3d;
             //TODO place sizing code for layers to Lyph.updateSize
             layer.layerWidth = layer.layerWidth || defaultWidth;
             layer.width = layer.layerWidth / 100 * this.width;

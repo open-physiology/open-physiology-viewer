@@ -91,14 +91,16 @@ export class Wire extends Edge {
 
     includeRelated(component){
         (this.hostedAnchors||[]).forEach(anchor => component.anchors.push(anchor));
-        this.applyToEndAnchors(
-            (end) => {
-                if (end.generated && !component.contains(end)) {
-                    component.anchors.push(end);
-                    end.hidden = component.hidden;
+        if (this.geometry !== WIRE_GEOMETRY.ELLIPSE) {
+            this.applyToEndAnchors(
+                (end) => {
+                    if (end.generated && !component.contains(end)) {
+                        component.anchors.push(end);
+                        end.hidden = component.hidden;
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 

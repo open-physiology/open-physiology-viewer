@@ -438,7 +438,13 @@ export class TestApp {
                 const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
                 if (srcAnchor) {
                     srcAnchor.layout = srcAnchor.layout || {};
-                    ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
+                    if (anchor.layout) {
+                        ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
+                    } else {
+                        if (anchor.hostedBy && anchor.offset){
+                            srcAnchor.offset = anchor.offset;
+                        }
+                    }
                 }
             });
             (scaffold.regions || []).forEach(region => {

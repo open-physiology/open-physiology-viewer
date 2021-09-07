@@ -9,29 +9,38 @@ import './shapeView';
 
 const {Group, Link, Coalescence, Component, Chain, Node} = modelClasses;
 
-//TODO move to model
-function updateChain(chain, curve, start, end){
-    if (!chain || !start || !end){ return; }
-    let length = (curve && curve.getLength)? curve.getLength(): end.distanceTo(start);
-    if (length < 10){ return; }
-    chain.length = length;
-    copyCoords(chain.root.layout, start);
-    chain.root.fixed = true;
-    for (let i = 0; i < chain.levels.length; i++) {
-        //Interpolate chain node positions for quicker layout
-        chain.levels[i].length = chain.length / chain.levels.length;
-        const lyph = chain.levels[i].conveyingLyph;
-        if (lyph){
-            lyph.updateSize();
+
+//Update chain with dynamic ends
+Chain.prototype.update = function(){
+    if (!this.root || !this.leaf){ return; }
+    let {start, end} = this.getWiredChainEnds();
+    start = extractCoords(start);
+    end   = extractCoords(end);
+    let curve = this.wiredTo? this.wiredTo.getCurve(start, end): null;
+    if (start && start.hostedBy || end && end.hostedBy) {
+        let length = (curve && curve.getLength) ? curve.getLength() : end.distanceTo(start);
+        if (length < 10) {
+            return;
         }
-        let node = chain.levels[i].target;
-        if (node && !node.anchoredTo) {
-            let p = getPoint(curve, start, end, (i + 1) / chain.levels.length);
-            copyCoords(node.layout, p);
-            node.fixed = true;
+        this.length = length;
+        copyCoords(this.root.layout, start);
+        this.root.fixed = true;
+        for (let i = 0; i < this.levels.length; i++) {
+            //Interpolate chain node positions for quicker layout
+            this.levels[i].length = this.length / this.levels.length;
+            const lyph = this.levels[i].conveyingLyph;
+            if (lyph) {
+                lyph.updateSize();
+            }
+            let node = this.levels[i].target;
+            if (node && !node.anchoredTo) {
+                let p = getPoint(curve, start, end, (i + 1) / this.levels.length);
+                copyCoords(node.layout, p);
+                node.fixed = true;
+            }
         }
+        copyCoords(this.leaf.layout, end);
     }
-    copyCoords(chain.leaf.layout, end);
 }
 
 /**
@@ -51,14 +60,7 @@ Group.prototype.createViewObjects = function(state){
         node.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
-    (this.chains||[]).forEach(chain => {
-        if (!(chain instanceof Chain) || !chain.root || !chain.leaf){ return; }
-        let {start, end} = chain.getWiredChainEnds();
-        start = extractCoords(start);
-        end   = extractCoords(end);
-        let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
-        updateChain(chain, curve, start, end);
-    });
+    (this.chains||[]).forEach(chain => chain.update());
 
     this.visibleLinks.forEach(link => {
         if (!(link instanceof Link)){ return; }
@@ -80,17 +82,7 @@ Group.prototype.updateViewObjects = function(state){
     //Update nodes positions
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
 
-    (this.chains||[]).forEach(chain => {
-        if (!chain.root || !chain.leaf){ return; }
-        let {start, end} = chain.getWiredChainEnds();
-        start = extractCoords(start);
-        end   = extractCoords(end);
-        let curve = chain.wiredTo? chain.wiredTo.getCurve(start, end): null;
-        //update if chain ends are dynamic
-        if (start && start.hostedBy || end && end.hostedBy) {
-            updateChain(chain, curve, start, end);
-        }
-    });
+    (this.chains||[]).forEach(chain => chain.update());
 
     //Edge bundling
     const fBundling = ForceEdgeBundling()

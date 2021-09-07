@@ -90,7 +90,34 @@ Anchor.prototype.relocate = function(delta, updateDependent = true){
     let v = extractCoords(delta);
     let p0 = extractCoords(this);
     let p = p0.clone().add(v);
-    copyCoords(this.layout, p);
+    if (this.hostedBy){
+        if ((this.hostedBy.points||[]).length > 2) {
+            //Anchor must move long a wire - we will move it to the nearest to p point on the curve
+            let dMin = Number.MAX_VALUE;
+            let idxMin = -1;
+            (this.hostedBy.points || []).forEach((q, i) => {
+                let d = q.distanceTo(p);
+                if (d < dMin) {
+                    dMin = d;
+                    idxMin = i;
+                }
+            });
+            this.offset = idxMin / this.hostedBy.points.length;
+        } else {
+            //Hosting wire is a line
+            if (this.hostedBy.getCurve) {
+                let source = extractCoords(this.hostedBy.source);
+                let target = extractCoords(this.hostedBy.target);
+                let lineCurve = this.hostedBy.getCurve(source, target);
+                if (lineCurve.closestPointToPoint) {
+                    let q = lineCurve.closestPointToPoint(p);
+                    this.offset = q.distanceTo(source) / target.distanceTo(source);
+                }
+            }
+        }
+    } else {
+        copyCoords(this.layout, p);
+    }
     this.updateViewObjects(this.state);
     if (updateDependent) {
         (this.onBorderInRegion || []).forEach(region => region.resize(this, delta));
