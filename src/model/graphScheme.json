@@ -2229,6 +2229,20 @@
             "class"
           ],
           "advanced": true
+        },
+        "inGroups": {
+          "description": "Specify groups to which this resource should be included",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Group"
+              }
+            ]
+          }
         }
       }
     },

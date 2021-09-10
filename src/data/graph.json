@@ -120,7 +120,8 @@
       "source": "ns250",
       "target": "ns252",
       "conveyingLyph": "sn-blad_2",
-      "length": 4
+      "length": 4,
+      "inGroups": ["nerves"]
     },
     {
       "id": "lnk-sn-blad2_2",
@@ -2891,7 +2892,6 @@
       "id": "nerves",
       "name": "Nerves",
       "links": [
-        "lnk-sn-blad_2",
         "lnk-sn-blad2_2"
       ]
     }

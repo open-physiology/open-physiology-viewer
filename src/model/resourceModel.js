@@ -21,6 +21,7 @@ import {
     isClassAbstract,
     getClassName,
     getNewID,
+    getID,
     getFullID, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
@@ -479,6 +480,17 @@ export class Resource{
      */
     includeRelated(group){
         logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
+    }
+
+    includeToGroup(prop){
+        (this.inGroups||[]).forEach(group => {
+            if (group::isObject()){
+                group[prop] = group[prop] || [];
+                if (!group[prop].find(e => getID(e) === this.id)){
+                    group[prop].push(this);
+                }
+            }
+        })
     }
 }
 

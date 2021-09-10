@@ -208,6 +208,7 @@ export class Graph extends Group{
             let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
             res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
             //res.validate(modelClasses);
+            res.includeToGroups();
             (res.groups||[]).forEach(group => group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             //Collect inherited externals
@@ -277,6 +278,11 @@ export class Graph extends Group{
                 }
             }
         });
+    }
+
+    includeToGroups(){
+        let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames::keys();
+        relClassNames.forEach((key) => (this[key]||[]).forEach(r => r.includeToGroup(key)));
     }
 
     /**
