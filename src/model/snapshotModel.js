@@ -57,7 +57,7 @@ export class Snapshot extends Resource {
 
     removeByIdx(idx){
          if (idx > -1 && idx < this.length){
-            this.states = this.states.splice(idx, 1);
+            this.states.splice(idx, 1);
             if (idx === this._activeIdx){
                 this._activeIdx = idx - 1;
             }
@@ -127,6 +127,5 @@ export class Snapshot extends Resource {
         }
         return 1;
     }
-
 }
 

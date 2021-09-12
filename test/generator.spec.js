@@ -33,8 +33,8 @@ import respiratory from './data/respiratory';
 import respiratoryInternalLyphsInLayers from './data/respiratoryInternalLyphsInLayers';
 
 import uot from './data/uot';
-import {expectNoWarnings, expectAutoGenResources} from "./test.helper";
-import uotWithChannels from './data/uotWithChannels';
+import {expectNoWarnings} from "./test.helper";
+
 
 import {modelClasses, fromJSON} from '../src/model/index';
 
