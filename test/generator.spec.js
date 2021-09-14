@@ -3,7 +3,7 @@ import {
     it,
     before,
     after,
-    expect, expectNoErrors,
+    expect
 } from './test.helper';
 
 import basalGanglia from './data/basalGanglia';

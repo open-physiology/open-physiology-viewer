@@ -102,6 +102,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
  * @property config
  * @property namespace
  * @property localConventions
+ * @property modelClasses
  */
 export class Graph extends Group{
 
@@ -473,6 +474,8 @@ export class Graph extends Group{
         const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
         if (this.scaffoldResources) {
             (this.scaffoldResources.anchors || []).forEach(e => e.layout && scalePoint(e.layout));
+            (this.scaffoldResources.wires || []).forEach(e => e::isObject()
+                && e.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE && e.radius && scalePoint(e.radius));
             (this.scaffoldResources.wires || []).forEach(e => e::isObject() && (e.length = (e.length || 10) * scaleFactor));
             (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => !p.hostedBy && scalePoint(p)));
         }
