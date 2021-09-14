@@ -463,6 +463,16 @@ export class TestApp {
                         });
                     }
                 }
+            });
+            (scaffold.wires || []).forEach(wire => {
+                //Update ellipse radius
+                if (wire.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE) {
+                    const srcWire = findResourceByID(srcScaffold.wires, wire.id);
+                    if (srcWire && srcWire::isObject()) {
+                        srcWire.radius = srcWire.radius || {};
+                        ["x", "y"].forEach(dim => srcWire.radius[dim] = wire.radius[dim] / scaleFactor);
+                    }
+                }
             })
         }
 

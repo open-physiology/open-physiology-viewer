@@ -285,7 +285,12 @@ Wire.prototype.relocate = function(delta, epsilon = 5){
             }
         }
     }
-    [$Field.source, $Field.target].forEach(prop => this[prop].relocate(delta));
+    if (this.geometry === Wire.WIRE_GEOMETRY.ELLIPSE){
+        this.radius.x = Math.max(10, this.radius.x + delta.x);
+        this.radius.y = Math.max(10, this.radius.y + delta.y);
+    } else {
+        [$Field.source, $Field.target].forEach(prop => this[prop].relocate(delta));
+    }
     this.updateViewObjects(this.state);
     return [this.source, this.target];
 }
