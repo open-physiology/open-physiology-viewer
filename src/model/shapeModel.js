@@ -80,6 +80,7 @@ export class Shape extends VisualResource {
  * @property inMaterials
  * @property inCoalescences
  * @property bundles
+ * @property endBundles
  * @property bundlesChains
  * @property prev
  * @property next
@@ -88,7 +89,6 @@ export class Shape extends VisualResource {
  * @property height
  * @property length
  * @property thickness
- * @property fasciculatesIn
  * @property internalNodesInLayers
  */
 export class Lyph extends Shape {
@@ -308,7 +308,7 @@ export class Lyph extends Shape {
     }
 
     get host() {
-        return (this.conveys && this.conveys.fasciculatesIn) || this.internalIn; // || this.hostedBy;
+        return (this.conveys && (this.conveys.fasciculatesIn || this.conveys.endsIn)) || this.internalIn; // || this.hostedBy;
     }
 
     get container(){

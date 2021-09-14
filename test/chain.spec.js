@@ -143,13 +143,28 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
             let j = nn1.housingLayers[i - nn1.housingRange.min];
             expect(ch1.lyphs[i].layers).to.be.an('array').that.has.length.above(j);
             expect(ch1.lyphs[i].layers[j]).to.be.an('object');
+        }
+        for (let i = nn1.housingRange.min + 1; i < nn1.housingRange.max - 1; i++) {
+            let j = nn1.housingLayers[i - nn1.housingRange.min];
             expect(ch1.lyphs[i].layers[j]).to.have.property('bundles');
-            let lnk = ch1.lyphs[i].layers[j].bundles;
+            expect(ch1.lyphs[i].layers[j].endBundles).to.be.a("null");
+            const lnk = ch1.lyphs[i].layers[j].bundles;
             expect(lnk).to.be.an('array').that.has.length.above(0);
             expect(lnk[0]).to.be.an('object');
             expect(lnk[0]).to.have.property('class').that.equal('Link');
-            //TODO check that there is a link that a link with conveying neuron
+            expect(lnk[0]).to.have.property('fasciculatesIn')
+            expect(lnk[0].fasciculatesIn).to.have.property("id").that.equals(ch1.lyphs[i].layers[j].id);
         }
+        [nn1.housingRange.min, nn1.housingRange.max-1].forEach(i => {
+            let j = nn1.housingLayers[i - nn1.housingRange.min];
+            expect(ch1.lyphs[i].layers[j]).to.have.property('endBundles');
+            const lnk = ch1.lyphs[i].layers[j].endBundles;
+            expect(lnk).to.be.an('array').that.has.length(1);
+            expect(lnk[0]).to.be.an('object');
+            expect(lnk[0]).to.have.property('class').that.equal('Link');
+            expect(lnk[0]).to.have.property('endsIn');
+            expect(lnk[0].endsIn).to.have.property("id").that.equals(ch1.lyphs[i].layers[j].id);
+        })
     });
 
     after(() => {});

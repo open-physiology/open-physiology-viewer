@@ -405,16 +405,20 @@ export class Chain extends GroupTemplate {
             }
 
             if (!hostLyph.isTemplate) {
-                hostLyph.bundles = hostLyph.bundles ||[];
-                hostLyph.bundles.push(level.id);
-
+                if (i === 0 || i === (N-1)) {
+                    hostLyph.endBundles = hostLyph.endBundles || [];
+                    hostLyph.endBundles.push(level.id);
+                } else {
+                    hostLyph.bundles = hostLyph.bundles || [];
+                    hostLyph.bundles.push(level.id);
+                }
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
 
                 if (sameAsNext){
                     sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i+1]? 0: 2;
                 }
-               if (sameAsPrev){
+                if (sameAsPrev){
                     targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i-1]? 2: 0;
                 }
 

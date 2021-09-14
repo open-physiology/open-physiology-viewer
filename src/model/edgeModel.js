@@ -120,6 +120,8 @@ export class Wire extends Edge {
  * @property onBorder
  * @property levelIn
  * @property controlPoint
+ * @property fasciculatesIn
+ * @property endsIn
  */
 export class Link extends Edge {
     /**

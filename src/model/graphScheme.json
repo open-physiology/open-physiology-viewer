@@ -1155,6 +1155,19 @@
           "advanced": true,
           "readOnly": true
         },
+        "endsIn": {
+          "description": "A lyph which bundles the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "endBundles",
+          "readOnly": true
+        },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
           "anyOf": [
@@ -1165,7 +1178,8 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "bundles"
+          "relatedTo": "bundles",
+          "readOnly": true
         },
         "collapsible": {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
@@ -1528,6 +1542,22 @@
           "relatedTo": "housingLyphs",
           "uniqueItems": true
         },
+        "endBundles": {
+          "description": "A set of links (i.e., neural connections) that pass through the lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "endsIn",
+          "readOnly": true
+        },
         "bundles": {
           "description": "A set of links (i.e., neural connections) that pass through the lyph",
           "type": "array",
@@ -1541,7 +1571,8 @@
               }
             ]
           },
-          "relatedTo": "fasciculatesIn"
+          "relatedTo": "fasciculatesIn",
+          "readOnly": true
         },
         "bundlesChains": {
           "description": "Chains that generate links that pass through the lyph. The property can be used to override default bundling of tree links to the outermost layer of a lyph",

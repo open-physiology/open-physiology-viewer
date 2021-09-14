@@ -414,7 +414,7 @@ export class Graph extends Group{
         this.createGroup(getGenID($Prefix.group, qNumber), `QR ${qNumber}: ${qName}`, nodes, links, lyphs, modelClasses);
 
         //Only chains
-        let chainLinks = links.filter(e => e.fasciculatesIn);
+        let chainLinks = links.filter(e => e.fasciculatesIn || e.endsIn);
         let chainNodes = [];
         this.includeLinkEnds(chainLinks, chainNodes);
         this.createGroup(getGenID($Prefix.group, qNumber, "chains"), `QR ${qNumber}: chains`, chainNodes, chainLinks, [], modelClasses);
@@ -425,7 +425,7 @@ export class Graph extends Group{
         this.createGroup(getGenID($Prefix.group, qNumber, "chainLyphs"), `QR ${qNumber}: chain lyphs`, [],[], chainLyphs, modelClasses);
 
         //Only housing lyphs
-        let housingLyphs = lyphs.filter(e => e.bundles);
+        let housingLyphs = lyphs.filter(e => e.bundles || e.endBundles);
         housingLyphs.forEach(e => e.layerIn && housingLyphs.push(e.layerIn));
         let housingLinks = [];
         let housingNodes = [];
