@@ -8,6 +8,7 @@ import {
 
 import keastExcelModel from './excel/Keast_Flatmap_051420.xlsx';
 import keastExcelEvilBagModel from './excel/Keast_Flatmap_evilBag.xlsx';
+import testModel from './excel/test_model.xlsx';
 import {loadModel} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
@@ -62,6 +63,27 @@ describe("Neurulate Excel template without out-of-memory error ", () => {
         expect(dynamic.length).to.be.equal(33);
         let neurons = dynamic.filter(g => g.name.startsWith("Neuron"));
         expect(neurons.length).to.be.equal(19);
+    });
+
+    afterEach(() => {});
+});
+
+describe("Convert excel data to JSON", () => {
+    let graphData;
+    beforeEach(() => {
+        let model = loadModel(testModel, "TestModel", "xlsx", false);
+        graphData = modelClasses.Graph.fromJSON(model, modelClasses);
+    });
+
+    it("Excel model imported (TestModel)", () => {
+        expect(graphData).to.have.property("class");
+        expect(graphData).to.be.instanceOf(modelClasses.Graph);
+
+        expect(graphData).to.have.property("lyphs");
+        const s41 = graphData.lyphs.find(lyph => lyph.id === "S41");
+        expect(s41).to.be.instanceOf(modelClasses.Lyph);
+        expect(s41).to.have.property("internalLyphs");
+        expect(s41.internalLyphs).to.be.an("array").that.has.length(4);
     });
 
     afterEach(() => {});

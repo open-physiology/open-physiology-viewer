@@ -340,8 +340,11 @@ export class Graph extends Group{
                     logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
                     return;
                 }
-                let res = value.toString();
+                let res = value.toString().trim();
                 if (res.length === 0) { return; } //skip empty properties
+                while (res.endsWith(',')){
+                    res = res.slice(0, -1).trim();
+                }
 
                 if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
                     res = {min: parseInt(res), max: parseInt(res)};

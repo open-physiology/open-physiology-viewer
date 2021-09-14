@@ -70,7 +70,7 @@ export function loadModel(content, name, extension, isBinary = true){
     let newModel = {};
     if (extension === "xlsx"){
         let excelModel = {};
-        let wb = isBinary? XLSX.read(content, {type: "binary"}): content;
+        const wb = isBinary? XLSX.read(content, {type: "binary"}): content;
         wb.SheetNames.forEach(sheetName => {
             let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
             if(roa.length) { excelModel[sheetName] = roa; }

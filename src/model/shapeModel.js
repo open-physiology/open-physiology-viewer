@@ -80,7 +80,7 @@ export class Shape extends VisualResource {
  * @property inMaterials
  * @property inCoalescences
  * @property bundles
- * @property endBundles
+ * @property endBbundles
  * @property bundlesChains
  * @property prev
  * @property next
@@ -365,7 +365,7 @@ export class Lyph extends Shape {
         }
         return offset;
     }
-sh
+
     updateSize(){
         const size = this.sizeFromAxis;
         [$Field.width, $Field.height].forEach(prop => this[prop] = this[prop] || size[prop]);
@@ -393,7 +393,7 @@ sh
             layer.includeRelated(group);
         });
         (this.internalLyphs||[]).forEach(internal => {
-            if (!group.contains(internal)){
+            if (internal::isObject() && !group.contains(internal)){
                 group.lyphs.push(internal);
                 internal.hidden = group.hidden;
                 if (internal.conveys &&! group.contains(internal.conveys)){
@@ -405,7 +405,7 @@ sh
             }
         });
         (this.internalNodes||[]).forEach(internal => {
-            if (!group.contains(internal)){
+            if (internal::isObject() && !group.contains(internal)){
                 group.nodes.push(internal);
                 internal.hidden = group.hidden;
                 (internal.clones||[]).forEach(clone => {
