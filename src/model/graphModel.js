@@ -101,6 +101,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
  * @property entitiesByID
  * @property config
  * @property namespace
+ * @property localConventions
  */
 export class Graph extends Group{
 
@@ -207,7 +208,6 @@ export class Graph extends Group{
             res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID, namespace);
             let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
             res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
-            //res.validate(modelClasses);
             res.includeToGroups();
             (res.groups||[]).forEach(group => group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
@@ -247,6 +247,16 @@ export class Graph extends Group{
         //Validate channels
         (res.channels || []).forEach(r => r.validate(res));
 
+        const faultyExternal = [];
+        (res.external || []).forEach(r => {
+            if (!(res.localConventions||[]).find(c => r.id.startsWith(c.prefix))) {
+                faultyExternal.push(r.id);
+            }
+        });
+        if (faultyExternal.length > 0){
+            logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
+        }
+
         res.generated = true;
         res.mergeScaffoldResources();
 
@@ -254,30 +264,6 @@ export class Graph extends Group{
         res.modelClasses = modelClasses;
 
         return res;
-    }
-
-    validate(modelClasses){
-        let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames;
-
-        const isClassValid = (r, clsName) => {
-            let res = r instanceof modelClasses[clsName];
-            if (!res){
-                logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r);
-            }
-            return res;
-        };
-
-        relClassNames.forEach(([key, clsName]) => {
-            if (this[key]) {
-                if (this[key]::isArray()) {
-                    this[key] = this[key].filter(r => isClassValid(r, clsName));
-                } else {
-                    if (isClassValid(this[key], clsName)){
-                        this[key] = null;
-                    }
-                }
-            }
-        });
     }
 
     includeToGroups(){

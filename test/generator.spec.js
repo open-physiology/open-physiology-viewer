@@ -3,7 +3,7 @@ import {
     it,
     before,
     after,
-    expect,
+    expect, expectNoErrors,
 } from './test.helper';
 
 import basalGanglia from './data/basalGanglia';
@@ -37,6 +37,7 @@ import {expectNoWarnings} from "./test.helper";
 
 
 import {modelClasses, fromJSON} from '../src/model/index';
+import {$LogMsg, Logger} from "../src/model/logger";
 
 describe("BasalGanglia", () => {
     let graphData;
@@ -203,7 +204,13 @@ describe("RespiratoryInternalLyphsInLayers", () => {
 describe("Uot", () => {
     let graphData;
     before(() => graphData = fromJSON(uot, modelClasses));
-    it("Model generated without warnings, auto-detected connectivity model", () => expectNoWarnings(graphData));
+    it("Model detects absence of local convention mapping, auto-detected connectivity model", () => {
+        expect (graphData.logger.status).to.be.equal(Logger.STATUS.ERROR);
+        let logEvents = graphData.logger.entries;
+        let errors = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(1);
+        expect(errors[0].msg).to.be.equal($LogMsg.EXTERNAL_NO_MAPPING);
+    });
     after(() => {});
 });
 
