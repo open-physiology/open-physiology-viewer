@@ -22,6 +22,7 @@ import {
 } from "./utils";
 import {extractModelAnnotation, getItemType, strToValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
+import {Link} from "./edgeModel";
 
 export { schema };
 
@@ -263,8 +264,48 @@ export class Graph extends Group{
 
         res.logger = logger;
         res.modelClasses = modelClasses;
+        res.createForceLinks();
 
         return res;
+    }
+
+    createForceLinks(){
+        //Create invisible links to generate attraction forces for housing lyphs of connected chains
+        (this.links||[]).forEach(lnk => {
+            if (lnk.collapsible){
+                let housingLyphs = [null, null];
+                [$Field.source, $Field.target].forEach((prop, i) => {
+                    let border = lnk[prop] && lnk[prop].hostedBy;
+                    if (border) {
+                        housingLyphs[i] = border.onBorder && border.onBorder.host;
+                    } else {
+                        housingLyphs[i] = lnk[prop] && lnk[prop].internalIn;
+                    }
+                    while (housingLyphs[i] && housingLyphs[i].container) {
+                       housingLyphs[i] = housingLyphs[i].container;
+                    }
+                });
+                let nodes = [null, null];
+                [$Field.source, $Field.target].forEach((prop, i) => {
+                    nodes[i] = housingLyphs[i] && housingLyphs[i].conveys && housingLyphs[i].conveys[prop];
+                    if (!nodes[i]){
+                        //Create a tension link between lyph end and free floating end of collapsible link
+                        nodes[i] = lnk[prop];
+                    }
+                });
+                if (nodes[0] && nodes[1]){
+                    let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
+                    let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
+                    if (!this.entitiesByID[force.id]) {
+                        this.links.push(force);
+                        [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
+                            nodes[i][prop] = nodes[i][prop] || [];
+                            nodes[i][prop].push(force);
+                        })
+                    }
+                }
+            }
+        })
     }
 
     includeToGroups(){

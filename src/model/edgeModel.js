@@ -179,6 +179,23 @@ export class Link extends Edge {
         };
     }
 
+    static createForceLink(sourceID, targetID){
+        return {
+            [$Field.id]         : getGenID($Prefix.link, sourceID, targetID),
+            [$Field.description]: "force",
+            [$Field.source]     : sourceID,
+            [$Field.target]     : targetID,
+            [$Field.geometry]   : EDGE_STROKE.INVISIBLE,
+            // Enable for testing
+            // [$Field.geometry]   : EDGE_STROKE.LINK,
+            // [$Field.color]      : "#FF0000",
+            [$Field.length]     : 1,
+            [$Field.strength]   : 1,
+            [$Field.skipLabel]  : true,
+            [$Field.generated]  : true
+        };
+    }
+
     get isVisible(){
         return this.onBorder? this.onBorder.isVisible : super.isVisible;
     }
