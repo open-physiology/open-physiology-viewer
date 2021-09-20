@@ -16,8 +16,8 @@ Chain.prototype.update = function(){
     let {start, end} = this.getWiredChainEnds();
     start = extractCoords(start);
     end   = extractCoords(end);
-    let curve = this.wiredTo? this.wiredTo.getCurve(start, end): null;
-    if (start && start.hostedBy || end && end.hostedBy) {
+    if (start && end) {
+        let curve = this.wiredTo ? this.wiredTo.getCurve(start, end) : null;
         let length = (curve && curve.getLength) ? curve.getLength() : end.distanceTo(start);
         if (length < 10) {
             return;

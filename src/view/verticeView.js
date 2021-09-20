@@ -92,7 +92,7 @@ Anchor.prototype.relocate = function(delta, updateDependent = true){
     let p = p0.clone().add(v);
     if (this.hostedBy){
         if ((this.hostedBy.points||[]).length > 2) {
-            //Anchor must move long a wire - we will move it to the nearest to p point on the curve
+            //Anchor must move along a wire - we will move it to the nearest to p point on the curve
             let dMin = Number.MAX_VALUE;
             let idxMin = -1;
             (this.hostedBy.points || []).forEach((q, i) => {

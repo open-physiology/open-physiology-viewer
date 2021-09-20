@@ -185,9 +185,9 @@ export class Link extends Edge {
             [$Field.description]: "force",
             [$Field.source]     : sourceID,
             [$Field.target]     : targetID,
-            [$Field.geometry]   : EDGE_STROKE.INVISIBLE,
+            [$Field.geometry]   : EDGE_GEOMETRY.INVISIBLE,
             // Enable for testing
-            // [$Field.geometry]   : EDGE_STROKE.LINK,
+            // [$Field.geometry]   : EDGE_GEOMETRY.LINK,
             // [$Field.color]      : "#FF0000",
             [$Field.length]     : 1,
             [$Field.strength]   : 1,

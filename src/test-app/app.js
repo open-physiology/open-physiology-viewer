@@ -441,7 +441,7 @@ export class TestApp {
                     if (anchor.layout) {
                         ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
                     } else {
-                        if (anchor.hostedBy && anchor.offset){
+                        if (anchor.hostedBy && anchor.offset !== undefined){
                             srcAnchor.offset = anchor.offset;
                         }
                     }

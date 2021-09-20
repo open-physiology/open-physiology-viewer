@@ -20,7 +20,7 @@ import {
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels
 } from "./utils";
-import {extractModelAnnotation, getItemType, strToValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
 
@@ -132,6 +132,7 @@ export class Graph extends Group{
             [$Field.name]     : "Ungrouped",
             [$Field.generated]: true,
             [$Field.hidden]   : false,
+            //TODO maybe we should exclude from this group resources included to subgroups
             [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
             [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
         };
@@ -270,6 +271,14 @@ export class Graph extends Group{
     }
 
     createForceLinks(){
+        let group_json = {
+            [$Field.id]       : getGenID($Prefix.group, $Prefix.force),
+            [$Field.name]     : "Force links",
+            [$Field.generated]: true,
+            [$Field.hidden]   : false,
+            [$Field.links]    : [],
+            [$Field.nodes]    : []
+        };
         //Create invisible links to generate attraction forces for housing lyphs of connected chains
         (this.links||[]).forEach(lnk => {
             if (lnk.collapsible){
@@ -281,8 +290,8 @@ export class Graph extends Group{
                     } else {
                         housingLyphs[i] = lnk[prop] && lnk[prop].internalIn;
                     }
-                    while (housingLyphs[i] && housingLyphs[i].container) {
-                       housingLyphs[i] = housingLyphs[i].container;
+                    while (housingLyphs[i] && (housingLyphs[i].container || housingLyphs[i].host)) {
+                       housingLyphs[i] = housingLyphs[i].container || housingLyphs[i].host;
                     }
                 });
                 let nodes = [null, null];
@@ -296,16 +305,17 @@ export class Graph extends Group{
                 if (nodes[0] && nodes[1]){
                     let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
                     let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
-                    if (!this.entitiesByID[force.id]) {
-                        this.links.push(force);
-                        [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
-                            nodes[i][prop] = nodes[i][prop] || [];
-                            nodes[i][prop].push(force);
-                        })
-                    }
+                    this.links.push(force);
+                    group_json.links.push(force);
+                    [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
+                        nodes[i][prop] = nodes[i][prop] || [];
+                        nodes[i][prop].push(force);
+                    })
                 }
             }
         })
+        const group = Group.fromJSON(group_json, this.modelClasses, this.entitiesByID, this.namespace);
+        this.groups.unshift(group);
     }
 
     includeToGroups(){
@@ -329,24 +339,11 @@ export class Graph extends Group{
             if (!table) { return; }
             let headers = table[0] || [];
 
-            const validateValue = (value, j) => {
-                if (!value){ return false; }
-                if (!headers[j]) {
-                    logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
-                    return false;
-                }
-                if (!headers[j]::isString()) {
-                    logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j])
-                    return false;
-                }
-                return true;
-            }
-
             if (relName === "localConventions") {  // local conventions are not a resource
                 for (let i = 1; i < table.length; i++) {
                     let convention = {};
                     table[i].forEach((value, j) => {
-                        if (!validateValue(value, j)) { return; }
+                        if (!validateValue(value, headers[j])) { return; }
                         let key = headers[j].trim();
                         convention[key] = value;
                     });
@@ -381,7 +378,6 @@ export class Graph extends Group{
                     if (!itemType){
                         logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
                     }
-
                     if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
                         res = res.replace(/\s/g, '');
                     }
@@ -413,10 +409,12 @@ export class Graph extends Group{
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    if (!validateValue(value, j)) { return; }
+                    if (!validateValue(value, headers[j])) { return; }
                     let key = headers[j].trim();
                     let res = convertValue(key, value);
-                    if (res){ resource[key] = res; }
+                    if (res !== undefined) {
+                        resource[key] = res;
+                    }
                 });
                 table[i] = resource;
 

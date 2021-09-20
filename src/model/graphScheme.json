@@ -2273,7 +2273,8 @@
                 "$ref": "#/definitions/Group"
               }
             ]
-          }
+          },
+          "advanced": true
         }
       }
     },

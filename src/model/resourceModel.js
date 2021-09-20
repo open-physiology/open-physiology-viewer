@@ -446,7 +446,7 @@ export class Resource{
 
         let res = {};
         const omitKeys = (this::keys())::difference(schemaClassModels[this.class].fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
-        this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
+        this::keys().filter(key => this[key] !== undefined && !omitKeys.includes(key)).forEach(key => {
             res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
         });
         return res;

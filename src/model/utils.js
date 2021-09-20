@@ -102,7 +102,8 @@ export const $Prefix = {
     wire        : "wire",   //wire
     //TODO create a separate object with generated resource ids and names
     query       : "query",  //dynamic query
-    default     : "default" //default group ID
+    default     : "default", //default group ID
+    force       : "force"
 };
 
 export const getNewID = entitiesByID => "new-" +
@@ -340,14 +341,16 @@ const extendsClass = (refs, value) => {
  */
 const getFieldDefaultValues = (className) => {
     const getDefault = (specObj) => specObj.type ?
-        specObj.type === $SchemaType.STRING ? "" : specObj.type === $SchemaType.BOOLEAN ? false : specObj.type === $SchemaType.NUMBER ? 0 : null
-        : null;
+        specObj.type === $SchemaType.STRING ? "" :
+            specObj.type === $SchemaType.BOOLEAN ? false :
+                specObj.type === $SchemaType.NUMBER ? 0 : undefined
+            : undefined;
     const initValue = (specObj) => {
         return specObj.default?
             (specObj.default::isObject()
                 ? specObj.default::cloneDeep()
                 : specObj.default )
-            : getDefault(specObj);
+            : undefined; //getDefault(specObj);
     };
 
     return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));

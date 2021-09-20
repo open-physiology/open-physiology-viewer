@@ -1,5 +1,6 @@
-import {$SchemaType, getSchemaClass} from "./utils";
-import {isArray, isObject, merge} from "lodash-bound";
+import {$Field, $SchemaClass, $SchemaType, getSchemaClass, schemaClassModels} from "./utils";
+import {isArray, isEmpty, isObject, isString, keys, merge, omit, pick, values} from "lodash-bound";
+import {$LogMsg, logger} from "./logger";
 
 /**
  * Get expected field type
@@ -50,6 +51,21 @@ export function strToValue(isArray, itemType, str){
         res = parseStr(str.trim());
     }
     return res;
+}
+
+export function validateValue(value, key){
+    if (value === undefined){
+        return false;
+    }
+    if (!key) {
+        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+        return false;
+    }
+    if (!key::isString()) {
+        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, key)
+        return false;
+    }
+    return true;
 }
 
 /**

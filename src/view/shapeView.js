@@ -516,7 +516,7 @@ Border.prototype.updateViewObjects = function(state){
             let V = this.host.points[i + 1].clone().sub(this.host.points[i]);
             this.borders[i].hostedNodes.forEach((node, j) => {
                 //For borders 2 and 3 position nodes in the reversed order to have parallel links
-                let d_i = node.hasOwnProperty($Field.offset)? node.offset : offset * (j + 1);
+                let d_i = node.offset !== undefined? node.offset : offset * (j + 1);
                 if (i > 1) {
                     d_i = 1 - d_i;
                 }

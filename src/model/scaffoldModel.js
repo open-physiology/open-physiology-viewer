@@ -14,7 +14,7 @@ import {
     pick
 } from "lodash-bound";
 import {$Field, $SchemaClass, $SchemaType, getFullID, schemaClassModels} from "./utils";
-import {extractModelAnnotation, getItemType, strToValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 
@@ -220,18 +220,10 @@ export class Scaffold extends Component {
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    if (!value){ return; }
-                    if (!headers[j]) {
-                        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
-                        return;
-                    }
-                    if (!headers[j]::isString()) {
-                        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
-                        return;
-                    }
+                    if (!validateValue(value, headers[j])) { return; }
                     let key = headers[j].trim();
                     let res = convertValue(key, value);
-                    if (res) {
+                    if (res !== undefined) {
                         resource[key] = res;
                     }
                 });
