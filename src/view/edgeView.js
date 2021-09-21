@@ -186,7 +186,7 @@ Link.prototype.updateViewObjects = function(state) {
 
     //Position hosted nodes
     (this.hostedNodes||[]).forEach((node, i) => {
-        let d_i = node.offset !== undefined? node.offset: 1. / (this.hostedNodes.length + 1) * (i + 1);
+        let d_i = node.offset !== undefined? node.offset:  (i + 1) / (this.hostedNodes.length + 1);
         const pos = getPoint(curve, start, end, d_i);
         copyCoords(node, pos);
     });
@@ -312,7 +312,7 @@ Wire.prototype.updateViewObjects = function(state) {
     }
 
     (this.hostedAnchors||[]).forEach((anchor, i) => {
-        let d_i = anchor.offset !== undefined? anchor.offset : 1. / (this.hostedAnchors.length + 1) * (i + 1);
+        let d_i = anchor.offset !== undefined? anchor.offset : (i + 1) / (this.hostedAnchors.length + 1);
         let pos = getPoint(curve, start, end, d_i);
         pos = new THREE.Vector3(pos.x, pos.y, 0); //Arc wires are rendered in 2d
         copyCoords(anchor, pos);
