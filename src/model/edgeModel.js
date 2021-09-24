@@ -181,7 +181,7 @@ export class Link extends Edge {
 
     static createForceLink(sourceID, targetID){
         return {
-            [$Field.id]         : getGenID($Prefix.link, sourceID, targetID),
+            [$Field.id]         : getGenID($Prefix.force, sourceID, targetID),
             [$Field.description]: "force",
             [$Field.source]     : sourceID,
             [$Field.target]     : targetID,

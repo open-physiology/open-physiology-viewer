@@ -756,7 +756,17 @@
     },
     "Graph": {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "$ref": "#/definitions/Group"
+      "$ref": "#/definitions/Group",
+      "properties": {
+        "imports": {
+          "description": "URLs of published ApiNATOMY models to merge with the current model",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",

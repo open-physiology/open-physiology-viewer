@@ -4,7 +4,8 @@ import { cloneDeep, isArray, isObject, keys, merge, mergeWith, pick} from 'lodas
 
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
-
+import {MatListModule} from '@angular/material/list'
+import {MatFormFieldModule} from '@angular/material/form-field';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import FileSaver  from 'file-saver';
@@ -509,23 +510,41 @@ export class TestApp {
     }
 
     getCurrentState(){
-        return this.modelClasses.State.fromJSON({
+        let state_json =  {
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
             [$Field.visibleGroups]: this._graphData.visibleGroups.map(g => g.id),
-            [$Field.scaffolds]: (this._graphData.scaffolds||[]).map(s => ({
-                    [$Field.id]: s.id,
-                    [$Field.hidden]: s.hidden,
-                    [$Field.anchors]: (s.anchors||[]).map(a => ({
-                        [$Field.id]: a.id,
-                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
-                    })),
-                    [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
-                })),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
                 up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
-            },
-        }, this.modelClasses, this._graphData.entitiesByID);
+            }
+        }
+        state_json.scaffolds = [];
+        (this._graphData.scaffolds||[]).forEach(s => {
+            let scaffold_json = {
+                [$Field.id]: s.id,
+                [$Field.hidden]: s.hidden,
+                [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
+            }
+            scaffold_json.anchors = [];
+            (s.anchors||[]).forEach(a => {
+                if (a.layout) {
+                    scaffold_json.anchors.push({
+                        [$Field.id]: a.id,
+                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
+                    })
+                } else {
+                    if (a.hostedBy && a.offset !== undefined){
+                        scaffold_json.anchors.push({
+                            [$Field.id]: a.id,
+                            [$Field.offset]: a.offset
+                        })
+                    }
+                }
+            })
+            state_json.scaffolds.push(scaffold_json)
+        })
+
+        return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
     restoreState(){
@@ -548,8 +567,16 @@ export class TestApp {
                 (scaffold.anchors || []).forEach(anchor => {
                     const modelAnchor = (modelScaffold.anchors||[]).find(a => a.id === anchor.id);
                     if (modelAnchor){
-                        modelAnchor.layout.x = anchor.layout.x;
-                        modelAnchor.layout.y = anchor.layout.y;
+                        if (anchor.layout) {
+                            modelAnchor.layout = {
+                                x: anchor.layout.x,
+                                y: anchor.layout.y
+                            }
+                        } else {
+                            if (anchor.offset !== undefined){
+                                modelAnchor.offset = anchor.offset;
+                            }
+                        }
                     } else {
                         this._graphData.logger.info($LogMsg.SNAPSHOT_NO_ANCHOR, anchor.id, scaffold.id);
                     }
@@ -606,9 +633,11 @@ export class TestApp {
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
-            throw new Error("Snapshot model is not applicable to the model!");
+            throw new Error("Snapshot is not applicable to the model!");
         } else {
-            //TODO show warning or ask whether to proceed
+            if (match === 0){
+                throw new Error("Snapshot corresponds to a different version of the model!");
+            }
         }
         this._snapshot = newSnapshot;
     }
@@ -630,7 +659,8 @@ export class TestApp {
 @NgModule({
 	imports     : [BrowserModule, WebGLSceneModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, MatSnackBarModule,
         //RelGraphModule,
-        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule],
+        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule, MatListModule,
+    MatFormFieldModule],
 	declarations: [TestApp, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ResourceEditorDialog],

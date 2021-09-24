@@ -1,7 +1,8 @@
-import {Component, Output, EventEmitter, Input, NgModule, ErrorHandler} from '@angular/core';
+import {Component, Output, EventEmitter, Input, NgModule} from '@angular/core';
 
 import {loadModel} from '../model';
 import {ImportExcelModelDialog} from "./gui/importExcelModelDialog";
+import {ImportDialog} from "./gui/importDialog";
 import {MatDialog,MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -9,6 +10,8 @@ import {MatInputModule} from '@angular/material/input';
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
+import {MatListModule} from "@angular/material/list";
+import {MatSelectModule} from "@angular/material/select";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -106,8 +109,25 @@ export class MainToolbar {
             const reader = new FileReader();
             reader.onload = () => {
                 let model = loadModel(reader.result, name, extension);
+                if (model.imports && model.imports.length > 0) {
+                    //Model contains external inputs
+                    let dialogRef = this._dialog.open(ImportDialog, {
+                        width: '75%', data: {
+                            imports: model.imports || []
+                        }
+                    });
+                    dialogRef.afterClosed().subscribe(result => {
+                        if (result !== undefined) {
+                            model.scaffolds = model.scaffolds || [];
+                            result.forEach(newModel => {
+                                model.scaffolds.push(newModel);
+                            });
+                            event.emit(model);
+                        }
+                    });
+                }
                 event.emit(model);
-            };
+            }
             try {
                 if (extension === "json"){
                     reader.readAsText(files[0]);
@@ -127,9 +147,9 @@ export class MainToolbar {
     }
 }
 @NgModule({
-    imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule],
-    declarations: [MainToolbar, ImportExcelModelDialog],
-    entryComponents: [ImportExcelModelDialog],
+    imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatListModule, MatSelectModule],
+    declarations: [MainToolbar, ImportExcelModelDialog, ImportDialog],
+    entryComponents: [ImportExcelModelDialog, ImportDialog],
     exports: [MainToolbar]
 })
 export class MainToolbarModule {

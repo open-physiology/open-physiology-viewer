@@ -43,8 +43,9 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
         expect(graphData).to.have.property("groups");
-        expect(graphData.groups).to.be.an('array').that.has.length(4); //count auto-created Default group
-        const gr1 = graphData.groups[1];
+        //count auto-created Default group and force link group
+        expect(graphData.groups).to.be.an('array').that.has.length(5);
+        const gr1 = graphData.groups[2];
         expect(gr1).to.be.an('object');
         expect(gr1).to.have.property("id").that.equal("group_ch1");
         expect(gr1).to.have.property("generated").that.equal(true);
@@ -147,7 +148,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         for (let i = nn1.housingRange.min + 1; i < nn1.housingRange.max - 1; i++) {
             let j = nn1.housingLayers[i - nn1.housingRange.min];
             expect(ch1.lyphs[i].layers[j]).to.have.property('bundles');
-            expect(ch1.lyphs[i].layers[j].endBundles).to.be.a("null");
+            expect(ch1.lyphs[i].layers[j].endBundles).to.be.a("undefined");
             const lnk = ch1.lyphs[i].layers[j].bundles;
             expect(lnk).to.be.an('array').that.has.length.above(0);
             expect(lnk[0]).to.be.an('object');

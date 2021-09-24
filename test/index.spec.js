@@ -132,7 +132,7 @@ describe("Generate model (Basal Ganglia)", () => {
         expect(graphData).to.have.property("channels");
 
         //"generatedFrom" should not be populated from subgroups
-        expect(graphData.generatedFrom).to.be.a('null');
+        expect(graphData.generatedFrom).to.be.a('undefined');
     });
 
     it("Related properties synchronized", () => {
