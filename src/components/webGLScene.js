@@ -61,6 +61,11 @@ const WindowResize = require('three-window-resize');
                                 (click)="showPanel = !showPanel" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
+                        <button id="importBtn" class="w3-bar-item w3-hover-light-grey" 
+                                *ngIf ="graphData?.imports"
+                                (click)="onImportExternal.emit()" title="Download external models">
+                            <i class="fa fa-download"> </i>
+                        </button>
                         <mat-slider vertical class="w3-grey"
                                     [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
                                     [step]="0.05 * scaleFactor" tickInterval="1"
@@ -240,7 +245,17 @@ export class WebGLSceneComponent {
      */
     @Output() editResource = new EventEmitter();
 
+    /**
+     * @emits scaffoldUpdated - scaffold was graphically altered
+     * @type {EventEmitter<any>}
+     */
     @Output() scaffoldUpdated = new EventEmitter();
+
+    /**
+     * @emits onImportExternal - import of external models is requested
+     * @type {EventEmitter<any>}
+     */
+    @Output() onImportExternal = new EventEmitter();
 
     constructor(dialog: MatDialog) {
         this.dialog = dialog;

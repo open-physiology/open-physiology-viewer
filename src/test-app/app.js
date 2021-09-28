@@ -34,6 +34,7 @@ import "./styles/material.scss";
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
+import {ImportDialog} from "../components/gui/importDialog";
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -58,6 +59,12 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <span *ngIf="_snapshot" class="w3-bar-item">
                 Snapshot model: {{_snapshot.name}}
             </span>
+            <snapshot-toolbar id="snapshot-toolbar"
+                (onCreateSnapshot) = "createSnapshot()"
+                (onLoadSnapshot)   = "loadSnapshot($event)"
+                (onSaveSnapshot)   = "saveSnapshot()"                              
+            >
+            </snapshot-toolbar>
             <state-toolbar id="state-toolbar"
                 [activeIndex]      = "_snapshot?.activeIndex"
                 [total]            = "_snapshot?.length || 0"         
@@ -93,12 +100,6 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 (onToggleRepoPanel) = "toggleRepoPanel()"   
             >
             </main-toolbar>
-            <snapshot-toolbar id="snapshot-toolbar"
-                (onCreateSnapshot) = "createSnapshot()"
-                (onLoadSnapshot)   = "loadSnapshot($event)"
-                (onSaveSnapshot)   = "saveSnapshot()"                              
-            >
-            </snapshot-toolbar>
         </section>
 
         <!--Views-->
@@ -119,6 +120,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <webGLScene #webGLScene
                             [modelClasses]="modelClasses"
                             [graphData]="_graphData"
+                            (onImportExternal)="importExternal($event)"    
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
                             (editResource)="onEditResource($event)"
@@ -292,6 +294,41 @@ export class TestApp {
     load(newModel) {
         this.model = newModel;
         this._flattenGroups = false;
+    }
+
+    importExternal(){
+        if (this._model.imports && this._model.imports.length > 0) {
+            //Model contains external inputs
+            let dialogRef = this._dialog.open(ImportDialog, {
+                width: '75%', data: {
+                    imports: this._model.imports || []
+                }
+            });
+            dialogRef.afterClosed().subscribe(result => {
+                if (result !== undefined) {
+                    this._model.scaffolds = this._model.scaffolds || [];
+                    this._model.groups = this._model.groups || [];
+                    result.forEach(newModel => {
+                        if (isScaffold(newModel)) {
+                            const scaffoldIdx = this._model.scaffolds.findIndex(s => s.id === newModel.id);
+                            if (scaffoldIdx === -1) {
+                                this._model.scaffolds.push(newModel);
+                            } else {
+                                this._model.scaffolds[scaffoldIdx] = newModel;
+                            }
+                        } else {
+                            const groupIdx = this._model.groups.findIndex(s => s.id === newModel.id);
+                            if (groupIdx === -1) {
+                                this._model.groups.push(newModel);
+                            } else {
+                                this._model.groups[groupIdx] = newModel;
+                            }
+                        }
+                    });
+                    this.model = this._model;
+                }
+            });
+        }
     }
 
     applyScaffold(modelA, modelB){
@@ -661,9 +698,9 @@ export class TestApp {
         //RelGraphModule,
         MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule, MatListModule,
     MatFormFieldModule],
-	declarations: [TestApp, ResourceEditorDialog],
+	declarations: [TestApp, ResourceEditorDialog, ImportDialog],
     bootstrap: [TestApp],
-    entryComponents: [ResourceEditorDialog],
+    entryComponents: [ResourceEditorDialog, ImportDialog],
     providers   : [
         {
             provide: MatSnackBar,
