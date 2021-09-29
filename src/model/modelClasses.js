@@ -160,7 +160,7 @@ export function fromJSONGenerated(inputModel) {
                 value = value.toString();
             }
 
-            const clsName = getClassName(spec);
+            var clsName = getClassName(spec); // var not const because the value is set below
             if (!clsName){
                 return value;
             }
