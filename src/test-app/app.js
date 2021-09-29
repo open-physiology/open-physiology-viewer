@@ -35,6 +35,10 @@ import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "..
 import {$LogMsg} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/gui/importDialog";
+import { enableProdMode } from '@angular/core';
+
+enableProdMode();
+
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
