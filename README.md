@@ -21,3 +21,6 @@ Live demonstration of this application can be found [here](http://open-physiolog
 * Run the build script: `npm run build`
 
 The compiled code is in the `open-physiology/dist/` folder. After that you should be able to open a demo app `test-app/index.html` in your browser.
+
+## Google Chrome flags
+* enable GPU rasterization see chrome://flags/#enable-gpu-rasterization

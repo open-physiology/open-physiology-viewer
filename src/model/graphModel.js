@@ -581,7 +581,7 @@ export class Graph extends Group{
                 {"@id": uri,
                  "@type": ["apinatomy:GraphMetadata", "owl:Ontology"],
                  "rdfs:label": this.name,
-                 "apinatomy:hasGraph": context["@base"].concat(this.id),
+                 "apinatomy:hasGraph": {"@id": context["@base"].concat(this.id)},
                 }
             ]
         };

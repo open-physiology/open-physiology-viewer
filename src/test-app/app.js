@@ -1,4 +1,4 @@
-import { NgModule, Component, ViewChild, ElementRef, ErrorHandler } from '@angular/core';
+import { NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { cloneDeep, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
 
@@ -35,11 +35,16 @@ import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "..
 import {$LogMsg} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/gui/importDialog";
+import { enableProdMode } from '@angular/core';
+
+enableProdMode();
+
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
 	selector: 'test-app',
+    changeDetection: ChangeDetectionStrategy.Default,
 	template: `
 
         <!-- Header -->
@@ -200,23 +205,32 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     `,
     styles: [`
         .vertical-toolbar{
-            width : 48px; 
+            width : 48px;
         }
                
         #main-panel{            
-            margin-left: 48px; 
-            width      : calc(100% - 48px);
             margin-top : 40px;
+            margin-left: 48px; 
+            width : calc(100% - 48px);
+            height : 90vh
         }
-        
-       
+
+        #main-panel mat-tab-group{            
+            height : inherit;
+        }
+
+        #viewer-panel {
+            width : 100%;
+        }
+
         #json-editor{
             height : 100vh;
             width  : calc(100% - 48px);
         }
         
-        #resource-editor{
-            height : 100vh;
+        #resource-editor, #layout-editor{
+            height : 100%;
+            overflow : auto;
             width  : calc(100% - 48px);
         }
         
@@ -225,7 +239,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         }
 
         footer{
-            margin-top: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
         }
 	`]
 })

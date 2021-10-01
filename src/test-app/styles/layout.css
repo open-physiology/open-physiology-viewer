@@ -1,5 +1,4 @@
 html, body{
-  height : 100%;
   padding: 0;
   margin : 0;
 }
@@ -18,6 +17,7 @@ html, body{
 
 .jsoneditor {
   border: 1px solid #ccc !important;
+  height: 85vh !important;
 }
 
 .jsoneditor-modal .pico-modal-header {
@@ -81,6 +81,11 @@ div.jsoneditor-menu {
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
+}
+
+.mat-tab-body-content {
+  height: 100%;
+  overflow: hidden !important;
 }
 
 
