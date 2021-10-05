@@ -3553,6 +3553,7 @@
           "source": "f4E",
           "target": "f4M",
           "geometry": "spline",
+          "curvature": -50,
           "color": "#006400"
         },
         {

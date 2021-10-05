@@ -655,6 +655,12 @@
             }
           ]
         },
+        "curvature": {
+          "description": "Curvature of an arc or spline edge, defined as percentage of length",
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        },
         "onBorder": {
           "description": "Border that contains this link",
           "anyOf": [

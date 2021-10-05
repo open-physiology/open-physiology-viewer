@@ -13,7 +13,6 @@ import {
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
-import {WIRE_GEOMETRY} from "../model/utils";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
 
@@ -81,7 +80,7 @@ Edge.prototype.getCurve = function(start, end) {
         case Edge.EDGE_GEOMETRY.RECTANGLE:
             return rectangleCurve(start, end);
         case Wire.WIRE_GEOMETRY.SPLINE:
-            const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end);
+            const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end, this.curvature);
             return new THREE.QuadraticBezierCurve3(start, control, end);
         default:
             return new THREE.Line3(start, end);
