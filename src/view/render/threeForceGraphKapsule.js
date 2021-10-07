@@ -7,11 +7,10 @@
 } from 'd3-force-3d';
 import {select as d3Select } from 'd3-selection';
 import {drag as d3Drag } from 'd3-drag';
-
 import Kapsule from 'kapsule';
-import {modelClasses} from '../model/index';
-import './modelView';
-import {extractCoords} from './utils';
+import {modelClasses} from '../../model/index';
+import {extractCoords} from '../util/utils';
+import './modelView'
 
 const {Graph} = modelClasses;
 /**

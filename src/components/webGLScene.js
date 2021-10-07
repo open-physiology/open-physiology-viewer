@@ -7,11 +7,12 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import FileSaver  from 'file-saver';
 import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';
-import ThreeForceGraph from '../view/threeForceGraph';
+import ThreeForceGraph from '../view/render/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
+import { GeometryFactory } from '../view/util/geometryFactory'
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
@@ -315,7 +316,7 @@ export class WebGLSceneComponent {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-        this.mouse = new THREE.Vector2(0, 0);
+        this.mouse = GeometryFactory.instance().createVector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
         this.resizeToDisplaySize();
         this.createHelpers();

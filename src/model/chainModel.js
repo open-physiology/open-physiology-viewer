@@ -3,6 +3,7 @@ import {Lyph} from "./shapeModel";
 import {Node} from "./verticeModel";
 import {Link} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
+import {copyCoords, getPoint } from "../view/util/utils"
 
 import {
     mergeGenResource,
@@ -19,6 +20,7 @@ import {
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
+
 
 /**
  * Chain model
@@ -339,6 +341,30 @@ export class Chain extends GroupTemplate {
         } else {
             deriveFromLevels(parentGroup, chain);
         }
+    }
+
+    update(curve, start, end){
+      if ( !start || !end){ return; }
+      let length = (curve && curve.getLength)? curve.getLength(): end.distanceTo(start);
+      if (length < 10){ return; }
+      this.length = length;
+      copyCoords(this.root.layout, start);
+      this.root.fixed = true;
+      for (let i = 0; i < this.levels.length; i++) {
+          //Interpolate chain node positions for quicker layout
+          this.levels[i].length = this.length / this.levels.length;
+          const lyph = this.levels[i].conveyingLyph;
+          if (lyph){
+              lyph.updateSize();
+          }
+          let node = this.levels[i].target;
+          if (node && !node.anchoredTo) {
+              let p = getPoint(curve, start, end, (i + 1) / this.levels.length);
+              copyCoords(node.layout, p);
+              node.fixed = true;
+          }
+      }
+      copyCoords(this.leaf.layout, end);
     }
 
     /**
