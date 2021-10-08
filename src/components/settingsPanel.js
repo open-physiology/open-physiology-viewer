@@ -105,7 +105,6 @@ import {StopPropagation} from "./gui/stopPropagation";
                                   (change)="toggleMode()"
                                   [checked]="config.layout.numDimensions === 2"> 2D mode
                     </mat-checkbox>
-
                     <mat-checkbox matTooltip="Toggle lyphs" labelPosition="after" class="w3-margin-left"
                                   (change)="toggleLayout('showLyphs')"
                                   [checked]="config.layout.showLyphs"> Lyphs

@@ -971,9 +971,6 @@
       "supertype": "114",
       "internalLyphs": [
         "258"
-      ],
-      "bundlesChains": [
-        "t3"
       ]
     },
     {
@@ -983,10 +980,7 @@
         "UBERON:0005020",
         "ILX:0731712"
       ],
-      "supertype": "112",
-      "bundlesChains": [
-        "t3"
-      ]
+      "supertype": "112"
     },
     {
       "id": "242",

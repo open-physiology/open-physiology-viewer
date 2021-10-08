@@ -615,7 +615,7 @@
   ],
   "groups": [
     {
-      "id": "Neuron 7",
+      "id": "neuron-7",
       "chains": [
         "dc-snl17",
         "ac-snl17",

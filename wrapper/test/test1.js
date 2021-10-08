@@ -2,18 +2,9 @@ const fs = require('fs');
 const { expect } = require("chai");
 const { execSync } = require("child_process");
 
-/*
- * keast-bladder: 1dy12y8mLp82Fe8NeWQa2NmxSiS5Ogy4ef1wbLU8-jGg
- * bronchomotor: 1Nys8WJWZrWOI7OKVSIZX-fPY1QDxl_4E6tGoOJfvijg
- * bolser-lewis: 1rNnobNekjfC4njdD4nwFKcDaVtS9DbwilahmZkpTsGg
- * ard-arm-cardiac: 12MY09k0IubVaatTQZZFOBtRjCNACdh32IodqDQokTnM
- * scaffold-test: 170gkwx9DwiB0j-KMeb8SXcfgcXtQilVDIbocfxQErEM
- * sawg-distal-colon: 1eaMApU2QDzpAJJ-vug-4Hxd3_zQMqQDjygAjX2eRM38
- */
-
 const test1 = () => {
     var folder_content = ""
-    execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i 1dy12y8mLp82Fe8NeWQa2NmxSiS5Ogy4ef1wbLU8-jGg `);
+    execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i ${process.env['MODEL_ID']} `);
     fs.readdirSync("test1-folder").forEach(file => {
         folder_content += file;
         folder_content += "\n";

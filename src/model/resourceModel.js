@@ -21,6 +21,7 @@ import {
     isClassAbstract,
     getClassName,
     getNewID,
+    getID,
     getFullID, $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
@@ -445,7 +446,7 @@ export class Resource{
 
         let res = {};
         const omitKeys = (this::keys())::difference(schemaClassModels[this.class].fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
-        this::keys().filter(key => !!this[key] && !omitKeys.includes(key)).forEach(key => {
+        this::keys().filter(key => this[key] !== undefined && !omitKeys.includes(key)).forEach(key => {
             res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
         });
         return res;
@@ -481,7 +482,16 @@ export class Resource{
         logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
     }
 
-
+    includeToGroup(prop){
+        (this.inGroups||[]).forEach(group => {
+            if (group::isObject()){
+                group[prop] = group[prop] || [];
+                if (!group[prop].find(e => getID(e) === this.id)){
+                    group[prop].push(this);
+                }
+            }
+        })
+    }
 }
 
 export class External extends Resource {

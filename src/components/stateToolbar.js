@@ -9,7 +9,7 @@ import {FormsModule} from "@angular/forms";
 @Component({
     selector: 'state-toolbar',
     template: `
-       <section class="w3-bar w3-light-grey w3-bottom state-toolbar" title="Snapshot model">
+       <section class="w3-bar w3-light-grey w3-bottom state-toolbar" title="Snapshot state">
            <button id="backwardBtn" [disabled]="disablePrev" class="w3-bar-item" (click)="previousState()" title="Previous saved state">
                 <i class="fa fa-step-backward"> </i> 
            </button> 
@@ -32,6 +32,7 @@ import {FormsModule} from "@angular/forms";
     `, styles: [`
         .state-toolbar{
             width : 300px; 
+            margin-left: 150px;
         }
 	`]
 })

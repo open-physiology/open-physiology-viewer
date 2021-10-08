@@ -141,12 +141,12 @@ export class Chain extends GroupTemplate {
             }
 
             let nodeIDs = new Array(n + 1);
-            nodeIDs[0]   = chain.root;
-            nodeIDs[n-1] = chain.leaf;
+            nodeIDs[0] = chain.root;
+            nodeIDs[n] = chain.leaf;
 
             let existingNodes = new Array(n + 1);
             existingNodes[0] = findResourceByID(parentGroup.nodes, chain.root);
-            existingNodes[n-1] = findResourceByID(parentGroup.nodes, chain.leaf);
+            existingNodes[n] = findResourceByID(parentGroup.nodes, chain.leaf);
 
             for (let i = 0; i < n; i++) {
                if (existingLinks[i]) {
@@ -431,16 +431,20 @@ export class Chain extends GroupTemplate {
             }
 
             if (!hostLyph.isTemplate) {
-                hostLyph.bundles = hostLyph.bundles ||[];
-                hostLyph.bundles.push(level.id);
-
+                if (i === 0 || i === (N-1)) {
+                    hostLyph.endBundles = hostLyph.endBundles || [];
+                    hostLyph.endBundles.push(level.id);
+                } else {
+                    hostLyph.bundles = hostLyph.bundles || [];
+                    hostLyph.bundles.push(level.id);
+                }
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
 
                 if (sameAsNext){
                     sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i+1]? 0: 2;
                 }
-               if (sameAsPrev){
+                if (sameAsPrev){
                     targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i-1]? 2: 0;
                 }
 
@@ -517,8 +521,8 @@ export class Chain extends GroupTemplate {
         }
         if (this.startFromLeaf){
             let tmp = start;
-            let start = end;
-            let end = tmp;
+            start = end;
+            end = tmp;
         }
         return {start, end};
     }

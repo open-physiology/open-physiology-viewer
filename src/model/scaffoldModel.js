@@ -14,7 +14,7 @@ import {
     pick
 } from "lodash-bound";
 import {$Field, $SchemaClass, $SchemaType, getFullID, schemaClassModels} from "./utils";
-import {getItemType, strToValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 
@@ -65,14 +65,22 @@ export class Scaffold extends Component {
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class) {
+                //Only create missing scaffold resources
+                if (![$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    return;
+                }
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
+                //Do not create missing scaffold resources references from the connectivity model
+                if ([$SchemaClass.Chain, $SchemaClass.Node, $SchemaClass.Lyph, $SchemaClass.Group].includes(clsName)){
+                    return;
+                }
                 if (clsName && !schemaClassModels[clsName].schema.abstract) {
                     let e = modelClasses[clsName].fromJSON({
                         [$Field.id]: id,
                         [$Field.generated]: true
                     }, modelClasses, entitiesByID, namespace);
 
-                    //Include newly created entity to the main graph
+                    //Include newly created entity to the main model
                     let prop = schemaClassModels[$SchemaClass.Scaffold].selectedRelNames(clsName)[0];
                     if (prop) {
                         res[prop] = res[prop] || [];
@@ -118,12 +126,13 @@ export class Scaffold extends Component {
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => p::keys().forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
+        const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
         (this.anchors||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.wires||[]).forEach(e => {
             e.length && (e.length *= scaleFactor);
             e.arcCenter && scalePoint(e.arcCenter);
             e.controlPoint && scalePoint(e.controlPoint);
+            e.radius && scalePoint(e.radius);
         });
         (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
     }
@@ -142,21 +151,22 @@ export class Scaffold extends Component {
             let table = model[relName];
             if (!table) { return; }
             let headers = table[0] || [];
-            if (relName === "localConventions") {  // local conventions are not a reasource
+            if (relName === "localConventions") { // local conventions are not a resource
                 for (let i = 1; i < table.length; i++) {
                     let convention = {};
                     table[i].forEach((value, j) => {
-                        if (!value) { return; }
-                        if (!headers[j]) {
-                            logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
-                            return;
+                        if (value) {
+                            if (!headers[j]) {
+                                logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+                                return;
+                            }
+                            if (!headers[j]::isString()) {
+                                logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
+                                return;
+                            }
+                            let key = headers[j].trim();
+                            convention[key] = value;
                         }
-                        if (!headers[j]::isString()) {
-                            logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
-                            return;
-                        }
-                        let key = headers[j].trim();
-                        convention[key] = value;
                     });
 
                     table[i] = convention;
@@ -210,18 +220,12 @@ export class Scaffold extends Component {
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    if (!value){ return; }
-                    if (!headers[j]) {
-                        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
-                        return;
-                    }
-                    if (!headers[j]::isString()) {
-                        logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
-                        return;
-                    }
+                    if (!validateValue(value, headers[j])) { return; }
                     let key = headers[j].trim();
                     let res = convertValue(key, value);
-                    if (res){ resource[key] = res; }
+                    if (res !== undefined) {
+                        resource[key] = res;
+                    }
                 });
 
                 table[i] = resource;
@@ -229,16 +233,7 @@ export class Scaffold extends Component {
             model[relName] = model[relName].slice(1);
         });
 
-        if (model.main){
-            if (model.main[0]::isArray()){
-                model.main[0].forEach(({key: value}) => model[key] = value);
-            } else {
-                if (model.main[0]::isObject()){
-                    model::merge(model.main[0]);
-                }
-            }
-            delete model.main;
-        }
+        extractModelAnnotation(model);
         return model;
     }
 

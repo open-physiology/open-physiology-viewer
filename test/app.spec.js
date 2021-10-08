@@ -12,13 +12,11 @@ import {
 } from './test.helper';
 
 import {BrowserModule} from "@angular/platform-browser";
-import {
-    MatDialogModule,
-    MatDialogRef,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSliderModule
-} from "@angular/material";
+import {MatDialogModule, MatDialogRef } from "@angular/material/dialog";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {MatSliderModule} from "@angular/material/slider";
+
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";

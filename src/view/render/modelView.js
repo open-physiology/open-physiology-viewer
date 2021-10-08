@@ -3,6 +3,7 @@ import {modelClasses} from "../../model";
 
 import '../anchor'
 import '../border'
+import '../chain'
 import '../edge'
 import '../group'
 import '../link'

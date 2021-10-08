@@ -1442,11 +1442,7 @@
             "name": "L6 - S1 Interganglionic segment (kblad)",
             "external": [
                 "ILX:0777093"
-            ],
-            "length": {
-                "min": null,
-                "max": null
-            }
+            ]
         },
         {
             "id": "K78",

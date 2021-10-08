@@ -3,6 +3,11 @@
   "name": "Basic lyph",
   "description": "Demo model to show 2d visualization of a lyph",
   "author": "Natallia Kokash",
+  "imports": [
+    "https://api.github.com/repositories/100824100/contents/test/scaffolds/tooMap.json",
+    "https://api.github.com/repositories/100824100/contents/test/scaffolds/nonExistingModel.json",
+    "some wrong url"
+  ],
   "nodes": [
     {
       "id": "c",

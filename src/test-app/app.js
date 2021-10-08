@@ -4,7 +4,8 @@ import { cloneDeep, isArray, isObject, keys, merge, mergeWith, pick} from 'lodas
 
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
-
+import {MatListModule} from '@angular/material/list'
+import {MatFormFieldModule} from '@angular/material/form-field';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import FileSaver  from 'file-saver';
@@ -33,6 +34,7 @@ import "./styles/material.scss";
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
+import {ImportDialog} from "../components/gui/importDialog";
 import { enableProdMode } from '@angular/core';
 
 enableProdMode();
@@ -62,6 +64,12 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <span *ngIf="_snapshot" class="w3-bar-item">
                 Snapshot model: {{_snapshot.name}}
             </span>
+            <snapshot-toolbar id="snapshot-toolbar"
+                (onCreateSnapshot) = "createSnapshot()"
+                (onLoadSnapshot)   = "loadSnapshot($event)"
+                (onSaveSnapshot)   = "saveSnapshot()"                              
+            >
+            </snapshot-toolbar>
             <state-toolbar id="state-toolbar"
                 [activeIndex]      = "_snapshot?.activeIndex"
                 [total]            = "_snapshot?.length || 0"         
@@ -97,12 +105,6 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 (onToggleRepoPanel) = "toggleRepoPanel()"   
             >
             </main-toolbar>
-            <snapshot-toolbar id="snapshot-toolbar"
-                (onCreateSnapshot) = "createSnapshot()"
-                (onLoadSnapshot)   = "loadSnapshot($event)"
-                (onSaveSnapshot)   = "saveSnapshot()"                              
-            >
-            </snapshot-toolbar>
         </section>
 
         <!--Views-->
@@ -123,6 +125,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <webGLScene #webGLScene
                             [modelClasses]="modelClasses"
                             [graphData]="_graphData"
+                            (onImportExternal)="importExternal($event)"    
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
                             (editResource)="onEditResource($event)"
@@ -211,6 +214,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             width : calc(100% - 48px);
             height : 90vh
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         }
 
@@ -231,9 +235,18 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
         #viewer-panel {
             width : 100%;
+=======
+>>>>>>> f4f0bbad3f9065e8a22fef92573df4fdf971854a
         }
-        
-       
+
+        #main-panel mat-tab-group{            
+            height : inherit;
+        }
+
+        #viewer-panel {
+            width : 100%;
+        }
+
         #json-editor{
             height : 100vh;
             width  : calc(100% - 48px);
@@ -321,6 +334,41 @@ export class TestApp {
     load(newModel) {
         this.model = newModel;
         this._flattenGroups = false;
+    }
+
+    importExternal(){
+        if (this._model.imports && this._model.imports.length > 0) {
+            //Model contains external inputs
+            let dialogRef = this._dialog.open(ImportDialog, {
+                width: '75%', data: {
+                    imports: this._model.imports || []
+                }
+            });
+            dialogRef.afterClosed().subscribe(result => {
+                if (result !== undefined) {
+                    this._model.scaffolds = this._model.scaffolds || [];
+                    this._model.groups = this._model.groups || [];
+                    result.forEach(newModel => {
+                        if (isScaffold(newModel)) {
+                            const scaffoldIdx = this._model.scaffolds.findIndex(s => s.id === newModel.id);
+                            if (scaffoldIdx === -1) {
+                                this._model.scaffolds.push(newModel);
+                            } else {
+                                this._model.scaffolds[scaffoldIdx] = newModel;
+                            }
+                        } else {
+                            const groupIdx = this._model.groups.findIndex(s => s.id === newModel.id);
+                            if (groupIdx === -1) {
+                                this._model.groups.push(newModel);
+                            } else {
+                                this._model.groups[groupIdx] = newModel;
+                            }
+                        }
+                    });
+                    this.model = this._model;
+                }
+            });
+        }
     }
 
     applyScaffold(modelA, modelB){
@@ -420,28 +468,22 @@ export class TestApp {
             if (!obj) { return; }
             let result = null;
             if (obj::isArray()) {
-                obj.some((item, i) => {
-                    result = findResourceDef(obj[i], obj, i);
-                    return result;
-                })
+                result = obj.find((item, i) => findResourceDef(obj[i], obj, i))
             }
             else {
                 if (obj::isObject()){
                     if (obj.id === resource.id) { return [parent, key]; }
-                    obj::keys().some(prop => {
-                        result = findResourceDef(obj[prop], obj, prop);
-                        return result;
-                    });
+                    result = obj::keys().find(prop => findResourceDef(obj[prop], obj, prop));
                 }
             }
             return result;
         }
 
-        let [parent, key] = findResourceDef(this._model);
-
-        if (!parent) {
+        let res = findResourceDef(this._model);
+        if (!res) {
             throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
         }
+        let [parent, key] = res;
         let obj = parent[key]::cloneDeep();
         const dialogRef = this._dialog.open(ResourceEditorDialog, {
             width: '75%',
@@ -449,7 +491,6 @@ export class TestApp {
                 title             : `Update resource?`,
                 modelClasses      : modelClasses,
                 modelResources    : this._graphData.entitiesByID || {},
-                filteredResources : [],
                 resource          : obj,
                 className         : resource.class
             }
@@ -475,7 +516,13 @@ export class TestApp {
                 const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
                 if (srcAnchor) {
                     srcAnchor.layout = srcAnchor.layout || {};
-                    ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
+                    if (anchor.layout) {
+                        ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
+                    } else {
+                        if (anchor.hostedBy && anchor.offset !== undefined){
+                            srcAnchor.offset = anchor.offset;
+                        }
+                    }
                 }
             });
             (scaffold.regions || []).forEach(region => {
@@ -492,6 +539,16 @@ export class TestApp {
                                 ["x", "y"].forEach(dim => srcAnchor.layout[dim] = region.points[i][dim] / scaleFactor);
                             }
                         });
+                    }
+                }
+            });
+            (scaffold.wires || []).forEach(wire => {
+                //Update ellipse radius
+                if (wire.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE) {
+                    const srcWire = findResourceByID(srcScaffold.wires, wire.id);
+                    if (srcWire && srcWire::isObject()) {
+                        srcWire.radius = srcWire.radius || {};
+                        ["x", "y"].forEach(dim => srcWire.radius[dim] = wire.radius[dim] / scaleFactor);
                     }
                 }
             })
@@ -530,23 +587,41 @@ export class TestApp {
     }
 
     getCurrentState(){
-        return this.modelClasses.State.fromJSON({
+        let state_json =  {
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
             [$Field.visibleGroups]: this._graphData.visibleGroups.map(g => g.id),
-            [$Field.scaffolds]: (this._graphData.scaffolds||[]).map(s => ({
-                    [$Field.id]: s.id,
-                    [$Field.hidden]: s.hidden,
-                    [$Field.anchors]: (s.anchors||[]).map(a => ({
-                        [$Field.id]: a.id,
-                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
-                    })),
-                    [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
-                })),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
                 up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
-            },
-        }, this.modelClasses, this._graphData.entitiesByID);
+            }
+        }
+        state_json.scaffolds = [];
+        (this._graphData.scaffolds||[]).forEach(s => {
+            let scaffold_json = {
+                [$Field.id]: s.id,
+                [$Field.hidden]: s.hidden,
+                [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
+            }
+            scaffold_json.anchors = [];
+            (s.anchors||[]).forEach(a => {
+                if (a.layout) {
+                    scaffold_json.anchors.push({
+                        [$Field.id]: a.id,
+                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
+                    })
+                } else {
+                    if (a.hostedBy && a.offset !== undefined){
+                        scaffold_json.anchors.push({
+                            [$Field.id]: a.id,
+                            [$Field.offset]: a.offset
+                        })
+                    }
+                }
+            })
+            state_json.scaffolds.push(scaffold_json)
+        })
+
+        return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
     restoreState(){
@@ -569,8 +644,16 @@ export class TestApp {
                 (scaffold.anchors || []).forEach(anchor => {
                     const modelAnchor = (modelScaffold.anchors||[]).find(a => a.id === anchor.id);
                     if (modelAnchor){
-                        modelAnchor.layout.x = anchor.layout.x;
-                        modelAnchor.layout.y = anchor.layout.y;
+                        if (anchor.layout) {
+                            modelAnchor.layout = {
+                                x: anchor.layout.x,
+                                y: anchor.layout.y
+                            }
+                        } else {
+                            if (anchor.offset !== undefined){
+                                modelAnchor.offset = anchor.offset;
+                            }
+                        }
                     } else {
                         this._graphData.logger.info($LogMsg.SNAPSHOT_NO_ANCHOR, anchor.id, scaffold.id);
                     }
@@ -627,9 +710,11 @@ export class TestApp {
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
-            throw new Error("Snapshot model is not applicable to the model!");
+            throw new Error("Snapshot is not applicable to the model!");
         } else {
-            //TODO show warning or ask whether to proceed
+            if (match === 0){
+                throw new Error("Snapshot corresponds to a different version of the model!");
+            }
         }
         this._snapshot = newSnapshot;
     }
@@ -651,9 +736,11 @@ export class TestApp {
 @NgModule({
 	imports     : [BrowserModule, WebGLSceneModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, MatSnackBarModule,
         //RelGraphModule,
-        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule],
-	declarations: [TestApp],
+        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule, MatListModule,
+    MatFormFieldModule],
+	declarations: [TestApp, ResourceEditorDialog, ImportDialog],
     bootstrap: [TestApp],
+    entryComponents: [ResourceEditorDialog, ImportDialog],
     providers   : [
         {
             provide: MatSnackBar,

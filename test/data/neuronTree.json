@@ -56,19 +56,19 @@
         "plasma",
         "fluid"
       ],
-      "scale" : {"width": 60, "height": 120}
+      "scale" : {"width": 60, "height": 100}
     },
     {
-      "id"    : "plasma",
-      "name"  : "Plasma membrane"
+      "id"   : "plasma",
+      "name" : "Plasma membrane"
     },
     {
-      "id"    : "cytosol",
-      "name"  : "Cytosol"
+      "id"   : "cytosol",
+      "name" : "Cytosol"
     },
     {
-      "id"       : "fluid",
-      "name"     : "Extracellular fluid"
+      "id"   : "fluid",
+      "name" : "Extracellular fluid"
     }
   ]
 }

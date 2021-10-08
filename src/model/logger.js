@@ -137,6 +137,8 @@ export const $LogMsg = {
     EXCEL_PROPERTY_UNKNOWN      : "Excel to JSON: unrecognized property",
     EXCEL_WRONG_ASSIGN_VALUE    : "Excel to JSON: wrong assign value",
 
+    EXTERNAL_NO_MAPPING         : "External resources with no curie in local conventions",
+
     CLASS_ERROR_UNDEFINED       : "Illegal resource class",
     CLASS_ERROR_RESOURCE        : "No class function is available. Possible cause - misclassified resource",
 

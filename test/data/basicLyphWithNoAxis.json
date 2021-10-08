@@ -11,7 +11,7 @@
     {
       "id"   : "cytosol",
       "name" : "Cytosol",
-      "color": "#ffffff"
+      "color": "#cccccc"
     },
     {
       "id"   : "plasma",

@@ -104,12 +104,12 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "6.3.3",
     "sinon-chai": "^3.6.0",
-    "three": "^0.118.3",
-    "three-js-csg": "^72.0.0",
+    "three": "^0.125.1",
+    "three-csg-ts": "^3.1.9",
     "three-text2d": "^0.4.1",
     "three-window-resize": "^1.0.4",
     "tinycolor2": "^1.4.1",
-    "xlsx": "^0.14.1",
+    "xlsx": "^0.15.1",
     "zone.js": "^0.8.26"
   }
 }

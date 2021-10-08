@@ -2,6 +2,7 @@ import {values} from 'lodash-bound';
 import {modelClasses} from "../model";
 
 const { Component } = modelClasses;
+
 /**
  * Create visual objects for Scaffold resources
  * @param state
