@@ -5,6 +5,7 @@ import { defaults } from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 import { GeometryFactory } from './geometryFactory';
 const ThreeBSP = require('three-js-csg')(THREE);
+// import {CSG} from 'three-csg-ts';
 
 /**
  * Get a point on a curve
@@ -49,55 +50,36 @@ export function copyCoords(target, source){
 }
 
 /**
- * Computes difference between two geometries
- * @param smallGeom - inner geometry
- * @param largeGeom - outer geometry
- * @param params    - material parameters
- */
-export function geometryDifference(smallGeom, largeGeom, params){
-    let smallBSP = new ThreeBSP(smallGeom);
-    let largeBSP = new ThreeBSP(largeGeom);
-    let intersectionBSP = largeBSP.subtract(smallBSP);
-    return intersectionBSP.toMesh( MaterialFactory.createMeshBasicMaterial(params) );
-}
-
-/**
  * Helper function to produce a merged layer geometry given a tube shape and two cups representing open or closed borders
  * @param tube       - core layer tube
  * @param cupTop     - top border
  * @param cupBottom  - bottom border
  * @param offset     - distance to shift cups wrt the tube center
- * @returns {Geometry|SEA3D.Geometry|*|GeometryFactory.instance().createGeometry}
+ * @param params     - material parameters
+ * @returns {Geometry|SEA3D.Geometry|*|GeometryFactory.instance().createGeometry} - {Mesh}
  */
 export function mergedGeometry(tube, cupTop, cupBottom, offset){
+    let material = MaterialFactory.createMeshBasicMaterial(params);
     let singleGeometry = GeometryFactory.instance().createGeometry();
-    let tubeMesh       = GeometryFactory.instance().createMesh(tube);
-    let cupTopMesh     = GeometryFactory.instance().createMesh(cupTop);
-    let cupBottomMesh  = GeometryFactory.instance().createMesh(cupBottom);
+    let tubeMesh       = GeometryFactory.instance().createMesh(tube, material);
+    let cupTopMesh     = GeometryFactory.instance().createMesh(cupTop, material);
+    let cupBottomMesh  = GeometryFactory.instance().createMesh(cupBottom, material);
     cupTopMesh.translateY(offset);
     cupBottomMesh.translateY(-offset);
     cupTopMesh.updateMatrix();
     cupBottomMesh.updateMatrix();
-    singleGeometry.merge(tubeMesh.geometry, tubeMesh.matrix);
-    singleGeometry.merge(cupTopMesh.geometry, cupTopMesh.matrix);
-    singleGeometry.merge(cupBottomMesh.geometry, cupBottomMesh.matrix);
-    return singleGeometry;
+    return CSG.union(tubeMesh, CSG.union(cupTopMesh, cupBottomMesh));
 }
 
 /**
  * Draws layer of a lyph in 3d. Closed borders are drawn as cylinders because sphere approximation is quite slow
- * @param inner = [$thickness, $height, $radius, $top, $bottom], where:
- * $thickness is axial border distance from the rotational axis
- * $height is axial border height
- * $radius is the radius for the circle for closed border
- * $top is a boolean value indicating whether top axial border is closed
- * $bottom is a boolean value indicating whether bottom axial border is closed
- * @param outer = [thickness,  height,  radius,  top,  bottom], where
- * thickness is non-axial border distance from the rotational axis
- * height is non-axial border height
+ * @param inner - Inner lyph dimensions [thickness, height, radius, top, bottom], where:
+ * thickness is axial border distance from the rotational axis
+ * height is axial border height
  * radius is the radius for the circle for closed border
- * top is a boolean value indicating whether top non-axial border is closed
- * bottom is a boolean value indicating whether bottom non-axial border is closed
+ * top is a boolean value indicating whether top axial border is closed
+ * bottom is a boolean value indicating whether bottom axial border is closed
+ * @param outer - Outer lyph dimensions
  * @param params - object material params
  * @returns {THREE.Mesh} - a mesh representing layer (tube, bag or cyst)
  * @example
@@ -105,47 +87,27 @@ export function mergedGeometry(tube, cupTop, cupBottom, offset){
  *         [ layer.width * (i + 1) + 1, layer.height, layer.width / 2, ...layer.border.radialTypes], layer.material);
  */
 export function d3Layer(inner, outer, params) {
-    const [$thickness, $height, $radius, $top, $bottom] = inner;
-    const [thickness, height, radius, top, bottom] = outer;
-    const a = 0.5;
-    const b = 0.5 * (1 - a);
-
-    //Cylinder constructor parameters: [radiusAtTop, radiusAtBottom, height, segmentsAroundRadius, segmentsAlongHeight]
-    //Closed borders are approximated by cylinders with smaller diameters for speed
-
-    let smallGeometry, largeGeometry;
-    if ($top || $bottom){
-        let $tube = GeometryFactory.instance().createCylinderGeometry($thickness, $thickness, a * $height);
-        let $cupTop = GeometryFactory.instance().createCylinderGeometry($top ? $thickness - $radius : $thickness, $thickness, b * $height);
-        let $cupBottom = GeometryFactory.instance().createCylinderGeometry($thickness, $bottom ? $thickness - $radius : $thickness, b * $height);
-        smallGeometry = mergedGeometry($tube, $cupTop, $cupBottom, (a + b) * 0.5 * $height);
-    } else {
-        smallGeometry = GeometryFactory.instance().createCylinderGeometry($thickness, $thickness, $height);
-    }
-
-    if (top || bottom) {
-        let tube = GeometryFactory.instance().createCylinderGeometry(thickness, thickness, a * height);
-        let cupTop = GeometryFactory.instance().createCylinderGeometry(top ? thickness - radius : thickness, thickness, b * height);
-        let cupBottom = GeometryFactory.instance().createCylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height);
-        largeGeometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
-    } else {
-        largeGeometry = GeometryFactory.instance().createCylinderGeometry(thickness, thickness, height);
-    }
-
-    return geometryDifference(smallGeometry, largeGeometry, params);
+    const innerLyph = d3Lyph(inner, params);
+    const outerLyph = d3Lyph(outer, params);
+    return CSG.subtract(outerLyph, innerLyph);
 }
 
-export function d3Lyph(outer, params) {
-    const [thickness, height, radius, top, bottom] = outer;
-
+/**
+ * Creates a mesh representing 3d lyph
+ * @param dimensions - lyph dimensions
+ * @param params     - material parameters
+ * @returns {Mesh}   - mesh in the shape of 3d lyph
+ */
+export function d3Lyph(dimensions, params) {
+    const [thickness, height, radius, top, bottom] = dimensions;
     let geometry;
-    if (top || bottom) {  
+    if (top || bottom) {
         const a = 0.5;
         const b = 0.5 * (1 - a);
-        let tube = GeometryFactory.instance().createCylinderGeometry(thickness, thickness, a * height);
-        let cupTop = GeometryFactory.instance().createCylinderGeometry(top ? thickness - radius : thickness, thickness, b * height);
-        let cupBottom = GeometryFactory.instance().createCylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height);
-        geometry = mergedGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height);
+        let tube = GeometryFactory.instance().createCylinderGeometry(thickness, thickness, a * height, 10, 4);
+        let cupTop = GeometryFactory.instance().createCylinderGeometry(top ? thickness - radius : thickness, thickness, b * height, 10, 4);
+        let cupBottom = GeometryFactory.instance().createCylinderGeometry(thickness, bottom ? thickness - radius : thickness, b * height, 10, 4);
+        return mergeGeometry(tube, cupTop, cupBottom, (a + b) * 0.5 * height, params);
     } else {
         geometry = GeometryFactory.instance().createCylinderGeometry(thickness, thickness, height);
     }
@@ -252,17 +214,15 @@ export function createMeshWithBorder(shape, params = {}, includeBorder = true) {
     let geometry = new THREE.ShapeBufferGeometry(shape);
     let obj = GeometryFactory.instance().createMesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
     if (includeBorder) {
-        let lineBorderGeometry = GeometryFactory.instance().createGeometry();
-        shape.getPoints().forEach(point => {
-            point.z = 0;
-            lineBorderGeometry.vertices.push(point);
-        });
+        let borderGeometry = GeometryFactory.instance().createBufferGeometry();
+        shape.getPoints().forEach(point => point.z = 0);
+        borderGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(shape.getPoints() * 3), 3));
         let borderParams = params::defaults({
             color   : tinycolor(params.color).darken(25), //darker border than surface
             opacity : 0.5,
             polygonOffsetFactor: params.polygonOffsetFactor - 1
         });
-        let borderObj = new THREE.Line(lineBorderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
+        let borderObj = new THREE.Line(borderGeometry, MaterialFactory.createLineBasicMaterial(borderParams));
         obj.add(borderObj);
     }
     return obj;
@@ -302,39 +262,46 @@ export function rectangleCurve(startV, endV){
     return curve;
 }
 
-export function arcCurve(source, target, arcCenter){
-    const v1 = source.clone().sub(arcCenter);
-    const v2 = target.clone().sub(arcCenter);
-    const sum = v1.clone().add(v2);
-    const q = sum.x > 0? (sum.y > 0? 1: 4): sum.y > 0? 2: 3;
 
-    return GeometryFactory.instance().createEllipseCurve(
-        arcCenter.x,  arcCenter.y, // ax, aY
-        v1.length(), v2.length(), // xRadius, yRadius
-        0, Math.PI / 2,  // aStartAngle, aEndAngle
-        false,               // aClockwise
-        Math.PI / 2 * (q - 1) // aRotation
-    );
+/**
+ * Draw a 2d elliptic curve given 2 points on it and the center
+ * @param startV - 2d point on the ellipse
+ * @param endV - 2d point on the ellipse
+ * @param centerV - center of the ellipse
+ * @returns {EllipseCurve}
+ */
+export function arcCurve(startV, endV, centerV = GeometryFactory.instance().createVector3()){
+    let p = startV.clone().sub(centerV);
+    let q = endV.clone().sub(centerV);
+    let dx2 = Math.abs(p.x*p.x - q.x*q.x);
+    let dy2 = Math.abs(q.y*q.y - p.y*p.y);
+    let a2, b2;
+    const epsilon = 0.001;
+    if (dx2 < epsilon && dy2 < epsilon){
+        //Ellipse is not uniquely defined, the same as if only one point was given, create a circular segment
+        a2 = b2 = p.length() * p.length();
+    } else {
+        if (dx2 < epsilon && dy2 > epsilon || dx2 > epsilon && dy2 < epsilon){
+            //Elliptic curve is not possible
+            return new THREE.Line3(startV, endV);
+        }
+        a2 = Math.abs(p.x * p.x * q.y * q.y - q.x * q.x * p.y * p.y) / dy2;
+        b2 = Math.abs(p.x * p.x * q.y * q.y - q.x * q.x * p.y * p.y) / dx2;
+    }
+    if (a2 < epsilon || b2 < epsilon){
+        //Elliptic curve is not possible
+        return new THREE.Line3(startV, endV);
+    }
+    let sAngle = Math.acos(new THREE.Vector2(1,0).dot(p) / p.length());
+    let tAngle = Math.acos(new THREE.Vector2(1,0).dot(q) / q.length());
+    if (p.y < 0){
+        sAngle = 2*Math.PI - sAngle;
+    }
+    if (q.y < 0){
+        tAngle = 2*Math.PI - tAngle;
+    }
+    return GeometryFactory.instance().createEllipseCurve(centerV.x, centerV.y, Math.sqrt(a2), Math.sqrt(b2), sAngle, tAngle, false);
 }
-
-// /**
-//  * Draw a 2d elliptic curve given 2 poinst on it and the center
-//  * @param startV - 2d point on the ellipse
-//  * @param endV - 2d point on the ellipse
-//  * @param centerV - center of the ellipse
-//  * @returns {EllipseCurve}
-//  */
-// export function arcCurve(startV, endV, centerV = GeometryFactory.instance().createVector3()){
-//     let p = startV.clone().sub(centerV);
-//     let q = endV.clone().sub(centerV);
-//
-//     let a2 = Math.abs((p.x^2)*(q.y^2) - (q.x^2)*(p.y^2)) / (q.y^2 - p.y^2);
-//     let b2 = Math.abs((q.x^2)*(p.y^2) - (p.x^2)*(q.y^2)) / (p.x^2 - q.x^2);
-//
-//     let dot = p.dot(q);
-//     let theta = Math.acos( dot / (p.length() * q.length())) ;
-//     return new THREE.EllipseCurve(centerV.x, centerV.y, a2, b2, 0, theta, false);
-// }
 
 
 /**
@@ -364,6 +331,8 @@ export function semicircleCurve(startV, endV){
 export function extractCoords(source){
     if (source) {
         return GeometryFactory.instance().createVector3(source.x || 0, source.y || 0, source.z || 0);
+    } else {
+        return GeometryFactory.instance().createVector3();
     }
 }
 
@@ -440,16 +409,18 @@ export function getCenterPoint(mesh) {
  * Computes a default control point for quadratic Bezier curve
  * @param startV
  * @param endV
+ * @param curvature
  * @returns {Vector3}
  */
-export function getDefaultControlPoint(startV, endV){
+export function getDefaultControlPoint(startV, endV, curvature){
     if (!startV || !endV){
         return GeometryFactory.instance().createVector3();
     }
     let edgeV  = endV.clone().sub(startV);
     let pEdgeV = edgeV.clone().applyAxisAngle( GeometryFactory.instance().createVector3( 0, 0, 1 ), Math.PI / 2);
     let center = startV.clone().add(endV).multiplyScalar(0.5);
-    return center.add(pEdgeV.multiplyScalar(0.25));
+    let offset = curvature >= -100 && curvature <= 100? curvature / 100: 0.25;
+     return center.add(pEdgeV.multiplyScalar(offset));
 }
 
 /**

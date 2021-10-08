@@ -175,7 +175,7 @@ export default Kapsule({
         nodeVal          : { default: 1 },
         anchorVal        : { default: 3 },
 
-        edgeResolution   : { default: 16 },     // number of points on curved link
+        edgeResolution   : { default: 32 },     // number of points on curved link
         arrowLength      : { default: 40 },     // arrow length for directed links
 
         showLyphs        : { default: true},

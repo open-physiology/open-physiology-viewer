@@ -27,12 +27,12 @@ export class geometry_THREE {
     });
     return path;
   }
-  static createCylinderGeometry(thickness, a, height) { 
+  static createCylinderGeometry(thickness, a, height, radiusSegments, heightSegments) { 
     return new THREE.CylinderGeometry(thickness
       , thickness
       , a * height
-      , geometryEngineK.CYLINDER_TA_END
-      , geometryEngineK.CYLINDER_TA_END)
+      , radiusSegments
+      , heightSegments)
   }
   static createEllipseCurve(aX, aY, xRadius, yRadius, aStartAngle, aEndAngle, aClockwise, aRotation ) { 
     return new THREE.EllipseCurve(
@@ -45,6 +45,9 @@ export class geometry_THREE {
   }
   static createLineCurve3(p0, p1 ) {
     return new THREE.LineCurve3(p0, p1);
+  }
+  static createLine(geometry, material ) { 
+    return new THREE.Line(geometry, material);
   }
   static createLine2(geometry, material ) { 
     return new THREE.Line2(geometry, material);
@@ -92,9 +95,8 @@ export class geometry_THREE {
   static createVector3(x, y, z) { 
     return new THREE.Vector3(x, y, z);
   }
-  static createBufferAttribute(pointLength) {
-    return new THREE.BufferAttribute(new Float32Array(pointLength * geometryEngineK.BUFFER_ATTRIBUTE_LENGTH)
-                                                      , geometryEngineK.BUFFER_ATTRIBUTE_LENGTH)
+  static createBufferAttribute(numbers, itemSize) {
+    return new THREE.BufferAttribute(numbers, itemSize);
   }
   static createBufferGeometry() { 
     return new THREE.BufferGeometry();

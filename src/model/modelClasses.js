@@ -14,7 +14,6 @@ import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
-import {$Field, $SchemaClass} from './utils';
 import {isString, isObject, isArray, isNumber, isEmpty, keys, merge, assign} from "lodash-bound";
 import * as schema from "./graphScheme";
 
@@ -24,12 +23,15 @@ import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
 import { entries } from 'lodash-bound';
 
-import {    
+import {
+    $Field,
+    $SchemaClass,
     $SchemaType,
     getNewID,
     getFullID,
     getClassName,
-    isClassAbstract
+    isClassAbstract,
+    schemaClassModels
 } from "./utils";
 
 export const modelClasses = {
@@ -82,7 +84,7 @@ export function loadModel(content, name, extension, isBinary = true){
     let newModel = {};
     if (extension === "xlsx"){
         let excelModel = {};
-        let wb = isBinary? XLSX.read(content, {type: "binary"}): content;
+        const wb = isBinary? XLSX.read(content, {type: "binary"}): content;
         wb.SheetNames.forEach(sheetName => {
             let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
             if(roa.length) { excelModel[sheetName] = roa; }
@@ -158,7 +160,7 @@ export function fromJSONGenerated(inputModel) {
                 value = value.toString();
             }
 
-            const clsName = getClassName(spec);
+            var clsName = getClassName(spec); // var not const because the value is set below
             if (!clsName){
                 return value;
             }
@@ -186,7 +188,7 @@ export function fromJSONGenerated(inputModel) {
             if (isClassAbstract(clsName)){
                 if (value.class) {
                     clsName = value.class;
-                    if (!modelClasses[clsName]){
+                    if (!schemaClassModels[clsName]){
                     }
                 } else {
                     return null;
@@ -199,7 +201,7 @@ export function fromJSONGenerated(inputModel) {
             return;
         }
 
-        const refFields = context.constructor.Model.relationships;
+        const refFields = schemaClassModels[context.constructor.name].relationships;
         let res = context;
         refFields.map(([key, spec]) => {
             if (skip(res[key])) { return; }
@@ -232,7 +234,7 @@ export function fromJSONGenerated(inputModel) {
     function typeCast(obj) {
         if (obj instanceof Object && !(obj instanceof Array) && !(typeof obj === 'function') && obj['class'] !== undefined && modelClasses[obj['class']] !== undefined) {
             const cls = modelClasses[obj['class']];
-            const res = new cls(obj.id);
+            const res = new cls(obj.id, cls.name);
             res.class = obj['class'];
             res::assign(obj);
 
@@ -272,7 +274,7 @@ export function fromJSONGenerated(inputModel) {
         }
 
         //Include newly created entity to the main graph
-        const prop = modelClasses[group.class].Model.selectedRelNames(clsName)[0];
+        const prop = schemaClassModels[group.class].selectedRelNames(clsName)[0];
         if (prop) {
             group[prop] = group[prop] ||[];
             group[prop].push(e);
@@ -287,8 +289,8 @@ export function fromJSONGenerated(inputModel) {
         (entitiesList.waitingList)::entries().map(([id, refs]) => {
             const [obj, key] = refs[0];
             if (obj && obj.class){
-                const clsName = modelClasses[obj.class].Model.relClassNames[key];
-                if (clsName && !modelClasses[clsName].Model.schema.abstract){
+                const clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract) {
                     const e = _createResource(id, clsName, model, modelClasses, entitiesList, namespace);
                     added.push(e.id);
                     //A created link needs end nodes
@@ -321,8 +323,8 @@ export function fromJSONGenerated(inputModel) {
         (entitiesList.waitingList)::entries().map(([id, refs]) => {
             const [obj, key] = refs[0];
             if (obj && obj.class) {
-                const clsName = modelClasses[obj.class].Model.relClassNames[key];
-                if (clsName && !modelClasses[clsName].Model.schema.abstract) {
+                const clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract) {
                     const e = typeCast({
                         [$Field.id]: id,
                         [$Field.class]: clsName,
@@ -330,7 +332,7 @@ export function fromJSONGenerated(inputModel) {
                     })
 
                     //Include newly created entity to the main graph
-                    const prop = modelClasses[this.name].Model.selectedRelNames(clsName)[0];
+                    const prop = schemaClassModels[this.name].selectedRelNames(clsName)[0];
                     if (prop) {
                         model[prop] = model[prop] || [];
                         model[prop].push(e);

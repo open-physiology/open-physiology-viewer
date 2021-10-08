@@ -136,27 +136,59 @@
       "name": "Hillock"
     }
   ],
-  "regions": [
+  "scaffolds": [
     {
-      "id": "n5",
-      "name": "Neuron 5",
-      "points": [{"x": -100, "y": -50},{"x": -100, "y": 50},{"x": 100, "y": 50}, {"x": 100, "y": -50}],
-      "border": {
-        "borders": [
-          {
-            "hostedNodes": [
-              "n001"
+      "id": "scaffold",
+      "anchors": [
+        {
+          "id": "a001",
+          "anchoredNode": "n001"
+        },
+        {
+          "id": "a008",
+          "anchoredNode": "n008"
+        }
+      ],
+      "regions": [
+        {
+          "id": "n5",
+          "name": "Neuron 5",
+          "points": [
+            {
+              "x": -100,
+              "y": -50
+            },
+            {
+              "x": -100,
+              "y": 50
+            },
+            {
+              "x": 100,
+              "y": 50
+            },
+            {
+              "x": 100,
+              "y": -50
+            }
+          ],
+          "border": {
+            "borders": [
+              {
+                "hostedAnchors": [
+                  "a001"
+                ]
+              },
+              {},
+              {
+                "hostedAnchors": [
+                  "a008"
+                ]
+              },
+              {}
             ]
-          },
-          {},
-          {
-            "hostedNodes": [
-              "n008"
-            ]
-          },
-          {}
-        ]
-      }
+          }
+        }
+      ]
     }
   ],
   "assign": [

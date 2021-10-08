@@ -14,8 +14,7 @@
       "properties": {
         "layout": {
           "description": "Provided 2d coordinates for the anchor",
-          "$ref": "#/definitions/Point2Scheme",
-          "default": {}
+          "$ref": "#/definitions/Point2Scheme"
         },
         "hostedBy": {
           "description": "A wire on which the given anchor is positioned",
@@ -106,7 +105,7 @@
               "$ref": "#/definitions/Node"
             }
           ],
-          "relatedTo": "anchorTo",
+          "relatedTo": "anchoredTo",
           "advanced": true
         }
       }
@@ -201,7 +200,7 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Link"
+                "$ref": "#/definitions/Edge"
               }
             ]
           },
@@ -655,6 +654,25 @@
               "$ref": "#/definitions/Vertice"
             }
           ]
+        },
+        "curvature": {
+          "description": "Curvature of an arc or spline edge, defined as percentage of length",
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        },
+        "onBorder": {
+          "description": "Border that contains this link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Border"
+            }
+          ],
+          "relatedTo": "borders",
+          "advanced": true
         }
       },
       "dependencies": {
@@ -744,7 +762,17 @@
     },
     "Graph": {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
-      "$ref": "#/definitions/Group"
+      "$ref": "#/definitions/Group",
+      "properties": {
+        "imports": {
+          "description": "URLs of published ApiNATOMY models to merge with the current model",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
     },
     "Group": {
       "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
@@ -835,20 +863,6 @@
               },
               {
                 "$ref": "#/definitions/Material"
-              }
-            ]
-          }
-        },
-        "regions": {
-          "description": "Areas occupied by the models of body organs, systems or surfaces that are not part of the connectivity model. Region can be defined by points or sequence of links (border)",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Region"
               }
             ]
           }
@@ -975,6 +989,18 @@
         }
       }
     },
+    "EdgeGeometryScheme": {
+        "type": "string",
+        "enum": [
+            "link",
+            "arc",
+            "spline",
+            "invisible",
+            "semicircle",
+            "rectangle"
+        ],
+        "default": "link"
+    },
     "GroupColorScheme": {
       "description": "Scheme to specify color interpolation for a group of resources",
       "type": "object",
@@ -1010,12 +1036,12 @@
       ],
       "properties": {
         "hidden": {
-          "description": "A flag to indicate that group generated from this template will be hidden by default",
+          "description": "A flag to indicate that group generated from this template will be hidden by default.",
           "type": "boolean",
           "default": true
         },
         "group": {
-          "description": "Group (subgraph) that encompasses generated group resources",
+          "description": "Group (subgraph) that encompasses generated group resources.",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -1028,7 +1054,7 @@
           "relatedTo": "generatedFrom"
         },
         "groupId": {
-          "description": "Desired identifier for a group generated from the given group template",
+          "description": "Desired identifier for a group generated from the given group template.",
           "$ref": "#/definitions/IdentifierScheme"
         },
         "length": {
@@ -1047,14 +1073,14 @@
     "IdentifierScheme": {
       "description": "Resource identifier",
       "type": "string",
-      "pattern": "^[a-zA-Z0-9:_.\\-' ]{1,100}$"
+      "pattern": "^[a-zA-Z0-9:_./@?\\-=']{1,100}$"
     },
     "JSONPathScheme": {
       "description": "JSONPath query to select resources",
       "type": "string"
     },
     "Link": {
-      "description": "Graph link schematically representing a (part of) physiological process. ",
+      "description": "Graph link schematically representing a (part of) physiological process.",
       "allOf": [
         {
           "$ref": "#/definitions/Edge"
@@ -1131,19 +1157,6 @@
             ]
           }
         },
-        "onBorder": {
-          "description": "Border that contains this link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Border"
-            }
-          ],
-          "relatedTo": "borders",
-          "advanced": true
-        },
         "levelIn": {
           "description": "A chain that contains the link",
           "anyOf": [
@@ -1158,6 +1171,19 @@
           "advanced": true,
           "readOnly": true
         },
+        "endsIn": {
+          "description": "A lyph which bundles the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Lyph"
+            }
+          ],
+          "relatedTo": "endBundles",
+          "readOnly": true
+        },
         "fasciculatesIn": {
           "description": "A lyph which bundles the link",
           "anyOf": [
@@ -1168,7 +1194,8 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "bundles"
+          "relatedTo": "bundles",
+          "readOnly": true
         },
         "collapsible": {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
@@ -1178,15 +1205,13 @@
         },
         "geometry": {
           "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
-          "type": "string",
-          "enum": [
-            "link",
-            "semicircle",
-            "rectangle",
-            "arc",
-            "spline",
-            "path",
-            "invisible"
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EdgeGeometryScheme"
+            },{
+              "type": "string",
+              "enum": ["path"]
+            }
           ],
           "default": "link"
         },
@@ -1533,6 +1558,22 @@
           "relatedTo": "housingLyphs",
           "uniqueItems": true
         },
+        "endBundles": {
+          "description": "A set of links (i.e., neural connections) that pass through the lyph",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Link"
+              }
+            ]
+          },
+          "relatedTo": "endsIn",
+          "readOnly": true
+        },
         "bundles": {
           "description": "A set of links (i.e., neural connections) that pass through the lyph",
           "type": "array",
@@ -1546,7 +1587,8 @@
               }
             ]
           },
-          "relatedTo": "fasciculatesIn"
+          "relatedTo": "fasciculatesIn",
+          "readOnly": true
         },
         "bundlesChains": {
           "description": "Chains that generate links that pass through the lyph. The property can be used to override default bundling of tree links to the outermost layer of a lyph",
@@ -2234,6 +2276,21 @@
             "class"
           ],
           "advanced": true
+        },
+        "inGroups": {
+          "description": "Specify groups to which this resource should be included",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Group"
+              }
+            ]
+          },
+          "advanced": true
         }
       }
     },
@@ -2458,6 +2515,18 @@
         }
       ],
       "properties": {
+        "geometry": {
+          "description": "Defines the geometry of the wire.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EdgeGeometryScheme"
+            },{
+              "type": "string",
+              "enum": ["ellipse"]
+            }
+          ],
+          "default": "link"
+        },
         "source": {
           "description": "Start of the wire",
           "anyOf": [
@@ -2481,6 +2550,11 @@
             }
           ],
           "relatedTo": "targetOf"
+        },
+        "radius": {
+          "description": "Provides parameters a and b for elliptic wire",
+          "$ref": "#/definitions/Point2Scheme",
+          "default": {"x": 100, "y": 80}
         },
         "infoFields": {
           "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
@@ -2512,17 +2586,6 @@
           },
           "relatedTo": "hostedBy",
           "uniqueItems": true
-        },
-        "geometry": {
-          "description": "Defines the geometry of the wire in the scaffold.",
-          "type": "string",
-          "enum": [
-            "link",
-            "arc",
-            "spline",
-            "invisible"
-          ],
-          "default": "link"
         },
         "controlPoint": {
           "description": "Control point for the spline wire",

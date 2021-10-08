@@ -13,7 +13,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 @Component({
     selector: 'snapshot-toolbar',
     template: `
-       <section class="w3-sidebar w3-bar-block vertical-toolbar" title="Snapshot model">
+       <section class="w3-bar w3-light-grey w3-bottom snapshot-toolbar" title="Snapshot model">
            <input #fileInput type="file" accept=".json" [style.display]="'none'"
                    (change)="load(fileInput.files)"/>
            <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create new snapshot model">
@@ -28,9 +28,8 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         </section>
     `,
     styles: [`
-        .vertical-toolbar{
-            width : 48px; 
-            margin-top: 280px;
+         .snapshot-toolbar{
+            width : 140px; 
         }
 	`]
 })

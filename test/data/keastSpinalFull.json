@@ -126,14 +126,14 @@
             "length": 4
         },
         {
-            "id": "lnk-snl16 ",
+            "id": "lnk-snl16",
             "source": "ns19",
             "target": "ns20",
             "conveyingLyph": "snl16",
             "length": 4
         },
         {
-            "id": "lnk-snl26 ",
+            "id": "lnk-snl26",
             "source": "ns21",
             "target": "ns22",
             "conveyingLyph": "snl26",
@@ -5951,7 +5951,7 @@
             ]
         },
         {
-            "id": "neuron 7",
+            "id": "neuron-7",
             "name": "Neuron 7",
             "links": [
                 "lnk-snl17",
@@ -5973,7 +5973,7 @@
             ]
         },
         {
-            "id": "neuron 9",
+            "id": "neuron-9",
             "name": "Neuron 9",
             "links": [
                 "lnk-snl59",
@@ -5989,7 +5989,7 @@
             ]
         },
         {
-            "id": "neuron 5",
+            "id": "neuron-5",
             "name": "Neuron 5",
             "links": [
                 "lnk-snl65",
@@ -6006,7 +6006,7 @@
             ]
         },
         {
-            "id": "neuron 6",
+            "id": "neuron-6",
             "name": "Neuron 6",
             "links": [
                 "lnk-snl16",
@@ -6021,7 +6021,7 @@
             ]
         },
         {
-            "id": "neuron 1",
+            "id": "neuron-1",
             "name": "Neuron 1",
             "links": [
                 "lnk-sn-pg_1",
@@ -6052,7 +6052,7 @@
             ]
         },
         {
-            "id": "neuron 2",
+            "id": "neuron-2",
             "name": "Neuron 2",
             "links": [
                 "ns250",
@@ -6071,7 +6071,7 @@
             ]
         },
         {
-            "id": "neuron 3",
+            "id": "neuron-3",
             "name": "Neuron 3",
             "links": [
                 "lnk-sn-img_3",
@@ -6091,7 +6091,7 @@
             ]
         },
         {
-            "id": "neuron 10",
+            "id": "neuron-10",
             "name": "Neuron 10",
             "links": [
                 "lnk-sn_drg-l6_10",
@@ -6158,7 +6158,7 @@
             ]
         },
         {
-            "id": "neuron 12",
+            "id": "neuron-12",
             "name": "Neuron 12",
             "links": [
                 "lnk-sn-drg-l6_12",
@@ -6197,7 +6197,7 @@
             ]
         },
         {
-            "id": "neuron 13",
+            "id": "neuron-13",
             "name": "Neuron 13",
             "links": [
                 "lnk-soma3"
@@ -6208,7 +6208,7 @@
             ]
         },
         {
-            "id": "neuron 14",
+            "id": "neuron-14",
             "name": "Neuron 14",
             "links": [
                 "lnk-soma4"
@@ -6219,7 +6219,7 @@
             ]
         },
         {
-            "id": "neuron 15",
+            "id": "neuron-15",
             "name": "Neuron 15",
             "links": [
                 "lnk-soma5"
@@ -6230,7 +6230,7 @@
             ]
         },
         {
-            "id": "neuron 16",
+            "id": "neuron-16",
             "name": "Neuron 16",
             "links": [
                 "lnk-soma2"
@@ -6241,7 +6241,7 @@
             ]
         },
         {
-            "id": "neuron 17",
+            "id": "neuron-17",
             "name": "Neuron 17",
             "links": [
                 "lnk-soma6"
@@ -6252,7 +6252,7 @@
             ]
         },
         {
-            "id": "neuron 18",
+            "id": "neuron-18",
             "name": "Neuron 18",
             "links": [
                 "lnk-soma7"
@@ -6263,7 +6263,7 @@
             ]
         },
         {
-            "id": "neuron 19",
+            "id": "neuron-19",
             "name": "Neuron 19",
             "links": [
                 "lnk-soma"
@@ -6274,7 +6274,7 @@
             ]
         },
         {
-            "id": "neuron 20",
+            "id": "neuron-20",
             "name": "Neuron 20",
             "links": [
                 "lnk-soma8"

@@ -323,11 +323,7 @@ export class FieldEditor {
      */
     updateValue(newValue){
         if (this._inputType === this.INPUT_TYPES.NUMBER){
-            if (this.spec && this.spec.step){
-                this.value = parseFloat(newValue);
-            } else {
-                this.value = parseInt(newValue);
-            }
+            this.value = parseFloat(newValue);
         } else {
             this.value = newValue;
         }

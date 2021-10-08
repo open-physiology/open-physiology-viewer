@@ -698,7 +698,7 @@
         "EM"
       ],
       "external": [
-        "UBERON: 0001292"
+        "UBERON:0001292"
       ],
       "width": 4
     },
@@ -1235,7 +1235,7 @@
       "id": "UBERON:0005097"
     },
     {
-      "id": "UBERON: 0001292"
+      "id": "UBERON:0001292"
     },
     {
       "id": "UBERON:0001291"

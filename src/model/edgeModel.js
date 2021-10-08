@@ -4,6 +4,7 @@ import {
     getGenID,
     getNewID,
     EDGE_STROKE,
+    EDGE_GEOMETRY,
     PROCESS_TYPE,
     WIRE_GEOMETRY,
     LINK_GEOMETRY,
@@ -20,6 +21,9 @@ import {VisualResource} from "./visualResourceModel";
  * @property {Number} lineWidth
  * @property {Number} length
  * @property {{x: Number, y: Number, z: Number}} arcCenter
+ * @property {Array<Anchor>} hostedAnchors
+ * @property {Vertice} source
+ * @property {Vertice} target
  */
 export class Edge extends VisualResource{
 
@@ -28,9 +32,10 @@ export class Edge extends VisualResource{
      * @property DASHED
      */
     static EDGE_STROKE   = EDGE_STROKE;
+    static EDGE_GEOMETRY = EDGE_GEOMETRY;
 
     get isVisible(){
-        return super.isVisible && (this.source && this.source.isVisible) && (this.target && this.target.isVisible);
+        return super.isVisible && (!this.source || this.source.isVisible) && (!this.target || this.target.isVisible);
     }
 }
 
@@ -46,14 +51,19 @@ export class Wire extends Edge {
      * @property LINK
      * @property ARC
      * @property SPLINE
+     * @property SEMICIRCLE
+     * @property RECTANGLE
+     * @property ELLIPSE
      * @property INVISIBLE
      */
     static WIRE_GEOMETRY = WIRE_GEOMETRY;
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
-        json.source = json.source || getGenID($Prefix.source, json.id);
-        json.target = json.target || getGenID($Prefix.target, json.id);
+        if (json.geometry !== WIRE_GEOMETRY.ELLIPSE) {
+            json.source = json.source || getGenID($Prefix.source, json.id);
+            json.target = json.target || getGenID($Prefix.target, json.id);
+        }
         json.class = json.class || $SchemaClass.Wire;
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //Wires are not in the force-field, so we set their length from end points
@@ -81,19 +91,21 @@ export class Wire extends Edge {
 
     includeRelated(component){
         (this.hostedAnchors||[]).forEach(anchor => component.anchors.push(anchor));
-        this.applyToEndAnchors(
-            (end) => {
-                if (end.generated && !component.contains(end)) {
-                    component.anchors.push(end);
-                    end.hidden = component.hidden;
+        if (this.geometry !== WIRE_GEOMETRY.ELLIPSE) {
+            this.applyToEndAnchors(
+                (end) => {
+                    if (end.generated && !component.contains(end)) {
+                        component.anchors.push(end);
+                        end.hidden = component.hidden;
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
 /**
- *  The class to visualize processes (edges)
+ * The class to visualize processes (edges)
  * @class
  * @property source
  * @property target
@@ -107,6 +119,9 @@ export class Wire extends Edge {
  * @property hostedNodes
  * @property onBorder
  * @property levelIn
+ * @property controlPoint
+ * @property fasciculatesIn
+ * @property endsIn
  */
 export class Link extends Edge {
     /**
@@ -137,7 +152,7 @@ export class Link extends Edge {
         if (s && t && s.fixed && t.fixed){
             const d = {};
             ["x", "y", "z"].forEach(dim => d[dim] =  (t[dim] || 0) - (s[dim] || 0));
-            res.length = Math.sqrt( d.x * d.x + d.y * d.y + d.z * d.z);
+            res.length = Math.sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
         }
         return res;
     }
@@ -159,6 +174,23 @@ export class Link extends Edge {
             [$Field.length]     : 1,
             [$Field.strength]   : 1,
             [$Field.collapsible]: true,
+            [$Field.skipLabel]  : true,
+            [$Field.generated]  : true
+        };
+    }
+
+    static createForceLink(sourceID, targetID){
+        return {
+            [$Field.id]         : getGenID($Prefix.force, sourceID, targetID),
+            [$Field.description]: "force",
+            [$Field.source]     : sourceID,
+            [$Field.target]     : targetID,
+            [$Field.geometry]   : EDGE_GEOMETRY.INVISIBLE,
+            // Enable for testing
+            // [$Field.geometry]   : EDGE_GEOMETRY.LINK,
+            // [$Field.color]      : "#FF0000",
+            [$Field.length]     : 1,
+            [$Field.strength]   : 1,
             [$Field.skipLabel]  : true,
             [$Field.generated]  : true
         };

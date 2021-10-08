@@ -20,8 +20,9 @@ import {
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels
 } from "./utils";
-import {getItemType, strToValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
+import {Link} from "./edgeModel";
 
 export { schema };
 
@@ -101,6 +102,8 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
  * @property entitiesByID
  * @property config
  * @property namespace
+ * @property localConventions
+ * @property modelClasses
  */
 export class Graph extends Group{
 
@@ -119,11 +122,6 @@ export class Graph extends Group{
         let resVal = V.validate(json, schema);
         logger.clear();
 
-        //Why this is not shown in logger?
-        // if (resVal.errors && resVal.errors.length > 0){
-        //     logger.error("Schema validation error!", "UPD!");
-        // }
-
         //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
         let namespace = inputModel.namespace;
@@ -134,6 +132,7 @@ export class Graph extends Group{
             [$Field.name]     : "Ungrouped",
             [$Field.generated]: true,
             [$Field.hidden]   : false,
+            //TODO maybe we should exclude from this group resources included to subgroups
             [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
             [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
         };
@@ -157,6 +156,10 @@ export class Graph extends Group{
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
+                //Do not create missing scaffold resources
+                if ([$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    return;
+                }
                 if (clsName && !schemaClassModels[clsName].schema.abstract){
                     let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
                     added.push(e.id);
@@ -208,7 +211,7 @@ export class Graph extends Group{
             res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID, namespace);
             let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
             res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
-            //res.validate(modelClasses);
+            res.includeToGroups();
             (res.groups||[]).forEach(group => group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             //Collect inherited externals
@@ -247,37 +250,77 @@ export class Graph extends Group{
         //Validate channels
         (res.channels || []).forEach(r => r.validate(res));
 
+        const faultyExternal = [];
+        (res.external || []).forEach(r => {
+            if (!(res.localConventions||[]).find(c => r.id.startsWith(c.prefix))) {
+                faultyExternal.push(r.id);
+            }
+        });
+        if (faultyExternal.length > 0){
+            logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
+        }
+
         res.generated = true;
         res.mergeScaffoldResources();
 
         res.logger = logger;
         res.modelClasses = modelClasses;
+        res.createForceLinks();
 
         return res;
     }
 
-    validate(modelClasses){
-        let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames;
-
-        const isClassValid = (r, clsName) => {
-            let res = r instanceof modelClasses[clsName];
-            if (!res){
-                logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r);
-            }
-            return res;
+    createForceLinks(){
+        let group_json = {
+            [$Field.id]       : getGenID($Prefix.group, $Prefix.force),
+            [$Field.name]     : "Force links",
+            [$Field.generated]: true,
+            [$Field.hidden]   : false,
+            [$Field.links]    : [],
+            [$Field.nodes]    : []
         };
-
-        relClassNames.forEach(([key, clsName]) => {
-            if (this[key]) {
-                if (this[key]::isArray()) {
-                    this[key] = this[key].filter(r => isClassValid(r, clsName));
-                } else {
-                    if (isClassValid(this[key], clsName)){
-                        this[key] = null;
+        //Create invisible links to generate attraction forces for housing lyphs of connected chains
+        (this.links||[]).forEach(lnk => {
+            if (lnk.collapsible){
+                let housingLyphs = [null, null];
+                [$Field.source, $Field.target].forEach((prop, i) => {
+                    let border = lnk[prop] && lnk[prop].hostedBy;
+                    if (border) {
+                        housingLyphs[i] = border.onBorder && border.onBorder.host;
+                    } else {
+                        housingLyphs[i] = lnk[prop] && lnk[prop].internalIn;
                     }
+                    while (housingLyphs[i] && (housingLyphs[i].container || housingLyphs[i].host)) {
+                       housingLyphs[i] = housingLyphs[i].container || housingLyphs[i].host;
+                    }
+                });
+                let nodes = [null, null];
+                [$Field.source, $Field.target].forEach((prop, i) => {
+                    nodes[i] = housingLyphs[i] && housingLyphs[i].conveys && housingLyphs[i].conveys[prop];
+                    if (!nodes[i]){
+                        //Create a tension link between lyph end and free floating end of collapsible link
+                        nodes[i] = lnk[prop];
+                    }
+                });
+                if (nodes[0] && nodes[1]){
+                    let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
+                    let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
+                    this.links.push(force);
+                    group_json.links.push(force);
+                    [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
+                        nodes[i][prop] = nodes[i][prop] || [];
+                        nodes[i][prop].push(force);
+                    })
                 }
             }
-        });
+        })
+        const group = Group.fromJSON(group_json, this.modelClasses, this.entitiesByID, this.namespace);
+        this.groups.unshift(group);
+    }
+
+    includeToGroups(){
+        let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames::keys();
+        relClassNames.forEach((key) => (this[key]||[]).forEach(r => r.includeToGroup(key)));
     }
 
     /**
@@ -296,24 +339,11 @@ export class Graph extends Group{
             if (!table) { return; }
             let headers = table[0] || [];
 
-            const validateValue = (value, j) => {
-                if (!value){ return false; }
-                if (!headers[j]) {
-                    logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
-                    return false;
-                }
-                if (!headers[j]::isString()) {
-                    logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j])
-                    return false;
-                }
-                return true;
-            }
-
             if (relName === "localConventions") {  // local conventions are not a resource
                 for (let i = 1; i < table.length; i++) {
                     let convention = {};
                     table[i].forEach((value, j) => {
-                        if (!validateValue(value, j)) { return; }
+                        if (!validateValue(value, headers[j])) { return; }
                         let key = headers[j].trim();
                         convention[key] = value;
                     });
@@ -335,8 +365,11 @@ export class Graph extends Group{
                     logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
                     return;
                 }
-                let res = value.toString();
+                let res = value.toString().trim();
                 if (res.length === 0) { return; } //skip empty properties
+                while (res.endsWith(',')){
+                    res = res.slice(0, -1).trim();
+                }
 
                 if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
                     res = {min: parseInt(res), max: parseInt(res)};
@@ -345,7 +378,6 @@ export class Graph extends Group{
                     if (!itemType){
                         logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
                     }
-
                     if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
                         res = res.replace(/\s/g, '');
                     }
@@ -377,10 +409,12 @@ export class Graph extends Group{
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    if (!validateValue(value, j)) { return; }
+                    if (!validateValue(value, headers[j])) { return; }
                     let key = headers[j].trim();
                     let res = convertValue(key, value);
-                    if (res){ resource[key] = res; }
+                    if (res !== undefined) {
+                        resource[key] = res;
+                    }
                 });
                 table[i] = resource;
 
@@ -393,17 +427,7 @@ export class Graph extends Group{
             //Remove headers and empty objects
             model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
         });
-
-        if (model.main){
-            if (model.main[0]::isArray()){
-                model.main[0].forEach(({key: value}) => model[key] = value);
-            } else {
-                if (model.main[0]::isObject()){
-                    model::merge(model.main[0]);
-                }
-            }
-            delete model.main;
-        }
+        extractModelAnnotation(model);
         return model;
     }
 
@@ -419,7 +443,7 @@ export class Graph extends Group{
         this.createGroup(getGenID($Prefix.group, qNumber), `QR ${qNumber}: ${qName}`, nodes, links, lyphs, modelClasses);
 
         //Only chains
-        let chainLinks = links.filter(e => e.fasciculatesIn);
+        let chainLinks = links.filter(e => e.fasciculatesIn || e.endsIn);
         let chainNodes = [];
         this.includeLinkEnds(chainLinks, chainNodes);
         this.createGroup(getGenID($Prefix.group, qNumber, "chains"), `QR ${qNumber}: chains`, chainNodes, chainLinks, [], modelClasses);
@@ -430,7 +454,7 @@ export class Graph extends Group{
         this.createGroup(getGenID($Prefix.group, qNumber, "chainLyphs"), `QR ${qNumber}: chain lyphs`, [],[], chainLyphs, modelClasses);
 
         //Only housing lyphs
-        let housingLyphs = lyphs.filter(e => e.bundles);
+        let housingLyphs = lyphs.filter(e => e.bundles || e.endBundles);
         housingLyphs.forEach(e => e.layerIn && housingLyphs.push(e.layerIn));
         let housingLinks = [];
         let housingNodes = [];
@@ -486,14 +510,14 @@ export class Graph extends Group{
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => p::keys().forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
-
+        const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
         if (this.scaffoldResources) {
             (this.scaffoldResources.anchors || []).forEach(e => e.layout && scalePoint(e.layout));
+            (this.scaffoldResources.wires || []).forEach(e => e::isObject()
+                && e.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE && e.radius && scalePoint(e.radius));
             (this.scaffoldResources.wires || []).forEach(e => e::isObject() && (e.length = (e.length || 10) * scaleFactor));
-            (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
+            (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => !p.hostedBy && scalePoint(p)));
         }
-
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}
@@ -506,7 +530,6 @@ export class Graph extends Group{
                 e.controlPoint && scalePoint(e.controlPoint);
             }
         });
-        (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
     }
 
     /**
@@ -558,7 +581,7 @@ export class Graph extends Group{
                 {"@id": uri,
                  "@type": ["apinatomy:GraphMetadata", "owl:Ontology"],
                  "rdfs:label": this.name,
-                 "apinatomy:hasGraph": context["@base"].concat(this.id),
+                 "apinatomy:hasGraph": {"@id": context["@base"].concat(this.id)},
                 }
             ]
         };

@@ -31,7 +31,7 @@ export class Component extends Resource {
         res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec
-        //addColor(res.regions, $Color.Region);
+        addColor(res.regions, $Color.Region);
         addColor(res.wires, $Color.Wire);
         addColor(res.anchors, $Color.Anchor);
         return res;

@@ -3,7 +3,7 @@ import {
     it,
     before,
     after,
-    expect,
+    expect
 } from './test.helper';
 
 import basalGanglia from './data/basalGanglia';
@@ -12,7 +12,6 @@ import basalGangliaInternal from './data/basalGangliaInternal';
 
 import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
-import basicEllipseArc from './data/basicEllipseArc';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
 import basicLyphTypes from './data/basicLyphTypes';
@@ -23,10 +22,7 @@ import basicSharedNodes from './data/basicSharedNodes';
 import basicVillus from './data/basicVillus';
 
 import fullBody from './data/fullBody';
-import fullBodyRegions from './data/fullBodyRegions';
-
 import keastSpinal from './data/keastSpinal';
-
 import neuron from './data/neuron';
 import neuronTemplate from './data/neuronTemplate';
 import neuronTemplateRegion from './data/neuronTemplateRegion';
@@ -37,10 +33,11 @@ import respiratory from './data/respiratory';
 import respiratoryInternalLyphsInLayers from './data/respiratoryInternalLyphsInLayers';
 
 import uot from './data/uot';
-import {expectNoWarnings, expectAutoGenResources} from "./test.helper";
-import uotWithChannels from './data/uotWithChannels';
+import {expectNoWarnings} from "./test.helper";
+
 
 import {modelClasses, fromJSON} from '../src/model/index';
+import {$LogMsg, Logger} from "../src/model/logger";
 
 describe("BasalGanglia", () => {
     let graphData;
@@ -73,14 +70,6 @@ describe("Basic", () => {
 describe("BasicChainsInGroup", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicChainsInGroup, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {});
-});
-
-
-describe("BasicEllipseArc", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicEllipseArc, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {});
 });
@@ -145,13 +134,6 @@ describe("FullBody", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(fullBody, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {});
-});
-
-describe("FullBodyRegions", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(fullBodyRegions, modelClasses));
-    it("Model generated without errors", () => expectAutoGenResources(graphData));
     after(() => {});
 });
 
@@ -222,7 +204,13 @@ describe("RespiratoryInternalLyphsInLayers", () => {
 describe("Uot", () => {
     let graphData;
     before(() => graphData = fromJSON(uot, modelClasses));
-    it("Model generated without warnings, auto-detected connectivity model", () => expectNoWarnings(graphData));
+    it("Model detects absence of local convention mapping, auto-detected connectivity model", () => {
+        expect (graphData.logger.status).to.be.equal(Logger.STATUS.ERROR);
+        let logEvents = graphData.logger.entries;
+        let errors = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(1);
+        expect(errors[0].msg).to.be.equal($LogMsg.EXTERNAL_NO_MAPPING);
+    });
     after(() => {});
 });
 

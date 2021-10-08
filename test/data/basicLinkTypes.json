@@ -1,0 +1,136 @@
+{
+  "id"     : "model_x",
+  "name"   : "Demonstrating link types",
+  "author" : "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "N",
+      "layout": {"x": 0, "y": 0,"z": 15
+      },
+      "color": "#FFA500"
+    },
+    {
+      "id": "H",
+      "layout": {"x": 80, "y": 0, "z": 20},
+      "color": "#FF0000"
+    },
+    {
+      "id": "E",
+      "layout": {"x": 50, "y": 30, "z": 0},
+      "color": "#FF0000"
+    },
+    {
+      "id": "T",
+      "layout": {"x": -80, "y": 0, "z": 20},
+      "color": "#FF0000"
+    },
+    {
+      "id": "K",
+      "layout": {"x": 100, "y": 50, "z": 0},
+      "color": "#FF0000"
+    },
+    {
+      "id": "a",
+      "layout": {"x": -50, "y": -60, "z":  0},
+      "color": "#0000FF"
+    },
+    {
+      "id": "b1",
+      "layout": {"x": -50, "y": 60, "z":  0},
+      "color": "#0000FF"
+    },
+    {
+      "id": "b2",
+      "layout": {"x": -55, "y": 60, "z":  0},
+      "color": "#0000FF"
+    },
+    {
+      "id": "b3",
+      "layout": {"x": -45, "y": 60, "z":  0},
+      "color": "#0000FF"
+    },
+    {
+      "id": "b4",
+      "layout": {"x": -60, "y": 60, "z":  0},
+      "color": "#0000FF"
+    },
+    {
+      "id": "b5",
+      "layout": {"x": -40, "y": 60, "z":  0},
+      "color": "#0000FF"
+    }
+  ],
+  "links": [
+    {
+      "id": "l-H-T",
+      "source": "H",
+      "target": "T",
+      "geometry": "semicircle",
+      "color": "#00ff00"
+    },
+    {
+      "id": "l-T-H",
+      "source": "T",
+      "target": "H",
+      "geometry": "semicircle",
+      "color": "#00ff00"
+    },
+    {
+      "id": "l-E-K",
+      "source": "E",
+      "target": "K",
+      "geometry": "spline",
+      "stroke": "dashed",
+      "color": "#ff0000"
+    },
+    {
+      "id": "l-H-E",
+      "source": "H",
+      "target": "E",
+      "geometry": "semicircle",
+      "color": "#0000ff"
+    },
+    {
+      "id": "l-E-H",
+      "source": "E",
+      "target": "H",
+      "geometry": "semicircle",
+      "color": "#0000ff"
+    },
+        {
+      "id": "l-a-b1",
+      "source": "a",
+      "target": "b1",
+      "geometry": "path",
+      "color": "#0000ff"
+    },
+        {
+      "id": "l-a-b2",
+      "source": "a",
+      "target": "b2",
+      "geometry": "path",
+      "color": "#0000ff"
+    },
+        {
+      "id": "l-a-b3",
+      "source": "a",
+      "target": "b3",
+      "geometry": "path",
+      "color": "#0000ff"
+    },
+    {
+      "id": "l-a-b4",
+      "source": "a",
+      "target": "b4",
+      "geometry": "path",
+      "color": "#0000ff"
+    },
+    {
+      "id": "l-a-b5",
+      "source": "a",
+      "target": "b5",
+      "geometry": "path",
+      "color": "#0000ff"
+    }
+  ]
+}

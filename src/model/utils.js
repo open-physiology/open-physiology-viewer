@@ -7,7 +7,7 @@ import {
     merge,
     keys,
     isPlainObject,
-    flatten, isArray, unionBy, mergeWith
+    flatten, isArray, unionBy, mergeWith, isNumber
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -62,8 +62,9 @@ export const $SchemaType = {
 export const $SchemaClass = definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $SchemaClass::keys().map(className => definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
-export const WIRE_GEOMETRY        = definitions[$SchemaClass.Wire].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LINK_GEOMETRY        = definitions[$SchemaClass.Link].properties[$Field.geometry].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const EDGE_GEOMETRY        = definitions.EdgeGeometryScheme.enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const WIRE_GEOMETRY        = definitions[$SchemaClass.Wire].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
+export const LINK_GEOMETRY        = definitions[$SchemaClass.Link].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
 export const EDGE_STROKE          = definitions[$SchemaClass.Edge].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const PROCESS_TYPE         = definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LYPH_TOPOLOGY        = definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
@@ -101,7 +102,8 @@ export const $Prefix = {
     wire        : "wire",   //wire
     //TODO create a separate object with generated resource ids and names
     query       : "query",  //dynamic query
-    default     : "default" //default group ID
+    default     : "default", //default group ID
+    force       : "force"
 };
 
 export const getNewID = entitiesByID => "new-" +
@@ -339,14 +341,16 @@ const extendsClass = (refs, value) => {
  */
 const getFieldDefaultValues = (className) => {
     const getDefault = (specObj) => specObj.type ?
-        specObj.type === $SchemaType.STRING ? "" : specObj.type === $SchemaType.BOOLEAN ? false : specObj.type === $SchemaType.NUMBER ? 0 : null
-        : null;
+        specObj.type === $SchemaType.STRING ? "" :
+            specObj.type === $SchemaType.BOOLEAN ? false :
+                specObj.type === $SchemaType.NUMBER ? 0 : undefined
+            : undefined;
     const initValue = (specObj) => {
         return specObj.default?
             (specObj.default::isObject()
                 ? specObj.default::cloneDeep()
                 : specObj.default )
-            : getDefault(specObj);
+            : undefined; //getDefault(specObj);
     };
 
     return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
@@ -455,4 +459,3 @@ export class SchemaClass {
  * Definition of all schema-based resource classes
  */
 export const schemaClassModels = definitions::keys().map(schemaClsName => [schemaClsName, new SchemaClass(schemaClsName)])::fromPairs();
-

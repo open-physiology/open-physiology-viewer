@@ -10,13 +10,12 @@ import {
         <h1 *ngIf="data.title" mat-dialog-title>{{data.title}}</h1>
         <div mat-dialog-content>
             <!--Create resource-->
-            <resourceEditor [expanded]       = "true"
-                            [modelClasses]   = "data.modelClasses"
-                            [modelResources] = "data.modelResources"
-                            [filteredResources] = "data.filteredResources"
-                            [resource]       = "data.resource"
-                            [className]      = "data.className"
-                            [disabled]       = "data.disabled"
+            <resourceEditor [expanded]          = "true"
+                            [modelClasses]      = "data.modelClasses"
+                            [modelResources]    = "data.modelResources"
+                            [resource]          = "data.resource"
+                            [className]         = "data.className"
+                            [disabled]          = "data.disabled"
             >
             </resourceEditor>
         </div>
