@@ -70,6 +70,9 @@ class GeometryFactorySingleton {
   createLineCurve3(p0, p1 ) {
     return this.renderer.createLineCurve3(p0, p1);
   }
+  createLine(geometry, material ) { 
+    return this.renderer.createLine(geometry, material);
+  }
   createLine2(geometry, material ) { 
     return this.renderer.createLine2(geometry, material);
   }

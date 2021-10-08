@@ -214,7 +214,7 @@ export function createMeshWithBorder(shape, params = {}, includeBorder = true) {
     let geometry = new THREE.ShapeBufferGeometry(shape);
     let obj = GeometryFactory.instance().createMesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
     if (includeBorder) {
-        let borderGeometry = GeometryFactory.instance().createGeometry();
+        let borderGeometry = GeometryFactory.instance().createBufferGeometry();
         shape.getPoints().forEach(point => point.z = 0);
         borderGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(shape.getPoints() * 3), 3));
         let borderParams = params::defaults({
@@ -300,7 +300,7 @@ export function arcCurve(startV, endV, centerV = GeometryFactory.instance().crea
     if (q.y < 0){
         tAngle = 2*Math.PI - tAngle;
     }
-    return GeometryFactory.instance().EllipseCurve(centerV.x, centerV.y, Math.sqrt(a2), Math.sqrt(b2), sAngle, tAngle, false);
+    return GeometryFactory.instance().createEllipseCurve(centerV.x, centerV.y, Math.sqrt(a2), Math.sqrt(b2), sAngle, tAngle, false);
 }
 
 

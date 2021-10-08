@@ -1,7 +1,9 @@
 import {modelClasses} from "../model";
 import { GeometryFactory } from './util/geometryFactory'
+import { MaterialFactory } from './util/materialFactory'
+import {  extractCoords, arcCurve, semicircleCurve, rectangleCurve, getDefaultControlPoint } from "./util/utils";
 
-const {Edge, VisualResource} = modelClasses;
+const {Edge, Link, Wire, VisualResource} = modelClasses;
 
 /**
  * Create visual object for edge

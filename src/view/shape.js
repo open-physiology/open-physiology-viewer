@@ -1,5 +1,6 @@
 
 import {modelClasses} from "../model";
+import { isInRange, copyCoords  } from "./util/utils"
 const { Shape, VisualResource} = modelClasses;
 
 /**
