@@ -20,7 +20,7 @@ import {
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels
 } from "./utils";
-import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
+import {extractModelAnnotation, getItemType, strToValue, validateValue, levelTargetsToLevels} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
 
@@ -420,9 +420,10 @@ export class Graph extends Group{
 
                 let borderConstraints = resource::pick(borderNames);
                 if (borderConstraints::values().filter(x => !!x).length > 0) {
-                    table.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {hostedNodes: [borderConstraints[borderName]]} : {})};
+                    resource.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {hostedNodes: [borderConstraints[borderName]]} : {})};
                 }
                 table[i] = resource::omit(borderNames);
+                table[i] = levelTargetsToLevels(resource);
             }
             //Remove headers and empty objects
             model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());

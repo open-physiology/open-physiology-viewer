@@ -246,7 +246,7 @@ export function fromJSONGenerated(inputModel) {
                 let fullResID = getFullID(namespace, res.id);
                 if (entitiesByID[fullResID]) {
                     if (entitiesByID[fullResID] !== res){
-                        console.log("duplicate resource " + fullResID);
+                        console.warn("duplicate resource " + fullResID);
                         //logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[fullResID], res);
                     }
                 } else {

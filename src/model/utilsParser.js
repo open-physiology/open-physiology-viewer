@@ -84,3 +84,42 @@ export function extractModelAnnotation(model){
         delete model.main;
     }
 }
+
+/**
+ * Issue #114, mapping levelTargets in Excel to levels in JSON
+ * @example levelTargets = "0:n1,3:n3,5:n5" translates to levels = [{target: n1},,,{target:n3},,{target:n5}]
+ * @param resource - ApiNATOMY resource potentially containing "levelTargets" property
+ * @returns {*} - ApiNATOMY resource with "levelTargets" property mapped to "levels"
+ */
+export function levelTargetsToLevels(resource) {
+    if (resource.levelTargets){
+        let maps = [];
+        let targets = resource.levelTargets.split(',');
+        (targets||[]).forEach(target => {
+            let targetMap = target.split(":");
+            if (targetMap && targetMap.length === 2){
+                maps.push(targetMap);
+            }
+        })
+        let maxLevel = -1;
+        maps.forEach(level => {
+            const levelNum = parseInt(level[0]);
+            if (!Number.isNaN(levelNum)) {
+                level[0] = levelNum;
+                if (levelNum > maxLevel) {
+                    maxLevel = levelNum;
+                }
+            }
+        })
+        if (maxLevel > -1) {
+            resource.levels = new Array(maxLevel+1);
+            for (let j = 0; j < maps.length; j++) {
+                let idx = maps[j][0];
+                resource.levels[idx] = {target: maps[j][1]};
+            }
+        }
+    }
+    delete resource.levelTargets;
+    return resource;
+}
+

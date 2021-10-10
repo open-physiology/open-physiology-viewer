@@ -153,7 +153,8 @@ export class Lyph extends Shape {
         }
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.description, $Field.create3d, $Field.materials, $Field.channels, $Field.bundlesChains]),
+            $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.materials, $Field.channels,
+                $Field.bundlesChains]),
             mergeResources);
 
         if (sourceLyph.isTemplate){
@@ -376,10 +377,6 @@ export class Lyph extends Shape {
             if (this.width > maxWidth){
                 this.width = maxWidth;
             }
-            //If host is a layer, make sure lyph width does not exceed the layer's width
-            // if (this.host.layerIn){
-            //     this.width /= this.host.layerIn.layers.length;
-            // }
             //Lyph cannot be bigger than 95% of its host lyph
             [$Field.width, $Field.height].forEach(prop => {
                 let val = 0.95 * (this.host[prop] || hostSize[prop]);

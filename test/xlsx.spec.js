@@ -12,6 +12,7 @@ import testModel from './excel/test_model.xlsx';
 import {loadModel} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
+import {levelTargetsToLevels} from "../src/model/utilsParser";
 
 describe("Load Excel templates", () => {
     let graphData;
@@ -87,6 +88,22 @@ describe("Convert excel data to JSON", () => {
     });
 
     afterEach(() => {});
+});
+
+describe("Maps special Excel columns to ApiNATOMY JSON schema properties", () => {
+    it("Maps levelTargets to levels", () => {
+        let resource = {levelTargets: "0:n1,3:n3,,5:n5"};
+        let modifiedResource = levelTargetsToLevels(resource);
+        expect(modifiedResource).to.have.property("levels");
+        expect(modifiedResource.levels).to.have.length(6);
+        expect(modifiedResource.levels[0]).to.have.property("target").that.equals("n1");
+        expect(modifiedResource.levels[3]).to.have.property("target").that.equals("n3");
+        expect(modifiedResource.levels[5]).to.have.property("target").that.equals("n5");
+    });
+
+    //TODO Add test
+    // it("Maps inner, radial1, outer, radial2 to border.borders", () => {
+    // });
 });
 
 
