@@ -4,8 +4,8 @@ import {MaterialFactory} from './materialFactory';
 import { defaults } from 'lodash-bound';
 import tinycolor from 'tinycolor2';
 import { GeometryFactory } from './geometryFactory';
-const ThreeBSP = require('three-js-csg')(THREE);
-// import {CSG} from 'three-csg-ts';
+//const ThreeBSP = require('three-js-csg')(THREE);
+import {CSG} from 'three-csg-ts';
 
 /**
  * Get a point on a curve
