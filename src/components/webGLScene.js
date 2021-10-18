@@ -299,9 +299,15 @@ export class WebGLSceneComponent {
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias, alpha: true});
         this.renderer.setClearColor(0xffffff, 0.5);
 
+<<<<<<< HEAD
         this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;
         let height = this.container.clientHeight;
+=======
+        // Switch here for WebGL to Canvas
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: true});
+        // this.renderer = new THREE.CanvasRenderer({canvas: this.canvas.nativeElement});
+>>>>>>> Changed thick line solution to tubegeometry solution.
 
         this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
         this.camera.aspect = width / height;
@@ -339,6 +345,7 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
+<<<<<<< HEAD
     processQuery(){
         let config = {
             parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
@@ -361,6 +368,9 @@ export class WebGLSceneComponent {
             }
         })
     }
+=======
+
+>>>>>>> Changed thick line solution to tubegeometry solution.
 
     exportJSON(){
         if (this._graphData){
@@ -504,6 +514,7 @@ export class WebGLSceneComponent {
     }
 
     highlightSelected(){
+<<<<<<< HEAD
         let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
         vector.unproject( this.camera );
 
@@ -586,6 +597,89 @@ export class WebGLSceneComponent {
         this.camera.up.set(...lookup);
         this.camera.updateProjectionMatrix();
     }
+=======
+       let vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 1 );
+       vector.unproject( this.camera );
+
+       let ray = new THREE.Raycaster( this.camera.position, vector.sub( this.camera.position ).normalize() );
+
+       let intersects = ray.intersectObjects( this.graph.children );
+       if ( intersects.length > 0 ){
+           // if the closest object intersected is not the currently stored intersection object
+           if ( intersects[ 0 ].object !== this._highlighted ){
+               // restore previous intersection object (if it exists) to its original color
+               if ( this._highlighted ){
+                   if (this._highlighted.material.type !== "MeshLineMaterial" ){
+                     this._highlighted.material.color.setHex( this._highlighted.currentHex );
+                   } else {
+                     this._highlighted.material.uniforms.color.value.setHex( this._highlighted.currentHex );
+
+                   }
+                   (this._highlighted.children || []).forEach(child => {
+                       if (child.visible && child.material){
+                           child.material.color.setHex( child.currentHex );
+                       }
+                   })
+               }
+               // store reference to closest object as current intersection object
+               this._highlighted = intersects[ 0 ].object;
+
+               // store color of closest object (for later restoration)
+               // console.log("this._highlighted.material.color: ", this._highlighted.material)
+
+               const highlightColor = 0xff0000;
+
+               // MeshlineMaterial has color defined in a different structure
+               if (this._highlighted.material.type !== "MeshLineMaterial" ){
+
+                 this._highlighted.currentHex = this._highlighted.material.color.getHex();
+                 this._highlighted.material.color.setHex( highlightColor );
+
+               } else {
+
+                   this._highlighted.currentHex = this._highlighted.material.uniforms.color.value.getHex();
+                   this._highlighted.material.uniforms.color.value.setHex( highlightColor );
+
+               }
+                 (this._highlighted.children || []).forEach(child => {
+                     if (child.visible && child.material){
+                         child.currentHex = child.material.color.getHex();
+                     }
+                 });
+
+               // set a new color for closest object
+               (this._highlighted.children || []).forEach(child => {
+                   if (child.visible && child.material){
+                     if (this._highlighted.material.type !== "MeshLineMaterial" ){
+                         child.material.color.setHex( highlightColor );
+                       } else {
+                         this._highlighted.material.uniforms.color.value.setHex( highlightColor );
+                       }
+                   }
+               });
+
+               this.highlightedItemChange.emit(this._highlighted);
+           }
+       }
+       else {
+           // restore previous intersection object (if it exists) to its original color
+           if ( this._highlighted ) {
+               if (this._highlighted.material.type !== "MeshLineMaterial" ){
+                 this._highlighted.material.color.setHex(this._highlighted.currentHex);
+               } else {
+                 this._highlighted.material.uniforms.color.value.setHex( this._highlighted.currentHex );
+               }
+               (this._highlighted.children || []).forEach(child => {
+                   if (child.visible && child.material){
+                       child.material.color.setHex( child.currentHex );
+                   }
+               })
+           }
+           this._highlighted = null;
+           this.highlightedItemChange.emit(this._highlighted);
+       }
+   }
+>>>>>>> Changed thick line solution to tubegeometry solution.
 
     updateGraph(){
         if (this.graph) {
