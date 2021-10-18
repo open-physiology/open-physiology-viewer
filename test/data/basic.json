@@ -1,0 +1,57 @@
+{
+  "id"  : "basicLyph",
+  "name": "Basic lyph",
+  "description": "Demo model to show 2d visualization of a lyph",
+  "author": "Natallia Kokash",
+  "imports": [
+    "https://api.github.com/repositories/100824100/contents/test/scaffolds/tooMap.json",
+    "https://api.github.com/repositories/100824100/contents/test/scaffolds/nonExistingModel.json",
+    "some wrong url"
+  ],
+  "nodes": [
+    {
+      "id": "c",
+      "layout": {"x": 0, "y": 0, "z": 0}
+    },
+    {
+      "id": "d",
+      "layout": {"x": 0, "y": 50, "z": 0}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "c",
+      "target": "d",
+      "length": 30,
+      "conveyingLyph": "1"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "1",
+      "topology": "BAG",
+      "supertype": "4",
+      "create3d": true,
+      "scale": {"width": 40, "height": 60}
+    },
+    {
+      "id": "4",
+      "isTemplate": true,
+      "color": "#ccc",
+      "layers": ["5", "6", "7"]
+    },
+    {
+      "id": "5",
+      "isTemplate": true
+    },
+    {
+      "id": "6",
+      "isTemplate": true
+    },
+    {
+      "id": "7",
+      "isTemplate": true
+    }
+  ]
+}

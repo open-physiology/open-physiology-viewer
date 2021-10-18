@@ -1,0 +1,173 @@
+{
+  "id"     : "scaffold_f",
+  "name"   : "Scaffold F",
+  "author" : "Natallia Kokash",
+  "created": "2020-06-29",
+  "namespace": "scaffold_f",
+  "anchors": [
+    {
+      "id": "F",
+      "layout": {"x": 0, "y": 0},
+      "color": "#FFA500"
+    },
+    {
+      "id": "R",
+      "layout": {"x": -100, "y": 0},
+      "color": "#FF0000"
+    },
+    {
+      "id": "O",
+      "layout": {"x": 0, "y": 80},
+      "color": "#FF0000"
+    },
+    {
+      "id": "B",
+      "layout": {"x": 100, "y": 0},
+      "color": "#FF0000"
+    },
+    {
+      "id": "M",
+      "layout": {"x": 0, "y": -80},
+      "color": "#FF0000"
+    },
+    {
+      "id": "X",
+      "hostedBy": "w-B-O",
+      "offset": 0.2,
+      "color": "#006400"
+    },
+    {
+      "id": "I",
+      "hostedBy": "w-B-O",
+      "offset": 0.1,
+      "color": "#006400"
+    },
+    {
+      "id": "V",
+      "hostedBy": "w-M-B",
+      "offset": 0.2,
+      "color": "#006400"
+    },
+    {
+      "id": "J",
+      "hostedBy": "w-M-B",
+      "offset": 0.3,
+      "color": "#006400"
+    },
+    {
+      "id": "W",
+      "hostedBy": "w-M-B",
+      "offset": 0.5,
+      "color": "#006400"
+    },
+    {
+      "id": "U",
+      "hostedBy": "w-R-M",
+      "offset": 0.4,
+      "color": "#006400"
+    },
+    {
+      "id": "G",
+      "hostedBy": "w-R-M",
+      "offset": 0.3,
+      "color": "#006400"
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-B-O",
+      "name": "Upper Gastrointestinal",
+      "source": "B",
+      "target": "O",
+      "geometry": "arc",
+      "arcCenter": "F",
+      "color": "#006400"
+    },
+    {
+      "id": "w-O-R",
+      "name": "Lower Gastrointestinal",
+      "source": "O",
+      "target": "R",
+      "geometry": "arc",
+      "arcCenter": "F",
+      "color": "#006400"
+    },
+    {
+      "id": "w-R-M",
+      "source": "R",
+      "target": "M",
+      "geometry": "arc",
+      "arcCenter": "F",
+      "color": "#006400"
+    },
+    {
+      "id": "w-M-B",
+      "source": "M",
+      "target": "B",
+      "geometry": "arc",
+      "arcCenter": "F",
+      "color": "#006400"
+    },
+    {
+      "id": "w-F-B",
+      "source": "F",
+      "target": "B",
+      "color": "#000"
+    },
+    {
+      "id": "w-F-O",
+      "source": "F",
+      "target": "O",
+      "color": "#000"
+    },
+    {
+      "id": "w-F-R",
+      "source": "F",
+      "target": "R",
+      "color": "#000"
+    },
+    {
+      "id": "w-F-M",
+      "source": "F",
+      "target": "M",
+      "color": "#000"
+    }
+  ],
+  "regions": [
+    {
+      "id": "f1",
+      "name": "F1",
+      "color": "#ecf9f2",
+      "inactive": true,
+      "facets": ["w-F-B", "w-B-O", "w-F-O"]
+    },
+    {
+      "id": "f2",
+      "name": "F2",
+      "color": "#d9f2e6",
+      "inactive": true,
+      "facets": ["w-F-O", "w-O-R", "w-F-R"]
+    },
+    {
+      "id": "f3",
+      "name": "F3",
+      "color": "#c6ecd9",
+      "inactive": true,
+      "facets": ["w-F-R", "w-R-M", "w-F-M"]
+    },
+    {
+      "id": "f4",
+      "name": "F4",
+      "color": "#b3e6cc",
+      "inactive": true,
+      "facets": ["w-F-M", "w-M-B", "w-F-B"]
+    }
+  ],
+  "components": [
+    {
+      "id"  : "sRegions",
+      "name": "Scaffold regions",
+      "regions": ["f1", "f2", "f3", "f4"]
+    }
+  ]
+}

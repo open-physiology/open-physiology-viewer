@@ -1,0 +1,33 @@
+{
+  "lyphs": [
+    {
+      "id"        : "neuronBag",
+      "isTemplate": true,
+      "topology"  : "BAG",
+      "color"     : "#ccc",
+      "scale"     : { "width": 80, "height": 80},
+      "layers"    : [ "cytosol", "plasma", "fluid" ]
+    },
+    {
+      "id"   : "cytosol",
+      "name" : "Cytosol",
+      "color": "#cccccc"
+    },
+    {
+      "id"   : "plasma",
+      "name" : "Plasma membrane",
+      "color": "#652d91"
+    },
+    {
+      "id"   : "fluid",
+      "name" : "Extracellular fluid",
+      "color": "#8bc63e"
+    },
+    {
+      "id"       : "hillock",
+      "name"     : "Hillock",
+      "supertype": "neuronBag",
+      "topology" : "TUBE"
+    }
+  ]
+}

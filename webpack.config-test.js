@@ -1,29 +1,21 @@
-var webpack           = require('webpack');
-var path              = require('path');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var loaders           = require('./webpack.loaders.js');
+const loaders = require('./webpack.loaders.js');
+const plugins = require('./webpack.plugins.js');
+//const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
+    mode   : 'development',
     devtool: 'source-map',
-    target: 'node',
-    output: {
+    target : 'node',
+
+    output : {
         devtoolModuleFilenameTemplate:         '[absolute-resource-path]',
         devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
     },
     module: {
-        loaders: loaders
+        rules: loaders
     },
-    plugins: [
-        new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.ContextReplacementPlugin(
-            /angular(\\|\/)core(\\|\/)/,
-            path.resolve(__dirname, '../src'), {}
-        ),
-        new webpack.ContextReplacementPlugin(
-            /power-assert-formatter[\\\/]lib/,
-            path.resolve('./src'),
-            {}
-        )
-    ]
+    // externals: [nodeExternals({
+    //     allowlist: ['three', 'lodash']
+    // })],
+    plugins: plugins
 };

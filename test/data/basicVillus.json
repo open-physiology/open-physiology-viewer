@@ -1,0 +1,74 @@
+{
+  "id": "basicVillus",
+  "name": "Intestinal villus",
+  "description": "Demo model with villus generation template",
+  "created": "2019-09-15",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "n1",
+      "layout": {"x": 100, "y": 0, "z": 0}
+    },
+    {
+      "id": "n2",
+      "layout": {"x": -100, "y": 0, "z": 0}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "n1",
+      "target": "n2",
+      "conveyingLyph": "l1",
+      "length": 100
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "l1",
+      "name": "Small intestine",
+      "layers": ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9"],
+      "villus": {
+        "numLayers": 4
+      }
+    }
+  ],
+  "materials": [
+    {
+      "id": "m1",
+      "name": "Lumen"
+    },
+    {
+      "id": "m2",
+      "name": "Epithelial"
+    },
+    {
+      "id": "m3",
+      "name": "Lamina propria"
+    },
+    {
+      "id": "m4",
+      "name": "Muscularis mucosa"
+    },
+    {
+      "id": "m5",
+      "name": "Sub mucosa"
+    },
+    {
+      "id": "m6",
+      "name": "Circ musc"
+    },
+    {
+      "id": "m7",
+      "name": "Myenteric plexus"
+    },
+    {
+      "id": "m8",
+      "name": "Long muscle"
+    },
+    {
+      "id": "m9",
+      "name": "Serosa"
+    }
+  ]
+}

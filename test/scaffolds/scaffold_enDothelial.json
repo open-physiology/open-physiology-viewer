@@ -1,0 +1,103 @@
+{
+  "id"     : "scaffold_enDothelial",
+  "name"   : "Scaffold enDothelial",
+  "author" : "Natallia Kokash",
+  "namespace": "scaffold_d",
+  "created": "2020-07-29",
+  "anchors": [
+    {
+      "id": "L",
+      "name": "LUNG CAPILLARY"
+    },
+    {
+      "id": "P",
+      "name": "PULMONARY"
+    },
+    {
+      "id": "S",
+      "name": "SYSTEMIC CAPILLARY"
+    },
+    {
+      "id": "A",
+      "name": "AORTIC"
+    },
+    {
+      "id": "d2G",
+      "layout": {"x": -20, "y": 75}
+    },
+    {
+      "id": "d1P",
+      "layout": {
+        "x": 50,
+        "y": 10
+      }
+    },
+    {
+      "id": "d1H",
+      "layout": {
+        "x": 50,
+        "y": 20
+      }
+    },
+    {
+      "id": "d2H",
+      "layout": {"x": -10, "y": 70}
+    },
+    {
+      "id": "d2L",
+      "layout": {"x": -30, "y": 75}
+    },
+    {
+      "id": "Y",
+      "hostedBy": "w-P-S",
+      "offset": 0.8
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-d2G-d2H",
+      "name": "Portal Vein",
+      "source": "d2G",
+      "target": "d2H",
+      "geometry": "spline",
+      "color": "#9370DB"
+    },
+    {
+      "id": "w-Y-d2L",
+      "name": "Lymphatic System",
+      "source": "Y",
+      "target": "d2L",
+      "geometry": "spline",
+      "color": "#9370DB"
+    },
+    {
+      "id": "w-d1P-d1H",
+      "name": "Hypothalamohypophyseal Portal System",
+      "source": "d1P",
+      "target": "d1H",
+      "color": "#800080",
+      "geometry": "spline"
+    }
+  ],
+  "regions": [
+    {
+      "id": "d2S",
+      "name": "Spleen",
+      "color": "#FFF0F5",
+      "points": [
+        {"x": -50, "y": 40},
+        {"x": -50, "y": 50},
+        {"x": -40, "y": 50},
+        {"x": -40, "y": 40}
+      ],
+      "internalIn": "d2"
+    }
+  ],
+  "components": [
+    {
+      "id"  : "regions",
+      "name": "Regions",
+      "regions": ["d2S"]
+    }
+  ]
+}

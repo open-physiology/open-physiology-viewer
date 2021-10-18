@@ -1,0 +1,161 @@
+{
+    "/dynamic/demos/apinat/bundles/{start-id}" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "Return the paths to somas from an anatomical region (aka connected-somas)",
+        "parameters" : [ {
+          "name" : "start-id",
+          "in" : "path",
+          "description" : "ontology id of the starting point",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (start:Class{iri: \"${start-id}\"})\n-[:apinatomy:annotates]->(start_housing)\n-[:apinatomy:subtypes*0..1]->()\n-[:apinatomy:clones*0..1]->(layer_or_end)\n-[:apinatomy:layers*0..1]->()\n-[:apinatomy:bundles]->(linkStart)\n-[:apinatomy:prevChainEndLevels|apinatomy:prev|apinatomy:source*1..]->(link)\n-[:apinatomy:targetOf|apinatomy:sourceOf]->(linkSoma)  // axon or dendrite root\n-[:apinatomy:conveyingLyph]->()\n-[:apinatomy:supertype*0..1]->(soma:NamedIndividual)\n-[:apinatomy:external]->(c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\nWITH path1, link\nOPTIONAL MATCH path2 = (link)\n-[:apinatomy:fasciculatesIn]->(layer_or_end)\n-[:apinatomy:layerIn*0..1]->(end)\n-[:apinatomy:external]->(external)\nRETURN path1, path2\n"
+    },
+    "/dynamic/demos/apinat/housing-lyphs" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "List all the housing lyphs (neuronal processes) for all starting points.",
+        "parameters" : [ ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)  // soma lyph\n-[:apinatomy:conveys]->(somaLink)                // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(root)    // axon or dendrite root\n-[:apinatomy:controlNodes|apinatomy:rootOf*1..2]->(chain)                    // axon or dendrite tree\n-[:apinatomy:housingLyphs]->(housing)            // list of lyphs housing the trees\n-[:apinatomy:external*0..1]->(external)          // external ids for the housing lyphs\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nRETURN path\n"
+    },
+    "/dynamic/demos/apinat/housing-lyphs/{start-id}" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "List all the housing lyphs for a starting point.",
+        "parameters" : [ {
+          "name" : "start-id",
+          "in" : "path",
+          "description" : "ontology id of the starting point",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)  // soma lyph\n-[:apinatomy:conveys]->(somaLink)                // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(root)    // axon or dendrite root\n-[:apinatomy:internalIn]->(layer_or_end)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:external]->(layer_or_end_external:Class{iri: '${start-id}'})\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nWITH path1, root\nMATCH path2 = (root)\n-[:apinatomy:controlNodes|apinatomy:rootOf*1..2]->(chain)                    // axon or dendrite tree\n-[:apinatomy:housingLyphs]->(housing)            // list of lyphs housing the trees\n-[:apinatomy:external*0..1]->(external)          // external ids for the housing lyphs\nRETURN path1, path2\n\nUNION\n\nMATCH path1 = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)  // soma lyph\n-[:apinatomy:conveys]->(somaLink)                // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(root)    // axon or dendrite root\n-[:apinatomy:internalIn]->(layer)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:layerIn]->(end_housing)\n-[:apinatomy:external]->(end_housing_external:Class{iri: '${start-id}'})\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nWITH path1, root\nMATCH path2 = (root)\n-[:apinatomy:rootOf]->(chain)                    // axon or dendrite tree\n-[:apinatomy:housingLyphs]->(housing)            // list of lyphs housing the trees\n-[:apinatomy:external*0..1]->(external)          // external ids for the housing lyphs\nRETURN path1, path2\n"
+    },
+    "/dynamic/demos/apinat/model-bundles/{start-id}" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "Return the paths to somas from an anatomical region (aka connected-somas)",
+        "parameters" : [ {
+          "name" : "start-id",
+          "in" : "path",
+          "description" : "ontology id of the starting point",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "model-id",
+          "in" : "query",
+          "description" : "the id of the model to restrict the query to",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (model:Ontology{iri: \"${model-id}\"})\n<-[:isDefinedBy]-(start:Class{iri: \"${start-id}\"})\n-[:apinatomy:annotates]->(start_housing)\n-[:apinatomy:subtypes*0..1]->()\n-[:apinatomy:clones*0..1]->(layer_or_end)\n-[:apinatomy:layers*0..1]->()\n-[:apinatomy:bundles]->(linkStart)\n-[:apinatomy:prevChainEndLevels|apinatomy:prev|apinatomy:source*1..]->(link)\n-[:apinatomy:targetOf|apinatomy:sourceOf]->(linkSoma)  // axon or dendrite root\n-[:apinatomy:conveyingLyph]->()\n-[:apinatomy:supertype*0..1]->(soma:NamedIndividual)\n-[:apinatomy:external]->(c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\nWITH path1, link\nOPTIONAL MATCH path2 = (link)\n-[:apinatomy:fasciculatesIn]->(layer_or_end)\n-[:apinatomy:layerIn*0..1]->(end)\n-[:apinatomy:external]->(external)\nRETURN path1, path2\n"
+    },
+    "/dynamic/demos/apinat/old-bundles/{start-id}" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "Return the paths to somas from an anatomical region (aka connected-somas)",
+        "parameters" : [ {
+          "name" : "start-id",
+          "in" : "path",
+          "description" : "ontology id of the starting point",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (start:Class{iri: '${start-id}'})\n-[:apinatomy:annotates]->(start_housing)\n-[:apinatomy:bundlesChains]->(chain)\n-[:apinatomy:root]->(root)\n-[:apinatomy:internalIn]->(layer_or_end)  # this hits a cycle back to start_housing\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:external]->(layer_or_end_external)\nWITH path1, root, layer_or_end AS layer\nOPTIONAL MATCH path2 = (layer)\n-[:apinatomy:layerIn]->(end_housing)\n-[:apinatomy:external]->(end_housing_external)\nWITH path1, path2, root\nMATCH path3 = (root) // in the layer case this hits an additional lyph\n<-[:apinatomy:target|apinatomy:source]-(link)\n<-[:apinatomy:conveys]-(soma)\n<-[:apinatomy:annotates]-(soma_NLX)\nRETURN path1, path2, path3\n"
+    },
+    "/dynamic/demos/apinat/soma-processes" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "List all the neuronal processes for all somas.",
+        "parameters" : [ ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)    // soma lyph\n-[:apinatomy:conveys]->(linkSoma)                  // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(nodeRoot)  // axon or dendrite root\n-[:apinatomy:sourceOf|apinatomy:nextChainStartLevels|apinatomy:next*1..]->(link)  // sourceOf is first and only once\n-[:apinatomy:fasciculatesIn]->(layer_or_end)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:external]->(external)\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nWITH path1, nodeRoot, layer_or_end AS layer\nOPTIONAL MATCH path2 = (layer)  // if we were in a layer, get the containing lyph as well\n-[:apinatomy:layerIn]->(end_housing)\n-[:apinatomy:external]->(end_housing_external)\nWITH path1, path2, nodeRoot\nMATCH path3 = (nodeRoot)        // extract chain for axon vs dendrite\n-[:apinatomy:rootOf]->(chain)\nRETURN path1, path2, path3\n"
+    },
+    "/dynamic/demos/apinat/soma-processes/{start-id}" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "List all the neuronal processes for somas located in start-id.",
+        "parameters" : [ {
+          "name" : "start-id",
+          "in" : "path",
+          "description" : "ontology id of the starting point",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)    // soma lyph\n-[:apinatomy:conveys]->(linkSoma)                  // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(nodeRoot)  // axon or dendrite root\n-[:apinatomy:internalIn]->(layer_or_end)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:layerIn*0..1]->(layerSoma)  // don't need to see both layer and housing for soma\n-[:apinatomy:external]->(externalEndSoma:Class{iri: '${start-id}'})\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nWITH path1, nodeRoot\nMATCH path3 = (chain)\n<-[:apinatomy:rootOf]-(nodeRoot)\n-[:apinatomy:sourceOf|apinatomy:nextChainStartLevels|apinatomy:next*1..]->(link)\n-[:apinatomy:fasciculatesIn]->(layer_or_end)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:external]->(external)\nWITH path1, path3, nodeRoot, layer_or_end AS layer\nOPTIONAL MATCH path2 = (layer)  // if we were in a layer, get the containing lyph as well\n-[:apinatomy:layerIn]->(end_housing)\n-[:apinatomy:external]->(end_housing_external)\nRETURN path1, path2, path3\n"
+    },
+    "/dynamic/demos/apinat/somas" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "List all the somas for a given graph (TODO on the given graph)",
+        "parameters" : [ ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)\nRETURN soma\n"
+    },
+    "/dynamic/demos/apinat/weird-soma-processes/{process-id}" : {
+      "get" : {
+        "tags" : [ "dynamic" ],
+        "summary" : "List all the neuronal processes for somas where some processes is in process-id.",
+        "parameters" : [ {
+          "name" : "process-id",
+          "in" : "path",
+          "description" : "ontology id of the starting point",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "default" : {
+            "description" : "success"
+          }
+        }
+      },
+      "x-query" : "MATCH path1 = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)    // soma lyph\n-[:apinatomy:conveys]->(linkSoma)                  // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(nodeRoot)  // axon or dendrite root\n-[:apinatomy:sourceOf|apinatomy:nextChainStartLevels|apinatomy:next*1..]->(link)  // sourceOf is first and only once\n-[:apinatomy:fasciculatesIn]->(layer_or_end)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:external]->(external:Class{iri: '${process-id}'})\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nWITH path1, nodeRoot, layer_or_end AS layer\nOPTIONAL MATCH path2 = (layer)  // if we were in a layer, get the containing lyph as well\n-[:apinatomy:layerIn]->(end_housing)\n-[:apinatomy:external]->(end_housing_external)\nWITH path1, path2, nodeRoot\nMATCH path3 = (nodeRoot)        // extract chain for axon vs dendrite\n-[:apinatomy:rootOf]->(chain)\nRETURN path1, path2, path3\n\nUNION\n\nMATCH path1 = (c:Class{iri: \"http://uri.neuinfo.org/nif/nifstd/nlx_154731\"})\n-[:apinatomy:annotates]->(soma:NamedIndividual)    // soma lyph\n-[:apinatomy:conveys]->(linkSoma)                  // link connecting soma to axon and dendrite\n-[:apinatomy:target|apinatomy:source]->(nodeRoot)  // axon or dendrite root\n-[:apinatomy:sourceOf|apinatomy:nextChainStartLevels|apinatomy:next*1..]->(link)  // sourceOf is first and only once\n-[:apinatomy:fasciculatesIn]->(layer_or_end)\n-[:apinatomy:cloneOf*0..1]->()\n-[:apinatomy:supertype*0..1]->()\n-[:apinatomy:external]->(external)\nWHERE soma.`https://apinatomy.org/uris/readable/generated` IS NULL\nWITH path1, nodeRoot, layer_or_end AS layer\nMATCH path2 = (layer)  // if we were in a layer, get the containing lyph as well\n-[:apinatomy:layerIn]->(end_housing)\n-[:apinatomy:external]->(end_housing_external:Class{iri: '${process-id}'})\nWITH path1, path2, nodeRoot\nMATCH path3 = (nodeRoot)        // extract chain for axon vs dendrite\n-[:apinatomy:rootOf]->(chain)\nRETURN path1, path2, path3\n"
+    }
+}

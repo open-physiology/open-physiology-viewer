@@ -1,11 +1,93 @@
-#canvasContainer{
-  height: 100%;
-}
 html, body{
-  height: 100%;
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin : 0;
 }
-.w3-row{
+
+#apiLayoutContainer{
   height: 100%;
 }
+
+#relGraphContainer{
+  height: 100%;
+}
+
+.jsoneditor-menu {
+  background-color: grey !important;
+}
+
+.jsoneditor {
+  border: 1px solid #ccc !important;
+  height: 85vh !important;
+}
+
+.jsoneditor-modal .pico-modal-header {
+  background: grey !important;
+}
+
+.jsoneditor-modal a {
+  color: grey !important;
+}
+
+.jsoneditor-modal .jsoneditor-button-group.jsoneditor-button-group-value-asc input.jsoneditor-button-asc,
+.jsoneditor-modal .jsoneditor-button-group.jsoneditor-button-group-value-desc input.jsoneditor-button-desc {
+  background: grey !important;
+  border-color: #ccc !important;
+}
+
+.jsoneditor-modal .selectr-selected .selectr-tag {
+  background-color: grey !important;
+}
+
+div.jsoneditor-menu {
+  background-color: grey !important;
+  border-bottom: 1px solid #ccc !important;
+}
+
+.mat-checkbox-layout {
+  white-space: normal !important;
+}
+
+.mat-radio-label {
+  white-space: normal !important;
+}
+
+.force-graph-container canvas {
+  display: block;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.force-graph-container .graph-tooltip {
+  position: absolute;
+  transform: translate(-50%, 25px);
+  font-family: sans-serif;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 3px;
+  color: #eee;
+  background: rgba(0,0,0,0.65);
+  visibility: hidden; /* by default */
+}
+
+.force-graph-container .grabbable {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.force-graph-container .grabbable:active {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.mat-tab-body-content {
+  height: 100%;
+  overflow: hidden !important;
+}
+
+
+
+
