@@ -27,7 +27,6 @@ const WindowResize = require('three-window-resize');
     selector: 'webGLScene',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-<<<<<<< HEAD
         <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
@@ -101,96 +100,6 @@ const WindowResize = require('three-window-resize');
                                class="fa fa-check-circle" style="color:green"> </i>
                         </button>
                     </section>
-=======
-        <section class="w3-row">
-            <section id="canvasContainer" class="w3-threequarter">
-                <canvas #canvas></canvas>
-            </section>
-            <section stop-propagation class="w3-quarter">
-                <section class="w3-content">
-                    <!--<fieldset>-->
-                        <!--<legend>Dataset:</legend>-->
-                        <!--<input type="radio" name="dataset" (change)="toggleDataset('test')"/> Generated-->
-                        <!--<input type="radio" name="dataset" (change)="toggleDataset('kidney')" checked/>-->
-                        <!--Kidney-->
-                    <!--</fieldset>-->
-
-                    <fieldset>
-                        <legend>Labels:</legend>
-                        <input type="checkbox" name="node_label" (change)="toggleNodeLabels()" checked/> Node
-                        <input type="checkbox" name="link_label" (change)="toggleLinkLabels()"/> Link
-                        <input type="checkbox" name="lyph_label" (change)="toggleLyphLabels()"/> Lyph
-
-                        <fieldset [disabled]="!_showNodeLabels">
-                            <legend>Node label:</legend>
-                            <input type="radio" name="node_label"
-                                   (change)="updateLabelContent('node', 'id')" checked/> Id
-                            <input type="radio" name="node_label"
-                                   (change)="updateLabelContent('node', 'name')"/> Name
-                            <input type="radio" name="node_label"
-                                   (change)="updateLabelContent('node', 'external')"/> External
-                        </fieldset>
-
-                        <fieldset [disabled]="!_showLinkLabels">
-                            <legend>Link label:</legend>
-                            <input type="radio" name="link_label"
-                                   (change)="updateLabelContent('link', 'id')" checked/> Id
-                            <input type="radio" name="link_label"
-                                   (change)="updateLabelContent('link', 'name')"/> Name
-                            <input type="radio" name="link_label"
-                                   (change)="updateLabelContent('link', 'external')"/> External
-                        </fieldset>
-
-                        <fieldset [disabled]="!_showLyphLabels">
-                            <legend>Lyph label:</legend>
-                            <input type="radio" name="lyph_label"
-                                   (change)="updateLabelContent('lyph', 'id')" checked/> Id
-                            <input type="radio" name="lyph_label"
-                                   (change)="updateLabelContent('lyph', 'name')"/> Name
-                            <input type="radio" name="lyph_label"
-                                   (change)="updateLabelContent('lyph', 'external')"/> External
-                        </fieldset>
-                    </fieldset>
-
-
-                    <!--<fieldset>-->
-                        <!--<legend>Lyphs:</legend>-->
-                        <!--<input type="checkbox" name="lyphs" (change)="toggleLyphs()" checked/> Lyphs-->
-                        <!--<input [disabled]="!_showLyphs"-->
-                               <!--type="checkbox" name="layers" (change)="toggleLayers()"/> Layers-->
-
-                        <!--<fieldset [disabled]="!_showLyphs">-->
-                            <!--<legend>Lyph icon:</legend>-->
-                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('2d')" checked/> 2D-->
-                            <!--<input type="radio" name="linkIcon_view" (change)="toggleLyphIcon('3d')"/> 3D-->
-                        <!--</fieldset>-->
-                    <!--</fieldset>-->
-
-                    <!--<fieldset>-->
-                        <!--<legend>Dimensions:</legend>-->
-                        <!--<input type="radio" name="num_dimensions" (change)="toggleDimensions(2)" checked/> 2D-->
-                        <!--<input type="radio" name="num_dimensions" (change)="toggleDimensions(3)"/> 3D-->
-                    <!--</fieldset>-->
-
-                    <fieldset>
-                        <legend>Helpers:</legend>
-                        <input type="checkbox" name="planes" (change)="togglePlanes(['x-y'])"/> Grid x-y
-                        <input type="checkbox" name="planes" (change)="togglePlanes(['x-z'])"/> Grid x-z
-                        <input type="checkbox" name="planes" (change)="togglePlanes(['axis'])"/> Axis
-                    </fieldset>
-                    <fieldset>
-                        <legend>Link Geometry:</legend>
-                        <input type="radio" name="linkGeometry"
-                                     (change)="toggleLinkGeometry('TUBE')" checked/> Tube
-                        <input type="radio" name="linkGeometry"
-                               (change)="toggleLinkGeometry('MESHLINE')"/> MeshLine
-                             <input type="radio" name="linkGeometry"
-                                    (change)="toggleLinkGeometry('LINE')"/> Line
-                                    <input type="radio" name="linkGeometry"
-                                           (change)="toggleLinkGeometry('LINE2')"/> Line2
-
-                    </fieldset>
->>>>>>> Added a Line2 geometry option. Essentially this method uses shaders. Produces comparable FPS to Three.Line
                 </section>
                 <canvas #canvas> </canvas>
             </section>
