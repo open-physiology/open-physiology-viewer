@@ -19,6 +19,28 @@ module.exports = {
 	  compress: true,
 	  port: 8081
 	},
+<<<<<<< HEAD
 	module: { rules: loaders },
 	plugins: plugins
+=======
+	module: {
+		loaders: loaders
+	},
+	plugins: [
+		new webpack.optimize.OccurrenceOrderPlugin(),
+		new webpack.HotModuleReplacementPlugin(),
+        new webpack.ContextReplacementPlugin(
+            /angular(\\|\/)core(\\|\/)/,
+            path.resolve(__dirname, '../src'), {}
+        ),
+        new webpack.ContextReplacementPlugin(
+            /power-assert-formatter[\\\/]lib/,
+            path.resolve('./src'),
+            {}
+        ),
+				new webpack.ProvidePlugin({
+		      THREE: 'three'
+		    })				
+	]
+>>>>>>> Added a Line2 geometry option. Essentially this method uses shaders. Produces comparable FPS to Three.Line
 };
