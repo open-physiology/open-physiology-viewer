@@ -323,6 +323,7 @@ export class WebGLSceneComponent {
         this.controls.maxPolarAngle = Math.PI/2;
         this.controls.enabled = !this.lockControls;
 
+
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
         this.scene.add(ambientLight);
@@ -337,6 +338,7 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
+
     }
 
     processQuery(){
