@@ -1,0 +1,177 @@
+{
+  "id"     : "scaffold_n",
+  "name"   : "Scaffold N",
+  "author" : "Natallia Kokash",
+  "created": "2020-07-29",
+  "namespace": "scaffold_n",
+  "anchors": [
+    {
+      "id": "N",
+      "layout": {"x": 0, "y": 0},
+      "color": "#FFA500"
+    },
+    {
+      "id": "H",
+      "layout": {"x": 80, "y": 0},
+      "color": "#FF0000"
+    },
+    {
+      "id": "E",
+      "layout": {"x": 0, "y": 60},
+      "color": "#FF0000"
+    },
+    {
+      "id": "T",
+      "layout": {"x": -80, "y": 0},
+      "color": "#FF0000"
+    },
+    {
+      "id": "K",
+      "layout": {"x": 0, "y": -60},
+      "color": "#FF0000"
+    },
+    {
+      "id": "C",
+      "hostedBy": "w-N-K",
+      "offset": 0.2,
+      "color": "#FF0000"
+    },
+    {
+      "id": "Q",
+      "hostedBy": "w-N-K",
+      "offset": 0.4,
+      "color": "#FF0000"
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-H-E",
+      "source": "H",
+      "target": "E",
+      "geometry": "arc",
+      "arcCenter": "N",
+      "stroke": "dashed",
+      "color": "#000"
+    },
+    {
+      "id": "w-E-T",
+      "source": "E",
+      "target": "T",
+      "geometry": "arc",
+      "arcCenter": "N",
+      "stroke": "dashed",
+      "color": "#000"
+    },
+    {
+      "id": "w-T-K",
+      "source": "T",
+      "target": "K",
+      "geometry": "arc",
+      "arcCenter": "N",
+      "stroke": "dashed",
+      "color": "#000"
+    },
+    {
+      "id": "w-K-H",
+      "source": "K",
+      "target": "H",
+      "geometry": "arc",
+      "arcCenter": "N",
+      "stroke": "dashed",
+      "color": "#000"
+    },
+    {
+      "id": "w-N-H",
+      "source": "N",
+      "target": "H",
+      "color": "#000"
+    },
+    {
+      "id": "w-N-E",
+      "source": "N",
+      "target": "E",
+      "color": "#000"
+    },
+    {
+      "id": "w-N-T",
+      "source": "N",
+      "target": "T",
+      "color": "#000"
+    },
+    {
+      "id": "w-N-K",
+      "source": "N",
+      "target": "K",
+      "color": "#000"
+    },
+    {
+      "id": "w-NT",
+      "name": "Infraventricular CSF Tract",
+      "source": "N",
+      "target": "T",
+      "stroke": "thick",
+      "color": "#ADD8E6"
+    },
+    {
+      "id": "w-NH",
+      "name": "Supraventricular CSF Tract",
+      "source": "N",
+      "target": "H",
+      "stroke": "thick",
+      "color": "#ADD8E6"
+    },
+    {
+      "id": "w-N-C",
+      "name": "Cisterna Magna",
+      "source": "N",
+      "target": "C",
+      "stroke": "thick",
+      "color": "#ADD8E6"
+    },
+    {
+      "id": "w-C-Q",
+      "name": "Meninges",
+      "source": "C",
+      "target": "Q",
+      "stroke": "thick",
+      "color": "#ADD8E6"
+    }
+  ],
+  "regions": [
+    {
+      "id": "n1",
+      "name": "N1",
+      "color": "#f2f2f2",
+      "inactive": true,
+      "facets": ["w-N-H", "w-H-E", "w-N-E"]
+    },
+    {
+      "id": "n2",
+      "name": "N2",
+      "color": "#e6e6e6",
+      "inactive": true,
+      "facets": ["w-N-E", "w-E-T", "w-N-T"]
+    },
+    {
+      "id": "n3",
+      "name": "N3",
+      "color": "#d9d9d9",
+      "inactive": true,
+      "facets": ["w-N-T", "w-T-K", "w-N-K"]
+    },
+    {
+      "id": "n4",
+      "name": "N4",
+      "color": "#cccccc",
+      "inactive": true,
+      "facets": ["w-N-K", "w-K-H", "w-N-H"]
+    }
+  ],
+  "components": [
+    {
+      "id"  : "sRegions",
+      "name": "Scaffold regions",
+      "regions": ["n1", "n2", "n3", "n4"]
+    }
+  ]
+}

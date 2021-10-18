@@ -1,0 +1,244 @@
+{
+  "id": "scaffold_Neural",
+  "name": "Scaffold Neural",
+  "author": "Natallia Kokash",
+  "created": "2020-08-13",
+  "namespace": "scaffold_n",
+  "anchors": [
+    {
+      "id": "H",
+      "name": "HEAD"
+    },
+    {
+      "id": "E",
+      "name": "ENDOCRINE"
+    },
+    {
+      "id": "T",
+      "name": "TAIL"
+    },
+    {
+      "id": "K",
+      "name": "KNOTEN (SA, AV, PURKINJE)"
+    },
+    {
+      "id": "C",
+      "name": "Cistern"
+    },
+    {
+      "id": "d1P",
+      "layout": {"x": 50, "y": 10}
+    },
+    {
+      "id": "d1H",
+      "layout": {"x": 50, "y": 20}
+    },
+    {
+      "id": "n3V",
+      "layout": {"x": -10, "y": -50}
+    },
+    {
+      "id": "n4A",
+      "layout": {"x": 10, "y": -50}
+    },
+    {
+      "id": "n2GA",
+      "layout":{"x": -60, "y": 10}
+    },
+    {
+      "id": "n2GB",
+      "layout":{"x": -5, "y": 10}
+    }
+  ],
+  "wires":[
+    {
+      "id": "w-K-n3V",
+      "name": "Cardiac CA",
+      "source": "K",
+      "target": "n3V",
+      "color": "#ADD8E6",
+      "geometry": "spline"
+    },
+    {
+      "id": "w-n4A-K",
+      "name": "Cardiac CV",
+      "source": "n4A",
+      "target": "K",
+      "color": "#ADD8E6",
+      "geometry": "spline"
+    },
+    {
+      "id": "symp-chain-wire",
+      "source": "n2GA",
+      "target": "n2GB"
+    }
+  ],
+  "regions":[
+    {
+      "id": "n1A",
+      "name": "Adrenal",
+      "points": [
+        {"x": 0, "y": 50},
+        {"x": 0, "y": 60},
+        {"x": 10, "y": 60},
+        {"x": 10, "y": 50}
+      ],
+      "internalIn": "n1"
+    },
+    {
+      "id": "n1P",
+      "name": "Parathyroid",
+      "points": [
+        {"x": 12, "y": 45},
+        {"x": 12, "y": 55},
+        {"x": 22, "y": 55},
+        {"x": 22, "y": 45}
+      ],
+      "internalIn": "n1"
+    },
+    {
+      "id": "n1T",
+      "name": "Thyroid",
+      "points": [
+        {"x": 24, "y": 40},
+        {"x": 24, "y": 50},
+        {"x": 34, "y": 50},
+        {"x": 34, "y": 40}
+      ],
+      "internalIn": "n1"
+    },
+    {
+      "id": "n1H",
+      "name": "Pituitary",
+      "points": [
+        {"x": 36, "y": 35},
+        {"x": 36, "y": 45},
+        {"x": 46, "y": 45},
+        {"x": 46, "y": 35}
+      ],
+      "internalIn": "n1"
+    },
+    {
+      "id": "n1G",
+      "name": "Faciocervical Ganglia",
+      "points": [
+        {"x": 10, "y": 5},
+        {"x": 10, "y": 15},
+        {"x": 20, "y": 15},
+        {"x": 20, "y": 5}
+      ],
+      "color": "#eeffff",
+      "internalIn": "n1"
+    },
+    {
+      "id": "n2G",
+      "name": "Infracervical Ganglia",
+      "points": [
+        {"x": -60, "y": 5},
+        {"x": -60, "y": 15},
+        {"x": -5, "y": 15},
+        {"x": -5, "y": 5}
+      ],
+      "color": "#eeffff",
+      "internalIn": "n2"
+    },
+    {
+      "id": "n3A",
+      "name": "Axial Skeleton",
+      "points": [
+        {"x": -60, "y": -15},
+        {"x": -60, "y": -5},
+        {"x": -5, "y": -5},
+        {"x": -5, "y": -15}
+      ],
+      "internalIn": "n3"
+    },
+    {
+      "id": "n3M",
+      "name": "Skeletal Musculature",
+      "points": [
+        {"x": -60, "y": -27},
+        {"x": -60, "y": -17},
+        {"x": -5, "y": -17},
+        {"x": -5, "y": -27}
+      ],
+      "internalIn": "n3"
+    },
+    {
+      "id": "n3L",
+      "name": "Lower Limb Skeleton",
+      "points": [
+        {"x": -60, "y": -40},
+        {"x": -60, "y": -30},
+        {"x": -40, "y": -30},
+        {"x": -40, "y": -40}
+      ],
+      "internalIn": "n3"
+    },
+    {
+      "id": "n3U",
+      "name": "Upper Limb Skeleton",
+      "points": [
+        {"x": -25, "y": -40},
+        {"x": -25, "y": -30},
+        {"x": -5, "y": -30},
+        {"x": -5, "y": -40}
+      ],
+      "internalIn": "n3"
+    },
+    {
+      "id": "n4O",
+      "name": "Olfactory",
+      "points": [
+        {"x": 60, "y": -15},
+        {"x": 60, "y": -5},
+        {"x": 70, "y": -5},
+        {"x": 70, "y": -15}
+      ],
+      "internalIn": "n4"
+    },
+    {
+      "id": "n4R",
+      "name": "Retinal",
+      "points": [
+        {"x": 50, "y": -30},
+        {"x": 50, "y": -20},
+        {"x": 60, "y": -20},
+        {"x": 60, "y": -30}
+      ],
+      "internalIn": "n4"
+    },
+    {
+      "id": "n4V",
+      "name": "Vestibulococchlear",
+      "points": [
+        {"x": 40, "y": -45},
+        {"x": 40, "y": -35},
+        {"x": 50, "y": -35},
+        {"x": 50, "y": -45}
+      ],
+      "internalIn": "n4"
+    }
+  ],
+  "components": [
+    {
+      "id": "regions",
+      "name": "Regions",
+      "regions": [
+        "n1A",
+        "n1P",
+        "n1T",
+        "n1H",
+        "n1G",
+        "n2G",
+        "n3A",
+        "n3M",
+        "n3L",
+        "n3U",
+        "n4O",
+        "n4R",
+        "n4V"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id"  : "neuronTree",
+  "name": "Neuron tree",
+  "description": "Demo model of an omega tree",
+  "author": "Natallia Kokash",
+  "chains": [
+    {
+      "id"          : "neuronChain",
+      "name"        : "Neuron",
+      "numLevels"   : 4,
+      "lyphTemplate": "neuronLyph"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "neuronChain_node_0",
+      "layout": {"x": -25, "y": 0, "z": 0},
+      "color": "#000"
+    },
+    {
+      "id": "neuronChain_node_4",
+      "layout": {"x": 25, "y": 0, "z": 0},
+      "color": "#000"
+    },
+    {
+      "id": "n1",
+      "layout": {"x": -10, "y": 10, "z": 0},
+      "color": "#000"
+    },
+    {
+      "id": "n2",
+      "layout": {"x": 10, "y": 10, "z": 0},
+      "color": "#000"
+    }
+  ],
+  "links": [
+      {
+        "id": "lnk1",
+        "source": "n1",
+        "target": "n2",
+        "conveyingLyph": "lyph1"
+      }
+  ],
+  "lyphs": [
+    {
+      "id"         : "lyph1",
+      "topology"   : "CYST",
+      "supertype"  : "neuronLyph"
+    },
+    {
+      "id"         : "neuronLyph",
+      "isTemplate" : true,
+      "topology"   : "CYST",
+      "layers"     : [
+        "cytosol",
+        "plasma",
+        "fluid"
+      ],
+      "scale" : {"width": 60, "height": 100}
+    },
+    {
+      "id"   : "plasma",
+      "name" : "Plasma membrane"
+    },
+    {
+      "id"   : "cytosol",
+      "name" : "Cytosol"
+    },
+    {
+      "id"   : "fluid",
+      "name" : "Extracellular fluid"
+    }
+  ]
+}

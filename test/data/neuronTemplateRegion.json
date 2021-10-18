@@ -1,0 +1,202 @@
+{
+  "id"  : "neurontemplateRegion",
+  "name": "Neuron",
+  "description": "Demo model of a region containing a sequence of links with conveying lyphs inheriting layers from a lyph template",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "n001"
+    },
+    {
+      "id": "n002"
+    },
+    {
+      "id": "n003"
+    },
+    {
+      "id": "n004"
+    },
+    {
+      "id": "n005"
+    },
+    {
+      "id": "n006"
+    },
+    {
+      "id": "n007"
+    },
+    {
+      "id": "n008"
+    }
+  ],
+  "links": [
+    {
+      "id": "l001",
+      "source": "n001",
+      "target": "n002",
+      "conveyingLyph": "n5-d"
+    },
+    {
+      "id": "l002",
+      "source": "n002",
+      "target": "n003",
+      "conveyingLyph": "n5-h"
+    },
+    {
+      "id": "l003",
+      "source": "n003",
+      "target": "n004",
+      "conveyingLyph": "n5-s1"
+    },
+    {
+      "id": "l004",
+      "source": "n004",
+      "target": "n005",
+      "conveyingLyph": "n5-s2"
+    },
+    {
+      "id": "l005",
+      "source": "n005",
+      "target": "n006",
+      "conveyingLyph": "n5-s3"
+    },
+    {
+      "id": "l006",
+      "source": "n006",
+      "target": "n007",
+      "conveyingLyph": "n5-s4"
+    },
+    {
+      "id": "l007",
+      "source": "n007",
+      "target": "n008",
+      "conveyingLyph": "n5-t"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "neuronLyph",
+      "isTemplate": true,
+      "layers": [
+        "cytosol",
+        "plasma",
+        "fluid"
+      ],
+      "subtypes": [
+        "n5-d",
+        "n5-s1",
+        "n5-s2",
+        "n5-s3",
+        "n5-s4",
+        "n5-h",
+        "n5-t"
+      ]
+    },
+    {
+      "id": "plasma",
+      "name": "Plasma membrane",
+      "color": "#ff0000"
+    },
+    {
+      "id": "cytosol",
+      "name": "Cytosol",
+      "color": "#00ff00"
+    },
+    {
+      "id": "fluid",
+      "name": "Extracellular fluid",
+      "color": "#0000ff"
+    },
+    {
+      "id": "n5-d",
+      "name": "Dendrite"
+    },
+    {
+      "id": "n5-s1",
+      "name": "Segment 1"
+    },
+    {
+      "id": "n5-s2",
+      "name": "Segment 2"
+    },
+    {
+      "id": "n5-s3",
+      "name": "Segment 3"
+    },
+    {
+      "id": "n5-s4",
+      "name": "Segment 4"
+    },
+    {
+      "id": "n5-h",
+      "name": "Hillock"
+    },
+    {
+      "id": "n5-t",
+      "name": "Hillock"
+    }
+  ],
+  "scaffolds": [
+    {
+      "id": "scaffold",
+      "anchors": [
+        {
+          "id": "a001",
+          "anchoredNode": "n001"
+        },
+        {
+          "id": "a008",
+          "anchoredNode": "n008"
+        }
+      ],
+      "regions": [
+        {
+          "id": "n5",
+          "name": "Neuron 5",
+          "points": [
+            {
+              "x": -100,
+              "y": -50
+            },
+            {
+              "x": -100,
+              "y": 50
+            },
+            {
+              "x": 100,
+              "y": 50
+            },
+            {
+              "x": 100,
+              "y": -50
+            }
+          ],
+          "border": {
+            "borders": [
+              {
+                "hostedAnchors": [
+                  "a001"
+                ]
+              },
+              {},
+              {
+                "hostedAnchors": [
+                  "a008"
+                ]
+              },
+              {}
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "assign": [
+    {
+      "path": "$.links[*]",
+      "value": {
+        "length": 10
+      }
+    }
+  ]
+}
