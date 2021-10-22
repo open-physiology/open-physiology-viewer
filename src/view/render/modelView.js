@@ -4,15 +4,13 @@ import {modelClasses} from "../../model";
 import '../anchor'
 import '../border'
 import '../chain'
-import '../edge'
 import '../group'
-import '../link'
-import '../lyph'
 import '../node'
 import '../region'
 import '../shape'
 import '../vertice'
-import '../wire'
+import '../lyph'
+import '../edgeView'
 
 const { Component } = modelClasses;
 

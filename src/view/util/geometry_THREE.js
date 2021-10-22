@@ -92,7 +92,7 @@ export class geometry_THREE {
   static createVector2(x, y) { 
     return new THREE.Vector2(x, y);
   }
-  static createVector3(x, y, z) { 
+  static createVector3(x = 0, y = 0, z = 0) { 
     return new THREE.Vector3(x, y, z);
   }
   static createBufferAttribute(numbers, itemSize) {
