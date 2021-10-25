@@ -4,7 +4,7 @@
 
 export class geometry_THREE {
   static createArrowHelper(normalize, targetCoords, arrowLength, colorHex) { 
-    return THREE.ArrowHelper(normalize
+    return new THREE.ArrowHelper(normalize
     , targetCoords
     , arrowLength
     , colorHex
@@ -12,10 +12,10 @@ export class geometry_THREE {
     , arrowLength * 0.75);
   }
   static createCatmullRomCurve3(path) { 
-    return THREE.CatmullRomCurve3(path);
+    return new THREE.CatmullRomCurve3(path);
   }
   static createCubicBezierCurve3(start, p0, p1, end ) { 
-    return THREE.CubicBezierCurve3(start
+    return new THREE.CubicBezierCurve3(start
       , p0
       , p1
       , end);

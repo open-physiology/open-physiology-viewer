@@ -59,7 +59,7 @@ export function copyCoords(target, source){
  */
 export function mergeGeometry(tube, cupTop, cupBottom, offset, params){
     let material = MaterialFactory.createMeshBasicMaterial(params);
-    let singleGeometry = GeometryFactory.instance().createGeometry();
+    //let singleGeometry = GeometryFactory.instance().createGeometry();
     let tubeMesh       = GeometryFactory.instance().createMesh(tube, material);
     let cupTopMesh     = GeometryFactory.instance().createMesh(cupTop, material);
     let cupBottomMesh  = GeometryFactory.instance().createMesh(cupBottom, material);
