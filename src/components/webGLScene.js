@@ -337,6 +337,7 @@ export class WebGLSceneComponent {
         this.resizeToDisplaySize();
         this.createHelpers();
         this.createGraph();
+
         this.animate();
 
     }

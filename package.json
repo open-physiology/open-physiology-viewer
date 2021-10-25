@@ -113,6 +113,7 @@
     "three-orbit-controls": "^82.1.0",
     "three-stats": "^1.0.1",
     "three-window-resize": "^1.0.4",
+    "three.meshline": "^1.0.3",
     "tinycolor2": "^1.4.1",
     "xlsx": "^0.15.1",
     "zone.js": "^0.8.26"

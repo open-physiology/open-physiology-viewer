@@ -401,7 +401,7 @@ export class TestApp {
           this._flattenGroups = true;
         }
     }
-
+    
     merge(newModel) {
         if (isScaffold(this._model) !== isScaffold(newModel)){
             this.applyScaffold(this._model, newModel);
