@@ -7,11 +7,12 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import FileSaver  from 'file-saver';
 import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';
-import ThreeForceGraph from '../view/threeForceGraph';
+import ThreeForceGraph from '../view/render/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
+import { GeometryFactory } from '../view/util/geometryFactory'
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
@@ -322,6 +323,7 @@ export class WebGLSceneComponent {
         this.controls.maxPolarAngle = Math.PI/2;
         this.controls.enabled = !this.lockControls;
 
+
         // Lights
         const ambientLight = new THREE.AmbientLight(0xcccccc);
         this.scene.add(ambientLight);
@@ -330,7 +332,7 @@ export class WebGLSceneComponent {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-        this.mouse = new THREE.Vector2(0, 0);
+        this.mouse = GeometryFactory.instance().createVector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
         this.resizeToDisplaySize();
         this.createHelpers();
@@ -338,42 +340,6 @@ export class WebGLSceneComponent {
 
         this.animate();
 
-    }
-
-    processQuery(){
-        let config = {
-            parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
-            baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
-        };
-        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
-        dialogRef.afterClosed().subscribe(result => {
-            if (result && result.response){
-                this.queryCounter++;
-                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
-                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
-                const nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
-                const links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
-                const lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
-                if (nodes.length || links.length || lyphs.length) {
-                    this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
-                } else {
-                    this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
-                }
-            }
-        })
-    }
-
-    exportJSON(){
-        if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(3, {
-                [$Field.border]   : 3,
-                [$Field.borders]  : 3,
-                [$Field.villus]   : 3,
-                [$Field.scaffolds]: 5
-            }), null, 2);
-            const blob = new Blob([result], {type: 'application/json'});
-            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
-        }
     }
 
     processQuery(){
