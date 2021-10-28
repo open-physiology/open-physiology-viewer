@@ -161,11 +161,12 @@ const COLORS = {
                     <h5>Labels</h5>
                     <div class="wrap" *ngFor="let labelClass of _labelClasses">
                       <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.labels[labelClass]" (change)="updateLabels(labelClass)">{{labelClass}}</mat-slide-toggle>
-                      <div *ngIf="config.labels[labelClass]">
-                        <div class="wrap" *ngFor="let labelProp of _labelProps">
-                          <mat-slide-toggle (change)="onUpdateLabelContent.emit(_labels)">{{labelProp}}</mat-slide-toggle>
-                        </div>
-                      </div>
+                      <mat-radio-group [(ngModel)]="_labels[labelClass]" *ngIf="config.labels[labelClass]">
+                          <mat-radio-button *ngFor="let labelProp of _labelProps" class="w3-margin-left"
+                              [value]="labelProp"
+                              (change)="onUpdateLabelContent.emit(_labels)"> {{labelProp}}
+                          </mat-radio-button>
+                      </mat-radio-group>
                     </div>
                   </div>
                 </div>
