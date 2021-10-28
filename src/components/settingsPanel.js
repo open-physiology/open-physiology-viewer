@@ -79,7 +79,7 @@ const COLORS = {
                   <h4>Groups</h4>
                   <div class="default-box-header">
                     <div class="search-bar">
-                      <i class="fa fa-search"></i>
+                      <img src="./styles/images/search.svg" />
                       <input type="text" class="search-input" placeholder="Search for a group" />
                     </div>
                     <button mat-raised-button><i class="fa fa-filter"></i> Filter</button>
