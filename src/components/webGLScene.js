@@ -465,12 +465,27 @@ export class WebGLSceneComponent {
         this.graph = new ThreeForceGraph()
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)
+            .onAnchorDrag((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(obj);
+            })
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
+            .onWireDrag((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(obj);
+            })
             .onWireDragEnd((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(obj);
+            })
+            .onRegionDrag((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
