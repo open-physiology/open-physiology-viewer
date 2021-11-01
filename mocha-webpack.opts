@@ -1,7 +1,0 @@
---colors
---timeout 10000
---webpack-config webpack.config-test.js
---require mocha-test-shim.js
---require source-map-support/register
---require jsdom-global/register
-test/**/*.spec.js

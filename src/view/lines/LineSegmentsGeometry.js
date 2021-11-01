@@ -1,4 +1,5 @@
-import {THREE} from '../utils'
+import {THREE} from '../util/utils'
+import { GeometryFactory } from '../util/geometryFactory'
 
 THREE.LineSegmentsGeometry = function () {
 
@@ -179,7 +180,7 @@ THREE.LineSegmentsGeometry.prototype = Object.assign( Object.create( THREE.Insta
 
 	computeBoundingSphere: function () {
 
-		let vector = new THREE.Vector3();
+		let vector = GeometryFactory.instance().createVector3();
 
 		return function computeBoundingSphere() {
 
