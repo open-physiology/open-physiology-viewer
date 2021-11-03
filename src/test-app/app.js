@@ -24,7 +24,7 @@ import {GlobalErrorHandler} from '../services/errorHandler';
 import {modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold, $SchemaClass} from '../model/index';
 
 import 'hammerjs';
-import initModel from '../data/graph_reduced.json';
+import initModel from '../data/graph.json';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';

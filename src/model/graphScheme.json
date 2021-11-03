@@ -12,6 +12,10 @@
         }
       ],
       "properties": {
+        "cardinal": {
+          "description": "Indicates whether an anchor is cardinal",
+          "type": "boolean"
+        },
         "layout": {
           "description": "Provided 2d coordinates for the anchor",
           "$ref": "#/definitions/Point2Scheme"

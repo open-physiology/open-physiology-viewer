@@ -8,69 +8,81 @@
     {
       "id": "F",
       "layout": {"x": 0, "y": 0},
-      "color": "#FFA500"
+      "color": "#FFA500",
+      "cardinal": true
     },
     {
       "id": "R",
       "layout": {"x": -100, "y": 0},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "O",
       "layout": {"x": 0, "y": 80},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "B",
       "layout": {"x": 100, "y": 0},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "M",
       "layout": {"x": 0, "y": -80},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "X",
       "hostedBy": "w-B-O",
       "offset": 0.2,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "I",
       "hostedBy": "w-B-O",
       "offset": 0.1,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "V",
       "hostedBy": "w-M-B",
       "offset": 0.2,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "J",
       "hostedBy": "w-M-B",
       "offset": 0.3,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "W",
       "hostedBy": "w-M-B",
       "offset": 0.5,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "U",
       "hostedBy": "w-R-M",
       "offset": 0.4,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "G",
       "hostedBy": "w-R-M",
       "offset": 0.3,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     }
   ],
   "wires": [
