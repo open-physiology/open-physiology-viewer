@@ -6,7 +6,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox'
 import {MatRadioModule} from '@angular/material/radio'
 import {keys} from 'lodash-bound';
 import {SearchBarModule} from './gui/searchBar';
-import {FlatTreeControl} from '@angular/cdk/tree';
+import {NestedTreeControl} from '@angular/cdk/tree';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
@@ -17,7 +17,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule} from '@angular/material/tree';
+import {MatTreeNestedDataSource, MatTreeModule} from '@angular/material/tree';
 /**
  * @ignore
  */
@@ -35,28 +35,48 @@ const COLORS = {
 
 const TREE_DATA= [
   {
-    name: 'Fruit',
+    name: 'Internal',
     children: [
-      {name: 'Apple'},
-      {name: 'Banana'},
-      {name: 'Fruit loops'},
+      {name: 'K36'},
+      {name: 'K37'},
+      {name: 'K38'},
+      {name: 'K40'}
     ]
-  }, {
-    name: 'Vegetables',
+  },
+  {
+    name: 'Neuron 8',
+    children: [{
+      name: 'neuron',
+      children: [
+        {name: 'housing#img'},
+        {name: 'K104'},
+      ]
+    }]
+  },
+  {
+    name: 'IMG and PG',
     children: [
       {
-        name: 'Green',
+        name: 'Lyphs',
         children: [
-          {name: 'Broccoli'},
-          {name: 'Brussels sprouts'},
-        ]
-      }, {
-        name: 'Orange',
-        children: [
-          {name: 'Pumpkins'},
-          {name: 'Carrots'},
+          {name: 'housing#img'},
+          {name: 'K104'},
         ]
       },
+      {
+        name: 'Nodes',
+        children: [
+          {name: 'g102a'},
+          {name: 'g102b'},
+        ]
+      },
+      {
+        name: 'Links',
+        children: [
+          {name: 'lnk-K102'},
+          {name: 'lnk-K104'},
+        ]
+      }
     ]
   },
 ];
@@ -118,6 +138,7 @@ const TREE_DATA= [
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
                           <input type="text" class="search-input" placeholder="Search for a group" />
+                          <img src="./styles/images/close.svg" class="input-clear" />
                         </div>
                         <button mat-raised-button>Activate all</button>
                       </div>
@@ -167,23 +188,38 @@ const TREE_DATA= [
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
-                      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-                      <!-- This is the tree node template for leaf nodes -->
-                      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-                        <!-- use a disabled button to provide padding for tree leaf -->
-                        <button mat-icon-button disabled></button>
-                        {{node.name}}
-                      </mat-tree-node>
-                      <!-- This is the tree node template for expandable nodes -->
-                      <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
-                        <button mat-icon-button matTreeNodeToggle
-                                [attr.aria-label]="'toggle ' + node.name">
-                          <i class="fa fa-arrow-down" *ngIf="treeControl.isExpanded(node)"></i>
-                          <i class="fa fa-arrow-right" *ngIf="!treeControl.isExpanded(node)"></i>
-                        </button>
-                        {{node.name}}
-                      </mat-tree-node>
-                    </mat-tree>
+                      <div class="default-box-header">
+                        <div class="search-bar">
+                          <img src="./styles/images/search.svg" />
+                          <input type="text" class="search-input" placeholder="Search for a group" />
+                        </div>
+                        <button mat-raised-button>Activate all</button>
+                      </div>
+                      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="dynamic-tree">
+                        <!-- This is the tree node template for leaf nodes -->
+                        <mat-tree-node *matTreeNodeDef="let node">
+                          <li>
+                            <!-- use a disabled button to provide padding for tree leaf -->
+                            <button mat-icon-button disabled></button>
+                            <mat-slide-toggle>{{node.name}}</mat-slide-toggle>
+                          </li>
+                        </mat-tree-node>
+                        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+                          <li class="here">
+                            <div class="mat-tree-node">
+                              <button mat-icon-button matTreeNodeToggle
+                                      [attr.aria-label]="'toggle ' + node.name">
+                                <i class="fa fa-caret-down" *ngIf="treeControl.isExpanded(node)"></i>
+                                <i class="fa fa-caret-right" *ngIf="!treeControl.isExpanded(node)"></i>
+                              </button>
+                              <mat-slide-toggle>{{node.name}}</mat-slide-toggle>
+                            </div>
+                            <ul [class.dynamic-tree-invisible]="!treeControl.isExpanded(node)">
+                              <ng-container matTreeNodeOutlet></ng-container>
+                            </ul>
+                          </li>
+                      </mat-nested-tree-node>
+                      </mat-tree>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
@@ -249,9 +285,9 @@ const TREE_DATA= [
                       <div class="settings-wrap">
                         <h5>Labels</h5>
                         <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                          <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.labels[labelClass]" (change)="updateLabels(labelClass)">{{labelClass}}</mat-slide-toggle>
+                          <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.labels[labelClass]" (change)="updateLabels(labelClass)"><img src="./styles/images/toggle-icon.svg" />{{labelClass}}</mat-slide-toggle>
                           <mat-radio-group [(ngModel)]="_labels[labelClass]" *ngIf="config.labels[labelClass]">
-                              <mat-radio-button *ngFor="let labelProp of _labelProps" class="w3-margin-left"
+                              <mat-radio-button *ngFor="let labelProp of _labelProps"
                                   [value]="labelProp"
                                   (change)="onUpdateLabelContent.emit(_labels)"> {{labelProp}}
                               </mat-radio-button>
@@ -275,20 +311,20 @@ const TREE_DATA= [
     `,
     styles: [`
         :host >>> fieldset {
-            border: 0.06666667rem solid ${COLORS.grey};
-            margin: 0.133333rem;
+            border: 0.067rem solid ${COLORS.grey};
+            margin: 0.134rem;
         }
 
         :host >>> legend {
             padding: 0.2em 0.5em;
-            border : 0.06666667rem solid ${COLORS.grey};
+            border : 0.067rem solid ${COLORS.grey};
             color  : ${COLORS.grey};
             font-size: 90%;
             text-align: right;
         }
 
         .default-box .default-box-header {
-          padding: 1.06666667rem;
+          padding: 1.067rem;
           display: flex;
           align-items: center;
         }
@@ -319,32 +355,32 @@ const TREE_DATA= [
 
         .search-bar input.mat-input-element {
           background: ${COLORS.white};
-          border: 0.0666666667rem solid ${COLORS.inputBorderColor};
+          border: 0.067rem solid ${COLORS.inputBorderColor};
           box-sizing: border-box;
-          border-radius: 0.133333rem;
+          border-radius: 0.134rem;
           margin: 0;
-          height: 2.133333rem;
+          height: 2.134rem;
           color: ${COLORS.inputTextColor};
           font-weight: 500;
           font-size: 0.8rem;
-          line-height: 1.06666667rem;
-          padding: 0 0.533333333rem 0 1.73333333rem;
+          line-height: 1.067rem;
+          padding: 0 0.534rem 0 1.734rem;
         }
 
         .search-bar .search-input {
           background: ${COLORS.white};
-          border: 0.0666666667rem solid ${COLORS.inputBorderColor};
+          border: 0.067rem solid ${COLORS.inputBorderColor};
           box-sizing: border-box;
-          border-radius: 0.133333rem;
+          border-radius: 0.134rem;
           margin: 0;
           display: block;
           width: 100%;
-          height: 2.133333rem;
+          height: 2.134rem;
           color: ${COLORS.inputTextColor};
           font-weight: 500;
           font-size: 0.8rem;
-          line-height: 1.06666667rem;
-          padding: 0 0.533333333rem 0 1.73333333rem;
+          line-height: 1.067rem;
+          padding: 0 0.534rem 0 1.734rem;
         }
 
         .search-bar {
@@ -353,17 +389,23 @@ const TREE_DATA= [
 
         .search-bar img {
           position: absolute;
-          left: 0.533333333rem;
+          left: 0.534rem;
           top: 50%;
           transform: translateY(-50%);
           color: ${COLORS.inputTextColor};
-          font-size: 0.933333333rem;
+          font-size: 0.934rem;
+        }
+
+        .search-bar img.input-clear {
+          right: 0.534rem;
+          cursor: pointer;
+          left: auto;
         }
 
         .search-bar .search-input:focus {
           outline: none;
-          box-shadow: none;
-          border: 0.0666666667rem solid ${COLORS.inputBorderColor};
+          border-color: ${COLORS.toggleActiveBg};
+          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
         }
 
         .search-bar .search-input::placeholder {
@@ -376,46 +418,185 @@ const TREE_DATA= [
 
         .default-box h4 {
           background: ${COLORS.headingBg};
-          padding: 0.8rem 1.06666667rem;
+          padding: 0.8rem 1.067rem;
           font-weight: 500;
           font-size: 0.8rem;
-          line-height: 0.933333333rem;
+          line-height: 0.934rem;
           color: ${COLORS.black};
           margin: 0;
         }
 
         .default-box .wrap {
-          padding: 0.266666667rem 1.06666667rem;
+          padding: 0 1.067rem;
+        }
+
+        .default-box .wrap .mat-slide-toggle {
+          padding: 0.267rem 0;
         }
 
         .default-box .mat-slide-toggle {
           height: auto;
           display: flex;
+          width: 100%;
+        }
+
+        :host ::ng-deep .mat-tree-node {
+          min-height: 0.067rem;
+          padding: 0.267rem 0;
+          font-size: 0.8rem;
+          line-height: 1.067rem;
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          color: ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep .mat-tree-node .mat-tree-node {
+          padding: 0;
+        }
+
+         :host ::ng-deep .mat-tree-node > li {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+        }
+
+        :host ::ng-deep .mat-tree {
+          padding: 0 1.067rem;
+          display: block;
+        }
+
+        :host ::ng-deep .mat-tree-node button {
+          padding: 0;
+          border: none;
+          background: transparent;
+          width: auto;
+          height: auto;
+        }
+
+        :host ::ng-deep .mat-nested-tree-node {
+          display: block;
+        }
+
+        :host ::ng-deep .mat-tree-node button {
+          width: 1.067rem;
+          height: 1.067rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.934rem;
+          cursor: pointer;
+          margin-right: 0.534rem;
+          color: ${COLORS.black};
+        }
+
+        .default-box > .mat-tree > .mat-nested-tree-node + .mat-nested-tree-node {
+          border-top: 0.067rem solid ${COLORS.inputBorderColor};
+          padding-top: 0.534rem;
+          margin-top: 0.534rem;
+        }
+
+        :host ::ng-deep .mat-nested-tree-node ul button {
+          color: ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep .mat-nested-tree-node ul button[disabled="true"] {
+          display: none;
+        }
+
+        :host ::ng-deep .mat-nested-tree-node ul {
+          margin: 0;
+          padding: 0 0 0 1.6rem;
+        }
+
+        :host ::ng-deep .mat-nested-tree-node ul .mat-slide-toggle-content {
+          color: ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep .mat-radio-label {
+          display: flex;
+        }
+
+        :host ::ng-deep .mat-radio-label-content {
+          font-size: 0.8rem;
+          line-height: 1.067rem;
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          color: ${COLORS.inputTextColor};
         }
 
         :host ::ng-deep .mat-slide-toggle-label {
           flex-direction: row-reverse;
         }
 
+        :host ::ng-deep .mat-radio-container {
+          width: 0.934rem;
+          height: 0.934rem;
+        }
+
+        :host ::ng-deep .mat-radio-outer-circle {
+          width: 100%;
+          height: 100%;
+          border-width: 0.067rem;
+          border-color: ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+          border-color: ${COLORS.toggleActiveBg};
+        }
+
+        :host ::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle,
+        :host ::ng-deep .mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
+        :host ::ng-deep .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,
+        :host ::ng-deep .mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
+          background-color: ${COLORS.toggleActiveBg};
+        }
+
+        :host ::ng-deep .mat-radio-inner-circle {
+          width: 0.8rem;
+          height: 0.8rem;
+          left: 0.067rem;
+          top: 0.067rem;
+        }
+
         :host ::ng-deep .mat-slide-toggle-content {
           font-size: 0.8rem;
-          line-height: 1.06666667rem;
+          line-height: 1.067rem;
           flex-grow: 1;
-          color: ${COLORS.inputTextColor};
+          display: flex;
+          align-items: center;
+          color: ${COLORS.black};
+        }
+
+        :host ::ng-deep .mat-slide-toggle-content img {
+          margin-right: 0.534rem;
+          transform: rotate(0deg);
+          transition: all ease-in-out .3s;
         }
 
         :host ::ng-deep .mat-slide-toggle-bar {
-          width: 2.133333rem;
-          height: 1.06666667rem;
+          width: 2.134rem;
+          height: 1.067rem;
           margin-right: 0;
-          margin-left: 0.53333333333rem;
+          margin-left: 0.534rem;
           background: ${COLORS.inputBorderColor};
         }
 
         :host ::ng-deep .mat-slide-toggle-thumb-container {
           width: auto; height: auto;
-          top: 0.133333rem;
-          left: 0.133333rem;
+          top: 0.134rem;
+          left: 0.134rem;
+        }
+
+        :host ::ng-deep .mat-radio-button {
+          display: flex;
+          padding: 0.267rem 1.067rem 0.267rem 1.6rem;
+        }
+
+        :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-content img {
+          transform: rotate(90deg);
+          transition: all ease-in-out .3s;
         }
 
         :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
@@ -432,22 +613,22 @@ const TREE_DATA= [
 
         :host ::ng-deep .mat-slide-toggle-thumb {
           background: ${COLORS.white};
-          box-shadow: 0 0.0666666667rem 0.333333333rem rgba(0, 0, 0, 0.2);
-          border-radius: 0.533333333rem;
+          box-shadow: 0 0.067rem 0.334rem rgba(0, 0, 0, 0.2);
+          border-radius: 0.534rem;
           width: 0.8rem;
           height: 0.8rem;
         }
 
         :host ::ng-deep button.mat-raised-button {
-          border: 0.0666666667rem solid ${COLORS.inputBorderColor};
-          padding: 0.533333333rem;
+          border: 0.067rem solid ${COLORS.inputBorderColor};
+          padding: 0.534rem;
           color: ${COLORS.inputTextColor};
           font-weight: 500;
           font-size: 0.8rem;
-          margin-left: 0.533333333rem;
+          margin-left: 0.534rem;
           box-shadow: none;
-          line-height: 1.06666667rem;
-          border-radius: 0.133333rem;
+          line-height: 1.067rem;
+          border-radius: 0.134rem;
           flex-shrink: 0;
         }
 
@@ -459,26 +640,26 @@ const TREE_DATA= [
 
         :host ::ng-deep button.mat-raised-button .fa {
           display: block;
-          margin-right: 0.266666667rem;
+          margin-right: 0.267rem;
         }
 
         :host ::ng-deep .mat-expansion-indicator::after {
           display: block;
-          border-color: #000000;
-          border-width: 0 0.06666666666rem 0.06666666666rem 0;
+          border-color: ${COLORS.black};
+          border-width: 0 0.067rem 0.067rem 0;
         }
 
         .default-box {
-          padding-bottom: 1.06666667rem;
+          padding-bottom: 1.067rem;
         }
 
         .default-box h5 {
           padding: 0.8rem 0;
-          margin: 0 1.06666667rem;
+          margin: 0 1.067rem;
           font-weight: 500;
           color: ${COLORS.black};
           font-size: 0.8rem;
-          line-height: 0.933333333rem;
+          line-height: 0.934rem;
           display: flex;
           align-items: center;
         }
@@ -489,46 +670,45 @@ const TREE_DATA= [
           position: relative;
         }
 
-        .settings-wrap + .settings-wrap:before {
-          content: '';
-          width: calc(100% - 2.13333333333rem);
-          height: 0.06666666666rem;
-          background: #E0E0E0;
-          position: absolute;
-          left: 1.066666666666rem;
-          top: -0.06666666666rem;
-        }
-
 
         :host ::ng-deep .mat-expansion-panel {
           box-shadow: none;
-          border-top: 0.06666666666rem solid ${COLORS.inputBorderColor};
+          border-top: 0.067rem solid ${COLORS.inputBorderColor};
           border-radius: 0 !important;
         }
 
         :host ::ng-deep .mat-expansion-panel-header {
-          background: #F1F1F1;
-          padding: 0.8rem 1.06666667rem;
+          background: ${COLORS.headingBg};
+          padding: 0.8rem 1.067rem;
           box-sizing: border-box;
-          height: 2.5333333333rem !important;
+          height: 2.534rem !important;
         }
 
         :host ::ng-deep .mat-expansion-panel-header.mat-expanded {
-          background: #F1F1F1 !important;
+          background: ${COLORS.headingBg} !important;
         }
 
         :host ::ng-deep .mat-expansion-panel-header:hover {
-          background: #F1F1F1 !important;
+          background: ${COLORS.headingBg} !important;
         }
 
         :host ::ng-deep .mat-expansion-panel-header-title {
           font-size: 0.8rem;
-          line-height: 0.933333333rem;
-          color: #000000;
+          line-height: 0.934rem;
+          color: ${COLORS.black};
         }
 
         :host ::ng-deep .mat-expansion-panel-body {
           padding: 0;
+        }
+
+        .dynamic-tree-invisible {
+          display: none;
+        }
+
+        .dynamic-tree ul,
+        .dynamic-tree li {
+          list-style-type: none;
         }
     `]
 })
@@ -539,7 +719,8 @@ export class SettingsPanel {
     _labelProps;
     _labelClasses;
     _selectedName;
-    dataSource;
+    treeControl = new NestedTreeControl(node => node.children);
+    dataSource = new MatTreeNestedDataSource();
     @Input() groups;
 
     @Input() dynamicGroups;
@@ -638,16 +819,7 @@ export class SettingsPanel {
       };
     }
 
-    treeControl = new FlatTreeControl(
-      node => node.level, node => node.expandable);
-
-    treeFlattener = new MatTreeFlattener(
-      this.transformer, node => node.level, node => node.expandable, node => node.children);
-
-    dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-    hasChild = (_, node) => node.expandable;
-  
+    hasChild = (_, node) => !!node.children && node.children.length > 0;
 }
 
 @NgModule({
