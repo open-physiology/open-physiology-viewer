@@ -154,7 +154,7 @@ const TREE_DATA= [
 
                 <!--Dynamic groups-->
 
-                <mat-accordion *ngIf="!!dynamicGroups">
+                <!-- <mat-accordion *ngIf="!!dynamicGroups">
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
                       <mat-panel-title>
@@ -175,7 +175,7 @@ const TREE_DATA= [
                       </div>
                     </div>
                   </mat-expansion-panel>
-                </mat-accordion>
+                </mat-accordion> -->
 
                 <!--Dynamic groups-->
 
