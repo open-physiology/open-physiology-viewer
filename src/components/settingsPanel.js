@@ -137,12 +137,12 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
-                          <img src="./styles/images/close.svg" class="input-clear" />
+                          <input type="text" class="search-input" placeholder="Search for a group" name="searchTerm" [(ngModel)]="searchTerm" (input)="search($event.target.value, 'filteredGroups', 'groups')" />
+                          <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')" />
                         </div>
                         <button mat-raised-button (click)="activateAllGroup()">Activate all</button>
                       </div>
-                      <div class="wrap" *ngFor="let group of groups">
+                      <div class="wrap" *ngFor="let group of filteredGroups">
                         <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                       </div>
                     </div>
@@ -166,7 +166,7 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
+                          <input type="text" class="search-input" placeholder="Search for a group"/>
                         </div>
                         <button mat-raised-button>Activate all</button>
                       </div>
@@ -238,10 +238,11 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
+                          <input type="text" class="search-input" placeholder="Search for a group" name="searchTermScaffolds" [(ngModel)]="searchTermScaffolds" (input)="searchScaffold($event.target.value)" />
+                          <img *ngIf="searchTermScaffolds !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTermScaffold', 'filteredScaffolds', 'scaffolds')" />
                         </div>
                       </div>
-                      <div class="wrap" *ngFor="let scaffold of scaffolds">
+                      <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
                         <mat-slide-toggle [checked]= "!scaffold.hidden" (change)= "onToggleGroup.emit(scaffold)">{{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
                       </div>
                     </div>
@@ -721,6 +722,10 @@ export class SettingsPanel {
     _selectedName;
     treeControl = new NestedTreeControl(node => node.children);
     dataSource = new MatTreeNestedDataSource();
+    searchTerm = '';
+    filteredGroups;
+    searchTermScaffolds = '';
+    filteredScaffolds;
     @Input() groups;
 
     @Input() dynamicGroups;
@@ -765,6 +770,7 @@ export class SettingsPanel {
         this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showHelpers   = new Set([]);
         this.dataSource.data = TREE_DATA;
+        this.searchTerm = '';
     }
 
     get config() {
@@ -827,6 +833,28 @@ export class SettingsPanel {
           this.onToggleGroup.emit(group);
         }
       }
+    }
+
+    search(value, filterOptions, allOptions) {
+      this[filterOptions] = this[allOptions].filter((val) => val.name.toLowerCase().includes(value?.toLowerCase()));
+    }
+
+    searchScaffold(value) {
+      this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
+        const lowerCaseValue = value?.toLowerCase();
+        const displayTerm = ((scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name).toLowerCase() ;
+        return displayTerm.includes(lowerCaseValue) || scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) || scaffold?.name?.toLowerCase()?.includes(lowerCaseValue);
+      });
+    }
+
+    ngOnInit() {
+      this.filteredGroups = this.groups;
+      this.filteredScaffolds = this.scaffolds;
+    }
+
+    clearSearch(term, filterOptions, allOptions) {
+      this[term] = '';
+      this[filterOptions] = this[allOptions];
     }
 }
 
