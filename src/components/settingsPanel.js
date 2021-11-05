@@ -140,10 +140,10 @@ const TREE_DATA= [
                           <input type="text" class="search-input" placeholder="Search for a group" />
                           <img src="./styles/images/close.svg" class="input-clear" />
                         </div>
-                        <button mat-raised-button>Activate all</button>
+                        <button mat-raised-button (click)="activateAllGroup()">Activate all</button>
                       </div>
                       <div class="wrap" *ngFor="let group of groups">
-                        <mat-slide-toggle (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
+                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                       </div>
                     </div>
                   </mat-expansion-panel>
@@ -820,6 +820,14 @@ export class SettingsPanel {
     }
 
     hasChild = (_, node) => !!node.children && node.children.length > 0;
+
+    activateAllGroup = () => {
+      for(let group of this.groups) {
+        if(group.hidden) {
+          this.onToggleGroup.emit(group);
+        }
+      }
+    }
 }
 
 @NgModule({
