@@ -242,7 +242,7 @@ const TREE_DATA= [
                         </div>
                       </div>
                       <div class="wrap" *ngFor="let scaffold of scaffolds">
-                        <mat-slide-toggle>{{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
+                        <mat-slide-toggle [checked]= "!scaffold.hidden" (change)= "onToggleGroup.emit(scaffold)">{{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
                       </div>
                     </div>
                   </mat-expansion-panel>
