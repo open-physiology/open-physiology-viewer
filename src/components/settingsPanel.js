@@ -143,7 +143,7 @@ const TREE_DATA= [
                         <button mat-raised-button>Activate all</button>
                       </div>
                       <div class="wrap" *ngFor="let group of groups">
-                        <mat-slide-toggle>{{group.name || group.id}}</mat-slide-toggle>
+                        <mat-slide-toggle (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                       </div>
                     </div>
                   </mat-expansion-panel>
