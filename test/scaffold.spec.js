@@ -3,7 +3,6 @@ import {
     it,
     before,
     after,
-    expect,
     expectNoWarnings,
 } from './test.helper';
 

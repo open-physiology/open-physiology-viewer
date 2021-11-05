@@ -237,6 +237,9 @@ export class Scaffold extends Component {
         return model;
     }
 
+    static jsonToExcel(inputModel) {
+    }
+
     /**
      * Serialize the map of scaffold resources in JSON
      */

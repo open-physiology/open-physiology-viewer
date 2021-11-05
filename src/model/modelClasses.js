@@ -126,6 +126,15 @@ export function excelToJSON(inputModel) {
     }
 }
 
+export function jsonToExcel(inputModel) {
+    if (isScaffold(inputModel)){
+        return Scaffold.jsonToExcel(inputModel, modelClasses);
+    } else {
+        return Graph.jsonToExcel(inputModel, modelClasses);
+    }
+}
+
+
 /**
  * Create complete typed model from JSON input specification
  * @param inputModel - JSON input specification of connectivity model or scaffold

@@ -154,8 +154,14 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
             expect(lnk[0]).to.be.an('object');
             expect(lnk[0]).to.have.property('class').that.equal('Link');
             expect(lnk[0]).to.have.property('fasciculatesIn')
-            expect(lnk[0].fasciculatesIn).to.have.property("id").that.equals(ch1.lyphs[i].layers[j].id);
+            let housingLyph = ch1.lyphs[i].layers[j];
+            expect(lnk[0].fasciculatesIn).to.have.property("id").that.equals(housingLyph.id);
+            let housedLyph = lnk[0].conveyingLyph;
+            expect(housedLyph).not.to.be.a('undefined');
+            expect(housedLyph).to.have.property('housingLyph')
+            expect(housedLyph.housingLyph).to.have.property('id').that.equals(housingLyph.id)
         }
+
         [nn1.housingRange.min, nn1.housingRange.max-1].forEach(i => {
             let j = nn1.housingLayers[i - nn1.housingRange.min];
             expect(ch1.lyphs[i].layers[j]).to.have.property('endBundles');
@@ -164,7 +170,12 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
             expect(lnk[0]).to.be.an('object');
             expect(lnk[0]).to.have.property('class').that.equal('Link');
             expect(lnk[0]).to.have.property('endsIn');
-            expect(lnk[0].endsIn).to.have.property("id").that.equals(ch1.lyphs[i].layers[j].id);
+            let housingLyph = ch1.lyphs[i].layers[j];
+            expect(lnk[0].endsIn).to.have.property("id").that.equals(housingLyph.id);
+            let housedLyph = lnk[0].conveyingLyph;
+            expect(housedLyph).not.to.be.a('undefined');
+            expect(housedLyph).to.have.property('housingLyph')
+            expect(housedLyph.housingLyph).to.have.property('id').that.equals(housingLyph.id)
         })
     });
 

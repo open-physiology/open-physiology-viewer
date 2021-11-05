@@ -260,6 +260,17 @@ export class Graph extends Group{
             logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
         }
 
+        //Assign helper property housingLyph for simpler Cypher queries
+        (res.lyphs||[]).forEach(lyph => {
+            if (lyph instanceof modelClasses.Lyph) {
+                let axis = lyph.axis;
+                let housingLyph = axis && (axis.fasciculatesIn || axis.endsIn);
+                if (housingLyph) {
+                    lyph.housingLyph = housingLyph
+                }
+            }
+        });
+
         res.generated = true;
         res.mergeScaffoldResources();
 
@@ -430,6 +441,9 @@ export class Graph extends Group{
         });
         extractModelAnnotation(model);
         return model;
+    }
+
+    static jsonToExcel(inputModel) {
     }
 
     createDynamicGroup(qNumber, qName, json, modelClasses = {}){

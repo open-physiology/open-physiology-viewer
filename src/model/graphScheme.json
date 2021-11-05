@@ -1176,7 +1176,7 @@
           "readOnly": true
         },
         "endsIn": {
-          "description": "A lyph which bundles the link",
+          "description": "A lyph which contains one of the chain link ends",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -1609,6 +1609,19 @@
           },
           "relatedTo": "housingLyphs",
           "advanced": true
+        },
+        "housingLyph": {
+          "description": "A derived property that links a lyph with it's housing lyph",
+          "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ],
+          "advanced": true,
+          "readOnly": true
         },
         "inChain": {
           "description": "Chains in which the given lyph is a housing lyph",
