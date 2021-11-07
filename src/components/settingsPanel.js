@@ -17,7 +17,8 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {MatTreeNestedDataSource, MatTreeModule} from '@angular/material/tree';
+// import {MatTreeNestedDataSource, MatTreeModule} from '@angular/material/tree';
+import { TreeModule, TreeModel, TreeNode } from '@circlon/angular-tree-component';
 /**
  * @ignore
  */
@@ -179,6 +180,8 @@ const TREE_DATA= [
 
                 <!--Dynamic groups-->
 
+                
+
                 <mat-accordion *ngIf="!!dynamicGroups">
                   <mat-expansion-panel>
                     <mat-expansion-panel-header>
@@ -191,35 +194,16 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
+                          <input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>
                         </div>
                         <button mat-raised-button>Activate all</button>
                       </div>
-                      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="dynamic-tree">
-                        <!-- This is the tree node template for leaf nodes -->
-                        <mat-tree-node *matTreeNodeDef="let node">
-                          <li>
-                            <!-- use a disabled button to provide padding for tree leaf -->
-                            <button mat-icon-button disabled></button>
-                            <mat-slide-toggle>{{node.name}}</mat-slide-toggle>
-                          </li>
-                        </mat-tree-node>
-                        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-                          <li class="here">
-                            <div class="mat-tree-node">
-                              <button mat-icon-button matTreeNodeToggle
-                                      [attr.aria-label]="'toggle ' + node.name">
-                                <i class="fa fa-caret-down" *ngIf="treeControl.isExpanded(node)"></i>
-                                <i class="fa fa-caret-right" *ngIf="!treeControl.isExpanded(node)"></i>
-                              </button>
-                              <mat-slide-toggle>{{node.name}}</mat-slide-toggle>
-                            </div>
-                            <ul [class.dynamic-tree-invisible]="!treeControl.isExpanded(node)">
-                              <ng-container matTreeNodeOutlet></ng-container>
-                            </ul>
-                          </li>
-                      </mat-nested-tree-node>
-                      </mat-tree>
+                      <tree-root [focused]="true" [nodes]="nodes" #tree>
+                        <ng-template #treeNodeTemplate let-node let-index="index">
+                          <span>{{node.data.name}}</span>
+                          <mat-slide-toggle></mat-slide-toggle>
+                        </ng-template>
+                      </tree-root>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
@@ -720,12 +704,11 @@ export class SettingsPanel {
     _labelProps;
     _labelClasses;
     _selectedName;
-    treeControl = new NestedTreeControl(node => node.children);
-    dataSource = new MatTreeNestedDataSource();
     searchTerm = '';
     filteredGroups;
     searchTermScaffolds = '';
     filteredScaffolds;
+    nodes;
     @Input() groups;
 
     @Input() dynamicGroups;
@@ -769,8 +752,9 @@ export class SettingsPanel {
         this._labelProps    = [$Field.id, $Field.name];
         this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showHelpers   = new Set([]);
-        this.dataSource.data = TREE_DATA;
         this.searchTerm = '';
+        this.searchTermScaffolds = '';
+        this.nodes = TREE_DATA;
     }
 
     get config() {
@@ -817,16 +801,6 @@ export class SettingsPanel {
         this.onToggleHelperPlane.emit(helper);
     }
 
-    transformer = (node, level) => {
-      return {
-        expandable: !!node.children && node.children.length > 0,
-        name: node.name,
-        level: level,
-      };
-    }
-
-    hasChild = (_, node) => !!node.children && node.children.length > 0;
-
     activateAllGroup = () => {
       for(let group of this.groups) {
         if(group.hidden) {
@@ -860,7 +834,7 @@ export class SettingsPanel {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule, MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule, MatTreeModule],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule, MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule, TreeModule],
     declarations: [SettingsPanel, StopPropagation],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
