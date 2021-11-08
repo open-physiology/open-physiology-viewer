@@ -6,7 +6,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox'
 import {MatRadioModule} from '@angular/material/radio'
 import {keys} from 'lodash-bound';
 import {SearchBarModule} from './gui/searchBar';
-import {NestedTreeControl} from '@angular/cdk/tree';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
@@ -17,7 +16,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {MatTreeNestedDataSource, MatTreeModule} from '@angular/material/tree';
+import { TreeModule } from '@circlon/angular-tree-component';
 /**
  * @ignore
  */
@@ -137,13 +136,13 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
-                          <img src="./styles/images/close.svg" class="input-clear" />
+                          <input type="text" class="search-input" placeholder="Search for a group" name="searchTerm" [(ngModel)]="searchTerm" (input)="search($event.target.value, 'filteredGroups', 'groups')" />
+                          <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')" />
                         </div>
-                        <button mat-raised-button>Activate all</button>
+                        <button mat-raised-button (click)="activateAllGroup()">Activate all</button>
                       </div>
-                      <div class="wrap" *ngFor="let group of groups">
-                        <mat-slide-toggle>{{group.name || group.id}}</mat-slide-toggle>
+                      <div class="wrap" *ngFor="let group of filteredGroups">
+                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                       </div>
                     </div>
                   </mat-expansion-panel>
@@ -166,7 +165,7 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
+                          <input type="text" class="search-input" placeholder="Search for a group"/>
                         </div>
                         <button mat-raised-button>Activate all</button>
                       </div>
@@ -178,6 +177,8 @@ const TREE_DATA= [
                 </mat-accordion> -->
 
                 <!--Dynamic groups-->
+
+
 
                 <mat-accordion *ngIf="!!dynamicGroups">
                   <mat-expansion-panel>
@@ -191,35 +192,17 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
+                          <input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>
+                          <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearTreeSearch(filter, tree)" />
                         </div>
                         <button mat-raised-button>Activate all</button>
                       </div>
-                      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="dynamic-tree">
-                        <!-- This is the tree node template for leaf nodes -->
-                        <mat-tree-node *matTreeNodeDef="let node">
-                          <li>
-                            <!-- use a disabled button to provide padding for tree leaf -->
-                            <button mat-icon-button disabled></button>
-                            <mat-slide-toggle>{{node.name}}</mat-slide-toggle>
-                          </li>
-                        </mat-tree-node>
-                        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
-                          <li class="here">
-                            <div class="mat-tree-node">
-                              <button mat-icon-button matTreeNodeToggle
-                                      [attr.aria-label]="'toggle ' + node.name">
-                                <i class="fa fa-caret-down" *ngIf="treeControl.isExpanded(node)"></i>
-                                <i class="fa fa-caret-right" *ngIf="!treeControl.isExpanded(node)"></i>
-                              </button>
-                              <mat-slide-toggle>{{node.name}}</mat-slide-toggle>
-                            </div>
-                            <ul [class.dynamic-tree-invisible]="!treeControl.isExpanded(node)">
-                              <ng-container matTreeNodeOutlet></ng-container>
-                            </ul>
-                          </li>
-                      </mat-nested-tree-node>
-                      </mat-tree>
+                      <tree-root [focused]="true" [nodes]="nodes" #tree>
+                        <ng-template #treeNodeTemplate let-node let-index="index">
+                          <span>{{node.data.name}}</span>
+                          <mat-slide-toggle></mat-slide-toggle>
+                        </ng-template>
+                      </tree-root>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
@@ -238,11 +221,12 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" />
+                          <input type="text" class="search-input" placeholder="Search for a group" name="searchTermScaffolds" [(ngModel)]="searchTermScaffolds" (input)="searchScaffold($event.target.value)" />
+                          <img *ngIf="searchTermScaffolds !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTermScaffold', 'filteredScaffolds', 'scaffolds')" />
                         </div>
                       </div>
-                      <div class="wrap" *ngFor="let scaffold of scaffolds">
-                        <mat-slide-toggle>{{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
+                      <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
+                        <mat-slide-toggle [checked]= "!scaffold.hidden" (change)= "onToggleGroup.emit(scaffold)">{{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
                       </div>
                     </div>
                   </mat-expansion-panel>
@@ -438,6 +422,126 @@ const TREE_DATA= [
           height: auto;
           display: flex;
           width: 100%;
+        }
+
+        :host ::ng-deep .angular-tree-component {
+          padding: 0 1.067rem;
+          max-width: 100%;
+          width: auto;
+          display: block;
+        }
+
+        :host ::ng-deep .node-content-wrapper {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          padding: 0;
+          border-radius: 0;
+        }
+
+        :host ::ng-deep .angular-tree-component {
+          cursor: default;
+        }
+
+        :host ::ng-deep .node-content-wrapper-focused {
+          background: transparent;
+          box-shadow: none;
+        }
+
+        :host ::ng-deep .node-drop-slot {
+          height: 0.06667rem;
+          background: ${COLORS.inputBorderColor};
+          margin: 0.5334rem 0 0;
+          display: none;
+        }
+
+        :host ::ng-deep .node-content-wrapper:hover {
+          box-shadow: none;
+          background: transparent;
+        }
+
+        :host ::ng-deep .node-content-wrapper tree-node-content {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+        }
+
+        :host ::ng-deep tree-node-collection > div > tree-node {
+          display: block;
+        }
+
+        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node + tree-node {
+          border-top: 0.067rem solid ${COLORS.inputBorderColor};
+          padding-top: 0.534rem;
+          margin-top: 0.534rem;
+        }
+
+        :host ::ng-deep tree-node-expander {
+          display: block;
+        }
+
+        :host ::ng-deep tree-node-expander * {
+          box-sizing: border-box;
+        }
+
+        :host ::ng-deep .toggle-children-wrapper {
+          display: block;
+        }
+
+        :host ::ng-deep .toggle-children {
+          display: block;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          margin-right: 0.8rem;
+          background: none;
+          top: 0;
+          border-width: 0.23334rem 0 0.23334rem 0.26667rem;
+          border-color: transparent transparent transparent ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node > .tree-node > tree-node-wrapper > .node-wrapper {
+          color: ${COLORS.black}
+        }
+
+        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node > .tree-node > tree-node-wrapper > .node-wrapper .node-content-wrapper tree-node-content > span {
+          border-color: transparent transparent transparent ${COLORS.black};
+        }
+
+        :host ::ng-deep tree-node-collection > div > tree-node:last-child .node-drop-slot:last-child {
+          display: none;
+          margin-top: 0;
+        }
+
+        :host ::ng-deep .toggle-children-wrapper {
+          padding: 0
+        }
+
+        :host ::ng-deep .node-content-wrapper tree-node-content > span {
+          flex-grow: 1;
+        }
+
+        :host ::ng-deep .node-content-wrapper tree-node-content .mat-slide-toggle {
+          width: auto !important;
+        }
+
+        :host ::ng-deep .node-content-wrapper:hover {
+          box-shadow: none;
+        }
+
+        :host ::ng-deep .node-wrapper {
+          min-height: 0.067rem;
+          padding: 0.267rem 0;
+          font-size: 0.8rem;
+          line-height: 1.067rem;
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          color: ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep tree-node-children .node-drop-slot {
+          display: none;
         }
 
         :host ::ng-deep .mat-tree-node {
@@ -719,8 +823,11 @@ export class SettingsPanel {
     _labelProps;
     _labelClasses;
     _selectedName;
-    treeControl = new NestedTreeControl(node => node.children);
-    dataSource = new MatTreeNestedDataSource();
+    searchTerm = '';
+    filteredGroups;
+    searchTermScaffolds = '';
+    filteredScaffolds;
+    nodes;
     @Input() groups;
 
     @Input() dynamicGroups;
@@ -764,7 +871,9 @@ export class SettingsPanel {
         this._labelProps    = [$Field.id, $Field.name];
         this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showHelpers   = new Set([]);
-        this.dataSource.data = TREE_DATA;
+        this.searchTerm = '';
+        this.searchTermScaffolds = '';
+        this.nodes = TREE_DATA;
     }
 
     get config() {
@@ -811,20 +920,45 @@ export class SettingsPanel {
         this.onToggleHelperPlane.emit(helper);
     }
 
-    transformer = (node, level) => {
-      return {
-        expandable: !!node.children && node.children.length > 0,
-        name: node.name,
-        level: level,
-      };
+    activateAllGroup = () => {
+      for(let group of this.groups) {
+        if(group.hidden) {
+          this.onToggleGroup.emit(group);
+        }
+      }
     }
 
-    hasChild = (_, node) => !!node.children && node.children.length > 0;
+    search(value, filterOptions, allOptions) {
+      this[filterOptions] = this[allOptions].filter((val) => val.name.toLowerCase().includes(value?.toLowerCase()));
+    }
+
+    searchScaffold(value) {
+      this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
+        const lowerCaseValue = value?.toLowerCase();
+        const displayTerm = ((scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name).toLowerCase() ;
+        return displayTerm.includes(lowerCaseValue) || scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) || scaffold?.name?.toLowerCase()?.includes(lowerCaseValue);
+      });
+    }
+
+    ngOnInit() {
+      this.filteredGroups = this.groups;
+      this.filteredScaffolds = this.scaffolds;
+    }
+
+    clearSearch(term, filterOptions, allOptions) {
+      this[term] = '';
+      this[filterOptions] = this[allOptions];
+    }
+
+    clearTreeSearch(filter, tree) {
+      tree.treeModel.filterNodes('');
+      filter.value = '';
+    }
 }
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule, MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule, MatTreeModule],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule, MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule, TreeModule],
     declarations: [SettingsPanel, StopPropagation],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
