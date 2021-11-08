@@ -6,7 +6,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox'
 import {MatRadioModule} from '@angular/material/radio'
 import {keys} from 'lodash-bound';
 import {SearchBarModule} from './gui/searchBar';
-import {NestedTreeControl} from '@angular/cdk/tree';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
@@ -17,8 +16,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-// import {MatTreeNestedDataSource, MatTreeModule} from '@angular/material/tree';
-import { TreeModule, TreeModel, TreeNode } from '@circlon/angular-tree-component';
+import { TreeModule } from '@circlon/angular-tree-component';
 /**
  * @ignore
  */
@@ -180,7 +178,7 @@ const TREE_DATA= [
 
                 <!--Dynamic groups-->
 
-                
+
 
                 <mat-accordion *ngIf="!!dynamicGroups">
                   <mat-expansion-panel>
@@ -195,6 +193,7 @@ const TREE_DATA= [
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
                           <input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>
+                          <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearTreeSearch(filter, tree)" />
                         </div>
                         <button mat-raised-button>Activate all</button>
                       </div>
@@ -423,6 +422,126 @@ const TREE_DATA= [
           height: auto;
           display: flex;
           width: 100%;
+        }
+
+        :host ::ng-deep .angular-tree-component {
+          padding: 0 1.067rem;
+          max-width: 100%;
+          width: auto;
+          display: block;
+        }
+
+        :host ::ng-deep .node-content-wrapper {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          padding: 0;
+          border-radius: 0;
+        }
+
+        :host ::ng-deep .angular-tree-component {
+          cursor: default;
+        }
+
+        :host ::ng-deep .node-content-wrapper-focused {
+          background: transparent;
+          box-shadow: none;
+        }
+
+        :host ::ng-deep .node-drop-slot {
+          height: 0.06667rem;
+          background: ${COLORS.inputBorderColor};
+          margin: 0.5334rem 0 0;
+          display: none;
+        }
+
+        :host ::ng-deep .node-content-wrapper:hover {
+          box-shadow: none;
+          background: transparent;
+        }
+
+        :host ::ng-deep .node-content-wrapper tree-node-content {
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+        }
+
+        :host ::ng-deep tree-node-collection > div > tree-node {
+          display: block;
+        }
+
+        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node + tree-node {
+          border-top: 0.067rem solid ${COLORS.inputBorderColor};
+          padding-top: 0.534rem;
+          margin-top: 0.534rem;
+        }
+
+        :host ::ng-deep tree-node-expander {
+          display: block;
+        }
+
+        :host ::ng-deep tree-node-expander * {
+          box-sizing: border-box;
+        }
+
+        :host ::ng-deep .toggle-children-wrapper {
+          display: block;
+        }
+
+        :host ::ng-deep .toggle-children {
+          display: block;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          margin-right: 0.8rem;
+          background: none;
+          top: 0;
+          border-width: 0.23334rem 0 0.23334rem 0.26667rem;
+          border-color: transparent transparent transparent ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node > .tree-node > tree-node-wrapper > .node-wrapper {
+          color: ${COLORS.black}
+        }
+
+        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node > .tree-node > tree-node-wrapper > .node-wrapper .node-content-wrapper tree-node-content > span {
+          border-color: transparent transparent transparent ${COLORS.black};
+        }
+
+        :host ::ng-deep tree-node-collection > div > tree-node:last-child .node-drop-slot:last-child {
+          display: none;
+          margin-top: 0;
+        }
+
+        :host ::ng-deep .toggle-children-wrapper {
+          padding: 0
+        }
+
+        :host ::ng-deep .node-content-wrapper tree-node-content > span {
+          flex-grow: 1;
+        }
+
+        :host ::ng-deep .node-content-wrapper tree-node-content .mat-slide-toggle {
+          width: auto !important;
+        }
+
+        :host ::ng-deep .node-content-wrapper:hover {
+          box-shadow: none;
+        }
+
+        :host ::ng-deep .node-wrapper {
+          min-height: 0.067rem;
+          padding: 0.267rem 0;
+          font-size: 0.8rem;
+          line-height: 1.067rem;
+          flex-grow: 1;
+          display: flex;
+          align-items: center;
+          color: ${COLORS.inputTextColor};
+        }
+
+        :host ::ng-deep tree-node-children .node-drop-slot {
+          display: none;
         }
 
         :host ::ng-deep .mat-tree-node {
@@ -829,6 +948,11 @@ export class SettingsPanel {
     clearSearch(term, filterOptions, allOptions) {
       this[term] = '';
       this[filterOptions] = this[allOptions];
+    }
+
+    clearTreeSearch(filter, tree) {
+      tree.treeModel.filterNodes('');
+      filter.value = '';
     }
 }
 
