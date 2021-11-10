@@ -4,4 +4,4 @@
 --require mocha-test-shim.js
 --require source-map-support/register
 --require jsdom-global/register
-test/**/chain.spec.js
+test/**/*.spec.js

@@ -11,6 +11,7 @@ import {
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
+import * as XLSX from "xlsx";
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
@@ -311,6 +312,79 @@ export const showGroups = (groups, ids) => {
     });
     [...groupsToShow].forEach(g => g.show());
 };
+
+/**
+ * Prepares JSON input model for export to Excel
+ * @param inputModel - graph or scaffold model
+ * @param prop - container property for nested resources, i., groups or components
+ * @param propNames - valid resource schema properties mapped to the main sheet
+ * @param sheetNames - valid resource schema properties converted to Excel sheets
+ */
+export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
+    let modelProps = {}
+    inputModel::keys().forEach(key => {
+        //Group properties for "main" page
+        if (propNames.find(y => y === key)) {
+            modelProps[key] = inputModel[key];
+            delete inputModel[key];
+        } else {
+            //Remove properties that are not relationships
+            if (!sheetNames.find(y => y === key)) {
+                delete inputModel[key];
+            }
+        }
+    })
+    inputModel.main = [modelProps];
+    for (let i = 0; i < (inputModel[prop]||[]).length; i++){
+        let group = inputModel[prop][i];
+        group::keys().forEach(key => {
+            //Cannot convert nested resources, flatten the model
+            if (group[key]::isObject() && group[key].id){
+                if (sheetNames.includes(key)){
+                    inputModel[key] = inputModel[key] || [];
+                    inputModel[key].push(group[key]::cloneDeep());
+                    group[key] = group[key].id;
+                }
+            }
+        })
+    }
+    inputModel::keys().forEach(key => {
+        const objToStr = obj => obj::isObject()? (obj.id ? obj.id : JSON.stringify(obj)): obj;
+        (inputModel[key]||[]).forEach(resource => {
+            if (resource.levels){
+                resource.levelTargets = [];
+                (resource.levels||[]).forEach((level, i) => {
+                    if (level && level.target){
+                        resource.levelTargets.push(i+":"+getID(level.target))
+                    }
+                })
+                resource.levelTargets = resource.levelTargets.join(",");
+                delete resource.levels;
+            }
+            if (resource.border){
+                const borderNames = ["inner", "radial1", "outer", "radial2"];
+                if (resource.border.borders){
+                    for (let i = 0; i < 4; i++){
+                        if (resource.border.borders[i] && resource.border.borders[i].hostedNodes) {
+                            resource[borderNames[i]] = resource.border.borders[i].hostedNodes.join(",");
+                        }
+                    }
+                }
+                delete resource.border;
+            }
+            resource::keys().forEach(prop => {
+                if (resource[prop]::isArray()) {
+                    resource[prop] = resource[prop].map(value => objToStr(value)).join(",");
+                } else {
+                    if (resource[prop]::isObject()) {
+                        //Replace resource objects with IDs, stringify simple objects (i.e., "layout")
+                        resource[prop] = objToStr(resource[prop]);
+                    }
+                }
+            })
+        })
+    })
+}
 
 /**
  * Determines if at least one of the given schema references extend a certain class

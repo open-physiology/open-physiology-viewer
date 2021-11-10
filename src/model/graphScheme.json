@@ -768,6 +768,13 @@
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$ref": "#/definitions/Group",
       "properties": {
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
+          }
+        },
         "imports": {
           "description": "URLs of published ApiNATOMY models to merge with the current model",
           "type": "array",
@@ -2198,13 +2205,6 @@
           "description": "Resource description, comments, modeling assumptions, etc.",
           "type": "string",
           "advanced": true
-        },
-        "localConventions": {
-          "description": "Mapping from local identifiers to global identifiers.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CurieMapping"
-          }
         },
         "external": {
           "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",

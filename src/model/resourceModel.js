@@ -38,6 +38,8 @@ import {logger, $LogMsg} from './logger';
  * @property {Array<Object>} assign
  * @property {Array<Object>} interpolate
  * @property {Object} generatedFrom
+ * @property {Array<Resource>} publications
+ * @property {Array<Resource>} external
  */
 export class Resource{
     constructor(id, clsName) {

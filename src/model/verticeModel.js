@@ -5,7 +5,7 @@ import {
     $Prefix,
     getID, findResourceByID, getOrCreateNode, $SchemaClass
 } from "./utils";
-import {keys, merge, pick, isString} from "lodash-bound";
+import {keys, merge, pick, isString, isArray} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
 export class Vertice extends VisualResource{
@@ -219,8 +219,20 @@ export class Node extends Vertice {
         });
     }
 
-    static addLyphToHostMap(hostLyph, array, resMap){
-        (array||[]).forEach(e => {
+    /**
+     * Adds internal lyph nodes to the global resource map
+     * @param hostLyph
+     * @param nodes
+     * @param resMap
+     * @returns {Object} Updated resource map
+     */
+    static addLyphToHostMap(hostLyph, nodes, resMap){
+        if (nodes && !nodes::isArray()){
+            logger.warn($LogMsg.RESOURCE_ARRAY_EXPECTED, hostLyph.id,
+                $Field.hostedNodes + " or " + $Field.internalNodes, nodes);
+            return;
+        }
+        (nodes||[]).forEach(e => {
             let nodeID = getID(e);
             if (!nodeID || !nodeID::isString()) {
                 logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);

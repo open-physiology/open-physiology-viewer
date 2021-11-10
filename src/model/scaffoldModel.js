@@ -13,10 +13,10 @@ import {
     keys, merge,
     pick
 } from "lodash-bound";
-import {$Field, $SchemaClass, $SchemaType, getFullID, schemaClassModels} from "./utils";
+import {$Field, $SchemaClass, $SchemaType, prepareForExport, getFullID, getID, schemaClassModels} from "./utils";
 import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
-
+import * as XLSX from "xlsx";
 
 /**
  * @property logger
@@ -36,13 +36,11 @@ export class Scaffold extends Component {
         delete schema.oneOf;
         schema.$ref = "#/definitions/Scaffold";
         let resVal = V.validate(json, schema);
-        logger.clear();
 
         let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
         inputModel.class = inputModel.class || $SchemaClass.Scaffold;
 
         let standalone = entitiesByID === undefined;
-
         //Copy existing entities to a map to enable nested model instantiation
         /**
          * @property waitingList
@@ -93,9 +91,6 @@ export class Scaffold extends Component {
             }
         });
 
-        //Log info about the number of generated resources
-        logger.info($LogMsg.SCAFFOLD_RESOURCE_NUM, this.id, entitiesByID::keys().length - before);
-
         if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);
             let resources = added.filter(id => entitiesByID[getFullID(namespace,id)].class !== $SchemaClass.External);
@@ -116,8 +111,9 @@ export class Scaffold extends Component {
         (res.components||[]).forEach(component => component.includeRelated());
 
         res.generated = true;
+        //Log info about the number of generated resources
+        logger.info($LogMsg.SCAFFOLD_RESOURCE_NUM, this.id, entitiesByID::keys().length - before);
         res.logger = logger;
-
         return res;
     }
 
@@ -237,7 +233,18 @@ export class Scaffold extends Component {
         return model;
     }
 
-    static jsonToExcel(inputModel) {
+    static jsonToExcel(json) {
+        const propNames = schemaClassModels[$SchemaClass.Scaffold].propertyNames;
+        const sheetNames = schemaClassModels[$SchemaClass.Scaffold].relationshipNames;
+        let inputModel = json::cloneDeep();
+        const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        prepareForExport(inputModel, $Field.components, propNames, sheetNames);
+        inputModel::keys().forEach(key => {
+            const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(inputModel[key]||[]);
+    		XLSX.utils.book_append_sheet(wb, ws, key);
+        })
+        XLSX.writeFile(wb, (inputModel.id||"scaffold") + "-converted.xlsx");
+        return wb;
     }
 
     /**

@@ -1,6 +1,6 @@
 import {schema} from './graphModel';
 import {getClassName, schemaClassModels, $SchemaClass, $Field} from "./utils";
-import {modelClasses, excelToJSON, fromJSON, loadModel, joinModels, isScaffold} from "./modelClasses";
+import {modelClasses, excelToJSON, jsonToExcel, fromJSON, loadModel, joinModels, isScaffold} from "./modelClasses";
 
 export {
     schema,
@@ -8,6 +8,7 @@ export {
     loadModel,
     isScaffold,
     excelToJSON,
+    jsonToExcel,
     fromJSON,
     joinModels,
     getClassName,

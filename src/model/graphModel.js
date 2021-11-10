@@ -18,11 +18,14 @@ import {
     getFullID,
     getID,
     LYPH_TOPOLOGY,
-    getGenName, schemaClassModels
+    getGenName, schemaClassModels,
+    prepareForExport
 } from "./utils";
 import {extractModelAnnotation, getItemType, strToValue, validateValue, levelTargetsToLevels} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
+import * as XLSX from "xlsx";
+//Do not include modelClasses here, it creates circular dependency
 
 export { schema };
 
@@ -76,8 +79,7 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
     }
 
     if (schema.definitions) {
-        schema.definitions::entries()
-            .forEach(([did, def]) => schemaToContext(def, context));
+        schema.definitions::values().forEach(def => schemaToContext(def, context));
     } else {
         if (id !== null && schemaIsId(schema)) {
             context[id] = {"@id": prefix.concat(id),
@@ -120,7 +122,6 @@ export class Graph extends Group{
         delete schema.oneOf;
         schema.$ref = "#/definitions/Graph";
         let resVal = V.validate(json, schema);
-        logger.clear();
 
         //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
@@ -178,9 +179,6 @@ export class Graph extends Group{
                 }
             }
         });
-
-        //Log info about the number of generated resources
-        logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
 
         if (resVal.errors && resVal.errors.length > 0){
             logger.error($LogMsg.SCHEMA_GRAPH_ERROR, ...resVal.errors.map(e => e::pick("message", "instance", "path")));
@@ -274,10 +272,12 @@ export class Graph extends Group{
         res.generated = true;
         res.mergeScaffoldResources();
 
-        res.logger = logger;
         res.modelClasses = modelClasses;
         res.createForceLinks();
 
+        //Log info about the number of generated resources
+        logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
+        res.logger = logger;
         return res;
     }
 
@@ -313,15 +313,17 @@ export class Graph extends Group{
                         nodes[i] = lnk[prop];
                     }
                 });
-                if (nodes[0] && nodes[1]){
+                if (nodes[0] && nodes[1] && (nodes[0].id !== nodes[1].id)){
                     let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
-                    let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
-                    this.links.push(force);
-                    group_json.links.push(force);
-                    [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
-                        nodes[i][prop] = nodes[i][prop] || [];
-                        nodes[i][prop].push(force);
-                    })
+                    if (!this.links.find(x => x.id === force_json.id)){
+                        let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
+                        this.links.push(force);
+                        group_json.links.push(force);
+                        [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
+                            nodes[i][prop] = nodes[i][prop] || [];
+                            nodes[i][prop].push(force);
+                        })
+                    }
                 }
             }
         })
@@ -331,7 +333,7 @@ export class Graph extends Group{
 
     includeToGroups(){
         let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames::keys();
-        relClassNames.forEach((key) => (this[key]||[]).forEach(r => r.includeToGroup(key)));
+        relClassNames.forEach((key) => (this[key]||[]).forEach(r => r.includeToGroup && r.includeToGroup(key)));
     }
 
     /**
@@ -370,8 +372,10 @@ export class Graph extends Group{
             }
             let fields = schemaClassModels[clsName].fieldMap;
             let propNames = schemaClassModels[clsName].propertyNames;
-
             const convertValue = (key, value) => {
+                if (key === "levelTargets" || borderNames.includes(key)) {
+                    return value;
+                }
                 if (!fields[key]) {
                     logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
                     return;
@@ -381,7 +385,6 @@ export class Graph extends Group{
                 while (res.endsWith(',')){
                     res = res.slice(0, -1).trim();
                 }
-
                 if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
                     res = {min: parseInt(res), max: parseInt(res)};
                 } else {
@@ -428,13 +431,17 @@ export class Graph extends Group{
                     }
                 });
                 table[i] = resource;
-
-                let borderConstraints = resource::pick(borderNames);
-                if (borderConstraints::values().filter(x => !!x).length > 0) {
-                    resource.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {hostedNodes: [borderConstraints[borderName]]} : {})};
+                if (clsName === $SchemaClass.Lyph) {
+                    let borderConstraints = resource::pick(borderNames);
+                    if (borderConstraints::values().filter(x => !!x).length > 0) {
+                        resource.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {
+                            hostedNodes: borderConstraints[borderName].split(",")} : {})};
+                    }
+                    table[i] = resource::omit(borderNames);
                 }
-                table[i] = resource::omit(borderNames);
-                table[i] = levelTargetsToLevels(resource);
+                if (clsName === $SchemaClass.Chain) {
+                    table[i] = levelTargetsToLevels(resource);
+                }
             }
             //Remove headers and empty objects
             model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
@@ -443,9 +450,31 @@ export class Graph extends Group{
         return model;
     }
 
-    static jsonToExcel(inputModel) {
+    /**
+     * Convert input JSON model to Excel
+     * @param json - input model
+     */
+    static jsonToExcel(json) {
+        const propNames = schemaClassModels[$SchemaClass.Graph].propertyNames.filter(x => x !== "localConventions");
+        const sheetNames = ["localConventions", ...schemaClassModels[$SchemaClass.Graph].relationshipNames];
+        let inputModel = json::cloneDeep();
+        prepareForExport(inputModel, $Field.groups, propNames, sheetNames);
+        const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        inputModel::keys().forEach(key => {
+            const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(inputModel[key]||[]);
+    		XLSX.utils.book_append_sheet(wb, ws, key);
+        })
+        XLSX.writeFile(wb, (inputModel.id||"mainGraph") + "-converted.xlsx");
+        return wb;
     }
 
+    /**
+     * Create dynamic group for query results
+     * @param qNumber - Query number
+     * @param qName - Group name
+     * @param json  - Group content
+     * @param modelClasses - Resource class definitions
+     */
     createDynamicGroup(qNumber, qName, json, modelClasses = {}){
 
         const {nodes, links, lyphs} = json;
@@ -548,19 +577,6 @@ export class Graph extends Group{
     }
 
     /**
-     * Serialize the map of all resources in JSON
-     */
-    entitiesToJSON(){
-        let res = {
-            "id": this.id,
-            "resources": {}
-        };
-        (this.entitiesByID||{})::entries().forEach(([id,obj]) =>
-            res.resources[id] = (obj instanceof Resource) ? obj.toJSON() : obj);
-        return res;
-    }
-
-    /**
      * Serialize the map of all resources to JSONLD
      */
     entitiesToJSONLD(){
@@ -608,9 +624,8 @@ export class Graph extends Group{
             return obj;
         }
 
-        (this.entitiesByID||{})::entries()
-            .forEach(([id,obj]) =>
-                res["@graph"].push((obj instanceof Resource) ? addType(obj.toJSON()) : obj));
+        (this.entitiesByID||{})::values()
+            .forEach(obj => res["@graph"].push((obj instanceof Resource) ? addType(obj.toJSON()) : obj));
 
         return res;
     }

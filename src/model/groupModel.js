@@ -43,7 +43,6 @@ export class Group extends Resource {
      * @returns {*} - Graph model - model suitable for visualization
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
-
         json.class = json.class || $SchemaClass.Group;
         let namespace = json.namespace || defaultNamespace;
         if (json.generated) {
@@ -303,7 +302,7 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static expandGroupTemplates(json, modelClasses){
-        if (!modelClasses){ return; }
+        if (!modelClasses || modelClasses === {}){ return; }
         let relClassNames = schemaClassModels[$SchemaClass.Group].relClassNames;
         [$Field.channels, $Field.chains].forEach(relName => {
             let clsName = relClassNames[relName];

@@ -14,6 +14,7 @@ import './modelView';
 import {extractCoords} from './utils';
 
 const {Graph} = modelClasses;
+
 /**
  * A closure-based component for the force-directed 3d graph layout
  */

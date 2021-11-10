@@ -14,14 +14,22 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import {MainToolbarModule} from "../components/mainToolbar";
 import {SnapshotToolbarModule} from "../components/snapshotToolbar";
 import {StateToolbarModule} from "../components/stateToolbar";
-import {WebGLSceneModule} from '../components/webGLScene';
 import {ResourceEditorModule} from '../components/gui/resourceEditor';
 import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
 import {LayoutEditorModule} from "../components/layoutEditor";
 //import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
-import {modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold, $SchemaClass} from '../model/index';
+import {
+    modelClasses,
+    schema,
+    loadModel,
+    joinModels,
+    isScaffold,
+    fromJSON,
+    jsonToExcel,
+    $SchemaClass
+} from '../model/index';
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
@@ -32,9 +40,11 @@ import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
 
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
-import {$LogMsg} from "../model/logger";
+import {$LogMsg, logger} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/gui/importDialog";
+import {WebGLSceneModule} from '../components/webGLScene';
+
 import { enableProdMode } from '@angular/core';
 
 enableProdMode();
@@ -100,7 +110,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 (onLoadModel)       = "load($event)"
                 (onJoinModel)       = "join($event)"
                 (onMergeModel)      = "merge($event)"
-                (onExportModel)     = "save()"
+                (onExportModel)     = "save($event)"
                 (onImportExcelModel)= "load($event)" 
                 (onToggleRepoPanel) = "toggleRepoPanel()"   
             >
@@ -131,7 +141,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             (editResource)="onEditResource($event)"
                             (scaffoldUpdated)="onScaffoldUpdated($event)">
                     </webGLScene>
-                </mat-tab>
+                </mat-tab> 
 
                 <!--Relationship graph-->
 <!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
@@ -299,6 +309,7 @@ export class TestApp {
     }
 
     create(){
+        logger.clear();
         this.model = {
             [$Field.name]        : "newModel-" + this._counter++,
             [$Field.created]     : this.currentDate,
@@ -390,14 +401,18 @@ export class TestApp {
         }
     }
 
-    save(){
-        if (this._scaffoldUpdated){
-            this.saveScaffoldUpdates();
-            this._scaffoldUpdated = false;
+    save(format){
+        if (format === "excel"){
+            jsonToExcel(this._model);
+        } else {
+            if (this._scaffoldUpdated) {
+                this.saveScaffoldUpdates();
+                this._scaffoldUpdated = false;
+            }
+            let result = JSON.stringify(this._model, null, 4);
+            const blob = new Blob([result], {type: 'text/plain'});
+            FileSaver.saveAs(blob, (this._model.id ? this._model.id : 'mainGraph') + '-model.json');
         }
-        let result = JSON.stringify(this._model, null, 4);
-        const blob = new Blob([result], {type: 'text/plain'});
-        FileSaver.saveAs(blob, (this._model.id? this._model.id: 'mainGraph') + '-model.json');
     }
 
     loadFromRepo({fileName, fileContent}){
