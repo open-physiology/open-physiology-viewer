@@ -24,7 +24,7 @@ import {GlobalErrorHandler} from '../services/errorHandler';
 import {modelClasses, schema, fromJSON, loadModel, joinModels, isScaffold, $SchemaClass} from '../model/index';
 
 import 'hammerjs';
-import initModel from '../data/graph_reduced.json';
+import initModel from '../data/too-map.json';
 
 import 'font-awesome/css/font-awesome.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -36,6 +36,7 @@ import {$LogMsg} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/gui/importDialog";
 import { enableProdMode } from '@angular/core';
+import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
 
 enableProdMode();
 
@@ -348,26 +349,6 @@ export class TestApp {
         }
     }
 
-    removeDisconnectedObjects(model, joinModel) {
-
-      let connected = joinModel.chains
-                      .map((c) => c.wiredTo)
-                      .concat(model.anchors
-                      .map((c) => c.hostedBy))
-                      .concat(joinModel.chains
-                      .map((c) => c.hostedBy))
-                      .filter((c) => c !== undefined); 
-                      
-
-        return Object.assign(model, 
-            { 
-                regions: model.regions.filter((r) => connected.indexOf(r.id) > -1 )
-                , wires: model.wires.filter((r) => connected.indexOf(r.id) > -1 )
-            }
-        );
-
-    }
-
     applyScaffold(modelA, modelB){
       const applyScaffold = (model, scaffold) => {
           model.scaffolds = model.scaffolds || [];
@@ -391,10 +372,10 @@ export class TestApp {
             throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
         if (isScaffold(this._model) !== isScaffold(newModel)){
-          this.model = this.removeDisconnectedObjects(this._model, newModel);
+          this.model = removeDisconnectedObjects(this._model, newModel);
           this.applyScaffold(this._model, newModel);         
         } else {
-          this.model = this.removeDisconnectedObjects(this._model, newModel);
+          this.model = removeDisconnectedObjects(this._model, newModel);
           let jointModel = joinModels(this._model, newModel, this._flattenGroups);
           jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
           this.model = jointModel;
