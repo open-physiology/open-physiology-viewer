@@ -26,7 +26,6 @@ export function expectNoErrors(graphData){
     let info      = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.INFO);
     let errors    = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
     expect(info).to.have.length.above(0);
-    console.log(errors);
     expect(errors).to.have.length(0);
 }
 
