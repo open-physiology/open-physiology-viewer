@@ -2,7 +2,7 @@ import {
     describe,
     it,
     before,
-    expect
+    expect, after
 } from './test.helper';
 import basalGanglia from './data/basalGanglia.json';
 import respiratory from './data/respiratory.json';
@@ -247,10 +247,11 @@ describe("Serialize scaffold", () => {
 
 describe("Create, save and load snapshots", () => {
     let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
+    });
 
     it("Serialized snapshot contains necessary fields", () => {
-        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
-
         const snapshot = modelClasses.Snapshot.fromJSON({
             [$Field.id]: getGenID("snapshot", graphData.id),
             [$Field.name]: getGenName("Snapshot for", graphData.name),
@@ -315,8 +316,11 @@ describe("Create, save and load snapshots", () => {
         expect(restoredSnapshot.active.camera).to.have.property("position");
         expect(restoredSnapshot.active.camera.position).to.have.property("y").that.equals(200);
     });
-});
 
+    after(() => {
+        graphData.logger.clear();
+    });
+});
 
 describe("Serialize data to JSON-LD", () => {
     let graphData;
@@ -349,4 +353,7 @@ describe("Serialize data to JSON-LD", () => {
         graphData.entitiesToJSONLDFlat(callback);
     });
 
+    after(() => {
+        graphData.logger.clear();
+    });
 });

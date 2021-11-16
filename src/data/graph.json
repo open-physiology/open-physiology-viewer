@@ -2949,6 +2949,9 @@
   "id": "keast_bladder",
   "name": "Keast Bladder Model",
   "namespace": "org.apinatomy.keast-bladder",
+  "imports": [
+    "https://api.github.com/repositories/100824100/contents/test/snapshots/snapshot_for_keast_bladder.json"
+  ],
   "scaffolds": [
     {
       "created": "2020-12-01",
@@ -4313,4 +4316,4 @@
       ]
     }
   ]
-}
+} 

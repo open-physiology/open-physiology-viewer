@@ -220,5 +220,7 @@ describe("Link joint chains (Keast Spinal)", () => {
         expect(firstInChain2.prevChainEndLevels[0]).to.have.property('id').that.equals(lastInChain1.id);
     });
 
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });

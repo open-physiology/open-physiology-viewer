@@ -25,7 +25,9 @@ import {
     schema,
     loadModel,
     joinModels,
+    isGraph,
     isScaffold,
+    isSnapshot,
     fromJSON,
     jsonToExcel,
     $SchemaClass
@@ -46,6 +48,7 @@ import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 
 import { enableProdMode } from '@angular/core';
+import {throwError} from "rxjs";
 
 enableProdMode();
 
@@ -333,26 +336,36 @@ export class TestApp {
             });
             dialogRef.afterClosed().subscribe(result => {
                 if (result !== undefined) {
+                    let scaffolds = (result||[]).filter(m => isScaffold(m));
+                    let groups = (result||[]).filter(m => isGraph(m));
+                    let snapshots = (result||[]).filter(m => isSnapshot(m));
                     this._model.scaffolds = this._model.scaffolds || [];
                     this._model.groups = this._model.groups || [];
-                    result.forEach(newModel => {
-                        if (isScaffold(newModel)) {
-                            const scaffoldIdx = this._model.scaffolds.findIndex(s => s.id === newModel.id);
-                            if (scaffoldIdx === -1) {
-                                this._model.scaffolds.push(newModel);
-                            } else {
-                                this._model.scaffolds[scaffoldIdx] = newModel;
-                            }
+                    scaffolds.forEach(newModel => {
+                        const scaffoldIdx = this._model.scaffolds.findIndex(s => s.id === newModel.id);
+                        if (scaffoldIdx === -1) {
+                            this._model.scaffolds.push(newModel);
                         } else {
-                            const groupIdx = this._model.groups.findIndex(s => s.id === newModel.id);
-                            if (groupIdx === -1) {
-                                this._model.groups.push(newModel);
-                            } else {
-                                this._model.groups[groupIdx] = newModel;
-                            }
+                            this._model.scaffolds[scaffoldIdx] = newModel;
                         }
                     });
-                    this.model = this._model;
+                    groups.forEach(newModel => {
+                        const groupIdx = this._model.groups.findIndex(s => s.id === newModel.id);
+                        if (groupIdx === -1) {
+                            this._model.groups.push(newModel);
+                        } else {
+                            this._model.groups[groupIdx] = newModel;
+                        }
+                    });
+                    if (groups.length > 0 || scaffolds.length > 0) {
+                       this.model = this._model;
+                    }
+                    if (snapshots.length > 0){
+                        this.loadSnapshot(snapshots[0]);
+                        if (snapshots.length > 1){
+                            logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
+                        }
+                    }
                 }
             });
         }

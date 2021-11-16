@@ -115,6 +115,24 @@ export function isScaffold(inputModel){
 }
 
 /**
+ * Determines whether the given JSON specification defines a snapshot model
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isSnapshot(inputModel){
+    return !!(inputModel.model && inputModel.states);
+}
+
+/**
+ * Determines whether the given JSON specification defines a connectivity model
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isGraph(inputModel){
+    return !!(inputModel.lyphs || inputModel.links || inputModel.nodes);
+}
+
+/**
  * Convert model from Excel template to JSON input specification
  * @param inputModel - Excel input specification of connectivity model or scaffold
  * @returns {*}

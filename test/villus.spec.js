@@ -3,7 +3,7 @@ import {
     it,
     beforeEach,
     afterEach,
-    expect,
+    expect, after,
 } from './test.helper';
 import villus from './data/basicVillus';
 
@@ -18,7 +18,9 @@ describe("Generate groups from villus templates", () => {
     it("Villus template expanded", () => {
     });
 
-    afterEach(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 

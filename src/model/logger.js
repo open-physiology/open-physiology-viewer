@@ -103,6 +103,7 @@ export const $LogMsg = {
 
     SNAPSHOT_NO_SCAFFOLD        : "Failed to find snapshot state scaffold in the model",
     SNAPSHOT_NO_ANCHOR          : "Failed to find snapshot state anchor in the model",
+    SNAPSHOT_IMPORT_MULTI       : "Cannot import multiple snapshots, all but first are ignored. Please revise the model imports.",
 
     TREE_CHAIN_UNDEFINED        : "Cannot create omega tree instances: canonical tree chain undefined!",
     TREE_NO_CHAIN               : "Cannot create omega tree instances: canonical tree chain not found or empty",

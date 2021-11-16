@@ -21,7 +21,14 @@ import {
     getGenName, schemaClassModels,
     prepareForExport
 } from "./utils";
-import {extractModelAnnotation, getItemType, strToValue, validateValue, levelTargetsToLevels} from './utilsParser';
+import {
+    extractModelAnnotation,
+    getItemType,
+    strToValue,
+    validateValue,
+    levelTargetsToLevels,
+    borderNamesToBorder
+} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
 import * as XLSX from "xlsx";
@@ -432,12 +439,7 @@ export class Graph extends Group{
                 });
                 table[i] = resource;
                 if (clsName === $SchemaClass.Lyph) {
-                    let borderConstraints = resource::pick(borderNames);
-                    if (borderConstraints::values().filter(x => !!x).length > 0) {
-                        resource.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {
-                            hostedNodes: borderConstraints[borderName].split(",")} : {})};
-                    }
-                    table[i] = resource::omit(borderNames);
+                    table[i] = borderNamesToBorder(resource, borderNames);
                 }
                 if (clsName === $SchemaClass.Chain) {
                     table[i] = levelTargetsToLevels(resource);

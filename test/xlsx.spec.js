@@ -3,7 +3,7 @@ import {
     it,
     beforeEach,
     afterEach,
-    expect,
+    expect, after,
 } from './test.helper';
 
 import keastExcelModel from './excel/Keast_Flatmap_051420.xlsx';
@@ -12,7 +12,7 @@ import testModel from './excel/test_model.xlsx';
 import {loadModel, jsonToExcel, excelToJSON} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
-import {levelTargetsToLevels} from "../src/model/utilsParser";
+import {levelTargetsToLevels, borderNamesToBorder} from "../src/model/utilsParser";
 
 describe("Load Excel templates", () => {
     let graphData;
@@ -42,7 +42,9 @@ describe("Load Excel templates", () => {
         expect(graphData.chains[0]).to.be.instanceOf(modelClasses.Chain);
     });
 
-    afterEach(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 describe("Neurulate Excel template without out-of-memory error ", () => {
@@ -66,7 +68,9 @@ describe("Neurulate Excel template without out-of-memory error ", () => {
         expect(neurons.length).to.be.equal(19);
     });
 
-    afterEach(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 describe("Convert excel data to JSON", () => {
@@ -87,7 +91,9 @@ describe("Convert excel data to JSON", () => {
         expect(s41.internalLyphs).to.be.an("array").that.has.length(4);
     });
 
-    afterEach(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 describe("Maps special Excel columns to ApiNATOMY JSON schema properties", () => {
@@ -101,9 +107,25 @@ describe("Maps special Excel columns to ApiNATOMY JSON schema properties", () =>
         expect(modifiedResource.levels[5]).to.have.property("target").that.equals("n5");
     });
 
-    //TODO Add test
-    // it("Maps inner, radial1, outer, radial2 to border.borders", () => {
-    // });
+    it("Maps inner, radial1, outer, radial2 to border.borders", () => {
+        let resource = {id: "l0", layers: ["l1", "l2"], inner: "n1", radial1: "n2", outer: "n3", radial2: "n4"};
+        let modifiedResource = borderNamesToBorder(resource, ["inner", "radial1", "outer", "radial2"]);
+        expect(modifiedResource).to.have.property("border");
+        expect(modifiedResource.border).to.have.property("borders");
+        expect(modifiedResource.border.borders).to.have.length(4);
+        expect(modifiedResource.border.borders[0]).to.have.property("hostedNodes");
+        expect(modifiedResource.border.borders[1]).to.have.property("hostedNodes");
+        expect(modifiedResource.border.borders[2]).to.have.property("hostedNodes");
+        expect(modifiedResource.border.borders[3]).to.have.property("hostedNodes");
+        expect(modifiedResource.border.borders[0].hostedNodes).to.have.length(1);
+        expect(modifiedResource.border.borders[1].hostedNodes).to.have.length(1);
+        expect(modifiedResource.border.borders[2].hostedNodes).to.have.length(1);
+        expect(modifiedResource.border.borders[3].hostedNodes).to.have.length(1);
+        expect(modifiedResource.border.borders[0].hostedNodes[0]).to.equal("n1");
+        expect(modifiedResource.border.borders[1].hostedNodes[0]).to.equal("n2");
+        expect(modifiedResource.border.borders[2].hostedNodes[0]).to.equal("n3");
+        expect(modifiedResource.border.borders[3].hostedNodes[0]).to.equal("n4");
+    });
 });
 
 describe("Convert excel data to JSON and back", () => {
@@ -131,7 +153,7 @@ describe("Convert excel data to JSON and back", () => {
         expect(model2.lyphs[0].border.borders[3]).to.have.property("hostedNodes").that.has.length(2);
     });
 
-    afterEach(() => {});
+    after(() => {});
 });
 
 

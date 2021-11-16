@@ -123,3 +123,12 @@ export function levelTargetsToLevels(resource) {
     return resource;
 }
 
+export function borderNamesToBorder(resource, borderNames){
+    let borderConstraints = resource::pick(borderNames);
+    if (borderConstraints::values().filter(x => !!x).length > 0) {
+        resource.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {
+            hostedNodes: borderConstraints[borderName].split(",")} : {})};
+    }
+    return resource::omit(borderNames);
+}
+

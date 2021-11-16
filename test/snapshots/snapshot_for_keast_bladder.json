@@ -2,7 +2,7 @@
   "id": "snapshot_scaffold-test_1",
   "name": "Snapshot for Keast Bladder Model 1",
   "class": "Snapshot",
-  "model": "scaffold-test",
+  "model": "keast_bladder",
   "annotation": {
     "namespace": "org.apinatomy.keast-bladder"
   },

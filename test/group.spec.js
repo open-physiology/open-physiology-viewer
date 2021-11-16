@@ -54,6 +54,7 @@ describe("Nested groups", () => {
         );
     });
 
-
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
