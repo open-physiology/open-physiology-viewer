@@ -204,6 +204,7 @@ export class Chain extends GroupTemplate {
                 prev = link;
                 mergeGenResource(chain.group, parentGroup, link, $Field.links);
                 chain.levels[i] = link.id;
+                link.levelIn = chain.id;
             }
             chain.numLevels = chain.levels.length;
         }

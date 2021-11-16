@@ -26,6 +26,10 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(ch1).to.have.property("numLevels").that.equal(16);
         expect(ch1).to.have.property("levels").that.is.an('array');
         expect(ch1.levels.length).to.be.equal(16);
+        for (let i = 0; i < 16; i++){
+            expect(ch1.levels[i]).to.have.property("levelIn");
+            expect(ch1.levels[i].levelIn).to.have.property("id").that.equals(ch1.id);
+        }
 
         expect(graphData).to.have.property("nodes");
         expect(graphData.nodes).to.be.an('array');
@@ -73,6 +77,10 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(t1).to.have.property("id").that.equal("nn1");
         expect(t1).to.have.property("numLevels").that.equal(7);
         expect(t1).to.have.property("levels").that.is.an('array');
+        for (let i = 0; i < 7; i++){
+            expect(t1.levels[i]).to.have.property("levelIn");
+            expect(t1.levels[i].levelIn).to.have.property("id").that.equals(t1.id);
+        }
         expect(t1.levels.length).to.be.equal(7);
         expect(graphData).to.have.property("lyphs");
         expect(graphData.lyphs).to.be.an('array');
@@ -194,6 +202,14 @@ describe("Link joint chains (Keast Spinal)", () => {
         const chain2 = graphData.chains.find(ch => ch.id === "t2");
         expect(chain1).has.property('levels').that.has.length.of(7);
         expect(chain2).has.property('levels').that.has.length.of(10);
+        for (let i = 0; i < 7; i++){
+            expect(chain1.levels[i]).to.have.property("levelIn");
+            expect(chain1.levels[i].levelIn).to.have.property("id").that.equals(chain1.id);
+        }
+        for (let i = 0; i < 10; i++){
+            expect(chain2.levels[i]).to.have.property("levelIn");
+            expect(chain2.levels[i].levelIn).to.have.property("id").that.equals(chain2.id);
+        }
         expect(collapsibleLinks).has.length.of(17);
     });
 
