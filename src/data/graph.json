@@ -2946,7 +2946,7 @@
       "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
     }
   ],
-  "id": "scaffold-test",
+  "id": "keast_bladder",
   "name": "Keast Bladder Model",
   "namespace": "org.apinatomy.keast-bladder",
   "scaffolds": [

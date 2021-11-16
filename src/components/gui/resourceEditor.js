@@ -18,7 +18,7 @@ import {UtilsModule} from "./utils";
 import {isArray, fromPairs, merge, values, entries, cloneDeep} from 'lodash-bound';
 import {HttpClientModule} from '@angular/common/http';
 import {getClassName, schemaClassModels} from '../../model/index';
-import {annotations} from "../config";
+import {annotations} from "../../data/config.json";
 import {FieldTableEditorModule} from "./fieldTableEditor";
 import {$Field, $SchemaClass, $SchemaType, getNewID, getGenID} from "../../model/utils";
 
