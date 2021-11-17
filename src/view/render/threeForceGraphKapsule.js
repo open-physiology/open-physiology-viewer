@@ -282,8 +282,6 @@ export default Kapsule({
         // Add WebGL objects
         state.graphData.createViewObjects(state);
 
-        //autoLayout(state.graphScene, state.graphData);
-
         // Feed data to force-directed layout
         let layout;
         // D3-force
@@ -312,6 +310,7 @@ export default Kapsule({
             } else { layout['tick'](); }
 
             state.graphData.updateViewObjects(state);
+            autoLayout(state.graphScene, state.graphData);
         }
     }
 });

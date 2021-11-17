@@ -91,11 +91,57 @@ function getNumberOfHorizontalLyphs(ar, total)
   return Math.floor(total / (ar + 1));  
 }
 
+function cloneTargetRotation(target, source) {
+  const r = target.rotation.clone();
+  source.setRotationFromEuler(r);
+}
+
+function cloneTargetGeometry(target, source) {
+  const g = target.geometry.clone();
+  source.geometry = g ;
+}
+
+function fitToTargetRegion(target, source) {
+  if (source.geometry)
+  {
+    target.geometry.computeBoundingBox();
+    source.geometry.computeBoundingBox();
+    const targetSize = target.geometry.boundingBox.getSize();
+    const sourceSize = source.geometry.boundingBox.getSize();
+    const sx = targetSize.x / sourceSize.x ;
+    const sy = targetSize.y / sourceSize.y ;
+    source.scale.setX(sx);
+    source.scale.setY(sy);
+  }
+} 
+
+function arrangeLyphsGrid(lyphs, h, v) {
+  const refLyph = lyphs[0];
+  let refPosition = refLyph.position ;
+  let refDimensions = getBoundingBoxDimensions(refLyph);
+  const actualDeltaX = refDimensions.width * ( 1 + LYPH_H_PERCENT_MARGIN );
+  const actualDeltaY = refDimensions.height * ( 1 + LYPH_V_PERCENT_MARGIN );
+  let ix = 0 ;
+  
+  for ( const actualV = 0 ; actualV < v ; actualV++)
+  {
+    for ( const actualH = 0 ; actualH <  h; actualH++)
+    {
+      const targetX = refPosition.X + actualDeltaX ;
+      const targetY = refPosition.Y + actualDeltaY ;
+      lyphs[ix].position.x = targetX ;
+      lyphs[yx].position.Y = targetY ;
+      ix++;
+    }
+  }
+}
+
 function layoutLyphs(scene, hostLyphDic)
 {
   let all = [];
-  const kapsuleChildren = scene.children[scene.children.length-1].children ;
+  let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
+  let lyphs = getSceneObjectByModelClass(all, 'Lyph');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
     let host = all.find((c)=> c.userData.id == hostKey );
@@ -107,7 +153,7 @@ function layoutLyphs(scene, hostLyphDic)
       if (hostedElements)
       {
         //get number of lyhps
-        const hostedLyphs = all.filter((l) => hostedElements.indexOf(l.userData.id) > -1);
+        const hostedLyphs = lyphs.filter((l) => hostedElements.indexOf(l.userData.id) > -1);
         if (hostedLyphs.length > 0)
         {
           let hn = getNumberOfHorizontalLyphs(AR, hostedLyphs.length);
@@ -118,23 +164,14 @@ function layoutLyphs(scene, hostLyphDic)
   
           if ( hn > 0 && vn > 0 )
           {
-            //get width and height
-            const lyphTargetWidth  = hostDim.width  / hn ;
-            const lyphTargetHeight = hostDim.height / vn ;
-  
-            const lyphActualWidth = lyphTargetWidth   * ( 1 - 2*LYPH_H_PERCENT_MARGIN );
-            const lyphActualHeight = lyphTargetHeight * ( 1 - 2*LYPH_V_PERCENT_MARGIN );
-  
+            //let group = new THREE.Object3D();
             hostedLyphs.forEach((l)=> {
-              const lyphDims = getBoundingBoxDimensions(l);
-              const xs = lyphActualWidth / lyphDims.width ; 
-              const ys = lyphActualHeight / lyphDims.height ;
-              l.scale.set( xs, ys, 1);
-              // const center = host.geometry.boundingBox.center() ;
-              // l.translateX(center.X);
-              // l.translateY(center.Y);
-              // l.translateZ(center.Z);
-            })
+              fitToTargetRegion(host, l);
+              TargetRotation(host, l);
+            });
+            arrangeLyphsGrid(hostedLyphs, hn, hv);
+            //scale to fit 
+            //fitToTargetRegion(host, group);
           }
         }
       }
