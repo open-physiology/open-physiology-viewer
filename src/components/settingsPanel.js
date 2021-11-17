@@ -32,54 +32,6 @@ const COLORS = {
   headingBg: '#F1F1F1',
 };
 
-const TREE_DATA= [
-  {
-    name: 'Internal',
-    children: [
-      {name: 'K36'},
-      {name: 'K37'},
-      {name: 'K38'},
-      {name: 'K40'}
-    ]
-  },
-  {
-    name: 'Neuron 8',
-    children: [{
-      name: 'neuron',
-      children: [
-        {name: 'housing#img'},
-        {name: 'K104'},
-      ]
-    }]
-  },
-  {
-    name: 'IMG and PG',
-    children: [
-      {
-        name: 'Lyphs',
-        children: [
-          {name: 'housing#img'},
-          {name: 'K104'},
-        ]
-      },
-      {
-        name: 'Nodes',
-        children: [
-          {name: 'g102a'},
-          {name: 'g102b'},
-        ]
-      },
-      {
-        name: 'Links',
-        children: [
-          {name: 'lnk-K102'},
-          {name: 'lnk-K104'},
-        ]
-      }
-    ]
-  },
-];
-
 @Component({
     selector: 'settingsPanel',
     changeDetection: ChangeDetectionStrategy.Default,
@@ -139,45 +91,22 @@ const TREE_DATA= [
                           <input type="text" class="search-input" placeholder="Search for a group" name="searchTerm" [(ngModel)]="searchTerm" (input)="search($event.target.value, 'filteredGroups', 'groups')" />
                           <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')" />
                         </div>
-                        <button mat-raised-button (click)="activateAllGroup()">Activate all</button>
+                        <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
                       </div>
                       <div class="wrap" *ngFor="let group of filteredGroups">
                         <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                       </div>
+                      <!--Tree structure-->
+                      <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
+                        <ng-template #treeNodeTemplate let-node let-index="index">
+                          <span>{{node.data.name}}</span>
+                          <mat-slide-toggle></mat-slide-toggle>
+                        </ng-template>
+                      </tree-root> -->
+                      <!--Tree structure-->
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
-
-
-
-
-                <!--Dynamic groups-->
-
-                <!-- <mat-accordion *ngIf="!!dynamicGroups">
-                  <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        Dynamic groups
-                      </mat-panel-title>
-                    </mat-expansion-panel-header>
-
-                    <div class="default-box">
-                      <div class="default-box-header">
-                        <div class="search-bar">
-                          <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group"/>
-                        </div>
-                        <button mat-raised-button>Activate all</button>
-                      </div>
-                      <div class="wrap" *ngFor="let group of dynamicGroups">
-                        <mat-slide-toggle>{{group.name || group.id}}</mat-slide-toggle>
-                      </div>
-                    </div>
-                  </mat-expansion-panel>
-                </mat-accordion> -->
-
-                <!--Dynamic groups-->
-
 
 
                 <mat-accordion *ngIf="!!dynamicGroups">
@@ -192,17 +121,23 @@ const TREE_DATA= [
                       <div class="default-box-header">
                         <div class="search-bar">
                           <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>
+                          <input type="text" class="search-input" id="filter" #filter placeholder="Search for a dynamic group" name="searchDynamicTerm" [(ngModel)]="searchDynamicTerm" (input)="search($event?.target?.value, 'filteredDynamicGroups', 'dynamicGroups')" />
+                          <!--<input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>-->
                           <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearTreeSearch(filter, tree)" />
                         </div>
-                        <button mat-raised-button>Activate all</button>
+                        <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
                       </div>
-                      <tree-root [focused]="true" [nodes]="nodes" #tree>
+                      <div class="wrap" *ngFor="let group of filteredDynamicGroups">
+                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
+                      </div>
+                      <!--Tree structure-->
+                      <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
                         <ng-template #treeNodeTemplate let-node let-index="index">
                           <span>{{node.data.name}}</span>
                           <mat-slide-toggle></mat-slide-toggle>
                         </ng-template>
-                      </tree-root>
+                      </tree-root> -->
+                      <!--Tree structure-->
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
@@ -825,6 +760,7 @@ export class SettingsPanel {
     _selectedName;
     searchTerm = '';
     filteredGroups;
+    filteredDynamicGroups;
     searchTermScaffolds = '';
     filteredScaffolds;
     nodes;
@@ -873,7 +809,6 @@ export class SettingsPanel {
         this._showHelpers   = new Set([]);
         this.searchTerm = '';
         this.searchTermScaffolds = '';
-        this.nodes = TREE_DATA;
     }
 
     get config() {
@@ -920,9 +855,21 @@ export class SettingsPanel {
         this.onToggleHelperPlane.emit(helper);
     }
 
-    activateAllGroup = () => {
+    toggleAllGroups = () => {
+      let allVisible = this.groups.filter( group => group.hidden || group.undefined );
+
       for(let group of this.groups) {
-        if(group.hidden) {
+        if(group.hidden || allVisible.length == 0) {
+          this.onToggleGroup.emit(group);
+        }
+      }
+    }
+
+    toggleAllDynamicGroup = () => {
+      let allVisible = this.dynamicGroups.filter( group => group.hidden || group.undefined );
+
+      for(let group of this.dynamicGroups) {
+        if(group.hidden || allVisible.length == 0) {
           this.onToggleGroup.emit(group);
         }
       }
@@ -942,6 +889,7 @@ export class SettingsPanel {
 
     ngOnInit() {
       this.filteredGroups = this.groups;
+      this.filteredDynamicGroups = this.dynamicGroups;
       this.filteredScaffolds = this.scaffolds;
     }
 
