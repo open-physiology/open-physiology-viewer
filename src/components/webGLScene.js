@@ -7,11 +7,12 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import FileSaver  from 'file-saver';
 import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
 import * as THREE from 'three';
-import ThreeForceGraph from '../view/threeForceGraph';
+import ThreeForceGraph from '../view/render/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
+import { GeometryFactory } from '../view/util/geometryFactory'
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
@@ -331,50 +332,12 @@ export class WebGLSceneComponent {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-        this.mouse = new THREE.Vector2(0, 0);
+        this.mouse = GeometryFactory.instance().createVector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
         this.resizeToDisplaySize();
         this.createHelpers();
         this.createGraph();
-
         this.animate();
-
-    }
-
-    processQuery(){
-        let config = {
-            parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
-            baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
-        };
-        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
-        dialogRef.afterClosed().subscribe(result => {
-            if (result && result.response){
-                this.queryCounter++;
-                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
-                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
-                const nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
-                const links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
-                const lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
-                if (nodes.length || links.length || lyphs.length) {
-                    this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
-                } else {
-                    this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
-                }
-            }
-        })
-    }
-
-    exportJSON(){
-        if (this._graphData){
-            let result = JSON.stringify(this._graphData.toJSON(3, {
-                [$Field.border]   : 3,
-                [$Field.borders]  : 3,
-                [$Field.villus]   : 3,
-                [$Field.scaffolds]: 5
-            }), null, 2);
-            const blob = new Blob([result], {type: 'application/json'});
-            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
-        }
     }
 
     processQuery(){
@@ -496,11 +459,25 @@ export class WebGLSceneComponent {
         this._helperKeys = this.helpers::keys();
     }
 
+    getSceneObjects() {
+      return this.scene.children[this.scene.children.length-1].children.filter((o) => { return o.type != 'Sprite' });
+    }
+
     createGraph() {
         this.graph = new ThreeForceGraph()
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)
+            .onAnchorDrag((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(obj);
+            })
             .onAnchorDragEnd((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(obj);
+            })
+            .onWireDrag((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
@@ -510,10 +487,18 @@ export class WebGLSceneComponent {
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
+            .onRegionDrag((obj, delta) => {
+                obj.userData.relocate(delta);
+                this.graph.graphData(this.graphData);
+                this.scaffoldUpdated.emit(obj);
+            })
             .onRegionDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
+            })
+            .onFinishLoading(() => {
+              this.parseDefaultColors(this.getSceneObjects());
             })
             .graphData(this.graphData);
 
@@ -568,74 +553,88 @@ export class WebGLSceneComponent {
     }
 
     getMouseOverEntity() {
-        if (!this.graph) { return; }
-        this.ray.setFromCamera( this.mouse, this.camera );
+      if (!this.graph) { return; }
+      this.ray.setFromCamera( this.mouse, this.camera );
 
-        const selectLayer = (entity) => {
-            //Refine selection to layers
-            if (entity && entity.layers && this.config.layout["showLayers"]) {
-                let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
-                let layerIntersects = this.ray.intersectObjects(layerMeshes);
-                if (layerIntersects.length > 0) {
-                    return selectLayer(layerIntersects[0].object.userData);
-                }
-            }
-            return entity;
-        };
+      const selectLayer = (entity) => {
+          //Refine selection to layers
+          if (entity && entity.layers && this.config.layout["showLayers"]) {
+              let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
+              let layerIntersects = this.ray.intersectObjects(layerMeshes);
+              if (layerIntersects.length > 0) {
+                  return selectLayer(layerIntersects[0].object.userData);
+              }
+          }
+          return entity;
+      };
 
-        let intersects = this.ray.intersectObjects(this.graph.children);
-        if (intersects.length > 0) {
-            let entity = intersects[0].object.userData;
-            if (!entity || entity.inactive) { return; }
-            return selectLayer(entity);
-        }
-    }
+      let intersects = this.ray.intersectObjects(this.graph.children);
+      if (intersects.length > 0) {
+          let entity = intersects[0].object.userData;
+          if (!entity || entity.inactive) { return; }
+          return selectLayer(entity);
+      }
+  }
 
     get highlighted(){
         return this._highlighted;
     }
 
     get selected(){
-        return this._selected;
+        return this._selected;  
     }
 
     highlight(entity, color, rememberColor = true){
-        if (!entity || !entity.viewObjects) { return; }
-        let obj = entity.viewObjects["main"];
-        if (obj && obj.material) {
-            // store color of closest object (for later restoration)
-            if (rememberColor){
-                obj.currentHex = obj.material.color.getHex();
-                (obj.children || []).forEach(child => {
-                    if (child.material) {
-                        child.currentHex = child.material.color.getHex();
-                    }
-                });
-            }
+      if (!entity || !entity.viewObjects) { return; }
+      let obj = entity.viewObjects["main"];
+      if (obj && obj.material) {
+          // store color of closest object (for later restoration)
+          if (rememberColor){
+              obj.currentHex = obj.material.color.getHex();
+              (obj.children || []).forEach(child => {
+                  if (child.material) {
+                      child.currentHex = child.material.color.getHex();
+                  }
+              });
+          }
 
-            // set a new color for closest object
-            obj.material.color.setHex(color);
-            (obj.children || []).forEach(child => {
-                if (child.material) {
-                    child.material.color.setHex(color);
-                }
-            });
-        }
+          // set a new color for closest object
+          obj.material.color.setHex(color);
+          (obj.children || []).forEach(child => {
+              if (child.material) {
+                  child.material.color.setHex(color);
+              }
+          });
+      }
+  }
+
+  unhighlight(entity){
+      if (!entity || !entity.viewObjects) { return; }
+      let obj = entity.viewObjects["main"];
+      if (obj){
+          if (obj.material){
+              obj.material.color.setHex( obj.currentHex || this.defaultColor);
+          }
+          (obj.children || []).forEach(child => {
+              if (child.material) {
+                  child.material.color.setHex(child.currentHex || this.defaultColor);
+              }
+          })
+      }
+  }
+
+    parseDefaultColors(entities) {
+      entities.forEach((e)=> {
+        this.parseDefaultColorsLeaf(e, null);
+      }) 
     }
 
-    unhighlight(entity){
-        if (!entity || !entity.viewObjects) { return; }
-        let obj = entity.viewObjects["main"];
-        if (obj){
-            if (obj.material){
-                obj.material.color.setHex( obj.currentHex || this.defaultColor);
-            }
-            (obj.children || []).forEach(child => {
-                if (child.material) {
-                    child.material.color.setHex(child.currentHex || this.defaultColor);
-                }
-            })
-        }
+    parseDefaultColorsLeaf(e, forceColor) {
+      const currentColor = e.material?.color.getHex() ;
+      e.defaultHex = currentColor || forceColor ;
+      e.children.forEach((c) => {
+        this.parseDefaultColorsLeaf(c, currentColor);
+      });
     }
 
     selectByName(name) {

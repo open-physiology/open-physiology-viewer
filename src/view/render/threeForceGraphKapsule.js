@@ -7,11 +7,10 @@
 } from 'd3-force-3d';
 import {select as d3Select } from 'd3-selection';
 import {drag as d3Drag } from 'd3-drag';
-
 import Kapsule from 'kapsule';
-import {modelClasses} from '../model/index';
-import './modelView';
-import {extractCoords} from './utils';
+import {modelClasses} from '../../model/index';
+import {extractCoords} from '../util/utils';
+import './modelView'
 
 const {Graph} = modelClasses;
 /**
@@ -267,6 +266,43 @@ export default Kapsule({
     },
 
     update(state) {
+
+        function _preventZFighting(scene)
+        { 
+          const allRadius = scene.children.map( r => r.preComputedBoundingSphereRadius ).filter(r => r).map(r => Math.round(r));
+
+          function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+          }
+          const uniqueRadius = allRadius.filter(onlyUnique).sort(function(a, b) {
+            return a - b;
+          });
+
+          scene.children.forEach((c)=>{
+            if (c.preComputedBoundingSphereRadius)
+              c.position.z = uniqueRadius.indexOf(Math.round(c.preComputedBoundingSphereRadius)) * -0.05;
+          })
+        }
+
+        function _trasverseHosts(graphData, dict, hostedBy) {
+          Object.keys(graphData).forEach((k) => {
+            const val = graphData[k];
+            if (Array.isArray(val)) {
+              val.forEach((child)=>{
+                const hostKey = child.hostedBy?.id || hostedBy ;
+                if (hostKey)
+                {
+                  if (dict[hostKey])
+                    dict[hostKey].push(child.id)
+                  else
+                    dict[hostKey] = [child.id]; //init
+                }
+                if (val.children)
+                  _trasverseHosts(val.children, hostKey);
+              })
+            }
+          })
+        }
         state.onFrame = null; // Pause simulation
         state.onLoading();
 
@@ -280,6 +316,8 @@ export default Kapsule({
 
         // Add WebGL objects
         state.graphData.createViewObjects(state);
+
+        _preventZFighting(state.graphScene)
 
         // Feed data to force-directed layout
         let layout;

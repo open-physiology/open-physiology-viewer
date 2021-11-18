@@ -2,6 +2,7 @@ import {Resource} from './resourceModel';
 import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
+import {copyCoords} from "./utils";
 
 import {isObject, unionBy, merge, keys, entries, isArray, pick, defaults} from 'lodash-bound';
 import {
