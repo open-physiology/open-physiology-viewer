@@ -80,11 +80,26 @@ function trasverseAnchors(graphData, dict, hostedBy) {
 
 function getBoundingBoxSize(obj)
 {
-  //if (!obj.geometry.boundingBox)
+  return isGroup(obj) ? getGroupBoundingBoxSize(obj) : getMeshBoundingBoxSize(obj);
+}
+
+function getMeshBoundingBoxSize(obj)
+{
   obj.geometry.computeBoundingBox();
   const size = new THREE.Vector3();
   obj.geometry.boundingBox.getSize(size) ;
   return size ;
+}
+
+function getGroupBoundingBoxSize(group)
+{
+  let bb = new THREE.Box3().setFromObject(group);
+  return bb.getSize(new THREE.Vector3());
+}
+
+function isGroup(obj)
+{
+  return obj.type == 'Group' ;
 }
 
 function getNumberOfHorizontalLyphs(ar, total)
@@ -103,18 +118,52 @@ function cloneTargetGeometry(target, source) {
 }
 
 function fitToTargetRegion(target, source) {
-  if (source.geometry)
-  {
-    const targetSize = getBoundingBoxSize(target);
-    const sourceSize = getBoundingBoxSize(source);
-    const sx = targetSize.x / sourceSize.x ;
-    const sy = targetSize.y / sourceSize.y ;
-    source.scale.setX(sx);
-    source.scale.setY(sy);
-    source.position.x = 0 ;
-    source.position.y = 0 ;
-  }
+  const targetSize = getBoundingBoxSize(target);
+  const sourceSize = getBoundingBoxSize(source);
+  const sx = targetSize.x / sourceSize.x ;
+  const sy = targetSize.y / sourceSize.y ;
+  source.scale.setX(sx);
+  source.scale.setY(sy);
 } 
+
+function getTargetWorldPosition(scene, obj)
+{
+  scene.updateMatrixWorld(true);
+  var position = new THREE.Vector3();
+  position.getPositionFromMatrix( obj.matrixWorld );
+  return position ;
+}
+
+function getCenterPoint(mesh) {
+  var middle = new THREE.Vector3();
+  var geometry = mesh.geometry;
+
+  geometry.computeBoundingBox();
+
+  middle.x = (geometry.boundingBox.max.x + geometry.boundingBox.min.x) / 2;
+  middle.y = (geometry.boundingBox.max.y + geometry.boundingBox.min.y) / 2;
+  middle.z = (geometry.boundingBox.max.z + geometry.boundingBox.min.z) / 2;
+
+  mesh.localToWorld( middle );
+  return middle;
+}
+
+function translateToOrigin(obj) {
+  obj.position.x = 0 ;
+  obj.position.y = 0 ;
+}
+
+function removeEntity(scene, obj) {
+  var selectedObject = scene.getObjectByName(obj.name);
+  scene.remove( selectedObject );
+}
+
+function translateToTarget(scene, target, obj) {
+  const targetPos = getCenterPoint(target);
+  const objSize = getBoundingBoxSize(target);
+  obj.position.x = targetPos.x - ( objSize.x * 0.5 );
+  obj.position.y = targetPos.y ;
+}
 
 function arrangeLyphsGrid(lyphs, h, v) {
   let group = new THREE.Group();
@@ -136,7 +185,7 @@ function arrangeLyphsGrid(lyphs, h, v) {
         targetY = refPosition.y + refSize.y * lyphs[ix].scale.y * actualV * ( 1 + LYPH_V_PERCENT_MARGIN );
         lyphs[ix].position.x = targetX ;
         lyphs[ix].position.y = targetY ;
-        //group.add(lyphs[ix]);
+        group.add(lyphs[ix]);
         ix++;
       }
     }
@@ -172,15 +221,17 @@ function layoutLyphs(scene, hostLyphDic)
   
           if ( hn > 0 && vn > 0 )
           {
-            //let group = new THREE.Object3D();
             hostedLyphs.forEach((l)=> {
               fitToTargetRegion(host, l);
+              translateToOrigin(l);
             });
             const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
-            // scene.add(g);
-            // fitToTargetRegion(host, g);
-            //scale to fit 
-            //fitToTargetRegion(host, group);
+            hostedLyphs.forEach((l)=> {
+              removeEntity(scene, l);
+            });
+            scene.add(g);
+            fitToTargetRegion(host, g);
+            translateToTarget(scene, host, g);
           }
         }
       }
