@@ -78,12 +78,13 @@ function trasverseAnchors(graphData, dict, hostedBy) {
   })
 }
 
-function getBoundingBoxDimensions(obj)
+function getBoundingBoxSize(obj)
 {
-  if (!obj.geometry.boundingBox)
-    obj.geometry.computeBoundingBox();
-  const box = obj.geometry.boundingBox ;
-  return { width: box.max.x - box.min.x, height: box.max.y - box.min.y }
+  //if (!obj.geometry.boundingBox)
+  obj.geometry.computeBoundingBox();
+  const size = new THREE.Vector3();
+  obj.geometry.boundingBox.getSize(size) ;
+  return size ;
 }
 
 function getNumberOfHorizontalLyphs(ar, total)
@@ -104,36 +105,43 @@ function cloneTargetGeometry(target, source) {
 function fitToTargetRegion(target, source) {
   if (source.geometry)
   {
-    target.geometry.computeBoundingBox();
-    source.geometry.computeBoundingBox();
-    const targetSize = target.geometry.boundingBox.getSize();
-    const sourceSize = source.geometry.boundingBox.getSize();
+    const targetSize = getBoundingBoxSize(target);
+    const sourceSize = getBoundingBoxSize(source);
     const sx = targetSize.x / sourceSize.x ;
     const sy = targetSize.y / sourceSize.y ;
     source.scale.setX(sx);
     source.scale.setY(sy);
+    source.position.x = 0 ;
+    source.position.y = 0 ;
   }
 } 
 
 function arrangeLyphsGrid(lyphs, h, v) {
+  let group = new THREE.Group();
   const refLyph = lyphs[0];
   let refPosition = refLyph.position ;
-  let refDimensions = getBoundingBoxDimensions(refLyph);
-  const actualDeltaX = refDimensions.width * ( 1 + LYPH_H_PERCENT_MARGIN );
-  const actualDeltaY = refDimensions.height * ( 1 + LYPH_V_PERCENT_MARGIN );
+  let refSize = getBoundingBoxSize(refLyph);
+
   let ix = 0 ;
+  let targetX = 0 ;
+  let targetY = 0;
   
-  for ( const actualV = 0 ; actualV < v ; actualV++)
+  for ( let actualV = 0 ; actualV < h ; actualV++)
   {
-    for ( const actualH = 0 ; actualH <  h; actualH++)
+    for ( let actualH = 0 ; actualH < v; actualH++)
     {
-      const targetX = refPosition.X + actualDeltaX ;
-      const targetY = refPosition.Y + actualDeltaY ;
-      lyphs[ix].position.x = targetX ;
-      lyphs[yx].position.Y = targetY ;
-      ix++;
+      if ( ix < lyphs.length )
+      {
+        targetX = refPosition.x + refSize.x * lyphs[ix].scale.x * actualH * ( 1 + LYPH_H_PERCENT_MARGIN );
+        targetY = refPosition.y + refSize.y * lyphs[ix].scale.y * actualV * ( 1 + LYPH_V_PERCENT_MARGIN );
+        lyphs[ix].position.x = targetX ;
+        lyphs[ix].position.y = targetY ;
+        //group.add(lyphs[ix]);
+        ix++;
+      }
     }
   }
+  return group ;
 }
 
 function layoutLyphs(scene, hostLyphDic)
@@ -147,8 +155,8 @@ function layoutLyphs(scene, hostLyphDic)
     let host = all.find((c)=> c.userData.id == hostKey );
     if (host) 
     {
-      const hostDim = getBoundingBoxDimensions(host);
-      const AR = hostDim.width / hostDim.height ;
+      const hostDim = getBoundingBoxSize(host);
+      const AR = hostDim.x / hostDim.y ;
       const hostedElements = hostLyphDic[hostKey];
       if (hostedElements)
       {
@@ -167,9 +175,10 @@ function layoutLyphs(scene, hostLyphDic)
             //let group = new THREE.Object3D();
             hostedLyphs.forEach((l)=> {
               fitToTargetRegion(host, l);
-              TargetRotation(host, l);
             });
-            arrangeLyphsGrid(hostedLyphs, hn, hv);
+            const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
+            // scene.add(g);
+            // fitToTargetRegion(host, g);
             //scale to fit 
             //fitToTargetRegion(host, group);
           }
