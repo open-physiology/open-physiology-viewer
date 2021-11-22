@@ -144,31 +144,31 @@ Lyph.prototype.createViewObjects = function(state) {
 
         //Layers
         //Define proportion each layer takes
-        // let numLayers = (this.layers || [this]).length;
-        // let resizedLayers = (this.layers || []).filter(layer => layer.layerWidth);
-        // let layerTotalWidth = 0;
-        // (resizedLayers || []).forEach(layer => layerTotalWidth += layer.layerWidth);
-        // let defaultWidth = (resizedLayers.length < numLayers) ?
-        //     (100. - layerTotalWidth) / (numLayers - resizedLayers.length) : 0;
+        let numLayers = (this.layers || [this]).length;
+        let resizedLayers = (this.layers || []).filter(layer => layer.layerWidth);
+        let layerTotalWidth = 0;
+        (resizedLayers || []).forEach(layer => layerTotalWidth += layer.layerWidth);
+        let defaultWidth = (resizedLayers.length < numLayers) ?
+            (100. - layerTotalWidth) / (numLayers - resizedLayers.length) : 0;
 
         let relOffset = 0;
-        // (this.layers || []).forEach(layer => {
-        //     layer.create3d = this.create3d;
-        //     //TODO place sizing code for layers to Lyph.updateSize
-        //     layer.layerWidth = layer.layerWidth || defaultWidth;
-        //     layer.width = layer.layerWidth / 100 * this.width;
-        //     layer.height = this.height;
-        //     layer.createViewObjects(state);
-        //     let layerObj = layer.viewObjects["2d"];
-        //     this.viewObjects["2d"].add(layerObj);
-        //     layerObj.translateX(relOffset);
-        //     relOffset += layer.width;
+        (this.layers || []).forEach(layer => {
+            layer.create3d = this.create3d;
+            //TODO place sizing code for layers to Lyph.updateSize
+            layer.layerWidth = layer.layerWidth || defaultWidth;
+            layer.width = layer.layerWidth / 100 * this.width;
+            layer.height = this.height;
+            layer.createViewObjects(state);
+            let layerObj = layer.viewObjects["2d"];
+            this.viewObjects["2d"].add(layerObj);
+            layerObj.translateX(relOffset);
+            relOffset += layer.width;
 
-        //     let layerObj3d = layer.viewObjects["3d"];
-        //     if (layerObj3d) {
-        //         this.viewObjects["3d"].add(layerObj3d);
-        //     }
-        // });
+            let layerObj3d = layer.viewObjects["3d"];
+            if (layerObj3d) {
+                this.viewObjects["3d"].add(layerObj3d);
+            }
+        });
     }
     //Do not create labels for layers and nested lyphs
     if (this.layerIn || this.internalIn) { return; }
