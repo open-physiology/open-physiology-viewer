@@ -11,7 +11,7 @@ import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
 import keast from './data/keastSpinalFull.json';
 import {keys, entries, pick} from 'lodash-bound';
-import {$Field, modelClasses} from '../src/model/index';
+import {$Field, $SchemaClass, modelClasses, schemaClassModels} from '../src/model/index';
 import schema from '../src/model/graphScheme.json';
 import {Validator} from "jsonschema";
 import {getGenID, getGenName} from "../src/model/utils";
@@ -200,6 +200,25 @@ describe("Serialize data", () => {
         expect(diff).to.have.length(0);
         let serializedLogs = graphData.logger.print();
         expect(serializedLogs.length).to.be.equal(graphData.logger.entries.length);
+        //JSON-LD
+        let serializedGraphDataLD = graphData.entitiesToJSONLD();
+        expect(serializedGraphDataLD).to.have.property("@context").that.is.an("object");
+        expect(serializedGraphDataLD["@context"]).to.have.property("@base");
+        expect(serializedGraphDataLD["@context"]).to.have.property("@version");
+        $Field::keys().forEach(key => {
+            expect(serializedGraphDataLD["@context"]).to.have.property(key);
+        })
+        schemaClassModels[$SchemaClass.Graph].relationshipNames.forEach(key => {
+            //TODO: scaffolds are not exported to JSON-LD, fix this as part of more general issue #65
+            if (key === "scaffolds"){
+                return;
+            }
+            expect(serializedGraphDataLD["@context"][key]).to.be.an("object").that.has.property("@type");
+        })
+        expect(serializedGraphDataLD).to.have.property("@graph").that.is.an("array");
+        //All resources are exported, +1 for the generated graph annotation in JSON-LD
+        expect(serializedGraphDataLD["@graph"].length).to.be.equal(graphData.entitiesByID::keys().length + 1);
+        graphData.logger.clear();
     });
 
     it("Nested villus resource serialized", () => {
@@ -211,6 +230,7 @@ describe("Serialize data", () => {
         expect(lyph.villus).to.have.property("id");
         expect(lyph.villus).to.have.property("class");
         expect(lyph.villus.class).to.be.equal("Villus");
+        graphData.logger.clear();
     });
 
     it("Borders serialized", () => {
@@ -225,6 +245,7 @@ describe("Serialize data", () => {
         expect(lyph.border.borders[0]).to.have.property("class");
         expect(lyph.border.borders[0].class).to.be.equal("Link");
         expect(lyph.border.borders[3]).to.have.property("conveyingLyph");
+        graphData.logger.clear();
     });
 });
 

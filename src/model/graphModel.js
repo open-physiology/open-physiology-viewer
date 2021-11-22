@@ -61,9 +61,7 @@ let baseContext = {
     "class": {
         "@id": "rdf:type",
         "@type": "@id",
-        "@context": {
-            "@base": "https://apinatomy.org/uris/elements/"
-        }
+        "@context": {"@base": "https://apinatomy.org/uris/elements/"}
     },
     "topology": {
         "@id": "apinatomy:topology",
@@ -74,7 +72,6 @@ let baseContext = {
 
 /**
  * Generate a json-ld context from a json schema
- *
  */
 function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
 
@@ -89,16 +86,17 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
         schema.definitions::values().forEach(def => schemaToContext(def, context));
     } else {
         if (id !== null && schemaIsId(schema)) {
-            context[id] = {"@id": prefix.concat(id),
+            context[id] = {
+                "@id": prefix.concat(id),
                 "@type": "@id"};
         } else {
             if (schema.properties) {
                 schema.properties::entries()
                     .forEach(([pid, prop]) =>
-                        context[pid] = schemaIsId(prop) ?
-                            {"@id": prefix.concat(pid),
-                                "@type": "@id"} :
-                            prefix.concat(pid));
+                        context[pid] = schemaIsId(prop) ? {
+                                "@id": prefix.concat(pid),
+                                "@type": "@id"
+                            } : prefix.concat(pid));
             }
         }
     }
