@@ -299,7 +299,7 @@ function layoutLyphs(scene, hostLyphDic)
             fitToTargetRegion(host, g);
             //move group center to 0,0 so it does not affect further translations
             reCenter(g);
-            translateToTarget(host, g);
+              translateToTarget(host, g);
             scene.add(g);
           }
         }
