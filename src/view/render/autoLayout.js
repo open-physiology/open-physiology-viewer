@@ -1,5 +1,5 @@
-const LYPH_H_PERCENT_MARGIN = 0.1 ;
-const LYPH_V_PERCENT_MARGIN = 0.1 ;
+const LYPH_H_PERCENT_MARGIN = 0 ;
+const LYPH_V_PERCENT_MARGIN = 0 ;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -142,7 +142,7 @@ function fitToTargetRegion(target, source) {
   source.scale.setY(sy);
 } 
 
-function getTargetWorldPosition(scene, obj)
+function getWorldPosition(scene, obj)
 {
   scene.updateMatrixWorld(true);
   var position = new THREE.Vector3();
@@ -219,23 +219,21 @@ function arrangeLyphsGrid(lyphs, h, v) {
     }
   }
 
-  //move group center to 0,0 so it does not affect further translations
-  reCenter(group);
   return group ;
 }
 
 function reCenter(obj)
 {
-  const groupMiddle = getMiddle(obj);
-  const deltaX = groupMiddle.x / 2 * -1 ;
-  const deltaY = groupMiddle.y / 2  ;
+  const boxSize = getBoundingBoxSize(obj);
+  const deltaX = - boxSize.x /2;
+  const deltaY = boxSize.y /2;
   obj.translateX(deltaX);
-  obj.translateY(deltaY);
+  //obj.translateY(deltaY);
 }
 
 function putDebugObjectInPosition(scene, position)
 {
-  const geometry = new THREE.SphereGeometry( 15, 1, 1 );
+  const geometry = new THREE.SphereGeometry(50);
   const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
   const sphere = new THREE.Mesh( geometry, material );
   sphere.position.set(position);
@@ -299,6 +297,8 @@ function layoutLyphs(scene, hostLyphDic)
             });
             
             fitToTargetRegion(host, g);
+            //move group center to 0,0 so it does not affect further translations
+            reCenter(g);
             translateToTarget(host, g);
             scene.add(g);
           }
