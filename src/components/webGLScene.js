@@ -339,65 +339,42 @@ export class WebGLSceneComponent {
         this.scene.add(pointLight);
 
         // FXAA improvements
-        // test 1
-        // let this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+        // commented for now since the improvements is close to none in my opinion (dario)
+		// this.renderer.autoClear = false;
+		// this.renderer.setPixelRatio( window.devicePixelRatio );
+		// this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
+		// this.container.appendChild( this.renderer.domElement );
 
-        // let effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-        // effectFXAA.renderToScreen = false;
+        // this.renderPass = new THREE.RenderPass(this.scene, this.camera);
 
-        // let effectCopy = new THREE.ShaderPass(THREE.CopyShader);
-        // effectCopy.renderToScreen = true;
+        // this.fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
+        // this.fxaaPass.renderToScreen = false;
+        // this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
+		// this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
 
-        // let rtParameters = {
-        //     minFilter: THREE.LinearFilter,
-        //     magFilter: THREE.LinearFilter,
-        //     format: THREE.RGBAFormat,
-        //     stencilBuffer: true
-        // };
+        // this.copyPass = new THREE.ShaderPass( THREE.CopyShader );
+        // this.copyPass.renderToScreen = true;
 
-        // this.customComposer = new THREE.EffectComposer(this.renderer,
-        //     new THREE.WebGLRenderTarget(this.container.offsetWidth, this.container.offsetHeight, rtParameters));
+		// this.customComposer = new THREE.EffectComposer( this.renderer );
+		// this.customComposer.addPass( this.renderPass );
+        // this.customComposer.addPass( this.fxaaPass );
+		// this.customComposer.addPass( this.copyPass );
 
-        // this.customComposer.addPass(this.renderPass);
-        // this.customComposer.addPass(effectFXAA);
-        // this.customComposer.addPass(effectCopy);
+        // const pixelRatio = this.renderer.getPixelRatio();
 
-        // test 2
-		this.renderer.autoClear = false;
-		this.renderer.setPixelRatio( window.devicePixelRatio );
-		this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
-		this.container.appendChild( this.renderer.domElement );
+        // window.addEventListener( 'resize', () => {
+        //     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
+        //     this.camera.updateProjectionMatrix();
 
-        this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+        //     this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
+        //     this.customComposer.setSize( this.container.offsetWidth, this.container.offsetHeight );
 
-        this.fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
-        this.fxaaPass.renderToScreen = false;
-        this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
-		this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
+        //     const pixelRatio = this.renderer.getPixelRatio();
 
-        this.copyPass = new THREE.ShaderPass( THREE.CopyShader );
-        this.copyPass.renderToScreen = true;
+        //     this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
+        //     this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
 
-		this.customComposer = new THREE.EffectComposer( this.renderer );
-		this.customComposer.addPass( this.renderPass );
-        this.customComposer.addPass( this.fxaaPass );
-		this.customComposer.addPass( this.copyPass );
-
-        const pixelRatio = this.renderer.getPixelRatio();
-
-        window.addEventListener( 'resize', () => {
-            this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
-            this.camera.updateProjectionMatrix();
-
-            this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
-            this.customComposer.setSize( this.container.offsetWidth, this.container.offsetHeight );
-
-            const pixelRatio = this.renderer.getPixelRatio();
-
-            this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
-            this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
-
-        });
+        // });
         // FXAA end
 
         this.mouse = GeometryFactory.instance().createVector2(0, 0);
@@ -499,8 +476,7 @@ export class WebGLSceneComponent {
             this.graph.tickFrame();
         }
         this.controls.update();
-        //this.renderer.render(this.scene, this.camera);
-        this.customComposer.render();
+        this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(() => this.animate());
     }
 
