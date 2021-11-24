@@ -1,5 +1,5 @@
-const LYPH_H_PERCENT_MARGIN = 0 ;
-const LYPH_V_PERCENT_MARGIN = 0 ;
+const LYPH_H_PERCENT_MARGIN = 0.1 ;
+const LYPH_V_PERCENT_MARGIN = 0.15 ;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -38,12 +38,12 @@ function preventZFighting(scene)
   })
 }
 
-function trasverseHosts(graphData, dict, hostedBy) {
+function trasverseHostedBy(graphData, dict) {
   Object.keys(graphData).forEach((k) => {
     const val = graphData[k];
     if (Array.isArray(val)) {
       val.forEach((child)=>{
-        const hostKey = child.hostedBy?.id || hostedBy ;
+        const hostKey = child.hostedBy?.id ;
         if (hostKey)
         {
           if (dict[hostKey])
@@ -51,10 +51,15 @@ function trasverseHosts(graphData, dict, hostedBy) {
           else
             dict[hostKey] = [child.id]; //init
         }
-        if (val.children)
-          _trasverseHosts(val.children, hostKey);
       })
     }
+  })
+}
+
+function trasverseInternalLyphs(lyphs, dict) {
+  lyphs.forEach((l) => {
+    if (l.internalLyphs?.length > 0)
+      dict[l.id] = l.internalLyphs.map((l) => l.id) ;
   })
 }
 
@@ -71,8 +76,8 @@ function trasverseAnchors(graphData, dict, hostedBy) {
           else
             dict[hostKey] = [child.id]; //init
         }
-        if (val.children)
-          _trasverseHosts(val.children, hostKey);
+        // if (val.children)
+        //   _trasverseHosts(val.children, hostKey);
       })
     }
   })
@@ -97,6 +102,7 @@ function getGroupBoundingBox(group)
 function getBoundingBoxSize(obj)
 {
   return isGroup(obj) ? getGroupBoundingBoxSize(obj) : getMeshBoundingBoxSize(obj);
+  //return isGroup(obj) ? calculateGroupBoundaries(obj) : getMeshBoundingBoxSize(obj);
 }
 
 function getMeshBoundingBoxSize(obj)
@@ -226,7 +232,7 @@ function reCenter(obj)
 {
   const boxSize = getBoundingBoxSize(obj);
   const deltaX = - boxSize.x /2;
-  const deltaY = boxSize.y /2;
+  const deltaY = - boxSize.y /2;
   obj.translateX(deltaX);
   //obj.translateY(deltaY);
 }
@@ -238,6 +244,26 @@ function putDebugObjectInPosition(scene, position)
   const sphere = new THREE.Mesh( geometry, material );
   sphere.position.set(position);
   scene.add(sphere);
+}
+
+function calculateGroupBoundaries(obj)
+{
+  let minX = 0 ;
+  let maxX = 0 ;
+  let minY = 0 ;
+  let maxY = 0 ;
+  obj.children.forEach((c) => {
+    c.geometry.computeBoundingBox();
+    if ( c.geometry.boundingBox.min.x < minX )
+      minX = c.geometry.boundingBox.min.x ;
+    if ( c.geometry.boundingBox.max.x > maxX )
+      maxX = c.geometry.boundingBox.max.x ;
+    if ( c.geometry.boundingBox.min.y < minY )
+      minY = c.geometry.boundingBox.min.y ;
+    if ( c.geometry.boundingBox.max.y > minY )
+      maxY = c.geometry.boundingBox.max.y ;
+  });
+  return { minX, maxX, minY, maxY }
 }
 
 function getBorder(target)
@@ -263,7 +289,7 @@ function layoutLyphs(scene, hostLyphDic)
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
-  clearByObjectType(scene, 'Lyph');
+  //clearByObjectType(scene, 'Lyph');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
     let host = all.find((c)=> c.userData.id == hostKey );
@@ -299,7 +325,7 @@ function layoutLyphs(scene, hostLyphDic)
             fitToTargetRegion(host, g);
             //move group center to 0,0 so it does not affect further translations
             reCenter(g);
-              translateToTarget(host, g);
+            translateToTarget(host, g);
             scene.add(g);
           }
         }
@@ -329,12 +355,19 @@ export function removeDisconnectedObjects(model, joinModel) {
 }
 
 export function autoLayout(scene, graphData) {
+
   preventZFighting(scene);
 
-  const hostLyphDic = {};
-  trasverseHosts(graphData, hostLyphDic, scene.regions);
+  const hostLyphRegionDic = {};
+  trasverseHostedBy(graphData, hostLyphRegionDic);
+  layoutLyphs(scene, hostLyphRegionDic);
 
-  layoutLyphs(scene, hostLyphDic);
+  const hostLyphLyphDic = {};
+  if(graphData.lyphs)
+  {
+    trasverseInternalLyphs(graphData.lyphs, hostLyphLyphDic);
+    layoutLyphs(scene, hostLyphLyphDic);
+  }
 }
 
 export function clearByObjectType(scene, type) {
