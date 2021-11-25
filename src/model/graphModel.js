@@ -265,7 +265,7 @@ export class Graph extends Group{
 
         res.logger = logger;
         res.modelClasses = modelClasses;
-        res.createForceLinks();
+        //res.createForceLinks();
 
         return res;
     }

@@ -203,9 +203,10 @@ Lyph.prototype.updateViewObjects = function(state) {
 
         align(this.axis, obj, this.axis.reversed);
         //handled by autolayout
-        // if (this.angle){
-        this.viewObjects["2d"].rotation.fromArray([0,0,0]); //now managed by autolayout
-        // }
+        // if (this.angle)
+        //this.viewObjects["2d"].rotateZ(Math.PI * 45 / 180); //TODO test 
+        // else
+        this.viewObjects["2d"].rotation.fromArray([0,0,0]);
     } else {
         obj.visible = this.state.showLayers;
     }

@@ -485,7 +485,7 @@ export class WebGLSceneComponent {
             })
             .onFinishLoading(() => {
               this.parseDefaultColors(this.getSceneObjects());
-              window.autoLayout(this.scene, this.graphData);
+              //window.autoLayout(this.scene, this.graphData);
             })
             .graphData(this.graphData);
 

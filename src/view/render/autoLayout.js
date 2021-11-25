@@ -289,7 +289,7 @@ function layoutLyphs(scene, hostLyphDic)
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
-  //clearByObjectType(scene, 'Lyph');
+  clearByObjectType(scene, 'Lyph');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
     let host = all.find((c)=> c.userData.id == hostKey );
@@ -317,13 +317,14 @@ function layoutLyphs(scene, hostLyphDic)
               translateToOrigin(l);
             });
             const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
-            putDebugObjectInPosition(scene, g.position);
+            //putDebugObjectInPosition(scene, g.position);
             hostedLyphs.forEach((l)=> {
               removeEntity(scene, l);
             });
             
             fitToTargetRegion(host, g);
             //move group center to 0,0 so it does not affect further translations
+            translateToOrigin(g);
             reCenter(g);
             translateToTarget(host, g);
             scene.add(g);
