@@ -98,7 +98,7 @@ const COLORS = {
                       </div>
                       <!--Tree structure-->
                       <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                        <ng-template #treeNodeTemplate let-nodes let-index="index">
+                        <ng-template #treeNodeTemplate let-node let-index="index">
                           <span>{{node.data.name}}</span>
                           <mat-slide-toggle></mat-slide-toggle>
                         </ng-template>
