@@ -19,6 +19,7 @@ import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 
 const WindowResize = require('three-window-resize');
+import { autoLayout } from '../view/render/autoLayout'
 
 /**
  * @ignore
@@ -464,6 +465,7 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
+      window.autoLayout = autoLayout ;
         this.graph = new ThreeForceGraph()
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)
@@ -499,6 +501,7 @@ export class WebGLSceneComponent {
             })
             .onFinishLoading(() => {
               this.parseDefaultColors(this.getSceneObjects());
+              //window.autoLayout(this.scene, this.graphData);
             })
             .graphData(this.graphData);
 
@@ -543,6 +546,15 @@ export class WebGLSceneComponent {
         this.renderer.antialias = this.antialias;
     }
 
+    // getMouseOverEntity() {
+    //     if (!this.graph) { return; }
+    //     this.ray.setFromCamera( this.mouse, this.camera );
+    //     this.unhighlight(this.getSceneObjects());
+    //     let intersects = this.ray.intersectObjects(this.graph.children).filter((o) => { return o.object.type != 'Sprite' });
+    //     if (intersects.length > 0) {
+    //         this.highlight(intersects[0], this.highlightColor)
+    //     }
+    // }
     getMouseOverEntity() {
       if (!this.graph) { return; }
       this.ray.setFromCamera( this.mouse, this.camera );
@@ -613,6 +625,39 @@ export class WebGLSceneComponent {
           })
       }
   }
+
+    parseDefaultColors(entities) {
+      entities.forEach((e)=> {
+        this.parseDefaultColorsLeaf(e, null);
+      }) 
+    }
+
+    parseDefaultColorsLeaf(e, forceColor) {
+      const currentColor = e.material?.color.getHex() ;
+      e.defaultHex = currentColor || forceColor ;
+      e.children.forEach((c) => {
+        this.parseDefaultColorsLeaf(c, currentColor);
+      });
+    }
+
+    // highlight(entity, highlightColor){
+    //   if (entity?.object)
+    //   {
+    //     const obj = entity.object ;
+    //     obj.material.color.setHex(highlightColor);
+    //     obj.children?.forEach((child) =>{
+    //       this.highlight(child, highlightColor)
+    //     });
+    //   }
+    // }
+
+    // unhighlight(entities){
+    //   entities.forEach((obj) => {
+    //     obj.material.color.setHex( obj.defaultHex || this.defaultColor );
+    //     if (obj.children)
+    //       this.unhighlight(obj.children);
+    //   })
+    // }
 
     parseDefaultColors(entities) {
       entities.forEach((e)=> {

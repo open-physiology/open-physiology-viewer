@@ -6,8 +6,11 @@ const {Chain, Node} = modelClasses;
 
 //Update chain with dynamic ends
 Chain.prototype.update = function(){
-    console.log("Chain ", this);
-    if (!this.root || !this.leaf){ return; }
+    
+    if (!this.root || !this.leaf){ 
+      console.log(this.id);
+      return; 
+    }
     let {start, end} = this.getWiredChainEnds();
     console.log("Start ", start.id);
     console.log("End ", end.id)
@@ -22,7 +25,8 @@ Chain.prototype.update = function(){
         let curve = this.wiredTo ? this.wiredTo.getCurve(start, end) : null;
         let length = (curve && curve.getLength) ? curve.getLength() : end.distanceTo(start);
         if (length < 5) {
-            return;
+          console.log(this.id);
+          return;
         }
         this.length = length;
         copyCoords(this.root.layout, start);
