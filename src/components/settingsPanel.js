@@ -893,6 +893,12 @@ export class SettingsPanel {
       this.filteredScaffolds = this.scaffolds;
     }
 
+    ngOnChanges() {
+      this.filteredGroups = this.groups;
+      this.filteredDynamicGroups = this.dynamicGroups;
+      this.filteredScaffolds = this.scaffolds;
+    }
+
     clearSearch(term, filterOptions, allOptions) {
       this[term] = '';
       this[filterOptions] = this[allOptions];

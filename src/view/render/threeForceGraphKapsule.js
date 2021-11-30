@@ -76,9 +76,9 @@ export default Kapsule({
                             const translate = currentPos.clone().sub(obj.__initialDragPos);
                             translate.y = -translate.y;
 
+                            obj.__initialDragPos = extractCoords(ev);
                             const fn = state[`on${obj.userData.class}Drag`];
                             fn && fn(obj, translate);
-
                             obj.__dragged = true;
                         })
                         .on('end', ev => {
@@ -89,6 +89,7 @@ export default Kapsule({
                             translate.y = -translate.y;
 
                             if (obj.__dragged) {
+                                obj.__initialDragPos = extractCoords(ev);
                                 const fn = state[`on${obj.userData.class}DragEnd`];
                                 fn && fn(obj, translate);
                                 delete(obj.__dragged);
