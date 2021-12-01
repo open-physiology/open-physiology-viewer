@@ -505,6 +505,8 @@ export class WebGLSceneComponent {
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
+
+        window.scene = this.scene ;
     }
 
     resetCamera(positionPoint, lookupPoint) {

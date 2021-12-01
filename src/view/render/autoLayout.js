@@ -1,5 +1,5 @@
-const LYPH_H_PERCENT_MARGIN = 0.1 ;
-const LYPH_V_PERCENT_MARGIN = 0.15 ;
+const LYPH_H_PERCENT_MARGIN = 0 ;
+const LYPH_V_PERCENT_MARGIN = 0 ;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -56,10 +56,47 @@ function trasverseHostedBy(graphData, dict) {
   })
 }
 
+// {
+//   "id": "226",
+//   "name": "Epiglottis",
+//   "external": [
+//       "UBERON:0000388",
+//       "ILX:0103886"
+//   ],
+//   "layers": [
+//       "115",
+//       "114in226",
+//       "103"
+//   ]
+// }
+
+function findParentInnerLyph(lyphs, id)
+{
+  let parent = undefined ;
+  lyphs.forEach((l) => {
+    if (l.layers)
+    {
+      const internal = l.layers.find( (inner) => inner.id === id );
+      if(internal)
+        parent = l.id ;
+    }
+  });
+  return parent ;
+}
+
 function trasverseInternalLyphs(lyphs, dict) {
   lyphs.forEach((l) => {
     if (l.internalLyphs?.length > 0)
-      dict[l.id] = l.internalLyphs.map((l) => l.id) ;
+    {
+      const internalIds = l.internalLyphs.map((l) => l.id) ;
+      //we need the parent to extract the actual properties, see above example
+      const hostLyph = findParentInnerLyph(lyphs, l.id);
+      if (hostLyph)
+        dict[hostLyph] = internalIds ;
+      else
+        dict[l.id] = internalIds ; //most likely a chain
+      //dict[l.id] = l.internalLyphs.map((l) => l.id) ; //most likely a chain
+    }
   })
 }
 
@@ -139,13 +176,32 @@ function cloneTargetGeometry(target, source) {
   source.geometry = g ;
 }
 
+function rotateAroundCenter(target, rx, ry, rz) {
+  if (target.geometry)
+  {
+    target.geometry.center();
+    target.rotation.x = rx;
+    target.rotation.y = ry;
+    target.rotation.z = rz;
+  }
+}
+
 function fitToTargetRegion(target, source) {
   const targetSize = getBoundingBoxSize(target);
   const sourceSize = getBoundingBoxSize(source);
   const sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
   const sy = ( targetSize.y / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
-  source.scale.setX(sx);
-  source.scale.setY(sy);
+  const sz = ( targetSize.z / sourceSize.z ) ;
+
+  // source.scale.setX(sx);
+  // source.scale.setY(sy);
+
+  rotateAroundCenter(source
+                  , target.rotation.x
+                  , target.rotation.y
+                  , target.rotation.z);
+  
+  //source.scale.setY(sz);
 } 
 
 function getWorldPosition(scene, obj)
@@ -283,7 +339,28 @@ function getBorder(target)
   return bx ;
 }
 
-function layoutLyphs(scene, hostLyphDic)
+// lyphs within lyph are hosted by layers, extract layers from the parent and not the layer
+
+// {
+//   "id": "226",
+//   "name": "Epiglottis",
+//   "external": [
+//       "UBERON:0000388",
+//       "ILX:0103886"
+//   ],
+//   "layers": [
+//       "115",
+//       "114in226",
+//       "103"
+//   ]
+// }
+
+function getHostParentForLyph(all, hostId)
+{
+  return all.find((c)=> c.userData.id == hostId )
+}
+
+function layoutLyphs(scene, hostLyphDic, lyphInLyph)
 {
   let all = [];
   let kapsuleChildren = scene.children ;
@@ -292,7 +369,7 @@ function layoutLyphs(scene, hostLyphDic)
   clearByObjectType(scene, 'Lyph');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
-    let host = all.find((c)=> c.userData.id == hostKey );
+    const host = getHostParentForLyph(all, hostKey) ;
     if (host) 
     {
       const hostDim = getBoundingBoxSize(host);
@@ -312,22 +389,31 @@ function layoutLyphs(scene, hostLyphDic)
   
           if ( hn > 0 && vn > 0 )
           {
-            hostedLyphs.forEach((l)=> {
-              fitToTargetRegion(host, l);
-              translateToOrigin(l);
-            });
-            const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
-            //putDebugObjectInPosition(scene, g.position);
-            hostedLyphs.forEach((l)=> {
-              removeEntity(scene, l);
-            });
-            
-            fitToTargetRegion(host, g);
-            //move group center to 0,0 so it does not affect further translations
-            translateToOrigin(g);
-            reCenter(g);
-            translateToTarget(host, g);
-            scene.add(g);
+            if (lyphInLyph)
+            {
+              hostedLyphs.forEach((l)=> {
+                fitToTargetRegion(host, l);
+                //translateToTarget(host, l);
+              });
+            }
+            else {
+              hostedLyphs.forEach((l)=> {
+                fitToTargetRegion(host, l);
+                translateToOrigin(l);
+              });
+              const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
+              //putDebugObjectInPosition(scene, g.position);
+              hostedLyphs.forEach((l)=> {
+                removeEntity(scene, l);
+              });
+              
+              fitToTargetRegion(host, g);
+              //move group center to 0,0 so it does not affect further translations
+              translateToOrigin(g);
+              reCenter(g);
+              translateToTarget(host, g);
+              scene.add(g);
+            }
           }
         }
       }
@@ -361,13 +447,13 @@ export function autoLayout(scene, graphData) {
 
   const hostLyphRegionDic = {};
   trasverseHostedBy(graphData, hostLyphRegionDic);
-  layoutLyphs(scene, hostLyphRegionDic);
+  layoutLyphs(scene, hostLyphRegionDic, false);
 
   const hostLyphLyphDic = {};
   if(graphData.lyphs)
   {
     trasverseInternalLyphs(graphData.lyphs, hostLyphLyphDic);
-    layoutLyphs(scene, hostLyphLyphDic);
+    layoutLyphs(scene, hostLyphLyphDic, true);
   }
 }
 
