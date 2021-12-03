@@ -1,5 +1,5 @@
-const LYPH_H_PERCENT_MARGIN = 0.1 ;
-const LYPH_V_PERCENT_MARGIN = 0.15 ;
+const LYPH_H_PERCENT_MARGIN = 0.10;
+const LYPH_V_PERCENT_MARGIN = 0.10;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -56,10 +56,47 @@ function trasverseHostedBy(graphData, dict) {
   })
 }
 
+// {
+//   "id": "226",
+//   "name": "Epiglottis",
+//   "external": [
+//       "UBERON:0000388",
+//       "ILX:0103886"
+//   ],
+//   "layers": [
+//       "115",
+//       "114in226",
+//       "103"
+//   ]
+// }
+
+function findParentInnerLyph(lyphs, id)
+{
+  let parent = undefined ;
+  lyphs.forEach((l) => {
+    if (l.layers)
+    {
+      const internal = l.layers.find( (inner) => inner.id === id );
+      if(internal)
+        parent = l.id ;
+    }
+  });
+  return parent ;
+}
+
 function trasverseInternalLyphs(lyphs, dict) {
   lyphs.forEach((l) => {
     if (l.internalLyphs?.length > 0)
-      dict[l.id] = l.internalLyphs.map((l) => l.id) ;
+    {
+      const internalIds = l.internalLyphs.map((l) => l.id) ;
+      //we need the parent to extract the actual properties, see above example
+      const hostLyph = findParentInnerLyph(lyphs, l.id);
+      if (hostLyph)
+        dict[hostLyph] = internalIds ;
+      else
+        dict[l.id] = internalIds ; //most likely a chain
+      //dict[l.id] = l.internalLyphs.map((l) => l.id) ; //most likely a chain
+    }
   })
 }
 
@@ -124,6 +161,11 @@ function isGroup(obj)
   return obj.type == 'Group' ;
 }
 
+function isMesh(obj)
+{
+  return obj.type == 'Mesh' ;
+}
+
 function getNumberOfHorizontalLyphs(ar, total)
 {
   return Math.floor(total / (ar + 1));  
@@ -139,13 +181,32 @@ function cloneTargetGeometry(target, source) {
   source.geometry = g ;
 }
 
+function rotateAroundCenter(target, rx, ry, rz) {
+  if (target.geometry)
+  {
+    target.geometry.center();
+    target.rotation.x = rx;
+    target.rotation.y = ry;
+    target.rotation.z = rz;
+  }
+}
+
 function fitToTargetRegion(target, source) {
   const targetSize = getBoundingBoxSize(target);
   const sourceSize = getBoundingBoxSize(source);
   const sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
   const sy = ( targetSize.y / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
+  const sz = ( targetSize.z / sourceSize.z ) ;
+
   source.scale.setX(sx);
   source.scale.setY(sy);
+
+  rotateAroundCenter(source
+                  , target.rotation.x
+                  , target.rotation.y
+                  , target.rotation.z);
+  
+  //source.scale.setY(sz);
 } 
 
 function getWorldPosition(scene, obj)
@@ -174,9 +235,10 @@ function getCenterPoint(mesh) {
   return middle;
 }
 
-function translateToOrigin(obj) {
-  obj.position.x = 0 ;
-  obj.position.y = 0 ;
+function translateGroupToOrigin(group) {
+  const groupPos  = computeGroupCenter(group);
+  group.translateX(- groupPos.x) ; //- ( objSize.x * 0.5 * 0 );
+  group.translateY(- groupPos.y) ; //- ( objSize.y * 0.5 * 0);
 }
 
 function removeEntity(scene, obj) {
@@ -184,11 +246,24 @@ function removeEntity(scene, obj) {
   scene.remove( selectedObject );
 }
 
-function translateToTarget(target, obj) {
+function setMeshPos(obj, x, y)
+{
+  obj.position.x = x ;
+  obj.position.y = y ;
+}
+
+function translateMeshToTarget(target, mesh)
+{
   const targetPos = getCenterPoint(target);
-  const objPos = getCenterPoint(obj);
-  obj.translateX(targetPos.x) ; //- ( objSize.x * 0.5 * 0 );
-  obj.translateY(targetPos.y) ; //- ( objSize.y * 0.5 * 0);
+  setMeshPos(mesh, targetPos.x, targetPos.y)
+}
+
+function translateGroupToTarget(target, group) {
+  //const targetPos = computeGroupCenter(target);
+  const groupPos  = computeGroupCenter(group);
+  const targetPos = getCenterPoint(target);
+  group.translateX(targetPos.x - groupPos.x) ; //- ( objSize.x * 0.5 * 0 );
+  group.translateY(targetPos.y - groupPos.y) ; //- ( objSize.y * 0.5 * 0);
 }
 
 function arrangeLyphsGrid(lyphs, h, v) {
@@ -203,11 +278,14 @@ function arrangeLyphsGrid(lyphs, h, v) {
 
   //starts building on 0,0
 
-  const refWidth = refPosition.x + refSize.x * refLyph.scale.x ;
-  const refHeight = refPosition.y + refSize.y * refLyph.scale.y ;
+  const refWidth  = refSize.x * refLyph.scale.x ;
+  const refHeight = refSize.y * refLyph.scale.y ;
 
   const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
   const refPaddingY = refHeight * LYPH_V_PERCENT_MARGIN * 0.5 ;
+
+  let maxX = 0 ;
+  let maxY = 0 ;
   
   for ( let actualV = 0 ; actualV < h ; actualV++)
   {
@@ -220,10 +298,17 @@ function arrangeLyphsGrid(lyphs, h, v) {
         lyphs[ix].position.x = targetX ;
         lyphs[ix].position.y = targetY ;
         group.add(lyphs[ix]);
+        if (targetX > maxX)
+          maxX = targetX ;
+        if (targetY > maxY)
+          maxY = targetY ;
         ix++;
       }
     }
   }
+
+  group.translateX( maxX / -2);
+  group.translateY( maxY / -2);
 
   return group ;
 }
@@ -246,24 +331,34 @@ function putDebugObjectInPosition(scene, position)
   scene.add(sphere);
 }
 
-function calculateGroupBoundaries(obj)
+function avg(a,b)
+{
+  return (a+b)/2;
+}
+
+function calculateGroupCenter(obj)
 {
   let minX = 0 ;
   let maxX = 0 ;
   let minY = 0 ;
   let maxY = 0 ;
+  let minZ = 0 ;
+  let maxZ = 0 ;
   obj.children.forEach((c) => {
-    c.geometry.computeBoundingBox();
-    if ( c.geometry.boundingBox.min.x < minX )
-      minX = c.geometry.boundingBox.min.x ;
-    if ( c.geometry.boundingBox.max.x > maxX )
-      maxX = c.geometry.boundingBox.max.x ;
-    if ( c.geometry.boundingBox.min.y < minY )
-      minY = c.geometry.boundingBox.min.y ;
-    if ( c.geometry.boundingBox.max.y > minY )
-      maxY = c.geometry.boundingBox.max.y ;
+    // if (isMesh(c))
+    // {
+    //   if (!c.geometry.boundingBox)
+    //     c.geometry.computeBoundingBox();
+      if ( c.geometry.boundingBox.min.x < minX ) minX = c.geometry.boundingBox.min.x ;
+      if ( c.geometry.boundingBox.max.x > maxX ) maxX = c.geometry.boundingBox.max.x ;
+      if ( c.geometry.boundingBox.min.y < minY ) minY = c.geometry.boundingBox.min.y ;
+      if ( c.geometry.boundingBox.max.y > maxY ) maxY = c.geometry.boundingBox.max.y ;
+      if ( c.geometry.boundingBox.min.z < minZ ) minZ = c.geometry.boundingBox.min.z ;
+      if ( c.geometry.boundingBox.max.z > maxZ ) maxZ = c.geometry.boundingBox.max.z ;
+    //}
   });
-  return { minX, maxX, minY, maxY }
+
+  return new THREE.Vector3(avg(minX, maxX), avg(minY, maxY), avg(minZ, maxZ));
 }
 
 function getBorder(target)
@@ -283,7 +378,34 @@ function getBorder(target)
   return bx ;
 }
 
-function layoutLyphs(scene, hostLyphDic)
+// lyphs within lyph are hosted by layers, extract layers from the parent and not the layer
+
+// {
+//   "id": "226",
+//   "name": "Epiglottis",
+//   "external": [
+//       "UBERON:0000388",
+//       "ILX:0103886"
+//   ],
+//   "layers": [
+//       "115",
+//       "114in226",
+//       "103"
+//   ]
+// }
+
+function getHostParentForLyph(all, hostId)
+{
+  return all.find((c)=> c.userData.id == hostId )
+}
+
+function computeGroupCenter(group)
+{
+  let box = new THREE.Box3().setFromObject(group)
+  return box.center();
+}
+
+function layoutLyphs(scene, hostLyphDic, lyphInLyph)
 {
   let all = [];
   let kapsuleChildren = scene.children ;
@@ -292,7 +414,7 @@ function layoutLyphs(scene, hostLyphDic)
   clearByObjectType(scene, 'Lyph');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
-    let host = all.find((c)=> c.userData.id == hostKey );
+    const host = getHostParentForLyph(all, hostKey) ;
     if (host) 
     {
       const hostDim = getBoundingBoxSize(host);
@@ -312,22 +434,29 @@ function layoutLyphs(scene, hostLyphDic)
   
           if ( hn > 0 && vn > 0 )
           {
-            hostedLyphs.forEach((l)=> {
-              fitToTargetRegion(host, l);
-              translateToOrigin(l);
-            });
-            const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
-            //putDebugObjectInPosition(scene, g.position);
-            hostedLyphs.forEach((l)=> {
-              removeEntity(scene, l);
-            });
-            
-            fitToTargetRegion(host, g);
-            //move group center to 0,0 so it does not affect further translations
-            translateToOrigin(g);
-            reCenter(g);
-            translateToTarget(host, g);
-            scene.add(g);
+            if (lyphInLyph)
+            {
+              hostedLyphs.forEach((l)=> {
+                fitToTargetRegion(host, l);
+                translateMeshToTarget(host, l);
+              });
+            }
+            else {
+              hostedLyphs.forEach((l)=> {
+                fitToTargetRegion(host, l);
+              });
+              const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
+              //putDebugObjectInPosition(scene, g.position);
+              // hostedLyphs.forEach((l)=> {
+              //   removeEntity(scene, l);
+              // });
+              //console.log(calculateGroupCenter(g));
+              fitToTargetRegion(host, g);
+              //translateGroupToTarget(host, g);
+              //translateGroupToOrigin(g);
+              translateGroupToTarget(host, g);
+              scene.add(g);
+            }
           }
         }
       }
@@ -394,13 +523,13 @@ export function autoLayout(scene, graphData) {
 
   const hostLyphRegionDic = {};
   trasverseHostedBy(graphData, hostLyphRegionDic);
-  layoutLyphs(scene, hostLyphRegionDic);
+  layoutLyphs(scene, hostLyphRegionDic, false);
 
   const hostLyphLyphDic = {};
   if(graphData.lyphs)
   {
     trasverseInternalLyphs(graphData.lyphs, hostLyphLyphDic);
-    layoutLyphs(scene, hostLyphLyphDic);
+    layoutLyphs(scene, hostLyphLyphDic, true);
   }
 }
 

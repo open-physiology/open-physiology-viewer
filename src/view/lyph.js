@@ -1,4 +1,3 @@
-
 import {modelClasses} from "../model";
 import {
     align,
@@ -201,12 +200,13 @@ Lyph.prototype.updateViewObjects = function(state) {
 
         copyCoords(obj.position, this.center);
 
-        align(this.axis, obj, this.axis.reversed);
-        //handled by autolayout
-        // if (this.angle)
-        //this.viewObjects["2d"].rotateZ(Math.PI * 45 / 180); //TODO test 
-        // else
-        this.viewObjects["2d"].rotation.fromArray([0,0,0]);
+        //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
+        //preventing this
+        if (!obj.userData.hostedBy)
+          align(this.axis, obj, this.axis.reversed);
+        // if (this.angle){
+        //     this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
+        // }
     } else {
         obj.visible = this.state.showLayers;
     }
@@ -258,72 +258,3 @@ Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
       return res;
   }
 });
-
-/**
-* @property points
-*/
-Object.defineProperty(Lyph.prototype, "points", {
-  get: function() {
-      return (this._points||[]).map(p => this.translate(p))
-  }
-});
-
-/**
- * @property center
- */
- Object.defineProperty(Lyph.prototype, "center", {
-  get: function() {
-      let res = GeometryFactory.instance().createVector3();
-      //Note: Do not use lyph borders to compute center as border translation relies on this method
-      if (this.axis){
-          res = this.axis.center || res;
-      }
-      if (this.layerIn) {
-          if (this.viewObjects["main"]) {
-              //Note: it is difficult to compute center of a layer geometrically as we have to translate the host axis
-              //in the direction orthogonal to the hosting lyph axis along the plane in which the lyph is placed
-              //and it can be placed in any plane passing through the axis!
-              res = getCenterPoint(this.viewObjects["main"]);
-          } else {
-              res = res.translateX(this.offset);
-          }
-      }
-      return res;
-  }
-});
-
-/**
- * @property points
- */
- Object.defineProperty(Lyph.prototype, "points", {
-  get: function() {
-      return (this._points||[]).map(p => this.translate(p))
-  }
-});
-
-/*** Set visibility of object's material (children may remain visible even if the object is hidden)
- * @param isVisible
- */
-Lyph.prototype.setMaterialVisibility = function(isVisible){
-    if (this.viewObjects["2d"]) {
-        this.viewObjects["2d"].material.visible = isVisible;
-        let children = this.viewObjects["2d"].children;
-        if (children && children.length > 0){
-            children[0].material.visible = isVisible;
-        }
-    }
-};
-
-/**
- * Positions the point on the lyph surface
- * @param p0 - initial point (coordinates)
- * @returns {Object} transformed point (coordinates)
- */
-Lyph.prototype.translate = function(p0) {
-    let transformedLyph = this.layerIn ? this.layerIn : this;
-    if (!p0 || !transformedLyph.viewObjects["main"]) { return p0; }
-    let p = p0.clone();
-    p.applyQuaternion(transformedLyph.viewObjects["main"].quaternion);
-    p.add(transformedLyph.center);
-    return p;
-};
