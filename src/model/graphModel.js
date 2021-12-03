@@ -432,15 +432,15 @@ export class Graph extends Group{
                     let key = headers[j].trim();
                     let res = convertValue(key, value);
                     if (res !== undefined) {
-                        resource[key] = res;
-                    }
+                         resource[key] = res;
+                     }
                 });
                 table[i] = resource;
                 if (clsName === $SchemaClass.Lyph) {
-                    table[i] = borderNamesToBorder(resource, borderNames);
+                    table[i] = borderNamesToBorder(table[i], borderNames);
                 }
                 if (clsName === $SchemaClass.Chain) {
-                    table[i] = levelTargetsToLevels(resource);
+                    table[i] = levelTargetsToLevels(table[i]);
                 }
             }
             //Remove headers and empty objects

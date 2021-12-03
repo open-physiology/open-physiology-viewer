@@ -153,7 +153,7 @@ export class Scaffold extends Component {
                     table[i].forEach((value, j) => {
                         if (value) {
                             if (!headers[j]) {
-                                logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+                                logger.error($LogMsg.EXCEL_NO_COLUMN_NAME, value);
                                 return;
                             }
                             if (!headers[j]::isString()) {
@@ -223,7 +223,6 @@ export class Scaffold extends Component {
                         resource[key] = res;
                     }
                 });
-
                 table[i] = resource;
             }
             model[relName] = model[relName].slice(1);

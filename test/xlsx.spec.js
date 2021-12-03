@@ -2,17 +2,16 @@ import {
     describe,
     it,
     beforeEach,
-    afterEach,
     expect, after,
 } from './test.helper';
 
 import keastExcelModel from './excel/Keast_Flatmap_051420.xlsx';
 import keastExcelEvilBagModel from './excel/Keast_Flatmap_evilBag.xlsx';
 import testModel from './excel/test_model.xlsx';
-import {loadModel, jsonToExcel, excelToJSON} from "../src/model/index";
+import {loadModel, jsonToExcel} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
-import {levelTargetsToLevels, borderNamesToBorder} from "../src/model/utilsParser";
+import {levelTargetsToLevels, borderNamesToBorder, strToValue} from "../src/model/utilsParser";
 
 describe("Load Excel templates", () => {
     let graphData;

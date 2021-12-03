@@ -761,6 +761,34 @@
           },
           "relatedTo": "publications",
           "advanced": true
+        },
+        "parent": {
+          "description": "Publication that contains the given published resource, i.e., a book contains a figure",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Publication"
+            }
+          ],
+          "relatedTo": "children"
+        },
+        "children": {
+          "description": "Publication resources which are part of the given publication, i.e., book chapters or figures",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Publication"
+              }
+            ]
+          },
+          "relatedTo": "parent",
+          "advanced": true
         }
       }
     },
