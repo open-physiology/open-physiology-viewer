@@ -5,7 +5,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
-import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
+import {keys, values, isObject, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
@@ -113,6 +113,7 @@ const WindowResize = require('three-window-resize');
                         [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
+                        (onOpenExternal)="openExternal($event)"
                         (onEditResource)="editResource.emit($event)"
                         (onUpdateLabels)="graph?.showLabels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
@@ -516,6 +517,25 @@ export class WebGLSceneComponent {
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
+    }
+
+    openExternal(resource){
+        if (!resource || !this._graphData.localConventions){
+            return;
+        }
+        (resource.external||[]).forEach(external => {
+            if (external.id) {
+                let parts = external.id.split(":");
+                if (parts.length === 2) {
+                    let [prefix, suffix] = parts;
+                    let localConvention = this._graphData.localConventions.find(obj => obj.prefix === prefix);
+                    if (localConvention) {
+                        let url = localConvention.namespace + suffix;
+                        window.open(url, '_blank').focus();
+                    }
+                }
+            }
+        })
     }
 
     toggleLockControls(){

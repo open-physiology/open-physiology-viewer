@@ -44,6 +44,10 @@ import {StopPropagation} from "./gui/stopPropagation";
                     <legend>Selected</legend>
                     <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                     </resourceInfoPanel>
+                    <button *ngIf="!!_selected && _selected.external" title="Open external links"
+                            class="w3-hover-light-grey w3-right" (click)="onOpenExternal.emit(_selected)">
+                        <i class="fa fa-link"> </i>
+                    </button>
                     <button *ngIf="!!_selected" title="Edit"
                             class="w3-hover-light-grey w3-right" (click)="onEditResource.emit(_selected)">
                         <i class="fa fa-edit"> </i>
@@ -216,6 +220,7 @@ export class SettingsPanel {
     @Input() highlighted;
 
     @Output() onSelectBySearch     = new EventEmitter();
+    @Output() onOpenExternal       = new EventEmitter();
     @Output() onEditResource       = new EventEmitter();
     @Output() onUpdateLabels       = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
