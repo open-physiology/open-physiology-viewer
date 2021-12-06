@@ -88,14 +88,7 @@ function trasverseInternalLyphs(lyphs, dict) {
   lyphs.forEach((l) => {
     if (l.internalLyphs?.length > 0)
     {
-      const internalIds = l.internalLyphs.map((l) => l.id) ;
-      //we need the parent to extract the actual properties, see above example
-      const hostLyph = findParentInnerLyph(lyphs, l.id);
-      if (hostLyph)
-        dict[hostLyph] = internalIds ;
-      else
-        dict[l.id] = internalIds ; //most likely a chain
-      //dict[l.id] = l.internalLyphs.map((l) => l.id) ; //most likely a chain
+      dict[l.id] = l.internalLyphs.map((l) => l.id) ;
     }
   })
 }
@@ -191,20 +184,40 @@ function rotateAroundCenter(target, rx, ry, rz) {
   }
 }
 
-function fitToTargetRegion(target, source) {
+function fitToTargetRegion(target, source, lyphInLyph) {
   const targetSize = getBoundingBoxSize(target);
   const sourceSize = getBoundingBoxSize(source);
-  const sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
-  const sy = ( targetSize.y / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
-  const sz = ( targetSize.z / sourceSize.z ) ;
+
+  let sx = 0, sy = 0, sz = 0;
+
+  //Handle size for internal lyphs
+  if ( lyphInLyph ) {
+    let minD = targetSize.x < targetSize.y ? targetSize.x : targetSize.y;
+  
+    sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
+    sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
+    sz = ( targetSize.z / sourceSize.z ) ;
+  } else {
+    sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
+    sy = ( targetSize.y / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
+    sz = ( targetSize.z / sourceSize.z ) ;
+  }
 
   source.scale.setX(sx);
   source.scale.setY(sy);
 
+  let parent = target;
+  while ( parent.parent ){
+    if ( parent.parent.type == "Mesh" )
+      parent = parent.parent;
+    else
+      break;
+  }
+
   rotateAroundCenter(source
-                  , target.rotation.x
-                  , target.rotation.y
-                  , target.rotation.z);
+                  , parent.rotation.x
+                  , parent.rotation.y
+                  , parent.rotation.z);
   
   //source.scale.setY(sz);
 } 
@@ -437,13 +450,13 @@ function layoutLyphs(scene, hostLyphDic, lyphInLyph)
             if (lyphInLyph)
             {
               hostedLyphs.forEach((l)=> {
-                fitToTargetRegion(host, l);
+                fitToTargetRegion(host, l, lyphInLyph);
                 translateMeshToTarget(host, l);
               });
             }
             else {
               hostedLyphs.forEach((l)=> {
-                fitToTargetRegion(host, l);
+                fitToTargetRegion(host, l, lyphInLyph);
               });
               const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
               //putDebugObjectInPosition(scene, g.position);
@@ -451,7 +464,7 @@ function layoutLyphs(scene, hostLyphDic, lyphInLyph)
               //   removeEntity(scene, l);
               // });
               //console.log(calculateGroupCenter(g));
-              fitToTargetRegion(host, g);
+              fitToTargetRegion(host, g, lyphInLyph);
               //translateGroupToTarget(host, g);
               //translateGroupToOrigin(g);
               translateGroupToTarget(host, g);

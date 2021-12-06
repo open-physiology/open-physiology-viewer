@@ -8,12 +8,9 @@ const {Chain, Node} = modelClasses;
 Chain.prototype.update = function(){
     
     if (!this.root || !this.leaf){ 
-      console.log(this.id);
       return; 
     }
     let {start, end} = this.getWiredChainEnds();
-    console.log("Start ", start.id);
-    console.log("End ", end.id)
     start = extractCoords(start);
     end   = extractCoords(end);
     if (start && end) {
@@ -25,7 +22,6 @@ Chain.prototype.update = function(){
         let curve = this.wiredTo ? this.wiredTo.getCurve(start, end) : null;
         let length = (curve && curve.getLength) ? curve.getLength() : end.distanceTo(start);
         if (length < 5) {
-          console.log(this.id);
           return;
         }
         this.length = length;
