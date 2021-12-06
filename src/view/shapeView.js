@@ -265,8 +265,14 @@ Lyph.prototype.updateViewObjects = function(state) {
     if (!this.axis) { return; }
 
     let obj = this.viewObjects["main"] = this.viewObjects["2d"];
-    if (this.state.showLyphs3d && this.viewObjects["3d"]){
+
+    if (state.showLyphs3d && this.viewObjects["3d"]){
         obj = this.viewObjects["main"] = this.viewObjects["3d"];
+    }
+
+    if (!obj){
+        //Saves viewer from failing when trying to visualize a lyph template which was not replaced by an instance
+        return;
     }
 
     if (!this.layerIn) {//update label
@@ -277,7 +283,7 @@ Lyph.prototype.updateViewObjects = function(state) {
             }
         }
         //update lyph
-        obj.visible = this.isVisible && this.state.showLyphs;
+        obj.visible = this.isVisible && state.showLyphs;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
         copyCoords(obj.position, this.center);
