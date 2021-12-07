@@ -11,6 +11,7 @@ import Kapsule from 'kapsule';
 import {modelClasses} from '../../model/index';
 import {extractCoords} from '../util/utils';
 import './modelView'
+import { autoLayout } from './autoLayout'
 
 const {Graph} = modelClasses;
 /**
@@ -348,6 +349,7 @@ export default Kapsule({
             } else { layout['tick'](); }
 
             state.graphData.updateViewObjects(state);
+            autoLayout(state.graphScene, state.graphData);
         }
     }
 });
