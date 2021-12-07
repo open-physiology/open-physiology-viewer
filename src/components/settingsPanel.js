@@ -863,6 +863,8 @@ export class SettingsPanel {
           this.onToggleGroup.emit(group);
         }
       }
+
+      this.toggleAllDynamicGroup();
     }
 
     toggleAllDynamicGroup = () => {
