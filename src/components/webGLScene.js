@@ -508,15 +508,6 @@ export class WebGLSceneComponent {
         const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
         const forceStrength = (d, key) => isLayoutDimValid(d.layout, key) ? 1 : 0;
 
-        this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));
-        this.graph.d3Force("y", forceY().y(d => forceVal(d, "y")).strength(d => forceStrength(d, "y")));
-        this.graph.d3Force("z", forceZ().z(d => forceVal(d, "z")).strength(d => forceStrength(d, "z")));
-
-        this.graph.d3Force("link")
-            .distance(d => d.length )
-            .strength(d => (d.strength ? d.strength :
-                (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
-
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);

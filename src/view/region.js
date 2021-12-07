@@ -58,6 +58,9 @@ Region.prototype.updatePoints = function(edgeResolution){
  * @param state
  */
 Region.prototype.createViewObjects = function(state) {
+    if ( !this.hostedLyphs ){
+        return;
+    }
     Shape.prototype.createViewObjects.call(this, state);
     if (!this.viewObjects["main"]) {
         this.updatePoints(state.edgeResolution);
@@ -82,6 +85,10 @@ Region.prototype.createViewObjects = function(state) {
  * Update visual objects of a region
  */
 Region.prototype.updateViewObjects = function(state) {
+    if ( !this.hostedLyphs ){
+        return;
+    }
+
     Shape.prototype.updateViewObjects.call(this, state);
 
     let obj = this.viewObjects["main"];

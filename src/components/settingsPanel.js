@@ -77,7 +77,7 @@ const COLORS = {
                 <!--Group controls-->
 
                 <mat-accordion *ngIf="!!groups">
-                  <mat-expansion-panel>
+                  <mat-expansion-panel [expanded]="true">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         Groups
