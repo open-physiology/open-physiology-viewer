@@ -207,6 +207,12 @@ export class Chain extends GroupTemplate {
                 link.levelIn = chain.id;
             }
             chain.numLevels = chain.levels.length;
+            if (chain.root === undefined) {
+                chain.root = nodeIDs[0];
+            }
+            if (chain.leaf === undefined) {
+                chain.leaf = nodeIDs[n];
+            }
         }
 
         function deriveFromLevels(){

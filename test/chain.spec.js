@@ -7,6 +7,7 @@ import {
 } from './test.helper';
 import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
+import m1 from './data/M1-model'
 
 import {modelClasses} from '../src/model/index';
 
@@ -234,6 +235,33 @@ describe("Link joint chains (Keast Spinal)", () => {
         expect(firstInChain2.prevChainEndLevels[0]).to.be.an('object');
         expect(lastInChain1.nextChainStartLevels[0]).to.have.property('id').that.equals(firstInChain2.id);
         expect(firstInChain2.prevChainEndLevels[0]).to.have.property('id').that.equals(lastInChain1.id);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Expand chain template (M1)", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(m1, modelClasses);
+    });
+
+    it("Generated chain of lyphs has root and leaf", () => {
+        expect(graphData).to.have.property("chains");
+        expect(graphData.chains).to.be.an('array').that.has.length(1);
+
+        const ch1 = graphData.chains[0];
+        expect(ch1).to.be.an('object');
+        expect(ch1).to.have.property("name").that.equal("Airways");
+        expect(ch1).to.have.property("numLevels").that.equal(6);
+        expect(ch1).to.have.property("levels").that.is.an("array");
+        expect(ch1).to.have.property("root").that.is.an("object");
+        expect(ch1).to.have.property("leaf").that.is.an("object");
+        expect(ch1).to.have.property("wiredTo").that.is.an("object");
+        expect(ch1.wiredTo).to.have.property("id").that.equals("w-X-f1L");
+        expect(ch1.levels.length).to.be.equal(6);
     });
 
     after(() => {
