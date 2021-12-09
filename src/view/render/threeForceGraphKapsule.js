@@ -261,6 +261,9 @@ export default Kapsule({
 
     init(threeObj, state) {
         state.graphScene = threeObj;
+        window.autoLayout = ()=> { 
+            autoLayout(state.graphScene, state.graphData);
+        };
     },
 
     update(state) {

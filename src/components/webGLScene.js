@@ -52,7 +52,7 @@ import { autoLayout } from '../view/render/autoLayout'
                                 (click)="toggleAntialias()" title="Disable antialiasing">
                             <i class="fa fa-paper-plane"> </i>
                         </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="graph?.graphData(graphData)"
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="autoLayout()"
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
@@ -291,6 +291,11 @@ export class WebGLSceneComponent {
         if (this.graph){ this.graph.labelRelSize(this.labelRelSize); }
     }
 
+    autoLayout(){
+        window.autoLayout();
+        this.renderer.render(this.scene, this.camera);
+    }
+
     get graphData() {
         return this._graphData;
     }
@@ -465,7 +470,6 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
-      window.autoLayout = autoLayout ;
         this.graph = new ThreeForceGraph()
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)

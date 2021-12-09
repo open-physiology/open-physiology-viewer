@@ -24,7 +24,7 @@ import {$Field, $SchemaClass} from "../model";
                            [style.display]="'none'"
                            (change)="load(fileInput.files)"
                     />
-                    <button class="w3-bar-item w3-hover-light-grey" (click)="draw()"
+                    <button class="w3-bar-item w3-hover-light-grey" (click)="window.autoLayout()"
                             title="Update layout">
                         <i class="fa fa-refresh"> </i>
                     </button>
