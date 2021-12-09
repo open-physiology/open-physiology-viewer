@@ -496,14 +496,14 @@ export class Chain extends GroupTemplate {
         if (this.wiredTo) {
             start = this.wiredTo.source;
             end   = this.wiredTo.target;
+            if (this.startFromLeaf){
+                let tmp = start;
+                start = end;
+                end = tmp;
+            }
         } else {
             start = this.root.anchoredTo? this.root.anchoredTo: this.root.layout;
             end   = this.leaf.anchoredTo? this.leaf.anchoredTo: this.leaf.layout;
-        }
-        if (this.startFromLeaf){
-            let tmp = start;
-            start = end;
-            end = tmp;
         }
         return {start, end};
     }

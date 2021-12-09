@@ -17,12 +17,10 @@ Chain.prototype.update = function(){
     start = extractCoords(start);
     end   = extractCoords(end);
     if (start && end) {
-        if (this.startFromLeaf){
-            let tmp = end;
-            end = start;
-            start = tmp;
+        let curve = null;
+        if (this.wiredTo){
+            curve = this.startFromLeaf? this.wiredTo.getCurve(end, start) : this.wiredTo.getCurve(start, end);
         }
-        let curve = this.wiredTo? this.wiredTo.getCurve(start, end): null;
         let length = curve && curve.getLength ? curve.getLength() : end.distanceTo(start);
         if (length < 5) {
             return;
@@ -40,7 +38,9 @@ Chain.prototype.update = function(){
             }
             let node = this.levels[i].target;
             if (node && !node.anchoredTo) {
-                let p = getPoint(curve, start, end, (i + 1) / this.levels.length);
+                let p = this.startFromLeaf?
+                    getPoint(curve, end, start, (this.levels.length - i - 1) / this.levels.length)
+                    : getPoint(curve, start, end, (i + 1) / this.levels.length);
                 copyCoords(node.layout, p);
                 node.fixed = true;
             }
