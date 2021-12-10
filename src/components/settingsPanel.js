@@ -864,6 +864,7 @@ export class SettingsPanel {
         }
       }
 
+      // If all groups are toggled, toggle dynamic groups too. 
       this.toggleAllDynamicGroup();
     }
 
