@@ -1,5 +1,6 @@
 const LYPH_H_PERCENT_MARGIN = 0.10;
 const LYPH_V_PERCENT_MARGIN = 0.10;
+const MAX_LYPH_WIDTH = 100;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -278,6 +279,30 @@ function translateGroupToTarget(target, group) {
   const targetPos = getCenterPoint(target);
   group.translateX(targetPos.x - groupPos.x) ; //- ( objSize.x * 0.5 * 0 );
   group.translateY(targetPos.y - groupPos.y) ; //- ( objSize.y * 0.5 * 0);
+}
+
+function preventMaxSizeLyph() {
+  let all = [];
+  let kapsuleChildren = scene.children ;
+  trasverseSceneChildren(kapsuleChildren, all);
+  let lyphs = getSceneObjectByModelClass(all, 'Lyph');
+  lyphs.forEach((l)=>{
+    checkMaxLyphSize(l);
+  })
+}
+
+function checkMaxLyphSize(target) {
+  if (target)
+  {
+    const targetSize = getBoundingBox(target);
+    const width = targetSize.max.x - targetSize.min.x ;
+    if (width > MAX_LYPH_WIDTH)
+    {
+      const f = MAX_LYPH_WIDTH / width ;
+      target.scale.setX(f);
+      target.scale.setY(f);
+    }
+  }
 }
 
 function arrangeLyphsGrid(lyphs, h, v) {
@@ -623,6 +648,7 @@ export function autoLayout(scene, graphData) {
     }
     });
   }
+  preventMaxSizeLyph();
 }
 
 export function clearByObjectType(scene, type) {
