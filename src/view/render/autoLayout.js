@@ -1,6 +1,7 @@
 const LYPH_H_PERCENT_MARGIN = 0.10;
 const LYPH_V_PERCENT_MARGIN = 0.10;
 const MAX_LYPH_WIDTH = 100;
+const LYPH_LINK_SIZE_PROPORTION = 0.75;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -90,6 +91,22 @@ function trasverseInternalLyphs(lyphs, dict) {
     if (l.internalLyphs?.length > 0)
     {
       dict[l.id] = l.internalLyphs.map((l) => l.id) ;
+    }
+  })
+}
+
+function trasverseInternalLyphsUpperLevel(lyphs, dict) {
+  lyphs.forEach((l) => {
+    if (l.internalLyphs?.length > 0)
+    {
+      const internalIds = l.internalLyphs.map((l) => l.id) ;
+      //we need the parent to extract the actual properties, see above example
+      const hostLyph = findParentInnerLyph(lyphs, l.id);
+      if (hostLyph)
+        dict[hostLyph] = internalIds ;
+      else
+        dict[l.id] = internalIds ; //most likely a chain
+      //dict[l.id] = l.internalLyphs.map((l) => l.id) ; //most likely a chain
     }
   })
 }
@@ -189,14 +206,16 @@ function fitToTargetRegion(target, source, lyphInLyph) {
   const targetSize = getBoundingBoxSize(target);
   const sourceSize = getBoundingBoxSize(source);
 
-  let sx = 0, sy = 0, sz = 0;
+  let sx = 1, sy = 1, sz = 1;
 
   //Handle size for internal lyphs
   if ( lyphInLyph ) {
     let minD = targetSize.x < targetSize.y ? targetSize.x : targetSize.y;
+
+    //get scaling from
   
-    sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
-    sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
+    sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) * target.parent.scale.x;
+    sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) * target.parent.scale.y;
     sz = ( targetSize.z / sourceSize.z ) ;
   } else {
     sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
@@ -281,26 +300,43 @@ function translateGroupToTarget(target, group) {
   group.translateY(targetPos.y - groupPos.y) ; //- ( objSize.y * 0.5 * 0);
 }
 
-function preventMaxSizeLyph() {
+function autoSizeLyphs() {
   let all = [];
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
   lyphs.forEach((l)=>{
-    checkMaxLyphSize(l);
+    autoSizeLyph(l);
   })
 }
 
-function checkMaxLyphSize(target) {
-  if (target)
+function autoSizeLyph(lyph) {
+  if (lyph)
   {
-    const targetSize = getBoundingBox(target);
-    const width = targetSize.max.x - targetSize.min.x ;
-    if (width > MAX_LYPH_WIDTH)
+    
+    let lyphSize = getBoundingBox(lyph);
+    let lyphWidth = lyphSize.max.x - lyphSize.min.x ;
+    let f = 1.0 ;
+    //check chain link proportion
+    const link = lyph.userData?.inChain?.levels[0] ;
+    if (link)//any link should be good enough as they are of the same size
     {
-      const f = MAX_LYPH_WIDTH / width ;
-      target.scale.setX(f);
-      target.scale.setY(f);
+      const linkWidth = link.length * LYPH_LINK_SIZE_PROPORTION * 0.5;
+      if (lyphWidth < linkWidth && lyphWidth < MAX_LYPH_WIDTH)
+      {
+        f = linkWidth / lyphWidth ;
+        lyph.scale.setX(f);
+        lyph.scale.setY(f);
+      }
+      //reassign for max size check 
+      lyphWidth = linkWidth ;
+    }
+    //prevent max size
+    if (lyphWidth > MAX_LYPH_WIDTH)
+    {
+      f = MAX_LYPH_WIDTH / lyphWidth ;
+      lyph.scale.setX(f);
+      lyph.scale.setY(f);
     }
   }
 }
@@ -648,7 +684,7 @@ export function autoLayout(scene, graphData) {
     }
     });
   }
-  preventMaxSizeLyph();
+  autoSizeLyphs();
 }
 
 export function clearByObjectType(scene, type) {
