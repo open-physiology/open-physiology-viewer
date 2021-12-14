@@ -1,7 +1,16 @@
+import {$Field, modelClasses} from "../../model";
+import {
+ getDefaultControlPoint
+} from "./../util/utils";
+const {Edge} = modelClasses;
+
 const LYPH_H_PERCENT_MARGIN = 0.10;
 const LYPH_V_PERCENT_MARGIN = 0.10;
 const MAX_LYPH_WIDTH = 100;
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
+const DENDRYTE = "dend-bag";
+const AXON = "axon-bag";
+const MAX_POINTS = 100;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -58,19 +67,23 @@ function trasverseHostedBy(graphData, dict) {
   })
 }
 
-// {
-//   "id": "226",
-//   "name": "Epiglottis",
-//   "external": [
-//       "UBERON:0000388",
-//       "ILX:0103886"
-//   ],
-//   "layers": [
-//       "115",
-//       "114in226",
-//       "103"
-//   ]
-// }
+function traverseWiredTo(graphData, dict) {
+  Object.keys(graphData).forEach((k) => {
+    const val = graphData[k];
+    if (Array.isArray(val)) {
+      val.forEach((child)=>{
+        const hostKey = child.wiredTo?.id ;
+        if (hostKey)
+        {
+          if (dict[hostKey])
+            dict[hostKey].push(child.id)
+          else
+            dict[hostKey] = [child.id]; //init
+        }
+      })
+    }
+  })
+}
 
 function findParentInnerLyph(lyphs, id)
 {
@@ -214,8 +227,8 @@ function fitToTargetRegion(target, source, lyphInLyph) {
 
     //get scaling from
   
-    sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) * target.parent.scale.x;
-    sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) * target.parent.scale.y;
+    sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN);
+    sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
     sz = ( targetSize.z / sourceSize.z ) ;
   } else {
     sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
@@ -237,27 +250,14 @@ function fitToTargetRegion(target, source, lyphInLyph) {
   rotateAroundCenter(source
                   , parent.rotation.x
                   , parent.rotation.y
-                  , parent.rotation.z);
-  
-  //source.scale.setY(sz);
+                  , parent.rotation.z);  
 } 
-
-function getWorldPosition(scene, obj)
-{
-  scene.updateMatrixWorld(true);
-  var position = new THREE.Vector3();
-  position.getPositionFromMatrix( obj.matrixWorld );
-  return position ;
-}
 
 function getMiddle(object)
 {
   var middle = new THREE.Vector3();
   object.geometry.computeBoundingBox();
-  const boundingBox = getBoundingBox(object);
-  middle.x = (boundingBox.max.x + boundingBox.min.x) / 2;
-  middle.y = (boundingBox.max.y + boundingBox.min.y) / 2;
-  middle.z = (boundingBox.max.z + boundingBox.min.z) / 2;
+  object.geometry.boundingBox.getCenter( middle );
   return middle ;
 }
 
@@ -276,20 +276,20 @@ function translateGroupToOrigin(group) {
 }
 
 function removeEntity(scene, obj) {
-  var selectedObject = scene.getObjectByName(obj.name);
-  scene.remove( selectedObject );
+  scene.remove( obj );
 }
 
-function setMeshPos(obj, x, y)
+function setMeshPos(obj, x, y, z)
 {
   obj.position.x = x ;
   obj.position.y = y ;
+  obj.position.z = z ;
 }
 
 function translateMeshToTarget(target, mesh)
 {
   const targetPos = getCenterPoint(target);
-  setMeshPos(mesh, targetPos.x, targetPos.y)
+  setMeshPos(mesh, targetPos.x, targetPos.y, targetPos.z + 1)
 }
 
 function translateGroupToTarget(target, group) {
@@ -298,6 +298,30 @@ function translateGroupToTarget(target, group) {
   const targetPos = getCenterPoint(target);
   group.translateX(targetPos.x - groupPos.x) ; //- ( objSize.x * 0.5 * 0 );
   group.translateY(targetPos.y - groupPos.y) ; //- ( objSize.y * 0.5 * 0);
+}
+
+function preventMaxSizeLyph() {
+  let all = [];
+  let kapsuleChildren = scene.children ;
+  trasverseSceneChildren(kapsuleChildren, all);
+  let lyphs = getSceneObjectByModelClass(all, 'Lyph');
+  lyphs.forEach((l)=>{
+    checkMaxLyphSize(l);
+  })
+}
+
+function checkMaxLyphSize(target) {
+  if (target)
+  {
+    const targetSize = getBoundingBox(target);
+    const width = targetSize.max.x - targetSize.min.x ;
+    if (width > MAX_LYPH_WIDTH)
+    {
+      const f = MAX_LYPH_WIDTH / width ;
+      target.scale.setX(f);
+      target.scale.setY(f);
+    }
+  }
 }
 
 function autoSizeLyphs() {
@@ -453,22 +477,6 @@ function getBorder(target)
   return bx ;
 }
 
-// lyphs within lyph are hosted by layers, extract layers from the parent and not the layer
-
-// {
-//   "id": "226",
-//   "name": "Epiglottis",
-//   "external": [
-//       "UBERON:0000388",
-//       "ILX:0103886"
-//   ],
-//   "layers": [
-//       "115",
-//       "114in226",
-//       "103"
-//   ]
-// }
-
 function getHostParentForLyph(all, hostId)
 {
   return all.find((c)=> c.userData.id == hostId )
@@ -477,7 +485,9 @@ function getHostParentForLyph(all, hostId)
 function computeGroupCenter(group)
 {
   let box = new THREE.Box3().setFromObject(group)
-  return box.center();
+  let position = new THREE.Vector3();
+  box.getCenter(position);
+  return position;
 }
 
 function layoutLyphs(scene, hostLyphDic, lyphInLyph)
@@ -486,7 +496,7 @@ function layoutLyphs(scene, hostLyphDic, lyphInLyph)
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
-  clearByObjectType(scene, 'Lyph');
+  //clearByObjectType(scene, 'Lyph');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
     const host = getHostParentForLyph(all, hostKey) ;
@@ -531,6 +541,8 @@ function layoutLyphs(scene, hostLyphDic, lyphInLyph)
               //translateGroupToOrigin(g);
               translateGroupToTarget(host, g);
               scene.add(g);
+              g?.geometry?.computeBoundingBox();
+              g.children.forEach( gm => gm.geometry.computeBoundingBox());
             }
           }
         }
@@ -541,46 +553,101 @@ function layoutLyphs(scene, hostLyphDic, lyphInLyph)
 
 function getPointInBetweenByPerc(pointA, pointB, percentage) {
     
-  var dir = pointB.clone().sub(pointA);
-  var len = dir.length();
-  dir = dir.normalize().multiplyScalar(len*percentage);
-  return pointA.clone().add(dir);
+  var dir = pointB?.clone().sub(pointA);
+  var len = dir?.length();
+  dir = dir?.normalize().multiplyScalar(len*percentage);
+  return pointA?.clone().add(dir);
      
 }
 
-function layoutChains(scene, hostChainDic, hostedLyphs)
+function getWorldPosition(host){
+  var position = new THREE.Vector3();
+  host.getWorldPosition(position);
+  return position;
+}
+
+function validPosition(position){
+  if( isNaN(position.x) || isNaN(position.y) || isNaN(position.z) ){
+    return false;
+  }
+
+  return true;
+}
+
+function layoutChainLyph(host, lyph){
+  lyph && fitToTargetRegion(host, lyph, true)
+  let middle = getWorldPosition(host);
+  if ( lyph?.userData?.supertype?.id === DENDRYTE ){
+    lyph && setMeshPos(lyph, middle.x -  getBoundingBoxSize(host)?.x, middle.y, middle.z + 1);
+  } else if ( lyph?.userData?.supertype?.id === AXON ){
+    lyph && setMeshPos(lyph, middle.x + getBoundingBoxSize(host)?.x, middle.y, middle.z + 1);
+  } else {
+    lyph && setMeshPos(lyph, middle.x, middle.y, middle.z + 1);
+  }
+}
+
+function layoutChains(scene, hostChainDic, hostedLyphs, links)
 {
   let all = [];
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
-  clearByObjectType(scene, 'Lyph');
-  Object.keys(hostChainDic).forEach((hostKey) => {
-    //get target aspect ratio
-    const leaf = lyphs.find( lyph => lyph.userData.id === hostChainDic[hostKey]["leaf"]["parent"]);
-    if (leaf?.geometry ) 
-    {
-      const lyph = lyphs.find( lyph => lyph.userData.id === hostChainDic[hostKey]["leaf"]["id"]);
-      var middle = getCenterPoint(leaf);
-      lyph && setMeshPos(lyph, middle.x, middle.y); }
 
-    const root = lyphs.find( lyph => lyph.userData.id === hostChainDic[hostKey]["root"]["parent"]);
-    if (root?.geometry ) 
-    {
-      const lyph = lyphs.find( lyph => lyph.userData.id === hostChainDic[hostKey]["root"]["id"]);
-      var middle = getCenterPoint(root);
-      lyph && setMeshPos(lyph, boundingBox.x, boundingBox.y);
-    }
+  Object.keys(hostChainDic).forEach((hostKey) => {    
+    if ( hostChainDic[hostKey]["lyphs"].length === 1 ){
+      //get target aspect ratio
+      let leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.endsIn?.viewObjects["main"];      
+      const lyph = hostChainDic[hostKey]["lyphs"][0]?.viewObjects["main"];
+      leafParent?.geometry && layoutChainLyph(leafParent, lyph);
+    } else {
+      //Position lyph at one of the end points of the chain
+      let leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.endsIn?.viewObjects["main"];
+      const lyph = hostChainDic[hostKey]["lyphs"][0]?.viewObjects["main"];
+      leafParent && layoutChainLyph(leafParent, lyph);
+      let leafParentPosition = leafParent ? getWorldPosition(leafParent) : null;
+      
+      //Position lyph at one of the end points of the chain
+      const endIndex = hostChainDic[hostKey]["lyphs"].length - 1;
+      let rootParent = hostChainDic[hostKey]["lyphs"][endIndex]?.conveys?.endsIn?.viewObjects["main"]
+      rootParent && layoutChainLyph(rootParent, lyph);
+      let rootParentPosition = rootParent ? getWorldPosition(rootParent) : null;
 
-    if ( root?.geometry && leaf?.geometry ){
-      const chainLyphs = hostChainDic[hostKey]["lyphs"];
-      chainLyphs?.forEach( (lyphId, index) => { 
-        if ( hostedLyphs.indexOf(lyphId) == -1) {
-          const lyph = lyphs.find( lyph => lyph.userData.id === lyphId );
-          const newPoint = getPointInBetweenByPerc(root.position, leaf.position, .5);
-          (lyph ) && setMeshPos(lyph, newPoint.x, newPoint.y);
-        }
-      });
+      if ( rootParent?.geometry && leafParent?.geometry ){
+        const chainLyphs = hostChainDic[hostKey]["lyphs"];
+        let lastPoint = rootParentPosition;
+        chainLyphs?.forEach( (lyph, index) => { 
+            let lyphObject = lyph.viewObjects["main"];
+            let parent = lyph?.conveys?.fasciculatesIn?.viewObjects["main"];
+            if ( parent === undefined ) {
+              parent = lyph?.conveys?.endsIn?.viewObjects["main"];
+            }
+
+            (lyphObject && parent ) && layoutChainLyph(parent, lyphObject);
+            let newPoint = getPointInBetweenByPerc(rootParentPosition,leafParentPosition, index/(chainLyphs.length-1));
+            (lyphObject && parent === undefined ) && setMeshPos(lyphObject, newPoint.x, newPoint.y, newPoint.z + 1);
+
+            if (lyphObject) {
+              let link = links.find( link => link.userData.id === lyphObject.userData.conveys.id);
+              let curvature = link?.curvature ? link.curvature : 10;
+              let points = [lastPoint, getDefaultControlPoint(lastPoint, getWorldPosition(lyphObject), curvature),getWorldPosition(lyphObject)];
+              const curve = new THREE.SplineCurve( points);
+              points = curve.getPoints( MAX_POINTS );
+              const geometry = new THREE.BufferGeometry().setFromPoints( points );
+              
+              const material = new THREE.LineBasicMaterial( { color : 0XA9A8A8 } );
+              
+              // Create the final object to add to the scene
+              const line = new THREE.Line( geometry, material );
+              if ( link ) {
+                line?.geometry?.computeBoundingBox();
+                line.userData = link.userData;
+                scene.remove(link);
+                scene.add(line);
+              }
+              lastPoint = getWorldPosition(lyphObject);
+            }
+        });
+      }
     }
   });
 }
@@ -638,58 +705,60 @@ export function removeDisconnectedObjects(model, joinModel) {
   return updatedModel;
 }
 
+function autoLayoutChains(scene, graphData, links){
+  let chainedLyphs = {};
+  if( graphData.chains ) {
+    parent.geometry?.computeBoundingBox();
+    const hostedLyphs = [];
+    graphData.chains.forEach ( chain => {
+      if ( chain.wiredTo || chain.hostedBy ){
+        chain.lyphs.forEach( lyph => hostedLyphs.push(lyph.id));
+      }
+    });
+    graphData.chains.forEach( chain => { 
+      if ( chain.wiredTo === undefined && chain.hostedBy === undefined ){
+        chainedLyphs[chain.id] = {lyphs : {}};
+        chainedLyphs[chain.id]["lyphs"] = chain.levels?.map( link => link.conveyingLyph );
+        chainedLyphs[chain.id]["chain"] = chain;
+        if ( chainedLyphs[chain.id]["lyphs"] ) {
+          const link = links.find( link => {
+            chain.leaf.id === link.userData.source.id && chain.root.id === link.userData.target.id
+          });
+          layoutChains(scene, chainedLyphs, hostedLyphs, links);
+        }
+        chainedLyphs = {};
+      }
+    });
+  }
+}
+
 export function autoLayout(scene, graphData) {
 
   preventZFighting(scene);
-
-  const hostLyphRegionDic = {};
+  //clearByObjectType(scene, "Link");
+  let hostLyphRegionDic = {};
+  trasverseHostedBy(graphData, hostLyphRegionDic);
+  layoutLyphs(scene, hostLyphRegionDic, false);
   trasverseHostedBy(graphData, hostLyphRegionDic);
   layoutLyphs(scene, hostLyphRegionDic, false);
 
-  const hostLyphLyphDic = {};
+  let hostLyphLyphDic = {};
   if(graphData.lyphs)
   {
     trasverseInternalLyphs(graphData.lyphs, hostLyphLyphDic);
     layoutLyphs(scene, hostLyphLyphDic, true);
   }
 
-  let chainedLyphs = {};
-  if( graphData.chains ) {
-    parent.geometry?.computeBoundingBox();
-    const hostedLyphs = [];
-    graphData.chains.map( chain => { 
-      chain.housingLyphs.map( hl => {
-        if ( chain.hostedBy != undefined || chain.wiredTo != undefined  ){
-          hostedLyphs.push(hl.id);
-        }
-      });
-      chain.lyphs.map( hl => {
-        if ( chain.hostedBy != undefined || chain.wiredTo != undefined  ){
-          hostedLyphs.push(hl.id)
-        }
-      });
-    });
-    graphData.chains.forEach( chain => { 
-      if ( chain.wiredTo === undefined && chain.hostedBy === undefined ){
-      chainedLyphs[chain.id] = {leaf : {}, root : {}};
-      chainedLyphs[chain.id]["leaf"]["id"] = chain.leaf?.id;
-      chainedLyphs[chain.id]["leaf"]["parent"] = chain.leaf?.internalIn?.id;
-      chainedLyphs[chain.id]["root"]["id"] = chain.root?.id
-      chainedLyphs[chain.id]["root"]["parent"] = chain.root?.internalIn?.id
-      chainedLyphs[chain.id]["lyphs"] = chain.housingLyphs?.map( c => c.id );
-      if ( chainedLyphs[chain.id]["lyphs"] && chainedLyphs[chain.id]["leaf"] && chainedLyphs[chain.id]["root"] ) {
-        layoutChains(scene, chainedLyphs, hostedLyphs);
-        chainedLyphs = {};
-      }
-    }
-    });
-  }
-  autoSizeLyphs();
+  //autoSizeLyphs();
+  let links = getSceneObjectByModelClass(scene.children, "Link");
+  autoLayoutChains(scene, graphData, links);
+  preventMaxSizeLyph();
+  links.forEach( link => !link.modifiedChain ? link.visible = false : link.visible = false);
 }
 
 export function clearByObjectType(scene, type) {
-  const lyphs = getSceneObjectByModelClass(scene.children[5].children, type);
-  lyphs.forEach((l)=> {
+  const objects = getSceneObjectByModelClass(scene.children, type);
+  objects.forEach((l)=> {
     removeEntity(scene, l);
   });
 }
