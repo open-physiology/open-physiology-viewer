@@ -15,7 +15,8 @@ import {
     getGenName,
     $Field,
     $Color,
-    $Prefix, LYPH_TOPOLOGY, $SchemaClass
+    $Prefix,
+    $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, isArray, flatten} from 'lodash-bound';
@@ -362,6 +363,10 @@ export class Chain extends GroupTemplate {
             lyph.internalNodes.push(node);
         };
 
+        if (chain.housingLyphs.length !== chain.levels.length){
+            logger.error($LogMsg.CHAIN_MISMATCH_HOUSING, chain.id, chain.housingLyphs.length, chain.levels.length);
+        }
+
         let N = Math.min(chain.housingLyphs.length, chain.levels.length);
         parentGroup.coalescences = parentGroup.coalescences || [];
 
@@ -445,7 +450,9 @@ export class Chain extends GroupTemplate {
                     };
                     let targetClone = Node.clone(targetNode);
                     addBorderNode(hostLyph.border.borders[sourceBorderIndex], targetClone.id);
-                    let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
+                    // Note: the commented broke chain connectivity, it could be a reason issue #129 appeared
+                    // let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
+                    let lnk = Link.createCollapsibleLink(targetClone.id, targetNode.id);
                     level.target = targetClone.id;
                     chain.group.nodes.push(targetClone);
                     chain.group.links.push(lnk);
@@ -488,6 +495,35 @@ export class Chain extends GroupTemplate {
         });
         if (sameWidth && minWidth < MAX_WIDTH){
             (this.levels||[]).forEach(lnk => lnk.conveyingLyph && (lnk.conveyingLyph.width = minWidth));
+        }
+    }
+
+    /**
+     * Connect chains that share a source or target via nextChainStartLevels and prevChainEndLevels
+     * Note: Housed chains connected via cloned or joint nodes must already have these properties set,
+     * hence we do not analyze chain end clones.
+     * Note: Chains are connected after relationship synchronization, so we must set both sides
+     */
+    connect(){
+        if ((this.levels||[]).length === 0){
+            logger.error($LogMsg.CHAIN_NO_LEVELS, this.id);
+            return;
+        }
+        function connectNeighbor(host, neighbor, prop){
+            host[prop] = host[prop] || [];
+            if (!host[prop].find(e => e.id === neighbor.id)){
+                host[prop].push(neighbor);
+            }
+        }
+        if (this.root) {
+            (this.root.leafOf||[]).forEach(prev => prev.levels && connectNeighbor(this.levels[0], prev.levels[prev.levels.length - 1], $Field.prevChainEndLevels));
+        } else {
+            logger.error($LogMsg.CHAIN_NO_ROOT, this.id)
+        }
+        if (this.leaf){
+            (this.leaf.rootOf||[]).forEach(next => next.levels && connectNeighbor(this.levels[this.levels.length - 1], next.levels[0], $Field.nextChainStartLevels));
+        } else {
+            logger.error($LogMsg.CHAIN_NO_LEAF, this.id)
         }
     }
 

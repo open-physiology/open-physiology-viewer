@@ -207,6 +207,7 @@ export class Graph extends Group{
         }
 
         res.syncRelationships(modelClasses, entitiesByID, namespace);
+
         res.entitiesByID = entitiesByID;
 
         if (!res.generated) {
@@ -225,33 +226,13 @@ export class Graph extends Group{
             });
         }
 
-        //Validate link processes
-        (res.links||[]).forEach(link => {
-            if (link instanceof modelClasses.Link){
-                link.validateProcess();
-                if (!link.source.sourceOf){
-                    logger.error($LogMsg.NODE_NO_LINK_REF, link);
-                    return;
-                }
-                if (!link.target.targetOf){
-                    logger.error($LogMsg.NODE_NO_LINK_REF, link);
-                    return;
-                }
-                if (link.source.sourceOf.length === 1 && link.target.targetOf === 1){
-                    link.geometry = modelClasses.Link.LINK_GEOMETRY.INVISIBLE;
-                    link.source.invisible = true;
-                    link.target.invisible = true;
-                }
-            } else {
-                logger.error($LogMsg.CLASS_ERROR_RESOURCE, "validateProcess", link, modelClasses.Link.name);
-            }
-        });
+        //Validate
+        (res.links||[]).forEach(r => r.validate());
+        (res.coalescences||[]).forEach(r => r.validate());
+        (res.channels||[]).forEach(r => r.validate(res));
 
-        //Validate coalescences
-        (res.coalescences || []).forEach(r => r.validate());
-
-        //Validate channels
-        (res.channels || []).forEach(r => r.validate(res));
+        //Connect chain's last level with the following chain's first level (issue #129)
+        (res.chains||[]).forEach(chain => chain.connect());
 
         const faultyExternal = [];
         (res.external || []).forEach(r => {

@@ -1268,6 +1268,9 @@
             "target",
             "conveyingLyph",
             "fasciculatesIn",
+            "endsIn",
+            "nextChainStartLevels",
+            "prevChainEndLevels",
             "generated",
             "length"
           ]
@@ -1881,6 +1884,8 @@
             "rootOf",
             "leafOf",
             "internalIn",
+            "clones",
+            "cloneOf",
             "generated"
           ]
         },

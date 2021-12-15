@@ -128,9 +128,14 @@ export const $LogMsg = {
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
     CHAIN_WRONG_TOPOLOGY        : "Chain's topology is incorrect",
-    DYNAMIC_ABSTRACT_SEED       : "Skipping annotation of a dynamic group seeded by a lyph template",
+    CHAIN_NO_ROOT               : "A chain without root",
+    CHAIN_NO_LEAF               : "A chain without leaf",
+    CHAIN_NO_LEVELS             : "A chain without levels",
+    CHAIN_MISMATCH_HOUSING      : "Mismatch between number of levels and the number of housing lyphs",
 
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
+
+    DYNAMIC_ABSTRACT_SEED       : "Skipping annotation of a dynamic group seeded by a lyph template",
 
     EXCEL_DATA_TYPE_UNKNOWN     : "Excel to JSON: failed to determine data type",
     EXCEL_INVALID_COLUMN_NAME   : "Excel to JSON: invalid column name",
