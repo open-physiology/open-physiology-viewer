@@ -440,7 +440,7 @@ export class Resource{
          * @param depth - depth of nested resources to output
          * @returns {*} JSON object or an array of JSON objects without circular references
          */
-        function fieldToJSON(value, depth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
+        function fieldToJSON(value, depth) { return value::isArray()? value.map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
         if (depth <= 0) {
             return this.id? this.id: null;

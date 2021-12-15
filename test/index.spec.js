@@ -247,6 +247,20 @@ describe("Serialize data", () => {
         expect(lyph.border.borders[3]).to.have.property("conveyingLyph");
         graphData.logger.clear();
     });
+
+    it("Housing chain layers serialized", () => {
+        graphData = modelClasses.Graph.fromJSON(keast, modelClasses);
+        let serializedGraphData = graphData.toJSON(3);
+        let chain = serializedGraphData.chains.find(e => e.id === "acn1");
+        expect(chain).to.be.an('object');
+        expect(chain).to.have.property("housingLyphs");
+        expect(chain).to.have.property("housingLayers");
+        expect(chain.housingLyphs).to.be.an('array').that.has.length(4);
+        expect(chain.housingLayers).to.be.an('array').that.has.length(4);
+        expect(chain.housingLayers[0]).to.be.equal(0);
+        expect(chain.housingLayers[1]).to.be.equal(2);
+        graphData.logger.clear();
+    });
 });
 
 describe("Serialize scaffold", () => {
