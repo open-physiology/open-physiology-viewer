@@ -351,6 +351,7 @@ export class LinkModel extends Model {
 
     }
 
-
+    linkObj.geometry.computeBoundingSphere(); 
+    linkObj.preComputedBoundingSphereRadius = obj.geometry.boundingSphere.radius ;
   }
 }

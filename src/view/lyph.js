@@ -160,7 +160,7 @@ Lyph.prototype.createViewObjects = function(state) {
             layer.createViewObjects(state);
             let layerObj = layer.viewObjects["2d"];
             this.viewObjects["2d"].add(layerObj);
-            layerObj.translateX(relOffset);
+            //layerObj.translateX(relOffset);
             relOffset += layer.width;
 
             let layerObj3d = layer.viewObjects["3d"];

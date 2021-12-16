@@ -108,6 +108,10 @@ Link.prototype.createViewObjects = function(state){
 
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
+        
+        obj.geometry.computeBoundingSphere(); 
+        obj.preComputedBoundingSphereRadius = obj.geometry.boundingSphere.radius ;
+
         this.viewObjects["main"] = obj;
     }
 

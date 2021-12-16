@@ -179,7 +179,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers   = {};
-    highlightColor = 0xff0000;
+    highlightColor = 0xff073a ; //0xff073a;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;

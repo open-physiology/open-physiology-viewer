@@ -21,6 +21,8 @@ import { GeometryFactory } from './util/geometryFactory'
       let obj = GeometryFactory.instance().createMesh(geometry, material);
       // Attach vertice data
       obj.userData = this;
+      obj.geometry.computeBoundingSphere(); 
+      obj.preComputedBoundingSphereRadius = obj.geometry.boundingSphere.radius ;
       this.viewObjects["main"] = obj;
   }
   this.createLabels();
