@@ -11,8 +11,6 @@ const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend-bag";
 const AXON = "axon-bag";
 const MAX_POINTS = 100;
-const AXON_RATIO = .4;
-const DENDRYTE_RATIO = .4;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -226,6 +224,8 @@ function fitToTargetRegion(target, source, lyphInLyph) {
   //Handle size for internal lyphs
   if ( lyphInLyph ) {
     let minD = targetSize.x < targetSize.y ? targetSize.x : targetSize.y;
+
+    //get scaling from
   
     sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN);
     sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
@@ -581,12 +581,8 @@ function layoutChainLyph(host, lyph){
     lyph && setMeshPos(lyph, middle.x -  getBoundingBoxSize(host)?.x, middle.y, middle.z + 1);
   } else if ( lyph?.userData?.supertype?.id === AXON ){
     lyph && setMeshPos(lyph, middle.x + getBoundingBoxSize(host)?.x, middle.y, middle.z + 1);
-    lyph?.scale?.setX(lyph?.scale?.x * AXON_RATIO);
-    lyph?.scale?.setY(lyph?.scale?.y * AXON_RATIO);
   } else {
     lyph && setMeshPos(lyph, middle.x, middle.y, middle.z + 1);
-    lyph?.scale?.setX(lyph?.scale?.x * DENDRYTE_RATIO);
-    lyph?.scale?.setY(lyph?.scale?.y * DENDRYTE_RATIO);
   }
 }
 
@@ -745,7 +741,7 @@ export function autoLayout(scene, graphData) {
   layoutLyphs(scene, hostLyphRegionDic, false);
   trasverseHostedBy(graphData, hostLyphRegionDic);
   layoutLyphs(scene, hostLyphRegionDic, false);
-  autoSizeLyphs();
+
   let hostLyphLyphDic = {};
   if(graphData.lyphs)
   {

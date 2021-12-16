@@ -471,7 +471,7 @@ export class WebGLSceneComponent {
             .scaleFactor(this.scaleFactor)
             .onAnchorDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                //this.graph.graphData(this.graphData);
+                this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onAnchorDragEnd((obj, delta) => {
@@ -481,7 +481,7 @@ export class WebGLSceneComponent {
             })
             .onWireDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                //this.graph.graphData(this.graphData);
+                this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onWireDragEnd((obj, delta) => {
@@ -491,7 +491,7 @@ export class WebGLSceneComponent {
             })
             .onRegionDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                //this.graph.graphData(this.graphData);
+                this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onRegionDragEnd((obj, delta) => {
