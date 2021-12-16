@@ -67,16 +67,18 @@ export default Kapsule({
                             const obj = ev.subject;
                             if (!obj){ return; }
                             obj.__initialDragPos = extractCoords(ev);
+                            obj.__intermediateDragPosition = obj.__initialDragPos ;
                             state.canvas.classList.add('grabbable');
                         })
                         .on('drag', ev => {
                             const obj = ev.subject;
                             if (!obj){ return; }
                             const currentPos = extractCoords(ev);
-                            const translate = currentPos.clone().sub(obj.__initialDragPos);
+                            const translate = currentPos.clone().sub(obj.__intermediateDragPosition);
                             translate.y = -translate.y;
+                            console.log(translate);
 
-                            obj.__initialDragPos = extractCoords(ev);
+                            obj.__intermediateDragPosition = extractCoords(ev);
                             const fn = state[`on${obj.userData.class}Drag`];
                             fn && fn(obj, translate);
                             obj.__dragged = true;
@@ -85,7 +87,7 @@ export default Kapsule({
                             const obj = ev.subject;
                             if (!obj){ return; }
                             const currentPos = extractCoords(ev);
-                            const translate = currentPos.clone().sub(obj.__initialDragPos);
+                            const translate = currentPos.clone().sub(obj.__intermediateDragPosition);
                             translate.y = -translate.y;
 
                             if (obj.__dragged) {
