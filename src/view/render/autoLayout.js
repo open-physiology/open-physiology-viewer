@@ -324,13 +324,24 @@ function checkMaxLyphSize(target) {
   }
 }
 
-function autoSizeLyphs() {
+function isContainedByParent(lyphId, hostLyphLyphDic) {
+  let contained = false ;
+  Object.keys(hostLyphLyphDic).forEach((parentId) => {
+    const children = hostLyphLyphDic[parentId];
+    if (children.indexOf(lyphId) > -1 )
+      contained = true ;
+  });
+  return contained ;
+}
+
+function autoSizeLyphs(hostLyphLyphDic) {
   let all = [];
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
   lyphs.forEach((l)=>{
-    autoSizeLyph(l);
+    if (!isContainedByParent(l.userData.id,hostLyphLyphDic )) //avoid auto size to link
+      autoSizeLyph(l);
   })
 }
 
@@ -527,22 +538,10 @@ function layoutLyphs(scene, hostLyphDic, lyphInLyph)
               });
             }
             else {
-              hostedLyphs.forEach((l)=> {
-                fitToTargetRegion(host, l, lyphInLyph);
-              });
               const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
-              //putDebugObjectInPosition(scene, g.position);
-              // hostedLyphs.forEach((l)=> {
-              //   removeEntity(scene, l);
-              // });
-              //console.log(calculateGroupCenter(g));
               fitToTargetRegion(host, g, lyphInLyph);
-              //translateGroupToTarget(host, g);
-              //translateGroupToOrigin(g);
               translateGroupToTarget(host, g);
               scene.add(g);
-              g?.geometry?.computeBoundingBox();
-              g.children.forEach( gm => gm.geometry.computeBoundingBox());
             }
           }
         }
@@ -749,7 +748,7 @@ export function autoLayout(scene, graphData) {
     layoutLyphs(scene, hostLyphLyphDic, true);
   }
 
-  //autoSizeLyphs();
+  autoSizeLyphs(hostLyphLyphDic);
   let links = getSceneObjectByModelClass(scene.children, "Link");
   autoLayoutChains(scene, graphData, links);
   preventMaxSizeLyph();
