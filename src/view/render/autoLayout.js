@@ -501,7 +501,7 @@ function layoutLyphs(scene, hostLyphDic, lyphDic, lyphInLyph)
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
-  clearByObjectType(scene, 'Node');
+  // clearByObjectType(scene, 'Node');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
     const host = getHostParentForLyph(all, hostKey) ;
@@ -605,6 +605,9 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
       (rootParent && resize) && layoutChainLyph(rootParent,lyph);
       let rootParentPosition = rootParent ? getWorldPosition(rootParent) : null;
 
+      if ( hostKey === "SCG-ECN-TONG-a"){
+        console.log("Hostkey ");
+      }
       if ( rootParent?.geometry && leafParent?.geometry && lyph?.geometry ){
         const chainLyphs = hostChainDic[hostKey]["lyphs"];
         let lastPoint = rootParentPosition;
@@ -614,10 +617,29 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
             if ( parent === undefined ) {
               parent = lyph?.conveys?.fasciculatesIn?.viewObjects["main"];
             }
+            
+            let parentLyph = parent;
+            while ( parentLyph?.parent ){
+              if ( parentLyph.parent?.type == "Mesh" )
+              parentLyph = parentLyph.parent;
+              else
+                break;
+            }
 
             (lyphObject && parent && resize ) && layoutChainLyph(parent,lyphObject);
             let newPoint = getPointInBetweenByPerc(rootParentPosition,leafParentPosition, index/(chainLyphs.length-1));
-            (lyphObject && parent === undefined ) && setMeshPos(lyphObject, newPoint.x, newPoint.y, newPoint.z + 1);
+            if (lyphObject && hostedLyphs.indexOf(parentLyph?.userData?.id) == -1 && parentLyph?.userData?.internalIn == undefined) {
+              const root = scene.children.find( mesh => mesh.userData?.id === hostChainDic[hostKey]["chain"].root?.id);
+              const leaf = scene.children.find( mesh => mesh.userData?.id === hostChainDic[hostKey]["chain"].leaf?.id);
+              root ? rootParentPosition = getWorldPosition(root) : null;
+              leaf ? leafParentPosition = getWorldPosition(leaf) : null;
+              newPoint = getPointInBetweenByPerc(rootParentPosition,leafParentPosition, index/(chainLyphs.length-1));
+              setMeshPos(parentLyph, newPoint.x, newPoint.y, newPoint.z + 1);
+              parentLyph?.scale.setX(1.5);
+              parentLyph?.scale.setY(1.5);
+              setMeshPos(parent, newPoint.x, newPoint.y, newPoint.z + 1);
+              setMeshPos(lyphObject, newPoint.x, newPoint.y, newPoint.z + 1);
+            }
 
             if (lyphObject) {
               let link = links.find( link => link.userData.id === lyphObject.userData.conveys.id);
@@ -698,17 +720,10 @@ export function removeDisconnectedObjects(model, joinModel) {
   return updatedModel;
 }
 
-function autoLayoutChains(scene, graphData, links, resize){
+function autoLayoutChains(scene, graphData, hostedLyphs, links, resize){
   let chainedLyphs = {};
   if( graphData.chains ) {
     parent.geometry?.computeBoundingBox();
-    const hostedLyphs = [];
-    graphData.chains.forEach ( chain => {
-      if ( chain.wiredTo || chain.hostedBy ){
-        chain.lyphs.forEach( lyph => hostedLyphs.push(lyph.id));
-      }
-    });
-    console.log("Hosted lyphs ", hostedLyphs);
     graphData.chains.forEach( chain => { 
       if ( chain.wiredTo === undefined && chain.hostedBy === undefined ){
         chainedLyphs[chain.id] = {lyphs : {}};
@@ -735,36 +750,36 @@ export function autoLayout(scene, graphData) {
   });
 
   preventZFighting(scene);
-  //clearByObjectType(scene, "Link");
+  //clearByObjectType(scene, "Node");
   let hostLyphRegionDic = {}, lyphDic = {};
   trasverseHostedBy(graphData, hostLyphRegionDic);
   layoutLyphs(scene, hostLyphRegionDic, lyphDic, false);
   trasverseHostedBy(graphData, hostLyphRegionDic);
-  console.log("hostLyphRegionDic ", hostLyphRegionDic);
   layoutLyphs(scene, hostLyphRegionDic,lyphDic, false);
-  //autoSizeLyphs();
   
   let hostLyphLyphDic = {};
   if(graphData.lyphs)
   {
     trasverseInternalLyphs(graphData.lyphs, hostLyphLyphDic);
-    console.log("hostLyphLyphDic ", hostLyphLyphDic);
     layoutLyphs(scene, hostLyphLyphDic,lyphDic, true);
   }
 
+  console.log("hostLyphLyphDic ", hostLyphLyphDic);
+
   let links = getSceneObjectByModelClass(scene.children, "Link");
+  const hostedLyphs = [];
   graphData?.chains?.forEach( chain => { 
+      chain.lyphs.forEach( lyph => hostedLyphs.push(lyph.id));
       chain.levels?.map( link => { 
-        if ( chain.wiredTo === undefined && chain.hostedBy === undefined ){
           let host = link?.conveyingLyph?.conveys?.endsIn?.viewObjects["main"];
-            if ( host === undefined ) {
-              host = link?.conveyingLyph?.conveys?.fasciculatesIn?.viewObjects["main"];
-            }
+          if ( host === undefined ) {
+            host = link?.conveyingLyph?.conveys?.fasciculatesIn?.viewObjects["main"];
+          }
           link?.conveyingLyph && lyphDic[link?.conveyingLyph.id] ? lyphDic[link?.conveyingLyph.id].lyphs.push(link?.conveyingLyph) : lyphDic[link?.conveyingLyph.id] = { host : host, lyphs : [link?.conveyingLyph] };
-        }
       });
   });
 
+  console.log("hostedLyphs ", hostedLyphs);
   console.log("lyphDic ", lyphDic);
   Object.keys(lyphDic).forEach( dic => {
     let host = lyphDic[dic]["host"];
@@ -795,7 +810,7 @@ export function autoLayout(scene, graphData) {
   });
   
   preventMaxSizeLyph();
-  autoLayoutChains(scene, graphData, links, true);
+  autoLayoutChains(scene, graphData, hostedLyphs, links, true);
   links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }
 
