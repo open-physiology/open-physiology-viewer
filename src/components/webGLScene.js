@@ -471,7 +471,7 @@ export class WebGLSceneComponent {
             .scaleFactor(this.scaleFactor)
             .onAnchorDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
+                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onAnchorDragEnd((obj, delta) => {
@@ -481,7 +481,7 @@ export class WebGLSceneComponent {
             })
             .onWireDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
+                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onWireDragEnd((obj, delta) => {
@@ -491,7 +491,7 @@ export class WebGLSceneComponent {
             })
             .onRegionDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
+                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onRegionDragEnd((obj, delta) => {
@@ -573,8 +573,15 @@ export class WebGLSceneComponent {
       };
 
       let intersects = this.ray.intersectObjects(this.graph.children);
+      let groupIntersected = [];
+      let self = this;
+      this.graph.children.forEach( child => {
+          if ( child.type === "Group" && child?.children?.length > 0 ){
+            groupIntersected.concat(self.ray.intersectObjects(child.children));
+          }
+      })
       if (intersects.length > 0) {
-          let entity = intersects[0].object.userData;
+          let entity = intersects[0]?.object?.userData;
           if (!entity || entity.inactive) { return; }
           return selectLayer(entity);
       }
