@@ -399,6 +399,7 @@ export class TestApp {
             this.saveScaffoldUpdates();
             this._scaffoldUpdated = false;
         }
+        this._model.scaffolds[0].id += new Date().getTime().toString(); //avoid already loaded bug on load
         let result = JSON.stringify(this._model, null, 4);
         const blob = new Blob([result], {type: 'text/plain'});
         FileSaver.saveAs(blob, (this._model.id? this._model.id: 'mainGraph') + '-model.json');
