@@ -16,7 +16,7 @@ import {$Field, $SchemaClass} from "../model";
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section id="relGraphPanel" class="w3-row">
-            <section #relGraphContainer id="relGraphContainer" [class.w3-threequarter]="showPanel">
+            <section #relGraphContainer id="relGraphContainer" [class.w3-threequarter]="_showPanel">
                 <section class="w3-bar-block w3-right" style="position:absolute; right:0">
                     <input #fileInput
                            type="file"
@@ -28,11 +28,11 @@ import {$Field, $SchemaClass} from "../model";
                             title="Update layout">
                         <i class="fa fa-refresh"> </i>
                     </button>
-                    <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                    <button *ngIf="!_showPanel" class="w3-bar-item w3-hover-light-grey"
                             (click)="toggleSettingPanel()" title="Show legend">
                         <i class="fa fa-cog"> </i>
                     </button>
-                    <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                    <button *ngIf="_showPanel" class="w3-bar-item w3-hover-light-grey"
                             (click)="toggleSettingPanel()" title="Hide legend">
                         <i class="fa fa-window-close"> </i>
                     </button>
@@ -48,7 +48,7 @@ import {$Field, $SchemaClass} from "../model";
 
                 <svg #svg></svg>
             </section>
-            <section id="relGraphSettingsPanel" [hidden]="!showPanel" class="w3-quarter">
+            <section id="relGraphSettingsPanel" [hidden]="!_showPanel" class="w3-quarter">
                 <svg #legendSvg></svg>
                 <section class="w3-padding-small">
                     <!--Highlighted entity-->
@@ -138,6 +138,8 @@ export class RelGraph {
 
     _searchOptions;
     _selectedName = "";
+    _showPanel = true;
+    _isActive = false;
 
     data = { nodes: [], links: [] };
 
@@ -166,6 +168,17 @@ export class RelGraph {
         "instance": "#CCC",
         "template": "#0000FF"
     };
+
+    @Input('isActive') set isActive(value){
+        this._isActive = value;
+        if (this.simulation){
+            if (value){
+                this.simulation.restart();
+            } else {
+                this.simulation.stop();
+            }
+        }
+    }
 
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
@@ -253,14 +266,15 @@ export class RelGraph {
     }
 
     ngAfterViewInit() {
-        window.addEventListener('resize', () => this.draw(), false);
         this.drawLegend();
+        window.addEventListener('resize', () => {
+            this.width  = this.relGraphContainer.nativeElement.clientWidth;
+            this.height = this.relGraphContainer.nativeElement.clientHeight;
+            this.draw();
+        }, false);
     }
 
     draw() {
-        this.width  = this.relGraphContainer.nativeElement.clientWidth;
-        this.height = this.relGraphContainer.nativeElement.clientHeight;
-
         let svg = d3.select(this.svgRef.nativeElement).attr("width", this.width).attr("height", this.height);
         //Clean the view
         svg.selectAll("g").remove();
@@ -391,8 +405,11 @@ export class RelGraph {
         //Set common node attributes
 
         [nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial, nodeLyph, nodeLyphFromMaterial].forEach(node => {
-            node.attrs(d => this.nodeTypes[d.relClass].attrs)
-                .attr("stroke", e => e.isTemplate? this.strokeTypes.template: this.strokeTypes.instance)
+            node.each(d => {
+               this.nodeTypes[d.relClass].attrs::entries().forEach(([key, value]) => node.attr(key, value));
+            });
+
+            node.attr("stroke", e => e.isTemplate? this.strokeTypes.template: this.strokeTypes.instance)
                 .attr("fill", e => this.nodeTypes[e.relClass].color);
 
             node.on("dblclick", d => {
@@ -405,12 +422,12 @@ export class RelGraph {
 
             node.on("mouseover", d => {
                 this.highlighted = d;
-                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.style("opacity", .9);
                 tooltip.html(`<div>${d.id}: ${d.name||"?"}<\div>`)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
             })
-            .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
+            .on("mouseout", () => tooltip.style("opacity", 0));
 
             node.each(function(d){
                 d.viewObjects = d.viewObjects || {};
@@ -423,6 +440,10 @@ export class RelGraph {
         //Update
 
         simulation.on("tick", () => {
+            if (!this._isActive){
+               simulation.stop();
+               return;
+            }
             const boundX = x => Math.min(this.width, Math.max(0, x));
             const boundY = y => Math.min(this.height, Math.max(0, y));
 
@@ -451,7 +472,6 @@ export class RelGraph {
         //Legends
         if (!this.legendSvgRef){ return; }
         let legendSvg = d3.select(this.legendSvgRef.nativeElement).attr("width", 300).attr("height", 300);
-        let nodeTypes = this.nodeTypes;
 
         const labelHSpacing = 15;
         const labelVSpacing = 4;
@@ -465,7 +485,7 @@ export class RelGraph {
         const linkLegend = legendSvg.append("g").selectAll('.linkLegend')
             .data(this.linkTypes::keys()).enter().append('g').attr('class', 'linkLegend')
             .attr('transform', (d, i) => {
-                let [h, v] = [legendXOffset -linkLegendRect.width, i * (linkLegendRect.height + linkVSpacing) + linkVSpacing];
+                let [h, v] = [legendXOffset - linkLegendRect.width, i * (linkLegendRect.height + linkVSpacing) + linkVSpacing];
                 return 'translate(' + h + ',' + v + ')';
             });
 
@@ -486,19 +506,17 @@ export class RelGraph {
         const nodeVSpacing   = 4;
 
         const nodeLegend = legendSvg.append("g").selectAll('.nodeLegend')
-            .data(this.nodeTypes::keys())
-            .enter().append("g")
-            .attr('class', 'nodeLegend')
+            .data(this.nodeTypes::keys()).enter().append("g").attr('class', 'nodeLegend')
             .attr('transform', (d, i) => {
                 let [h, v] = [legendXOffset - nodeLegendRect.width, offset + i * (nodeLegendRect.height + nodeVSpacing) + nodeVSpacing];
                 return 'translate(' + h + ',' + v + ')';
             });
 
-        const cls = this;
-        nodeLegend.each(function(d){
-            d3.select(this).append(nodeTypes[d].shape).attrs(nodeTypes[d].attrs)
-                .attr('fill', nodeTypes[d].color)
-                .attr('stroke', cls.strokeTypes.instance)
+        let nodeTypes = this.nodeTypes;
+        nodeLegend.each(function(d) {
+            let shape = d3.select(this).append(nodeTypes[d].shape);
+            nodeTypes[d].attrs::entries().forEach(([key, value]) => shape.attr(key, value));
+            shape.attr('fill', nodeTypes[d].color).attr('stroke', "CCC")
         });
 
         nodeLegend.append('text')
@@ -509,8 +527,8 @@ export class RelGraph {
     }
 
     toggleSettingPanel(){
-        this.showPanel = !this.showPanel;
-        this.width *= (this.showPanel? 3/4 : 4/3);
+        this._showPanel = !this._showPanel;
+        this.width *= this._showPanel? 3/4: 4/3;
         this.draw();
     }
 

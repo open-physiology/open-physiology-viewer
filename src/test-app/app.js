@@ -17,7 +17,7 @@ import {StateToolbarModule} from "../components/stateToolbar";
 import {ResourceEditorModule} from '../components/gui/resourceEditor';
 import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
 import {LayoutEditorModule} from "../components/layoutEditor";
-//import {RelGraphModule} from "../components/relationGraph";
+import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
 import {
@@ -147,11 +147,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 </mat-tab> 
 
                 <!--Relationship graph-->
-<!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
-<!--                    <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>-->
-<!--                    <relGraph [graphData]="_graphData"> -->
-<!--                    </relGraph>-->
-<!--                </mat-tab>-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>
+                    <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
+                    <relGraph 
+                            [graphData]="_graphData"
+                            [isActive]="relGraphTab.isActive"> 
+                    </relGraph>
+                </mat-tab>
 
                 <!--Resource editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
@@ -739,7 +741,7 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [BrowserModule, WebGLSceneModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, MatSnackBarModule,
-        //RelGraphModule,
+        RelGraphModule,
         MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule, MatListModule,
     MatFormFieldModule],
 	declarations: [TestApp, ResourceEditorDialog, ImportDialog],
