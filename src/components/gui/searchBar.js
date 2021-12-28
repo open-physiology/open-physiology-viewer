@@ -6,11 +6,12 @@ import {CommonModule} from "@angular/common";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
+import {MatIconModule} from "@angular/material/icon";
 
 @Component({
     selector: 'searchBar',
     template: `
-        <mat-form-field class="full-width">
+        <mat-form-field class="full-width autocomplete">
             <input matInput class="w3-input"
                    placeholder="Search"
                    matTooltip="Describe resource you want to find"
@@ -20,18 +21,40 @@ import {MatInputModule} from "@angular/material/input";
                    [formControl]="_myControl" 
                    [matAutocomplete]="auto"
                    (input)="inputChange.emit($event.target.value)"
+                   [(ngModel)]="value"
             >
-            <mat-autocomplete #auto="matAutocomplete" 
+            <mat-autocomplete #auto="matAutocomplete" class="autocomplete-select"
                 (optionSelected)="this.selectedItemChange.emit($event.option.value)">
                 <mat-option *ngFor="let option of _filteredOptions | async" [value]="option">
                     {{option}}
                 </mat-option>
             </mat-autocomplete>
+            <button class="input-clear" type="button" mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value = ''">
+                <mat-icon><img src="./styles/images/close.svg" /></mat-icon>
+            </button>
         </mat-form-field>
     `,
     styles: [`
         .full-width {
           width: 100%;
+        }
+        .autocomplete .input-clear {
+            background: transparent;
+            border: 0;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(0, -70%);
+            cusor: pointer;
+        }
+        ::ng-deep .autocomplete-select {
+            background-color: blue;
+        }
+        ::ng-deep .autocomplete-select .mat-option {
+            font-size: 0.875rem;
+            line-height: 2.25rem;
+            height: auto;
+            background: white !important;
         }
     `]
 })
@@ -65,7 +88,7 @@ export class SearchBar {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatIconModule],
     declarations: [SearchBar],
     exports: [SearchBar]
 })
