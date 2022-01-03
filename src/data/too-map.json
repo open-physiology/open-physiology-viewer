@@ -42,6 +42,14 @@
             "cardinalNode" : true
         },
         {
+          "id": "Xm",
+          "name": "junction of esophagus, larynx, and laryngopharynx",
+          "color": "#006400",
+          "hostedBy": "w-B-O",
+          "offset": 0.8,
+          "cardinalNode" : true
+      },
+        {
             "id": "f1L",
             "name": "alveolar end of airways",
             "layout": {

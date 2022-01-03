@@ -812,7 +812,7 @@ export function autoLayout(scene, graphData) {
   });
   
   autoLayoutChains(scene, graphData, hostedLyphs, links, false);
-  links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
+  //links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }
 
 export function clearByObjectType(scene, type) {

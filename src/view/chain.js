@@ -30,6 +30,11 @@ Chain.prototype.update = function(){
         for (let i = 0; i < this.levels.length; i++) {
             //Interpolate chain node positions for quicker layout
             this.levels[i].length = this.length / this.levels.length;
+            if (this.controlPoint && this.geometry)
+            {
+              this.levels[i].geometry = this.geometry ;
+              this.levels[i].controlPoint = this.controlPoint ;
+            }
             const lyph = this.levels[i].conveyingLyph;
             if (lyph) {
                 const size = lyph.sizeFromAxis;
