@@ -1402,7 +1402,9 @@
             "root": "oeso-root-6",
             "leaf": "oeso-leaf-6",
             "wiredTo": "w-X-O",
-            "startFromLeaf": true
+            "startFromLeaf": true,
+            "geometry" : "arc", 
+            "controlPoint" : "Xm"
         },
         {
             "id": "IML1-SCG-d",
