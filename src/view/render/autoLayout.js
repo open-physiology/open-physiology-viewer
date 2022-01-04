@@ -217,6 +217,18 @@ function rotateAroundCenter(target, rx, ry, rz) {
   }
 }
 
+function traverseMeshParent (target) {
+  let parent = target;
+  while ( parent.parent ){
+    if ( parent.parent.type == "Mesh" )
+      parent = parent.parent;
+    else
+      break;
+  }
+
+  return parent;
+}
+
 function fitToTargetRegion(target, source, lyphInLyph) {
   let targetSize =  getBoundingBoxSize(target);;
   let sourceSize =  getBoundingBoxSize(source);;
@@ -243,14 +255,8 @@ function fitToTargetRegion(target, source, lyphInLyph) {
   source.scale.setX(sx);
   source.scale.setY(sy);
 
-  let parent = target;
-  while ( parent.parent ){
-    if ( parent.parent.type == "Mesh" )
-      parent = parent.parent;
-    else
-      break;
-  }
 
+  let parent = traverseMeshParent(target);
   rotateAroundCenter(source
                   , parent.rotation.x
                   , parent.rotation.y
@@ -581,10 +587,11 @@ function validPosition(position){
   return true;
 }
 
-function layoutChainLyph(host, lyph, resize){
+function layoutChainLyph(host, lyph, middle, ratio){
   lyph && fitToTargetRegion(host, lyph, true)
-  let middle = getWorldPosition(host);
   lyph && setMeshPos(lyph, middle.x, middle.y, middle.z + 1);
+  lyph?.scale?.setX(lyph?.scale?.x * ratio);
+  lyph?.scale?.setY(lyph?.scale?.y * ratio);
 }
 
 function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
@@ -595,22 +602,15 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
 
   Object.keys(hostChainDic).forEach((hostKey) => {    
-    if ( hostChainDic[hostKey]["lyphs"].length === 1 ){
-      //get target aspect ratio
-      let leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.endsIn?.viewObjects["main"];      
-      const lyph = hostChainDic[hostKey]["lyphs"][0]?.viewObjects["main"];
-      ( leafParent?.geometry && lyph?.geometry && resize ) && layoutChainLyph(leafParent,lyph);
-    } else {
+    if ( hostChainDic[hostKey]["lyphs"].length > 1 ) {
       //Position lyph at one of the end points of the chain
       let leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.endsIn?.viewObjects["main"];
       const lyph = hostChainDic[hostKey]["lyphs"][0]?.viewObjects["main"];
-      (leafParent && resize) && layoutChainLyph(leafParent,lyph);
       let leafParentPosition = leafParent ? getWorldPosition(leafParent) : null;
       
       //Position lyph at one of the end points of the chain
       const endIndex = hostChainDic[hostKey]["lyphs"].length - 1;
       let rootParent = hostChainDic[hostKey]["lyphs"][endIndex]?.conveys?.endsIn?.viewObjects["main"];
-      (rootParent && resize) && layoutChainLyph(rootParent,lyph);
       let rootParentPosition = rootParent ? getWorldPosition(rootParent) : null;
 
       if ( rootParent?.geometry && leafParent?.geometry && lyph?.geometry ){
@@ -623,29 +623,7 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
               parent = lyph?.conveys?.fasciculatesIn?.viewObjects["main"];
             }
             
-            let parentLyph = parent;
-            while ( parentLyph?.parent ){
-              if ( parentLyph.parent?.type == "Mesh" )
-              parentLyph = parentLyph.parent;
-              else
-                break;
-            }
-
-            (lyphObject && parent && resize ) && layoutChainLyph(parent,lyphObject);
-            // let newPoint = getPointInBetweenByPerc(rootParentPosition,leafParentPosition, index/(chainLyphs.length-1));
-            // if (lyphObject && hostedLyphs.indexOf(parentLyph?.userData?.id) == -1 && parentLyph?.userData?.internalIn == undefined) {
-            //   const root = scene.children.find( mesh => mesh.userData?.id === hostChainDic[hostKey]["chain"].root?.id);
-            //   const leaf = scene.children.find( mesh => mesh.userData?.id === hostChainDic[hostKey]["chain"].leaf?.id);
-            //   root ? rootParentPosition = getWorldPosition(root) : null;
-            //   leaf ? leafParentPosition = getWorldPosition(leaf) : null;
-            //   newPoint = getPointInBetweenByPerc(rootParentPosition,leafParentPosition, index/(chainLyphs.length-1));
-            //   setMeshPos(parentLyph, newPoint.x, newPoint.y, newPoint.z + 1);
-            //   parentLyph?.scale.setX(1.5);
-            //   parentLyph?.scale.setY(1.5);
-            //   setMeshPos(parent, newPoint.x, newPoint.y, newPoint.z + 1);
-            //   setMeshPos(lyphObject, newPoint.x, newPoint.y, newPoint.z + 1);
-            // }
-
+            // Reposition links
             if (lyphObject && validPosition(rootParentPosition) && validPosition(leafParentPosition) ) {
               let link = links.find( link => link.userData.id === lyphObject.userData.conveys.id);
               let curvature = link?.curvature ? link.curvature : 10;
@@ -786,32 +764,31 @@ export function autoLayout(scene, graphData) {
 
   Object.keys(lyphDic).forEach( dic => {
     let host = lyphDic[dic]["host"];
-    let lyphs = lyphDic[dic]["lyphs"];
-    let size = host?.geometry ? getMeshBoundingBoxSize(host) : null;
-    const targetSize = host?.geometry ? new THREE.Box3().setFromObject(host)?.getSize() : null;
-    const width = targetSize?.x;
-    const middle = host ? getWorldPosition(host) : null;
-    middle ? middle.x = middle.x - (width/2) : null;
-    middle ? middle.z = middle.z + 1 : null;
-    lyphs?.forEach( lyph => {
-      if ( lyph?.userData?.supertype?.id?.includes(DENDRYTE) && middle){
-        middle.x = middle.x + ((width/lyphs.length)/2);
-        (host && lyph) && fitToTargetRegion(host, lyph, true);
-        lyph && setMeshPos(lyph, middle?.x, middle?.y, middle?.z + 1);
-        lyph?.scale?.setX(lyph?.scale?.x * DENDRYTE_SIZE);
-        lyph?.scale?.setY(lyph?.scale?.y * DENDRYTE_SIZE);
-      } else if ( lyph?.userData?.supertype?.id?.includes(AXON) && middle){
-        middle.x = middle.x + ((width/lyphs.length) * .75);
-        (host && lyph) && fitToTargetRegion(host, lyph, true);
-        lyph && setMeshPos(lyph, middle.x, middle?.y, middle?.z + 1);
-        lyph?.scale?.setX(lyph?.scale?.x * AXON_SIZE);
-        lyph?.scale?.setY(lyph?.scale?.y * AXON_SIZE);
-      }
-      middle ? middle.x = middle.x + ((width/lyphs.length)/2) : null;
-    });
+    if ( host?.type == "Mesh" ){
+      host = traverseMeshParent(host);
+
+      let lyphs = lyphDic[dic]["lyphs"];
+      let size = host?.geometry ? getMeshBoundingBoxSize(host) : null;
+      const targetSize = host?.geometry ? new THREE.Box3().setFromObject(host)?.getSize() : null;
+      const width = targetSize?.x;
+      const middle = host ? getWorldPosition(host) : null;
+      middle ? middle.x = middle.x - (width/2) : null;
+      middle ? middle.z = middle.z + 1 : null;
+      lyphs?.forEach( lyph => {
+        if ( lyph?.userData?.supertype?.id?.includes(DENDRYTE) && middle){
+          middle.x = middle.x + ((width/lyphs.length) * .75);
+          (host && lyph) && layoutChainLyph(host, lyph, middle, DENDRYTE_SIZE);
+        } else if ( lyph?.userData?.supertype?.id?.includes(AXON) && middle){
+          middle.x = middle.x + ((width/lyphs.length) * .75);
+          (host && lyph) && layoutChainLyph(host, lyph, middle, AXON_SIZE);
+        }
+        middle ? middle.x = middle.x + ((width/lyphs.length)/2) : null;
+      });
+    }
   });
   
   autoLayoutChains(scene, graphData, hostedLyphs, links, false);
+  
   links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }
 
