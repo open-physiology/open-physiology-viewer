@@ -30,10 +30,10 @@ export default Kapsule({
                 }
             }
         },
-        nodeRelSize    : { default: 3 }, // volume per val unit
+        nodeRelSize    : { default: 12 }, // volume per val unit
         nodeId         : { default: 'id' },
-        nodeResolution : { default: 8 }, // how many slice segments in the sphere's circumference
-        linkResolution : { default: 50},
+        nodeResolution : { default: 40 }, // how many slice segments in the sphere's circumference
+        linkResolution : { default: 100},
         showLyphs      : { default: true},
         showLayers     : { default: false}, //TODO replace with true
         method         : { default: '2d'},
