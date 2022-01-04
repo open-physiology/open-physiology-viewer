@@ -38,6 +38,9 @@ Anchor.prototype.relocate = function(delta, updateDependent = true){
   }
   (this.sourceOf || []).forEach(wire => updateWires(wire, "target"));
   (this.targetOf || []).forEach(wire => updateWires(wire, "source"));
+  //([this.hostedBy] || []).forEach(wire => updateWires(wire, "source"));
+  if(this.hostedBy)
+    this.hostedBy.relocate(delta);
 }
 
 Object.defineProperty(Anchor.prototype, "polygonOffsetFactor", {
