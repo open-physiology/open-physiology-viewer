@@ -17,6 +17,11 @@ import { GeometryFactory } from '../view/util/geometryFactory'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
+require("three/examples/js/postprocessing/EffectComposer");
+require("three/examples/js/shaders/CopyShader");
+require("three/examples/js/shaders/FXAAShader");
+require("three/examples/js/postprocessing/RenderPass");
+require("three/examples/js/postprocessing/ShaderPass");
 
 const WindowResize = require('three-window-resize');
 
@@ -299,6 +304,7 @@ export class WebGLSceneComponent {
 
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias, alpha: true});
         this.renderer.setClearColor(0xffffff, 0.5);
+        this.renderer.autoClear = false;
 
         this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;
@@ -331,6 +337,45 @@ export class WebGLSceneComponent {
         const pointLight = new THREE.PointLight(0xffffff);
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
+
+        // FXAA improvements
+        // commented for now since the improvements is close to none in my opinion (dario)
+		// this.renderer.autoClear = false;
+		// this.renderer.setPixelRatio( window.devicePixelRatio );
+		// this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
+		// this.container.appendChild( this.renderer.domElement );
+
+        // this.renderPass = new THREE.RenderPass(this.scene, this.camera);
+
+        // this.fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
+        // this.fxaaPass.renderToScreen = false;
+        // this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
+		// this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
+
+        // this.copyPass = new THREE.ShaderPass( THREE.CopyShader );
+        // this.copyPass.renderToScreen = true;
+
+		// this.customComposer = new THREE.EffectComposer( this.renderer );
+		// this.customComposer.addPass( this.renderPass );
+        // this.customComposer.addPass( this.fxaaPass );
+		// this.customComposer.addPass( this.copyPass );
+
+        // const pixelRatio = this.renderer.getPixelRatio();
+
+        // window.addEventListener( 'resize', () => {
+        //     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
+        //     this.camera.updateProjectionMatrix();
+
+        //     this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
+        //     this.customComposer.setSize( this.container.offsetWidth, this.container.offsetHeight );
+
+        //     const pixelRatio = this.renderer.getPixelRatio();
+
+        //     this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
+        //     this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
+
+        // });
+        // FXAA end
 
         this.mouse = GeometryFactory.instance().createVector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
