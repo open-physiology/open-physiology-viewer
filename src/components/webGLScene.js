@@ -179,7 +179,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers   = {};
-    highlightColor = 0xff0000;
+    highlightColor = 0xffff00;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
@@ -481,6 +481,7 @@ export class WebGLSceneComponent {
             })
             .onWireDrag((obj, delta) => {
                 obj.userData.relocate(delta);
+                console.log(delta);
                 //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
