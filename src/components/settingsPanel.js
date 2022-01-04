@@ -39,40 +39,53 @@ const COLORS = {
             <section>
 
                 <!--Highlighted entity-->
-
-                <fieldset *ngIf="config.highlighted" class="w3-card w3-round w3-margin-small">
-                    <legend>Highlighted</legend>
-                    <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"> </resourceInfoPanel>
-                </fieldset>
-
-                <!--Search bar-->
-
-                <fieldset class="w3-card w3-round w3-margin-small-small">
-                    <legend>Search</legend>
-                    <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
-                               (selectedItemChange)="selectBySearch($event)">
-                    </searchBar>
-                </fieldset>
-
-                <!--Selected resource-->
-
-                <fieldset *ngIf="config.selected" class="w3-card w3-round w3-margin-small">
-                    <legend>Selected</legend>
-                    <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
-                    </resourceInfoPanel>
-                    <button *ngIf="!!_selected" title="Edit"
-                            class="w3-hover-light-grey w3-right" (click)="onEditResource.emit(_selected)">
-                        <i class="fa fa-edit"> </i>
-                    </button>
-                </fieldset>
-
-                <!--SciGraph search-->
-
-                <fieldset class="w3-card w3-round w3-margin-small">
-                    <legend>SciGraph search</legend>
-                    <sciGraphSearch [selected]="_selected">
-                    </sciGraphSearch>
-                </fieldset>
+                <mat-accordion>
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Highlighted
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="default-box pb-0">
+                    <div *ngIf="config.highlighted" class="default-boxContent">
+                      <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"> </resourceInfoPanel>
+                    </div>
+                    <div *ngIf="!highlighted" class="default-boxError">
+                    Hover an instance to see its details.
+                    </div>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+                <mat-accordion>
+                  <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                      Selected
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="default-box pb-0">
+                      <div class="default-searchBar default-box-header">
+                        <div class="search-bar">
+                          <img src="./styles/images/search.svg" />
+                          <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
+                                    (selectedItemChange)="selectBySearch($event)">
+                          </searchBar>
+                        </div>
+                      </div>
+                      <div *ngIf="config.selected" class="default-boxContent">
+                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
+                        </resourceInfoPanel>
+                        <button *ngIf="!!_selected" title="Edit"
+                                class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
+                                <img src="./styles/images/edit-data-icon.svg" />
+                            Edit data
+                        </button>
+                        <sciGraphSearch [selected]="_selected">
+                        </sciGraphSearch>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
 
                 <!--Group controls-->
 
@@ -241,7 +254,9 @@ const COLORS = {
             font-size: 90%;
             text-align: right;
         }
-
+        .pb-0 {
+          padding-bottom: 0 !important;
+        }
         .default-box .default-box-header {
           padding: 1.067rem;
           display: flex;
@@ -335,6 +350,107 @@ const COLORS = {
           display: none;
         } */
 
+        .default-box .default-boxContent {
+          padding: 1.067rem;
+          font-size: 0.75rem;
+          color: ${COLORS.inputTextColor};
+          font-weight: 500;
+        }
+        .default-box .default-box-header ~ .default-boxContent {
+          padding-top: 0;
+        }
+        :host >>> .default-box .default-boxFooter {
+          text-align: right;
+        }
+        :host >>> .default-box .default-boxContent section section {
+          display: flex;
+        }
+        :host >>> .default-box .default-boxContent .w3-label {
+          width: 6.25rem;
+          flex: none;
+        }
+        :host >>> .default-box .default-boxContent button {
+          border: ${COLORS.inputBorderColor} 1px solid;
+          background: transparent;
+          color:  ${COLORS.inputTextColor};
+          font-size: 0.75rem;
+          font-weight: 500;
+          padding: 0.313rem 0.625rem;
+          margin: 0.625rem 0 0;
+          cursor: pointer;
+        }
+        :host >>> .default-box .default-boxContent button img {
+          position: relative;
+          top: -2px;
+        }
+        :host >>> .default-box .default-boxError {
+          min-height: 6.25rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color:  ${COLORS.inputTextColor};
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+        :host >>> .default-box .default-boxContent ~ .default-boxError {
+          padding-bottom: 2rem;
+        }
+        :host >>> .default-box .default-boxResult {
+          border-top:${COLORS.inputBorderColor} 1px solid;
+          margin: 1rem 0 0;
+          padding-top: 0.625rem;
+        }
+        :host >>> .default-box .default-boxResult {
+          display: flex;
+        }
+        :host >>> .default-box .default-boxResult label {
+          width: 6.25rem;
+          flex: none;
+        }
+        :host >>> .default-box .default-boxResult ~ .default-boxError {
+          display: none;
+        }
+        :host >>> .default-box .default-boxContent button:hover {
+          background: transparent !important;
+          color:  ${COLORS.inputTextColor} !important;
+        }
+        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-underline {
+          display: none;
+        }
+        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
+          padding-bottom: 0;
+        }
+        :host >>> .default-searchBar .mat-form-field-should-float .mat-form-field-label {
+          display: none !important;
+        }
+        :host >>> .default-searchBar .search-bar img {
+          z-index: 10;
+        }
+        :host >>> .default-searchBar .mat-form-field-label {
+          padding-left: 1.625rem;
+          top: 1.5em;
+          color: ${COLORS.inputPlacholderColor};
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+        :host >>> .default-searchBar .mat-form-field-infix {
+          background: ${COLORS.white};
+          border: 0.067rem solid ${COLORS.inputBorderColor};
+          box-sizing: border-box;
+          border-radius: 0.134rem;
+          margin: 0;
+          height: 2.134rem;
+          color: ${COLORS.inputTextColor};
+          font-weight: 500;
+          font-size: 0.8rem;
+          line-height: 1.067rem;
+          padding: 0.5rem 2rem 0 2rem;
+        }
+        :host >>> .default-searchBar .mat-focused .mat-form-field-infix {
+          outline: none;
+          border-color: ${COLORS.toggleActiveBg};
+          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
+        }
         .default-box h4 {
           background: ${COLORS.headingBg};
           padding: 0.8rem 1.067rem;
