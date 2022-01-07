@@ -526,6 +526,7 @@ export class WebGLSceneComponent {
             })
             .onWireDrag((obj, delta) => {
                 obj.userData.relocate(delta);
+                console.log(delta);
                 //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })

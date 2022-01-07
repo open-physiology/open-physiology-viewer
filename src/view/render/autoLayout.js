@@ -11,8 +11,8 @@ const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
 const MAX_POINTS = 100;
-const AXON_SIZE = .6;
-const DENDRYTE_SIZE = .3;
+const AXON_SIZE = 1;
+const DENDRYTE_SIZE = .5;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -594,7 +594,7 @@ function layoutChainLyph(host, lyph, middle, ratio){
   lyph?.scale?.setY(lyph?.scale?.y * ratio);
 }
 
-function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
+function layoutChains(scene, hostChainDic, links)
 {
   let all = [];
   let kapsuleChildren = scene.children ;
@@ -604,13 +604,19 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
   Object.keys(hostChainDic).forEach((hostKey) => {    
     if ( hostChainDic[hostKey]["lyphs"].length > 1 ) {
       //Position lyph at one of the end points of the chain
-      let leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.endsIn?.viewObjects["main"];
+      let leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.fasciculatesIn?.viewObjects["main"];
+      if ( leafParent === undefined ) {
+        leafParent = hostChainDic[hostKey]["lyphs"][0]?.conveys?.endsIn?.viewObjects["main"];
+      }
       const lyph = hostChainDic[hostKey]["lyphs"][0]?.viewObjects["main"];
       let leafParentPosition = leafParent ? getWorldPosition(leafParent) : null;
       
       //Position lyph at one of the end points of the chain
       const endIndex = hostChainDic[hostKey]["lyphs"].length - 1;
-      let rootParent = hostChainDic[hostKey]["lyphs"][endIndex]?.conveys?.endsIn?.viewObjects["main"];
+      let rootParent = hostChainDic[hostKey]["lyphs"][endIndex]?.conveys?.fasciculatesIn?.viewObjects["main"];
+      if ( rootParent === undefined ) {
+        rootParent = hostChainDic[hostKey]["lyphs"][endIndex]?.conveys?.endsIn?.viewObjects["main"];
+      }
       let rootParentPosition = rootParent ? getWorldPosition(rootParent) : null;
 
       if ( rootParent?.geometry && leafParent?.geometry && lyph?.geometry ){
@@ -618,10 +624,6 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
         let lastPoint = rootParentPosition;
         chainLyphs?.forEach( (lyph, index) => { 
             let lyphObject = lyph.viewObjects["main"];
-            let parent = lyph?.conveys?.endsIn?.viewObjects["main"];
-            if ( parent === undefined ) {
-              parent = lyph?.conveys?.fasciculatesIn?.viewObjects["main"];
-            }
             
             // Reposition links
             if (lyphObject && validPosition(rootParentPosition) && validPosition(leafParentPosition) ) {
@@ -632,7 +634,7 @@ function layoutChains(scene, hostChainDic, hostedLyphs, links, resize)
               points = curve.getPoints( MAX_POINTS );
               const geometry = new THREE.BufferGeometry().setFromPoints( points );
               
-              const material = new THREE.LineBasicMaterial( { color : 0XA9A8A8 } );
+              const material = new THREE.LineBasicMaterial( { color : 0x36454F, linewidth: .85 } );
               
               // Create the final object to add to the scene
               const line = new THREE.Line( geometry, material );
@@ -704,7 +706,7 @@ export function removeDisconnectedObjects(model, joinModel) {
   return updatedModel;
 }
 
-function autoLayoutChains(scene, graphData, hostedLyphs, links, resize){
+function autoLayoutChains(scene, graphData, links){
   let chainedLyphs = {};
   if( graphData.chains ) {
     parent.geometry?.computeBoundingBox();
@@ -714,7 +716,7 @@ function autoLayoutChains(scene, graphData, hostedLyphs, links, resize){
         chainedLyphs[chain.id]["lyphs"] = chain.levels?.map( link => link.conveyingLyph );
         chainedLyphs[chain.id]["chain"] = chain;
         if ( chainedLyphs[chain.id]["lyphs"]) {
-          layoutChains(scene, chainedLyphs, hostedLyphs, links, resize);
+          layoutChains(scene, chainedLyphs, links);
         }
         chainedLyphs = {};
       }
@@ -734,7 +736,7 @@ export function autoLayout(scene, graphData) {
   });
 
   preventZFighting(scene);
-  //clearByObjectType(scene, "Node");
+  clearByObjectType(scene, "Node");
   let hostLyphRegionDic = {}, lyphDic = {};
   trasverseHostedBy(graphData, hostLyphRegionDic);
   layoutLyphs(scene, hostLyphRegionDic, lyphDic, false);
@@ -750,9 +752,7 @@ export function autoLayout(scene, graphData) {
 
   autoSizeLyphs(hostLyphLyphDic);
   let links = getSceneObjectByModelClass(scene.children, "Link");
-  const hostedLyphs = [];
   graphData?.chains?.forEach( chain => { 
-      chain.lyphs.forEach( lyph => hostedLyphs.push(lyph.id));
       chain.levels?.map( link => { 
           let host = link?.conveyingLyph?.conveys?.endsIn?.viewObjects["main"];
           if ( host === undefined ) {
@@ -765,8 +765,6 @@ export function autoLayout(scene, graphData) {
   Object.keys(lyphDic).forEach( dic => {
     let host = lyphDic[dic]["host"];
     if ( host?.type == "Mesh" ){
-      host = traverseMeshParent(host);
-
       let lyphs = lyphDic[dic]["lyphs"];
       let size = host?.geometry ? getMeshBoundingBoxSize(host) : null;
       const targetSize = host?.geometry ? new THREE.Box3().setFromObject(host)?.getSize() : null;
@@ -787,8 +785,7 @@ export function autoLayout(scene, graphData) {
     }
   });
   
-  autoLayoutChains(scene, graphData, hostedLyphs, links, false);
-  
+  autoLayoutChains(scene, graphData, links);
   links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }
 
