@@ -227,12 +227,12 @@ export class Graph extends Group{
         }
 
         //Validate
-        (res.links||[]).forEach(r => r.validate());
-        (res.coalescences||[]).forEach(r => r.validate());
-        (res.channels||[]).forEach(r => r.validate(res));
+        (res.links||[]).forEach(r => r.validate? r.validate(): logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r));
+        (res.coalescences||[]).forEach(r => r.validate? r.validate(): logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r));
+        (res.channels||[]).forEach(r =>  r.validate? r.validate(res): logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r));
 
         //Connect chain's last level with the following chain's first level (issue #129)
-        (res.chains||[]).forEach(chain => chain.connect());
+        (res.chains||[]).forEach(r => r.connect? r.connect(): logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r));
 
         const faultyExternal = [];
         (res.external || []).forEach(r => {

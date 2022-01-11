@@ -6054,7 +6054,7 @@
         {
             "id": "neuron-2",
             "name": "Neuron 2",
-            "links": [
+            "nodes": [
                 "ns250",
                 "ns251",
                 "ns252",
@@ -6062,7 +6062,7 @@
                 "ns254",
                 "ns255"
             ],
-            "nodes": [
+            "links": [
                 "lnk-sn-pg_2",
                 "lnk-an-bn0_2",
                 "lnk-an-bn1_2",

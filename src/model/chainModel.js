@@ -19,7 +19,7 @@ import {
     $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
-import {defaults, isObject, isArray, flatten} from 'lodash-bound';
+import {defaults, isObject, isArray, flatten, isString} from 'lodash-bound';
 
 /**
  * Chain model
@@ -246,25 +246,38 @@ export class Chain extends GroupTemplate {
 
             //Levels should contain link objects for generation/validation
             for (let i = 0; i < chain.levels.length; i++) {
-                chain.levels[i] = findResourceByID(parentGroup.links, chain.levels[i]) || {};
+                let level = findResourceByID(parentGroup.links, chain.levels[i]);
+                if (level){
+                    chain.levels[i] = level;
+                    if (chain.levels[i]::isString()){
+                        chain.levels[i] = {"id": chain.levels[i]};
+                    }
+                } else {
+                    chain.levels[i] = {};
+                }
             }
 
             //Match number of requested levels with the levels[i] array length
             if (chain.levels.length !== chain.numLevels){
-                let min = Math.min(chain.levels.length, chain.numLevels || 1);
                 let max = Math.max(chain.levels.length, chain.numLevels || 0);
-                logger.info($LogMsg.CHAIN_NUM_LEVELS, min, max);
-                for (let i = min; i < max; i++){
+                logger.info($LogMsg.CHAIN_NUM_LEVELS, chain.levels.length, max);
+                for (let i = chain.levels.length; i < max; i++){
                     chain.levels.push({});
                 }
                 chain.numLevels = max;
             }
             let N = chain.numLevels;
 
-            let sources = chain.levels.map(l => l? l.source: null);
-            let targets = chain.levels.map(l => l? l.target: null);
+            let sources = chain.levels.map(l => l? l.source: undefined);
+            let targets = chain.levels.map(l => l? l.target: undefined);
             sources[0] = sources[0] || chain.root;
             targets[N - 1] = targets[N - 1] || chain.leaf;
+            if (chain.root && !getID(sources[0])) {
+                sources[0].id = chain.root;
+            }
+            if (chain.leaf && !getID(targets[N - 1])) {
+                targets[N - 1].id = chain.leaf;
+            }
 
             for (let i = 1; i < N; i++){
                 if (sources[i] && targets[i-1] && !compareResources(targets[i-1], sources[i])){
@@ -281,17 +294,27 @@ export class Chain extends GroupTemplate {
                 });
 
             for (let i = 0; i < N; i++){
-                sources[i] = sources[i] || ((i > 0) && targets[i-1]) || getNewNode(i);
-                mergeGenResource(chain.group, parentGroup, sources[i], $Field.nodes);
+                sources[i] = sources[i] || ((i > 0) && targets[i - 1]) || getNewNode(i);
+                if (sources[i]::isString()){
+                    sources[i] = {"id": sources[i]};
+                }
             }
             for (let i = 1; i < N; i++){
-                targets[i-1] = sources[i];
+                targets[i - 1] = sources[i];
             }
             targets[N - 1] = targets[N - 1] || getNewNode(N);
-            mergeGenResource(chain.group, parentGroup, targets[N - 1], $Field.nodes);
-
+            if (targets[N - 1]::isString()){
+                targets[N - 1] = {"id": targets[N - 1]};
+            }
             chain.root = getID(sources[0]);
             chain.leaf = getID(targets[N - 1]);
+
+            //Add generated nodes to the parent group
+            for (let i = 0; i < N; i++){
+                mergeGenResource(chain.group, parentGroup, sources[i], $Field.nodes);
+            }
+            mergeGenResource(chain.group, parentGroup, targets[N - 1], $Field.nodes);
+
             let lyphTemplate = getLyphTemplate();
 
             //Create levels
