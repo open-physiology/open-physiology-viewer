@@ -11,8 +11,8 @@ const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
 const MAX_POINTS = 100;
-const AXON_SIZE = .5;
-const DENDRYTE_SIZE = .25;
+const AXON_SIZE = .75;
+const DENDRYTE_SIZE = .3;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -657,6 +657,7 @@ function layoutChains(scene, hostChainDic, links)
               if ( link ) {
                 line?.geometry?.computeBoundingBox();
                 line.userData = link.userData;
+                console.log("Link ", line?.userData?.id);
                 line.position.z = 4;
                 scene.remove(link);
                 line.modifiedChain = true;
