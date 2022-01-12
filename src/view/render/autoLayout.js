@@ -11,8 +11,8 @@ const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
 const MAX_POINTS = 100;
-const AXON_SIZE = 1;
-const DENDRYTE_SIZE = .5;
+const AXON_SIZE = .5;
+const DENDRYTE_SIZE = .25;
 
 function trasverseSceneChildren(children, all) {
   children.forEach((c)=>{
@@ -576,7 +576,7 @@ function getPointInBetweenByPerc(pointA, pointB, percentage) {
 function getWorldPosition(host){
   var position = new THREE.Vector3();
   host.getWorldPosition(position);
-  return position;
+  return getCenterPoint(host);
 }
 
 function validPosition(position){
@@ -588,10 +588,26 @@ function validPosition(position){
 }
 
 function layoutChainLyph(host, lyph, middle, ratio){
-  lyph && fitToTargetRegion(host, lyph, true)
+  lyph && fitToTargetRegion(host, lyph, true);
   lyph && setMeshPos(lyph, middle.x, middle.y, middle.z + 1);
   lyph?.scale?.setX(lyph?.scale?.x * ratio);
   lyph?.scale?.setY(lyph?.scale?.y * ratio);
+  lyph?.scale?.setZ(lyph?.scale?.z * ratio);
+  console.log("Lyph ", getCenterPoint(lyph));
+  console.log(host);
+  console.log(lyph);
+  if ( host?.material?.color?.equals(lyph?.material?.color) ){
+    lyph.material.color.r = lyph?.material?.color.r/2;
+    lyph.material.color.g = lyph?.material?.color.g/2;
+    lyph.material.color.b = lyph?.material?.color.b/2;
+  }
+  console.log("Scale ", lyph?.scale);
+  
+  let parent = traverseMeshParent(lyph);
+  rotateAroundCenter(lyph
+                  , parent.rotation.x
+                  , parent.rotation.y
+                  , parent.rotation.z);  
 }
 
 function layoutChains(scene, hostChainDic, links)
@@ -641,6 +657,7 @@ function layoutChains(scene, hostChainDic, links)
               if ( link ) {
                 line?.geometry?.computeBoundingBox();
                 line.userData = link.userData;
+                line.position.z = 4;
                 scene.remove(link);
                 line.modifiedChain = true;
                 scene.add(line);
@@ -716,6 +733,7 @@ function autoLayoutChains(scene, graphData, links){
         chainedLyphs[chain.id]["lyphs"] = chain.levels?.map( link => link.conveyingLyph );
         chainedLyphs[chain.id]["chain"] = chain;
         if ( chainedLyphs[chain.id]["lyphs"]) {
+          console.log("Layout chains ", chainedLyphs);
           layoutChains(scene, chainedLyphs, links);
         }
         chainedLyphs = {};
@@ -751,6 +769,7 @@ export function autoLayout(scene, graphData) {
   }
 
   autoSizeLyphs(hostLyphLyphDic);
+  lyphDic = {};
   let links = getSceneObjectByModelClass(scene.children, "Link");
   graphData?.chains?.forEach( chain => { 
       chain.levels?.map( link => { 
@@ -758,26 +777,32 @@ export function autoLayout(scene, graphData) {
           if ( host === undefined ) {
             host = link?.conveyingLyph?.conveys?.fasciculatesIn?.viewObjects["main"];
           }
-          link?.conveyingLyph && lyphDic[link?.conveyingLyph.id] ? lyphDic[link?.conveyingLyph.id].lyphs.push(link?.conveyingLyph?.viewObjects["main"]) : lyphDic[link?.conveyingLyph.id] = { host : host, lyphs : [link?.conveyingLyph?.viewObjects["main"]] };
+          link?.conveyingLyph && lyphDic[host?.userData?.id] ? lyphDic[host?.userData?.id].lyphs.push(link?.conveyingLyph?.viewObjects["main"]) : lyphDic[host?.userData?.id] = { host : host, lyphs : [link?.conveyingLyph?.viewObjects["main"]] };
       });
   });
 
+  console.log("Lyph dic ", lyphDic);
+
   Object.keys(lyphDic).forEach( dic => {
     let host = lyphDic[dic]["host"];
+    console.log("Host ", host?.userData?.name);
     if ( host?.type == "Mesh" ){
       let lyphs = lyphDic[dic]["lyphs"];
       let size = host?.geometry ? getMeshBoundingBoxSize(host) : null;
       const targetSize = host?.geometry ? new THREE.Box3().setFromObject(host)?.getSize() : null;
       const width = targetSize?.x;
+      const height = targetSize?.y;
       const middle = host ? getWorldPosition(host) : null;
       middle ? middle.x = middle.x - (width/2) : null;
+      middle ? middle.y = middle.y + ( targetSize?.y/4) : null;
       middle ? middle.z = middle.z + 1 : null;
       lyphs?.forEach( lyph => {
+        console.log("lyph ",  lyph?.userData?.id + "-" + lyph?.userData?.name);
         if ( lyph?.userData?.supertype?.id?.includes(DENDRYTE) && middle){
-          middle.x = middle.x + ((width/lyphs.length) * .75);
+          middle.x = middle.x + ((width/lyphs.length) * .5);
           (host && lyph) && layoutChainLyph(host, lyph, middle, DENDRYTE_SIZE);
         } else if ( lyph?.userData?.supertype?.id?.includes(AXON) && middle){
-          middle.x = middle.x + ((width/lyphs.length) * .75);
+          middle.x = middle.x + ((width/lyphs.length) * .5);
           (host && lyph) && layoutChainLyph(host, lyph, middle, AXON_SIZE);
         }
         middle ? middle.x = middle.x + ((width/lyphs.length)/2) : null;
