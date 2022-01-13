@@ -618,8 +618,7 @@ function layoutChains(scene, hostChainDic, links)
       let linkStartPosition = startLyph ? getWorldPosition(startLyph) : null;
       
       //Position lyph at one of the end points of the chain
-      const endIndex = hostChainDic[hostKey]["lyphs"].length - 1;
-      const endLyph = hostChainDic[hostKey]["lyphs"][endIndex]?.viewObjects["main"];
+      const endLyph = hostChainDic[hostKey]["lyphs"][1]?.viewObjects["main"];
       let linkEndPosition = endLyph ? getWorldPosition(endLyph) : null;
 
       if ( endLyph?.geometry && startLyph?.geometry ){
