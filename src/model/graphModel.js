@@ -258,6 +258,14 @@ export class Graph extends Group{
         res.generated = true;
         res.mergeScaffoldResources();
 
+        (res.chains||[]).forEach(chain => {
+            if (chain instanceof modelClasses.Chain) {
+                chain.resizeLyphs();
+            } else {
+                logger.error($LogMsg.CLASS_ERROR_RESOURCE, "resizeLyphs", chain, modelClasses.Chain.name);
+            }
+        });
+
         res.modelClasses = modelClasses;
         res.createForceLinks();
 

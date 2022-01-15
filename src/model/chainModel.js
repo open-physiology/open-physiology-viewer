@@ -513,8 +513,10 @@ export class Chain extends GroupTemplate {
                 logger.warn($LogMsg.CHAIN_NO_CONVEYING_LYPH, this.id, lnk.id)
                 return;
             }
-            lyph.updateSize();
-            minWidth = Math.min(minWidth, lyph.width);
+            if (lyph instanceof Lyph) {
+                lyph.updateSize();
+                minWidth = Math.min(minWidth, lyph.width);
+            }
         });
         if (sameWidth && minWidth < MAX_WIDTH){
             (this.levels||[]).forEach(lnk => lnk.conveyingLyph && (lnk.conveyingLyph.width = minWidth));

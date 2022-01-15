@@ -82,21 +82,13 @@ export class Group extends Resource {
         /******************************************************************************************************/
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID, namespace);
-
-        (res.chains||[]).forEach(chain => {
-            if (chain instanceof modelClasses.Chain) {
-                chain.resizeLyphs();
-            } else {
-                logger.error($LogMsg.CLASS_ERROR_RESOURCE, "resizeLyphs", chain, modelClasses.Chain.name);
-            }
-        });
-
         //copy nested references to resources to the parent group
         res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec
         addColor(res.links, $Color.Link);
         addColor(res.lyphs);
+
         res.assignScaffoldComponents();
         return res;
     }
