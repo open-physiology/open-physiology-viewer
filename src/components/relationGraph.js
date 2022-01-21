@@ -2,14 +2,16 @@ import * as d3 from 'd3';
 window.d3 = d3;
 
 import {Component, ElementRef, Input, NgModule, ViewChild, ChangeDetectionStrategy} from "@angular/core";
-import {CommonModule} from "@angular/common";
+import {CommonModule, KeyValue} from "@angular/common";
 import {values, pick, flatten, keys, entries, isObject} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
 import FileSaver from "file-saver";
 import {ResourceInfoModule} from "./gui/resourceInfo";
 import {MatSliderModule} from "@angular/material/slider";
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import {SearchBarModule} from "./gui/searchBar";
 import {$Field, $SchemaClass} from "../model";
+
 
 @Component({
     selector: 'relGraph',
@@ -45,21 +47,42 @@ import {$Field, $SchemaClass} from "../model";
                         <i class="fa fa-folder"> </i>
                     </button>
                 </section>
-
                 <svg #svg></svg>
             </section>
             <section id="relGraphSettingsPanel" [hidden]="!_showPanel" class="w3-quarter">
                 <svg #legendSvg></svg>
                 <section class="w3-padding-small">
+                    <!--Node type filter-->
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Resource types</legend>
+                        <span *ngFor="let nodeType of nodeTypes | keyvalue">
+                            <mat-checkbox matTooltip="Toggle nodes" labelPosition="after" class="w3-margin-left"
+                                          [checked] = "!nodeType.value.hidden"
+                                          (change)  = "toggleNodeType(nodeType.key)">
+                                {{nodeType.key}}
+                            </mat-checkbox>
+                        </span>
+                    </fieldset>
+                    
+                    <!--Link type filter-->
+                    <fieldset class="w3-card w3-round w3-margin-small">
+                        <legend>Relationship types</legend>
+                        <span *ngFor="let linkType of linkTypes | keyvalue">
+                            <mat-checkbox matTooltip="Toggle relationships" labelPosition="after" class="w3-margin-left"
+                                          [checked] = "!linkType.value.hidden"
+                                          (change)  = "toggleLinkType(linkType.key)">
+                                {{linkType.key}}
+                            </mat-checkbox>
+                        </span>
+                    </fieldset>
+                    
                     <!--Highlighted entity-->
-
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Highlighted</legend>
                         <resourceInfoPanel *ngIf="!!_highlighted" [resource]="_highlighted"></resourceInfoPanel>
                     </fieldset>
 
                     <!--Search bar-->
-
                     <fieldset class="w3-card w3-round w3-margin-small-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
@@ -68,7 +91,6 @@ import {$Field, $SchemaClass} from "../model";
                     </fieldset>
 
                     <!--Selected entity-->
-
                     <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Selected</legend>
                         <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
@@ -207,7 +229,7 @@ export class RelGraph {
                 sources.forEach(source => {
                     targets.forEach(target => {
                         this.data.links.push({
-                            "source": source.id, "target": target.id, "type"  : source.conveyingType? source.conveyingType.toLowerCase(): "advective"
+                            "source": source.id, "target": target.id, "type" : source.conveyingType? source.conveyingType.toLowerCase(): "advective"
                         });
                     })
                 })
@@ -281,7 +303,15 @@ export class RelGraph {
         svg.selectAll("rect").remove();
 
         if (!this.data || !this.width || !this.height) {return; }
-        let data = this.data;
+        let data = { nodes: [], links: [] };
+        let visibleNodeTypes = this.nodeTypes::keys().filter(key => !this.nodeTypes[key].hidden);
+        let visibleLinkTypes = this.linkTypes::keys().filter(key => !this.linkTypes[key].hidden);
+
+        data.nodes = this.data.nodes.filter(d => visibleNodeTypes.includes(d.relClass));
+        data.links = this.data.links.filter(d => visibleLinkTypes.includes(d.type));
+        const getID  = (e) => e::isObject()? e.id : e;
+        data.links = data.links.filter(d => data.nodes.find(n => n.id === getID(d.source)) &&
+            data.nodes.find(n => n.id === getID(d.target)));
 
         let useGroupInABox = true;
 
@@ -304,8 +334,8 @@ export class RelGraph {
 
         let simulation = d3.forceSimulation(data.nodes)
             .force("link", d3.forceLink(data.links).id(d => d.id))
-            .force("charge", d3.forceManyBody().strength(-15))
-            .force("collide", d3.forceCollide(15))
+            .force("charge", d3.forceManyBody().strength(-20))
+            .force("collide", d3.forceCollide(10))
             .force("group", groupingForce)
             .force("x", useGroupInABox ? null : d3.forceX(this.width / 2))
             .force("y", useGroupInABox ? null : d3.forceY(this.height / 2));
@@ -358,11 +388,11 @@ export class RelGraph {
         //Nodes
 
         const [nodeLyph, nodeLyphFromMaterial, nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial] =
-        this.nodeTypes::keys().map(clsName =>
-            graphGroup.append("g").selectAll(this.nodeTypes[clsName].shape)
-                .data(data.nodes.filter(e => e.relClass === clsName))
-                .join(this.nodeTypes[clsName].shape)
-        );
+            this.nodeTypes::keys().map(clsName =>
+                graphGroup.append("g").selectAll(this.nodeTypes[clsName].shape)
+                    .data(data.nodes.filter(e => e.relClass === clsName))
+                    .join(this.nodeTypes[clsName].shape)
+            );
 
         //Tooltips
 
@@ -406,7 +436,7 @@ export class RelGraph {
 
         [nodeLink, nodeCoalescence, nodeEmbeddedCoalescence, nodeMaterial, nodeLyph, nodeLyphFromMaterial].forEach(node => {
             node.each(d => {
-               this.nodeTypes[d.relClass].attrs::entries().forEach(([key, value]) => node.attr(key, value));
+                this.nodeTypes[d.relClass].attrs::entries().forEach(([key, value]) => node.attr(key, value));
             });
 
             node.attr("stroke", e => e.isTemplate? this.strokeTypes.template: this.strokeTypes.instance)
@@ -424,10 +454,9 @@ export class RelGraph {
                 this.highlighted = d;
                 tooltip.style("opacity", .9);
                 tooltip.html(`<div>${d.id}: ${d.name||"?"}<\div>`)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-            .on("mouseout", () => tooltip.style("opacity", 0));
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            }).on("mouseout", () => tooltip.style("opacity", 0));
 
             node.each(function(d){
                 d.viewObjects = d.viewObjects || {};
@@ -441,8 +470,8 @@ export class RelGraph {
 
         simulation.on("tick", () => {
             if (!this._isActive){
-               simulation.stop();
-               return;
+                simulation.stop();
+                return;
             }
             const boundX = x => Math.min(this.width, Math.max(0, x));
             const boundY = y => Math.min(this.height, Math.max(0, y));
@@ -471,7 +500,7 @@ export class RelGraph {
     drawLegend(){
         //Legends
         if (!this.legendSvgRef){ return; }
-        let legendSvg = d3.select(this.legendSvgRef.nativeElement).attr("width", 300).attr("height", 300);
+        let legendSvg = d3.select(this.legendSvgRef.nativeElement).attr("width", 300).attr("height", 260);
 
         const labelHSpacing = 15;
         const labelVSpacing = 4;
@@ -532,6 +561,25 @@ export class RelGraph {
         this.draw();
     }
 
+    toggleLinkType(key) {
+        if (key && this.linkTypes[key]) {
+            this.linkTypes[key].hidden = !this.linkTypes[key].hidden;
+        }
+        this.draw();
+        //This more efficient then draw but leaves arrow markers
+        // let svg = d3.select(this.svgRef.nativeElement);
+        // let link = svg.select("g").select("g").selectAll("path");
+        // let visibleLinkTypes = this.linkTypes::keys().filter(key => !this.linkTypes[key].hidden);
+        // link.data(this.data.links).join("path").attr("stroke-opacity", d => visibleLinkTypes.includes(d.type)? 0.6: 0);
+    }
+
+    toggleNodeType(key) {
+        if (key && this.nodeTypes[key]) {
+            this.nodeTypes[key].hidden = !this.nodeTypes[key].hidden;
+        }
+        this.draw();
+    }
+
     export(){
         if (this._graphData){
             let coords = {};
@@ -588,11 +636,10 @@ export class RelGraph {
             this.selected = (this._graphData.resources||[]).find(e => e.name === name);
         }
     }
-
 }
 
 @NgModule({
-    imports: [CommonModule, ResourceInfoModule, MatSliderModule, SearchBarModule],
+    imports: [CommonModule, ResourceInfoModule, MatSliderModule, SearchBarModule, MatCheckboxModule],
     declarations: [RelGraph],
     exports: [RelGraph]
 })
