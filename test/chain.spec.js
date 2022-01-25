@@ -124,7 +124,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(c3).to.have.property("layers");
         expect(c3.layers).to.be.an('array').that.has.length(14);
         //assuming counting of layers from 0
-        expect(c3.layers[3]).to.have.property("id").that.equal("ref_mat_KM_27_K_129_c3_4");
+        expect(c3.layers[3]).to.have.property("id").that.equal("ref_mat_KM_27_K_129_3_c3_4");
         expect(c3.layers[3]).to.have.property("internalLyphs");
         expect(c3.layers[3].internalLyphs).to.be.an('array').that.has.length(1);
         expect(c3.layers[3].internalLyphs[0]).to.be.an('object');
