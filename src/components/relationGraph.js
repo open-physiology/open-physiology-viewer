@@ -166,12 +166,12 @@ export class RelGraph {
     data = { nodes: [], links: [] };
 
     nodeTypes = {
-        "Lyph"                  : {color: "#FF0000", shape: "circle", attrs: {"r": 5}},
-        "LyphFromMaterial"      : {color: "#00FF00", shape: "circle", attrs: {"r": 5}},
-        "Link"                  : {color: "#000000", shape: "rect",   attrs: {"width": 10, "height": 10, "x": -5, "y": -5}},
-        "Coalescence"           : {color: "#FFA500", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}},
-        "EmbeddedCoalescence"   : {color: "#FFFF00", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}},
-        "Material"              : {color: "#008000", shape: "path",   attrs: {"d": "M -7 0 L -4 -7 L 4 -7 L 7 0 L 4 7 L -4 7 L -7 0"}}
+        "Lyph"                  : {color: "#FF0000", shape: "circle", attrs: {"r": 5}, hidden: true},
+        "LyphFromMaterial"      : {color: "#00FF00", shape: "circle", attrs: {"r": 5}, hidden: true},
+        "Link"                  : {color: "#000000", shape: "rect",   attrs: {"width": 10, "height": 10, "x": -5, "y": -5}, hidden: true},
+        "Coalescence"           : {color: "#FFA500", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}, hidden: true},
+        "EmbeddedCoalescence"   : {color: "#FFFF00", shape: "path",   attrs: {"d": "M -10 8 L 0 -8 L 10 8 L -10 8"}, hidden: true},
+        "Material"              : {color: "#008000", shape: "path",   attrs: {"d": "M -7 0 L -4 -7 L 4 -7 L 7 0 L 4 7 L -4 7 L -7 0"}, hidden: true}
     };
 
     linkTypes = {

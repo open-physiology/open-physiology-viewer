@@ -110,7 +110,7 @@ export const $Prefix = {
 export const getNewID = entitiesByID => "new-" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
-export const getGenID = (...args) => args.join("_");
+export const getGenID = (...args) => args.filter(arg => arg !== null).join("_");
 
 export const getFullID = (namespace, id) => {
     if (!id) return "";

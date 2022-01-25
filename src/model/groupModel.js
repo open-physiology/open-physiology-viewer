@@ -209,17 +209,17 @@ export class Group extends Resource {
         const replaceRefToMaterial = (ref) => {
             let lyphID = getGenID($Prefix.material, ref);
             let template = (json.lyphs || []).find(e => (e.id === lyphID) && e.isTemplate);
-            if (!template){
+            if (!template) {
                 let material = (json.materials || []).find(e => e.id === ref);
                 if (material) {
                     template = {
-                        [$Field.id]            : lyphID,
-                        [$Field.name]          : material.name,
-                        [$Field.isTemplate]    : true,
-                        [$Field.materials]     : [material.id],
-                        [$Field.generatedFrom] : material.id,
-                        [$Field.skipLabel]     : true,
-                        [$Field.generated]     : true
+                        [$Field.id]: lyphID,
+                        [$Field.name]: material.name,
+                        [$Field.isTemplate]: true,
+                        [$Field.materials]: [material.id],
+                        [$Field.generatedFrom]: material.id,
+                        [$Field.skipLabel]: true,
+                        [$Field.generated]: true
                     };
                     template::merge(material::pick([$Field.name, $Field.external, $Field.color]));
                     json.lyphs.push(template);
@@ -231,12 +231,12 @@ export class Group extends Resource {
             return ref;
         };
 
-        const replaceRefToTemplate = (ref, parent) => {
+        const replaceRefToTemplate = (ref, parent, ext = null) => {
             let template = (json.lyphs || []).find(e => e.id === ref && e.isTemplate);
             if (template) {
                 changedLyphs++;
                 let subtype = {
-                    [$Field.id]        : getGenID($Prefix.template, ref, parent.id),
+                    [$Field.id]        : getGenID($Prefix.template, ref, parent.id, ext),
                     [$Field.name]      : template.name,
                     [$Field.supertype] : template.id,
                     [$Field.skipLabel] : true,
@@ -254,10 +254,11 @@ export class Group extends Resource {
         const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
             const replaceLyphTemplates = ![$Field.subtypes, $Field.supertype, $Field.lyphTemplate, $Field.housingLyphs].includes(key);
+            //TODO consider including "key" into template name to avoid identifier conflict if a template is used in several fields of the same resource
             if (resource[key]::isArray()) {
                 resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
-                    resource[key] = resource[key].map(ref => replaceRefToTemplate(ref, resource));
+                    resource[key] = resource[key].map((ref, idx) => replaceRefToTemplate(ref, resource, idx));
                 }
             } else {
                 resource[key] = replaceRefToMaterial(resource[key]);
