@@ -13,7 +13,7 @@ const {Group, Link, Coalescence, Component, Chain, Node} = modelClasses;
 //Update chain with dynamic ends
 Chain.prototype.update = function(){
     if (!this.root || !this.leaf){ return; }
-    let {start, end} = this.getWiredChainEnds();
+    let {start, end} = this.getScaffoldChainEnds();
     start = extractCoords(start);
     end   = extractCoords(end);
     if (start && end) {

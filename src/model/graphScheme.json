@@ -368,7 +368,7 @@
             }
           ],
           "advanced": true,
-          "relatedTo": "wiredChain"
+          "relatedTo": "wiredChains"
         },
         "startFromLeaf": {
           "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
@@ -491,7 +491,7 @@
         }
       }
     },
-    "ColorScheme": {
+    "InterpolateColorScheme": {
       "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
       "type": "string",
       "enum": [
@@ -542,16 +542,14 @@
           "description": "Scaffold anchor points",
           "type": "array",
           "items": {
-            "items": {
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/IdentifierScheme"
-                },
-                {
-                  "$ref": "#/definitions/Anchor"
-                }
-              ]
-            }
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
           },
           "default": []
         },
@@ -1046,7 +1044,7 @@
       "properties": {
         "scheme": {
           "description": "Interpolation scheme to apply to a group of resources",
-          "$ref": "#/definitions/ColorScheme"
+          "$ref": "#/definitions/InterpolateColorScheme"
         },
         "length": {
           "description": "Number of distinct colors from the color scheme",
@@ -2090,6 +2088,27 @@
         "DIFFUSIVE"
       ]
     },
+    "NamedColorScheme": {
+      "type": "string",
+      "enum": [
+        "aqua",
+        "black",
+        "blue",
+        "fuchsia",
+        "gray",
+        "green",
+        "lime",
+        "maroon",
+        "navy",
+        "olive",
+        "purple",
+        "red",
+        "silver",
+        "teal",
+        "white",
+        "yellow"
+      ]
+    },
     "RGBColorScheme": {
       "type": "string",
       "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
@@ -2497,7 +2516,14 @@
       "properties": {
         "color": {
           "description": "Color",
-          "$ref": "#/definitions/RGBColorScheme"
+          "anyOf": [
+            {
+               "$ref" : "#/definitions/RGBColorScheme"
+            },
+            {
+              "$ref": "#/definitions/NamedColorScheme"
+            }
+          ]
         },
         "viewObjects": {
           "description": "Graphical objects that represent the resource",
@@ -2618,7 +2644,7 @@
             "class",
             "source",
             "target",
-            "wiredChain"
+            "wiredChains"
           ]
         },
         "hostedAnchors": {
@@ -2671,16 +2697,19 @@
           "readOnly": true,
           "relatedTo": "wires"
         },
-        "wiredChain": {
-          "description": "A chain constrained by the wire",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
+        "wiredChains": {
+          "description": "Chains constrained by the wire",
+          "type": "array",
+          "items": {
+            "anyOf": [ 
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
           "relatedTo": "wiredTo",
           "advanced": true
         }

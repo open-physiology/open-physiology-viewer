@@ -585,7 +585,6 @@ export class Region extends Shape {
                 }
                 if (!sourceAnchor.layout && !sourceAnchor.hostedBy || !targetAnchor.layout && !targetAnchor.hostedBy){
                     logger.warn($LogMsg.REGION_FACET_NO_LAYOUT, wire.source, wire.target);
-                    return;
                 }
             });
         }

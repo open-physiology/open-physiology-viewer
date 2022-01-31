@@ -7,9 +7,10 @@ import {
 } from './test.helper';
 import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
-import m1 from './data/M1-model'
-
+import m1 from './data/M1-model';
+import wiredChain from './data/basicChainWireConflict.json';
 import {modelClasses} from '../src/model/index';
+import {Logger} from "../src/model/logger";
 
 describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
@@ -262,6 +263,76 @@ describe("Expand chain template (M1)", () => {
         expect(ch1).to.have.property("wiredTo").that.is.an("object");
         expect(ch1.wiredTo).to.have.property("id").that.equals("w-X-f1L");
         expect(ch1.levels.length).to.be.equal(6);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Validate chain wiring", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(wiredChain, modelClasses);
+    });
+
+    it("Chain t1 is correctly wired", () => {
+        expect(graphData).to.have.property("chains");
+        expect(graphData.chains).to.be.an('array').that.has.length(7);
+        const t1 = graphData.chains[0];
+        expect(t1).to.be.an('object');
+        expect(t1).to.have.property("id").that.equal("t1");
+        expect(t1).to.have.property("root").that.is.an("object");
+        expect(t1).to.have.property("leaf").that.is.an("object");
+        expect(t1.root).to.have.property("id").that.equals("n1");
+        expect(t1.leaf).to.have.property("id").that.equals("n2");
+        expect(t1).to.have.property("wiredTo").that.is.an("object");
+        expect(t1.wiredTo).to.have.property("id").that.equals("w1");
+        let {start, end} = t1.getScaffoldChainEnds();
+        expect(start).to.have.property("id").that.equals("a1");
+        expect(end).to.have.property("id").that.equals("a2");
+        expect(start).to.have.property("layout").that.is.an("object");
+        expect(end).to.have.property("layout").that.is.an("object");
+        expect(start.layout).to.have.property("x").that.equals(-50);
+        expect(end.layout).to.have.property("x").that.equals(50);
+        expect(start.layout).to.have.property("y").that.equals(50);
+        expect(end.layout).to.have.property("y").that.equals(50);
+    });
+
+    it("Conflicts in chains t2 and t3 are detected", () => {
+        expect(graphData).to.have.property("logger");
+        expect(graphData.logger).to.have.property("entries");
+        expect(graphData.logger.entries).to.be.an('array').that.has.length.above(0);
+        let errors = graphData.logger.entries.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(2);
+        //t2 has conflict caused by startFromLeaf property
+        const t2 = graphData.chains[1];
+        expect(t2).to.be.an('object');
+        expect(t2).to.have.property("id").that.equal("t2");
+        let {start, end} = t2.getScaffoldChainEnds();
+        expect(start).to.have.property("id").that.equals("a2");
+        expect(end).to.have.property("id").that.equals("a1");
+    });
+
+    it("Chain t4 respects anchoring constraints", () => {
+        const t4 = graphData.chains[3];
+        expect(t4).to.be.an('object');
+        expect(t4).to.have.property("id").that.equal("t4");
+        expect(t4.root).to.have.property("id").that.equals("n1");
+        expect(t4.leaf).to.have.property("id").that.equals("n2");
+        expect(t4.wiredTo).to.be.a("undefined");
+        let {start, end} = t4.getScaffoldChainEnds();
+        expect(start).to.be.an("object").that.has.property("id").that.equals("a1");
+        expect(end).to.be.an("object").that.has.property("id").that.equals("a2");
+    });
+
+    it("Chain t6 respects node constraints", () => {
+        const t6 = graphData.chains[5];
+        expect(t6).to.be.an('object');
+        expect(t6).to.have.property("id").that.equal("t6");
+        let {start, end} = t6.getScaffoldChainEnds();
+        expect(start).to.be.an("object").that.has.property("id").that.equals("n5");
+        expect(end).to.be.an("object").that.has.property("id").that.equals("n6");
     });
 
     after(() => {

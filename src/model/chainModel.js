@@ -1,8 +1,9 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
-import {Node} from "./verticeModel";
-import {Link} from "./edgeModel";
+import {Node, Anchor} from "./verticeModel";
+import {Link, Wire} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
+
 
 import {
     mergeGenResource,
@@ -23,19 +24,19 @@ import {defaults, isObject, isArray, flatten, isString} from 'lodash-bound';
 
 /**
  * Chain model
- * @property lyphs
- * @property lyphTemplate
- * @property levels
- * @property numLevels
- * @property housingLyphs
- * @property housingChain
- * @property housingRange
+ * @property {Array<Lyph>} lyphs
+ * @property {Lyph} lyphTemplate
+ * @property {Array<Link>} levels
+ * @property {number} numLevels
+ * @property {Array<Lyph>} housingLyphs
+ * @property {Chain} housingChain
+ * @property {Object} housingRange
  * @property housingLayers
- * @property wiredTo
- * @property startFromLeaf
- * @property hostedBy
- * @property root
- * @property leaf
+ * @property {Wire} wiredTo
+ * @property {boolean} startFromLeaf
+ * @property {Shape} hostedBy
+ * @property {Node} root
+ * @property {Node} leaf
  * @property chainTopology
  */
 export class Chain extends GroupTemplate {
@@ -552,21 +553,55 @@ export class Chain extends GroupTemplate {
         }
     }
 
-    getWiredChainEnds(){
-        let start, end;
-        if (this.wiredTo) {
-            start = this.wiredTo.source;
-            end   = this.wiredTo.target;
-            if (this.startFromLeaf){
-                let tmp = start;
-                start = end;
-                end = tmp;
-            }
-        } else {
-            start = this.root.anchoredTo? this.root.anchoredTo: this.root.layout;
-            end   = this.leaf.anchoredTo? this.leaf.anchoredTo: this.leaf.layout;
+    getScaffoldChainEnds(){
+        let {start, end} = this.getWireEnds();
+        if (!start) {
+            start = this.root.anchoredTo || this.root;
+        }
+        if (!end) {
+            end = this.leaf.anchoredTo || this.leaf;
         }
         return {start, end};
+    }
+
+    getWireEnds(){
+        let start = this.wiredTo? this.wiredTo.source: undefined;
+        let end = this.wiredTo? this.wiredTo.target: undefined;
+        if (this.startFromLeaf) {
+            let tmp = start;
+            start = end;
+            end = tmp;
+        }
+        return {start, end};
+    }
+
+    /**
+     * Checks if the chain end anchoring does not conflict with chain wiring
+     * Note: call after scaffold resources are generated
+     * @returns {boolean}
+     */
+    validateAnchoring(){
+        if (this.wiredTo) {
+            if (!(this.wiredTo instanceof Wire)){
+                throw Error("Cannot validate chain wiring before scaffold generation!");
+            }
+            let {start, end} = this.getWireEnds();
+            if (this.root && this.root.achoredTo) {
+                let id1 = getID(start);
+                let id2 = getID(this.root.anchoredTo);
+                if (id1 !== id2) {
+                    logger.error($LogMsg.CHAIN_CONFLICT_ROOT, "chain: " + this.id, "wire source: " + id1, "chain root: " + id2);
+                }
+            }
+            if (this.leaf && this.leaf.anchoredTo) {
+                let id1 = getID(end);
+                let id2 = getID(this.leaf.anchoredTo);
+                if (id1 !== id2) {
+                    logger.error($LogMsg.CHAIN_CONFLICT_LEAF, "chain: " + this.id, "wire target: " + id1, "chain leaf: " + id2);
+                }
+            }
+        }
+        return true;
     }
 
     validateTopology() {

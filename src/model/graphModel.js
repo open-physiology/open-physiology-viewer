@@ -260,6 +260,7 @@ export class Graph extends Group{
 
         (res.chains||[]).forEach(chain => {
             if (chain instanceof modelClasses.Chain) {
+                chain.validateAnchoring();
                 chain.resizeLyphs();
             } else {
                 logger.error($LogMsg.CLASS_ERROR_RESOURCE, "resizeLyphs", chain, modelClasses.Chain.name);

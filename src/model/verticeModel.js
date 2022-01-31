@@ -53,8 +53,8 @@ export class Anchor extends Vertice {
  * @property {number} y
  * @property {number} z
  * @property {Anchor} anchoredTo
- * @property rootOf
- * @property leafOf
+ * @property {Chain} rootOf
+ * @property {Chain} leafOf
  */
 export class Node extends Vertice {
 

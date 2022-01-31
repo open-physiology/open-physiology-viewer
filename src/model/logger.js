@@ -29,7 +29,9 @@ export const $LogMsg = {
 
     CHAIN_CONFLICT              : `Conflicting chain specification: both "housingLyphs" and "housingChain" are given. Proceeding with "housingLyphs"`,
     CHAIN_CONFLICT2             : `Conflicting chain specification: both "lyphs" and "levels" arrays are given. Proceeding with "lyphs"`,
-    CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains} property disagrees with the chain's housingLayers} property`,
+    CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains property disagrees with the chain's housingLayers} property`,
+    CHAIN_CONFLICT_ROOT         : `Conflicting anchoring: the chain's root anchor is not the end of a chain it is wired to:`,
+    CHAIN_CONFLICT_LEAF         : `Conflicting anchoring: the chain's leaf anchor is not the end of a chain it is wired to:`,
     CHAIN_HOUSING_TEMPLATE      : "Housing lyph or its layer is a template",
     CHAIN_MAT_DIFF              : "Incorrectly defined chain pattern - innermost layers do not convey the same material",
     CHAIN_NO_CONVEYING_LYPH     : "A chain link without conveying lyph found",

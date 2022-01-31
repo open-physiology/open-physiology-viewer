@@ -12,7 +12,7 @@
       "id": "t1",
       "lyphTemplate": {
         "id": "template1",
-        "isTemplate": "true",
+        "isTemplate": true,
         "layers":  ["layer1", "layer2"]
       },
       "root": "n1", "leaf" : "n2",

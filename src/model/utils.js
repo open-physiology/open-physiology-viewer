@@ -25,7 +25,7 @@ export const $SchemaType = {
 /**
  * @property IdentifierScheme
  * @property RGBColorScheme
- * @property ColorScheme
+ * @property InterpolateColorScheme
  * @property GroupColorScheme
  * @property CurieMapping
  * @property Point2Scheme
