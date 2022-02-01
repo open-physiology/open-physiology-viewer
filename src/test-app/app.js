@@ -46,9 +46,7 @@ import {$LogMsg, logger} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
-
-import { enableProdMode } from '@angular/core';
-import {throwError} from "rxjs";
+import {enableProdMode} from '@angular/core';
 
 enableProdMode();
 

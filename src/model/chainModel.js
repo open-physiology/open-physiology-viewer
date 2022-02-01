@@ -184,7 +184,7 @@ export class Chain extends GroupTemplate {
             }
 
             chain.levels = [];
-            let prev;
+            let prevLink;
             for (let i = 0; i < n; i++) {
                 let link = existingLinks[i] || {
                     [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
@@ -200,10 +200,10 @@ export class Chain extends GroupTemplate {
                 if (chain.length){
                     link.length = chain.length / lyphs.length;
                 }
-                if (prev){
-                    prev.next = link.id;
+                if (prevLink){
+                    prevLink.next = link.id;
                 }
-                prev = link;
+                prevLink = link;
                 mergeGenResource(chain.group, parentGroup, link, $Field.links);
                 chain.levels[i] = link.id;
                 link.levelIn = chain.id;
@@ -320,7 +320,7 @@ export class Chain extends GroupTemplate {
 
             //Create levels
             chain.lyphs = [];
-            let prev;
+            let prevLink;
             for (let i = 0; i < N; i++){
                 if (!chain.levels[i]){ chain.levels[i] = {}; }
                 //Do not override existing properties
@@ -337,10 +337,10 @@ export class Chain extends GroupTemplate {
                 if (chain.length){
                     link.length = chain.length / N;
                 }
-                if (prev){
-                    prev.next = link.id;
+                if (prevLink){
+                    prevLink.next = link.id;
                 }
-                prev = link;
+                prevLink = link;
 
                 if (lyphTemplate && !chain.levels[i].conveyingLyph){
                     //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
@@ -542,12 +542,14 @@ export class Chain extends GroupTemplate {
             }
         }
         if (this.root) {
-            (this.root.leafOf||[]).forEach(prev => prev.levels && connectNeighbor(this.levels[0], prev.levels[prev.levels.length - 1], $Field.prevChainEndLevels));
+            (this.root.leafOf||[]).forEach(prevChain => prevChain.levels &&
+                connectNeighbor(this.levels[0], prevChain.levels[prevChain.levels.length - 1], $Field.prevChainEndLevels));
         } else {
             logger.error($LogMsg.CHAIN_NO_ROOT, this.id)
         }
         if (this.leaf){
-            (this.leaf.rootOf||[]).forEach(next => next.levels && connectNeighbor(this.levels[this.levels.length - 1], next.levels[0], $Field.nextChainStartLevels));
+            (this.leaf.rootOf||[]).forEach(nextChain => nextChain.levels &&
+                connectNeighbor(this.levels[this.levels.length - 1], nextChain.levels[0], $Field.nextChainStartLevels));
         } else {
             logger.error($LogMsg.CHAIN_NO_LEAF, this.id)
         }

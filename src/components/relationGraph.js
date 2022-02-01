@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 window.d3 = d3;
 
 import {Component, ElementRef, Input, NgModule, ViewChild, ChangeDetectionStrategy} from "@angular/core";
-import {CommonModule, KeyValue} from "@angular/common";
+import {CommonModule} from "@angular/common";
 import {values, pick, flatten, keys, entries, isObject} from 'lodash-bound';
 import forceInABox from '../algorithms/forceInABox';
 import FileSaver from "file-saver";
