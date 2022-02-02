@@ -326,15 +326,6 @@ describe("Validate chain wiring", () => {
         expect(end).to.be.an("object").that.has.property("id").that.equals("a2");
     });
 
-    it("Chain t6 respects node constraints", () => {
-        const t6 = graphData.chains[5];
-        expect(t6).to.be.an('object');
-        expect(t6).to.have.property("id").that.equal("t6");
-        let {start, end} = t6.getScaffoldChainEnds();
-        expect(start).to.be.an("object").that.has.property("id").that.equals("n5");
-        expect(end).to.be.an("object").that.has.property("id").that.equals("n6");
-    });
-
     after(() => {
         graphData.logger.clear();
     });

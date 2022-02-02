@@ -28,24 +28,30 @@ Chain.prototype.update = function(){
         this.length = length;
         copyCoords(this.root.layout, start);
         this.root.fixed = true;
+        //Resize chain lyphs to match the estimated level length
         for (let i = 0; i < this.levels.length; i++) {
-            //Interpolate chain node positions for quicker layout
             this.levels[i].length = this.length / this.levels.length;
             const lyph = this.levels[i].conveyingLyph;
             if (lyph) {
                 const size = lyph.sizeFromAxis;
                 [$Field.width, $Field.height].forEach(prop => lyph[prop] = size[prop]);
             }
+        }
+        //Interpolate node positions for quicker layout of a chain with anchored nodes
+        for (let i = 0; i < this.levels.length - 1; i++) {
             let node = this.levels[i].target;
             if (node && !node.anchoredTo) {
-                let p = this.startFromLeaf?
+                let p = this.startFromLeaf ?
                     getPoint(curve, end, start, (this.levels.length - i - 1) / this.levels.length)
                     : getPoint(curve, start, end, (i + 1) / this.levels.length);
                 copyCoords(node.layout, p);
-                node.fixed = true;
+                if (this.wiredTo) {
+                    node.fixed = true;
+                }
             }
         }
         copyCoords(this.leaf.layout, end);
+        this.leaf.fixed = true;
     }
 }
 

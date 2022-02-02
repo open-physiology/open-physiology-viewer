@@ -558,10 +558,10 @@ export class Chain extends GroupTemplate {
     getScaffoldChainEnds(){
         let {start, end} = this.getWireEnds();
         if (!start) {
-            start = this.root.anchoredTo || this.root;
+            start = this.root.anchoredTo;
         }
         if (!end) {
-            end = this.leaf.anchoredTo || this.leaf;
+            end = this.leaf.anchoredTo;
         }
         return {start, end};
     }

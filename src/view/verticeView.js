@@ -51,8 +51,11 @@ Node.prototype.updateViewObjects = function(state) {
     if (this.anchoredTo){
         copyCoords(this, this.anchoredTo);
     } else {
-        if (this.fixed) {
+        if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
+        }
+        if (this.hostedBy) {
+            copyCoords(this, this.hostedBy);
         }
         if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));

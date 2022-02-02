@@ -34,11 +34,13 @@
     },
     {
       "id": "n7",
-      "hostedBy": "lnk1"
+      "hostedBy": "lnk1",
+      "offset": 0.05
     },
     {
       "id": "n8",
-      "hostedBy": "lnk1"
+      "hostedBy": "lnk1",
+      "offset": 0.95
     }
   ],
   "links": [
