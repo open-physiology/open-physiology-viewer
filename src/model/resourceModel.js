@@ -38,8 +38,9 @@ import {logger, $LogMsg} from './logger';
  * @property {Array<Object>} assign
  * @property {Array<Object>} interpolate
  * @property {Object} generatedFrom
- * @property {Array<Resource>} publications
- * @property {Array<Resource>} external
+ * @property {Array<Reference>} references
+ * @property {Array<OntologyTerm>} ontologyTerms
+ * @property {Array<External>} external
  */
 export class Resource{
     constructor(id, clsName) {
@@ -503,9 +504,16 @@ export class External extends Resource {
     }
 }
 
-export class Publication extends External {
+export class Reference extends External {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-          json.class = json.class || $SchemaClass.Publication;
+          json.class = json.class || $SchemaClass.Reference;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+}
+
+export class OntologyTerm extends External {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.OntologyTerm;
           return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 }

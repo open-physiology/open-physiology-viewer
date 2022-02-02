@@ -731,12 +731,22 @@
               }
             ]
           },
-          "relatedTo": "publications",
+          "relatedTo": "references",
           "advanced": true
         }
       }
     },
-    "Publication": {
+    "OntologyTerm": {
+      "description": "Definition of an external term",
+      "allOf": [
+        {
+          "$ref": "#/definitions/External"
+        }
+      ],
+      "properties": {
+      }
+    },
+    "Reference": {
       "description": "Reference to a publication",
       "allOf": [
         {
@@ -745,7 +755,7 @@
       ],
       "properties": {
         "documents": {
-          "description": "Model resources documented by the given external resource (publication)",
+          "description": "Model resources documented by the given reference",
           "type": "array",
           "items": {
             "anyOf": [
@@ -757,23 +767,23 @@
               }
             ]
           },
-          "relatedTo": "publications",
+          "relatedTo": "references",
           "advanced": true
         },
         "parent": {
-          "description": "Publication that contains the given published resource, i.e., a book contains a figure",
+          "description": "Reference that contains the given published resource, i.e., a book contains a figure",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/Publication"
+              "$ref": "#/definitions/Reference"
             }
           ],
           "relatedTo": "children"
         },
         "children": {
-          "description": "Publication resources which are part of the given publication, i.e., book chapters or figures",
+          "description": "Reference resources which are part of the given publication, i.e., book chapters or figures",
           "type": "array",
           "items": {
             "anyOf": [
@@ -781,7 +791,7 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Publication"
+                "$ref": "#/definitions/Reference"
               }
             ]
           },
@@ -905,7 +915,7 @@
           }
         },
         "references": {
-          "description": "Descriptors of external resources (i.e., ontologies or publications) used in the model",
+          "description": "Descriptors of external resources (i.e., ontologies or references) used in the model",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2273,8 +2283,8 @@
           },
           "relatedTo": "annotates"
         },
-        "publications": {
-          "description": "Identifier of an evidence publication in an external library, i.e., PubMed) ",
+        "references": {
+          "description": "Identifier of an evidence source in an external library",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2282,11 +2292,26 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Publication"
+                "$ref": "#/definitions/Reference"
               }
             ]
           },
           "relatedTo": "documents"
+        },
+        "ontologyTerms": {
+          "description": "External ontology term",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          },
+          "relatedTo": "annotates"
         },
         "generated": {
           "description": "A boolean flag to mark automatically generated resources",

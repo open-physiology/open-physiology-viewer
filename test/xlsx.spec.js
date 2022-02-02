@@ -143,7 +143,7 @@ describe("Convert excel data to JSON and back", () => {
         expect(model2).to.have.property("lyphs").that.has.length(model.lyphs.length);
         expect(model2).to.have.property("links").that.has.length(model.links.length);
         expect(model2).to.have.property("nodes").that.has.length(model.nodes.length);
-        expect(model2).to.have.property("publications").that.has.length(model.publications.length);
+        expect(model2).to.have.property("references").that.has.length(model.references.length);
         expect(model2).to.have.property("groups").that.has.length(model.groups.length);
         expect(model2).to.have.property("materials").that.has.length(model.materials.length);
         expect(model2).to.have.property("chains").that.has.length(model.chains.length);

@@ -33,7 +33,8 @@ export const $SchemaType = {
  * @property ProcessTypeScheme
  * @property Resource
  * @property External
- * @property Publication
+ * @property Reference
+ * @property OntologyTerm
  * @property VisualResource
  * @property Vertice
  * @property Node

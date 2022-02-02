@@ -1,5 +1,5 @@
 {
-  "publications": [
+  "references": [
     {
       "id": "PMID:1358408",
       "uri": "https://pubmed.ncbi.nlm.nih.gov/1358408"
@@ -3280,7 +3280,7 @@
         "K67",
         "n-pud"
       ],
-      "publications": [
+      "references": [
         "PMID:7174880",
         "PMID:3722467",
         "PMID:12811806"
@@ -3322,7 +3322,7 @@
         "K68",
         "n-pud"
       ],
-      "publications": [
+      "references": [
         "PMID:7174880",
         "PMID:3722467",
         "PMID:12811806"
@@ -4610,7 +4610,7 @@
         "K61",
         "n-pelspl"
       ],
-      "publications": [
+      "references": [
         "PMID:7174880",
         "PMID:3722467",
         "PMID:12811806",
@@ -4742,7 +4742,7 @@
         "K62",
         "n-pelspl"
       ],
-      "publications": [
+      "references": [
         "PMID:7174880",
         "PMID:3722467",
         "PMID:12811806",
@@ -5017,7 +5017,7 @@
         "K61",
         "n-pud"
       ],
-      "publications": [
+      "references": [
         "PMID:7174880",
         "PMID:3722467",
         "PMID:12811806",
@@ -5149,7 +5149,7 @@
         "K62",
         "n-pud"
       ],
-      "publications": [
+      "references": [
         "PMID:7174880",
         "PMID:3722467",
         "PMID:12811806",
