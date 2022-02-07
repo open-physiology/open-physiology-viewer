@@ -754,22 +754,6 @@
         }
       ],
       "properties": {
-        "documents": {
-          "description": "Model resources documented by the given reference",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Resource"
-              }
-            ]
-          },
-          "relatedTo": "references",
-          "advanced": true
-        },
         "parent": {
           "description": "Reference that contains the given published resource, i.e., a book contains a figure",
           "anyOf": [
@@ -910,20 +894,6 @@
               },
               {
                 "$ref": "#/definitions/Material"
-              }
-            ]
-          }
-        },
-        "references": {
-          "description": "Descriptors of external resources (i.e., ontologies or references) used in the model",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/External"
               }
             ]
           }

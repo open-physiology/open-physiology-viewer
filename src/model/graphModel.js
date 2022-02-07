@@ -137,7 +137,7 @@ export class Graph extends Group{
             [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
             [$Field.name]     : "Ungrouped",
             [$Field.generated]: true,
-            [$Field.hidden]   : false,
+            [$Field.hidden]   : true,
             //TODO maybe we should exclude from this group resources included to subgroups
             [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
             [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))

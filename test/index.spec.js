@@ -160,6 +160,8 @@ describe("Generate model (Basal Ganglia)", () => {
 
         expect(graphData).to.have.property("materials");
         expect(graphData).to.have.property("references");
+        expect(graphData.references[0]).to.be.instanceOf(modelClasses.Reference);
+
         expect(graphData).to.have.property("coalescences");
         expect(graphData).to.have.property("channels");
 
