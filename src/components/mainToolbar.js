@@ -87,7 +87,7 @@ export class MainToolbar {
         dialogRef.afterClosed().subscribe(spreadsheetID => {
             if (spreadsheetID !== undefined){
                 let url = `https://docs.google.com/spreadsheets/d/e/${spreadsheetID}/pub?output=xlsx`;
-                this._http.get(url).subscribe(
+                this._http.get(url,{responseType: 'arraybuffer'}).subscribe(
                     res => {
                         let model = loadModel(res, spreadsheetID, "xlsx");
                         this.onImportExcelModel.emit(model);

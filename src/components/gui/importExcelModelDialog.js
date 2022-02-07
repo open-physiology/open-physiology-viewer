@@ -30,7 +30,7 @@ import {
     `]
 })
 export class ImportExcelModelDialog {
-    spreadsheetID = "2PACX-1vR59qE50ysV1BwSGu5yxOIYt9Z9-1YpeIRndTF0xxTY9MyBiw3c9ZVG4VXacQHsn1h1oIzHm6VomUhX";
+    spreadsheetID = "";
     dialogRef;
 
     constructor(dialogRef: MatDialogRef) {
