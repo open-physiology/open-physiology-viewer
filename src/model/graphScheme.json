@@ -788,6 +788,10 @@
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$ref": "#/definitions/Group",
       "properties": {
+        "abbrev": {
+          "description": "Short graph identifier for the use in rdfs:labels",
+          "$ref": "#/definitions/IdentifierScheme"
+        },
         "localConventions": {
           "description": "Mapping from local identifiers to global identifiers.",
           "type": "array",
