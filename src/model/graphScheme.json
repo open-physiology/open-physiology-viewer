@@ -291,7 +291,7 @@
           "default": 1
         },
         "levels": {
-          "description": "Optional references to links or link properties that must be associated with the chain level",
+          "description": "Optional references to links or link properties that must be associated with the chain level. Excel property levelTargets can be used to name chain nodes",
           "type": "array",
           "items": {
             "anyOf": [

@@ -8,9 +8,9 @@ import {
     $Prefix,
     $Color,
     getGenID,
+    getNewID,
     getGenName,
     findResourceByID,
-    getNewID,
     getID,
     LYPH_TOPOLOGY,
     mergeResources, $SchemaClass

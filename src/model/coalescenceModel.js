@@ -69,13 +69,14 @@ export class Coalescence extends Resource{
                 let uniqueLyphs = lyphs::uniqBy(e => e.id);
                 if (uniqueLyphs.length <= 1) { return; }
 
-                let instance = this.constructor.fromJSON({
+                let coalescence = {
                     [$Field.id]           : getGenID(this.id, $Prefix.instance, i + 1),
                     [$Field.generated]    : true,
                     [$Field.topology]     : this.topology,
                     [$Field.generatedFrom]: this,
                     [$Field.lyphs]        : uniqueLyphs
-                }, modelClasses, inputModel.entitiesByID, inputModel.namespace);
+                };
+                let instance = this.constructor.fromJSON(coalescence, modelClasses, inputModel.entitiesByID, inputModel.namespace);
 
                 //it is ok to add newly create coalescences to the parent group coalescence set as they won't be further processed
                 inputModel.coalescences.push(instance);

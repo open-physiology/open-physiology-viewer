@@ -130,6 +130,7 @@ export const $LogMsg = {
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
     CHAIN_WRONG_TOPOLOGY        : "Chain's topology is incorrect",
+    CHAIN_NO_ROOT_INPUT         : "An input chain without root",
     CHAIN_NO_ROOT               : "A chain without root",
     CHAIN_NO_LEAF               : "A chain without leaf",
     CHAIN_NO_LEVELS             : "A chain without levels",

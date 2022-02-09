@@ -1,6 +1,6 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
-import {Node, Anchor} from "./verticeModel";
+import {Node} from "./verticeModel";
 import {Link, Wire} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
 
@@ -41,7 +41,7 @@ import {defaults, isObject, isArray, flatten, isString} from 'lodash-bound';
  */
 export class Chain extends GroupTemplate {
 
-      static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
           json.class = json.class || $SchemaClass.Chain;
           let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
           if (!res.validateTopology()) {
@@ -251,7 +251,9 @@ export class Chain extends GroupTemplate {
                 if (level){
                     chain.levels[i] = level;
                     if (chain.levels[i]::isString()){
-                        chain.levels[i] = {"id": chain.levels[i]};
+                        chain.levels[i] = {
+                            "id": chain.levels[i]
+                        };
                     }
                 } else {
                     chain.levels[i] = {};
@@ -297,7 +299,9 @@ export class Chain extends GroupTemplate {
             for (let i = 0; i < N; i++){
                 sources[i] = sources[i] || ((i > 0) && targets[i - 1]) || getNewNode(i);
                 if (sources[i]::isString()){
-                    sources[i] = {"id": sources[i]};
+                    sources[i] = {
+                        "id": sources[i]
+                    };
                 }
             }
             for (let i = 1; i < N; i++){
@@ -305,7 +309,9 @@ export class Chain extends GroupTemplate {
             }
             targets[N - 1] = targets[N - 1] || getNewNode(N);
             if (targets[N - 1]::isString()){
-                targets[N - 1] = {"id": targets[N - 1]};
+                targets[N - 1] = {
+                    "id": targets[N - 1]
+                };
             }
             chain.root = getID(sources[0]);
             chain.leaf = getID(targets[N - 1]);
@@ -498,6 +504,17 @@ export class Chain extends GroupTemplate {
                 logger.warn($LogMsg.CHAIN_NO_COALESCENCE, housingLyph.id, level.id);
             }
         }
+    }
+
+    static validateRoots(chains, nodes){
+        const rootNodes = (nodes||[]).filter(node => node.rootOf);
+        (chains||[]).forEach(chain => {
+            if (chain::isObject() && !chain.root){
+                if (!rootNodes.find(node => node.rootOf === chain.id)){
+                    logger.error($LogMsg.CHAIN_NO_ROOT_INPUT, chain.id);
+                }
+            }
+        });
     }
 
     /**

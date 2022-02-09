@@ -44,6 +44,9 @@ export class Group extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
         json.class = json.class || $SchemaClass.Group;
+
+        modelClasses.Chain.validateRoots(json.chains, json.nodes);
+
         let namespace = json.namespace || defaultNamespace;
         if (json.generated) {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);

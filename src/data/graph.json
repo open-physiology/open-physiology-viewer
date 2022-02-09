@@ -2797,22 +2797,6 @@
   ],
   "groups": [
     {
-      "id": "internal",
-      "name": "Internal",
-      "lyphs": [
-        "K36",
-        "K37",
-        "K38",
-        "K40",
-        "K41",
-        "K42",
-        "K43",
-        "K45",
-        "K105",
-        "K106"
-      ]
-    },
-    {
       "id": "housingLyphs",
       "name": "IMG and PG",
       "links": [

@@ -19,7 +19,7 @@ import {
     getID,
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels,
-    prepareForExport
+    prepareForExport, getNewID
 } from "./utils";
 import {
     extractModelAnnotation,
@@ -132,18 +132,6 @@ export class Graph extends Group{
         let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
         let namespace = inputModel.namespace;
 
-        inputModel.groups = inputModel.groups || [];
-        let group = {
-            [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
-            [$Field.name]     : "Ungrouped",
-            [$Field.generated]: true,
-            [$Field.hidden]   : true,
-            //TODO maybe we should exclude from this group resources included to subgroups
-            [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
-            [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
-        };
-        inputModel.groups.unshift(group);
-
         /**
          * @property waitingList
          * @type {Object}
@@ -151,6 +139,26 @@ export class Graph extends Group{
         let entitiesByID = {
             waitingList: {}
         };
+
+        let count = 1;
+        const prefix = [$Prefix.node, $Prefix.link];
+        [$Field.nodes, $Field.links].forEach((prop, i) => (inputModel[prop]||[]).forEach(e => {
+                if (e::isObject && !e.id){
+                    e.id = getGenID(prefix[i], $Prefix.default, count++);
+                }
+            }
+        ));
+
+        inputModel.groups = inputModel.groups || [];
+        let defaultGroup = {
+            [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
+            [$Field.name]     : "Ungrouped",
+            [$Field.generated]: true,
+            [$Field.hidden]   : true,
+            [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
+            [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
+        };
+        inputModel.groups.unshift(defaultGroup);
 
         //Create graph
         inputModel.class = $SchemaClass.Graph;
@@ -269,6 +277,10 @@ export class Graph extends Group{
 
         res.modelClasses = modelClasses;
         res.createForceLinks();
+
+        //Set default group resources to hidden
+        defaultGroup = res.groups.find(g => g.id === defaultGroup.id);
+        [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
 
         //Log info about the number of generated resources
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
@@ -513,7 +525,7 @@ export class Graph extends Group{
             link.applyToEndNodes(end => this.nodes.push(end));
             if (group){
                 group.links.push(link);
-                link.applyToEndNodes(end => group.nodes.push(end.id));
+                link.applyToEndNodes(end => group.nodes.push(end));
             }
         });
         if (noAxisLyphs.length > 0){
