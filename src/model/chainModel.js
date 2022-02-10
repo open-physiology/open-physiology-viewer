@@ -457,11 +457,14 @@ export class Chain extends GroupTemplate {
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
 
-                if (sameAsNext){
-                    sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i+1]? 0: 2;
-                }
-                if (sameAsPrev){
-                    targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i-1]? 2: 0;
+                if (chain.housingLayers) {
+                    if (sameAsNext && chain.housingLayers.length > i) {
+                        sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i + 1] ? 0 : 2;
+                    }
+                    // sameAsPrev implies i > 0
+                    if (sameAsPrev && chain.housingLayers.length >= i) {
+                        targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i - 1] ? 2 : 0;
+                    }
                 }
 
                 //Start and end nodes

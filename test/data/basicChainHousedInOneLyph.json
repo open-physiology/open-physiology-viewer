@@ -1,0 +1,105 @@
+{
+  "id": "one-lyph-housed-chain",
+  "name": "A BAG chain with root and lyph housed in one lyph",
+  "description": "See issue #41: https://github.com/open-physiology/open-physiology-viewer/issues/41",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "root-ac-4-K85"
+    },
+    {
+      "id" :"leafroot-ac-4-K85-all"
+    },
+    {
+      "id": "s_lnk-K85",
+      "layout": {"x": -25, "y": 15}
+    },
+    {
+      "id": "t_lnk-K85",
+      "layout": {"x": 25, "y": 15}
+    },
+    {
+      "id": "s_lnk-K85-b",
+      "layout": {"x": -25, "y": -15}
+    },
+    {
+      "id": "t_lnk-K85-b",
+      "layout": {"x": 25, "y": -15}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk-K85",
+      "source": "s_lnk-K85",
+      "target": "t_lnk-K85",
+      "length": 50,
+      "conveyingLyph": "K85"
+    },
+    {
+      "id": "lnk-K85-b",
+      "source": "s_lnk-K85-b",
+      "target": "t_lnk-K85-b",
+      "length": 50,
+      "conveyingLyph": "K85-b"
+    }
+  ],
+  "materials": [
+      {
+        "id": "54",
+        "name": "Cytosol"
+      },
+      {
+        "id": "56",
+        "name": "Plasma membrane"
+      },
+      {
+        "id": "116",
+        "name": "Extracellular fluid"
+      }
+  ],
+  "lyphs": [
+    {
+      "id": "K85",
+      "name": "L6 sympathetic ganglion (template)"
+    },
+    {
+      "id": "K85-b",
+      "name": "L6 sympathetic ganglion"
+    },
+    {
+        "id": "229",
+        "name": "Segment of neuron",
+        "isTemplate": true,
+        "layers": [
+            "54",
+            "56",
+            "116"
+        ]
+    },
+    {
+      "id": "229bag",
+      "name": "Segment of neuron",
+      "isTemplate": true,
+      "topology": "BAG",
+      "supertype": "229"
+    }
+  ],
+  "chains": [
+    {
+      "id": "ac-4-K85",
+      "root": "root-ac-4-K85",
+      "leaf": "leafroot-ac-4-K85-all",
+      "housingLyphs": ["K85", "K85"],
+      "lyphTemplate": "229bag",
+      "length": 10
+    },
+    {
+      "id": "ac-4-K85-b",
+      "root": "root-ac-4-K85-b",
+      "leaf": "leafroot-ac-4-K85-all-b",
+      "housingLyphs": ["K85-b"],
+      "lyphTemplate": "229bag",
+      "length": 5
+    }
+  ]
+}
