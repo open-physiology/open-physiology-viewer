@@ -74,8 +74,6 @@ export default Kapsule({
 
     stateInit: () => ({
         simulation: forceSimulation()
-            .force('link', forceLink())
-            .force('charge', forceManyBody())
         .stop()
     }),
 
@@ -99,19 +97,7 @@ export default Kapsule({
         state.graphData.createViewObjects(state);
 
         // Feed data to force-directed layout
-        let layout;
-        // D3-force
-        (layout = state.simulation)
-            .stop()
-            .alpha(1)// re-heat the simulation
-            .alphaDecay(state.d3AlphaDecay)
-            .velocityDecay(state.d3VelocityDecay)
-            .numDimensions(state.numDimensions)
-            .nodes(state.graphData.nodes);
-
-        layout.force('link')
-            .id(d => d[state.nodeId])
-            .links(state.graphData.links);
+        let layout = state.simulation;
 
         // Initial ticks before starting to render
         for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }

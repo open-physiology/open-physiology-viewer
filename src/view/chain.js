@@ -6,7 +6,10 @@ const {Chain, Node} = modelClasses;
 
 //Update chain with dynamic ends
 Chain.prototype.update = function(){
-    if (!this.root || !this.leaf){ return; }
+    
+    if (!this.root || !this.leaf){ 
+      return; 
+    }
     let {start, end} = this.getWiredChainEnds();
     start = extractCoords(start);
     end   = extractCoords(end);
@@ -19,7 +22,7 @@ Chain.prototype.update = function(){
         let curve = this.wiredTo ? this.wiredTo.getCurve(start, end) : null;
         let length = (curve && curve.getLength) ? curve.getLength() : end.distanceTo(start);
         if (length < 5) {
-            return;
+          return;
         }
         this.length = length;
         copyCoords(this.root.layout, start);
@@ -27,6 +30,11 @@ Chain.prototype.update = function(){
         for (let i = 0; i < this.levels.length; i++) {
             //Interpolate chain node positions for quicker layout
             this.levels[i].length = this.length / this.levels.length;
+            if (this.controlPoint && this.geometry)
+            {
+              this.levels[i].geometry = this.geometry ;
+              this.levels[i].controlPoint = this.controlPoint ;
+            }
             const lyph = this.levels[i].conveyingLyph;
             if (lyph) {
                 const size = lyph.sizeFromAxis;

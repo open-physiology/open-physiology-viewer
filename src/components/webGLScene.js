@@ -24,6 +24,7 @@ require("three/examples/js/postprocessing/RenderPass");
 require("three/examples/js/postprocessing/ShaderPass");
 
 const WindowResize = require('three-window-resize');
+import { autoLayout } from '../view/render/autoLayout'
 
 /**
  * @ignore
@@ -183,7 +184,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers   = {};
-    highlightColor = 0xff0000;
+    highlightColor = 0xffff00;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
@@ -509,12 +510,13 @@ export class WebGLSceneComponent {
     }
 
     createGraph() {
+      window.autoLayout = autoLayout ;
         this.graph = new ThreeForceGraph()
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)
             .onAnchorDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
+                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onAnchorDragEnd((obj, delta) => {
@@ -524,7 +526,8 @@ export class WebGLSceneComponent {
             })
             .onWireDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
+                console.log(delta);
+                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onWireDragEnd((obj, delta) => {
@@ -534,7 +537,7 @@ export class WebGLSceneComponent {
             })
             .onRegionDrag((obj, delta) => {
                 obj.userData.relocate(delta);
-                this.graph.graphData(this.graphData);
+                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onRegionDragEnd((obj, delta) => {
@@ -551,18 +554,11 @@ export class WebGLSceneComponent {
         const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
         const forceStrength = (d, key) => isLayoutDimValid(d.layout, key) ? 1 : 0;
 
-        this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));
-        this.graph.d3Force("y", forceY().y(d => forceVal(d, "y")).strength(d => forceStrength(d, "y")));
-        this.graph.d3Force("z", forceZ().z(d => forceVal(d, "z")).strength(d => forceStrength(d, "z")));
-
-        this.graph.d3Force("link")
-            .distance(d => d.length )
-            .strength(d => (d.strength ? d.strength :
-                (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
-
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
+
+        window.scene = this.scene ;
     }
 
     resetCamera(positionPoint, lookupPoint) {
@@ -597,6 +593,15 @@ export class WebGLSceneComponent {
         this.renderer.antialias = this.antialias;
     }
 
+    // getMouseOverEntity() {
+    //     if (!this.graph) { return; }
+    //     this.ray.setFromCamera( this.mouse, this.camera );
+    //     this.unhighlight(this.getSceneObjects());
+    //     let intersects = this.ray.intersectObjects(this.graph.children).filter((o) => { return o.object.type != 'Sprite' });
+    //     if (intersects.length > 0) {
+    //         this.highlight(intersects[0], this.highlightColor)
+    //     }
+    // }
     getMouseOverEntity() {
       if (!this.graph) { return; }
       this.ray.setFromCamera( this.mouse, this.camera );
@@ -614,8 +619,15 @@ export class WebGLSceneComponent {
       };
 
       let intersects = this.ray.intersectObjects(this.graph.children);
+      let groupIntersected = [];
+      let self = this;
+      this.graph.children.forEach( child => {
+          if ( child.type === "Group" && child?.children?.length > 0 ){
+            groupIntersected.concat(self.ray.intersectObjects(child.children));
+          }
+      })
       if (intersects.length > 0) {
-          let entity = intersects[0].object.userData;
+          let entity = intersects[0]?.object?.userData;
           if (!entity || entity.inactive) { return; }
           return selectLayer(entity);
       }
@@ -667,6 +679,39 @@ export class WebGLSceneComponent {
           })
       }
   }
+
+    parseDefaultColors(entities) {
+      entities.forEach((e)=> {
+        this.parseDefaultColorsLeaf(e, null);
+      }) 
+    }
+
+    parseDefaultColorsLeaf(e, forceColor) {
+      const currentColor = e.material?.color.getHex() ;
+      e.defaultHex = currentColor || forceColor ;
+      e.children.forEach((c) => {
+        this.parseDefaultColorsLeaf(c, currentColor);
+      });
+    }
+
+    // highlight(entity, highlightColor){
+    //   if (entity?.object)
+    //   {
+    //     const obj = entity.object ;
+    //     obj.material.color.setHex(highlightColor);
+    //     obj.children?.forEach((child) =>{
+    //       this.highlight(child, highlightColor)
+    //     });
+    //   }
+    // }
+
+    // unhighlight(entities){
+    //   entities.forEach((obj) => {
+    //     obj.material.color.setHex( obj.defaultHex || this.defaultColor );
+    //     if (obj.children)
+    //       this.unhighlight(obj.children);
+    //   })
+    // }
 
     parseDefaultColors(entities) {
       entities.forEach((e)=> {

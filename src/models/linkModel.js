@@ -331,7 +331,7 @@ export class LinkModel extends Model {
             linkPos.array[3 * i + 2] = points[i].z;
           }
           linkPos.needsUpdate = true;
-          linkObj.geometry.computeBoundingSphere();
+          //linkObj.geometry.computeBoundingSphere();
         } else if (state.linkGeometry === 'LINE2') {
           let linkPos = linkObj.geometry.attributes.position;
           let newPoints = [];

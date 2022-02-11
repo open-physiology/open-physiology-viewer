@@ -346,6 +346,7 @@ export function align(link, obj, reversed = false){
     let axis = direction(link.source, link.target).normalize();
     if (reversed){ axis.multiplyScalar(-1); }
     obj.quaternion.setFromUnitVectors(GeometryFactory.instance().createVector3(0, 1, 0), axis);
+    obj.userData.q = obj.quaternion.clone() ;
 }
 
 /**
