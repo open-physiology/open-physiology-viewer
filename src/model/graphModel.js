@@ -620,7 +620,7 @@ export class Graph extends Group{
         };
 
         function addType(obj) {
-            obj.class === "External" ?
+            obj.class === "OntologyTerm" ?
                 obj["@type"] = "owl:Class" :
                 obj["@type"] = "owl:NamedIndividual" ;
             return obj;
