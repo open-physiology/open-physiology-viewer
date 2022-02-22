@@ -49,9 +49,9 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
         expect(graphData).to.have.property("groups");
-        //count auto-created Default group and force link group
-        expect(graphData.groups).to.be.an('array').that.has.length(5);
-        const gr1 = graphData.groups[2];
+        //count auto-created force link group (Empty "Ungrouped" is not added after issue #149 fix)
+        expect(graphData.groups).to.be.an('array').that.has.length(4);
+        const gr1 = graphData.groups[1];
         expect(gr1).to.be.an('object');
         expect(gr1).to.have.property("id").that.equal("group_ch1");
         expect(gr1).to.have.property("generated").that.equal(true);

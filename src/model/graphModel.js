@@ -19,7 +19,7 @@ import {
     getID,
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels,
-    prepareForExport, getNewID
+    prepareForExport, findResourceByID
 } from "./utils";
 import {
     extractModelAnnotation,
@@ -275,12 +275,27 @@ export class Graph extends Group{
             }
         });
 
-        res.modelClasses = modelClasses;
-        res.createForceLinks();
-
         //Set default group resources to hidden
         defaultGroup = res.groups.find(g => g.id === defaultGroup.id);
+        //Clean up default group from resources automatically included to other groups
+        [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
+            let newSet = [];
+            (defaultGroup[prop]||[]).forEach(e => {
+                let container = res.groups.find(group => (group.id !== defaultGroup.id) && findResourceByID(group[prop], e.id));
+                if (!container){
+                    newSet.push(e);
+                }
+            });
+            defaultGroup[prop] = newSet;
+        });
         [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
+        //Remove "Ungrouped" if empty
+        if (!defaultGroup.links.length && !defaultGroup.nodes.length){
+            res.groups.shift();
+        }
+
+        res.modelClasses = modelClasses;
+        res.createForceLinks();
 
         //Log info about the number of generated resources
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
@@ -662,6 +677,12 @@ export class Graph extends Group{
         }
         (this.lyphs||[]).forEach(lyph => delete lyph._processed);
         (this.links||[]).forEach(link => delete link._processed);
+        (this.groups||[]).forEach(g => {
+            //Include content of dynamic groups into aggregator groups
+            if ((g.dynamicGroups || []).length > 0){
+                g.mergeSubgroupResources();
+            }
+        })
         return this;
     }
 

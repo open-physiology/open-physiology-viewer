@@ -479,9 +479,61 @@ In the case of embedding coalescence, the outer layer of the embedded lyph blend
         }
     ]
  ```
- 
- In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.
 
+### Resource visibility rules
+Since ApiNATOMY models typically consist of numerous resources, visualizing all of them at
+the same time in the graph view is infeasible. Therefore, a set of resource visibility rules 
+apply on graph vertices, edges, and lyphs. In the most trivial case, only resources included to visible
+groups are shown on the screen. Group visibility is controlled via checkbox controls at the Control Panel.
+However, group resources may have relationship dependencies affecting their visibility.
+Moreover, for generated groups, a set of implicit inclusion rules applies.
+Finally, various groups may include overlapping sets of resources or subgroups with conflicting 
+visibility settings.
+
+Regarding relationship-based constraints, the following visibility rules apply:
+ * A graph edge (connectivity model link or scaffold wire) is visible if it is included to 
+   a visible group and its source and target ends are also visible.
+ * An edge that lies on a border is visible if the border is visible.
+   The border is visible if its hosting shape (lyph or region) is visible.
+ * A lyph is visible if a link it conveys is visible or it is a layer in a visible lyph.
+
+### Generated groups
+ When expanding group templates such as chains, implicitly declared groups are generated.
+Such groups can be recognized by its properties "generated" set to True and "generatedFrom" pointing
+to the template that provides rules for the group resource inclusion.
+
+If a generated group includes a link, the following resources are also included to the group:
+ * its conveying lyph,
+ * its source and target ends,
+ * its hosted nodes.
+
+If a generated group includes a lyph, the following resources are also included to the group:
+ * its layer lyphs,
+ * its internal lyphs,
+ * its internal nodes.
+
+If a generated group includes a node, the following resources are also included to the group:
+ * its clone nodes (copies of the node hosted by adjacent lyphs or their borders)
+ * collapsible links that have the node as one of its ends.
+
+Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.
+
+### Dynamic groups
+The viewer automatically analyzes an input model and creates dynamic groups with closed flow, i.e., 
+sub-graphs topologically equivalent to a CYST. Such components are important and may represent anatomically meaningful 
+systems such as neurons and neuron parts. The algorithm places discovered groups under the title `Dynamic groups`.  
+A modeller can assign a meaningful name to a dynamic group by defining an empty group, i.e.,
+ ```json
+   {"id": "neuron-8", "name": "Neuron 8"} 
+ ```
+and pointing any lyph from this group to it via property `seedIn`, i.e., 
+ ```json
+   {
+     "id": "snl18",
+     "name": "Soma of SPR neuron in L1_Neuron 8 (kblad)",
+     "seedIn": "neuron-8"
+   }
+ ```
 ### Graph
  Graph is the top-level group that in addition to all the group parameters contains a `config` object. The field is not part of the semantic physiology model but it can be used to define user preferences regarding the visualization of a certain model. For example, a field `filter` within this object is currently used to exclude resources with given identifiers from appearing in the relationship graph.
  ```json

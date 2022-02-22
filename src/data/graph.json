@@ -19,15 +19,24 @@
   ],
   "nodes": [
     {
-      "id": "cn1",
+      "id": "ungroupedNode",
+      "val": 100,
       "layout": {
-        "x": -100
+        "x": 50, "y": 50, "z": 50
+      }
+    },
+    {
+      "id": "cn1",
+      "fixed": true,
+      "layout": {
+        "x": -100, "y": 0, "z": 0
       }
     },
     {
       "id": "cn2",
+      "fixed": true,
       "layout": {
-        "x": 0
+        "x": 0, "y": 0, "z": 0
       }
     },
     {
