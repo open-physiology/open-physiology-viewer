@@ -437,6 +437,7 @@ export class TestApp {
     applyJSONEditorChanges() {
         if (this._editor){
             this._graphData = fromJSON({});
+            this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
     }
