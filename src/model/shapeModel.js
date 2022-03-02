@@ -386,9 +386,7 @@ export class Lyph extends Shape {
     }
 
     includeRelated(group){
-        (this.layers||[]).forEach(layer => {
-            layer.includeRelated(group);
-        });
+        (this.layers||[]).forEach(layer => layer.includeRelated && layer.includeRelated(group));
         (this.internalLyphs||[]).forEach(internal => {
             if (internal::isObject() && !group.contains(internal)){
                 group.lyphs.push(internal);
@@ -396,9 +394,9 @@ export class Lyph extends Shape {
                 if (internal.conveys &&! group.contains(internal.conveys)){
                     group.links.push(internal.conveys);
                     internal.conveys.hidden = group.hidden;
-                    internal.conveys.includeRelated(group);
+                    internal.conveys.includeRelated && internal.conveys.includeRelated(group);
                 }
-                internal.includeRelated(group);
+                internal.includeRelated && internal.includeRelated(group);
             }
         });
         (this.internalNodes||[]).forEach(internal => {
@@ -657,7 +655,7 @@ export class Region extends Shape {
             if (!facet || facet.class !== $SchemaClass.Wire){ return; }
             if (!(component.wires||[]).find(e => e.id === facet.id)){
                 component.wires.push(facet);
-                facet.includeRelated(component);
+                facet.includeRelated && facet.includeRelated(component);
             }
         });
         (this.internalAnchors||[]).forEach(internal => {

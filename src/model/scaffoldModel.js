@@ -108,7 +108,7 @@ export class Scaffold extends Component {
         res.entitiesByID = entitiesByID;
         delete res.waitingList;
 
-        (res.components||[]).forEach(component => component.includeRelated());
+        (res.components||[]).forEach(component => component.includeRelated && component.includeRelated());
 
         res.generated = true;
         //Log info about the number of generated resources

@@ -224,7 +224,7 @@ export class Graph extends Group{
             let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
             res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
             res.includeToGroups();
-            (res.groups||[]).forEach(group => group.includeRelated());
+            (res.groups||[]).forEach(group => res.includeRelated && group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             //Collect inherited externals
             (res.lyphs||[]).forEach(lyph => {

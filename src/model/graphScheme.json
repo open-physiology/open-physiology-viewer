@@ -122,6 +122,11 @@
           "description": "Model namespace",
           "type": "string"
         },
+        "schemaVersion": {
+          "description": "ApiNATOMY JSON Schema version used for model generation",
+          "type": "string",
+          "readOnly": true
+        },
         "version": {
           "description": "Model version",
           "type": "string",
@@ -306,7 +311,7 @@
           }
         },
         "housingLyphs": {
-          "description": "A set of lyphs that house the tree",
+          "description": "A set of lyphs that house a chain",
           "type": "array",
           "items": {
             "anyOf": [
@@ -333,7 +338,7 @@
           ]
         },
         "housingRange": {
-          "description": "Index range to define the chain part that houses the tree",
+          "description": "Index range to define the chain part that houses the chain",
           "type": "object",
           "properties": {
             "min": {
@@ -988,7 +993,7 @@
           "readOnly": true
         },
         "hostedBy": {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "description": "ID or reference of a region on which lyphs from the group must be projected to",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -2364,7 +2369,16 @@
     },
     "Scaffold": {
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
-      "$ref": "#/definitions/Component"
+      "$ref": "#/definitions/Component",
+      "properties": {
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
+          }
+        }
+      }
     },
     "Shape": {
       "description": "A resource that occupies space within a border",

@@ -116,7 +116,7 @@ export class Group extends Resource {
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
-            this[prop].forEach(res => res instanceof Resource && res.includeRelated(this));
+            this[prop].forEach(res => res.includeRelated && res.includeRelated(this));
         });
 
         //If a group is hosted by a region, each its lyph is hosted by the region

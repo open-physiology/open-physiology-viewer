@@ -33,6 +33,7 @@
              "./manual/overview.md",
              "./manual/usage.md",
              "./manual/model.md",
+             "./manual/scaffold.md",
              "./manual/examples.md",
              "./manual/errors.md"
            ]
