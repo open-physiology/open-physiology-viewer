@@ -14,7 +14,6 @@ export class State extends Resource {
         delete schema.oneOf;
         schema.$ref = "#/definitions/Snapshot";
         let resVal = V.validate(json, schema);
-        logger.clear();
 
         json.class = json.class || $SchemaClass.State;
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);

@@ -127,8 +127,4 @@ modules.xml
 # Sonarlint plugin
 .idea/sonarlint
 
-nano.save
-.package.json.swp
-package-lock.json
-
 # End of https://www.gitignore.io/api/node,webstorm

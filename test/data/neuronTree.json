@@ -8,6 +8,7 @@
       "id"          : "neuronChain",
       "name"        : "Neuron",
       "numLevels"   : 4,
+      "root"        : "a",
       "lyphTemplate": "neuronLyph"
     }
   ],

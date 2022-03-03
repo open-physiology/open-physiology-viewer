@@ -121,6 +121,8 @@ export class Wire extends Edge {
  * @property levelIn
  * @property controlPoint
  * @property fasciculatesIn
+ * @property nextChainStartLevels
+ * @property prevChainEndLevels
  * @property endsIn
  */
 export class Link extends Edge {
@@ -243,6 +245,23 @@ export class Link extends Edge {
             return LYPH_TOPOLOGY.BAG2;
         }
         return res;
+    }
+
+    validate(){
+        this.validateProcess();
+        if (!this.source.sourceOf){
+            logger.error($LogMsg.NODE_NO_LINK_REF, this);
+            return;
+        }
+        if (!this.target.targetOf){
+            logger.error($LogMsg.NODE_NO_LINK_REF, this);
+            return;
+        }
+        if (this.source.sourceOf.length === 1 && this.target.targetOf === 1){
+            this.geometry = LINK_GEOMETRY.INVISIBLE;
+            this.source.invisible = true;
+            this.target.invisible = true;
+        }
     }
 
     validateProcess(){

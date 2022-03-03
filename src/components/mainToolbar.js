@@ -48,7 +48,10 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
                <i class="fa fa-file-excel-o"> </i>
            </button>
-           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export model">
+           <button id="exportExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="exportExcel()" title="Export Excel model">
+                <i class="fa fa-table"> </i> 
+           </button>
+           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Save model">
                 <i class="fa fa-save"> </i> 
            </button>
         </section>
@@ -84,7 +87,7 @@ export class MainToolbar {
         dialogRef.afterClosed().subscribe(spreadsheetID => {
             if (spreadsheetID !== undefined){
                 let url = `https://docs.google.com/spreadsheets/d/e/${spreadsheetID}/pub?output=xlsx`;
-                this._http.get(url).subscribe(
+                this._http.get(url,{responseType: 'arraybuffer'}).subscribe(
                     res => {
                         let model = loadModel(res, spreadsheetID, "xlsx");
                         this.onImportExcelModel.emit(model);
@@ -126,7 +129,11 @@ export class MainToolbar {
     }
 
     save(){
-        this.onExportModel.emit();
+        this.onExportModel.emit("json");
+    }
+
+    exportExcel(){
+        this.onExportModel.emit("excel");
     }
 }
 @NgModule({

@@ -1,29 +1,33 @@
 import {Component, Input, NgModule} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HttpClient, HttpClientModule} from '@angular/common/http';
-import {annotations} from "../config";
+import {annotations} from "../../data/config.json";
 
 @Component({
     selector: 'sciGraphSearch',
     template:`
         <div mat-dialog-content>
-            <div *ngIf ="query" class="default-boxResult">
-                <label> Query </label>
-                <span>{{query}}</span>
-            </div>
-            <div *ngIf="result" class="default-boxResult">
-                <label> Response </label>
-                <span>{{result}}</span>
-            </div>
-            <div *ngIf="error" class="default-boxError">
+            <fieldset *ngIf ="query" class="w3-card w3-round w3-margin-small">
+                <legend>Query</legend>
+                {{query}}
+            </fieldset>
+
+            <fieldset *ngIf="error" class="w3-card w3-round w3-margin-small">
+                <legend>Status</legend>
                 {{error}}
-            </div>
-            <div *ngIf="selected" class="default-boxFooter">
+            </fieldset>
+            
+            <section class="w3-right">
                 <button [disabled]="error" class="w3-bar-item w3-hover-light-grey"
                         (click)="executeQuery()" title="Find path in the KB">
                     <i class="fa fa-database"> </i>
                 </button>
-            </div>
+            </section>
+
+            <fieldset *ngIf="result" class="w3-card w3-round w3-margin-small">
+                <legend>Response</legend>
+                {{result}}
+            </fieldset>
         </div>
     `
 })

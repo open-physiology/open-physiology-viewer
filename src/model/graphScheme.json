@@ -12,6 +12,10 @@
         }
       ],
       "properties": {
+        "cardinal": {
+          "description": "Indicates whether an anchor is cardinal",
+          "type": "boolean"
+        },
         "layout": {
           "description": "Provided 2d coordinates for the anchor",
           "$ref": "#/definitions/Point2Scheme"
@@ -117,6 +121,11 @@
         "namespace": {
           "description": "Model namespace",
           "type": "string"
+        },
+        "schemaVersion": {
+          "description": "ApiNATOMY JSON Schema version used for model generation",
+          "type": "string",
+          "readOnly": true
         },
         "version": {
           "description": "Model version",
@@ -287,7 +296,7 @@
           "default": 1
         },
         "levels": {
-          "description": "Optional references to links or link properties that must be associated with the chain level",
+          "description": "Optional references to links or link properties that must be associated with the chain level. Excel property levelTargets can be used to name chain nodes",
           "type": "array",
           "items": {
             "anyOf": [
@@ -302,7 +311,7 @@
           }
         },
         "housingLyphs": {
-          "description": "A set of lyphs that house the tree",
+          "description": "A set of lyphs that house a chain",
           "type": "array",
           "items": {
             "anyOf": [
@@ -329,7 +338,7 @@
           ]
         },
         "housingRange": {
-          "description": "Index range to define the chain part that houses the tree",
+          "description": "Index range to define the chain part that houses the chain",
           "type": "object",
           "properties": {
             "min": {
@@ -364,7 +373,7 @@
             }
           ],
           "advanced": true,
-          "relatedTo": "wiredChain"
+          "relatedTo": "wiredChains"
         },
         "startFromLeaf": {
           "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
@@ -487,7 +496,7 @@
         }
       }
     },
-    "ColorScheme": {
+    "InterpolateColorScheme": {
       "description": "Name of the color interpolation scheme as in d3-scale-chromatic",
       "type": "string",
       "enum": [
@@ -538,16 +547,14 @@
           "description": "Scaffold anchor points",
           "type": "array",
           "items": {
-            "items": {
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/IdentifierScheme"
-                },
-                {
-                  "$ref": "#/definitions/Anchor"
-                }
-              ]
-            }
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Anchor"
+              }
+            ]
           },
           "default": []
         },
@@ -729,12 +736,22 @@
               }
             ]
           },
-          "relatedTo": "publications",
+          "relatedTo": "references",
           "advanced": true
         }
       }
     },
-    "Publication": {
+    "OntologyTerm": {
+      "description": "Definition of an external term",
+      "allOf": [
+        {
+          "$ref": "#/definitions/External"
+        }
+      ],
+      "properties": {
+      }
+    },
+    "Reference": {
       "description": "Reference to a publication",
       "allOf": [
         {
@@ -742,8 +759,20 @@
         }
       ],
       "properties": {
-        "documents": {
-          "description": "Model resources documented by the given external resource (publication)",
+        "parent": {
+          "description": "Reference that contains the given published resource, i.e., a book contains a figure",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Reference"
+            }
+          ],
+          "relatedTo": "children"
+        },
+        "children": {
+          "description": "Reference resources which are part of the given publication, i.e., book chapters or figures",
           "type": "array",
           "items": {
             "anyOf": [
@@ -751,11 +780,11 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Resource"
+                "$ref": "#/definitions/Reference"
               }
             ]
           },
-          "relatedTo": "publications",
+          "relatedTo": "parent",
           "advanced": true
         }
       }
@@ -764,6 +793,17 @@
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$ref": "#/definitions/Group",
       "properties": {
+        "abbrev": {
+          "description": "Short graph identifier for the use in rdfs:labels",
+          "$ref": "#/definitions/IdentifierScheme"
+        },
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
+          }
+        },
         "imports": {
           "description": "URLs of published ApiNATOMY models to merge with the current model",
           "type": "array",
@@ -867,20 +907,6 @@
             ]
           }
         },
-        "references": {
-          "description": "Descriptors of external resources (i.e., ontologies or publications) used in the model",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/External"
-              }
-            ]
-          }
-        },
         "coalescences": {
           "description": "Coalescences, i.e., groups of overlapping lyphs",
           "type": "array",
@@ -967,7 +993,7 @@
           "readOnly": true
         },
         "hostedBy": {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "description": "ID or reference of a region on which lyphs from the group must be projected to",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -1007,7 +1033,7 @@
       "properties": {
         "scheme": {
           "description": "Interpolation scheme to apply to a group of resources",
-          "$ref": "#/definitions/ColorScheme"
+          "$ref": "#/definitions/InterpolateColorScheme"
         },
         "length": {
           "description": "Number of distinct colors from the color scheme",
@@ -1172,7 +1198,7 @@
           "readOnly": true
         },
         "endsIn": {
-          "description": "A lyph which bundles the link",
+          "description": "A lyph which contains one of the chain link ends",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -1229,6 +1255,9 @@
             "target",
             "conveyingLyph",
             "fasciculatesIn",
+            "endsIn",
+            "nextChainStartLevels",
+            "prevChainEndLevels",
             "generated",
             "length"
           ]
@@ -1606,6 +1635,19 @@
           "relatedTo": "housingLyphs",
           "advanced": true
         },
+        "housingLyph": {
+          "description": "A derived property that links a lyph with it's housing lyph",
+          "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ],
+          "advanced": true,
+          "readOnly": true
+        },
         "inChain": {
           "description": "Chains in which the given lyph is a housing lyph",
           "anyOf": [
@@ -1829,6 +1871,8 @@
             "rootOf",
             "leafOf",
             "internalIn",
+            "clones",
+            "cloneOf",
             "generated"
           ]
         },
@@ -2033,6 +2077,27 @@
         "DIFFUSIVE"
       ]
     },
+    "NamedColorScheme": {
+      "type": "string",
+      "enum": [
+        "aqua",
+        "black",
+        "blue",
+        "fuchsia",
+        "gray",
+        "green",
+        "lime",
+        "maroon",
+        "navy",
+        "olive",
+        "purple",
+        "red",
+        "silver",
+        "teal",
+        "white",
+        "yellow"
+      ]
+    },
     "RGBColorScheme": {
       "type": "string",
       "pattern": "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3}){1,2}|(rgb|hsl)a\\((\\d{1,3}%?,\\s?){3}(1|0?\\.\\d+)\\)|(rgb|hsl)\\(\\d{1,3}%?(,\\s?\\d{1,3}%?){2}\\)"
@@ -2182,13 +2247,6 @@
           "type": "string",
           "advanced": true
         },
-        "localConventions": {
-          "description": "Mapping from local identifiers to global identifiers.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CurieMapping"
-          }
-        },
         "external": {
           "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
@@ -2204,8 +2262,8 @@
           },
           "relatedTo": "annotates"
         },
-        "publications": {
-          "description": "Identifier of an evidence publication in an external library, i.e., PubMed) ",
+        "references": {
+          "description": "Identifier of an evidence source in an external library",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2213,11 +2271,26 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Publication"
+                "$ref": "#/definitions/Reference"
               }
             ]
           },
           "relatedTo": "documents"
+        },
+        "ontologyTerms": {
+          "description": "External ontology term",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          },
+          "relatedTo": "annotates"
         },
         "generated": {
           "description": "A boolean flag to mark automatically generated resources",
@@ -2296,7 +2369,16 @@
     },
     "Scaffold": {
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
-      "$ref": "#/definitions/Component"
+      "$ref": "#/definitions/Component",
+      "properties": {
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
+          }
+        }
+      }
     },
     "Shape": {
       "description": "A resource that occupies space within a border",
@@ -2447,7 +2529,14 @@
       "properties": {
         "color": {
           "description": "Color",
-          "$ref": "#/definitions/RGBColorScheme"
+          "anyOf": [
+            {
+               "$ref" : "#/definitions/RGBColorScheme"
+            },
+            {
+              "$ref": "#/definitions/NamedColorScheme"
+            }
+          ]
         },
         "viewObjects": {
           "description": "Graphical objects that represent the resource",
@@ -2568,7 +2657,7 @@
             "class",
             "source",
             "target",
-            "wiredChain"
+            "wiredChains"
           ]
         },
         "hostedAnchors": {
@@ -2621,16 +2710,19 @@
           "readOnly": true,
           "relatedTo": "wires"
         },
-        "wiredChain": {
-          "description": "A chain constrained by the wire",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
+        "wiredChains": {
+          "description": "Chains constrained by the wire",
+          "type": "array",
+          "items": {
+            "anyOf": [ 
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
           "relatedTo": "wiredTo",
           "advanced": true
         }

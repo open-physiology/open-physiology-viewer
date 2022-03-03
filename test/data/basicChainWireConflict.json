@@ -1,0 +1,173 @@
+{
+  "id": "wired-chain",
+  "name": "Wired chain with anchored ends ",
+  "description": "Demo model that checks validation of anchoring conflicts",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "n1",
+      "layout":{"x": -10, "y":  0},
+      "anchoredTo": "a1"
+    },
+    {
+      "id": "n2",
+      "layout":{"x": 10, "y":  0},
+      "anchoredTo": "a2"
+    },
+    {
+      "id": "n3",
+      "layout":{"x": -100, "y":  100},
+      "anchoredTo": "c1"
+    },
+    {
+      "id": "n4",
+      "layout":{"x": 100, "y":  100},
+      "anchoredTo": "c2"
+    },
+    {
+      "id": "n5",
+      "layout":{"x": -70, "y":  70}
+    },
+    {
+      "id": "n6",
+      "layout":{"x": 70, "y":  70}
+    },
+    {
+      "id": "n7",
+      "hostedBy": "lnk1",
+      "offset": 0.05
+    },
+    {
+      "id": "n8",
+      "hostedBy": "lnk1",
+      "offset": 0.95
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "n3",
+      "target": "n4"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "layer1"
+    },
+    {
+      "id":  "layer2"
+    },
+    {
+      "id": "template1",
+      "isTemplate": true,
+      "layers":  ["layer1", "layer2"]
+    }
+  ],
+  "chains": [
+    {
+      "id": "t1",
+      "name": "No conflict chain",
+      "lyphTemplate": "template1",
+      "root": "n1",
+      "leaf" : "n2",
+      "numLevels": 5,
+      "wiredTo": "w1"
+    },
+    {
+      "id": "t2",
+      "name": "Conflict caused by startFromLeaf",
+      "lyphTemplate": "template1",
+      "root": "n1",
+      "leaf" : "n2",
+      "numLevels": 6,
+      "wiredTo": "w1",
+      "startFromLeaf": true
+    },
+    {
+      "id": "t3",
+      "name": "Conflict between anchors and wire ends",
+      "lyphTemplate": "template1",
+      "root": "n1",
+      "leaf" : "n2",
+      "numLevels": 6,
+      "wiredTo": "w2"
+    },
+    {
+      "id": "t4",
+      "name": "Chain with anchored ends",
+      "lyphTemplate": "template1",
+      "root": "n1",
+      "leaf": "n2",
+      "numLevels": 7
+    },
+    {
+      "id": "t5",
+      "name": "Chain with anchored ends without layout",
+      "lyphTemplate": "template1",
+      "root": "n3",
+      "leaf": "n4",
+      "numLevels": 7
+    },
+    {
+      "id": "t6",
+      "name": "Chain with fixed ends",
+      "lyphTemplate": "template1",
+      "root": "n5",
+      "leaf": "n6",
+      "numLevels": 7
+    },
+    {
+      "id": "t7",
+      "name": "Chain with hosted ends",
+      "lyphTemplate": "template1",
+      "root": "n7",
+      "leaf": "n8",
+      "numLevels": 7
+    }
+  ],
+  "scaffolds": [
+    {
+      "id": "scaffold1",
+      "anchors": [
+        {
+          "id": "a1",
+          "layout": {"x": -50, "y":  50}
+        },
+        {
+          "id": "a2",
+          "layout": {"x": 50, "y":  50}
+        },
+        {
+          "id": "b1",
+          "layout": {"x": -50, "y":  -50}
+        },
+        {
+          "id": "b2",
+          "layout": {"x": 50, "y":  -50}
+        },
+        {
+          "id": "c1",
+          "hostedBy": "w1"
+        },
+        {
+          "id": "c2",
+          "hostedBy": "w2"
+        }
+      ],
+      "wires": [
+        {
+          "id": "w1",
+          "source": "a1",
+          "target": "a2",
+          "color": "green"
+        },
+        {
+          "id": "w2",
+          "source": "b1",
+          "target": "b2",
+          "color": "green"
+        }
+      ]
+    }
+  ]
+}

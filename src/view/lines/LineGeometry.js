@@ -1,4 +1,4 @@
-import {THREE} from '../util/utils';
+import {THREE} from '../utils';
 
 THREE.LineGeometry = function () {
 	THREE.LineSegmentsGeometry.call( this );

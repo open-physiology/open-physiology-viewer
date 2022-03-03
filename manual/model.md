@@ -1,7 +1,7 @@
 # [JSON Schema](../schema/index.html)
  The ApiNATOMY input data is a JSON model that matches the [ApiNATOMY JSON Schema](../schema/index.html). The schema provides a contract between the input data and the lyph viewer component. Follow the link above to see the bootprint of the schema.
  
-# Data Model
+# Connectivity model
 
 Knowledge representation in ApiNATOMY has its basis in the constraints of forming tissue domain architecture. In particular, physiological system experts identify compartmental models of primary functional tissue units, so-called `pFTUs`. A `pFTU` is a cuff wrapped around a central (endothelial, epithelial or neural) canal, such that no two points within this domain are beyond average diffusion distance for small molecules. Two types of transfer processes occur over pFTUs: `advective` solid flow along the lumen of the vessel (mass fluid transport, e.g., urine along the ureter), and `diffusive` solute flow between the lumen of the vessel and the rest of the tissue cuff (e.g., calcium ions through a membrane channel). A pFTU therefore represents a point of transition between long and short range molecular interactions.
 
@@ -16,13 +16,24 @@ Knowledge representation in ApiNATOMY has its basis in the constraints of formin
 ## Resource
  All ApiNATOMY modelling elements have a common ancestor, an abstract resource that defines common properties present in all objects of the model.
   
- All entities come with basic properties such as `id` and `name` to identify the physiological element. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case.
+ All entities come with basic properties such as `id`, `name` and `description` to define a modeling element. 
+ An identifier must start with a letter and can include lower and uppercase letters, numbers, and special symbols such as 
+`:_./@?\-='`, no spaces are allowed! Identifiers of all entities must be unique, the tool will issue a warning if this is not the case.
  
- Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as `Node`, `Link`, `Lyph`, `Region`, `Border`, `Material`, `External`, `Group`, `Tree`, `Channel`, `Coalescence`, or `Graph`. The property `external` may be used to keep a reference to an external data source that defines or describes the entity, i.e., the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology.
+ Each object has a read-only property `class` (the user does not need to specify it, it is assigned automatically) that returns its 
+ class from the ApiNATOMY data model, such as 
+  * `Node`, `Link`, `Lyph`, `Border`, `Material`, `Chain`, `Tree`, `Channel`, `Villus`, `Coalescence`, `Group`, and `Graph` for connectivity models,
+  * `Anchor`, `Wire`, `Region`, `Component`, and`Scaffold` for scaffold models,
+  * `State` and `Snapshot` for snapshot models,
+  * `External`, `Reference`, and `OntologyTerm` for third-party annotation resources that can be used in any type of model.
+
+ The properties `external`, `references`, and `ontologyTerms` may be used to keep a reference to an external data source 
+ that defines or describes the entity, 
+ i.e., PubMed publication or the [Foundational Model of Anatomy (FMA)](http://si.washington.edu/projects/fma) ontology term.
   
  The property `infoFields` lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the `infoFields` property of a lyph object
  ```json
-    "infoFields": [ "id", "name", "topology", "conveyedBy", "layers" ]
+"infoFields": [ "id", "name", "topology", "conveyedBy", "layers" ]
  ```
  will instruct the viewer to show the lyph's `id`, `name`, `topology`,
  the signature of the link conveying the lyph, and the lyph's layers.
@@ -32,17 +43,17 @@ Knowledge representation in ApiNATOMY has its basis in the constraints of formin
  To simplify the parameter setting process, we provide means to assign valid properties to subsets of entities in the model. 
  Each object may contain a property `assign` with two fields: `path` which contains a [JSONPath](https://www.npmjs.com/package/jsonpath) expression, and `value` object, that contains a JSON object to merge with each and every item in the set defined by the query in the `path`. For example, the following code assigns `color` and `scale` properties to all lyphs in the `Neural system` group:   
 ```json
-    {
-        "id"    : "group1",
-        "name"  : "Neural system",
-        "assign": {
-            "path"    : "$.lyphs[*]",
-            "value"  : {
-                "color": "#aaa",
-                "scale": { "width": 200, "height": 100 }
-            }
+{
+    "id"    : "group1",
+    "name"  : "Neural system",
+    "assign": {
+        "path"    : "$.lyphs[*]",
+        "value"  : {
+            "color": "#aaa",
+            "scale": { "width": 200, "height": 100 }
         }
-     }
+    }
+ }
 ```
   <img src="asset/assign.png" width="75%" caption = "Assigning properties to a group of lyphs">
 
@@ -51,15 +62,15 @@ Knowledge representation in ApiNATOMY has its basis in the constraints of formin
  For example, the following fragment colors three layers of every lyph in the ``Neural system`` group of lyphs using the shades of blue, starting from the opposite side of the color array with 25% offset to avoid very light and very dark shades:
  
  ```json
-  "interpolate": {
-      "path"   : "$.lyphs[*].layers",
-      "color"  : {
-         "scheme"  : "interpolateBlues",
-         "offset"  : 0.25,
-         "length"  : 3,
-         "reversed": true
-      }
+"interpolate": {
+  "path"   : "$.lyphs[*].layers",
+  "color"  : {
+     "scheme"  : "interpolateBlues",
+     "offset"  : 0.25,
+     "length"  : 3,
+     "reversed": true
   }
+}
  ```
    <img src="asset/interpolate.png" width="75%" caption = "Assigning colors to a group of lyphs using a color interpolation scheme">
 
@@ -80,44 +91,44 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  A modeller can control the positions of the nodes by assigning the desired location via the `layout` property. For example, the image below illustrates the graph for the 5 core nodes: 
 
 ```json
-    "nodes": [
-        {
-          "id"    : "a",
-          "name"  : "a",
-          "color" : "#808080",
-          "val"   : 10,
-          "fixed" : true,
-          "layout": { "x" : 0, "y" : 0, "z" : 0 }
-        },
-        {
-          "id"    : "c",
-          "name"  : "c",
-          "color" : "#D2691E",
-          "val"   : 10,
-          "layout": { "x" : 100, "y" : 0, "z" : 0 }
-        },
-        {
-          "id"    : "n",
-          "name"  : "n",
-          "color" : "#D2691E",
-          "val"   : 10,
-          "layout": { "x" : -100, "y" : 0, "z" : 0 }
-        },
-        {
-          "id"    : "L",
-          "name"  : "L",
-          "color" : "#ff0000",
-          "val"   : 10,
-          "layout": { "x" : 0, "y" : -75, "z" : 0 }
-        },
-        {
-          "id"    : "R",
-          "name"  : "R",
-          "color" : "#7B68EE",
-          "val"   : 10,
-          "layout": { "x" : 0, "y" : 75, "z" : 0 }
-        }
-    ]
+"nodes": [
+    {
+      "id"    : "a",
+      "name"  : "a",
+      "color" : "#808080",
+      "val"   : 10,
+      "fixed" : true,
+      "layout": { "x" : 0, "y" : 0, "z" : 0 }
+    },
+    {
+      "id"    : "c",
+      "name"  : "c",
+      "color" : "#D2691E",
+      "val"   : 10,
+      "layout": { "x" : 100, "y" : 0, "z" : 0 }
+    },
+    {
+      "id"    : "n",
+      "name"  : "n",
+      "color" : "#D2691E",
+      "val"   : 10,
+      "layout": { "x" : -100, "y" : 0, "z" : 0 }
+    },
+    {
+      "id"    : "L",
+      "name"  : "L",
+      "color" : "#ff0000",
+      "val"   : 10,
+      "layout": { "x" : 0, "y" : -75, "z" : 0 }
+    },
+    {
+      "id"    : "R",
+      "name"  : "R",
+      "color" : "#7B68EE",
+      "val"   : 10,
+      "layout": { "x" : 0, "y" : 75, "z" : 0 }
+    }
+]
 ```
   <img src="asset/nodes.png" width="75%" caption="Positioning nodes">
 
@@ -130,11 +141,11 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  To place a node on a link, we assign the link's ID to the node's property `hostedBy`.
  The related optional property `offset` can be used to indicate the offset in percentage from the start of the link. Thus, the definition below 
  ```json
-    {
-        "id"       : "nLR00",
-        "hostedBy" : "LR",
-        "offset"   : 0.25
-    }
+{
+    "id"       : "nLR00",
+    "hostedBy" : "LR",
+    "offset"   : 0.25
+}
  ```
  instructs the viewer to position the node `nLR00` at the quarter of the length of the link `LR`. 
  
@@ -152,33 +163,33 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  By default, all links are drawn as straight lines, this corresponds to the `"geometry":"link"` setting. To apply another visualization method, we set the link's `geometry` to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, `"geometry":"semicircle"` produces a spline that resembles a semicircle:
  
  ```json
-     "links": [
-         {
-           "id"        : "RL",
-           "name"      : "Pulmonary",
-           "source"    : "R",
-           "target"    : "L",
-           "length"    : 75,
-           "geometry"  : "semicircle",
-           "stroke"    : "thick"
-         },
-         {
-           "id"        : "LR",
-           "name"      : "Systemic",
-           "source"    : "L",
-           "target"    : "R",
-           "length"    : 75,
-           "geometry"  : "semicircle",
-           "stroke"    : "thick"
-         },
-         {
-           "id"     : "cn",
-           "source" : "c",
-           "target" : "n",
-           "length" : 100,
-           "stroke" : "dashed"
-         }
-     ]
+ "links": [
+     {
+       "id"        : "RL",
+       "name"      : "Pulmonary",
+       "source"    : "R",
+       "target"    : "L",
+       "length"    : 75,
+       "geometry"  : "semicircle",
+       "stroke"    : "thick"
+     },
+     {
+       "id"        : "LR",
+       "name"      : "Systemic",
+       "source"    : "L",
+       "target"    : "R",
+       "length"    : 75,
+       "geometry"  : "semicircle",
+       "stroke"    : "thick"
+     },
+     {
+       "id"     : "cn",
+       "source" : "c",
+       "target" : "n",
+       "length" : 100,
+       "stroke" : "dashed"
+     }
+ ]
  ```
  <img src="asset/links.png" width="75%" caption = "Drawing links">
  
@@ -225,13 +236,13 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
   To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the `hostedLyphs` property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.
 
-  ```json
-     {
-          "id"         : "5",
-          "name"       : "Kidney Lobus",
-          "topology"   : "BAG",
-          "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
-     }
+ ```json
+ {
+    "id"         : "5",
+    "name"       : "Kidney Lobus",
+    "topology"   : "BAG",
+    "hostedLyphs": [ "60", "105", "63", "78", "24", "27", "30", "33" ]
+ }
   ```
    <img src="asset/hostedLyphs.png" width="75%" alt = "Lyph on border">
 
@@ -308,23 +319,23 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  In the example below, six lyphs are defined as subtypes of a generic cardiac lyph which works as a template to define their layer structure.
  
  ```json
-    "lyphs": [
-         {
-           "id"        : "994",
-           "name"      : "Cardiac Lyphs Prototype",
-           "layers"    : [ "999", "998", "997" ],
-           "isTemplate": true,
-           "subtypes"  : [ "1000", "1001", "1022", "1023", "1010", "1011" ]
-         },
-         {
-           "id"   : "1000",
-           "name" : "Right Ventricle"
-         },
-         {
-           "id"   : "1010",
-           "name" : "Left Ventricle"
-         }
-    ] 
+"lyphs": [
+     {
+       "id"        : "994",
+       "name"      : "Cardiac Lyphs Prototype",
+       "layers"    : [ "999", "998", "997" ],
+       "isTemplate": true,
+       "subtypes"  : [ "1000", "1001", "1022", "1023", "1010", "1011" ]
+     },
+     {
+       "id"   : "1000",
+       "name" : "Right Ventricle"
+     },
+     {
+       "id"   : "1010",
+       "name" : "Left Ventricle"
+     }
+] 
  ```
 
  <img src="asset/cardiac.png" width="75%" alt = "Lyph templates">
@@ -334,16 +345,16 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
  It is possible to customize some of the `subtype` - `layer` pairs with the help of the context-dependent queries. For example, the code below
 
   ```json
-     "assign": [
-       {
-         "path" : "$.[?(@.id=='1000')].layers[(@.length-1)]",
-         "value": { "internalLyphs": [ "995" ] }
-       },
-       {
-         "path" : "$.[?(@.id=='1010')].layers[(@.length-1)]",
-         "value": { "internalLyphs": [ "996" ] }
-       }
-     ]
+ "assign": [
+   {
+     "path" : "$.[?(@.id=='1000')].layers[(@.length-1)]",
+     "value": { "internalLyphs": [ "995" ] }
+   },
+   {
+     "path" : "$.[?(@.id=='1010')].layers[(@.length-1)]",
+     "value": { "internalLyphs": [ "996" ] }
+   }
+ ]
   ```
   assigns `internalLyphs` to two outer most layers of lyphs `1000` and `1010` while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.
 
@@ -352,27 +363,6 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 In addition to the link's `reversed` property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph's own property `angle` to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property `create3d` indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.
 
 The field `bundles`  points to the links that have to pass through the lyph.
-
-### Region
-    Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.
-    Region internal content is similar to the content of a lyph. Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.
- ```json
-    "regions": [
-        {
-            "id"     : "cs",
-            "name"   : "Cardiac system",
-            "points" : [{"x": -75, "y": 20}, {"x": -75, "y": 75},{"x": -25, "y": 75},{"x": -25, "y": 20}],
-            "color"  : "#fbb03f"
-        },
-        {
-            "id"     : "cns",
-            "name"   : "Central Nervous System",
-            "points" : [{"x": -65, "y": -50}, {"x": -65, "y": -15}, {"x": 65, "y": -15}, {"x": 65, "y": -50}],
-            "color"  : "#f4ed2f"
-        }
-    ]
- ```
- In the future, we plan to add an option to create regions based on paths in SVG files.
 
 ### Border
  
@@ -385,15 +375,15 @@ The field `bundles`  points to the links that have to pass through the lyph.
  It is possible to place nodes and other lyphs on any of the border segments. 
  The `hostedNodes` property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the `hostedLyphs` property):
   
-  ```json
-     {
-        "id"      : "5",
-        "name"    : "Kidney Lobus",
-        "topology": "BAG",
-        "border"  : {
-            "borders": [ {}, {}, {}, { "hostedNodes": [ "nPS013", "nLR05", "nLR15" ] } ]
-        }
-     }
+ ```json
+ {
+    "id"      : "5",
+    "name"    : "Kidney Lobus",
+    "topology": "BAG",
+    "border"  : {
+        "borders": [ {}, {}, {}, { "hostedNodes": [ "nPS013", "nLR05", "nLR15" ] } ]
+    }
+ }
   ```
 
  Similarly, in the next snippet, the model indicates that the 4th (2nd radial) border must convey the lyph with `id = "5"`.
@@ -479,15 +469,67 @@ In the case of embedding coalescence, the outer layer of the embedded lyph blend
         }
     ]
  ```
- 
- In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.
 
+### Resource visibility rules
+Since ApiNATOMY models typically consist of numerous resources, visualizing all of them at
+the same time in the graph view is infeasible. Therefore, a set of resource visibility rules 
+apply on graph vertices, edges, and lyphs. In the most trivial case, only resources included to visible
+groups are shown on the screen. Group visibility is controlled via checkbox controls at the Control Panel.
+However, group resources may have relationship dependencies affecting their visibility.
+Moreover, for generated groups, a set of implicit inclusion rules applies.
+Finally, various groups may include overlapping sets of resources or subgroups with conflicting 
+visibility settings.
+
+Regarding relationship-based constraints, the following visibility rules apply:
+ * A graph edge (connectivity model link or scaffold wire) is visible if it is included to 
+   a visible group and its source and target ends are also visible.
+ * An edge that lies on a border is visible if the border is visible.
+   The border is visible if its hosting shape (lyph or region) is visible.
+ * A lyph is visible if a link it conveys is visible or it is a layer in a visible lyph.
+
+### Generated groups
+ When expanding group templates such as chains, implicitly declared groups are generated.
+Such groups can be recognized by its properties "generated" set to True and "generatedFrom" pointing
+to the template that provides rules for the group resource inclusion.
+
+If a generated group includes a link, the following resources are also included to the group:
+ * its conveying lyph,
+ * its source and target ends,
+ * its hosted nodes.
+
+If a generated group includes a lyph, the following resources are also included to the group:
+ * its layer lyphs,
+ * its internal lyphs,
+ * its internal nodes.
+
+If a generated group includes a node, the following resources are also included to the group:
+ * its clone nodes (copies of the node hosted by adjacent lyphs or their borders)
+ * collapsible links that have the node as one of its ends.
+
+Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.
+
+### Dynamic groups
+The viewer automatically analyzes an input model and creates dynamic groups with closed flow, i.e., 
+sub-graphs topologically equivalent to a CYST. Such components are important and may represent anatomically meaningful 
+systems such as neurons and neuron parts. The algorithm places discovered groups under the title `Dynamic groups`.  
+A modeller can assign a meaningful name to a dynamic group by defining an empty group, i.e.,
+ ```json
+   {"id": "neuron-8", "name": "Neuron 8"} 
+ ```
+and pointing any lyph from this group to it via property `seedIn`, i.e., 
+ ```json
+   {
+     "id": "snl18",
+     "name": "Soma of SPR neuron in L1_Neuron 8 (kblad)",
+     "seedIn": "neuron-8"
+   }
+ ```
 ### Graph
  Graph is the top-level group that in addition to all the group parameters contains a `config` object. The field is not part of the semantic physiology model but it can be used to define user preferences regarding the visualization of a certain model. For example, a field `filter` within this object is currently used to exclude resources with given identifiers from appearing in the relationship graph.
  ```json
-    "config": {
-        "filter": ["6", "11", "12", "14", "15", "16", "17", "20", "21"]
-    }
+"config": {
+    "filter": ["6", "11", "12", "14", "15", "16", "17", "20", "21"]
+}
  ```
  Among other properties that can be stated here are the default label fields.
 
@@ -499,20 +541,119 @@ In the case of embedding coalescence, the outer layer of the embedded lyph blend
  There is ongoing work on supporting visual resource styles that one will be able to refer to from groups or group templates to define the appearance of links, lyphs and nodes in the entire (auto-generated) group.
 
 ### Chain
-This template instructs the model generator to create a chain from an ordered list of conveying lyphs, i.e., a linear concatenation of advective edges that convey the material of the innermost layer of these conveying lyphs. This requires the lyphs in the ordered list to have their innermost layers constituted of the same material.
+This template instructs the model generator to create a chain from an ordered list of lyphs, i.e., 
+a linear concatenation of advective edges that convey the material of the innermost layer of these conveying lyphs. This requires the lyphs in the ordered list to have their innermost layers constituted of the same material.
 
 The listing below shows an example of chain template definition:
 
 ```json
 {
   "id": "c1",
-  "conveyingLyphs": ["200", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "215", "216"],
-  "start": "s",
-  "end": "t"
+  "lyphs": ["200", "203", "204", "205", "206", "207", "208", "209", "210", "211", "212", "213", "214", "215", "216"],
+  "root": "s",
+  "leaf": "t"
 }
 ```
 
-Apart from the list of `conveyingLyphs` field, the template provides `start` and `end` fields which allows users to name the start and the end nodes of the chain which may be useful if one wants to integrate the chain fragment into a larger model graph.
+Apart from the list of `lyphs`, the template includes `root` and `leaf` properties 
+to name the source and the target nodes of the chain.
+They are helpful to integrate the chain as a fragment into a larger model graph.
+If the root is not explicitly defined, an error message is issued (an artificial node is created to  
+visualize the chain, but semantically such model is likely to be incorrect and has to be revised by the author).
+
+Alternatively, instead of providing of lyphs to connect to a chain, a modeller can provide an abstract lyph
+via the property `lyphTemplate` and indicate the number of levels in a generated chain via the property
+`numLevels`. For example, the template below will generate a chain of 5 levels conveyed by identical lyphs with 3 layers:
+```json
+{
+    "chains": [
+       {
+         "id": "axonal",
+         "name": "Axonal omega tree",
+         "root": "a",
+         "numLevels": 5,
+         "lyphTemplate": "neuronBag"
+       }
+     ],
+    "lyphs": [
+       {
+         "id": "neuronBag",
+         "isTemplate": true,
+         "topology": "BAG",
+         "layers": ["cytosol", "plasma", "fluid"]
+       }
+     ]
+}
+```
+Yet another option to define (or customize a chain), is to use property `levels` that accepts link references (
+or partial specifications):
+
+```json
+{
+  "id"          : "c1",
+  "root"        : "a",
+  "levels"      : [
+    {"source": "a", "target": "b", "conveyingLyph": "lyph1"},
+    {"source": "b", "target": "c", "conveyingLyph": "lyph2"},
+    {"source": "c", "target": "d", "conveyingLyph": "lyph3"},
+    {"source": "d", "target": "e", "conveyingLyph": "lyph4"},
+    {"source": "e", "target": "f", "conveyingLyph": "lyph5"}
+  ]
+}
+```
+Note that if `numLevels` and `lyphTemplate` are provided, they can be used to generate default levels which then 
+can be replaced by specified links via the `levels` field. For example, if one wants to define a chain with 5 levels conveyed by identical lyphs,
+and replace 3rd level with another lyph, only the 3rd level link can be provided: 
+```json
+{
+    "id"           : "c1",
+    "root"         : "a",
+    "numLevels"    : 5,
+    "lyphTemplate" : "neuronBag",
+    "levels"       : [{}, {}, {"conveyingLyph": "lyph3"}, {}, {}]
+}
+```
+Since it may be tedious for modelers to specify all `levels` via defining links  
+(i.e., defining source and target nodes, connected links, and conveying lyphs at each level), 
+for Excel spreadsheets we provide a syntactic sugar to simplify definition of chains 
+passing via given nodes. This is done via the `levelTargets` property that expects a string with pairs
+of level index followed by a corresponding level target node, i.e., spreadsheet field `0:n1,3:n3,5:n5` 
+is a shorthand notation for 
+```json
+"levels" : [ {"target": "n1"},{},{"target": "n3"},{},{"target": "n5"}]
+```
+It is sufficient to indicate only level target nodes as this does not cover only the start node of the 
+first level which is expected in the chain's `root` property.
+
+
+Yet another common variant of chain definition is via `housingLyphs` or `housingChain` properties.
+The former is used list a set of lyphs that house the chain, the latter expects a reference to another chain whose
+level lyphs house the chain. 
+```json
+{
+  "id"          : "c1",
+  "root"        : "a",
+  "lyphTemplate": "lyph",
+  "housingLyphs": ["lyph1", "lyph2", "lyph3", "lyph4"]
+}
+```
+
+If a `housingChain` reference is used, it is possible to indicate the index range to 
+define the part of the housing chain that houses the current chain lyphs. Moreover, 
+if the housing chain is generated, and the identifiers of layers are not available, the `housingLayers` property can be 
+used to refer to the indices of the layers in housing lyphs that embed the chain levels. 
+```json
+{
+  "id"           : "t1",
+  "root"         : "n1",
+  "leaf"         : "n2",
+  "lyphTemplate" : "229",
+  "housingChain" : "c1",
+  "housingRange" : {"min": 0, "max": 7},
+  "housingLayers": [6,3,4,6,6,6,6]
+}
+```
+<img src="asset/chain-housedChain.png" width="75%" caption = "A chain generated to fit a housing chain"/>
 
 ### Tree
 Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An `omega tree` is a template to create a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.
@@ -524,23 +665,23 @@ We define the `level` of a tree branch as the number of edges between the target
 Alternatively, the tree branches can be specified, partially or fully, via the property `levels` which expects an array of partial or complete link definitions corresponding to the tree levels. If this array contains an empty object, the missing tree level branch is auto-generated. If instead it points to an existing link, the corresponding link then becomes the branch of the tree. If `source`, `target`, or both ends of the link resource are not specified, they are auto-generated. Otherwise, it is expected that incident links (connected tree branches) share a common node; the tool will issue a warning if this is not the case.
 
 ```json
-  "trees": [
-        {
-             "id"          : "axonal",
-             "name"        : "Axonal omega tree",
-             "root"        : "a",
-             "numLevels"   : 5,
-             "lyphTemplate": "neuronBag"
-        },
-        {
-             "id"          : "UOT",
-             "name"        : "Urinary Omega Tree",
-             "root"        : "b",
-             "levels"      : ["lnk1", "lnk2", "lnk3", "lnk4", "lnk5", "lnk6", "lnk7", "lnk8", "lnk9", "lnk10",
-                "lnk11", "lnk12", "lnk13", "lnk14", "lnk15", "lnk16", "lnk17", "lnk18", "lnk19", "lnk20", "lnk21"],
-             "branchingFactors": [1, 1, 2, 1, 1, 1, 3, 3, 20, 8, 9, 8, 9]
-        }
-    ]
+"trees": [
+    {
+         "id"          : "axonal",
+         "name"        : "Axonal omega tree",
+         "root"        : "a",
+         "numLevels"   : 5,
+         "lyphTemplate": "neuronBag"
+    },
+    {
+         "id"          : "UOT",
+         "name"        : "Urinary Omega Tree",
+         "root"        : "b",
+         "levels"      : ["lnk1", "lnk2", "lnk3", "lnk4", "lnk5", "lnk6", "lnk7", "lnk8", "lnk9", "lnk10",
+            "lnk11", "lnk12", "lnk13", "lnk14", "lnk15", "lnk16", "lnk17", "lnk18", "lnk19", "lnk20", "lnk21"],
+         "branchingFactors": [1, 1, 2, 1, 1, 1, 3, 3, 20, 8, 9, 8, 9]
+    }
+]
 ```
 
 Our [examples](./examples.html) section demonstrates in full detail how to define omega trees using both `lyphTemplate` and `levels` properties. A combination of both approaches may help modellers to reduce an effort while specifying multi-level trees where the majority of the branches convey the same lyphs (involve the same tissue structures) while certain levels either convey different lyphs or are characterized by unique features that need to be modelled in a special way.

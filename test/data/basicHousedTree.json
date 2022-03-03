@@ -583,6 +583,7 @@
   "chains": [
     {
       "id": "t1",
+      "root": "a",
       "lyphTemplate": "221",
       "housingLyphs": [
         "200",

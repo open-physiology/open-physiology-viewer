@@ -31,10 +31,10 @@ export function expectNoErrors(graphData){
 
 export function expectNoWarnings(graphData){
     expectNoErrors(graphData);
-    expect (graphData.logger.status).to.be.equal(Logger.STATUS.OK);
     let logEvents = graphData.logger.entries;
     let warnings = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.WARN);
     expect(warnings).to.have.length(0);
+    expect (graphData.logger.status).to.be.equal(Logger.STATUS.OK);
 }
 
 export function expectAutoGenResources(graphData){

@@ -1,5 +1,5 @@
-import {THREE} from '../util/utils';
-import { GeometryFactory } from '../util/geometryFactory'
+import {THREE} from '../utils';
+
 /**
  * Creates a line segment with given geometry and material
  * @param geometry
@@ -21,8 +21,8 @@ THREE.LineSegments2.prototype = Object.assign(Object.create(THREE.Mesh.prototype
     constructor: THREE.LineSegments2,
     isLineSegments2: true,
     computeLineDistances: ( function () { // for backwards-compatability, but could be a method of LineSegmentsGeometry...
-        let start = GeometryFactory.instance().createVector3();
-        let end   = GeometryFactory.instance().createVector3();
+        let start = new THREE.Vector3();
+        let end   = new THREE.Vector3();
         return function computeLineDistances() {
             let geometry = this.geometry;
             let instanceStart = geometry.attributes.instanceStart;

@@ -49,23 +49,37 @@
     <ul class="manual-toc">
       
     <li data-ice="manualNav" class="indent-h1" data-link="manual/model.html"><a href="manual/model.html#-a-href-----schema-index-html--json-schema--a-" data-ice="link">JSON Schema</a></li>
-<li data-ice="manualNav" class="indent-h1" data-link="manual/model.html"><a href="manual/model.html#data-model" data-ice="link">Data Model</a></li>
+<li data-ice="manualNav" class="indent-h1" data-link="manual/model.html"><a href="manual/model.html#connectivity-model" data-ice="link">Connectivity model</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#resource" data-ice="link">Resource</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#visual-resource" data-ice="link">Visual resource</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#node" data-ice="link">Node</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#link" data-ice="link">Link</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#shape" data-ice="link">Shape</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#lyph" data-ice="link">Lyph</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#region" data-ice="link">Region</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#border" data-ice="link">Border</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#material" data-ice="link">Material</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#coalescence" data-ice="link">Coalescence</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#group" data-ice="link">Group</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#resource-visibility-rules" data-ice="link">Resource visibility rules</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#generated-groups" data-ice="link">Generated groups</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#dynamic-groups" data-ice="link">Dynamic groups</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#graph" data-ice="link">Graph</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/model.html"><a href="manual/model.html#group-templates" data-ice="link">Group templates</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#chain" data-ice="link">Chain</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#tree" data-ice="link">Tree</a></li>
 <li data-ice="manualNav" class="indent-h3" data-link="manual/model.html"><a href="manual/model.html#channel" data-ice="link">Channel</a></li>
+</ul>
+  </div>
+<div data-ice="manual">
+    <ul class="manual-toc">
+      
+    <li data-ice="manualNav" class="indent-h1" data-link="manual/scaffold.html"><a href="manual/scaffold.html" data-ice="link">Scaffold model</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/scaffold.html"><a href="manual/scaffold.html#anchor" data-ice="link">Anchor</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/scaffold.html"><a href="manual/scaffold.html#wire" data-ice="link">Wire</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/scaffold.html"><a href="manual/scaffold.html#region" data-ice="link">Region</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/scaffold.html"><a href="manual/scaffold.html#component" data-ice="link">Component</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/scaffold.html"><a href="manual/scaffold.html#too-map" data-ice="link">TOO Map</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/scaffold.html"><a href="manual/scaffold.html#connectivity-model---scaffold-" data-ice="link">Connectivity model + scaffold:</a></li>
 </ul>
   </div>
 <div data-ice="manual">
@@ -187,104 +201,127 @@ by JSONPath queries for every resource in the model with <code>assign</code> and
     </div>
 <div class="manual-card-wrap" data-ice="cards">
       <div class="manual-card">
-        <div data-ice="card"><h1>Data Model</h1><p>Knowledge representation in ApiNATOMY has its basis in the constraints of forming tissue domain architecture. In particular, physiological system experts identify compartmental models of primary functional tissue units, so-called <code>pFTUs</code>. A <code>pFTU</code> is a cuff wrapped around a central (endothelial, epithelial or neural) canal, such that no two points within this domain are beyond average diffusion distance for small molecules. Two types of transfer processes occur over pFTUs: <code>advective</code> solid flow along the lumen of the vessel (mass fluid transport, e.g., urine along the ureter), and <code>diffusive</code> solute flow between the lumen of the vessel and the rest of the tissue cuff (e.g., calcium ions through a membrane channel). A pFTU therefore represents a point of transition between long and short range molecular interactions.</p><p> Technically, an ApiNATOMY model is a JSON object that
+        <div data-ice="card"><h1>Connectivity model</h1><p>Knowledge representation in ApiNATOMY has its basis in the constraints of forming tissue domain architecture. In particular, physiological system experts identify compartmental models of primary functional tissue units, so-called <code>pFTUs</code>. A <code>pFTU</code> is a cuff wrapped around a central (endothelial, epithelial or neural) canal, such that no two points within this domain are beyond average diffusion distance for small molecules. Two types of transfer processes occur over pFTUs: <code>advective</code> solid flow along the lumen of the vessel (mass fluid transport, e.g., urine along the ureter), and <code>diffusive</code> solute flow between the lumen of the vessel and the rest of the tissue cuff (e.g., calcium ions through a membrane channel). A pFTU therefore represents a point of transition between long and short range molecular interactions.</p><p> Technically, an ApiNATOMY model is a JSON object that
   contains sets of entities which are either nodes, links, lyphs, materials, coalescences, channels, trees, or groups which contain subsets of these entities.
-  Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology.</p><p>  <img class="screen-shot no-border" src="./manual/asset/classDiagram.png"></p><p> In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the ApiNATOMY lyph viewer.</p><h2>Resource</h2><p> All ApiNATOMY modelling elements have a common ancestor, an abstract resource that defines common properties present in all objects of the model.</p><p> All entities come with basic properties such as <code>id</code> and <code>name</code> to identify the physiological element. The identifiers of all entities must be unique, the tool will issue a warning if this is not the case.</p><p> Each object has a read-only property <code>class</code> (the user does not need to specify it, it is assigned automatically) that returns its class from the ApiNATOMY data model, such as <code>Node</code>, <code>Link</code>, <code>Lyph</code>, <code>Region</code>, <code>Border</code>, <code>Material</code>, <code>External</code>, <code>Group</code>, <code>Tree</code>, <code>Channel</code>, <code>Coalescence</code>, or <code>Graph</code>. The property <code>external</code> may be used to keep a reference to an external data source that defines or describes the entity, i.e., the <a href="http://si.washington.edu/projects/fma">Foundational Model of Anatomy (FMA)</a> ontology.</p><p> The property <code>infoFields</code> lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the <code>infoFields</code> property of a lyph object</p><pre><code class="lang-json"><code class="source-code prettyprint">    &quot;infoFields&quot;: [ &quot;id&quot;, &quot;name&quot;, &quot;topology&quot;, &quot;conveyedBy&quot;, &quot;layers&quot; ]</code>
-</code></pre><p> will instruct the viewer to show the lyph&apos;s <code>id</code>, <code>name</code>, <code>topology</code>,
- the signature of the link conveying the lyph, and the lyph&apos;s layers.</p><p> The models of physiology systems may contain thousands or even millions of entities. While the majority of the information will come from existing data sources (publicly maintained data sets, ontologies, clinical trials, experiments, etc.), and converted to the expected format with the help of some data manipulation scripts, many properties in our model are specific for the lyph viewer. The derived input model has to be augmented with properties that help the viewer to produce a meaningful and clean graph layout. It is likely that it will take at least several attempts for the modeller to figure out the proper constraints for the intuitive visualization of a certain model. For example, one may want to draw links that represent all blood vessels as straight thick red lines or show neural connections as curved thin blue paths.</p><p> To simplify the parameter setting process, we provide means to assign valid properties to subsets of entities in the model. 
- Each object may contain a property <code>assign</code> with two fields: <code>path</code> which contains a <a href="https://www.npmjs.com/package/jsonpath">JSONPath</a> expression, and <code>value</code> object, that contains a JSON object to merge with each and every item in the set defined by the query in the <code>path</code>. For example, the following code assigns <code>color</code> and <code>scale</code> properties to all lyphs in the <code>Neural system</code> group:   </p><pre><code class="lang-json"><code class="source-code prettyprint">    {
-        &quot;id&quot;    : &quot;group1&quot;,
-        &quot;name&quot;  : &quot;Neural system&quot;,
-        &quot;assign&quot;: {
-            &quot;path&quot;    : &quot;$.lyphs[*]&quot;,
-            &quot;value&quot;  : {
-                &quot;color&quot;: &quot;#aaa&quot;,
-                &quot;scale&quot;: { &quot;width&quot;: 200, &quot;height&quot;: 100 }
-            }
-        }
-     }</code>
-</code></pre><p>  <img src="./manual/asset/assign.png" width="75%" caption="Assigning properties to a group of lyphs"></p><p> In addition to the assignment of properties, either individually or as part of a dynamic group, we allow users to apply color interpolating schemes and gradual distance offsets. This is done with the help of the object&apos;s property <code>interpolate</code>.
- If the JSONPath query returns a one dimensional array, the schema is applied to its elements. If the query produces a higher-dimensional array, the schema is iteratively applied to all one-dimensional splices of the array.
- For example, the following fragment colors three layers of every lyph in the <code>Neural system</code> group of lyphs using the shades of blue, starting from the opposite side of the color array with 25% offset to avoid very light and very dark shades:</p><pre><code class="lang-json"><code class="source-code prettyprint">  &quot;interpolate&quot;: {
-      &quot;path&quot;   : &quot;$.lyphs[*].layers&quot;,
-      &quot;color&quot;  : {
-         &quot;scheme&quot;  : &quot;interpolateBlues&quot;,
-         &quot;offset&quot;  : 0.25,
-         &quot;length&quot;  : 3,
-         &quot;reversed&quot;: true
-      }
-  }</code>
-</code></pre><p>   <img src="./manual/asset/interpolate.png" width="75%" caption="Assigning colors to a group of lyphs using a color interpolation scheme"></p><p> For the details on supported color schemes, and specification format for interpolating colors and distance offsets, see the <a href="./manual/../schema/index.html">ApiNATOMY JSON Schema</a> documentation.</p><h3>Visual resource</h3><p> <code>Visual resource</code> is a subclass of <code>Resource</code> that lists properties common for resources with visual artifacts, such as shape and its border (lyph or region), material, node, and link.</p><p> The most basic visual artifact property is <code>color</code> - the color of the resource helps to interpret the model, identify resources that originate from the common template, etc. Additionally, each visual resource can have auxiliary boolean parameters <code>hidden</code>, <code>inactive</code>, and <code>skipLabels</code> that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.</p><h2>Node</h2><p>The ApiNATOMY model essentially defines a graph where the positions of nodes are computed by the force-directed layout. Nodes connect links which convey lyphs, the main modelling concept in the ApiNATOMY framework.</p><p> Nodes are represented by spheres. The radius of the sphere is computed based on the value of the node&apos;s <code>val</code> property (the exact value depends also on the scaling factor, there is no well-defined physical characteristic associated with the numeric value of this property). </p><p> Properties <code>charge</code> and <code>collide</code> allow users to tune the forces applied to a specific node. </p><p> A modeller can control the positions of the nodes by assigning the desired location via the <code>layout</code> property. For example, the image below illustrates the graph for the 5 core nodes: </p><pre><code class="lang-json"><code class="source-code prettyprint">    &quot;nodes&quot;: [
-        {
-          &quot;id&quot;    : &quot;a&quot;,
-          &quot;name&quot;  : &quot;a&quot;,
-          &quot;color&quot; : &quot;#808080&quot;,
-          &quot;val&quot;   : 10,
-          &quot;fixed&quot; : true,
-          &quot;layout&quot;: { &quot;x&quot; : 0, &quot;y&quot; : 0, &quot;z&quot; : 0 }
-        },
-        {
-          &quot;id&quot;    : &quot;c&quot;,
-          &quot;name&quot;  : &quot;c&quot;,
-          &quot;color&quot; : &quot;#D2691E&quot;,
-          &quot;val&quot;   : 10,
-          &quot;layout&quot;: { &quot;x&quot; : 100, &quot;y&quot; : 0, &quot;z&quot; : 0 }
-        },
-        {
-          &quot;id&quot;    : &quot;n&quot;,
-          &quot;name&quot;  : &quot;n&quot;,
-          &quot;color&quot; : &quot;#D2691E&quot;,
-          &quot;val&quot;   : 10,
-          &quot;layout&quot;: { &quot;x&quot; : -100, &quot;y&quot; : 0, &quot;z&quot; : 0 }
-        },
-        {
-          &quot;id&quot;    : &quot;L&quot;,
-          &quot;name&quot;  : &quot;L&quot;,
-          &quot;color&quot; : &quot;#ff0000&quot;,
-          &quot;val&quot;   : 10,
-          &quot;layout&quot;: { &quot;x&quot; : 0, &quot;y&quot; : -75, &quot;z&quot; : 0 }
-        },
-        {
-          &quot;id&quot;    : &quot;R&quot;,
-          &quot;name&quot;  : &quot;R&quot;,
-          &quot;color&quot; : &quot;#7B68EE&quot;,
-          &quot;val&quot;   : 10,
-          &quot;layout&quot;: { &quot;x&quot; : 0, &quot;y&quot; : 75, &quot;z&quot; : 0 }
-        }
-    ]</code>
+  Properties of these objects reflect the meaning and parameters of the associated physiological elements (connections, processes or tissue composition) as well as provide positioning constraints that help us to assemble them into structurally correct models of physiology.</p><p>  <img class="screen-shot no-border" src="./manual/asset/classDiagram.png"></p><p> In this manual, we explain, using small examples, how ApiNATOMY data model definitions render into graphical elements displayed by the ApiNATOMY lyph viewer.</p><h2>Resource</h2><p> All ApiNATOMY modelling elements have a common ancestor, an abstract resource that defines common properties present in all objects of the model.</p><p> All entities come with basic properties such as <code>id</code>, <code>name</code> and <code>description</code> to define a modeling element. 
+ An identifier must start with a letter and can include lower and uppercase letters, numbers, and special symbols such as 
+<code>:_./@?\-=&apos;</code>, no spaces are allowed! Identifiers of all entities must be unique, the tool will issue a warning if this is not the case.</p><p> Each object has a read-only property <code>class</code> (the user does not need to specify it, it is assigned automatically) that returns its 
+ class from the ApiNATOMY data model, such as </p><ul>
+<li><code>Node</code>, <code>Link</code>, <code>Lyph</code>, <code>Border</code>, <code>Material</code>, <code>Chain</code>, <code>Tree</code>, <code>Channel</code>, <code>Villus</code>, <code>Coalescence</code>, <code>Group</code>, and <code>Graph</code> for connectivity models,</li>
+<li><code>Anchor</code>, <code>Wire</code>, <code>Region</code>, <code>Component</code>, and<code>Scaffold</code> for scaffold models,</li>
+<li><code>State</code> and <code>Snapshot</code> for snapshot models,</li>
+<li><p><code>External</code>, <code>Reference</code>, and <code>OntologyTerm</code> for third-party annotation resources that can be used in any type of model.</p>
+<p>The properties <code>external</code>, <code>references</code>, and <code>ontologyTerms</code> may be used to keep a reference to an external data source 
+that defines or describes the entity, 
+i.e., PubMed publication or the <a href="http://si.washington.edu/projects/fma">Foundational Model of Anatomy (FMA)</a> ontology term.</p>
+<p>The property <code>infoFields</code> lists properties that are shown in the information panel of the viewer. These properties are typically set by default for all entities of certain type, but may also be overridden for individual objects. For example, the following value of the <code>infoFields</code> property of a lyph object</p>
+<pre><code class="lang-json"><code class="source-code prettyprint">&quot;infoFields&quot;: [ &quot;id&quot;, &quot;name&quot;, &quot;topology&quot;, &quot;conveyedBy&quot;, &quot;layers&quot; ]</code>
+</code></pre>
+<p>will instruct the viewer to show the lyph&apos;s <code>id</code>, <code>name</code>, <code>topology</code>,
+the signature of the link conveying the lyph, and the lyph&apos;s layers.</p>
+<p>The models of physiology systems may contain thousands or even millions of entities. While the majority of the information will come from existing data sources (publicly maintained data sets, ontologies, clinical trials, experiments, etc.), and converted to the expected format with the help of some data manipulation scripts, many properties in our model are specific for the lyph viewer. The derived input model has to be augmented with properties that help the viewer to produce a meaningful and clean graph layout. It is likely that it will take at least several attempts for the modeller to figure out the proper constraints for the intuitive visualization of a certain model. For example, one may want to draw links that represent all blood vessels as straight thick red lines or show neural connections as curved thin blue paths.</p>
+<p>To simplify the parameter setting process, we provide means to assign valid properties to subsets of entities in the model. 
+Each object may contain a property <code>assign</code> with two fields: <code>path</code> which contains a <a href="https://www.npmjs.com/package/jsonpath">JSONPath</a> expression, and <code>value</code> object, that contains a JSON object to merge with each and every item in the set defined by the query in the <code>path</code>. For example, the following code assigns <code>color</code> and <code>scale</code> properties to all lyphs in the <code>Neural system</code> group:   </p>
+<pre><code class="lang-json"><code class="source-code prettyprint">{
+&quot;id&quot;    : &quot;group1&quot;,
+&quot;name&quot;  : &quot;Neural system&quot;,
+&quot;assign&quot;: {
+    &quot;path&quot;    : &quot;$.lyphs[*]&quot;,
+    &quot;value&quot;  : {
+        &quot;color&quot;: &quot;#aaa&quot;,
+        &quot;scale&quot;: { &quot;width&quot;: 200, &quot;height&quot;: 100 }
+    }
+}
+}</code>
+</code></pre>
+<p><img src="./manual/asset/assign.png" width="75%" caption="Assigning properties to a group of lyphs"></p>
+<p>In addition to the assignment of properties, either individually or as part of a dynamic group, we allow users to apply color interpolating schemes and gradual distance offsets. This is done with the help of the object&apos;s property <code>interpolate</code>.
+If the JSONPath query returns a one dimensional array, the schema is applied to its elements. If the query produces a higher-dimensional array, the schema is iteratively applied to all one-dimensional splices of the array.
+For example, the following fragment colors three layers of every lyph in the <code>Neural system</code> group of lyphs using the shades of blue, starting from the opposite side of the color array with 25% offset to avoid very light and very dark shades:</p>
+<pre><code class="lang-json"><code class="source-code prettyprint">&quot;interpolate&quot;: {
+&quot;path&quot;   : &quot;$.lyphs[*].layers&quot;,
+&quot;color&quot;  : {
+ &quot;scheme&quot;  : &quot;interpolateBlues&quot;,
+ &quot;offset&quot;  : 0.25,
+ &quot;length&quot;  : 3,
+ &quot;reversed&quot;: true
+}
+}</code>
+</code></pre>
+<p><img src="./manual/asset/interpolate.png" width="75%" caption="Assigning colors to a group of lyphs using a color interpolation scheme"></p>
+<p>For the details on supported color schemes, and specification format for interpolating colors and distance offsets, see the <a href="./manual/../schema/index.html">ApiNATOMY JSON Schema</a> documentation.</p>
+</li>
+</ul><h3>Visual resource</h3><p> <code>Visual resource</code> is a subclass of <code>Resource</code> that lists properties common for resources with visual artifacts, such as shape and its border (lyph or region), material, node, and link.</p><p> The most basic visual artifact property is <code>color</code> - the color of the resource helps to interpret the model, identify resources that originate from the common template, etc. Additionally, each visual resource can have auxiliary boolean parameters <code>hidden</code>, <code>inactive</code>, and <code>skipLabels</code> that influence on its visibility, possibility to highlight the corresponding visual object and the visibility of its text label(s) in the lyph viewer, respectively.</p><h2>Node</h2><p>The ApiNATOMY model essentially defines a graph where the positions of nodes are computed by the force-directed layout. Nodes connect links which convey lyphs, the main modelling concept in the ApiNATOMY framework.</p><p> Nodes are represented by spheres. The radius of the sphere is computed based on the value of the node&apos;s <code>val</code> property (the exact value depends also on the scaling factor, there is no well-defined physical characteristic associated with the numeric value of this property). </p><p> Properties <code>charge</code> and <code>collide</code> allow users to tune the forces applied to a specific node. </p><p> A modeller can control the positions of the nodes by assigning the desired location via the <code>layout</code> property. For example, the image below illustrates the graph for the 5 core nodes: </p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;nodes&quot;: [
+    {
+      &quot;id&quot;    : &quot;a&quot;,
+      &quot;name&quot;  : &quot;a&quot;,
+      &quot;color&quot; : &quot;#808080&quot;,
+      &quot;val&quot;   : 10,
+      &quot;fixed&quot; : true,
+      &quot;layout&quot;: { &quot;x&quot; : 0, &quot;y&quot; : 0, &quot;z&quot; : 0 }
+    },
+    {
+      &quot;id&quot;    : &quot;c&quot;,
+      &quot;name&quot;  : &quot;c&quot;,
+      &quot;color&quot; : &quot;#D2691E&quot;,
+      &quot;val&quot;   : 10,
+      &quot;layout&quot;: { &quot;x&quot; : 100, &quot;y&quot; : 0, &quot;z&quot; : 0 }
+    },
+    {
+      &quot;id&quot;    : &quot;n&quot;,
+      &quot;name&quot;  : &quot;n&quot;,
+      &quot;color&quot; : &quot;#D2691E&quot;,
+      &quot;val&quot;   : 10,
+      &quot;layout&quot;: { &quot;x&quot; : -100, &quot;y&quot; : 0, &quot;z&quot; : 0 }
+    },
+    {
+      &quot;id&quot;    : &quot;L&quot;,
+      &quot;name&quot;  : &quot;L&quot;,
+      &quot;color&quot; : &quot;#ff0000&quot;,
+      &quot;val&quot;   : 10,
+      &quot;layout&quot;: { &quot;x&quot; : 0, &quot;y&quot; : -75, &quot;z&quot; : 0 }
+    },
+    {
+      &quot;id&quot;    : &quot;R&quot;,
+      &quot;name&quot;  : &quot;R&quot;,
+      &quot;color&quot; : &quot;#7B68EE&quot;,
+      &quot;val&quot;   : 10,
+      &quot;layout&quot;: { &quot;x&quot; : 0, &quot;y&quot; : 75, &quot;z&quot; : 0 }
+    }
+]</code>
 </code></pre><p>  <img src="./manual/asset/nodes.png" width="75%"></p><p> In the above example, four nodes are positioned along <code>x</code> and <code>y</code> axes. The value of each coordinate is expected to be between -100 and 100, these numbers refer to the percentage of the lengths from the center of coordinates. The actual coordinates are then computed depending on the internal scaling factor. </p><p> The node <code>a</code> is placed to the center of coordinates. It is marked as <code>fixed</code>. Positions of fixed nodes are set to coincide with the desired positions in the <code>layout</code> property. For other types of nodes, the layout only defines the position the node is attracted to while its actual position <code>(x, y, z)</code> may be influenced by various factors, i.e., global forces in the graph, rigidity of the links, positions of other nodes, etc. Note that assigning (<code>x</code>, <code>y</code>, <code>z</code>) coordinates for the node in the model is ineffective as these properties are overridden by our graph layout algorithm and the initial settings will simply be ignored. The tool issues the corresponding warning if an unexpected property is present in the model. </p><p> It is important to retain in the model the containment and spacial adjacency relationships among entities. Several properties of a node object are used to constraint the positions of the node on a link, within a lyph or on its surface. It is also possible to define the desired position of a node in the graphical layout based on the positions of other nodes.</p><p> To place a node on a link, we assign the link&apos;s ID to the node&apos;s property <code>hostedBy</code>.
- The related optional property <code>offset</code> can be used to indicate the offset in percentage from the start of the link. Thus, the definition below </p><pre><code class="lang-json"><code class="source-code prettyprint">    {
-        &quot;id&quot;       : &quot;nLR00&quot;,
-        &quot;hostedBy&quot; : &quot;LR&quot;,
-        &quot;offset&quot;   : 0.25
-    }</code>
-</code></pre><p> instructs the viewer to position the node <code>nLR00</code> at the quarter of the length of the link <code>LR</code>. </p><p> <img src="./manual/asset/host.png" width="75%"></p><p> An alternative way to get the same result, is to include the node&apos;s ID to the <code>hostedNodes</code> property of the link.</p><p> To place a node on a lyph, assign the lyph&apos;s ID to the node&apos;s <code>internalIn</code> property. This will force the node to attract to the lyph&apos;s center. An alternative way to get the same result is to include the node&apos;s ID to the <code>internalNodes</code> property of the lyph.</p><p> To place a node to the center of coordinates of a set of other nodes, list their ID&apos;s in the <code>controlNodes</code> array.</p><h2>Link</h2><p> Links connect graph nodes and perform a number of functions in the ApiNATOMY framework, most notably, they model process flow and serve as rotational axes to position and scale conveying lyphs.</p><p> By default, all links are drawn as straight lines, this corresponds to the <code>&quot;geometry&quot;:&quot;link&quot;</code> setting. To apply another visualization method, we set the link&apos;s <code>geometry</code> to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, <code>&quot;geometry&quot;:&quot;semicircle&quot;</code> produces a spline that resembles a semicircle:</p><pre><code class="lang-json"><code class="source-code prettyprint">     &quot;links&quot;: [
-         {
-           &quot;id&quot;        : &quot;RL&quot;,
-           &quot;name&quot;      : &quot;Pulmonary&quot;,
-           &quot;source&quot;    : &quot;R&quot;,
-           &quot;target&quot;    : &quot;L&quot;,
-           &quot;length&quot;    : 75,
-           &quot;geometry&quot;  : &quot;semicircle&quot;,
-           &quot;stroke&quot;    : &quot;thick&quot;
-         },
-         {
-           &quot;id&quot;        : &quot;LR&quot;,
-           &quot;name&quot;      : &quot;Systemic&quot;,
-           &quot;source&quot;    : &quot;L&quot;,
-           &quot;target&quot;    : &quot;R&quot;,
-           &quot;length&quot;    : 75,
-           &quot;geometry&quot;  : &quot;semicircle&quot;,
-           &quot;stroke&quot;    : &quot;thick&quot;
-         },
-         {
-           &quot;id&quot;     : &quot;cn&quot;,
-           &quot;source&quot; : &quot;c&quot;,
-           &quot;target&quot; : &quot;n&quot;,
-           &quot;length&quot; : 100,
-           &quot;stroke&quot; : &quot;dashed&quot;
-         }
-     ]</code>
+ The related optional property <code>offset</code> can be used to indicate the offset in percentage from the start of the link. Thus, the definition below </p><pre><code class="lang-json"><code class="source-code prettyprint">{
+    &quot;id&quot;       : &quot;nLR00&quot;,
+    &quot;hostedBy&quot; : &quot;LR&quot;,
+    &quot;offset&quot;   : 0.25
+}</code>
+</code></pre><p> instructs the viewer to position the node <code>nLR00</code> at the quarter of the length of the link <code>LR</code>. </p><p> <img src="./manual/asset/host.png" width="75%"></p><p> An alternative way to get the same result, is to include the node&apos;s ID to the <code>hostedNodes</code> property of the link.</p><p> To place a node on a lyph, assign the lyph&apos;s ID to the node&apos;s <code>internalIn</code> property. This will force the node to attract to the lyph&apos;s center. An alternative way to get the same result is to include the node&apos;s ID to the <code>internalNodes</code> property of the lyph.</p><p> To place a node to the center of coordinates of a set of other nodes, list their ID&apos;s in the <code>controlNodes</code> array.</p><h2>Link</h2><p> Links connect graph nodes and perform a number of functions in the ApiNATOMY framework, most notably, they model process flow and serve as rotational axes to position and scale conveying lyphs.</p><p> By default, all links are drawn as straight lines, this corresponds to the <code>&quot;geometry&quot;:&quot;link&quot;</code> setting. To apply another visualization method, we set the link&apos;s <code>geometry</code> to one of the supported values enumerated in the ApiNATOMY JSON Scheme. For example, <code>&quot;geometry&quot;:&quot;semicircle&quot;</code> produces a spline that resembles a semicircle:</p><pre><code class="lang-json"><code class="source-code prettyprint"> &quot;links&quot;: [
+     {
+       &quot;id&quot;        : &quot;RL&quot;,
+       &quot;name&quot;      : &quot;Pulmonary&quot;,
+       &quot;source&quot;    : &quot;R&quot;,
+       &quot;target&quot;    : &quot;L&quot;,
+       &quot;length&quot;    : 75,
+       &quot;geometry&quot;  : &quot;semicircle&quot;,
+       &quot;stroke&quot;    : &quot;thick&quot;
+     },
+     {
+       &quot;id&quot;        : &quot;LR&quot;,
+       &quot;name&quot;      : &quot;Systemic&quot;,
+       &quot;source&quot;    : &quot;L&quot;,
+       &quot;target&quot;    : &quot;R&quot;,
+       &quot;length&quot;    : 75,
+       &quot;geometry&quot;  : &quot;semicircle&quot;,
+       &quot;stroke&quot;    : &quot;thick&quot;
+     },
+     {
+       &quot;id&quot;     : &quot;cn&quot;,
+       &quot;source&quot; : &quot;c&quot;,
+       &quot;target&quot; : &quot;n&quot;,
+       &quot;length&quot; : 100,
+       &quot;stroke&quot; : &quot;dashed&quot;
+     }
+ ]</code>
 </code></pre><p> <img src="./manual/asset/links.png" width="75%" caption="Drawing links"></p><p> Among other link geometries supported by the lyph viewer are</p><ul>
 <li><code>spline</code> to draw link connectors that smoothly join preceding and following links</li>
 <li><code>rectangle</code> to draw splines that resemble a semi-square connector with rounded corners</li>
@@ -304,12 +341,12 @@ by JSONPath queries for every resource in the model with <code>assign</code> and
 <p>The field <code>fasciculatesIn</code> represents a specialized relationship that may point to a lyph that bundles the link (e.g., representing a neural connection).</p>
 </li>
 </ul><h2>Shape</h2><p> A shape is an abstract concept that defines properties and relationships shared by ApINATOMY resources that model physiology entities, namely, lyphs and regions. An important part of the shape abstraction is its border.</p><p> The property <code>internalNodes</code> may contain a set of nodes that have to be positioned on a shape. Such nodes will be projected to the shape&apos;s surface and attract to its center. Note that the viewer will not be able to render the graph if the positioning constraints are not satisfiable, i.e., if one tries to put the source or target node of the lyph&apos;s axis inside of the lyph, the force-directed layout method will not converge.</p><p> The property <code>internalLyphs</code> is used to define the inner content of a shape, i.e., neurons within the neural system parts. The related property, <code>internalIn</code>, will indicate to which shape (lyph or region) the given lyph belongs.
- Internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them on a grid within the container shape.</p><p> It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders.</p><p>  To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the <code>hostedLyphs</code> property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.</p><pre><code class="lang-json"><code class="source-code prettyprint">     {
-          &quot;id&quot;         : &quot;5&quot;,
-          &quot;name&quot;       : &quot;Kidney Lobus&quot;,
-          &quot;topology&quot;   : &quot;BAG&quot;,
-          &quot;hostedLyphs&quot;: [ &quot;60&quot;, &quot;105&quot;, &quot;63&quot;, &quot;78&quot;, &quot;24&quot;, &quot;27&quot;, &quot;30&quot;, &quot;33&quot; ]
-     }</code>
+ Internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them on a grid within the container shape.</p><p> It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders.</p><p>  To sketch an entire process or a subsystem within a larger scale lyph, i.e., blood flow in kidney lobus, one may use the <code>hostedLyphs</code> property. Hosted lyphs get projected on the container lyph plane and get pushed to stay within its borders.</p><pre><code class="lang-json"><code class="source-code prettyprint"> {
+    &quot;id&quot;         : &quot;5&quot;,
+    &quot;name&quot;       : &quot;Kidney Lobus&quot;,
+    &quot;topology&quot;   : &quot;BAG&quot;,
+    &quot;hostedLyphs&quot;: [ &quot;60&quot;, &quot;105&quot;, &quot;63&quot;, &quot;78&quot;, &quot;24&quot;, &quot;27&quot;, &quot;30&quot;, &quot;33&quot; ]
+ }</code>
 </code></pre><p>   <img src="./manual/asset/hostedLyphs.png" width="75%" alt="Lyph on border"></p><h3>Lyph</h3><p> Lyphs in the ApiNATOMY lyph viewer are shown as 2d rectangles either with straight or rounded corners. A lyph defines the layered tissue material that constitutes a body conduit vessel (a duct, canal, or other tube that contains or conveys a body fluid) when it is rotated around its axis. </p><p> The shape of the lyph is defined by its <code>topology</code>. The topology value <code>TUBE</code> represents a conduit with two open ends. The values of <code>BAG</code> and <code>BAG2</code> represent a conduit with one closed end. Finally, the topology value <code>CYST</code> represents a conduit with both ends closed (a capsule). The images below show 2d and 3d representation of three types of lyphs: <code>TUBE</code>, <code>CYST</code>, and <code>BAG</code>, each with 3 layers.</p><p> <img src="./manual/asset/lyphTypes.png" width="75%" alt="Lyph topology"></p><p> <img src="./manual/asset/lyphTypes3d.png" width="75%" alt="Lyph topology in 3d"></p><p> In addition to the nodes and links created in the previous sections and a new link <code>k_l</code> with source node <code>k</code> and target node <code>l</code>, the code below produces a bag with two layers conveyed by the <code>k_l</code> link:</p><pre><code class="lang-json"><code class="source-code prettyprint"> &quot;lyphs&quot;: [
      {
        &quot;id&quot;         : &quot;5&quot;,
@@ -353,58 +390,42 @@ by JSONPath queries for every resource in the model with <code>assign</code> and
         &quot;materials&quot;: [ &quot;9&quot;, &quot;13&quot; ]
     }</code>
 </code></pre><p> Often a model requires many lyphs with the same layer structure. To simplify the creation of sets of such lyphs, we introduced a notion of the lyph template. A lyph with property <code>isTemplate</code> set to true, serves as a prototype for all lyphs in its property <code>subtypes</code>: such lyphs inherit their layers from the their <code>supertype</code>. 
- In the example below, six lyphs are defined as subtypes of a generic cardiac lyph which works as a template to define their layer structure.</p><pre><code class="lang-json"><code class="source-code prettyprint">    &quot;lyphs&quot;: [
-         {
-           &quot;id&quot;        : &quot;994&quot;,
-           &quot;name&quot;      : &quot;Cardiac Lyphs Prototype&quot;,
-           &quot;layers&quot;    : [ &quot;999&quot;, &quot;998&quot;, &quot;997&quot; ],
-           &quot;isTemplate&quot;: true,
-           &quot;subtypes&quot;  : [ &quot;1000&quot;, &quot;1001&quot;, &quot;1022&quot;, &quot;1023&quot;, &quot;1010&quot;, &quot;1011&quot; ]
-         },
-         {
-           &quot;id&quot;   : &quot;1000&quot;,
-           &quot;name&quot; : &quot;Right Ventricle&quot;
-         },
-         {
-           &quot;id&quot;   : &quot;1010&quot;,
-           &quot;name&quot; : &quot;Left Ventricle&quot;
-         }
-    ] </code>
-</code></pre><p> <img src="./manual/asset/cardiac.png" width="75%" alt="Lyph templates"></p><p> Note that inheriting layer structure from the lyph template differs from assigning layers explicitly to all subtype lyphs, either individually or via the group&apos;s <code>assign</code> property. A lyph with the same ID cannot be used as a layer in two different  lyphs, that would imply that the same graphical object should appear in two different positions, and its dimensions and other context-dependent properties may vary as well. The code above instead implies that we replicate each of three template layers six times, i.e., 18 new lyphs are auto-generated and added to the model for the specification above.  </p><p> It is possible to customize some of the <code>subtype</code> - <code>layer</code> pairs with the help of the context-dependent queries. For example, the code below</p><pre><code class="lang-json"><code class="source-code prettyprint">     &quot;assign&quot;: [
-       {
-         &quot;path&quot; : &quot;$.[?(@.id==&apos;1000&apos;)].layers[(@.length-1)]&quot;,
-         &quot;value&quot;: { &quot;internalLyphs&quot;: [ &quot;995&quot; ] }
-       },
-       {
-         &quot;path&quot; : &quot;$.[?(@.id==&apos;1010&apos;)].layers[(@.length-1)]&quot;,
-         &quot;value&quot;: { &quot;internalLyphs&quot;: [ &quot;996&quot; ] }
-       }
-     ]</code>
-</code></pre><p>  assigns <code>internalLyphs</code> to two outer most layers of lyphs <code>1000</code> and <code>1010</code> while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.</p><p> The pair of properties <code>subtypes</code> and <code>supertype</code> can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the <code>isTemplate</code> property to <code>true</code>.</p><p>In addition to the link&apos;s <code>reversed</code> property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph&apos;s own property <code>angle</code> to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property <code>create3d</code> indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.</p><p>The field <code>bundles</code>  points to the links that have to pass through the lyph.</p><h3>Region</h3><pre><code><code class="source-code prettyprint">Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named &quot;Lungs&quot;, one can indicate that this process is happening in the lungs.
-Region internal content is similar to the content of a lyph. Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.</code>
-</code></pre><pre><code class="lang-json"><code class="source-code prettyprint">    &quot;regions&quot;: [
-        {
-            &quot;id&quot;     : &quot;cs&quot;,
-            &quot;name&quot;   : &quot;Cardiac system&quot;,
-            &quot;points&quot; : [{&quot;x&quot;: -75, &quot;y&quot;: 20}, {&quot;x&quot;: -75, &quot;y&quot;: 75},{&quot;x&quot;: -25, &quot;y&quot;: 75},{&quot;x&quot;: -25, &quot;y&quot;: 20}],
-            &quot;color&quot;  : &quot;#fbb03f&quot;
-        },
-        {
-            &quot;id&quot;     : &quot;cns&quot;,
-            &quot;name&quot;   : &quot;Central Nervous System&quot;,
-            &quot;points&quot; : [{&quot;x&quot;: -65, &quot;y&quot;: -50}, {&quot;x&quot;: -65, &quot;y&quot;: -15}, {&quot;x&quot;: 65, &quot;y&quot;: -15}, {&quot;x&quot;: 65, &quot;y&quot;: -50}],
-            &quot;color&quot;  : &quot;#f4ed2f&quot;
-        }
-    ]</code>
-</code></pre><p> In the future, we plan to add an option to create regions based on paths in SVG files.</p><h3>Border</h3><p> A flat shape such as lyph or region has a border. The border is an object that extends the class <code>Visual Resource</code> and inherits all properties from the class hierarchy: it can have its own ID, a name, a reference to an external source, etc. The owner shape can refer to its border via its <code>border</code> field.</p><p> Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the semantic relationships among the corresponding concepts.</p><p> The lyph&apos;s border is closely related to its topology. The topology defines the types of its <code>radial</code> borders: <code>false</code> represents a border with open flow while <code>true</code> corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph&apos;s inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph&apos;s rectangle. The axial border is always aligned with the lyph&apos;s axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property <code>borders</code> which is always an array of 4 objects. Individual border objects may either remain empty or contain a reference to a <code>Link</code> resource that manages the content of the border. The link resource representing one of the border sides refers to its hosting border via the <code>onBorder</code> field.</p><p> It is possible to place nodes and other lyphs on any of the border segments. 
- The <code>hostedNodes</code> property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the <code>hostedLyphs</code> property):</p><pre><code class="lang-json"><code class="source-code prettyprint">     {
-        &quot;id&quot;      : &quot;5&quot;,
-        &quot;name&quot;    : &quot;Kidney Lobus&quot;,
-        &quot;topology&quot;: &quot;BAG&quot;,
-        &quot;border&quot;  : {
-            &quot;borders&quot;: [ {}, {}, {}, { &quot;hostedNodes&quot;: [ &quot;nPS013&quot;, &quot;nLR05&quot;, &quot;nLR15&quot; ] } ]
-        }
-     }</code>
+ In the example below, six lyphs are defined as subtypes of a generic cardiac lyph which works as a template to define their layer structure.</p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;lyphs&quot;: [
+     {
+       &quot;id&quot;        : &quot;994&quot;,
+       &quot;name&quot;      : &quot;Cardiac Lyphs Prototype&quot;,
+       &quot;layers&quot;    : [ &quot;999&quot;, &quot;998&quot;, &quot;997&quot; ],
+       &quot;isTemplate&quot;: true,
+       &quot;subtypes&quot;  : [ &quot;1000&quot;, &quot;1001&quot;, &quot;1022&quot;, &quot;1023&quot;, &quot;1010&quot;, &quot;1011&quot; ]
+     },
+     {
+       &quot;id&quot;   : &quot;1000&quot;,
+       &quot;name&quot; : &quot;Right Ventricle&quot;
+     },
+     {
+       &quot;id&quot;   : &quot;1010&quot;,
+       &quot;name&quot; : &quot;Left Ventricle&quot;
+     }
+] </code>
+</code></pre><p> <img src="./manual/asset/cardiac.png" width="75%" alt="Lyph templates"></p><p> Note that inheriting layer structure from the lyph template differs from assigning layers explicitly to all subtype lyphs, either individually or via the group&apos;s <code>assign</code> property. A lyph with the same ID cannot be used as a layer in two different  lyphs, that would imply that the same graphical object should appear in two different positions, and its dimensions and other context-dependent properties may vary as well. The code above instead implies that we replicate each of three template layers six times, i.e., 18 new lyphs are auto-generated and added to the model for the specification above.  </p><p> It is possible to customize some of the <code>subtype</code> - <code>layer</code> pairs with the help of the context-dependent queries. For example, the code below</p><pre><code class="lang-json"><code class="source-code prettyprint"> &quot;assign&quot;: [
+   {
+     &quot;path&quot; : &quot;$.[?(@.id==&apos;1000&apos;)].layers[(@.length-1)]&quot;,
+     &quot;value&quot;: { &quot;internalLyphs&quot;: [ &quot;995&quot; ] }
+   },
+   {
+     &quot;path&quot; : &quot;$.[?(@.id==&apos;1010&apos;)].layers[(@.length-1)]&quot;,
+     &quot;value&quot;: { &quot;internalLyphs&quot;: [ &quot;996&quot; ] }
+   }
+ ]</code>
+</code></pre><p>  assigns <code>internalLyphs</code> to two outer most layers of lyphs <code>1000</code> and <code>1010</code> while other auto-generated layers remain unchanged. These internal lyphs can be seen as yellow cysts on the image above.</p><p> The pair of properties <code>subtypes</code> and <code>supertype</code> can be used to specify a generalization relationship among lyphs without replicating their layer structure or any other properties. To trigger the derivation of layer structure, it is essential to set the <code>isTemplate</code> property to <code>true</code>.</p><p>In addition to the link&apos;s <code>reversed</code> property that can be used to rotate the lyph it conveyed by 180 degrees, one can set the lyph&apos;s own property <code>angle</code> to rotate the given lyph around its axis to the given angle (measured in degrees). Finally, a boolean property <code>create3d</code> indicates whether the editor should generate a 3d view for the given lyph. The view gives the most accurate representation of a lyph but does not allow one to see its inner content.</p><p>The field <code>bundles</code>  points to the links that have to pass through the lyph.</p><h3>Border</h3><p> A flat shape such as lyph or region has a border. The border is an object that extends the class <code>Visual Resource</code> and inherits all properties from the class hierarchy: it can have its own ID, a name, a reference to an external source, etc. The owner shape can refer to its border via its <code>border</code> field.</p><p> Practically, borders do not make much sense without their hosting entities. Hence, we auto-generate borders for all lyphs and regions in the model and merge inline objects defining border content within the hosting entity with the generated object. The modeller should only specify entities hosted by the border if the model implies the semantic relationships among the corresponding concepts.</p><p> The lyph&apos;s border is closely related to its topology. The topology defines the types of its <code>radial</code> borders: <code>false</code> represents a border with open flow while <code>true</code> corresponds to closed borders. On each lyph border, i.e., the entire lyph perimeter, we distinguish 4 border segments: lyph&apos;s inner longitudinal (axial) border, first radial border, outer longitudinal border, and second radial border, roughly corresponding to the 4 sides of the lyph&apos;s rectangle. The axial border is always aligned with the lyph&apos;s axis (the link that conveys this lyph). All border segments can be accessed via the lyph border property <code>borders</code> which is always an array of 4 objects. Individual border objects may either remain empty or contain a reference to a <code>Link</code> resource that manages the content of the border. The link resource representing one of the border sides refers to its hosting border via the <code>onBorder</code> field.</p><p> It is possible to place nodes and other lyphs on any of the border segments. 
+ The <code>hostedNodes</code> property in the fragment below forces 3 nodes with the given identifiers to stick to the 2nd radial border of the Kidney Lobus lyph (see the screenshot illustrating the <code>hostedLyphs</code> property):</p><pre><code class="lang-json"><code class="source-code prettyprint"> {
+    &quot;id&quot;      : &quot;5&quot;,
+    &quot;name&quot;    : &quot;Kidney Lobus&quot;,
+    &quot;topology&quot;: &quot;BAG&quot;,
+    &quot;border&quot;  : {
+        &quot;borders&quot;: [ {}, {}, {}, { &quot;hostedNodes&quot;: [ &quot;nPS013&quot;, &quot;nLR05&quot;, &quot;nLR15&quot; ] } ]
+    }
+ }</code>
 </code></pre><p> Similarly, in the next snippet, the model indicates that the 4th (2nd radial) border must convey the lyph with <code>id = &quot;5&quot;</code>.</p><pre><code class="lang-json"><code class="source-code prettyprint">     {
         &quot;id&quot;      : &quot;3&quot;,
         &quot;name&quot;    : &quot;Renal Parenchyma&quot;,
@@ -447,32 +468,138 @@ Region internal content is similar to the content of a lyph. Regions are static 
           &quot;links&quot; : [ &quot;LR10&quot;, &quot;LR11&quot;, &quot;LR12&quot;, &quot;LR13&quot;, &quot;LR14&quot;, &quot;LR15&quot; ]
         }
     ]</code>
-</code></pre><p> In the current version of the viewer, checkbox controls are added to the Control Panel for all top level groups so that users can see each of them in isolation or analyze the interaction among selected combinations of entities without overloading the view with unnecessary information. Since at the moment there is no functionality associated with various levels of group nesting, the content of nested groups is unfolded and copied to the top level groups. Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.</p><h3>Graph</h3><p> Graph is the top-level group that in addition to all the group parameters contains a <code>config</code> object. The field is not part of the semantic physiology model but it can be used to define user preferences regarding the visualization of a certain model. For example, a field <code>filter</code> within this object is currently used to exclude resources with given identifiers from appearing in the relationship graph.</p><pre><code class="lang-json"><code class="source-code prettyprint">    &quot;config&quot;: {
-        &quot;filter&quot;: [&quot;6&quot;, &quot;11&quot;, &quot;12&quot;, &quot;14&quot;, &quot;15&quot;, &quot;16&quot;, &quot;17&quot;, &quot;20&quot;, &quot;21&quot;]
-    }</code>
-</code></pre><p> Among other properties that can be stated here are the default label fields.</p><h2>Group templates</h2><p> Group template is a generic concept to encapsulate resource definitions that result into automatic generation of subgraphs with certain structure and/or semantic meaning. A distinct property of the resource objects of this type is a readonly <code>group</code> property that establishes the relationship between the template and the generated group.</p><p> Another currently supported property of this generic class is <code>length</code> that sets in percentage the desired length of the maximal path in the generated group. This property is used to compute the default link length and, consequently, control the size of the lyph shape conveyed by the link.</p><p> There is ongoing work on supporting visual resource styles that one will be able to refer to from groups or group templates to define the appearance of links, lyphs and nodes in the entire (auto-generated) group.</p><h3>Chain</h3><p>This template instructs the model generator to create a chain from an ordered list of conveying lyphs, i.e., a linear concatenation of advective edges that convey the material of the innermost layer of these conveying lyphs. This requires the lyphs in the ordered list to have their innermost layers constituted of the same material.</p><p>The listing below shows an example of chain template definition:</p><pre><code class="lang-json"><code class="source-code prettyprint">{
-  &quot;id&quot;: &quot;c1&quot;,
-  &quot;conveyingLyphs&quot;: [&quot;200&quot;, &quot;203&quot;, &quot;204&quot;, &quot;205&quot;, &quot;206&quot;, &quot;207&quot;, &quot;208&quot;, &quot;209&quot;, &quot;210&quot;, &quot;211&quot;, &quot;212&quot;, &quot;213&quot;, &quot;214&quot;, &quot;215&quot;, &quot;216&quot;],
-  &quot;start&quot;: &quot;s&quot;,
-  &quot;end&quot;: &quot;t&quot;
+</code></pre><h3>Resource visibility rules</h3><p>Since ApiNATOMY models typically consist of numerous resources, visualizing all of them at
+the same time in the graph view is infeasible. Therefore, a set of resource visibility rules 
+apply on graph vertices, edges, and lyphs. In the most trivial case, only resources included to visible
+groups are shown on the screen. Group visibility is controlled via checkbox controls at the Control Panel.
+However, group resources may have relationship dependencies affecting their visibility.
+Moreover, for generated groups, a set of implicit inclusion rules applies.
+Finally, various groups may include overlapping sets of resources or subgroups with conflicting 
+visibility settings.</p><p>Regarding relationship-based constraints, the following visibility rules apply:</p><ul>
+<li>A graph edge (connectivity model link or scaffold wire) is visible if it is included to 
+a visible group and its source and target ends are also visible.</li>
+<li>An edge that lies on a border is visible if the border is visible.
+The border is visible if its hosting shape (lyph or region) is visible.</li>
+<li>A lyph is visible if a link it conveys is visible or it is a layer in a visible lyph.</li>
+</ul><h3>Generated groups</h3><p> When expanding group templates such as chains, implicitly declared groups are generated.
+Such groups can be recognized by its properties &quot;generated&quot; set to True and &quot;generatedFrom&quot; pointing
+to the template that provides rules for the group resource inclusion.</p><p>If a generated group includes a link, the following resources are also included to the group:</p><ul>
+<li>its conveying lyph,</li>
+<li>its source and target ends,</li>
+<li>its hosted nodes.</li>
+</ul><p>If a generated group includes a lyph, the following resources are also included to the group:</p><ul>
+<li>its layer lyphs,</li>
+<li>its internal lyphs,</li>
+<li>its internal nodes.</li>
+</ul><p>If a generated group includes a node, the following resources are also included to the group:</p><ul>
+<li>its clone nodes (copies of the node hosted by adjacent lyphs or their borders)</li>
+<li>collapsible links that have the node as one of its ends.</li>
+</ul><p>Note that if someone wants to hide or show a subgraph, it is not necessary to list lyphs conveyed by the graph links, the lyphs are considered part of the link definition for that purpose. However, if one wants to be able to toggle a certain set of lyphs but not their axes, the lyphs should be included to some group explicitly.</p><h3>Dynamic groups</h3><p>The viewer automatically analyzes an input model and creates dynamic groups with closed flow, i.e., 
+sub-graphs topologically equivalent to a CYST. Such components are important and may represent anatomically meaningful 
+systems such as neurons and neuron parts. The algorithm places discovered groups under the title <code>Dynamic groups</code>.<br>A modeller can assign a meaningful name to a dynamic group by defining an empty group, i.e.,</p><pre><code class="lang-json"><code class="source-code prettyprint">   {&quot;id&quot;: &quot;neuron-8&quot;, &quot;name&quot;: &quot;Neuron 8&quot;} </code>
+</code></pre><p>and pointing any lyph from this group to it via property <code>seedIn</code>, i.e., </p><pre><code class="lang-json"><code class="source-code prettyprint">   {
+     &quot;id&quot;: &quot;snl18&quot;,
+     &quot;name&quot;: &quot;Soma of SPR neuron in L1_Neuron 8 (kblad)&quot;,
+     &quot;seedIn&quot;: &quot;neuron-8&quot;
+   }</code>
+</code></pre><h3>Graph</h3><p> Graph is the top-level group that in addition to all the group parameters contains a <code>config</code> object. The field is not part of the semantic physiology model but it can be used to define user preferences regarding the visualization of a certain model. For example, a field <code>filter</code> within this object is currently used to exclude resources with given identifiers from appearing in the relationship graph.</p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;config&quot;: {
+    &quot;filter&quot;: [&quot;6&quot;, &quot;11&quot;, &quot;12&quot;, &quot;14&quot;, &quot;15&quot;, &quot;16&quot;, &quot;17&quot;, &quot;20&quot;, &quot;21&quot;]
 }</code>
-</code></pre><p>Apart from the list of <code>conveyingLyphs</code> field, the template provides <code>start</code> and <code>end</code> fields which allows users to name the start and the end nodes of the chain which may be useful if one wants to integrate the chain fragment into a larger model graph.</p><h3>Tree</h3><p>Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An <code>omega tree</code> is a template to create a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.</p><p>The <code>Tree</code> resource class allows users to specify a root of the tree via an optional property <code>root</code> that can point into an existing node. If the root node is not specified, it is either automatically generated or assigned to coincide with the source node of a link that represents the first level of the tree.</p><p>We define the <code>level</code> of a tree branch as the number of edges between the target node of the link and the root. A user may specify the required number of levels in a tree via its optional property <code>numLevels</code> which expects a positive integer value. Given the desired number of levels, the ApiNATOMY lyph viewer can generate a <code>group</code> (a read-only property that refers to a <code>Group</code> resource and encompasses all necessary nodes and links) to represent the tree. If the property <code>lyphTemplate</code> points to an abstract lyph, the generated links for each tree level then convey lyphs which are subtypes of this template.</p><p>Alternatively, the tree branches can be specified, partially or fully, via the property <code>levels</code> which expects an array of partial or complete link definitions corresponding to the tree levels. If this array contains an empty object, the missing tree level branch is auto-generated. If instead it points to an existing link, the corresponding link then becomes the branch of the tree. If <code>source</code>, <code>target</code>, or both ends of the link resource are not specified, they are auto-generated. Otherwise, it is expected that incident links (connected tree branches) share a common node; the tool will issue a warning if this is not the case.</p><pre><code class="lang-json"><code class="source-code prettyprint">  &quot;trees&quot;: [
-        {
-             &quot;id&quot;          : &quot;axonal&quot;,
-             &quot;name&quot;        : &quot;Axonal omega tree&quot;,
-             &quot;root&quot;        : &quot;a&quot;,
-             &quot;numLevels&quot;   : 5,
-             &quot;lyphTemplate&quot;: &quot;neuronBag&quot;
-        },
-        {
-             &quot;id&quot;          : &quot;UOT&quot;,
-             &quot;name&quot;        : &quot;Urinary Omega Tree&quot;,
-             &quot;root&quot;        : &quot;b&quot;,
-             &quot;levels&quot;      : [&quot;lnk1&quot;, &quot;lnk2&quot;, &quot;lnk3&quot;, &quot;lnk4&quot;, &quot;lnk5&quot;, &quot;lnk6&quot;, &quot;lnk7&quot;, &quot;lnk8&quot;, &quot;lnk9&quot;, &quot;lnk10&quot;,
-                &quot;lnk11&quot;, &quot;lnk12&quot;, &quot;lnk13&quot;, &quot;lnk14&quot;, &quot;lnk15&quot;, &quot;lnk16&quot;, &quot;lnk17&quot;, &quot;lnk18&quot;, &quot;lnk19&quot;, &quot;lnk20&quot;, &quot;lnk21&quot;],
-             &quot;branchingFactors&quot;: [1, 1, 2, 1, 1, 1, 3, 3, 20, 8, 9, 8, 9]
-        }
-    ]</code>
+</code></pre><p> Among other properties that can be stated here are the default label fields.</p><h2>Group templates</h2><p> Group template is a generic concept to encapsulate resource definitions that result into automatic generation of subgraphs with certain structure and/or semantic meaning. A distinct property of the resource objects of this type is a readonly <code>group</code> property that establishes the relationship between the template and the generated group.</p><p> Another currently supported property of this generic class is <code>length</code> that sets in percentage the desired length of the maximal path in the generated group. This property is used to compute the default link length and, consequently, control the size of the lyph shape conveyed by the link.</p><p> There is ongoing work on supporting visual resource styles that one will be able to refer to from groups or group templates to define the appearance of links, lyphs and nodes in the entire (auto-generated) group.</p><h3>Chain</h3><p>This template instructs the model generator to create a chain from an ordered list of lyphs, i.e., 
+a linear concatenation of advective edges that convey the material of the innermost layer of these conveying lyphs. This requires the lyphs in the ordered list to have their innermost layers constituted of the same material.</p><p>The listing below shows an example of chain template definition:</p><pre><code class="lang-json"><code class="source-code prettyprint">{
+  &quot;id&quot;: &quot;c1&quot;,
+  &quot;lyphs&quot;: [&quot;200&quot;, &quot;203&quot;, &quot;204&quot;, &quot;205&quot;, &quot;206&quot;, &quot;207&quot;, &quot;208&quot;, &quot;209&quot;, &quot;210&quot;, &quot;211&quot;, &quot;212&quot;, &quot;213&quot;, &quot;214&quot;, &quot;215&quot;, &quot;216&quot;],
+  &quot;root&quot;: &quot;s&quot;,
+  &quot;leaf&quot;: &quot;t&quot;
+}</code>
+</code></pre><p>Apart from the list of <code>lyphs</code>, the template includes <code>root</code> and <code>leaf</code> properties 
+to name the source and the target nodes of the chain.
+They are helpful to integrate the chain as a fragment into a larger model graph.
+If the root is not explicitly defined, an error message is issued (an artificial node is created to<br>visualize the chain, but semantically such model is likely to be incorrect and has to be revised by the author).</p><p>Alternatively, instead of providing of lyphs to connect to a chain, a modeller can provide an abstract lyph
+via the property <code>lyphTemplate</code> and indicate the number of levels in a generated chain via the property
+<code>numLevels</code>. For example, the template below will generate a chain of 5 levels conveyed by identical lyphs with 3 layers:</p><pre><code class="lang-json"><code class="source-code prettyprint">{
+    &quot;chains&quot;: [
+       {
+         &quot;id&quot;: &quot;axonal&quot;,
+         &quot;name&quot;: &quot;Axonal omega tree&quot;,
+         &quot;root&quot;: &quot;a&quot;,
+         &quot;numLevels&quot;: 5,
+         &quot;lyphTemplate&quot;: &quot;neuronBag&quot;
+       }
+     ],
+    &quot;lyphs&quot;: [
+       {
+         &quot;id&quot;: &quot;neuronBag&quot;,
+         &quot;isTemplate&quot;: true,
+         &quot;topology&quot;: &quot;BAG&quot;,
+         &quot;layers&quot;: [&quot;cytosol&quot;, &quot;plasma&quot;, &quot;fluid&quot;]
+       }
+     ]
+}</code>
+</code></pre><p>Yet another option to define (or customize a chain), is to use property <code>levels</code> that accepts link references (
+or partial specifications):</p><pre><code class="lang-json"><code class="source-code prettyprint">{
+  &quot;id&quot;          : &quot;c1&quot;,
+  &quot;root&quot;        : &quot;a&quot;,
+  &quot;levels&quot;      : [
+    {&quot;source&quot;: &quot;a&quot;, &quot;target&quot;: &quot;b&quot;, &quot;conveyingLyph&quot;: &quot;lyph1&quot;},
+    {&quot;source&quot;: &quot;b&quot;, &quot;target&quot;: &quot;c&quot;, &quot;conveyingLyph&quot;: &quot;lyph2&quot;},
+    {&quot;source&quot;: &quot;c&quot;, &quot;target&quot;: &quot;d&quot;, &quot;conveyingLyph&quot;: &quot;lyph3&quot;},
+    {&quot;source&quot;: &quot;d&quot;, &quot;target&quot;: &quot;e&quot;, &quot;conveyingLyph&quot;: &quot;lyph4&quot;},
+    {&quot;source&quot;: &quot;e&quot;, &quot;target&quot;: &quot;f&quot;, &quot;conveyingLyph&quot;: &quot;lyph5&quot;}
+  ]
+}</code>
+</code></pre><p>Note that if <code>numLevels</code> and <code>lyphTemplate</code> are provided, they can be used to generate default levels which then 
+can be replaced by specified links via the <code>levels</code> field. For example, if one wants to define a chain with 5 levels conveyed by identical lyphs,
+and replace 3rd level with another lyph, only the 3rd level link can be provided: </p><pre><code class="lang-json"><code class="source-code prettyprint">{
+    &quot;id&quot;           : &quot;c1&quot;,
+    &quot;root&quot;         : &quot;a&quot;,
+    &quot;numLevels&quot;    : 5,
+    &quot;lyphTemplate&quot; : &quot;neuronBag&quot;,
+    &quot;levels&quot;       : [{}, {}, {&quot;conveyingLyph&quot;: &quot;lyph3&quot;}, {}, {}]
+}</code>
+</code></pre><p>Since it may be tedious for modelers to specify all <code>levels</code> via defining links<br>(i.e., defining source and target nodes, connected links, and conveying lyphs at each level), 
+for Excel spreadsheets we provide a syntactic sugar to simplify definition of chains 
+passing via given nodes. This is done via the <code>levelTargets</code> property that expects a string with pairs
+of level index followed by a corresponding level target node, i.e., spreadsheet field <code>0:n1,3:n3,5:n5</code> 
+is a shorthand notation for </p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;levels&quot; : [ {&quot;target&quot;: &quot;n1&quot;},{},{&quot;target&quot;: &quot;n3&quot;},{},{&quot;target&quot;: &quot;n5&quot;}]</code>
+</code></pre><p>It is sufficient to indicate only level target nodes as this does not cover only the start node of the 
+first level which is expected in the chain&apos;s <code>root</code> property.</p><p>Yet another common variant of chain definition is via <code>housingLyphs</code> or <code>housingChain</code> properties.
+The former is used list a set of lyphs that house the chain, the latter expects a reference to another chain whose
+level lyphs house the chain. </p><pre><code class="lang-json"><code class="source-code prettyprint">{
+  &quot;id&quot;          : &quot;c1&quot;,
+  &quot;root&quot;        : &quot;a&quot;,
+  &quot;lyphTemplate&quot;: &quot;lyph&quot;,
+  &quot;housingLyphs&quot;: [&quot;lyph1&quot;, &quot;lyph2&quot;, &quot;lyph3&quot;, &quot;lyph4&quot;]
+}</code>
+</code></pre><p>If a <code>housingChain</code> reference is used, it is possible to indicate the index range to 
+define the part of the housing chain that houses the current chain lyphs. Moreover, 
+if the housing chain is generated, and the identifiers of layers are not available, the <code>housingLayers</code> property can be 
+used to refer to the indices of the layers in housing lyphs that embed the chain levels. </p><pre><code class="lang-json"><code class="source-code prettyprint">{
+  &quot;id&quot;           : &quot;t1&quot;,
+  &quot;root&quot;         : &quot;n1&quot;,
+  &quot;leaf&quot;         : &quot;n2&quot;,
+  &quot;lyphTemplate&quot; : &quot;229&quot;,
+  &quot;housingChain&quot; : &quot;c1&quot;,
+  &quot;housingRange&quot; : {&quot;min&quot;: 0, &quot;max&quot;: 7},
+  &quot;housingLayers&quot;: [6,3,4,6,6,6,6]
+}</code>
+</code></pre><p><img src="./manual/asset/chain-housedChain.png" width="75%" caption="A chain generated to fit a housing chain"></p><h3>Tree</h3><p>Branching underlies the formation of numerous body systems, including the nervous system, the respiratory system, many internal glands, and the vasculature. An <code>omega tree</code> is a template to create a rooted tree data structure (a graph in which any two vertices are connected by exactly one path, and one node is designated the root) that we use in ApiNATOMY to model branching systems.</p><p>The <code>Tree</code> resource class allows users to specify a root of the tree via an optional property <code>root</code> that can point into an existing node. If the root node is not specified, it is either automatically generated or assigned to coincide with the source node of a link that represents the first level of the tree.</p><p>We define the <code>level</code> of a tree branch as the number of edges between the target node of the link and the root. A user may specify the required number of levels in a tree via its optional property <code>numLevels</code> which expects a positive integer value. Given the desired number of levels, the ApiNATOMY lyph viewer can generate a <code>group</code> (a read-only property that refers to a <code>Group</code> resource and encompasses all necessary nodes and links) to represent the tree. If the property <code>lyphTemplate</code> points to an abstract lyph, the generated links for each tree level then convey lyphs which are subtypes of this template.</p><p>Alternatively, the tree branches can be specified, partially or fully, via the property <code>levels</code> which expects an array of partial or complete link definitions corresponding to the tree levels. If this array contains an empty object, the missing tree level branch is auto-generated. If instead it points to an existing link, the corresponding link then becomes the branch of the tree. If <code>source</code>, <code>target</code>, or both ends of the link resource are not specified, they are auto-generated. Otherwise, it is expected that incident links (connected tree branches) share a common node; the tool will issue a warning if this is not the case.</p><pre><code class="lang-json"><code class="source-code prettyprint">&quot;trees&quot;: [
+    {
+         &quot;id&quot;          : &quot;axonal&quot;,
+         &quot;name&quot;        : &quot;Axonal omega tree&quot;,
+         &quot;root&quot;        : &quot;a&quot;,
+         &quot;numLevels&quot;   : 5,
+         &quot;lyphTemplate&quot;: &quot;neuronBag&quot;
+    },
+    {
+         &quot;id&quot;          : &quot;UOT&quot;,
+         &quot;name&quot;        : &quot;Urinary Omega Tree&quot;,
+         &quot;root&quot;        : &quot;b&quot;,
+         &quot;levels&quot;      : [&quot;lnk1&quot;, &quot;lnk2&quot;, &quot;lnk3&quot;, &quot;lnk4&quot;, &quot;lnk5&quot;, &quot;lnk6&quot;, &quot;lnk7&quot;, &quot;lnk8&quot;, &quot;lnk9&quot;, &quot;lnk10&quot;,
+            &quot;lnk11&quot;, &quot;lnk12&quot;, &quot;lnk13&quot;, &quot;lnk14&quot;, &quot;lnk15&quot;, &quot;lnk16&quot;, &quot;lnk17&quot;, &quot;lnk18&quot;, &quot;lnk19&quot;, &quot;lnk20&quot;, &quot;lnk21&quot;],
+         &quot;branchingFactors&quot;: [1, 1, 2, 1, 1, 1, 3, 3, 20, 8, 9, 8, 9]
+    }
+]</code>
 </code></pre><p>Our <a href="./manual/./examples.html">examples</a> section demonstrates in full detail how to define omega trees using both <code>lyphTemplate</code> and <code>levels</code> properties. A combination of both approaches may help modellers to reduce an effort while specifying multi-level trees where the majority of the branches convey the same lyphs (involve the same tissue structures) while certain levels either convey different lyphs or are characterized by unique features that need to be modelled in a special way.</p><p>The trees defined this way actually do not have any branching, they look like liner chains of enumerated links. We refer to such trees as <code>canonical</code>, meaning that they define the basic structure necessary to generate a branching tree that models an organ or a physiological subsystem. The branching can happen at each level of the canonical tree definition, and the number of branches per level can be specified in the <code>branchingFactors</code> array. The size of the array does not need to coincide with the size of the <code>levels</code> array - branching stops at the last level with branching factor greater than 1.</p><p>A user may define a required number of branching tree instances produced from the canonical tree specification. This is done with the help of the boolean property <code>numInstances</code>. The generated subgraphs representing  branching tree instances are available via the read-only property <code>instances</code> in the expanded ApiNATOMY model. The lyphs for a tree instance are assigned <code>create3d</code> property, i.e., the generated tree instance can be visualized using solid 3d lyph renderings.</p><p>In the case of trees with branches that convey lyphs derived from a common <code>lyphTemplate</code> pattern, we can use the <code>topology</code> property of the lyph template to define the overall topology of the tree.
 Generally, lyphs originating from a lyph template inherit its topology. However, the lyphs conveyed by the tree edges work as a single conduit with topological borders at the start and the end levels (root and leaves) of the tree compliant with the borders of the lyph template. Thus, the topology of the lyphs on tree edges is defined according to the table below:</p><table>
 <thead>
@@ -548,7 +675,86 @@ To fulfill this requirement, we automatically set constraints that require chann
 Each of the three MC segments conveys a <code>diffusive edge</code> such that both nodes of the edge conveyed by the MC segment in the second (membranous) layer are shared by the other two diffusive edges.
 Diffusive edges are associated with the links that convey the membrane channels (i.e., the link&apos;s <code>conveyingType</code> is set to <code>DIFFUSIVE</code>) and the material in the channel object is copied to the <code>conveyingMaterials</code> property of the link.</p><p>The images below show two membrane channels, <code>mc1: Na-Ca exchanger</code> and <code>mc2: SR Ca-ATPase</code>, which are housed by the abstract lyphs (templates) with IDs 63 and 60: <code>Myocyte</code> and <code>Sarcoplasmic reticulum</code>, respectively.
 The first image shows abstract assemblies, the second image shows the instances of these assemblies housed by two lyph instances derived from the abstract <code>Myocyte</code> and <code>Sarcoplasmic reticulum</code> lyph templates.</p><p><img src="./manual/asset/channels.png" width="75%" alt="Membrane channels"></p><p><img src="./manual/asset/housedChannels.png" width="75%" alt="Membrane channels in housing lyphs"></p><p>As one can see, channels are defined in a minimalistic way, but may cause the model generator to automatically create a potentially large number of resources, the modeller should keep this in mind to avoid state space explosion.</p></div>
-        <a data-ice="link" href="manual/model.html#data-model"></a>
+        <a data-ice="link" href="manual/model.html#connectivity-model"></a>
+      </div>
+    </div>
+<div class="manual-card-wrap" data-ice="cards">
+      <div class="manual-card">
+        <div data-ice="card"><h1>Scaffold model</h1><h2>Anchor</h2><p> Anchors are graph vertices that help to position and shape connectivity model parts.
+ An anchor represents a vertice and its class <code>Anchor</code> extends the generic class <code>Vertice</code>, similarly to 
+ the class <code>Node</code> in the connectivity model. Two of basic properties in an anchor object definition 
+ are <code>sourceOf</code> and <code>targetOf</code> which point to the wires incoming to and outgoing from this anchor. </p><p> A boolean property <code>cardinal</code> can be used to mark important anchors that have special positioning 
+ constraints in scaffold models such as <code>Too-map</code>.</p><p> Analogously to nodes, the position of an anchor is defined via the <code>layout</code> property. However, anchor coordinates 
+ are 2-dimensional: </p><pre><code class="lang-json"><code class="source-code prettyprint">{
+ &quot;anchors&quot;: [
+  {
+   &quot;id&quot;: &quot;L&quot;,
+   &quot;name&quot;: &quot;LUNG CAPILLARY&quot;,
+   &quot;cardinal&quot;: true,
+   &quot;layout&quot;: {
+    &quot;x&quot;: 90,
+    &quot;y&quot;: -10
+   },
+   &quot;color&quot;: &quot;#FF0000&quot;
+  }
+ ]
+}</code>
+</code></pre><p> An anchor can also be bound to a wire via the properties <code>hostedBy</code> that provides a reference to a wire and 
+<code>offset</code> that specifies the offset in percentage from the start of the wire.
+ Placing an anchor to the area occupied by a region is done via its field <code>internalIn</code>.</p><p> If an anchor resource is used as part of region definition in region&apos;s property <code>borderAnchors</code>, 
+ it will supply an auto-assigned read-only property <code>onBorderInRegion</code>. 
+ Another read-only property <code>partOf</code> indicates to which scaffold the anchor belongs.</p><p> A connectivity model node bound to an anchor can be retrieved via the anchor&apos;s property <code>anchoredNode</code>.</p><h2>Wire</h2><p> Wires are graph edges that help to position and shape connectivity model parts. 
+ Since a wire represents an edge and its class <code>Wire</code> extends the generic class <code>Edge</code> similarly to links,
+ two of its fundamental properties are <code>source</code> and <code>target</code> that point to the edge source and target 
+ vertices (anchors). Unlike links, wires do not convey lyphs.</p><p> An important property that defines the shape of the wire is <code>geometry</code>. It can take the same values as 
+ link&apos;s geometry, namely, <code>link</code> | <code>arc</code>| <code>spline</code> | <code>invisible</code> | <code>semicircle</code> | <code>rectangle</code>, and, in addition, 
+ <code>ellipse</code>, which defines an elliptic curve without source or target. 
+ For elliptic wires, property <code>radius</code> is used to set its x-radius and y-radius:</p><pre><code class="lang-json"><code class="source-code prettyprint">{
+  &quot;id&quot;       : &quot;ellipticWire&quot;,
+  &quot;geometry&quot; : &quot;ellipse&quot;,
+  &quot;radius&quot;   : {&quot;x&quot;: 100, &quot;y&quot;: 80}
+}</code>
+</code></pre><p> The shape of spline wires can be additionally controlled by the property <code>controlPoint</code> which sets a control point for
+ the cubic B&#xE9;zier curve. The shape of the arc or spline wires can be adjusted using the <code>curvature</code> parameter
+ which defines the curvature of an arc or spline edge, as percentage of its length. 
+ Curvature is used to compute a control point for dynamic edges (i.e., edges with ends whose position depends
+ on other elements, this applies to the links as well).</p><p> Analogously to <code>hostedNodes</code> for links, the wire has the field <code>hostedAnchors</code> which lists anchors located on 
+ the wire. It also has an automatically assigned (read-only) property <code>facetIn</code> to find regions for which the wire serves as a facet.
+ Another read-only property <code>partOf</code> indicates to which scaffold the wire belongs.</p><p> The main use of wires in ApiNATOMY models is to define trajectories for chains. The wire&apos;s property
+ <code>wiredChains</code> shows which chains get governed by the wire.</p><h2>Region</h2><p>  Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named &quot;Lungs&quot;, one can indicate that this process is happening in the lungs.
+  Region internal content is similar to the content of a lyph. Regions are static and their positions are given in 2D coordinates. The border of the region can include any number of straight segments (links), unlike lyphs which always have 4 sides.</p><pre><code class="lang-json"><code class="source-code prettyprint">{
+ &quot;regions&quot;: [
+  {
+   &quot;id&quot;     : &quot;cs&quot;,
+   &quot;name&quot;   : &quot;Cardiac system&quot;,
+   &quot;points&quot; : [{&quot;x&quot;: -75, &quot;y&quot;: 20}, {&quot;x&quot;: -75, &quot;y&quot;: 75},{&quot;x&quot;: -25, &quot;y&quot;: 75},{&quot;x&quot;: -25, &quot;y&quot;: 20}],
+   &quot;color&quot;  : &quot;#fbb03f&quot;
+  },
+  {
+   &quot;id&quot;     : &quot;cns&quot;,
+   &quot;name&quot;   : &quot;Central Nervous System&quot;,
+   &quot;points&quot; : [{&quot;x&quot;: -65, &quot;y&quot;: -50}, {&quot;x&quot;: -65, &quot;y&quot;: -15}, {&quot;x&quot;: 65, &quot;y&quot;: -15}, {&quot;x&quot;: 65, &quot;y&quot;: -50}],
+   &quot;color&quot;  : &quot;#f4ed2f&quot;
+  }
+ ]
+}</code>
+</code></pre><h2>Component</h2><p> A component is part of the scaffold that is similar to a group in the connectivity model.
+ A component includes aggregating fields for defining or referring to its resources: <code>anchors</code>, <code>wires</code>, <code>regions</code>, and nested <code>components</code>.</p><h2>TOO Map</h2><p> The TOO map provides the ApiNATOMY author with a wireframe schematic of the body to overview and quality-check connectivity. 
+ See <a href="https://www.youtube.com/watch?v=jHemXXa_PJ8">video</a>. 
+ This subway-style whole-body map depicts as a topological 
+ scaffold the three main flow thoroughfares of extracellular material: in blue, a &apos;T&apos;-shaped depiction of CerebroSpinal Fluid (CSF), in red an inner 
+ &apos;O&apos;-shape denotes the circulation of blood, and in green the outer &apos;O&apos;-shape denotes the flow of materials on the surface 
+ of the body, such as digestive juices, food, chyme, chyle, faeces, air, sweat, tears, mucus, urine, milk, reproductive fluids 
+ and products of conception. (Hence: &apos;T&apos; + &apos;O&apos; + &apos;O&apos; = TOO). Stylistically revisits a historical technique in map making known as the 
+ <a href="https://en.wikipedia.org/wiki/T_and_O_map">T-and-O map</a>.</p><p> The images below show the scaffold mock-up and ApiNATOMY rendering:</p><p> <img src="./manual/asset/tooMap.png" width="50%" caption="TOO map"></p><p> <img src="./manual/asset/tooMap-screenshot.png" width="100%" caption="TOO map in the ApiNATOMY viewer"></p><h2>Connectivity model + scaffold:</h2><p> A node can be bound to a scaffold&apos;s anchor via its property<code>anchoredTo</code>. 
+ To make a chain stretch along a given wire, place the reference to the wire to the chain&apos;s property <code>wiredTo</code>.
+ By default, a wired chain gets its root anchored to the source of the wire, and it&apos;s leaf to the target of the wire.
+ The directionality can be reversed if a Boolean chain&apos;s property <code>startFromLeaf</code> is set to <code>true</code>.
+ Note that the intermediate nodes of a wired chain directly follow the trajectory of the wire while<br> the intermediate nodes of a chain with just root and leaf nodes anchored to a wire ends are governed by 
+ the forced-directed layout algorithm. 
+ Lyphs and groups of lyphs can be placed to the area of a scaffold region via their property <code>hostedBy</code>.</p><p> The image below shows an example of a rendering for a connectivity model 
+ with nodes and chains bound to the anchors and wires of the TOO map.</p><p> <img src="./manual/asset/tooMap-model.png" width="50%" caption="Connectivity model shaped by the TOO map"></p></div>
+        <a data-ice="link" href="manual/scaffold.html"></a>
       </div>
     </div>
 <div class="manual-card-wrap" data-ice="cards">
@@ -719,129 +925,123 @@ Naturally, such specifications may be incomplete or obsolete.
 They may contain errors, inconsistencies, or conflicting definitions.
 It is not possible to prevent all errors with just syntactic JSON-schema-based validation.
 While creating resource map from serialized input model, the tool checks whether assumed constraints are satisfied and provides
-corresponding log messages that may help users to debug and fix the model.</p><h2>Errors</h2><pre><code class="lang-json"><code class="source-code prettyprint">{
-    CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
-    CHAIN_LYPH_TEMPLATE_MISSING : &quot;Failed to find the lyph template definition in the parent group&quot;,
+corresponding log messages that may help users to debug and fix the model.</p><h2>Errors</h2><pre><code class="lang-json"><code class="source-code prettyprint">CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
+CHAIN_LYPH_TEMPLATE_MISSING : &quot;Failed to find the lyph template definition in the parent group&quot;,
 
-    COALESCENCE_NO_LYPH         : &quot;Unable to access lyph for coalescence definition&quot;,
+COALESCENCE_NO_LYPH         : &quot;Unable to access lyph for coalescence definition&quot;,
 
-    EXCEL_DATA_TYPE_UNKNOWN     : &quot;Excel to JSON: failed to determine data type&quot;,
-    EXCEL_INVALID_COLUMN_NAME   : &quot;Excel to JSON: invalid column name&quot;,
-    EXCEL_NO_COLUMN_NAME        : &quot;Excel to JSON: no column name&quot;,
-    EXCEL_PROPERTY_UNKNOWN      : &quot;Excel to JSON: unrecognized property&quot;,
-    EXCEL_WRONG_ASSIGN_VALUE    : &quot;Excel to JSON: wrong assign value&quot;,
+EXCEL_DATA_TYPE_UNKNOWN     : &quot;Excel to JSON: failed to determine data type&quot;,
+EXCEL_INVALID_COLUMN_NAME   : &quot;Excel to JSON: invalid column name&quot;,
+EXCEL_NO_COLUMN_NAME        : &quot;Excel to JSON: no column name&quot;,
+EXCEL_PROPERTY_UNKNOWN      : &quot;Excel to JSON: unrecognized property&quot;,
+EXCEL_WRONG_ASSIGN_VALUE    : &quot;Excel to JSON: wrong assign value&quot;,
 
-    GROUP_NO_LINK_VALIDATE      : &quot;Link has no validateProcess function. Possible cause - misclassified resource&quot;,
-    GROUP_TEMPLATE_NO_CLASS     : &quot;Could not find class definition for the field&quot;,
+GROUP_NO_LINK_VALIDATE      : &quot;Link has no validateProcess function. Possible cause - misclassified resource&quot;,
+GROUP_TEMPLATE_NO_CLASS     : &quot;Could not find class definition for the field&quot;,
 
-    RESOURCE_JSON_PATH_ERROR    : &quot;Failed to process JSONPath assignment statement&quot;,
-    RESOURCE_NO_REL_CLASS       : &quot;Related resource class is undefined&quot;,
-    RESOURCE_NO_REL_PROPERTY    : &quot;Related property specification is not found in the expected class&quot;,
-    RESOURCE_NO_ABSTRACT_CLASS  : &quot;An abstract relationship field expects a reference to an existing resource or &apos;class&apos; field in its value definition&quot;,
-    REF_UNDEFINED               : &quot;Remaining references to undefined resources&quot;
-}</code>
-</code></pre><h2>Warnings</h2><pre><code class="lang-json"><code class="source-code prettyprint"> {
-     AUTO_GEN                    : &quot;Auto-created missing resources&quot;,
-     AUTO_GEN_EXTERNAL           : &quot;Auto-created missing external resources&quot;,
+RESOURCE_JSON_PATH_ERROR    : &quot;Failed to process JSONPath assignment statement&quot;,
+RESOURCE_NO_REL_CLASS       : &quot;Related resource class is undefined&quot;,
+RESOURCE_NO_REL_PROPERTY    : &quot;Related property specification is not found in the expected class&quot;,
+RESOURCE_NO_ABSTRACT_CLASS  : &quot;An abstract relationship field expects a reference to an existing resource or &apos;class&apos; field in its value definition&quot;,
+REF_UNDEFINED               : &quot;Remaining references to undefined resources&quot;</code>
+</code></pre><h2>Warnings</h2><pre><code class="lang-json"><code class="source-code prettyprint"> AUTO_GEN                    : &quot;Auto-created missing resources&quot;,
+ AUTO_GEN_EXTERNAL           : &quot;Auto-created missing external resources&quot;,
 
-     CHAIN_CONFLICT              : `Conflicting chain specification: both &quot;housingLyphs&quot; and &quot;housingChain&quot; are given. Proceeding with &quot;housingLyphs&quot;`,
-     CHAIN_CONFLICT2             : `Conflicting chain specification: both &quot;lyphs&quot; and &quot;levels&quot; arrays are given. Proceeding with &quot;lyphs&quot;`,
-     CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer&apos;s bundlesChains} property disagrees with the chain&apos;s housingLayers} property`,
-     CHAIN_HOUSING_TEMPLATE      : &quot;Housing lyph or its layer is a template&quot;,
-     CHAIN_MAT_DIFF              : &quot;Incorrectly defined chain pattern - innermost layers do not convey the same material&quot;,
-     CHAIN_NO_COALESCENCE        : &quot;Skipped a coalescence between a housing lyph and a conveying lyph of the chain level it bundles: the conveying lyph is not defined&quot;,
-     CHAIN_NO_HOUSING            : `Incorrect chain specification: &quot;housingChain&quot; not found!`,
-     CHAIN_NO_HOUSING_LYPH       : &quot;Failed to find chain level housing lyph&quot;,
-     CHAIN_NO_HOUSING_LAYERS     : &quot;Failed to find all layers of the housing lyph&quot;,
-     CHAIN_SKIPPED               : `Skipped faulty chain template. A correct chain template must have one of the following conditions met:
-                                     (1) &quot;numLevels&quot; set to a positive number and non-empty &quot;lyphTemplate&quot;,\n
-                                     (2) non-empty list of &quot;lyphs&quot; to join to a chain,\n
-                                     (3) non-empty list of &quot;levels&quot; which are (partially defined) links to join to a chain,\n
-                                     (4) non-empty list of &quot;housingLyphs&quot;,\n
-                                     (5) non-empty &quot;housingChain&quot; reference with optional &quot;housingRange&quot; parameter`,
-     CHAIN_UNDEFINED             : &quot;Cannot expand undefined chain template&quot;,
+ CHAIN_CONFLICT              : `Conflicting chain specification: both &quot;housingLyphs&quot; and &quot;housingChain&quot; are given. Proceeding with &quot;housingLyphs&quot;`,
+ CHAIN_CONFLICT2             : `Conflicting chain specification: both &quot;lyphs&quot; and &quot;levels&quot; arrays are given. Proceeding with &quot;lyphs&quot;`,
+ CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer&apos;s bundlesChains} property disagrees with the chain&apos;s housingLayers} property`,
+ CHAIN_HOUSING_TEMPLATE      : &quot;Housing lyph or its layer is a template&quot;,
+ CHAIN_MAT_DIFF              : &quot;Incorrectly defined chain pattern - innermost layers do not convey the same material&quot;,
+ CHAIN_NO_COALESCENCE        : &quot;Skipped a coalescence between a housing lyph and a conveying lyph of the chain level it bundles: the conveying lyph is not defined&quot;,
+ CHAIN_NO_HOUSING            : `Incorrect chain specification: &quot;housingChain&quot; not found!`,
+ CHAIN_NO_HOUSING_LYPH       : &quot;Failed to find chain level housing lyph&quot;,
+ CHAIN_NO_HOUSING_LAYERS     : &quot;Failed to find all layers of the housing lyph&quot;,
+ CHAIN_SKIPPED               : `Skipped faulty chain template. A correct chain template must have one of the following conditions met:
+                                 (1) &quot;numLevels&quot; set to a positive number and non-empty &quot;lyphTemplate&quot;,\n
+                                 (2) non-empty list of &quot;lyphs&quot; to join to a chain,\n
+                                 (3) non-empty list of &quot;levels&quot; which are (partially defined) links to join to a chain,\n
+                                 (4) non-empty list of &quot;housingLyphs&quot;,\n
+                                 (5) non-empty &quot;housingChain&quot; reference with optional &quot;housingRange&quot; parameter`,
+ CHAIN_UNDEFINED             : &quot;Cannot expand undefined chain template&quot;,
 
-     CHANNEL_NO_GROUP            : &quot;Cannot create channel instances: canonical group not found&quot;,
-     CHANNEL_NO_ID               : &quot;Skipped channel template - it must have (non-empty) identifier&quot;,
-     CHANNEL_NO_HOUSING_LYPH     : &quot;Failed to find channel housing lyph&quot;,
-     CHANNEL_NO_HOUSING_LAYER    : &quot;Failed to find channel housing lyph layer&quot;,
-     CHANNEL_NO_NODE             : &quot;Failed to find channel group node&quot;,
-     CHANNEL_UNDEFINED           : &quot;Cannot expand undefined channel template&quot;,
-     CHANNEL_VALIDATION_SKIPPED  : &quot;Skipped validation of channel housing lyph: failed to find membrane lyph or material (GO:0016020)&quot;,
-     CHANNEL_WRONG_LAYER         : &quot;Second layer of the housing lyph is not a (subtype of) membrane (GO:0016020)&quot;,
-     CHANNEL_WRONG_NUM_LAYERS    : &quot;The number of layers in the housing lyph does not match the number of links in its membrane channel&quot;,
+ CHANNEL_NO_GROUP            : &quot;Cannot create channel instances: canonical group not found&quot;,
+ CHANNEL_NO_ID               : &quot;Skipped channel template - it must have (non-empty) identifier&quot;,
+ CHANNEL_NO_HOUSING_LYPH     : &quot;Failed to find channel housing lyph&quot;,
+ CHANNEL_NO_HOUSING_LAYER    : &quot;Failed to find channel housing lyph layer&quot;,
+ CHANNEL_NO_NODE             : &quot;Failed to find channel group node&quot;,
+ CHANNEL_UNDEFINED           : &quot;Cannot expand undefined channel template&quot;,
+ CHANNEL_VALIDATION_SKIPPED  : &quot;Skipped validation of channel housing lyph: failed to find membrane lyph or material (GO:0016020)&quot;,
+ CHANNEL_WRONG_LAYER         : &quot;Second layer of the housing lyph is not a (subtype of) membrane (GO:0016020)&quot;,
+ CHANNEL_WRONG_NUM_LAYERS    : &quot;The number of layers in the housing lyph does not match the number of links in its membrane channel&quot;,
 
-     COALESCENCE_NO_AXIS         : &quot;A coalescing lyph is missing an axis&quot;,
-     COALESCENCE_NO_INSTANCE     : &quot;No lyph instances found for abstract coalescence&quot;,
-     COALESCENCE_SELF            : &quot;A lyph coalesces with itself or its layers&quot;,
+ COALESCENCE_NO_AXIS         : &quot;A coalescing lyph is missing an axis&quot;,
+ COALESCENCE_NO_INSTANCE     : &quot;No lyph instances found for abstract coalescence&quot;,
+ COALESCENCE_SELF            : &quot;A lyph coalesces with itself or its layers&quot;,
 
-     COMPONENT_SELF              : &quot;The model contains self-references or cyclic component dependencies&quot;,
+ COMPONENT_SELF              : &quot;The model contains self-references or cyclic component dependencies&quot;,
 
-     EXCEL_NO_CLASS_NAME         : &quot;Excel to JSON: class name not found&quot;,
+ EXCEL_NO_CLASS_NAME         : &quot;Excel to JSON: class name not found&quot;,
 
-     GROUP_GEN_NOT_EMPTY         : &quot;Generated group already contains resources&quot;,
-     GRAPH_LYPH_NO_AXIS          : &quot;Failed to compute axis length for an internal lyph: axis undefined&quot;,
-     GROUP_SELF                  : &quot;The model contains self-references or cyclic group dependencies&quot;,
+ GROUP_GEN_NOT_EMPTY         : &quot;Generated group already contains resources&quot;,
+ GRAPH_LYPH_NO_AXIS          : &quot;Failed to compute axis length for an internal lyph: axis undefined&quot;,
+ GROUP_SELF                  : &quot;The model contains self-references or cyclic group dependencies&quot;,
 
-     LYPH_INTERNAL_NO_LAYER      : &quot;Failed to locate layer lyph to reposition internal lyphs&quot;,
-     LYPH_INTERNAL_OUT_RANGE     : &quot;Failed to relocate internal lyph to layer: layer index out of range&quot;,
-     LYPH_NO_TEMPLATE_LAYER      : &quot;Template layer object not found&quot;,
-     LYPH_SELF                   : &quot;The lyph contains self-references or cyclic lyph dependencies&quot;,
-     LYPH_SUBTYPE_HAS_OWN_LAYERS : &quot;Subtype lyph already has layers, conflicts with generated layer definitions possible&quot;,
+ LYPH_INTERNAL_NO_LAYER      : &quot;Failed to locate layer lyph to reposition internal lyphs&quot;,
+ LYPH_INTERNAL_OUT_RANGE     : &quot;Failed to relocate internal lyph to layer: layer index out of range&quot;,
+ LYPH_NO_TEMPLATE_LAYER      : &quot;Template layer object not found&quot;,
+ LYPH_SELF                   : &quot;The lyph contains self-references or cyclic lyph dependencies&quot;,
+ LYPH_SUBTYPE_HAS_OWN_LAYERS : &quot;Subtype lyph already has layers, conflicts with generated layer definitions possible&quot;,
 
-     PROCESS_NOT_ADVECTIVE       : &quot;Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link&quot;,
-     PROCESS_NOT_DIFFUSIVE       : &quot;Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:&quot;,
+ PROCESS_NOT_ADVECTIVE       : &quot;Incorrect advective process: not all innermost layer materials of the conveying lyph are conveyed by the link&quot;,
+ PROCESS_NOT_DIFFUSIVE       : &quot;Incorrect diffusive process: materials are not conveyed by the innermost layer of the conveying lyph:&quot;,
 
-     REGION_ANCHORS_REMOVED      : &quot;Removed internal anchors from region definition in group&quot;,
-     REGION_FACETS_REMOVED       : &quot;Removed facets from region definition in group&quot;,
-     REGION_FACET_ERROR          : &quot;Incorrectly defined region facet, skipping definition&quot;,
-     REGION_FACET_NO_ANCHORS     : &quot;Incorrectly defined region facet, source or target anchors not defined, skipping definition&quot;,
-     REGION_FACET_NO_LAYOUT      : &quot;Incorrectly defined region facet, source or target anchor layout not defined, skipping definition&quot;,
+ REGION_ANCHORS_REMOVED      : &quot;Removed internal anchors from region definition in group&quot;,
+ REGION_FACETS_REMOVED       : &quot;Removed facets from region definition in group&quot;,
+ REGION_FACET_ERROR          : &quot;Incorrectly defined region facet, skipping definition&quot;,
+ REGION_FACET_NO_ANCHORS     : &quot;Incorrectly defined region facet, source or target anchors not defined, skipping definition&quot;,
+ REGION_FACET_NO_LAYOUT      : &quot;Incorrectly defined region facet, source or target anchor layout not defined, skipping definition&quot;,
 
-     RESOURCE_ARRAY_EXPECTED     : &quot;Resource property should contain an array&quot;,
-     RESOURCE_CLASS_UNKNOWN      : &quot;Cannot create a relationship: unknown resource class&quot;,
-     RESOURCE_COLOR_UNKNOWN      : &quot;Unrecognized color scheme&quot;,
-     RESOURCE_COLOR_NO_OBJECT    : &quot;Cannot assign color to a non-object value&quot;,
-     RESOURCE_DOUBLE_REF         : &quot;Resource property should not refer to two distinct resources&quot;,
-     RESOURCE_DUPLICATE          : &quot;Duplicate resource definition&quot;,
-     RESOURCE_IGNORE_FIELDS      : &quot;Unknown parameter(s) may be ignored&quot;,
-     RESOURCE_NUM_ID_TO_STR      : &quot;Converted numeric ID to string&quot;,
-     RESOURCE_NUM_VAL_TO_STR     : &quot;Converted numeric value of the given resource field to string&quot;,
-     RESOURCE_NO_CLASS           : &quot;Cannot find resource class: property specification does not imply a reference&quot;,
-     RESOURCE_NO_CLASS_DEF       : &quot;Cannot find resource class definition&quot;,
-     RESOURCE_NOT_UNIQUE         : &quot;Resource IDs are not unique&quot;,
+ RESOURCE_ARRAY_EXPECTED     : &quot;Resource property should contain an array&quot;,
+ RESOURCE_CLASS_UNKNOWN      : &quot;Cannot create a relationship: unknown resource class&quot;,
+ RESOURCE_COLOR_UNKNOWN      : &quot;Unrecognized color scheme&quot;,
+ RESOURCE_COLOR_NO_OBJECT    : &quot;Cannot assign color to a non-object value&quot;,
+ RESOURCE_DOUBLE_REF         : &quot;Resource property should not refer to two distinct resources&quot;,
+ RESOURCE_DUPLICATE          : &quot;Duplicate resource definition&quot;,
+ RESOURCE_IGNORE_FIELDS      : &quot;Unknown parameter(s) may be ignored&quot;,
+ RESOURCE_NUM_ID_TO_STR      : &quot;Converted numeric ID to string&quot;,
+ RESOURCE_NUM_VAL_TO_STR     : &quot;Converted numeric value of the given resource field to string&quot;,
+ RESOURCE_NO_CLASS           : &quot;Cannot find resource class: property specification does not imply a reference&quot;,
+ RESOURCE_NO_CLASS_DEF       : &quot;Cannot find resource class definition&quot;,
+ RESOURCE_NOT_UNIQUE         : &quot;Resource IDs are not unique&quot;,
 
-     TREE_CHAIN_UNDEFINED        : &quot;Cannot create omega tree instances: canonical tree chain undefined!&quot;,
-     TREE_NO_CHAIN               : &quot;Cannot create omega tree instances: canonical tree chain not found or empty&quot;,
+ TREE_CHAIN_UNDEFINED        : &quot;Cannot create omega tree instances: canonical tree chain undefined!&quot;,
+ TREE_NO_CHAIN               : &quot;Cannot create omega tree instances: canonical tree chain not found or empty&quot;,
 
-     VILLUS_ABSTRACT_HOST        : &quot;Skipping generation of villus group for lyph template&quot;,
-     VILLUS_NO_HOST              : &quot;Incomplete villus definition: hosting lyph is missing&quot;,
-     VILLUS_NO_HOST_FOUND        : &quot;Could not find the villus hosting lyph definition in the parent group&quot;,
-     VILLUS_NO_HOST_LAYER        : &quot;Failed to generate a villus resource: hosting lyph layer is missing&quot;,
-     VILLUS_TOO_LONG             : &quot;Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the hosting lyph&quot;,
-     VILLUS_UNDEFINED            : &quot;Cannot expand undefined villus template&quot;
-}</code>
-</code></pre><h2>Information</h2><pre><code class="lang-json"><code class="source-code prettyprint">{
-    CHAIN_NUM_LEVELS            : &quot;Corrected number of levels in the chain&quot;,
-    CHAIN_SLICE                 : &quot;Sliced housing chain to match the number of lyphs in the housing range&quot;,
+ VILLUS_ABSTRACT_HOST        : &quot;Skipping generation of villus group for lyph template&quot;,
+ VILLUS_NO_HOST              : &quot;Incomplete villus definition: hosting lyph is missing&quot;,
+ VILLUS_NO_HOST_FOUND        : &quot;Could not find the villus hosting lyph definition in the parent group&quot;,
+ VILLUS_NO_HOST_LAYER        : &quot;Failed to generate a villus resource: hosting lyph layer is missing&quot;,
+ VILLUS_TOO_LONG             : &quot;Skipping incorrect villus template: number of villus layers cannot exceed the number of layers in the hosting lyph&quot;,
+ VILLUS_UNDEFINED            : &quot;Cannot expand undefined villus template&quot;</code>
+</code></pre><h2>Information</h2><pre><code class="lang-json"><code class="source-code prettyprint">CHAIN_NUM_LEVELS            : &quot;Corrected number of levels in the chain&quot;,
+CHAIN_SLICE                 : &quot;Sliced housing chain to match the number of lyphs in the housing range&quot;,
 
-    GROUP_REF_TO_LYPH           : &quot;Number of replaced references to lyph templates&quot;,
-    GROUP_REF_TO_MAT            : &quot;Number of replaced references to materials&quot;,
-    GROUP_TEMPLATE_OTHER        : &quot;Found template defined in another group&quot;,
+GROUP_REF_TO_LYPH           : &quot;Number of replaced references to lyph templates&quot;,
+GROUP_REF_TO_MAT            : &quot;Number of replaced references to materials&quot;,
+GROUP_TEMPLATE_OTHER        : &quot;Found template defined in another group&quot;,
 
-    GRAPH_GEN_AXIS_ALL          : &quot;Generated links for lyphs without axes&quot;,
-    GRAPH_GEN_AXIS_INTERNAL     : &quot;Generated links for internal lyphs&quot;,
+GRAPH_GEN_AXIS_ALL          : &quot;Generated links for lyphs without axes&quot;,
+GRAPH_GEN_AXIS_INTERNAL     : &quot;Generated links for internal lyphs&quot;,
 
-    NODE_CLONE_INTERNAL         : &quot;Cloned node to join housed chain ends&quot;,
+NODE_CLONE_INTERNAL         : &quot;Cloned node to join housed chain ends&quot;,
 
-    RESOURCE_JSON_PATH          : &quot;Created relationship via dynamic assignment (JSONPath expression)&quot;,
-    RESOURCE_NUM                : &quot;Number of resources in the generated model&quot;,
-    RESOURCE_TO_LAYER           : &quot;Placed resource into layer&quot;,
+RESOURCE_JSON_PATH          : &quot;Created relationship via dynamic assignment (JSONPath expression)&quot;,
+RESOURCE_NUM                : &quot;Number of resources in the generated model&quot;,
+RESOURCE_TO_LAYER           : &quot;Placed resource into layer&quot;,
 
-    TREE_GEN_LIMIT              : &quot;Reached maximum allowed number of generated resources per tree instance&quot;,
-    TREE_NO_LEVEL_LINK          : &quot;Failed to find the tree level link, created to proceed&quot;,
-    TREE_NO_LEVEL_TARGET        : &quot;Failed to find tree level target node, created to proceed&quot;
-}</code>
+TREE_GEN_LIMIT              : &quot;Reached maximum allowed number of generated resources per tree instance&quot;,
+TREE_NO_LEVEL_LINK          : &quot;Failed to find the tree level link, created to proceed&quot;,
+TREE_NO_LEVEL_TARGET        : &quot;Failed to find tree level target node, created to proceed&quot;</code>
 </code></pre></div>
         <a data-ice="link" href="manual/errors.html"></a>
       </div>

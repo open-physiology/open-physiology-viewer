@@ -7,13 +7,14 @@
 } from 'd3-force-3d';
 import {select as d3Select } from 'd3-selection';
 import {drag as d3Drag } from 'd3-drag';
+
 import Kapsule from 'kapsule';
-import {modelClasses} from '../../model/index';
-import {extractCoords} from '../util/utils';
-import './modelView'
-import { autoLayout } from './autoLayout'
+import {modelClasses} from '../model/index';
+import './modelView';
+import {extractCoords} from './utils';
 
 const {Graph} = modelClasses;
+
 /**
  * A closure-based component for the force-directed 3d graph layout
  */
@@ -75,10 +76,10 @@ export default Kapsule({
                             const currentPos = extractCoords(ev);
                             const translate = currentPos.clone().sub(obj.__initialDragPos);
                             translate.y = -translate.y;
-                            //console.log(translate.y);
-                            obj.__initialDragPos = extractCoords(ev);
+
                             const fn = state[`on${obj.userData.class}Drag`];
                             fn && fn(obj, translate);
+
                             obj.__dragged = true;
                         })
                         .on('end', ev => {
@@ -89,7 +90,6 @@ export default Kapsule({
                             translate.y = -translate.y;
 
                             if (obj.__dragged) {
-                                obj.__initialDragPos = extractCoords(ev);
                                 const fn = state[`on${obj.userData.class}DragEnd`];
                                 fn && fn(obj, translate);
                                 delete(obj.__dragged);
@@ -171,13 +171,13 @@ export default Kapsule({
             }
         },
 
-        verticeRelSize   : { default: 3 },     // volume per val unit
-        verticeResolution: { default: 40 },     // how many slice segments in the sphere's circumference
+        verticeRelSize   : { default: 4 },     // volume per val unit
+        verticeResolution: { default: 8 },     // how many slice segments in the sphere's circumference
 
-        nodeVal          : { default: 1 },
+        nodeVal          : { default: 2 },
         anchorVal        : { default: 3 },
 
-        edgeResolution   : { default: 128 },     // number of points on curved link
+        edgeResolution   : { default: 32 },     // number of points on curved link
         arrowLength      : { default: 40 },     // arrow length for directed links
 
         showLyphs        : { default: true},
@@ -256,6 +256,10 @@ export default Kapsule({
 
     stateInit: () => ({
         simulation: forceSimulation()
+            .force('link', forceLink())
+            //.force('radial', forceRadial(100))
+            .force('charge', forceManyBody(d => d.charge || 0))
+            .force('collide', forceCollide(d => d.collide || 0))
         .stop()
     }),
 
@@ -264,42 +268,6 @@ export default Kapsule({
     },
 
     update(state) {
-        function _preventZFighting(scene)
-        { 
-          const allRadius = scene.children.map( r => r.preComputedBoundingSphereRadius ).filter(r => r).map(r => Math.round(r));
-
-          function onlyUnique(value, index, self) {
-            return self.indexOf(value) === index;
-          }
-          const uniqueRadius = allRadius.filter(onlyUnique).sort(function(a, b) {
-            return a - b;
-          });
-
-          scene.children.forEach((c)=>{
-            if (c.preComputedBoundingSphereRadius)
-              c.position.z = uniqueRadius.indexOf(Math.round(c.preComputedBoundingSphereRadius)) * -0.05;
-          })
-        }
-
-        function _trasverseHosts(graphData, dict, hostedBy) {
-          Object.keys(graphData).forEach((k) => {
-            const val = graphData[k];
-            if (Array.isArray(val)) {
-              val.forEach((child)=>{
-                const hostKey = child.hostedBy?.id || hostedBy ;
-                if (hostKey)
-                {
-                  if (dict[hostKey])
-                    dict[hostKey].push(child.id)
-                  else
-                    dict[hostKey] = [child.id]; //init
-                }
-                if (val.children)
-                  _trasverseHosts(val.children, hostKey);
-              })
-            }
-          })
-        }
         state.onFrame = null; // Pause simulation
         state.onLoading();
 
@@ -315,7 +283,17 @@ export default Kapsule({
         state.graphData.createViewObjects(state);
 
         // Feed data to force-directed layout
-        let layout = state.simulation;
+        let layout;
+        // D3-force
+        (layout = state.simulation)
+            .stop()
+            .alpha(1)// re-heat the simulation
+            .alphaDecay(state.d3AlphaDecay)
+            .velocityDecay(state.d3VelocityDecay)
+            .numDimensions(state.numDimensions)
+            .nodes(state.graphData.visibleNodes||[]);
+
+        layout.force('link').id(d => d.id).links(state.graphData.visibleLinks||[]);
 
         // Initial ticks before starting to render
         for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }
@@ -332,7 +310,6 @@ export default Kapsule({
             } else { layout['tick'](); }
 
             state.graphData.updateViewObjects(state);
-            autoLayout(state.graphScene, state.graphData);
         }
     }
 });

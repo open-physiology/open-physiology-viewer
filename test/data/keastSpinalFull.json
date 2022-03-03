@@ -3,7 +3,7 @@
     "name": "Keast Model",
     "description": "Keast Spinal Model, generated from https://docs.google.com/spreadsheets/d/1dy12y8mLp82Fe8NeWQa2NmxSiS5Ogy4ef1wbLU8-jGg/edit?ts=5eb9aa1e#gid=0",
     "author": "Monique Surles-Zeigler, <msurleszeigler@ucsd.edu>",
-    "publications": [
+    "references": [
         {
             "id": "PMID:1234567",
             "uri": "https://pubmed.ncbi.nlm.nih.gov/29561168/"
@@ -72,7 +72,7 @@
             "target": "ns2",
             "conveyingLyph": "sn1",
             "length": 4,
-            "publications": [
+            "references": [
                 "PMID:1234567"
             ]
         },
@@ -6054,7 +6054,7 @@
         {
             "id": "neuron-2",
             "name": "Neuron 2",
-            "links": [
+            "nodes": [
                 "ns250",
                 "ns251",
                 "ns252",
@@ -6062,7 +6062,7 @@
                 "ns254",
                 "ns255"
             ],
-            "nodes": [
+            "links": [
                 "lnk-sn-pg_2",
                 "lnk-an-bn0_2",
                 "lnk-an-bn1_2",

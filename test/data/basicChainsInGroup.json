@@ -636,7 +636,7 @@
     {
       "id": "dc-snl17",
       "name": "L1-7 SPR dendrite chain",
-      "leaf": "ns51",
+      "root": "ns51",
       "lyphTemplate": "229bag",
       "housingLayers": [
         6
@@ -671,7 +671,7 @@
     {
       "id": "dc-snl27",
       "name": "L2-7 SPR dendrite chain",
-      "leaf": "ns53",
+      "root": "ns53",
       "lyphTemplate": "229bag",
       "housingLayers": [
         6

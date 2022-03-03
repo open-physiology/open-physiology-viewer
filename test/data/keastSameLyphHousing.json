@@ -1,5 +1,5 @@
 {
-    "publications": [
+    "references": [
         {
             "id": "PMID:1358408",
             "uri": "https://pubmed.ncbi.nlm.nih.gov/1358408/"
@@ -54,6 +54,8 @@
         },
         {
             "id": "PMID:7174880",
+            "description": "Added parent field for testing",
+            "parent": "PMID:30704972",
             "uri": "https://pubmed.ncbi.nlm.nih.gov/7174880/"
         }
     ],

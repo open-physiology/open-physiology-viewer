@@ -2,13 +2,11 @@
  * based on thick line implementation by WestLangley / http://github.com/WestLangley
  */
 
-import {THREE} from '../util/utils';
+import {THREE} from '../utils';
 import './LineSegments2.js';
 import './LineSegmentsGeometry.js';
 import './LineGeometry.js';
 import './LineMaterial.js';
-
-import { GeometryFactory } from '../util/geometryFactory'
 
 /**
  * Extends three.js with Line2 type to enable thick lines
@@ -22,7 +20,7 @@ THREE.Line2 = function ( geometry, material ) {
 
 	this.type = 'Line2';
 
-	this.geometry = geometry !== undefined ? geometry : GeometryFactory.instance().createLineGeometry();
+	this.geometry = geometry !== undefined ? geometry : new THREE.LineGeometry();
 
 	this.material = material !== undefined ? material : new THREE.LineMaterial( { color: Math.random() * 0xffffff } );
 
@@ -65,10 +63,10 @@ THREE.Line2.prototype = Object.assign( Object.create( THREE.LineSegments2.protot
 			inverseMatrix.copy(matrixWorld).invert();
 			ray.copy( raycaster.ray ).applyMatrix4( inverseMatrix );
 
-			let vStart = GeometryFactory.instance().createVector3();
-			let vEnd   = GeometryFactory.instance().createVector3();
-			let interSegment = GeometryFactory.instance().createVector3();
-			let interRay = GeometryFactory.instance().createVector3();
+			let vStart = new THREE.Vector3();
+			let vEnd   = new THREE.Vector3();
+			let interSegment = new THREE.Vector3();
+			let interRay = new THREE.Vector3();
 			let step = (this && this.isLineSegments) ? 2 : 1;
 
 			if ( geometry.isBufferGeometry ) {

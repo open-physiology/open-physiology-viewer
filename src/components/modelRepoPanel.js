@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
 
 import {HttpClient} from "@angular/common/http";
-import {repoURL} from './config';
+import {repoURL} from '../data/config';
 
 /**
  * @ignore
