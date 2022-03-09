@@ -3,7 +3,7 @@ import { Resource } from "./resourceModel";
 import {
     entries, keys, values,
     isNumber, isArray, isObject, isString, isEmpty,
-    pick, omit, merge,
+    pick, merge,
     cloneDeep, defaults, unionBy
 } from 'lodash-bound';
 import {Validator} from 'jsonschema';
@@ -766,5 +766,16 @@ export class Graph extends Group{
             }
             return this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
         }
+    }
+
+    getCurrentState(){
+        let json =  {
+            [$Field.visibleGroups]: this.visibleGroups.map(g => g.id)
+        }
+        json.scaffolds = [];
+        (this.scaffolds||[]).forEach(s => {
+            json.scaffolds.push(s.getCurrentState())
+        })
+        return json;
     }
 }

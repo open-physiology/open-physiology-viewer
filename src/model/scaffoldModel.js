@@ -277,4 +277,29 @@ export class Scaffold extends Component {
             jsonld.compact(flat, context).then(compact => {
                 callback(compact)})});
     }
+
+    getCurrentState(){
+        let json = {
+            [$Field.id]: this.id,
+            [$Field.hidden]: this.hidden,
+            [$Field.visibleComponents]: (this.visibleComponents||[]).map(c => c.id)
+        }
+        json.anchors = [];
+        (this.anchors||[]).forEach(a => {
+            if (a.layout) {
+                json.anchors.push({
+                    [$Field.id]: a.id,
+                    [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
+                })
+            } else {
+                if (a.hostedBy && a.offset !== undefined){
+                    json.anchors.push({
+                        [$Field.id]: a.id,
+                        [$Field.offset]: a.offset
+                    })
+                }
+            }
+        })
+        return json;
+    }
 }

@@ -645,8 +645,6 @@ export class Region extends Shape {
                 s && t && template.borderAnchors.push(getID(s)) && template.borderAnchors.push(getID(t));
             });
             template.borderAnchors = [... new Set(template.borderAnchors)];
-            //TODO add test to check that borderAnchors -> facets and facets -> borderAnchors always auto-complete correctly
-            //logger.info($LogMsg.REGION_BORDER_ANCHORS, template.id, template.borderAnchors);
         }
     }
 
@@ -666,55 +664,6 @@ export class Region extends Shape {
         });
     }
 
-    //
-    // get longestFacet() {
-    //     if (!this._longestFacet) {
-    //         let index = -1;
-    //         let length = -1;
-    //         for (let i = 0; i < (this.facets || []).length; i++) {
-    //             let fLength = this.facets[i].length;
-    //             if (fLength > length) {
-    //                 index = i;
-    //                 length = fLength;
-    //             }
-    //         }
-    //         this._longestFacet = (index >= 0) ? this.facets[index] : null;
-    //     }
-    //     return this._longestFacet;
-    // }
-    //
-    // get sizeFromAxis() {
-    //     return {[$Field.width]: this.width, [$Field.height]: this.height};
-    // }
-    //
-    // get height(){
-    //     if (!this._height) {
-    //         const h = this.longestFacet;
-    //         this._height = (h && h.length) || 10;
-    //     }
-    //     return this._height;
-    // }
-    //
-    // get width(){
-    //     if (!this._width) {
-    //         const h = this.longestFacet;
-    //         if (h) {
-    //             //wires adjacent to the longest facet
-    //             const w1 = h.source.targetOf && h.source.targetOf[0];
-    //             const w2 = h.target.sourceOf && h.target.sourceOf[0];
-    //             if (w1 && w2) {
-    //                 this._width = (w1.length + w2.length) / 200; // TODO fix this - compute width for any scaleFactor
-    //             }
-    //         } else {
-    //             this._width = 10;
-    //         }
-    //     }
-    //     return this._width;
-    // }
-    //
-    // updateSize(){
-    //     //TODO resize region to fit into hosting region
-    // }
 }
 
 /**

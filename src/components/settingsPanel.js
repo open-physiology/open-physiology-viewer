@@ -136,17 +136,17 @@ import {StopPropagation} from "./gui/stopPropagation";
                     <legend>Labels</legend>
                     <span *ngFor="let labelClass of _labelClasses">
                         <mat-checkbox matTooltip="Toggle labels" labelPosition="after" class="w3-margin-left"
-                                      [checked]="config.labels[labelClass]"
-                                      (change)="updateLabels(labelClass)"> {{labelClass}}
+                                      [checked]="config.showLabels[labelClass]"
+                                      (change)="updateShowLabels(labelClass)"> {{labelClass}}
                         </mat-checkbox> 
                     </span>
                     <span *ngFor="let labelClass of _labelClasses">
-                        <fieldset *ngIf="config.labels[labelClass]" class="w3-card w3-round w3-margin-small">
+                        <fieldset *ngIf="config.showLabels[labelClass]" class="w3-card w3-round w3-margin-small">
                             <legend>{{labelClass}} label</legend>
-                            <mat-radio-group [(ngModel)]="_labels[labelClass]">
+                            <mat-radio-group [(ngModel)]="config.labels[labelClass]">
                                 <mat-radio-button *ngFor="let labelProp of _labelProps" class="w3-margin-left"
                                                   [value]="labelProp"
-                                                  (change)="onUpdateLabelContent.emit(_labels)"> {{labelProp}}
+                                                  (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
                                 </mat-radio-button>
                             </mat-radio-group>
                         </fieldset>
@@ -222,7 +222,7 @@ export class SettingsPanel {
     @Output() onSelectBySearch     = new EventEmitter();
     @Output() onOpenExternal       = new EventEmitter();
     @Output() onEditResource       = new EventEmitter();
-    @Output() onUpdateLabels       = new EventEmitter();
+    @Output() onUpdateShowLabels   = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup        = new EventEmitter();
     @Output() onToggleMode         = new EventEmitter();
@@ -231,7 +231,6 @@ export class SettingsPanel {
 
     constructor() {
         this._labelProps    = [$Field.id, $Field.name];
-        this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showHelpers   = new Set([]);
     }
 
@@ -264,9 +263,14 @@ export class SettingsPanel {
         this.onToggleLayout.emit(prop);
     }
 
-    updateLabels(labelClass) {
-        this.config.labels[labelClass] = !this.config.labels[labelClass];
-        this.onUpdateLabels.emit(this.config.labels||{});
+    updateShowLabels(labelClass) {
+        this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
+        this.onUpdateShowLabels.emit(this.config.showLabels||{});
+    }
+
+    updateLabelContent(labelClass, labelProp) {
+        this.config.labels[labelClass] = labelProp;
+        this.onUpdateLabelContent.emit(this.config.labels||{})
     }
 
     toggleHelperPlane(helper) {

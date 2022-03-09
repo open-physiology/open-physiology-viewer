@@ -5,7 +5,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
-import {keys, values, isObject, cloneDeep} from 'lodash-bound';
+import {keys, values, isObject, cloneDeep, defaults} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
@@ -104,7 +104,7 @@ const WindowResize = require('three-window-resize');
             </section>
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
-                        [config]="config"
+                        [config]="_config"
                         [selected]="_selected" 
                         [highlighted]="_highlighted"
                         [helperKeys]="_helperKeys"
@@ -115,11 +115,11 @@ const WindowResize = require('three-window-resize');
                         (onSelectBySearch)="selectByName($event)"
                         (onOpenExternal)="openExternal($event)"
                         (onEditResource)="editResource.emit($event)"
-                        (onUpdateLabels)="graph?.showLabels($event)"
+                        (onUpdateShowLabels)="graph?.showLabels($event)"
+                        (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
-                        (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
             </section>
@@ -206,6 +206,15 @@ export class WebGLSceneComponent {
         }
     }
 
+    @Input('config') set config(newConfig) {
+        this._config = newConfig::defaults(this.defaultConfig);
+        if (this.graph){
+            this.graph.showLabels(this._config.showLabels);
+            this.graph.labels(this._config.labels);
+            this._config.layout::keys().forEach(prop => this.graph[prop](this._config.layout[prop]))
+        }
+    }
+
     @Input('highlighted') set highlighted(entity) {
         if (this._highlighted === entity){ return; }
         if (this._highlighted !== this._selected){
@@ -262,15 +271,14 @@ export class WebGLSceneComponent {
     constructor(dialog: MatDialog) {
         this.dialog = dialog;
         this.defaultConfig = {
-            "layout": {
-                "showLyphs"       : true,
-                "showLayers"      : true,
-                "showLyphs3d"     : false,
-                "showCoalescences": false,
-                "numDimensions"   : 3
+            layout: {
+                showLyphs       : true,
+                showLayers      : true,
+                showLyphs3d     : false,
+                showCoalescences: false,
+                numDimensions   : 3
             },
-            "groups": true,
-            "labels": {
+            showLabels: {
                 [$SchemaClass.Wire]  : false,
                 [$SchemaClass.Anchor]: true,
                 [$SchemaClass.Node]  : false,
@@ -278,10 +286,19 @@ export class WebGLSceneComponent {
                 [$SchemaClass.Lyph]  : false,
                 [$SchemaClass.Region]: false
             },
-            "highlighted": true,
-            "selected"   : true
+            labels:{
+                [$SchemaClass.Wire]  : $Field.id,
+                [$SchemaClass.Anchor]: $Field.id,
+                [$SchemaClass.Node]  : $Field.id,
+                [$SchemaClass.Link]  : $Field.id,
+                [$SchemaClass.Lyph]  : $Field.id,
+                [$SchemaClass.Region]: $Field.id
+            },
+            groups      : true,
+            highlighted : true,
+            selected    : true
         };
-        this.config = this.defaultConfig::cloneDeep();
+        this._config = this.defaultConfig::cloneDeep();
     }
 
     onScaleChange(newLabelScale){
@@ -493,7 +510,8 @@ export class WebGLSceneComponent {
                 (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
 
         this.graph.labelRelSize(this.labelRelSize);
-        this.graph.showLabels(this.config["labels"]);
+        this.graph.showLabels(this._config.showLabels);
+        this.graph.labels(this._config.labels);
         this.scene.add(this.graph);
     }
 
@@ -554,7 +572,7 @@ export class WebGLSceneComponent {
 
         const selectLayer = (entity) => {
             //Refine selection to layers
-            if (entity && entity.layers && this.config.layout["showLayers"]) {
+            if (entity && entity.layers && this._config.layout.showLayers) {
                 let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
                 let layerIntersects = this.ray.intersectObjects(layerMeshes);
                 if (layerIntersects.length > 0) {
@@ -593,7 +611,6 @@ export class WebGLSceneComponent {
                     }
                 });
             }
-
             // set a new color for closest object
             obj.material.color.setHex(color);
             (obj.children || []).forEach(child => {
@@ -649,7 +666,7 @@ export class WebGLSceneComponent {
     }
 
     toggleLayout(prop){
-        if (this.graph){ this.graph[prop](this.config.layout[prop]); }
+        if (this.graph){ this.graph[prop](this._config.layout[prop]); }
     }
 
     toggleGroup(group) {

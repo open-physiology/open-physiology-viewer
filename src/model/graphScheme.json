@@ -2768,6 +2768,47 @@
               "$ref": "#/definitions/Point3Scheme"
             }
           }
+        },
+        "layout": {
+          "description": "ApiNATOMY viewer layout  parameters",
+          "type": "object",
+          "properties": {
+            "showLyphs": {
+              "description": "Show lyphs",
+              "type": "boolean",
+              "default": true
+            },
+            "showLayers": {
+              "description": "Show layers",
+              "type": "boolean",
+              "default": true
+            },
+            "showLyphs3d": {
+              "description": "Show 3d lyphs (if created, see property 'create3d')",
+              "type": "boolean",
+              "default": true
+            },
+            "showCoalescences": {
+              "description": "render graph with coalescence constraints",
+              "type": "boolean",
+              "default": true
+            },
+            "numDimensions": {
+              "description": "Number of dimensions for graph layout: 2 vs 3",
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 3,
+              "default": 3
+            }
+          }
+        },
+        "showLabels": {
+          "description": "Visibility of labels for resource classes",
+          "type": "object"
+        },
+        "labelContent": {
+          "description": "Label types (id vs name) for resource classes",
+          "type": "object"
         }
       }
     },

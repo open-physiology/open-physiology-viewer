@@ -136,6 +136,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <webGLScene #webGLScene
                             [modelClasses]="modelClasses"
                             [graphData]="_graphData"
+                            [config]="_config"    
                             (onImportExternal)="importExternal($event)"    
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
@@ -262,6 +263,7 @@ export class TestApp {
     modelClasses = modelClasses;
     showRepoPanel = false;
     _graphData;
+    _config = {};
     _model = {};
     _modelName;
     _dialog;
@@ -459,6 +461,7 @@ export class TestApp {
         // } catch(err){
         //    throw new Error(err);
         // }
+        this._snapshot = undefined;
         if (this._editor){
             this._editor.set(this._model);
         }
@@ -594,38 +597,14 @@ export class TestApp {
     getCurrentState(){
         let state_json =  {
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
-            [$Field.visibleGroups]: this._graphData.visibleGroups.map(g => g.id),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
                 up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
-            }
-        }
-        state_json.scaffolds = [];
-        (this._graphData.scaffolds||[]).forEach(s => {
-            let scaffold_json = {
-                [$Field.id]: s.id,
-                [$Field.hidden]: s.hidden,
-                [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
-            }
-            scaffold_json.anchors = [];
-            (s.anchors||[]).forEach(a => {
-                if (a.layout) {
-                    scaffold_json.anchors.push({
-                        [$Field.id]: a.id,
-                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
-                    })
-                } else {
-                    if (a.hostedBy && a.offset !== undefined){
-                        scaffold_json.anchors.push({
-                            [$Field.id]: a.id,
-                            [$Field.offset]: a.offset
-                        })
-                    }
-                }
-            })
-            state_json.scaffolds.push(scaffold_json)
-        })
-
+            },
+            [$Field.layout]: this._config.layout::cloneDeep(),
+            [$Field.showLabels]: this._config.showLabels::cloneDeep(),
+            [$Field.labelContent]: this._config.labels::cloneDeep()
+        }::merge(this._graphData.getCurrentState());
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
@@ -641,7 +620,16 @@ export class TestApp {
         if (activeState.camera) {
             this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up);
         }
-
+        this._config = {};
+        if (activeState.layout) {
+            this._config.layout = activeState.layout;
+        }
+        if (activeState.showLabels) {
+            this._config.showLabels = activeState.showLabels;
+        }
+        if (activeState.labelContent) {
+            this._config.labelContent = activeState.labelContent;
+        }
         (activeState.scaffolds||[]).forEach(scaffold => {
             const modelScaffold = (this._graphData.scaffolds||[]).find(s => s.id === scaffold.id);
             if (modelScaffold){
