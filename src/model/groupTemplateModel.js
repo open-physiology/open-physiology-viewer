@@ -46,6 +46,10 @@ export class GroupTemplate extends Resource{
             group.external = template.external;
         }
 
+        if (template.ontologyTerms){
+            group.ontologyTerms = template.ontologyTerms;
+        }
+
         if (!parentGroup.groups) { parentGroup.groups = []; }
         parentGroup.groups.push(group.id);
         return group;

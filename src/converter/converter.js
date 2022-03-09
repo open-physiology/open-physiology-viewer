@@ -10,7 +10,9 @@ function fromXLSXToJson(data) {
 
 function fromJsonToGenerated(data) {
     let graphData = fromJSON(JSON.parse(data));
-    graphData.neurulator();
+    if (typeof graphData.neurulator === "function") {
+        graphData.neurulator();
+    }
     let result = JSON.stringify(graphData.toJSON(3, {
         [$Field.border]   : 3,
         [$Field.borders]  : 3,

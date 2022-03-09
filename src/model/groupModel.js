@@ -224,7 +224,7 @@ export class Group extends Resource {
                         [$Field.skipLabel]: true,
                         [$Field.generated]: true
                     };
-                    template::merge(material::pick([$Field.name, $Field.external, $Field.color]));
+                    template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
                     json.lyphs.push(template);
                 }
             }
