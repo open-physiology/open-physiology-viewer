@@ -260,6 +260,8 @@ Lyph.prototype.createViewObjects = function(state) {
  * Update visual objects for a lyph
  */
 Lyph.prototype.updateViewObjects = function(state) {
+    // auto layout is handling this
+
     Shape.prototype.updateViewObjects.call(this, state);
 
     if (!this.axis) { return; }
@@ -296,7 +298,7 @@ Lyph.prototype.updateViewObjects = function(state) {
         obj.visible = this.state.showLayers;
     }
 
-    //update layers
+    // //update layers
     (this.layers || []).forEach(layer => layer.updateViewObjects(state));
 
     this.border.updateViewObjects(state);
