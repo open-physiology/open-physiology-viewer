@@ -161,3 +161,56 @@ export function clearByObjectType(scene, type) {
     removeEntity(scene, l);
   });
 }
+
+function preventMaxSizeLyph() {
+  let all = [];
+  let kapsuleChildren = scene.children ;
+  trasverseSceneChildren(kapsuleChildren, all);
+  let lyphs = getSceneObjectByModelClass(all, 'Lyph');
+  lyphs.forEach((l)=>{
+    checkMaxLyphSize(l);
+  })
+}
+
+
+function calculateGroupCenter(obj)
+{
+  let minX = 0 ;
+  let maxX = 0 ;
+  let minY = 0 ;
+  let maxY = 0 ;
+  let minZ = 0 ;
+  let maxZ = 0 ;
+  obj.children.forEach((c) => {
+    // if (isMesh(c))
+    // {
+    //   if (!c.geometry.boundingBox)
+    //     c.geometry.computeBoundingBox();
+      if ( c.geometry.boundingBox.min.x < minX ) minX = c.geometry.boundingBox.min.x ;
+      if ( c.geometry.boundingBox.max.x > maxX ) maxX = c.geometry.boundingBox.max.x ;
+      if ( c.geometry.boundingBox.min.y < minY ) minY = c.geometry.boundingBox.min.y ;
+      if ( c.geometry.boundingBox.max.y > maxY ) maxY = c.geometry.boundingBox.max.y ;
+      if ( c.geometry.boundingBox.min.z < minZ ) minZ = c.geometry.boundingBox.min.z ;
+      if ( c.geometry.boundingBox.max.z > maxZ ) maxZ = c.geometry.boundingBox.max.z ;
+    //}
+  });
+
+  return new THREE.Vector3(avg(minX, maxX), avg(minY, maxY), avg(minZ, maxZ));
+}
+
+function getBorder(target)
+{
+  //add border bounding for debugging
+  let bxbb = getBoundingBoxSize(target);
+
+  var bx = new THREE.Mesh(
+    new THREE.BoxGeometry(bxbb.x, bxbb.y, bxbb.z),
+    new THREE.LineBasicMaterial( {
+      color: 0xffffff,
+      linewidth: 1,
+      linecap: 'round', //ignored by WebGLRenderer
+      linejoin:  'round' //ignored by WebGLRenderer
+    } ));
+
+  return bx ;
+}
