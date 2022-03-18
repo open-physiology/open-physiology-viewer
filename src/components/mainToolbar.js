@@ -19,12 +19,12 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
-           <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="load(fileInput.files, onLoadModel)"/>
+           <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'" 
+                   (change)="load(fileInput, onLoadModel)"/>
            <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="load(fileInput1.files, onJoinModel)"/>
+                   (change)="load(fileInput1, onJoinModel)"/>
            <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
-                   (change)="load(fileInput2.files, onMergeModel)"/>
+                   (change)="load(fileInput2, onMergeModel)"/>
            <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
                 <i class="fa fa-plus"> </i>
            </button>
@@ -104,7 +104,8 @@ export class MainToolbar {
         this.onCreateModel.emit();
     }
 
-    load(files, event) {
+    load(fileInput, event) {
+        let files = fileInput.files;
         if (files && files[0]){
             let [name, extension] = fileExtensionRe.exec(files[0].name);
             extension = extension.toLowerCase();
@@ -126,6 +127,7 @@ export class MainToolbar {
                 throw new Error("Failed to open the input file: " + err);
             }
         }
+        fileInput.value = '';
     }
 
     save(){

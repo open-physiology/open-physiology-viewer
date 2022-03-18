@@ -13,7 +13,15 @@ import {
     keys, merge,
     pick
 } from "lodash-bound";
-import {$Field, $SchemaClass, $SchemaType, prepareForExport, getFullID, getID, schemaClassModels} from "./utils";
+import {
+    $Field,
+    $SchemaClass,
+    $SchemaType,
+    prepareForExport,
+    getFullID,
+    schemaClassModels,
+    findResourceByID
+} from "./utils";
 import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import * as XLSX from "xlsx";
@@ -301,5 +309,79 @@ export class Scaffold extends Component {
             }
         })
         return json;
+    }
+
+    loadState(scaffold){
+        this.hidden = scaffold.hidden;
+        (scaffold.anchors || []).forEach(anchor => {
+            const modelAnchor = (this.anchors||[]).find(a => a.id === anchor.id);
+            if (modelAnchor){
+                if (anchor.layout) {
+                    modelAnchor.layout = {
+                        x: anchor.layout.x,
+                        y: anchor.layout.y
+                    }
+                } else {
+                    if (anchor.offset !== undefined){
+                        modelAnchor.offset = anchor.offset;
+                    }
+                }
+            } else {
+                this._graphData.logger.info($LogMsg.SNAPSHOT_NO_ANCHOR, anchor.id, scaffold.id);
+            }
+        })
+        if (!this.hidden){
+            this.show();
+        }
+        if (scaffold.visibleComponents){
+            this.showGroups(scaffold.visibleComponents);
+        }
+        if (this.hidden){
+            this.hide();
+        }
+    }
+
+    update(srcScaffold) {
+        const scaleFactor = 10;
+        (this.anchors || []).forEach(anchor => {
+            const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
+            if (srcAnchor) {
+                srcAnchor.layout = srcAnchor.layout || {};
+                if (anchor.layout) {
+                    ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
+                } else {
+                    if (anchor.hostedBy && anchor.offset !== undefined){
+                        srcAnchor.offset = anchor.offset;
+                    }
+                }
+            }
+        });
+        (this.regions || []).forEach(region => {
+            const srcRegion = findResourceByID(srcScaffold.regions, region.id);
+            if (srcRegion) {
+                if (srcRegion.points) {
+                    (srcRegion.points || []).forEach((target, i) => {
+                        ["x", "y"].forEach(dim => target[dim] = region.points[i][dim] / scaleFactor);
+                    })
+                } else {
+                    (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
+                        if (srcAnchor::isObject()){
+                            srcAnchor.layout = srcAnchor.layout || {};
+                            ["x", "y"].forEach(dim => srcAnchor.layout[dim] = region.points[i][dim] / scaleFactor);
+                        }
+                    });
+                }
+            }
+        });
+        (this.wires || []).forEach(wire => {
+            //Update ellipse radius
+            if (wire.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE) {
+                const srcWire = findResourceByID(srcScaffold.wires, wire.id);
+                if (srcWire && srcWire::isObject()) {
+                    srcWire.radius = srcWire.radius || {};
+                    ["x", "y"].forEach(dim => srcWire.radius[dim] = wire.radius[dim] / scaleFactor);
+                }
+            }
+        })
     }
 }
