@@ -288,6 +288,8 @@ export class Graph extends Group{
             });
             defaultGroup[prop] = newSet;
         });
+        //Return to ungrouped dependent resources
+        defaultGroup.includeRelated();
         [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
         //Remove "Ungrouped" if empty
         if (!defaultGroup.links.length && !defaultGroup.nodes.length){
@@ -296,6 +298,7 @@ export class Graph extends Group{
 
         res.modelClasses = modelClasses;
         res.createForceLinks();
+
 
         //Log info about the number of generated resources
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
@@ -350,7 +353,9 @@ export class Graph extends Group{
             }
         })
         const group = Group.fromJSON(group_json, this.modelClasses, this.entitiesByID, this.namespace);
-        this.groups.unshift(group);
+        if (group.links.length) {
+            this.groups.unshift(group);
+        }
     }
 
     includeToGroups(){
@@ -394,6 +399,7 @@ export class Graph extends Group{
             }
             let fields = schemaClassModels[clsName].fieldMap;
             let propNames = schemaClassModels[clsName].propertyNames;
+
             const convertValue = (key, value) => {
                 if (key === "levelTargets" || borderNames.includes(key)) {
                     return value;
@@ -445,19 +451,29 @@ export class Graph extends Group{
             for (let i = 1; i < table.length; i++) {
                 let resource = {};
                 table[i].forEach((value, j) => {
-                    if (!validateValue(value, headers[j])) { return; }
+                    if (!validateValue(value, headers[j])) {
+                        return;
+                    }
                     let key = headers[j].trim();
-                    let res = convertValue(key, value);
-                    if (res !== undefined) {
-                         resource[key] = res;
-                     }
+                    try {
+                        let res = convertValue(key, value);
+                        if (res !== undefined) {
+                            resource[key] = res;
+                        }
+                    } catch(e){
+                        logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, key, value, "row #" + i, "column #" + j);
+                    }
                 });
-                table[i] = resource;
-                if (clsName === $SchemaClass.Lyph) {
-                    table[i] = borderNamesToBorder(table[i], borderNames);
-                }
-                if (clsName === $SchemaClass.Chain) {
-                    table[i] = levelTargetsToLevels(table[i]);
+                try {
+                    table[i] = resource;
+                    if (clsName === $SchemaClass.Lyph) {
+                        table[i] = borderNamesToBorder(table[i], borderNames);
+                    }
+                    if (clsName === $SchemaClass.Chain) {
+                        table[i] = levelTargetsToLevels(table[i]);
+                    }
+                } catch (e){
+                    logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, "row #" + i);
                 }
             }
             //Remove headers and empty objects

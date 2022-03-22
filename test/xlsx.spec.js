@@ -11,7 +11,7 @@ import testModel from './excel/test_model.xlsx';
 import {loadModel, jsonToExcel} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
-import {levelTargetsToLevels, borderNamesToBorder, strToValue} from "../src/model/utilsParser";
+import {levelTargetsToLevels, borderNamesToBorder} from "../src/model/utilsParser";
 
 describe("Load Excel templates", () => {
     let graphData;
@@ -154,5 +154,3 @@ describe("Convert excel data to JSON and back", () => {
 
     after(() => {});
 });
-
-

@@ -1,5 +1,6 @@
 import {ErrorHandler, Injectable} from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {logger} from '../model/logger';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
@@ -15,5 +16,6 @@ export class GlobalErrorHandler implements ErrorHandler {
         console.error(error);
         let message = "An unexpected error occurred: " + error;
         this._snackBar.open(message, "OK", this.config);
+        console.log(logger.entries.length);
     }
 }

@@ -314,6 +314,7 @@ export class TestApp {
     }
 
     create(){
+        logger.clear();
         this.model = {
             [$Field.name]        : "newModel-" + this._counter++,
             [$Field.created]     : this.currentDate,
@@ -437,12 +438,14 @@ export class TestApp {
 
     applyJSONEditorChanges() {
         if (this._editor){
+            logger.clear();
             this._graphData = fromJSON({});
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
     }
 
     applyChanges(){
+        logger.clear();
         this._graphData = fromJSON({});
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
@@ -452,7 +455,6 @@ export class TestApp {
 	onHighlightedItemChange(item){}
 
 	set model(model){
-        logger.clear();
         this._model = model;
         //try{
             this._modelName = this._model.name || "?";

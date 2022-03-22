@@ -38,7 +38,7 @@ export function strToValue(isArray, itemType, str){
 
     let res;
     if (isArray) {
-        if (str.indexOf("{") > -1 && str.indexOf("}") > -1 ){
+        if (str.indexOf("{") > -1 && str.indexOf("}") > -1) {
             //parse array of objects
             res = JSON.parse("[" + str + "]");
         } else {

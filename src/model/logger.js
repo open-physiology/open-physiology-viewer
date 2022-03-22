@@ -145,6 +145,7 @@ export const $LogMsg = {
     EXCEL_NO_COLUMN_NAME        : "Excel to JSON: no column name",
     EXCEL_PROPERTY_UNKNOWN      : "Excel to JSON: unrecognized property",
     EXCEL_WRONG_ASSIGN_VALUE    : "Excel to JSON: wrong assign value",
+    EXCEL_CONVERSION_ERROR      : "Excel to JSON: failed to parse value",
 
     EXTERNAL_NO_MAPPING         : "External resources with no curie in local conventions",
 

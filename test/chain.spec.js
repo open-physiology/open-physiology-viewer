@@ -297,6 +297,13 @@ describe("Validate chain wiring", () => {
         expect(end.layout).to.have.property("x").that.equals(50);
         expect(start.layout).to.have.property("y").that.equals(50);
         expect(end.layout).to.have.property("y").that.equals(50);
+
+        //Group inclusion rules - lnk1 and its ends are in the "ungrouped"
+        expect(graphData).to.have.property("groups").that.has.length(8);
+        const ungrouped = graphData.groups.find(g => g.name === "Ungrouped");
+        expect(ungrouped).not.to.be.an("undefined");
+        expect(ungrouped).to.have.property("links").that.has.length(1);
+        expect(ungrouped).to.have.property("nodes").that.has.length(2);
     });
 
     it("Conflicts in chains t2 and t3 are detected", () => {
