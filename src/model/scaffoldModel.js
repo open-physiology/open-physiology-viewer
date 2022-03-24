@@ -6,11 +6,10 @@ import {logger, $LogMsg} from "./logger";
 import {
     cloneDeep,
     defaults,
-    entries, isArray,
+    entries, isEmpty,
     isNumber,
     isObject,
-    isString,
-    keys, merge,
+    keys,
     pick
 } from "lodash-bound";
 import {
@@ -22,7 +21,7 @@ import {
     schemaClassModels,
     findResourceByID
 } from "./utils";
-import {extractModelAnnotation, getItemType, strToValue, validateValue} from './utilsParser';
+import {extractLocalConventions, extractModelAnnotation, convertValue, validateValue} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import * as XLSX from "xlsx";
 
@@ -148,94 +147,42 @@ export class Scaffold extends Component {
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
-        let scaffoldSchema = schemaClassModels[$SchemaClass.Scaffold];
-        let model = inputModel::pick(scaffoldSchema.relationshipNames.concat(["main", "localConventions"]));
+        let modelSchema = schemaClassModels[$SchemaClass.Scaffold];
+        let model = inputModel::pick(modelSchema.relationshipNames.concat(["main", "localConventions"]));
 
         model::keys().forEach(relName => {
             let table = model[relName];
             if (!table) { return; }
-            let headers = table[0] || [];
             if (relName === "localConventions") { // local conventions are not a resource
-                for (let i = 1; i < table.length; i++) {
-                    let convention = {};
-                    table[i].forEach((value, j) => {
-                        if (value) {
-                            if (!headers[j]) {
-                                logger.error($LogMsg.EXCEL_NO_COLUMN_NAME, value);
-                                return;
-                            }
-                            if (!headers[j]::isString()) {
-                                logger.error($LogMsg.EXCEL_INVALID_COLUMN_NAME, headers[j]);
-                                return;
-                            }
-                            let key = headers[j].trim();
-                            convention[key] = value;
-                        }
-                    });
-
-                    table[i] = convention;
-                }
-                model[relName] = model[relName].slice(1);
-                return;
-            }
-            let clsName = relName === "main"? $SchemaClass.Scaffold: scaffoldSchema.relClassNames[relName];
-            if (!modelClasses[clsName]) {
-                logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
-                return;
-            }
-            let fields = schemaClassModels[clsName].fieldMap;
-            let propNames = schemaClassModels[clsName].propertyNames;
-
-            const convertValue = (key, value) => {
-                if (!fields[key]) {
-                    logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
+                extractLocalConventions(table);
+            } else {
+                let clsName = relName === "main" ? $SchemaClass.Scaffold : modelSchema.relClassNames[relName];
+                if (!modelClasses[clsName]) {
+                    logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
                     return;
                 }
-                let res = value.toString();
-                if (res.length === 0) { return; } //skip empty properties
-
-                let itemType = getItemType(fields[key]);
-                if (!itemType){
-                    logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
-                }
-
-                if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
-                    res = res.replace(/\s/g, '');
-                }
-
-                if (key === $Field.assign) {
-                    res = res.split(";").map(expr => {
-                        let [path, value] = expr.split("=");
-                        let [propName, propValue] = value.split(":").map(x => x.trim());
-                        if (propName && propValue) {
-                            propValue = propValue.toString().split(",");
-                            value = {[propName]: propValue};
-                        } else {
-                            logger.error($LogMsg.EXCEL_WRONG_ASSIGN_VALUE, value);
+                let headers = table[0] || [];
+                for (let i = 1; i < table.length; i++) {
+                    let resource = {};
+                    table[i].forEach((value, j) => {
+                        if (!validateValue(value, headers[j])) {
+                            return;
                         }
-                        return {"path": "$." + path, "value": value}
+                        let key = headers[j].trim();
+                        try {
+                            let res = convertValue(clsName, key, value);
+                            if (res !== undefined) {
+                                resource[key] = res;
+                            }
+                        } catch (e) {
+                            logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, key, value, "row #" + i, "column #" + j);
+                        }
                     });
-                } else {
-                    res = strToValue(fields[key].type === $SchemaType.ARRAY, itemType, res);
+                    table[i] = resource;
                 }
-                return res;
-            };
-
-            for (let i = 1; i < table.length; i++) {
-                let resource = {};
-                table[i].forEach((value, j) => {
-                    if (!validateValue(value, headers[j])) { return; }
-                    let key = headers[j].trim();
-                    let res = convertValue(key, value);
-                    if (res !== undefined) {
-                        resource[key] = res;
-                    }
-                });
-                table[i] = resource;
             }
-            model[relName] = model[relName].slice(1);
+            model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
         });
-
         extractModelAnnotation(model);
         return model;
     }

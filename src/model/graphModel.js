@@ -13,7 +13,6 @@ import {
     $Field,
     $SchemaClass,
     $Prefix,
-    $SchemaType,
     getGenID,
     getFullID,
     getID,
@@ -22,10 +21,10 @@ import {
     prepareForExport, findResourceByID
 } from "./utils";
 import {
+    extractLocalConventions,
     extractModelAnnotation,
-    getItemType,
-    strToValue,
     validateValue,
+    convertValue,
     levelTargetsToLevels,
     borderNamesToBorder
 } from './utilsParser';
@@ -224,7 +223,7 @@ export class Graph extends Group{
             let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
             res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
             res.includeToGroups();
-            (res.groups||[]).forEach(group => res.includeRelated && group.includeRelated());
+            (res.groups||[]).forEach(group => group.includeRelated && group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             //Collect inherited externals
             (res.lyphs||[]).forEach(lyph => {
@@ -370,113 +369,62 @@ export class Graph extends Group{
      * @returns {*}
      */
     static excelToJSON(inputModel, modelClasses = {}){
-        let graphSchema = schemaClassModels[$SchemaClass.Graph];
-        let model = inputModel::pick(graphSchema.relationshipNames.concat(["main", "localConventions"]));
+        let modelSchema = schemaClassModels[$SchemaClass.Graph];
+        let model = inputModel::pick(modelSchema.relationshipNames.concat(["main", "localConventions"]));
         const borderNames = ["inner", "radial1", "outer", "radial2"];
 
         model::keys().forEach(relName => {
             let table = model[relName];
             if (!table) { return; }
-            let headers = table[0] || [];
-
             if (relName === "localConventions") {  // local conventions are not a resource
-                for (let i = 1; i < table.length; i++) {
-                    let convention = {};
-                    table[i].forEach((value, j) => {
-                        if (!validateValue(value, headers[j])) { return; }
-                        let key = headers[j].trim();
-                        convention[key] = value;
-                    });
-                    table[i] = convention;
-                }
-                model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
-                return;
-            }
-            let clsName = relName === "main"? $SchemaClass.Graph: graphSchema.relClassNames[relName];
-            if (!modelClasses[clsName]) {
-                logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
-                return;
-            }
-            let fields = schemaClassModels[clsName].fieldMap;
-            let propNames = schemaClassModels[clsName].propertyNames;
-
-            const convertValue = (key, value) => {
-                if (key === "levelTargets" || borderNames.includes(key)) {
-                    return value;
-                }
-                if (!fields[key]) {
-                    logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
+                extractLocalConventions(table);
+            } else {
+                let clsName = relName === "main" ? $SchemaClass.Graph : modelSchema.relClassNames[relName];
+                if (!modelClasses[clsName]) {
+                    logger.warn($LogMsg.EXCEL_NO_CLASS_NAME, relName);
                     return;
                 }
-                let res = value.toString().trim();
-                if (res.length === 0) { return; } //skip empty properties
-                while (res.endsWith(',')){
-                    res = res.slice(0, -1).trim();
-                }
-                if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
-                    res = {min: parseInt(res), max: parseInt(res)};
-                } else {
-                    let itemType = getItemType(fields[key]);
-                    if (!itemType){
-                        logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
+                const convertModelValue = (key, value) => {
+                    if (key === "levelTargets" || borderNames.includes(key)) {
+                        return value;
                     }
-                    if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
-                        res = res.replace(/\s/g, '');
+                    let res = convertValue(clsName, key, value, borderNames);
+                    if (relName === $Field.lyphs && (key === $Field.length || key === $Field.thickness)) {
+                        res = {min: parseInt(res), max: parseInt(res)};
                     }
-                    if (key === $Field.assign) {
-                        res = res.split(";").map(expr => {
-                            let [path, value] = expr.split("=");
-                            let [propName, propValue] = value.split(":").map(x => x.trim());
-                            if (propName && propValue) {
-                                propValue = propValue.toString().split(",");
-                                let borderIndex = borderNames.indexOf(propName);
-                                if (borderIndex > -1) {
-                                    path = path + `.border.borders[${borderIndex}]`;
-                                    value = {hostedNodes: propValue};
-                                } else {
-                                    value = {[propName]: propValue};
-                                }
-                            } else {
-                                logger.error($LogMsg.EXCEL_WRONG_ASSIGN_VALUE, value);
-                            }
-                            return {"path": "$." + path, "value": value}
-                        });
-                    } else {
-                        res = strToValue(fields[key].type === $SchemaType.ARRAY, itemType, res);
-                    }
-                }
-                return res;
-            };
+                    return res;
+                };
 
-            for (let i = 1; i < table.length; i++) {
-                let resource = {};
-                table[i].forEach((value, j) => {
-                    if (!validateValue(value, headers[j])) {
-                        return;
-                    }
-                    let key = headers[j].trim();
-                    try {
-                        let res = convertValue(key, value);
-                        if (res !== undefined) {
-                            resource[key] = res;
+                let headers = table[0] || [];
+                for (let i = 1; i < table.length; i++) {
+                    let resource = {};
+                    table[i].forEach((value, j) => {
+                        if (!validateValue(value, headers[j])) {
+                            return;
                         }
-                    } catch(e){
-                        logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, key, value, "row #" + i, "column #" + j);
-                    }
-                });
-                try {
+                        let key = headers[j].trim();
+                        try {
+                            let res = convertModelValue(key, value);
+                            if (res !== undefined) {
+                                resource[key] = res;
+                            }
+                        } catch (e) {
+                            logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, key, value, "row #" + i, "column #" + j);
+                        }
+                    });
                     table[i] = resource;
-                    if (clsName === $SchemaClass.Lyph) {
-                        table[i] = borderNamesToBorder(table[i], borderNames);
+                    try {
+                        if (clsName === $SchemaClass.Lyph) {
+                            table[i] = borderNamesToBorder(table[i], borderNames);
+                        }
+                        if (clsName === $SchemaClass.Chain) {
+                            table[i] = levelTargetsToLevels(table[i]);
+                        }
+                    } catch (e) {
+                        logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, "row #" + i);
                     }
-                    if (clsName === $SchemaClass.Chain) {
-                        table[i] = levelTargetsToLevels(table[i]);
-                    }
-                } catch (e){
-                    logger.error($LogMsg.EXCEL_CONVERSION_ERROR, relName, "row #" + i);
                 }
             }
-            //Remove headers and empty objects
             model[relName] = model[relName].filter((obj, i) => (i > 0) && !obj::isEmpty());
         });
         extractModelAnnotation(model);

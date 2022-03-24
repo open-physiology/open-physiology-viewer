@@ -11,7 +11,6 @@ import {
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
-import * as XLSX from "xlsx";
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
