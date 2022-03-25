@@ -1,4 +1,4 @@
-import { getCenterPoint, setMeshPos } from "./objects";
+import { getCenterPoint, setMeshPos, computeGroupCenter } from "./objects";
 
 export function translateGroupToOrigin(group) {
   const groupPos  = computeGroupCenter(group);

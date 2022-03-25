@@ -16,6 +16,7 @@ import {SettingsPanelModule} from "./settingsPanel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
+import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 
 const WindowResize = require('three-window-resize');
 
@@ -26,6 +27,7 @@ const WindowResize = require('three-window-resize');
     selector: 'webGLScene',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
+        <hotkeys-cheatsheet></hotkeys-cheatsheet>
         <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
@@ -260,8 +262,9 @@ export class WebGLSceneComponent {
      */
     @Output() onImportExternal = new EventEmitter();
 
-    constructor(dialog: MatDialog) {
+    constructor(dialog: MatDialog, hotkeysService: HotkeysService) {
         this.dialog = dialog;
+        this.hotkeysService = hotkeysService ;
         this.defaultConfig = {
             "layout": {
                 "showLyphs"       : true,
@@ -283,6 +286,35 @@ export class WebGLSceneComponent {
             "selected"   : true
         };
         this.config = this.defaultConfig::cloneDeep();
+        this.hotkeysService.add(new Hotkey('meta+r', (event: KeyboardEvent): boolean => {
+          this.resetCamera();
+          return false; // Prevent bubbling
+        }, undefined, 'Reset camera'));
+        this.hotkeysService.add(new Hotkey('meta+u', (event: KeyboardEvent): boolean => {
+          this.updateGraph();
+          return false; // Prevent bubbling
+        }, undefined, 'Update graph'));
+        this.hotkeysService.add(new Hotkey('meta+t', (event: KeyboardEvent): boolean => {
+          this.toggleLockControls();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Lock controls'));
+        this.hotkeysService.add(new Hotkey('meta+a', (event: KeyboardEvent): boolean => {
+          this.toggleAntialias();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Anti Alias'));
+        this.hotkeysService.add(new Hotkey('meta+l', (event: KeyboardEvent): boolean => {
+          this.togglelayout();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Layout'));
+        this.hotkeysService.add(new Hotkey('meta+p', (event: KeyboardEvent): boolean => {
+          this.showReport();
+          return false; // Prevent bubbling
+        }, undefined, 'Show Report'));
+        this.hotkeysService.add(new Hotkey('meta+d', (event: KeyboardEvent): boolean => {
+          this.resizeToDisplaySize();
+          return false; // Prevent bubbling
+        }, undefined, 'Resize to Display Size'));
+
     }
 
     onScaleChange(newLabelScale){
@@ -665,7 +697,7 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog],
     exports: [WebGLSceneComponent]

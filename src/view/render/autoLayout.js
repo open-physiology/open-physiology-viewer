@@ -12,7 +12,8 @@ import { clearByObjectType
   , getBoundingBox
   , getMeshBoundingBoxSize
   , getWorldPosition
-  , removeEntity } from "./autoLayout/objects";
+  , removeEntity
+  , setMeshPos } from "./autoLayout/objects";
 
 import { trasverseHostedBy
   , trasverseSceneChildren
