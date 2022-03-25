@@ -132,8 +132,9 @@ const WindowResize = require('three-window-resize');
         }
         
         #apiLayoutSettingsPanel{
-            height: 100vh;
-            overflow-y: scroll;
+          height: 100%;
+          overflow-y: scroll;
+          overflow-x: auto;
         }
         
         :host >>> fieldset {
