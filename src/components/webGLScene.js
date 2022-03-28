@@ -286,35 +286,50 @@ export class WebGLSceneComponent {
             "selected"   : true
         };
         this.config = this.defaultConfig::cloneDeep();
-        this.hotkeysService.add(new Hotkey('meta+r', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
           this.resetCamera();
           return false; // Prevent bubbling
         }, undefined, 'Reset camera'));
-        this.hotkeysService.add(new Hotkey('meta+u', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+u', (event: KeyboardEvent): boolean => {
           this.updateGraph();
           return false; // Prevent bubbling
         }, undefined, 'Update graph'));
-        this.hotkeysService.add(new Hotkey('meta+t', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+t', (event: KeyboardEvent): boolean => {
           this.toggleLockControls();
           return false; // Prevent bubbling
         }, undefined, 'Toggle Lock controls'));
-        this.hotkeysService.add(new Hotkey('meta+a', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+a', (event: KeyboardEvent): boolean => {
           this.toggleAntialias();
           return false; // Prevent bubbling
         }, undefined, 'Toggle Anti Alias'));
-        this.hotkeysService.add(new Hotkey('meta+l', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+l', (event: KeyboardEvent): boolean => {
           this.togglelayout();
           return false; // Prevent bubbling
         }, undefined, 'Toggle Layout'));
-        this.hotkeysService.add(new Hotkey('meta+p', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+p', (event: KeyboardEvent): boolean => {
           this.showReport();
           return false; // Prevent bubbling
         }, undefined, 'Show Report'));
-        this.hotkeysService.add(new Hotkey('meta+d', (event: KeyboardEvent): boolean => {
+        this.hotkeysService.add(new Hotkey('shift+meta+d', (event: KeyboardEvent): boolean => {
           this.resizeToDisplaySize();
           return false; // Prevent bubbling
         }, undefined, 'Resize to Display Size'));
-
+        this.hotkeysService.add(new Hotkey('shift+meta+up', (event: KeyboardEvent): boolean => {
+          this.moveCamera('up');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera up'));
+        this.hotkeysService.add(new Hotkey('shift+meta+down', (event: KeyboardEvent): boolean => {
+          this.moveCamera('down');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera down'));
+        this.hotkeysService.add(new Hotkey('shift+meta+left', (event: KeyboardEvent): boolean => {
+          this.moveCamera('left');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera left'));
+        this.hotkeysService.add(new Hotkey('shift+meta+right', (event: KeyboardEvent): boolean => {
+          this.moveCamera('right');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera right'));
     }
 
     onScaleChange(newLabelScale){
@@ -394,6 +409,8 @@ export class WebGLSceneComponent {
             }
         })
     }
+
+
 
     exportJSON(){
         if (this._graphData){
@@ -528,6 +545,29 @@ export class WebGLSceneComponent {
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
+    }
+
+    moveCamera(direction){
+      const delta = 10 ;
+      switch(direction)
+      {
+        case 'left': 
+          this.camera.position.x = this.camera.position.x - delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'up' : 
+          this.camera.position.z = this.camera.position.z - delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'right' : 
+          this.camera.position.x = this.camera.position.x + delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'down' : 
+          this.camera.position.z = this.camera.position.z + delta;
+          this.camera.updateProjectionMatrix();
+        break;
+      }
     }
 
     resetCamera(positionPoint, lookupPoint) {
