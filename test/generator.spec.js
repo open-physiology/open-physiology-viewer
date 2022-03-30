@@ -8,7 +8,6 @@ import {
 
 import basalGanglia from './data/basalGanglia';
 import basalGangliaAuto from './data/basalGangliaAuto';
-import basalGangliaInternal from './data/basalGangliaInternal';
 import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
 import basicHostedNode from './data/basicHostedNode';
@@ -36,15 +35,6 @@ import {$LogMsg, Logger} from "../src/model/logger";
 describe("BasalGanglia", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {
-        graphData.logger.clear();
-    });
-});
-
-describe("BasalGangliaInternal", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basalGangliaInternal, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();

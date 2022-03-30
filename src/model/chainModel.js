@@ -123,7 +123,7 @@ export class Chain extends GroupTemplate {
                         subtype.supertype = chain.lyphTemplate;
                         Lyph.clone(parentGroup.lyphs, lyphTemplate, subtype)
                     }
-                })
+                });
             }
 
             let conveyingMaterials = lyphs.filter(lyph => lyph.layers && lyph.layers[0] && lyph.layers[0].materials).map(lyph => lyph.layers[0].materials)::flatten();
@@ -298,21 +298,18 @@ export class Chain extends GroupTemplate {
 
             for (let i = 0; i < N; i++){
                 sources[i] = sources[i] || ((i > 0) && targets[i - 1]) || getNewNode(i);
-                if (sources[i]::isString()){
-                    sources[i] = {
-                        "id": sources[i]
-                    };
-                }
+                sources[i] = findResourceByID(parentGroup.nodes, sources[i]) || {
+                    [$Field.id]: sources[i]
+                };
             }
             for (let i = 1; i < N; i++){
                 targets[i - 1] = sources[i];
             }
             targets[N - 1] = targets[N - 1] || getNewNode(N);
-            if (targets[N - 1]::isString()){
-                targets[N - 1] = {
-                    "id": targets[N - 1]
-                };
-            }
+            targets[N - 1] = findResourceByID(parentGroup.nodes, targets[N - 1]) || {
+                [$Field.id]: targets[N - 1]
+            };
+
             chain.root = getID(sources[0]);
             chain.leaf = getID(targets[N - 1]);
 
@@ -643,10 +640,7 @@ export class Chain extends GroupTemplate {
             return false;
         }
         const endLyph = this.levels[n - 1].conveyingLyph;
-        if (endLyph && [Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(endLyph.topology)){
-            return false;
-        }
-        return true;
+        return !(endLyph && [Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(endLyph.topology));
     }
 }
 

@@ -287,6 +287,7 @@ export class Graph extends Group{
             });
             defaultGroup[prop] = newSet;
         });
+
         //Return to ungrouped dependent resources
         defaultGroup.includeRelated();
         [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
@@ -297,7 +298,6 @@ export class Graph extends Group{
 
         res.modelClasses = modelClasses;
         res.createForceLinks();
-
 
         //Log info about the number of generated resources
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);

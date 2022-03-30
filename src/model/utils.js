@@ -6,7 +6,6 @@ import {
     isString,
     merge,
     keys,
-    isPlainObject,
     flatten, isArray, unionBy, mergeWith, isNumber
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
@@ -229,7 +228,7 @@ export function getOrCreateNode(nodes, nodeID){
  * @param e
  * @returns {*|void}
  */
-export const findResourceByID = (eArray, e) => e::isPlainObject()? e: (eArray||[]).find(x => !!e && x.id === e);
+export const findResourceByID = (eArray, e) => e::isObject()? e: (eArray||[]).find(x => !!e && x.id === e);
 
 /**
  * Returns a list of references in the schema type specification
