@@ -661,7 +661,7 @@ export class Graph extends Group{
         let groupLinks = [];
 
         function dfs(lnk) {
-            if (lnk._processed) { return true; }
+            if (lnk._processed || lnk.description === "force") { return true; }
             lnk._processed = true;
 
             let t = lnk.conveyingTopology;
@@ -670,7 +670,8 @@ export class Graph extends Group{
             }
 
             groupLinks.push(lnk);
-            const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible; //BAG = target closed, TODO check with "reversed"
+            //BAG = target closed, TODO check with "reversed"
+            const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible;
             const expandTarget = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG2) || lnk.collapsible;
 
             let res = true;
