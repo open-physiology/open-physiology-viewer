@@ -461,6 +461,6 @@ export function autoLayout(scene, graphData) {
     }
   });
   
-  autoLayoutChains(scene, graphData, links);
-  links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
+  //autoLayoutChains(scene, graphData, links);
+  //links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }
