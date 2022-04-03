@@ -164,8 +164,9 @@ export const $LogMsg = {
     RESOURCE_NO_ABSTRACT_CLASS  : "An abstract relationship field expects a reference to an existing resource or 'class' field in its value definition",
     REF_UNDEFINED               : "Remaining references to undefined resources",
     RESOURCE_NO_OBJECT          : "Resource reference is not an object",
+    RESOURCE_TYPE_MISMATCH      : "Expected resource class does not match the actual class",
 
-    WIRE_NO_END_ANCHOR          : "Failed to process wire with undefined end acnhor"
+    WIRE_NO_END_ANCHOR          : "Failed to process wire with undefined end anchor"
 };
 
 const LEVEL = {

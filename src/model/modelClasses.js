@@ -201,7 +201,7 @@ export function fromJSONGenerated(inputModel) {
                 if (!entitiesByID[fullValueID]) {
                     //put to a wait list instead
                     entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
-                    entitiesByID.waitingList[value].push([res, key]);
+                    entitiesByID.waitingList[value].push([res, key, clsName]);
                     return value;
                 } else {
                     return entitiesByID[fullValueID];

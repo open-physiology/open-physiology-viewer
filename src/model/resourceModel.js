@@ -144,7 +144,7 @@ export class Resource{
                 if (!entitiesByID[fullValueID]) {
                     //put to a wait list instead
                     entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
-                    entitiesByID.waitingList[value].push([res, key]);
+                    entitiesByID.waitingList[value].push([res, key, clsName]);
                     return value;
                 } else {
                     return entitiesByID[fullValueID];
@@ -320,15 +320,21 @@ export class Resource{
      */
     reviseWaitingList(waitingList, namespace){
         let res = this;
-        (waitingList[res.id]||[]).forEach(([obj, key]) => {
+        (waitingList[res.id]||[]).forEach(([obj, key, clsName]) => {
             if (obj[key]::isArray()){
                 obj[key].forEach((e, i) => {
                     if (e === res.id){
-                       obj[key][i] = res;
+                        if (!isClassAbstract(clsName) && clsName !== res.class){
+                            logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
+                        }
+                        obj[key][i] = res;
                     }
                 });
             } else {
                 if (obj[key] === res.id){
+                    if (!isClassAbstract(clsName) && clsName !== res.class){
+                        logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
+                    }
                     obj[key] = res;
                 }
             }

@@ -12,6 +12,7 @@ import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
+import basicLinkWithChainsAsEnds from './data/basicLinkWithChainsAsEnds';
 import basicLyphTypes from './data/basicLyphTypes';
 import basicHousedTree from './data/basicHousedTree';
 import basicJointTrees from './data/basicJointTrees';
@@ -91,6 +92,24 @@ describe("BasicLyphTypes", () => {
     before(() => graphData = modelClasses.Graph.fromJSON(basicLyphTypes, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("BasicLinkWithChainsAsEnds", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicLinkWithChainsAsEnds, modelClasses));
+    it("Validator detects type mismatch error", () => {
+        expect(graphData).to.have.property("logger");
+        expect(graphData.logger).to.have.property("entries");
+        expect(graphData.logger.entries).to.be.an('array').that.has.length.above(0);
+        expect(graphData.logger).to.have.property("status");
+        let logEvents = graphData.logger.entries;
+        let errors    = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(2);
+        expect(errors[0].msg === $LogMsg.RESOURCE_TYPE_MISMATCH);
+    });
+     after(() => {
         graphData.logger.clear();
     });
 });
