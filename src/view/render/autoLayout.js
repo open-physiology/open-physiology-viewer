@@ -211,7 +211,7 @@ function layoutLyphs(scene, hostLyphDic, lyphDic, lyphInLyph)
   let kapsuleChildren = scene.children ;
   trasverseSceneChildren(kapsuleChildren, all);
   let lyphs = getSceneObjectByModelClass(all, 'Lyph');
-  // clearByObjectType(scene, 'Node');
+  //clearByObjectType(scene, 'Node');
   Object.keys(hostLyphDic).forEach((hostKey) => {
     //get target aspect ratio
     const host = getHostParentForLyph(all, hostKey) ;
@@ -408,7 +408,7 @@ export function autoLayout(scene, graphData) {
   });
 
   preventZFighting(scene);
-  // clearByObjectType(scene, "Node");
+  //clearByObjectType(scene, "Node");
   let hostLyphRegionDic = {}, lyphDic = {};
   trasverseHostedBy(graphData, hostLyphRegionDic);
   layoutLyphs(scene, hostLyphRegionDic, lyphDic, false);
@@ -461,6 +461,7 @@ export function autoLayout(scene, graphData) {
     }
   });
   
-  // autoLayoutChains(scene, graphData, links);
-  // links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
+  //FIXME : Fix chians with nodes
+  //autoLayoutChains(scene, graphData, links);
+  //links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }
