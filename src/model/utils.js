@@ -6,7 +6,7 @@ import {
     isString,
     merge,
     keys,
-    flatten, isArray, unionBy, mergeWith, isNumber
+    flatten, isArray, unionBy, mergeWith
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -21,6 +21,7 @@ export const $SchemaType = {
     BOOLEAN: "boolean"
 };
 /**
+ * @property IdentifierScheme
  * @property IdentifierScheme
  * @property RGBColorScheme
  * @property InterpolateColorScheme
@@ -100,7 +101,6 @@ export const $Prefix = {
     join        : "join",   //joint node
     anchor      : "p",      //anchor point
     wire        : "wire",   //wire
-    //TODO create a separate object with generated resource ids and names
     query       : "query",  //dynamic query
     default     : "default", //default group ID
     force       : "force"
@@ -109,16 +109,29 @@ export const $Prefix = {
 export const getNewID = entitiesByID => "new-" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
-export const getGenID = (...args) => args.filter(arg => arg !== null).join("_");
+
+export const getRefID = (ref) => {
+    return ref.substr(ref.lastIndexOf(":") + 1);
+}
+
+//Exclude namespace from local arguments which are often given IDs that could be defined with namespace
+export const getGenID = (...args) => args.filter(arg => arg !== null).map(arg => arg::isString()? getRefID(arg): arg).join("_");
 
 export const getFullID = (namespace, id) => {
     if (!id) return "";
-    if (id::isString() && id.indexOf("#") > -1) {
-        //TODO log references to other namespaces for testing
+    if (id::isString() && id.indexOf(":") > -1) {
         return id;
     }
-    return (namespace? namespace + "#" : "") + id;
+    return (namespace? namespace + ":" : "") + id;
 };
+
+export const getRefNamespace = (ref, namespace= undefined) => {
+    let idx = ref.lastIndexOf(":");
+    if (idx > -1){
+        return ref.substr(0, idx);
+    }
+    return namespace;
+}
 
 export const getGenName = (...args) => args.join(" ");
 
@@ -177,7 +190,7 @@ export const addColor = (resources, defaultColor) => (resources||[]).filter(e =>
  * @param spec - schema definition
  */
 export const getClassName = (spec) => {
-    let ref = null;
+    let ref;
     if (spec::isString()) {
         ref = spec;
     } else {
@@ -413,19 +426,13 @@ const extendsClass = (refs, value) => {
  * @param {string} className
  */
 const getFieldDefaultValues = (className) => {
-    const getDefault = (specObj) => specObj.type ?
-        specObj.type === $SchemaType.STRING ? "" :
-            specObj.type === $SchemaType.BOOLEAN ? false :
-                specObj.type === $SchemaType.NUMBER ? 0 : undefined
-            : undefined;
     const initValue = (specObj) => {
         return specObj.default?
             (specObj.default::isObject()
                 ? specObj.default::cloneDeep()
                 : specObj.default )
-            : undefined; //getDefault(specObj);
+            : undefined;
     };
-
     return definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
 };
 
@@ -484,7 +491,7 @@ export class SchemaClass {
             recurseSchema(this.schemaClsName, (currName) => res2::merge(definitions[currName].properties));
             this.fields = res2::entries();
 
-            this.relationships = this.fields.filter(([key, spec]) => extendsClass(getClassRefs(spec), $SchemaClass.Resource));
+            this.relationships = this.fields.filter(([, spec]) => extendsClass(getClassRefs(spec), $SchemaClass.Resource));
             this.properties = this.fields.filter(([key,]) => !this.relationships.find(([key2,]) => key2 === key));
             this.fieldMap = this.fields::fromPairs();
             this.propertyMap = this.properties::fromPairs();
@@ -494,9 +501,9 @@ export class SchemaClass {
             this.relationshipNames = this.relationships.map(([key,]) => key);
             this.relClassNames = this.relationships.map(([key, spec]) => [key, getClassName(spec)])::fromPairs();
 
-            this.cudFields = this.fields.filter(([key, spec]) => !spec.readOnly);
-            this.cudProperties = this.properties.filter(([key, spec]) => !spec.readOnly);
-            this.cudRelationships = this.relationships.filter(([key, spec]) => !spec.readOnly);
+            this.cudFields = this.fields.filter(([, spec]) => !spec.readOnly);
+            this.cudProperties = this.properties.filter(([, spec]) => !spec.readOnly);
+            this.cudRelationships = this.relationships.filter(([, spec]) => !spec.readOnly);
         }
     }
 
@@ -515,7 +522,7 @@ export class SchemaClass {
      * @returns {any[]}
      */
     filteredRelNames(clsNames){
-        return (this.relationships||[]).filter(([key, spec]) => !clsNames.includes(getClassName(spec))).map(([key, ]) => key);
+        return (this.relationships||[]).filter(([, spec]) => !clsNames.includes(getClassName(spec))).map(([key, ]) => key);
     }
 
     /**
@@ -524,7 +531,7 @@ export class SchemaClass {
      * @returns {any[]}
      */
     selectedRelNames(clsName){
-        return (this.relClassNames::entries()||[]).filter(([key, cls]) => cls === clsName).map(([key, ]) => key);
+        return (this.relClassNames::entries()||[]).filter(([, cls]) => cls === clsName).map(([key, ]) => key);
     }
 }
 

@@ -1652,7 +1652,6 @@
                 "NLX:154731"
             ],
             "supertype": "229",
-            "internalIn": "K22",
             "seedIn": "neuron-8"
         },
         {
@@ -1661,8 +1660,7 @@
             "external": [
                 "NLX:154731"
             ],
-            "supertype": "229",
-            "internalIn": "K23"
+            "supertype": "229"
         },
         {
             "id": "snl17",

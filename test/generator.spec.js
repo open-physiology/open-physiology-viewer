@@ -171,7 +171,13 @@ describe("FullBody", () => {
 describe("KeastSpinal", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(keastSpinal, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
+    it("Model detects absent IDs", () => {
+        expect (graphData.logger.status).to.be.equal(Logger.STATUS.WARNING);
+        let logEvents = graphData.logger.entries;
+        let warnings = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.WARN);
+        expect(warnings).to.have.length(2);
+        expect(warnings[0].msg).to.be.equal($LogMsg.RESOURCE_NO_ID);
+    });
     after(() => {
         graphData.logger.clear();
     });
@@ -254,11 +260,3 @@ describe("Uot", () => {
         graphData.logger.clear();
     });
 });
-
-//TODO fix warning about no axis for coalescing lyphs
-// describe("UotWithChannels", () => {
-//     let graphData;
-//     before(() => graphData = modelClasses.Graph.fromJSON(uotWithChannels, modelClasses));
-//     it("Model generated without errors", () => expectNoWarnings(graphData));
-//     after(() => {});
-// });

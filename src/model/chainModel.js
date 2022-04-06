@@ -602,21 +602,22 @@ export class Chain extends GroupTemplate {
     validateAnchoring(){
         if (this.wiredTo) {
             if (!(this.wiredTo instanceof Wire)){
-                throw Error("Cannot validate chain wiring before scaffold generation!");
+                logger.error($LogMsg.CHAIN_NO_WIRE, this.id, this.wiredTo);
+                return;
             }
             let {start, end} = this.getWireEnds();
             if (this.root && this.root.achoredTo) {
                 let id1 = getID(start);
                 let id2 = getID(this.root.anchoredTo);
-                if (id1 !== id2) {
-                    logger.error($LogMsg.CHAIN_CONFLICT_ROOT, "chain: " + this.id, "wire source: " + id1, "chain root: " + id2);
+                if (id1 && id2 && id1 !== id2) {
+                    logger.error($LogMsg.CHAIN_CONFLICT_ROOT, this.id, id1, id2);
                 }
             }
             if (this.leaf && this.leaf.anchoredTo) {
                 let id1 = getID(end);
                 let id2 = getID(this.leaf.anchoredTo);
-                if (id1 !== id2) {
-                    logger.error($LogMsg.CHAIN_CONFLICT_LEAF, "chain: " + this.id, "wire target: " + id1, "chain leaf: " + id2);
+                if (id1 && id2 && id1 !== id2) {
+                    logger.error($LogMsg.CHAIN_CONFLICT_LEAF, this.id, id1, id2);
                 }
             }
         }

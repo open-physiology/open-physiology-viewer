@@ -14,7 +14,7 @@ import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
-import {isString, isObject, isArray, isNumber, isEmpty, keys, merge, assign} from "lodash-bound";
+import {isString, isObject, isArray, isNumber, isEmpty, keys, assign} from "lodash-bound";
 import * as schema from "./graphScheme";
 import {logger} from "./logger";
 
@@ -31,7 +31,7 @@ import {
     getFullID,
     getClassName,
     isClassAbstract,
-    schemaClassModels
+    schemaClassModels, getRefNamespace
 } from "./utils";
 
 export const modelClasses = {
@@ -175,6 +175,7 @@ export function fromJSON(inputModel) {
 }
 
 /**
+ * FIXME Revise to work with namespaces (i.e., use fullResID as key in waitingList)
  * @param {*} inputModel
  * @returns
  */
@@ -201,7 +202,7 @@ export function fromJSONGenerated(inputModel) {
                 if (!entitiesByID[fullValueID]) {
                     //put to a wait list instead
                     entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
-                    entitiesByID.waitingList[value].push([res, key, clsName]);
+                    entitiesByID.waitingList[value].push([res, key]);
                     return value;
                 } else {
                     return entitiesByID[fullValueID];
@@ -294,6 +295,7 @@ export function fromJSONGenerated(inputModel) {
         const e = typeCast({
             [$Field.id]: id,
             [$Field.class]: clsName,
+            [$Field.namespace]: getRefNamespace(id),
             [$Field.generated]: true
         })
 
@@ -342,7 +344,7 @@ export function fromJSONGenerated(inputModel) {
             added.map(id => delete entitiesList.waitingList[id]);
         }
 
-        model.syncRelationships(modelClasses, entitiesList, namespace);
+        model.syncRelationships(modelClasses, entitiesList);
         model.entitiesByID = entitiesList;
     }
 
@@ -357,6 +359,7 @@ export function fromJSONGenerated(inputModel) {
                     const e = typeCast({
                         [$Field.id]: id,
                         [$Field.class]: clsName,
+                        [$Field.namespace]: getRefNamespace(id),
                         [$Field.generated]: true
                     })
 
@@ -376,7 +379,7 @@ export function fromJSONGenerated(inputModel) {
         if (added.length > 0) {
             added.map(id => delete entitiesList.waitingList[id]);
         }
-        model.syncRelationships(modelClasses, entitiesList, namespace);
+        model.syncRelationships(modelClasses, entitiesList);
         model.entitiesByID = entitiesList;
         delete model.waitingList;
     }
@@ -450,7 +453,6 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
         }
     }
     //Both specifications define connectivity models
-    let newConfig = (inputModelA.config||{})::merge(inputModelB.config);
     schema.definitions.Graph.properties::keys().forEach(prop => {
         delete inputModelB[prop];
         delete inputModelA[prop];
@@ -459,5 +461,5 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
         inputModelA.groups = inputModelA.groups || [];
         inputModelA.groups.push(inputModelB);
     }
-    return {[$Field.groups]: [inputModelA, inputModelB], [$Field.config]: newConfig};
+    return {[$Field.groups]: [inputModelA, inputModelB]};
 }

@@ -15,18 +15,21 @@ import {
 import {
     $Field,
     $SchemaClass,
-    $SchemaType,
     prepareForExport,
-    getFullID,
     schemaClassModels,
     findResourceByID
 } from "./utils";
-import {extractLocalConventions, extractModelAnnotation, convertValue, validateValue} from './utilsParser';
+import {extractLocalConventions, extractModelAnnotation, convertValue, validateValue, validateExternal} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import * as XLSX from "xlsx";
 
 /**
- * @property logger
+ * Scaffold graph
+ * class
+ * @property entitiesByID
+ * @property namespace
+ * @property localConventions
+ * @property modelClasses
  */
 export class Scaffold extends Component {
 
@@ -71,36 +74,28 @@ export class Scaffold extends Component {
             let [obj, key] = refs[0];
             if (obj && obj.class) {
                 //Only create missing scaffold resources
-                if (![$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
                     return;
                 }
-                let clsName = schemaClassModels[obj.class].relClassNames[key];
-                //Do not create missing scaffold resources references from the connectivity model
-                if ([$SchemaClass.Chain, $SchemaClass.Node, $SchemaClass.Lyph, $SchemaClass.Group].includes(clsName)){
-                    return;
-                }
-                if (clsName && !schemaClassModels[clsName].schema.abstract) {
-                    let e = modelClasses[clsName].fromJSON({
-                        [$Field.id]: id,
-                        [$Field.generated]: true
-                    }, modelClasses, entitiesByID, namespace);
 
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract) {
+                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
                     //Include newly created entity to the main model
                     let prop = schemaClassModels[$SchemaClass.Scaffold].selectedRelNames(clsName)[0];
                     if (prop) {
                         res[prop] = res[prop] || [];
                         res[prop].push(e);
                     }
-                    let fullID = getFullID(namespace, e.id);
-                    entitiesByID[fullID] = e;
-                    added.push(e.id);
+                    entitiesByID[e.fullID] = e;
+                    added.push(e.fullID);
                 }
             }
         });
 
         if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);
-            let resources = added.filter(id => entitiesByID[getFullID(namespace,id)].class !== $SchemaClass.External);
+            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
             if (resources.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN, resources);
             }
@@ -110,14 +105,16 @@ export class Scaffold extends Component {
             logger.error($LogMsg.REF_UNDEFINED, "scaffold", entitiesByID.waitingList::keys());
         }
 
-        res.syncRelationships(modelClasses, entitiesByID, namespace);
+        res.syncRelationships(modelClasses, entitiesByID);
 
         res.entitiesByID = entitiesByID;
         delete res.waitingList;
 
         (res.components||[]).forEach(component => component.includeRelated && component.includeRelated());
-
         res.generated = true;
+
+        validateExternal(res.external, res.localConventions);
+
         //Log info about the number of generated resources
         logger.info($LogMsg.SCAFFOLD_RESOURCE_NUM, this.id, entitiesByID::keys().length - before);
         res.logger = logger;

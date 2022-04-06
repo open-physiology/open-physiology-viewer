@@ -120,7 +120,7 @@
       "properties": {
         "namespace": {
           "description": "Model namespace",
-          "type": "string"
+          "$ref": "#/definitions/IdentifierScheme"
         },
         "schemaVersion": {
           "description": "ApiNATOMY JSON Schema version used for model generation",
@@ -1097,9 +1097,9 @@
       }
     },
     "IdentifierScheme": {
-      "description": "Resource identifier",
+      "description": "Resource reference: optional namespace with identifier",
       "type": "string",
-      "pattern": "^[a-zA-Z0-9:_./@?\\-=']{1,100}$"
+      "pattern": "^[a-zA-Z0-9:_./@?#\\-=']{1,100}$"
     },
     "JSONPathScheme": {
       "description": "JSONPath query to select resources",
@@ -2232,6 +2232,12 @@
         "id": {
           "description": "Unique resource identifier",
           "$ref": "#/definitions/IdentifierScheme"
+        },
+        "namespace": {
+          "description": "Resource namespace",
+          "$ref": "#/definitions/IdentifierScheme",
+          "advanced": true,
+          "readOnly": true
         },
         "name": {
           "description": "Resource name",

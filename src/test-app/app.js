@@ -399,7 +399,10 @@ export class TestApp {
             this.applyScaffold(this._model, newModel);
         } else {
             let jointModel = joinModels(this._model, newModel, this._flattenGroups);
-            jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+            jointModel::merge({
+                [$Field.created]: this.currentDate,
+                [$Field.lastUpdated]: this.currentDate
+            });
             this.model = jointModel;
             this._flattenGroups = true;
         }

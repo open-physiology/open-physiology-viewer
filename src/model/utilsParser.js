@@ -72,6 +72,18 @@ export function validateValue(value, key){
     return true;
 }
 
+export function validateExternal(externals, localConventions){
+    const faultyExternal = [];
+    (externals || []).forEach(r => {
+        if (!(localConventions||[]).find(c => r.id.startsWith(c.prefix))) {
+            faultyExternal.push(r.id);
+        }
+    });
+    if (faultyExternal.length > 0){
+        logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
+    }
+}
+
 export function convertValue(clsName, key, value, borderNames= []){
     let fields = schemaClassModels[clsName].fieldMap;
     let propNames = schemaClassModels[clsName].propertyNames;

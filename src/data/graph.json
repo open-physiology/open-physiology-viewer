@@ -3,42 +3,42 @@
         {
             "id": "airway-root",
             "name": "Airway root",
-            "anchoredTo": "X"
+            "anchoredTo": "too:X"
         },
         {
             "id": "airway-leaf",
             "name": "Airway leaf",
-            "anchoredTo": "f1L"
+            "anchoredTo": "too:f1L"
         },
         {
             "id": "urinary-root",
             "name": "Urinary root",
-            "anchoredTo": "U"
+            "anchoredTo": "too:U"
         },
         {
             "id": "urinary-leaf",
             "name": "Urinary leaf",
-            "anchoredTo": "f3K"
+            "anchoredTo": "too:f3K"
         },
         {
             "id": "intragingival-root",
             "name": "Intragingival root",
-            "anchoredTo": "X"
-        },
-        {
-            "id": "buccogingival-root",
-            "name": "Buccogingival root",
-            "anchoredTo": "Z"
+            "anchoredTo": "too:Z"
         },
         {
             "id": "intragingival-leaf",
             "name": "Intragingival leaf",
-            "anchoredTo": "Z"
+            "anchoredTo": "too:X"
+        },
+        {
+            "id": "buccogingival-root",
+            "name": "Buccogingival root",
+            "anchoredTo": "too:B"
         },
         {
             "id": "buccogingival-leaf",
             "name": "Buccogingival leaf",
-            "anchoredTo": "B"
+            "anchoredTo": "too:Z"
         }
     ],
     "links": [],
@@ -1898,7 +1898,7 @@
             ],
             "root": "airway-root",
             "leaf": "airway-leaf",
-            "wiredTo": "w-X-f1L"
+            "wiredTo": "too:w-X-f1L"
         },
         {
             "id": "chain-urinary",
@@ -1932,7 +1932,7 @@
             ],
             "root": "urinary-root",
             "leaf": "urinary-leaf",
-            "wiredTo": "w-U-f3K"
+            "wiredTo": "too:w-U-f3K"
         },
         {
             "id": "chain-intragingival",
@@ -1945,7 +1945,7 @@
             ],
             "root": "intragingival-root",
             "leaf": "intragingival-leaf",
-            "wiredTo": "w-Z-X"
+            "wiredTo": "too:w-Z-X"
         },
         {
             "id": "chain-buccogingival",
@@ -1960,7 +1960,7 @@
             ],
             "root": "buccogingival-root",
             "leaf": "buccogingival-leaf",
-            "wiredTo": "w-B-Z"
+            "wiredTo": "too:w-B-Z"
         },
         {
             "id": "chain-upper-gastrointestinal",
@@ -1976,7 +1976,7 @@
                 "lyph-digestive-gastric-pyloric-canal-and-sphincter",
                 "lyph-digestive-pre-ampullary-duodenum"
             ],
-            "wiredTo": "w-X-O"
+            "wiredTo": "too:w-X-O"
         },
         {
             "id": "chain-lower-gastrointestinal",
@@ -1992,7 +1992,7 @@
                 "lyph-digestive-rectum",
                 "lyph-digestive-anal-canal-and-sphincter"
             ],
-            "wiredTo": "w-O-R"
+            "wiredTo": "too:w-O-R"
         },
         {
             "id": "chain-perineal-skin",
@@ -2000,7 +2000,7 @@
             "lyphs": [
                 "lyph-skin-perineal"
             ],
-            "wiredTo": "w-R-G"
+            "wiredTo": "too:w-R-G"
         },
         {
             "id": "chain-vulval-mucosa",
@@ -2008,7 +2008,7 @@
             "lyphs": [
                 "lyph-female-genital-vulval-mucosa"
             ],
-            "wiredTo": "w-G-U"
+            "wiredTo": "too:w-G-U"
         },
         {
             "id": "chain-inframammary-skin",
@@ -2016,7 +2016,7 @@
             "lyphs": [
                 "lyph-skin-inframammary"
             ],
-            "wiredTo": "w-U-M"
+            "wiredTo": "too:w-U-M"
         },
         {
             "id": "chain-supramammary-infracranial-skin",
@@ -2024,7 +2024,7 @@
             "lyphs": [
                 "lyph-skin-supramammary-infracranial"
             ],
-            "wiredTo": "w-M-W"
+            "wiredTo": "too:w-M-W"
         },
         {
             "id": "chain-calvarial-skin",
@@ -2032,7 +2032,7 @@
             "lyphs": [
                 "lyph-skin-calvarial"
             ],
-            "wiredTo": "w-W-J"
+            "wiredTo": "too:w-W-J"
         },
         {
             "id": "chain-nasal-skin",
@@ -2040,7 +2040,7 @@
             "lyphs": [
                 "lyph-skin-nasal"
             ],
-            "wiredTo": "w-J-V"
+            "wiredTo": "too:w-J-V"
         },
         {
             "id": "chain-philtrum-skin",
@@ -2048,7 +2048,7 @@
             "lyphs": [
                 "lyph-skin-philtrum"
             ],
-            "wiredTo": "w-V-B"
+            "wiredTo": "too:w-V-B"
         },
         {
             "id": "chain-mammary",
@@ -2062,7 +2062,7 @@
                 "lyph-mammary-ductule",
                 "lyph-mammary-acinus"
             ],
-            "wiredTo": "w-M-f3M"
+            "wiredTo": "too:w-M-f3M"
         },
         {
             "id": "chain-external-ear",
@@ -2070,17 +2070,17 @@
             "lyphs": [
                 "lyph-airway-external-ear"
             ],
-            "wiredTo": "w-W-f4C"
+            "wiredTo": "too:w-W-f4C"
         },
         {
             "id": "chain-female-genital",
             "name": "Female genital tract",
-            "wiredTo": "w-G-f3G"
+            "wiredTo": "too:w-G-f3G"
         },
         {
             "id": "chain-male-genital",
             "name": "Male genital tract",
-            "wiredTo": "w-G-f3G"
+            "wiredTo": "too:w-G-f3G"
         },
         {
             "id": "chain-conjunctival",
@@ -2088,7 +2088,7 @@
             "lyphs": [
                 "lyph-lacrimal-conjunctiva"
             ],
-            "wiredTo": "w-J-f4P"
+            "wiredTo": "too:w-J-f4P"
         },
         {
             "id": "chain-lacrimal",
@@ -2097,7 +2097,7 @@
                 "lyph-lacrimal-tear-gland-duct",
                 "lyph-lacrimal-tear-gland-acinus"
             ],
-            "wiredTo": "w-f4P-f4L"
+            "wiredTo": "too:w-f4P-f4L"
         },
         {
             "id": "chain-nasolacrimal",
@@ -2105,7 +2105,7 @@
             "lyphs": [
                 "lyph-lacrimal-nasolacrimal-duct"
             ],
-            "wiredTo": "w-f4N-f4P"
+            "wiredTo": "too:w-f4N-f4P"
         },
         {
             "id": "chain-external-nasal",
@@ -2113,7 +2113,7 @@
             "lyphs": [
                 "lyph-airway-external-nasal-mucosa"
             ],
-            "wiredTo": "w-V-f4N"
+            "wiredTo": "too:w-V-f4N"
         },
         {
             "id": "chain-internal-nasal",
@@ -2121,7 +2121,7 @@
             "lyphs": [
                 "lyph-airway-internal-nasal-mucosa"
             ],
-            "wiredTo": "w-f4N-f4E"
+            "wiredTo": "too:w-f4N-f4E"
         },
         {
             "id": "chain-eustachian",
@@ -2130,7 +2130,7 @@
                 "lyph-airway-eustachian-tube",
                 "lyph-airway-middle-ear"
             ],
-            "wiredTo": "w-f4E-f4M"
+            "wiredTo": "too:w-f4E-f4M"
         },
         {
             "id": "chain-naso-oro-pharyngeal",
@@ -2139,7 +2139,7 @@
                 "lyph-airway-nasopharynx",
                 "lyph-airway-oropharynx"
             ],
-            "wiredTo": "w-X-f4E"
+            "wiredTo": "too:w-X-f4E"
         },
         {
             "id": "chain-salivary",
@@ -2150,7 +2150,7 @@
                 "lyph-digestive-salivary-intercalated-duct",
                 "lyph-digestive-salivary-acinus"
             ],
-            "wiredTo": "w-Z-f1S"
+            "wiredTo": "too:w-Z-f1S"
         },
         {
             "id": "chain-hepatobiliary",
@@ -2168,7 +2168,7 @@
                 "lyph-digestive-biliary-canal-of-Hering",
                 "lyph-digestive-biliary-biliary-canaliculus"
             ],
-            "wiredTo": "w-O-f2L"
+            "wiredTo": "too:w-O-f2L"
         },
         {
             "id": "chain-pancreatic",
@@ -2185,7 +2185,7 @@
                 "lyph-digestive-pancreas-intercalated-duct",
                 "lyph-digestive-pancreas-acinus"
             ],
-            "wiredTo": "w-O-f1P"
+            "wiredTo": "too:w-O-f1P"
         },
         {
             "id": "chain-pancreaticobiliary",

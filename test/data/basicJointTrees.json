@@ -3,6 +3,7 @@
   "name": "Omega trees joint at Soma",
   "description": "Demo model with two generated omega trees connected to a common lyph",
   "author": "Natallia Kokash",
+  "namespace": "nm2",
   "nodes": [
     {
       "id": "n1"

@@ -18,7 +18,7 @@ Chain.prototype.update = function(){
     end   = extractCoords(end);
     if (start && end) {
         let curve = null;
-        if (this.wiredTo){
+        if (this.wiredTo && this.wiredTo.getCurve){
             curve = this.startFromLeaf? this.wiredTo.getCurve(end, start) : this.wiredTo.getCurve(start, end);
         }
         let length = curve && curve.getLength ? curve.getLength() : end.distanceTo(start);

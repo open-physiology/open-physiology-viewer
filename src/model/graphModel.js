@@ -14,11 +14,10 @@ import {
     $SchemaClass,
     $Prefix,
     getGenID,
-    getFullID,
     getID,
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels,
-    prepareForExport, findResourceByID
+    prepareForExport, findResourceByID, getRefNamespace, SchemaClass
 } from "./utils";
 import {
     extractLocalConventions,
@@ -26,7 +25,7 @@ import {
     validateValue,
     convertValue,
     levelTargetsToLevels,
-    borderNamesToBorder
+    borderNamesToBorder, validateExternal
 } from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
@@ -103,10 +102,9 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
 }
 
 /**
- * The main model graph (the group with configuration options for the model viewer)
+ * Connectivity model graph
  * @class
  * @property entitiesByID
- * @property config
  * @property namespace
  * @property localConventions
  * @property modelClasses
@@ -168,14 +166,14 @@ export class Graph extends Group{
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
-                let clsName = schemaClassModels[obj.class].relClassNames[key];
                 //Do not create missing scaffold resources
-                if ([$SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                if ([$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
                     return;
                 }
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
                 if (clsName && !schemaClassModels[clsName].schema.abstract){
                     let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
-                    added.push(e.id);
+                    added.push(e.fullID);
                     //A created link needs end nodes
                     if (e instanceof modelClasses.Link) {
                         let i = 0;
@@ -183,7 +181,7 @@ export class Graph extends Group{
                         e.applyToEndNodes(end => {
                             if (end::isString()) {
                                 let s = modelClasses.Resource.createResource(end, $SchemaClass.Node, res, modelClasses, entitiesByID, namespace);
-                                added.push(s.id);
+                                added.push(s.fullID);
                                 s[related[i]] = [e];
                             }
                         });
@@ -196,15 +194,17 @@ export class Graph extends Group{
             logger.error($LogMsg.SCHEMA_GRAPH_ERROR, ...resVal.errors.map(e => e::pick("message", "instance", "path")));
         }
 
-        if (added.length > 0){
+        if (added.length > 0) {
             added.forEach(id => delete entitiesByID.waitingList[id]);
-            let resources = added.filter(id => entitiesByID[getFullID(namespace,id)].class !== $SchemaClass.External);
+            added = added.filter(id => !entitiesByID[id]);
+
+            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
             if (resources.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN, resources);
             }
 
-            let externals = added.filter(id => entitiesByID[getFullID(namespace,id)].class === $SchemaClass.External);
-            if (externals.length > 0){
+            let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
+            if (externals.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN_EXTERNAL, externals);
             }
         }
@@ -213,8 +213,7 @@ export class Graph extends Group{
             logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID.waitingList::keys());
         }
 
-        res.syncRelationships(modelClasses, entitiesByID, namespace);
-
+        res.syncRelationships(modelClasses, entitiesByID);
         res.entitiesByID = entitiesByID;
 
         if (!res.generated) {
@@ -241,15 +240,7 @@ export class Graph extends Group{
         //Connect chain's last level with the following chain's first level (issue #129)
         (res.chains||[]).forEach(r => r.connect? r.connect(): logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r));
 
-        const faultyExternal = [];
-        (res.external || []).forEach(r => {
-            if (!(res.localConventions||[]).find(c => r.id.startsWith(c.prefix))) {
-                faultyExternal.push(r.id);
-            }
-        });
-        if (faultyExternal.length > 0){
-            logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
-        }
+        validateExternal(res.external, res.localConventions);
 
         //Assign helper property housingLyph for simpler Cypher queries
         (res.lyphs||[]).forEach(lyph => {
@@ -302,6 +293,7 @@ export class Graph extends Group{
         //Log info about the number of generated resources
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
         res.logger = logger;
+
         return res;
     }
 
@@ -317,37 +309,23 @@ export class Graph extends Group{
         //Create invisible links to generate attraction forces for housing lyphs of connected chains
         (this.links||[]).forEach(lnk => {
             if (lnk.collapsible){
-                let housingLyphs = [null, null];
-                [$Field.source, $Field.target].forEach((prop, i) => {
-                    let border = lnk[prop] && lnk[prop].hostedBy;
-                    if (border) {
-                        housingLyphs[i] = border.onBorder && border.onBorder.host;
-                    } else {
-                        housingLyphs[i] = lnk[prop] && lnk[prop].internalIn;
+                let nodes = lnk.createForceNodes();
+                if (nodes[0] && nodes[0].class === $SchemaClass.Node
+                    && nodes[1] && nodes[1].class === $SchemaClass.Node){
+                    if ((nodes[0].id !== nodes[1].id)) {
+                        let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
+                        if (!this.links.find(x => x.id === force_json.id)) {
+                            let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
+                            [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
+                                nodes[i][prop] = nodes[i][prop] || [];
+                                nodes[i][prop].push(force);
+                            })
+                            group_json.links.push(force.id);
+                            this.links.push(force);
+                        }
                     }
-                    while (housingLyphs[i] && (housingLyphs[i].container || housingLyphs[i].host)) {
-                       housingLyphs[i] = housingLyphs[i].container || housingLyphs[i].host;
-                    }
-                });
-                let nodes = [null, null];
-                [$Field.source, $Field.target].forEach((prop, i) => {
-                    nodes[i] = housingLyphs[i] && housingLyphs[i].conveys && housingLyphs[i].conveys[prop];
-                    if (!nodes[i]){
-                        //Create a tension link between lyph end and free floating end of collapsible link
-                        nodes[i] = lnk[prop];
-                    }
-                });
-                if (nodes[0] && nodes[1] && (nodes[0].id !== nodes[1].id)){
-                    let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
-                    if (!this.links.find(x => x.id === force_json.id)){
-                        let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
-                        this.links.push(force);
-                        group_json.links.push(force);
-                        [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
-                            nodes[i][prop] = nodes[i][prop] || [];
-                            nodes[i][prop].push(force);
-                        })
-                    }
+                } else {
+                    logger.warn($LogMsg.LINK_FORCE_FAILED, getID(nodes[0]), getID(nodes[1]));
                 }
             }
         })
@@ -567,7 +545,6 @@ export class Graph extends Group{
         let curiesContext = {};
         let localConventions = this.localConventions || [];
         localConventions.forEach((obj) =>
-            // FIXME warn on duplicate curies?
             curiesContext[obj.prefix] = {"@id": obj.namespace, "@prefix": true});
 
         let localContext = {
