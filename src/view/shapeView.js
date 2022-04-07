@@ -235,16 +235,16 @@ Lyph.prototype.createViewObjects = function(state) {
         let relOffset = 0;
         (this.layers || []).forEach(layer => {
             layer.create3d = this.create3d;
-            //TODO place sizing code for layers to Lyph.updateSize
             layer.layerWidth = layer.layerWidth || defaultWidth;
             layer.width = layer.layerWidth / 100 * this.width;
             layer.height = this.height;
             layer.createViewObjects(state);
             let layerObj = layer.viewObjects["2d"];
-            this.viewObjects["2d"].add(layerObj);
-            layerObj.translateX(relOffset);
+            if (layerObj) {
+                this.viewObjects["2d"].add(layerObj);
+                layerObj.translateX(relOffset);
+            }
             relOffset += layer.width;
-
             let layerObj3d = layer.viewObjects["3d"];
             if (layerObj3d) {
                 this.viewObjects["3d"].add(layerObj3d);
