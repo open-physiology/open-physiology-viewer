@@ -81,4 +81,3 @@ export class ExternalSearchBar {
     exports: [ExternalSearchBar]
 })
 export class ExternalSearchModule {}
-

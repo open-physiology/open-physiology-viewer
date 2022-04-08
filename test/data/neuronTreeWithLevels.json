@@ -6,6 +6,7 @@
     {
       "id"          : "tree1",
       "name"        : "Neuron tree",
+      "root"        : "a",
       "numLevels"   : 6,
       "lyphTemplate": "neuronLyph",
       "levels"      : [ {}, "lnk2"]

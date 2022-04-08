@@ -10,22 +10,22 @@ import {FormsModule} from "@angular/forms";
     selector: 'state-toolbar',
     template: `
        <section class="w3-bar w3-light-grey w3-bottom state-toolbar" title="Snapshot state">
-           <button id="backwardBtn" [disabled]="disablePrev" class="w3-bar-item" (click)="previousState()" title="Previous saved state">
+           <button id="backwardBtn" [disabled]="disablePrev" class="w3-bar-item" (click)="previousState()" title="Previous state">
                 <i class="fa fa-step-backward"> </i> 
            </button> 
            <span class="w3-bar-item">
                {{currentState}} / {{total}} 
            </span>
-           <button id="forwardBtn" [disabled]="disableNext" class="w3-bar-item" (click)="nextState()" title="Next saved state">
+           <button id="forwardBtn" [disabled]="disableNext" class="w3-bar-item" (click)="nextState()" title="Next state">
                 <i class="fa fa-step-forward"> </i> 
            </button> 
-           <button id="addBtn" class="w3-bar-item w3-hover-light-grey" (click)="addState()" title="Add model state">
+           <button id="addBtn" class="w3-bar-item w3-hover-light-grey" (click)="addState()" title="Add state">
                 <i class="fa fa-photo"> </i> 
            </button> 
-           <button id="deleteBtn" class="w3-bar-item w3-hover-light-grey" (click)="deleteState()" title="Add model state">
+           <button id="deleteBtn" class="w3-bar-item w3-hover-light-grey" (click)="deleteState()" title="Delete state">
                 <i class="fa fa-trash"> </i> 
            </button> 
-           <button id="resetBtn" [disabled]="!unsavedState" class="w3-bar-item w3-hover-light-grey" (click)="homeState()" title="Return to unsaved state prior to snapshot replay">
+           <button id="resetBtn" [disabled]="!unsavedState" class="w3-bar-item w3-hover-light-grey" (click)="homeState()" title="Reset to last unsaved state">
                 <i class="fa fa-stop"> </i> 
            </button> 
         </section>

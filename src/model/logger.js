@@ -29,7 +29,9 @@ export const $LogMsg = {
 
     CHAIN_CONFLICT              : `Conflicting chain specification: both "housingLyphs" and "housingChain" are given. Proceeding with "housingLyphs"`,
     CHAIN_CONFLICT2             : `Conflicting chain specification: both "lyphs" and "levels" arrays are given. Proceeding with "lyphs"`,
-    CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains} property disagrees with the chain's housingLayers} property`,
+    CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains property disagrees with the chain's housingLayers} property`,
+    CHAIN_CONFLICT_ROOT         : `Conflicting anchoring: the chain's root anchor is not the end of a chain it is wired to:`,
+    CHAIN_CONFLICT_LEAF         : `Conflicting anchoring: the chain's leaf anchor is not the end of a chain it is wired to:`,
     CHAIN_HOUSING_TEMPLATE      : "Housing lyph or its layer is a template",
     CHAIN_MAT_DIFF              : "Incorrectly defined chain pattern - innermost layers do not convey the same material",
     CHAIN_NO_CONVEYING_LYPH     : "A chain link without conveying lyph found",
@@ -103,6 +105,7 @@ export const $LogMsg = {
 
     SNAPSHOT_NO_SCAFFOLD        : "Failed to find snapshot state scaffold in the model",
     SNAPSHOT_NO_ANCHOR          : "Failed to find snapshot state anchor in the model",
+    SNAPSHOT_IMPORT_MULTI       : "Cannot import multiple snapshots, all but first are ignored. Please revise the model imports.",
 
     TREE_CHAIN_UNDEFINED        : "Cannot create omega tree instances: canonical tree chain undefined!",
     TREE_NO_CHAIN               : "Cannot create omega tree instances: canonical tree chain not found or empty",
@@ -127,9 +130,15 @@ export const $LogMsg = {
     CHAIN_LEVEL_ERROR           : `A mismatch between link ends found at level`,
     CHAIN_LYPH_TEMPLATE_MISSING : "Failed to find the lyph template definition in the parent group",
     CHAIN_WRONG_TOPOLOGY        : "Chain's topology is incorrect",
-    DYNAMIC_ABSTRACT_SEED       : "Skipping annotation of a dynamic group seeded by a lyph template",
+    CHAIN_NO_ROOT_INPUT         : "An input chain without root",
+    CHAIN_NO_ROOT               : "A chain without root",
+    CHAIN_NO_LEAF               : "A chain without leaf",
+    CHAIN_NO_LEVELS             : "A chain without levels",
+    CHAIN_MISMATCH_HOUSING      : "Mismatch between number of levels and the number of housing lyphs",
 
     COALESCENCE_NO_LYPH         : "Unable to access lyph for coalescence definition",
+
+    DYNAMIC_ABSTRACT_SEED       : "Skipping annotation of a dynamic group seeded by a lyph template",
 
     EXCEL_DATA_TYPE_UNKNOWN     : "Excel to JSON: failed to determine data type",
     EXCEL_INVALID_COLUMN_NAME   : "Excel to JSON: invalid column name",

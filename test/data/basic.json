@@ -5,6 +5,7 @@
   "author": "Natallia Kokash",
   "imports": [
     "https://api.github.com/repositories/100824100/contents/test/scaffolds/tooMap.json",
+    "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json",
     "https://api.github.com/repositories/100824100/contents/test/scaffolds/nonExistingModel.json",
     "some wrong url"
   ],

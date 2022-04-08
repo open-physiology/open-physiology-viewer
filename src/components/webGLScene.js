@@ -5,26 +5,20 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
-import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
+import {keys, values, isObject, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
-import ThreeForceGraph from '../view/render/threeForceGraph';
+import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
-import { GeometryFactory } from '../view/util/geometryFactory'
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
-require("three/examples/js/postprocessing/EffectComposer");
-require("three/examples/js/shaders/CopyShader");
-require("three/examples/js/shaders/FXAAShader");
-require("three/examples/js/postprocessing/RenderPass");
-require("three/examples/js/postprocessing/ShaderPass");
+import {HotkeyModule, HotkeysService, Hotkey, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
 
 const WindowResize = require('three-window-resize');
-import { autoLayout } from '../view/render/autoLayout'
 
 /**
  * @ignore
@@ -33,6 +27,7 @@ import { autoLayout } from '../view/render/autoLayout'
     selector: 'webGLScene',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
+        <hotkeys-cheatsheet></hotkeys-cheatsheet>
         <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
@@ -120,6 +115,7 @@ import { autoLayout } from '../view/render/autoLayout'
                         [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
+                        (onOpenExternal)="openExternal($event)"
                         (onEditResource)="editResource.emit($event)"
                         (onUpdateLabels)="graph?.showLabels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
@@ -138,9 +134,9 @@ import { autoLayout } from '../view/render/autoLayout'
         }
         
         #apiLayoutSettingsPanel{
-            height: 100%;
-            overflow-y: scroll;
-            overflow-x: auto;
+          height: 100%;
+          overflow-y: scroll;
+          overflow-x: auto;
         }
         
         :host >>> fieldset {
@@ -184,7 +180,7 @@ export class WebGLSceneComponent {
 
     graph;
     helpers   = {};
-    highlightColor = 0xffff00;
+    highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
@@ -266,8 +262,9 @@ export class WebGLSceneComponent {
      */
     @Output() onImportExternal = new EventEmitter();
 
-    constructor(dialog: MatDialog) {
+    constructor(dialog: MatDialog, hotkeysService: HotkeysService) {
         this.dialog = dialog;
+        this.hotkeysService = hotkeysService ;
         this.defaultConfig = {
             "layout": {
                 "showLyphs"       : true,
@@ -289,6 +286,50 @@ export class WebGLSceneComponent {
             "selected"   : true
         };
         this.config = this.defaultConfig::cloneDeep();
+        this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
+          this.resetCamera();
+          return false; // Prevent bubbling
+        }, undefined, 'Reset camera'));
+        this.hotkeysService.add(new Hotkey('shift+meta+u', (event: KeyboardEvent): boolean => {
+          this.updateGraph();
+          return false; // Prevent bubbling
+        }, undefined, 'Update graph'));
+        this.hotkeysService.add(new Hotkey('shift+meta+t', (event: KeyboardEvent): boolean => {
+          this.toggleLockControls();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Lock controls'));
+        this.hotkeysService.add(new Hotkey('shift+meta+a', (event: KeyboardEvent): boolean => {
+          this.toggleAntialias();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Anti Alias'));
+        this.hotkeysService.add(new Hotkey('shift+meta+l', (event: KeyboardEvent): boolean => {
+          this.togglelayout();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Layout'));
+        this.hotkeysService.add(new Hotkey('shift+meta+p', (event: KeyboardEvent): boolean => {
+          this.showReport();
+          return false; // Prevent bubbling
+        }, undefined, 'Show Report'));
+        this.hotkeysService.add(new Hotkey('shift+meta+d', (event: KeyboardEvent): boolean => {
+          this.resizeToDisplaySize();
+          return false; // Prevent bubbling
+        }, undefined, 'Resize to Display Size'));
+        this.hotkeysService.add(new Hotkey('shift+meta+up', (event: KeyboardEvent): boolean => {
+          this.moveCamera('up');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera up'));
+        this.hotkeysService.add(new Hotkey('shift+meta+down', (event: KeyboardEvent): boolean => {
+          this.moveCamera('down');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera down'));
+        this.hotkeysService.add(new Hotkey('shift+meta+left', (event: KeyboardEvent): boolean => {
+          this.moveCamera('left');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera left'));
+        this.hotkeysService.add(new Hotkey('shift+meta+right', (event: KeyboardEvent): boolean => {
+          this.moveCamera('right');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera right'));
     }
 
     onScaleChange(newLabelScale){
@@ -305,7 +346,6 @@ export class WebGLSceneComponent {
 
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias, alpha: true});
         this.renderer.setClearColor(0xffffff, 0.5);
-        this.renderer.autoClear = false;
 
         this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;
@@ -339,46 +379,7 @@ export class WebGLSceneComponent {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-        // FXAA improvements
-        // commented for now since the improvements is close to none in my opinion (dario)
-		// this.renderer.autoClear = false;
-		// this.renderer.setPixelRatio( window.devicePixelRatio );
-		// this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
-		// this.container.appendChild( this.renderer.domElement );
-
-        // this.renderPass = new THREE.RenderPass(this.scene, this.camera);
-
-        // this.fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
-        // this.fxaaPass.renderToScreen = false;
-        // this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
-		// this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
-
-        // this.copyPass = new THREE.ShaderPass( THREE.CopyShader );
-        // this.copyPass.renderToScreen = true;
-
-		// this.customComposer = new THREE.EffectComposer( this.renderer );
-		// this.customComposer.addPass( this.renderPass );
-        // this.customComposer.addPass( this.fxaaPass );
-		// this.customComposer.addPass( this.copyPass );
-
-        // const pixelRatio = this.renderer.getPixelRatio();
-
-        // window.addEventListener( 'resize', () => {
-        //     this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
-        //     this.camera.updateProjectionMatrix();
-
-        //     this.renderer.setSize( this.container.offsetWidth, this.container.offsetHeight );
-        //     this.customComposer.setSize( this.container.offsetWidth, this.container.offsetHeight );
-
-        //     const pixelRatio = this.renderer.getPixelRatio();
-
-        //     this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.container.offsetWidth * pixelRatio );
-        //     this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.container.offsetHeight * pixelRatio );
-
-        // });
-        // FXAA end
-
-        this.mouse = GeometryFactory.instance().createVector2(0, 0);
+        this.mouse = new THREE.Vector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
         this.resizeToDisplaySize();
         this.createHelpers();
@@ -408,6 +409,8 @@ export class WebGLSceneComponent {
             }
         })
     }
+
+
 
     exportJSON(){
         if (this._graphData){
@@ -505,29 +508,13 @@ export class WebGLSceneComponent {
         this._helperKeys = this.helpers::keys();
     }
 
-    getSceneObjects() {
-      return this.scene.children[this.scene.children.length-1].children.filter((o) => { return o.type != 'Sprite' });
-    }
-
     createGraph() {
-      window.autoLayout = autoLayout ;
         this.graph = new ThreeForceGraph()
             .canvas(this.canvas.nativeElement)
             .scaleFactor(this.scaleFactor)
-            .onAnchorDrag((obj, delta) => {
-                obj.userData.relocate(delta);
-                //this.graph.graphData(this.graphData);
-                this.scaffoldUpdated.emit(obj);
-            })
             .onAnchorDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
-                this.scaffoldUpdated.emit(obj);
-            })
-            .onWireDrag((obj, delta) => {
-                obj.userData.relocate(delta);
-                console.log(delta);
-                //this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
             .onWireDragEnd((obj, delta) => {
@@ -535,18 +522,10 @@ export class WebGLSceneComponent {
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
             })
-            .onRegionDrag((obj, delta) => {
-                obj.userData.relocate(delta);
-                //this.graph.graphData(this.graphData);
-                this.scaffoldUpdated.emit(obj);
-            })
             .onRegionDragEnd((obj, delta) => {
                 obj.userData.relocate(delta);
                 this.graph.graphData(this.graphData);
                 this.scaffoldUpdated.emit(obj);
-            })
-            .onFinishLoading(() => {
-              this.parseDefaultColors(this.getSceneObjects());
             })
             .graphData(this.graphData);
 
@@ -554,11 +533,41 @@ export class WebGLSceneComponent {
         const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
         const forceStrength = (d, key) => isLayoutDimValid(d.layout, key) ? 1 : 0;
 
+        this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));
+        this.graph.d3Force("y", forceY().y(d => forceVal(d, "y")).strength(d => forceStrength(d, "y")));
+        this.graph.d3Force("z", forceZ().z(d => forceVal(d, "z")).strength(d => forceStrength(d, "z")));
+
+        this.graph.d3Force("link")
+            .distance(d => d.length )
+            .strength(d => (d.strength ? d.strength :
+                (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
+
         this.graph.labelRelSize(this.labelRelSize);
         this.graph.showLabels(this.config["labels"]);
         this.scene.add(this.graph);
+    }
 
-        window.scene = this.scene ;
+    moveCamera(direction){
+      const delta = 10 ;
+      switch(direction)
+      {
+        case 'left': 
+          this.camera.position.x = this.camera.position.x - delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'up' : 
+          this.camera.position.z = this.camera.position.z - delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'right' : 
+          this.camera.position.x = this.camera.position.x + delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'down' : 
+          this.camera.position.z = this.camera.position.z + delta;
+          this.camera.updateProjectionMatrix();
+        break;
+      }
     }
 
     resetCamera(positionPoint, lookupPoint) {
@@ -583,6 +592,25 @@ export class WebGLSceneComponent {
         }
     }
 
+    openExternal(resource){
+        if (!resource || !this._graphData.localConventions){
+            return;
+        }
+        (resource.external||[]).forEach(external => {
+            if (external.id) {
+                let parts = external.id.split(":");
+                if (parts.length === 2) {
+                    let [prefix, suffix] = parts;
+                    let localConvention = this._graphData.localConventions.find(obj => obj.prefix === prefix);
+                    if (localConvention) {
+                        let url = localConvention.namespace + suffix;
+                        window.open(url, '_blank').focus();
+                    }
+                }
+            }
+        })
+    }
+
     toggleLockControls(){
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
@@ -593,138 +621,75 @@ export class WebGLSceneComponent {
         this.renderer.antialias = this.antialias;
     }
 
-    // getMouseOverEntity() {
-    //     if (!this.graph) { return; }
-    //     this.ray.setFromCamera( this.mouse, this.camera );
-    //     this.unhighlight(this.getSceneObjects());
-    //     let intersects = this.ray.intersectObjects(this.graph.children).filter((o) => { return o.object.type != 'Sprite' });
-    //     if (intersects.length > 0) {
-    //         this.highlight(intersects[0], this.highlightColor)
-    //     }
-    // }
     getMouseOverEntity() {
-      if (!this.graph) { return; }
-      this.ray.setFromCamera( this.mouse, this.camera );
+        if (!this.graph) { return; }
+        this.ray.setFromCamera( this.mouse, this.camera );
 
-      const selectLayer = (entity) => {
-          //Refine selection to layers
-          if (entity && entity.layers && this.config.layout["showLayers"]) {
-              let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
-              let layerIntersects = this.ray.intersectObjects(layerMeshes);
-              if (layerIntersects.length > 0) {
-                  return selectLayer(layerIntersects[0].object.userData);
-              }
-          }
-          return entity;
-      };
+        const selectLayer = (entity) => {
+            //Refine selection to layers
+            if (entity && entity.layers && this.config.layout["showLayers"]) {
+                let layerMeshes = entity.layers.map(layer => layer.viewObjects["main"]);
+                let layerIntersects = this.ray.intersectObjects(layerMeshes);
+                if (layerIntersects.length > 0) {
+                    return selectLayer(layerIntersects[0].object.userData);
+                }
+            }
+            return entity;
+        };
 
-      let intersects = this.ray.intersectObjects(this.graph.children);
-      let groupIntersected = [];
-      let self = this;
-      this.graph.children.forEach( child => {
-          if ( child.type === "Group" && child?.children?.length > 0 ){
-            groupIntersected.concat(self.ray.intersectObjects(child.children));
-          }
-      })
-      if (intersects.length > 0) {
-          let entity = intersects[0]?.object?.userData;
-          if (!entity || entity.inactive) { return; }
-          return selectLayer(entity);
-      }
-  }
+        let intersects = this.ray.intersectObjects(this.graph.children);
+        if (intersects.length > 0) {
+            let entity = intersects[0].object.userData;
+            if (!entity || entity.inactive) { return; }
+            return selectLayer(entity);
+        }
+    }
 
     get highlighted(){
         return this._highlighted;
     }
 
     get selected(){
-        return this._selected;  
+        return this._selected;
     }
 
     highlight(entity, color, rememberColor = true){
-      if (!entity || !entity.viewObjects) { return; }
-      let obj = entity.viewObjects["main"];
-      if (obj && obj.material) {
-          // store color of closest object (for later restoration)
-          if (rememberColor){
-              obj.currentHex = obj.material.color.getHex();
-              (obj.children || []).forEach(child => {
-                  if (child.material) {
-                      child.currentHex = child.material.color.getHex();
-                  }
-              });
-          }
+        if (!entity || !entity.viewObjects) { return; }
+        let obj = entity.viewObjects["main"];
+        if (obj && obj.material) {
+            // store color of closest object (for later restoration)
+            if (rememberColor){
+                obj.currentHex = obj.material.color.getHex();
+                (obj.children || []).forEach(child => {
+                    if (child.material) {
+                        child.currentHex = child.material.color.getHex();
+                    }
+                });
+            }
 
-          // set a new color for closest object
-          obj.material.color.setHex(color);
-          (obj.children || []).forEach(child => {
-              if (child.material) {
-                  child.material.color.setHex(color);
-              }
-          });
-      }
-  }
-
-  unhighlight(entity){
-      if (!entity || !entity.viewObjects) { return; }
-      let obj = entity.viewObjects["main"];
-      if (obj){
-          if (obj.material){
-              obj.material.color.setHex( obj.currentHex || this.defaultColor);
-          }
-          (obj.children || []).forEach(child => {
-              if (child.material) {
-                  child.material.color.setHex(child.currentHex || this.defaultColor);
-              }
-          })
-      }
-  }
-
-    parseDefaultColors(entities) {
-      entities.forEach((e)=> {
-        this.parseDefaultColorsLeaf(e, null);
-      }) 
+            // set a new color for closest object
+            obj.material.color.setHex(color);
+            (obj.children || []).forEach(child => {
+                if (child.material) {
+                    child.material.color.setHex(color);
+                }
+            });
+        }
     }
 
-    parseDefaultColorsLeaf(e, forceColor) {
-      const currentColor = e.material?.color.getHex() ;
-      e.defaultHex = currentColor || forceColor ;
-      e.children.forEach((c) => {
-        this.parseDefaultColorsLeaf(c, currentColor);
-      });
-    }
-
-    // highlight(entity, highlightColor){
-    //   if (entity?.object)
-    //   {
-    //     const obj = entity.object ;
-    //     obj.material.color.setHex(highlightColor);
-    //     obj.children?.forEach((child) =>{
-    //       this.highlight(child, highlightColor)
-    //     });
-    //   }
-    // }
-
-    // unhighlight(entities){
-    //   entities.forEach((obj) => {
-    //     obj.material.color.setHex( obj.defaultHex || this.defaultColor );
-    //     if (obj.children)
-    //       this.unhighlight(obj.children);
-    //   })
-    // }
-
-    parseDefaultColors(entities) {
-      entities.forEach((e)=> {
-        this.parseDefaultColorsLeaf(e, null);
-      }) 
-    }
-
-    parseDefaultColorsLeaf(e, forceColor) {
-      const currentColor = e.material?.color.getHex() ;
-      e.defaultHex = currentColor || forceColor ;
-      e.children.forEach((c) => {
-        this.parseDefaultColorsLeaf(c, currentColor);
-      });
+    unhighlight(entity){
+        if (!entity || !entity.viewObjects) { return; }
+        let obj = entity.viewObjects["main"];
+        if (obj){
+            if (obj.material){
+                obj.material.color.setHex( obj.currentHex || this.defaultColor);
+            }
+            (obj.children || []).forEach(child => {
+                if (child.material) {
+                    child.material.color.setHex(child.currentHex || this.defaultColor);
+                }
+            })
+        }
     }
 
     selectByName(name) {
@@ -772,7 +737,7 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog],
     exports: [WebGLSceneComponent]

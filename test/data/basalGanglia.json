@@ -121,5 +121,11 @@
         "borders": [{},{},{}, {"hostedNodes": ["n6"]}]
       }
     }
+  ],
+  "references": [
+    {
+      "id": "PMID:29561168",
+      "uri": "https://pubmed.ncbi.nlm.nih.gov/29561168/"
+    }
   ]
 }

@@ -105,11 +105,11 @@ export class Villus extends GroupTemplate{
             villus_layers = villus_layers.map(x => x.id);
 
             let villusLyph = {
-                [$Field.id]      : getGenID($Prefix.villus, $Prefix.lyph, lyph.id, layer.id),
-                [$Field.layers]  : villus_layers.reverse(),
-                [$Field.topology]: (i===0)? Lyph.LYPH_TOPOLOGY.BAG : Lyph.LYPH_TOPOLOGY.TUBE,
-                [$Field.scale]   : {"width": 40 * (villus.numLayers - i), "height": 80},
-                [$Field.skipLabel]: true,
+                [$Field.id]        : getGenID($Prefix.villus, $Prefix.lyph, lyph.id, layer.id),
+                [$Field.layers]    : villus_layers.reverse(),
+                [$Field.topology]  : (i===0)? Lyph.LYPH_TOPOLOGY.BAG : Lyph.LYPH_TOPOLOGY.TUBE,
+                [$Field.scale]     : {[$Field.width]: 40 * (villus.numLayers - i), [$Field.height]: 80},
+                [$Field.skipLabel] : true,
                 [$Field.generated] : true
             };
             // if (i === 0 && villus.numLevels > 0){

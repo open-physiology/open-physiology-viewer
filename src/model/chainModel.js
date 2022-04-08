@@ -1,9 +1,9 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./shapeModel";
 import {Node} from "./verticeModel";
-import {Link} from "./edgeModel";
+import {Link, Wire} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
-import {copyCoords, getPoint } from "../view/util/utils"
+
 
 import {
     mergeGenResource,
@@ -16,32 +16,32 @@ import {
     getGenName,
     $Field,
     $Color,
-    $Prefix, LYPH_TOPOLOGY, $SchemaClass
+    $Prefix,
+    $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
-import {defaults, isObject, isArray, flatten} from 'lodash-bound';
-
+import {defaults, isObject, isArray, flatten, isString} from 'lodash-bound';
 
 /**
  * Chain model
- * @property lyphs
- * @property lyphTemplate
- * @property levels
- * @property numLevels
- * @property housingLyphs
- * @property housingChain
- * @property housingRange
+ * @property {Array<Lyph>} lyphs
+ * @property {Lyph} lyphTemplate
+ * @property {Array<Link>} levels
+ * @property {number} numLevels
+ * @property {Array<Lyph>} housingLyphs
+ * @property {Chain} housingChain
+ * @property {Object} housingRange
  * @property housingLayers
- * @property wiredTo
- * @property startFromLeaf
- * @property hostedBy
- * @property root
- * @property leaf
+ * @property {Wire} wiredTo
+ * @property {boolean} startFromLeaf
+ * @property {Shape} hostedBy
+ * @property {Node} root
+ * @property {Node} leaf
  * @property chainTopology
  */
 export class Chain extends GroupTemplate {
 
-      static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
           json.class = json.class || $SchemaClass.Chain;
           let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
           if (!res.validateTopology()) {
@@ -184,7 +184,7 @@ export class Chain extends GroupTemplate {
             }
 
             chain.levels = [];
-            let prev;
+            let prevLink;
             for (let i = 0; i < n; i++) {
                 let link = existingLinks[i] || {
                     [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
@@ -200,14 +200,21 @@ export class Chain extends GroupTemplate {
                 if (chain.length){
                     link.length = chain.length / lyphs.length;
                 }
-                if (prev){
-                    prev.next = link.id;
+                if (prevLink){
+                    prevLink.next = link.id;
                 }
-                prev = link;
+                prevLink = link;
                 mergeGenResource(chain.group, parentGroup, link, $Field.links);
                 chain.levels[i] = link.id;
+                link.levelIn = chain.id;
             }
             chain.numLevels = chain.levels.length;
+            if (chain.root === undefined) {
+                chain.root = nodeIDs[0];
+            }
+            if (chain.leaf === undefined) {
+                chain.leaf = nodeIDs[n];
+            }
         }
 
         function deriveFromLevels(){
@@ -240,25 +247,40 @@ export class Chain extends GroupTemplate {
 
             //Levels should contain link objects for generation/validation
             for (let i = 0; i < chain.levels.length; i++) {
-                chain.levels[i] = findResourceByID(parentGroup.links, chain.levels[i]) || {};
+                let level = findResourceByID(parentGroup.links, chain.levels[i]);
+                if (level){
+                    chain.levels[i] = level;
+                    if (chain.levels[i]::isString()){
+                        chain.levels[i] = {
+                            "id": chain.levels[i]
+                        };
+                    }
+                } else {
+                    chain.levels[i] = {};
+                }
             }
 
             //Match number of requested levels with the levels[i] array length
             if (chain.levels.length !== chain.numLevels){
-                let min = Math.min(chain.levels.length, chain.numLevels || 1);
                 let max = Math.max(chain.levels.length, chain.numLevels || 0);
-                logger.info($LogMsg.CHAIN_NUM_LEVELS, min, max);
-                for (let i = min; i < max; i++){
+                logger.info($LogMsg.CHAIN_NUM_LEVELS, chain.levels.length, max);
+                for (let i = chain.levels.length; i < max; i++){
                     chain.levels.push({});
                 }
                 chain.numLevels = max;
             }
             let N = chain.numLevels;
 
-            let sources = chain.levels.map(l => l? l.source: null);
-            let targets = chain.levels.map(l => l? l.target: null);
+            let sources = chain.levels.map(l => l? l.source: undefined);
+            let targets = chain.levels.map(l => l? l.target: undefined);
             sources[0] = sources[0] || chain.root;
             targets[N - 1] = targets[N - 1] || chain.leaf;
+            if (chain.root && !getID(sources[0])) {
+                sources[0].id = chain.root;
+            }
+            if (chain.leaf && !getID(targets[N - 1])) {
+                targets[N - 1].id = chain.leaf;
+            }
 
             for (let i = 1; i < N; i++){
                 if (sources[i] && targets[i-1] && !compareResources(targets[i-1], sources[i])){
@@ -275,22 +297,36 @@ export class Chain extends GroupTemplate {
                 });
 
             for (let i = 0; i < N; i++){
-                sources[i] = sources[i] || ((i > 0) && targets[i-1]) || getNewNode(i);
-                mergeGenResource(chain.group, parentGroup, sources[i], $Field.nodes);
+                sources[i] = sources[i] || ((i > 0) && targets[i - 1]) || getNewNode(i);
+                if (sources[i]::isString()){
+                    sources[i] = {
+                        "id": sources[i]
+                    };
+                }
             }
             for (let i = 1; i < N; i++){
-                targets[i-1] = sources[i];
+                targets[i - 1] = sources[i];
             }
             targets[N - 1] = targets[N - 1] || getNewNode(N);
-            mergeGenResource(chain.group, parentGroup, targets[N - 1], $Field.nodes);
-
+            if (targets[N - 1]::isString()){
+                targets[N - 1] = {
+                    "id": targets[N - 1]
+                };
+            }
             chain.root = getID(sources[0]);
             chain.leaf = getID(targets[N - 1]);
+
+            //Add generated nodes to the parent group
+            for (let i = 0; i < N; i++){
+                mergeGenResource(chain.group, parentGroup, sources[i], $Field.nodes);
+            }
+            mergeGenResource(chain.group, parentGroup, targets[N - 1], $Field.nodes);
+
             let lyphTemplate = getLyphTemplate();
 
             //Create levels
             chain.lyphs = [];
-            let prev;
+            let prevLink;
             for (let i = 0; i < N; i++){
                 if (!chain.levels[i]){ chain.levels[i] = {}; }
                 //Do not override existing properties
@@ -307,10 +343,10 @@ export class Chain extends GroupTemplate {
                 if (chain.length){
                     link.length = chain.length / N;
                 }
-                if (prev){
-                    prev.next = link.id;
+                if (prevLink){
+                    prevLink.next = link.id;
                 }
-                prev = link;
+                prevLink = link;
 
                 if (lyphTemplate && !chain.levels[i].conveyingLyph){
                     //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
@@ -343,30 +379,6 @@ export class Chain extends GroupTemplate {
         }
     }
 
-    update(curve, start, end){
-      if ( !start || !end){ return; }
-      let length = (curve && curve.getLength)? curve.getLength(): end.distanceTo(start);
-      if (length < 10){ return; }
-      this.length = length;
-      copyCoords(this.root.layout, start);
-      this.root.fixed = true;
-      for (let i = 0; i < this.levels.length; i++) {
-          //Interpolate chain node positions for quicker layout
-          this.levels[i].length = this.length / this.levels.length;
-          const lyph = this.levels[i].conveyingLyph;
-          if (lyph){
-              lyph.updateSize();
-          }
-          let node = this.levels[i].target;
-          if (node && !node.anchoredTo) {
-              let p = getPoint(curve, start, end, (i + 1) / this.levels.length);
-              copyCoords(node.layout, p);
-              node.fixed = true;
-          }
-      }
-      copyCoords(this.leaf.layout, end);
-    }
-
     /**
      * Align chain levels along housing lyphs
      * @param parentGroup
@@ -380,6 +392,10 @@ export class Chain extends GroupTemplate {
             lyph.internalNodes = lyph.internalNodes || [];
             lyph.internalNodes.push(node);
         };
+
+        if (chain.housingLyphs.length !== chain.levels.length){
+            logger.error($LogMsg.CHAIN_MISMATCH_HOUSING, chain.id, chain.housingLyphs.length, chain.levels.length);
+        }
 
         let N = Math.min(chain.housingLyphs.length, chain.levels.length);
         parentGroup.coalescences = parentGroup.coalescences || [];
@@ -441,11 +457,14 @@ export class Chain extends GroupTemplate {
                 hostLyph.border = hostLyph.border || {};
                 hostLyph.border.borders = hostLyph.border.borders || [{}, {}, {}, {}];
 
-                if (sameAsNext){
-                    sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i+1]? 0: 2;
-                }
-                if (sameAsPrev){
-                    targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i-1]? 2: 0;
+                if (chain.housingLayers) {
+                    if (sameAsNext && chain.housingLayers.length > i) {
+                        sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i + 1] ? 0 : 2;
+                    }
+                    // sameAsPrev implies i > 0
+                    if (sameAsPrev && chain.housingLayers.length >= i) {
+                        targetBorderIndex = chain.housingLayers[i] < chain.housingLayers[i - 1] ? 2 : 0;
+                    }
                 }
 
                 //Start and end nodes
@@ -464,7 +483,9 @@ export class Chain extends GroupTemplate {
                     };
                     let targetClone = Node.clone(targetNode);
                     addBorderNode(hostLyph.border.borders[sourceBorderIndex], targetClone.id);
-                    let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
+                    // Note: the commented broke chain connectivity, it could be a reason issue #129 appeared
+                    // let lnk = Link.createCollapsibleLink(targetNode.id, targetClone.id);
+                    let lnk = Link.createCollapsibleLink(targetClone.id, targetNode.id);
                     level.target = targetClone.id;
                     chain.group.nodes.push(targetClone);
                     chain.group.links.push(lnk);
@@ -488,6 +509,17 @@ export class Chain extends GroupTemplate {
         }
     }
 
+    static validateRoots(chains, nodes){
+        const rootNodes = (nodes||[]).filter(node => node.rootOf);
+        (chains||[]).forEach(chain => {
+            if (chain::isObject() && !chain.root){
+                if (!rootNodes.find(node => node.rootOf === chain.id)){
+                    logger.error($LogMsg.CHAIN_NO_ROOT_INPUT, chain.id);
+                }
+            }
+        });
+    }
+
     /**
      * Resize generated chain lyphs to fit into hosting lyphs (housing lyph or its layer)
      * Optionally, adjust lyph sizes to be the same for the entire chain
@@ -502,29 +534,96 @@ export class Chain extends GroupTemplate {
                 logger.warn($LogMsg.CHAIN_NO_CONVEYING_LYPH, this.id, lnk.id)
                 return;
             }
-            lyph.updateSize();
-            minWidth = Math.min(minWidth, lyph.width);
+            if (lyph instanceof Lyph) {
+                lyph.updateSize();
+                minWidth = Math.min(minWidth, lyph.width);
+            }
         });
         if (sameWidth && minWidth < MAX_WIDTH){
             (this.levels||[]).forEach(lnk => lnk.conveyingLyph && (lnk.conveyingLyph.width = minWidth));
         }
     }
 
-    getWiredChainEnds(){
-        let start, end;
-        if (this.wiredTo) {
-            start = this.wiredTo.source;
-            end   = this.wiredTo.target;
-        } else {
-            start = this.root.anchoredTo? this.root.anchoredTo: this.root.layout;
-            end   = this.leaf.anchoredTo? this.leaf.anchoredTo: this.leaf.layout;
+    /**
+     * Connect chains that share a source or target via nextChainStartLevels and prevChainEndLevels
+     * Note: Housed chains connected via cloned or joint nodes must already have these properties set,
+     * hence we do not analyze chain end clones.
+     * Note: Chains are connected after relationship synchronization, so we must set both sides
+     */
+    connect(){
+        if ((this.levels||[]).length === 0){
+            logger.error($LogMsg.CHAIN_NO_LEVELS, this.id);
+            return;
         }
-        if (this.startFromLeaf){
+        function connectNeighbor(host, neighbor, prop){
+            host[prop] = host[prop] || [];
+            if (!host[prop].find(e => e.id === neighbor.id)){
+                host[prop].push(neighbor);
+            }
+        }
+        if (this.root) {
+            (this.root.leafOf||[]).forEach(prevChain => prevChain.levels &&
+                connectNeighbor(this.levels[0], prevChain.levels[prevChain.levels.length - 1], $Field.prevChainEndLevels));
+        } else {
+            logger.error($LogMsg.CHAIN_NO_ROOT, this.id)
+        }
+        if (this.leaf){
+            (this.leaf.rootOf||[]).forEach(nextChain => nextChain.levels &&
+                connectNeighbor(this.levels[this.levels.length - 1], nextChain.levels[0], $Field.nextChainStartLevels));
+        } else {
+            logger.error($LogMsg.CHAIN_NO_LEAF, this.id)
+        }
+    }
+
+    getScaffoldChainEnds(){
+        let {start, end} = this.getWireEnds();
+        if (!start) {
+            start = this.root.anchoredTo;
+        }
+        if (!end) {
+            end = this.leaf.anchoredTo;
+        }
+        return {start, end};
+    }
+
+    getWireEnds(){
+        let start = this.wiredTo? this.wiredTo.source: undefined;
+        let end = this.wiredTo? this.wiredTo.target: undefined;
+        if (this.startFromLeaf) {
             let tmp = start;
             start = end;
             end = tmp;
         }
         return {start, end};
+    }
+
+    /**
+     * Checks if the chain end anchoring does not conflict with chain wiring
+     * Note: call after scaffold resources are generated
+     * @returns {boolean}
+     */
+    validateAnchoring(){
+        if (this.wiredTo) {
+            if (!(this.wiredTo instanceof Wire)){
+                throw Error("Cannot validate chain wiring before scaffold generation!");
+            }
+            let {start, end} = this.getWireEnds();
+            if (this.root && this.root.achoredTo) {
+                let id1 = getID(start);
+                let id2 = getID(this.root.anchoredTo);
+                if (id1 !== id2) {
+                    logger.error($LogMsg.CHAIN_CONFLICT_ROOT, "chain: " + this.id, "wire source: " + id1, "chain root: " + id2);
+                }
+            }
+            if (this.leaf && this.leaf.anchoredTo) {
+                let id1 = getID(end);
+                let id2 = getID(this.leaf.anchoredTo);
+                if (id1 !== id2) {
+                    logger.error($LogMsg.CHAIN_CONFLICT_LEAF, "chain: " + this.id, "wire target: " + id1, "chain leaf: " + id2);
+                }
+            }
+        }
+        return true;
     }
 
     validateTopology() {

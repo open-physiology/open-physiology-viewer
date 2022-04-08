@@ -10,7 +10,7 @@ import {
     it,
     beforeEach,
     afterEach,
-    expect,
+    expect, after,
 } from './test.helper';
 
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -32,9 +32,6 @@ import {ExternalSelectDialog} from "../src/components/gui/externalSelectDialog";
 
 import basalGanglia from './data/basalGanglia.json';
 import {modelClasses} from "../src/model";
-
-let graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
-
 import {CSG} from 'three-csg-ts';
 import {THREE} from "../src/view/utils";
 
@@ -132,7 +129,12 @@ describe("SearchBar component", () => {
     let fixture;
     let container;
     let containerElement;
-    let resourceNames = (graphData.resources||[]).filter(e => e.name).map(e => e.name);
+    let resourceNames;
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
+        resourceNames = (graphData.resources||[]).filter(e => e.name).map(e => e.name);
+    });
 
     beforeEach(() => {
         TestBed.resetTestEnvironment();
@@ -187,7 +189,9 @@ describe("SearchBar component", () => {
         });
     });
 
-    afterEach(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 

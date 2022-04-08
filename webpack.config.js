@@ -28,7 +28,7 @@ module.exports = {
             { from: 'test-app/index.html',  to: 'test-app/index.html' },
             { from: 'test-app/favicon.ico', to: 'test-app/favicon.ico' },
             { from: 'test-app/styles',      to: 'test-app/styles'},
-            { from: 'test-app/styles/images',      to: 'test-app/styles/images'}
+            { from: 'test-app/styles/images', to: 'test-app/styles/images'}
         ])
     ])
 };

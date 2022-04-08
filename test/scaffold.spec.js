@@ -3,7 +3,6 @@ import {
     it,
     before,
     after,
-    expect,
     expectNoWarnings,
 } from './test.helper';
 
@@ -17,10 +16,10 @@ describe("Scaffold D", () => {
     before(() => {
         graphData = modelClasses.Scaffold.fromJSON(scaffoldD, modelClasses);
     });
-
     it("Model generated without warnings",  () => expectNoWarnings(graphData));
-
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 describe("Scaffold F", () => {
@@ -28,10 +27,10 @@ describe("Scaffold F", () => {
     before(() => {
         graphData = modelClasses.Scaffold.fromJSON(scaffoldF, modelClasses);
     });
-
     it("Model generated without warnings",  () => expectNoWarnings(graphData));
-
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 describe("Scaffold N", () => {
@@ -39,8 +38,8 @@ describe("Scaffold N", () => {
     before(() => {
         graphData = fromJSON(scaffoldN, modelClasses);
     });
-
     it("Model generated without warnings, auto-detected scaffolding model",  () => expectNoWarnings(graphData));
-
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });

@@ -163,6 +163,7 @@ export class FieldEditor {
         OBJECT : "object",
         DATE   : "date",
         COLOR  : "RGBColorScheme",
+        NAMED_COLOR: "NamedColorScheme",
         PATH   : "JSONPathScheme"
     };
 
@@ -273,7 +274,7 @@ export class FieldEditor {
             return this.FIELD_TYPES.ARRAY;
         }
 
-        //TODO
+        //TODO test and add editing for NAMED_COLOR
         if (spec.type && !spec.enum && [this.SCHEMA_TYPES.STRING, this.SCHEMA_TYPES.NUMBER].includes(spec.type)
             || clsName && [this.SCHEMA_TYPES.COLOR, this.SCHEMA_TYPES.PATH].includes(clsName)) {
             return this.FIELD_TYPES.INPUT;

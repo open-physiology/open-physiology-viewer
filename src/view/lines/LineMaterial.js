@@ -11,13 +11,12 @@
  *  resolution: <Vector2>, // to be set by renderer
  * }
  */
-import {THREE} from '../util/utils';
-import { GeometryFactory } from '../util/geometryFactory'
+import {THREE} from '../utils';
 
 THREE.UniformsLib.line = {
 
 	lineWidth : { value: 1 },
-	resolution: { value: GeometryFactory.instance().createVector2( 1, 1 ) },
+	resolution: { value: new THREE.Vector2( 1, 1 ) },
 	dashScale : { value: 1 },
 	dashSize  : { value: 1 },
 	gapSize   : { value: 1 }

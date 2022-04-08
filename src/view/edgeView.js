@@ -9,11 +9,10 @@ import {
     rectangleCurve,
     getPoint,
     arcCurve, getDefaultControlPoint
-} from "./util/utils";
+} from "./utils";
 
 import './lines/Line2.js';
-import {MaterialFactory} from "./util/materialFactory";
-import { GeometryFactory } from "./util/geometryFactory";
+import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
 
@@ -359,3 +358,4 @@ Object.defineProperty(Wire.prototype, "polygonOffsetFactor", {
             (this[prop].polygonOffsetFactor || 0) - 1: 0));
     }
 });
+

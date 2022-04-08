@@ -1,0 +1,28 @@
+{
+  "lyphs": [
+    {
+      "id": "layer1"
+    },
+    {
+      "id":  "layer2"
+    }
+  ],
+  "chains": [
+    {
+      "id": "t1",
+      "lyphTemplate": {
+        "id": "template1",
+        "isTemplate": true,
+        "layers":  ["layer1", "layer2"]
+      },
+      "root": "n1", "leaf" : "n2",
+      "levels": [
+          {"source": {"layout":{"x": -50}}},
+          {"id": "lnk1"},
+          "lnk2",
+          {},
+          {"target": {"layout": {"x": 50}}}
+      ]
+    }
+  ]
+}

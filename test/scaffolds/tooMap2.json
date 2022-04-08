@@ -11,7 +11,8 @@
         "x": 10,
         "y": -10
       },
-      "color": "#FFA500"
+      "color": "#FFA500",
+      "cardinal": true
     },
     {
       "id": "L",
@@ -20,7 +21,8 @@
         "y": -10
       },
       "color": "#FF0000",
-      "name": "LUNG CAPILLARY"
+      "name": "LUNG CAPILLARY",
+      "cardinal": true
     },
     {
       "id": "P",
@@ -29,7 +31,8 @@
         "y": 70
       },
       "color": "#FF0000",
-      "name": "PULMONARY"
+      "name": "PULMONARY",
+      "cardinal": true
     },
     {
       "id": "S",
@@ -38,7 +41,8 @@
         "y": -10
       },
       "color": "#FF0000",
-      "name": "SYSTEMIC CAPILLARY"
+      "name": "SYSTEMIC CAPILLARY",
+      "cardinal": true
     },
     {
       "id": "A",
@@ -47,7 +51,8 @@
         "y": -70
       },
       "color": "#FF0000",
-      "name": "AORTIC"
+      "name": "AORTIC",
+      "cardinal": true
     },
     {
       "id": "F",
@@ -55,7 +60,8 @@
         "x": 0,
         "y": 0
       },
-      "color": "#FFA500"
+      "color": "#FFA500",
+      "cardinal": true
     },
     {
       "id": "R",
@@ -64,7 +70,8 @@
         "y": 0
       },
       "color": "#FF0000",
-      "name": "RECTAL"
+      "name": "RECTAL",
+      "cardinal": true
     },
     {
       "id": "O",
@@ -73,7 +80,8 @@
         "y": 80
       },
       "color": "#FF0000",
-      "name": "ODDI"
+      "name": "ODDI",
+      "cardinal": true
     },
     {
       "id": "B",
@@ -82,7 +90,8 @@
         "y": 0
       },
       "color": "#FF0000",
-      "name": "BUCCAL"
+      "name": "BUCCAL",
+      "cardinal": true
     },
     {
       "id": "M",
@@ -91,49 +100,57 @@
         "y": -80
       },
       "color": "#FF0000",
-      "name": "MAMMARY"
+      "name": "MAMMARY",
+      "cardinal": true
     },
     {
       "id": "X",
       "hostedBy": "w-B-O",
       "offset": 0.2,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "I",
       "hostedBy": "w-B-O",
       "offset": 0.1,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "V",
       "hostedBy": "w-M-B",
       "offset": 0.8,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "J",
       "hostedBy": "w-M-B",
       "offset": 0.7,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "W",
       "hostedBy": "w-M-B",
       "offset": 0.5,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "U",
       "hostedBy": "w-R-M",
       "offset": 0.4,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "G",
       "hostedBy": "w-R-M",
       "offset": 0.3,
-      "color": "#006400"
+      "color": "#006400",
+      "cardinal": true
     },
     {
       "id": "f1L",

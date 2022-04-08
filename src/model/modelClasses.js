@@ -7,7 +7,7 @@ import {Group}   from './groupModel';
 import {Component} from './componentModel';
 import {Graph}   from './graphModel';
 import {Scaffold} from './scaffoldModel';
-import {Resource, External, Publication} from './resourceModel';
+import {Resource, External, Reference, OntologyTerm} from './resourceModel';
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
@@ -16,6 +16,7 @@ import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
 import {isString, isObject, isArray, isNumber, isEmpty, keys, merge, assign} from "lodash-bound";
 import * as schema from "./graphScheme";
+import {logger} from "./logger";
 
 import * as XLSX from 'xlsx';
 
@@ -26,7 +27,6 @@ import { entries } from 'lodash-bound';
 import {
     $Field,
     $SchemaClass,
-    $SchemaType,
     getNewID,
     getFullID,
     getClassName,
@@ -45,7 +45,8 @@ export const modelClasses = {
 
     /*Resources */
     [$SchemaClass.External]       : External,
-    [$SchemaClass.Publication]    : Publication,
+    [$SchemaClass.Reference]      : Reference,
+    [$SchemaClass.OntologyTerm]   : OntologyTerm,
     [$SchemaClass.Coalescence]    : Coalescence,
     [$SchemaClass.Channel]        : Channel,
     [$SchemaClass.Chain]          : Chain,
@@ -81,6 +82,7 @@ export const modelClasses = {
  * @param isBinary  - Boolean flag that indicates whether the input model is in binary format
  */
 export function loadModel(content, name, extension, isBinary = true){
+    logger.clear();
     let newModel = {};
     if (extension === "xlsx"){
         let excelModel = {};
@@ -114,6 +116,24 @@ export function isScaffold(inputModel){
 }
 
 /**
+ * Determines whether the given JSON specification defines a snapshot model
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isSnapshot(inputModel){
+    return !!(inputModel.model && inputModel.states);
+}
+
+/**
+ * Determines whether the given JSON specification defines a connectivity model
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isGraph(inputModel){
+    return !!(inputModel.lyphs || inputModel.links || inputModel.nodes);
+}
+
+/**
  * Convert model from Excel template to JSON input specification
  * @param inputModel - Excel input specification of connectivity model or scaffold
  * @returns {*}
@@ -123,6 +143,21 @@ export function excelToJSON(inputModel) {
         return Scaffold.excelToJSON(inputModel, modelClasses);
     } else {
         return Graph.excelToJSON(inputModel, modelClasses);
+    }
+}
+
+/**
+ * Converts input JSON model to Excel workbook
+ * @param inputModel
+ * @returns {void|*}
+ */
+export function jsonToExcel(inputModel) {
+    if (isScaffold(inputModel)){
+        return Scaffold.jsonToExcel(inputModel);
+    } else {
+        (inputModel.scaffolds||[]).forEach(scaffold => Scaffold.jsonToExcel(scaffold));
+        delete inputModel.scaffolds;
+        return Graph.jsonToExcel(inputModel);
     }
 }
 
@@ -144,8 +179,8 @@ export function fromJSON(inputModel) {
  * @returns
  */
 export function fromJSONGenerated(inputModel) {
-    var namespace = inputModel.namespace || undefined;
-    var entitiesByID = {
+    let namespace = inputModel.namespace || undefined;
+    let entitiesByID = {
         waitingList: {}
     };
 
@@ -154,17 +189,13 @@ export function fromJSONGenerated(inputModel) {
     function replaceIDs(modelClasses, entitiesByID, namespace, context){
         const createObj = (res, key, value, spec) => {
             if (skip(value)) { return value; }
-
-            const fullResID = getFullID(namespace, res.id);
             if (value::isNumber()) {
                 value = value.toString();
             }
-
-            var clsName = getClassName(spec); // var not const because the value is set below
+            let clsName = getClassName(spec);
             if (!clsName){
                 return value;
             }
-
             if (value && value::isString()) {
                 const fullValueID = getFullID(namespace, value);
                 if (!entitiesByID[fullValueID]) {
@@ -176,14 +207,12 @@ export function fromJSONGenerated(inputModel) {
                     return entitiesByID[fullValueID];
                 }
             }
-
             if (value.id) {
                 const fullValueID = getFullID(namespace, value.id);
                 if (entitiesByID[fullValueID]) {
                     return entitiesByID[fullValueID];
                 }
             }
-
             //value is an object and it is not in the map
             if (isClassAbstract(clsName)){
                 if (value.class) {
@@ -211,7 +240,7 @@ export function fromJSONGenerated(inputModel) {
                 res[key] = createObj(res, key, res[key], spec);
             }
         });
-    };
+    }
 
     function reviseWaitingList(waitingList, namespace, context){
         let res = context;
@@ -246,8 +275,8 @@ export function fromJSONGenerated(inputModel) {
                 let fullResID = getFullID(namespace, res.id);
                 if (entitiesByID[fullResID]) {
                     if (entitiesByID[fullResID] !== res){
-                        console.warn("duplicate resource " + fullResID);
-                        //logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[fullResID], res);
+                        // console.warn("duplicate resource " + fullResID);
+                        logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[fullResID], res);
                     }
                 } else {
                     entitiesByID[fullResID] = res;
@@ -257,7 +286,7 @@ export function fromJSONGenerated(inputModel) {
             }
             return res;
         } else {
-            return obj
+            return obj;
         }
     }
 
@@ -350,25 +379,23 @@ export function fromJSONGenerated(inputModel) {
         model.syncRelationships(modelClasses, entitiesList, namespace);
         model.entitiesByID = entitiesList;
         delete model.waitingList;
-    };
+    }
 
-    var _casted_model = typeCast(inputModel);
-    if (_casted_model.class == "Graph") {
+    const _casted_model = typeCast(inputModel);
+    if (_casted_model.class === "Graph") {
         processGraphWaitingList(_casted_model, entitiesByID);
-    } else if (_casted_model.class == "Scaffold") {
+    } else if (_casted_model.class === "Scaffold") {
         processScaffoldWaitingList(_casted_model, entitiesByID);
     }
 
     return _casted_model;
 }
 
-
 /**
- * @param {*} inputModel
- * @returns
+ *
+ * @param inputModel
+ * @param callback
  */
-
-
 export function fromJsonLD(inputModel, callback) {
     let res = inputModel;
     let context = {};

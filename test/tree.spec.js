@@ -18,7 +18,9 @@ describe("Generate groups from tree templates", () => {
     it("Tree template expanded", () => {
     });
 
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 
 

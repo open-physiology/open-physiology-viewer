@@ -9,7 +9,7 @@ import {
 import {modelClasses} from '../src/model/index';
 import bolserLewis from './data/bolserLewis';
 
-describe("Nested groups", () => {
+describe("Nested groups (BolserLewis)", () => {
     let graphData;
     before(() => {
         graphData = modelClasses.Graph.fromJSON(bolserLewis, modelClasses);
@@ -54,6 +54,7 @@ describe("Nested groups", () => {
         );
     });
 
-
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });

@@ -1,5 +1,5 @@
-import {$Field, $SchemaClass, $SchemaType, getSchemaClass, schemaClassModels} from "./utils";
-import {isArray, isEmpty, isObject, isString, keys, merge, omit, pick, values} from "lodash-bound";
+import {$SchemaType, getSchemaClass} from "./utils";
+import {isArray, isObject, isString, merge, omit, pick, values} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
 /**
@@ -43,9 +43,7 @@ export function strToValue(isArray, itemType, str){
             res = JSON.parse("[" + str + "]");
         } else {
             //parse array of strings, i.e., identifiers
-            res = str.split(",").map(x =>
-                parseStr(x.trim())
-            );
+            res = str.split(",").map(x => parseStr(x.trim()));
         }
     } else {
         res = parseStr(str.trim());
@@ -53,12 +51,18 @@ export function strToValue(isArray, itemType, str){
     return res;
 }
 
+/**
+ *
+ * @param value
+ * @param key
+ * @returns {boolean}
+ */
 export function validateValue(value, key){
     if (value === undefined){
         return false;
     }
     if (!key) {
-        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME);
+        logger.error($LogMsg.EXCEL_NO_COLUMN_NAME, value);
         return false;
     }
     if (!key::isString()) {
@@ -86,7 +90,7 @@ export function extractModelAnnotation(model){
 }
 
 /**
- * Issue #114, mapping levelTargets in Excel to levels in JSON
+ * Mapping levelTargets in Excel to levels in JSON (issue #114)
  * @example levelTargets = "0:n1,3:n3,5:n5" translates to levels = [{target: n1},,,{target:n3},,{target:n5}]
  * @param resource - ApiNATOMY resource potentially containing "levelTargets" property
  * @returns {*} - ApiNATOMY resource with "levelTargets" property mapped to "levels"
@@ -121,5 +125,20 @@ export function levelTargetsToLevels(resource) {
     }
     delete resource.levelTargets;
     return resource;
+}
+
+/**
+ * Mapping border name columns to borders array
+ * @param resource - ApiNATOMY resource potentially containing properties from borderNames list
+ * @param borderNames - List of border names ("inner", "radial1", "outer", "radial2")
+ * @returns {*} ApiNATOMY resource with border names mapped to "border" object
+ */
+export function borderNamesToBorder(resource, borderNames){
+    let borderConstraints = resource::pick(borderNames);
+    if (borderConstraints::values().filter(x => !!x).length > 0) {
+        resource.border = {borders: borderNames.map(borderName => borderConstraints[borderName] ? {
+            hostedNodes: borderConstraints[borderName].split(",")} : {})};
+    }
+    return resource::omit(borderNames);
 }
 

@@ -8,27 +8,32 @@
     {
       "id": "D",
       "layout": {"x": 10, "y": -10},
-      "color": "#FFA500"
+      "color": "#FFA500",
+      "cardinal": true
     },
     {
       "id": "L",
       "layout": {"x": 90, "y": -10},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "P",
       "layout": {"x": 10, "y": 70},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "S",
       "layout": {"x": -90, "y": -10},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "A",
       "layout": {"x": 10, "y": -70},
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     }
   ],
   "wires": [

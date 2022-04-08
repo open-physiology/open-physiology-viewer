@@ -38,6 +38,9 @@ import {logger, $LogMsg} from './logger';
  * @property {Array<Object>} assign
  * @property {Array<Object>} interpolate
  * @property {Object} generatedFrom
+ * @property {Array<Reference>} references
+ * @property {Array<OntologyTerm>} ontologyTerms
+ * @property {Array<External>} external
  */
 export class Resource{
     constructor(id, clsName) {
@@ -438,7 +441,7 @@ export class Resource{
          * @param depth - depth of nested resources to output
          * @returns {*} JSON object or an array of JSON objects without circular references
          */
-        function fieldToJSON(value, depth) { return value::isArray()? value.filter(e => !!e).map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
+        function fieldToJSON(value, depth) { return value::isArray()? value.map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
         if (depth <= 0) {
             return this.id? this.id: null;
@@ -501,9 +504,16 @@ export class External extends Resource {
     }
 }
 
-export class Publication extends External {
+export class Reference extends External {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-          json.class = json.class || $SchemaClass.Publication;
+          json.class = json.class || $SchemaClass.Reference;
+          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+}
+
+export class OntologyTerm extends External {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+          json.class = json.class || $SchemaClass.OntologyTerm;
           return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 }
