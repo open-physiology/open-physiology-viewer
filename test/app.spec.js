@@ -28,6 +28,7 @@ import {WebGLSceneComponent} from "../src/components/webGLScene";
 import {MainToolbar} from "../src/components/mainToolbar";
 import {ImportExcelModelDialog} from "../src/components/gui/importExcelModelDialog";
 import {HttpClientModule} from "@angular/common/http";
+import {HotkeyOptions, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
 
 describe("MainToolbar component", () => {
     let toolbar;
@@ -126,7 +127,8 @@ describe("WebGLScene component", () => {
             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
                 BrowserAnimationsModule],
             declarations: [
-                WebGLSceneComponent
+                WebGLSceneComponent,
+                HotkeysCheatsheetComponent
             ]
         });
 

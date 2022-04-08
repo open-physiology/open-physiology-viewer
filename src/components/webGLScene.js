@@ -16,7 +16,7 @@ import {SettingsPanelModule} from "./settingsPanel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
-import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
+import {HotkeyModule, HotkeysService, Hotkey, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
 
 const WindowResize = require('three-window-resize');
 
