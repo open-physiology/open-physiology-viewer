@@ -7,44 +7,51 @@
     {
       "id": "N",
       "layout": {"x": 0, "y": 0},
-      "color": "#FFA500"
+      "color": "#FFA500",
+      "cardinal": true
     },
     {
       "id": "H",
       "name": "HEAD",
       "hostedBy": "w-N",
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "E",
       "name": "ENDOCRINE",
       "hostedBy": "w-N",
       "offset": 0.3,
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "T",
       "name": "TAIL",
       "hostedBy": "w-N",
       "offset": 0.4,
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "K",
       "name": "KNOTEN (SA, AV, PURKINJE)",
       "hostedBy": "w-N",
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "C",
       "name": "Cistern",
       "hostedBy": "w-N",
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     },
     {
       "id": "Q",
       "hostedBy": "w-N",
-      "color": "#FF0000"
+      "color": "#FF0000",
+      "cardinal": true
     }
   ],
   "wires": [

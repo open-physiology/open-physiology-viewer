@@ -1,5 +1,5 @@
 {
-    "publications": [
+    "references": [
         {
             "id": "PMID:29561168",
             "uri": "https://pubmed.ncbi.nlm.nih.gov/29561168/"
@@ -2857,7 +2857,7 @@
                 "leaf-ac-4-K100",
                 "leaf-ac-4-K99"
             ],
-            "publications": [
+            "references": [
                 "PMID:2713886",
                 "PMID:2713886",
                 "PMID:11382385",
@@ -2887,7 +2887,7 @@
                 "group_ac-snl26",
                 "group_ac-snl1l2"
             ],
-            "publications": [
+            "references": [
                 "PMID:3558884",
                 "PMID:1619047",
                 "PMID:1358408",
@@ -2915,7 +2915,7 @@
                 "ns254",
                 "ns255"
             ],
-            "publications": [
+            "references": [
                 "PMID:2713886",
                 "PMID:2713886",
                 "PMID:11382385",

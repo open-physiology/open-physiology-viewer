@@ -7,8 +7,10 @@ import {
 } from './test.helper';
 import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
-
+import m1 from './data/M1-model';
+import wiredChain from './data/basicChainWireConflict.json';
 import {modelClasses} from '../src/model/index';
+import {Logger} from "../src/model/logger";
 
 describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
@@ -26,6 +28,10 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(ch1).to.have.property("numLevels").that.equal(16);
         expect(ch1).to.have.property("levels").that.is.an('array');
         expect(ch1.levels.length).to.be.equal(16);
+        for (let i = 0; i < 16; i++){
+            expect(ch1.levels[i]).to.have.property("levelIn");
+            expect(ch1.levels[i].levelIn).to.have.property("id").that.equals(ch1.id);
+        }
 
         expect(graphData).to.have.property("nodes");
         expect(graphData.nodes).to.be.an('array');
@@ -43,9 +49,9 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
         expect(graphData).to.have.property("groups");
-        //count auto-created Default group and force link group
-        expect(graphData.groups).to.be.an('array').that.has.length(5);
-        const gr1 = graphData.groups[2];
+        //count auto-created force link group (Empty "Ungrouped" is not added after issue #149 fix)
+        expect(graphData.groups).to.be.an('array').that.has.length(4);
+        const gr1 = graphData.groups[1];
         expect(gr1).to.be.an('object');
         expect(gr1).to.have.property("id").that.equal("group_ch1");
         expect(gr1).to.have.property("generated").that.equal(true);
@@ -73,6 +79,10 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(t1).to.have.property("id").that.equal("nn1");
         expect(t1).to.have.property("numLevels").that.equal(7);
         expect(t1).to.have.property("levels").that.is.an('array');
+        for (let i = 0; i < 7; i++){
+            expect(t1.levels[i]).to.have.property("levelIn");
+            expect(t1.levels[i].levelIn).to.have.property("id").that.equals(t1.id);
+        }
         expect(t1.levels.length).to.be.equal(7);
         expect(graphData).to.have.property("lyphs");
         expect(graphData.lyphs).to.be.an('array');
@@ -115,7 +125,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(c3).to.have.property("layers");
         expect(c3.layers).to.be.an('array').that.has.length(14);
         //assuming counting of layers from 0
-        expect(c3.layers[3]).to.have.property("id").that.equal("ref_mat_KM_27_K_129_c3_4");
+        expect(c3.layers[3]).to.have.property("id").that.equal("ref_mat_KM_27_K_129_3_c3_4");
         expect(c3.layers[3]).to.have.property("internalLyphs");
         expect(c3.layers[3].internalLyphs).to.be.an('array').that.has.length(1);
         expect(c3.layers[3].internalLyphs[0]).to.be.an('object');
@@ -154,8 +164,14 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
             expect(lnk[0]).to.be.an('object');
             expect(lnk[0]).to.have.property('class').that.equal('Link');
             expect(lnk[0]).to.have.property('fasciculatesIn')
-            expect(lnk[0].fasciculatesIn).to.have.property("id").that.equals(ch1.lyphs[i].layers[j].id);
+            let housingLyph = ch1.lyphs[i].layers[j];
+            expect(lnk[0].fasciculatesIn).to.have.property("id").that.equals(housingLyph.id);
+            let housedLyph = lnk[0].conveyingLyph;
+            expect(housedLyph).not.to.be.a('undefined');
+            expect(housedLyph).to.have.property('housingLyph')
+            expect(housedLyph.housingLyph).to.have.property('id').that.equals(housingLyph.id)
         }
+
         [nn1.housingRange.min, nn1.housingRange.max-1].forEach(i => {
             let j = nn1.housingLayers[i - nn1.housingRange.min];
             expect(ch1.lyphs[i].layers[j]).to.have.property('endBundles');
@@ -164,7 +180,12 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
             expect(lnk[0]).to.be.an('object');
             expect(lnk[0]).to.have.property('class').that.equal('Link');
             expect(lnk[0]).to.have.property('endsIn');
-            expect(lnk[0].endsIn).to.have.property("id").that.equals(ch1.lyphs[i].layers[j].id);
+            let housingLyph = ch1.lyphs[i].layers[j];
+            expect(lnk[0].endsIn).to.have.property("id").that.equals(housingLyph.id);
+            let housedLyph = lnk[0].conveyingLyph;
+            expect(housedLyph).not.to.be.a('undefined');
+            expect(housedLyph).to.have.property('housingLyph')
+            expect(housedLyph.housingLyph).to.have.property('id').that.equals(housingLyph.id)
         })
     });
 
@@ -183,6 +204,14 @@ describe("Link joint chains (Keast Spinal)", () => {
         const chain2 = graphData.chains.find(ch => ch.id === "t2");
         expect(chain1).has.property('levels').that.has.length.of(7);
         expect(chain2).has.property('levels').that.has.length.of(10);
+        for (let i = 0; i < 7; i++){
+            expect(chain1.levels[i]).to.have.property("levelIn");
+            expect(chain1.levels[i].levelIn).to.have.property("id").that.equals(chain1.id);
+        }
+        for (let i = 0; i < 10; i++){
+            expect(chain2.levels[i]).to.have.property("levelIn");
+            expect(chain2.levels[i].levelIn).to.have.property("id").that.equals(chain2.id);
+        }
         expect(collapsibleLinks).has.length.of(17);
     });
 
@@ -209,5 +238,95 @@ describe("Link joint chains (Keast Spinal)", () => {
         expect(firstInChain2.prevChainEndLevels[0]).to.have.property('id').that.equals(lastInChain1.id);
     });
 
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Expand chain template (M1)", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(m1, modelClasses);
+    });
+
+    it("Generated chain of lyphs has root and leaf", () => {
+        expect(graphData).to.have.property("chains");
+        expect(graphData.chains).to.be.an('array').that.has.length(1);
+
+        const ch1 = graphData.chains[0];
+        expect(ch1).to.be.an('object');
+        expect(ch1).to.have.property("name").that.equal("Airways");
+        expect(ch1).to.have.property("numLevels").that.equal(6);
+        expect(ch1).to.have.property("levels").that.is.an("array");
+        expect(ch1).to.have.property("root").that.is.an("object");
+        expect(ch1).to.have.property("leaf").that.is.an("object");
+        expect(ch1).to.have.property("wiredTo").that.is.an("object");
+        expect(ch1.wiredTo).to.have.property("id").that.equals("w-X-f1L");
+        expect(ch1.levels.length).to.be.equal(6);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Validate chain wiring", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(wiredChain, modelClasses);
+    });
+
+    it("Chain t1 is correctly wired", () => {
+        expect(graphData).to.have.property("chains");
+        expect(graphData.chains).to.be.an('array').that.has.length(7);
+        const t1 = graphData.chains[0];
+        expect(t1).to.be.an('object');
+        expect(t1).to.have.property("id").that.equal("t1");
+        expect(t1).to.have.property("root").that.is.an("object");
+        expect(t1).to.have.property("leaf").that.is.an("object");
+        expect(t1.root).to.have.property("id").that.equals("n1");
+        expect(t1.leaf).to.have.property("id").that.equals("n2");
+        expect(t1).to.have.property("wiredTo").that.is.an("object");
+        expect(t1.wiredTo).to.have.property("id").that.equals("w1");
+        let {start, end} = t1.getScaffoldChainEnds();
+        expect(start).to.have.property("id").that.equals("a1");
+        expect(end).to.have.property("id").that.equals("a2");
+        expect(start).to.have.property("layout").that.is.an("object");
+        expect(end).to.have.property("layout").that.is.an("object");
+        expect(start.layout).to.have.property("x").that.equals(-50);
+        expect(end.layout).to.have.property("x").that.equals(50);
+        expect(start.layout).to.have.property("y").that.equals(50);
+        expect(end.layout).to.have.property("y").that.equals(50);
+    });
+
+    it("Conflicts in chains t2 and t3 are detected", () => {
+        expect(graphData).to.have.property("logger");
+        expect(graphData.logger).to.have.property("entries");
+        expect(graphData.logger.entries).to.be.an('array').that.has.length.above(0);
+        let errors = graphData.logger.entries.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(2);
+        //t2 has conflict caused by startFromLeaf property
+        const t2 = graphData.chains[1];
+        expect(t2).to.be.an('object');
+        expect(t2).to.have.property("id").that.equal("t2");
+        let {start, end} = t2.getScaffoldChainEnds();
+        expect(start).to.have.property("id").that.equals("a2");
+        expect(end).to.have.property("id").that.equals("a1");
+    });
+
+    it("Chain t4 respects anchoring constraints", () => {
+        const t4 = graphData.chains[3];
+        expect(t4).to.be.an('object');
+        expect(t4).to.have.property("id").that.equal("t4");
+        expect(t4.root).to.have.property("id").that.equals("n1");
+        expect(t4.leaf).to.have.property("id").that.equals("n2");
+        expect(t4.wiredTo).to.be.a("undefined");
+        let {start, end} = t4.getScaffoldChainEnds();
+        expect(start).to.be.an("object").that.has.property("id").that.equals("a1");
+        expect(end).to.be.an("object").that.has.property("id").that.equals("a2");
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
 });

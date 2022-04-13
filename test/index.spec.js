@@ -2,8 +2,9 @@ import {
     describe,
     it,
     before,
-    expect
+    expect, after
 } from './test.helper';
+import chainFromLevels from './data/basicChainWithNestedLevels.json';
 import basalGanglia from './data/basalGanglia.json';
 import respiratory from './data/respiratory.json';
 import tooMap from './scaffolds/tooMap.json';
@@ -11,7 +12,7 @@ import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
 import keast from './data/keastSpinalFull.json';
 import {keys, entries, pick} from 'lodash-bound';
-import {$Field, modelClasses} from '../src/model/index';
+import {$Field, $SchemaClass, modelClasses, schemaClassModels} from '../src/model/index';
 import schema from '../src/model/graphScheme.json';
 import {Validator} from "jsonschema";
 import {getGenID, getGenName} from "../src/model/utils";
@@ -99,6 +100,37 @@ describe("JSON Schema matches patterns", () => {
     })
 })
 
+describe("Nested resource definitions are processed", () => {
+    it("Nested chain levels are converted to links", () => {})
+        let graphData = modelClasses.Graph.fromJSON(chainFromLevels, modelClasses);
+        expect(graphData.chains).to.be.an("array").that.has.length(1);
+        expect(graphData.nodes).to.be.an("array").that.has.length(6);
+        expect(graphData.links).to.be.an("array").that.has.length(5);
+
+        expect(graphData.chains[0]).to.have.property("id").that.equals("t1");
+        expect(graphData.chains[0].levels).to.have.length(5);
+        expect(graphData.chains[0].numLevels).to.be.equal(5);
+        expect(graphData.chains[0]).to.have.property("root").that.is.an("object");
+        expect(graphData.chains[0]).to.have.property("leaf").that.is.an("object");
+        expect(graphData.chains[0].root).to.have.property("id").that.equals("n1");
+        expect(graphData.chains[0].leaf).to.have.property("id").that.equals("n2");
+
+        let n1 = graphData.nodes.find(e => e.id === "n1");
+        let n2 = graphData.nodes.find(e => e.id === "n2");
+        expect(n1).to.have.property("layout").that.has.property("x");
+        expect(n2).to.have.property("layout").that.has.property("x");
+        expect(n1).to.have.property("sourceOf").that.is.an("array");
+        expect(n1.sourceOf[0]).has.property("id").that.equals("t1_lnk_1");
+        expect(n2).to.have.property("targetOf").that.is.an("array");
+        expect(n2.targetOf[0]).has.property("id").that.equals("t1_lnk_5");
+
+        expect(graphData.groups).to.be.an("array").that.has.length(2);
+        let group = graphData.groups.find(g => g.id === "group_t1");
+        expect(group).to.have.property("nodes").that.has.length(6);
+        expect(group).to.have.property("links").that.has.length(5);
+        expect(group).to.have.property("lyphs").that.has.length(6);
+})
+
 describe("Generate model (Basal Ganglia)", () => {
     let graphData;
     before(() => {
@@ -128,6 +160,8 @@ describe("Generate model (Basal Ganglia)", () => {
 
         expect(graphData).to.have.property("materials");
         expect(graphData).to.have.property("references");
+        expect(graphData.references[0]).to.be.instanceOf(modelClasses.Reference);
+
         expect(graphData).to.have.property("coalescences");
         expect(graphData).to.have.property("channels");
 
@@ -200,6 +234,25 @@ describe("Serialize data", () => {
         expect(diff).to.have.length(0);
         let serializedLogs = graphData.logger.print();
         expect(serializedLogs.length).to.be.equal(graphData.logger.entries.length);
+        //JSON-LD
+        let serializedGraphDataLD = graphData.entitiesToJSONLD();
+        expect(serializedGraphDataLD).to.have.property("@context").that.is.an("object");
+        expect(serializedGraphDataLD["@context"]).to.have.property("@base");
+        expect(serializedGraphDataLD["@context"]).to.have.property("@version");
+        $Field::keys().forEach(key => {
+            expect(serializedGraphDataLD["@context"]).to.have.property(key);
+        })
+        schemaClassModels[$SchemaClass.Graph].relationshipNames.forEach(key => {
+            //TODO: scaffolds are not exported to JSON-LD, fix this as part of more general issue #65
+            if (key === "scaffolds"){
+                return;
+            }
+            expect(serializedGraphDataLD["@context"][key]).to.be.an("object").that.has.property("@type");
+        })
+        expect(serializedGraphDataLD).to.have.property("@graph").that.is.an("array");
+        //All resources are exported, +1 for the generated graph annotation in JSON-LD
+        expect(serializedGraphDataLD["@graph"].length).to.be.equal(graphData.entitiesByID::keys().length + 1);
+        graphData.logger.clear();
     });
 
     it("Nested villus resource serialized", () => {
@@ -211,6 +264,7 @@ describe("Serialize data", () => {
         expect(lyph.villus).to.have.property("id");
         expect(lyph.villus).to.have.property("class");
         expect(lyph.villus.class).to.be.equal("Villus");
+        graphData.logger.clear();
     });
 
     it("Borders serialized", () => {
@@ -225,6 +279,21 @@ describe("Serialize data", () => {
         expect(lyph.border.borders[0]).to.have.property("class");
         expect(lyph.border.borders[0].class).to.be.equal("Link");
         expect(lyph.border.borders[3]).to.have.property("conveyingLyph");
+        graphData.logger.clear();
+    });
+
+    it("Housing chain layers serialized", () => {
+        graphData = modelClasses.Graph.fromJSON(keast, modelClasses);
+        let serializedGraphData = graphData.toJSON(3);
+        let chain = serializedGraphData.chains.find(e => e.id === "acn1");
+        expect(chain).to.be.an('object');
+        expect(chain).to.have.property("housingLyphs");
+        expect(chain).to.have.property("housingLayers");
+        expect(chain.housingLyphs).to.be.an('array').that.has.length(4);
+        expect(chain.housingLayers).to.be.an('array').that.has.length(4);
+        expect(chain.housingLayers[0]).to.be.equal(0);
+        expect(chain.housingLayers[1]).to.be.equal(2);
+        graphData.logger.clear();
     });
 });
 
@@ -247,10 +316,11 @@ describe("Serialize scaffold", () => {
 
 describe("Create, save and load snapshots", () => {
     let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
+    });
 
     it("Serialized snapshot contains necessary fields", () => {
-        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
-
         const snapshot = modelClasses.Snapshot.fromJSON({
             [$Field.id]: getGenID("snapshot", graphData.id),
             [$Field.name]: getGenName("Snapshot for", graphData.name),
@@ -315,8 +385,11 @@ describe("Create, save and load snapshots", () => {
         expect(restoredSnapshot.active.camera).to.have.property("position");
         expect(restoredSnapshot.active.camera.position).to.have.property("y").that.equals(200);
     });
-});
 
+    after(() => {
+        graphData.logger.clear();
+    });
+});
 
 describe("Serialize data to JSON-LD", () => {
     let graphData;
@@ -349,4 +422,7 @@ describe("Serialize data to JSON-LD", () => {
         graphData.entitiesToJSONLDFlat(callback);
     });
 
+    after(() => {
+        graphData.logger.clear();
+    });
 });

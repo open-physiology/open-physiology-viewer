@@ -5,18 +5,18 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
-import {keys, values, defaults, isObject, cloneDeep, isArray} from 'lodash-bound';
+import {keys, values, isObject, cloneDeep} from 'lodash-bound';
 import * as THREE from 'three';
-import ThreeForceGraph from '../view/render/threeForceGraph';
+import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
-import { GeometryFactory } from '../view/util/geometryFactory'
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
+import {HotkeyModule, HotkeysService, Hotkey, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
 
 const WindowResize = require('three-window-resize');
 
@@ -27,6 +27,7 @@ const WindowResize = require('three-window-resize');
     selector: 'webGLScene',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
+        <hotkeys-cheatsheet></hotkeys-cheatsheet>
         <section id="apiLayoutPanel" class="w3-row">            
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
@@ -114,6 +115,7 @@ const WindowResize = require('three-window-resize');
                         [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
                         (onSelectBySearch)="selectByName($event)"
+                        (onOpenExternal)="openExternal($event)"
                         (onEditResource)="editResource.emit($event)"
                         (onUpdateLabels)="graph?.showLabels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
@@ -132,8 +134,9 @@ const WindowResize = require('three-window-resize');
         }
         
         #apiLayoutSettingsPanel{
-            height: 100vh;
-            overflow-y: scroll;
+          height: 100%;
+          overflow-y: scroll;
+          overflow-x: auto;
         }
         
         :host >>> fieldset {
@@ -259,8 +262,9 @@ export class WebGLSceneComponent {
      */
     @Output() onImportExternal = new EventEmitter();
 
-    constructor(dialog: MatDialog) {
+    constructor(dialog: MatDialog, hotkeysService: HotkeysService) {
         this.dialog = dialog;
+        this.hotkeysService = hotkeysService ;
         this.defaultConfig = {
             "layout": {
                 "showLyphs"       : true,
@@ -282,6 +286,50 @@ export class WebGLSceneComponent {
             "selected"   : true
         };
         this.config = this.defaultConfig::cloneDeep();
+        this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
+          this.resetCamera();
+          return false; // Prevent bubbling
+        }, undefined, 'Reset camera'));
+        this.hotkeysService.add(new Hotkey('shift+meta+u', (event: KeyboardEvent): boolean => {
+          this.updateGraph();
+          return false; // Prevent bubbling
+        }, undefined, 'Update graph'));
+        this.hotkeysService.add(new Hotkey('shift+meta+t', (event: KeyboardEvent): boolean => {
+          this.toggleLockControls();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Lock controls'));
+        this.hotkeysService.add(new Hotkey('shift+meta+a', (event: KeyboardEvent): boolean => {
+          this.toggleAntialias();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Anti Alias'));
+        this.hotkeysService.add(new Hotkey('shift+meta+l', (event: KeyboardEvent): boolean => {
+          this.togglelayout();
+          return false; // Prevent bubbling
+        }, undefined, 'Toggle Layout'));
+        this.hotkeysService.add(new Hotkey('shift+meta+p', (event: KeyboardEvent): boolean => {
+          this.showReport();
+          return false; // Prevent bubbling
+        }, undefined, 'Show Report'));
+        this.hotkeysService.add(new Hotkey('shift+meta+d', (event: KeyboardEvent): boolean => {
+          this.resizeToDisplaySize();
+          return false; // Prevent bubbling
+        }, undefined, 'Resize to Display Size'));
+        this.hotkeysService.add(new Hotkey('shift+meta+up', (event: KeyboardEvent): boolean => {
+          this.moveCamera('up');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera up'));
+        this.hotkeysService.add(new Hotkey('shift+meta+down', (event: KeyboardEvent): boolean => {
+          this.moveCamera('down');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera down'));
+        this.hotkeysService.add(new Hotkey('shift+meta+left', (event: KeyboardEvent): boolean => {
+          this.moveCamera('left');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera left'));
+        this.hotkeysService.add(new Hotkey('shift+meta+right', (event: KeyboardEvent): boolean => {
+          this.moveCamera('right');
+          return false; // Prevent bubbling
+        }, undefined, 'Rotate camera right'));
     }
 
     onScaleChange(newLabelScale){
@@ -331,7 +379,7 @@ export class WebGLSceneComponent {
         pointLight.position.set(300, 0, 300);
         this.scene.add(pointLight);
 
-        this.mouse = GeometryFactory.instance().createVector2(0, 0);
+        this.mouse = new THREE.Vector2(0, 0);
         this.createEventListeners(); // keyboard / mouse events
         this.resizeToDisplaySize();
         this.createHelpers();
@@ -361,6 +409,8 @@ export class WebGLSceneComponent {
             }
         })
     }
+
+
 
     exportJSON(){
         if (this._graphData){
@@ -497,6 +547,29 @@ export class WebGLSceneComponent {
         this.scene.add(this.graph);
     }
 
+    moveCamera(direction){
+      const delta = 10 ;
+      switch(direction)
+      {
+        case 'left': 
+          this.camera.position.x = this.camera.position.x - delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'up' : 
+          this.camera.position.z = this.camera.position.z - delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'right' : 
+          this.camera.position.x = this.camera.position.x + delta;
+          this.camera.updateProjectionMatrix();
+        break;
+        case 'down' : 
+          this.camera.position.z = this.camera.position.z + delta;
+          this.camera.updateProjectionMatrix();
+        break;
+      }
+    }
+
     resetCamera(positionPoint, lookupPoint) {
         let position = [0, -100, 120 * this.scaleFactor];
         let lookup =  [0, 0, 1];
@@ -517,6 +590,25 @@ export class WebGLSceneComponent {
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
+    }
+
+    openExternal(resource){
+        if (!resource || !this._graphData.localConventions){
+            return;
+        }
+        (resource.external||[]).forEach(external => {
+            if (external.id) {
+                let parts = external.id.split(":");
+                if (parts.length === 2) {
+                    let [prefix, suffix] = parts;
+                    let localConvention = this._graphData.localConventions.find(obj => obj.prefix === prefix);
+                    if (localConvention) {
+                        let url = localConvention.namespace + suffix;
+                        window.open(url, '_blank').focus();
+                    }
+                }
+            }
+        })
     }
 
     toggleLockControls(){
@@ -645,7 +737,7 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog],
     exports: [WebGLSceneComponent]

@@ -64,6 +64,8 @@ describe("Generate groups from channel templates (UOT)", () => {
         // the material in the channel object is copied to the `conveyingMaterials` property of the link.
     });
 
-    after(() => {});
+    after(() => {
+        graphData.logger.clear();
+    });
 });
 

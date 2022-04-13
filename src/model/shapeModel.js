@@ -8,9 +8,9 @@ import {
     $Prefix,
     $Color,
     getGenID,
+    getNewID,
     getGenName,
     findResourceByID,
-    getNewID,
     getID,
     LYPH_TOPOLOGY,
     mergeResources, $SchemaClass
@@ -153,7 +153,8 @@ export class Lyph extends Shape {
         }
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.description, $Field.create3d, $Field.materials, $Field.channels, $Field.bundlesChains]),
+            $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.materials, $Field.channels,
+                $Field.bundlesChains]),
             mergeResources);
 
         if (sourceLyph.isTemplate){
@@ -376,10 +377,6 @@ export class Lyph extends Shape {
             if (this.width > maxWidth){
                 this.width = maxWidth;
             }
-            //If host is a layer, make sure lyph width does not exceed the layer's width
-            // if (this.host.layerIn){
-            //     this.width /= this.host.layerIn.layers.length;
-            // }
             //Lyph cannot be bigger than 95% of its host lyph
             [$Field.width, $Field.height].forEach(prop => {
                 let val = 0.95 * (this.host[prop] || hostSize[prop]);
@@ -389,9 +386,7 @@ export class Lyph extends Shape {
     }
 
     includeRelated(group){
-        (this.layers||[]).forEach(layer => {
-            layer.includeRelated(group);
-        });
+        (this.layers||[]).forEach(layer => layer.includeRelated && layer.includeRelated(group));
         (this.internalLyphs||[]).forEach(internal => {
             if (internal::isObject() && !group.contains(internal)){
                 group.lyphs.push(internal);
@@ -399,9 +394,9 @@ export class Lyph extends Shape {
                 if (internal.conveys &&! group.contains(internal.conveys)){
                     group.links.push(internal.conveys);
                     internal.conveys.hidden = group.hidden;
-                    internal.conveys.includeRelated(group);
+                    internal.conveys.includeRelated && internal.conveys.includeRelated(group);
                 }
-                internal.includeRelated(group);
+                internal.includeRelated && internal.includeRelated(group);
             }
         });
         (this.internalNodes||[]).forEach(internal => {
@@ -588,7 +583,6 @@ export class Region extends Shape {
                 }
                 if (!sourceAnchor.layout && !sourceAnchor.hostedBy || !targetAnchor.layout && !targetAnchor.hostedBy){
                     logger.warn($LogMsg.REGION_FACET_NO_LAYOUT, wire.source, wire.target);
-                    return;
                 }
             });
         }
@@ -661,7 +655,7 @@ export class Region extends Shape {
             if (!facet || facet.class !== $SchemaClass.Wire){ return; }
             if (!(component.wires||[]).find(e => e.id === facet.id)){
                 component.wires.push(facet);
-                facet.includeRelated(component);
+                facet.includeRelated && facet.includeRelated(component);
             }
         });
         (this.internalAnchors||[]).forEach(internal => {
