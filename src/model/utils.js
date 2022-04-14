@@ -4,6 +4,7 @@ import {
     fromPairs,
     isObject,
     isString,
+    isNumber,
     merge,
     keys,
     flatten, isArray, unionBy, mergeWith
@@ -111,26 +112,32 @@ export const getNewID = entitiesByID => "new-" +
 
 
 export const getRefID = (ref) => {
-    return ref.substr(ref.lastIndexOf(":") + 1);
+    let id = getID(ref);
+    if (!id || !id::isString()) return "";
+    return id.substr(id.lastIndexOf(":") + 1);
 }
 
-//Exclude namespace from local arguments which are often given IDs that could be defined with namespace
-export const getGenID = (...args) => args.filter(arg => arg !== null).map(arg => arg::isString()? getRefID(arg): arg).join("_");
+export const isDefined = value => value && value::isArray() && value.length > 0;
 
-export const getFullID = (namespace, id) => {
-    if (!id) return "";
-    if (id::isString() && id.indexOf(":") > -1) {
+//Exclude namespace from local arguments which are often given IDs that could be defined with namespace
+export const getGenID = (...args) => args.filter(arg => arg !== null).map(arg => arg::isNumber()? arg: getRefID(arg)).join("_");
+
+export const getFullID = (namespace, ref) => {
+    let id = getID(ref);
+    if (id && id::isString() && id.indexOf(":") > -1) {
         return id;
     }
     return (namespace? namespace + ":" : "") + id;
 };
 
 export const getRefNamespace = (ref, namespace= undefined) => {
-    let idx = ref.lastIndexOf(":");
-    if (idx > -1){
-        return ref.substr(0, idx);
+    let id = getID(ref);
+    if (!id) return "";
+    let idx = id.lastIndexOf(":");
+    if (idx > -1) {
+        return id.substr(0, idx);
     }
-    return namespace;
+return namespace;
 }
 
 export const getGenName = (...args) => args.join(" ");
@@ -156,6 +163,7 @@ export const compareResources  = (e1, e2) => getID(e1) === getID(e2);
  * @param b - second resource or resource list
  * @returns {Resource} merged resource or a union of resource lists where resources with the same id have been merged
  */
+//FIXME Merge only resources from the same namespace???
 export function mergeResources(a, b) {
     if (a::isArray()){
         if (b::isArray()) {
@@ -241,7 +249,7 @@ export function getOrCreateNode(nodes, nodeID){
  * @param e
  * @returns {*|void}
  */
-export const findResourceByID = (eArray, e) => e::isObject()? e: (eArray||[]).find(x => !!e && x.id === e);
+export const findResourceByID = (eArray, e) => e::isObject()? e: (eArray||[]).find(x => e && x.id === e);
 
 /**
  * Returns a list of references in the schema type specification

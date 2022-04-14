@@ -3,7 +3,7 @@ import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
 
-import {isObject, unionBy, merge, keys, entries, isArray, pick, defaults} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick, isString} from 'lodash-bound';
 import {
     getGenID,
     addColor,
@@ -12,7 +12,7 @@ import {
     $Color,
     $Prefix,
     findResourceByID,
-    showGroups, schemaClassModels
+    showGroups, schemaClassModels, getRefNamespace, getFullID, getNewID
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -53,7 +53,9 @@ export class Group extends Resource {
         }
 
         //replace references to templates
-        this.replaceReferencesToTemplates(json, modelClasses);
+        if (json.lyphsByID) {
+            this.replaceReferencesToTemplates(json);
+        }
 
         //create group resources from templates
         this.expandGroupTemplates(json, modelClasses);
@@ -68,7 +70,7 @@ export class Group extends Resource {
         /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
 
         //align generated groups and housing lyphs
-        (json.chains||[]).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
+        (json.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
 
         //create instances of group templates (e.g., trees and channels)
         this.createTemplateInstances(json, modelClasses);
@@ -93,18 +95,25 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         res.assignScaffoldComponents();
+
+        res::keys().forEach(key => {
+            if (key.indexOf("ByID") > -1){
+                delete res[key];
+            }
+        });
+
         return res;
     }
 
     contains(resource){
         if (resource instanceof Node){
-            return this.nodes.find(e => e && e.id === resource.id);
+            return findResourceByID(this.nodes, resource.id);
         }
         if (resource instanceof Lyph){
-            return this.lyphs.find(e => e && e.id === resource.id);
+            return findResourceByID(this.lyphs, resource.id);
         }
         if (resource instanceof Link){
-            return this.links.find(e => e && e.id === resource.id);
+            return findResourceByID(this.links, resource.id);
         }
         return false;
     }
@@ -117,6 +126,7 @@ export class Group extends Resource {
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
             this[prop].forEach(res => res.includeRelated && res.includeRelated(this));
+            //TODO why not all nodes marked as hidden: keastSpinalFull
             this[prop].hidden = this.hidden;
         });
 
@@ -163,7 +173,7 @@ export class Group extends Resource {
         links = links || [];
         (lyphs||[]).forEach(lyph => {
             if (lyph.conveys) {
-                if (!links.find(link => link.id === lyph.conveys.id)) {
+                if (!findResourceByID(links, lyph.conveys.id)) {
                     links.push(lyph.conveys);
                 }
             }
@@ -173,17 +183,16 @@ export class Group extends Resource {
     includeLinkEnds(links, nodes){
         nodes = nodes || [];
         (links||[]).forEach(lnk => {
-            if (!nodes.find(node => node.id === lnk.source.id)){
+            if (!findResourceByID(nodes, lnk.source.id)){
                 nodes.push(lnk.source);
             }
-            if (!nodes.find(node => node.id === lnk.target.id)){
+            if (!findResourceByID(nodes, lnk.target.id)){
                 nodes.push(lnk.target);
             }
         });
         (this.links||[]).forEach(lnk => {
             if (lnk.collapsible &&
-                nodes.find(node => node.id === lnk.source.id) &&
-                nodes.find(node => node.id === lnk.target.id)){
+                findResourceByID(nodes, lnk.source.id) && findResourceByID(nodes, lnk.target.id)){
                 links.push(lnk);
             }
         });
@@ -193,7 +202,7 @@ export class Group extends Resource {
         lyphs = lyphs || [];
         (links||[]).forEach(lnk => {
             if (lnk.conveyingLyph) {
-                if (!lyphs.find(lyph => lyph.id === lnk.conveyingLyph.id)) {
+                if (!findResourceByID(lyphs, lnk.conveyingLyph.id)) {
                     lyphs.push(lnk.conveyingLyph);
                 }
             }
@@ -203,21 +212,23 @@ export class Group extends Resource {
     /**
      * Replace references to lyph templates with references to auto-generated lyphs that inherit properties from templates
      * @param json - input model
-     * @param modelClasses - model resource classes
      */
-    static replaceReferencesToTemplates(json, modelClasses){
+    static replaceReferencesToTemplates(json){
 
         let changedLyphs = 0;
         let changedMaterials = 0;
 
         const replaceRefToMaterial = (ref) => {
+            let nm = getRefNamespace(ref, json.namespace);
             let lyphID = getGenID($Prefix.material, ref);
-            let template = (json.lyphs || []).find(e => (e.id === lyphID) && e.isTemplate);
-            if (!template) {
-                let material = (json.materials || []).find(e => e.id === ref);
+            let template = json.lyphsByID[getFullID(nm, lyphID)];
+            if (!template || !template.isTemplate) {
+                let material = json.materialsByID[getFullID(nm, ref)];
                 if (material) {
+                    //FIXME for other namespaces, should we use fullID or include to lyphs?
                     template = {
                         [$Field.id]: lyphID,
+                        [$Field.namespace]: nm,
                         [$Field.name]: material.name,
                         [$Field.isTemplate]: true,
                         [$Field.materials]: [material.id],
@@ -226,7 +237,15 @@ export class Group extends Resource {
                         [$Field.generated]: true
                     };
                     template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
-                    json.lyphs.push(template);
+                    // if (nm === json.namespace) {
+                        json.lyphs.push(template);
+                    // }
+                    json.lyphsByID[getFullID(nm, lyphID)] = template;
+                } else {
+                    if (nm !== json.namespace){
+                        logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, json.id, ref);
+                        console.error("Failed to locate other namespace material definition: ", nm, ref);
+                    }
                 }
             }
             if (template){
@@ -236,18 +255,23 @@ export class Group extends Resource {
         };
 
         const replaceRefToTemplate = (ref, parent, ext = null) => {
-            let template = (json.lyphs || []).find(e => e.id === ref && e.isTemplate);
-            if (template) {
+            let nm = getRefNamespace(ref, json.namespace);
+            let template = json.lyphsByID[getFullID(nm, ref)];
+            if (template && template.isTemplate) {
                 changedLyphs++;
                 let subtype = {
                     [$Field.id]        : getGenID($Prefix.template, ref, parent.id, ext),
+                    [$Field.namespace] : nm,
                     [$Field.name]      : template.name,
                     [$Field.supertype] : template.id,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 };
-                if (!findResourceByID(json.lyphs, subtype.id)){
-                    json.lyphs.push(subtype);
+                if (!json.lyphsByID[getFullID(nm, subtype.id)]) {
+                    // if (nm === json.namespace) {
+                        json.lyphs.push(subtype);
+                    // }
+                    json.lyphsByID[getFullID(nm, subtype.id)] = subtype;
                     replaceAbstractRefs(subtype, $Field.layers);
                 }
                 return subtype.id;
@@ -258,7 +282,6 @@ export class Group extends Resource {
         const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
             const replaceLyphTemplates = ![$Field.subtypes, $Field.supertype, $Field.lyphTemplate, $Field.housingLyphs].includes(key);
-            //TODO consider including "key" into template name to avoid identifier conflict if a template is used in several fields of the same resource
             if (resource[key]::isArray()) {
                 resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
@@ -367,19 +390,29 @@ export class Group extends Resource {
      */
     mergeSubgroupResources(){
         //Place references to subgroup resources to the current group
-        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate]);
+        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate])
+            .filter(prop => [$Field.seed, $Field.seedIn]);
+        this[$Field.imports] = this[$Field.imports] || [];
         (this.groups||[]).forEach(group => {
             if (group.id === this.id) {
                 logger.warn($LogMsg.GROUP_SELF, this.id, group.id);
                 return;
             }
+            (group[$Field.imports]||[]).forEach(url => {
+                if (url && !this[$Field.imports].includes(url)){
+                    this[$Field.imports].push(url);
+                }
+            });
             relFieldNames.forEach(prop => {
                 if (group[prop]::isArray()){
-                    this[prop] = (this[prop]||[])::unionBy(group[prop], $Field.id);
-                    this[prop] = this[prop].filter(x => !!x && x.class);
+                    this[prop] = (this[prop]||[])::unionBy(group[prop], "fullID");
+                    this[prop] = this[prop].filter(x => x && x.class);
                 }
             });
         });
+        if (this[$Field.imports].length === 0){
+            delete this[$Field.imports];
+        }
     }
 
     /**

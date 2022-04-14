@@ -906,7 +906,7 @@
             "topology": "TUBE"
         },
         {
-            "id": "lyph-digestive-pancreaticobiliary-ampulla-of-Vater",
+            "id": "lyph-digestive-pancreaticobiliary-sphincter",
             "name": "Pancreaticobiliary sphincter"
         },
         {
@@ -1976,6 +1976,8 @@
                 "lyph-digestive-gastric-pyloric-canal-and-sphincter",
                 "lyph-digestive-pre-ampullary-duodenum"
             ],
+            "root": "node-chain-upper-gastrointestinal-root",
+            "leaf": "node-chain-upper-gastrointestinal-leaf",
             "wiredTo": "too:w-X-O"
         },
         {
@@ -1992,6 +1994,8 @@
                 "lyph-digestive-rectum",
                 "lyph-digestive-anal-canal-and-sphincter"
             ],
+            "root": "node-chain-lower-gastrointestinal-root",
+            "leaf": "node-chain-lower-gastrointestinal-leaf",
             "wiredTo": "too:w-O-R"
         },
         {
@@ -2000,6 +2004,8 @@
             "lyphs": [
                 "lyph-skin-perineal"
             ],
+            "root": "node-chain-perineal-skin-root",
+            "leaf": "node-chain-perineal-skin-leaf",
             "wiredTo": "too:w-R-G"
         },
         {
@@ -2008,6 +2014,8 @@
             "lyphs": [
                 "lyph-female-genital-vulval-mucosa"
             ],
+            "root": "node-chain-vulval-mucosa-root",
+            "leaf": "node-chain-vulval-mucosa-leaf",
             "wiredTo": "too:w-G-U"
         },
         {
@@ -2016,6 +2024,8 @@
             "lyphs": [
                 "lyph-skin-inframammary"
             ],
+            "root": "node-chain-inframammary-skin-root",
+            "leaf": "node-chain-inframammary-skin-leaf",
             "wiredTo": "too:w-U-M"
         },
         {
@@ -2024,6 +2034,8 @@
             "lyphs": [
                 "lyph-skin-supramammary-infracranial"
             ],
+            "root": "node-chain-supramammary-infracranial-skin-root",
+            "leaf": "node-chain-supramammary-infracranial-skin-leaf",
             "wiredTo": "too:w-M-W"
         },
         {
@@ -2032,6 +2044,8 @@
             "lyphs": [
                 "lyph-skin-calvarial"
             ],
+            "root": "node-chain-calvarial-skin-root",
+            "leaf": "node-chain-calvarial-skin-leaf",
             "wiredTo": "too:w-W-J"
         },
         {
@@ -2040,6 +2054,8 @@
             "lyphs": [
                 "lyph-skin-nasal"
             ],
+            "root": "node-chain-nasal-skin-root",
+            "leaf": "node-chain-nasal-skin-leaf",
             "wiredTo": "too:w-J-V"
         },
         {
@@ -2048,6 +2064,8 @@
             "lyphs": [
                 "lyph-skin-philtrum"
             ],
+            "root": "node-chain-philtrum-skin-root",
+            "leaf": "node-chain-philtrum-skin-leaf",
             "wiredTo": "too:w-V-B"
         },
         {

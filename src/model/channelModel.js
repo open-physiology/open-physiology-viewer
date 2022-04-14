@@ -27,19 +27,25 @@ export class Channel extends GroupTemplate {
           return super.fromJSON(json, modelClasses, entitiesByID, namespace);
      }
 
+     static validateTemplate(channel){
+        if (!channel){
+            logger.warn($LogMsg.CHANNEL_UNDEFINED);
+            return false;
+        }
+        if (!channel.id) {
+            logger.warn($LogMsg.CHANNEL_NO_ID);
+            return false;
+        }
+        return true;
+     }
+
     /**
      * Create membrane channel group
      * @param parentGroup - model resources that may be referred from the template
      * @param channel - channel template in JSON
      */
     static expandTemplate(parentGroup, channel) {
-        if (!channel){
-            logger.warn($LogMsg.CHANNEL_UNDEFINED);
-            return;
-        }
-
-        if (!channel.id) {
-            logger.warn($LogMsg.CHANNEL_NO_ID);
+        if (!this.validateTemplate(channel)){
             return;
         }
 

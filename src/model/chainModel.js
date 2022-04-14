@@ -4,7 +4,6 @@ import {Node} from "./verticeModel";
 import {Link, Wire} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
 
-
 import {
     mergeGenResource,
     findResourceByID,
@@ -14,6 +13,7 @@ import {
     getID,
     compareResources,
     getGenName,
+    isDefined,
     $Field,
     $Color,
     $Prefix,
@@ -50,30 +50,35 @@ export class Chain extends GroupTemplate {
           return res;
     }
 
+    static validateTemplate(chain){
+       if (!chain){
+            logger.warn($LogMsg.CHAIN_UNDEFINED);
+            return false;
+       }
+       if (chain.generated){
+            return false;
+       }
+
+       if (!(chain.numLevels || isDefined(chain.levels) || isDefined(chain.lyphs) ||
+            isDefined(chain.housingLyphs) || chain.housingChain)) {
+            logger.warn($LogMsg.CHAIN_SKIPPED, chain);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Generate a group from chain template
      * @param parentGroup - model resources that may be referred from the template
      * @param chain - chain template in JSON
      */
     static expandTemplate(parentGroup, chain){
-        if (!chain){
-            logger.warn($LogMsg.CHAIN_UNDEFINED);
+        if (!this.validateTemplate(chain)){
             return;
         }
-
-        if (chain.generated){return;}
 
         chain.id = chain.id || getGenID($Prefix.chain, getNewID());
         chain.name = chain.name || getGenName(chain.name || chain.id, $Prefix.group);
-
-        const isDefined = value => value && value::isArray() && value.length > 0;
-
-        if ( !(chain.numLevels || isDefined(chain.levels) || isDefined(chain.lyphs) ||
-            isDefined(chain.housingLyphs) || chain.housingChain)) {
-            logger.warn($LogMsg.CHAIN_SKIPPED, chain);
-            return;
-        }
-
         chain.group = this.createTemplateGroup(chain, parentGroup);
 
         function getLyphTemplate(){
@@ -85,7 +90,7 @@ export class Chain extends GroupTemplate {
                     chain.lyphTemplate = template.id;
                 } else {
                     //find lyph template to establish chain topology
-                    template = (parentGroup.lyphs||[]).find(e => e.id === chain.lyphTemplate);
+                    template = findResourceByID(parentGroup.lyphs, chain.lyphTemplate);
                     if (!template){
                         logger.error($LogMsg.CHAIN_LYPH_TEMPLATE_MISSING, chain.lyphTemplate);
                     }
@@ -511,7 +516,7 @@ export class Chain extends GroupTemplate {
         (chains||[]).forEach(chain => {
             if (chain::isObject() && !chain.root){
                 if (!rootNodes.find(node => node.rootOf === chain.id)){
-                    logger.error($LogMsg.CHAIN_NO_ROOT_INPUT, chain.id);
+                    logger.warn($LogMsg.CHAIN_NO_ROOT_INPUT, chain.id);
                 }
             }
         });
@@ -562,13 +567,13 @@ export class Chain extends GroupTemplate {
             (this.root.leafOf||[]).forEach(prevChain => prevChain.levels &&
                 connectNeighbor(this.levels[0], prevChain.levels[prevChain.levels.length - 1], $Field.prevChainEndLevels));
         } else {
-            logger.error($LogMsg.CHAIN_NO_ROOT, this.id)
+            logger.warn($LogMsg.CHAIN_NO_ROOT, this.id)
         }
         if (this.leaf){
             (this.leaf.rootOf||[]).forEach(nextChain => nextChain.levels &&
                 connectNeighbor(this.levels[this.levels.length - 1], nextChain.levels[0], $Field.nextChainStartLevels));
         } else {
-            logger.error($LogMsg.CHAIN_NO_LEAF, this.id)
+            logger.warn($LogMsg.CHAIN_NO_LEAF, this.id)
         }
     }
 

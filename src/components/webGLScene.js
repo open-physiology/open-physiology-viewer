@@ -16,6 +16,7 @@ import {SettingsPanelModule} from "./settingsPanel";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
+import {$LogMsg} from "../model/logger";
 
 const WindowResize = require('three-window-resize');
 
@@ -373,7 +374,7 @@ export class WebGLSceneComponent {
                 if (nodes.length || links.length || lyphs.length) {
                     this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
                 } else {
-                    this.graphData.logger.error("No resources identified to match SciGraph nodes and edges", nodeIDs, edgeIDs);
+                    this.graphData.logger.error($LogMsg.GRAPH_QUERY_EMPTY_RES, nodeIDs, edgeIDs);
                 }
             }
         })

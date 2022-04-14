@@ -17,7 +17,7 @@ import {
     getID,
     LYPH_TOPOLOGY,
     getGenName, schemaClassModels,
-    prepareForExport, findResourceByID, getRefNamespace, SchemaClass
+    prepareForExport, findResourceByID, getRefNamespace, SchemaClass, getNewID, getFullID
 } from "./utils";
 import {
     extractLocalConventions,
@@ -157,6 +157,9 @@ export class Graph extends Group{
         };
         inputModel.groups.unshift(defaultGroup);
 
+        //Collect resources necessary for template expansion from all groups
+        this.collectNestedResources(inputModel);
+
         //Create graph
         inputModel.class = $SchemaClass.Graph;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
@@ -221,7 +224,6 @@ export class Graph extends Group{
             res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID, namespace);
             let noAxisLyphs = (res.lyphs||[]).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
             res.createAxes(noAxisLyphs, modelClasses, entitiesByID, namespace);
-            res.includeToGroups();
             (res.groups||[]).forEach(group => group.includeRelated && group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
             //Collect inherited externals
@@ -280,7 +282,7 @@ export class Graph extends Group{
         });
 
         //Return to ungrouped dependent resources
-        defaultGroup.includeRelated();
+        defaultGroup.includeRelated && defaultGroup.includeRelated();
         [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
         //Remove "Ungrouped" if empty
         if (!defaultGroup.links.length && !defaultGroup.nodes.length){
@@ -295,6 +297,40 @@ export class Graph extends Group{
         res.logger = logger;
 
         return res;
+    }
+
+    static collectNestedResources(json){
+        // let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.GroupTemplate])
+        //      .filter(prop => [$Field.seed, $Field.seedIn]);
+        let relFieldNames = [$Field.lyphs, $Field.materials];
+        relFieldNames.forEach(prop => {
+            let mapProp = [prop + "ByID"];
+            if (!json[mapProp]){
+                json[mapProp] = {};
+            }
+            if (json[prop]::isArray()){
+                (json[prop]||[]).forEach( r => {
+                    if (r::isObject()) {
+                        r.id = r.id || getNewID();
+                        let nm = getRefNamespace(r.id, json.namespace);
+                        let fullID = getFullID(nm, r.id);
+                        if (!json[mapProp][fullID]) {
+                            json[prop].namespace = nm;
+                            json[mapProp][fullID] = r;
+                        } else {
+                            logger.error($LogMsg.RESOURCE_DUPLICATE, fullID, r.id);
+                            console.error("Duplicate resource: ", fullID);
+                        }
+                    }
+                })
+            }
+            (json.groups||[]).forEach(g => {
+                if ( g::isObject()) {
+                    g[mapProp] = json[mapProp];
+                }
+            });
+        });
+        (json.groups||[]).forEach(g => g::isObject() && this.collectNestedResources(g));
     }
 
     createForceLinks(){
@@ -314,7 +350,7 @@ export class Graph extends Group{
                     && nodes[1] && nodes[1].class === $SchemaClass.Node){
                     if ((nodes[0].id !== nodes[1].id)) {
                         let force_json = this.modelClasses.Link.createForceLink(nodes[0].id, nodes[1].id);
-                        if (!this.links.find(x => x.id === force_json.id)) {
+                        if (!findResourceByID(this.links, force_json.id)) {
                             let force = Link.fromJSON(force_json, this.modelClasses, this.entitiesByID, this.namespace);
                             [$Field.sourceOf, $Field.targetOf].forEach((prop, i) => {
                                 nodes[i][prop] = nodes[i][prop] || [];
@@ -333,11 +369,6 @@ export class Graph extends Group{
         if (group.links.length) {
             this.groups.unshift(group);
         }
-    }
-
-    includeToGroups(){
-        let relClassNames = schemaClassModels[$SchemaClass.Graph].relClassNames::keys();
-        relClassNames.forEach((key) => (this[key]||[]).forEach(r => r.includeToGroup && r.includeToGroup(key)));
     }
 
     /**

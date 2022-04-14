@@ -54,4 +54,8 @@ export class GroupTemplate extends Resource{
         parentGroup.groups.push(group.id);
         return group;
     }
+
+    static validateTemplate(template){
+        return true;
+    }
 }

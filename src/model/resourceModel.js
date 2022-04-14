@@ -66,7 +66,9 @@ export class Resource{
         const res = new cls(json.id, clsName);
 
         //spec
-        let difference = json::keys().filter(x => !schemaClassModels[clsName].fieldNames.find(y => y === x)).filter(x => !["_inactive"].includes(x));
+        let difference = json::keys().filter(x => !(x.indexOf("ByID") > -1) && !schemaClassModels[clsName].fieldNames.find(y => y === x))
+            .filter(x => !["_inactive"].includes(x));
+
         if (difference.length > 0) {
             logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, difference.join(","));
         }
@@ -85,13 +87,13 @@ export class Resource{
                 logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
             }
 
-            if (entitiesByID[res.fullID]) {
-                if (entitiesByID[res.fullID] !== res){
+            if (entitiesByID[res.fullID]){
+                if (entitiesByID[res.fullID] !== res) {
                     logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.fullID], res);
                 }
             } else {
                 entitiesByID[res.fullID] = res;
-                res.reviseWaitingList(entitiesByID.waitingList, modelClasses);
+                res.reviseWaitingList(entitiesByID.waitingList);
                 res.replaceIDs(modelClasses, entitiesByID);
             }
         }
@@ -331,15 +333,14 @@ export class Resource{
      * When a new resource definition is found or created, all resources that referenced this resource by ID get the
      * corresponding object reference instead
      * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
-     * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      */
-    reviseWaitingList(waitingList, modelClasses){
+    reviseWaitingList(waitingList){
         let res = this;
         (waitingList[res.fullID]||[]).forEach(([obj, key, clsName]) => {
             if (obj[key]::isArray()){
                 obj[key].forEach((e, i) => {
                     if (e === res.shortID || e === res.fullID){
-                        if (!(res instanceof modelClasses[clsName])){
+                        if (!schemaClassModels[res.class].extendsClass(clsName)){
                             logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
                         }
                         obj[key][i] = res;
@@ -347,7 +348,7 @@ export class Resource{
                 });
             } else {
                 if (obj[key] === res.shortID || obj[key] === res.fullID){
-                    if (!(res instanceof modelClasses[clsName])){
+                    if (!schemaClassModels[res.class].extendsClass(clsName)){
                         logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
                     }
                     obj[key] = res;
@@ -503,17 +504,6 @@ export class Resource{
      */
     includeRelated(group){
         logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
-    }
-
-    includeToGroup(prop){
-        (this.inGroups||[]).forEach(group => {
-            if (group::isObject()){
-                group[prop] = group[prop] || [];
-                if (!group[prop].find(e => getID(e) === this.id)){
-                    group[prop].push(this);
-                }
-            }
-        })
     }
 }
 

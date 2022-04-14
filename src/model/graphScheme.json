@@ -848,6 +848,32 @@
           "advanced": true,
           "relatedTo": "seedIn"
         },
+        "hostedBy": {
+          "description": "ID or reference of a region on which lyphs from the group must be projected to",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Region"
+            }
+          ],
+          "advanced": true,
+          "relatedTo": "hostedGroup"
+        },
+        "generatedFrom": {
+          "description": "Group template which was used to generate the current lyph",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/GroupTemplate"
+            }
+          ],
+          "readOnly": true
+        },
+
         "nodes": {
           "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
           "type": "array",
@@ -979,31 +1005,6 @@
           },
           "advanced": true,
           "default": []
-        },
-        "generatedFrom": {
-          "description": "Group template which was used to generate the current lyph",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/GroupTemplate"
-            }
-          ],
-          "readOnly": true
-        },
-        "hostedBy": {
-          "description": "ID or reference of a region on which lyphs from the group must be projected to",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Region"
-            }
-          ],
-          "advanced": true,
-          "relatedTo": "hostedGroup"
         },
         "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",
@@ -2253,52 +2254,7 @@
           "type": "string",
           "advanced": true
         },
-        "external": {
-          "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/External"
-              }
-            ]
-          },
-          "relatedTo": "annotates"
-        },
-        "references": {
-          "description": "Identifier of an evidence source in an external library",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Reference"
-              }
-            ]
-          },
-          "relatedTo": "documents"
-        },
-        "ontologyTerms": {
-          "description": "External ontology term",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/OntologyTerm"
-              }
-            ]
-          },
-          "relatedTo": "annotates"
-        },
-        "generated": {
+                "generated": {
           "description": "A boolean flag to mark automatically generated resources",
           "type": "boolean",
           "readOnly": true
@@ -2356,8 +2312,9 @@
           ],
           "advanced": true
         },
-        "inGroups": {
-          "description": "Specify groups to which this resource should be included",
+
+        "external": {
+          "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
           "items": {
             "anyOf": [
@@ -2365,11 +2322,41 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/Group"
+                "$ref": "#/definitions/External"
               }
             ]
           },
-          "advanced": true
+          "relatedTo": "annotates"
+        },
+        "references": {
+          "description": "Identifier of an evidence source in an external library",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Reference"
+              }
+            ]
+          },
+          "relatedTo": "documents"
+        },
+        "ontologyTerms": {
+          "description": "External ontology term",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          },
+          "relatedTo": "annotates"
         }
       }
     },

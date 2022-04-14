@@ -71,6 +71,7 @@ export const $LogMsg = {
     EXCEL_CONVERSION_ERROR      : "Excel to JSON: failed to parse value",
 
     GRAPH_RESOURCE_NUM          : "Number of resources in the generated model",
+    GRAPH_QUERY_EMPTY_RES       : "No resources identified to match SciGraph nodes and edges",
 
     GROUP_TEMPLATE_NO_CLASS     : "Could not find class definition for the field",
     GROUP_REF_TO_LYPH           : "Number of replaced references to lyph templates",
@@ -90,6 +91,8 @@ export const $LogMsg = {
     LYPH_NO_TEMPLATE_LAYER      : "Template layer object not found",
     LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
     LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
+
+    MATERIAL_REF_NOT_FOUND      : "Referred material definition not found in the group",
 
     NODE_NO_LINK_REF            : "Generated node has no reference to the link that ends in it",
     NODE_CLONE_INTERNAL         : "Cloned node to join housed chain ends",

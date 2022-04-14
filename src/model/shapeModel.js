@@ -13,7 +13,7 @@ import {
     findResourceByID,
     getID,
     LYPH_TOPOLOGY,
-    mergeResources, $SchemaClass
+    mergeResources, $SchemaClass, getRefNamespace
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -115,7 +115,7 @@ export class Lyph extends Shape {
 
         //Validate subtype
         (template.subtypes||[]).forEach(s => {
-            if (s::isObject() && s.id && !lyphs.find(e => e.id === s.id)){
+            if (s::isObject() && s.id && !findResourceByID(lyphs, s.id)){
                 lyphs.push(s); //generate a lyph for the template supertype
             }
         });
@@ -160,7 +160,6 @@ export class Lyph extends Shape {
         if (sourceLyph.isTemplate){
             targetLyph.supertype = sourceLyph.id;
             //Clone template villus object into all subtype lyphs
-            //TODO test
             if (sourceLyph.villus){
                 targetLyph.villus = sourceLyph.villus::clone();
                 if (targetLyph.villus.id){
@@ -185,7 +184,7 @@ export class Lyph extends Shape {
         (sourceLyph.layers || []).forEach((layerRef, i) => {
             let sourceLayer = findResourceByID(lyphs, layerRef);
             if (!sourceLayer) {
-                logger.warn($LogMsg.LYPH_NO_TEMPLATE_LAYER, layerRef);
+                logger.error($LogMsg.LYPH_NO_TEMPLATE_LAYER, sourceLyph.id, layerRef);
                 return;
             }
 
