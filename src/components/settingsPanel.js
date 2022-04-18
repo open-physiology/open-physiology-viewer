@@ -70,7 +70,7 @@ import {StopPropagation} from "./gui/stopPropagation";
                         <mat-checkbox matTooltip="Toggle groups" labelPosition="after" class="w3-margin-left"
                                       [checked] = "!group.hidden"
                                       (change)  = "onToggleGroup.emit(group)"> 
-                            {{group.name || group.id}}
+                            {{group.namespace? group.namespace + ":" : ""}}{{group.name || group.id}}
                         </mat-checkbox>
                     </span>
                 </fieldset>

@@ -61,7 +61,7 @@ export class Group extends Resource {
         this.expandGroupTemplates(json, modelClasses);
 
         //create lyphs that inherit properties from templates
-        this.expandLyphTemplates(json.lyphs, modelClasses);
+        this.expandLyphTemplates(json, modelClasses);
 
         //create villus
         this.expandVillusTemplates(json, modelClasses);
@@ -82,7 +82,7 @@ export class Group extends Resource {
         modelClasses.Node.replicateInternalNodes(json, modelClasses);
 
         //Reposition internal resources
-        modelClasses.Lyph.mapInternalResourcesToLayers(json.lyphs);
+        modelClasses.Lyph.mapInternalResourcesToLayers(json);
 
         /******************************************************************************************************/
         //create graph resource
@@ -95,13 +95,6 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         res.assignScaffoldComponents();
-
-        res::keys().forEach(key => {
-            if (key.indexOf("ByID") > -1){
-                delete res[key];
-            }
-        });
-
         return res;
     }
 
@@ -218,42 +211,6 @@ export class Group extends Resource {
         let changedLyphs = 0;
         let changedMaterials = 0;
 
-        const replaceRefToMaterial = (ref) => {
-            let nm = getRefNamespace(ref, json.namespace);
-            let lyphID = getGenID($Prefix.material, ref);
-            let template = json.lyphsByID[getFullID(nm, lyphID)];
-            if (!template || !template.isTemplate) {
-                let material = json.materialsByID[getFullID(nm, ref)];
-                if (material) {
-                    //FIXME for other namespaces, should we use fullID or include to lyphs?
-                    template = {
-                        [$Field.id]: lyphID,
-                        [$Field.namespace]: nm,
-                        [$Field.name]: material.name,
-                        [$Field.isTemplate]: true,
-                        [$Field.materials]: [material.id],
-                        [$Field.generatedFrom]: material.id,
-                        [$Field.skipLabel]: true,
-                        [$Field.generated]: true
-                    };
-                    template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
-                    // if (nm === json.namespace) {
-                        json.lyphs.push(template);
-                    // }
-                    json.lyphsByID[getFullID(nm, lyphID)] = template;
-                } else {
-                    if (nm !== json.namespace){
-                        logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, json.id, ref);
-                        console.error("Failed to locate other namespace material definition: ", nm, ref);
-                    }
-                }
-            }
-            if (template){
-                return template.id;
-            }
-            return ref;
-        };
-
         const replaceRefToTemplate = (ref, parent, ext = null) => {
             let nm = getRefNamespace(ref, json.namespace);
             let template = json.lyphsByID[getFullID(nm, ref)];
@@ -268,10 +225,9 @@ export class Group extends Resource {
                     [$Field.generated] : true
                 };
                 if (!json.lyphsByID[getFullID(nm, subtype.id)]) {
-                    // if (nm === json.namespace) {
-                        json.lyphs.push(subtype);
-                    // }
                     json.lyphsByID[getFullID(nm, subtype.id)] = subtype;
+                    json.lyphs = json.lyphs || []
+                    json.lyphs.push(subtype);
                     replaceAbstractRefs(subtype, $Field.layers);
                 }
                 return subtype.id;
@@ -281,7 +237,43 @@ export class Group extends Resource {
 
         const replaceAbstractRefs = (resource, key) => {
             if (!resource[key]) { return; }
-            const replaceLyphTemplates = ![$Field.subtypes, $Field.supertype, $Field.lyphTemplate, $Field.housingLyphs].includes(key);
+
+            const replaceRefToMaterial = (ref) => {
+                let nm = getRefNamespace(ref, json.namespace);
+                let lyphID = getGenID($Prefix.material, ref);
+                let template = json.lyphsByID[getFullID(nm, lyphID)];
+                if (!template || !template.isTemplate) {
+                    let material = json.materialsByID[getFullID(nm, ref)];
+                    if (material) {
+                        template = {
+                            [$Field.id]: lyphID,
+                            [$Field.namespace]: nm,
+                            [$Field.name]: material.name,
+                            [$Field.isTemplate]: true,
+                            [$Field.materials]: [material.id],
+                            [$Field.generatedFrom]: material.id,
+                            [$Field.skipLabel]: true,
+                            [$Field.generated]: true
+                        };
+                        template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
+                        //TODO copy all materials
+                        json.lyphs.push(template);
+                        json.lyphsByID[getFullID(nm, lyphID)] = template;
+                    } else {
+                        if (nm !== json.namespace){
+                            logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, ref);
+                        }
+                    }
+                }
+                if (template){
+                    return template.id;
+                }
+                return ref;
+            };
+
+            const replaceLyphTemplates = ![$Field.subtypes, $Field.supertype, $Field.lyphTemplate, $Field.housingLyphs
+                //, $Field.lyphs // NK property "lyphs" are needed for coalescences?
+            ].includes(key);
             if (resource[key]::isArray()) {
                 resource[key] = resource[key].map(ref => replaceRefToMaterial(ref));
                 if (replaceLyphTemplates){
@@ -318,10 +310,10 @@ export class Group extends Resource {
 
     /**
      * Generate groups from group templates, i.e. auto-create necessary nodes and links conveying given or generated lyphs
-     * @param json - input model
+     * @param parentGroup - input model
      * @param modelClasses - model resource classes
      */
-    static expandGroupTemplates(json, modelClasses){
+    static expandGroupTemplates(parentGroup, modelClasses){
         if (!modelClasses || modelClasses === {}){ return; }
         let relClassNames = schemaClassModels[$SchemaClass.Group].relClassNames;
         [$Field.channels, $Field.chains].forEach(relName => {
@@ -329,14 +321,14 @@ export class Group extends Resource {
             if (!clsName){
                 logger.error($LogMsg.GROUP_TEMPLATE_NO_CLASS, relName);
             }
-            (json[relName]||[]).forEach((template, i) => {
+            (parentGroup[relName]||[]).forEach((template, i) => {
                 if (template::isObject()) {//expand group templates, but not references
-                    template.id = template.id || getGenID(json.id, relName, i);
-                    modelClasses[clsName].expandTemplate(json, template);
+                    template.id = template.id || getGenID(parentGroup.id, relName, i);
+                    modelClasses[clsName].expandTemplate(parentGroup, template);
                 } else {
                     logger.info($LogMsg.GROUP_TEMPLATE_OTHER, template);
-                    json[$Field.groups] = json[$Field.groups] || [];
-                    json[$Field.groups].push(getGenID($Prefix.group, template));
+                    parentGroup[$Field.groups] = parentGroup[$Field.groups] || [];
+                    parentGroup[$Field.groups].push(getGenID($Prefix.group, template));
                 }
             });
         });
@@ -362,12 +354,12 @@ export class Group extends Resource {
 
     /**
      * Create lyphs that inherit properties from templates
-     * @param lyphs - input model lyphs
+     * @param parentGroup
      * @param modelClasses - model resource classes
      */
-    static expandLyphTemplates(lyphs, modelClasses){
-        let templates = (lyphs||[]).filter(lyph => lyph.isTemplate);
-        templates.forEach(template => modelClasses.Lyph.expandTemplate(lyphs, template));
+    static expandLyphTemplates(parentGroup, modelClasses){
+        let templates = (parentGroup.lyphs||[]).filter(lyph => lyph.isTemplate);
+        templates.forEach(template => modelClasses.Lyph.expandTemplate(parentGroup, template));
         templates.forEach(template => delete template._inactive);
     }
 
@@ -390,19 +382,13 @@ export class Group extends Resource {
      */
     mergeSubgroupResources(){
         //Place references to subgroup resources to the current group
-        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.Group, $SchemaClass.GroupTemplate])
-            .filter(prop => [$Field.seed, $Field.seedIn]);
-        this[$Field.imports] = this[$Field.imports] || [];
+        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.GroupTemplate])
+            .filter(prop => ![$Field.seed, $Field.seedIn].includes(prop));
         (this.groups||[]).forEach(group => {
             if (group.id === this.id) {
                 logger.warn($LogMsg.GROUP_SELF, this.id, group.id);
                 return;
             }
-            (group[$Field.imports]||[]).forEach(url => {
-                if (url && !this[$Field.imports].includes(url)){
-                    this[$Field.imports].push(url);
-                }
-            });
             relFieldNames.forEach(prop => {
                 if (group[prop]::isArray()){
                     this[prop] = (this[prop]||[])::unionBy(group[prop], "fullID");
@@ -410,9 +396,6 @@ export class Group extends Resource {
                 }
             });
         });
-        if (this[$Field.imports].length === 0){
-            delete this[$Field.imports];
-        }
     }
 
     /**

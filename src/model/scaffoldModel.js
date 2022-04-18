@@ -17,7 +17,8 @@ import {
     $SchemaClass,
     prepareForExport,
     schemaClassModels,
-    findResourceByID
+    refToResource,
+    collectNestedResources
 } from "./utils";
 import {extractLocalConventions, extractModelAnnotation, convertValue, validateValue, validateExternal} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
@@ -61,6 +62,9 @@ export class Scaffold extends Component {
 
         let namespace = inputModel.namespace || defaultNamespace;
 
+        let relFieldNames = [$Field.anchors, $Field.wires, $Field.regions];
+        collectNestedResources(inputModel, relFieldNames, $Field.components);
+
         //Create scaffold
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
 
@@ -77,17 +81,9 @@ export class Scaffold extends Component {
                 if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
                     return;
                 }
-
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
                 if (clsName && !schemaClassModels[clsName].schema.abstract) {
                     let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
-                    //Include newly created entity to the main model
-                    let prop = schemaClassModels[$SchemaClass.Scaffold].selectedRelNames(clsName)[0];
-                    if (prop) {
-                        res[prop] = res[prop] || [];
-                        res[prop].push(e);
-                    }
-                    entitiesByID[e.fullID] = e;
                     added.push(e.fullID);
                 }
             }
@@ -288,7 +284,7 @@ export class Scaffold extends Component {
     update(srcScaffold) {
         const scaleFactor = 10;
         (this.anchors || []).forEach(anchor => {
-            const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
+            const srcAnchor = refToResource(anchor.id, srcScaffold, $Field.anchors);
             if (srcAnchor) {
                 srcAnchor.layout = srcAnchor.layout || {};
                 if (anchor.layout) {
@@ -301,7 +297,7 @@ export class Scaffold extends Component {
             }
         });
         (this.regions || []).forEach(region => {
-            const srcRegion = findResourceByID(srcScaffold.regions, region.id);
+            const srcRegion = refToResource(region.id, srcScaffold, $Field.regions);
             if (srcRegion) {
                 if (srcRegion.points) {
                     (srcRegion.points || []).forEach((target, i) => {
@@ -320,7 +316,7 @@ export class Scaffold extends Component {
         (this.wires || []).forEach(wire => {
             //Update ellipse radius
             if (wire.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE) {
-                const srcWire = findResourceByID(srcScaffold.wires, wire.id);
+                const srcWire = refToResource(wire.id, srcScaffold, $Field.wires);
                 if (srcWire && srcWire::isObject()) {
                     srcWire.radius = srcWire.radius || {};
                     ["x", "y"].forEach(dim => srcWire.radius[dim] = wire.radius[dim] / scaleFactor);

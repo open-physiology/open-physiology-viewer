@@ -4,16 +4,16 @@ import {Edge, Link} from './edgeModel';
 import {clone, merge, pick, isObject, mergeWith} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
+    LYPH_TOPOLOGY,
     $Field,
     $Prefix,
     $Color,
+    $SchemaClass,
     getGenID,
     getNewID,
     getGenName,
-    findResourceByID,
     getID,
-    LYPH_TOPOLOGY,
-    mergeResources, $SchemaClass, getRefNamespace
+    mergeResources, refToResource,
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -107,34 +107,36 @@ export class Lyph extends Shape {
 
     /**
      * Generate new layers for subtypes and replicate template properties
-     * @param lyphs - lyph set that contains target subtypes
+     * @param parentGroup
      * @param template - lyph template
      */
-    static expandTemplate(lyphs, template){
-        if (!template || template._inactive || !lyphs) { return; }
+    static expandTemplate(parentGroup, template){
+        if (!template || template._inactive || !parentGroup) { return; }
 
         //Validate subtype
         (template.subtypes||[]).forEach(s => {
-            if (s::isObject() && s.id && !findResourceByID(lyphs, s.id)){
-                lyphs.push(s); //generate a lyph for the template supertype
+            if (s::isObject() && s.id && !refToResource(s.id, parentGroup, $Field.lyphs)
+                //!findResourceByID(lyphs, s.id)
+            ){
+                parentGroup.lyphs.push(s); //generate a lyph for the template supertype
             }
         });
         //Template supertype must contain id's for correct generation
-        template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
-        let subtypes = lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
-        subtypes.forEach(subtype => this.clone(lyphs, template, subtype));
-
+        // template.subtypes = (template.subtypes||[]).map(e => e::isObject()? e.id: e);
+        template.subtypes = (template.subtypes||[]).map(e => getID(e));
+        let subtypes = parentGroup.lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
+        subtypes.forEach(subtype => this.clone(parentGroup, template, subtype));
         template._inactive = true;
     }
 
     /**
      * Copy the properties and layer structure of the source lyph to the target lyph
-     * @param lyphs      - a set of existing model/group lyphs
+     * @param parentGroup
      * @param sourceLyph - the lyph to clone
      * @param targetLyph - the cloned lyph instance
      * @returns {Lyph} the target lyph
      */
-    static clone(lyphs, sourceLyph, targetLyph){
+    static clone(parentGroup, sourceLyph, targetLyph){
         if (!sourceLyph) { return; }
         if (sourceLyph === targetLyph){
             logger.warn($LogMsg.LYPH_SELF, sourceLyph);
@@ -142,13 +144,13 @@ export class Lyph extends Shape {
         }
 
         targetLyph = targetLyph || {};
-        if (!lyphs) {lyphs = [];}
+        if (!parentGroup.lyphs) {parentGroup.lyphs = [];}
  
         if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
             //expand the supertype - the sourceLyph may need to get its layers from the supertype first
-            let supertype = findResourceByID(lyphs, sourceLyph.supertype);
+            let supertype = refToResource(sourceLyph.supertype, parentGroup, $Field.lyphs);
             if (supertype && supertype.isTemplate){
-                this.expandTemplate(lyphs, supertype);
+                this.expandTemplate(parentGroup, supertype);
             }
         }
 
@@ -181,10 +183,11 @@ export class Lyph extends Shape {
             logger.warn($LogMsg.LYPH_SUBTYPE_HAS_OWN_LAYERS, targetLyph);
         }
 
+        let missingLayers = [];
         (sourceLyph.layers || []).forEach((layerRef, i) => {
-            let sourceLayer = findResourceByID(lyphs, layerRef);
+            let sourceLayer = refToResource(layerRef, parentGroup, $Field.lyphs);
             if (!sourceLayer) {
-                logger.error($LogMsg.LYPH_NO_TEMPLATE_LAYER, sourceLyph.id, layerRef);
+                missingLayers.push(layerRef);
                 return;
             }
 
@@ -199,26 +202,30 @@ export class Lyph extends Shape {
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
             });
-            lyphs.push(targetLayer);
-            this.clone(lyphs, sourceLayer, targetLayer);
+            parentGroup.lyphs.push(targetLayer);
+            this.clone(parentGroup, sourceLayer, targetLayer);
 
             targetLayer::merge(targetLyph::pick([$Field.topology]));
             targetLyph.layers = targetLyph.layers || [];
             targetLyph.layers.push(targetLayer.id);
         });
 
+        if (missingLayers.length > 0) {
+            logger.error($LogMsg.LYPH_NO_TEMPLATE_LAYER, sourceLyph.id, missingLayers.join(","));
+        }
+
         return targetLyph;
     }
 
     /**
      * Assign internal resources to generated lyph layers
-     * @param lyphs
+     * @param parentGroup
      */
-    static mapInternalResourcesToLayers(lyphs){
+    static mapInternalResourcesToLayers(parentGroup){
 
         function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers.length){
-                let layer = findResourceByID(lyphs, lyph.layers[layerIndex]);
+                let layer = refToResource(lyph.layers[layerIndex], parentGroup, $Field.lyphs);
                 if (layer){
                     layer[prop] = layer[prop] || [];
                     let internalID = getID(lyph[prop][resourceIndex]);
@@ -236,7 +243,7 @@ export class Lyph extends Shape {
         }
 
         function processLyphs(key1, key2){
-            (lyphs||[]).forEach(lyph => {
+            (parentGroup.lyphs||[]).forEach(lyph => {
                 if (lyph.layers && lyph[key1] && lyph[key2]) {
                     for (let i = 0; i < Math.min(lyph[key1].length, lyph[key2].length); i++) {
                         moveResourceToLayer(i, lyph[key2][i], lyph, $Field.internalLyphs);
@@ -565,17 +572,17 @@ export class Region extends Shape {
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
-    static validateTemplate(json, template){
+    static validateTemplate(parentGroup, template){
         if (template.facets){
             template.points = [];
             template.facets.forEach(wireRef => {
-                let wire = findResourceByID(json.wires, wireRef);
+                let wire = refToResource(wireRef, parentGroup, $Field.wires);
                 if (!wire || !wire.source || !wire.target){
                     logger.warn($LogMsg.REGION_FACET_ERROR, wire);
                     return;
                 }
-                let sourceAnchor = findResourceByID(json.anchors, wire.source);
-                let targetAnchor = findResourceByID(json.anchors, wire.target);
+                let sourceAnchor = refToResource(wire.source, parentGroup, $Field.anchors);
+                let targetAnchor = refToResource(wire.target, parentGroup, $Field.anchors);
                 if (!sourceAnchor || !targetAnchor){
                     logger.warn($LogMsg.REGION_FACET_NO_ANCHORS, wire.source, wire.target);
                     return;
@@ -587,12 +594,12 @@ export class Region extends Shape {
         }
     }
 
-    static expandTemplate(json, template){
+    static expandTemplate(parentGroup, template){
         if (!template::isObject()){
             logger.error($LogMsg.RESOURCE_NO_OBJECT, template);
             return;
         }
-        template.id = template.id || getGenID(json.id, (json.regions||[]).length);
+        template.id = template.id || getGenID(parentGroup.id, (parentGroup.regions||[]).length);
         let anchors = [];
         if (!template.borderAnchors) {
             //generate border anchors from points
@@ -604,11 +611,11 @@ export class Region extends Shape {
                     [$Field.generated]: true
                 });
             });
-            json.anchors = json.anchors || [];
-            json.anchors.push(...anchors);
+            parentGroup.anchors = parentGroup.anchors || [];
+            parentGroup.anchors.push(...anchors);
             template.borderAnchors = anchors.map(e => e.id);
         } else {
-            anchors = template.borderAnchors.map(e => findResourceByID(e)).filter(e => !!e);
+            anchors = template.borderAnchors.map(e => refToResource(e, parentGroup, $Field.anchors)).filter(e => e);
         }
         if (!template.facets) {
             //generate facets from border anchors
@@ -627,8 +634,8 @@ export class Region extends Shape {
                     [$Field.generated]: true
                 });
             }
-            json.wires = json.wires || [];
-            json.wires.push(...wires);
+            parentGroup.wires = parentGroup.wires || [];
+            parentGroup.wires.push(...wires);
             template.facets = wires.map(e => e.id);
         } else {
             //assign border anchors from facets
@@ -638,9 +645,9 @@ export class Region extends Shape {
                 template.borderAnchors = [];
             }
             (template.facets||[]).forEach(facet => {
-                const f = findResourceByID(json.wires, facet);
-                const s = findResourceByID(json.anchors, f.source);
-                const t = findResourceByID(json.anchors, f.target);
+                const f = refToResource(facet, parentGroup, $Field.wires);
+                const s = refToResource(f.source, parentGroup, $Field.anchors);
+                const t = refToResource(f.target,parentGroup, $Field.anchors);
                 s && t && template.borderAnchors.push(getID(s)) && template.borderAnchors.push(getID(t));
             });
             template.borderAnchors = [... new Set(template.borderAnchors)];

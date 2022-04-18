@@ -1,9 +1,12 @@
 import {VisualResource} from './visualResourceModel';
 import {
-    getGenID,
     $Field,
     $Prefix,
-    getID, findResourceByID, getOrCreateNode, $SchemaClass
+    $SchemaClass,
+    getGenID,
+    getID,
+    getOrCreateNode,
+    refToResource
 } from "./utils";
 import {keys, merge, pick, isString, isArray} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -132,16 +135,16 @@ export class Node extends Vertice {
         });
     }
 
-    static replicateInternalNodes(json, modelClasses){
+    static replicateInternalNodes(parentGroup, modelClasses){
         let internalNodesByID = {};
-        (json.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID));
+        (parentGroup.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID));
 
         const isEndBundledLink = (link, lyph) => (lyph.endBundles||[]).find(e => getID(e) === link.id);
 
         internalNodesByID::keys().forEach(nodeID => {
             let hostLyphs = internalNodesByID[nodeID];
             if (hostLyphs.length > 1){
-                let node = getOrCreateNode(json.nodes, nodeID);
+                let node = getOrCreateNode(parentGroup.nodes, nodeID);
                 if (node.generated) {
                     //if the node was generated, its internalIn property may be incorrectly set by chain generator
                     delete node.internalIn;
@@ -157,13 +160,13 @@ export class Node extends Vertice {
                         [$Field.generated]: true
                     };
                     modelClasses.Node.clone(node, nodeClone);
-                    json.nodes.push(nodeClone);
+                    parentGroup.nodes.push(nodeClone);
                     let k = hostLyph.internalNodes.indexOf(nodeID);
                     if (k > -1){ hostLyph.internalNodes[k] = nodeClone.id; }
 
                     //rewire affected links
-                    let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && isEndBundledLink(e, hostLyph));
-                    let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && isEndBundledLink(e, hostLyph));
+                    let targetOfLinks = (parentGroup.links||[]).filter(e => getID(e.target) === nodeID && isEndBundledLink(e, hostLyph));
+                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getID(e.source) === nodeID && isEndBundledLink(e, hostLyph));
                     targetOfLinks.forEach(lnk => {
                         lnk.target = nodeClone.id;
                         allTargetLinks.push(lnk);
@@ -184,7 +187,7 @@ export class Node extends Vertice {
                                 node[prop] = node[prop].filter(e => !chains.includes(e));
                             }
                             chains.forEach(e => {
-                                let chain = findResourceByID(json.chains, e);
+                                let chain = refToResource(e, parentGroup, $Field.chains);
                                 if (chain && chain.group){
                                     chain.group.nodes.push(nodeClone.id);
                                     let relatedProp = prop === $Field.leafOf? $Field.leaf: $Field.root;
@@ -203,7 +206,7 @@ export class Node extends Vertice {
                     } else {
                         lnk = modelClasses.Link.createCollapsibleLink(nodeClone.id, node.id);
                     }
-                    json.links.push(lnk);
+                    parentGroup.links.push(lnk);
                 });
 
                 if (allSourceLinks.length > 0){

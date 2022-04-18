@@ -3,12 +3,11 @@ import {Lyph} from "./shapeModel";
 import {Link} from "./edgeModel";
 import {
     mergeGenResource,
-    findResourceByID,
     getNewID,
     getGenID,
     addBorderNode,
     $Field,
-    $Prefix, $SchemaClass
+    $Prefix, $SchemaClass, refToResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -36,7 +35,7 @@ export class Villus extends GroupTemplate{
             return;
         }
 
-        let lyph = findResourceByID(parentGroup.lyphs, villus.villusOf);
+        let lyph = refToResource(villus.villusOf, parentGroup, $Field.lyphs);
         if (!lyph){
             logger.warn($LogMsg.VILLUS_NO_HOST_FOUND, villus);
             return;
@@ -59,7 +58,7 @@ export class Villus extends GroupTemplate{
         villus.id = villus.id || getNewID();
         villus.group = GroupTemplate.createTemplateGroup(villus, parentGroup);
 
-        let lyphLayers = lyph.layers.map(layer2 => findResourceByID(parentGroup.lyphs, layer2));
+        let lyphLayers = lyph.layers.map(layer2 => refToResource(layer2, parentGroup, $Field.lyphs));
         let sourceLayers = lyphLayers.slice(0, villus.numLayers).reverse();
 
         for (let i = villus.numLayers - 1; i >= 0; i--){
@@ -95,7 +94,7 @@ export class Villus extends GroupTemplate{
                     [$Field.skipLabel]: true,
                     [$Field.generated] : true
                 };
-                Lyph.clone(parentGroup.lyphs, sourceLyph, targetLyph);
+                Lyph.clone(parentGroup, sourceLyph, targetLyph);
                 return targetLyph;
             });
 

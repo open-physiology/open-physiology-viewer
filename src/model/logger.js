@@ -92,7 +92,7 @@ export const $LogMsg = {
     LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
     LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
 
-    MATERIAL_REF_NOT_FOUND      : "Referred material definition not found in the group",
+    MATERIAL_REF_NOT_FOUND      : "Referred material definition not found in the model",
 
     NODE_NO_LINK_REF            : "Generated node has no reference to the link that ends in it",
     NODE_CLONE_INTERNAL         : "Cloned node to join housed chain ends",

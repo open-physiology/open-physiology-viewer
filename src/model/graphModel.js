@@ -10,14 +10,17 @@ import {Validator} from 'jsonschema';
 import schema from './graphScheme.json';
 import {logger, $LogMsg} from './logger';
 import {
+    LYPH_TOPOLOGY,
+    schemaClassModels,
     $Field,
     $SchemaClass,
     $Prefix,
     getGenID,
     getID,
-    LYPH_TOPOLOGY,
-    getGenName, schemaClassModels,
-    prepareForExport, findResourceByID, getRefNamespace, SchemaClass, getNewID, getFullID
+    getGenName,
+    prepareForExport,
+    findResourceByID,
+    collectNestedResources
 } from "./utils";
 import {
     extractLocalConventions,
@@ -158,7 +161,8 @@ export class Graph extends Group{
         inputModel.groups.unshift(defaultGroup);
 
         //Collect resources necessary for template expansion from all groups
-        this.collectNestedResources(inputModel);
+        let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials];
+        collectNestedResources(inputModel, relFieldNames, $Field.groups);
 
         //Create graph
         inputModel.class = $SchemaClass.Graph;
@@ -297,40 +301,6 @@ export class Graph extends Group{
         res.logger = logger;
 
         return res;
-    }
-
-    static collectNestedResources(json){
-        // let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.GroupTemplate])
-        //      .filter(prop => [$Field.seed, $Field.seedIn]);
-        let relFieldNames = [$Field.lyphs, $Field.materials];
-        relFieldNames.forEach(prop => {
-            let mapProp = [prop + "ByID"];
-            if (!json[mapProp]){
-                json[mapProp] = {};
-            }
-            if (json[prop]::isArray()){
-                (json[prop]||[]).forEach( r => {
-                    if (r::isObject()) {
-                        r.id = r.id || getNewID();
-                        let nm = getRefNamespace(r.id, json.namespace);
-                        let fullID = getFullID(nm, r.id);
-                        if (!json[mapProp][fullID]) {
-                            json[prop].namespace = nm;
-                            json[mapProp][fullID] = r;
-                        } else {
-                            logger.error($LogMsg.RESOURCE_DUPLICATE, fullID, r.id);
-                            console.error("Duplicate resource: ", fullID);
-                        }
-                    }
-                })
-            }
-            (json.groups||[]).forEach(g => {
-                if ( g::isObject()) {
-                    g[mapProp] = json[mapProp];
-                }
-            });
-        });
-        (json.groups||[]).forEach(g => g::isObject() && this.collectNestedResources(g));
     }
 
     createForceLinks(){
@@ -641,6 +611,7 @@ export class Graph extends Group{
     neurulator() {
         let bags = (this.lyphs || []).filter(lyph => !lyph.isTemplate && !lyph.layerIn &&
             [LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY["BAG-"], LYPH_TOPOLOGY["BAG+"], LYPH_TOPOLOGY["CYST"]].includes(lyph.topology));
+
         while (bags.length > 0){
             let seed = bags.pop();
             if (!seed._processed){
@@ -676,13 +647,11 @@ export class Graph extends Group{
             if (t === LYPH_TOPOLOGY.CYST){
                 return false;
             }
-
             groupLinks.push(lnk);
+
             //BAG = target closed, TODO check with "reversed"
             const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible;
             const expandTarget = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG2) || lnk.collapsible;
-
-            let res = true;
 
             const isValid = (lnk1, topology) => {
                 if (lnk1._processed) {
@@ -694,25 +663,23 @@ export class Graph extends Group{
                 }
                 return goodEnd || dfs(lnk1);
             }
-            if (expandSource){
-                const node = lnk.source;
+
+            let res = true;
+
+            const allEndsValid = (node, sourceTopology, targetTopology) => {
                 const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
                 if (n > 1) {
-                    (node.sourceOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
-                    (node.targetOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
+                    (node.sourceOf||[]).forEach(lnk1 => res = res && isValid(lnk1, sourceTopology));
+                    (node.targetOf||[]).forEach(lnk1 => res = res && isValid(lnk1, targetTopology));
                 } else {
                     res = false;
                 }
             }
+            if (expandSource){
+                allEndsValid(lnk.source, LYPH_TOPOLOGY.BAG, LYPH_TOPOLOGY.BAG2);
+            }
             if (expandTarget){
-                const node = lnk.target;
-                const n = (node.sourceOf||[]).length + (node.targetOf||[]).length;
-                if (n > 1) {
-                    (node.sourceOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG2));
-                    (node.targetOf||[]).forEach(lnk1 => res = res && isValid(lnk1, LYPH_TOPOLOGY.BAG));
-                } else {
-                    res = false;
-                }
+                allEndsValid(lnk.target, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY.BAG);
             }
             return res;
         }
@@ -737,7 +704,12 @@ export class Graph extends Group{
                     logger.warn($LogMsg.GROUP_SEED_DUPLICATE, groups.map(g => g.seed.id));
                 }
             }
-            return this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
+            if (groupLinks.length > 0) {
+                return this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
+            }
+        } else {
+            //Clean all after unsuccessful crowling
+            (groupLinks||[]).forEach(lnk => delete lnk._processed);
         }
     }
 

@@ -22,7 +22,7 @@ import * as XLSX from 'xlsx';
 
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 
-import { entries } from 'lodash-bound';
+import { entries, mergeWith } from 'lodash-bound';
 
 import {
     $Field,
@@ -31,7 +31,7 @@ import {
     getFullID,
     getClassName,
     isClassAbstract,
-    schemaClassModels, getRefNamespace
+    schemaClassModels, getRefNamespace, mergeWithModel
 } from "./utils";
 
 export const modelClasses = {
@@ -290,7 +290,7 @@ export function fromJSONGenerated(inputModel) {
         }
     }
 
-    function _createResource(id, clsName, group, modelClasses, entitiesByID, namespace){
+    function _createResource(id, clsName, model, modelClasses, entitiesByID, namespace){
         const e = typeCast({
             [$Field.id]: id,
             [$Field.class]: clsName,
@@ -302,13 +302,7 @@ export function fromJSONGenerated(inputModel) {
         if (e.prototype instanceof modelClasses.VisualResource){
             e.skipLabel = true;
         }
-
-        //Include newly created entity to the main graph
-        const prop = schemaClassModels[group.class].selectedRelNames(clsName)[0];
-        if (prop) {
-            group[prop] = group[prop] ||[];
-            group[prop].push(e);
-        }
+        mergeWithModel(e, clsName, model);
         const fullID = getFullID(namespace, e.id);
         entitiesByID[fullID] = e;
         return e;
@@ -363,11 +357,7 @@ export function fromJSONGenerated(inputModel) {
                     })
 
                     //Include newly created entity to the main graph
-                    const prop = schemaClassModels[this.name].selectedRelNames(clsName)[0];
-                    if (prop) {
-                        model[prop] = model[prop] || [];
-                        model[prop].push(e);
-                    }
+                    mergeWithModel(e, clsName, model);
                     const fullID = getFullID(namespace, e.id);
                     entitiesList[fullID] = e;
                     added.push(e.id);
@@ -424,10 +414,16 @@ export function fromJsonLD(inputModel, callback) {
  * @returns {*}
  */
 export function joinModels(inputModelA, inputModelB, flattenGroups = false){
+    let joined = {};
     if (isScaffold(inputModelA)){
         if (isScaffold(inputModelB)) {
             //Both specifications define scaffolds
             schema.definitions.Scaffold.properties::keys().forEach(prop => {
+                let spec = schema.definitions.Scaffold.properties[prop];
+                //FIXME? Local conventions can have duplicates
+                if (spec.type === "array"){
+                    joined[prop] = Array.from(new Set([...inputModelA[prop]||[], ...inputModelB[prop]||[]]));
+                }
                 delete inputModelB[prop];
                 delete inputModelA[prop];
             });
@@ -436,7 +432,7 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
                 inputModelA.components.push(inputModelB);
                 return inputModelA;
             }
-            return {[$Field.components]: [inputModelA, inputModelB]};
+            return joined::mergeWith({[$Field.components]: [inputModelA, inputModelB]});
         } else {
             //Connectivity model B gets constrained by scaffold A
             inputModelB.scaffolds = inputModelB.scaffolds || [];
@@ -453,6 +449,11 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
     }
     //Both specifications define connectivity models
     schema.definitions.Graph.properties::keys().forEach(prop => {
+        let spec = schema.definitions.Graph.properties[prop];
+        //FIXME? Local conventions can have duplicates, abbrev is lost
+        if (spec.type === "array"){
+            joined[prop] = Array.from(new Set([...inputModelA[prop]||[], ...inputModelB[prop]||[]]));
+        }
         delete inputModelB[prop];
         delete inputModelA[prop];
     });
@@ -460,5 +461,5 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
         inputModelA.groups = inputModelA.groups || [];
         inputModelA.groups.push(inputModelB);
     }
-    return {[$Field.groups]: [inputModelA, inputModelB]};
+    return joined::mergeWith({[$Field.groups]: [inputModelA, inputModelB]});
 }

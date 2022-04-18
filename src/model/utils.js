@@ -11,6 +11,7 @@ import {
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
+import {$LogMsg, logger} from "./logger";
 
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
@@ -181,6 +182,30 @@ export function mergeResources(a, b) {
     }
 }
 
+export function mergeWithModel(e, clsName, model){
+    const clsToProp = {
+        [$SchemaClass.Lyph]       : $Field.lyphs,
+        [$SchemaClass.Material]   : $Field.materials,
+        [$SchemaClass.Link]       : $Field.links,
+        [$SchemaClass.Node]       : $Field.nodes,
+        [$SchemaClass.Chain]      : $Field.chains,
+        [$SchemaClass.Tree]       : $Field.trees,
+        [$SchemaClass.Channel]    : $Field.channels,
+        [$SchemaClass.Coalescence]: $Field.coalescences,
+        [$SchemaClass.Group]      : $Field.groups,
+        [$SchemaClass.Scaffold]   : $Field.scaffolds,
+        [$SchemaClass.Anchor]     : $Field.anchors,
+        [$SchemaClass.Region]     : $Field.regions,
+        [$SchemaClass.Wire]       : $Field.wires,
+        [$SchemaClass.Component]  : $Field.components
+    }
+    let prop = clsToProp[clsName];
+    if (prop){
+        model[prop] = model[prop] || [];
+        model[prop].push(e);
+    }
+}
+
 /**
  * Add color to the visual resources in the list that do not have color assigned yet
  * @param resources - list of resources
@@ -251,6 +276,22 @@ export function getOrCreateNode(nodes, nodeID){
  */
 export const findResourceByID = (eArray, e) => e::isObject()? e: (eArray||[]).find(x => e && x.id === e);
 
+export const refToResource = (e, parentGroup, prop, generate = false) => {
+    if (!e) return undefined;
+    let res;
+    if (parentGroup[prop + "ByID"]) {
+        res = parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, e)];
+    }
+    //Maybe it is possible to optimize this by skipping findResourceByID, but we keep it because
+    //generated resources may be needed but not integrated to the predefined resource map
+    res = res || findResourceByID(parentGroup[prop], e);
+    return res? res: generate? {[$Field.id]: getID(e), [$Field.generated]: true}: undefined;
+}
+
+export const refsToResources = (eArray, parentGroup, prop, generate = false) => {
+    return (eArray||[]).map(e => refToResource(e, parentGroup, prop, generate));
+}
+
 /**
  * Returns a list of references in the schema type specification
  * @param spec - schema definition
@@ -300,6 +341,8 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
         parentGroup[prop] = parentGroup[prop] || [];
         if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){
             parentGroup[prop].push(resource);
+            //Add generated to the defined resources map?
+            //parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, resource.id)] = resource;
         }
     }
 };
@@ -404,6 +447,36 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
             })
         })
     })
+}
+
+export function collectNestedResources(json, relFieldNames = [], groupProp){
+    relFieldNames.forEach(prop => {
+        let mapProp = [prop + "ByID"];
+        if (!json[mapProp]){
+            json[mapProp] = {};
+        }
+        if (json[prop]::isArray()){
+            (json[prop]||[]).forEach( r => {
+                if (r::isObject()) {
+                    r.id = r.id || getNewID();
+                    let nm = getRefNamespace(r.id, json.namespace);
+                    let fullID = getFullID(nm, r.id);
+                    if (!json[mapProp][fullID]) {
+                        json[prop].namespace = nm;
+                        json[mapProp][fullID] = r;
+                    } else {
+                        logger.error($LogMsg.RESOURCE_DUPLICATE, fullID, r.id);
+                    }
+                }
+            })
+        }
+        (json[groupProp]||[]).forEach(g => {
+            if ( g::isObject()) {
+                g[mapProp] = json[mapProp];
+            }
+        });
+    });
+    (json[groupProp]||[]).forEach(g => g::isObject() && collectNestedResources(g, relFieldNames, groupProp));
 }
 
 /**
@@ -529,7 +602,7 @@ export class SchemaClass {
      * @param clsNames - resource class names
      * @returns {any[]}
      */
-    filteredRelNames(clsNames){
+    filteredRelNames(clsNames = []){
         return (this.relationships||[]).filter(([, spec]) => !clsNames.includes(getClassName(spec))).map(([key, ]) => key);
     }
 

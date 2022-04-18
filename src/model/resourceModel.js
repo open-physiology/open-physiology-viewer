@@ -21,8 +21,8 @@ import {
     isClassAbstract,
     getClassName,
     getNewID,
-    getID,
     getFullID,
+    mergeWithModel,
     $SchemaClass, getRefNamespace, getRefID
 } from "./utils";
 import {logger, $LogMsg} from './logger';
@@ -65,19 +65,21 @@ export class Resource{
         const cls = modelClasses[clsName] || this;
         const res = new cls(json.id, clsName);
 
-        //spec
-        let difference = json::keys().filter(x => !(x.indexOf("ByID") > -1) && !schemaClassModels[clsName].fieldNames.find(y => y === x))
-            .filter(x => !["_inactive"].includes(x));
-
-        if (difference.length > 0) {
-            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, difference.join(","));
-        }
         if (!json.id){
             json.id = getNewID(entitiesByID);
             logger.warn($LogMsg.RESOURCE_NO_ID,"Generated ID to proceed: " + json.id, json, clsName);
         }
 
+        //spec
+        let difference = json::keys().filter(x => !(x.indexOf("ByID") > -1) && !schemaClassModels[clsName].fieldNames.find(y => y === x))
+            .filter(x => !["_inactive"].includes(x));
+
+        if (difference.length > 0) {
+            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, json, difference.join(","));
+        }
+
         json.namespace = getRefNamespace(json.id, namespace);
+
         res::assign(json);
 
         if (entitiesByID){
@@ -100,7 +102,7 @@ export class Resource{
         return res;
     }
 
-    static createResource(id, clsName, group, modelClasses, entitiesByID, namespace){
+    static createResource(id, clsName, model, modelClasses, entitiesByID, namespace){
         let e = modelClasses[clsName].fromJSON({
             [$Field.id]        : id,
             [$Field.generated] : true
@@ -110,13 +112,7 @@ export class Resource{
         if (e.prototype instanceof modelClasses.VisualResource){
             e.skipLabel = true;
         }
-
-        //Include newly created entity to the main graph
-        let prop = schemaClassModels[group.class].selectedRelNames(clsName)[0];
-        if (prop) {
-            group[prop] = group[prop] || [];
-            group[prop].push(e);
-        }
+        mergeWithModel(e, clsName, model);
         entitiesByID[e.fullID] = e;
         return e;
     }
