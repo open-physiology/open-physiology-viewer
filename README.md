@@ -15,7 +15,7 @@ Live demonstration of this application can be found [here](http://open-physiolog
 
 ## Build instructions
 * Install  [Node.js](https://nodejs.org/).    
-* Clone (or download and unzip) the project to your file system: `git clone https://github.com/open-physiology/open-physiology-viewer.git`
+* Clone (or download and unzip) the project to your file system: `git clone https://github.com/metacell/open-physiology-viewer.git`
 * Go into the project directory: `cd ./open-physiology-viewer`
 * Install build dependencies: `npm install`
 * Run the build script: `npm run build`

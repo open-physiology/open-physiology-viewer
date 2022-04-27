@@ -259,6 +259,17 @@ export class Graph extends Group{
             }
         });
 
+        //Assign helper property housingLyph for simpler Cypher queries
+        (res.lyphs||[]).forEach(lyph => {
+            if (lyph instanceof modelClasses.Lyph) {
+                let axis = lyph.axis;
+                let housingLyph = axis && (axis.fasciculatesIn || axis.endsIn);
+                if (housingLyph) {
+                    lyph.housingLyph = housingLyph
+                }
+            }
+        });
+
         res.generated = true;
         res.mergeScaffoldResources();
 
@@ -299,7 +310,6 @@ export class Graph extends Group{
         //Log info about the number of generated resources
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
         res.logger = logger;
-
         return res;
     }
 
