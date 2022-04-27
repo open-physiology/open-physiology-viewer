@@ -43,3 +43,5 @@ describe("Scaffold N", () => {
         graphData.logger.clear();
     });
 });
+
+//TODO add test to check that borderAnchors -> facets and facets -> borderAnchors always auto-complete correctly

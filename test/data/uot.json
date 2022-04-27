@@ -1016,6 +1016,7 @@
   ],
   "trees": [
     {
+      "id": "tree1",
       "chain": "UOT",
       "numInstances": 1,
       "branchingFactors": [

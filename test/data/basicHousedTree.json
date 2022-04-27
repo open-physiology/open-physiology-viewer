@@ -2,6 +2,7 @@
   "id"  : "housedTree",
   "name": "Larynx through Diencephalon, Midbrain, Pons, and Medulla",
   "description": "Demo model with a housed omega tree template",
+  "namespace": "nm1",
   "nodes": [
     {
       "id": "n1",

@@ -107,7 +107,7 @@ const COLORS = {
                         <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
                       </div>
                       <div class="wrap" *ngFor="let group of filteredGroups">
-                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
+                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.namespace? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
                       </div>
                       <!--Tree structure-->
                       <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
@@ -217,8 +217,8 @@ const COLORS = {
                       <div class="settings-wrap">
                         <h5>Labels</h5>
                         <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                          <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.labels[labelClass]" (change)="updateLabels(labelClass)"><img src="./styles/images/toggle-icon.svg" />{{labelClass}}</mat-slide-toggle>
-                          <mat-radio-group [(ngModel)]="_labels[labelClass]" *ngIf="config.labels[labelClass]">
+                          <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]" (change)="updateShowLabels(labelClass)"><img src="./styles/images/toggle-icon.svg" />{{labelClass}}</mat-slide-toggle>
+                          <mat-radio-group [(ngModel)]="_labels[labelClass]" *ngIf="config.showLabels[labelClass]">
                               <mat-radio-button *ngFor="let labelProp of _labelProps"
                                   [value]="labelProp"
                                   (change)="onUpdateLabelContent.emit(_labels)"> {{labelProp}}
@@ -911,8 +911,9 @@ export class SettingsPanel {
     @Input() highlighted;
 
     @Output() onSelectBySearch     = new EventEmitter();
+    @Output() onOpenExternal       = new EventEmitter();
     @Output() onEditResource       = new EventEmitter();
-    @Output() onUpdateLabels       = new EventEmitter();
+    @Output() onUpdateShowLabels   = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup        = new EventEmitter();
     @Output() onToggleMode         = new EventEmitter();
@@ -921,7 +922,6 @@ export class SettingsPanel {
 
     constructor() {
         this._labelProps    = [$Field.id, $Field.name];
-        this._labels        = {Anchor: $Field.id, Wire: $Field.id, Node: $Field.id, Link: $Field.id, Lyph: $Field.id, Region: $Field.id};
         this._showHelpers   = new Set([]);
         this.searchTerm = '';
         this.searchTermScaffolds = '';
@@ -956,9 +956,14 @@ export class SettingsPanel {
         this.onToggleLayout.emit(prop);
     }
 
-    updateLabels(labelClass) {
-        this.config.labels[labelClass] = !this.config.labels[labelClass];
-        this.onUpdateLabels.emit(this.config.labels||{});
+    updateShowLabels(labelClass) {
+        this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
+        this.onUpdateShowLabels.emit(this.config.showLabels||{});
+    }
+
+    updateLabelContent(labelClass, labelProp) {
+        this.config.labels[labelClass] = labelProp;
+        this.onUpdateLabelContent.emit(this.config.labels||{})
     }
 
     toggleHelperPlane(helper) {

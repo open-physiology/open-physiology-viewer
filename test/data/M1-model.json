@@ -59,21 +59,21 @@
             "id": "Lyph-cell-red-blood",
             "name": "Red blood cell",
             "external": [
-                "OBO:CL_0000232"
+                "CL:0000232"
             ]
         },
         {
             "id": "Lyph-cell-white-blood",
             "name": "White blood cell",
             "external": [
-                "OBO:CL_0000738"
+                "CL:0000738"
             ]
         },
         {
             "id": "Lyph-cell-platelet",
             "name": "Platelet",
             "external": [
-                "OBO:CL_0000233"
+                "CL:0000233"
             ]
         },
         {
@@ -101,14 +101,14 @@
             "id": "Lyph-cell-pulmonary-smooth-muscle",
             "name": "Pulmonary smooth muscle cell",
             "external": [
-                "OBO:CL_0000192"
+                "CL:0000192"
             ]
         },
         {
             "id": "Lyph-cell-columnar-cuboidal-epithelial",
             "name": "Columnar or cuboidal epithelial cell",
             "external": [
-                "OBO:CL_0000075"
+                "CL:0000075"
             ]
         },
         {
@@ -266,105 +266,105 @@
             "id": "mat-gas-oxygen",
             "name": "Gaseous oxygen",
             "external": [
-                "OBO:CHEBI_33263"
+                "CHEBI:33263"
             ]
         },
         {
             "id": "mat-gas-carbondioxide",
             "name": "Gaseous carbon dioxide",
             "external": [
-                "OBO:CHEBI_16526"
+                "CHEBI:16526"
             ]
         },
         {
             "id": "mat-gas-nitrogen",
             "name": "Gaseous nitrogen",
             "external": [
-                "OBO:CHEBI_33266"
+                "CHEBI:33266"
             ]
         },
         {
             "id": "mat-liquid-water",
             "name": "Liquid water",
             "external": [
-                "OBO:CHEBI_15377"
+                "CHEBI:15377"
             ]
         },
         {
             "id": "mat-aqueous-oxygen",
             "name": "Aqueous oxygen",
             "external": [
-                "OBO:CHEBI_33263"
+                "CHEBI:33263"
             ]
         },
         {
             "id": "mat-aqueous-carbondioxide",
             "name": "Aqueous carbon dioxide",
             "external": [
-                "OBO:CHEBI_16526"
+                "CHEBI:16526"
             ]
         },
         {
             "id": "mat-aqueous-nitrogen",
             "name": "Aqueous nitrogen",
             "external": [
-                "OBO:CHEBI_33266"
+                "CHEBI:33266"
             ]
         },
         {
             "id": "mat-aqueous-sodium-ion",
             "name": "Aqueous sodium ion",
             "external": [
-                "OBO:CHEBI_29101"
+                "CHEBI:29101"
             ]
         },
         {
             "id": "mat-aqueous-potassium-ion",
             "name": "Aqueous potassium ion",
             "external": [
-                "OBO:CHEBI_29103"
+                "CHEBI:29103"
             ]
         },
         {
             "id": "mat-aqueous-calcium-ion",
             "name": "Aqueous calcium ion",
             "external": [
-                "OBO:CHEBI_29108"
+                "CHEBI:29108"
             ]
         },
         {
             "id": "mat-aqueous-chloride-ion",
             "name": "Aqueous chloride ion",
             "external": [
-                "OBO:CHEBI_17996"
+                "CHEBI:17996"
             ]
         },
         {
             "id": "mat-aqueous-hydrogen-ion",
             "name": "Aqueous hydrogen ion",
             "external": [
-                "OBO:CHEBI_24636"
+                "CHEBI:24636"
             ]
         },
         {
             "id": "mat-aqueous-hydroxide-ion",
             "name": "Aqueous hydroxide ion",
             "external": [
-                "OBO:CHEBI_16234"
+                "CHEBI:16234"
             ]
         },
         {
             "id": "mat-aqueous-bicarbonate-ion",
             "name": "Aqueous bicarbonate ion",
             "external": [
-                "OBO:CHEBI_17544"
+                "CHEBI:17544"
             ]
         },
         {
             "id": "mat-aqueous-magnesium-ion",
             "name": "Aqueous magensium ion",
             "external": [
-                "OBO:CHEBI_18420"
+                "CHEBI:18420"
             ]
         },
         {
@@ -481,7 +481,7 @@
             "id": "mat-cytoplasm",
             "name": "Cytoplasm",
             "external": [
-                "OBO:GO_0005737"
+                "GO:0005737"
             ],
             "materials": [
                 "mat-cytosol",

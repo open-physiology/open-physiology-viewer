@@ -47,7 +47,6 @@
       "source"   : "a",
       "target"   : "b",
       "length"   : 100,
-      "geometry" : "invisible",
       "conveyingLyph": "bg"
     },
     {
@@ -63,7 +62,7 @@
       "isTemplate": true,
       "topology"  : "BAG",
       "color"     : "#ccc",
-      "scale"     : { "width": 80, "height": 80},
+      "scale"     : { "width": 40, "height": 60},
       "layers"    : [ "cytosol", "plasma", "fluid" ]
     },
     {
@@ -98,27 +97,27 @@
       "id"     : "putamen",
       "name"   : "Putamen",
       "color"  : "#939598",
-      "height" : 30,
+      "height" : 20,
       "border" : {
-        "borders": [{},{"hostedNodes": ["n3"]},{}, {}]
+        "borders": [{},{"hostedNodes": ["n6"]},{}, {}]
       }
     },
     {
       "id"  : "gpe",
       "name": "GPe",
       "color": "#939598",
-      "height": 30,
+      "height": 20,
       "border" : {
-        "borders": [{},{"hostedNodes": ["n5"]},{}, {"hostedNodes": ["n4"]}]
+        "borders": [{},{"hostedNodes": ["n4"]},{}, {"hostedNodes": ["n5"]}]
       }
     },
     {
       "id"  : "gpi",
       "name": "GPi",
       "color": "#939598",
-      "height": 30,
+      "height": 20,
       "border" : {
-        "borders": [{},{},{}, {"hostedNodes": ["n6"]}]
+        "borders": [{},{},{}, {"hostedNodes": ["n3"]}]
       }
     }
   ],

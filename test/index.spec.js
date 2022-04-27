@@ -124,7 +124,7 @@ describe("Nested resource definitions are processed", () => {
         expect(n2).to.have.property("targetOf").that.is.an("array");
         expect(n2.targetOf[0]).has.property("id").that.equals("t1_lnk_5");
 
-        expect(graphData.groups).to.be.an("array").that.has.length(2);
+        expect(graphData.groups).to.be.an("array").that.has.length(1);
         let group = graphData.groups.find(g => g.id === "group_t1");
         expect(group).to.have.property("nodes").that.has.length(6);
         expect(group).to.have.property("links").that.has.length(5);
@@ -228,7 +228,8 @@ describe("Serialize data", () => {
         graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
         let serializedGraphData = graphData.toJSON();
         const excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger", "modelClasses", "scaffoldComponents"];
-        let expectedToBeSerialized = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key)).map(e => e[0]);
+        let expectedToBeSerialized = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key)
+            && (key.indexOf("ByID") < 0)).map(e => e[0]);
         expect(serializedGraphData::keys().length).to.be.equal(expectedToBeSerialized.length);
         let diff = expectedToBeSerialized.filter(x => !serializedGraphData::keys().find(e => e === x));
         expect(diff).to.have.length(0);
@@ -305,7 +306,7 @@ describe("Serialize scaffold", () => {
         let serializedScaffold = scaffold.toJSON();
         const excluded = ["infoFields", "entitiesByID", "logger", "modelClasses"];
         let expectedToBeSerialized = scaffold::entries().filter(([key, value]) =>
-            !!value && !excluded.includes(key)).map(e => e[0]);
+            !!value && !excluded.includes(key) && (key.indexOf("ByID") < 0)).map(e => e[0]);
         expect(serializedScaffold::keys().length).to.be.equal(expectedToBeSerialized.length);
         let diff = expectedToBeSerialized.filter(x => !serializedScaffold::keys().find(e => e === x));
         expect(diff).to.have.length(0);

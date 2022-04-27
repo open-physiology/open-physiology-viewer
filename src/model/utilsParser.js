@@ -1,4 +1,4 @@
-import {$SchemaType, getSchemaClass} from "./utils";
+import {$Field, $SchemaType, getSchemaClass, schemaClassModels} from "./utils";
 import {isArray, isObject, isString, merge, omit, pick, values} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
@@ -38,7 +38,7 @@ export function strToValue(isArray, itemType, str){
 
     let res;
     if (isArray) {
-        if (str.indexOf("{") > -1 && str.indexOf("}") > -1 ){
+        if (str.indexOf("{") > -1 && str.indexOf("}") > -1) {
             //parse array of objects
             res = JSON.parse("[" + str + "]");
         } else {
@@ -70,6 +70,76 @@ export function validateValue(value, key){
         return false;
     }
     return true;
+}
+
+export function validateExternal(externals, localConventions){
+    const faultyExternal = [];
+    (externals || []).forEach(r => {
+        if (!(localConventions||[]).find(c => r.id.startsWith(c.prefix))) {
+            faultyExternal.push(r.id);
+        }
+    });
+    if (faultyExternal.length > 0){
+        logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
+    }
+}
+
+export function convertValue(clsName, key, value, borderNames= []){
+    let fields = schemaClassModels[clsName].fieldMap;
+    let propNames = schemaClassModels[clsName].propertyNames;
+    if (!fields[key]) {
+        logger.warn($LogMsg.EXCEL_PROPERTY_UNKNOWN, clsName, key);
+        return;
+    }
+    let res = value.toString().trim();
+    if (res.length === 0) {
+        return;
+    }
+    while (res.endsWith(',')) {
+        res = res.slice(0, -1).trim();
+    }
+    let itemType = getItemType(fields[key]);
+    if (!itemType) {
+        logger.error($LogMsg.EXCEL_DATA_TYPE_UNKNOWN, relName, key, value);
+    }
+    if (!(itemType === $SchemaType.STRING && propNames.includes(key))) {
+        res = res.replace(/\s/g, '');
+    }
+    if (key === $Field.assign) {
+        res = res.split(";").map(expr => {
+            let [path, value] = expr.split("=");
+            let [propName, propValue] = value.split(":").map(x => x.trim());
+            if (propName && propValue) {
+                 propValue = propValue.toString().split(",");
+                 const borderIndex = borderNames.indexOf(propName);
+                 if (borderIndex > -1) {
+                     path = path + `.border.borders[${borderIndex}]`;
+                     value = {hostedNodes: propValue};
+                 } else {
+                     value = {[propName]: propValue};
+                 }
+            } else {
+                logger.error($LogMsg.EXCEL_WRONG_ASSIGN_VALUE, value);
+            }
+            return {"path": "$." + path, "value": value}
+        });
+    } else {
+        res = strToValue(fields[key].type === $SchemaType.ARRAY, itemType, res);
+    }
+    return res;
+}
+
+export function extractLocalConventions(table){
+    let headers = table[0] || [];
+    for (let i = 1; i < table.length; i++) {
+        let convention = {};
+        table[i].forEach((value, j) => {
+             if (!validateValue(value, headers[j])) { return; }
+             let key = headers[j].trim();
+             convention[key] = value;
+        });
+        table[i] = convention;
+    }
 }
 
 /**

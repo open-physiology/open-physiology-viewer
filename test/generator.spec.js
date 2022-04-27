@@ -8,11 +8,11 @@ import {
 
 import basalGanglia from './data/basalGanglia';
 import basalGangliaAuto from './data/basalGangliaAuto';
-import basalGangliaInternal from './data/basalGangliaInternal';
 import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
+import basicLinkWithChainsAsEnds from './data/basicLinkWithChainsAsEnds';
 import basicLyphTypes from './data/basicLyphTypes';
 import basicHousedTree from './data/basicHousedTree';
 import basicJointTrees from './data/basicJointTrees';
@@ -36,15 +36,6 @@ import {$LogMsg, Logger} from "../src/model/logger";
 describe("BasalGanglia", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {
-        graphData.logger.clear();
-    });
-});
-
-describe("BasalGangliaInternal", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basalGangliaInternal, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -101,6 +92,24 @@ describe("BasicLyphTypes", () => {
     before(() => graphData = modelClasses.Graph.fromJSON(basicLyphTypes, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("BasicLinkWithChainsAsEnds", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicLinkWithChainsAsEnds, modelClasses));
+    it("Validator detects type mismatch error", () => {
+        expect(graphData).to.have.property("logger");
+        expect(graphData.logger).to.have.property("entries");
+        expect(graphData.logger.entries).to.be.an('array').that.has.length.above(0);
+        expect(graphData.logger).to.have.property("status");
+        let logEvents = graphData.logger.entries;
+        let errors    = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(2);
+        expect(errors[0].msg === $LogMsg.RESOURCE_TYPE_MISMATCH);
+    });
+     after(() => {
         graphData.logger.clear();
     });
 });
@@ -162,7 +171,13 @@ describe("FullBody", () => {
 describe("KeastSpinal", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(keastSpinal, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
+    it("Model detects absent IDs", () => {
+        expect (graphData.logger.status).to.be.equal(Logger.STATUS.WARNING);
+        let logEvents = graphData.logger.entries;
+        let warnings = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.WARN);
+        expect(warnings).to.have.length(2);
+        expect(warnings[0].msg).to.be.equal($LogMsg.RESOURCE_NO_ID);
+    });
     after(() => {
         graphData.logger.clear();
     });
@@ -245,11 +260,3 @@ describe("Uot", () => {
         graphData.logger.clear();
     });
 });
-
-//TODO fix warning about no axis for coalescing lyphs
-// describe("UotWithChannels", () => {
-//     let graphData;
-//     before(() => graphData = modelClasses.Graph.fromJSON(uotWithChannels, modelClasses));
-//     it("Model generated without errors", () => expectNoWarnings(graphData));
-//     after(() => {});
-// });

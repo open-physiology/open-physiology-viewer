@@ -297,6 +297,13 @@ describe("Validate chain wiring", () => {
         expect(end.layout).to.have.property("x").that.equals(50);
         expect(start.layout).to.have.property("y").that.equals(50);
         expect(end.layout).to.have.property("y").that.equals(50);
+
+        //Group inclusion rules - lnk1 and its ends are in the "ungrouped"
+        expect(graphData).to.have.property("groups").that.has.length(8);
+        const ungrouped = graphData.groups.find(g => g.name === "Ungrouped");
+        expect(ungrouped).not.to.be.an("undefined");
+        expect(ungrouped).to.have.property("links").that.has.length(1);
+        expect(ungrouped).to.have.property("nodes").that.has.length(2);
     });
 
     it("Conflicts in chains t2 and t3 are detected", () => {
@@ -324,6 +331,21 @@ describe("Validate chain wiring", () => {
         let {start, end} = t4.getScaffoldChainEnds();
         expect(start).to.be.an("object").that.has.property("id").that.equals("a1");
         expect(end).to.be.an("object").that.has.property("id").that.equals("a2");
+    });
+
+    it("Chain t6 has a hidden group with all hidden resources", () => {
+        const t6 = graphData.chains[5];
+        expect(t6).to.be.an('object');
+        expect(t6).to.have.property("id").that.equal("t6");
+        expect(t6.root).to.have.property("id").that.equals("n5");
+        expect(t6.leaf).to.have.property("id").that.equals("n6");
+        expect(t6.group).to.have.property("nodes").that.has.length(8);
+        let root = t6.group.nodes[0];
+        expect(root).to.be.an("object").that.has.property("id").that.equals("n5");
+        expect(root).to.have.property("hidden").that.equals(true);
+        let leaf = t6.group.nodes[7];
+        expect(leaf).to.be.an("object").that.has.property("id").that.equals("n6");
+        expect(leaf).to.have.property("hidden").that.equals(true);
     });
 
     after(() => {
