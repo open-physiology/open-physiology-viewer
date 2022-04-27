@@ -164,26 +164,6 @@ export class Graph extends Group{
         let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials];
         collectNestedResources(inputModel, relFieldNames, $Field.groups);
 
-        let count = 1;
-        const prefix = [$Prefix.node, $Prefix.link];
-        [$Field.nodes, $Field.links].forEach((prop, i) => (inputModel[prop]||[]).forEach(e => {
-                if (e::isObject && !e.id){
-                    e.id = getGenID(prefix[i], $Prefix.default, count++);
-                }
-            }
-        ));
-
-        inputModel.groups = inputModel.groups || [];
-        let defaultGroup = {
-            [$Field.id]       : getGenID($Prefix.group, $Prefix.default),
-            [$Field.name]     : "Ungrouped",
-            [$Field.generated]: true,
-            [$Field.hidden]   : true,
-            [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
-            [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
-        };
-        inputModel.groups.unshift(defaultGroup);
-
         //Create graph
         inputModel.class = $SchemaClass.Graph;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);

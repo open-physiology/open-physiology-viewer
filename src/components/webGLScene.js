@@ -303,7 +303,7 @@ export class WebGLSceneComponent {
             highlighted : true,
             selected    : true
         };
-        this.config = this.defaultConfig::cloneDeep();
+        this._config = this.defaultConfig::cloneDeep();
         this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
           this.resetCamera();
           return false; // Prevent bubbling
