@@ -896,10 +896,10 @@
             "length": 4
         },
         {
-            "id": "lnk-an-bn1_2",
+            "id": "lnk-an-bd1_2",
             "source": "ns254",
             "target": "ns255",
-            "conveyingLyph": "an-bn1_2",
+            "conveyingLyph": "an-bd1_2",
             "length": 4
         },
         {
@@ -3645,7 +3645,7 @@
             "supertype": "229"
         },
         {
-            "id": "an-bn1_2",
+            "id": "an-bd1_2",
             "name": "Axon to SPOG neuron 2 in bladder dome layer 1",
             "external": [
                 "GO:0030424"
@@ -3885,7 +3885,7 @@
             "supertype": "229"
         },
         {
-            "id": "an_bv0_10",
+            "id": "an_bd0_10",
             "name": "Axon to FOS neuron 10 in bladder dome blood vessel0",
             "external": [
                 "GO:0030424"
@@ -4098,7 +4098,7 @@
                 "sn-blad-bn_1",
                 "sn-blad-bn2_1",
                 "sn-blad-bd_1",
-                "sn-blad-bd_1"
+                "sn-blad-bd2_1"
             ]
         },
         {
@@ -4347,7 +4347,7 @@
             ]
         },
         {
-            "id": "sn-blad-bd_1",
+            "id": "sn-blad-bd2_1",
             "name": "Neuron segment from PG to bladder dome2_neuron 1",
             "external": [
                 "GO:0030424"
@@ -6067,7 +6067,7 @@
                 "lnk-an-bn0_2",
                 "lnk-an-bn1_2",
                 "lnk-an_bd0_2",
-                "lnk-an-bn1_2"
+                "lnk-an-bd1_2"
             ]
         },
         {

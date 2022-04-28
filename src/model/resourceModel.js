@@ -21,8 +21,9 @@ import {
     isClassAbstract,
     getClassName,
     getNewID,
-    getID,
-    getFullID, $SchemaClass
+    getFullID,
+    mergeWithModel,
+    $SchemaClass, getRefNamespace, getRefID
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -32,6 +33,7 @@ import {logger, $LogMsg} from './logger';
  * @property {string} id
  * @property {string} name
  * @property {string} class
+ * @property {string} namespace
  * @property {Boolean} generated
  * @property {Object} infoFields
  * @property {Object} JSON
@@ -63,11 +65,20 @@ export class Resource{
         const cls = modelClasses[clsName] || this;
         const res = new cls(json.id, clsName);
 
-        //spec
-        let difference = json::keys().filter(x => !schemaClassModels[clsName].fieldNames.find(y => y === x)).filter(x => !["_inactive"].includes(x));
-        if (difference.length > 0) {
-            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, difference.join(","));
+        if (!json.id){
+            json.id = getNewID(entitiesByID);
+            logger.warn($LogMsg.RESOURCE_NO_ID,"Generated ID to proceed: " + json.id, json, clsName);
         }
+
+        //spec
+        let difference = json::keys().filter(x => !(x.indexOf("ByID") > -1) && !schemaClassModels[clsName].fieldNames.find(y => y === x))
+            .filter(x => !["_inactive"].includes(x));
+
+        if (difference.length > 0) {
+            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, json, difference.join(","));
+        }
+
+        json.namespace = getRefNamespace(json.id, namespace);
 
         res::assign(json);
 
@@ -78,21 +89,20 @@ export class Resource{
                 logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
             }
 
-            let fullResID = getFullID(namespace, res.id);
-            if (entitiesByID[fullResID]) {
-                if (entitiesByID[fullResID] !== res){
-                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[fullResID], res);
+            if (entitiesByID[res.fullID]){
+                if (entitiesByID[res.fullID] !== res) {
+                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.fullID], res);
                 }
             } else {
-                entitiesByID[fullResID] = res;
-                res.reviseWaitingList(entitiesByID.waitingList, namespace);
-                res.replaceIDs(modelClasses, entitiesByID, namespace);
+                entitiesByID[res.fullID] = res;
+                res.reviseWaitingList(entitiesByID.waitingList);
+                res.replaceIDs(modelClasses, entitiesByID);
             }
         }
         return res;
     }
 
-    static createResource(id, clsName, group, modelClasses, entitiesByID, namespace){
+    static createResource(id, clsName, model, modelClasses, entitiesByID, namespace){
         let e = modelClasses[clsName].fromJSON({
             [$Field.id]        : id,
             [$Field.generated] : true
@@ -102,34 +112,38 @@ export class Resource{
         if (e.prototype instanceof modelClasses.VisualResource){
             e.skipLabel = true;
         }
-
-        //Include newly created entity to the main graph
-        let prop = schemaClassModels[$SchemaClass.Group].selectedRelNames(clsName)[0];
-        if (prop) {
-            group[prop] = group[prop] ||[];
-            group[prop].push(e);
-        }
-        let fullID = getFullID(namespace, e.id);
-        entitiesByID[fullID] = e;
+        mergeWithModel(e, clsName, model);
+        entitiesByID[e.fullID] = e;
         return e;
     }
 
+    /*
+     * Returns full resource identifier composed of namespace and local identifier
+     */
+    get fullID(){
+        return getFullID(this.namespace, this.id);
+    }
+
+    /*
+     * Returns local resource identifier without namespace
+     */
+    get shortID(){
+        return getRefID(this.id);
+    }
     /**
      * Replace IDs with object references
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
-     * @param {String} namespace - namespace for resource definition
      */
-    replaceIDs(modelClasses, entitiesByID, namespace){
+    replaceIDs(modelClasses, entitiesByID){
         const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
         const createObj = (res, key, value, spec) => {
             if (skip(value)) { return value; }
 
-            let fullResID = getFullID(namespace, res.id);
             if (value::isNumber()) {
                 value = value.toString();
-                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, fullResID, key);
+                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, res.fullID, key);
             }
 
             let clsName = getClassName(spec);
@@ -140,11 +154,11 @@ export class Resource{
             }
 
             if (value && value::isString()) {
-                let fullValueID = getFullID(namespace, value);
+                let fullValueID = getFullID(res.namespace, value);
                 if (!entitiesByID[fullValueID]) {
-                    //put to a wait list instead
-                    entitiesByID.waitingList[value] = entitiesByID.waitingList[value] || [];
-                    entitiesByID.waitingList[value].push([res, key]);
+                    //put to a waiting list instead
+                    entitiesByID.waitingList[fullValueID] = entitiesByID.waitingList[fullValueID] || [];
+                    entitiesByID.waitingList[fullValueID].push([res, key, clsName]);
                     return value;
                 } else {
                     return entitiesByID[fullValueID];
@@ -152,10 +166,10 @@ export class Resource{
             }
 
             if (value.id) {
-                let fullValueID = getFullID(namespace, value.id);
+                let fullValueID = getFullID(res.namespace, value.id);
                 if (entitiesByID[fullValueID]) {
                     if (value !== entitiesByID[fullValueID]) {
-                        logger.warn($LogMsg.RESOURCE_DUPLICATE, fullResID, key, value, entitiesByID[fullValueID]);
+                        logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[fullValueID]);
                     }
                     return entitiesByID[fullValueID];
                 }
@@ -173,7 +187,7 @@ export class Resource{
                     return null;
                 }
             }
-            return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID, namespace);
+            return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID, res.namespace);
         };
 
         if (!modelClasses[this.class]){
@@ -200,9 +214,8 @@ export class Resource{
      * Create relationships defined with the help of JSONPath expressions in the resource 'assign' statements
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
-     * @param {String} namespace - namespace for resource definition
      */
-    assignPathRelationships(modelClasses, entitiesByID, namespace){
+    assignPathRelationships(modelClasses, entitiesByID){
         if (!this.assign){ return;  }
         //Filter the value to assign only valid class properties
         try{
@@ -220,9 +233,9 @@ export class Resource{
                         newValue::keys().forEach(key => {
                             if (relMaps[key]) {
                                 if (newValue[key]::isArray()) {
-                                    newValue[key] = newValue[key].map(id => entitiesByID[getFullID(namespace,id)])
+                                    newValue[key] = newValue[key].map(id => entitiesByID[getFullID(this.namespace,id)])
                                 } else {
-                                    newValue[key] = entitiesByID[getFullID(namespace, newValue[key])];
+                                    newValue[key] = entitiesByID[getFullID(this.namespace, newValue[key])];
                                 }
                                 logger.info($LogMsg.RESOURCE_JSON_PATH, key, e.id);
                             }
@@ -316,24 +329,29 @@ export class Resource{
      * When a new resource definition is found or created, all resources that referenced this resource by ID get the
      * corresponding object reference instead
      * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
-     * @param namespace
      */
-    reviseWaitingList(waitingList, namespace){
+    reviseWaitingList(waitingList){
         let res = this;
-        (waitingList[res.id]||[]).forEach(([obj, key]) => {
+        (waitingList[res.fullID]||[]).forEach(([obj, key, clsName]) => {
             if (obj[key]::isArray()){
                 obj[key].forEach((e, i) => {
-                    if (e === res.id){
-                       obj[key][i] = res;
+                    if (e === res.shortID || e === res.fullID){
+                        if (!schemaClassModels[res.class].extendsClass(clsName)){
+                            logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
+                        }
+                        obj[key][i] = res;
                     }
                 });
             } else {
-                if (obj[key] === res.id){
+                if (obj[key] === res.shortID || obj[key] === res.fullID){
+                    if (!schemaClassModels[res.class].extendsClass(clsName)){
+                        logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
+                    }
                     obj[key] = res;
                 }
             }
         });
-        delete waitingList[res.id];
+        delete waitingList[res.fullID];
     }
 
     /**
@@ -394,9 +412,8 @@ export class Resource{
      * Synchronize all relationship properties of the resource
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
      * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
-     * @param namespace
      */
-    syncRelationships(modelClasses, entitiesByID, namespace){
+    syncRelationships(modelClasses, entitiesByID){
         entitiesByID::keys().forEach(entityID => {
              if (!entitiesByID[entityID].class){ return; }
              let refFields = schemaClassModels[entitiesByID[entityID].class].relationships;
@@ -408,7 +425,7 @@ export class Resource{
 
         entitiesByID::keys().forEach(entityID => {
             if (!entitiesByID[entityID].class){ return; }
-            entitiesByID[entityID].assignPathRelationships(modelClasses, entitiesByID, namespace);
+            entitiesByID[entityID].assignPathRelationships(modelClasses, entitiesByID);
         });
 
         //Assign visual properties to a complete map
@@ -483,17 +500,6 @@ export class Resource{
      */
     includeRelated(group){
         logger.error($LogMsg.CLASS_ERROR_RESOURCE, "includeRelated", this.id, this.class);
-    }
-
-    includeToGroup(prop){
-        (this.inGroups||[]).forEach(group => {
-            if (group::isObject()){
-                group[prop] = group[prop] || [];
-                if (!group[prop].find(e => getID(e) === this.id)){
-                    group[prop].push(this);
-                }
-            }
-        })
     }
 }
 

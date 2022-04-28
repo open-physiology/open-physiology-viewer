@@ -18,7 +18,7 @@ Chain.prototype.update = function(){
     end   = extractCoords(end);
     if (start && end) {
         let curve = null;
-        if (this.wiredTo){
+        if (this.wiredTo && this.wiredTo.getCurve){
             curve = this.startFromLeaf? this.wiredTo.getCurve(end, start) : this.wiredTo.getCurve(start, end);
         }
         let length = curve && curve.getLength ? curve.getLength() : end.distanceTo(start);
@@ -72,7 +72,7 @@ Group.prototype.createViewObjects = function(state){
         node.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
-    (this.chains||[]).forEach(chain => chain.update());
+    (this.chains||[]).forEach(chain => chain.update && chain.update());
 
     this.visibleLinks.forEach(link => {
         if (!(link instanceof Link)){ return; }
@@ -94,7 +94,7 @@ Group.prototype.updateViewObjects = function(state){
     //Update nodes positions
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
 
-    (this.chains||[]).forEach(chain => chain.update());
+    (this.chains||[]).forEach(chain => chain.update && chain.update());
 
     //Edge bundling
     const fBundling = ForceEdgeBundling()

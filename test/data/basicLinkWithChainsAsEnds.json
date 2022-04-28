@@ -1,0 +1,62 @@
+{
+  "id": "link-with-wrong-ends",
+  "name": "Link with wrong ends",
+  "description": "A test model defining a link with chain identifiers as ends to make sure validator detects an error",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "n1",
+      "layout":{"x": -100, "y": 0}
+    },
+    {
+      "id": "n2",
+      "layout":{"x": 100, "y": 0}
+    },
+    {
+      "id": "n3",
+      "layout":{"x": -100, "y":  100}
+    },
+    {
+      "id": "n4",
+      "layout":{"x": 100, "y":  100}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "c1",
+      "target": "c2"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "layer1"
+    },
+    {
+      "id":  "layer2"
+    },
+    {
+      "id": "template1",
+      "isTemplate": true,
+      "layers":  ["layer1", "layer2"]
+    }
+  ],
+  "chains": [
+    {
+      "id": "c1",
+      "name": "Chain 1",
+      "lyphTemplate": "template1",
+      "root": "n1",
+      "leaf" : "n2",
+      "numLevels": 5
+    },
+    {
+      "id": "c2",
+      "name": "Chain 2",
+      "lyphTemplate": "template1",
+      "root": "n3",
+      "leaf" : "n4",
+      "numLevels": 6
+    }
+  ]
+}

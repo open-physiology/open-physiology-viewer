@@ -28,4 +28,13 @@ export class Material extends VisualResource {
         json.class = json.class || $SchemaClass.Material;
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
+
+    containsMaterial(materialID){
+        let res = false;
+        if (this.id === materialID) { res = true; }
+        if (!res){
+            res = (this.materials || []).find(e => e.containsMaterial(materialID));
+        }
+        return res;
+    }
 }

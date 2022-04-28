@@ -1,0 +1,5574 @@
+{
+    "references": [
+        {
+            "id": "PMID:1358408",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/1358408"
+        },
+        {
+            "id": "PMID:2713886",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/2713886"
+        },
+        {
+            "id": "PMID:11382385",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/11382385"
+        },
+        {
+            "id": "PMID:4700666",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/4700666"
+        },
+        {
+            "id": "PMID:1619047",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/1619047"
+        },
+        {
+            "id": "PMID:3558884",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/3558884"
+        },
+        {
+            "id": "PMID:2891149",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/2891149"
+        },
+        {
+            "id": "PMID:3225349",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/3225349"
+        },
+        {
+            "id": "PMID:12811806",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/12811806"
+        },
+        {
+            "id": "PMID:3722467",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/3722467"
+        },
+        {
+            "id": "PMID:7636036",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/7636036"
+        },
+        {
+            "id": "PMID:30704972",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/30704972"
+        },
+        {
+            "id": "PMID:7174880",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/7174880"
+        },
+        {
+            "id": "PMID:7644029",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/7644029"
+        },
+        {
+            "id": "PMID:6736301",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/6736301"
+        },
+        {
+            "id": "PMID:9442414",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/9442414"
+        },
+        {
+            "id": "PMID:11748568",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/11748568"
+        },
+        {
+            "id": "PMID:10494620",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/10494620"
+        },
+        {
+            "id": "PMID:9421141",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/9421141"
+        },
+        {
+            "id": "PMID:8786273",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/8786273"
+        },
+        {
+            "id": "PMID:1726105",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/1726105"
+        },
+        {
+            "id": "PMID:20484700",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/20484700"
+        },
+        {
+            "id": "PMID:8923445",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/8923445"
+        },
+        {
+            "id": "PMID:1765622",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/1765622"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "cn1",
+            "layout": {
+                "x": -100
+            }
+        },
+        {
+            "id": "cn2",
+            "layout": {
+                "x": 100
+            }
+        },
+        {
+            "id": "ns28",
+            "layout": {
+                "x": -70,
+                "y": 20
+            },
+            "fixed": true
+        },
+        {
+            "id": "ns49",
+            "layout": {
+                "x": 70,
+                "y": 20
+            },
+            "fixed": true
+        },
+        {
+            "id": "abc1",
+            "layout": {
+                "x": -100,
+                "y": 10
+            }
+        },
+        {
+            "id": "abc2",
+            "layout": {
+                "x": 100,
+                "y": 10
+            }
+        },
+        {
+            "id": "ns70",
+            "layout": {
+                "x": -100
+            }
+        },
+        {
+            "id": "ns101",
+            "layout": {
+                "x": 100
+            }
+        }
+    ],
+    "links": [
+        {
+            "id": "lnk-soma19",
+            "source": "ns1",
+            "target": "ns2",
+            "conveyingLyph": "sn19",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma16",
+            "source": "ns3",
+            "target": "ns4",
+            "conveyingLyph": "sn16",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma13",
+            "source": "ns5",
+            "target": "ns6",
+            "conveyingLyph": "sn13",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma14",
+            "source": "ns7",
+            "target": "ns8",
+            "conveyingLyph": "sn14",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma15",
+            "source": "ns9",
+            "target": "ns10",
+            "conveyingLyph": "sn15",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma17",
+            "source": "ns11",
+            "target": "ns12",
+            "conveyingLyph": "sn17",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma18",
+            "source": "ns13",
+            "target": "ns14",
+            "conveyingLyph": "sn18",
+            "length": 4
+        },
+        {
+            "id": "lnk-soma20",
+            "source": "ns15",
+            "target": "ns15_5",
+            "conveyingLyph": "sn20",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl16",
+            "source": "ns19",
+            "target": "ns20",
+            "conveyingLyph": "snl16",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl26",
+            "source": "ns21",
+            "target": "ns22",
+            "conveyingLyph": "snl26",
+            "length": 4
+        },
+        {
+            "id": "lnk-K102",
+            "source": "g102a",
+            "target": "g102b",
+            "conveyingLyph": "K102",
+            "length": 16
+        },
+        {
+            "id": "lnk-K104",
+            "source": "g104a",
+            "target": "g104b",
+            "conveyingLyph": "K104",
+            "length": 16
+        },
+        {
+            "id": "lnk-snl18",
+            "source": "ns24",
+            "target": "ns25",
+            "conveyingLyph": "snl18",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl28",
+            "source": "ns26",
+            "target": "ns27",
+            "conveyingLyph": "snl28",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl17",
+            "source": "ns51",
+            "target": "ns52",
+            "conveyingLyph": "snl17",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl27",
+            "source": "ns53",
+            "target": "ns54",
+            "conveyingLyph": "snl27",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl59",
+            "source": "ns56",
+            "target": "ns57",
+            "conveyingLyph": "snl59",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl69",
+            "source": "ns58",
+            "target": "ns59",
+            "conveyingLyph": "snl69",
+            "length": 4
+        },
+        {
+            "id": "lnk-snl65",
+            "source": "ns62",
+            "target": "ns63",
+            "conveyingLyph": "snl65",
+            "length": 4
+        },
+        {
+            "id": "lnk-sns15",
+            "source": "ns64",
+            "target": "ns65",
+            "conveyingLyph": "sns15",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drgl1_11",
+            "source": "ns120",
+            "target": "ns121",
+            "conveyingLyph": "sn-drgl1_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drgl2_11",
+            "source": "ns130",
+            "target": "ns121",
+            "conveyingLyph": "sn-drgl2_11",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-pg_1",
+            "source": "ns260",
+            "target": "ns261",
+            "conveyingLyph": "sn-pg_1",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-pg_2",
+            "source": "ns250",
+            "target": "ns251",
+            "conveyingLyph": "sn-pg_2",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-img_3",
+            "source": "ns300",
+            "target": "ns301",
+            "conveyingLyph": "sn-img_3",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgt12_4",
+            "source": "root-dc-4-K78",
+            "target": "root-ac-4-K78",
+            "conveyingLyph": "sn-sgt12",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgt13_4",
+            "source": "root-dc-4-K79",
+            "target": "root-ac-4-K79",
+            "conveyingLyph": "sn-sgt13",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgl1_4",
+            "source": "root-dc-4-K80",
+            "target": "root-ac-4-K80",
+            "conveyingLyph": "sn-sgl1",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgl2_4",
+            "source": "root-dc-4-K81",
+            "target": "root-ac-4-K81",
+            "conveyingLyph": "sn-sgl2",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgl3_4",
+            "source": "root-dc-4-K82",
+            "target": "root-ac-4-K82",
+            "conveyingLyph": "sn-sgl3",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgl4_4",
+            "source": "root-dc-4-K83",
+            "target": "root-ac-4-K83",
+            "conveyingLyph": "sn-sgl4",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgl5_4",
+            "source": "root-dc-4-K84",
+            "target": "root-ac-4-K84",
+            "conveyingLyph": "sn-sgl5",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-sgl6_4",
+            "source": "root-dc-4-K85",
+            "target": "root-ac-4-K85",
+            "conveyingLyph": "sn-sgl6",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drg-l6_10",
+            "source": "ns160",
+            "target": "ns161",
+            "conveyingLyph": "sn-drg-l6_10",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drg-S1_10",
+            "source": "ns170",
+            "target": "ns171",
+            "conveyingLyph": "sn-drg-S1_10",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drg-l6_12",
+            "source": "ns200",
+            "target": "ns201",
+            "conveyingLyph": "sn-drg-l6_12",
+            "length": 4
+        },
+        {
+            "id": "lnk-sn-drg-s1_12",
+            "source": "ns209",
+            "target": "ns210",
+            "conveyingLyph": "sn-drg-s1_12",
+            "length": 4
+        }
+    ],
+    "lyphs": [
+        {
+            "id": "K1",
+            "name": "C1 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006469"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129",
+            "scale": {
+                "width": 500,
+                "height": 60
+            }
+        },
+        {
+            "id": "K2",
+            "name": "C2 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006489"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K3",
+            "name": "C3 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006488"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K4",
+            "name": "C4 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006490"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K5",
+            "name": "C5 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006491"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K6",
+            "name": "C6 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006492"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K7",
+            "name": "C7 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006493"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K8",
+            "name": "C8 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006470"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K9",
+            "name": "T1 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006457"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K10",
+            "name": "T2 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006458"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K11",
+            "name": "T3 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006459"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K12",
+            "name": "T4 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006452"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K13",
+            "name": "T5 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006453"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K14",
+            "name": "T6 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006454"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K15",
+            "name": "T7 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006455"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K16",
+            "name": "T8 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006456"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K17",
+            "name": "T9 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006465"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K18",
+            "name": "T10 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006466"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K19",
+            "name": "T11 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006467"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K20",
+            "name": "T12 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006468"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K21",
+            "name": "T13 spinal segment (kblad)",
+            "external": [
+                "EMAPA:19554"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K22",
+            "name": "L1 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006448"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129",
+            "internalLyphs": [
+                "snl16",
+                "snl18",
+                "snl17"
+            ],
+            "internalLyphsInLayers": [
+                6,
+                6,
+                6
+            ]
+        },
+        {
+            "id": "K23",
+            "name": "L2 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006450"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129",
+            "internalLyphs": [
+                "snl26",
+                "snl28",
+                "snl27"
+            ],
+            "internalLyphsInLayers": [
+                6,
+                6,
+                6
+            ]
+        },
+        {
+            "id": "K24",
+            "name": "L3 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006449"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K25",
+            "name": "L4 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006451"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K26",
+            "name": "L5 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006447"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129",
+            "internalLyphs": [
+                "snl59"
+            ],
+            "internalLyphsInLayers": [
+                4
+            ]
+        },
+        {
+            "id": "K27",
+            "name": "L6 spinal segment (kblad)",
+            "external": [
+                "EMAPA:19574"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129",
+            "internalLyphs": [
+                "snl69",
+                "snl65"
+            ],
+            "internalLyphsInLayers": [
+                4,
+                6
+            ]
+        },
+        {
+            "id": "K28",
+            "name": "S1 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006460"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129",
+            "internalLyphs": [
+                "sns15"
+            ],
+            "internalLyphsInLayers": [
+                6
+            ]
+        },
+        {
+            "id": "K29",
+            "name": "S2 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006461"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K30",
+            "name": "S3 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006462"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K31",
+            "name": "S4 spinal segment (kblad)",
+            "external": [
+                "UBERON:0006463"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K32",
+            "name": "Cx1 spinal segment (kblad)",
+            "external": [
+                "ILX:0777083"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K33",
+            "name": "Cx2 spinal segment (kblad)",
+            "external": [
+                "ILX:0777084"
+            ],
+            "topology": "TUBE",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K34",
+            "name": "Cx3 spinal segment (kblad)",
+            "external": [
+                "ILX:0777085"
+            ],
+            "topology": "BAG",
+            "supertype": "K_129"
+        },
+        {
+            "id": "K_129",
+            "name": "Segment of Spinal Cord (kblad)",
+            "external": [
+                "UBERON:0005844"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "K_86",
+                "KM_27",
+                "K_85",
+                "K_84",
+                "K_83",
+                "K_82",
+                "K_81",
+                "K_80",
+                "K_79",
+                "K_78",
+                "K_77",
+                "KM_27"
+            ],
+            "scale": {
+                "width": 500,
+                "height": 60
+            }
+        },
+        {
+            "id": "K35",
+            "name": "Midbrain (kblad)",
+            "external": [
+                "UBERON:0001891"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K36"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "K36",
+            "name": "ventrolateral periaqueductal gray (kblad)",
+            "external": [
+                "UBERON:0003040"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn19"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K37",
+            "name": "bed nucleus of the stria terminalis (kblad)",
+            "external": [
+                "UBERON:0001880"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn13"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K38",
+            "name": "central nucleus of the amygdala (kblad)",
+            "external": [
+                "UBERON:0002883"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn14"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K39",
+            "name": "Diencephalon (kblad)",
+            "external": [
+                "UBERON:0001894"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K40",
+                "K41",
+                "K42",
+                "K43"
+            ],
+            "internalLyphsInLayers": [
+                2,
+                2,
+                2,
+                2
+            ]
+        },
+        {
+            "id": "K40",
+            "name": "medial preoptic area (kblad)",
+            "external": [
+                "UBERON:0007769"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn15"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K41",
+            "name": "lateral preoptic area (kblad)",
+            "external": [
+                "UBERON:0001931"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn17"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K42",
+            "name": "lateral hypothalamic area (kblad)",
+            "external": [
+                "UBERON:0002430"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn18"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K43",
+            "name": "median preoptic nucleus (kblad)",
+            "external": [
+                "UBERON:0002625"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn16"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K44",
+            "name": "Pons (kblad)",
+            "external": [
+                "UBERON:0000988"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K45"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "K45",
+            "name": "Barrington's nucleus (kblad)",
+            "external": [
+                "UBERON:0007632"
+            ],
+            "materials": [
+                "KM_28"
+            ],
+            "internalLyphs": [
+                "sn20"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K52",
+            "name": "Medulla (kblad)",
+            "external": [
+                "UBERON:0001896"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ]
+        },
+        {
+            "id": "K53",
+            "name": "Telencephalon (kblad)",
+            "external": [
+                "UBERON:0001893"
+            ],
+            "topology": "BAG2",
+            "layers": [
+                "KM_9",
+                "KM_23",
+                "KM_25"
+            ],
+            "internalLyphs": [
+                "K37",
+                "K38"
+            ],
+            "internalLyphsInLayers": [
+                2,
+                2
+            ]
+        },
+        {
+            "id": "229",
+            "name": "Segment of neuron (kblad)",
+            "external": [
+                "CL:0000540"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "54",
+                "56",
+                "116"
+            ]
+        },
+        {
+            "id": "sn19",
+            "name": "Soma of neuron 19 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K36",
+            "seedIn": "neuron-19"
+        },
+        {
+            "id": "229bag2",
+            "name": "Segment of neuron  (kblad)",
+            "external": [
+                "CL:0000540"
+            ],
+            "isTemplate": true,
+            "topology": "BAG+",
+            "supertype": "229"
+        },
+        {
+            "id": "229bag",
+            "name": "Segment of neuron (kblad)",
+            "external": [
+                "CL:0000540"
+            ],
+            "isTemplate": true,
+            "topology": "BAG-",
+            "supertype": "229"
+        },
+        {
+            "id": "sn16",
+            "name": "Soma of neuron 16 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K43",
+            "seedIn": "neuron-16"
+        },
+        {
+            "id": "sn13",
+            "name": "Soma of neuron 13 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K37",
+            "seedIn": "neuron-13"
+        },
+        {
+            "id": "sn14",
+            "name": "Soma of neuron 14 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K38",
+            "seedIn": "neuron-14"
+        },
+        {
+            "id": "sn15",
+            "name": "Soma of neuron 15 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K40",
+            "seedIn": "neuron-15"
+        },
+        {
+            "id": "sn17",
+            "name": "Soma of neuron 17 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K41",
+            "seedIn": "neuron-17"
+        },
+        {
+            "id": "sn18",
+            "name": "Soma of neuron 18 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K42",
+            "seedIn": "neuron-18"
+        },
+        {
+            "id": "sn20",
+            "name": "Soma of neuron 20 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K45",
+            "seedIn": "neuron-20"
+        },
+        {
+            "id": "K54",
+            "name": "T12 Dorsal Root gangion (kblad)",
+            "external": [
+                "UBERON:0002855"
+            ]
+        },
+        {
+            "id": "K55",
+            "name": "T13 Dorsal Root gangion (kblad)",
+            "external": [
+                "EMAPA:25186"
+            ]
+        },
+        {
+            "id": "K56",
+            "name": "L1 Dorsal Root gangion (kblad)",
+            "external": [
+                "UBERON:0002857"
+            ],
+            "internalLyphs": [
+                "sn-drgl1_11"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K57",
+            "name": "L2 Dorsal Root gangion (kblad)",
+            "external": [
+                "UBERON:0002856"
+            ],
+            "internalLyphs": [
+                "sn-drgl2_11"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K58",
+            "name": "L3 Dorsal Root gangion (kblad)",
+            "external": [
+                "UBERON:0002858"
+            ]
+        },
+        {
+            "id": "K59",
+            "name": "L4 Dorsal Root gangion (kblad)",
+            "external": [
+                "UBERON:0003943"
+            ]
+        },
+        {
+            "id": "K60",
+            "name": "L5 Dorsal Root gangion (kblad)",
+            "external": [
+                "UBERON:0002859"
+            ]
+        },
+        {
+            "id": "K61",
+            "name": "L6 Dorsal Root gangion (kblad)",
+            "external": [
+                "EMAPA:25169"
+            ],
+            "internalLyphs": [
+                "sn-drg-l6_10",
+                "sn-drg-l6_12"
+            ],
+            "internalLyphsInLayers": [
+                0,
+                0
+            ]
+        },
+        {
+            "id": "K62",
+            "name": "S1 Dorsal root ganglion (kblad)",
+            "external": [
+                "UBERON:0002860"
+            ],
+            "internalLyphs": [
+                "sn-drg-S1_10",
+                "sn-drg-s1_12"
+            ],
+            "internalLyphsInLayers": [
+                0,
+                0
+            ]
+        },
+        {
+            "id": "K63",
+            "name": "L1 ventral root (kblad)",
+            "external": [
+                "EMAPA:25269"
+            ]
+        },
+        {
+            "id": "K64",
+            "name": "L2 ventral root (kblad)",
+            "external": [
+                "EMAPA:25271"
+            ]
+        },
+        {
+            "id": "K65",
+            "name": "L3 ventral root (kblad)",
+            "external": [
+                "EMAPA:25273"
+            ]
+        },
+        {
+            "id": "K66",
+            "name": "L4 ventral root (kblad)",
+            "external": [
+                "EMAPA:25275"
+            ]
+        },
+        {
+            "id": "K67",
+            "name": "L5 ventral root (kblad)",
+            "external": [
+                "EMAPA:25277"
+            ]
+        },
+        {
+            "id": "K68",
+            "name": "L6 ventral root (kblad)",
+            "external": [
+                "EMAPA:25279"
+            ]
+        },
+        {
+            "id": "K69",
+            "name": "S1 ventral root (kblad)",
+            "external": [
+                "EMAPA:25281"
+            ]
+        },
+        {
+            "id": "K70",
+            "name": "T12 - T13 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777086"
+            ]
+        },
+        {
+            "id": "K71",
+            "name": "T13 - L1 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777087"
+            ]
+        },
+        {
+            "id": "K72",
+            "name": "L1 - L2 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777088"
+            ]
+        },
+        {
+            "id": "K73",
+            "name": "L2 - L3 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777089"
+            ]
+        },
+        {
+            "id": "K74",
+            "name": "L3 - L4 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777090"
+            ]
+        },
+        {
+            "id": "K75",
+            "name": "L4 - L5 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777091"
+            ]
+        },
+        {
+            "id": "K76",
+            "name": "L5 - L6 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777092"
+            ]
+        },
+        {
+            "id": "K77",
+            "name": "L6 - S1 Interganglionic segment (kblad)",
+            "external": [
+                "ILX:0777093"
+            ]
+        },
+        {
+            "id": "K78",
+            "name": "T12 sympathetic ganglion (kblad)",
+            "external": [
+                "FMA:6485"
+            ],
+            "internalLyphs": [
+                "sn-sgt12"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K79",
+            "name": "T13 sympathetic ganglion (kblad)",
+            "external": [
+                "ILX:0739295"
+            ],
+            "internalLyphs": [
+                "sn-sgt13"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K80",
+            "name": "L1 sympathetic ganglion (kblad)",
+            "external": [
+                "FMA:6540"
+            ],
+            "internalLyphs": [
+                "sn-sgl1"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K81",
+            "name": "L2 sympathetic ganglion (kblad)",
+            "external": [
+                "FMA:6541"
+            ],
+            "internalLyphs": [
+                "sn-sgl2"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K82",
+            "name": "L3 sympathetic ganglion (kblad)",
+            "external": [
+                "FMA:6542"
+            ],
+            "internalLyphs": [
+                "sn-sgl3"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K83",
+            "name": "L4 sympathetic ganglion (kblad)",
+            "external": [
+                "FMA:6543"
+            ],
+            "internalLyphs": [
+                "sn-sgl4"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K84",
+            "name": "L5 sympathetic ganglion (kblad)",
+            "external": [
+                "ILX:0739296"
+            ],
+            "internalLyphs": [
+                "sn-sgl5"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K85",
+            "name": "L6 sympathetic ganglion (kblad)",
+            "external": [
+                "ILX:0739297"
+            ],
+            "internalLyphs": [
+                "sn-sgl6"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K86",
+            "name": "S1 sympathetic ganglion (kblad)",
+            "external": [
+                "FMA:6552"
+            ]
+        },
+        {
+            "id": "K87",
+            "name": "T12 white ramus (kblad)",
+            "external": [
+                "FMA:14056"
+            ]
+        },
+        {
+            "id": "K88",
+            "name": "L1 white ramus (kblad)",
+            "external": [
+                "FMA:12697"
+            ]
+        },
+        {
+            "id": "K89",
+            "name": "L2 white ramus (kblad)",
+            "external": [
+                "FMA:12698"
+            ]
+        },
+        {
+            "id": "K90",
+            "name": "L3 white ramus (kblad)",
+            "external": [
+                "FMA:12699"
+            ]
+        },
+        {
+            "id": "K91",
+            "name": "T12 gray ramus (kblad)",
+            "external": [
+                "ILX:0739298"
+            ]
+        },
+        {
+            "id": "K92",
+            "name": "L1 gray ramus (kblad)",
+            "external": [
+                "FMA:65910"
+            ]
+        },
+        {
+            "id": "K93",
+            "name": "L2 gray ramus (kblad)",
+            "external": [
+                "FMA:65911"
+            ]
+        },
+        {
+            "id": "K94",
+            "name": "L3 gray ramus (kblad)",
+            "external": [
+                "FMA:65912"
+            ]
+        },
+        {
+            "id": "K95",
+            "name": "L4 gray ramus (kblad)",
+            "external": [
+                "FMA:65913"
+            ]
+        },
+        {
+            "id": "K96",
+            "name": "L5 gray ramus (kblad)",
+            "external": [
+                "FMA:65914"
+            ]
+        },
+        {
+            "id": "K97",
+            "name": "L6 gray ramus (kblad)",
+            "external": [
+                "ILX:0739299"
+            ]
+        },
+        {
+            "id": "K98",
+            "name": "S1 gray ramus (kblad)",
+            "external": [
+                "FMA:65986"
+            ]
+        },
+        {
+            "id": "K99",
+            "name": "Bladder Dome (kblad)",
+            "external": [
+                "UBERON:0006082"
+            ],
+            "layers": [
+                "KM_1",
+                "KM_87",
+                "KM_10",
+                "KM_11"
+            ],
+            "internalLyphs": [
+                "K106"
+            ],
+            "internalLyphsInLayers": [
+                3
+            ]
+        },
+        {
+            "id": "K100",
+            "name": "Bladder neck (kblad)",
+            "external": [
+                "UBERON:0001258"
+            ],
+            "layers": [
+                "KM_1",
+                "KM_87",
+                "KM_10",
+                "KM_11"
+            ],
+            "internalLyphs": [
+                "K105"
+            ],
+            "internalLyphsInLayers": [
+                3
+            ]
+        },
+        {
+            "id": "K101",
+            "name": "Urethra (kblad)",
+            "external": [
+                "UBERON:0000057"
+            ],
+            "layers": [
+                "KM_1",
+                "KM_87",
+                "KM_10",
+                "KM_11",
+                "KM_88"
+            ]
+        },
+        {
+            "id": "K102",
+            "name": "Inferior Mesenteric Ganglion (kblad)",
+            "external": [
+                "UBERON:0005453"
+            ],
+            "internalLyphs": [
+                "sn-img_3"
+            ],
+            "internalLyphsInLayers": [
+                0
+            ]
+        },
+        {
+            "id": "K103",
+            "name": "Blood vessel (kblad)",
+            "external": [
+                "UBERON:0001981"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "KM_26",
+                "KM_7"
+            ]
+        },
+        {
+            "id": "K104",
+            "name": "Pelvic ganglia (kblad)",
+            "external": [
+                "UBERON:0016508"
+            ],
+            "internalLyphs": [
+                "sn-pg_1",
+                "sn-pg_2"
+            ],
+            "internalLyphsInLayers": [
+                0,
+                0
+            ]
+        },
+        {
+            "id": "K105",
+            "name": "Blood vessel of bladder neck (kblad)",
+            "external": [
+                "UBERON:0001981"
+            ]
+        },
+        {
+            "id": "K106",
+            "name": "Blood vessel of bladder dome (kblad)",
+            "external": [
+                "UBERON:0001981"
+            ]
+        },
+        {
+            "id": "snl16",
+            "name": "Soma of SPR neuron in L1_Neuron 6 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "seedIn": "neuron-6"
+        },
+        {
+            "id": "snl26",
+            "name": "Soma of SPR neuron in L2_Neuron 6 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229"
+        },
+        {
+            "id": "snl18",
+            "name": "Soma of SPR neuron in L1_Neuron 8 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "seedIn": "neuron-8"
+        },
+        {
+            "id": "snl28",
+            "name": "Soma of SPR neuron in L2_Neuron 8 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229"
+        },
+        {
+            "id": "snl17",
+            "name": "Soma of SPR neuron in L1_Neuron 7 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "seedIn": "neuron-7"
+        },
+        {
+            "id": "snl27",
+            "name": "Soma of SPR neuron in L2_Neuron 7 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229"
+        },
+        {
+            "id": "snl59",
+            "name": "Soma of SLM neuron in L5_Neuron 9 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "seedIn": "neuron-9"
+        },
+        {
+            "id": "snl69",
+            "name": "Soma of SLM neuron in L6_Neuron 9 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229"
+        },
+        {
+            "id": "snl65",
+            "name": "Soma of PSPR neuron in L6_Neuron 5 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "seedIn": "neuron-5"
+        },
+        {
+            "id": "sns15",
+            "name": "Soma of PSPR neuron in S1_Neuron 5 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229"
+        },
+        {
+            "id": "sn-sgt12",
+            "name": "Soma of SPO neuron in T12sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "topology": "TUBE",
+            "supertype": "229",
+            "internalIn": "K78",
+            "seedIn": "neuron-4"
+        },
+        {
+            "id": "sn-sgt13",
+            "name": "Soma of SPO neuron in T13sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K79"
+        },
+        {
+            "id": "sn-sgl1",
+            "name": "Soma of SPO neuron in L1sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K80"
+        },
+        {
+            "id": "sn-sgl2",
+            "name": "Soma of SPO neuron in L2sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K81"
+        },
+        {
+            "id": "sn-sgl3",
+            "name": "Soma of SPO neuron in L3sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K82"
+        },
+        {
+            "id": "sn-sgl4",
+            "name": "Soma of SPO neuron in L4sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K83"
+        },
+        {
+            "id": "sn-sgl5",
+            "name": "Soma of SPO neuron in L5sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K84"
+        },
+        {
+            "id": "sn-sgl6",
+            "name": "Soma of SPO neuron in L6sg_Neuron 4 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K85"
+        },
+        {
+            "id": "sn-pg_1",
+            "name": "Soma of PSPO neuron 1 in pelvic ganglia_Neuron 1 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "seedIn": "neuron-1"
+        },
+        {
+            "id": "sn-pg_2",
+            "name": "Soma to SPO neuron 2 in pelvic ganglia_Neuron 2 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K104",
+            "seedIn": "neuron-2"
+        },
+        {
+            "id": "sn-img_3",
+            "name": "Soma to SPO neuron 3 in IMG_Neuron 3 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K102",
+            "seedIn": "neuron-3"
+        },
+        {
+            "id": "n-hypo",
+            "name": "Hypogastric nerve (kblad)",
+            "external": [
+                "UBERON:0005303"
+            ]
+        },
+        {
+            "id": "n-blad",
+            "name": "Bladder nerve (kblad)",
+            "external": [
+                "EMAPA:31526"
+            ]
+        },
+        {
+            "id": "n-pud",
+            "name": "Pudendal nerve (kblad)",
+            "external": [
+                "UBERON:0011390"
+            ]
+        },
+        {
+            "id": "n-lumspl",
+            "name": "lumbar splanchnic nerve (kblad)",
+            "external": [
+                "UBERON:0018683"
+            ]
+        },
+        {
+            "id": "sn-drg-l6_10",
+            "name": "Soma to FOS neuron 10 in L6 DRG_Neuron 10",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K61",
+            "seedIn": "neuron-10"
+        },
+        {
+            "id": "sn-drg-S1_10",
+            "name": "Soma to FOS neuron 10 in S1 DRG_Neuron 10",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K62"
+        },
+        {
+            "id": "sn-drg-l6_12",
+            "name": "Soma to FOS neuron 12 in L6 DRG_Neuron 12",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K61",
+            "seedIn": "neuron-12"
+        },
+        {
+            "id": "sn-drg-s1_12",
+            "name": "Soma to FOS neuron 12 in S1 DRG_Neuron 12",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K62"
+        },
+        {
+            "id": "n-pelspl",
+            "name": "Pelvic splanchnic nerve",
+            "external": [
+                "UBERON:0018675"
+            ]
+        },
+        {
+            "id": "sn-drgl1_11",
+            "name": "Soma of FOS in L1 DRG_Neuron 11 (kblad)",
+            "external": [
+                "NLX:154731"
+            ],
+            "supertype": "229",
+            "internalIn": "K56",
+            "seedIn": "neuron-11"
+        },
+        {
+            "id": "sn-drgl2_11",
+            "name": "Soma of FOS in L2 DRG_Neuron 11 (kblad)",
+            "external": [
+                "ILX:0110736"
+            ],
+            "supertype": "229",
+            "internalIn": "K57"
+        }
+    ],
+    "materials": [
+        {
+            "id": "KM_1",
+            "name": "Urine",
+            "external": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "KM_2",
+                "KM_3",
+                "KM_4",
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_2",
+            "name": "Water",
+            "external": [
+                "CHEBI:15377"
+            ]
+        },
+        {
+            "id": "KM_3",
+            "name": "Urea",
+            "external": [
+                "CHEBI:16199"
+            ]
+        },
+        {
+            "id": "KM_4",
+            "name": "Uric Acid",
+            "external": [
+                "CHEBI:27226"
+            ]
+        },
+        {
+            "id": "KM_5",
+            "name": "Extracellular fluid",
+            "external": [
+                "CHEBI:24839"
+            ]
+        },
+        {
+            "id": "KM_6",
+            "name": "Endothelium",
+            "external": [
+                "UBERON:0001986"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_7",
+            "name": "Blood",
+            "external": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_8",
+            "name": "Aqueous solution",
+            "external": [
+                "FMA:85815"
+            ],
+            "materials": [
+                "KM_2",
+                "KM_13",
+                "KM_14",
+                "KM_15",
+                "KM_16",
+                "KM_17",
+                "KM_18",
+                "KM_19",
+                "KM_20",
+                "KM_21"
+            ]
+        },
+        {
+            "id": "KM_9",
+            "name": "Cerebrospinal fluid",
+            "external": [
+                "UBERON:0001359"
+            ],
+            "materials": [
+                "KM_8"
+            ]
+        },
+        {
+            "id": "KM_10",
+            "name": "Smooth muscle",
+            "external": [
+                "UBERON:0001135"
+            ]
+        },
+        {
+            "id": "KM_11",
+            "name": "Connective Tissue",
+            "external": [
+                "UBERON:0002384"
+            ]
+        },
+        {
+            "id": "KM_13",
+            "name": "Sodium ion",
+            "external": [
+                "CHEBI:29101"
+            ]
+        },
+        {
+            "id": "KM_14",
+            "name": "Potassium ion",
+            "external": [
+                "CHEBI:29103"
+            ]
+        },
+        {
+            "id": "KM_15",
+            "name": "Calcium ion",
+            "external": [
+                "CHEBI:29108"
+            ]
+        },
+        {
+            "id": "KM_16",
+            "name": "Chloride ion",
+            "external": [
+                "CHEBI:17996"
+            ]
+        },
+        {
+            "id": "KM_17",
+            "name": "Hydrogen ion",
+            "external": [
+                "CHEBI:24636"
+            ]
+        },
+        {
+            "id": "KM_18",
+            "name": "Hydroxide ion",
+            "external": [
+                "CHEBI:16234"
+            ]
+        },
+        {
+            "id": "KM_19",
+            "name": "Bicarbonate ion",
+            "external": [
+                "CHEBI:17544"
+            ]
+        },
+        {
+            "id": "KM_20",
+            "name": "Liquid",
+            "external": [
+                "FMA:85815"
+            ]
+        },
+        {
+            "id": "KM_21",
+            "name": "Fluid",
+            "external": [
+                "UBERON:0006314"
+            ]
+        },
+        {
+            "id": "KM_22",
+            "name": "Peripheral nervous system tissue",
+            "external": [
+                "UBERON:0000010"
+            ],
+            "materials": [
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_23",
+            "name": "Ependyma",
+            "external": [
+                "UBERON:0004670"
+            ]
+        },
+        {
+            "id": "KM_24",
+            "name": "Pia mater",
+            "external": [
+                "UBERON:0002361"
+            ]
+        },
+        {
+            "id": "KM_25",
+            "name": "Central nervous system tissue",
+            "external": [
+                "UBERON:0001017"
+            ],
+            "materials": [
+                "KM_5"
+            ]
+        },
+        {
+            "id": "KM_26",
+            "name": "Wall of vessel",
+            "external": [
+                "UBERON:0035965"
+            ],
+            "materials": [
+                "KM_11"
+            ]
+        },
+        {
+            "id": "KM_27",
+            "name": "White matter of CNS",
+            "external": [
+                "UBERON:0016549"
+            ]
+        },
+        {
+            "id": "KM_28",
+            "name": "Gray matter of CNS",
+            "external": [
+                "UBERON:0016548"
+            ]
+        },
+        {
+            "id": "K_77",
+            "name": "lamina I of gray matter of spinal cord",
+            "external": [
+                "UBERON:0006118"
+            ]
+        },
+        {
+            "id": "K_78",
+            "name": "lamina II of gray matter of spinal cord",
+            "external": [
+                "UBERON:0002181"
+            ]
+        },
+        {
+            "id": "K_79",
+            "name": "lamina III of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016574"
+            ]
+        },
+        {
+            "id": "K_80",
+            "name": "lamina IV of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016575"
+            ]
+        },
+        {
+            "id": "K_81",
+            "name": "lamina V of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016576"
+            ]
+        },
+        {
+            "id": "K_82",
+            "name": "lamina VI of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016577"
+            ]
+        },
+        {
+            "id": "K_83",
+            "name": "lamina VII of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016578"
+            ]
+        },
+        {
+            "id": "K_84",
+            "name": "lamina VIII of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016579"
+            ]
+        },
+        {
+            "id": "K_85",
+            "name": "lamina IX of gray matter of spinal cord",
+            "external": [
+                "UBERON:0016580"
+            ]
+        },
+        {
+            "id": "K_86",
+            "name": "lamina X of gray matter of spinal cord",
+            "external": [
+                "UBERON:0004677"
+            ]
+        },
+        {
+            "id": "54",
+            "name": "Cytosol",
+            "external": [
+                "GO:0005829"
+            ]
+        },
+        {
+            "id": "55",
+            "name": "Membrane",
+            "external": [
+                "GO:0016020"
+            ]
+        },
+        {
+            "id": "56",
+            "name": "Plasma membrane",
+            "external": [
+                "GO:0005886"
+            ]
+        },
+        {
+            "id": "116",
+            "name": "Extracellular fluid",
+            "external": [
+                "GO:0005615"
+            ]
+        },
+        {
+            "id": "KM_87",
+            "name": "Epithelium",
+            "external": [
+                "UBERON:0000483"
+            ]
+        },
+        {
+            "id": "KM_88",
+            "name": "Rhabdosphincter",
+            "external": [
+                "EMAPA:36117",
+                "EMAPA:32269"
+            ]
+        },
+        {
+            "id": "KM_89",
+            "name": "Basement membrane",
+            "external": [
+                "UBERON:0005769"
+            ]
+        }
+    ],
+    "chains": [
+        {
+            "id": "ch1",
+            "name": "Spinal Cord (kblad)",
+            "external": [
+                "UBERON:0002240"
+            ],
+            "lyphs": [
+                "K53",
+                "K39",
+                "K35",
+                "K44",
+                "K52",
+                "K1",
+                "K2",
+                "K3",
+                "K4",
+                "K5",
+                "K6",
+                "K7",
+                "K8",
+                "K9",
+                "K10",
+                "K11",
+                "K12",
+                "K13",
+                "K14",
+                "K15",
+                "K16",
+                "K17",
+                "K18",
+                "K19",
+                "K20",
+                "K21",
+                "K22",
+                "K23",
+                "K24",
+                "K25",
+                "K26",
+                "K27",
+                "K28",
+                "K29",
+                "K30",
+                "K31",
+                "K32",
+                "K33",
+                "K34"
+            ],
+            "root": "cn1",
+            "leaf": "cn2",
+            "length": 100
+        },
+        {
+            "id": "dcn1",
+            "name": "VLPAG dendrite chain_Neuron 19 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns1",
+            "length": 4,
+            "housingLyphs": [
+                "K36"
+            ]
+        },
+        {
+            "id": "acn1",
+            "name": "VLPAG axon chain_Neuron 19 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns2",
+            "length": 10,
+            "housingLayers": [
+                0,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K36",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn2",
+            "name": "MnPO dendrite chain_Neuron 16 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns3",
+            "housingLyphs": [
+                "K43"
+            ]
+        },
+        {
+            "id": "acn2",
+            "name": "MnPO axon chain_Neuron 16 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns4",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K43",
+                "K39",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn3",
+            "name": "BNST dendrite chain_Neuron 13 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns5",
+            "housingLyphs": [
+                "K37"
+            ]
+        },
+        {
+            "id": "acn3",
+            "name": "BNST axon chain_Neuron 13 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns6",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K37",
+                "K53",
+                "K39",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn4",
+            "name": "CeA dendrite chain_Neuron 14 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns7",
+            "housingLyphs": [
+                "K38"
+            ]
+        },
+        {
+            "id": "acn4",
+            "name": "CeA axon chain_Neuron 14 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns8",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K38",
+                "K53",
+                "K39",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn5",
+            "name": "MPOA dendrite chain_Neuron 15 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns9",
+            "housingLyphs": [
+                "K40"
+            ]
+        },
+        {
+            "id": "acn5",
+            "name": "MPOA axon chain_Neuron 15 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns10",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K40",
+                "K39",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn6",
+            "name": "LPOA dendrite chain_Neuron 17 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns11",
+            "housingLyphs": [
+                "K41"
+            ]
+        },
+        {
+            "id": "acn6",
+            "name": "LPOA axon chain_Neuron 17 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns12",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K41",
+                "K39",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn7",
+            "name": "LHA dendrite chain_Neuron 18 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns13",
+            "housingLyphs": [
+                "K42"
+            ]
+        },
+        {
+            "id": "acn7",
+            "name": "LHA axon chain_Neuron 18 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns14",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                2,
+                0
+            ],
+            "housingLyphs": [
+                "K42",
+                "K39",
+                "K35",
+                "K44",
+                "K45"
+            ]
+        },
+        {
+            "id": "dcn8",
+            "name": "BRGTN dendrite chain_Neuron 20 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns15",
+            "housingLyphs": [
+                "K45"
+            ]
+        },
+        {
+            "id": "acn8",
+            "name": "BRGTN axon chain_Neuron 20 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns15_5",
+            "leaf": "ns16",
+            "housingLayers": [
+                0,
+                2,
+                2,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13,
+                13
+            ],
+            "housingLyphs": [
+                "K45",
+                "K44",
+                "K52",
+                "K1",
+                "K2",
+                "K3",
+                "K4",
+                "K5",
+                "K6",
+                "K7",
+                "K8",
+                "K9",
+                "K10",
+                "K11",
+                "K12",
+                "K13",
+                "K14",
+                "K15",
+                "K16",
+                "K17",
+                "K18",
+                "K19",
+                "K20",
+                "K21",
+                "K22",
+                "K23",
+                "K24",
+                "K25",
+                "K26"
+            ]
+        },
+        {
+            "id": "acn8b",
+            "name": "BRGTN axon chainb_Neuron 20 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns16",
+            "leaf": "ns17",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K26",
+                "K27"
+            ]
+        },
+        {
+            "id": "acn8c",
+            "name": "BRGTN axon chainc_Neuron 20 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns16",
+            "leaf": "ns18",
+            "housingLayers": [
+                13,
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K26",
+                "K27",
+                "K28"
+            ]
+        },
+        {
+            "id": "dc-snl16",
+            "name": "L1-6 SPR dendrite chain_Neuron 6 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns19",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-snl16",
+            "name": "L1-6 SPR axon chain_Neuron 6 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns20",
+            "leaf": "ns23",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22",
+                "K63",
+                "K88",
+                "K80",
+                "K92",
+                "n-lumspl"
+            ]
+        },
+        {
+            "id": "dc-snl26",
+            "name": "L2-6 SPR dendrite chain_Neuron 6 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns21",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-snl26",
+            "name": "L2-6 SPR axon chain_Neuron 6 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns22",
+            "leaf": "ns23",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23",
+                "K64",
+                "K89",
+                "K81",
+                "K93",
+                "n-lumspl"
+            ]
+        },
+        {
+            "id": "ac-l1l26a",
+            "name": "L1-6 L2-6 SPR axon chain_Neuron 6 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns23",
+            "leaf": "ns23_5",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "n-lumspl",
+                "K102",
+                "n-hypo",
+                "K104"
+            ]
+        },
+        {
+            "id": "dc-snl18",
+            "name": "L1-8 SPR dendrite chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns24",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-snl18",
+            "name": "L1-8 SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns25",
+            "leaf": "ns34",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22",
+                "K63",
+                "K88",
+                "K80"
+            ]
+        },
+        {
+            "id": "dc-snl28",
+            "name": "L2-8 SPR dendrite chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns26",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-snl28",
+            "name": "L2-8 SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns27",
+            "leaf": "ns37",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23",
+                "K64",
+                "K89",
+                "K81"
+            ]
+        },
+        {
+            "id": "ac-t12sg_8",
+            "name": "T12 sympathetic ganglia SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns28",
+            "leaf": "ns28_5",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K78",
+                "K70",
+                "K79",
+                "K71",
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-t13sg_8",
+            "name": "T13 sympathetic ganglia SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns29",
+            "leaf": "ns29_5",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K79",
+                "K71",
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-l1sg_8",
+            "name": "L1 sympathetic ganglia SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns34",
+            "leaf": "ns30",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-l2sg_8",
+            "name": "L2 sympathetic ganglia SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns37",
+            "leaf": "ns31",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-l3sg_8",
+            "name": "L3 sympathetic ganglia SPR axon chain_Neuron 8",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns32",
+            "leaf": "ns32_5",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-l4sg_8",
+            "name": "L4 sympathetic ganglia SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns33",
+            "leaf": "ns33_5",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-l5sg_8",
+            "name": "L5 sympathetic ganglia SPR axon chain_Neuron 8 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns34",
+            "leaf": "ns34_5",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "dc-snl17",
+            "name": "L1-7 SPR dendrite chain_Neuron 7 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns51",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-snl17",
+            "name": "L1-7 SPR axon chain_Neuron 7 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns52",
+            "leaf": "ns55",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22",
+                "K63",
+                "K88",
+                "K80",
+                "K92",
+                "n-lumspl"
+            ]
+        },
+        {
+            "id": "dc-snl27",
+            "name": "L2-7 SPR dendrite chain_Neuron 7 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns53",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-snl27",
+            "name": "L2-7 SPR axon chain_Neuron 7 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns54",
+            "leaf": "ns55",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23",
+                "K64",
+                "K89",
+                "K81",
+                "K93",
+                "n-lumspl"
+            ]
+        },
+        {
+            "id": "ac-snl1l2",
+            "name": "L1-7 L2-7 SPR axon chain_Neuron 7 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns55",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "n-lumspl",
+                "K102"
+            ]
+        },
+        {
+            "id": "dc-snl59",
+            "name": "L5-9 SLM dendrite chain_Neuron 9 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns56",
+            "housingLayers": [
+                4
+            ],
+            "housingLyphs": [
+                "K26"
+            ]
+        },
+        {
+            "id": "ac-snl59",
+            "name": "L5-9 SLM axon chain_Neuron 9 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns57",
+            "leaf": "ns60",
+            "housingLayers": [
+                4,
+                13,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K26",
+                "K26",
+                "K67",
+                "n-pud"
+            ],
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806"
+            ]
+        },
+        {
+            "id": "dc-snl69",
+            "name": "L6-9 SLM dendrite chain_Neuron 9 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns58",
+            "housingLayers": [
+                4
+            ],
+            "housingLyphs": [
+                "K27"
+            ]
+        },
+        {
+            "id": "ac-snl69",
+            "name": "L6-9 SLM axon chain_Neuron 9 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns59",
+            "leaf": "ns60",
+            "housingLayers": [
+                4,
+                13,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27",
+                "K68",
+                "n-pud"
+            ],
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806"
+            ]
+        },
+        {
+            "id": "ac-snl5l6",
+            "name": "L5-9 L6-9 SLM axon chain_Neuron 9 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns60",
+            "leaf": "ns61",
+            "housingLayers": [
+                0,
+                4
+            ],
+            "housingLyphs": [
+                "n-pud",
+                "K101"
+            ]
+        },
+        {
+            "id": "dc-snl65",
+            "name": "L6-5 PSPO dendrite chain_Neuron 5 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns62",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K27"
+            ]
+        },
+        {
+            "id": "ac-snl65",
+            "name": "L6-5 PSPO axon chain_Neuron 5 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns63",
+            "leaf": "ns66",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27",
+                "K68",
+                "n-pelspl"
+            ]
+        },
+        {
+            "id": "dc-sns15",
+            "name": "S1-5 PSPO dendrite chain_Neuron 5 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns64",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "K28"
+            ]
+        },
+        {
+            "id": "ac-sns15",
+            "name": "S1-5 PSPO axon chain_Neuron 5 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns65",
+            "leaf": "ns66",
+            "housingLayers": [
+                6,
+                13,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K28",
+                "K28",
+                "K69",
+                "n-pelspl"
+            ]
+        },
+        {
+            "id": "ac-snl6s1",
+            "name": "L6-5 S1-5 PSPO axon chain_Neuron 5 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns67",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "n-pelspl",
+                "K104"
+            ]
+        },
+        {
+            "id": "Sympchain",
+            "name": "Sympathetic Chain (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphs": [
+                "K78",
+                "K70",
+                "K79",
+                "K71",
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85",
+                "K77",
+                "K86"
+            ],
+            "root": "abc1",
+            "leaf": "abc2",
+            "length": 100
+        },
+        {
+            "id": "dc-sn-sgt12",
+            "name": "T12sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns70",
+            "housingLyphs": [
+                "K78"
+            ]
+        },
+        {
+            "id": "dc-sn-sgt13",
+            "name": "T13sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns74",
+            "housingLyphs": [
+                "K79"
+            ]
+        },
+        {
+            "id": "dc-sn-sgl1",
+            "name": "L1sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns77",
+            "housingLyphs": [
+                "K80"
+            ]
+        },
+        {
+            "id": "dc-sn-sgl2",
+            "name": "L2sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns80",
+            "housingLyphs": [
+                "K81"
+            ]
+        },
+        {
+            "id": "dc-sn-sgl3",
+            "name": "L3sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns83",
+            "housingLyphs": [
+                "K82"
+            ]
+        },
+        {
+            "id": "dc-sn-sgl4",
+            "name": "L4sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns86",
+            "housingLyphs": [
+                "K83"
+            ]
+        },
+        {
+            "id": "ac-sn-sgl5",
+            "name": "L5sg_4 SPO dendrite chain_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns89",
+            "housingLyphs": [
+                "K84"
+            ]
+        },
+        {
+            "id": "dc-sn-drgl1_11",
+            "name": "L1 DRG POS_11 dendrite chain (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns120",
+            "leaf": "ns128",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K56",
+                "n-lumspl"
+            ]
+        },
+        {
+            "id": "dc-sn-drgl2_11",
+            "name": "L2 DRG POS_11 dendrite chain (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns130",
+            "leaf": "ns128",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K57",
+                "n-lumspl"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl1_11",
+            "name": "L1 DRG POS_11 axon chain to spinal cord segment_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns121",
+            "leaf": "ns122",
+            "housingLayers": [
+                0,
+                13
+            ],
+            "housingLyphs": [
+                "K56",
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl1-2_11",
+            "name": "L1 DRG POS_11 axon chain to spinal cord segment-layer2_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns122",
+            "leaf": "ns123",
+            "housingLayers": [
+                13,
+                2
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl1-6_11",
+            "name": "L1 DRG POS_11 axon chain to spinal cord segment-layer6_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns122",
+            "leaf": "ns124",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl1-8_11",
+            "name": "L1 DRG POS_11 axon chain to spinal cord segment-layer8_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns122",
+            "leaf": "ns125",
+            "housingLayers": [
+                13,
+                8
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl1-11_11",
+            "name": "L1 DRG POS_11 axon chain to spinal cord segment-layer 11_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns122",
+            "leaf": "ns126",
+            "housingLayers": [
+                13,
+                11
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl1-12_11",
+            "name": "L1 DRG POS_11 axon chain to spinal cord segment-layer 12_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns122",
+            "leaf": "ns127",
+            "housingLayers": [
+                13,
+                12
+            ],
+            "housingLyphs": [
+                "K22",
+                "K22"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2_11",
+            "name": "L2 DRG POS_11 axon chain to spinal cord segment_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns131",
+            "leaf": "ns132",
+            "housingLayers": [
+                0,
+                13
+            ],
+            "housingLyphs": [
+                "K57",
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2-2_11",
+            "name": "L2 DRG POS_11 axon chain to spinal cord segment-layer2_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns132",
+            "leaf": "ns133",
+            "housingLayers": [
+                13,
+                2
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2-6_11",
+            "name": "L2 DRG POS_11 axon chain to spinal cord segment-layer6_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns132",
+            "leaf": "ns134",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2-8_11",
+            "name": "L2 DRG POS_11 axon chain to spinal cord segment-layer8_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns132",
+            "leaf": "ns135",
+            "housingLayers": [
+                13,
+                8
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2-11_11",
+            "name": "L2 DRG POS_11 axon chain to spinal cord segment-layer 11_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns132",
+            "leaf": "ns136",
+            "housingLayers": [
+                13,
+                11
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-sn-drgl2-12_11",
+            "name": "L2 DRG POS_11 axon chain to spinal cord segment-layer 12_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns132",
+            "leaf": "ns137",
+            "housingLayers": [
+                13,
+                12
+            ],
+            "housingLyphs": [
+                "K23",
+                "K23"
+            ]
+        },
+        {
+            "id": "ac-img-bn_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from img_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns128",
+            "leaf": "ns141",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "n-lumspl",
+                "K102",
+                "n-hypo",
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "ac-img-bn3_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from bladder nerve to bladder neck_layer3bv_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns141",
+            "leaf": "ns142",
+            "housingLayers": [
+                0,
+                3,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K105"
+            ]
+        },
+        {
+            "id": "ac-img-bn2_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from bladder nerve to bladder neck_layer2_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns141",
+            "leaf": "ns143",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac-img-bn1_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from bladder nerve to bladder neck_layer1_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns141",
+            "leaf": "ns144",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac-img-bd3_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from bladder nerve to bladder dome_layer3bv_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns141",
+            "leaf": "ns145",
+            "housingLayers": [
+                0,
+                3,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K106"
+            ]
+        },
+        {
+            "id": "ac-img-bd2_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from bladder nerve to bladder dome_layer2_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns141",
+            "leaf": "ns146",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99"
+            ]
+        },
+        {
+            "id": "ac-img-bd1_11",
+            "name": "L1 L2 DRG POS_11 dendrite chain from bladder nerve to bladder dome_layer1_Neuron 11 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns141",
+            "leaf": "ns147",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99",
+                "K99"
+            ]
+        },
+        {
+            "id": "dn-pg_2",
+            "name": "Pelvic Ganglia SPO dendrite chain_Neuron 2 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns250",
+            "housingLyphs": [
+                "K104"
+            ]
+        },
+        {
+            "id": "ac-pg_2",
+            "name": "Pelvic Ganglia SPO axon chain_Neuron 2 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns251",
+            "leaf": "ns251_5",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "ac-bn1_2",
+            "name": "Axon to SPOG in bladder neck layer 1_Neuron 2 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns251_5",
+            "leaf": "ns252",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac_bd1_2",
+            "name": "Axon to SPOG in bladder dome layer 1_Neuron 2 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns251_5",
+            "leaf": "ns253",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99"
+            ]
+        },
+        {
+            "id": "dn-img_3",
+            "name": "IMG SPO dendrite chain_Neuron 3 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns300",
+            "housingLyphs": [
+                "K102"
+            ]
+        },
+        {
+            "id": "an-img_3",
+            "name": "IMG SPO axon chain_Neuron 3 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns301",
+            "leaf": "ns302",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K102",
+                "n-hypo",
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "an-bn_3",
+            "name": "IMG SPO axon chain to bladder neck_Neuron 3 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns302",
+            "leaf": "ns303",
+            "housingLayers": [
+                0,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100"
+            ]
+        },
+        {
+            "id": "an-bd_3",
+            "name": "IMG SPO axon chain to bladder dome_Neuron 3 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns302",
+            "leaf": "ns304",
+            "housingLayers": [
+                0,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99"
+            ]
+        },
+        {
+            "id": "dc-4-K78",
+            "name": "T12 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K78",
+            "leaf": "ns-4-K78",
+            "housingLyphs": [
+                "K78"
+            ]
+        },
+        {
+            "id": "dc-4-K79",
+            "name": "T13 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K79",
+            "leaf": "ns-4-K79",
+            "housingLyphs": [
+                "K79"
+            ]
+        },
+        {
+            "id": "dc-4-K80",
+            "name": "L1 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K80",
+            "leaf": "ns-4-K80",
+            "housingLyphs": [
+                "K80"
+            ]
+        },
+        {
+            "id": "dc-4-K81",
+            "name": "L2 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K81",
+            "leaf": "ns-4-K81",
+            "housingLyphs": [
+                "K81"
+            ]
+        },
+        {
+            "id": "dc-4-K82",
+            "name": "L3 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K82",
+            "leaf": "ns-4-K82",
+            "housingLyphs": [
+                "K82"
+            ]
+        },
+        {
+            "id": "dc-4-K83",
+            "name": "L4 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K83",
+            "leaf": "ns-4-K83",
+            "housingLyphs": [
+                "K83"
+            ]
+        },
+        {
+            "id": "dc-4-K84",
+            "name": "L5 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K84",
+            "leaf": "ns-4-K84",
+            "housingLyphs": [
+                "K84"
+            ]
+        },
+        {
+            "id": "dc-4-K85",
+            "name": "L6 sympathetic ganglia SP0 dendrite chain _Neuron 4 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "root-dc-4-K85",
+            "leaf": "ns-4-K85",
+            "housingLyphs": [
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K78",
+            "name": "SP0 axon chain from T12 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K78",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K78",
+                "K70",
+                "K79",
+                "K71",
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K79",
+            "name": "SP0 axon chain from T13 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K79",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K79",
+                "K71",
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K80",
+            "name": "SP0 axon chain from L1 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K80",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K80",
+                "K72",
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K81",
+            "name": "SP0 axon chain from L2 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K81",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K81",
+                "K73",
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K82",
+            "name": "SP0 axon chain from L3 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K82",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K82",
+                "K74",
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K83",
+            "name": "SP0 axon chain from L4 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K83",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K83",
+                "K75",
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K84",
+            "name": "SP0 axon chain from L5 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K84",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K84",
+                "K76",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-K85",
+            "name": "SP0 axon chain from L6 sympathetic ganglia_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "root-ac-4-K85",
+            "leaf": "leafroot-ac-4-K85-all",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K85",
+                "K85"
+            ]
+        },
+        {
+            "id": "ac-4-all-K97",
+            "name": "SP0 axon chain from L5 sympathetic ganglia to pelvic nerve_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "leafroot-ac-4-K85-all",
+            "leaf": "leafroot-ac-4-n-lumspl",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K85",
+                "K97",
+                "n-pelspl"
+            ]
+        },
+        {
+            "id": "ac-4-all-K98",
+            "name": "SP0 axon chain from L6 sympathetic ganglia to pelvic nerve_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "leafroot-ac-4-K85-all",
+            "leaf": "leafroot-ac-4-n-lumspl",
+            "housingLayers": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K85",
+                "K77",
+                "K86",
+                "K98",
+                "n-pelspl"
+            ]
+        },
+        {
+            "id": "ac-4-all-K104",
+            "name": "SP0 axon chain from pelvic nerve to bladder nerve_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "leafroot-ac-4-n-lumspl",
+            "leaf": "leafroot-ac-4-n-blad",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "n-pelspl",
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "ac-4-K100",
+            "name": "SP0 axon chain from bladder nerve to bladder neck_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "leafroot-ac-4-n-blad",
+            "leaf": "leaf-ac-4-K100",
+            "housingLayers": [
+                0,
+                3,
+                3
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K105"
+            ]
+        },
+        {
+            "id": "ac-4-K99",
+            "name": "SP0 axon chain from bladder nerve to bladder dome_Neuron 4 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "leafroot-ac-4-n-blad",
+            "leaf": "leaf-ac-4-K99",
+            "housingLayers": [
+                0,
+                3,
+                3
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K106"
+            ]
+        },
+        {
+            "id": "dc_drg-l6_10",
+            "name": "FOS neuron DRG from L6 to pelvic ganglia dendrite chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns160",
+            "leaf": "ns168",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K61",
+                "n-pelspl"
+            ],
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806",
+                "PMID:3722467"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-13_10",
+            "name": "FOS neuron DRG-L6 axon-layer 13chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns161",
+            "leaf": "ns162",
+            "housingLayers": [
+                0,
+                13
+            ],
+            "housingLyphs": [
+                "K61",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-12_10",
+            "name": "FOS neuron DRG-L6 axon-layer12 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns162",
+            "leaf": "ns163",
+            "housingLayers": [
+                12,
+                12
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-11_10",
+            "name": "FOS neuron DRG-L6 axon-layer11 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns162",
+            "leaf": "ns164",
+            "housingLayers": [
+                13,
+                11
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-8_10",
+            "name": "FOS neuron DRG-L6 axon-layer 8 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns162",
+            "leaf": "ns165",
+            "housingLayers": [
+                13,
+                8
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-6_10",
+            "name": "FOS neuron DRG-L6 axon-layer 6 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns162",
+            "leaf": "ns166",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-2_10",
+            "name": "FOS neuron DRG-L6 axon-layer 2 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns162",
+            "leaf": "ns167",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "dc_s1drg_10",
+            "name": "FOS neuron DRG from S1 to pelvic splenic  dendrite chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns170",
+            "leaf": "ns168",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K62",
+                "n-pelspl"
+            ],
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806",
+                "PMID:3722467"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-13_10",
+            "name": "FOS neuron DRG-S1 axon-layer13 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns171",
+            "leaf": "ns172",
+            "housingLayers": [
+                0,
+                13
+            ],
+            "housingLyphs": [
+                "K62",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-12_10",
+            "name": "FOS neuron DRG-S1 axon-layer12 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns172",
+            "leaf": "ns173",
+            "housingLayers": [
+                13,
+                12
+            ],
+            "housingLyphs": [
+                "K28",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-11_10",
+            "name": "FOS neuron DRG-S1 axon-layer11 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns172",
+            "leaf": "ns174",
+            "housingLayers": [
+                13,
+                11
+            ],
+            "housingLyphs": [
+                "K28",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-8_10",
+            "name": "FOS neuron DRG-S1 axon-layer 8 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns172",
+            "leaf": "ns175",
+            "housingLayers": [
+                13,
+                8
+            ],
+            "housingLyphs": [
+                "K28",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-6_10",
+            "name": "FOS neuron DRG-S1 axon-layer 6 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns172",
+            "leaf": "ns176",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K28",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-2_10",
+            "name": "FOS neuron DRG-S1 axon-layer 2 chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns172",
+            "leaf": "ns177",
+            "housingLayers": [
+                13,
+                2
+            ],
+            "housingLyphs": [
+                "K28",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac-pg_10",
+            "name": "FOS neuron L6 S1 DRG-topelvic ganglia_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns168",
+            "leaf": "ns180",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "n-pelspl",
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "ac_bn_10",
+            "name": "FOS neuron to bladder neck-axon chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns180",
+            "leaf": "ns181",
+            "housingLayers": [
+                0,
+                0,
+                3,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K105"
+            ]
+        },
+        {
+            "id": "ac_bn2_10",
+            "name": "FOS neuron to bladder neck-axon chain2_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns180",
+            "leaf": "ns182",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac_bn3_10",
+            "name": "FOS neuron to bladder neck-axon chain3_10_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns180",
+            "leaf": "ns183",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac_bd_10",
+            "name": "FOS neuron to bladder dome-axon chain_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns180",
+            "leaf": "ns190",
+            "housingLayers": [
+                0,
+                3,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K104"
+            ]
+        },
+        {
+            "id": "ac_bd2_10",
+            "name": "FOS neuron to bladder dome-axon chain2_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns180",
+            "leaf": "ns191",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99"
+            ]
+        },
+        {
+            "id": "ac_bd3_10",
+            "name": "FOS neuron to bladder dome-axon chain3_Neuron 10 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns180",
+            "leaf": "ns192",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99",
+                "K99"
+            ]
+        },
+        {
+            "id": "dc_drg-l6_12",
+            "name": "FOS neuron DRG from L6 to to nerve dendrite chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns200",
+            "leaf": "ns208",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K61",
+                "n-pud"
+            ],
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806",
+                "PMID:3722467"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-13_12",
+            "name": "FOS neuron DRG-L6 axon-layer 13chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns201",
+            "leaf": "ns202",
+            "housingLayers": [
+                0,
+                13
+            ],
+            "housingLyphs": [
+                "K61",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-12_12",
+            "name": "FOS neuron DRG-L6 axon-layer12 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns202",
+            "leaf": "ns203",
+            "housingLayers": [
+                13,
+                12
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-11_12",
+            "name": "FOS neuron DRG-L6 axon-layer11 chain__Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns202",
+            "leaf": "ns204",
+            "housingLayers": [
+                13,
+                11
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-8_12",
+            "name": "FOS neuron DRG-L6 axon-layer 8 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns202",
+            "leaf": "ns205",
+            "housingLayers": [
+                13,
+                8
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-6_12",
+            "name": "FOS neuron DRG-L6 axon-layer 6 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns202",
+            "leaf": "ns206",
+            "housingLayers": [
+                13,
+                6
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "ac_drg-l6-2_12",
+            "name": "FOS neuron DRG-L6 axon-layer 2 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns202",
+            "leaf": "ns207",
+            "housingLayers": [
+                13,
+                2
+            ],
+            "housingLyphs": [
+                "K27",
+                "K27"
+            ]
+        },
+        {
+            "id": "dc_drg-s1_12",
+            "name": "FOS neuron DRG from S1 to join dendrite chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns200",
+            "leaf": "ns208",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K62",
+                "n-pud"
+            ],
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806",
+                "PMID:3722467"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-13_12",
+            "name": "FOS neuron DRG-S1 axon-layer13 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns210",
+            "leaf": "ns211",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K62",
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-12_12",
+            "name": "FOS neuron DRG-S1 axon-layer12 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns211",
+            "leaf": "ns212",
+            "housingLyphs": [
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-11_12",
+            "name": "FOS neuron DRG-S1 axon-layer11 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns211",
+            "leaf": "ns213",
+            "housingLyphs": [
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-8_12",
+            "name": "FOS neuron DRG-S1 axon-layer 8 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns211",
+            "leaf": "ns214",
+            "housingLyphs": [
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-6_12",
+            "name": "FOS neuron DRG-S1 axon-layer 6 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns211",
+            "leaf": "ns215",
+            "housingLyphs": [
+                "K28"
+            ]
+        },
+        {
+            "id": "ac_drg-s1-2_12",
+            "name": "FOS neuron DRG-S1 axon-layer 2 chain_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns211",
+            "leaf": "ns216",
+            "housingLyphs": [
+                "K28"
+            ]
+        },
+        {
+            "id": "ac-ure_12",
+            "name": "FOS neuron L6 S1 DRG-tourethra_Neuron 12 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns208",
+            "leaf": "ns220",
+            "housingLayers": [
+                0,
+                4
+            ],
+            "housingLyphs": [
+                "n-pud",
+                "K101"
+            ]
+        },
+        {
+            "id": "dc-pg_1",
+            "name": "Dentrite chain of PSPO neuron 1 in pelvic ganglia_Neuron 1 (kblad)",
+            "external": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns261",
+            "leaf": "ns261_5",
+            "housingLyphs": [
+                "K104"
+            ]
+        },
+        {
+            "id": "ac-pg_1",
+            "name": "Axon chain of PSPO neuron 1 in pelvic ganglia_Neuron 1 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229",
+            "root": "ns260",
+            "leaf": "ns262",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "K104",
+                "n-blad"
+            ]
+        },
+        {
+            "id": "ac_bn2_1",
+            "name": "Axon chain of PSPO neuron 1 bladder neck-layer 2_Neuron 1 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns262",
+            "leaf": "ns263",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac_bn1_1",
+            "name": "Axon chain of PSPO neuron 1 bladder neck-layer 1_Neuron 1 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns262",
+            "leaf": "ns264",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K100",
+                "K100",
+                "K100"
+            ]
+        },
+        {
+            "id": "ac_bd2_1",
+            "name": "Axon chain of PSPO neuron 1 bladder dome-layer 2_Neuron 1 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns262",
+            "leaf": "ns265",
+            "housingLayers": [
+                0,
+                3,
+                2
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99"
+            ]
+        },
+        {
+            "id": "ac_bd1_1",
+            "name": "Axon chain of PSPO neuron 1 bladder dome-layer 1_Neuron 1 (kblad)",
+            "external": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "229bag",
+            "root": "ns262",
+            "leaf": "ns266",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "n-blad",
+                "K99",
+                "K99",
+                "K99"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "internal",
+            "name": "Internal",
+            "lyphs": [
+                "K36",
+                "K37",
+                "K38",
+                "K40",
+                "K41",
+                "K42",
+                "K43",
+                "K45",
+                "K105",
+                "K106"
+            ]
+        },
+        {
+            "id": "neuron-8",
+            "name": "Neuron 8",
+            "references": [
+                "PMID:1358408"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-8"
+            ]
+        },
+        {
+            "id": "housingLyphs",
+            "name": "IMG and PG",
+            "lyphs": [
+                "K102",
+                "K104"
+            ],
+            "links": [
+                "lnk-K102",
+                "lnk-K104"
+            ],
+            "nodes": [
+                "g102a",
+                "g102b",
+                "g104a",
+                "g104b"
+            ]
+        },
+        {
+            "id": "somata",
+            "name": "Somata",
+            "links": [
+                "lnk-snl17",
+                "lnk-snl27",
+                "lnk-sns15",
+                "lnk-snl59",
+                "lnk-snl69",
+                "lnk-snl65"
+            ]
+        },
+        {
+            "id": "neuron-4",
+            "name": "Neuron 4",
+            "references": [
+                "PMID:2713886",
+                "PMID:11382385",
+                "PMID:4700666",
+                "PMID:1358408"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-4"
+            ]
+        },
+        {
+            "id": "neuron-11",
+            "name": "Neuron 11",
+            "references": [
+                "PMID:1619047",
+                "PMID:2713886",
+                "PMID:3558884",
+                "PMID:1619047",
+                "PMID:1358408",
+                "PMID:11382385",
+                "PMID:4700666",
+                "PMID:2891149"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-11"
+            ]
+        },
+        {
+            "id": "neuron-7",
+            "name": "Neuron 7",
+            "references": [
+                "PMID:3558884",
+                "PMID:1619047",
+                "PMID:135840",
+                "PMID:3225349"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-7"
+            ]
+        },
+        {
+            "id": "neuron-9",
+            "name": "Neuron 9",
+            "references": [
+                "PMID:12811806",
+                "PMID:3722467",
+                "PMID:7636036",
+                "PMID:11382385"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-9"
+            ]
+        },
+        {
+            "id": "neuron-5",
+            "name": "Neuron 5",
+            "external": [
+                "ilxtr:neuron-type-keast-5"
+            ]
+        },
+        {
+            "id": "neuron-6",
+            "name": "Neuron 6",
+            "references": [
+                "PMID:3558884",
+                "PMID:1619047",
+                "PMID:1358408",
+                "PMID:3225349",
+                "PMID:2891149",
+                "PMID:30704972"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-6"
+            ]
+        },
+        {
+            "id": "neuron-1",
+            "name": "Neuron 1",
+            "references": [
+                "PMID:2713886",
+                "PMID:11382385",
+                "PMID:4700666"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-1"
+            ]
+        },
+        {
+            "id": "neuron-2",
+            "name": "Neuron 2",
+            "references": [
+                "PMID:2713886",
+                "PMID:11382385",
+                "PMID:4700666"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-2"
+            ]
+        },
+        {
+            "id": "neuron-3",
+            "name": "Neuron 3",
+            "references": [
+                "PMID:2713886",
+                "PMID:11382385",
+                "PMID:4700666",
+                "PMID:2891149"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-3"
+            ]
+        },
+        {
+            "id": "neuron-10",
+            "name": "Neuron 10",
+            "references": [
+                "PMID:2713886",
+                "PMID:11382385",
+                "PMID:4700666",
+                "PMID:1619047",
+                "PMID:9442414",
+                "PMID:7174880",
+                "PMID:3722467"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-10"
+            ]
+        },
+        {
+            "id": "neuron-12",
+            "name": "Neuron 12",
+            "references": [
+                "PMID:7174880",
+                "PMID:3722467",
+                "PMID:12811806",
+                "PMID:11748568",
+                "PMID:7636036",
+                "PMID:11382385"
+            ],
+            "external": [
+                "ilxtr:neuron-type-keast-12"
+            ]
+        },
+        {
+            "id": "neuron-13",
+            "name": "Neuron 13",
+            "external": [
+                "ilxtr:neuron-type-keast-13"
+            ]
+        },
+        {
+            "id": "neuron-14",
+            "name": "Neuron 14",
+            "external": [
+                "ilxtr:neuron-type-keast-14"
+            ]
+        },
+        {
+            "id": "neuron-15",
+            "name": "Neuron 15",
+            "external": [
+                "ilxtr:neuron-type-keast-15"
+            ]
+        },
+        {
+            "id": "neuron-16",
+            "name": "Neuron 16",
+            "external": [
+                "ilxtr:neuron-type-keast-16"
+            ]
+        },
+        {
+            "id": "neuron-17",
+            "name": "Neuron 17",
+            "external": [
+                "ilxtr:neuron-type-keast-17"
+            ]
+        },
+        {
+            "id": "neuron-18",
+            "name": "Neuron 18",
+            "external": [
+                "ilxtr:neuron-type-keast-18"
+            ]
+        },
+        {
+            "id": "neuron-19",
+            "name": "Neuron 19",
+            "external": [
+                "ilxtr:neuron-type-keast-19"
+            ]
+        },
+        {
+            "id": "neuron-20",
+            "name": "Neuron 20",
+            "external": [
+                "ilxtr:neuron-type-keast-20"
+            ]
+        }
+    ],
+    "localConventions": [
+        {
+            "prefix": "UBERON",
+            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+        },
+        {
+            "prefix": "CHEBI",
+            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+        },
+        {
+            "prefix": "FMA",
+            "namespace": "http://purl.org/sig/ont/fma/fma"
+        },
+        {
+            "prefix": "GO",
+            "namespace": "http://purl.obolibrary.org/obo/GO_"
+        },
+        {
+            "prefix": "ILX",
+            "namespace": "http://uri.interlex.org/base/ilx_"
+        },
+        {
+            "prefix": "NLX",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/nlx_"
+        },
+        {
+            "prefix": "SAO",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/sao"
+        },
+        {
+            "prefix": "PMID",
+            "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+        },
+        {
+            "prefix": "EMAPA",
+            "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
+        },
+        {
+            "prefix": "CL",
+            "namespace": "http://purl.obolibrary.org/obo/CL_"
+        },
+        {
+            "prefix": "NCBITaxon",
+            "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
+        },
+        {
+            "prefix": "ilxtr",
+            "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
+        }
+    ],
+    "id": "keast-bladder",
+    "name": "Keast ApiNATOMY model of bladder innervation"
+}

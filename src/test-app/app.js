@@ -138,6 +138,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <webGLScene #webGLScene
                             [modelClasses]="modelClasses"
                             [graphData]="_graphData"
+                            [config]="_config"    
                             (onImportExternal)="importExternal($event)"    
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
@@ -264,6 +265,7 @@ export class TestApp {
     modelClasses = modelClasses;
     showRepoPanel = false;
     _graphData;
+    _config = {};
     _model = {};
     _modelName;
     _dialog;
@@ -399,7 +401,9 @@ export class TestApp {
           this.model = removeDisconnectedObjects(this._model, newModel);
           this.applyScaffold(this._model, newModel);
         } else {
-          this.model = removeDisconnectedObjects(this._model, newModel);
+            //FIXME (NK for MetaCell) As I understand, removeDisconnectedObjects works on scaffold applied to model
+            //The code below joins 2 connectivity models or 2 scaffolds, your method breaks the join
+            //this.model = removeDisconnectedObjects(this._model, newModel);
           let jointModel = joinModels(this._model, newModel, this._flattenGroups);
           jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
           this.model = jointModel;
@@ -440,6 +444,7 @@ export class TestApp {
 
     applyJSONEditorChanges() {
         if (this._editor){
+            logger.clear();
             this._graphData = fromJSON({});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
@@ -447,6 +452,7 @@ export class TestApp {
     }
 
     applyChanges(){
+        logger.clear();
         this._graphData = fromJSON({});
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
@@ -463,6 +469,7 @@ export class TestApp {
         // } catch(err){
         //    throw new Error(err);
         // }
+        this._snapshot = undefined;
         if (this._editor){
             this._editor.set(this._model);
         }
@@ -518,61 +525,16 @@ export class TestApp {
     }
 
     saveScaffoldUpdates(){
-        const scaleFactor = 10;
-
-        const updateScaffold = (scaffold, srcScaffold) => {
-            (scaffold.anchors || []).forEach(anchor => {
-                const srcAnchor = findResourceByID(srcScaffold.anchors, anchor.id);
-                if (srcAnchor) {
-                    srcAnchor.layout = srcAnchor.layout || {};
-                    if (anchor.layout) {
-                        ["x", "y"].forEach(dim => srcAnchor.layout[dim] = anchor.layout[dim] / scaleFactor);
-                    } else {
-                        if (anchor.hostedBy && anchor.offset !== undefined){
-                            srcAnchor.offset = anchor.offset;
-                        }
-                    }
-                }
-            });
-            (scaffold.regions || []).forEach(region => {
-                const srcRegion = findResourceByID(srcScaffold.regions, region.id);
-                if (srcRegion) {
-                    if (srcRegion.points) {
-                        (srcRegion.points || []).forEach((target, i) => {
-                            ["x", "y"].forEach(dim => target[dim] = region.points[i][dim] / scaleFactor);
-                        })
-                    } else {
-                        (srcRegion.borderAnchors||[]).forEach((srcAnchor, i) => {
-                            if (srcAnchor::isObject()){
-                                srcAnchor.layout = srcAnchor.layout || {};
-                                ["x", "y"].forEach(dim => srcAnchor.layout[dim] = region.points[i][dim] / scaleFactor);
-                            }
-                        });
-                    }
-                }
-            });
-            (scaffold.wires || []).forEach(wire => {
-                //Update ellipse radius
-                if (wire.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE) {
-                    const srcWire = findResourceByID(srcScaffold.wires, wire.id);
-                    if (srcWire && srcWire::isObject()) {
-                        srcWire.radius = srcWire.radius || {};
-                        ["x", "y"].forEach(dim => srcWire.radius[dim] = wire.radius[dim] / scaleFactor);
-                    }
-                }
-            })
-        }
-
         if (this._model && this._graphData){
             if (isScaffold(this._model)){
-                updateScaffold(this._graphData, this._model);
+                this._graphData.update(this._model);
             } else {
                 (this._graphData.scaffolds || []).forEach(scaffold => {
                     const srcScaffold = findResourceByID(this._model.scaffolds, scaffold.id);
                     if (!srcScaffold) {
                         throw new Error("Failed to find scaffold definition in input model: " + scaffold.id);
                     }
-                    updateScaffold(scaffold, srcScaffold);
+                    scaffold.update(srcScaffold);
                 })
             }
         }
@@ -598,38 +560,14 @@ export class TestApp {
     getCurrentState(){
         let state_json =  {
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
-            [$Field.visibleGroups]: this._graphData.visibleGroups.map(g => g.id),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
                 up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
-            }
-        }
-        state_json.scaffolds = [];
-        (this._graphData.scaffolds||[]).forEach(s => {
-            let scaffold_json = {
-                [$Field.id]: s.id,
-                [$Field.hidden]: s.hidden,
-                [$Field.visibleComponents]: s.visibleComponents.map(c => c.id)
-            }
-            scaffold_json.anchors = [];
-            (s.anchors||[]).forEach(a => {
-                if (a.layout) {
-                    scaffold_json.anchors.push({
-                        [$Field.id]: a.id,
-                        [$Field.layout]: {"x": a.layout.x, "y": a.layout.y}
-                    })
-                } else {
-                    if (a.hostedBy && a.offset !== undefined){
-                        scaffold_json.anchors.push({
-                            [$Field.id]: a.id,
-                            [$Field.offset]: a.offset
-                        })
-                    }
-                }
-            })
-            state_json.scaffolds.push(scaffold_json)
-        })
-
+            },
+            [$Field.layout]: this._config.layout::cloneDeep(),
+            [$Field.showLabels]: this._config.showLabels::cloneDeep(),
+            [$Field.labelContent]: this._config.labels::cloneDeep()
+        }::merge(this._graphData.getCurrentState());
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
@@ -645,41 +583,28 @@ export class TestApp {
         if (activeState.camera) {
             this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up);
         }
-
-        (activeState.scaffolds||[]).forEach(scaffold => {
-            const modelScaffold = (this._graphData.scaffolds||[]).find(s => s.id === scaffold.id);
-            if (modelScaffold){
-                modelScaffold.hidden = scaffold.hidden;
-                (scaffold.anchors || []).forEach(anchor => {
-                    const modelAnchor = (modelScaffold.anchors||[]).find(a => a.id === anchor.id);
-                    if (modelAnchor){
-                        if (anchor.layout) {
-                            modelAnchor.layout = {
-                                x: anchor.layout.x,
-                                y: anchor.layout.y
-                            }
-                        } else {
-                            if (anchor.offset !== undefined){
-                                modelAnchor.offset = anchor.offset;
-                            }
-                        }
-                    } else {
-                        this._graphData.logger.info($LogMsg.SNAPSHOT_NO_ANCHOR, anchor.id, scaffold.id);
-                    }
-                })
-                if (!modelScaffold.hidden){
-                    modelScaffold.show();
+        this._config = {};
+        if (activeState.layout) {
+            this._config.layout = activeState.layout;
+        }
+        if (activeState.showLabels) {
+            this._config.showLabels = activeState.showLabels;
+        }
+        if (activeState.labelContent) {
+            this._config.labelContent = activeState.labelContent;
+        }
+        if (isScaffold(this._model)){
+            this._graphData.loadState(activeState);
+        } else {
+            (activeState.scaffolds || []).forEach(scaffold => {
+                const modelScaffold = (this._graphData.scaffolds || []).find(s => s.id === scaffold.id);
+                if (modelScaffold) {
+                    modelScaffold.loadState(scaffold);
+                } else {
+                    this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);
                 }
-                if (scaffold.visibleComponents){
-                    modelScaffold.showGroups(scaffold.visibleComponents);
-                }
-                if (modelScaffold.hidden){
-                    modelScaffold.hide();
-                }
-            } else {
-                this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);
-            }
-        })
+            })
+        }
         this._webGLScene.updateGraph();
     }
 

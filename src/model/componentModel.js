@@ -126,7 +126,7 @@ export class Component extends Resource {
      */
     mergeSubgroupResources(){
         //Place references to subcomponent resources to the current component
-        let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames([$SchemaClass.Component]);
+        let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();
         (this.components||[]).forEach(component => {
             if (component.id === this.id) {
                 logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);

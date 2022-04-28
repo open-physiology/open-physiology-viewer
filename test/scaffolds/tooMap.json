@@ -3,6 +3,7 @@
   "lastUpdated": "2020-12-01",
   "id": "too_map",
   "name": "too_map",
+  "namespace": "tooMap",
   "author": "Bernard de Bono, Natallia Kokash",
   "anchors": [
     {

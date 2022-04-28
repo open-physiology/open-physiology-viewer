@@ -2,6 +2,20 @@
   "id": "uotWithChannels",
   "name": "Urinary Omega Tree",
   "description": "Urinary Omega Tree, generated from Excel model, with channels",
+  "localConventions": [
+      {
+        "prefix": "PR",
+        "namespace": "https://reactome.org/content/detail/interactor"
+      },
+      {
+          "prefix": "UBERON",
+          "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+      },
+      {
+          "prefix": "FMA",
+          "namespace": "http://purl.org/sig/ont/fma/fma"
+      }
+  ],
   "nodes": [
     {
       "id": "node1C"
@@ -323,7 +337,7 @@
       "id": "63",
       "name": "Myocyte",
       "external": [
-        "CL_0002098"
+        "CL:0002098"
       ],
       "isTemplate": true,
       "topology": "CYST",
@@ -1310,6 +1324,7 @@
   ],
   "trees": [
     {
+      "id": "tree1",
       "chain": "uot",
       "branchingFactors": [
         1,
@@ -1423,7 +1438,7 @@
       "id": "UBERON:0005751"
     },
     {
-      "id": "CL_0002098"
+      "id": "CL:0002098"
     },
     {
       "id": "GO:0016528"

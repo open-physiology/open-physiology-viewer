@@ -60,10 +60,6 @@ export class Wire extends Edge {
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
-        if (json.geometry !== WIRE_GEOMETRY.ELLIPSE) {
-            json.source = json.source || getGenID($Prefix.source, json.id);
-            json.target = json.target || getGenID($Prefix.target, json.id);
-        }
         json.class = json.class || $SchemaClass.Wire;
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //Wires are not in the force-field, so we set their length from end points
@@ -196,6 +192,32 @@ export class Link extends Edge {
             [$Field.skipLabel]  : true,
             [$Field.generated]  : true
         };
+    }
+
+    createForceNodes(){
+        let nodes = [null, null];
+        if (this.collapsible){
+            let housingLyphs = [null, null];
+            [$Field.source, $Field.target].forEach((prop, i) => {
+                let border = this[prop] && this[prop].hostedBy;
+                if (border) {
+                    housingLyphs[i] = border.onBorder && border.onBorder.host;
+                } else {
+                    housingLyphs[i] = this[prop] && this[prop].internalIn;
+                }
+                while (housingLyphs[i] && (housingLyphs[i].container || housingLyphs[i].host)) {
+                   housingLyphs[i] = housingLyphs[i].container || housingLyphs[i].host;
+                }
+            });
+            [$Field.source, $Field.target].forEach((prop, i) => {
+                nodes[i] = housingLyphs[i] && housingLyphs[i].conveys && housingLyphs[i].conveys[prop];
+                if (!nodes[i]){
+                    //Create a tension link between lyph end and free floating end of collapsible link
+                    nodes[i] = this[prop];
+                }
+            });
+        }
+        return nodes;
     }
 
     get isVisible(){

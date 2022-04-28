@@ -68,17 +68,22 @@ export class ImportDialog {
     getImports(){
         this.imported_models = [];
         let counter = 0;
+        const updateInfo = (res, i) => {
+              this.imported_models.push(res);
+              this._status[i] = "OK";
+              counter += 1;
+              this._statusInfo = `Successfully downloaded ${counter} out of ${this._urls.length} resources!`;
+        }
         (this._urls||[]).forEach((url, i) => {
             this._status[i] = "NEW";
             if (this._selected[i]){
                 this.http.get(url).subscribe(res => {
-                    if (res !== undefined && res.download_url) {
-                        this.http.get(res.download_url).subscribe(res2 => {
-                            this.imported_models.push(res2);
-                            this._status[i] = "OK";
-                            counter += 1;
-                            this._statusInfo = `Successfully downloaded ${counter} out of ${this._urls.length} resources!`;
-                        })
+                    if (res !== undefined) {
+                        if (res.download_url) {
+                            this.http.get(res.download_url).subscribe(res2 => updateInfo(res2, i))
+                        } else {//raw url, already downloaded
+                            updateInfo(res, i);
+                        }
                     } else {
                         this._status[i] = "ERROR";
                     }

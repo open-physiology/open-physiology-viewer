@@ -6,7 +6,7 @@ import {Link} from "./edgeModel";
 import {
     mergeGenResource,
     mergeGenResources,
-    findResourceByID,
+    refToResource,
     getGenID,
     $Field,
     $Prefix, $SchemaClass
@@ -36,7 +36,7 @@ export class Tree extends GroupTemplate {
             return;
         }
 
-        let chain = findResourceByID(parentGroup.chains, tree.chain);
+        let chain = refToResource(tree.chain, parentGroup, $Field.chains);
         if (!chain || !chain.group || !chain.levels){
             logger.warn($LogMsg.TREE_NO_CHAIN, tree.id, tree.chain);
             return;
@@ -65,7 +65,7 @@ export class Tree extends GroupTemplate {
                 instance[prop] = instance[prop] || [];
             });
 
-            let root  = findResourceByID(parentGroup.nodes, chain.root);
+            let root = refToResource(chain.root, parentGroup, $Field.nodes);
             mergeGenResource(instance, parentGroup, root, $Field.nodes);
 
             let levels = chain.levels || [];
@@ -73,9 +73,9 @@ export class Tree extends GroupTemplate {
             let levelResources = {};
 
             for (let i = 0; i < levels.length; i++) {
-                let lnk  = findResourceByID(parentGroup.links, levels[i]);
-                let trg  = findResourceByID(parentGroup.nodes, lnk.target);
-                let lyph = findResourceByID(parentGroup.lyphs, lnk.conveyingLyph);
+                let lnk  = refToResource(levels[i], parentGroup, $Field.links);
+                let trg  = refToResource(lnk.target, parentGroup, $Field.nodes)
+                let lyph = refToResource(lnk.conveyingLyph, parentGroup, $Field.lyphs)
 
                 if (!lnk) {
                     logger.info($LogMsg.TREE_NO_LEVEL_LINK, tree.id, levels[i], i);
@@ -122,7 +122,7 @@ export class Tree extends GroupTemplate {
                             lnk.source = prev_id;
                             Link.clone(baseResources[0], lnk);
                             Node.clone(baseResources[1], trg);
-                            Lyph.clone(parentGroup.lyphs, baseResources[2], lyph);
+                            Lyph.clone(parentGroup, baseResources[2], lyph);
                             lyph.topology = baseResources[2].topology;
                             mergeGenResources(instance, parentGroup, [lnk, trg, lyph]);
                             levelResources[j].push([lnk, trg, lyph]);

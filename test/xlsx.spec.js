@@ -11,7 +11,7 @@ import testModel from './excel/test_model.xlsx';
 import {loadModel, jsonToExcel} from "../src/model/index";
 
 import {modelClasses} from '../src/model/index';
-import {levelTargetsToLevels, borderNamesToBorder, strToValue} from "../src/model/utilsParser";
+import {levelTargetsToLevels, borderNamesToBorder} from "../src/model/utilsParser";
 
 describe("Load Excel templates", () => {
     let graphData;
@@ -62,7 +62,7 @@ describe("Neurulate Excel template without out-of-memory error ", () => {
         expect(graphData).to.have.property("groups");
         expect(graphData.groups[0]).to.be.instanceOf(modelClasses.Group);
         let dynamic = graphData.groups.filter(g => g.description === "dynamic");
-        expect(dynamic.length).to.be.equal(33);
+        expect(dynamic.length).to.be.equal(22);
         let neurons = dynamic.filter(g => g.name.startsWith("Neuron"));
         expect(neurons.length).to.be.equal(19);
     });
@@ -154,5 +154,3 @@ describe("Convert excel data to JSON and back", () => {
 
     after(() => {});
 });
-
-
