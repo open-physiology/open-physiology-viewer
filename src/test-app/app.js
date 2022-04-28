@@ -48,6 +48,8 @@ import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
+import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
+
 enableProdMode();
 
 const ace = require('ace-builds');
@@ -396,15 +398,14 @@ export class TestApp {
             throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
         if (isScaffold(this._model) !== isScaffold(newModel)){
-            this.applyScaffold(this._model, newModel);
+          this.model = removeDisconnectedObjects(this._model, newModel);
+          this.applyScaffold(this._model, newModel);
         } else {
-            let jointModel = joinModels(this._model, newModel, this._flattenGroups);
-            jointModel::merge({
-                [$Field.created]: this.currentDate,
-                [$Field.lastUpdated]: this.currentDate
-            });
-            this.model = jointModel;
-            this._flattenGroups = true;
+          this.model = removeDisconnectedObjects(this._model, newModel);
+          let jointModel = joinModels(this._model, newModel, this._flattenGroups);
+          jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+          this.model = jointModel;
+          this._flattenGroups = true;
         }
     }
 
@@ -443,6 +444,7 @@ export class TestApp {
         if (this._editor){
             logger.clear();
             this._graphData = fromJSON({});
+            this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
     }

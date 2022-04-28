@@ -4,6 +4,7 @@ import {Node} from "./verticeModel";
 import {Link, Wire} from "./edgeModel";
 import {Coalescence} from "./coalescenceModel";
 
+
 import {
     mergeGenResource,
     refToResource,

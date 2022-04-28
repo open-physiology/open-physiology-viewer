@@ -127,6 +127,11 @@
           "type": "string",
           "readOnly": true
         },
+        "schemaVersion": {
+          "description": "ApiNATOMY JSON Schema version used for model generation",
+          "type": "string",
+          "readOnly": true
+        },
         "version": {
           "description": "Model version",
           "type": "string",

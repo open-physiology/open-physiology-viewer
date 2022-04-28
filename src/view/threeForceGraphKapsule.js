@@ -12,6 +12,7 @@ import Kapsule from 'kapsule';
 import {modelClasses} from '../model/index';
 import './modelView';
 import {extractCoords} from './utils';
+import { autoLayout } from './render/autoLayout'
 
 const {Graph} = modelClasses;
 
@@ -304,12 +305,13 @@ export default Kapsule({
         state.onFinishLoading();
 
         function layoutTick() {
-            if (++state.cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
-                // Stop ticking graph
-                state.onFrame = null;
-            } else { layout['tick'](); }
+          if (++state.cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
+              // Stop ticking graph
+              state.onFrame = null;
+          } else { layout['tick'](); }
 
-            state.graphData.updateViewObjects(state);
+          state.graphData.updateViewObjects(state);
+          autoLayout(state.graphScene, state.graphData);
         }
     }
 });

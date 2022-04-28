@@ -260,6 +260,7 @@ Lyph.prototype.createViewObjects = function(state) {
  * Update visual objects for a lyph
  */
 Lyph.prototype.updateViewObjects = function(state) {
+    // auto layout is handling this
     Shape.prototype.updateViewObjects.call(this, state);
 
     if (!this.axis) { return; }
@@ -288,10 +289,13 @@ Lyph.prototype.updateViewObjects = function(state) {
 
         copyCoords(obj.position, this.center);
 
-        align(this.axis, obj, this.axis.reversed);
-        if (this.angle){
-            this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
-        }
+        //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
+        //preventing this
+        if (!obj.userData.hostedBy)
+          align(this.axis, obj, this.axis.reversed);
+        // if (this.angle){
+        //     this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
+        // }
     } else {
         obj.visible = this.state.showLayers;
     }
