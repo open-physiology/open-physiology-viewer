@@ -10,7 +10,6 @@ import {
     $SchemaClass,
     mergeGenResource,
     mergeGenResources,
-    findResourceByID,
     getGenID,
     addBorderNode,
     refToResource
@@ -97,7 +96,8 @@ export class Channel extends GroupTemplate {
             //for the first channel, add templates to the parent group
             //mergeGenResource(parentGroup, parentGroup, lyph, $Field.lyphs);
             parentGroup.lyphs = parentGroup.lyphs || [];
-            if (!findResourceByID(parentGroup.lyphs, lyph.id)) {
+            if (!refToResource(lyph.id, parentGroup, $Field.lyphs)) {
+                parentGroup.lyphs = parentGroup.lyphs || [];
                 parentGroup.lyphs.push(lyph);
             }
         });

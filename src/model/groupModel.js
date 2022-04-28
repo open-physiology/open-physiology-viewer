@@ -12,7 +12,8 @@ import {
     $Color,
     $Prefix,
     findResourceByID,
-    showGroups, schemaClassModels, getRefNamespace, getFullID, getNewID
+    getID,
+    showGroups, schemaClassModels, getRefNamespace, refToResource, getFullID
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -53,9 +54,7 @@ export class Group extends Resource {
         }
 
         //replace references to templates
-        if (json.lyphsByID) {
-            this.replaceReferencesToTemplates(json);
-        }
+        this.replaceReferencesToTemplates(json);
 
         //create group resources from templates
         this.expandGroupTemplates(json, modelClasses);
@@ -212,21 +211,20 @@ export class Group extends Resource {
         let changedMaterials = 0;
 
         const replaceRefToTemplate = (ref, parent, ext = null) => {
-            let nm = getRefNamespace(ref, json.namespace);
-            let template = json.lyphsByID[getFullID(nm, ref)];
+            let refID = getID(ref);
+            let template = refToResource(refID, json, $Field.lyphs);
             if (template && template.isTemplate) {
                 changedLyphs++;
                 let subtype = {
-                    [$Field.id]        : getGenID($Prefix.template, ref, parent.id, ext),
-                    [$Field.namespace] : nm,
+                    [$Field.id]        : getGenID($Prefix.template, refID, parent.id, ext),
                     [$Field.name]      : template.name,
+                    [$Field.namespace] : json.namespace,
                     [$Field.supertype] : template.id,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 };
-                if (!json.lyphsByID[getFullID(nm, subtype.id)]) {
-                    json.lyphsByID[getFullID(nm, subtype.id)] = subtype;
-                    json.lyphs = json.lyphs || []
+                if (!refToResource(subtype.id, json, $Field.lyphs)){
+                    json.lyphs = json.lyphs || [];
                     json.lyphs.push(subtype);
                     replaceAbstractRefs(subtype, $Field.layers);
                 }
@@ -239,16 +237,16 @@ export class Group extends Resource {
             if (!resource[key]) { return; }
 
             const replaceRefToMaterial = (ref) => {
-                let nm = getRefNamespace(ref, json.namespace);
-                let lyphID = getGenID($Prefix.material, ref);
-                let template = json.lyphsByID[getFullID(nm, lyphID)];
+                let refID = getID(ref);
+                let lyphID = getGenID($Prefix.material, refID);
+                let template = refToResource(lyphID, json, $Field.lyphs);
                 if (!template || !template.isTemplate) {
-                    let material = json.materialsByID[getFullID(nm, ref)];
+                    let material = refToResource(refID, json, $Field.materials);
                     if (material) {
                         template = {
                             [$Field.id]: lyphID,
-                            [$Field.namespace]: nm,
                             [$Field.name]: material.name,
+                            [$Field.namespace] : json.namespace,
                             [$Field.isTemplate]: true,
                             [$Field.materials]: [material.id],
                             [$Field.generatedFrom]: material.id,
@@ -256,12 +254,14 @@ export class Group extends Resource {
                             [$Field.generated]: true
                         };
                         template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
-                        //TODO copy all materials
+                        json.lyphs = json.lyphs|| [];
                         json.lyphs.push(template);
-                        json.lyphsByID[getFullID(nm, lyphID)] = template;
                     } else {
-                        if (nm !== json.namespace){
-                            logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, ref);
+                        if (getRefNamespace(refID, json.namespace) !== json.namespace){
+                            //Reference does not exist
+                            if (json.lyphsByID && !json.lyphsByID[getFullID(json.namespace, refID)]) {
+                                logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, key, ref);
+                            }
                         }
                     }
                 }

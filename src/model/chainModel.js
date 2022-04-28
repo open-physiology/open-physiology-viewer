@@ -122,7 +122,6 @@ export class Chain extends GroupTemplate {
         function deriveFromLyphs(){
 
             let lyphs = refsToResources(chain.lyphs, parentGroup, $Field.lyphs,true);
-                //chain.lyphs.map(lyphID => findResourceByID(parentGroup.lyphs, lyphID) || {[$Field.id]: lyphID});
 
             if (chain.lyphTemplate){
                 let lyphTemplate = getLyphTemplate();
@@ -144,11 +143,12 @@ export class Chain extends GroupTemplate {
             const n = lyphs.length;
             let existingLinks = new Array(n);
             for (let i = 0; i < n; i++) {
-                 existingLinks[i] = lyphs[i].conveys?
-                    refToResource(lyphs[i].conveys, parentGroup, $Field.links):
+                existingLinks[i] = lyphs[i].conveys? refToResource(lyphs[i].conveys, parentGroup, $Field.links):
                     parentGroup.linksByID::values().find(lnk => getFullID(parentGroup.namespace, lnk.conveyingLyph) ===
-                        getFullID(parentGroup.namespace, lyphs[i].id))
-                    // (parentGroup.links||[]).find(lnk => lnk.conveyingLyph === lyphs[i].id);
+                        getFullID(parentGroup.namespace, lyphs[i].id));
+                if (!existingLinks[i]){
+                    existingLinks[i] = (parentGroup.links||[]).find(lnk => lnk.conveyingLyph === lyphs[i].id);
+                }
             }
 
             let nodeIDs = new Array(n + 1);
@@ -208,6 +208,10 @@ export class Chain extends GroupTemplate {
                     [$Field.skipLabel]          : true,
                     [$Field.generated]          : true
                 };
+                //NK: it is important to set lyph's 'conveys' property to be able to find generated links in other namespaces
+                //Alternatively, generated links must be added to the linksByID map to be accessible to other models
+                //FIXME
+                lyphs[i].conveys = link.id;
                 if (chain.length){
                     link.length = chain.length / lyphs.length;
                 }

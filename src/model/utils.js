@@ -342,7 +342,7 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
         if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){
             parentGroup[prop].push(resource);
             //Add generated to the defined resources map?
-            //parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, resource.id)] = resource;
+            parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, resource.id)] = resource;
         }
     }
 };
