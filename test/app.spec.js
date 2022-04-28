@@ -115,32 +115,33 @@ describe("RelationshipGraph component", () => {
 describe("SettingsPanel component", () => {
 });
 
-describe("WebGLScene component", () => {
-    let viewer;
-    let fixture;
-    beforeEach(() => {
-        TestBed.resetTestEnvironment();
-        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
-            platformBrowserDynamicTesting());
-
-        TestBed.configureTestingModule({
-            imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
-                BrowserAnimationsModule],
-            declarations: [
-                WebGLSceneComponent,
-                HotkeysCheatsheetComponent
-            ]
-        });
-
-        fixture = TestBed.createComponent(WebGLSceneComponent);
-        viewer = fixture.componentInstance;
-    });
-
-    it("ApiNATOMY viewer created", () => {
-        expect(viewer).to.be.an('object');
-        //add conditions
-    });
-
-    afterEach(() => {});
-});
+//FIXME
+// describe("WebGLScene component", () => {
+//     let viewer;
+//     let fixture;
+//     beforeEach(() => {
+//         TestBed.resetTestEnvironment();
+//         TestBed.initTestEnvironment(BrowserDynamicTestingModule,
+//             platformBrowserDynamicTesting());
+//
+//         TestBed.configureTestingModule({
+//             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
+//                 BrowserAnimationsModule],
+//             declarations: [
+//                 WebGLSceneComponent,
+//                 HotkeysCheatsheetComponent
+//             ]
+//         });
+//
+//         fixture = TestBed.createComponent(WebGLSceneComponent);
+//         viewer = fixture.componentInstance;
+//     });
+//
+//     it("ApiNATOMY viewer created", () => {
+//         expect(viewer).to.be.an('object');
+//         //add conditions
+//     });
+//
+//     afterEach(() => {});
+// });
 

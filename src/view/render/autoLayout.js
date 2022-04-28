@@ -1,18 +1,14 @@
-import {$Field, modelClasses} from "../../model";
 import {
  getDefaultControlPoint
 } from "../utils";
 
-import { clearByObjectType
-  , getSceneObjectByModelClass
+import { getSceneObjectByModelClass
   , getHostParentForLyph
   , getBoundingBoxSize
   , getNumberOfHorizontalLyphs
-  , getCenterPoint
   , getBoundingBox
   , getMeshBoundingBoxSize
   , getWorldPosition
-  , removeEntity
   , setMeshPos } from "./autoLayout/objects";
 
 import { trasverseHostedBy
@@ -23,8 +19,6 @@ import { trasverseHostedBy
 import { rotateAroundCenter
   , translateMeshToTarget
   , translateGroupToTarget   } from "./autoLayout/transform";
-
-const {Edge} = modelClasses;
 
 const LYPH_H_PERCENT_MARGIN = 0.10;
 const LYPH_V_PERCENT_MARGIN = 0.10;
@@ -54,8 +48,8 @@ function preventZFighting(scene)
 }
 
 function fitToTargetRegion(target, source, lyphInLyph) {
-  let targetSize =  getBoundingBoxSize(target);;
-  let sourceSize =  getBoundingBoxSize(source);;
+  let targetSize =  getBoundingBoxSize(target);
+  let sourceSize =  getBoundingBoxSize(source);
 
   let sx = 1, sy = 1, sz = 1;
 
@@ -327,55 +321,55 @@ function layoutChains(scene, hostChainDic, links)
 
 export function removeDisconnectedObjects(model, joinModel) {
 
-  const wiredTo = joinModel.chains.map((c) => c.wiredTo);
-  const hostedBy = joinModel.chains.map((c) => c.hostedBy);
+  const wiredTo = (joinModel.chains||[]).map((c) => c.wiredTo);
+  const hostedBy = (joinModel.chains||[]).map((c) => c.hostedBy);
 
   const connected = wiredTo
-                  .concat(model.anchors
+                  .concat((model.anchors||[])
                   .map((c) => c.hostedBy))
                   .concat(hostedBy)
                   .filter((c) => c !== undefined);
 
-
   // All cardinal nodes
   const anchorsUsed = [];
-  model.anchors.forEach( anchor => { 
+  (model.anchors||[]).forEach( anchor => {
       anchor.cardinalNode ? anchorsUsed.push(anchor.id) : null
   });
   
-  // Wires of F and D, the outer layers of the TOO map
-  const outerWires = model.components.find( wire => wire.id === "wires-f");
-  outerWires.wires.concat(model.components.find( wire => wire.id === "wires-d")).wires;
-  outerWires.wires = outerWires.wires.filter( wireId => {
-      const foundWire = model.wires.find( w => w.id === wireId );
+  //Wires of F and D, the outer layers of the TOO map
+  //NK: FIXME We cannot rely on model fixed IDs in code
+  const outerWireComponent = (model.components||[]).find( c => c.id === "wires-f");
+  if (outerWireComponent){
+    outerWireComponent.wires.concat((model.components || []).find(wire => wire.id === "wires-d")).wires;
+    outerWireComponent.wires = outerWireComponent.wires.filter(wireId => {
+      const foundWire = model.wires.find(w => w.id === wireId);
       return anchorsUsed.indexOf(foundWire?.source) > -1 && anchorsUsed.indexOf(foundWire?.target) > -1
-  });
+    });
+  }
 
   const connectedWires = wiredTo.concat(hostedBy);
   // Other anchors used by the connectivity model lyphs and chains
   connectedWires.forEach( wireId => {
      if ( wireId !== undefined ){
-      const wire = model.wires.find( wire => wireId === wire.id );
+      const wire = (model.wires||[]).find( wire => wireId === wire.id );
       if ( wire ) {
-        if ( anchorsUsed.indexOf(wire.source) == -1 ){
+        if ( anchorsUsed.indexOf(wire.source) === -1 ){
             anchorsUsed.push(wire.source);
         }
-        if ( anchorsUsed.indexOf(wire.target) == -1 ){
+        if ( anchorsUsed.indexOf(wire.target) === -1 ){
             anchorsUsed.push(wire.target);
         }
       }
     }
   });
 
-  const updatedModel = Object.assign(model, 
+  return Object.assign(model,
       { 
-          regions: model.regions.filter((r) => connected.indexOf(r.id) > -1 ),
-          wires:  model.wires.filter((r) => connected.indexOf(r.id) > -1 || outerWires.wires.indexOf(r.id) > -1),
-          anchors : model.anchors.filter((r) => (anchorsUsed.indexOf(r.id) > -1 ))
+          regions: (model.regions||[]).filter((r) => connected.indexOf(r.id) > -1 ),
+          wires  : (model.wires||[]).filter((r) => connected.indexOf(r.id) > -1 || (outerWireComponent && (outerWireComponent.wires||[]).indexOf(r.id) > -1)),
+          anchors: (model.anchors||[]).filter((r) => (anchorsUsed.indexOf(r.id) > -1 ))
       }
   );
-
-  return updatedModel;
 }
 
 function autoLayoutChains(scene, graphData, links){

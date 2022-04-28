@@ -401,7 +401,9 @@ export class TestApp {
           this.model = removeDisconnectedObjects(this._model, newModel);
           this.applyScaffold(this._model, newModel);
         } else {
-          this.model = removeDisconnectedObjects(this._model, newModel);
+            //FIXME (NK for MetaCell) As I understand, removeDisconnectedObjects works on scaffold applied to model
+            //The code below joins 2 connectivity models or 2 scaffolds, your method breaks the join
+            //this.model = removeDisconnectedObjects(this._model, newModel);
           let jointModel = joinModels(this._model, newModel, this._flattenGroups);
           jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
           this.model = jointModel;
