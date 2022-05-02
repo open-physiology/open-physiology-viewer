@@ -428,8 +428,6 @@ export class WebGLSceneComponent {
         })
     }
 
-
-
     exportJSON(){
         if (this._graphData){
             let result = JSON.stringify(this._graphData.toJSON(3, {

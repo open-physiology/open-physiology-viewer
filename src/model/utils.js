@@ -7,7 +7,7 @@ import {
     isNumber,
     merge,
     keys,
-    flatten, isArray, unionBy, mergeWith
+    flatten, isArray, unionBy, mergeWith, values
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -128,17 +128,21 @@ export const getFullID = (namespace, ref) => {
     if (id && id::isString() && id.indexOf(":") > -1) {
         return id;
     }
-    return (namespace? namespace + ":" : "") + id;
+    const nm = (ref::isObject() && ref.namespace)? ref.namespace: namespace;
+    return (nm? nm + ":" : "") + id;
 };
 
 export const getRefNamespace = (ref, namespace= undefined) => {
+    if (ref::isObject() && ref.namespace){
+        return ref.namespace;
+    }
     let id = getID(ref);
-    if (!id) return "";
+    if (!id) return namespace;
     let idx = id.lastIndexOf(":");
     if (idx > -1) {
         return id.substr(0, idx);
     }
-return namespace;
+    return namespace;
 }
 
 export const getGenName = (...args) => args.join(" ");
@@ -246,7 +250,9 @@ export const getSchemaClass = (spec) => definitions[getClassName(spec)];
  */
 export const addBorderNode = (border, node) => {
     border.hostedNodes = border.hostedNodes || [];
-    border.hostedNodes.push(node);
+    if (!border.hostedNodes.find(n => n === node.id || n.id === node.id)) {
+        border.hostedNodes.push(node);
+    }
 };
 
 /**
@@ -278,14 +284,24 @@ export const findResourceByID = (eArray, e) => e::isObject()? e: (eArray||[]).fi
 
 export const refToResource = (e, parentGroup, prop, generate = false) => {
     if (!e) return undefined;
+    if (e::isObject()){
+        return e;
+    }
     let res;
     if (parentGroup[prop + "ByID"]) {
         res = parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, e)];
     }
-    //Maybe it is possible to optimize this by skipping findResourceByID, but we keep it because
-    //generated resources may be needed but not integrated to the predefined resource map
-    res = res || findResourceByID(parentGroup[prop], e);
-    return res? res: generate? {[$Field.id]: getID(e), [$Field.generated]: true}: undefined;
+    //Look for generated resources in the parent group
+    if (!res && (!getRefNamespace(e) || parentGroup.namespace === getRefNamespace(e))) {
+        res = findResourceByID(parentGroup[prop], e);
+    }
+    if (res) {
+        res.namespace = res.namespace || getRefNamespace(e, parentGroup.namespace);
+    }
+    return res? res: generate? {
+        [$Field.id]: getID(e),
+        [$Field.namespace]: getRefNamespace(e, parentGroup.namespace),
+        [$Field.generated]: true}: undefined;
 }
 
 export const refsToResources = (eArray, parentGroup, prop, generate = false) => {

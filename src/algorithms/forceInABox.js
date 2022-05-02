@@ -254,9 +254,8 @@ function forceInABox() {
       if (typeof link.source !== "object") source = nodes[link.source];
       if (typeof link.target !== "object") target = nodes[link.target];
       if (source === undefined || target === undefined) {
-        // console.error(link);
         throw Error(
-          "Error setting links, couldnt find nodes for a link (see it on the console)"
+          "Error setting links, could not find nodes for a link (see it on the console)"
         );
       }
       link.source = source;

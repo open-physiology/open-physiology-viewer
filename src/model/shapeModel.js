@@ -13,7 +13,9 @@ import {
     getNewID,
     getGenName,
     getID,
-    mergeResources, refToResource,
+    mergeResources,
+    refToResource,
+    findResourceByID,
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -148,6 +150,7 @@ export class Lyph extends Shape {
  
         if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
             //expand the supertype - the sourceLyph may need to get its layers from the supertype first
+            //FIXME supertype in another namespace?
             let supertype = refToResource(sourceLyph.supertype, parentGroup, $Field.lyphs);
             if (supertype && supertype.isTemplate){
                 this.expandTemplate(parentGroup, supertype);
@@ -156,7 +159,7 @@ export class Lyph extends Shape {
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
             $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.materials, $Field.channels,
-                $Field.bundlesChains]),
+                $Field.bundlesChains, $Field.namespace]),
             mergeResources);
 
         if (sourceLyph.isTemplate){
@@ -175,9 +178,9 @@ export class Lyph extends Shape {
             targetLyph.cloneOf = sourceLyph.id;
         }
 
-        if (!targetLyph.name) {
-            targetLyph.name = getGenName(sourceLyph.name);
-        }
+        targetLyph.name = targetLyph.name || getGenName(sourceLyph.name);
+        //FIXME Do we need this?
+        // targetLyph.namespace = targetLyph.namespace || parentGroup.namespace;
 
         if ((targetLyph.layers||[]).length > 0) {
             logger.warn($LogMsg.LYPH_SUBTYPE_HAS_OWN_LAYERS, targetLyph);
@@ -185,6 +188,7 @@ export class Lyph extends Shape {
 
         let missingLayers = [];
         (sourceLyph.layers || []).forEach((layerRef, i) => {
+            let nm = sourceLyph.namespace || parentGroup.namespace;
             let sourceLayer = refToResource(layerRef, parentGroup, $Field.lyphs);
             if (!sourceLayer) {
                 missingLayers.push(layerRef);
@@ -202,16 +206,18 @@ export class Lyph extends Shape {
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
             });
-            parentGroup.lyphs.push(targetLayer);
+            if (!findResourceByID(parentGroup.lyphs, targetLayer.id)) {
+                parentGroup.lyphs.push(targetLayer);
+            }
             this.clone(parentGroup, sourceLayer, targetLayer);
 
-            targetLayer::merge(targetLyph::pick([$Field.topology]));
+            targetLayer::merge(targetLyph::pick([$Field.topology, $Field.namespace]));
             targetLyph.layers = targetLyph.layers || [];
             targetLyph.layers.push(targetLayer.id);
         });
 
         if (missingLayers.length > 0) {
-            logger.error($LogMsg.LYPH_NO_TEMPLATE_LAYER, sourceLyph.id, missingLayers.join(","));
+            logger.error($LogMsg.LYPH_NO_TEMPLATE_LAYER, sourceLyph.id, missingLayers.join(", "));
         }
 
         return targetLyph;
@@ -410,8 +416,9 @@ export class Lyph extends Shape {
                 group.nodes.push(internal);
                 internal.hidden = group.hidden;
                 (internal.clones||[]).forEach(clone => {
-                    //Clones can't be already in the group?
-                    group.nodes.push(clone);
+                    if (!group.contains(clone)) {
+                        group.nodes.push(clone);
+                    }
                 });
             }
         });
