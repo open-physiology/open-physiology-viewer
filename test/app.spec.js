@@ -28,7 +28,7 @@ import {WebGLSceneComponent} from "../src/components/webGLScene";
 import {MainToolbar} from "../src/components/mainToolbar";
 import {ImportExcelModelDialog} from "../src/components/gui/importExcelModelDialog";
 import {HttpClientModule} from "@angular/common/http";
-import {HotkeyOptions, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
+import {HotkeyModule, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
 
 describe("MainToolbar component", () => {
     let toolbar;
@@ -116,32 +116,31 @@ describe("SettingsPanel component", () => {
 });
 
 //FIXME
-// describe("WebGLScene component", () => {
-//     let viewer;
-//     let fixture;
-//     beforeEach(() => {
-//         TestBed.resetTestEnvironment();
-//         TestBed.initTestEnvironment(BrowserDynamicTestingModule,
-//             platformBrowserDynamicTesting());
-//
-//         TestBed.configureTestingModule({
-//             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
-//                 BrowserAnimationsModule],
-//             declarations: [
-//                 WebGLSceneComponent,
-//                 HotkeysCheatsheetComponent
-//             ]
-//         });
-//
-//         fixture = TestBed.createComponent(WebGLSceneComponent);
-//         viewer = fixture.componentInstance;
-//     });
-//
-//     it("ApiNATOMY viewer created", () => {
-//         expect(viewer).to.be.an('object');
-//         //add conditions
-//     });
-//
-//     afterEach(() => {});
-// });
+describe("WebGLScene component", () => {
+    let viewer;
+    let fixture;
+    beforeEach(() => {
+        TestBed.resetTestEnvironment();
+        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
+            platformBrowserDynamicTesting());
+
+        TestBed.configureTestingModule({
+            imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
+                BrowserAnimationsModule, HotkeyModule.forRoot()],
+            declarations: [
+                WebGLSceneComponent
+            ]
+        });
+
+        fixture = TestBed.createComponent(WebGLSceneComponent);
+        viewer = fixture.componentInstance;
+    });
+
+    it("ApiNATOMY viewer created", () => {
+        expect(viewer).to.be.an('object');
+        //add conditions
+    });
+
+    afterEach(() => {});
+});
 

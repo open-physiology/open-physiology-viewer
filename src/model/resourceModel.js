@@ -461,7 +461,7 @@ export class Resource{
         function fieldToJSON(value, depth) { return value::isArray()? value.map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
         if (depth <= 0) {
-            return this.id? this.id: null;
+            return this.id? this.fullID: null;
         }
 
         let res = {};

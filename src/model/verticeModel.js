@@ -3,12 +3,14 @@ import {
     $Field,
     $Prefix,
     $SchemaClass,
+    findResourceByID,
     getGenID,
     getID,
     getOrCreateNode,
+    mergeGenResource,
     refToResource
 } from "./utils";
-import {keys, merge, pick, isString, isArray} from "lodash-bound";
+import {keys, merge, pick, isString, isArray, flatten} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
 export class Vertice extends VisualResource{
@@ -88,12 +90,12 @@ export class Node extends Vertice {
 
     /**
      * Replicate border nodes and create collapsible links
-     * @param json
+     * @param parentGroup
      * @param modelClasses
      */
-    static replicateBorderNodes(json, modelClasses){
+    static replicateBorderNodes(parentGroup, modelClasses){
         let borderNodesByID = {};
-        (json.lyphs||[]).forEach(lyph => {
+        (parentGroup.lyphs||[]).forEach(lyph => {
             if (lyph.border && lyph.border.borders) {
                 lyph.border.borders.forEach(b =>
                     this.addLyphToHostMap(lyph, b.hostedNodes, borderNodesByID))
@@ -105,7 +107,7 @@ export class Node extends Vertice {
         borderNodesByID::keys().forEach(nodeID => {
             let hostLyphs = borderNodesByID[nodeID];
             if (hostLyphs.length > 1){
-                let node  = getOrCreateNode(json.nodes, nodeID);
+                let node  = getOrCreateNode(parentGroup.nodes, nodeID);
                 let prev = nodeID;
                 hostLyphs.forEach((hostLyph, i) => {
                     if (i < 1) { return; }
@@ -116,10 +118,12 @@ export class Node extends Vertice {
                         [$Field.generated]: true
                     };
                     modelClasses.Node.clone(node, nodeClone);
-                    json.nodes.push(nodeClone);
+                    if (!findResourceByID(parentGroup.nodes, nodeClone.id)) {
+                        parentGroup.nodes.push(nodeClone);
+                    }
 
-                    let targetOfLinks = (json.links||[]).filter(e => getID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
-                    let sourceOfLinks = (json.links||[]).filter(e => getID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
+                    let targetOfLinks = (parentGroup.links||[]).filter(e => getID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
+                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
                     targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
                     sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
 
@@ -128,7 +132,7 @@ export class Node extends Vertice {
                         if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
                     });
                     let lnk = modelClasses.Link.createCollapsibleLink(prev, nodeClone.id);
-                    json.links.push(lnk);
+                    mergeGenResource(undefined, parentGroup, lnk, $Field.links);
                     prev = nodeClone.id;
                 })
             }
@@ -160,7 +164,9 @@ export class Node extends Vertice {
                         [$Field.generated]: true
                     };
                     modelClasses.Node.clone(node, nodeClone);
-                    parentGroup.nodes.push(nodeClone);
+                    if (!findResourceByID(parentGroup.nodes, nodeClone.id)) {
+                        parentGroup.nodes.push(nodeClone);
+                    }
                     let k = hostLyph.internalNodes.indexOf(nodeID);
                     if (k > -1){ hostLyph.internalNodes[k] = nodeClone.id; }
 
@@ -176,8 +182,9 @@ export class Node extends Vertice {
                         allSourceLinks.push(lnk);
                     });
 
-                    let leafChains = targetOfLinks.map(e => e.levelIn);
-                    let rootChains = sourceOfLinks.map(e => e.levelIn);
+                    //TODO test whether this works with ::flatten
+                    let leafChains = targetOfLinks.map(e => e.levelIn)::flatten();
+                    let rootChains = sourceOfLinks.map(e => e.levelIn)::flatten();
 
                     //Reset rootOf and leafOf and include generated node into relevant chain groups
                     const fixNodeChainRels = (chains, prop) => {
@@ -189,7 +196,9 @@ export class Node extends Vertice {
                             chains.forEach(e => {
                                 let chain = refToResource(e, parentGroup, $Field.chains);
                                 if (chain && chain.group){
-                                    chain.group.nodes.push(nodeClone.id);
+                                    if (!chain.group.nodes.find(x => x === nodeClone.id || x.id === nodeClone.id)) {
+                                        chain.group.nodes.push(nodeClone.id);
+                                    }
                                     let relatedProp = prop === $Field.leafOf? $Field.leaf: $Field.root;
                                     chain[relatedProp] = nodeClone.id;
                                 }
@@ -206,7 +215,7 @@ export class Node extends Vertice {
                     } else {
                         lnk = modelClasses.Link.createCollapsibleLink(nodeClone.id, node.id);
                     }
-                    parentGroup.links.push(lnk);
+                    mergeGenResource(undefined, parentGroup, lnk, $Field.links);
                 });
 
                 if (allSourceLinks.length > 0){
@@ -254,13 +263,15 @@ export class Node extends Vertice {
     includeRelated(group){
         (this.clones||[]).forEach(clone => {
             let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
-            spacerLinks.forEach(lnk => group.links.push(lnk));
-            if (spacerLinks.length > 0){
+            spacerLinks.forEach(lnk => !group.contains(lnk) && group.links.push(lnk));
+            if (spacerLinks.length > 0 && !group.contains(clone)){
                 group.nodes.push(clone);
             }
             if (clone.hostedBy) {
                 clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
-                clone.hostedBy.hostedNodes.push(clone);
+                if (!findResourceByID(clone.hostedBy.hostedNodes, clone.id)) {
+                    clone.hostedBy.hostedNodes.push(clone);
+                }
             }
         });
     }

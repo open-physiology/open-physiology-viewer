@@ -5,15 +5,19 @@ import {Lyph} from './shapeModel';
 
 import {isObject, unionBy, merge, keys, entries, isArray, pick, isString} from 'lodash-bound';
 import {
-    getGenID,
-    addColor,
     $SchemaClass,
     $Field,
     $Color,
     $Prefix,
+    schemaClassModels,
+    getGenID,
+    addColor,
     findResourceByID,
     getID,
-    showGroups, schemaClassModels, getRefNamespace, refToResource, getFullID
+    showGroups,
+    getRefNamespace,
+    refToResource,
+    getFullID
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -203,29 +207,29 @@ export class Group extends Resource {
 
     /**
      * Replace references to lyph templates with references to auto-generated lyphs that inherit properties from templates
-     * @param json - input model
+     * @param parentGroup - input model
      */
-    static replaceReferencesToTemplates(json){
+    static replaceReferencesToTemplates(parentGroup){
 
         let changedLyphs = 0;
         let changedMaterials = 0;
 
         const replaceRefToTemplate = (ref, parent, ext = null) => {
             let refID = getID(ref);
-            let template = refToResource(refID, json, $Field.lyphs);
+            let template = refToResource(refID, parentGroup, $Field.lyphs);
             if (template && template.isTemplate) {
                 changedLyphs++;
                 let subtype = {
                     [$Field.id]        : getGenID($Prefix.template, refID, parent.id, ext),
                     [$Field.name]      : template.name,
-                    [$Field.namespace] : json.namespace,
-                    [$Field.supertype] : template.id,
+                    [$Field.namespace] : parentGroup.namespace,
+                    [$Field.supertype] : refID,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 };
-                if (!refToResource(subtype.id, json, $Field.lyphs)){
-                    json.lyphs = json.lyphs || [];
-                    json.lyphs.push(subtype);
+                if (!refToResource(subtype.id, parentGroup, $Field.lyphs)){
+                    parentGroup.lyphs = parentGroup.lyphs || [];
+                    parentGroup.lyphs.push(subtype);
                     replaceAbstractRefs(subtype, $Field.layers);
                 }
                 return subtype.id;
@@ -239,27 +243,27 @@ export class Group extends Resource {
             const replaceRefToMaterial = (ref) => {
                 let refID = getID(ref);
                 let lyphID = getGenID($Prefix.material, refID);
-                let template = refToResource(lyphID, json, $Field.lyphs);
+                let template = refToResource(lyphID, parentGroup, $Field.lyphs);
                 if (!template || !template.isTemplate) {
-                    let material = refToResource(refID, json, $Field.materials);
+                    let material = refToResource(refID, parentGroup, $Field.materials);
                     if (material) {
                         template = {
-                            [$Field.id]: lyphID,
-                            [$Field.name]: material.name,
-                            [$Field.namespace] : json.namespace,
-                            [$Field.isTemplate]: true,
-                            [$Field.materials]: [material.id],
-                            [$Field.generatedFrom]: material.id,
-                            [$Field.skipLabel]: true,
-                            [$Field.generated]: true
+                            [$Field.id]           : lyphID,
+                            [$Field.name]         : material.name,
+                            [$Field.namespace]    : parentGroup.namespace,
+                            [$Field.isTemplate]   : true,
+                            [$Field.materials]    : [refID],
+                            [$Field.generatedFrom]: refID,
+                            [$Field.skipLabel]    : true,
+                            [$Field.generated]    : true
                         };
                         template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
-                        json.lyphs = json.lyphs|| [];
-                        json.lyphs.push(template);
+                        parentGroup.lyphs = parentGroup.lyphs|| [];
+                        parentGroup.lyphs.push(template);
                     } else {
-                        if (getRefNamespace(refID, json.namespace) !== json.namespace){
+                        if (getRefNamespace(refID, parentGroup.namespace) !== parentGroup.namespace){
                             //Reference does not exist
-                            if (json.lyphsByID && !json.lyphsByID[getFullID(json.namespace, refID)]) {
+                            if (parentGroup.lyphsByID && !parentGroup.lyphsByID[getFullID(parentGroup.namespace, refID)]) {
                                 logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, key, ref);
                             }
                         }
@@ -287,7 +291,7 @@ export class Group extends Resource {
             }
         };
 
-        (json::entries()||[]).forEach(([relName, resources]) => {
+        (parentGroup::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
             let classNames = schemaClassModels[$SchemaClass.Group].relClassNames;
             if (classNames[relName]) {

@@ -281,7 +281,6 @@
               }
             ]
           },
-          "relatedTo": "inChain",
           "default": []
         },
         "lyphTemplate": {
@@ -1191,14 +1190,17 @@
         },
         "levelIn": {
           "description": "A chain that contains the link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
           "relatedTo": "levels",
           "advanced": true,
           "readOnly": true
@@ -1653,20 +1655,6 @@
             ],
           "advanced": true,
           "readOnly": true
-        },
-        "inChain": {
-          "description": "Chains in which the given lyph is a housing lyph",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Chain"
-            }
-          ],
-          "advanced": true,
-          "readOnly": true,
-          "relatedTo": "lyphs"
         },
         "seedIn": {
           "description": "Dynamic group in which the given lyph is a seed",
