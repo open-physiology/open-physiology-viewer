@@ -29,6 +29,8 @@ import tinycolor from "tinycolor2";
  * @property internalLyphsInLayers
  * @property internalNodes
  * @property internalNodesInLayers
+ * @property internalIn
+ * @property internalInLayer
  * @property hostedLyphs
  */
 export class Shape extends VisualResource {
@@ -229,38 +231,67 @@ export class Lyph extends Shape {
      */
     static mapInternalResourcesToLayers(parentGroup){
 
-        function moveResourceToLayer(resourceIndex, layerIndex, lyph, prop){
+        function moveResourceToLayer(resource, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers.length){
                 let layer = refToResource(lyph.layers[layerIndex], parentGroup, $Field.lyphs);
                 if (layer){
                     layer[prop] = layer[prop] || [];
-                    let internalID = getID(lyph[prop][resourceIndex]);
+                    let internalID = getID(resource);
                     if (internalID && !layer[prop].find(x => x === internalID)){
                         layer[prop].push(internalID);
                     }
                     logger.info($LogMsg.RESOURCE_TO_LAYER, internalID, layer.id, prop, layer[prop]);
-                    lyph[prop][resourceIndex] = null;
                 } else {
                     logger.warn($LogMsg.LYPH_INTERNAL_NO_LAYER, lyph, layerIndex, lyph.layers[layerIndex]);
                 }
             } else {
-                logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers.length, lyph.id, resourceIndex);
+                logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers.length, lyph.id);
             }
         }
 
-        function processLyphs(key1, key2){
+        //A.internalLyphs=[B,C] + A.internalLyphsInLayers=[1,2]
+        /**
+         * Map internal lyph resources to its layers
+         * @param key1 property containing references to internal resources (internalLyphs or internalNodes)
+         * @param key2 property containing indexes of layers to map internal resources into
+         */
+        function mapToLayers1(key1, key2){
             (parentGroup.lyphs||[]).forEach(lyph => {
                 if (lyph.layers && lyph[key1] && lyph[key2]) {
                     for (let i = 0; i < Math.min(lyph[key1].length, lyph[key2].length); i++) {
-                        moveResourceToLayer(i, lyph[key2][i], lyph, $Field.internalLyphs);
+                        moveResourceToLayer(lyph[key1][i], lyph[key2][i], lyph, key1);
+                        lyph[key1][i] = null;
                     }
                     lyph[key1] = lyph[key1].filter(x => !!x);
                 }
             });
         }
+        mapToLayers1($Field.internalLyphs, $Field.internalLyphsInLayers);
+        mapToLayers1($Field.internalNodes, $Field.internalNodesInLayers);
 
-        processLyphs($Field.internalLyphs, $Field.internalLyphsInLayers);
-        processLyphs($Field.internalNodes, $Field.internalNodesInLayers);
+        //B.internalIn=A + B.internalInLayer=1
+        /**
+         * Map internal resource into hosting lyph layer
+         * @param key1 property containing references to internal resources (internalLyphs or internalNodes)
+         * @param key2 property defining type of the resource to which the mapping is applied (lyphs or nodes)
+         */
+        function mapToLayers2(key1, key2){
+            (parentGroup[key2]||[]).forEach(resource => {
+                if (resource.internalIn) {
+                    let lyph = refToResource(resource.internalIn, parentGroup, $Field.lyphs);
+                    if (lyph){
+                        if (resource.internalInLayer){
+                            moveResourceToLayer(resource, resource.internalInLayer, lyph, key1);
+                            delete resource.internalIn;
+                        }
+                    } else {
+                        logger.error($LogMsg.LYPH_INTERNAL_IN_NOT_FOUND, resource.id, resource.internalIn);
+                    }
+                }
+            });
+        }
+        mapToLayers2($Field.internalLyphs, $Field.lyphs);
+        mapToLayers2($Field.internalNodes, $Field.nodes);
     }
 
     collectInheritedExternals(){
@@ -437,10 +468,10 @@ export class Lyph extends Shape {
 
         let link = Link.fromJSON({
             [$Field.id]           : getGenID($Prefix.link, this.id),
-            [$Field.source]       : sNode.id,
-            [$Field.target]       : tNode.id,
+            [$Field.source]       : sNode.fullID || sNode.id,
+            [$Field.target]       : tNode.fullID || tNode.id,
             [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
-            [$Field.conveyingLyph]: this.id,
+            [$Field.conveyingLyph]: this.fullID,
             [$Field.skipLabel]    : true,
             [$Field.generated]    : true
         }, modelClasses, entitiesByID, namespace);
@@ -633,12 +664,12 @@ export class Region extends Shape {
             let wires = [];
             for (let i = 1; i < anchors.length + 1; i++) {
                 wires.push({
-                    [$Field.id]: getGenID($Prefix.wire, template.id, i),
-                    [$Field.source]: anchors[i - 1].id,
-                    [$Field.target]: anchors[i % anchors.length].id,
-                    [$Field.color]: template.color? tinycolor(template.color).darken(25): $Color.Wire,
-                    [$Field.skipLabel]: true,
-                    [$Field.generated]: true
+                    [$Field.id]        : getGenID($Prefix.wire, template.id, i),
+                    [$Field.source]    : anchors[i - 1].id,
+                    [$Field.target]    : anchors[i % anchors.length].id,
+                    [$Field.color]     : template.color? tinycolor(template.color).darken(25): $Color.Wire,
+                    [$Field.skipLabel] : true,
+                    [$Field.generated] : true
                 });
             }
             parentGroup.wires = parentGroup.wires || [];

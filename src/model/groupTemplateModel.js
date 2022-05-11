@@ -1,8 +1,10 @@
 import {Resource} from './resourceModel';
 import {
-    getGenID,
     $Field,
-    $Prefix
+    $Prefix,
+    getGenID,
+    getFullID,
+    refToResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults} from 'lodash-bound';
@@ -19,22 +21,23 @@ export class GroupTemplate extends Resource{
      */
     static createTemplateGroup(template, parentGroup){
         let group = template.group || {};
-        let groupID = template.groupID || getGenID($Prefix.group, template.id);
-        let existing = (parentGroup.groups||[]).find(g => g.id === groupID);
+        group.id = group.id || getGenID($Prefix.group, template.id);
+        let existing = refToResource(group.id, parentGroup, $Field.groups);
         if (existing){
-            logger.warn($LogMsg.DYNAMIC_GROUP_EXISTS, groupID);
+            logger.warn($LogMsg.DYNAMIC_GROUP_EXISTS, group.id);
             group = existing;
         } else {
             group::defaults({
-                [$Field.id]: groupID,
-                [$Field.name]: template.name,
-                [$Field.generated]: true,
-                [$Field.hidden]: template.hasOwnProperty($Field.hidden)? template.hidden: true
+                [$Field.name]      : template.name,
+                [$Field.generated] : true,
+                [$Field.hidden]    : template.hasOwnProperty($Field.hidden)? template.hidden: true
             });
+            parentGroup.groups = parentGroup.groups || [];
+            parentGroup.groups.push(group.id);
         }
-        if (parentGroup.namespace){
-            group.namespace = parentGroup.namespace;
-        }
+        group.namespace = group.namespace || template.namespace || parentGroup.namespace;
+        group.fullID = getFullID(group.namespace, group.id);
+
         [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
             group[prop] = group[prop] || [];
             if (group[prop].length > 0){
@@ -42,16 +45,11 @@ export class GroupTemplate extends Resource{
             }
         });
 
-        if (template.external){
-            group.external = template.external;
-        }
+        [$Field.external, $Field.references, $Field.ontologyTerms].forEach(prop => {
+            group[prop] = group[prop] || [];
+            (template.prop||[]).forEach(e => group[prop].push(e));
+        })
 
-        if (template.ontologyTerms){
-            group.ontologyTerms = template.ontologyTerms;
-        }
-
-        if (!parentGroup.groups) { parentGroup.groups = []; }
-        parentGroup.groups.push(group.id);
         return group;
     }
 

@@ -31,6 +31,7 @@ import {logger, $LogMsg} from './logger';
  * The class defining common methods for all resources
  * @class
  * @property {string} id
+ * @property {string} fullID
  * @property {string} name
  * @property {string} class
  * @property {string} namespace
@@ -79,6 +80,7 @@ export class Resource{
         }
 
         json.namespace = getRefNamespace(json.id, namespace);
+        json.fullID = getFullID(json.namespace, json.id);
 
         res::assign(json);
 
@@ -104,9 +106,9 @@ export class Resource{
 
     static createResource(id, clsName, model, modelClasses, entitiesByID, namespace){
         let e = modelClasses[clsName].fromJSON({
-            [$Field.id]        : id,
+            [$Field.id]        : getRefID(id),
             [$Field.generated] : true
-        }, modelClasses, entitiesByID, namespace);
+        }, modelClasses, entitiesByID, getRefNamespace(id, namespace));
 
         //Do not show labels for generated visual resources
         if (e.prototype instanceof modelClasses.VisualResource){
@@ -114,22 +116,10 @@ export class Resource{
         }
         mergeWithModel(e, clsName, model);
         entitiesByID[e.fullID] = e;
+
         return e;
     }
 
-    /*
-     * Returns full resource identifier composed of namespace and local identifier
-     */
-    get fullID(){
-        return getFullID(this.namespace, this.id);
-    }
-
-    /*
-     * Returns local resource identifier without namespace
-     */
-    get shortID(){
-        return getRefID(this.id);
-    }
     /**
      * Replace IDs with object references
      * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
@@ -166,12 +156,15 @@ export class Resource{
             }
 
             if (value.id) {
-                let fullValueID = getFullID(res.namespace, value.id);
-                if (entitiesByID[fullValueID]) {
-                    if (value !== entitiesByID[fullValueID]) {
-                        logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[fullValueID]);
+                value.fullID = value.fullID || getFullID(res.namespace, value.id);
+                if (entitiesByID[value.fullID]) {
+                    if (value !== entitiesByID[value.fullID]) {
+                        //FIXME the condition hides warning for generated resources as it is often erroneously triggered by node clones in multi-namespace models
+                        if (!value.generated || !entitiesByID[value.fullID].generated) {
+                            logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[value.fullID]);
+                        }
                     }
-                    return entitiesByID[fullValueID];
+                    return entitiesByID[value.fullID];
                 }
             }
 
@@ -335,7 +328,7 @@ export class Resource{
         (waitingList[res.fullID]||[]).forEach(([obj, key, clsName]) => {
             if (obj[key]::isArray()){
                 obj[key].forEach((e, i) => {
-                    if (e === res.shortID || e === res.fullID){
+                    if (e === res.id || e === res.fullID){
                         if (!schemaClassModels[res.class].extendsClass(clsName)){
                             logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
                         }
@@ -343,7 +336,7 @@ export class Resource{
                     }
                 });
             } else {
-                if (obj[key] === res.shortID || obj[key] === res.fullID){
+                if (obj[key] === res.id || obj[key] === res.fullID){
                     if (!schemaClassModels[res.class].extendsClass(clsName)){
                         logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
                     }
@@ -386,6 +379,9 @@ export class Resource{
                         obj[key2] = [obj[key2]];
                     }
                     if (!obj[key2].find(obj2 => obj2 === res)) {
+                        // if (key2 === "levels"){
+                        //     console.error("Filling levels: ", key, res[key].map(x => x.fullID), obj[key2].map(x => x.fullID), res.fullID);
+                        // }
                         obj[key2].push(res);
                     }
                 } else {
@@ -394,7 +390,7 @@ export class Resource{
                     }
                     else {
                         if (obj[key2] !== res) {
-                            logger.warn($LogMsg.RESOURCE_DOUBLE_REF, obj.id, key2, obj[key2].id, res.id);
+                            logger.warn($LogMsg.RESOURCE_DOUBLE_REF, obj.fullID, key2, obj[key2].fullID, res.fulLID);
                         }
                     }
                 }

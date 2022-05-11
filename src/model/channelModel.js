@@ -136,6 +136,7 @@ export class Channel extends GroupTemplate {
                 [$Field.skipLabel]: true,
                 [$Field.generated]: true
             };
+
             if (channel.length) {
                 link.length = channel.length / CHANNEL_LENGTH;
             }
@@ -153,9 +154,6 @@ export class Channel extends GroupTemplate {
                 return;
             }
             lyph.channels = lyph.channels || [];
-            // if (!findResourceByID(lyph.channels, channel.id)) {
-            //     lyph.channels.push(channel.id);
-            // }
             if (!lyph.channels.find(x => x === channel.id || x.id === channel.id)) {
                 lyph.channels.push(channel.id);
             }

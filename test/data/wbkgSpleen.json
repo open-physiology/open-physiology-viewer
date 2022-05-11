@@ -1182,7 +1182,7 @@
                 },
                 {
                     "id": "axon-chain-from-spinal-segment-to-celiac-ganglion-and-superior-mesenteric-ganglion-fused",
-                    "name": "axon chain from spinal segments to CG/SMG fused",
+                    "name": "axon chain from spinal segments to CG/SMG\nfused",
                     "ontologyTerms": [
                         "SAO:1211023249"
                     ],
@@ -1234,7 +1234,7 @@
                 },
                 {
                     "id": "axon-chain-in-vagus-to-celiac-ganglion-and-superior-mesenteric-ganglion-fused",
-                    "name": "axon chain in vagus nerve  to CG/SMG fused (splen)",
+                    "name": "axon chain in vagus nerve  to CG/SMG\nfused (splen)",
                     "ontologyTerms": [
                         "SAO:1770195789"
                     ],
@@ -4835,28 +4835,32 @@
                     "name": "Lumbar splanchnic nerve (all neurons)",
                     "ontologyTerms": [
                         "UBERON:0018683"
-                    ]
+                    ],
+                    "seedIn": "n2N"
                 },
                 {
                     "id": "lyph-inferior-mesenteric-ganglion",
                     "name": "Inferior mesenteric ganglion",
                     "ontologyTerms": [
                         "UBERON:0005453"
-                    ]
+                    ],
+                    "seedIn": "n2N"
                 },
                 {
                     "id": "lyph-pelvic-ganglion",
                     "name": "Pelvic ganglion",
                     "ontologyTerms": [
                         "UBERON:0016508"
-                    ]
+                    ],
+                    "seedIn": "n2N"
                 },
                 {
                     "id": "lyph-hypogastric-nerve",
                     "name": "hypogastric nerve",
                     "ontologyTerms": [
                         "UBERON:0005303"
-                    ]
+                    ],
+                    "seedIn": "n2N"
                 },
                 {
                     "id": "lyph-pulmonary-cartilage",

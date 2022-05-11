@@ -127,11 +127,6 @@
           "type": "string",
           "readOnly": true
         },
-        "schemaVersion": {
-          "description": "ApiNATOMY JSON Schema version used for model generation",
-          "type": "string",
-          "readOnly": true
-        },
         "version": {
           "description": "Model version",
           "type": "string",
@@ -1257,17 +1252,14 @@
           },
           "default": [
             "id",
+            "namespace",
             "name",
             "class",
             "source",
             "target",
             "conveyingLyph",
             "fasciculatesIn",
-            "endsIn",
-            "nextChainStartLevels",
-            "prevChainEndLevels",
-            "generated",
-            "length"
+            "endsIn"
           ]
         },
         "directed": {
@@ -1513,6 +1505,12 @@
           "relatedTo": "internalLyphs",
           "advanced": true
         },
+        "internalInLayer": {
+          "description": "Layer number of the lyph that contains the given lyph as its part",
+          "type": "number",
+          "minimum": 0,
+          "advanced": true
+        },
         "internalLyphs": {
           "description": "Lyphs that are internal parts of the given lyph",
           "type": "array",
@@ -1727,6 +1725,7 @@
           },
           "default": [
             "id",
+            "namespace",
             "name",
             "class",
             "topology",
@@ -1734,11 +1733,7 @@
             "conveys",
             "internalIn",
             "bundles",
-            "supertype",
-            "cloneOf",
-            "generated",
-            "width",
-            "height"
+            "supertype"
           ],
           "advanced": true
         },
@@ -1858,6 +1853,7 @@
           },
           "default": [
             "id",
+            "namespace",
             "name",
             "class",
             "sourceOf",
@@ -1865,9 +1861,7 @@
             "rootOf",
             "leafOf",
             "internalIn",
-            "clones",
-            "cloneOf",
-            "generated"
+            "cloneOf"
           ]
         },
         "hostedBy": {
@@ -1893,6 +1887,12 @@
             }
           ],
           "relatedTo": "internalNodes"
+        },
+        "internalInLayer": {
+          "description": "Layer number of the lyph that the given done must be projected to",
+          "type": "number",
+          "minimum": 0,
+          "advanced": true
         },
         "controlNodes": {
           "description": "A set of nodes that define the position of the current node as their center of mass",
@@ -2227,6 +2227,12 @@
           "description": "Unique resource identifier",
           "$ref": "#/definitions/IdentifierScheme"
         },
+        "fullID": {
+          "description": "Unique resource identifier with namespace",
+          "$ref": "#/definitions/IdentifierScheme",
+          "readOnly": true,
+          "advanced": true
+        },
         "namespace": {
           "description": "Resource namespace",
           "$ref": "#/definitions/IdentifierScheme",
@@ -2300,6 +2306,7 @@
           },
           "default": [
             "id",
+            "namespace",
             "name",
             "class"
           ],

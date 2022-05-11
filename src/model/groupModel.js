@@ -17,7 +17,7 @@ import {
     showGroups,
     getRefNamespace,
     refToResource,
-    getFullID
+    getFullID, mergeGenResource
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -153,11 +153,11 @@ export class Group extends Resource {
         }
         if (group) {
             [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
-                group[prop] = (group[prop]||[])::unionBy(resources[prop], $Field.id);
+                group[prop] = (group[prop]||[])::unionBy(resources[prop], $Field.fullID);
                 group[prop] = group[prop].filter(x => !!x && x.class);
             });
         } else {
-            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => json[prop] = resources[prop].map(e => e.id));
+            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => json[prop] = resources[prop].map(e => e.fullID));
             group = modelClasses.Group.fromJSON(json, modelClasses, this.entitiesByID, this.namespace);
             this.groups.push(group);
         }
@@ -219,19 +219,17 @@ export class Group extends Resource {
             let template = refToResource(refID, parentGroup, $Field.lyphs);
             if (template && template.isTemplate) {
                 changedLyphs++;
+                const subtypeID = getGenID($Prefix.template, refID, parent.id, ext);
                 let subtype = {
-                    [$Field.id]        : getGenID($Prefix.template, refID, parent.id, ext),
+                    [$Field.id]        : subtypeID,
                     [$Field.name]      : template.name,
-                    [$Field.namespace] : parentGroup.namespace,
                     [$Field.supertype] : refID,
                     [$Field.skipLabel] : true,
                     [$Field.generated] : true
                 };
-                if (!refToResource(subtype.id, parentGroup, $Field.lyphs)){
-                    parentGroup.lyphs = parentGroup.lyphs || [];
-                    parentGroup.lyphs.push(subtype);
-                    replaceAbstractRefs(subtype, $Field.layers);
-                }
+                //NK: mergeGenResource assigns namespace and fullID
+                mergeGenResource(undefined, parentGroup, subtype, $Field.lyphs);
+                replaceAbstractRefs(subtype, $Field.layers);
                 return subtype.id;
             }
             return ref;
@@ -250,7 +248,6 @@ export class Group extends Resource {
                         template = {
                             [$Field.id]           : lyphID,
                             [$Field.name]         : material.name,
-                            [$Field.namespace]    : parentGroup.namespace,
                             [$Field.isTemplate]   : true,
                             [$Field.materials]    : [refID],
                             [$Field.generatedFrom]: refID,
@@ -258,8 +255,7 @@ export class Group extends Resource {
                             [$Field.generated]    : true
                         };
                         template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
-                        parentGroup.lyphs = parentGroup.lyphs|| [];
-                        parentGroup.lyphs.push(template);
+                        mergeGenResource(undefined, parentGroup, template, $Field.lyphs);
                     } else {
                         if (getRefNamespace(refID, parentGroup.namespace) !== parentGroup.namespace){
                             //Reference does not exist
@@ -409,8 +405,8 @@ export class Group extends Resource {
     get resources(){
         let res = [];
         let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.Group]);
-        relFieldNames.forEach(property => res = res::unionBy((this[property] ||[]), $Field.id));
-        return res::res.filter(r => !!r && r::isObject());
+        relFieldNames.forEach(property => res = res::unionBy((this[property]||[]), $Field.fullID));
+        return res.filter(r => r && r::isObject());
     }
 
     /**

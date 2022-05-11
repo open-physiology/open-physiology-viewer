@@ -3,10 +3,10 @@ import {
     $Field,
     $Prefix,
     $SchemaClass,
-    findResourceByID,
+    findResourceByID, getFullID,
     getGenID,
-    getID,
-    getOrCreateNode,
+    getID, getRefID,
+    getRefNamespace,
     mergeGenResource,
     refToResource
 } from "./utils";
@@ -48,6 +48,7 @@ export class Anchor extends Vertice {
  * @property {Link} sourceOf
  * @property {Link} targetOf
  * @property {Shape} internalIn
+ * @property {number} internalInLayer
  * @property {Node} clones
  * @property {Node} cloneOf
  * @property {boolean} fixed
@@ -77,6 +78,7 @@ export class Node extends Vertice {
         targetNode.skipLabel = true;
         targetNode.generated = true;
         if (!sourceNode.clones){ sourceNode.clones = []; }
+        //FIXME use fullID (requires revision to be able to find these nodes)?
         sourceNode.clones.push(targetNode.id);
         return targetNode;
     }
@@ -98,7 +100,7 @@ export class Node extends Vertice {
         (parentGroup.lyphs||[]).forEach(lyph => {
             if (lyph.border && lyph.border.borders) {
                 lyph.border.borders.forEach(b =>
-                    this.addLyphToHostMap(lyph, b.hostedNodes, borderNodesByID))
+                    this.addLyphToHostMap(lyph, b.hostedNodes, borderNodesByID, parentGroup.namespace))
             }
         });
 
@@ -107,7 +109,7 @@ export class Node extends Vertice {
         borderNodesByID::keys().forEach(nodeID => {
             let hostLyphs = borderNodesByID[nodeID];
             if (hostLyphs.length > 1){
-                let node  = getOrCreateNode(parentGroup.nodes, nodeID);
+                let node  = refToResource(nodeID, parentGroup, $Field.nodes, true);
                 let prev = nodeID;
                 hostLyphs.forEach((hostLyph, i) => {
                     if (i < 1) { return; }
@@ -141,14 +143,16 @@ export class Node extends Vertice {
 
     static replicateInternalNodes(parentGroup, modelClasses){
         let internalNodesByID = {};
-        (parentGroup.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID));
+        (parentGroup.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID, parentGroup.namespace));
 
         const isEndBundledLink = (link, lyph) => (lyph.endBundles||[]).find(e => getID(e) === link.id);
 
-        internalNodesByID::keys().forEach(nodeID => {
-            let hostLyphs = internalNodesByID[nodeID];
+        //FIXME test with different namespaces
+        internalNodesByID::keys().forEach(nodeFullID => {
+            let hostLyphs = internalNodesByID[nodeFullID];
             if (hostLyphs.length > 1){
-                let node = getOrCreateNode(parentGroup.nodes, nodeID);
+                const nodeID = getRefID(nodeFullID);
+                let node = refToResource(nodeFullID, parentGroup, $Field.nodes, true);
                 if (node.generated) {
                     //if the node was generated, its internalIn property may be incorrectly set by chain generator
                     delete node.internalIn;
@@ -157,18 +161,23 @@ export class Node extends Vertice {
                 let allTargetLinks = [];
                 let allSourceLinks = [];
 
+                //FIXME design tests with different namespaces
                 hostLyphs.forEach((hostLyph, i) => {
                     let nodeClone = {
-                        [$Field.id]: getGenID(nodeID, $Prefix.join, i),
-                        [$Field.skipLabel]: true,
-                        [$Field.generated]: true
+                        [$Field.id]        : getGenID(nodeID, $Prefix.join, i),
+                        [$Field.hidden]    : true, //FIXME join nodes do not get included to groups (namespace issue?)
+                        [$Field.skipLabel] : true,
+                        [$Field.generated] : true
                     };
                     modelClasses.Node.clone(node, nodeClone);
-                    if (!findResourceByID(parentGroup.nodes, nodeClone.id)) {
-                        parentGroup.nodes.push(nodeClone);
+                    mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
+                    let k = hostLyph.internalNodes.indexOf(nodeFullID);
+                    if (k === -1){
+                        k = hostLyph.internalNodes.indexOf(nodeID);
                     }
-                    let k = hostLyph.internalNodes.indexOf(nodeID);
-                    if (k > -1){ hostLyph.internalNodes[k] = nodeClone.id; }
+                    if (k > -1){
+                        hostLyph.internalNodes[k] = nodeClone.id;
+                    }
 
                     //rewire affected links
                     let targetOfLinks = (parentGroup.links||[]).filter(e => getID(e.target) === nodeID && isEndBundledLink(e, hostLyph));
@@ -225,7 +234,7 @@ export class Node extends Vertice {
                     allSourceLinks.forEach(e => e.prevChainEndLevels = allTargetLinks.map(x => x.id));
                 }
 
-                node.controlNodes = node.clones;
+                // node.controlNodes = node.clones;
                 if ((node.clones || []).length > 0) {
                     logger.info($LogMsg.NODE_CLONE_INTERNAL, node.id, node.clones);
                 }
@@ -238,22 +247,23 @@ export class Node extends Vertice {
      * @param hostLyph
      * @param nodes
      * @param resMap
+     * @param namespace
      * @returns {Object} Updated resource map
      */
-    static addLyphToHostMap(hostLyph, nodes, resMap){
+    static addLyphToHostMap(hostLyph, nodes, resMap, namespace){
         if (nodes && !nodes::isArray()){
             logger.warn($LogMsg.RESOURCE_ARRAY_EXPECTED, hostLyph.id,
                 $Field.hostedNodes + " or " + $Field.internalNodes, nodes);
             return;
         }
         (nodes||[]).forEach(e => {
-            let nodeID = getID(e);
-            if (!nodeID || !nodeID::isString()) {
-                logger.warn($LogMsg.RESOURCE_NO_ID, nodeID);
+            let nodeFullID = getFullID(getRefNamespace(e, namespace), e);
+            if (!nodeFullID || !nodeFullID::isString()) {
+                logger.warn($LogMsg.RESOURCE_NO_ID, nodeFullID);
             } else {
-                resMap[nodeID] = resMap[nodeID] || [];
-                if (!resMap[nodeID].find(lyph => lyph.id === hostLyph.id)) {
-                    resMap[nodeID].push(hostLyph);
+                resMap[nodeFullID] = resMap[nodeFullID] || [];
+                if (!findResourceByID(resMap[nodeFullID], hostLyph.id)) {
+                    resMap[nodeFullID].push(hostLyph);
                 }
             }
         });
@@ -269,7 +279,7 @@ export class Node extends Vertice {
             }
             if (clone.hostedBy) {
                 clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
-                if (!findResourceByID(clone.hostedBy.hostedNodes, clone.id)) {
+                if (!findResourceByID(clone.hostedBy.hostedNodes, clone.id, clone.namespace)) {
                     clone.hostedBy.hostedNodes.push(clone);
                 }
             }

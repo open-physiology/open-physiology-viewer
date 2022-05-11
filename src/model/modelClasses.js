@@ -293,19 +293,18 @@ export function fromJSONGenerated(inputModel) {
 
     function _createResource(id, clsName, model, modelClasses, entitiesByID, namespace){
         const e = typeCast({
-            [$Field.id]: id,
-            [$Field.class]: clsName,
-            [$Field.namespace]: getRefNamespace(id),
-            [$Field.generated]: true
-        })
-
+            [$Field.id]        : id,
+            [$Field.class]     : clsName,
+            [$Field.namespace] : getRefNamespace(id) || namespace,
+            [$Field.generated] : true
+        });
         //Do not show labels for generated visual resources
         if (e.prototype instanceof modelClasses.VisualResource){
             e.skipLabel = true;
         }
         mergeWithModel(e, clsName, model);
-        const fullID = getFullID(namespace, e.id);
-        entitiesByID[fullID] = e;
+        e.fullID = e.fullID || getFullID(e.namespace, e.id);
+        entitiesByID[e.fullID] = e;
         return e;
     }
 
@@ -353,14 +352,13 @@ export function fromJSONGenerated(inputModel) {
                     const e = typeCast({
                         [$Field.id]: id,
                         [$Field.class]: clsName,
-                        [$Field.namespace]: getRefNamespace(id),
+                        [$Field.namespace]: getRefNamespace(id) || namespace,
                         [$Field.generated]: true
                     })
-
                     //Include newly created entity to the main graph
                     mergeWithModel(e, clsName, model);
-                    const fullID = getFullID(namespace, e.id);
-                    entitiesList[fullID] = e;
+                    e.fullID = e.fullID || getFullID(e.namespace, e.id);
+                    entitiesList[e.fullID] = e;
                     added.push(e.id);
                 }
             }
