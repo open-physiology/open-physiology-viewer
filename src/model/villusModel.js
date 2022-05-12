@@ -111,12 +111,6 @@ export class Villus extends GroupTemplate{
                 [$Field.skipLabel] : true,
                 [$Field.generated] : true
             };
-            // if (i === 0 && villus.numLevels > 0){
-            //     villus = {
-            //         "numLayers": villus.numLayers,
-            //         "numLevels": villus.numLevels - 1
-            //     }
-            // }
 
             mergeGenResource(villus.group, parentGroup, villusLyph, $Field.lyphs);
 

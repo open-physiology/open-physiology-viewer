@@ -124,6 +124,7 @@ export const isDefined = value => value && value::isArray() && value.length > 0;
 export const getGenID = (...args) => args.filter(arg => arg !== null).map(arg => arg::isNumber()? arg: getRefID(arg)).join("_");
 
 export const getFullID = (namespace, ref) => {
+    if (!ref){ return ref; }
     let id = getID(ref);
     if (id && id::isString() && id.indexOf(":") > -1) {
         return id;
@@ -246,62 +247,66 @@ export const getSchemaClass = (spec) => definitions[getClassName(spec)];
 /**
  * Places a given node on a given border
  * @param border
- * @param node
+ * @param nodeID
  */
-export const addBorderNode = (border, node) => {
+export const addBorderNode = (border, nodeID) => {
+    if (!border){ return; }
     border.hostedNodes = border.hostedNodes || [];
-    if (!border.hostedNodes.find(n => n === node.id || n.id === node.id)) {
-        border.hostedNodes.push(node);
+    if (!border.hostedNodes.find(n => n === nodeID || (n && n.id === nodeID))) {
+        border.hostedNodes.push(nodeID);
     }
 };
 
 /**
- * Find or create node with given identifier
- * @param nodes - node array
- * @param nodeID - node identifier
- */
-export function getOrCreateNode(nodes, nodeID){
-    let node  = (nodes||[]).find(e => e.id === nodeID);
-    if (!node){
-        node = {
-            [$Field.id]: nodeID,
-            [$Field.skipLabel]: true,
-            [$Field.generated]: true
-        };
-        if (!nodes){ nodes = []; }
-        nodes.push(node);
-    }
-    return node;
-}
-
-/**
- * Finds a resource object in the parent group given an object or an ID
- * @param eArray
- * @param e
+ * Finds resource object in the parent group given an object or an ID
+ * @param eArray - list of available resources
+ * @param objOrID - resource or resource identifier to look for
+ * @param namespace - namespace
  * @returns {*|void}
  */
-export const findResourceByID = (eArray, e) => e::isObject()? e: (eArray||[]).find(x => e && x.id === e);
+export const findResourceByID = (eArray, objOrID, namespace = undefined) =>
+    objOrID::isObject()? objOrID: (eArray||[]).find(x => objOrID && x.id === objOrID && (!namespace || x.namespace === namespace));
 
-export const refToResource = (e, parentGroup, prop, generate = false) => {
-    if (!e) return undefined;
-    if (e::isObject()){
-        return e;
+export const isIncluded = (eArray, id, namespace = undefined) =>
+    eArray.find(x => getFullID(namespace, x) === getFullID(namespace, id));
+
+
+/**
+ * Find resource object given its reference (identifier)
+ * @param ref - reference to resource (objet, identifier or full identifier)
+ * @param parentGroup
+ * @param prop
+ * @param generate
+ * @returns {undefined|*}
+ */
+export const refToResource = (ref, parentGroup, prop, generate = false) => {
+    if (!ref) return undefined;
+    if (ref::isObject()){
+        return ref;
     }
     let res;
     if (parentGroup[prop + "ByID"]) {
-        res = parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, e)];
+        res = parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, ref)];
+    }
+    if (parentGroup.entitiesByID){
+        res = res || parentGroup.entitiesByID[getFullID(parentGroup.namespace, ref)];
     }
     //Look for generated resources in the parent group
-    if (!res && (!getRefNamespace(e) || parentGroup.namespace === getRefNamespace(e))) {
-        res = findResourceByID(parentGroup[prop], e);
-    }
+    res = res || findResourceByID(parentGroup[prop], ref, getRefNamespace(ref, parentGroup.namespace));
     if (res) {
-        res.namespace = res.namespace || getRefNamespace(e, parentGroup.namespace);
+        res.namespace = res.namespace || getRefNamespace(ref, parentGroup.namespace);
     }
-    return res? res: generate? {
-        [$Field.id]: getID(e),
-        [$Field.namespace]: getRefNamespace(e, parentGroup.namespace),
-        [$Field.generated]: true}: undefined;
+    if (!res && generate) {
+        res = {
+            [$Field.id]: getID(ref),
+            [$Field.namespace]: getRefNamespace(ref, parentGroup.namespace),
+            [$Field.generated]: true
+        };
+        res.fullID = getFullID(res.namespace, res.id);
+        parentGroup[prop] = parentGroup[prop] || [];
+        parentGroup[prop].push(res);
+    }
+    return res;
 }
 
 export const refsToResources = (eArray, parentGroup, prop, generate = false) => {
@@ -342,23 +347,28 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
         group[prop] = group[prop] || [];
         if (resource::isObject()){
             if (resource.id){
-                if (!group[prop].find(x => x === resource.id || x.id === resource.id)){
-                    group[prop].push(resource.id);
+                resource.namespace = resource.namespace || getRefNamespace(resource, parentGroup.namespace);
+                resource.fullID = resource.fullID || getFullID(parentGroup.namespace, resource.id);
+                if (!isIncluded(group[prop], resource.id, parentGroup.namespace)){
+                    group[prop].push(resource.fullID);
                 }
             }
             resource.hidden = group.hidden;
         } else {
-            if (!group[prop].includes(resource)){
-                group[prop].push(resource);
+            if (!isIncluded(group[prop], resource, parentGroup.namespace)){
+                group[prop].push(getFullID(parentGroup.namespace, resource));
             }
         }
     }
     if (parentGroup && resource.id){
+        resource.namespace = resource.namespace || getRefNamespace(resource, parentGroup.namespace);
+        resource.fullID = resource.fullID || getFullID(parentGroup.namespace, resource.id);
         parentGroup[prop] = parentGroup[prop] || [];
         if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){
             parentGroup[prop].push(resource);
-            //Add generated to the defined resources map?
-            parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, resource.id)] = resource;
+            if (parentGroup[prop + "ByID"]) {
+                parentGroup[prop + "ByID"][resource.fullID] = resource;
+            }
         }
     }
 };
@@ -475,13 +485,12 @@ export function collectNestedResources(json, relFieldNames = [], groupProp){
             (json[prop]||[]).forEach( r => {
                 if (r::isObject()) {
                     r.id = r.id || getNewID();
-                    let nm = getRefNamespace(r.id, json.namespace);
-                    let fullID = getFullID(nm, r.id);
-                    if (!json[mapProp][fullID]) {
-                        json[prop].namespace = nm;
-                        json[mapProp][fullID] = r;
+                    r.namespace = r.namespace || getRefNamespace(r.id, json.namespace);
+                    r.fullID = r.fullID || getFullID(r.namespace, r.id);
+                    if (!json[mapProp][r.fullID]) {
+                        json[mapProp][r.fullID] = r;
                     } else {
-                        logger.error($LogMsg.RESOURCE_DUPLICATE, fullID, r.id);
+                        logger.error($LogMsg.RESOURCE_DUPLICATE, r.fullID, r.id);
                     }
                 }
             })

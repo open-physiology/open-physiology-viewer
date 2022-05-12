@@ -8,9 +8,12 @@ import {
 import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
 import m1 from './data/M1-model';
+import wbkgSpleen from './data/wbkgSpleen.json';
 import wiredChain from './data/basicChainWireConflict.json';
 import {modelClasses} from '../src/model/index';
 import {Logger} from "../src/model/logger";
+import {values} from 'lodash-bound';
+import {getRefID} from "../src/model/utils";
 
 describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
@@ -103,7 +106,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(lyphs[0].inheritedExternal).to.be.an('array');
         expect(lyphs[0].inheritedExternal).to.have.length(1);
         expect(lyphs[0].inheritedExternal[0]).to.be.instanceOf(modelClasses.External);
-        expect(lyphs[0].inheritedExternal[0]).to.have.property("id").that.equal("UBERON:0005844");
+        expect(lyphs[0].inheritedExternal[0]).to.have.property("fullID").that.equal("UBERON:0005844");
     });
 
     it("Lyphs retain own annotations", () => {
@@ -111,7 +114,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(c1).to.have.property("external");
         expect(c1.external).to.be.an('array').that.has.length(1);
         expect(c1.external[0]).to.be.instanceOf(modelClasses.External);
-        expect(c1.external[0]).to.have.property("id").that.equal("UBERON:0006469");
+        expect(c1.external[0]).to.have.property("fullID").that.equal("UBERON:0006469");
     });
 
     it("Internal lyphs are rebased into generated layers", () => {
@@ -350,6 +353,64 @@ describe("Validate chain wiring", () => {
         let leaf = t6.group.nodes[7];
         expect(leaf).to.be.an("object").that.has.property("id").that.equals("n6");
         expect(leaf).to.have.property("hidden").that.equals(true);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+
+describe("Process model with multiple namespaces", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(wbkgSpleen, modelClasses);
+    });
+
+    it("Resources generated without duplicates", () => {
+        let duplicates = [];
+        let noNamespace = [];
+        let noNamespace2 = [];
+        let noFullID = [];
+        graphData.entitiesByID::values().forEach(r => {
+            if (r.generated) {
+                let fullID1 = "wbkg:" + getRefID(r.id);
+                let fullID2 = "spleen:" + getRefID(r.id);
+
+                if (graphData.entitiesByID[fullID1] && graphData.entitiesByID[fullID2]) {
+                    duplicates.push(getRefID(r.id));
+                }
+
+                if (graphData.entitiesByID[getRefID(r.id)]){
+                    if (r.description !== "force") {
+                        noNamespace.push(r.id);
+                    }
+                }
+
+                if (!r.namespace){
+                     if (r.description !== "force") {
+                         noNamespace2.push(r.id);
+                     }
+                }
+
+                if (!r.fullID){
+                    noFullID.push(r.id);
+                }
+            }
+        })
+        duplicates = [... new Set(duplicates)];
+        // if (duplicates.length > 13) {
+        //     console.error("Duplicate resources in different namespaces:", duplicates.length, duplicates);
+        // }
+        // if (noNamespace.length > 0){
+        //     console.error("Resources with no namespace: ", noNamespace.length, noNamespace);
+        // }
+        // if (noNamespace2.length > 0){
+        //     console.error("Resources with no namespace (2): ", noNamespace2.length, noNamespace2);
+        // }
+
+        expect(duplicates).to.have.length(13);
+        expect(noFullID).to.have.length(0);
     });
 
     after(() => {

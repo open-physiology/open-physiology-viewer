@@ -141,7 +141,9 @@ export class Link extends Edge {
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
+
         [$Field.source, $Field.target].forEach(prop => json[prop] = json[prop] || getGenID($Prefix[prop], json.id));
+
         json.class = json.class || $SchemaClass.Link;
         const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //If the end nodes are fixed, compute actual link's length

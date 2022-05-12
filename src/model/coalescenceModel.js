@@ -69,6 +69,7 @@ export class Coalescence extends Resource{
                 let uniqueLyphs = lyphs::uniqBy(e => e.id);
                 if (uniqueLyphs.length <= 1) { return; }
 
+                //FIXME generated in joint model without namespace (is it a problem?)
                 let coalescence = {
                     [$Field.id]           : getGenID(this.id, $Prefix.instance, i + 1),
                     [$Field.generated]    : true,
