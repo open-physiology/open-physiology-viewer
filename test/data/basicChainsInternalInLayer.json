@@ -1,0 +1,879 @@
+{
+  "id"  : "basicChainsInGroup",
+  "name": "Chains joint to a group",
+  "description": "Demo model that includes several chains (neuron parts) into one group (neuron)",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "ns56"
+    },
+    {
+      "id": "ns51"
+    },
+    {
+      "id": "ns52"
+    },
+    {
+      "id": "ns53"
+    },
+    {
+      "id": "ns54"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "K22",
+      "name": "L1",
+      "external": [
+        "UBERON:0006448"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129",
+      "internalLyphs": [
+        "snl16",
+        "snl18",
+        "snl17"
+      ],
+      "internalLyphsInLayers": [
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "id": "K23",
+      "name": "L2",
+      "external": [
+        "UBERON:0006450"
+      ],
+      "topology": "TUBE",
+      "supertype": "K_129"
+    },
+    {
+      "id": "K63",
+      "name": "L1 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K64",
+      "name": "L2 ventral root",
+      "external": [
+        "UBERON:0024382"
+      ]
+    },
+    {
+      "id": "K88",
+      "name": "L1 white ramus",
+      "external": [
+        "FMA:12697"
+      ]
+    },
+    {
+      "id": "K89",
+      "name": "L2 white ramus",
+      "external": [
+        "FMA:12698"
+      ]
+    },
+    {
+      "id": "K80",
+      "name": "L1 sympathetic ganglion",
+      "external": [
+        "FMA:6540"
+      ],
+      "internalLyphs": [
+        "l1sgs",
+        "l1sgs2",
+        "sn-sgl1",
+        "sn-sgl1_2"
+      ]
+    },
+    {
+      "id": "K81",
+      "name": "L2 sympathetic ganglion",
+      "external": [
+        "FMA:6541"
+      ],
+      "internalLyphs": [
+        "l2sgs",
+        "l2sgs2",
+        "sn-sgl2",
+        "sn-sgl2"
+      ]
+    },
+    {
+      "id": "K92",
+      "name": "L1 gray ramus",
+      "external": [
+        "FMA:65910"
+      ]
+    },
+    {
+      "id": "K93",
+      "name": "L2 gray ramus",
+      "external": [
+        "FMA:65911"
+      ]
+    },
+    {
+      "id": "K102",
+      "name": "Inferior Mesenteric Ganglion",
+      "external": [
+        "UBERON:0005453"
+      ]
+    },
+    {
+      "id": "229",
+      "name": "Segment of neuron",
+      "external": [
+        "CL:0000540"
+      ],
+      "isTemplate": true,
+      "layers": [
+        "54",
+        "56",
+        "116"
+      ]
+    },
+    {
+      "id": "229bag2",
+      "name": "Segment of neuron ",
+      "isTemplate": true,
+      "topology": "BAG2",
+      "supertype": "229"
+    },
+    {
+      "id": "229bag",
+      "name": "Segment of neuron",
+      "isTemplate": true,
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "K_129",
+      "name": "Segment of Spinal Cord",
+      "external": [
+        "UBERON:0005844"
+      ],
+      "isTemplate": true,
+      "layers": [
+        "KM_9",
+        "KM_23",
+        "K_86",
+        "KM_27",
+        "K_85",
+        "K_84",
+        "K_83",
+        "K_82",
+        "K_81",
+        "K_80",
+        "K_79",
+        "K_78",
+        "K_77",
+        "KM_27"
+      ]
+    },
+    {
+      "id": "snl16",
+      "name": "Soma of SPR neuron in L1_6",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl26",
+      "name": "Soma of SPR neuron in L2_6",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229",
+      "internalIn": "K23",
+      "internalInLayer": 6
+    },
+    {
+      "id": "snl18",
+      "name": "Soma of SPR neuron in L1_8",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl28",
+      "name": "Soma of SPR neuron in L2_8",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229",
+      "internalIn": "K23",
+      "internalInLayer": 6
+    },
+    {
+      "id": "snl17",
+      "name": "Soma of SPR neuron in L1_7",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229"
+    },
+    {
+      "id": "snl27",
+      "name": "Soma of SPR neuron in L2_7",
+      "external": [
+        "UBERON:0011927"
+      ],
+      "supertype": "229",
+      "internalIn": "K23",
+      "internalInLayer": 6
+    },
+    {
+      "id": "l1sgs",
+      "name": "L1 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l1sgs2",
+      "name": "L1 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "l2sgs",
+      "name": "L2 sympathetic ganglion seg",
+      "topology": "BAG",
+      "supertype": "229"
+    },
+    {
+      "id": "l2sgs2",
+      "name": "L2 sympathetic ganglion seg2",
+      "topology": "TUBE",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl1",
+      "name": "Axon of SPO neuron in L1sg_4",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl1_2",
+      "name": "Soma of SPO neuron in L1sg_4_2",
+      "supertype": "229"
+    },
+    {
+      "id": "sn-sgl2",
+      "name": "Axon of SPO neuron in L2sg_4",
+      "supertype": "229"
+    }
+  ],
+  "materials": [
+    {
+      "id": "KM_1",
+      "name": "Urine",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "KM_2",
+        "KM_3",
+        "KM_4",
+        "KM_5"
+      ]
+    },
+    {
+      "id": "KM_2",
+      "name": "Water",
+      "external": [
+        "CHEBI:15377"
+      ]
+    },
+    {
+      "id": "KM_3",
+      "name": "Urea",
+      "external": [
+        "CHEBI:16199"
+      ]
+    },
+    {
+      "id": "KM_4",
+      "name": "Uric Acid",
+      "external": [
+        "CHEBI:27226"
+      ]
+    },
+    {
+      "id": "KM_5",
+      "name": "Extracellular fluid",
+      "external": [
+        "CHEBI:24839"
+      ]
+    },
+    {
+      "id": "KM_6",
+      "name": "Endothelium",
+      "external": [
+        "UBERON:0001986"
+      ],
+      "materials": [
+        "KM_8"
+      ]
+    },
+    {
+      "id": "KM_7",
+      "name": "Blood",
+      "external": [
+        "UBERON:0000178"
+      ],
+      "materials": [
+        "KM_8"
+      ]
+    },
+    {
+      "id": "KM_8",
+      "name": "Aqueous solution",
+      "external": [
+        "FMA:85815"
+      ],
+      "materials": [
+        "KM_2",
+        "KM_13",
+        "KM_14",
+        "KM_15",
+        "KM_16",
+        "KM_17",
+        "KM_18",
+        "KM_19",
+        "KM_20",
+        "KM_21"
+      ]
+    },
+    {
+      "id": "KM_9",
+      "name": "Cerebrospinal fluid",
+      "external": [
+        "UBERON:0001359"
+      ],
+      "materials": [
+        "KM_8"
+      ]
+    },
+    {
+      "id": "KM_10",
+      "name": "Smooth muscle ",
+      "external": [
+        "UBERON:0001135"
+      ]
+    },
+    {
+      "id": "KM_11",
+      "name": "Connective Tissue",
+      "external": [
+        "UBERON:0002384"
+      ]
+    },
+    {
+      "id": "KM_13",
+      "name": "Sodium ion",
+      "external": [
+        "CHEBI:29101"
+      ]
+    },
+    {
+      "id": "KM_14",
+      "name": "Potassium ion",
+      "external": [
+        "CHEBI:29103"
+      ]
+    },
+    {
+      "id": "KM_15",
+      "name": "Calcium ion",
+      "external": [
+        "CHEBI:29108"
+      ]
+    },
+    {
+      "id": "KM_16",
+      "name": "Chloride ion",
+      "external": [
+        "CHEBI:17996"
+      ]
+    },
+    {
+      "id": "KM_17",
+      "name": "Hydrogen ion",
+      "external": [
+        "CHEBI:24636"
+      ]
+    },
+    {
+      "id": "KM_18",
+      "name": "Hydroxide ion",
+      "external": [
+        "CHEBI:16234"
+      ]
+    },
+    {
+      "id": "KM_19",
+      "name": "Bicarbonate ion ",
+      "external": [
+        "CHEBI:17544"
+      ]
+    },
+    {
+      "id": "KM_20",
+      "name": "Liquid",
+      "external": [
+        "NCIT:C45298"
+      ]
+    },
+    {
+      "id": "KM_21",
+      "name": "Fluid",
+      "external": [
+        "NCIT:C25278"
+      ]
+    },
+    {
+      "id": "KM_22",
+      "name": "Peripheral nervous system tissue",
+      "external": [
+        "UBERON:0000010"
+      ],
+      "materials": [
+        "KM_5"
+      ]
+    },
+    {
+      "id": "KM_23",
+      "name": "Ependyma",
+      "external": [
+        "UBERON:0004670"
+      ]
+    },
+    {
+      "id": "KM_24",
+      "name": "Pia mater",
+      "external": [
+        "UBERON:0002361"
+      ]
+    },
+    {
+      "id": "KM_25",
+      "name": "Central nervous system tissue",
+      "external": [
+        "UBERON:0001017"
+      ],
+      "materials": [
+        "KM_5"
+      ]
+    },
+    {
+      "id": "KM_26",
+      "name": "Wall of vessel",
+      "external": [
+        "UBERON:0035965"
+      ],
+      "materials": [
+        "KM_11"
+      ]
+    },
+    {
+      "id": "KM_27",
+      "name": "White matter of CNS",
+      "external": [
+        "UBERON:0016549"
+      ]
+    },
+    {
+      "id": "KM_28",
+      "name": "Gray matter of CNS",
+      "external": [
+        "UBERON:0016548"
+      ]
+    },
+    {
+      "id": "K_77",
+      "name": "lamina I of gray matter of spinal cord",
+      "external": [
+        "UBERON:0006118"
+      ]
+    },
+    {
+      "id": "K_78",
+      "name": "lamina II of gray matter of spinal cord",
+      "external": [
+        "UBERON:0002181"
+      ]
+    },
+    {
+      "id": "K_79",
+      "name": "lamina III of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016574"
+      ]
+    },
+    {
+      "id": "K_80",
+      "name": "lamina IV of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016575"
+      ]
+    },
+    {
+      "id": "K_81",
+      "name": "lamina V of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016576"
+      ]
+    },
+    {
+      "id": "K_82",
+      "name": "lamina VI of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016577"
+      ]
+    },
+    {
+      "id": "K_83",
+      "name": "lamina VII of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016578"
+      ]
+    },
+    {
+      "id": "K_84",
+      "name": "lamina VIII of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016579"
+      ]
+    },
+    {
+      "id": "K_85",
+      "name": "lamina IX of gray matter of spinal cord",
+      "external": [
+        "UBERON:0016580"
+      ]
+    },
+    {
+      "id": "K_86",
+      "name": "lamina X of gray matter of spinal cord",
+      "external": [
+        "UBERON:0004677"
+      ]
+    },
+    {
+      "id": "54",
+      "name": "Cytosol",
+      "external": [
+        "GO:0005829"
+      ]
+    },
+    {
+      "id": "55",
+      "name": "Membrane",
+      "external": [
+        "GO:0016020"
+      ]
+    },
+    {
+      "id": "56",
+      "name": "Plasma membrane",
+      "external": [
+        "GO:0005886"
+      ]
+    },
+    {
+      "id": "116",
+      "name": "Extracellular fluid",
+      "external": [
+        "GO:0005615"
+      ]
+    },
+    {
+      "id": "K_87",
+      "name": "Epithelium",
+      "external": [
+        "UBERON:0000483"
+      ]
+    },
+    {
+      "id": "K_88",
+      "name": "Rhabdosphincter"
+    },
+    {
+      "id": "KM_89",
+      "name": "Basement membrane"
+    }
+  ],
+  "groups": [
+    {
+      "id": "neuron-7",
+      "chains": [
+        "dc-snl17",
+        "ac-snl17",
+        "dc-snl27",
+        "ac-snl27",
+        "ac-snl1l2"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "ns55-ns56",
+      "source": "ns55",
+      "target": "ns56"
+    }
+  ],
+  "chains": [
+    {
+      "id": "dc-snl17",
+      "name": "L1-7 SPR dendrite chain",
+      "root": "ns51",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K22"
+      ]
+    },
+    {
+      "id": "ac-snl17",
+      "name": "L1-7 SPR axon chain",
+      "root": "ns52",
+      "leaf": "ns55",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K22",
+        "K22",
+        "K63",
+        "K88",
+        "K80",
+        "K92"
+      ]
+    },
+    {
+      "id": "dc-snl27",
+      "name": "L2-7 SPR dendrite chain",
+      "root": "ns53",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6
+      ],
+      "housingLyphs": [
+        "K23"
+      ]
+    },
+    {
+      "id": "ac-snl27",
+      "name": "L2-7 SPR axon chain",
+      "root": "ns54",
+      "leaf": "ns56",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        6,
+        13,
+        0,
+        0,
+        0,
+        0
+      ],
+      "housingLyphs": [
+        "K23",
+        "K23",
+        "K64",
+        "K89",
+        "K81",
+        "K93"
+      ]
+    },
+    {
+      "id": "ac-snl1l2",
+      "name": "L1-7 L2-7 SPR axon chain",
+      "root": "ns55",
+      "lyphTemplate": "229bag",
+      "housingLayers": [
+        0
+      ],
+      "housingLyphs": [
+        "K102"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "id": "UBERON:0006448"
+    },
+    {
+      "id": "UBERON:0006450"
+    },
+    {
+      "id": "UBERON:0024382"
+    },
+    {
+      "id": "FMA:12697"
+    },
+    {
+      "id": "FMA:12698"
+    },
+    {
+      "id": "FMA:6540"
+    },
+    {
+      "id": "FMA:6541"
+    },
+    {
+      "id": "FMA:65910"
+    },
+    {
+      "id": "FMA:65911"
+    },
+    {
+      "id": "UBERON:0005453"
+    },
+    {
+      "id": "CL:0000540"
+    },
+    {
+      "id": "UBERON:0005844"
+    },
+    {
+      "id": "UBERON:0011927"
+    },
+    {
+      "id": "GO:0005829"
+    },
+    {
+      "id": "GO:0005886"
+    },
+    {
+      "id": "GO:0005615"
+    },
+    {
+      "id": "UBERON:0001359"
+    },
+    {
+      "id": "UBERON:0004670"
+    },
+    {
+      "id": "UBERON:0004677"
+    },
+    {
+      "id": "UBERON:0016549"
+    },
+    {
+      "id": "UBERON:0016580"
+    },
+    {
+      "id": "UBERON:0016579"
+    },
+    {
+      "id": "UBERON:0016578"
+    },
+    {
+      "id": "UBERON:0016577"
+    },
+    {
+      "id": "UBERON:0016576"
+    },
+    {
+      "id": "UBERON:0016575"
+    },
+    {
+      "id": "UBERON:0016574"
+    },
+    {
+      "id": "UBERON:0002181"
+    },
+    {
+      "id": "UBERON:0006118"
+    },
+    {
+      "id": "UBERON:0000178"
+    },
+    {
+      "id": "CHEBI:15377"
+    },
+    {
+      "id": "CHEBI:16199"
+    },
+    {
+      "id": "CHEBI:27226"
+    },
+    {
+      "id": "CHEBI:24839"
+    },
+    {
+      "id": "UBERON:0001986"
+    },
+    {
+      "id": "FMA:85815"
+    },
+    {
+      "id": "UBERON:0001135"
+    },
+    {
+      "id": "UBERON:0002384"
+    },
+    {
+      "id": "CHEBI:29101"
+    },
+    {
+      "id": "CHEBI:29103"
+    },
+    {
+      "id": "CHEBI:29108"
+    },
+    {
+      "id": "CHEBI:17996"
+    },
+    {
+      "id": "CHEBI:24636"
+    },
+    {
+      "id": "CHEBI:16234"
+    },
+    {
+      "id": "CHEBI:17544"
+    },
+    {
+      "id": "NCIT:C45298"
+    },
+    {
+      "id": "NCIT:C25278"
+    },
+    {
+      "id": "UBERON:0000010"
+    },
+    {
+      "id": "UBERON:0002361"
+    },
+    {
+      "id": "UBERON:0001017"
+    },
+    {
+      "id": "UBERON:0035965"
+    },
+    {
+      "id": "UBERON:0016548"
+    },
+    {
+      "id": "GO:0016020"
+    },
+    {
+      "id": "UBERON:0000483"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import basalGanglia from './data/basalGanglia';
 import basalGangliaAuto from './data/basalGangliaAuto';
 import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
+import basicChainsInternalInLayer from './data/basicChainsInternalInLayer';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
 import basicLinkWithChainsAsEnds from './data/basicLinkWithChainsAsEnds';
@@ -61,11 +62,40 @@ describe("Basic", () => {
 });
 
 describe("BasicChainsInGroup", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicChainsInGroup, modelClasses));
+    let graphData, graphData2;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(basicChainsInGroup, modelClasses);
+        graphData2 = modelClasses.Graph.fromJSON(basicChainsInternalInLayer, modelClasses)
+    });
     it("Model generated without warnings", () => expectNoWarnings(graphData));
+    it("Model2 generated without warnings", () => expectNoWarnings(graphData2));
+
+    it("Model reassigned internal lyphs to layers", () => {
+        expect(graphData).to.have.property("lyphs");
+        expect(graphData.lyphs).to.be.an('array');
+        const snl28 = graphData.lyphs.find(e => e.id === "snl28");
+        expect(snl28).to.be.an('object');
+        expect(snl28).to.have.property("internalIn");
+        expect(snl28.internalIn).to.have.property("id").that.equal("ref_mat_K_83_K_129_6_K23_7");
+        const host = graphData.lyphs.find(e => e.id === "ref_mat_K_83_K_129_6_K23_7");
+        expect(host).to.be.an('object');
+        expect(host).to.have.property("internalLyphs").that.has.length(3);
+    });
+    it("Model2 reassigned internal lyphs to layers", () => {
+        expect(graphData2).to.have.property("lyphs");
+        expect(graphData2.lyphs).to.be.an('array');
+        const snl28 = graphData2.lyphs.find(e => e.id === "snl28");
+        expect(snl28).to.be.an('object');
+        expect(snl28).to.have.property("internalIn");
+        expect(snl28.internalIn).to.have.property("id").that.equal("ref_mat_K_83_K_129_6_K23_7");
+        const host = graphData2.lyphs.find(e => e.id === "ref_mat_K_83_K_129_6_K23_7");
+        expect(host).to.be.an('object');
+        expect(host).to.have.property("internalLyphs").that.has.length(3);
+    });
+
     after(() => {
         graphData.logger.clear();
+        graphData2.logger.clear();
     });
 });
 
