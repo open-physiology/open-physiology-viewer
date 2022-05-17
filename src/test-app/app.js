@@ -398,16 +398,17 @@ export class TestApp {
             throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
         if (isScaffold(this._model) !== isScaffold(newModel)){
-          this.model = removeDisconnectedObjects(this._model, newModel);
-          this.applyScaffold(this._model, newModel);
+            this.model = removeDisconnectedObjects(this._model, newModel);
+            this.applyScaffold(this._model, newModel);
         } else {
             //FIXME (NK for MetaCell) As I understand, removeDisconnectedObjects works on scaffold applied to model
             //The code below joins 2 connectivity models or 2 scaffolds, your method breaks the join
             //this.model = removeDisconnectedObjects(this._model, newModel);
-          let jointModel = joinModels(this._model, newModel, this._flattenGroups);
-          jointModel.config::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
-          this.model = jointModel;
-          this._flattenGroups = true;
+            let jointModel = joinModels(this._model, newModel, this._flattenGroups);
+            //NK config property is deprecated, merging with it was a bug caused by Master+Metacell conflict resolution mistake
+            jointModel::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
+            this.model = jointModel;
+            this._flattenGroups = true;
         }
     }
 

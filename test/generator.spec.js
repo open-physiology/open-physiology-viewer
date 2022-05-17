@@ -30,8 +30,10 @@ import neuronTreeWithLevels from './data/neuronTreeWithLevels';
 import respiratory from './data/respiratory';
 import respiratoryInternalLyphsInLayers from './data/respiratoryInternalLyphsInLayers';
 import uot from './data/uot';
+import wbkg from './data/wkbg.json';
+
 import {expectNoWarnings} from "./test.helper";
-import {modelClasses, fromJSON} from '../src/model/index';
+import {modelClasses, fromJSON, joinModels} from '../src/model/index';
 import {$LogMsg, Logger} from "../src/model/logger";
 
 describe("BasalGanglia", () => {
@@ -290,3 +292,22 @@ describe("Uot", () => {
         graphData.logger.clear();
     });
 });
+
+describe("Basic+wbkg", () => {
+    let jointModel, graphData;
+    before(() => {
+       jointModel = joinModels(basic, wbkg, false);
+       graphData = fromJSON(jointModel, modelClasses)
+    });
+
+    it("Joint model accumulates imports from both models", () => {
+        expect(graphData).to.have.property("imports");
+        //3 + 2 - 1 as the TOO-map is in both models
+        expect(graphData.imports).to.be.an('array').that.has.length(4);
+        graphData.imports.forEach(link => console.log(link))
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+})
