@@ -322,8 +322,7 @@
               }
             ]
           },
-          "relatedTo": "bundlesChains",
-          "default": []
+          "relatedTo": "bundlesChains"
         },
         "housingChain": {
           "description": "A chain that houses the chain",
@@ -2635,8 +2634,7 @@
         },
         "radius": {
           "description": "Provides parameters a and b for elliptic wire",
-          "$ref": "#/definitions/Point2Scheme",
-          "default": {"x": 100, "y": 80}
+          "$ref": "#/definitions/Point2Scheme"
         },
         "infoFields": {
           "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
