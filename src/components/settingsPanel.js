@@ -168,7 +168,7 @@ const COLORS = {
 
             <!--Scaffold controls-->
 
-            <mat-accordion *ngIf="!!scaffolds">
+            <mat-accordion *ngIf="scaffolds && scaffolds.length > 0">
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <mat-panel-title>
@@ -193,28 +193,45 @@ const COLORS = {
                                               (change)="toggleScaffold(scaffold)">{{scaffold._parent ? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
                         </div>
                     </div>
+
+                    <!-- Component visibility -->
+                    <resourceVisibility 
+                            title = "Component visibility"
+                            [renderedResources] = "renderedComponents"                        
+                            [dependentProperties] = "['anchors', 'wires', 'regions']">                
+                    </resourceVisibility>
+
+                    <div class="default-box">
+                        <div class="settings-wrap">
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle scaffold resource visibility" (change)="toggleVisibility()"
+                                                  [checked]="scaffoldResourceVisibility">Show all resources
+                                </mat-slide-toggle>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Wire visibility -->
+                    <resourceVisibility
+                            title = "Wire visibility"
+                            [renderedResources] = "renderedWires">                
+                    </resourceVisibility>
+                    
+                    <!-- Regions visibility -->
+                    <resourceVisibility
+                            title = "Region visibility"
+                            [renderedResources] = "renderedRegions"            
+                            [dependentProperties] = "['facets', 'borderAnchors']">                
+                    </resourceVisibility>
+        
+                    <!-- Anchor visibility -->
+                    <resourceVisibility
+                            title = "Anchor visibility"
+                            [renderedResources] = "renderedAnchors">
+                    </resourceVisibility>
                 </mat-expansion-panel>
             </mat-accordion>
-
-            <!-- Wire visibility -->
-            <resourceVisibility 
-                    title = "Wire visibility"
-                    [renderedResources] = "renderedWires">                
-            </resourceVisibility>
-            
-            <!-- Regions visibility -->
-            <resourceVisibility 
-                    title = "Region visibility"
-                    [renderedResources] = "renderedRegions"            
-                    [dependentProperties] = "['facets', 'borderAnchors']">                
-            </resourceVisibility>
-
-            <!-- Anchor visibility -->
-            <resourceVisibility 
-                    title = "Anchor visibility"
-                    [renderedResources] = "renderedAnchors">
-            </resourceVisibility>
-
+               
             <!-- Settings -->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -226,6 +243,7 @@ const COLORS = {
 
                     <div class="default-box">
                         <div class="settings-wrap">
+                            
                             <h5>Layout</h5>
 
                             <div class="wrap">
@@ -290,7 +308,8 @@ const COLORS = {
 
 
                 </mat-expansion-panel>
-            </mat-accordion>
+            </mat-accordion>            
+            
         </section>
     `,
     styles: [`
@@ -935,6 +954,8 @@ export class SettingsPanel {
     filteredScaffolds;
     nodes;
 
+    scaffoldResourceVisibility: Boolean = false;
+    renderedComponents;
     renderedWires;
     renderedRegions;
     renderedAnchors;
@@ -1025,48 +1046,49 @@ export class SettingsPanel {
         }
     }
 
+    toggleVisibility(){
+        this.scaffoldResourceVisibility = !this.scaffoldResourceVisibility;
+        this.updateRenderedResources();
+    }
+
     updateRenderedResources(){
-        this.renderedWires   = [];
-        this.renderedRegions = [];
-        this.renderedAnchors = [];
+        let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
+        scaffoldResourceNames.forEach(prop => this[prop] = []);
         (this.scaffolds||[]).forEach(s => {
              //Only include wires from the scaffold, no components
              if (s.class === $SchemaClass.Scaffold && !s.hidden) {
-                 (s.anchors || []).forEach(r => {
-                    if (!r.generated) {
-                        r._parent = s;
-                        this.renderedAnchors.push(r);
-                    }
+                 (s.components || []).forEach(r => {
+                    r._parent = s;
+                    r._visible = true;
+                    this.renderedComponents.push(r);
                  });
-                 (s.wires || []).forEach(r => {
-                    if (!r.generated) {
-                        r._parent = s;
-                        this.renderedWires.push(r);
-                    }
-                 });
-                 (s.regions || []).forEach(r => {
-                    if (!r.generated) {
-                        r._parent = s;
-                        this.renderedRegions.push(r);
-                    }
-                 });
+                 if (this.scaffoldResourceVisibility) {
+                     (s.anchors || []).forEach(r => {
+                         if (!r.generated) {
+                             r._parent = s;
+                             this.renderedAnchors.push(r);
+                         }
+                     });
+                     (s.wires || []).forEach(r => {
+                         if (!r.generated) {
+                             r._parent = s;
+                             this.renderedWires.push(r);
+                         }
+                     });
+                     (s.regions || []).forEach(r => {
+                         if (!r.generated) {
+                             r._parent = s;
+                             this.renderedRegions.push(r);
+                         }
+                     });
+                 }
              }
         });
-        if (this.renderedWires.length === 0){
-            this.renderedWires = undefined;
-        }
-        if (this.renderedRegions.length === 0){
-            this.renderedRegions = undefined;
-        }
-        if (this.renderedAnchors.length === 0){
-            this.renderedAnchors = undefined;
-        }
-    }
-
-    toggleWire(wire){
-        if (wire.viewObjects && wire.viewObjects.main){
-            wire.viewObjects.main.material.visible = !wire.viewObjects.main.material.visible;
-        }
+        scaffoldResourceNames.forEach(prop => {
+            if (this[prop].length === 0){
+                this[prop] = undefined;
+            }
+        });
     }
 
     updateShowLabels(labelClass) {

@@ -15,7 +15,7 @@ import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
                     <div class="settings-wrap">
                         <div class="wrap" *ngFor="let resource of renderedResources">
                             <mat-slide-toggle
-                                    [checked]="resource.viewObjects && resource.viewObjects.main && resource.viewObjects.main.material.visible"
+                                    [checked]="isChecked(resource)"
                                     (change)="toggleResource(resource)">
                                 {{resource._parent ? resource._parent.id + ":" : ""}}{{resource.name || resource.id}}
                             </mat-slide-toggle>
@@ -31,6 +31,14 @@ export class ResourceVisibility {
     @Input() renderedResources;
     @Input() dependentProperties;
 
+    isChecked(resource){
+        if (resource.viewObjects && resource.viewObjects.main) {
+            return resource.viewObjects.main.material.visible;
+        } else {
+            return resource._visible;
+        }
+    }
+
     toggleResource(resource){
         if (resource.viewObjects && resource.viewObjects.main){
             resource.viewObjects.main.material.visible = !resource.viewObjects.main.material.visible;
@@ -40,6 +48,12 @@ export class ResourceVisibility {
                         e.viewObjects.main.material.visible = resource.viewObjects.main.material.visible;
                     }
                 })
+            })
+        } else {
+            //Resource is an aggregated component
+            resource._visible = !resource._visible;
+            (this.dependentProperties||[]).forEach(prop => {
+                (resource[prop]||[]).forEach(e => this.toggleResource(e));
             })
         }
     }
