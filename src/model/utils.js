@@ -5,6 +5,7 @@ import {
     isObject,
     isString,
     isNumber,
+    isEmpty,
     merge,
     keys,
     flatten, isArray, unionBy, mergeWith, values
@@ -22,6 +23,12 @@ export const $SchemaType = {
     NUMBER : "number",
     BOOLEAN: "boolean"
 };
+
+export const ModelType = {
+    GRAPH  : "Graph",
+    SCAFFOLD : "Scaffold",
+};
+
 /**
  * @property IdentifierScheme
  * @property IdentifierScheme
@@ -645,3 +652,139 @@ export class SchemaClass {
  * Definition of all schema-based resource classes
  */
 export const schemaClassModels = definitions::keys().map(schemaClsName => [schemaClsName, new SchemaClass(schemaClsName)])::fromPairs();
+
+
+export const assignEntityById = (res, entitiesByID, namespace, modelClasses) => {
+    if (entitiesByID){
+        if (!res.id) { res.id = getNewID(entitiesByID); }
+        if (res.id::isNumber()){
+            res.id = res.id.toString();
+            logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
+        }
+
+        if (entitiesByID[res.fullID]){
+            if (entitiesByID[res.fullID] !== res) {
+                logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.fullID], res);
+            }
+        } else {
+            entitiesByID[res.fullID] = res;
+            reviseWaitingList(entitiesByID.waitingList, res);
+            replaceIDs(modelClasses, entitiesByID, namespace, res);
+        }
+    }
+};
+
+
+/**
+ * Waiting list keeps objects that refer to unresolved model resources.
+ * When a new resource definition is found or created, all resources that referenced this resource by ID get the
+ * corresponding object reference instead
+ * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
+ */
+export const reviseWaitingList = (waitingList, context) => {
+    let res = context;
+    (waitingList[res.fullID]||[]).forEach(([obj, key, clsName]) => {
+        if (obj[key]::isArray()) {
+            obj[key].forEach((e, i) => {
+                if (e === res.id || e === res.fullID){
+                    if (!schemaClassModels[res.class].extendsClass(clsName)){
+                        logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
+                    }
+                    obj[key][i] = res;
+                }
+            });
+        } else {
+            if (obj[key] === res.id || obj[key] === res.fullID){
+                if (!schemaClassModels[res.class].extendsClass(clsName)){
+                    logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
+                }
+                obj[key] = res;
+            }
+        }
+    });
+    delete waitingList[res.fullID];
+};
+
+
+/**
+ * Replace IDs with object references
+ * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
+ * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+ */
+export const replaceIDs = (modelClasses, entitiesByID, namespace, res) => {
+    const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
+
+    const createObj = (res, key, value, spec) => {
+        if (skip(value)) { return value; }
+
+        if (value::isNumber()) {
+            value = value.toString();
+            logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, res.fullID, key);
+        }
+
+        let clsName = getClassName(spec);
+        if (!clsName){
+            logger.warn($LogMsg.RESOURCE_NO_CLASS,
+                spec, value);
+            return value;
+        }
+
+        if (value && value::isString()) {
+            let fullValueID = getFullID(namespace, value);
+            if (!entitiesByID[fullValueID]) {
+                //put to a waiting list instead
+                entitiesByID.waitingList[fullValueID] = entitiesByID.waitingList[fullValueID] || [];
+                entitiesByID.waitingList[fullValueID].push([res, key, clsName]);
+                return value;
+            } else {
+                return entitiesByID[fullValueID];
+            }
+        }
+
+        if (value.id) {
+            value.fullID = value.fullID || getFullID(res.namespace, value.id);
+            if (entitiesByID[value.fullID]) {
+                if (value !== entitiesByID[value.fullID]) {
+                    //FIXME the condition hides warning for generated resources as it is often erroneously triggered by node clones in multi-namespace models
+                    if (!value.generated || !entitiesByID[value.fullID].generated) {
+                        logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[value.fullID]);
+                    }
+                }
+                return entitiesByID[value.fullID];
+            }
+        }
+
+        //value is an object and it is not in the map
+        if (isClassAbstract(clsName)){
+            if (value.class) {
+                clsName = value.class;
+                if (!modelClasses[clsName]){
+                    logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, value.class, value);
+                }
+            } else {
+                logger.error($LogMsg.RESOURCE_NO_ABSTRACT_CLASS, value);
+                return null;
+            }
+        }
+        return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID, res.namespace);
+    };
+
+    if (!modelClasses[res.class]){
+        logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, modelClasses, this.class);
+        return;
+    }
+
+    let refFields = schemaClassModels[res.class].relationships;
+    // let res = this;
+    refFields.forEach(([key, spec]) => {
+        if (skip(res[key])) { return; }
+        if (res[key]::isArray()){
+            res[key] = res[key].map(value => createObj(res, key, value, spec));
+        } else {
+            res[key] = createObj(res, key, res[key], spec);
+            if (spec.type === $SchemaType.ARRAY){ //The spec expects multiple values, replace an object with an array of objects
+                res[key] = [res[key]];
+            }
+        }
+    });
+};

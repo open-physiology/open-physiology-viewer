@@ -34,6 +34,41 @@ import * as XLSX from "xlsx";
  */
 export class Scaffold extends Component {
 
+    static processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, castingMethod) {
+        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
+            let [obj, key] = refs[0];
+            if (obj && obj.class) {
+                //Only create missing scaffold resources
+                if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    return;
+                }
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract) {
+                    let e = Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace, castingMethod);
+                    added.push(e.fullID);
+                }
+            }
+        });
+
+        if (added.length > 0) {
+            added.forEach(id => delete entitiesByID.waitingList[id]);
+            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
+            if (resources.length > 0) {
+                logger.warn($LogMsg.AUTO_GEN, resources);
+            }
+        }
+
+        if (standalone && entitiesByID.waitingList::keys().length > 0) {
+            logger.error($LogMsg.REF_UNDEFINED, "scaffold", entitiesByID.waitingList::keys());
+        }
+
+        res.syncRelationships(modelClasses, entitiesByID);
+
+        res.entitiesByID = entitiesByID;
+        delete res.waitingList;
+    }
+
+
     /**
      * Create expanded Graph model from the given JSON input model
      * @param json - input model
@@ -74,37 +109,7 @@ export class Scaffold extends Component {
 
         //Auto-create missing definitions for used references
         let added = [];
-        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
-            let [obj, key] = refs[0];
-            if (obj && obj.class) {
-                //Only create missing scaffold resources
-                if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
-                    return;
-                }
-                let clsName = schemaClassModels[obj.class].relClassNames[key];
-                if (clsName && !schemaClassModels[clsName].schema.abstract) {
-                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace);
-                    added.push(e.fullID);
-                }
-            }
-        });
-
-        if (added.length > 0) {
-            added.forEach(id => delete entitiesByID.waitingList[id]);
-            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
-            if (resources.length > 0) {
-                logger.warn($LogMsg.AUTO_GEN, resources);
-            }
-        }
-
-        if (standalone && entitiesByID.waitingList::keys().length > 0) {
-            logger.error($LogMsg.REF_UNDEFINED, "scaffold", entitiesByID.waitingList::keys());
-        }
-
-        res.syncRelationships(modelClasses, entitiesByID);
-
-        res.entitiesByID = entitiesByID;
-        delete res.waitingList;
+        processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, undefined);
 
         (res.components||[]).forEach(component => component.includeRelated && component.includeRelated());
         res.generated = true;
@@ -210,8 +215,7 @@ export class Scaffold extends Component {
     /**
      * Serialize the map of all resources to flattened jsonld
      */
-    entitiesToJSONLDFlat(callback){
-        let res = this.entitiesToJSONLD();
+    static entitiesToJSONLDFlat(res, callback){
         let context = {};
         res['@context']::entries().forEach(([k, v]) => {
             if (v::isObject() && "@id" in v && v["@id"].includes("apinatomy:")) {
