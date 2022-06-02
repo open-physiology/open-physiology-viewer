@@ -339,10 +339,10 @@ export class TestApp {
                 }
             });
             dialogRef.afterClosed().subscribe(result => {
-                if (result !== undefined) {
-                    let scaffolds = (result||[]).filter(m => isScaffold(m));
-                    let groups = (result||[]).filter(m => isGraph(m));
-                    let snapshots = (result||[]).filter(m => isSnapshot(m));
+                if (result !== undefined && result::isArray()) {
+                    let scaffolds = result.filter(m => isScaffold(m));
+                    let groups = result.filter(m => isGraph(m));
+                    let snapshots = result.filter(m => isSnapshot(m));
                     this._model.scaffolds = this._model.scaffolds || [];
                     this._model.groups = this._model.groups || [];
                     scaffolds.forEach(newModel => {

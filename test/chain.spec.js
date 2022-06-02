@@ -382,7 +382,8 @@ describe("Process model with multiple namespaces", () => {
             }
         })
         duplicates = [... new Set(duplicates)];
-        expect(duplicates).to.have.length(13);
+        //console.log(duplicates);
+        expect(duplicates).to.have.length(21);
         expect(noFullID).to.have.length(0);
     });
 
