@@ -379,9 +379,6 @@ export class Resource{
                         obj[key2] = [obj[key2]];
                     }
                     if (!obj[key2].find(obj2 => obj2 === res)) {
-                        // if (key2 === "levels"){
-                        //     console.error("Filling levels: ", key, res[key].map(x => x.fullID), obj[key2].map(x => x.fullID), res.fullID);
-                        // }
                         obj[key2].push(res);
                     }
                 } else {

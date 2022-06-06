@@ -93,6 +93,7 @@ export const $LogMsg = {
     LYPH_NO_TEMPLATE_LAYER      : "Template layer object not found",
     LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
     LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
+    LYPH_SUBTYPE_NOT_FOUND      : "Lyph subtype not found",
 
     MATERIAL_REF_NOT_FOUND      : "Referred material definition not found in the model",
 

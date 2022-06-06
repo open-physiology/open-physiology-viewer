@@ -131,7 +131,6 @@ export class Graph extends Group{
 
         //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
-        let namespace = inputModel.namespace;
 
         /**
          * @property waitingList
@@ -146,7 +145,7 @@ export class Graph extends Group{
         [$Field.nodes, $Field.links].forEach((prop, i) => (inputModel[prop]||[]).forEach(e => {
                 if (e::isObject() && !e.id){
                     e.id = getGenID(prefix[i], $Prefix.default, count++);
-                    e.fullID = getFullID(namespace, e.id);
+                    e.fullID = getFullID(inputModel.namespace, e.id);
                 }
             }
         ));
@@ -155,8 +154,8 @@ export class Graph extends Group{
         const defaulID =  getGenID($Prefix.group, $Prefix.default);
         let defaultGroup = {
             [$Field.id]       : defaulID,
-            [$Field.fullID]   : getFullID(namespace, defaulID),
-            [$Field.namespace]: namespace,
+            [$Field.fullID]   : getFullID(inputModel.namespace, defaulID),
+            [$Field.namespace]: inputModel.namespace,
             [$Field.name]     : "Ungrouped",
             [$Field.generated]: true,
             [$Field.hidden]   : true,
@@ -166,12 +165,25 @@ export class Graph extends Group{
         inputModel.groups.unshift(defaultGroup);
 
         //Collect resources necessary for template expansion from all groups
-        let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups];
+        let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels];
+
         collectNestedResources(inputModel, relFieldNames, $Field.groups);
+
+        modelClasses.Channel.defineChannelLyphTemplates(inputModel);
+
+        modelClasses.Group.replaceReferencesToTemplates(inputModel);
+        inputModel.groupsByID::values().forEach(json => {
+            modelClasses.Group.replaceReferencesToTemplates(json);
+        });
+
+        modelClasses.Group.expandLyphTemplates(inputModel, modelClasses);
+        inputModel.groupsByID::values().forEach(json => {
+            modelClasses.Group.expandLyphTemplates(json, modelClasses);
+        });
 
         //Create graph
         inputModel.class = $SchemaClass.Graph;
-        let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
+        let res = super.fromJSON(inputModel, modelClasses, entitiesByID, inputModel.namespace);
 
         //Auto-create missing definitions for used references
         let added = [];
@@ -184,7 +196,7 @@ export class Graph extends Group{
                 }
                 let clsName = schemaClassModels[obj.class].relClassNames[key];
                 if (clsName && !schemaClassModels[clsName].schema.abstract){
-                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace || refs[0].namespace);
+                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, inputModel.namespace || refs[0].namespace);
                     added.push(e.fullID);
                     //A created link needs end nodes
                     if (e instanceof modelClasses.Link) {
@@ -238,7 +250,11 @@ export class Graph extends Group{
             //Collect inherited externals
             (res.lyphs||[]).forEach(lyph => {
                 if (lyph.supertype) {
-                    lyph.collectInheritedExternals();
+                    if (!lyph.collectInheritedExternals){
+                        logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
+                    } else {
+                        lyph.collectInheritedExternals();
+                    }
                 }
             });
         }

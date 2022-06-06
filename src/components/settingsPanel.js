@@ -1135,7 +1135,7 @@ export class SettingsPanel {
     }
 
     search(value, filterOptions, allOptions) {
-      this[filterOptions] = this[allOptions].filter((val) => val.name.toLowerCase().includes(value?.toLowerCase()));
+      this[filterOptions] = this[allOptions].filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
     }
 
     searchScaffold(value) {

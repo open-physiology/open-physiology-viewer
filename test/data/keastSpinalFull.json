@@ -1197,7 +1197,7 @@
             "length": 4
         },
         {
-            "id": "sn_drg-s1_12",
+            "id": "lnk-sn_drg-s1_12",
             "source": "ns210",
             "target": "ns201",
             "conveyingLyph": "sn_drg-s1_12",
@@ -6168,7 +6168,7 @@
                 "lnk-anL6-8_12",
                 "lnk-anL6-6_12",
                 "lnk-anL6-2_12",
-                "sn_drg-s1_12",
+                "lnk-sn_drg-s1_12",
                 "lnk-anS1-13_12",
                 "lnk-anS1-12_12",
                 "lnk-anS1-11_12",

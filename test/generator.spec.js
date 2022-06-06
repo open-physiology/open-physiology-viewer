@@ -304,7 +304,6 @@ describe("Basic+wbkg", () => {
         expect(graphData).to.have.property("imports");
         //3 + 2 - 1 as the TOO-map is in both models
         expect(graphData.imports).to.be.an('array').that.has.length(4);
-        graphData.imports.forEach(link => console.log(link))
     });
 
     after(() => {

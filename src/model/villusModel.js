@@ -103,6 +103,7 @@ export class Villus extends GroupTemplate{
             });
             villus_layers = villus_layers.map(x => x.id);
 
+            //FIXME
             let villusLyph = {
                 [$Field.id]        : getGenID($Prefix.villus, $Prefix.lyph, lyph.id, layer.id),
                 [$Field.layers]    : villus_layers.reverse(),

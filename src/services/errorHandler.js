@@ -16,6 +16,5 @@ export class GlobalErrorHandler implements ErrorHandler {
         console.error(error);
         let message = "An unexpected error occurred: " + error;
         this._snackBar.open(message, "OK", this.config);
-        console.log(logger.entries.length);
     }
 }
