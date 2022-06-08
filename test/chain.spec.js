@@ -360,7 +360,6 @@ describe("Validate chain wiring", () => {
     });
 });
 
-
 describe("Process model with multiple namespaces", () => {
     let graphData;
     before(() => {
@@ -369,47 +368,22 @@ describe("Process model with multiple namespaces", () => {
 
     it("Resources generated without duplicates", () => {
         let duplicates = [];
-        let noNamespace = [];
-        let noNamespace2 = [];
         let noFullID = [];
         graphData.entitiesByID::values().forEach(r => {
             if (r.generated) {
                 let fullID1 = "wbkg:" + getRefID(r.id);
                 let fullID2 = "spleen:" + getRefID(r.id);
-
                 if (graphData.entitiesByID[fullID1] && graphData.entitiesByID[fullID2]) {
                     duplicates.push(getRefID(r.id));
                 }
-
-                if (graphData.entitiesByID[getRefID(r.id)]){
-                    if (r.description !== "force") {
-                        noNamespace.push(r.id);
-                    }
-                }
-
-                if (!r.namespace){
-                     if (r.description !== "force") {
-                         noNamespace2.push(r.id);
-                     }
-                }
-
                 if (!r.fullID){
                     noFullID.push(r.id);
                 }
             }
         })
         duplicates = [... new Set(duplicates)];
-        // if (duplicates.length > 13) {
-        //     console.error("Duplicate resources in different namespaces:", duplicates.length, duplicates);
-        // }
-        // if (noNamespace.length > 0){
-        //     console.error("Resources with no namespace: ", noNamespace.length, noNamespace);
-        // }
-        // if (noNamespace2.length > 0){
-        //     console.error("Resources with no namespace (2): ", noNamespace2.length, noNamespace2);
-        // }
-
-        expect(duplicates).to.have.length(13);
+        //console.log(duplicates);
+        expect(duplicates).to.have.length(21);
         expect(noFullID).to.have.length(0);
     });
 

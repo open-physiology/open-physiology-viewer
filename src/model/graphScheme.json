@@ -322,8 +322,7 @@
               }
             ]
           },
-          "relatedTo": "bundlesChains",
-          "default": []
+          "relatedTo": "bundlesChains"
         },
         "housingChain": {
           "description": "A chain that houses the chain",
@@ -1099,7 +1098,7 @@
     "IdentifierScheme": {
       "description": "Resource reference: optional namespace with identifier",
       "type": "string",
-      "pattern": "^[a-zA-Z0-9:_./@?#\\-=']{1,100}$"
+      "pattern": "^[a-zA-Z0-9:_./@?#\\-=']{1,200}$"
     },
     "JSONPathScheme": {
       "description": "JSONPath query to select resources",
@@ -2635,8 +2634,7 @@
         },
         "radius": {
           "description": "Provides parameters a and b for elliptic wire",
-          "$ref": "#/definitions/Point2Scheme",
-          "default": {"x": 100, "y": 80}
+          "$ref": "#/definitions/Point2Scheme"
         },
         "infoFields": {
           "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",

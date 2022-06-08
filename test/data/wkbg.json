@@ -2264,6 +2264,7 @@
     "id": "WBKG1",
     "name": "TOO-map-linked reference connectivity model",
     "imports": [
-        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
+        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json",
+        "some other url for testing"
     ]
 }

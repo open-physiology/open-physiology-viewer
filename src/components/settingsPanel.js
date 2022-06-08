@@ -9,14 +9,16 @@ import {SearchBarModule} from './gui/searchBar';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
-import {$Field} from "../model";
+import {$Field, $SchemaClass} from "../model";
 import {StopPropagation} from "./gui/stopPropagation";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-import { TreeModule } from '@circlon/angular-tree-component';
+import {TreeModule} from '@circlon/angular-tree-component';
+import {ResourceVisibility} from "./gui/resourceVisibility";
+
 /**
  * @ignore
  */
@@ -36,210 +38,279 @@ const COLORS = {
     selector: 'settingsPanel',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-            <section>
+        <section>
 
-                <!--Highlighted entity-->
-                <mat-accordion>
+            <!--Highlighted entity-->
+            <mat-accordion>
                 <mat-expansion-panel>
-                  <mat-expansion-panel-header>
-                    <mat-panel-title>
-                      Highlighted
-                    </mat-panel-title>
-                  </mat-expansion-panel-header>
-                  <div class="default-box pb-0">
-                    <div *ngIf="config.highlighted" class="default-boxContent">
-                      <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"> </resourceInfoPanel>
-                    </div>
-                    <div *ngIf="!highlighted" class="default-boxError">
-                    Hover an instance to see its details.
-                    </div>
-                  </div>
-                </mat-expansion-panel>
-              </mat-accordion>
-                <mat-accordion>
-                  <mat-expansion-panel>
                     <mat-expansion-panel-header>
-                      <mat-panel-title>
-                      Selected
-                      </mat-panel-title>
+                        <mat-panel-title>
+                            Highlighted
+                        </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div class="default-box pb-0">
-                      <div class="default-searchBar default-box-header">
-                        <div class="search-bar">
-                          <img src="./styles/images/search.svg" />
-                          <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
-                                    (selectedItemChange)="selectBySearch($event)">
-                          </searchBar>
+                        <div *ngIf="config.highlighted" class="default-boxContent">
+                            <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"></resourceInfoPanel>
                         </div>
-                      </div>
-                      <div *ngIf="config.selected" class="default-boxContent">
-                        <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
-                        </resourceInfoPanel>
-                        <button *ngIf="!!_selected" title="Edit"
-                                class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
-                                <img src="./styles/images/edit-data-icon.svg" />
-                            Edit data
-                        </button>
-                        <sciGraphSearch [selected]="_selected">
-                        </sciGraphSearch>
-                      </div>
+                        <div *ngIf="!highlighted" class="default-boxError">
+                            Hover an instance to see its details.
+                        </div>
                     </div>
-                  </mat-expansion-panel>
-                </mat-accordion>
-
-                <!--Group controls-->
-
-                <mat-accordion *ngIf="!!groups">
-                  <mat-expansion-panel [expanded]="true">
+                </mat-expansion-panel>
+            </mat-accordion>
+            <mat-accordion>
+                <mat-expansion-panel>
                     <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        Groups
-                      </mat-panel-title>
+                        <mat-panel-title>
+                            Selected
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div class="default-box pb-0">
+                        <div class="default-searchBar default-box-header">
+                            <div class="search-bar">
+                                <img src="./styles/images/search.svg"/>
+                                <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
+                                           (selectedItemChange)="selectBySearch($event)">
+                                </searchBar>
+                            </div>
+                        </div>
+                        <div *ngIf="config.selected" class="default-boxContent">
+                            <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
+                            </resourceInfoPanel>
+                            <button *ngIf="!!_selected" title="Edit"
+                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
+                                <img src="./styles/images/edit-data-icon.svg"/>
+                                Edit data
+                            </button>
+                            <sciGraphSearch [selected]="_selected">
+                            </sciGraphSearch>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </mat-accordion>
+
+            <!--Group controls-->
+
+            <mat-accordion *ngIf="!!groups">
+                <mat-expansion-panel [expanded]="true">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            Groups
+                        </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
-                      <div class="default-box-header">
-                        <div class="search-bar">
-                          <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" name="searchTerm" [(ngModel)]="searchTerm" (input)="search($event.target.value, 'filteredGroups', 'groups')" />
-                          <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')" />
+                        <div class="default-box-header">
+                            <div class="search-bar">
+                                <img src="./styles/images/search.svg"/>
+                                <input type="text" class="search-input" placeholder="Search for a group"
+                                       name="searchTerm" [(ngModel)]="searchTerm"
+                                       (input)="search($event.target.value, 'filteredGroups', 'groups')"/>
+                                <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
+                                     (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')"/>
+                            </div>
+                            <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
                         </div>
-                        <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
-                      </div>
-                      <div class="wrap" *ngFor="let group of filteredGroups">
-                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.namespace? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
-                      </div>
-                      <!--Tree structure-->
-                      <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                        <ng-template #treeNodeTemplate let-node let-index="index">
-                          <span>{{node.data.name}}</span>
-                          <mat-slide-toggle></mat-slide-toggle>
-                        </ng-template>
-                      </tree-root> -->
-                      <!--Tree structure-->
+                        <div class="wrap" *ngFor="let group of filteredGroups">
+                            <mat-slide-toggle [checked]="!group.hidden"
+                                              (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
+                        </div>
+                        <!--Tree structure-->
+                        <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
+                          <ng-template #treeNodeTemplate let-node let-index="index">
+                            <span>{{node.data.name}}</span>
+                            <mat-slide-toggle></mat-slide-toggle>
+                          </ng-template>
+                        </tree-root> -->
+                        <!--Tree structure-->
                     </div>
-                  </mat-expansion-panel>
-                </mat-accordion>
+                </mat-expansion-panel>
+            </mat-accordion>
 
 
-                <mat-accordion *ngIf="!!dynamicGroups">
-                  <mat-expansion-panel>
+            <mat-accordion *ngIf="!!dynamicGroups">
+                <mat-expansion-panel>
                     <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        Dynamic groups
-                      </mat-panel-title>
+                        <mat-panel-title>
+                            Dynamic groups
+                        </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
-                      <div class="default-box-header">
-                        <div class="search-bar">
-                          <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" id="filter" #filter placeholder="Search for a dynamic group" name="searchDynamicTerm" [(ngModel)]="searchDynamicTerm" (input)="search($event?.target?.value, 'filteredDynamicGroups', 'dynamicGroups')" />
-                          <!--<input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>-->
-                          <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearTreeSearch(filter, tree)" />
+                        <div class="default-box-header">
+                            <div class="search-bar">
+                                <img src="./styles/images/search.svg"/>
+                                <input type="text" class="search-input" id="filter" #filter
+                                       placeholder="Search for a dynamic group" name="searchDynamicTerm"
+                                       [(ngModel)]="searchDynamicTerm"
+                                       (input)="search($event?.target?.value, 'filteredDynamicGroups', 'dynamicGroups')"/>
+                                <!--<input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>-->
+                                <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear"
+                                     (click)="clearTreeSearch(filter, tree)"/>
+                            </div>
+                            <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
                         </div>
-                        <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
-                      </div>
-                      <div class="wrap" *ngFor="let group of filteredDynamicGroups">
-                        <mat-slide-toggle [checked]= "!group.hidden"  (change)= "onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
-                      </div>
-                      <!--Tree structure-->
-                      <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                        <ng-template #treeNodeTemplate let-node let-index="index">
-                          <span>{{node.data.name}}</span>
-                          <mat-slide-toggle></mat-slide-toggle>
-                        </ng-template>
-                      </tree-root> -->
-                      <!--Tree structure-->
+                        <div class="wrap" *ngFor="let group of filteredDynamicGroups">
+                            <mat-slide-toggle [checked]="!group.hidden"
+                                              (change)="onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
+                        </div>
+                        <!--Tree structure-->
+                        <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
+                          <ng-template #treeNodeTemplate let-node let-index="index">
+                            <span>{{node.data.name}}</span>
+                            <mat-slide-toggle></mat-slide-toggle>
+                          </ng-template>
+                        </tree-root> -->
+                        <!--Tree structure-->
                     </div>
-                  </mat-expansion-panel>
-                </mat-accordion>
+                </mat-expansion-panel>
+            </mat-accordion>
 
-                <!--Scaffold controls-->
+            <!--Scaffold controls-->
 
-                <mat-accordion *ngIf="!!scaffolds">
-                  <mat-expansion-panel>
+            <mat-accordion *ngIf="scaffolds && scaffolds.length > 0">
+                <mat-expansion-panel>
                     <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        Scaffolds
-                      </mat-panel-title>
+                        <mat-panel-title>
+                            Scaffolds
+                        </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
-                      <div class="default-box-header">
-                        <div class="search-bar">
-                          <img src="./styles/images/search.svg" />
-                          <input type="text" class="search-input" placeholder="Search for a group" name="searchTermScaffolds" [(ngModel)]="searchTermScaffolds" (input)="searchScaffold($event.target.value)" />
-                          <img *ngIf="searchTermScaffolds !== ''" src="./styles/images/close.svg" class="input-clear" (click)="clearSearch('searchTermScaffold', 'filteredScaffolds', 'scaffolds')" />
+                        <div class="default-box-header">
+                            <div class="search-bar">
+                                <img src="./styles/images/search.svg"/>
+                                <input type="text" class="search-input" placeholder="Search for a group"
+                                       name="searchTermScaffolds" [(ngModel)]="searchTermScaffolds"
+                                       (input)="searchScaffold($event.target.value)"/>
+                                <img *ngIf="searchTermScaffolds !== ''" src="./styles/images/close.svg"
+                                     class="input-clear"
+                                     (click)="clearSearch('searchTermScaffold', 'filteredScaffolds', 'scaffolds')"/>
+                            </div>
                         </div>
-                      </div>
-                      <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
-                        <mat-slide-toggle [checked]= "!scaffold.hidden" (change)= "onToggleGroup.emit(scaffold)">{{scaffold._parent? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
-                      </div>
+                        <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
+                            <mat-slide-toggle [checked]="!scaffold.hidden"
+                                              (change)="toggleScaffold(scaffold)">{{scaffold._parent ? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
+                        </div>
                     </div>
-                  </mat-expansion-panel>
-                </mat-accordion>
 
-                <!-- Settings -->
-                <mat-accordion *ngIf="!!scaffolds">
-                  <mat-expansion-panel>
+                    <!-- Component visibility -->
+                    <resourceVisibility 
+                            title = "Component visibility"
+                            [renderedResources] = "renderedComponents"                        
+                            [dependentProperties] = "['anchors', 'wires', 'regions']">                
+                    </resourceVisibility>
+
+                    <div class="default-box">
+                        <div class="settings-wrap">
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle scaffold resource visibility" (change)="toggleVisibility()"
+                                                  [checked]="scaffoldResourceVisibility">Show all resources
+                                </mat-slide-toggle>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Wire visibility -->
+                    <resourceVisibility
+                            title = "Wire visibility"
+                            [renderedResources] = "renderedWires">                
+                    </resourceVisibility>
+                    
+                    <!-- Regions visibility -->
+                    <resourceVisibility
+                            title = "Region visibility"
+                            [renderedResources] = "renderedRegions"            
+                            [dependentProperties] = "['facets', 'borderAnchors']">                
+                    </resourceVisibility>
+        
+                    <!-- Anchor visibility -->
+                    <resourceVisibility
+                            title = "Anchor visibility"
+                            [renderedResources] = "renderedAnchors">
+                    </resourceVisibility>
+                </mat-expansion-panel>
+            </mat-accordion>
+               
+            <!-- Settings -->
+            <mat-accordion>
+                <mat-expansion-panel>
                     <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        Settings
-                      </mat-panel-title>
+                        <mat-panel-title>
+                            Settings
+                        </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
-                      <div class="settings-wrap">
-                        <h5>Layout</h5>
+                        <div class="settings-wrap">
+                            
+                            <h5>Layout</h5>
 
-                        <div class="wrap">
-                          <mat-slide-toggle matTooltip="Toggle view mode" (change)="toggleMode()" [checked]="config.layout.numDimensions === 2">2D mode</mat-slide-toggle>
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle view mode" (change)="toggleMode()"
+                                                  [checked]="config.layout.numDimensions === 2">2D mode
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle lyphs" (change)="toggleLayout('showLyphs')"
+                                                  [checked]="config.layout.showLyphs">Lyphs
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle layers" [disabled]="!config.layout.showLyphs"
+                                                  (change)="toggleLayout('showLayers')"
+                                                  [checked]="config.layout.showLayers">Layers
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle 3D lyphs" [disabled]="!config.layout.showLyphs"
+                                                  (change)="toggleLayout('showLyphs3d')"
+                                                  [checked]="config.layout.showLyphs3d">Lyphs 3D
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle coalescences" [disabled]="!config.layout.showLyphs"
+                                                  (change)="toggleLayout('showCoalescences')"
+                                                  [checked]="config.layout.showCoalescences">Coalescences
+                                </mat-slide-toggle>
+                            </div>
                         </div>
 
-                        <div class="wrap">
-                          <mat-slide-toggle matTooltip="Toggle lyphs" (change)="toggleLayout('showLyphs')" [checked]="config.layout.showLyphs">Lyphs</mat-slide-toggle>
+                        <div class="settings-wrap">
+                            <h5>Labels</h5>
+                            <div class="wrap" *ngFor="let labelClass of _labelClasses">
+                                <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]"
+                                                  (change)="updateShowLabels(labelClass)"><img
+                                        src="./styles/images/toggle-icon.svg"/>{{labelClass}}</mat-slide-toggle>
+                                <mat-radio-group [(ngModel)]="config.labels[labelClass]"
+                                                 *ngIf="config.showLabels[labelClass]">
+                                    <mat-radio-button *ngFor="let labelProp of _labelProps"
+                                                      [value]="labelProp"
+                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
+                                    </mat-radio-button>
+                                </mat-radio-group>
+                            </div>
                         </div>
 
-                        <div class="wrap">
-                          <mat-slide-toggle matTooltip="Toggle layers" [disabled]="!config.layout.showLyphs" (change)="toggleLayout('showLayers')" [checked]="config.layout.showLayers">Layers</mat-slide-toggle>
+                        <div class="settings-wrap">
+                            <h5>Helpers</h5>
+                            <div class="wrap" *ngFor="let helper of _helperKeys">
+                                <mat-slide-toggle matTooltip="Toggle planes" [checked]="_showHelpers.has(helper)"
+                                                  (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
+                            </div>
                         </div>
-
-                        <div class="wrap">
-                          <mat-slide-toggle matTooltip="Toggle 3D lyphs" [disabled]="!config.layout.showLyphs" (change)="toggleLayout('showLyphs3d')" [checked]="config.layout.showLyphs3d">Lyphs 3D</mat-slide-toggle>
-                        </div>
-
-                        <div class="wrap">
-                          <mat-slide-toggle matTooltip="Toggle coalescences" [disabled]="!config.layout.showLyphs" (change)="toggleLayout('showCoalescences')" [checked]="config.layout.showCoalescences">Coalescences</mat-slide-toggle>
-                        </div>
-                      </div>
-
-                      <div class="settings-wrap">
-                        <h5>Labels</h5>
-                        <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                          <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]" (change)="updateShowLabels(labelClass)"><img src="./styles/images/toggle-icon.svg" />{{labelClass}}</mat-slide-toggle>
-                          <mat-radio-group [(ngModel)]="config.labels[labelClass]" *ngIf="config.showLabels[labelClass]">
-                              <mat-radio-button *ngFor="let labelProp of _labelProps"
-                                  [value]="labelProp"
-                                  (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
-                              </mat-radio-button>
-                          </mat-radio-group>
-                        </div>
-                      </div>
-
-                      <div class="settings-wrap">
-                        <h5>Helpers</h5>
-                        <div class="wrap" *ngFor="let helper of _helperKeys">
-                          <mat-slide-toggle matTooltip="Toggle planes" [checked]="_showHelpers.has(helper)" (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
-                        </div>
-                      </div>
 
                     </div>
 
 
-                  </mat-expansion-panel>
-                </mat-accordion>
-            </section>
+                </mat-expansion-panel>
+            </mat-accordion>            
+            
+        </section>
     `,
     styles: [`
         :host >>> fieldset {
@@ -254,9 +325,11 @@ const COLORS = {
             font-size: 90%;
             text-align: right;
         }
+        
         .pb-0 {
           padding-bottom: 0 !important;
         }
+        
         .default-box .default-box-header {
           padding: 1.067rem;
           display: flex;
@@ -461,15 +534,15 @@ const COLORS = {
           margin: 0;
         }
 
-        .default-box .wrap {
+        :host ::ng-deep .default-box .wrap {
           padding: 0 1.067rem;
         }
 
-        .default-box .wrap .mat-slide-toggle {
+        :host ::ng-deep .default-box .wrap .mat-slide-toggle {
           padding: 0.267rem 0;
         }
 
-        .default-box .mat-slide-toggle {
+        :host ::ng-deep .default-box .mat-slide-toggle {
           height: auto;
           display: flex;
           width: 100%;
@@ -819,12 +892,11 @@ const COLORS = {
           align-items: center;
         }
 
-        .settings-wrap {
+        :host ::ng-deep .settings-wrap {
           padding-bottom: 0.8rem;
           margin-top: 0;
           position: relative;
         }
-
 
         :host ::ng-deep .mat-expansion-panel {
           box-shadow: none;
@@ -869,6 +941,7 @@ const COLORS = {
 })
 export class SettingsPanel {
     _config;
+    _scaffolds;
     _helperKeys;
     _showHelpers;
     _labelProps;
@@ -880,11 +953,21 @@ export class SettingsPanel {
     searchTermScaffolds = '';
     filteredScaffolds;
     nodes;
+
+    scaffoldResourceVisibility: Boolean = false;
+    renderedComponents;
+    renderedWires;
+    renderedRegions;
+    renderedAnchors;
+
     @Input() groups;
 
     @Input() dynamicGroups;
 
-    @Input() scaffolds;
+    @Input('scaffolds') set scaffolds(newScaffolds){
+        this._scaffolds = newScaffolds;
+        this.updateRenderedResources();
+    }
 
     @Input('config') set config(newConfig) {
         if (this._config !== newConfig) {
@@ -956,6 +1039,58 @@ export class SettingsPanel {
         this.onToggleLayout.emit(prop);
     }
 
+    toggleScaffold(scaffold){
+        this.onToggleGroup.emit(scaffold);
+        if (scaffold.class === $SchemaClass.Scaffold) {
+            this.updateRenderedResources();
+        }
+    }
+
+    toggleVisibility(){
+        this.scaffoldResourceVisibility = !this.scaffoldResourceVisibility;
+        this.updateRenderedResources();
+    }
+
+    updateRenderedResources(){
+        let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
+        scaffoldResourceNames.forEach(prop => this[prop] = []);
+        (this.scaffolds||[]).forEach(s => {
+             //Only include wires from the scaffold, no components
+             if (s.class === $SchemaClass.Scaffold && !s.hidden) {
+                 (s.components || []).forEach(r => {
+                    r._parent = s;
+                    r._visible = true;
+                    this.renderedComponents.push(r);
+                 });
+                 if (this.scaffoldResourceVisibility) {
+                     (s.anchors || []).forEach(r => {
+                         if (!r.generated) {
+                             r._parent = s;
+                             this.renderedAnchors.push(r);
+                         }
+                     });
+                     (s.wires || []).forEach(r => {
+                         if (!r.generated) {
+                             r._parent = s;
+                             this.renderedWires.push(r);
+                         }
+                     });
+                     (s.regions || []).forEach(r => {
+                         if (!r.generated) {
+                             r._parent = s;
+                             this.renderedRegions.push(r);
+                         }
+                     });
+                 }
+             }
+        });
+        scaffoldResourceNames.forEach(prop => {
+            if (this[prop].length === 0){
+                this[prop] = undefined;
+            }
+        });
+    }
+
     updateShowLabels(labelClass) {
         this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
         this.onUpdateShowLabels.emit(this.config.showLabels||{});
@@ -1000,7 +1135,7 @@ export class SettingsPanel {
     }
 
     search(value, filterOptions, allOptions) {
-      this[filterOptions] = this[allOptions].filter((val) => val.name.toLowerCase().includes(value?.toLowerCase()));
+      this[filterOptions] = this[allOptions].filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
     }
 
     searchScaffold(value) {
@@ -1037,7 +1172,7 @@ export class SettingsPanel {
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
         MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule, MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule, TreeModule],
-    declarations: [SettingsPanel, StopPropagation],
+    declarations: [SettingsPanel, StopPropagation, ResourceVisibility],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
 })

@@ -23,7 +23,7 @@ import {
     $SchemaClass
 } from "./utils";
 import {logger, $LogMsg} from './logger';
-import {defaults, isObject, flatten, isString, values} from 'lodash-bound';
+import {defaults, isObject, flatten, isString, values, merge} from 'lodash-bound';
 
 /**
  * Chain model
@@ -91,7 +91,6 @@ export class Chain extends GroupTemplate {
         if (!this.validateTemplate(chain)){
             return;
         }
-
         chain.id = chain.id || getGenID($Prefix.chain, getNewID());
         chain.namespace = chain.namespace || parentGroup.namespace;
         chain.fullID = chain.fullID || getFullID(chain.namespace, chain.id);
@@ -160,6 +159,37 @@ export class Chain extends GroupTemplate {
             return Lyph.LYPH_TOPOLOGY.TUBE;
         }
 
+        function extendLevels(){
+            chain.levels = chain.levels || new Array(chain.numLevels);
+            for (let i = 0; i < chain.levels.length; i++) {
+                let level = refToResource(chain.levels[i], parentGroup, $Field.links);
+                if (level){
+                    chain.levels[i] = level;
+                    if (chain.levels[i]::isString()){
+                        chain.levels[i] = {
+                            [$Field.id]       : chain.levels[i],
+                            [$Field.generated]: true
+                        };
+                    }
+                } else {
+                    chain.levels[i] = {
+                        [$Field.generated]: true
+                    };
+                }
+            }
+            //Match number of requested levels with the levels[i] array length
+            if (chain.levels.length !== chain.numLevels){
+                let max = Math.max(chain.levels.length, chain.numLevels || 0);
+                logger.info($LogMsg.CHAIN_NUM_LEVELS, chain.levels.length, max);
+                for (let i = chain.levels.length; i < max; i++){
+                    chain.levels.push({
+                        [$Field.generated]: true
+                    });
+                }
+                chain.numLevels = max;
+            }
+        }
+
         /**
          * Generates chain group resources (nodes, links, and lyphs) from chain template with given sequence of lyphs
          */
@@ -176,22 +206,21 @@ export class Chain extends GroupTemplate {
                 });
             }
 
-            const N = lyphs.length;
-            let existingLinks = new Array(N);
+            chain.numLevels = lyphs.length;
+
+            extendLevels();
+            const N = chain.numLevels;
+
             for (let i = 0; i < N; i++) {
                 lyphs[i].namespace = lyphs[i].namespace || getRefNamespace(lyphs[i]) || parentGroup.namespace;
                 lyphs[i].fullID = getFullID(lyphs[i].namespace, lyphs[i].id);
-
-                //Try to find an explicitly defined link via chain lyph's conveys property,
-                //it will be default in the same namespace as the lyph or will include explicit namespace
-                if (lyphs[i].conveys) {
-                    existingLinks[i] = refToResource(getFullID(lyphs[i].namespace, lyphs[i].conveys), parentGroup, $Field.links);
-                }
-                //Try to find explicitly defined link with given conveying lyph,
-                //it will be default in the same namespace as the lyph or will include explicit namespace
+                let existingLink = lyphs[i].conveys && refToResource(getFullID(lyphs[i].namespace, lyphs[i].conveys), parentGroup, $Field.links);
                 const condition = lnk => getFullID(lyphs[i].namespace, lnk.conveyingLyph) === lyphs[i].fullID;
-                if (!existingLinks[i]){
-                    existingLinks[i] = parentGroup.linksByID::values().find(condition) || (parentGroup.links || []).find(condition);
+                if (!existingLink){
+                    existingLink = parentGroup.linksByID::values().find(condition) || (parentGroup.links || []).find(condition);
+                }
+                if (existingLink) {
+                    chain.levels[i] = existingLink;
                 }
             }
 
@@ -205,29 +234,29 @@ export class Chain extends GroupTemplate {
 
             for (let i = 0; i < N; i++) {
                if (!existingNodes[i]) {
-                   if (existingLinks[i]) {
-                       if (existingLinks[i].source) {
-                           const sourceFullID = getFullID(parentGroup.namespace, existingLinks[i].source);
+                   if (chain.levels[i]) {
+                       if (chain.levels[i].source) {
+                           const sourceFullID = getFullID(parentGroup.namespace, chain.levels[i].source);
                            if (nodeIDs[i]) {
                                if (nodeIDs[i] !== sourceFullID) {
-                                   logger.warn($LogMsg.CHAIN_NODE_CONFLICT, chain.id, i, existingLinks[i], nodeIDs[i], existingLinks[i].source);
+                                   logger.warn($LogMsg.CHAIN_NODE_CONFLICT, chain.id, i, chain.levels[i], nodeIDs[i], chain.levels[i].source);
                                }
                            } else {
                                nodeIDs[i] = sourceFullID;
                            }
                        }
-                       if (existingLinks[i].target) {
-                           const targetFullID = getFullID(parentGroup.namespace, existingLinks[i].target);
+                       if (chain.levels[i].target) {
+                           const targetFullID = getFullID(parentGroup.namespace, chain.levels[i].target);
                            if (nodeIDs[i + 1]) {
                                if (nodeIDs[i + 1] !== targetFullID) {
-                                   logger.warn($LogMsg.CHAIN_NODE_CONFLICT, chain.id, i, existingLinks[i], nodeIDs[i + 1], existingLinks[i].source);
+                                   logger.warn($LogMsg.CHAIN_NODE_CONFLICT, chain.id, i, chain.levels[i], nodeIDs[i + 1], chain.levels[i].source);
                                }
                            } else {
                                nodeIDs[i + 1] = targetFullID;
                            }
                        }
-                       existingLinks[i].namespace = existingLinks[i].namespace || parentGroup.namespace;
-                       existingLinks[i].fullID = existingLinks[i].fullID || getFullID(existingLinks[i].namespace, existingLinks[i].id);
+                       chain.levels[i].namespace = chain.levels[i].namespace || parentGroup.namespace;
+                       chain.levels[i].fullID = chain.levels[i].fullID || getFullID(chain.levels[i].namespace, chain.levels[i].id);
                    }
                    existingNodes[i] = existingNodes[i] || refToResource(nodeIDs[i], parentGroup, $Field.nodes);
                }
@@ -255,42 +284,36 @@ export class Chain extends GroupTemplate {
                 logger.warn($LogMsg.CHAIN_MAT_DIFF, chain.lyphs);
             }
 
-            chain.levels = [];
             let prevLink;
             for (let i = 0; i < N; i++) {
                 lyphs[i].namespace = lyphs[i].namespace || getRefNamespace(lyphs[i]) || parentGroup.namespace;
                 lyphs[i].fullID = lyphs[i].fullID || getFullID(lyphs[i].namespace. lyphs[i].id);
-                let link = existingLinks[i] || {
-                    [$Field.id]                 : getGenID(chain.id, $Prefix.link, i + 1),
-                    [$Field.source]             : chain.group.nodes[i],
-                    [$Field.target]             : chain.group.nodes[i + 1],
-                    [$Field.conveyingLyph]      : lyphs[i].fullID,
-                    [$Field.conveyingType]      : chain.conveyingType || Link.PROCESS_TYPE.ADVECTIVE,
-                    [$Field.conveyingMaterials] : conveyingMaterials,
-                    [$Field.color]              : $Color.Link,
-                    [$Field.skipLabel]          : true,
-                    [$Field.generated]          : true
-                };
-                //NK mergeGenResource assigns namespace and fullID
-                mergeGenResource(chain.group, parentGroup, link, $Field.links);
-
-                //NK: it is important to set lyph's 'conveys' property to be able to find generated links in other namespaces
-                lyphs[i].conveys = lyphs[i].conveys || link.fullID;
-                prevLink = setLinkProps(link, prevLink, N);
-                chain.levels[i] = link.fullID || link.id;
+                if (!chain.levels[i].id) {
+                    chain.levels[i]::merge({
+                        [$Field.id]                : getGenID(chain.id, $Prefix.link, i + 1),
+                        [$Field.source]            : chain.group.nodes[i],
+                        [$Field.target]            : chain.group.nodes[i + 1],
+                        [$Field.conveyingLyph]     : lyphs[i].fullID,
+                        [$Field.conveyingType]     : chain.conveyingType || Link.PROCESS_TYPE.ADVECTIVE,
+                        [$Field.conveyingMaterials]: conveyingMaterials,
+                        [$Field.color]             : $Color.Link,
+                        [$Field.skipLabel]         : true
+                    });
+                    mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
+                }
+                lyphs[i].conveys = lyphs[i].conveys || chain.levels[i].fullID;
+                prevLink = setLinkProps(chain.levels[i], prevLink, N);
+                chain.levels[i] = chain.levels[i].fullID || chain.levels[i].id;
             }
-            chain.numLevels = chain.levels.length;
             chain.root = chain.root || nodeIDs[0];
             chain.leaf = chain.leaf || nodeIDs[N];
         }
 
-        //FIXME revise for different namespaces?
         /**
          *  Generates chain group resources (nodes, links, and lyphs) from chain template with given sequence of housing lyphs
          *  or (subrange of) housing chain
          */
         function deriveFromLevels(){
-
             if (chain.housingChain){
                 if (chain.housingLyphs){
                     logger.warn($LogMsg.CHAIN_CONFLICT, chain);
@@ -316,35 +339,7 @@ export class Chain extends GroupTemplate {
                 chain.numLevels = chain.housingLyphs.length;
             }
 
-            chain.levels = chain.levels || new Array(chain.numLevels);
-
-            //Levels should contain link objects for generation/validation
-            for (let i = 0; i < chain.levels.length; i++) {
-                let level = refToResource(chain.levels[i], parentGroup, $Field.links);
-                if (level){
-                    chain.levels[i] = level;
-                    if (chain.levels[i]::isString()){
-                        chain.levels[i] = {
-                            [$Field.id]       : chain.levels[i],
-                            [$Field.generated]: true
-                        };
-                    }
-                } else {
-                    chain.levels[i] = {};
-                }
-            }
-
-            //Match number of requested levels with the levels[i] array length
-            if (chain.levels.length !== chain.numLevels){
-                let max = Math.max(chain.levels.length, chain.numLevels || 0);
-                logger.info($LogMsg.CHAIN_NUM_LEVELS, chain.levels.length, max);
-                for (let i = chain.levels.length; i < max; i++){
-                    chain.levels.push({
-                        [$Field.generated]: true
-                    });
-                }
-                chain.numLevels = max;
-            }
+            extendLevels();
             let N = chain.numLevels;
 
             let sources = chain.levels.map(l => l? l.source: undefined);
@@ -426,6 +421,7 @@ export class Chain extends GroupTemplate {
                     //NK: mergeGenResource assigns namespace and fullID
                     mergeGenResource(chain.group, parentGroup, lyph, $Field.lyphs);
                     chain.levels[i].conveyingLyph = lyph.id;
+                    Lyph.clone(parentGroup, lyphTemplate, lyph);
                 }
                 mergeGenResource(chain.group, parentGroup, chain.levels[i].conveyingLyph, $Field.lyphs);
                 mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);

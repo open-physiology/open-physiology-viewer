@@ -17,7 +17,7 @@ import {
     showGroups,
     getRefNamespace,
     refToResource,
-    getFullID, mergeGenResource
+    mergeGenResource
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -57,14 +57,8 @@ export class Group extends Resource {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);
         }
 
-        //replace references to templates
-        this.replaceReferencesToTemplates(json);
-
         //create group resources from templates
-        this.expandGroupTemplates(json, modelClasses);
-
-        //create lyphs that inherit properties from templates
-        this.expandLyphTemplates(json, modelClasses);
+        this.expandChainTemplates(json, modelClasses);
 
         //create villus
         this.expandVillusTemplates(json, modelClasses);
@@ -259,7 +253,8 @@ export class Group extends Resource {
                     } else {
                         if (getRefNamespace(refID, parentGroup.namespace) !== parentGroup.namespace){
                             //Reference does not exist
-                            if (parentGroup.lyphsByID && !parentGroup.lyphsByID[getFullID(parentGroup.namespace, refID)]) {
+                            if (!refToResource(refID, parentGroup, $Field.lyphs)){
+                            //if (parentGroup.lyphsByID && !parentGroup.lyphsByID[getFullID(parentGroup.namespace, refID)]) {
                                 logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, key, ref);
                             }
                         }
@@ -313,24 +308,18 @@ export class Group extends Resource {
      * @param parentGroup - input model
      * @param modelClasses - model resource classes
      */
-    static expandGroupTemplates(parentGroup, modelClasses){
+    static expandChainTemplates(parentGroup, modelClasses){
         if (!modelClasses || modelClasses === {}){ return; }
-        let relClassNames = schemaClassModels[$SchemaClass.Group].relClassNames;
-        [$Field.channels, $Field.chains].forEach(relName => {
-            let clsName = relClassNames[relName];
-            if (!clsName){
-                logger.error($LogMsg.GROUP_TEMPLATE_NO_CLASS, relName);
+        (parentGroup.chains||[]).forEach((chain, i) => {
+            //expand chain templates, but not references
+            if (chain::isObject()) {
+                modelClasses.Chain.expandTemplate(parentGroup, chain);
+            } else {
+                //FIXME do we need this?
+                logger.info($LogMsg.GROUP_TEMPLATE_OTHER, chain);
+                parentGroup.groups = parentGroup.groups || [];
+                parentGroup.groups.push(getGenID($Prefix.group, chain));
             }
-            (parentGroup[relName]||[]).forEach((template, i) => {
-                if (template::isObject()) {//expand group templates, but not references
-                    template.id = template.id || getGenID(parentGroup.id, relName, i);
-                    modelClasses[clsName].expandTemplate(parentGroup, template);
-                } else {
-                    logger.info($LogMsg.GROUP_TEMPLATE_OTHER, template);
-                    parentGroup[$Field.groups] = parentGroup[$Field.groups] || [];
-                    parentGroup[$Field.groups].push(getGenID($Prefix.group, template));
-                }
-            });
         });
     }
 
@@ -358,9 +347,12 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static expandLyphTemplates(parentGroup, modelClasses){
-        let templates = (parentGroup.lyphs||[]).filter(lyph => lyph.isTemplate);
-        templates.forEach(template => modelClasses.Lyph.expandTemplate(parentGroup, template));
-        templates.forEach(template => delete template._inactive);
+        (parentGroup.lyphs||[]).forEach(lyph => {
+            if (lyph.isTemplate) {
+                modelClasses.Lyph.expandTemplate(parentGroup, lyph);
+            }
+        });
+        (parentGroup.lyphs||[]).forEach(lyph => delete lyph._inactive);
     }
 
     /**

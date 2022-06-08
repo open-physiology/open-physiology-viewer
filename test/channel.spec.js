@@ -26,6 +26,7 @@ describe("Generate groups from channel templates (UOT)", () => {
         expect(ch1.group).to.have.property("nodes");
         expect(ch1.group).to.have.property("links");
         expect(ch1.group).to.have.property("lyphs");
+
         expect(ch1.group.nodes).to.be.an('array').that.has.length(4);
         expect(ch1.group.links).to.be.an('array').that.has.length(3);
         expect(ch1.group.lyphs).to.be.an('array').that.has.length(3);
