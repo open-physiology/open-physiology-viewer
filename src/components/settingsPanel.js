@@ -1145,7 +1145,6 @@ export class SettingsPanel {
 
     search(value, filterOptions, allOptions) {
       this[filterOptions] = this[allOptions].filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
-      this.updateRenderedResources();
     }
 
     searchScaffold(value) {
@@ -1164,16 +1163,15 @@ export class SettingsPanel {
     }
 
     ngOnChanges() {
-      if (this._modelId === this.previousId) {
-        this.filteredGroups = this.filteredGroups || this.groups;
-        this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
-        this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
-      } else {
+      if (this._modelId !== this.previousId) {
         this.previousId = this._modelId;
-        this.filteredGroups = this.groups;
-        this.filteredDynamicGroups = this.dynamicGroups;
-        this.filteredScaffolds = this.scaffolds;
+        this.search(this.searchTerm, 'filteredGroups', 'groups');
+        this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
+        this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
       }
+      this.filteredGroups = this.filteredGroups || this.groups;
+      this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
+      this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
     }
 
     clearSearch(term, filterOptions, allOptions) {
