@@ -108,13 +108,14 @@ const WindowResize = require('three-window-resize');
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
                         [config]="_config"
-                        [selected]="_selected" 
+                        [selected]="_selected"
                         [highlighted]="_highlighted"
                         [helperKeys]="_helperKeys"
                         [groups]="graphData?.activeGroups"
                         [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
+                        [modelId]="graphData?.fullID || graphData?.id"
                         (onSelectBySearch)="selectByName($event)"
                         (onOpenExternal)="openExternal($event)"
                         (onEditResource)="editResource.emit($event)"
