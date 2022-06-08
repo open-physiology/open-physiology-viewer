@@ -1180,7 +1180,7 @@ export class SettingsPanel {
     }
 
     clearTreeSearch(filter, tree) {
-      tree.treeModel.filterNodes('');
+      tree?.treeModel?.filterNodes('');
       filter.value = '';
     }
 }
