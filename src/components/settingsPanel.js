@@ -947,12 +947,14 @@ export class SettingsPanel {
     _labelProps;
     _labelClasses;
     _selectedName;
+    _modelId;
     searchTerm = '';
     filteredGroups;
     filteredDynamicGroups;
     searchTermScaffolds = '';
     filteredScaffolds;
     nodes;
+    previousId = '';
 
     scaffoldResourceVisibility: Boolean = false;
     renderedComponents;
@@ -984,12 +986,19 @@ export class SettingsPanel {
             this._showHelpers = new Set([]);
         }
     }
-    @Input('selected') set selected(entity){
-        if (this.selected !== entity) {
-            this._selected = entity;
-            this._selectedName = entity ? entity.name || "" : "";
+
+    @Input('modelId') set modelId(modelId){
+        if (this._modelId !== modelId) {
+            this._modelId = modelId;
         }
     }
+
+    @Input('selected') set selected(entity){
+      if (this.selected !== entity) {
+          this._selected = entity;
+          this._selectedName = entity ? entity.name || "" : "";
+      }
+  }
     @Input() searchOptions;
     @Input() highlighted;
 
@@ -1147,15 +1156,22 @@ export class SettingsPanel {
     }
 
     ngOnInit() {
+      this.previousId = this._modelId;
       this.filteredGroups = this.groups;
       this.filteredDynamicGroups = this.dynamicGroups;
       this.filteredScaffolds = this.scaffolds;
     }
 
     ngOnChanges() {
-      this.filteredGroups = this.groups;
-      this.filteredDynamicGroups = this.dynamicGroups;
-      this.filteredScaffolds = this.scaffolds;
+      if (this._modelId !== this.previousId) {
+        this.previousId = this._modelId;
+        this.search(this.searchTerm, 'filteredGroups', 'groups');
+        this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
+        this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
+      }
+      this.filteredGroups = this.filteredGroups || this.groups;
+      this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
+      this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
     }
 
     clearSearch(term, filterOptions, allOptions) {
@@ -1164,7 +1180,7 @@ export class SettingsPanel {
     }
 
     clearTreeSearch(filter, tree) {
-      tree.treeModel.filterNodes('');
+      tree?.treeModel?.filterNodes('');
       filter.value = '';
     }
 }
