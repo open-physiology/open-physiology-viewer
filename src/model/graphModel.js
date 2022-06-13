@@ -253,7 +253,7 @@ export class Graph extends Group{
 
         //Auto-create missing definitions for used references
         let added = [];
-        this.processGraphWaitingList(res, entitiesByID, namespace, added, modelClasses, undefined);
+        this.processGraphWaitingList(res, entitiesByID, inputModel.namespace, added, modelClasses, undefined);
 
         if (!res.generated) {
             let noAxisLyphsInternal = (res.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
