@@ -116,6 +116,68 @@ function schemaToContext(schema, context, id=null, prefix="apinatomy:") {
 export class Graph extends Group{
 
     /**
+     * Process waiting list generated from json model
+     * @param res           - ApiNATOMY connectivity model
+     * @param entitiesByID  - map of entities by ID
+     * @param namespace     - namespace
+     * @param added         - array of added elements
+     * @param resVal        - resVal
+     * @param castingMethod - method used for different casting if working from an intermediate step
+     * @returns {*}
+     */
+    static processGraphWaitingList(res, entitiesByID, namespace, added, modelClasses, castingMethod) {
+        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
+            let [obj, key] = refs[0];
+            if (obj && obj.class){
+                //Do not create missing scaffold resources
+                if ([$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    return;
+                }
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract){
+                    let e = Resource.createResource(id, clsName, res, modelClasses, entitiesByID, namespace || refs[0].namespace, castingMethod);
+                    added.push(e.fullID);
+                    //A created link needs end nodes
+                    if (e instanceof modelClasses.Link) {
+                        let i = 0;
+                        const related = [$Field.sourceOf, $Field.targetOf];
+                        e.applyToEndNodes(end => {
+                            if (end::isString()) {
+                                let s = Resource.createResource(end, $SchemaClass.Node, res, modelClasses, entitiesByID, e.namespace, castingMethod);
+                                added.push(s.fullID);
+                                s[related[i]] = [e];
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        if (added.length > 0) {
+            added.forEach(id => delete entitiesByID.waitingList[id]);
+            added = added.filter(id => !entitiesByID[id]);
+
+            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
+            if (resources.length > 0) {
+                logger.warn($LogMsg.AUTO_GEN, resources);
+            }
+
+            let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
+            if (externals.length > 0) {
+                logger.warn($LogMsg.AUTO_GEN_EXTERNAL, externals);
+            }
+        }
+
+        if (entitiesByID.waitingList::keys().length > 0){
+            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID.waitingList::keys());
+        }
+
+        res.syncRelationships(modelClasses, entitiesByID);
+        res.entitiesByID = entitiesByID;
+    }
+
+
+    /**
      * Create expanded Graph model from the given JSON input model
      * @param json - input model
      * @param modelClasses - classes to represent model resources
@@ -185,60 +247,13 @@ export class Graph extends Group{
         inputModel.class = $SchemaClass.Graph;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, inputModel.namespace);
 
-        //Auto-create missing definitions for used references
-        let added = [];
-        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
-            let [obj, key] = refs[0];
-            if (obj && obj.class){
-                //Do not create missing scaffold resources
-                if ([$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
-                    return;
-                }
-                let clsName = schemaClassModels[obj.class].relClassNames[key];
-                if (clsName && !schemaClassModels[clsName].schema.abstract){
-                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, inputModel.namespace || refs[0].namespace);
-                    added.push(e.fullID);
-                    //A created link needs end nodes
-                    if (e instanceof modelClasses.Link) {
-                        let i = 0;
-                        const related = [$Field.sourceOf, $Field.targetOf];
-                        e.applyToEndNodes(end => {
-                            if (end::isString()) {
-                                let s = modelClasses.Resource.createResource(end, $SchemaClass.Node, res, modelClasses, entitiesByID, e.namespace);
-                                added.push(s.fullID);
-                                s[related[i]] = [e];
-                            }
-                        });
-                    }
-                }
-            }
-        });
-
         if (resVal.errors && resVal.errors.length > 0){
             logger.error($LogMsg.SCHEMA_GRAPH_ERROR, ...resVal.errors.map(e => e::pick("message", "instance", "path")));
         }
 
-        if (added.length > 0) {
-            added.forEach(id => delete entitiesByID.waitingList[id]);
-            added = added.filter(id => !entitiesByID[id]);
-
-            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
-            if (resources.length > 0) {
-                logger.warn($LogMsg.AUTO_GEN, resources);
-            }
-
-            let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
-            if (externals.length > 0) {
-                logger.warn($LogMsg.AUTO_GEN_EXTERNAL, externals);
-            }
-        }
-
-        if (entitiesByID.waitingList::keys().length > 0){
-            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID.waitingList::keys());
-        }
-
-        res.syncRelationships(modelClasses, entitiesByID);
-        res.entitiesByID = entitiesByID;
+        //Auto-create missing definitions for used references
+        let added = [];
+        this.processGraphWaitingList(res, entitiesByID, inputModel.namespace, added, modelClasses, undefined);
 
         if (!res.generated) {
             let noAxisLyphsInternal = (res.lyphs||[]).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
@@ -611,8 +626,7 @@ export class Graph extends Group{
     /**
      * Serialize the map of all resources to flattened jsonld
      */
-    entitiesToJSONLDFlat(callback){
-        let res = this.entitiesToJSONLD();
+    static entitiesToJSONLDFlat(res, callback){
         let context = {};
         res['@context']::entries().forEach(([k, v]) => {
             if (!(v::isObject() && ("@id" in v) && v["@id"].includes("apinatomy:"))) {

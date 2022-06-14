@@ -421,7 +421,8 @@ describe("Serialize data to JSON-LD", () => {
             expect(res).to.have.property('@context');
             expect(res).to.have.property('@graph');
         };
-        graphData.entitiesToJSONLDFlat(callback);
+        let input = modelClasses.Graph.fromJSON(keast, modelClasses);
+        graphData.entitiesToJSONLDFlat(input.entitiesToJSONLD(), callback);
     });
 
     after(() => {

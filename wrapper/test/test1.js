@@ -37,7 +37,7 @@ describe("CLI", () => {
     expect(test2()).to.have.string('model.json', 'model-generated.json', 'model.jsonld');
   }).timeout(15000);
   it("Should check the number of lines in the jsonld file", () => {
-    expect(test3()).to.have.string('175465');
+    expect(test3()).to.have.string('178705');
     fs.rmdirSync('test1-folder', { recursive: true });
     fs.rmdirSync('test2-folder', { recursive: true });
   }).timeout(15000);
