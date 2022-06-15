@@ -33,7 +33,6 @@ import {
     isClassAbstract,
     schemaClassModels, getRefNamespace, mergeWithModel
 } from "./utils";
-import {removeDisconnectedObjects} from "../view/render/autoLayout";
 
 export const modelClasses = {
     /*Abstract */

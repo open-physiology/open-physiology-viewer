@@ -120,7 +120,9 @@ export class Chain extends GroupTemplate {
             let template = chain.lyphTemplate;
             if (template){
                 if (template::isObject()){
-                    if (!template.id) { template.id = getGenID($Prefix.template, chain.id); }
+                    if (!template.id) {
+                        template.id = getGenID($Prefix.template, chain.id);
+                    }
                     mergeGenResource(chain.group, parentGroup, template, $Field.lyphs);
                     chain.lyphTemplate = template.id;
                 } else {
@@ -386,8 +388,6 @@ export class Chain extends GroupTemplate {
             }
             mergeGenResource(chain.group, parentGroup, targets[N - 1], $Field.nodes);
 
-            let lyphTemplate = getLyphTemplate();
-
             //Create levels
             chain.lyphs = [];
             let prevLink;
@@ -408,6 +408,7 @@ export class Chain extends GroupTemplate {
                 });
 
                 prevLink = setLinkProps(link, prevLink, N);
+                let lyphTemplate = getLyphTemplate();
                 if (lyphTemplate && !chain.levels[i].conveyingLyph){
                     //Only create ID, conveying lyphs will be generated and added to the group by the "expandTemplate" method
                     let lyph = {
@@ -433,7 +434,7 @@ export class Chain extends GroupTemplate {
 
         if (isDefined(chain.lyphs)){
             if (isDefined(chain.levels)){
-                logger.warn($LogMsg.CHAIN_CONFLICT2);
+                logger.warn($LogMsg.CHAIN_CONFLICT2, chain.fullID);
             }
             deriveFromLyphs(parentGroup, chain)
         } else {

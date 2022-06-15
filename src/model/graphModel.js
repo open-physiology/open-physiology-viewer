@@ -668,7 +668,7 @@ export class Graph extends Group{
             }
             groupLinks.push(lnk);
 
-            //BAG = target closed, TODO check with "reversed"
+            //BAG = target closed
             const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible;
             const expandTarget = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG2) || lnk.collapsible;
 
@@ -727,7 +727,7 @@ export class Graph extends Group{
                 return this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
             }
         } else {
-            //Clean all after unsuccessful crowling
+            //Clean all after unsuccessful crawling
             (groupLinks||[]).forEach(lnk => delete lnk._processed);
         }
     }

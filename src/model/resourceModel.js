@@ -18,12 +18,14 @@ import {
     schemaClassModels,
     $Field,
     $SchemaType,
+    $SchemaClass,
     isClassAbstract,
     getClassName,
     getNewID,
     getFullID,
     mergeWithModel,
-    $SchemaClass, getRefNamespace, getRefID
+    getRefNamespace,
+    getRefID
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 

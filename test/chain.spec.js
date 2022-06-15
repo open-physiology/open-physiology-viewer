@@ -382,8 +382,11 @@ describe("Process model with multiple namespaces", () => {
             }
         })
         duplicates = [... new Set(duplicates)];
-        //console.log(duplicates);
-        expect(duplicates).to.have.length(21);
+        //Note: duplicates are layers and their borders for 2 copies of lyph-medulla
+        if (duplicates.length !== 14) {
+            console.log(duplicates);
+        }
+        expect(duplicates).to.have.length(14);
         expect(noFullID).to.have.length(0);
     });
 

@@ -45,6 +45,18 @@
             "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
         },
         {
+            "prefix": "NCIT",
+            "namespace": "http://purl.obolibrary.org/obo/NCIT_"
+        },
+        {
+            "prefix": "XAO",
+            "namespace": "http://purl.obolibrary.org/obo/XAO_"
+        },
+        {
+            "prefix": "ilxtr",
+            "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
+        },
+        {
             "prefix": "UBERON",
             "namespace": "http://purl.obolibrary.org/obo/UBERON_"
         },
@@ -87,20 +99,1488 @@
         {
             "prefix": "NCBITaxon",
             "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
-        },
-        {
-            "prefix": "NCIT",
-            "namespace": "http://purl.obolibrary.org/obo/NCIT_"
-        },
-        {
-            "prefix": "ilxtr",
-            "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
         }
     ],
     "imports": [
         "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
     ],
     "groups": [
+        {
+            "references": [
+                {
+                    "id": "PMID:12576302",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/12576302"
+                },
+                {
+                    "id": "PMID:24306100",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/24306100"
+                },
+                {
+                    "id": "PMID:18924442",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/18924442"
+                },
+                {
+                    "id": "PMID:23438947",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/23438947"
+                },
+                {
+                    "id": "PMID:11437981",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/11437981"
+                },
+                {
+                    "id": "PMID:18364578",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/18364578"
+                },
+                {
+                    "id": "PMID:2902218",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/2902218"
+                },
+                {
+                    "id": "PMID:18286675",
+                    "uri": "https://pubmed.ncbi.nlm.nih.gov/18286675"
+                }
+            ],
+            "nodes": [],
+            "links": [
+                {
+                    "id": "lnk-soma-parabrachial-nucleus-neuron-1",
+                    "name": "link for soma in parabrachial nucleus_Neuron 1",
+                    "source": "ns1",
+                    "target": "ns3",
+                    "conveyingLyph": "lyph-soma-parabrachial-nucleus-neuron-1"
+                },
+                {
+                    "id": "lnk-soma-insula-neuron-2",
+                    "name": "link for soma in insula_Neuron 2",
+                    "source": "ns5",
+                    "target": "ns7",
+                    "conveyingLyph": "lyph-soma-insula-neuron-2"
+                },
+                {
+                    "id": "lnk-soma-insula-neuron-3",
+                    "name": "link for soma in insula_Neuron 3",
+                    "source": "ns9",
+                    "target": "ns11",
+                    "conveyingLyph": "lyph-soma-insula-neuron-3"
+                },
+                {
+                    "id": "lnk-soma-nucleus-of-the-solitary-tract-neuron-4",
+                    "name": "link for soma in nucleus of the solitary tract_Neuron 4",
+                    "source": "ns13",
+                    "target": "ns14",
+                    "conveyingLyph": "lyph-soma-nucleus-of-the-solitary-tract-neuron-4"
+                },
+                {
+                    "id": "lnk-soma-nodose-ganglia-neuron-5",
+                    "name": "link for soma in nodose ganglia_Neuron 5",
+                    "source": "ns17",
+                    "target": "ns19",
+                    "conveyingLyph": "lyph-soma-nodose-ganglia-neuron-5"
+                },
+                {
+                    "id": "lnk-soma-nucleus-of-the-solitary-tract-neuron-6",
+                    "name": "link for soma in nucleus of the solitary tract_Neuron 6",
+                    "source": "ns32",
+                    "target": "ns34",
+                    "conveyingLyph": "lyph-soma-nucleus-of-the-solitary-tract-neuron-6"
+                },
+                {
+                    "id": "lnk-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-7",
+                    "name": "link for soma in dorsal motor nucleus of the vagus_Neuron 7",
+                    "source": "ns36",
+                    "target": "ns38",
+                    "conveyingLyph": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-7"
+                },
+                {
+                    "id": "lnk-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-8",
+                    "name": "link for soma in dorsal motor nucleus of the vagus_Neuron 8",
+                    "source": "ns40",
+                    "target": "ns42",
+                    "conveyingLyph": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-8"
+                },
+                {
+                    "id": "lnk-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-9",
+                    "name": "link for soma in dorsal motor nucleus of the vagus_Neuron 9",
+                    "source": "ns44",
+                    "target": "ns46",
+                    "conveyingLyph": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-9"
+                },
+                {
+                    "id": "lnk-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-10",
+                    "name": "link for soma in dorsal motor nucleus of the vagus_Neuron 10",
+                    "source": "ns48",
+                    "target": "ns50",
+                    "conveyingLyph": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-10"
+                },
+                {
+                    "id": "lnk-soma-myenteric-plexus-in-the-distal-stomach-neuron-11",
+                    "name": "link for soma in myenteric plexus in the distal stomach_Neuron 11",
+                    "source": "ns52",
+                    "target": "ns54",
+                    "conveyingLyph": "lyph-soma-myenteric-plexus-in-the-distal-stomach-neuron-11"
+                },
+                {
+                    "id": "lnk-soma-myenteric-plexus-in-the-distal-stomach-neuron-12",
+                    "name": "link for soma in myenteric plexus in the distal stomach_Neuron 12",
+                    "source": "ns58",
+                    "target": "ns60",
+                    "conveyingLyph": "lyph-soma-myenteric-plexus-in-the-distal-stomach-neuron-12"
+                },
+                {
+                    "id": "lnk-soma-myenteric-plexus-in-the-proximal-stomach-neuron-13",
+                    "name": "link for soma in myenteric plexus in the proximal stomach_Neuron 13",
+                    "source": "ns67",
+                    "target": "ns69",
+                    "conveyingLyph": "lyph-soma-myenteric-plexus-in-the-proximal-stomach-neuron-13"
+                },
+                {
+                    "id": "lnk-soma-myenteric-plexus-in-the-proximal-stomach-neuron-14",
+                    "name": "link for soma in myenteric plexus in the proximal stomach_Neuron 14",
+                    "source": "ns78",
+                    "target": "ns80",
+                    "conveyingLyph": "lyph-soma-myenteric-plexus-in-the-proximal-stomach-neuron-14"
+                }
+            ],
+            "lyphs": [
+                {
+                    "id": "lyph-soma-parabrachial-nucleus-neuron-1",
+                    "name": "Soma in parabrachial nucleus_Neuron 1",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-1"
+                },
+                {
+                    "id": "lyph-soma-insula-neuron-2",
+                    "name": "Soma in insula_Neuron 2",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-2"
+                },
+                {
+                    "id": "lyph-soma-insula-neuron-3",
+                    "name": "Soma in insula_Neuron 3",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-3"
+                },
+                {
+                    "id": "lyph-soma-nucleus-of-the-solitary-tract-neuron-4",
+                    "name": "Soma in nucleus of the solitary tract_Neuron 4",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-4"
+                },
+                {
+                    "id": "lyph-soma-nodose-ganglia-neuron-5",
+                    "name": "Soma in nodose ganglia_Neuron 5",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-5"
+                },
+                {
+                    "id": "lyph-soma-nucleus-of-the-solitary-tract-neuron-6",
+                    "name": "Soma in nucleus of the solitary tract_Neuron 6",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-6"
+                },
+                {
+                    "id": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-7",
+                    "name": "Soma in dorsal motor nucleus of the vagus_Neuron 7",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-7"
+                },
+                {
+                    "id": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-8",
+                    "name": "Soma in dorsal motor nucleus of the vagus_Neuron 8",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-8"
+                },
+                {
+                    "id": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-9",
+                    "name": "Soma in dorsal motor nucleus of the vagus_Neuron 9",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-9"
+                },
+                {
+                    "id": "lyph-soma-dorsal-motor-nucleus-of-the-vagus-nerve-neuron-10",
+                    "name": "Soma in dorsal motor nucleus of the vagus_Neuron 10",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-10"
+                },
+                {
+                    "id": "lyph-soma-myenteric-plexus-in-the-distal-stomach-neuron-11",
+                    "name": "Soma in myenteric plexus in the distal stomach_Neuron 11",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-11"
+                },
+                {
+                    "id": "lyph-soma-myenteric-plexus-in-the-distal-stomach-neuron-12",
+                    "name": "Soma in myenteric plexus in the distal stomach_Neuron 12",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-12"
+                },
+                {
+                    "id": "lyph-soma-myenteric-plexus-in-the-proximal-stomach-neuron-13",
+                    "name": "Soma in myenteric plexus in the proximal stomach_Neuron 13",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-13"
+                },
+                {
+                    "id": "lyph-soma-myenteric-plexus-in-the-proximal-stomach-neuron-14",
+                    "name": "Soma in myenteric plexus in the proximal stomach_Neuron 14",
+                    "ontologyTerms": [
+                        "NLX:154731"
+                    ],
+                    "supertype": "wbkg:lt-segment-of-neuron",
+                    "seedIn": "neuron-14"
+                }
+            ],
+            "materials": [],
+            "chains": [
+                {
+                    "id": "dendrite-chain-in-the-parabrachial-nucleus-neuron-1",
+                    "name": "Dendrite chain in the parabrachial nucleus _Neuron 1",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns1",
+                    "leaf": "ns2",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-parabrachial"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-parabrachial-nucleus-neuron-1",
+                    "name": "Axon chain in the parabrachial nucleus_Neuron 1",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns3",
+                    "leaf": "ns4",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-parabrachial",
+                        "wbkg:lyph-CNS-insula"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-insula-neuron-2",
+                    "name": "Dendrite chain in the insula_Neuron 2",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns5",
+                    "leaf": "ns6",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-insula"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-insula-neuron-2",
+                    "name": "Axon chain in the insula _Neuron 2",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns7",
+                    "leaf": "ns8",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-insula",
+                        "wbkg:lyph-CNS-nucleus-parabrachial"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-insula-neuron-3",
+                    "name": "Dendrite chain in the insula_Neuron 3",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns9",
+                    "leaf": "ns10",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-insula"
+                    ]
+                },
+                {
+                    "id": "axon-chain-insula-neuron-3",
+                    "name": "Axon chain in the insula_Neuron 3",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns11",
+                    "leaf": "ns12",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-insula",
+                        "wbkg:lyph-CNS-nucleus-tractus-solitarius"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-nucleus-of-the-solitary-tract-neuron-4",
+                    "name": "Dendrite chain in the nucleus of the solitary tract_Neuron 4",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns13",
+                    "leaf": "ns14",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-tractus-solitarius"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-nucleus-of-the-solitary-tract-neuron-4",
+                    "name": "Axon chain in the nucleus of the solitary tract_Neuron 4",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns15",
+                    "leaf": "ns16",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-tractus-solitarius",
+                        "wbkg:lyph-CNS-nucleus-parabrachial"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-nodose-ganglia-neuron-5",
+                    "name": "Dendrite chain in the nodose ganglia_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-tube",
+                    "root": "ns17",
+                    "leaf": "ns18",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve"
+                    ]
+                },
+                {
+                    "id": "axon-chain-nodose-ganglia-neuron-5",
+                    "name": "Axon chain in the nodose ganglia to nts_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns19",
+                    "leaf": "ns20",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve",
+                        "wbkg:lyph-CNS-nucleus-tractus-solitarius"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-nodose-ganglia-to-vagus-neuron-5",
+                    "name": "Dendrite chain in the nodose ganglia to vagus_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-tube",
+                    "root": "ns18",
+                    "leaf": "ns21",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve",
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-distal-stomach-long-muscle-neuron-5",
+                    "name": "Dendrite chain in the vagus to distal stomach_long muscle_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns22",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-distal-stomach-myenteric-plexus-neuron-5",
+                    "name": "Dendrite chain in the vagus to distal stomach_myenteric plexus_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns23",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-distal-stomach-circular-muscle-neuron-5",
+                    "name": "Dendrite chain in the vagus to distal stomach_cir muscle_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns24",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7,
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-distal-stomach-muscosa-neuron-5",
+                    "name": "Dendrite chain in the vagus to distal stomach_mucosa_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns25",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7,
+                        6,
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-proximal-stomach-myenteric-long-muscle-neuron-5",
+                    "name": "Dendrite chain in the vagus to proximal stomach_long muscle_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns26",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-proximal-stomach-myenteric-myenteric-plexus-neuron-5",
+                    "name": "Dendrite chain in the vagus to proximal stomach_myenteric plexus_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns27",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-proximal-stomach-circular-muscle-neuron-5",
+                    "name": "Dendrite chain in the vagus to proximal stomach_cir muscle_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns28",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7,
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-proximal-stomach-mucosa-neuron-5",
+                    "name": "Dendrite chain in the vagus to proximal  stomach_mucosa_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns29",
+                    "housingLayers": [
+                        0,
+                        8,
+                        7,
+                        6,
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-lower-esophagus-long-muscle-neuron-5",
+                    "name": "Dendrite chain in the vagus to lower esophagus_long muscle_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns30",
+                    "housingLayers": [
+                        0,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve",
+                        "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-vagus-to-lower-esophagus-circular-muscle-neuron-5",
+                    "name": "Dendrite chain in the vagus to lower esophagus_cir muscle_Neuron 5",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns21",
+                    "leaf": "ns31",
+                    "housingLayers": [
+                        0,
+                        7,
+                        6,
+                        5,
+                        4
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "lyph-lower-esophagus",
+                        "lyph-lower-esophagus",
+                        "wbkg:lyph-digestive-lower-two-thirds-esophagus",
+                        "wbkg:lyph-digestive-lower-two-thirds-esophagus"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-nucleus-of-the-solitary-tract-neuron-6",
+                    "name": "Dendrite chain in the nucleus of the solitary tract_Neuron 6",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns32",
+                    "leaf": "ns33",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-tractus-solitarius"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-nucleus-of-the-solitary-tract-neuron-6",
+                    "name": "Axon chain in the nucleus of the solitary tract_Neuron 6",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns34",
+                    "leaf": "ns35",
+                    "housingLayers": [
+                        0,
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-tractus-solitarius",
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-7",
+                    "name": "Dendrite chain in the dorsal motor nucleus of the vagus_Neuron 7",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns36",
+                    "leaf": "ns37",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-7",
+                    "name": "Axon chain in the dorsal motor nucleus of the vagus_Neuron 7",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns38",
+                    "leaf": "ns39",
+                    "housingLayers": [
+                        0,
+                        0,
+                        8,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus",
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-8",
+                    "name": "Dendrite chain in the dorsal motor nucleus of the vagus_Neuron 8",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns40",
+                    "leaf": "ns41",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-8",
+                    "name": "Axon chain in the dorsal motor nucleus of the vagus_Neuron 8",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns42",
+                    "leaf": "ns43",
+                    "housingLayers": [
+                        0,
+                        0,
+                        8,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus",
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach",
+                        "wbkg:lyph-digestive-distal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-9",
+                    "name": "Dendrite chain in the dorsal motor nucleus of the vagus_Neuron 9",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns44",
+                    "leaf": "ns45",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-10",
+                    "name": "Axon chain in the dorsal motor nucleus of the vagus_Neuron 9",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns46",
+                    "leaf": "ns47",
+                    "housingLayers": [
+                        0,
+                        0,
+                        8,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus",
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-10",
+                    "name": "Dendrite chain in the dorsal motor nucleus of the vagus_Neuron 10",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns48",
+                    "leaf": "ns49",
+                    "housingLayers": [
+                        0
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-dorsal-motor-nucleus-of-the-vagus-neuron-11",
+                    "name": "Axon chain in the dorsal motor nucleus of the vagus_Neuron 10",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns50",
+                    "leaf": "ns51",
+                    "housingLayers": [
+                        0,
+                        0,
+                        8,
+                        7,
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus",
+                        "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-myenteric-plexus-in-the-distal-stomach-neuron-11",
+                    "name": "Dendrite chain in the myenteric plexus in the distal stomach_Neuron 11",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns52",
+                    "leaf": "ns53",
+                    "housingLayers": [
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-longitudinal-muscle-neuron-11",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to longitudinal muscle_Neuron 11",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-tube",
+                    "root": "ns54",
+                    "leaf": "ns55",
+                    "housingLayers": [
+                        6,
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-circular-muscle-neuron-11",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to circular muscle_Neuron 11",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns55",
+                    "leaf": "ns56",
+                    "housingLayers": [
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-musoca-muscle-neuron-11",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to mucosa muscle_Neuron 11",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns55",
+                    "leaf": "ns57",
+                    "housingLayers": [
+                        6,
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-myenteric-plexus-in-the-distal-stomach-neuron-12",
+                    "name": "Dendrite chain in the myenteric plexus in the distal stomach_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns58",
+                    "leaf": "ns59",
+                    "housingLayers": [
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-longitudinal-muscle-neuron-12",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to longitudinal muscle_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns60",
+                    "leaf": "ns61",
+                    "housingLayers": [
+                        6,
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-circular-muscle-neuron-12",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to circular muscle_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns60",
+                    "leaf": "ns62",
+                    "housingLayers": [
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-circular-muscle-branch-neuron-12",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to circular muscle branch_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-tube",
+                    "root": "ns60",
+                    "leaf": "ns63",
+                    "housingLayers": [
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-circular-muscle-branch-to-parietal-cell-in-mucosa-neuron-12",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to circular muscle branch to parietal cell in mucosa_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns63",
+                    "leaf": "ns64",
+                    "housingLayers": [
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-circular-muscle-branch-to-chief-cell-in-mucosa-neuron-12",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to circular muscle branch to chief cell in mucosa_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns63",
+                    "leaf": "ns65",
+                    "housingLayers": [
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-distal-stomach-to-circular-muscle-branch-to-enteroendocrine-cell-in-mucosa-neuron-12",
+                    "name": "Axon chain in the myenteric plexus in the distal stomach to circular muscle branch to entreendocrine cell in mucosa_Neuron 12",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns63",
+                    "leaf": "ns66",
+                    "housingLayers": [
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-myenteric-plexus-in-the-proximal-stomach-neuron-13",
+                    "name": "Dendrite chain in the myenteric plexus in the proximal stomach_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns67",
+                    "leaf": "ns68",
+                    "housingLayers": [
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-longitudinal-muscle-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to longitudinal muscle-branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-tube",
+                    "root": "ns69",
+                    "leaf": "ns70",
+                    "housingLayers": [
+                        6,
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-longitudinal-muscle-to-ICC-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to longitudinal muscle to ICC -branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns70",
+                    "leaf": "ns71",
+                    "housingLayers": [
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-longitudinal-muscle-to-PGDFR-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to longitudinal muscle to PGDFR -branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns70",
+                    "leaf": "ns72",
+                    "housingLayers": [
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-longitudinal-muscle-to-smooth-muscle-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to longitudinal muscle to smooth muscle -branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns70",
+                    "leaf": "ns73",
+                    "housingLayers": [
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-circular-muscle-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to circular muscle-branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-tube",
+                    "root": "ns70",
+                    "leaf": "ns74",
+                    "housingLayers": [
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-circular-muscle--to-ICC-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to circular muscle to ICC -branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns74",
+                    "leaf": "ns75",
+                    "housingLayers": [
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-circular-muscle--to-PGDFR-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to circular muscle to PGDFR -branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns74",
+                    "leaf": "ns76",
+                    "housingLayers": [
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-circular-muscle-to-smooth-muscle-branch-neuron-13",
+                    "name": "Axon chain in the myenteric plexus in the proximal stomach to circular muscle to smooth muscle -branch_Neuron 13",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns74",
+                    "leaf": "ns77",
+                    "housingLayers": [
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "dendrite-chain-in-the-myenteric-plexus-in-the-proximal-stomach-neuron-14",
+                    "name": "Dendrite chain in myenteric plexus in the proximal stomach_Neuron 14",
+                    "ontologyTerms": [
+                        "SAO:1211023249"
+                    ],
+                    "lyphTemplate": "wbkg:lt-dend-bag",
+                    "root": "ns78",
+                    "leaf": "ns79",
+                    "housingLayers": [
+                        6
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-longitudinal-muscle-neuron-14",
+                    "name": "Axon chain in myenteric plexus in the proximal stomach to longitudinal muscle_Neuron 14",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns80",
+                    "leaf": "ns81",
+                    "housingLayers": [
+                        6,
+                        7
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-circular-muscle-neuron-14",
+                    "name": "Axon chain in myenteric plexus in the proximal stomach to circular muscle_Neuron 14",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns80",
+                    "leaf": "ns82",
+                    "housingLayers": [
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-mucosa-branch-neuron-14",
+                    "name": "Axon chain in myenteric plexus in the proximal stomach to mucosa-branch_Neuron 14",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-tube",
+                    "root": "ns80",
+                    "leaf": "ns83",
+                    "housingLayers": [
+                        6,
+                        5
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-mucosa-parietal-neuron-14",
+                    "name": "Axon chain in myenteric plexus in the proximal stomach to mucosa-parietal_Neuron 14",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns83",
+                    "leaf": "ns84",
+                    "housingLayers": [
+                        5,
+                        4,
+                        3,
+                        2
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                },
+                {
+                    "id": "axon-chain-in-the-myenteric-plexus-in-the-proximal-stomach-to-mucosa-chief-neuron-14",
+                    "name": "Axon chain in myenteric plexus in the proximal stomach to mucosachief_Neuron 14",
+                    "ontologyTerms": [
+                        "SAO:1770195789"
+                    ],
+                    "lyphTemplate": "wbkg:lt-axon-bag",
+                    "root": "ns83",
+                    "leaf": "ns85",
+                    "housingLayers": [
+                        5,
+                        4,
+                        3,
+                        2
+                    ],
+                    "housingLyphs": [
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach",
+                        "wbkg:lyph-digestive-proximal-stomach"
+                    ]
+                }
+            ],
+            "groups": [
+                {
+                    "id": "neuron-1",
+                    "name": "Neuron 1",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-1"
+                    ]
+                },
+                {
+                    "id": "neuron-2",
+                    "name": "Neuron 2",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-2"
+                    ]
+                },
+                {
+                    "id": "neuron-3",
+                    "name": "Neuron 3",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-3"
+                    ]
+                },
+                {
+                    "id": "neuron-4",
+                    "name": "Neuron 4",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-4"
+                    ]
+                },
+                {
+                    "id": "neuron-5",
+                    "name": "Neuron 5",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-5"
+                    ]
+                },
+                {
+                    "id": "neuron-6",
+                    "name": "Neuron 6",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-6"
+                    ]
+                },
+                {
+                    "id": "neuron-7",
+                    "name": "Neuron 7",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-7"
+                    ]
+                },
+                {
+                    "id": "neuron-8",
+                    "name": "Neuron 8",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-8"
+                    ]
+                },
+                {
+                    "id": "neuron-9",
+                    "name": "Neuron 9",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-9"
+                    ]
+                },
+                {
+                    "id": "neuron-10",
+                    "name": "Neuron 10",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-10"
+                    ]
+                },
+                {
+                    "id": "neuron-11",
+                    "name": "Neuron 11",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-11"
+                    ]
+                },
+                {
+                    "id": "neuron-12",
+                    "name": "Neuron 12",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-12"
+                    ]
+                },
+                {
+                    "id": "neuron-13",
+                    "name": "Neuron 13",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-13"
+                    ]
+                },
+                {
+                    "id": "neuron-14",
+                    "name": "Neuron 14",
+                    "ontologyTerms": [
+                        "ilxtr:neuron-type-sstom-14"
+                    ]
+                }
+            ],
+            "id": "sawg-stomach",
+            "namespace": "stomach",
+            "name": "ApiNATOMY model of the stomach"
+        },
         {
             "references": [
                 {
@@ -5821,34 +7301,6 @@
             "id": "WBKG1",
             "name": "TOO-map-linked reference connectivity model",
             "namespace": "wbkg"
-        },
-        {
-            "references": [],
-            "nodes": [],
-            "links": [
-                {
-                    "id": "lnk-soma-neuron2",
-                    "name": "lsn2",
-                    "source": "a",
-                    "target": "b",
-                    "conveyingLyph": "lyph-soma-neuron2"
-                }
-            ],
-            "lyphs": [
-                {
-                    "id": "lyph-soma-neuron2",
-                    "name": "Soma neuron 2",
-                    "supertype": "wbkg:lt-segment-of-neuron"
-                }
-            ],
-            "materials": [],
-            "coalescences": [],
-            "channels": [],
-            "chains": [],
-            "groups": [],
-            "id": "synapsetest",
-            "name": "deBono-Gillespie",
-            "namespace": "syntest"
         }
     ],
     "created": "2022-06-15",

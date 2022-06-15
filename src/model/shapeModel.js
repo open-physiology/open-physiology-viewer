@@ -16,7 +16,7 @@ import {
     mergeResources,
     refToResource,
     getFullID,
-    mergeGenResource,
+    mergeGenResource, getRefNamespace,
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -122,28 +122,28 @@ export class Lyph extends Shape {
         (template.subtypes||[]).forEach(s => {
             if (s::isObject() && s.id && !refToResource(s.id, parentGroup, $Field.lyphs)){
                 parentGroup.lyphs.push(s); //generate a lyph for the template subtype
+                parentGroup.lyphsByID[getFullID(parentGroup.namespace, s.id)] = s;
             }
         });
         //Template supertype must contain id's for correct generation
         template.subtypes = (template.subtypes||[]).map(e => getID(e));
-        // let subtypes = parentGroup.lyphs.filter(e => e.supertype === template.id || template.subtypes.includes(e.id));
-        if (parentGroup.namespace === template.namespace) {
-            parentGroup.lyphs.forEach(e => {
-                if (e.supertype === template.id) {
-                    if (!template.subtypes.includes(e.id)) {
-                        template.subtypes.push(e.id);
-                    }
-                }
-            });
-        } else {
-            template.subtypes = template.subtypes.map(ref => getFullID(template.namespace, ref));
-            (parentGroup.lyphsByID || {})::values().forEach(e => {
-                if ((e.supertype === template.id || e.supertype === template.fullID) &&
-                    !template.subtypes.includes(e.fullID)) {
-                    template.subtypes.push(e.fullID);
-                }
-            });
-        }
+
+        // parentGroup.lyphs.forEach(e => {
+        //     if (e.supertype === template.id) {
+        //         if (!template.subtypes.includes(e.id)) {
+        //             template.subtypes.push(e.id);
+        //         }
+        //     }
+        // });
+        //template.subtypes = template.subtypes.map(ref => getFullID(template.namespace, ref));
+
+        (parentGroup.lyphsByID || {})::values().forEach(e => {
+            if ((e.supertype === template.id || e.supertype === template.fullID) &&
+                !(template.subtypes.includes(e.id) || template.subtypes.includes(e.fullID))) {
+                template.subtypes.push(e.fullID);
+            }
+        });
+
         let subtypes = [];
         template.subtypes.forEach(ref => {
             let lyph = refToResource(ref, parentGroup, $Field.lyphs);
@@ -186,12 +186,22 @@ export class Lyph extends Shape {
         }
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.materials, $Field.channels,
-                $Field.bundlesChains, $Field.namespace]),
+            $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.namespace,
+                $Field.materials, $Field.channels, $Field.bundlesChains]),
             mergeResources);
+        //If targetLyph is from different namespace, add namespace to default materials
+        if (targetLyph.namespace !== sourceLyph.namespace){
+            [$Field.materials, $Field.channels, $Field.bundlesChains].forEach(prop => {
+                if (targetLyph[prop]) {
+                    targetLyph[prop] = targetLyph[prop].map(m => getFullID(sourceLyph.namespace, m));
+                }
+            });
+        }
 
         if (sourceLyph.isTemplate){
-            targetLyph.supertype = sourceLyph.id;
+            if (!targetLyph.supertype) {
+                targetLyph.supertype = sourceLyph.fullID || sourceLyph.id;
+            }
             //Clone template villus object into all subtype lyphs
             if (sourceLyph.villus){
                 targetLyph.villus = sourceLyph.villus::clone();
