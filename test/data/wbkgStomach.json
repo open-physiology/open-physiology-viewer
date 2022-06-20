@@ -766,12 +766,10 @@
                     "leaf": "ns30",
                     "housingLayers": [
                         0,
-                        7,
-                        6
+                        0
                     ],
                     "housingLyphs": [
                         "wbkg:lyph-PNS-nerve-vagus-main-trunk",
-                        "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve",
                         "wbkg:lyph-PNS-nodose-ganglion-vagus-nerve"
                     ]
                 },
