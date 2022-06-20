@@ -8,7 +8,8 @@ import {
     getID, getRefID,
     getRefNamespace,
     mergeGenResource,
-    refToResource
+    refToResource,
+    genResource
 } from "./utils";
 import {keys, merge, pick, isString, isArray, flatten} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -77,9 +78,11 @@ export class Node extends Vertice {
         targetNode::merge(sourceNode::pick([$Field.color, $Field.hidden]));
         targetNode.skipLabel = true;
         targetNode.generated = true;
-        if (!sourceNode.clones){ sourceNode.clones = []; }
+        if (!sourceNode.clones){
+            sourceNode.clones = [];
+        }
         //FIXME use fullID (requires revision to be able to find these nodes)?
-        sourceNode.clones.push(targetNode.id);
+        sourceNode.clones.push(targetNode.fullID || targetNode.id);
         return targetNode;
     }
 
@@ -113,12 +116,11 @@ export class Node extends Vertice {
                 let prev = nodeID;
                 hostLyphs.forEach((hostLyph, i) => {
                     if (i < 1) { return; }
-                    let nodeClone = {
+                    let nodeClone = genResource({
                         [$Field.id]: getGenID(nodeID, $Prefix.clone, i),
                         [$Field.skipLabel]: true,
-                        [$Field.hidden]: node.hidden,
-                        [$Field.generated]: true
-                    };
+                        [$Field.hidden]: node.hidden
+                    }, "verticeModel.replicateBorderNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
                     if (!findResourceByID(parentGroup.nodes, nodeClone.id)) {
                         parentGroup.nodes.push(nodeClone);
@@ -163,12 +165,11 @@ export class Node extends Vertice {
 
                 //FIXME design tests with different namespaces
                 hostLyphs.forEach((hostLyph, i) => {
-                    let nodeClone = {
+                    let nodeClone = genResource({
                         [$Field.id]        : getGenID(nodeID, $Prefix.join, i),
                         [$Field.hidden]    : true, //FIXME join nodes do not get included to groups (namespace issue?)
-                        [$Field.skipLabel] : true,
-                        [$Field.generated] : true
-                    };
+                        [$Field.skipLabel] : true
+                    }, "verticeModel.replicateInternalNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
                     mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
                     let k = hostLyph.internalNodes.indexOf(nodeFullID);

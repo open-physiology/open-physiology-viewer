@@ -16,7 +16,8 @@ import {
     mergeResources,
     refToResource,
     getFullID,
-    mergeGenResource, getRefNamespace,
+    mergeGenResource,
+    genResource,
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -47,7 +48,6 @@ export class Shape extends VisualResource {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id     = json.id || getNewID(entitiesByID);
         json.border = json.border || {
-            [$Field.generated] : true,
             [$Field.borders]   : []
         };
         json.border.id = json.border.id || getGenID($Prefix.border, json.id);
@@ -59,10 +59,11 @@ export class Shape extends VisualResource {
                 [$Field.source]   : {id: getGenID($Prefix.source, id)},
                 [$Field.target]   : {id: getGenID($Prefix.target, id)},
                 [$Field.geometry] : Edge.EDGE_GEOMETRY.INVISIBLE,
-                [$Field.skipLabel]: true,
-                [$Field.generated]: true
+                [$Field.skipLabel]: true
             });
+            json.border.borders[i] =  genResource(json.border.borders[i], "shapeModel.fromJSON (Link)");
         }
+        json.border =  genResource(json.border, "shapeModel.fromJSON (Border)");
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         res.border.host = res;
         return res;
@@ -172,7 +173,7 @@ export class Lyph extends Shape {
             return;
         }
 
-        targetLyph = targetLyph || {};
+        targetLyph = targetLyph || genResource({}, "shapeModel.clone.0 (Lyph)");
 
         if (!parentGroup.lyphs) {parentGroup.lyphs = [];}
  
@@ -213,12 +214,12 @@ export class Lyph extends Shape {
                 }
             }
         } else {
-            targetLyph.cloneOf = sourceLyph.fullID;
+            if (!targetLyph.cloneOf) {
+                targetLyph.cloneOf = sourceLyph.fullID || sourceLyph.id;
+            }
         }
 
         targetLyph.name = targetLyph.name || getGenName(sourceLyph.name);
-        //FIXME Do we need this?
-        // targetLyph.namespace = targetLyph.namespace || parentGroup.namespace;
 
         if ((targetLyph.layers||[]).length > 0) {
             logger.warn($LogMsg.LYPH_SUBTYPE_HAS_OWN_LAYERS, targetLyph);
@@ -240,18 +241,17 @@ export class Lyph extends Shape {
                 targetLayer = targetLyph.layers[i];
             }
             let targetLayerID = getGenID(sourceLayer.id, targetLyph.id, i+1);
-            targetLayer = targetLayer::merge({
+            targetLayer = targetLayer::merge(genResource({
                 [$Field.id]        : targetLayerID,
                 [$Field.namespace] : targetLyph.namespace,
                 [$Field.fullID]    : getFullID(targetLyph.namespace, targetLayerID),
                 [$Field.name]      : getGenName(sourceLayer.name || '?', "in", targetLyph.name || '?', $Prefix.layer, i+1),
-                [$Field.skipLabel] : true,
-                [$Field.generated] : true
-            });
+                [$Field.skipLabel] : true
+            }, "shapeModel.clone (Lyph)"));
             mergeGenResource(undefined, parentGroup, targetLayer, $Field.lyphs);
             this.clone(parentGroup, sourceLayer, targetLayer);
 
-            targetLayer::merge(targetLyph::pick([$Field.topology, $Field.namespace]));
+            targetLayer::merge(targetLyph::pick([$Field.topology]));
             targetLyph.layers = targetLyph.layers || [];
             targetLyph.layers.push(targetLayer.id);
         });
@@ -397,21 +397,6 @@ export class Lyph extends Shape {
         return this.internalIn || this.layerIn && this.layerIn.internalIn;
     }
 
-    get allContainers(){
-        let res = [this];
-        if (this.layerIn) {
-            res = res.concat(this.layerIn.allContainers);
-        }
-        if (this.internalIn){
-            res = res.concat(this.internalIn.allContainers);
-        }
-        (this.inMaterials||[]).forEach(materialIn => {
-            res = res.concat(materialIn.allContainers);
-        });
-        
-        return res;
-    }
-
     /**
      * Defines size of the conveying lyph based on the length of the link
      * @returns {{height: number, width: number}}
@@ -494,25 +479,23 @@ export class Lyph extends Shape {
     }
 
     createAxis(modelClasses, entitiesByID, namespace) {
-        let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix => (
-            Node.fromJSON({
+        let [sNode, tNode] = [$Prefix.source, $Prefix.target].map(prefix =>
+            Node.fromJSON(genResource({
                 [$Field.id]        : getGenID(prefix, this.id),
                 [$Field.color]     : $Color.Node,
                 [$Field.val]       : this.internalIn? 0.1: 1,
                 [$Field.skipLabel] : true,
-                [$Field.generated] : true,
                 [$Field.invisible] : true
-            }, modelClasses, entitiesByID, namespace)));
+            },"shapeModel.createAxis (Node)"), modelClasses, entitiesByID, namespace));
 
-        let link = Link.fromJSON({
+        let link = Link.fromJSON(genResource({
             [$Field.id]           : getGenID($Prefix.link, this.id),
             [$Field.source]       : sNode.fullID || sNode.id,
             [$Field.target]       : tNode.fullID || tNode.id,
             [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
             [$Field.conveyingLyph]: this.fullID,
-            [$Field.skipLabel]    : true,
-            [$Field.generated]    : true
-        }, modelClasses, entitiesByID, namespace);
+            [$Field.skipLabel]    : true
+         },"shapeModel.createAxis (Link)"), modelClasses, entitiesByID, namespace);
 
         link.source = sNode;
         link.target = tNode;
@@ -545,31 +528,6 @@ export class Lyph extends Shape {
             }
             this.axis.length = this.axis.length || 10;
         }
-    }
-
-    /**
-     * Determine whether the lyph has a common supertype with a given lyph
-     * @param lyph
-     * @returns {*}
-     */
-    static hasCommonTemplateWith(lyph){
-        if (!lyph) { return false; }
-        if (this === lyph)  { return true; }
-        if (this.generatedFrom && this.generatedFrom === lyph.generatedFrom) { return true; }
-        let res = false;
-        if (this.supertype) {
-            res = this.supertype.hasCommonTemplateWith(lyph);
-        }
-        if (!res && this.cloneOf){
-            res = this.cloneOf.hasCommonTemplateWith(lyph);
-        }
-        if (!res && lyph.supertype){
-            res = this.hasCommonTemplateWith(lyph.supertype);
-        }
-        if (!res && lyph.cloneOf){
-            res = this.hasCommonTemplateWith(lyph.cloneOf);
-        }
-        return res;
     }
 
     /**
@@ -680,12 +638,11 @@ export class Region extends Shape {
         if (!template.borderAnchors) {
             //generate border anchors from points
             (template.points||[]).forEach((p, i) => {
-                anchors.push({
-                    [$Field.id]: getGenID($Prefix.anchor, template.id, i),
-                    [$Field.layout]: p::clone(),
-                    [$Field.skipLabel]: true,
-                    [$Field.generated]: true
-                });
+                anchors.push(genResource({
+                    [$Field.id]       : getGenID($Prefix.anchor, template.id, i),
+                    [$Field.layout]   : p::clone(),
+                    [$Field.skipLabel]: true
+                }, "shapeModel.expandTemplate (Anchor)"));
             });
             parentGroup.anchors = parentGroup.anchors || [];
             parentGroup.anchors.push(...anchors);
@@ -701,14 +658,13 @@ export class Region extends Shape {
             }
             let wires = [];
             for (let i = 1; i < anchors.length + 1; i++) {
-                wires.push({
+                wires.push(genResource({
                     [$Field.id]        : getGenID($Prefix.wire, template.id, i),
                     [$Field.source]    : anchors[i - 1].id,
                     [$Field.target]    : anchors[i % anchors.length].id,
                     [$Field.color]     : template.color? tinycolor(template.color).darken(25): $Color.Wire,
-                    [$Field.skipLabel] : true,
-                    [$Field.generated] : true
-                });
+                    [$Field.skipLabel] : true
+                }, "shapeModel.expandTemplate (Wire)"));
             }
             parentGroup.wires = parentGroup.wires || [];
             parentGroup.wires.push(...wires);

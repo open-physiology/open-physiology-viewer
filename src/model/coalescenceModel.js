@@ -1,7 +1,7 @@
 import { Resource } from './resourceModel';
 import {logger, $LogMsg} from "./logger";
 import { keys, values, uniqBy} from 'lodash-bound';
-import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID} from "./utils";
+import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID, genResource} from "./utils";
 
 /**
  * Coalescence model
@@ -70,13 +70,12 @@ export class Coalescence extends Resource{
                 if (uniqueLyphs.length <= 1) { return; }
 
                 //FIXME generated in joint model without namespace (is it a problem?)
-                let coalescence = {
+                let coalescence = genResource({
                     [$Field.id]           : getGenID(this.id, $Prefix.instance, i + 1),
-                    [$Field.generated]    : true,
                     [$Field.topology]     : this.topology,
                     [$Field.generatedFrom]: this,
                     [$Field.lyphs]        : uniqueLyphs
-                };
+                }, "coalescenceModel.createInstances (Coalescence)");
                 let instance = this.constructor.fromJSON(coalescence, modelClasses, inputModel.entitiesByID, inputModel.namespace);
 
                 //it is ok to add newly create coalescences to the parent group coalescence set as they won't be further processed

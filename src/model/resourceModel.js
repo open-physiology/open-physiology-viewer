@@ -25,7 +25,8 @@ import {
     getFullID,
     mergeWithModel,
     getRefNamespace,
-    getRefID
+    getRefID,
+    genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -81,7 +82,7 @@ export class Resource{
             logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, json, difference.join(","));
         }
 
-        json.namespace = getRefNamespace(json.id, namespace);
+        json.namespace = getRefNamespace(json, namespace);
         json.fullID = getFullID(json.namespace, json.id);
 
         res::assign(json);
@@ -106,11 +107,13 @@ export class Resource{
         return res;
     }
 
-    static createResource(id, clsName, model, modelClasses, entitiesByID, namespace){
-        let e = modelClasses[clsName].fromJSON({
-            [$Field.id]        : getRefID(id),
-            [$Field.generated] : true
-        }, modelClasses, entitiesByID, getRefNamespace(id, namespace));
+    static createResource(ref, clsName, model, modelClasses, entitiesByID, namespace){
+        const nm = getRefNamespace(ref, namespace);
+        let e = modelClasses[clsName].fromJSON(genResource({
+                [$Field.id]: getRefID(ref),
+                [$Field.namespace]: nm
+            },"resourceModel.createResource (" + clsName + ") in " + nm),
+            modelClasses, entitiesByID, nm);
 
         //Do not show labels for generated visual resources
         if (e.prototype instanceof modelClasses.VisualResource){
@@ -161,7 +164,6 @@ export class Resource{
                 value.fullID = value.fullID || getFullID(res.namespace, value.id);
                 if (entitiesByID[value.fullID]) {
                     if (value !== entitiesByID[value.fullID]) {
-                        //FIXME the condition hides warning for generated resources as it is often erroneously triggered by node clones in multi-namespace models
                         if (!value.generated || !entitiesByID[value.fullID].generated) {
                             logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[value.fullID]);
                         }
@@ -386,8 +388,7 @@ export class Resource{
                 } else {
                     if (!obj[key2]) {
                         obj[key2] = res;
-                    }
-                    else {
+                    } else {
                         if (obj[key2] !== res) {
                             logger.warn($LogMsg.RESOURCE_DOUBLE_REF, obj.fullID, key2, obj[key2].fullID, res.fulLID);
                         }
