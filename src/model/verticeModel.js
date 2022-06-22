@@ -147,9 +147,8 @@ export class Node extends Vertice {
         let internalNodesByID = {};
         (parentGroup.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID, parentGroup.namespace));
 
-        const isEndBundledLink = (link, lyph) => (lyph.endBundles||[]).find(e => getID(e) === link.id);
+        const isEndBundledLink = (link, lyph) => (lyph.endBundles||[]).find(e => getRefID(e) === getRefID(link));
 
-        //FIXME test with different namespaces
         internalNodesByID::keys().forEach(nodeFullID => {
             let hostLyphs = internalNodesByID[nodeFullID];
             if (hostLyphs.length > 1){
@@ -163,11 +162,10 @@ export class Node extends Vertice {
                 let allTargetLinks = [];
                 let allSourceLinks = [];
 
-                //FIXME design tests with different namespaces
                 hostLyphs.forEach((hostLyph, i) => {
                     let nodeClone = genResource({
                         [$Field.id]        : getGenID(nodeID, $Prefix.join, i),
-                        [$Field.hidden]    : true, //FIXME join nodes do not get included to groups (namespace issue?)
+                        [$Field.hidden]    : true,
                         [$Field.skipLabel] : true
                     }, "verticeModel.replicateInternalNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
@@ -181,8 +179,8 @@ export class Node extends Vertice {
                     }
 
                     //rewire affected links
-                    let targetOfLinks = (parentGroup.links||[]).filter(e => getID(e.target) === nodeID && isEndBundledLink(e, hostLyph));
-                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getID(e.source) === nodeID && isEndBundledLink(e, hostLyph));
+                    let targetOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.target) === nodeID && isEndBundledLink(e, hostLyph));
+                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.source) === nodeID && isEndBundledLink(e, hostLyph));
                     targetOfLinks.forEach(lnk => {
                         lnk.target = nodeClone.id;
                         allTargetLinks.push(lnk);
@@ -192,7 +190,6 @@ export class Node extends Vertice {
                         allSourceLinks.push(lnk);
                     });
 
-                    //TODO test whether this works with ::flatten
                     let leafChains = targetOfLinks.map(e => e.levelIn)::flatten();
                     let rootChains = sourceOfLinks.map(e => e.levelIn)::flatten();
 
@@ -215,7 +212,6 @@ export class Node extends Vertice {
                             })
                         }
                     };
-
                     fixNodeChainRels(leafChains, $Field.leafOf);
                     fixNodeChainRels(rootChains, $Field.rootOf);
 
