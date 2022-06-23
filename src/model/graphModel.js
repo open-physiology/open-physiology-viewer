@@ -21,7 +21,7 @@ import {
     prepareForExport,
     findResourceByID,
     collectNestedResources,
-    getFullID
+    getFullID, genResource
 } from "./utils";
 import {
     extractLocalConventions,
@@ -213,17 +213,16 @@ export class Graph extends Group{
         ));
 
         inputModel.groups = inputModel.groups || [];
-        const defaulID =  getGenID($Prefix.group, $Prefix.default);
-        let defaultGroup = {
+        const defaulID = getGenID($Prefix.group, $Prefix.default);
+        let defaultGroup = genResource({
             [$Field.id]       : defaulID,
             [$Field.fullID]   : getFullID(inputModel.namespace, defaulID),
             [$Field.namespace]: inputModel.namespace,
             [$Field.name]     : "Ungrouped",
-            [$Field.generated]: true,
             [$Field.hidden]   : true,
             [$Field.links]    : (inputModel.links || []).map(e => getID(e)),
             [$Field.nodes]    : (inputModel.nodes || []).map(e => getID(e))
-        };
+        }, "graphModel.fromJSON (Group)");
         inputModel.groups.unshift(defaultGroup);
 
         //Collect resources necessary for template expansion from all groups
@@ -246,6 +245,35 @@ export class Graph extends Group{
         //Create graph
         inputModel.class = $SchemaClass.Graph;
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, inputModel.namespace);
+
+        //Auto-create missing definitions for used references
+        let added = [];
+        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
+            let [obj, key] = refs[0];
+            if (obj && obj.class){
+                //Do not create missing scaffold resources
+                if ([$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                    return;
+                }
+                let clsName = schemaClassModels[obj.class].relClassNames[key];
+                if (clsName && !schemaClassModels[clsName].schema.abstract){
+                    let e = modelClasses.Resource.createResource(id, clsName, res, modelClasses, entitiesByID, refs[0].namespace || inputModel.namespace);
+                    added.push(e.fullID);
+                    //A created link needs end nodes
+                    if (e instanceof modelClasses.Link) {
+                        let i = 0;
+                        const related = [$Field.sourceOf, $Field.targetOf];
+                        e.applyToEndNodes(end => {
+                            if (end::isString()) {
+                                let s = modelClasses.Resource.createResource(end, $SchemaClass.Node, res, modelClasses, entitiesByID, e.namespace);
+                                added.push(s.fullID);
+                                s[related[i]] = [e];
+                            }
+                        });
+                    }
+                }
+            }
+        });
 
         if (resVal.errors && resVal.errors.length > 0){
             logger.error($LogMsg.SCHEMA_GRAPH_ERROR, ...resVal.errors.map(e => e::pick("message", "instance", "path")));
@@ -339,14 +367,13 @@ export class Graph extends Group{
     }
 
     createForceLinks(){
-        let group_json = {
+        let group_json = genResource({
             [$Field.id]       : getGenID($Prefix.group, $Prefix.force),
             [$Field.name]     : "Force links",
-            [$Field.generated]: true,
             [$Field.hidden]   : false,
             [$Field.links]    : [],
             [$Field.nodes]    : []
-        };
+        }, "graphModel.createForceLinks (Group)");
         //Create invisible links to generate attraction forces for housing lyphs of connected chains
         (this.links||[]).forEach(lnk => {
             if (lnk.collapsible){
@@ -682,7 +709,7 @@ export class Graph extends Group{
             }
             groupLinks.push(lnk);
 
-            //BAG = target closed, TODO check with "reversed"
+            //BAG = target closed
             const expandSource = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG) || lnk.collapsible;
             const expandTarget = (t === LYPH_TOPOLOGY.TUBE) || (t === LYPH_TOPOLOGY.BAG2) || lnk.collapsible;
 
@@ -741,7 +768,7 @@ export class Graph extends Group{
                 return this.createGroup(groupId, groupName, groupNodes, groupLinks, groupLyphs, this.modelClasses);
             }
         } else {
-            //Clean all after unsuccessful crowling
+            //Clean all after unsuccessful crawling
             (groupLinks||[]).forEach(lnk => delete lnk._processed);
         }
     }

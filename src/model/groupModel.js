@@ -17,7 +17,8 @@ import {
     showGroups,
     getRefNamespace,
     refToResource,
-    mergeGenResource
+    mergeGenResource,
+    genResource
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -141,10 +142,10 @@ export class Group extends Resource {
             [$Field.lyphs]: lyphs
         }
         let group = (this.groups||[]).find(g => g.id === groupID);
-        let json = group || {
+        let json = group || genResource({
             [$Field.id]    : groupID,
             [$Field.name]  : name
-        }
+        }, "groupModel.createGroup (Group)");
         if (group) {
             [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
                 group[prop] = (group[prop]||[])::unionBy(resources[prop], $Field.fullID);
@@ -214,13 +215,12 @@ export class Group extends Resource {
             if (template && template.isTemplate) {
                 changedLyphs++;
                 const subtypeID = getGenID($Prefix.template, refID, parent.id, ext);
-                let subtype = {
+                let subtype = genResource({
                     [$Field.id]        : subtypeID,
                     [$Field.name]      : template.name,
                     [$Field.supertype] : refID,
-                    [$Field.skipLabel] : true,
-                    [$Field.generated] : true
-                };
+                    [$Field.skipLabel] : true
+                }, "groupModel.replaceRefToTemplate (Lyph)");
                 //NK: mergeGenResource assigns namespace and fullID
                 mergeGenResource(undefined, parentGroup, subtype, $Field.lyphs);
                 replaceAbstractRefs(subtype, $Field.layers);
@@ -239,15 +239,14 @@ export class Group extends Resource {
                 if (!template || !template.isTemplate) {
                     let material = refToResource(refID, parentGroup, $Field.materials);
                     if (material) {
-                        template = {
+                        template = genResource({
                             [$Field.id]           : lyphID,
                             [$Field.name]         : material.name,
                             [$Field.isTemplate]   : true,
                             [$Field.materials]    : [refID],
                             [$Field.generatedFrom]: refID,
-                            [$Field.skipLabel]    : true,
-                            [$Field.generated]    : true
-                        };
+                            [$Field.skipLabel]    : true
+                        }, "groupModel.replaceRefToMaterial (Lyph)");
                         template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
                         mergeGenResource(undefined, parentGroup, template, $Field.lyphs);
                     } else {

@@ -7,7 +7,7 @@ import {
     getGenID,
     addBorderNode,
     $Field,
-    $Prefix, $SchemaClass, refToResource
+    $Prefix, $SchemaClass, refToResource, genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 
@@ -70,60 +70,52 @@ export class Villus extends GroupTemplate{
             layer.border = layer.border || {};
             layer.border.borders = layer.border.borders || [{}, {}, {}, {}];
 
-            let node1 = (i === villus.numLayers - 1)? {
+            let node1 = (i === villus.numLayers - 1)? genResource({
                 [$Field.id]: getGenID($Prefix.villus, $Prefix.node, layer.id, 0),
-                [$Field.skipLabel]: true,
-                [$Field.generated]: true
-            }: prev;
+                [$Field.skipLabel]: true
+            }, "villusModel.expandTemplate.1 (Node)"): prev;
 
             if (i === villus.numLayers - 1){
                 addBorderNode(layer.border.borders[2], node1.id);
                 mergeGenResource(villus.group, parentGroup, node1, $Field.nodes);
             }
-            let node2 = {
+            let node2 = genResource({
                 [$Field.id]: getGenID($Prefix.villus, $Prefix.node, lyph.id, layer.id, i + 1),
-                [$Field.skipLabel]: true,
-                [$Field.generated]: true
-            };
+                [$Field.skipLabel]: true
+            }, "villusModel.expandTemplate.2 (Node)");
             addBorderNode(layer.border.borders[0], node2.id);
             mergeGenResource(villus.group, parentGroup, node2, $Field.nodes);
 
             let villus_layers = sourceLayers.slice(0, villus.numLayers - i).reverse().map(sourceLyph => {
-                let targetLyph =  {
+                let targetLyph = genResource({
                     [$Field.id] : getGenID(lyph.id, layer.id, sourceLyph.id),
-                    [$Field.skipLabel]: true,
-                    [$Field.generated] : true
-                };
+                    [$Field.skipLabel]: true
+                }, "villusModel.expandTemplate (Lyph)");
                 Lyph.clone(parentGroup, sourceLyph, targetLyph);
                 return targetLyph;
             });
 
-            villus_layers.forEach(newLayer => {
-                mergeGenResource(villus.group, parentGroup, newLayer, $Field.lyphs);
-            });
+            villus_layers.forEach(newLayer => mergeGenResource(villus.group, parentGroup, newLayer, $Field.lyphs));
             villus_layers = villus_layers.map(x => x.id);
 
-            //FIXME
-            let villusLyph = {
+            let villusLyph = genResource({
                 [$Field.id]        : getGenID($Prefix.villus, $Prefix.lyph, lyph.id, layer.id),
                 [$Field.layers]    : villus_layers.reverse(),
                 [$Field.topology]  : (i===0)? Lyph.LYPH_TOPOLOGY.BAG : Lyph.LYPH_TOPOLOGY.TUBE,
                 [$Field.scale]     : {[$Field.width]: 40 * (villus.numLayers - i), [$Field.height]: 80},
-                [$Field.skipLabel] : true,
-                [$Field.generated] : true
-            };
+                [$Field.skipLabel] : true
+            }, "villusModel.expandTemplate.2 (Lyph)");
 
             mergeGenResource(villus.group, parentGroup, villusLyph, $Field.lyphs);
 
-            let link = {
+            let link = genResource({
                 [$Field.id]            : getGenID($Prefix.villus, $Prefix.link, layer.id),
                 [$Field.source]        : node1.id,
                 [$Field.target]        : node2.id,
                 [$Field.conveyingLyph] : villusLyph.id,
                 [$Field.geometry]      : Link.LINK_GEOMETRY.INVISIBLE,
-                [$Field.skipLabel]     : true,
-                [$Field.generated]     : true
-            };
+                [$Field.skipLabel]     : true
+            }, "villusModel.expandTemplate (Link)");
             mergeGenResource(villus.group, parentGroup, link, $Field.links);
             prev = node2;
         }

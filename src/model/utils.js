@@ -304,11 +304,10 @@ export const refToResource = (ref, parentGroup, prop, generate = false) => {
         res.namespace = res.namespace || getRefNamespace(ref, parentGroup.namespace);
     }
     if (!res && generate) {
-        res = {
+        res = genResource({
             [$Field.id]: getID(ref),
-            [$Field.namespace]: getRefNamespace(ref, parentGroup.namespace),
-            [$Field.generated]: true
-        };
+            [$Field.namespace]: getRefNamespace(ref, parentGroup.namespace)
+        }, "utils.refToResource");
         res.fullID = getFullID(res.namespace, res.id);
         parentGroup[prop] = parentGroup[prop] || [];
         parentGroup[prop].push(res);
@@ -341,6 +340,15 @@ const getClassRefs = (spec) => {
  */
 export const isClassAbstract = (clsName) => definitions[clsName].abstract;
 
+export const genResource = (json, caller) => {
+    // Uncomment to trace who created a certain resource
+    // if (json.id === ID) {
+    //     console.error(caller, JSON.stringify(json));
+    // }
+    json.generated = true;
+    return json;
+}
+
 /**
  * Add a given resource to a given group and a parent group if it does not exist
  * @param group - a group to add resources to
@@ -350,6 +358,7 @@ export const isClassAbstract = (clsName) => definitions[clsName].abstract;
  */
 export const mergeGenResource = (group, parentGroup, resource, prop) => {
     if (!resource) { return; }
+
     if (group){
         group[prop] = group[prop] || [];
         if (resource::isObject()){
