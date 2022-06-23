@@ -17,7 +17,6 @@ import JSONPath from 'JSONPath';
 import {
     $Field,
     getNewID,
-    getRefID,
     getFullID,
     $SchemaType,
     getClassName,
@@ -27,6 +26,7 @@ import {
     isClassAbstract,
     assignEntityById,
     schemaClassModels,
+    getRefID,
     genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
