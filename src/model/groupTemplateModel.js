@@ -4,7 +4,8 @@ import {
     $Prefix,
     getGenID,
     getFullID,
-    refToResource
+    refToResource,
+    genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults} from 'lodash-bound';
@@ -29,11 +30,11 @@ export class GroupTemplate extends Resource{
         } else {
             group::defaults({
                 [$Field.name]      : template.name,
-                [$Field.generated] : true,
                 [$Field.hidden]    : template.hasOwnProperty($Field.hidden)? template.hidden: true
             });
             parentGroup.groups = parentGroup.groups || [];
             parentGroup.groups.push(group.id);
+            group = genResource(group, "groupTemplateModel.createTemplateGroup (Group)");
         }
         group.namespace = group.namespace || template.namespace || parentGroup.namespace;
         group.fullID = getFullID(group.namespace, group.id);

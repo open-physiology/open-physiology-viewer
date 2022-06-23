@@ -9,6 +9,8 @@ import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
 import m1 from './data/M1-model';
 import wbkgSpleen from './data/wbkgSpleen.json';
+import wbkgStomach from './data/wbkgStomach.json';
+import wbkgSynapseTest from './data/wbkgSynapseTest.json';
 import wiredChain from './data/basicChainWireConflict.json';
 import {modelClasses} from '../src/model/index';
 import {Logger} from "../src/model/logger";
@@ -360,13 +362,13 @@ describe("Validate chain wiring", () => {
     });
 });
 
-describe("Process model with multiple namespaces", () => {
+describe("Process model with multiple namespaces (Spleen)", () => {
     let graphData;
     before(() => {
         graphData = modelClasses.Graph.fromJSON(wbkgSpleen, modelClasses);
     });
 
-    it("Resources generated without duplicates", () => {
+    it("Resources generated without duplicates (Spleen)", () => {
         let duplicates = [];
         let noFullID = [];
         graphData.entitiesByID::values().forEach(r => {
@@ -382,8 +384,82 @@ describe("Process model with multiple namespaces", () => {
             }
         })
         duplicates = [... new Set(duplicates)];
-        //console.log(duplicates);
-        expect(duplicates).to.have.length(21);
+        //Note: duplicates are layers and their borders for 2 copies of lyph-medulla
+        if (duplicates.length !== 14) {
+            console.log(duplicates);
+        }
+        expect(duplicates).to.have.length(14);
+        expect(noFullID).to.have.length(0);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Process model with multiple namespaces (Stomach)", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(wbkgStomach, modelClasses);
+    });
+
+    it("Resources generated without duplicates (Stomach)", () => {
+        let duplicates = [];
+        let noFullID = [];
+        graphData.entitiesByID::values().forEach(r => {
+            if (r.generated) {
+                let fullID1 = "wbkg:" + getRefID(r.id);
+                let fullID2 = "stomach:" + getRefID(r.id);
+                if (graphData.entitiesByID[fullID1] && graphData.entitiesByID[fullID2]) {
+                    duplicates.push(getRefID(r.id));
+                }
+                if (!r.fullID){
+                    noFullID.push(r.id);
+                }
+            }
+        })
+        duplicates = [... new Set(duplicates)];
+        //Note: duplicates are layers and their borders for 2 copies of lyph-medulla
+        if (duplicates.length !== 0) {
+            console.log(duplicates);
+        }
+        expect(duplicates).to.have.length(0);
+        expect(noFullID).to.have.length(0);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+
+describe("Process a model with lyph, chain and channel templates from a different namespace", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(wbkgSynapseTest, modelClasses);
+    });
+
+    it("Resources generated without duplicates", () => {
+        let duplicates = [];
+        let noFullID = [];
+        graphData.entitiesByID::values().forEach(r => {
+            if (r.generated) {
+                let fullID1 = "wbkg:" + getRefID(r.id);
+                let fullID2 = "syntest:" + getRefID(r.id);
+                if (graphData.entitiesByID[fullID1] && graphData.entitiesByID[fullID2]) {
+                    duplicates.push(getRefID(r.id));
+                }
+                if (!r.fullID){
+                    noFullID.push(r.id);
+                }
+            }
+        })
+        duplicates = [... new Set(duplicates)];
+        //Note: duplicates are layers and their borders for 2 copies of lyph-medulla
+        if (duplicates.length !== 0) {
+            console.log(duplicates);
+        }
+        expect(duplicates).to.have.length(0);
         expect(noFullID).to.have.length(0);
     });
 

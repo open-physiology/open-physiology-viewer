@@ -13,7 +13,8 @@ import {
     getGenID,
     addBorderNode,
     refToResource,
-    findResourceByID, getNewID
+    getNewID,
+    genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {isObject, values} from "lodash-bound";
@@ -87,7 +88,7 @@ export class Channel extends GroupTemplate {
             parentGroup.lyphsByID = parentGroup.lyphsByID || {};
             mcLyphs.forEach(lyph => {
                 lyph.isTemplate = true;
-                lyph.generated = true;
+                lyph = genResource(lyph, "channelModel.defineChannelLyphTemplates (Lyph)");
                 parentGroup.lyphs.push(lyph);
                 parentGroup.lyphsByID[lyph.id] = lyph;
             });
@@ -116,27 +117,25 @@ export class Channel extends GroupTemplate {
         let CHANNEL_LENGTH = 3;
 
         for (let i = 0; i < CHANNEL_LENGTH + 1; i++) {
-            let node = {
+            let node = genResource({
                 [$Field.id]       : getGenID(channel.id, $Prefix.node, i),
                 [$Field.color]    : $Color.InternalNode,
                 [$Field.val]      : 1,
-                [$Field.skipLabel]: true,
-                [$Field.generated]: true
-            };
+                [$Field.skipLabel]: true
+            }, "channelModel.expandTemplate (Node)");
             mergeGenResource(channel.group, parentGroup, node, $Field.nodes);
         }
         for (let i = 0; i < CHANNEL_LENGTH; i++) {
-            let lyph = {
+            let lyph = genResource({
                 [$Field.id]       : getGenID(channel.id, $Prefix.lyph, mcLyphs[i].id),
                 [$Field.supertype]: mcLyphs[i].id,
-                [$Field.skipLabel]: true,
-                [$Field.generated]: true
-            };
+                [$Field.skipLabel]: true
+            }, "channelModel.expandTemplate (Lyph)");
 
             //Each of the three MC segments will convey a Diffusive edge
             //Associate each Diffusive Edge with the material payload
 
-            let link = {
+            let link = genResource({
                 [$Field.id]                : getGenID(channel.id, $Prefix.link, i + 1),
                 [$Field.source]            : channel.group.nodes[i],
                 [$Field.target]            : channel.group.nodes[i + 1],
@@ -144,9 +143,8 @@ export class Channel extends GroupTemplate {
                 [$Field.conveyingType]     : channel.conveyingType || Link.PROCESS_TYPE.DIFFUSIVE,
                 [$Field.conveyingMaterials]: channel.materials,
                 [$Field.color]             : $Color.Link,
-                [$Field.skipLabel]         : true,
-                [$Field.generated]         : true
-            };
+                [$Field.skipLabel]         : true
+            }, "channelModel.expandTemplate.1 (Link)");
 
             if (channel.length) {
                 link.length = channel.length / CHANNEL_LENGTH;
@@ -220,11 +218,10 @@ export class Channel extends GroupTemplate {
          * @returns Group
          */
         function createInstance(parentLyph) {
-            let instance = {
+            let instance = genResource({
                 [$Field.id]        : getGenID(channel.id, $Prefix.instance, parentLyph),
-                [$Field.skipLabel] : true,
-                [$Field.generated] : true
-            };
+                [$Field.skipLabel] : true
+            }, "channelMode.createInstance (Group)");
             [$Field.links, $Field.nodes, $Field.lyphs].forEach(prop => {
                 instance[prop] = instance[prop] || [];
             });
@@ -236,11 +233,10 @@ export class Channel extends GroupTemplate {
                 logger.error($LogMsg.CHANNEL_NO_NODE, prevID);
                 return instance;
             }
-            let src = {
+            let src = genResource({
                 [$Field.id]: getGenID(baseSrc.id, parentLyph),
-                [$Field.skipLabel]: true,
-                [$Field.generated]: true
-            };
+                [$Field.skipLabel]: true
+            }, "channelMode.createInstance (Node)");
             Node.clone(baseSrc, src);
             mergeGenResource(instance, parentGroup, src, $Field.nodes);
 
@@ -249,11 +245,12 @@ export class Channel extends GroupTemplate {
             parentGroup.links.forEach(baseLnk => {
                 let baseTrg = refToResource(baseLnk.target, parentGroup, $Field.nodes);
                 let baseLyph = refToResource(baseLnk.conveyingLyph, parentGroup, $Field.lyphs);
-                let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (r ? {
-                    [$Field.id]: getGenID(r.id, parentLyph),
-                    [$Field.skipLabel]: true,
-                    [$Field.generated]: true
-                } : r));
+                let [lnk, trg, lyph] = [baseLnk, baseTrg, baseLyph].map(r => (
+                    r ? genResource({
+                            [$Field.id]: getGenID(r.id, parentLyph),
+                            [$Field.skipLabel]: true
+                        }, "channelModel.createInstance (Link, Node, Lyph")
+                      : r));
                 lnk.source = prevID;
                 lnk.target = trg.id;
                 lnk.conveyingLyph = lyph ? lyph.id : null;
@@ -295,12 +292,11 @@ export class Channel extends GroupTemplate {
                     }
                 }
 
-                let layerCoalescence = {
+                let layerCoalescence = genResource({
                     [$Field.id]       : getGenID(layer.id, $Prefix.channel, instance.lyphs[i]),
-                    [$Field.generated]: true,
                     [$Field.topology] : Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                     [$Field.lyphs]    : [layer.id, instance.lyphs[i]]
-                };
+                }, "channelModel.embedToHousingLyph (Coalescence)");
 
                 parentGroup.coalescences.push(layerCoalescence);
             }

@@ -34,7 +34,6 @@ import {
     assignEntityById,
     schemaClassModels,
 } from "./utils";
-import {removeDisconnectedObjects} from "../view/render/autoLayout";
 
 export const modelClasses = {
     /*Abstract */

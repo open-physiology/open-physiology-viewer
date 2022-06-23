@@ -8,7 +8,7 @@ import {
     PROCESS_TYPE,
     WIRE_GEOMETRY,
     LINK_GEOMETRY,
-    LYPH_TOPOLOGY, $SchemaClass
+    LYPH_TOPOLOGY, $SchemaClass, genResource
 } from "./utils";
 import {merge, pick} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -159,14 +159,14 @@ export class Link extends Edge {
 
     static clone(sourceLink, targetLink){
         if (!sourceLink || !targetLink) { return; }
-        targetLink.cloneOf = sourceLink.id;
+        targetLink.cloneOf = sourceLink.fullID || sourceLink.id;
         targetLink::merge(sourceLink::pick([$Field.conveyingType, $Field.conveyingMaterials, $Field.color]));
         targetLink.skipLabel = true;
         targetLink.generated = true;
     }
 
     static createCollapsibleLink(sourceID, targetID){
-        return {
+        return genResource({
             [$Field.id]         : getGenID($Prefix.link, sourceID, targetID),
             [$Field.source]     : sourceID,
             [$Field.target]     : targetID,
@@ -174,13 +174,12 @@ export class Link extends Edge {
             [$Field.length]     : 1,
             [$Field.strength]   : 1,
             [$Field.collapsible]: true,
-            [$Field.skipLabel]  : true,
-            [$Field.generated]  : true
-        };
+            [$Field.skipLabel]  : true
+        }, "edgeModel.createCollapsibleLink (Link)");
     }
 
     static createForceLink(sourceID, targetID){
-        return {
+        return genResource({
             [$Field.id]         : getGenID($Prefix.force, sourceID, targetID),
             [$Field.description]: "force",
             [$Field.source]     : sourceID,
@@ -191,9 +190,8 @@ export class Link extends Edge {
             // [$Field.color]      : "#FF0000",
             [$Field.length]     : 1,
             [$Field.strength]   : 1,
-            [$Field.skipLabel]  : true,
-            [$Field.generated]  : true
-        };
+            [$Field.skipLabel]  : true
+        },"edgeModel.createForceLink (Link)");
     }
 
     createForceNodes(){
