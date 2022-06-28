@@ -35,6 +35,8 @@ import * as XLSX from "xlsx";
 export class Scaffold extends Component {
 
     static processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, castingMethod) {
+        let standalone = entitiesByID === undefined;
+
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class) {
@@ -86,7 +88,6 @@ export class Scaffold extends Component {
         let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
         inputModel.class = inputModel.class || $SchemaClass.Scaffold;
 
-        let standalone = entitiesByID === undefined;
         //Copy existing entities to a map to enable nested model instantiation
         /**
          * @property waitingList
@@ -109,7 +110,7 @@ export class Scaffold extends Component {
 
         //Auto-create missing definitions for used references
         let added = [];
-        processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, undefined);
+        Scaffold.processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, undefined);
 
         (res.components||[]).forEach(component => component.includeRelated && component.includeRelated());
         res.generated = true;

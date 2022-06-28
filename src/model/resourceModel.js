@@ -30,6 +30,7 @@ import {
     genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
+import { ngModuleJitUrl } from '@angular/compiler';
 
 /**
  * The class defining common methods for all resources
@@ -93,18 +94,19 @@ export class Resource{
     }
 
 
-    static createResource(id, clsName, model, modelClasses, entitiesByID, namespace, castingMethod){
+    static createResource(ref, clsName, model, modelClasses, entitiesByID, namespace, castingMethod){
         let e = undefined;
+        const nm = getRefNamespace(ref, namespace);
+
         if (castingMethod) {
             e = castingMethod({
-                [$Field.id]        : id,
+                [$Field.id]        : getRefID(ref),
                 [$Field.class]     : clsName,
-                [$Field.namespace] : getRefNamespace(id) || namespace,
+                [$Field.namespace] : nm,
                 [$Field.generated] : true
             });
         } else {
             try {
-                const nm = getRefNamespace(ref, namespace);
                 e = modelClasses[clsName].fromJSON(genResource({
                     [$Field.id]: getRefID(ref),
                     [$Field.namespace]: nm
@@ -123,7 +125,7 @@ export class Resource{
         }
 
         //Do not show labels for generated visual resources
-        if (e.prototype instanceof modelClasses.VisualResource){
+        if (e?.prototype instanceof modelClasses.VisualResource){
             e.skipLabel = true;
         }
         mergeWithModel(e, clsName, model);
