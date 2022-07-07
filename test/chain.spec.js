@@ -5,17 +5,18 @@ import {
     after,
     expect,
 } from './test.helper';
+import {modelClasses} from '../src/model/index';
+import {Logger} from "../src/model/logger";
+import {values} from 'lodash-bound';
+import {getRefID} from "../src/model/utils";
 import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
 import m1 from './data/M1-model';
 import wbkgSpleen from './data/wbkgSpleen.json';
 import wbkgStomach from './data/wbkgStomach.json';
+import wbkgPancreas from './data/wbkgPancreas.json';
 import wbkgSynapseTest from './data/wbkgSynapseTest.json';
 import wiredChain from './data/basicChainWireConflict.json';
-import {modelClasses} from '../src/model/index';
-import {Logger} from "../src/model/logger";
-import {values} from 'lodash-bound';
-import {getRefID} from "../src/model/utils";
 
 describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
@@ -432,7 +433,6 @@ describe("Process model with multiple namespaces (Stomach)", () => {
     });
 });
 
-
 describe("Process a model with lyph, chain and channel templates from a different namespace", () => {
     let graphData;
     before(() => {
@@ -461,6 +461,29 @@ describe("Process a model with lyph, chain and channel templates from a differen
         }
         expect(duplicates).to.have.length(0);
         expect(noFullID).to.have.length(0);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Neurulator discovers neurons (Pancreas)", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(wbkgPancreas, modelClasses);
+    });
+
+   it("Dynamic groups created for model neurons (Pancreas)", () => {
+        expect(graphData).to.have.property("class");
+        expect(graphData).to.be.instanceOf(modelClasses.Graph);
+        graphData.neurulator();
+        expect(graphData).to.have.property("groups");
+        expect(graphData.groups[0]).to.be.instanceOf(modelClasses.Group);
+        let dynamic = graphData.groups.filter(g => g.description === "dynamic");
+        expect(dynamic.length).to.be.equal(5); //FIXME should be 4
+        let neurons = dynamic.filter(g => g.name.startsWith("Neuron"));
+        expect(neurons.length).to.be.equal(4);
     });
 
     after(() => {
