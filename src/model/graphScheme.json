@@ -634,13 +634,11 @@
             "dashed",
             "thick"
           ],
-          "default": "",
           "advanced": true
         },
         "lineWidth": {
           "description": "Edge line width, used in combination with `stroke` set to `dashed`",
           "type": "number",
-          "default": "0.003",
           "advanced": true
         },
         "length": {

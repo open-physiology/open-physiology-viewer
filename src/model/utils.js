@@ -7,7 +7,7 @@ import {
     isNumber,
     merge,
     keys,
-    flatten, isArray, unionBy, mergeWith, values
+    flatten, isArray, unionBy, mergeWith, sample
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -216,12 +216,16 @@ export function mergeWithModel(e, clsName, model){
  * @param resources - list of resources
  * @param defaultColor - optional default color
  */
-export const addColor = (resources, defaultColor) => (resources||[]).filter(e => e::isObject() && !e.color)
-    .forEach((e, i) => { e.color = e.supertype && e.supertype.color
-        ? e.supertype.color
-        : (e.cloneOf && e.cloneOf.color)
-            ? e.cloneOf.color
-            :(defaultColor || colors[i % colors.length]) });
+export const addColor = (resources, defaultColor) => (resources||[])
+    .forEach((e, i) => {
+        if (e::isObject() && !e.color){
+            e.color = e.supertype?.color || e.cloneOf?.color || defaultColor || colors[i % colors.length];
+        }
+    });
+
+export function pickColor(){
+  return colors::sample();
+}
 
 /**
  * Extracts class name from the schema definition

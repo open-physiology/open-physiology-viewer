@@ -1,0 +1,41 @@
+{
+  "id": "simple-chain",
+  "name": "simple chain test",
+  "lyphs": [
+    {
+      "id": "housing-lyph-1",
+      "name": "housing 1",
+      "topology": "TUBE",
+      "layers": ["layer-1"]
+    },
+    {
+      "id": "housing-lyph-2",
+      "name": "housing 2",
+      "topology": "TUBE",
+      "layers": ["layer-1"]
+    },
+    {
+      "id": "housing-lyph-3",
+      "name": "housing 3",
+      "topology": "TUBE",
+      "layers": ["layer-1"]
+    },
+    {
+      "id": "layer-1",
+      "isTemplate": true
+    },
+    {
+      "id": "lyph-1",
+      "isTemplate": true
+    }
+  ],
+  "chains": [
+    {
+      "id": "chain-fas-1",
+      "name": "chain fas 1",
+      "lyphTemplate": "lyph-1",
+      "housingLayers": [0,0,0],
+      "housingLyphs": ["housing-lyph-1", "housing-lyph-2", "housing-lyph-3"]
+    }
+  ]
+}
