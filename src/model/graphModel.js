@@ -314,7 +314,7 @@ export class Graph extends Group{
             if (!defaultGroup.links.length && !defaultGroup.nodes.length) {
                 res.groups.shift();
             }
-            res.createForceLinks();
+            //res.createForceLinks();
         }
 
         res.generated = true;
