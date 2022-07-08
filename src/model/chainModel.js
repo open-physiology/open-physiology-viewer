@@ -443,9 +443,12 @@ export class Chain extends GroupTemplate {
         if (!chain || !chain.id || !chain.levels){ return; }
         if (!chain.housingLyphs) {return; }
 
+        //FIXME the method is called passing fullID, a node may still be included twice if the list contains id
         const addInternalNode = (lyph, nodeID) => {
             lyph.internalNodes = lyph.internalNodes || [];
-            lyph.internalNodes.push(nodeID);
+            if (!lyph.internalNodes.includes(nodeID)) {
+                lyph.internalNodes.push(nodeID);
+            }
         };
 
         if (chain.housingLyphs.length !== chain.levels.length){
