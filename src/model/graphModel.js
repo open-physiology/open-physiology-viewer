@@ -141,6 +141,7 @@ export class Graph extends Group{
         let entitiesByID = {
             waitingList: {}
         };
+        inputModel.entitiesByID = entitiesByID;
 
         let defaultGroup;
 
@@ -155,17 +156,6 @@ export class Graph extends Group{
                 }
             ));
             inputModel.groups = inputModel.groups || [];
-            const defaultID = getGenID($Prefix.group, $Prefix.default);
-            defaultGroup = genResource({
-                [$Field.id]: defaultID,
-                [$Field.fullID]: getFullID(inputModel.namespace, defaultID),
-                [$Field.namespace]: inputModel.namespace,
-                [$Field.name]: "Ungrouped",
-                [$Field.hidden]: true,
-                [$Field.links]: (inputModel.links || []).map(e => getID(e)),
-                [$Field.nodes]: (inputModel.nodes || []).map(e => getID(e))
-            }, "graphModel.fromJSON (Group)");
-            inputModel.groups.unshift(defaultGroup);
 
             //Collect resources necessary for template expansion from all groups
             let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels];
@@ -182,6 +172,44 @@ export class Graph extends Group{
             modelClasses.Group.expandLyphTemplates(inputModel, modelClasses);
             inputModel.groupsByID::values().forEach(json => {
                 modelClasses.Group.expandLyphTemplates(json, modelClasses);
+            });
+
+            modelClasses.Group.expandChainTemplates(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Group.expandChainTemplates(json, modelClasses);
+            });
+
+            modelClasses.Group.expandVillusTemplates(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Group.expandVillusTemplates(json, modelClasses);
+            });
+
+            modelClasses.Group.embedChainsToHousingLyphs(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Group.embedChainsToHousingLyphs(json, modelClasses);
+            });
+
+            modelClasses.Group.createTemplateInstances(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Group.createTemplateInstances(json, modelClasses);
+            });
+
+            //Clone nodes simultaneously required to be on two or more lyph borders
+            modelClasses.Node.replicateBorderNodes(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Node.replicateBorderNodes(json, modelClasses);
+            });
+
+           //Clone nodes simultaneously required to be on two or more lyphs
+            modelClasses.Node.replicateInternalNodes(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Node.replicateInternalNodes(json, modelClasses);
+            });
+
+           //Reposition internal resources
+            modelClasses.Lyph.mapInternalResourcesToLayers(inputModel, modelClasses);
+            inputModel.groupsByID::values().forEach(json => {
+                modelClasses.Lyph.mapInternalResourcesToLayers(json, modelClasses);
             });
 
             //Create graph
@@ -243,7 +271,6 @@ export class Graph extends Group{
         }
 
         res.syncRelationships(modelClasses, entitiesByID);
-        res.entitiesByID = entitiesByID;
         res.modelClasses = modelClasses;
 
         if (!res.generated) {
@@ -294,25 +321,21 @@ export class Graph extends Group{
             });
 
             //Set default group resources to hidden
-            defaultGroup = res.groups.find(g => g.id === defaultGroup.id);
-            //Clean up default group from resources automatically included to other groups
-            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
-                let newSet = [];
-                (defaultGroup[prop] || []).forEach(e => {
-                    let container = res.groups.find(group => (group.id !== defaultGroup.id) && findResourceByID(group[prop], e.id));
-                    if (!container) {
-                        newSet.push(e);
-                    }
-                });
-                defaultGroup[prop] = newSet;
-            });
+            const defaultID = getGenID($Prefix.group, $Prefix.default);
+            defaultGroup = modelClasses.Group.fromJSON(genResource({
+                [$Field.id]: defaultID,
+                [$Field.fullID]: getFullID(res.namespace, defaultID),
+                [$Field.namespace]: res.namespace,
+                [$Field.name]: "Ungrouped",
+                [$Field.hidden]: true,
+                [$Field.links]: (res.links || []).filter(e => !res.groups.find(group => findResourceByID(group.links, e.id))),
+                [$Field.nodes]: (res.nodes || []).filter(e => !res.groups.find(group => findResourceByID(group.nodes, e.id)))
+            }, "graphModel.fromJSON (Group)"));
 
-            //Return to ungrouped dependent resources
             defaultGroup.includeRelated && defaultGroup.includeRelated();
             [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
-            //Remove "Ungrouped" if empty
-            if (!defaultGroup.links.length && !defaultGroup.nodes.length) {
-                res.groups.shift();
+            if (defaultGroup.links.length && defaultGroup.nodes.length) {
+                res.groups.unshift(defaultGroup);
             }
             //res.createForceLinks();
         }
@@ -706,7 +729,6 @@ export class Graph extends Group{
             if (expandTarget){
                 allEndsValid(lnk.target, LYPH_TOPOLOGY.BAG2, LYPH_TOPOLOGY.BAG);
             }
-
             return res;
         }
 

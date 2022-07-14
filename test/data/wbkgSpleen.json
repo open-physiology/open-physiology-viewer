@@ -1531,12 +1531,9 @@
                         "SAO:280355188"
                     ],
                     "isTemplate": true,
+                    "color": "#006400",
                     "topology": "BAG-",
-                    "materials": [
-                        "mat-cytosol",
-                        "mat-plasma-membrane",
-                        "mat-extracellular-fluid"
-                    ]
+                    "supertype": "lt-cell-bag"
                 },
                 {
                     "id": "lt-axon-tube",
@@ -1545,12 +1542,9 @@
                         "SAO:280355188"
                     ],
                     "isTemplate": true,
+                    "color": "#006400",
                     "topology": "TUBE",
-                    "materials": [
-                        "mat-cytosol",
-                        "mat-plasma-membrane",
-                        "mat-extracellular-fluid"
-                    ]
+                    "supertype": "lt-cell-segment"
                 },
                 {
                     "id": "lt-dend-bag",
@@ -1559,12 +1553,9 @@
                         "SAO:420754792"
                     ],
                     "isTemplate": true,
+                    "color": "#640000",
                     "topology": "BAG-",
-                    "materials": [
-                        "mat-cytosol",
-                        "mat-plasma-membrane",
-                        "mat-extracellular-fluid"
-                    ]
+                    "supertype": "lt-cell-bag"
                 },
                 {
                     "id": "lt-dend-tube",
@@ -1573,12 +1564,31 @@
                         "SAO:420754792"
                     ],
                     "isTemplate": true,
+                    "color": "#640000",
                     "topology": "TUBE",
-                    "materials": [
-                        "mat-cytosol",
-                        "mat-plasma-membrane",
-                        "mat-extracellular-fluid"
-                    ]
+                    "supertype": "lt-cell-segment"
+                },
+                {
+                    "id": "lt-axon-bag2",
+                    "name": "Axon terminal",
+                    "ontologyTerms": [
+                        "SAO:280355188"
+                    ],
+                    "isTemplate": true,
+                    "color": "#006400",
+                    "topology": "BAG+",
+                    "supertype": "lt-cell-bag"
+                },
+                {
+                    "id": "lt-dend-bag2",
+                    "name": "Dendrite terminal",
+                    "ontologyTerms": [
+                        "SAO:420754792"
+                    ],
+                    "isTemplate": true,
+                    "color": "#640000",
+                    "topology": "BAG+",
+                    "supertype": "lt-cell-bag"
                 },
                 {
                     "id": "lyph-cell-red-blood",

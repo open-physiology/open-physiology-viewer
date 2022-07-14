@@ -529,8 +529,6 @@ export class Chain extends GroupTemplate {
                     }
                 }
 
-                //FIXME include namespace to clone references?
-
                 //Start and end nodes
                 if (sourceInternal){
                     addInternalNode(hostLyph, getFullID(level.namespace, level.source));
@@ -546,8 +544,7 @@ export class Chain extends GroupTemplate {
                     }
                     let targetClone = Node.clone(targetNode);
                     addBorderNode(hostLyph.border.borders[sourceBorderIndex], getFullID(level.namespace, targetClone.id));
-                    //FIXME use fullIDs in force links?
-                    let lnk = Link.createCollapsibleLink(targetClone.id, targetNode.id);
+                    let lnk = Link.createCollapsibleLink(targetClone, targetNode, chain.namespace);
                     level.target = targetClone.id;
                     mergeGenResource(chain.group, parentGroup, targetClone, $Field.nodes);
                     mergeGenResource(chain.group, parentGroup, lnk, $Field.links);
