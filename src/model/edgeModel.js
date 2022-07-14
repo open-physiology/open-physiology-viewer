@@ -1,16 +1,18 @@
 import {
     $Field,
     $Prefix,
+    $SchemaClass,
     getGenID,
     getNewID,
+    genResource,
     EDGE_STROKE,
     EDGE_GEOMETRY,
     PROCESS_TYPE,
     WIRE_GEOMETRY,
     LINK_GEOMETRY,
-    LYPH_TOPOLOGY, $SchemaClass, genResource
+    LYPH_TOPOLOGY
 } from "./utils";
-import {merge, pick} from "lodash-bound";
+import {merge, pick, isObject} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 import {VisualResource} from "./visualResourceModel";
 
@@ -165,11 +167,12 @@ export class Link extends Edge {
         targetLink.generated = true;
     }
 
-    static createCollapsibleLink(sourceID, targetID){
+    static createCollapsibleLink(source, target, namespace = undefined){
         return genResource({
-            [$Field.id]         : getGenID($Prefix.link, sourceID, targetID),
-            [$Field.source]     : sourceID,
-            [$Field.target]     : targetID,
+            [$Field.id]         : getGenID($Prefix.link, source.id, target.id),
+            [$Field.namespace]  : namespace || source.namespace || target.namespace,
+            [$Field.source]     : source.id,
+            [$Field.target]     : target.id,
             [$Field.stroke]     : EDGE_STROKE.DASHED,
             [$Field.length]     : 1,
             [$Field.strength]   : 1,

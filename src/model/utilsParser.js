@@ -187,6 +187,7 @@ export function levelTargetsToLevels(resource) {
         })
         if (maxLevel > -1) {
             resource.levels = new Array(maxLevel+1);
+            resource.levels.fill({});
             for (let j = 0; j < maps.length; j++) {
                 let idx = maps[j][0];
                 resource.levels[idx] = {target: maps[j][1]};

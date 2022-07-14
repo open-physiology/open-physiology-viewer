@@ -11,7 +11,6 @@ import {values} from 'lodash-bound';
 import {getRefID} from "../src/model/utils";
 import keastSpinalTest from './data/keastSpinalTest';
 import keastSpinal from './data/keastSpinal';
-import m1 from './data/M1-model';
 import wbkgSpleen from './data/wbkgSpleen.json';
 import wbkgStomach from './data/wbkgStomach.json';
 import wbkgPancreas from './data/wbkgPancreas.json';
@@ -56,11 +55,12 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
         expect(graphData).to.have.property("groups");
-        //count auto-created force link group (Empty "Ungrouped" is not added after issue #149 fix)
-        expect(graphData.groups).to.be.an('array').that.has.length(4);
-        const gr1 = graphData.groups[1];
+        //Empty "Ungrouped" is not added after issue #149 fix
+        //Do not count auto-created force group when it is disabled, +1 otherwise
+        expect(graphData.groups).to.be.an('array').that.has.length(3);
+
+        const gr1 = graphData.groups.find(g => g.id === "group_ch1");
         expect(gr1).to.be.an('object');
-        expect(gr1).to.have.property("id").that.equal("group_ch1");
         expect(gr1).to.have.property("generated").that.equal(true);
 
         expect(gr1).to.have.property("nodes").that.is.an('array');
@@ -246,33 +246,6 @@ describe("Link joint chains (Keast Spinal)", () => {
         expect(firstInChain2.prevChainEndLevels[0]).to.be.an('object');
         expect(lastInChain1.nextChainStartLevels[0]).to.have.property('id').that.equals(firstInChain2.id);
         expect(firstInChain2.prevChainEndLevels[0]).to.have.property('id').that.equals(lastInChain1.id);
-    });
-
-    after(() => {
-        graphData.logger.clear();
-    });
-});
-
-describe("Expand chain template (M1)", () => {
-    let graphData;
-    before(() => {
-        graphData = modelClasses.Graph.fromJSON(m1, modelClasses);
-    });
-
-    it("Generated chain of lyphs has root and leaf", () => {
-        expect(graphData).to.have.property("chains");
-        expect(graphData.chains).to.be.an('array').that.has.length(1);
-
-        const ch1 = graphData.chains[0];
-        expect(ch1).to.be.an('object');
-        expect(ch1).to.have.property("name").that.equal("Airways");
-        expect(ch1).to.have.property("numLevels").that.equal(6);
-        expect(ch1).to.have.property("levels").that.is.an("array");
-        expect(ch1).to.have.property("root").that.is.an("object");
-        expect(ch1).to.have.property("leaf").that.is.an("object");
-        expect(ch1).to.have.property("wiredTo").that.is.an("object");
-        expect(ch1.wiredTo).to.have.property("id").that.equals("w-X-f1L");
-        expect(ch1.levels.length).to.be.equal(6);
     });
 
     after(() => {
@@ -481,7 +454,7 @@ describe("Neurulator discovers neurons (Pancreas)", () => {
         expect(graphData).to.have.property("groups");
         expect(graphData.groups[0]).to.be.instanceOf(modelClasses.Group);
         let dynamic = graphData.groups.filter(g => g.description === "dynamic");
-        expect(dynamic.length).to.be.equal(5); //FIXME should be 4
+        expect(dynamic.length).to.be.equal(4);
         let neurons = dynamic.filter(g => g.name.startsWith("Neuron"));
         expect(neurons.length).to.be.equal(4);
     });
