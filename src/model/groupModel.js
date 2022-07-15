@@ -3,7 +3,7 @@ import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
 
-import {isObject, unionBy, merge, keys, entries, isArray, pick, isString} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick, sortBy} from 'lodash-bound';
 import {
     $SchemaClass,
     $Field,
@@ -50,37 +50,13 @@ export class Group extends Resource {
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
         json.class = json.class || $SchemaClass.Group;
-
-        modelClasses.Chain.validateRoots(json.chains, json.nodes);
-
         let namespace = json.namespace || defaultNamespace;
+
         if (json.generated) {
             return super.fromJSON(json, modelClasses, entitiesByID, namespace);
         }
 
-        //create group resources from templates
-        this.expandChainTemplates(json, modelClasses);
-
-        //create villus
-        this.expandVillusTemplates(json, modelClasses);
-
-        /******************************************************************************************************/
-        /*the following methods have to be called after expandLyphTemplates to have access to generated layers*/
-
-        //align generated groups and housing lyphs
-        (json.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
-
-        //create instances of group templates (e.g., trees and channels)
-        this.createTemplateInstances(json, modelClasses);
-
-        //Clone nodes simultaneously required to be on two or more lyph borders
-        modelClasses.Node.replicateBorderNodes(json, modelClasses);
-
-        //Clone nodes simultaneously required to be on two or more lyphs
-        modelClasses.Node.replicateInternalNodes(json, modelClasses);
-
-        //Reposition internal resources
-        modelClasses.Lyph.mapInternalResourcesToLayers(json);
+        modelClasses.Chain.validateRoots(json.chains, json.nodes);
 
         /******************************************************************************************************/
         //create graph resource
@@ -93,6 +69,9 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         res.assignScaffoldComponents();
+        if (res.groups) {
+            res.groups = res.groups::sortBy($Field.fullID);
+        }
         return res;
     }
 
@@ -366,6 +345,10 @@ export class Group extends Resource {
                 modelClasses.Villus.expandTemplate(json, lyph.villus);
             }
         });
+    }
+
+    static embedChainsToHousingLyphs(json, modelClasses){
+       (json.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
     }
 
     /**

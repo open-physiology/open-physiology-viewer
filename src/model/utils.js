@@ -8,7 +8,7 @@ import {
     isEmpty,
     merge,
     keys,
-    flatten, isArray, unionBy, mergeWith, values
+    flatten, isArray, unionBy, mergeWith, sample
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import {definitions} from "./graphScheme";
@@ -223,12 +223,16 @@ export function mergeWithModel(e, clsName, model){
  * @param resources - list of resources
  * @param defaultColor - optional default color
  */
-export const addColor = (resources, defaultColor) => (resources||[]).filter(e => e::isObject() && !e.color)
-    .forEach((e, i) => { e.color = e.supertype && e.supertype.color
-        ? e.supertype.color
-        : (e.cloneOf && e.cloneOf.color)
-            ? e.cloneOf.color
-            :(defaultColor || colors[i % colors.length]) });
+export const addColor = (resources, defaultColor) => (resources||[])
+    .forEach((e, i) => {
+        if (e::isObject() && !e.color){
+            e.color = e.supertype?.color || e.cloneOf?.color || defaultColor || colors[i % colors.length];
+        }
+    });
+
+export function pickColor(){
+  return colors::sample();
+}
 
 /**
  * Extracts class name from the schema definition
@@ -265,18 +269,33 @@ export const addBorderNode = (border, nodeID) => {
 };
 
 /**
- * Finds resource object in the parent group given an object or an ID
- * @param eArray - list of available resources
- * @param objOrID - resource or resource identifier to look for
+ * Find resource in a list with a given id. If the reference is a resource, it is returned straightaway.
+ * @param eArray - list of resources
+ * @param ref - resource or resource identifier to look for
  * @param namespace - namespace
  * @returns {*|void}
  */
-export const findResourceByID = (eArray, objOrID, namespace = undefined) =>
-    objOrID::isObject()? objOrID: (eArray||[]).find(x => objOrID && x.id === objOrID && (!namespace || x.namespace === namespace));
+export const findResourceByID = (eArray, ref, namespace = undefined) =>
+    ref::isObject()? ref: (eArray||[]).find(x => ref && x.id === ref && (!namespace || x.namespace === namespace));
 
-export const isIncluded = (eArray, id, namespace = undefined) =>
-    eArray.find(x => getFullID(namespace, x) === getFullID(namespace, id));
+/**
+ * Check if a given resource in a list, accounting for namespace
+ * @param eArray - list of resources
+ * @param ref
+ * @param namespace
+ */
+export const isIncluded = (eArray, ref, namespace = undefined) =>
+    eArray.find(x => getFullID(namespace, x) === getFullID(namespace, ref));
 
+/**
+ * Find resource index in a list, accounting for namespace
+ * @param eArray - list of resources
+ * @param ref - resource or resource identifier to look for
+ * @param namespace
+ * @returns {number}
+ */
+export const findIndex = (eArray, ref, namespace = undefined) =>
+    (eArray||[]).findIndex(x => getFullID(namespace, x) === getFullID(namespace, ref));
 
 /**
  * Find resource object given its reference (identifier)
@@ -359,28 +378,30 @@ export const genResource = (json, caller) => {
 export const mergeGenResource = (group, parentGroup, resource, prop) => {
     if (!resource) { return; }
 
+    let nm = getRefNamespace(resource, parentGroup?.namespace);
+
+    if (resource::isObject()){
+        resource.id === resource.id || getNewID();
+        resource.namespace = nm;
+        resource.fullID = resource.fullID || getFullID(nm, resource.id);
+    }
+
     if (group){
         group[prop] = group[prop] || [];
         if (resource::isObject()){
-            if (resource.id){
-                resource.namespace = resource.namespace || getRefNamespace(resource, parentGroup.namespace);
-                resource.fullID = resource.fullID || getFullID(parentGroup.namespace, resource.id);
-                if (!isIncluded(group[prop], resource.id, parentGroup.namespace)){
-                    group[prop].push(resource.fullID);
-                }
+            if (!isIncluded(group[prop], resource.id, nm)){
+                group[prop].push(resource.fullID);
             }
             resource.hidden = group.hidden;
         } else {
-            if (!isIncluded(group[prop], resource, parentGroup.namespace)){
-                group[prop].push(getFullID(parentGroup.namespace, resource));
+            if (!isIncluded(group[prop], resource, nm)){
+                group[prop].push(getFullID(nm, resource));
             }
         }
     }
-    if (parentGroup && resource.id){
-        resource.namespace = resource.namespace || getRefNamespace(resource, parentGroup.namespace);
-        resource.fullID = resource.fullID || getFullID(parentGroup.namespace, resource.id);
+    if (parentGroup && resource::isObject()){
         parentGroup[prop] = parentGroup[prop] || [];
-        if (!parentGroup[prop].find(x => x === resource.id || x.id === resource.id)){
+        if (!isIncluded(parentGroup[prop], resource.id, nm)){
             parentGroup[prop].push(resource);
             if (parentGroup[prop + "ByID"]) {
                 parentGroup[prop + "ByID"][resource.fullID] = resource;

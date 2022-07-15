@@ -173,13 +173,14 @@
                     "topology": "CYST",
                     "supertype": "lt-cell-segment"
                 },
-                {
+{
                     "id": "lt-axon-bag",
                     "name": "Axon terminal",
                     "ontologyTerms": [
                         "SAO:280355188"
                     ],
                     "isTemplate": true,
+                    "color": "#006400",
                     "topology": "BAG-",
                     "supertype": "lt-cell-bag"
                 },
@@ -190,6 +191,7 @@
                         "SAO:280355188"
                     ],
                     "isTemplate": true,
+                    "color": "#006400",
                     "topology": "TUBE",
                     "supertype": "lt-cell-segment"
                 },
@@ -200,6 +202,7 @@
                         "SAO:420754792"
                     ],
                     "isTemplate": true,
+                    "color": "#640000",
                     "topology": "BAG-",
                     "supertype": "lt-cell-bag"
                 },
@@ -210,6 +213,7 @@
                         "SAO:420754792"
                     ],
                     "isTemplate": true,
+                    "color": "#640000",
                     "topology": "TUBE",
                     "supertype": "lt-cell-segment"
                 },
@@ -220,6 +224,7 @@
                         "SAO:280355188"
                     ],
                     "isTemplate": true,
+                    "color": "#006400",
                     "topology": "BAG+",
                     "supertype": "lt-cell-bag"
                 },
@@ -230,6 +235,7 @@
                         "SAO:420754792"
                     ],
                     "isTemplate": true,
+                    "color": "#640000",
                     "topology": "BAG+",
                     "supertype": "lt-cell-bag"
                 },
@@ -5760,7 +5766,8 @@
                     ],
                     "wiredTo": "too:w-S-A",
                     "levels": [
-                        null,
+                        {
+                        },
                         {
                             "target": "carotid-entry"
                         }

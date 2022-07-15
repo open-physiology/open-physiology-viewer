@@ -372,7 +372,7 @@ export class Resource{
                         obj[key2] = res;
                     } else {
                         if (obj[key2] !== res) {
-                            logger.warn($LogMsg.RESOURCE_DOUBLE_REF, obj.fullID, key2, obj[key2].fullID, res.fulLID);
+                            logger.warn($LogMsg.RESOURCE_DOUBLE_REF, obj.fullID, key2, obj[key2].fullID, res.fullID);
                         }
                     }
                 }

@@ -14,7 +14,7 @@
   ],
   "nodes": [
     {
-      "id": "neuronChain_node_0",
+      "id": "a",
       "layout": {"x": -25, "y": 0, "z": 0},
       "color": "#000"
     },

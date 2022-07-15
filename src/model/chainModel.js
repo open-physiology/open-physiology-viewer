@@ -443,9 +443,12 @@ export class Chain extends GroupTemplate {
         if (!chain || !chain.id || !chain.levels){ return; }
         if (!chain.housingLyphs) {return; }
 
+        //FIXME the method is called passing fullID, a node may still be included twice if the list contains id
         const addInternalNode = (lyph, nodeID) => {
             lyph.internalNodes = lyph.internalNodes || [];
-            lyph.internalNodes.push(nodeID);
+            if (!lyph.internalNodes.includes(nodeID)) {
+                lyph.internalNodes.push(nodeID);
+            }
         };
 
         if (chain.housingLyphs.length !== chain.levels.length){
@@ -526,8 +529,6 @@ export class Chain extends GroupTemplate {
                     }
                 }
 
-                //FIXME include namespace to clone references?
-
                 //Start and end nodes
                 if (sourceInternal){
                     addInternalNode(hostLyph, getFullID(level.namespace, level.source));
@@ -543,8 +544,7 @@ export class Chain extends GroupTemplate {
                     }
                     let targetClone = Node.clone(targetNode);
                     addBorderNode(hostLyph.border.borders[sourceBorderIndex], getFullID(level.namespace, targetClone.id));
-                    //FIXME use fullIDs in force links?
-                    let lnk = Link.createCollapsibleLink(targetClone.id, targetNode.id);
+                    let lnk = Link.createCollapsibleLink(targetClone, targetNode, chain.namespace);
                     level.target = targetClone.id;
                     mergeGenResource(chain.group, parentGroup, targetClone, $Field.nodes);
                     mergeGenResource(chain.group, parentGroup, lnk, $Field.links);

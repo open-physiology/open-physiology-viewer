@@ -3,13 +3,15 @@ import {
     $Field,
     $Prefix,
     $SchemaClass,
-    findResourceByID, getFullID,
+    findResourceByID,
+    getFullID,
     getGenID,
     getID, getRefID,
     getRefNamespace,
     mergeGenResource,
     refToResource,
-    genResource
+    genResource,
+    findIndex
 } from "./utils";
 import {keys, merge, pick, isString, isArray, flatten} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -75,13 +77,12 @@ export class Node extends Vertice {
         targetNode = targetNode || {};
         targetNode.cloneOf = sourceNode.id;
         targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone);
-        targetNode::merge(sourceNode::pick([$Field.color, $Field.hidden]));
+        targetNode::merge(sourceNode::pick([$Field.color, $Field.hidden, $Field.namespace]));
         targetNode.skipLabel = true;
         targetNode.generated = true;
         if (!sourceNode.clones){
             sourceNode.clones = [];
         }
-        //FIXME use fullID (requires revision to be able to find these nodes)?
         sourceNode.clones.push(targetNode.fullID || targetNode.id);
         return targetNode;
     }
@@ -109,11 +110,12 @@ export class Node extends Vertice {
 
         const nodeOnBorder = (node, lyphID) => (borderNodesByID[getID(node)]||[]).find(e => e.id === lyphID);
 
-        borderNodesByID::keys().forEach(nodeID => {
-            let hostLyphs = borderNodesByID[nodeID];
+        borderNodesByID::keys().forEach(nodeFullID => {
+            let hostLyphs = borderNodesByID[nodeFullID];
             if (hostLyphs.length > 1){
-                let node  = refToResource(nodeID, parentGroup, $Field.nodes, true);
-                let prev = nodeID;
+                const nodeID = getRefID(nodeFullID);
+                let node  = refToResource(nodeFullID, parentGroup, $Field.nodes, true);
+                let prev = node;
                 hostLyphs.forEach((hostLyph, i) => {
                     if (i < 1) { return; }
                     let nodeClone = genResource({
@@ -122,22 +124,35 @@ export class Node extends Vertice {
                         [$Field.hidden]: node.hidden
                     }, "verticeModel.replicateBorderNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
-                    if (!findResourceByID(parentGroup.nodes, nodeClone.id)) {
-                        parentGroup.nodes.push(nodeClone);
-                    }
+                    mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
 
-                    let targetOfLinks = (parentGroup.links||[]).filter(e => getID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
-                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
-                    targetOfLinks.forEach(lnk => {lnk.target = nodeClone.id});
-                    sourceOfLinks.forEach(lnk => {lnk.source = nodeClone.id});
+                    let targetOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
+                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
+                    //These arrays may miss links from other namespaces, try to discover them in another way
+                    (hostLyph.bundles||[]).forEach(lnkRef => {
+                        let lnk = refToResource(lnkRef, parentGroup, $Field.links);
+                        if (lnk){
+                            if (lnk.source === nodeID && !findResourceByID(sourceOfLinks, lnk.id)){
+                                sourceOfLinks.push(lnk);
+                            }
+                            if (lnk.target === nodeID && !findResourceByID(targetOfLinks, lnk.id)){
+                                targetOfLinks.push(lnk);
+                            }
+                        }
+                    });
+
+                    targetOfLinks.forEach(lnk => lnk.target = nodeClone.fullID);
+                    sourceOfLinks.forEach(lnk => lnk.source = nodeClone.fullID);
 
                     hostLyphs[i].border.borders.forEach(b => {
-                        let k = (b.hostedNodes||[]).indexOf(nodeID);
-                        if (k > -1){ b.hostedNodes[k] = nodeClone.id; }
+                        let k = findIndex(b.hostedNodes, nodeFullID, parentGroup.namespace);
+                        if (k > -1){
+                            b.hostedNodes[k] = nodeClone.fullID;
+                        }
                     });
-                    let lnk = modelClasses.Link.createCollapsibleLink(prev, nodeClone.id);
+                    let lnk = modelClasses.Link.createCollapsibleLink(prev, nodeClone);
                     mergeGenResource(undefined, parentGroup, lnk, $Field.links);
-                    prev = nodeClone.id;
+                    prev = nodeClone;
                 })
             }
         });
@@ -146,8 +161,6 @@ export class Node extends Vertice {
     static replicateInternalNodes(parentGroup, modelClasses){
         let internalNodesByID = {};
         (parentGroup.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID, parentGroup.namespace));
-
-        const isEndBundledLink = (link, lyph) => (lyph.endBundles||[]).find(e => getRefID(e) === getRefID(link));
 
         internalNodesByID::keys().forEach(nodeFullID => {
             let hostLyphs = internalNodesByID[nodeFullID];
@@ -169,24 +182,35 @@ export class Node extends Vertice {
                         [$Field.skipLabel] : true
                     }, "verticeModel.replicateInternalNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
+
                     mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
-                    let k = hostLyph.internalNodes.indexOf(nodeFullID);
-                    if (k === -1){
-                        k = hostLyph.internalNodes.indexOf(nodeID);
-                    }
+                    let k = findIndex(hostLyph.internalNodes, nodeFullID, parentGroup.namespace);
                     if (k > -1){
-                        hostLyph.internalNodes[k] = nodeClone.id;
+                        hostLyph.internalNodes[k] = nodeClone.fullID;
                     }
 
-                    //rewire affected links
-                    let targetOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.target) === nodeID && isEndBundledLink(e, hostLyph));
-                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.source) === nodeID && isEndBundledLink(e, hostLyph));
+                    let targetOfLinks = [];
+                    let sourceOfLinks = [];
+                    //Note: this method won't rewire links with ends internal in several lyphs if they are not endBundled
+                    //Property 'endBundles' is set for chain levels if the chain is housed
+                    (hostLyph.endBundles||[]).forEach(lnkRef => {
+                        let lnk = refToResource(lnkRef, parentGroup, $Field.links);
+                        if (lnk){
+                            if (lnk.source === nodeID){
+                                sourceOfLinks.push(lnk);
+                            }
+                            if (lnk.target === nodeID){
+                                targetOfLinks.push(lnk);
+                            }
+                        }
+                    });
+
                     targetOfLinks.forEach(lnk => {
-                        lnk.target = nodeClone.id;
+                        lnk.target = nodeClone.fullID;
                         allTargetLinks.push(lnk);
                     });
                     sourceOfLinks.forEach(lnk => {
-                        lnk.source = nodeClone.id;
+                        lnk.source = nodeClone.fullID;
                         allSourceLinks.push(lnk);
                     });
 
@@ -200,35 +224,34 @@ export class Node extends Vertice {
                             if (node[prop]) {
                                 node[prop] = node[prop].filter(e => !chains.includes(e));
                             }
-                            chains.forEach(e => {
-                                let chain = refToResource(e, parentGroup, $Field.chains);
-                                if (chain && chain.group){
-                                    if (!chain.group.nodes.find(x => x === nodeClone.id || x.id === nodeClone.id)) {
-                                        chain.group.nodes.push(nodeClone.id);
-                                    }
-                                    let relatedProp = prop === $Field.leafOf? $Field.leaf: $Field.root;
-                                    chain[relatedProp] = nodeClone.id;
+                            chains.forEach(chainID => {
+                                let chain = refToResource(chainID, parentGroup, $Field.chains);
+                                if (chain && chain.group) {
+                                    mergeGenResource(chain.group, parentGroup, nodeClone, $Field.nodes);
+                                    let relatedProp = prop === $Field.leafOf ? $Field.leaf : $Field.root;
+                                    chain[relatedProp] = nodeClone.fullID;
                                 }
                             })
                         }
                     };
+
                     fixNodeChainRels(leafChains, $Field.leafOf);
                     fixNodeChainRels(rootChains, $Field.rootOf);
 
                     let lnk;
                     if (rootChains.length > 0) {
-                        lnk = modelClasses.Link.createCollapsibleLink(node.id, nodeClone.id);
+                        lnk = modelClasses.Link.createCollapsibleLink(node, nodeClone);
                     } else {
-                        lnk = modelClasses.Link.createCollapsibleLink(nodeClone.id, node.id);
+                        lnk = modelClasses.Link.createCollapsibleLink(nodeClone, node);
                     }
                     mergeGenResource(undefined, parentGroup, lnk, $Field.links);
                 });
 
                 if (allSourceLinks.length > 0){
-                    allTargetLinks.forEach(e => e.nextChainStartLevels = allSourceLinks.map(x => x.id));
+                    allTargetLinks.forEach(lnk => lnk.nextChainStartLevels = allSourceLinks.map(x => x.id));
                 }
                 if (allTargetLinks.length > 0) {
-                    allSourceLinks.forEach(e => e.prevChainEndLevels = allTargetLinks.map(x => x.id));
+                    allSourceLinks.forEach(lnk => lnk.prevChainEndLevels = allTargetLinks.map(x => x.id));
                 }
 
                 // node.controlNodes = node.clones;

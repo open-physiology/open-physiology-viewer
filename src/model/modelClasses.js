@@ -33,6 +33,9 @@ import {
     getRefNamespace,
     assignEntityById,
     schemaClassModels,
+    $SchemaType,
+    getGenID,
+    getGenName
 } from "./utils";
 
 export const modelClasses = {
@@ -235,7 +238,7 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
             schema.definitions.Scaffold.properties::keys().forEach(prop => {
                 let spec = schema.definitions.Scaffold.properties[prop];
                 //FIXME? Local conventions can have duplicates
-                if (spec.type === "array"){
+                if (spec.type === $SchemaType.ARRAY){
                     joined[prop] = Array.from(new Set([...inputModelA[prop]||[], ...inputModelB[prop]||[]]));
                 }
                 delete inputModelB[prop];
@@ -246,7 +249,11 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
                 inputModelA.components.push(inputModelB);
                 return inputModelA;
             }
-            return joined::mergeWith({[$Field.components]: [inputModelA, inputModelB]});
+            return joined::mergeWith({
+                [$Field.id]        : getGenID(inputModelA.id, inputModelB.id),
+                [$Field.name]      : getGenName(inputModelA.name, "+" ,inputModelB.name),
+                [$Field.components]: [inputModelA, inputModelB]
+            });
         } else {
             //Connectivity model B gets constrained by scaffold A
             inputModelB.scaffolds = inputModelB.scaffolds || [];
@@ -265,7 +272,7 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
     schema.definitions.Graph.properties::keys().forEach(prop => {
         let spec = schema.definitions.Graph.properties[prop];
         //FIXME? Local conventions can have duplicates, abbrev is lost
-        if (spec.type === "array"){
+        if (spec.type === $SchemaType.ARRAY){
             joined[prop] = Array.from(new Set([...inputModelA[prop]||[], ...inputModelB[prop]||[]]));
         }
         delete inputModelB[prop];
@@ -275,5 +282,9 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
         inputModelA.groups = inputModelA.groups || [];
         inputModelA.groups.push(inputModelB);
     }
-    return joined::mergeWith({[$Field.groups]: [inputModelA, inputModelB]});
+    return joined::mergeWith({
+        [$Field.id]    : getGenID(inputModelA.id, inputModelB.id),
+        [$Field.name]  : getGenName(inputModelA.name, "+" ,inputModelB.name),
+        [$Field.groups]: [inputModelA, inputModelB]
+    });
 }
