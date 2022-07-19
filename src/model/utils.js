@@ -108,6 +108,10 @@ export const $Prefix = {
     force       : "force"
 };
 
+export const $Default = {
+    EDGE_LENGTH: 10
+}
+
 export const getNewID = entitiesByID => "new-" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
@@ -268,8 +272,9 @@ export const addBorderNode = (border, nodeID) => {
  * @param namespace - namespace
  * @returns {*|void}
  */
-export const findResourceByID = (eArray, ref, namespace = undefined) =>
-    ref::isObject()? ref: (eArray||[]).find(x => ref && x.id === ref && (!namespace || x.namespace === namespace));
+export const findResourceByID = (eArray, ref, namespace = undefined) => {
+    return ref::isObject() ? ref : (eArray || []).find(x => ref && x.id === ref && (!namespace || !x.namespace || x.namespace === namespace));
+}
 
 /**
  * Check if a given resource in a list, accounting for namespace

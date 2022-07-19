@@ -4,8 +4,8 @@ export const $LogMsg = {
 
     CHAIN_NUM_LEVELS            : "Corrected number of levels in the chain",
     CHAIN_SLICE                 : "Sliced housing chain to match the number of lyphs in the housing range",
-    CHAIN_CONFLICT              : `Conflicting chain specification: both "housingLyphs" and "housingChain" are given. Proceeding with "housingLyphs"`,
-    CHAIN_CONFLICT2             : `Conflicting chain specification: both "lyphs" and "levels" arrays are given. Proceeding with "lyphs"`,
+    CHAIN_CONFLICT              : `Conflicting chain specification: both "housingLyphs" and "housingChain" are given. Prioritizing "housingLyphs"`,
+    CHAIN_CONFLICT2             : `Potentially conflicting chain specification: both "lyphs" and "levels" are given. Prioritizing "lyphs"`,
     CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains property disagrees with the chain's housingLayers} property`,
     CHAIN_CONFLICT_ROOT         : `Conflicting anchoring: the chain's root anchor is not the end of a chain it is wired to:`,
     CHAIN_CONFLICT_LEAF         : `Conflicting anchoring: the chain's leaf anchor is not the end of a chain it is wired to:`,
