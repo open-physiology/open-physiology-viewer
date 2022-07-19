@@ -1,0 +1,6087 @@
+{
+    "references": [
+        {
+            "id": "bb-akilesh-2014-collection",
+            "name": "Normal Kidney Function and Structure S. Akilesh, in Pathobiology of Human Disease, 2014",
+            "uri": "https://www.sciencedirect.com/topics/veterinary-science-and-veterinary-medicine/collecting-duct-system-:~:text=The%20terminal%20portions%20of%20the,medullary%20interstitial%20concentration%20of%20urea.",
+            "type": "Collection"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "node-airway-root",
+            "name": "Airway root"
+        },
+        {
+            "id": "node-airway-leaf",
+            "name": "Airway leaf"
+        },
+        {
+            "id": "node-urinary-root",
+            "name": "Urinary root"
+        },
+        {
+            "id": "node-urinary-leaf",
+            "name": "Urinary leaf"
+        },
+        {
+            "id": "node-intragingival-root",
+            "name": "Intragingival root"
+        },
+        {
+            "id": "node-buccogingival-root",
+            "name": "Buccogingival root"
+        },
+        {
+            "id": "node-intragingival-leaf",
+            "name": "Intragingival leaf"
+        },
+        {
+            "id": "node-buccogingival-leaf",
+            "name": "Buccogingival leaf"
+        }
+    ],
+    "links": [],
+    "lyphs": [
+        {
+            "id": "lt-cell-segment",
+            "name": "Cell segment",
+            "isTemplate": true,
+            "layers": [
+                "mat-cytoplasm",
+                "mat-plasma-membrane",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "lt-cell-bag",
+            "name": "Cell bag",
+            "isTemplate": true,
+            "topology": "BAG",
+            "supertype": "lt-cell-segment"
+        },
+        {
+            "id": "lt-cell-cyst",
+            "name": "Cell",
+            "ontologyTerms": [
+                "SAO:1813327414"
+            ],
+            "isTemplate": true,
+            "topology": "CYST",
+            "supertype": "lt-cell-segment"
+        },
+        {
+            "id": "lt-axon-bag",
+            "name": "Axon terminal",
+            "ontologyTerms": [
+                "SAO:280355188"
+            ],
+            "isTemplate": true,
+            "topology": "BAG-",
+            "supertype": "lt-cell-bag",
+            "color": "#006400"
+        },
+        {
+            "id": "lt-axon-tube",
+            "name": "Axon segment",
+            "ontologyTerms": [
+                "SAO:280355188"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "supertype": "lt-cell-segment",
+            "color": "#006400"
+        },
+        {
+            "id": "lt-dend-bag",
+            "name": "Dendrite terminal",
+            "ontologyTerms": [
+                "SAO:420754792"
+            ],
+            "isTemplate": true,
+            "topology": "BAG-",
+            "supertype": "lt-cell-bag",
+            "color": "#640000"
+        },
+        {
+            "id": "lt-dend-tube",
+            "name": "Dendrite segment",
+            "ontologyTerms": [
+                "SAO:420754792"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "supertype": "lt-cell-segment",
+            "color": "#640000"
+        },
+        {
+            "id": "lt-axon-bag2",
+            "name": "Axon terminal",
+            "ontologyTerms": [
+                "SAO:280355188"
+            ],
+            "isTemplate": true,
+            "topology": "BAG+",
+            "supertype": "lt-cell-bag",
+            "color": "#006400"
+        },
+        {
+            "id": "lt-dend-bag2",
+            "name": "Dendrite terminal",
+            "ontologyTerms": [
+                "SAO:420754792"
+            ],
+            "isTemplate": true,
+            "topology": "BAG+",
+            "supertype": "lt-cell-bag",
+            "color": "#640000"
+        },
+        {
+            "id": "lt-segment-of-neuron",
+            "name": "Segment of neuron",
+            "ontologyTerms": [
+                "ILX:0776228"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-cell-segment"
+        },
+        {
+            "id": "lyph-cell-red-blood",
+            "name": "Red blood cell",
+            "ontologyTerms": [
+                "CL:0000232"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-white-blood",
+            "name": "White blood cell",
+            "ontologyTerms": [
+                "CL:0000738"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-platelet",
+            "name": "Platelet",
+            "ontologyTerms": [
+                "CL:0000233"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-chondrocyte",
+            "name": "Chondrocyte",
+            "ontologyTerms": [
+                "CL:0000138"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-fibroblast",
+            "name": "Fibroblast",
+            "ontologyTerms": [
+                "CL:0000057"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-type-I-alveolar",
+            "name": "Type I alveolar cell",
+            "ontologyTerms": [
+                "ILX:0770525"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-type-II-alveolar",
+            "name": "Type II alveolar cell",
+            "ontologyTerms": [
+                "ILX:0774853"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-cardiovascular-endothelial",
+            "name": "Cardiovascular endothelial cell",
+            "ontologyTerms": [
+                "ILX:0112265"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-pulmonary-smooth-muscle",
+            "name": "Pulmonary smooth muscle cell",
+            "ontologyTerms": [
+                "CL:0000192"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-cardiovascular-myocyte",
+            "name": "Cardiac myocyte",
+            "ontologyTerms": [
+                "CL:0000746"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-cardiovascular-pericardial-fibroblast",
+            "name": "Pericardial fibroblast",
+            "ontologyTerms": [
+                "CL:2000068"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-cardiovascular-adipocyte-of-epicardial-fat",
+            "name": "Adipocyte of epicardial fat",
+            "ontologyTerms": [
+                "CL:1000309"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-bronchiolar-columnar-cuboidal-epithelial",
+            "name": "Columnar or cuboidal epithelial cell",
+            "ontologyTerms": [
+                "CL:0000075"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastric-smooth-muscle",
+            "name": "Gastric smooth muscle cell",
+            "ontologyTerms": [
+                "ILX:0727285"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-esophagus-smooth-muscle",
+            "name": "Esophageal smooth muscle cell",
+            "ontologyTerms": [
+                "CL:0002599"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-vascular-smooth-muscle",
+            "name": "Vascular smooth muscle cell",
+            "ontologyTerms": [
+                "CL:0000359"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-stomach-chief-cell",
+            "name": "Chief cell of stomach",
+            "ontologyTerms": [
+                "ILX:0770414"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastric-interstitial-cell-of-cajal",
+            "name": "Gastric interstitial cell of Cajal",
+            "ontologyTerms": [
+                "CL:0002088"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastric-parietal",
+            "name": "Gastric parietal cell",
+            "ontologyTerms": [
+                "CL:0000162"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastric-enteroendocrine",
+            "name": "Gastric entroendocrine cell",
+            "ontologyTerms": [
+                "CL:1001517"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-bronchial-neuroendocrine",
+            "name": "Bronchial neuro-endocrine cell",
+            "ontologyTerms": [
+                "CL:1000223"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-bronchial-goblet",
+            "name": "Bronchial goblet cell",
+            "ontologyTerms": [
+                "CL:1000312"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-oligodendrocyte",
+            "name": "Oligodendrocyte",
+            "ontologyTerms": [
+                "CL:0000128"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-microglial",
+            "name": "Microglial cell",
+            "ontologyTerms": [
+                "CL:0000129"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-pancreatic-acinar",
+            "name": "Pancreatic acinar cell",
+            "ontologyTerms": [
+                "ILX:0773243"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-liver-hepatocyte",
+            "name": "Hepatocyte",
+            "ontologyTerms": [
+                "CL:0000182"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastrointestinal-smooth-muscle",
+            "name": "Gastrointestinal smooth muscle cell",
+            "ontologyTerms": [
+                "CL:0002504"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastrointestinal-duodenal-gland-enterocyte-of-epithelium",
+            "name": "Enterocyte of epithelium of duodenal gland",
+            "ontologyTerms": [
+                "CL:1000337"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-cell-gastrointestinal-duodenal-goblet",
+            "name": "Duodenal goblet cell",
+            "ontologyTerms": [
+                "CL:1000324"
+            ],
+            "supertype": "lt-cell-cyst"
+        },
+        {
+            "id": "lyph-airway-pFTU-alveolus",
+            "name": "Alveolus pFTU",
+            "ontologyTerms": [
+                "UBERON:0002169"
+            ],
+            "isTemplate": true,
+            "topology": "BAG",
+            "layers": [
+                "mat-body-gas",
+                "mat-body-fluid",
+                "mat-tissue-alveolar-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-vascular-pFTU-pulmonary-capillary",
+            "name": "Pulmonary capillary pFTU template",
+            "ontologyTerms": [
+                "UBERON:0016405"
+            ],
+            "supertype": "lt-blood-capillary"
+        },
+        {
+            "id": "lyph-airway-pFTU-alveolar-duct",
+            "name": "Alveolar duct pFTU",
+            "ontologyTerms": [
+                "UBERON:0002173"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-body-gas",
+                "mat-body-fluid",
+                "mat-tissue-alveolar-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-vascular-pFTU-pulmonary-smooth-muscle",
+            "name": "Pulmonary smooth muscle pFTU template",
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-basement-membrane",
+                "mat-tissue-pulmonary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "lyph-airway-respiratory-bronchiole",
+            "name": "Respiratory bronchiole",
+            "ontologyTerms": [
+                "UBERON:0002188"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-body-gas",
+                "mat-body-liquid",
+                "mat-tissue-bronchiolar-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-airway-terminal-bronchiole",
+            "name": "Terminal bronchiole",
+            "ontologyTerms": [
+                "UBERON:0002187"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-body-gas",
+                "mat-body-liquid",
+                "mat-tissue-bronchiolar-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-airway-conducting-bronchiole",
+            "name": "Conducting bronchiole",
+            "ontologyTerms": [
+                "ILX:0773346"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-body-gas",
+                "mat-body-liquid",
+                "mat-tissue-bronchiolar-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-airway-primary-bronchiole",
+            "name": "Primary bronchiole",
+            "ontologyTerms": [
+                "UBERON:0012067"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-body-gas",
+                "mat-body-liquid",
+                "mat-tissue-bronchiolar-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-airway-pFTU-bronchial-ciliated-epithelium",
+            "name": "Bronchial epithelium pFTU",
+            "ontologyTerms": [
+                "UBERON:0002031"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-body-liquid",
+                "mat-tissue-bronchial-epithelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-airway-pFTU-bronchial-muscularis",
+            "name": "Bronchial muscularis pFTU",
+            "ontologyTerms": [
+                "ILX:0793140"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-basement-membrane",
+                "mat-tissue-pulmonary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "lyph-vascular-pFTU-pulmonary-submucosa",
+            "name": "Pulmonary submucosa pFTU",
+            "ontologyTerms": [
+                "UBERON:0001957"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-basement-membrane",
+                "mat-tissue-bronchial-submucosa",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-airway-pulmonary-cartilage",
+            "name": "Pulmonary cartilage",
+            "ontologyTerms": [
+                "UBERON:0003406"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-tissue-bronchial-cartilage",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-vascular-pFTU-bronchial-connective-tissue",
+            "name": "Bronchial connective tissue pFTU",
+            "ontologyTerms": [
+                "UBERON:0003406"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-vascular-pFTU-bronchial-adventitia",
+            "name": "Bronchial adventitia pFTU",
+            "ontologyTerms": [
+                "ILX:0793134"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-airway-segemental-bronchus",
+            "name": "Segmental bronchus",
+            "ontologyTerms": [
+                "UBERON:0002184"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "lyph-airway-pFTU-bronchial-ciliated-epithelium",
+                "lyph-airway-pFTU-bronchial-muscularis",
+                "lyph-vascular-pFTU-pulmonary-submucosa",
+                "lyph-pulmonary-cartilage",
+                "lyph-vascular-pFTU-bronchial-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-airway-lobar-bronchus",
+            "name": "Lobar bronchus",
+            "ontologyTerms": [
+                "UBERON:0002183"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "lyph-airway-pFTU-bronchial-ciliated-epithelium",
+                "lyph-airway-pFTU-bronchial-muscularis",
+                "lyph-vascular-pFTU-pulmonary-submucosa",
+                "lyph-pulmonary-cartilage",
+                "lyph-vascular-pFTU-bronchial-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-airway-primary-bronchus",
+            "name": "Primary bronchus",
+            "ontologyTerms": [
+                "UBERON:0002182"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "lyph-airway-pFTU-bronchial-ciliated-epithelium",
+                "lyph-airway-pFTU-bronchial-muscularis",
+                "lyph-vascular-pFTU-pulmonary-submucosa",
+                "lyph-pulmonary-cartilage",
+                "lyph-vascular-pFTU-bronchial-adventitia"
+            ]
+        },
+        {
+            "id": "lyph-airway-trachea",
+            "name": "Trachea",
+            "ontologyTerms": [
+                "UBERON:0003126"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "lyph-airway-pFTU-bronchial-ciliated-epithelium",
+                "lyph-airway-pFTU-bronchial-muscularis",
+                "lyph-vascular-pFTU-pulmonary-submucosa",
+                "lyph-pulmonary-cartilage",
+                "lyph-vascular-pFTU-bronchial-adventitia"
+            ]
+        },
+        {
+            "id": "lyph-airway-cricoidal-larynx",
+            "name": "Cricoidal larynx",
+            "ontologyTerms": [
+                "ILX:0793172"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-laryngeal-wall"
+            ]
+        },
+        {
+            "id": "lyph-airway-thyroidal-larynx",
+            "name": "Thyroidal larynx",
+            "ontologyTerms": [
+                "ILX:0793173"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-laryngeal-wall"
+            ]
+        },
+        {
+            "id": "lyph-airway-thyrohyoidal-larynx",
+            "name": "Thyrohyoidal larynx",
+            "ontologyTerms": [
+                "ILX:0793174"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-laryngeal-wall"
+            ],
+            "internalLyphs": [
+                "lyph-laryngeal-mechanoreceptors"
+            ]
+        },
+        {
+            "id": "lyph-oral-intragingival-oral-lining",
+            "name": "Intragingival oral lining",
+            "ontologyTerms": [
+                "ILX:0793175"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-oral-wall"
+            ]
+        },
+        {
+            "id": "lyph-tongue",
+            "name": "Tongue",
+            "ontologyTerms": [
+                "UBERON:0001723",
+                "ILX:0111810"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-oral-gums",
+            "name": "Gums",
+            "ontologyTerms": [
+                "UBERON:0001828"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-oral-wall"
+            ]
+        },
+        {
+            "id": "lyph-oral-extragingival-lining",
+            "name": "Extragingival oral lining",
+            "ontologyTerms": [
+                "ILX:0793176"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-oral-wall"
+            ]
+        },
+        {
+            "id": "lyph-oral-lips",
+            "name": "Lips",
+            "ontologyTerms": [
+                "UBERON:0001833"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-airway-air",
+                "mat-temporary-oral-wall"
+            ]
+        },
+        {
+            "id": "lyph-villus-airway-vocal-cords",
+            "name": "Vocal cords",
+            "ontologyTerms": [
+                "UBERON:0003706"
+            ],
+            "topology": "BAG",
+            "layers": [
+                "mat-temporary-vocal-cord",
+                "mat-airway-air"
+            ]
+        },
+        {
+            "id": "lyph-villus-airway-epiglottis",
+            "name": "Epiglottis",
+            "ontologyTerms": [
+                "UBERON:0000388"
+            ],
+            "topology": "BAG",
+            "layers": [
+                "mat-temporary-epiglottic",
+                "mat-airway-air"
+            ],
+            "internalLyphs": [
+                "lyph-epiglottic-mechanoreceptors"
+            ]
+        },
+        {
+            "id": "lyph-villus-oral-teeth",
+            "name": "Teeth",
+            "ontologyTerms": [
+                "UBERON:0001091"
+            ],
+            "topology": "BAG",
+            "layers": [
+                "mat-temporary-dental",
+                "mat-airway-air"
+            ]
+        },
+        {
+            "id": "lyph-urinary-proximal-sphinctered-urethra",
+            "name": "Sphinctered urethra",
+            "ontologyTerms": [
+                "UBERON:0000057"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue",
+                "mat-tissue-urinary-rhabdosphincter"
+            ]
+        },
+        {
+            "id": "lyph-urinary-bladder-neck",
+            "name": "Bladder neck (Trigone)",
+            "ontologyTerms": [
+                "UBERON:0001258"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-bladder-dome",
+            "name": "Bladder dome",
+            "ontologyTerms": [
+                "UBERON:0006082"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-intravesical-portion-of-ureter",
+            "name": "Intravesical portion of ureter",
+            "ontologyTerms": [
+                "ILX:0793142"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis"
+            ]
+        },
+        {
+            "id": "lyph-urinary-distal-free-ureter",
+            "name": "Distal free ureter",
+            "ontologyTerms": [
+                "ILX:0793143"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-proximal-free-ureter",
+            "name": "Proximal free ureter",
+            "ontologyTerms": [
+                "ILX:0793144"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-renal-pelvis",
+            "name": "Renal pevis",
+            "ontologyTerms": [
+                "UBERON:0001224"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-major-calyx",
+            "name": "Major calyx",
+            "ontologyTerms": [
+                "UBERON:0001226"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-minor-calyx",
+            "name": "Minor calyx",
+            "ontologyTerms": [
+                "UBERON:0001227"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-transitional-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-urinary-muscularis",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-inner-medullary-collecting-duct",
+            "name": "Inner medullary collecting duct",
+            "ontologyTerms": [
+                "UBERON:0004205"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-collecting-duct-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-outer-medullary-collecting-duct",
+            "name": "Outer medullary collecting duct",
+            "ontologyTerms": [
+                "UBERON:0004204"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-collecting-duct-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-cortical-collecting-tubule",
+            "name": "Cortical collecting tubule",
+            "ontologyTerms": [
+                "UBERON:0004203"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-liquid-urinary",
+                "mat-tissue-urinary-collecting-duct-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-urinary-connecting-tubule",
+            "name": "Connecting tubule",
+            "ontologyTerms": [
+                "UBERON:0005097"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-distal-convoluted-tubule",
+            "name": "Distal convoluted tubule",
+            "ontologyTerms": [
+                "UBERON:0001292"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-final-portion-of-thick-ascending-limb",
+            "name": "Final portion of thick ascending limb",
+            "ontologyTerms": [
+                "UBERON:0001291"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-distal-straight-tubule",
+            "name": "Distal straight tubule",
+            "ontologyTerms": [
+                "ILX:0774803"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-ascending-thin-limb",
+            "name": "Ascending thin limb",
+            "ontologyTerms": [
+                "UBERON:0004193"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-descending-thin-limb",
+            "name": "Descending thin limb",
+            "ontologyTerms": [
+                "UBERON:0005096"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-proximal-straight-tubule",
+            "name": "Proximal straight tubule",
+            "ontologyTerms": [
+                "UBERON:0001290"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-proximal-convoluted-tubule",
+            "name": "Proximal convoluted tubule",
+            "ontologyTerms": [
+                "UBERON:0001287"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-parietal-Bowmans-capsule",
+            "name": "Parietal Bowman's capsule",
+            "ontologyTerms": [
+                "UBERON:0005750"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-visceral-Bowmans-capsule",
+            "name": "Visceral Bowman's capsule",
+            "ontologyTerms": [
+                "UBERON:0005751"
+            ],
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-digestive-upper-esophageal-sphincter",
+            "name": "Upper esophageal sphincter",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-upper-third-esophagus",
+            "name": "Upper third of esophagus",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-lower-two-thirds-esophagus",
+            "name": "Lower two thirds of esophagus",
+            "ontologyTerms": [
+                "UBERON:0013473"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid",
+                "mat-mucosa-of-lower-two-thirds-of-esophagus",
+                "mat-muscularis-mucosa-of-lower-two-thirds-of-esophagus",
+                "mat-submucosa-of-lower-two-thirds-of-esophagus",
+                "mat-gastrointestinal-circular-muscle",
+                "mat-myenteric-plexus",
+                "mat-gastrointestinal-longitudinal-muscle",
+                "mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-digestive-proximal-stomach",
+            "name": "Proximal stomach",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid",
+                "mat-gastric-mucosa",
+                "mat-gastric-muscularis-mucosa",
+                "mat-gastric-submucosa",
+                "mat-gastric-oblique-muscle",
+                "mat-gastrointestinal-circular-muscle",
+                "mat-myenteric-plexus",
+                "mat-gastrointestinal-longitudinal-muscle",
+                "mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-digestive-distal-stomach",
+            "name": "Distal stomach",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid",
+                "mat-gastric-mucosa",
+                "mat-gastric-muscularis-mucosa",
+                "mat-gastric-submucosa",
+                "mat-gastric-oblique-muscle",
+                "mat-gastrointestinal-circular-muscle",
+                "mat-myenteric-plexus",
+                "mat-gastrointestinal-longitudinal-muscle",
+                "mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-digestive-gastric-pyloric-canal-and-sphincter",
+            "name": "Pyloric canal",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid",
+                "mat-gastric-mucosa",
+                "mat-gastric-muscularis-mucosa",
+                "mat-gastric-submucosa",
+                "mat-gastric-oblique-muscle",
+                "mat-gastrointestinal-circular-muscle",
+                "mat-myenteric-plexus",
+                "mat-gastrointestinal-longitudinal-muscle",
+                "mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-digestive-pre-ampullary-duodenum",
+            "name": "Pre-ampullary duodenum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid",
+                "mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-digestive-post-ampullary-duodenum",
+            "name": "Post-ampullary duodenum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-jejunum",
+            "name": "Jejunum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-proximal-ileum",
+            "name": "Proximal ileum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-terminal-ileum",
+            "name": "Terminal ileum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-cecum",
+            "name": "Caecum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-presplenic-colon",
+            "name": "Pre-splenic colon",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-post-splenic-colon",
+            "name": "Post-splenic pre-rectal colon",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-rectum",
+            "name": "Rectum",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-anal-canal-and-sphincter",
+            "name": "Anal canal and sphincter",
+            "topology": "TUBE",
+            "layers": [
+                "mat-gastrointestinal-luminal-fluid"
+            ]
+        },
+        {
+            "id": "lyph-digestive-pancreaticobiliary-major-duodenal-papilla",
+            "name": "Major duodenal papilla",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreaticobiliary-ampulla-of-Vater",
+            "name": "Ampulla of Vater",
+            "ontologyTerms": [
+                "UBERON:0004913"
+            ],
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreaticobiliary-sphincter",
+            "name": "Pancreaticobiliary sphincter"
+        },
+        {
+            "id": "lyph-digestive-pancreas-main-duct",
+            "name": "Main pancreatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreas-lobar-duct",
+            "name": "Lobar pancreatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreas-interlobular-duct",
+            "name": "Interlobular pancreatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreas-intralobular-duct",
+            "name": "Intralobular pancreatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreas-striated-duct",
+            "name": "Striated pancreatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreas-intercalated-duct",
+            "name": "Intercalated pancreatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-pancreas-acinus",
+            "name": "Pancreatic acinus",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-digestive-biliary-common-bile-duct",
+            "name": "Common bile duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-cystic-duct",
+            "name": "Cystic biliary duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-gallbladder",
+            "name": "Gallbladder",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-digestive-biliary-common-hepatic-duct",
+            "name": "Common hepatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-hepatic-duct",
+            "name": "Hepatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-intrahepatic-bile-duct",
+            "name": "Intrahepatic duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-interlobular-bile-duct",
+            "name": "Interlobular bile duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-perilobular-bile-duct",
+            "name": "Perilobular bile duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-terminal-bile-ductule",
+            "name": "Terminal bile duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-canal-of-Hering",
+            "name": "Canal of Hering",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-biliary-biliary-canaliculus",
+            "name": "Biliary canaliculus",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-digestive-salivary-excretory-duct",
+            "name": "Salivary excretory duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-salivary-striated-duct",
+            "name": "Salivary striated duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-salivary-intercalated-duct",
+            "name": "Salivary intercalated duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-digestive-salivary-acinus",
+            "name": "Salivary acinus",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-airway-external-ear",
+            "name": "External ear",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-airway-middle-ear",
+            "name": "Middle ear",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-airway-eustachian-tube",
+            "name": "Eustachian tube",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-lacrimal-conjunctiva",
+            "name": "Conjunctiva",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-airway-external-nasal-mucosa",
+            "name": "External nasal mucosa",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-airway-internal-nasal-mucosa",
+            "name": "Internal nasal mucosa",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-airway-nasopharynx",
+            "name": "Nasopharynx",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-airway-oropharynx",
+            "name": "Oropharynx",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-lacrimal-nasolacrimal-duct",
+            "name": "Nasolacrimal duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-lacrimal-tear-gland-duct",
+            "name": "Duct of tear gland",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-lacrimal-tear-gland-acinus",
+            "name": "Acinus of tear gland",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-mammary-lactiferous-duct",
+            "name": "Lactiferous duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-mammary-lactiferous-ampulla",
+            "name": "Lactiferous ampulla",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-mammary-main-duct",
+            "name": "Lactiferous main duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-mammary-extralobular-duct",
+            "name": "Lactiferous extralobular duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-mammary-intralobular-duct",
+            "name": "Lactiferous intralobular duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-mammary-ductule",
+            "name": "Lactiferous ductule",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-mammary-acinus",
+            "name": "Lactiferous acinus",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-male-genital-acinus-of-seminal-vesicle",
+            "name": "Acinus of seminal vesicle",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-intralobular-duct-of-seminal-vesicle",
+            "name": "Intralobular duct of seminal vesicle",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-excretory-duct-of-seminal-vesicle",
+            "name": "Excretory duct of seminal vesicle",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-ampulla-of-vas-deferens",
+            "name": "Ampulla of vas deferens",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-vas-deferens",
+            "name": "Vas deferens",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-efferent-ductules",
+            "name": "Efferent ductules of testicle",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-rete-testis",
+            "name": "Rete testis",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-seminiferous-tubule",
+            "name": "Seminiferous tubule",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-prostatic-ejaculatory-duct",
+            "name": "Prostatic ejaculatory duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-prostatic-tubular-duct",
+            "name": "Prostatic tubular duct",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-male-genital-prostatic-alveolar-acinus",
+            "name": "Prostatic alveolar acinus",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-penile-urethra",
+            "name": "Penile urethra",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-urinary-female-urethra",
+            "name": "Female external urethra",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-female-genital-lower-third-of-vagina",
+            "name": "Lower third of vagina",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-female-genital-upper-two-thirds-of-vagina",
+            "name": "Upper two thirds of vagina",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-female-genital-uterine-cervix",
+            "name": "Uterine cervix",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-female-genital-uterine-body",
+            "name": "Body of uterus",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-female-genital-fallopian-tube",
+            "name": "Fallopian tube",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-female-genital-ovulating-follicle",
+            "name": "Ovulating follicle",
+            "topology": "BAG"
+        },
+        {
+            "id": "lyph-female-genital-vulval-mucosa",
+            "name": "Vulval mucosa",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-skin-perineal",
+            "name": "Perineal skin",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-skin-inframammary",
+            "name": "Inframammary skin",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-skin-supramammary-infracranial",
+            "name": "Supramammary infracranial skin",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-skin-calvarial",
+            "name": "Clavarial skin",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-skin-nasal",
+            "name": "Nasal skin",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lyph-skin-philtrum",
+            "name": "Skin of philtrum",
+            "topology": "TUBE"
+        },
+        {
+            "id": "lt-brain-segment",
+            "name": "Segment of brain",
+            "isTemplate": true,
+            "layers": [
+                "mat-CNS-cerebrospinal-fluid",
+                "mat-CNS-ependyma",
+                "mat-CNS-parenchymal-tissue"
+            ]
+        },
+        {
+            "id": "lyph-CNS-medulla",
+            "name": "Medulla",
+            "ontologyTerms": [
+                "UBERON:0001896",
+                "NCBITaxon:10116"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-brain-segment",
+            "internalLyphs": [
+                "lyph-CNS-nucleus-ambiguus",
+                "lyph-CNS-nucleus-dorsal-motor-vagus",
+                "lyph-CNS-nucleus-tractus-solitarius"
+            ],
+            "internalLyphsInLayers": [
+                2,
+                2,
+                2
+            ]
+        },
+        {
+            "id": "lt-CNS-nucleus",
+            "ontologyTerms": [
+                "UBERON:0000125"
+            ],
+            "isTemplate": true,
+            "topology": "CYST",
+            "materials": [
+                "mat-CNS-grey-matter-of-brain"
+            ]
+        },
+        {
+            "id": "lyph-CNS-pons",
+            "name": "Pons",
+            "ontologyTerms": [
+                "UBERON:0000988"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-brain-segment",
+            "internalLyphs": [
+                "lyph-CNS-barringtons-nucleus",
+                "lyph-CNS-nucleus-parabrachial"
+            ],
+            "internalLyphsInLayers": [
+                2,
+                2
+            ]
+        },
+        {
+            "id": "lyph-CNS-barringtons-nucleus",
+            "name": "Barrington's nucleus",
+            "ontologyTerms": [
+                "UBERON:0007632"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-midbrain",
+            "name": "Midbrain",
+            "ontologyTerms": [
+                "UBERON:0001891",
+                "NCBITaxon:10116"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-brain-segment",
+            "internalLyphs": [
+                "lyph-CNS-ventrolateral-periaqueductal-gray"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "lyph-CNS-ventrolateral-periaqueductal-gray",
+            "name": "ventrolateral periaqueductal gray",
+            "ontologyTerms": [
+                "UBERON:0003040"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-diencephalon",
+            "name": "Diencephalon",
+            "ontologyTerms": [
+                "UBERON:0001894",
+                "NCBITaxon:10116"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-brain-segment",
+            "internalLyphs": [
+                "lyph-CNS-medial-preoptic-area",
+                "lyph-CNS-lateral-preoptic-area",
+                "lyph-CNS-lateral-hypothalamic-area",
+                "lyph-CNS-median-preoptic-nucleus",
+                "lyph-CNS-hypothalamus"
+            ],
+            "internalLyphsInLayers": [
+                2,
+                2,
+                2,
+                2,
+                2
+            ]
+        },
+        {
+            "id": "lyph-CNS-hypothalamus",
+            "name": "Hypothalamus",
+            "ontologyTerms": [
+                "UBERON:0001898"
+            ],
+            "internalLyphs": [
+                "lyph-CNS-lateral-hypothalamic-area"
+            ]
+        },
+        {
+            "id": "lyph-CNS-medial-preoptic-area",
+            "name": "Medial preoptic area",
+            "ontologyTerms": [
+                "UBERON:0007769"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-lateral-preoptic-area",
+            "name": "Lateral preoptic area",
+            "ontologyTerms": [
+                "UBERON:0001931"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-lateral-hypothalamic-area",
+            "name": "Lateral hypothalamic area",
+            "ontologyTerms": [
+                "UBERON:0002430"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-median-preoptic-nucleus",
+            "name": "Median preoptic nucleus",
+            "ontologyTerms": [
+                "UBERON:0002625"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-cerebral-nuclei",
+            "name": "Tract of cerebral nuclei",
+            "ontologyTerms": [
+                "NLX:158496",
+                "NCBITaxon:10116"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-brain-segment",
+            "internalLyphs": [
+                "lyph-CNS-bed-nucleus-of-the-stria-terminalis",
+                "lyph-CNS-central-nucleus-of-the-amygdala"
+            ],
+            "internalLyphsInLayers": [
+                2,
+                2
+            ]
+        },
+        {
+            "id": "lyph-CNS-bed-nucleus-of-the-stria-terminalis",
+            "name": "Bed nucleus of the stria terminalis",
+            "ontologyTerms": [
+                "UBERON:0001880"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-central-nucleus-of-the-amygdala",
+            "name": "Central nucleus of the amygdala",
+            "ontologyTerms": [
+                "UBERON:0002883"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-telencephalon",
+            "name": "Telencephalon",
+            "ontologyTerms": [
+                "UBERON:0001893"
+            ],
+            "topology": "BAG",
+            "supertype": "lt-brain-segment",
+            "internalLyphs": [
+                "lyph-CNS-insula"
+            ],
+            "internalLyphsInLayers": [
+                2
+            ]
+        },
+        {
+            "id": "lyph-CNS-nucleus-parabrachial",
+            "name": "Parabrachial nucleus",
+            "ontologyTerms": [
+                "UBERON:0007634"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-insula",
+            "name": "Insula",
+            "ontologyTerms": [
+                "UBERON:0002022"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-nucleus-ambiguus",
+            "name": "Nucleus ambiguus",
+            "ontologyTerms": [
+                "UBERON:0001719"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-nucleus-dorsal-motor-vagus",
+            "name": "Dorsal motor nucleus of vagus nerve",
+            "ontologyTerms": [
+                "UBERON:0002870"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-nucleus-tractus-solitarius",
+            "name": "Nucleus Tractus Solitarius",
+            "ontologyTerms": [
+                "ILX:0775009"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-nucleus-paraventricular",
+            "name": "Paraventricular nucleus of hypothalamus",
+            "ontologyTerms": [
+                "UBERON:0001930"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-nucleus-retrotrapezoid",
+            "name": "Retrotrapezoid nucleus",
+            "ontologyTerms": [
+                "UBERON:0009918"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-rostral-ventrolateral-medulla",
+            "name": "Rostral ventrolateral medulla",
+            "ontologyTerms": [
+                "UBERON:0005807"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lyph-CNS-nucleus-phrenic",
+            "name": "Nucleus of phrenic nerve",
+            "ontologyTerms": [
+                "UBERON:0016850"
+            ],
+            "supertype": "lt-CNS-nucleus"
+        },
+        {
+            "id": "lt-spinal-segment",
+            "name": "Segment of Spinal Cord",
+            "ontologyTerms": [
+                "UBERON:0005844",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "mat-CNS-cerebrospinal-fluid",
+                "mat-CNS-ependyma",
+                "mat-rex-lam-X",
+                "mat-CNS-white-matter-of-spinal-cord",
+                "mat-rex-lam-IX",
+                "mat-rex-lam-VIII",
+                "mat-rex-lam-VII",
+                "mat-rex-lam-VI",
+                "mat-rex-lam-V",
+                "mat-rex-lam-IV",
+                "mat-rex-lam-III",
+                "mat-rex-lam-II",
+                "mat-rex-lam-I",
+                "mat-CNS-white-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "lyph-C1-spinal-segment",
+            "name": "C1 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006469",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C2-spinal-segment",
+            "name": "C2 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006489",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C3-spinal-segment",
+            "name": "C3 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006488",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C4-spinal-segment",
+            "name": "C4 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006490",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C5-spinal-segment",
+            "name": "C5 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006491",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C6-spinal-segment",
+            "name": "C6 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006492",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C7-spinal-segment",
+            "name": "C7 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006493",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C8-spinal-segment",
+            "name": "C8 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006470",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T1-spinal-segment",
+            "name": "T1 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006457",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T2-spinal-segment",
+            "name": "T2 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006458",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T3-spinal-segment",
+            "name": "T3 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006459",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T4-spinal-segment",
+            "name": "T4 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006452",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T5-spinal-segment",
+            "name": "T5 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006453",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T6-spinal-segment",
+            "name": "T6 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006454",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T7-spinal-segment",
+            "name": "T7 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006455",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T8-spinal-segment",
+            "name": "T8 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006456",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T9-spinal-segment",
+            "name": "T9 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006465",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T10-spinal-segment",
+            "name": "T10 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006466",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T11-spinal-segment",
+            "name": "T11 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006467",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T12-spinal-segment",
+            "name": "T12 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006468",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T13-spinal-segment",
+            "name": "T13 spinal segment",
+            "ontologyTerms": [
+                "EMAPA:19554",
+                "NCBITaxon:10116"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L1-spinal-segment",
+            "name": "L1 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006448",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L2-spinal-segment",
+            "name": "L2 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006450",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L3-spinal-segment",
+            "name": "L3 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006449",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L4-spinal-segment",
+            "name": "L4 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006451",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L5-spinal-segment",
+            "name": "L5 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006447",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L6-spinal-segment",
+            "name": "L6 spinal segment",
+            "ontologyTerms": [
+                "EMAPA:19574",
+                "NCBITaxon:10116"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S1-spinal-segment",
+            "name": "S1 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006460",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S2-spinal-segment",
+            "name": "S2 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006461",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S3-spinal-segment",
+            "name": "S3 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006462",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S4-spinal-segment",
+            "name": "S4 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006463",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S5-spinal-segment",
+            "name": "S5 spinal segment",
+            "ontologyTerms": [
+                "UBERON:0006464",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx1-spinal-segment",
+            "name": "Cx1 spinal segment",
+            "ontologyTerms": [
+                "ILX:0777083",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx2-spinal-segment",
+            "name": "Cx2 spinal segment",
+            "ontologyTerms": [
+                "ILX:0777084",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx3-spinal-segment",
+            "name": "Cx3 spinal segment",
+            "ontologyTerms": [
+                "ILX:0777085",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx4-spinal-segment",
+            "name": "Cx4 spinal segment",
+            "ontologyTerms": [
+                "ILX:0793139",
+                "NCBITaxon:10116",
+                "NCBITaxon:9606"
+            ],
+            "topology": "BAG",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lt-ganglion-dorsal-root",
+            "name": "Segment of dorsal root chain-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002261"
+            ],
+            "isTemplate": true,
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "lyph-C2-dorsal-root-ganglion",
+            "name": "C2 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002839"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C3-dorsal-root-ganglion",
+            "name": "C3 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002840"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C4-dorsal-root-ganglion",
+            "name": "C4 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002841"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C5-dorsal-root-ganglion",
+            "name": "C5 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002842"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C6-dorsal-root-ganglion",
+            "name": "C6 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0007711"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C7-dorsal-root-ganglion",
+            "name": "C7 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002843"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C8-dorsal-root-ganglion",
+            "name": "C8 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002844"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T1-dorsal-root-ganglion",
+            "name": "T1 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002845"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T2-dorsal-root-ganglion",
+            "name": "T2 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002846"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T3-dorsal-root-ganglion",
+            "name": "T3 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002847"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T4-dorsal-root-ganglion",
+            "name": "T4 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0007712"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T5-dorsal-root-ganglion",
+            "name": "T5 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002848"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T6-dorsal-root-ganglion",
+            "name": "T6 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002849"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T7-dorsal-root-ganglion",
+            "name": "T7 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002850"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T8-dorsal-root-ganglion",
+            "name": "T8 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002851"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T9-dorsal-root-ganglion",
+            "name": "T9 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002852"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T10-dorsal-root-ganglion",
+            "name": "T10 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002853"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T11-dorsal-root-ganglion",
+            "name": "T11 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002854"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T12-dorsal-root-ganglion",
+            "name": "T12 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002855"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T13-dorsal-root-ganglion",
+            "name": "T13 dorsal root ganglion",
+            "ontologyTerms": [
+                "ILX:0738434"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L1-dorsal-root-ganglion",
+            "name": "L1 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002857"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L2-dorsal-root-ganglion",
+            "name": "L2 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002856"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L3-dorsal-root-ganglion",
+            "name": "L3 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002858"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L4-dorsal-root-ganglion",
+            "name": "L4 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0003943"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L5-dorsal-root-ganglion",
+            "name": "L5 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002859"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L6-dorsal-root-ganglion",
+            "name": "L6 dorsal root ganglion",
+            "ontologyTerms": [
+                "ILX:0739221"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S1-dorsal-root-ganglion",
+            "name": "S1 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002860"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S2-dorsal-root-ganglion",
+            "name": "S2 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002861"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S3-dorsal-root-ganglion",
+            "name": "S3 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002862"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S4-dorsal-root-ganglion",
+            "name": "S4 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0007713"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S5-dorsal-root-ganglion",
+            "name": "S5 dorsal root ganglion",
+            "ontologyTerms": [
+                "UBERON:0002863"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lt-ventral-root",
+            "name": "Segment of ventral root chain-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002260"
+            ],
+            "isTemplate": true,
+            "materials": [
+                "mat-CNS-white-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "lyph-C1-ventral-root",
+            "name": "C1 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25147"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C2-ventral-root",
+            "name": "C2 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25257"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C3-ventral-root",
+            "name": "C3 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25259"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C4-ventral-root",
+            "name": "C4 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25261"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C5-ventral-root",
+            "name": "C5 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25263"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C6-ventral-root",
+            "name": "C6 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25265"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C7-ventral-root",
+            "name": "C7 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25267"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C8-ventral-root",
+            "name": "C8 ventral root",
+            "ontologyTerms": [
+                "ILX:0793145"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T1-ventral-root",
+            "name": "T1 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25289"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T2-ventral-root",
+            "name": "T2 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25298"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T3-ventral-root",
+            "name": "T3 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25300"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T4-ventral-root",
+            "name": "T4 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25302"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T5-ventral-root",
+            "name": "T5 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25304"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T6-ventral-root",
+            "name": "T6 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25306"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T7-ventral-root",
+            "name": "T7 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25308"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T8-ventral-root",
+            "name": "T8 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25310"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T9-ventral-root",
+            "name": "T9 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25312"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T10-ventral-root",
+            "name": "T10 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25293"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T11-ventral-root",
+            "name": "T11 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25292"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T12-ventral-root",
+            "name": "T12 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25295"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T13-ventral-root",
+            "name": "T13 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25313"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L1-ventral-root",
+            "name": "L1 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25269"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L2-ventral-root",
+            "name": "L2 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25271"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L3-ventral-root",
+            "name": "L3 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25273"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L4-ventral-root",
+            "name": "L4 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25275"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L5-ventral-root",
+            "name": "L5 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25277"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L6-ventral-root",
+            "name": "L6 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25279"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S1-ventral-root",
+            "name": "S1 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25281"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S2-ventral-root",
+            "name": "S2 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25283"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S3-ventral-root",
+            "name": "S3 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25285"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S4-ventral-root",
+            "name": "S4 ventral root",
+            "ontologyTerms": [
+                "EMAPA:25287"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S5-ventral-root",
+            "name": "S5 ventral root",
+            "ontologyTerms": [
+                "FMA:12965"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-Cx1-ventral-root",
+            "name": "Cx1 ventral root",
+            "ontologyTerms": [
+                "FMA:12923"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lt-PNS-ganglion",
+            "name": "Ganglion",
+            "ontologyTerms": [
+                "UBERON:0000045"
+            ],
+            "isTemplate": true
+        },
+        {
+            "id": "lt-ganglion-visceral-mural",
+            "name": "Autonomic ganglion in visceral wall",
+            "ontologyTerms": [
+                "UBERON:0001805"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-PNS-ganglion"
+        },
+        {
+            "id": "lt-sympathetic-ganglion",
+            "name": "Sympathetic ganglion",
+            "ontologyTerms": [
+                "UBERON:0001806"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-PNS-ganglion"
+        },
+        {
+            "id": "lt-prevertebral-ganglia",
+            "name": "Prevertebral ganglia",
+            "ontologyTerms": [
+                "UBERON:0003964"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-sympathetic-ganglion"
+        },
+        {
+            "id": "lt-paravertebral-ganglia",
+            "name": "Paravertebral ganglia",
+            "ontologyTerms": [
+                "UBERON:0001807"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-sympathetic-ganglion"
+        },
+        {
+            "id": "lyph-superior-cervical-ganglion",
+            "name": "Superior cervical ganglion",
+            "ontologyTerms": [
+                "UBERON:0001989"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-C1-C2",
+            "name": "Interganglionic branch of superior cervical ganglion to middle cervical ganglion",
+            "ontologyTerms": [
+                "FMA:6603"
+            ]
+        },
+        {
+            "id": "lyph-middle-cervical-ganglion",
+            "name": "Middle cervical ganglion",
+            "ontologyTerms": [
+                "UBERON:0001990"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-C2-cervicothoracic",
+            "name": "Interganglionic branch of middle cervical ganglion to inferior cervical ganglion",
+            "ontologyTerms": [
+                "FMA:6615"
+            ]
+        },
+        {
+            "id": "lyph-stellate-ganglion",
+            "name": "Stellate ganglion",
+            "ontologyTerms": [
+                "UBERON:0002441"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-cervicothoracic-T2",
+            "name": "Interganglionic branch of cervicothoracic ganglion to second thoracic ganglion",
+            "ontologyTerms": [
+                "FMA:6609"
+            ]
+        },
+        {
+            "id": "lyph-T2-sympathetic-chain-ganglion",
+            "name": "T2 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6475"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T2-T3",
+            "name": "Interganglionic branch of second thoracic ganglion to third thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793152"
+            ]
+        },
+        {
+            "id": "lyph-T3-sympathetic-chain-ganglion",
+            "name": "T3 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6476"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T3-T4",
+            "name": "Interganglionic branch of third thoracic ganglion to fourth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793153"
+            ]
+        },
+        {
+            "id": "lyph-T4-sympathetic-chain-ganglion",
+            "name": "T4 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6477"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T4-T5",
+            "name": "Interganglionic branch of fourth thoracic ganglion to fifth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793154"
+            ]
+        },
+        {
+            "id": "lyph-T5-sympathetic-chain-ganglion",
+            "name": "T5 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6478"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T5-T6",
+            "name": "Interganglionic branch of fifth thoracic ganglion to sixth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793155"
+            ]
+        },
+        {
+            "id": "lyph-T6-sympathetic-chain-ganglion",
+            "name": "T6 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6479"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T6-T7",
+            "name": "Interganglionic branch of sixth thoracic ganglion to seventh thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793156"
+            ]
+        },
+        {
+            "id": "lyph-T7-sympathetic-chain-ganglion",
+            "name": "T7 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6480"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T7-T8",
+            "name": "Interganglionic branch of seventh thoracic ganglion to eighth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793157"
+            ]
+        },
+        {
+            "id": "lyph-T8-sympathetic-chain-ganglion",
+            "name": "T8 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6481"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T8-T9",
+            "name": "Interganglionic branch of eighth thoracic ganglion to ninth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793158"
+            ]
+        },
+        {
+            "id": "lyph-T9-sympathetic-chain-ganglion",
+            "name": "T9 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6482"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T9-T10",
+            "name": "Interganglionic branch of ninth thoracic ganglion to tenth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793159"
+            ]
+        },
+        {
+            "id": "lyph-T10-sympathetic-chain-ganglion",
+            "name": "T10 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6483"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T10-T11",
+            "name": "Interganglionic branch of tenth thoracic ganglion to eleventh thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793160"
+            ]
+        },
+        {
+            "id": "lyph-T11-sympathetic-chain-ganglion",
+            "name": "T11 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6484"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T12-L1",
+            "name": "Interganglionic branch of eleventh thoracic ganglion to twelfth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793199"
+            ]
+        },
+        {
+            "id": "lyph-T12-sympathetic-chain-ganglion",
+            "name": "T12 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6485"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T12-T13",
+            "name": "Interganglionic branch of twelfth thoracic ganglion to thirteenth thoracic ganglion",
+            "ontologyTerms": [
+                "ILX:0793198"
+            ]
+        },
+        {
+            "id": "lyph-T13-sympathetic-chain-ganglion",
+            "name": "T13 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "ILX:0739295"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T13-L1",
+            "name": "Interganglionic branch of thirteenth thoracic ganglion to first lumbar ganglion",
+            "ontologyTerms": [
+                "ILX:0793202"
+            ]
+        },
+        {
+            "id": "lyph-L1-sympathetic-chain-ganglion",
+            "name": "L1 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6540"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L1-L2",
+            "name": "Interganglionic branch of first lumbar ganglion to second lumbar ganglion",
+            "ontologyTerms": [
+                "ILX:0793162"
+            ]
+        },
+        {
+            "id": "lyph-L2-sympathetic-chain-ganglion",
+            "name": "L2 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6541"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L2-L3",
+            "name": "Interganglionic branch of second lumbar ganglion to third lumbar ganglion",
+            "ontologyTerms": [
+                "ILX:0793163"
+            ]
+        },
+        {
+            "id": "lyph-L3-sympathetic-chain-ganglion",
+            "name": "L3 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6542"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L3-L4",
+            "name": "Interganglionic branch of third lumbar ganglion to fourth lumbar ganglion",
+            "ontologyTerms": [
+                "ILX:0793164"
+            ]
+        },
+        {
+            "id": "lyph-L4-sympathetic-chain-ganglion",
+            "name": "L4 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6543"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L4-L5",
+            "name": "Interganglionic branch of fourth lumbar ganglion to first sacral ganglion",
+            "ontologyTerms": [
+                "ILX:0793165"
+            ]
+        },
+        {
+            "id": "lyph-L5-sympathetic-chain-ganglion",
+            "name": "L5 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "ILX:0739296"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L5-L6",
+            "name": "Interganglionic branch of fifth lumbar ganglion to sixth lumbar ganglion",
+            "ontologyTerms": [
+                "ILX:0793203"
+            ]
+        },
+        {
+            "id": "lyph-L6-sympathetic-chain-ganglion",
+            "name": "L6 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6545"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L6-S1",
+            "name": "Interganglionic branch of sixth lumbar ganglion to first sacral ganglion",
+            "ontologyTerms": [
+                "ILX:0793204"
+            ]
+        },
+        {
+            "id": "lyph-S1-sympathetic-chain-ganglion",
+            "name": "S1 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6552"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S1-S2",
+            "name": "Interganglionic branch of first sacral ganglion to second sacral ganglion",
+            "ontologyTerms": [
+                "ILX:0793166"
+            ]
+        },
+        {
+            "id": "lyph-S2-sympathetic-chain-ganglion",
+            "name": "S2 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6553"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S2-S3",
+            "name": "Interganglionic branch of second sacral ganglion to third sacral ganglion",
+            "ontologyTerms": [
+                "ILX:0793167"
+            ]
+        },
+        {
+            "id": "lyph-S3-sympathetic-chain-ganglion",
+            "name": "S3 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6554"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S3-S4",
+            "name": "Interganglionic branch of third sacral ganglion to fourth sacral ganglion",
+            "ontologyTerms": [
+                "ILX:0793168"
+            ]
+        },
+        {
+            "id": "lyph-S4-sympathetic-chain-ganglion",
+            "name": "S4 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6555"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S4-Cx1",
+            "name": "Interganglionic branch of fourth sacral ganglion to first coccygeal ganglion",
+            "ontologyTerms": [
+                "ILX:0793169"
+            ]
+        },
+        {
+            "id": "lyph-Cx1-sympathetic-chain-ganglion",
+            "name": "Cx1 sympathetic chain ganglion",
+            "ontologyTerms": [
+                "FMA:6567"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lt-white-ramus",
+            "name": "White communicating ramus",
+            "ontologyTerms": [
+                "FMA:5875"
+            ],
+            "isTemplate": true
+        },
+        {
+            "id": "lyph-superior-cervical-ganglion-white-ramus",
+            "name": "Superior cervical ganglion white ramus",
+            "ontologyTerms": [
+                "ILX:0793148"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-middle-cervical-ganglion-white-ramus",
+            "name": "Middle cervical ganglion white ramus",
+            "ontologyTerms": [
+                "ILX:0793150"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-stellate-white-ramus",
+            "name": "White communicating ramus of cervicothoracic nerve",
+            "ontologyTerms": [
+                "ILX:0793170"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T2-white-ramus",
+            "name": "White communicating ramus of second intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11278"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T3-white-ramus",
+            "name": "White communicating ramus of third intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11008"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T4-white-ramus",
+            "name": "White communicating ramus of fourth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:10973"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T5-white-ramus",
+            "name": "White communicating ramus of fifth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11137"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T6-white-ramus",
+            "name": "White communicating ramus of sixth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11656"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T7-white-ramus",
+            "name": "White communicating ramus of seventh intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11677"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T8-white-ramus",
+            "name": "White communicating ramus of eighth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11762"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T9-white-ramus",
+            "name": "White communicating ramus of ninth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11766"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T10-white-ramus",
+            "name": "White communicating ramus of tenth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11770"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T11-white-ramus",
+            "name": "White communicating ramus of eleventh intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11774"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T12-white-ramus",
+            "name": "White communicating ramus of twelfth intercostal nerve",
+            "ontologyTerms": [
+                "ILX:0793196"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T13-white-ramus",
+            "name": "White communicating ramus of thirteen intercostal nerve",
+            "ontologyTerms": [
+                "ILX:0793200"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-L1-white-ramus",
+            "name": "White communicating ramus of first lumbar nerve",
+            "ontologyTerms": [
+                "FMA:16417"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-L2-white-ramus",
+            "name": "White communicating ramus of second lumbar nerve",
+            "ontologyTerms": [
+                "FMA:16418"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-L3-white-ramus",
+            "name": "White communicating ramus of third lumbar nerve",
+            "ontologyTerms": [
+                "FMA:16419"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lt-gray-ramus",
+            "name": "Gray communicating ramus",
+            "ontologyTerms": [
+                "FMA:5876"
+            ],
+            "isTemplate": true
+        },
+        {
+            "id": "lyph-superior-cervical-ganglion-grey-ramus",
+            "name": "Gray communicating ramus of superior cervical ganglion",
+            "ontologyTerms": [
+                "ILX:0793149"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-middle-cervical-ganglion-grey-ramus",
+            "name": "Gray communicating ramus of middle cervical ganglion",
+            "ontologyTerms": [
+                "ILX:0793151"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-stellate-grey-ramus",
+            "name": "Gray communicating ramus of cervicothoracic nerve",
+            "ontologyTerms": [
+                "ILX:0793171"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T2-grey-ramus",
+            "name": "Gray communicating ramus of second intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11277"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T3-grey-ramus",
+            "name": "Gray communicating ramus of third intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11007"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T4-grey-ramus",
+            "name": "Gray communicating ramus of fourth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:10972"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T5-grey-ramus",
+            "name": "Gray communicating ramus of fifth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11136"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T6-grey-ramus",
+            "name": "Gray communicating ramus of sixth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11655"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T7-grey-ramus",
+            "name": "Gray communicating ramus of seventh intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11676"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T8-grey-ramus",
+            "name": "Gray communicating ramus of eighth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11761"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T9-grey-ramus",
+            "name": "Gray communicating ramus of ninth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11765"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T10-grey-ramus",
+            "name": "Gray communicating ramus of tenth intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11769"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T11-grey-ramus",
+            "name": "Gray communicating ramus of eleventh intercostal nerve",
+            "ontologyTerms": [
+                "FMA:11773"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T12-grey-ramus",
+            "name": "Gray communicating ramus of twelfth intercostal nerve",
+            "ontologyTerms": [
+                "ILX:0793197"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T13-grey-ramus",
+            "name": "Gray communicating ramus of thirteen intercostal nerve",
+            "ontologyTerms": [
+                "ILX:0793201"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L1-grey-ramus",
+            "name": "Gray communicating ramus of first lumbar nerve",
+            "ontologyTerms": [
+                "FMA:65910"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L2-grey-ramus",
+            "name": "Gray communicating ramus of second lumbar nerve",
+            "ontologyTerms": [
+                "FMA:65911"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L3-grey-ramus",
+            "name": "Gray communicating ramus of third lumbar nerve",
+            "ontologyTerms": [
+                "FMA:65912"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L4-grey-ramus",
+            "name": "Gray communicating ramus of fourth lumbar nerve",
+            "ontologyTerms": [
+                "FMA:65913"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L5-grey-ramus",
+            "name": "Gray communicating ramus of fifth lumbar nerve",
+            "ontologyTerms": [
+                "FMA:65914"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L6-grey-ramus",
+            "name": "Gray communicating ramus of sixth  lumbar nerve",
+            "ontologyTerms": [
+                "ILX:0793205"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S1-grey-ramus",
+            "name": "Gray communicating ramus of first sacral nerve",
+            "ontologyTerms": [
+                "FMA:65986"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S2-grey-ramus",
+            "name": "Gray communicating ramus of second sacral nerve",
+            "ontologyTerms": [
+                "FMA:65987"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S3-grey-ramus",
+            "name": "Gray communicating ramus of third sacral nerve",
+            "ontologyTerms": [
+                "FMA:65988"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S4-grey-ramus",
+            "name": "Gray communicating ramus of fourth sacral nerve",
+            "ontologyTerms": [
+                "FMA:65989"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-Cx1-grey-ramus",
+            "name": "Cx1 grey ramus",
+            "ontologyTerms": [
+                "ILX:0793147"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lt-PNS-nerve",
+            "name": "Nerve",
+            "ontologyTerms": [
+                "UBERON:0001021"
+            ],
+            "isTemplate": true
+        },
+        {
+            "id": "lyph-PNS-nerve-superior-laryngeal",
+            "name": "Superior laryngeal nerve",
+            "ontologyTerms": [
+                "UBERON:0011326",
+                "ILX:0731053"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-external-branch-superior-laryngeal",
+            "name": "External branch of superior laryngeal nerve",
+            "ontologyTerms": [
+                "FMA:6243",
+                "ILX:0738374"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-internal-branch-superior-laryngeal",
+            "name": "Internal branch of superior laryngeal nerve",
+            "ontologyTerms": [
+                "ILX:0738373"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-recurrent-laryngeal",
+            "name": "Recurrent (inferior) laryngeal nerve",
+            "ontologyTerms": [
+                "UBERON:0003716",
+                "ILX:0776141"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-external-branch-inferior-laryngeal",
+            "name": "External branch of inferior (recurrent) laryngeal nerve",
+            "ontologyTerms": [
+                "ILX:0738308"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-internal-branch-inferior-laryngeal",
+            "name": "Internal branch of inferior laryngeal nerve",
+            "ontologyTerms": [
+                "ILX:0738309"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-aortic-arch-depressor-nerve",
+            "name": "Aortic arch depressor nerve",
+            "ontologyTerms": [
+                "ILX:0738312"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-rami-glomi-carotici",
+            "name": "The carotid branch of the glossopharyngeal nerve",
+            "ontologyTerms": [
+                "ILX:0738313"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-Hernings",
+            "name": "Herning's nerve",
+            "ontologyTerms": [
+                "ILX:0738314"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-pharyngeal-branch-hypoglossal",
+            "name": "Pharyngeal branch of the Hypoglossal nerve",
+            "ontologyTerms": [
+                "ILX:0738315"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-internal-carotid",
+            "name": "Internal carotid nerve plexus",
+            "ontologyTerms": [
+                "UBERON:0002024"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-external-carotid",
+            "name": "External carotid nerve plexus",
+            "ontologyTerms": [
+                "FMA:67532"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-phrenic",
+            "name": "Phrenic nerve",
+            "ontologyTerms": [
+                "UBERON:0001884",
+                "ILX:0736057"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-ganglioglomerular",
+            "name": "Ganglioglomerular nerve",
+            "ontologyTerms": [
+                "ILX:0738293"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-hypogastric",
+            "name": "Hypogastric nerve",
+            "ontologyTerms": [
+                "UBERON:0005303"
+            ],
+            "supertype": "lt-PNS-nerve",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-nerve-lumbar-splanchnic",
+            "name": "Lumbar splanchnic nerve",
+            "ontologyTerms": [
+                "UBERON:0018683"
+            ],
+            "supertype": "lt-PNS-nerve",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-nerve-vagus-main-trunk",
+            "name": "Vagus nerve",
+            "ontologyTerms": [
+                "UBERON:0001759",
+                "ILX:0733375"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-glossopharyngeal-main-trunk",
+            "name": "Glossopharyngeal nerve",
+            "ontologyTerms": [
+                "UBERON:0001649",
+                "ILX:0723837"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-hypoglossal-main-trunk",
+            "name": "Hypoglossal nerve",
+            "ontologyTerms": [
+                "UBERON:0001650",
+                "ILX:0730771"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-nerve-greater-splanchnic",
+            "name": "Greater splanchnic nerve",
+            "ontologyTerms": [
+                "UBERON:0018680"
+            ],
+            "supertype": "lt-PNS-nerve"
+        },
+        {
+            "id": "lyph-PNS-ganglion-atrial-intrinsic-cardiac-ganglion",
+            "name": "Intrinsic cardiac ganglion of the atria",
+            "ontologyTerms": [
+                "UBERON:0014463"
+            ],
+            "supertype": "lt-ganglion-visceral-mural"
+        },
+        {
+            "id": "lyph-PNS-ganglion-ventricular-intrinsic-cardiac-ganglion",
+            "name": "Intrinsic cardiac ganglion of the ventricle",
+            "ontologyTerms": [
+                "UBERON:0014463"
+            ],
+            "supertype": "lt-ganglion-visceral-mural"
+        },
+        {
+            "id": "lyph-PNS-ganglion-inferior-mesenteric",
+            "name": "Inferior mesenteric ganglion",
+            "ontologyTerms": [
+                "UBERON:0005453"
+            ],
+            "supertype": "lt-prevertebral-ganglia",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-pelvic-ganglion",
+            "name": "Pelvic ganglion",
+            "ontologyTerms": [
+                "UBERON:0016508"
+            ],
+            "supertype": "lt-prevertebral-ganglia",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-ganglion-superior-mesenteric",
+            "name": "Superior mesenteric ganglion",
+            "ontologyTerms": [
+                "UBERON:0005479"
+            ],
+            "supertype": "lt-prevertebral-ganglia",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-ganglion-mediastinal",
+            "name": "Mediastinal ganglion",
+            "ontologyTerms": [
+                "ILX:0793550"
+            ],
+            "supertype": "lt-prevertebral-ganglia"
+        },
+        {
+            "id": "lyph-PNS-ganglion-celiac",
+            "name": "Celiac ganglion",
+            "ontologyTerms": [
+                "UBERON:0002262"
+            ],
+            "supertype": "lt-prevertebral-ganglia",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-ganglion-intrapancreatic",
+            "name": "Intrapancreatic ganglion",
+            "ontologyTerms": [
+                "ILX:0793178"
+            ],
+            "supertype": "lt-prevertebral-ganglia",
+            "hostedBy": "n2N"
+        },
+        {
+            "id": "lyph-PNS-nodose-ganglion-vagus-nerve",
+            "name": "Nodose ganglion of the Vagus nerve",
+            "ontologyTerms": [
+                "ILX:0738311"
+            ],
+            "supertype": "lt-PNS-ganglion",
+            "hostedBy": "n1C10N"
+        },
+        {
+            "id": "lyph-PNS-ganglion-petrosal-of-glossopharyngeal-nerve",
+            "name": "Petrosal ganglion of the Glossopharyngeal nerve",
+            "ontologyTerms": [
+                "ILX:0775182"
+            ],
+            "supertype": "lt-PNS-ganglion"
+        },
+        {
+            "id": "lt-major-artery",
+            "name": "Major artery",
+            "ontologyTerms": [
+                "UBERON:0003509"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-tissue-cardiovascular-vascular-media",
+                "mat-tissue-cardiovascular-vascular-adventitia"
+            ]
+        },
+        {
+            "id": "lt-major-vein",
+            "name": "Major vein",
+            "ontologyTerms": [
+                "UBERON:0003920"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-tissue-cardiovascular-vascular-media",
+                "mat-tissue-cardiovascular-vascular-adventitia"
+            ]
+        },
+        {
+            "id": "lt-cardiac-chamber",
+            "name": "Cardiac chamber",
+            "ontologyTerms": [
+                "UBERON:0004151"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-tissue-cardiovascular-myocardium"
+            ]
+        },
+        {
+            "id": "lt-blood-capillary",
+            "name": "Blood capillary vessel",
+            "ontologyTerms": [
+                "UBERON:0001982"
+            ],
+            "isTemplate": true,
+            "topology": "TUBE",
+            "layers": [
+                "mat-blood",
+                "mat-tissue-cardiovascular-endothelium",
+                "mat-basement-membrane"
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-inferior-vena-cava",
+            "name": "Inferior vena cava",
+            "ontologyTerms": [
+                "UBERON:0001072"
+            ],
+            "supertype": "lt-major-vein"
+        },
+        {
+            "id": "lyph-cardiovascular-superior-vena-cava",
+            "name": "Superior vena cava",
+            "ontologyTerms": [
+                "UBERON:0001585"
+            ],
+            "supertype": "lt-major-vein"
+        },
+        {
+            "id": "lyph-cardiovascular-pulmonary-vein",
+            "name": "Pulmonary vein",
+            "ontologyTerms": [
+                "UBERON:0002016"
+            ],
+            "supertype": "lt-major-vein"
+        },
+        {
+            "id": "lyph-cardiovascular-pancreatic-blood-capillary",
+            "name": "Blood capillary vessel of pancreas",
+            "ontologyTerms": [
+                "ILX:0774068"
+            ],
+            "supertype": "lt-blood-capillary"
+        },
+        {
+            "id": "lyph-cardiovascular-hepatic-blood-capillary",
+            "name": "Blood capillary vessel of liver",
+            "ontologyTerms": [
+                "UBERON:0035756"
+            ],
+            "supertype": "lt-blood-capillary"
+        },
+        {
+            "id": "lyph-cardiovascular-left-ventricle",
+            "name": "Left ventricle",
+            "ontologyTerms": [
+                "UBERON:0002084"
+            ],
+            "supertype": "lt-cardiac-chamber"
+        },
+        {
+            "id": "lyph-cardiovascular-ascending-aorta",
+            "name": "Ascending aorta",
+            "ontologyTerms": [
+                "UBERON:0001496"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-arch-of-aorta",
+            "name": "Arch of aorta",
+            "ontologyTerms": [
+                "UBERON:0001508"
+            ],
+            "supertype": "lt-major-artery",
+            "internalLyphs": [
+                "lyph-baroreceptor-aortic-arch"
+            ],
+            "internalLyphsInLayers": [
+                3
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-thoracic-aorta",
+            "name": "Thoracic aorta",
+            "ontologyTerms": [
+                "UBERON:0001515"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-abdominal-aorta",
+            "name": "Abdominal aorta",
+            "ontologyTerms": [
+                "UBERON:0001516"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-right-ventricle",
+            "name": "Right ventricle",
+            "ontologyTerms": [
+                "UBERON:0002080"
+            ],
+            "supertype": "lt-cardiac-chamber"
+        },
+        {
+            "id": "lyph-cardiovascular-left-atrium",
+            "name": "Left atrium",
+            "ontologyTerms": [
+                "UBERON:0002079"
+            ],
+            "supertype": "lt-cardiac-chamber"
+        },
+        {
+            "id": "lyph-cardiovascular-right-atrium",
+            "name": "Right atrium",
+            "ontologyTerms": [
+                "UBERON:0002078"
+            ],
+            "supertype": "lt-cardiac-chamber"
+        },
+        {
+            "id": "lyph-cardiovascular-pulmonary-trunk",
+            "name": "Pulmonary trunk",
+            "ontologyTerms": [
+                "UBERON:0002333"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-celiac-trunk",
+            "name": "Celiac trunk",
+            "ontologyTerms": [
+                "UBERON:0006637"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-heart",
+            "name": "Heart",
+            "ontologyTerms": [
+                "UBERON:0000948"
+            ],
+            "layers": [
+                "mat-extracellular-material",
+                "mat-tissue-cardiovascular-serous-pericardium",
+                "mat-fluid-pericardial",
+                "mat-tissue-cardiovascular-serous-pericardium",
+                "mat-tissue-cardiovascular-fibrous-pericardium",
+                "mat-tissue-cardiovascular-epicardial-fat"
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-artery-superior-mesenteric",
+            "name": "Superior mesenteric artery",
+            "ontologyTerms": [
+                "UBERON:0001182"
+            ],
+            "supertype": "lt-major-artery",
+            "internalLyphs": [
+                "lyph-baroreceptor-aortic-arch"
+            ],
+            "internalLyphsInLayers": [
+                3
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-artery-hepatic",
+            "name": "Hepatic artery",
+            "ontologyTerms": [
+                "UBERON:0001193"
+            ],
+            "supertype": "lt-major-artery",
+            "internalLyphs": [
+                "lyph-baroreceptor-aortic-arch"
+            ],
+            "internalLyphsInLayers": [
+                3
+            ]
+        },
+        {
+            "id": "lyph-baroreceptor-aortic-arch",
+            "name": "Aortic arch baroreceptors",
+            "ontologyTerms": [
+                "ILX:0738316"
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-artery-common-carotid",
+            "name": "Common carotid artery",
+            "ontologyTerms": [
+                "UBERON:0010197"
+            ],
+            "supertype": "lt-major-artery",
+            "internalLyphs": [
+                "lyph-cardiovascular-carotid-body",
+                "lyph-cardiovascular-carotid-sinus"
+            ],
+            "internalLyphsInLayers": [
+                3,
+                3
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-artery-internal-carotid",
+            "name": "Internal carotid artery",
+            "ontologyTerms": [
+                "UBERON:0001532",
+                "ILX:0736647"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-artery-splenic",
+            "name": "Splenic artery",
+            "ontologyTerms": [
+                "UBERON:0001194"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-artery-inferior-pancreaticoduodenal",
+            "name": "Inferior pancreaticoduodenal artery",
+            "ontologyTerms": [
+                "UBERON:0001195"
+            ],
+            "supertype": "lt-major-artery"
+        },
+        {
+            "id": "lyph-cardiovascular-vein-heptoportal",
+            "name": "Hepatoportal vein",
+            "ontologyTerms": [
+                "UBERON:0001639"
+            ],
+            "supertype": "lt-major-vein"
+        },
+        {
+            "id": "lyph-cardiovascular-carotid-body",
+            "name": "Carotid body",
+            "ontologyTerms": [
+                "UBERON:0001629",
+                "ILX:0736966"
+            ]
+        },
+        {
+            "id": "lyph-cardiovascular-carotid-sinus",
+            "name": "Carotid sinus",
+            "ontologyTerms": [
+                "UBERON:0003708",
+                "ILX:0731873"
+            ]
+        },
+        {
+            "id": "lyph-muscle-diaphragm",
+            "name": "Diaphragm",
+            "ontologyTerms": [
+                "UBERON:0001103"
+            ]
+        },
+        {
+            "id": "lyph-muscle-intercostal-rib1-to-rib2",
+            "name": "T1-T2 intercostal muscle",
+            "ontologyTerms": [
+                "ILX:0738319"
+            ]
+        },
+        {
+            "id": "lyph-laryngeal-mechanoreceptors",
+            "name": "Laryngeal mechanoreceptors",
+            "ontologyTerms": [
+                "ILX:0738317"
+            ]
+        },
+        {
+            "id": "lyph-epiglottic-mechanoreceptors",
+            "name": "Epiglottic mechanoreceptors",
+            "ontologyTerms": [
+                "ILX:0738318"
+            ]
+        },
+        {
+            "id": "lyph-pancreatic-islet-of-langerhans",
+            "name": "Pancreatic islets of langherhans",
+            "ontologyTerms": [
+                "UBERON:0000006"
+            ]
+        },
+        {
+            "id": "lyph-spleen",
+            "name": "Spleen",
+            "ontologyTerms": [
+                "UBERON:0002106"
+            ]
+        },
+        {
+            "id": "lyph-hepatic-epithelium-of-lobule",
+            "name": "Epithelium of hepatic lobule",
+            "ontologyTerms": [
+                "UBERON:0004647"
+            ],
+            "topology": "TUBE",
+            "layers": [
+                "mat-fluid-bile",
+                "matt-tissue-hepatic-lobular-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        },
+        {
+            "id": "lyph-pancreatic-acinus",
+            "name": "Epitheloum of pancreatic acinus",
+            "ontologyTerms": [
+                "UBERON:0001263"
+            ],
+            "topology": "BAG",
+            "layers": [
+                "mat-fluid-pancreatic-juice",
+                "matt-tissue-pancreatic-acinar-epithelium",
+                "mat-basement-membrane",
+                "mat-tissue-connective-tissue"
+            ]
+        }
+    ],
+    "materials": [
+        {
+            "id": "mat-body-fluid",
+            "name": "Body fluid",
+            "ontologyTerms": [
+                "UBERON:0006314"
+            ],
+            "materials": [
+                "mat-body-gas",
+                "mat-body-liquid"
+            ]
+        },
+        {
+            "id": "mat-body-gas",
+            "name": "Body gas",
+            "ontologyTerms": [
+                "UBERON:0034873"
+            ],
+            "materials": [
+                "mat-gas-oxygen",
+                "mat-gas-carbondioxide",
+                "mat-gas-nitrogen",
+                "mat-gas-water"
+            ]
+        },
+        {
+            "id": "mat-body-liquid",
+            "name": "Body liquid",
+            "ontologyTerms": [
+                "ILX:0793131"
+            ],
+            "materials": [
+                "mat-liquid-water",
+                "mat-aqueous-oxygen",
+                "mat-aqueous-carbondioxide",
+                "mat-aqueous-nitrogen",
+                "mat-aqueous-sodium-ion",
+                "mat-aqueous-potassium-ion",
+                "mat-aqueous-calcium-ion",
+                "mat-aqueous-chloride-ion",
+                "mat-aqueous-hydrogen-ion",
+                "mat-aqueous-hydroxide-ion",
+                "mat-aqueous-bicarbonate-ion",
+                "mat-aqueous-magnesium-ion"
+            ]
+        },
+        {
+            "id": "mat-gas-oxygen",
+            "name": "Gaseous oxygen",
+            "ontologyTerms": [
+                "CHEBI:33263"
+            ]
+        },
+        {
+            "id": "mat-gas-carbondioxide",
+            "name": "Gaseous carbon dioxide",
+            "ontologyTerms": [
+                "CHEBI:16526"
+            ]
+        },
+        {
+            "id": "mat-gas-nitrogen",
+            "name": "Gaseous nitrogen",
+            "ontologyTerms": [
+                "CHEBI:33266"
+            ]
+        },
+        {
+            "id": "mat-gas-water",
+            "name": "Water vapour",
+            "ontologyTerms": [
+                "CHEBI:15377"
+            ]
+        },
+        {
+            "id": "mat-liquid-water",
+            "name": "Liquid water",
+            "ontologyTerms": [
+                "CHEBI:15377"
+            ]
+        },
+        {
+            "id": "mat-aqueous-oxygen",
+            "name": "Aqueous oxygen",
+            "ontologyTerms": [
+                "CHEBI:33263"
+            ]
+        },
+        {
+            "id": "mat-aqueous-carbondioxide",
+            "name": "Aqueous carbon dioxide",
+            "ontologyTerms": [
+                "CHEBI:16526"
+            ]
+        },
+        {
+            "id": "mat-aqueous-nitrogen",
+            "name": "Aqueous nitrogen",
+            "ontologyTerms": [
+                "CHEBI:33266"
+            ]
+        },
+        {
+            "id": "mat-aqueous-sodium-ion",
+            "name": "Aqueous sodium ion",
+            "ontologyTerms": [
+                "CHEBI:29101"
+            ]
+        },
+        {
+            "id": "mat-aqueous-potassium-ion",
+            "name": "Aqueous potassium ion",
+            "ontologyTerms": [
+                "CHEBI:29103"
+            ]
+        },
+        {
+            "id": "mat-aqueous-calcium-ion",
+            "name": "Aqueous calcium ion",
+            "ontologyTerms": [
+                "CHEBI:29108"
+            ]
+        },
+        {
+            "id": "mat-aqueous-chloride-ion",
+            "name": "Aqueous chloride ion",
+            "ontologyTerms": [
+                "CHEBI:17996"
+            ]
+        },
+        {
+            "id": "mat-aqueous-hydrogen-ion",
+            "name": "Aqueous hydrogen ion",
+            "ontologyTerms": [
+                "CHEBI:24636"
+            ]
+        },
+        {
+            "id": "mat-aqueous-hydroxide-ion",
+            "name": "Aqueous hydroxide ion",
+            "ontologyTerms": [
+                "CHEBI:16234"
+            ]
+        },
+        {
+            "id": "mat-aqueous-bicarbonate-ion",
+            "name": "Aqueous bicarbonate ion",
+            "ontologyTerms": [
+                "CHEBI:17544"
+            ]
+        },
+        {
+            "id": "mat-aqueous-magnesium-ion",
+            "name": "Aqueous magensium ion",
+            "ontologyTerms": [
+                "CHEBI:18420"
+            ]
+        },
+        {
+            "id": "mat-airway-air",
+            "name": "Air in airways",
+            "ontologyTerms": [
+                "UBERON:0034874"
+            ],
+            "materials": [
+                "mat-body-gas",
+                "mat-gas-water"
+            ]
+        },
+        {
+            "id": "mat-plasma-in-blood",
+            "name": "Blood plasma",
+            "ontologyTerms": [
+                "UBERON:0001969"
+            ],
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-red-cells-in-blood",
+            "name": "Red cell parenchyma of blood",
+            "materials": [
+                "lyph-cell-red-blood"
+            ]
+        },
+        {
+            "id": "mat-white-cells-in-blood",
+            "name": "White cell parenchyma of blood",
+            "materials": [
+                "lyph-cell-white-blood"
+            ]
+        },
+        {
+            "id": "mat-platelets-in-blood",
+            "name": "Platelet parenchyma of blood",
+            "materials": [
+                "lyph-cell-platelet"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-blood",
+            "name": "Blood cell parenchyma",
+            "materials": [
+                "mat-red-cells-in-blood",
+                "mat-white-cells-in-blood",
+                "mat-platelets-in-blood"
+            ]
+        },
+        {
+            "id": "mat-blood",
+            "name": "Blood",
+            "ontologyTerms": [
+                "UBERON:0000178"
+            ],
+            "materials": [
+                "mat-plasma-in-blood",
+                "mat-cellular-component-of-blood"
+            ]
+        },
+        {
+            "id": "mat-extracellular-fluid",
+            "name": "Extracellular fluid",
+            "ontologyTerms": [
+                "ILX:0492026"
+            ],
+            "materials": [
+                "mat-body-fluid"
+            ]
+        },
+        {
+            "id": "mat-extracellular-matrix",
+            "name": "Extracellular matrix",
+            "ontologyTerms": [
+                "ILX:0104048"
+            ]
+        },
+        {
+            "id": "mat-extracellular-material",
+            "name": "Extracellular material",
+            "materials": [
+                "mat-extracellular-fluid",
+                "mat-extracellular-matrix"
+            ]
+        },
+        {
+            "id": "mat-basement-membrane",
+            "name": "Basement membrane",
+            "ontologyTerms": [
+                "UBERON:0005769"
+            ],
+            "materials": [
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-plasma-membrane",
+            "name": "Plasma membrane",
+            "ontologyTerms": [
+                "SAO:1663586795"
+            ]
+        },
+        {
+            "id": "mat-cytoplasmic-structures",
+            "name": "Cytoplasmic structures",
+            "ontologyTerms": [
+                "ILX:0490105"
+            ]
+        },
+        {
+            "id": "mat-cytosol",
+            "name": "Cytosol",
+            "ontologyTerms": [
+                "SAO:101633890"
+            ],
+            "materials": [
+                "mat-intracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-cytoplasm",
+            "name": "Cytoplasm",
+            "ontologyTerms": [
+                "GO:0005737"
+            ],
+            "materials": [
+                "mat-cytosol",
+                "mat-cytoplasmic-structures"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-connective-tissue",
+            "name": "Cellular component of connective tissue",
+            "materials": [
+                "lyph-cell-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-connective-tissue",
+            "name": "Connective tissue",
+            "ontologyTerms": [
+                "UBERON:0002384"
+            ],
+            "materials": [
+                "mat-cellular-component-of-connective-tissue",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-alveolar-epithelium",
+            "name": "Cellular component of alveolar epithelium",
+            "materials": [
+                "lyph-cell-type-I-alveolar",
+                "lyph-cell-type-II-alveolar"
+            ]
+        },
+        {
+            "id": "mat-tissue-alveolar-epithelium",
+            "name": "Alveolar epithelial tissue",
+            "ontologyTerms": [
+                "UBERON:0004807"
+            ],
+            "materials": [
+                "mat-cellular-component-of-alveolar-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-adventitia",
+            "name": "Cellular component of vascular adventitia",
+            "materials": [
+                "lyph-cell-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-vascular-adventitia",
+            "name": "Vascular adventitial tissue",
+            "ontologyTerms": [
+                "UBERON:0005734"
+            ],
+            "materials": [
+                "mat-cellular-component-of-vascular-adventitia",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-endothelium",
+            "name": "Cellular component of vascular endothelium",
+            "materials": [
+                "lyph-cell-cardiovascular-endothelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-endothelium",
+            "name": "Vascular endothelial tissue",
+            "ontologyTerms": [
+                "UBERON:0001986"
+            ],
+            "materials": [
+                "mat-cellular-component-of-vascular-endothelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-media",
+            "name": "Cellular component of vascular media",
+            "materials": [
+                "lyph-cell-fibroblast",
+                "lyph-cell-vascular-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-vascular-media",
+            "name": "Vascular medial tissue",
+            "ontologyTerms": [
+                "UBERON:0002522"
+            ],
+            "materials": [
+                "mat-cellular-component-of-vascular-media",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-myocardium",
+            "name": "Cellular component of myocardium",
+            "materials": [
+                "lyph-cell-cardiovascular-myocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-myocardium",
+            "name": "Myocardial tissue",
+            "ontologyTerms": [
+                "UBERON:0002349"
+            ],
+            "materials": [
+                "mat-cellular-component-of-myocardium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-smooth-muscle",
+            "name": "Cellular component of vascular smooth muscle",
+            "materials": [
+                "lyph-cell-cardiovascular-myocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-vascular-smooth-muscle",
+            "name": "Vascular smooth muscle tissue",
+            "ontologyTerms": [
+                "UBERON:0004237"
+            ],
+            "materials": [
+                "mat-cellular-component-of-vascular-smooth-muscle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-pulmonary-smooth-muscle",
+            "name": "Cellular component of pulmonary smooth muscle",
+            "materials": [
+                "lyph-cell-pulmonary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-serous-pericardium",
+            "name": "Serous pericardial tissue",
+            "ontologyTerms": [
+                "UBERON:0002357"
+            ],
+            "materials": [
+                "mat-cellular-component-of-cardiovascular-serous-pericardium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-cardiovascular-serous-pericardium",
+            "name": "Cellular component of serous pericardial tissue",
+            "materials": [
+                "lyph-cell-cardiovascular-pericardial-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-fibrous-pericardium",
+            "name": "Fibrous pericardial tissue",
+            "ontologyTerms": [
+                "UBERON:0002359"
+            ],
+            "materials": [
+                "mat-cellular-component-of-cardiovascular-fibrous-pericardium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-cardiovascular-fibrous-pericardium",
+            "name": "Cellular component of fibrous pericardial tissue",
+            "materials": [
+                "lyph-cell-cardiovascular-pericardial-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-epicardial-fat",
+            "name": "Epicardial fat tissue",
+            "ontologyTerms": [
+                "UBERON:0015129"
+            ],
+            "materials": [
+                "mat-cellular-component-of-cardiovascular-epicardial-fat",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-cardiovascular-epicardial-fat",
+            "name": "Cellular component of epicardial fat tissue",
+            "materials": [
+                "lyph-cell-cardiovascular-adipocyte-of-epicardial-fat"
+            ]
+        },
+        {
+            "id": "mat-tissue-pulmonary-smooth-muscle",
+            "name": "Pulmonary smooth muscular tissue",
+            "ontologyTerms": [
+                "UBERON:0004225"
+            ],
+            "materials": [
+                "mat-cellular-component-of-pulmonary-smooth-muscle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-fluid-pericardial",
+            "name": "Pericardial fluid",
+            "ontologyTerms": [
+                "UBERON:0002409"
+            ],
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchiolar-epithelium",
+            "name": "Cellular component of bronchiolar epithelium",
+            "materials": [
+                "lyph-cell-bronchiolar-columnar-cuboidal-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchiolar-epithelium",
+            "name": "Bronchiolar epithelial tissue",
+            "ontologyTerms": [
+                "UBERON:0002051"
+            ],
+            "materials": [
+                "mat-cellular-component-of-bronchiolar-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-epithelium",
+            "name": "Cellular component of bronchial epithelium",
+            "materials": [
+                "lyph-cell-bronchial-columnar-ciliated-epithelial",
+                "lyph-cell-bronchial-goblet",
+                "lyph-cell-bronchial-neuroendocrine"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchial-epithelium",
+            "name": "Pseudostratified bronchial ciliated columnar epithelial tissue",
+            "ontologyTerms": [
+                "UBERON:0010499"
+            ],
+            "materials": [
+                "mat-cellular-component-of-bronchial-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-cartilage",
+            "name": "Cellular component of bronchial cartilage",
+            "materials": [
+                "lyph-cell-chondrocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchial-cartilage",
+            "name": "Bronchial cartilage",
+            "ontologyTerms": [
+                "UBERON:0001956"
+            ],
+            "materials": [
+                "mat-cellular-component-of-bronchial-cartilage",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-lung-connective-tissue",
+            "name": "Cellular component of lung connective tissue"
+        },
+        {
+            "id": "mat-tissue-lung-connective-tissue",
+            "name": "Lung connective tissue",
+            "ontologyTerms": [
+                "UBERON:0000114"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-adventitia-of-primary-bronchus",
+            "name": "Cellular component of adventitia of primary bronchus"
+        },
+        {
+            "id": "mat-tissue-of-adventitia-of-primary-bronchus",
+            "name": "Adventita of primary bronchus",
+            "ontologyTerms": [
+                "ILX:0793134"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-connective-tissue",
+            "name": "Cellular component of bronchial connective tissue"
+        },
+        {
+            "id": "mat-tissue-bronchial-connective",
+            "name": "Bronchial connective tissue",
+            "ontologyTerms": [
+                "UBERON:0003592"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-submucosa",
+            "name": "Cellular component of bronchial submucosa",
+            "materials": [
+                "lyph-cell-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchial-submucosa",
+            "name": "Bronchial submucosa",
+            "ontologyTerms": [
+                "UBERON:0001957"
+            ],
+            "materials": [
+                "mat-cellular-component-of-connective-tissue",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-fluid-urinary",
+            "name": "Urinary liquid",
+            "ontologyTerms": [
+                "UBERON:0001088"
+            ],
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-urinary-rhabdosphincter",
+            "name": "Cellular component of urinary rhabdosphincter",
+            "materials": [
+                "lyph-cell-urinary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-rhabdosphincter",
+            "name": "Urinary rhabdosphincter",
+            "ontologyTerms": [
+                "ILX:0793141"
+            ],
+            "materials": [
+                "mat-cellular-component-of-urinary-rhabdosphincter",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-transitional-epithelium",
+            "name": "Cellular component of urethral epithelium",
+            "materials": [
+                "lyph-cell-urinary-transitional-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-transitional-epithelium",
+            "name": "Transitional epithelium",
+            "ontologyTerms": [
+                "UBERON:0002325"
+            ],
+            "materials": [
+                "mat-cellular-component-of-transitional-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-urinary-muscularis",
+            "name": "Cellular component of urinary muscularis",
+            "materials": [
+                "lyph-cell-urinary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-muscularis",
+            "name": "Urinary muscularis",
+            "ontologyTerms": [
+                "UBERON:0006676",
+                "UBERON:0006855"
+            ],
+            "materials": [
+                "mat-cellular-component-of-urinary-muscularis",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-collecting-duct-epithelium",
+            "name": "Cellular component of collecting duct epithelium",
+            "materials": [
+                "lyph-cell-renal-principal-epithelial",
+                "lyph-cell-renal-type-A-intercalated-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-collecting-duct-epithelium",
+            "name": "Collecting duct epithelium",
+            "ontologyTerms": [
+                "UBERON:0014388"
+            ],
+            "materials": [
+                "mat-cellular-component-of-collecting-duct-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-temporary-laryngeal-wall",
+            "name": "Laryngeal wall"
+        },
+        {
+            "id": "mat-temporary-oral-wall",
+            "name": "Wall of oral cavity"
+        },
+        {
+            "id": "mat-temporary-dental",
+            "name": "Content of tooth"
+        },
+        {
+            "id": "mat-temporary-epiglottic",
+            "name": "Content of epiglottis"
+        },
+        {
+            "id": "mat-temporary-vocal-cord",
+            "name": "Content of vocal cord"
+        },
+        {
+            "id": "mat-CNS-cerebrospinal-fluid",
+            "name": "Cerebrospinal fluid",
+            "ontologyTerms": [
+                "UBERON:0001359"
+            ]
+        },
+        {
+            "id": "mat-CNS-ependyma",
+            "name": "Ependyma",
+            "ontologyTerms": [
+                "UBERON:0004670"
+            ]
+        },
+        {
+            "id": "mat-CNS-parenchymal-tissue",
+            "name": "Central nervous system tissue",
+            "ontologyTerms": [
+                "UBERON:0001017"
+            ]
+        },
+        {
+            "id": "mat-CNS-white-matter-of-spinal-cord",
+            "name": "White matter of CNS of the spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016549"
+            ],
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-CNS-grey-matter-of-spinal-cord",
+            "name": "Gray matter of CNS of the spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016548"
+            ],
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-CNS-white-matter-of-brain",
+            "name": "White matter of CNS of the brain",
+            "ontologyTerms": [
+                "UBERON:0003544"
+            ],
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-CNS-grey-matter-of-brain",
+            "name": "Gray matter of CNS of the brain",
+            "ontologyTerms": [
+                "UBERON:0003528"
+            ],
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-I",
+            "name": "lamina I of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0006118"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-II",
+            "name": "lamina II of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0002181"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-III",
+            "name": "lamina III of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016574"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-IV",
+            "name": "lamina IV of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016575"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-V",
+            "name": "lamina V of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016576"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-VI",
+            "name": "lamina VI of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016577"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-VII",
+            "name": "lamina VII of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016578"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-VIII",
+            "name": "lamina VIII of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016579"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-IX",
+            "name": "lamina IX of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0016580"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-X",
+            "name": "lamina X of gray matter of spinal cord",
+            "ontologyTerms": [
+                "UBERON:0004677"
+            ],
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-luminal-fluid",
+            "name": "Gastrointesinal fluid in the lumen",
+            "materials": [
+                "mat-body-fluid"
+            ]
+        },
+        {
+            "id": "mat-gastric-mucosa",
+            "name": "Gastric mucosa",
+            "materials": [
+                "lyph-cell-stomach-chief-cell",
+                "lyph-cell-gastric-parietal",
+                "lyph-cell-gastric-enteroendocrine"
+            ]
+        },
+        {
+            "id": "mat-mucosa-of-lower-two-thirds-of-esophagus",
+            "name": "Mucosa of lower two thirds of esophagus",
+            "ontologyTerms": [
+                "UBERON:0002469"
+            ]
+        },
+        {
+            "id": "mat-gastric-muscularis-mucosa",
+            "name": "Gastric muscularis",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-muscularis-mucosa-of-lower-two-thirds-of-esophagus",
+            "name": "Muscularis of lower two thirds of esophagus",
+            "ontologyTerms": [
+                "UBERON:0004648"
+            ]
+        },
+        {
+            "id": "mat-gastric-submucosa",
+            "name": "Gastric submucosa"
+        },
+        {
+            "id": "mat-gastric-oblique-muscle",
+            "name": "Gastric oblique muscle",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-circular-muscle",
+            "name": "Gastrointestinal circular muscle",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-myenteric-plexus",
+            "name": "Myenteric plexus",
+            "ontologyTerms": [
+                "UBERON:0002439"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-longitudinal-muscle",
+            "name": "Gastrointestinal longitudinal muscle",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-serosa",
+            "name": "Gastrointestinal serosa"
+        },
+        {
+            "id": "mat-submucosa-of-lower-two-thirds-of-esophagus",
+            "name": "Submucosa of lower two thirds of esophagus",
+            "ontologyTerms": [
+                "UBERON:0001972"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-gastrointestinal-smooth-muscle",
+            "name": "Cellular component of gastrointestinal smooth muscle",
+            "materials": [
+                "lyph-cell-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-gastrointestinal-smooth-muscle",
+            "name": "Gastrointestinal smooth muscle tissue",
+            "ontologyTerms": [
+                "UBERON:0004226"
+            ],
+            "materials": [
+                "mat-cellular-component-of-gastrointestinal-smooth-muscle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-intracellular-fluid",
+            "name": "Intracellular fluid",
+            "materials": [
+                "mat-body-fluid"
+            ]
+        },
+        {
+            "id": "mat-fluid-pancreatic-juice",
+            "name": "Pancreatic juice",
+            "ontologyTerms": [
+                "UBERON:0000326"
+            ],
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-tissue-pancreatic-acinar-epithelium",
+            "name": "Pancreatic acinar epithelium",
+            "ontologyTerms": [
+                "ILX:0793613"
+            ],
+            "materials": [
+                "mat-cellular-component-of-pancreatic-acinar-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-pancreatic-acinar-epithelium",
+            "name": "Cellular component of pancreatic acinar epithelium",
+            "materials": [
+                "lyph-cell-pancreatic-acinar"
+            ]
+        },
+        {
+            "id": "mat-fluid-bile",
+            "name": "Pancreatic juice",
+            "ontologyTerms": [
+                "UBERON:0000326"
+            ],
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-tissue-hepatic-lobular-epithelium",
+            "name": "Hepatic lobular epithelial cords",
+            "ontologyTerms": [
+                "UBERON:0005452"
+            ],
+            "materials": [
+                "mat-cellular-component-of-hepatic-lobular-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-hepatic-lobular-epithelium",
+            "name": "Cellular component of hepatic lobular epithelium",
+            "materials": [
+                "lyph-cell-liver-hepatocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-duodenal-mucosal-epithelium",
+            "name": "Duodenal mucosal epithelium",
+            "ontologyTerms": [
+                "UBERON:0000320"
+            ],
+            "materials": [
+                "mat-cellular-component-of-duodenal-mucosal-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-duodenal-mucosal-epithelium",
+            "name": "Cellular component of duodenal mucosal epithelium",
+            "materials": [
+                "lyph-cell-gastrointestinal-duodenal-goblet",
+                "lyph-cell-gastrointestinal-duodenal-gland-enterocyte-of-epithelium"
+            ]
+        }
+    ],
+    "coalescences": [
+        {
+            "id": "clsc-alveolar-sac",
+            "name": "Alveolar sac-blood vessel coalescence",
+            "ontologyTerms": [
+                "UBERON:0002169"
+            ],
+            "lyphs": [
+                "lyph-airway-pFTU-alveolus",
+                "lyph-vascular-pFTU-pulmonary-capillary"
+            ]
+        },
+        {
+            "id": "clsc-alveolar-duct",
+            "name": "Alveolar duct-blood vessel coalescence",
+            "ontologyTerms": [
+                "UBERON:0002173"
+            ],
+            "lyphs": [
+                "lyph-airway-pFTU-alveolar-duct",
+                "lyph-vascular-pFTU-pulmonary-capillary"
+            ]
+        },
+        {
+            "id": "clsc-respiratory-bronchiole-to-smooth-muscle",
+            "name": "Vascularised respiratory bronchiole",
+            "lyphs": [
+                "lyph-respiratory-bronchiole",
+                "lyph-vascular-pFTU-pulmonary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "clsc-terminal-bronchiole-to-smooth-muscle",
+            "name": "Vascularised terminal bronchiole",
+            "lyphs": [
+                "lyph-terminal-bronchiole",
+                "lyph-vascular-pFTU-pulmonary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "clsc-conducting-bronchiole-to-smooth-muscle",
+            "name": "Vascularised conducting bronchiole",
+            "lyphs": [
+                "lyph-conducting-bronchiole",
+                "lyph-vascular-pFTU-pulmonary-smooth-muscle"
+            ]
+        },
+        {
+            "id": "clsc-primary-bronchiole-to-smooth-muscle",
+            "name": "Vascularised primary bronchiole",
+            "lyphs": [
+                "lyph-primary-bronchiole",
+                "lyph-vascular-pFTU-pulmonary-smooth-muscle"
+            ]
+        }
+    ],
+    "chains": [
+        {
+            "id": "chain-airways",
+            "name": "Airways",
+            "ontologyTerms": [
+                "UBERON:0001005"
+            ],
+            "lyphs": [
+                "lyph-thyrohyoidal-larynx",
+                "lyph-thyroidal-larynx",
+                "lyph-cricoidal-larynx",
+                "lyph-trachea",
+                "lyph-primary-bronchus",
+                "lyph-lobar-bronchus",
+                "lyph-segemental-bronchus",
+                "lyph-primary-bronchiole",
+                "lyph-conducting-bronchiole",
+                "lyph-terminal-bronchiole",
+                "lyph-respiratory-bronchiole",
+                "lyph-airway-pFTU-alveolar-duct",
+                "lyph-airway-pFTU-alveolus"
+            ],
+            "root": "node-airway-root",
+            "leaf": "node-airway-leaf",
+            "wiredTo": "too:w-X-f1L"
+        },
+        {
+            "id": "chain-urinary",
+            "name": "Urinary tree",
+            "ontologyTerms": [
+                "FMA:7159"
+            ],
+            "lyphs": [
+                "lyph-urinary-proximal-sphinctered-urethra",
+                "lyph-urinary-bladder-neck",
+                "lyph-urinary-bladder-dome",
+                "lyph-urinary-intravesical-portion-of-ureter",
+                "lyph-urinary-distal-free-ureter",
+                "lyph-urinary-proximal-free-ureter",
+                "lyph-urinary-renal-pelvis",
+                "lyph-urinary-major-calyx",
+                "lyph-urinary-minor-calyx",
+                "lyph-urinary-inner-medullary-collecting-duct",
+                "lyph-urinary-outer-medullary-collecting-duct",
+                "lyph-urinary-cortical-collecting-tubule",
+                "lyph-urinary-connecting-tubule",
+                "lyph-urinary-distal-convoluted-tubule",
+                "lyph-urinary-final-portion-of-thick-ascending-limb",
+                "lyph-urinary-distal-straight-tubule",
+                "lyph-urinary-ascending-thin-limb",
+                "lyph-urinary-descending-thin-limb",
+                "lyph-urinary-proximal-straight-tubule",
+                "lyph-urinary-proximal-convoluted-tubule",
+                "lyph-urinary-parietal-Bowmans-capsule",
+                "lyph-urinary-visceral-Bowmans-capsule"
+            ],
+            "root": "node-urinary-root",
+            "leaf": "node-urinary-leaf",
+            "wiredTo": "too:w-U-f3K"
+        },
+        {
+            "id": "chain-intragingival",
+            "name": "Oropharynx",
+            "ontologyTerms": [
+                "UBERON:0001729"
+            ],
+            "lyphs": [
+                "lyph-tongue",
+                "lyph-intragingival-oral-lining"
+            ],
+            "root": "node-intragingival-root",
+            "leaf": "node-buccogingival-root",
+            "wiredTo": "too:w-Z-X"
+        },
+        {
+            "id": "chain-buccogingival",
+            "name": "Buccogingival vestibule",
+            "ontologyTerms": [
+                "UBERON:0034767"
+            ],
+            "lyphs": [
+                "lyph-lips",
+                "lyph-extragingival-lining",
+                "lyph-gums"
+            ],
+            "root": "node-intragingival-leaf",
+            "leaf": "node-buccogingival-leaf",
+            "wiredTo": "too:w-B-Z"
+        },
+        {
+            "id": "chain-upper-gastrointestinal",
+            "name": "Upper gastrointestinal",
+            "lyphs": [
+                "lyph-digestive-upper-esophageal-sphincter",
+                "lyph-digestive-upper-third-esophagus",
+                "lyph-digestive-lower-two-thirds-esophagus",
+                "lyph-digestive-proximal-stomach",
+                "lyph-digestive-distal-stomach",
+                "lyph-digestive-gastric-pyloric-canal-and-sphincter",
+                "lyph-digestive-pre-ampullary-duodenum"
+            ],
+            "wiredTo": "too:w-X-O"
+        },
+        {
+            "id": "chain-lower-gastrointestinal",
+            "name": "Lower gastrointestinal",
+            "lyphs": [
+                "lyph-digestive-post-ampullary-duodenum",
+                "lyph-digestive-jejunum",
+                "lyph-digestive-proximal-ileum",
+                "lyph-digestive-terminal-ileum",
+                "lyph-digestive-cecum",
+                "lyph-digestive-presplenic-colon",
+                "lyph-digestive-post-splenic-colon",
+                "lyph-digestive-rectum",
+                "lyph-digestive-anal-canal-and-sphincter"
+            ],
+            "wiredTo": "too:w-O-R"
+        },
+        {
+            "id": "chain-perineal-skin",
+            "name": "Perineal skin",
+            "lyphs": [
+                "lyph-skin-perineal"
+            ],
+            "wiredTo": "too:w-R-G"
+        },
+        {
+            "id": "chain-vulval-mucosa",
+            "name": "Vulval mucosa",
+            "lyphs": [
+                "lyph-female-genital-vulval-mucosa"
+            ],
+            "wiredTo": "too:w-G-U"
+        },
+        {
+            "id": "chain-inframammary-skin",
+            "name": "Inframammary skin",
+            "lyphs": [
+                "lyph-skin-inframammary"
+            ],
+            "wiredTo": "too:w-U-M"
+        },
+        {
+            "id": "chain-supramammary-infracranial-skin",
+            "name": "Supramammary infracranial skin",
+            "lyphs": [
+                "lyph-skin-supramammary-infracranial"
+            ],
+            "wiredTo": "too:w-M-W"
+        },
+        {
+            "id": "chain-calvarial-skin",
+            "name": "Calvarial skin",
+            "lyphs": [
+                "lyph-skin-calvarial"
+            ],
+            "wiredTo": "too:w-J"
+        },
+        {
+            "id": "chain-nasal-skin",
+            "name": "Nasal skin",
+            "lyphs": [
+                "lyph-skin-nasal"
+            ],
+            "wiredTo": "too:w-J-V"
+        },
+        {
+            "id": "chain-philtrum-skin",
+            "name": "Philtrum",
+            "lyphs": [
+                "lyph-skin-philtrum"
+            ],
+            "wiredTo": "too:w-V-B"
+        },
+        {
+            "id": "chain-mammary",
+            "name": "Mammary gland",
+            "lyphs": [
+                "lyph-mammary-lactiferous-duct",
+                "lyph-mammary-lactiferous-ampulla",
+                "lyph-mammary-main-duct",
+                "lyph-mammary-extralobular-duct",
+                "lyph-mammary-intralobular-duct",
+                "lyph-mammary-ductule",
+                "lyph-mammary-acinus"
+            ],
+            "wiredTo": "too:w-M-f3M"
+        },
+        {
+            "id": "chain-external-ear",
+            "name": "External ear",
+            "lyphs": [
+                "lyph-airway-external-ear"
+            ],
+            "wiredTo": "too:w-f4C"
+        },
+        {
+            "id": "chain-conjunctival",
+            "name": "Conjunctiva",
+            "lyphs": [
+                "lyph-lacrimal-conjunctiva"
+            ],
+            "wiredTo": "too:w-J-f4P"
+        },
+        {
+            "id": "chain-lacrimal",
+            "name": "Lacrimal tract",
+            "lyphs": [
+                "lyph-lacrimal-tear-gland-duct",
+                "lyph-lacrimal-tear-gland-acinus"
+            ],
+            "wiredTo": "too:w-f4P-f4L"
+        },
+        {
+            "id": "chain-nasolacrimal",
+            "name": "Nasolacrimal duct",
+            "lyphs": [
+                "lyph-lacrimal-nasolacrimal-duct"
+            ],
+            "wiredTo": "too:w-f4N-f4P"
+        },
+        {
+            "id": "chain-external-nasal",
+            "name": "External nasal mucosa",
+            "lyphs": [
+                "lyph-airway-external-nasal-mucosa"
+            ],
+            "wiredTo": "too:w-V-f4N"
+        },
+        {
+            "id": "chain-internal-nasal",
+            "name": "Internal nasal mucosa",
+            "lyphs": [
+                "lyph-airway-internal-nasal-mucosa"
+            ],
+            "wiredTo": "too:w-f4N-f4E"
+        },
+        {
+            "id": "chain-eustachian",
+            "name": "Eustachian tract",
+            "lyphs": [
+                "lyph-airway-eustachian-tube",
+                "lyph-airway-middle-ear"
+            ],
+            "wiredTo": "too:w-f4E-f4M"
+        },
+        {
+            "id": "chain-naso-oro-pharyngeal",
+            "name": "Naso-oro-pharynx",
+            "lyphs": [
+                "lyph-airway-nasopharynx",
+                "lyph-airway-oropharynx"
+            ],
+            "wiredTo": "too:w-X-f4E"
+        },
+        {
+            "id": "chain-salivary",
+            "name": "Salivary tract",
+            "lyphs": [
+                "lyph-digestive-salivary-excretory-duct",
+                "lyph-digestive-salivary-striated-duct",
+                "lyph-digestive-salivary-intercalated-duct",
+                "lyph-digestive-salivary-acinus"
+            ],
+            "wiredTo": "too:w-Z-f1S"
+        },
+        {
+            "id": "chain-hepatobiliary",
+            "name": "Hepatobiliary tract",
+            "lyphs": [
+                "lyph-digestive-biliary-common-bile-duct",
+                "lyph-digestive-biliary-common-hepatic-duct",
+                "lyph-digestive-biliary-hepatic-duct",
+                "lyph-digestive-biliary-intrahepatic-bile-duct",
+                "lyph-digestive-biliary-interlobular-bile-duct",
+                "lyph-digestive-biliary-perilobular-bile-duct",
+                "lyph-digestive-biliary-terminal-bile-ductule",
+                "lyph-digestive-biliary-canal-of-Hering",
+                "lyph-digestive-biliary-biliary-canaliculus"
+            ],
+            "wiredTo": "too:w-I-f2L",
+            "levels": [
+                {
+                    "target": "gb-entry"
+                }
+            ]
+        },
+        {
+            "id": "chain-pancreatic",
+            "name": "Pancreatic tract",
+            "lyphs": [
+                "lyph-digestive-pancreas-main-duct",
+                "lyph-digestive-pancreas-lobar-duct",
+                "lyph-digestive-pancreas-interlobular-duct",
+                "lyph-digestive-pancreas-intralobular-duct",
+                "lyph-digestive-pancreas-striated-duct",
+                "lyph-digestive-pancreas-intercalated-duct",
+                "lyph-digestive-pancreas-acinus"
+            ],
+            "wiredTo": "too:w-I-f1P"
+        },
+        {
+            "id": "chain-pancreaticobiliary",
+            "name": "Pancreaticobiliary tract",
+            "ontologyTerms": [
+                "UBERON:0004913"
+            ],
+            "lyphs": [
+                "lyph-digestive-pancreaticobiliary-major-duodenal-papilla",
+                "lyph-digestive-pancreaticobiliary-ampulla-of-Vater",
+                "lyph-digestive-pancreaticobiliary-sphincter"
+            ],
+            "wiredTo": "too:w-O-I"
+        },
+        {
+            "id": "chain-brain-and-stem",
+            "name": "Supraventricular-csf-tract",
+            "ontologyTerms": [
+                "UBERON:0001359"
+            ],
+            "lyphs": [
+                "lyph-CNS-pons",
+                "lyph-CNS-midbrain",
+                "lyph-CNS-diencephalon",
+                "lyph-CNS-cerebral-nuclei",
+                "lyph-CNS-telencephalon"
+            ],
+            "wiredTo": "too:w-N-H"
+        },
+        {
+            "id": "chain-csf-flow-spinal-cord",
+            "name": "Infraventricular-csf-tract",
+            "ontologyTerms": [
+                "UBERON:0002240",
+                "UBERON:0001896"
+            ],
+            "lyphs": [
+                "lyph-CNS-medulla",
+                "lyph-C1-spinal-segment",
+                "lyph-C2-spinal-segment",
+                "lyph-C3-spinal-segment",
+                "lyph-C4-spinal-segment",
+                "lyph-C5-spinal-segment",
+                "lyph-C6-spinal-segment",
+                "lyph-C7-spinal-segment",
+                "lyph-C8-spinal-segment",
+                "lyph-T1-spinal-segment",
+                "lyph-T2-spinal-segment",
+                "lyph-T3-spinal-segment",
+                "lyph-T4-spinal-segment",
+                "lyph-T5-spinal-segment",
+                "lyph-T6-spinal-segment",
+                "lyph-T7-spinal-segment",
+                "lyph-T8-spinal-segment",
+                "lyph-T9-spinal-segment",
+                "lyph-T10-spinal-segment",
+                "lyph-T11-spinal-segment",
+                "lyph-T12-spinal-segment",
+                "lyph-T13-spinal-segment",
+                "lyph-L1-spinal-segment",
+                "lyph-L2-spinal-segment",
+                "lyph-L3-spinal-segment",
+                "lyph-L4-spinal-segment",
+                "lyph-L5-spinal-segment",
+                "lyph-L6-spinal-segment",
+                "lyph-S1-spinal-segment",
+                "lyph-S2-spinal-segment",
+                "lyph-S3-spinal-segment",
+                "lyph-S4-spinal-segment",
+                "lyph-S5-spinal-segment",
+                "lyph-Cx1-spinal-segment",
+                "lyph-Cx2-spinal-segment",
+                "lyph-Cx3-spinal-segment",
+                "lyph-Cx4-spinal-segment"
+            ],
+            "wiredTo": "too:w-N-T"
+        },
+        {
+            "id": "chain-sympathetic-chain",
+            "name": "Sympathetic chain",
+            "ontologyTerms": [
+                "UBERON:0000407"
+            ],
+            "lyphs": [
+                "lyph-superior-cervical-ganglion",
+                "lyph-sympathetic-trunk-C1-C2",
+                "lyph-middle-cervical-ganglion",
+                "lyph-sympathetic-trunk-C2-cervicothoracic",
+                "lyph-stellate-ganglion",
+                "lyph-sympathetic-trunk-cervicothoracic-T2",
+                "lyph-T2-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T2-T3",
+                "lyph-T3-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T3-T4",
+                "lyph-T4-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T4-T5",
+                "lyph-T5-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T5-T6",
+                "lyph-T6-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T6-T7",
+                "lyph-T7-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T7-T8",
+                "lyph-T8-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T8-T9",
+                "lyph-T9-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T9-T10",
+                "lyph-T10-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T10-T11",
+                "lyph-T11-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T12-L1",
+                "lyph-T12-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T12-T13",
+                "lyph-T13-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T13-L1",
+                "lyph-L1-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L1-L2",
+                "lyph-L2-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L2-L3",
+                "lyph-L3-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L3-L4",
+                "lyph-L4-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L4-L5",
+                "lyph-L5-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L5-L6",
+                "lyph-L6-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L6-S1",
+                "lyph-S1-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S1-S2",
+                "lyph-S2-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S2-S3",
+                "lyph-S3-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S3-S4",
+                "lyph-S4-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S4-Cx1",
+                "lyph-Cx1-sympathetic-chain-ganglion"
+            ],
+            "hostedBy": "too:n2G"
+        },
+        {
+            "id": "chain-ventral-spinal-roots",
+            "name": "Ventral spinal roots",
+            "lyphs": [
+                "lyph-C1-ventral-root",
+                "lyph-C2-ventral-root",
+                "lyph-C3-ventral-root",
+                "lyph-C4-ventral-root",
+                "lyph-C5-ventral-root",
+                "lyph-C6-ventral-root",
+                "lyph-C7-ventral-root",
+                "lyph-C8-ventral-root",
+                "lyph-T1-ventral-root",
+                "lyph-T2-ventral-root",
+                "lyph-T3-ventral-root",
+                "lyph-T4-ventral-root",
+                "lyph-T5-ventral-root",
+                "lyph-T6-ventral-root",
+                "lyph-T7-ventral-root",
+                "lyph-T8-ventral-root",
+                "lyph-T9-ventral-root",
+                "lyph-T10-ventral-root",
+                "lyph-T11-ventral-root",
+                "lyph-T12-ventral-root",
+                "lyph-T13-ventral-root",
+                "lyph-L1-ventral-root",
+                "lyph-L2-ventral-root",
+                "lyph-L3-ventral-root",
+                "lyph-L4-ventral-root",
+                "lyph-L5-ventral-root",
+                "lyph-L6-ventral-root",
+                "lyph-S1-ventral-root",
+                "lyph-S2-ventral-root",
+                "lyph-S3-ventral-root",
+                "lyph-S4-ventral-root",
+                "lyph-S5-ventral-root",
+                "lyph-Cx1-ventral-root"
+            ],
+            "hostedBy": "too:n2R"
+        },
+        {
+            "id": "chain-dorsal-spinal-roots",
+            "name": "Dorsal spinal roots and ganglia",
+            "lyphs": [
+                "lyph-C2-dorsal-root-ganglion",
+                "lyph-C3-dorsal-root-ganglion",
+                "lyph-C4-dorsal-root-ganglion",
+                "lyph-C5-dorsal-root-ganglion",
+                "lyph-C6-dorsal-root-ganglion",
+                "lyph-C7-dorsal-root-ganglion",
+                "lyph-C8-dorsal-root-ganglion",
+                "lyph-T1-dorsal-root-ganglion",
+                "lyph-T2-dorsal-root-ganglion",
+                "lyph-T3-dorsal-root-ganglion",
+                "lyph-T4-dorsal-root-ganglion",
+                "lyph-T5-dorsal-root-ganglion",
+                "lyph-T6-dorsal-root-ganglion",
+                "lyph-T7-dorsal-root-ganglion",
+                "lyph-T8-dorsal-root-ganglion",
+                "lyph-T9-dorsal-root-ganglion",
+                "lyph-T10-dorsal-root-ganglion",
+                "lyph-T11-dorsal-root-ganglion",
+                "lyph-T12-dorsal-root-ganglion",
+                "lyph-T13-dorsal-root-ganglion",
+                "lyph-L1-dorsal-root-ganglion",
+                "lyph-L2-dorsal-root-ganglion",
+                "lyph-L3-dorsal-root-ganglion",
+                "lyph-L4-dorsal-root-ganglion",
+                "lyph-L5-dorsal-root-ganglion",
+                "lyph-L6-dorsal-root-ganglion",
+                "lyph-S1-dorsal-root-ganglion",
+                "lyph-S2-dorsal-root-ganglion",
+                "lyph-S3-dorsal-root-ganglion",
+                "lyph-S4-dorsal-root-ganglion",
+                "lyph-S5-dorsal-root-ganglion"
+            ],
+            "hostedBy": "too:n2R"
+        },
+        {
+            "id": "chain-white-rami",
+            "name": "White spinal rami",
+            "lyphs": [
+                "lyph-superior-cervical-ganglion-white-ramus",
+                "lyph-middle-cervical-ganglion-white-ramus",
+                "lyph-stellate-white-ramus",
+                "lyph-T2-white-ramus",
+                "lyph-T3-white-ramus",
+                "lyph-T4-white-ramus",
+                "lyph-T5-white-ramus",
+                "lyph-T6-white-ramus",
+                "lyph-T7-white-ramus",
+                "lyph-T8-white-ramus",
+                "lyph-T9-white-ramus",
+                "lyph-T10-white-ramus",
+                "lyph-T11-white-ramus",
+                "lyph-T12-white-ramus",
+                "lyph-T13-white-ramus",
+                "lyph-L1-white-ramus",
+                "lyph-L2-white-ramus",
+                "lyph-L3-white-ramus"
+            ],
+            "hostedBy": "too:n2R"
+        },
+        {
+            "id": "chain-grey-rami",
+            "name": "Grey spinal rami",
+            "lyphs": [
+                "lyph-superior-cervical-ganglion-grey-ramus",
+                "lyph-middle-cervical-ganglion-grey-ramus",
+                "lyph-stellate-grey-ramus",
+                "lyph-T2-grey-ramus",
+                "lyph-T3-grey-ramus",
+                "lyph-T4-grey-ramus",
+                "lyph-T5-grey-ramus",
+                "lyph-T6-grey-ramus",
+                "lyph-T7-grey-ramus",
+                "lyph-T8-grey-ramus",
+                "lyph-T9-grey-ramus",
+                "lyph-T10-grey-ramus",
+                "lyph-T11-grey-ramus",
+                "lyph-T12-grey-ramus",
+                "lyph-T13-grey-ramus",
+                "lyph-L1-grey-ramus",
+                "lyph-L2-grey-ramus",
+                "lyph-L3-grey-ramus",
+                "lyph-L4-grey-ramus",
+                "lyph-L5-grey-ramus",
+                "lyph-L6-grey-ramus",
+                "lyph-S1-grey-ramus",
+                "lyph-S2-grey-ramus",
+                "lyph-S3-grey-ramus",
+                "lyph-S4-grey-ramus",
+                "lyph-Cx1-grey-ramus"
+            ],
+            "hostedBy": "too:n2R"
+        },
+        {
+            "id": "chain-male-reproductive",
+            "name": "Male reproductive tract",
+            "lyphs": [
+                "lyph-male-genital-acinus-of-seminal-vesicle",
+                "lyph-male-genital-intralobular-duct-of-seminal-vesicle",
+                "lyph-male-genital-excretory-duct-of-seminal-vesicle",
+                "lyph-male-genital-ampulla-of-vas-deferens",
+                "lyph-male-genital-vas-deferens",
+                "lyph-male-genital-efferent-ductules",
+                "lyph-male-genital-rete-testis",
+                "lyph-male-genital-seminiferous-tubule",
+                "lyph-male-genital-prostatic-ejaculatory-duct",
+                "lyph-male-genital-prostatic-tubular-duct",
+                "lyph-male-genital-prostatic-alveolar-acinus",
+                "lyph-urinary-penile-urethra"
+            ],
+            "wiredTo": "too:w-G-f3G"
+        },
+        {
+            "id": "chain-female-reproductive",
+            "name": "Female reproductive tract",
+            "lyphs": [
+                "lyph-female-genital-lower-third-of-vagina",
+                "lyph-female-genital-upper-two-thirds-of-vagina",
+                "lyph-female-genital-uterine-cervix",
+                "lyph-female-genital-uterine-body",
+                "lyph-female-genital-fallopian-tube",
+                "lyph-female-genital-ovulating-follicle"
+            ],
+            "wiredTo": "too:w-G-f3G"
+        },
+        {
+            "id": "chain-gallbladder",
+            "name": "Gallbladder tract",
+            "lyphs": [
+                "lyph-digestive-biliary-cystic-duct",
+                "lyph-digestive-biliary-gallbladder"
+            ],
+            "root": "gb-entry"
+        },
+        {
+            "id": "chain-CNS-vagus-nerve",
+            "name": "Vagus nerve",
+            "lyphs": [
+                "lyph-PNS-nerve-vagus-main-trunk",
+                "lyph-CNS-nodose-ganglion-vagus-nerve"
+            ],
+            "hostedBy": "too:n1C10N"
+        },
+        {
+            "id": "chain-CNS-glossopharyngeal-nerve",
+            "name": "Glossopharyngeal nerve",
+            "lyphs": [
+                "lyph-PNS-nerve-glossopharyngeal-main-trunk",
+                "lyph-PNS-ganglion-petrosal-of-glossopharyngeal-nerve"
+            ],
+            "hostedBy": "too:n1C9N"
+        },
+        {
+            "id": "chain-CNS-hypoglossal-nerve",
+            "name": "Hypoglossal nerve",
+            "lyphs": [
+                "lyph-PNS-nerve-hypoglossal-main-trunk"
+            ],
+            "hostedBy": "too:n1C12N"
+        },
+        {
+            "id": "chain-cardiovascular-systemic-arterial",
+            "name": "Systemic arterial tree",
+            "ontologyTerms": [
+                "UBERON:0004571"
+            ],
+            "lyphs": [
+                "lyph-cardiovascular-descending-aorta",
+                "lyph-cardiovascular-arch-of-aorta",
+                "lyph-cardiovascular-ascending-aorta",
+                "lyph-cardiovascular-left-ventricle"
+            ],
+            "wiredTo": "too:w-S-A",
+            "levels": [
+                {},
+                {
+                    "target": "carotid-entry"
+                }
+            ]
+        },
+        {
+            "id": "chain-cardiovascular-systemic-venous",
+            "name": "Systemic venous tree",
+            "ontologyTerms": [
+                "UBERON:0004581"
+            ],
+            "lyphs": [
+                "lyph-cardiovascular-right-atrium"
+            ],
+            "wiredTo": "too:w-P-S"
+        },
+        {
+            "id": "chain-cardiovascular-pulmonary-arterial",
+            "name": "Pulmonary arterial tree",
+            "ontologyTerms": [
+                "FMA:45842"
+            ],
+            "lyphs": [
+                "lyph-cardiovascular-pulmonary-trunk",
+                "lyph-cardiovascular-right-ventricle"
+            ],
+            "wiredTo": "too:w-L-P"
+        },
+        {
+            "id": "chain-cardiovascular-pulmonary-venous",
+            "name": "Pulmonary venous tree",
+            "ontologyTerms": [
+                "UBERON:0013127"
+            ],
+            "lyphs": [
+                "lyph-cardiovascular-left-atrium"
+            ],
+            "wiredTo": "too:w-A-L"
+        },
+        {
+            "id": "chain-cardiovascular-systemic-hepatoportal",
+            "name": "Hepatoportal venous system",
+            "ontologyTerms": [
+                "UBERON:0010194"
+            ]
+        },
+        {
+            "id": "chain-cardiovascular-systemic-arterial-carotid",
+            "name": "Carotid arterial system",
+            "lyphs": [
+                "lyph-cardiovascular-artery-internal-carotid",
+                "lyph-cardiovascular-artery-common-carotid"
+            ],
+            "leaf": "carotid-entry"
+        },
+        {
+            "id": "chain-spleen",
+            "name": "Spleen",
+            "lyphs": [
+                "lyph-spleen"
+            ]
+        }
+    ],
+    "groups": [],
+    "localConventions": [
+        {
+            "prefix": "UBERON",
+            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+        },
+        {
+            "prefix": "CHEBI",
+            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+        },
+        {
+            "prefix": "FMA",
+            "namespace": "http://purl.org/sig/ont/fma/fma"
+        },
+        {
+            "prefix": "GO",
+            "namespace": "http://purl.obolibrary.org/obo/GO_"
+        },
+        {
+            "prefix": "ILX",
+            "namespace": "http://uri.interlex.org/base/ilx_"
+        },
+        {
+            "prefix": "NLX",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/nlx_"
+        },
+        {
+            "prefix": "SAO",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/sao"
+        },
+        {
+            "prefix": "PMID",
+            "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+        },
+        {
+            "prefix": "EMAPA",
+            "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
+        },
+        {
+            "prefix": "CL",
+            "namespace": "http://purl.obolibrary.org/obo/CL_"
+        },
+        {
+            "prefix": "NCBITaxon",
+            "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
+        }
+    ],
+    "id": "WBKG1",
+    "name": "TOO-map-linked reference connectivity model",
+    "namespace": "wbkg",
+    "imports": [
+        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
+    ]
+}
