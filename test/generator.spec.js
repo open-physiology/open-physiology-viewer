@@ -30,7 +30,7 @@ import neuronTreeWithLevels from './data/neuronTreeWithLevels';
 import respiratory from './data/respiratory';
 import respiratoryInternalLyphsInLayers from './data/respiratoryInternalLyphsInLayers';
 import uot from './data/uot';
-import wbkg from './data/wkbg.json';
+import wbkg from './data/wbkg.json';
 
 import {expectNoWarnings} from "./test.helper";
 import {modelClasses, fromJSON, joinModels} from '../src/model/index';
@@ -302,8 +302,24 @@ describe("Basic+wbkg", () => {
 
     it("Joint model accumulates imports from both models", () => {
         expect(graphData).to.have.property("imports");
-        //3 + 2 - 1 as the TOO-map is in both models
-        expect(graphData.imports).to.be.an('array').that.has.length(4);
+        //3 + 1 - 1 as the TOO-map is in both models
+        expect(graphData.imports).to.be.an('array').that.has.length(3);
+    });
+
+    it("Chains join via a node in levelTargets", () => {
+        expect(graphData).to.have.property("chains");
+        let ch1 = graphData.chains.find(e => e.id === "chain-hepatobiliary");
+        let ch2 = graphData.chains.find(e => e.id === "chain-gallbladder");
+        expect(ch1).not.to.be.an("undefined");
+        expect(ch2).not.to.be.an("undefined");
+        expect(ch1).to.have.property("levels").that.has.length(9);
+        expect(ch2).to.have.property("levels").that.has.length(2);
+        expect(ch1.levels[0]).to.have.property("target");
+        expect(ch1.levels[0].target).to.have.property("id").that.equals("wbkg:gb-entry");
+        expect(ch2).to.have.property("root");
+        expect(ch2.root).to.have.property("id").that.equals("wbkg:gb-entry");
+        expect(ch2.levels[0]).to.have.property("source");
+        expect(ch2.levels[0].source).to.have.property("id").that.equals("wbkg:gb-entry");
     });
 
     after(() => {
