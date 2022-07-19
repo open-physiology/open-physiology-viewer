@@ -14,6 +14,7 @@ import {
     LYPH_TOPOLOGY,
     schemaClassModels,
     $Field,
+    $Default,
     $SchemaClass,
     $Prefix,
     getGenID,
@@ -255,12 +256,12 @@ export class Graph extends Group{
             added.forEach(id => delete entitiesByID.waitingList[id]);
             added = added.filter(id => !entitiesByID[id]);
 
-            let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
+            let resources = added.filter(id => ![$SchemaClass.External, $SchemaClass.OntologyTerm, $SchemaClass.Reference].includes(entitiesByID[id].class));
             if (resources.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN, resources);
             }
 
-            let externals = added.filter(id => entitiesByID[id].class === $SchemaClass.External);
+            let externals = added.filter(id => [$SchemaClass.External, $SchemaClass.OntologyTerm, $SchemaClass.Reference].includes(entitiesByID[id].class));
             if (externals.length > 0) {
                 logger.warn($LogMsg.AUTO_GEN_EXTERNAL, externals);
             }
@@ -286,7 +287,9 @@ export class Graph extends Group{
                     if (!lyph.collectInheritedExternals) {
                         logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
                     } else {
-                        lyph.collectInheritedExternals();
+                        lyph.collectInheritedExternals($Field.external, $Field.inheritedExternal);
+                        lyph.collectInheritedExternals($Field.ontologyTerms, $Field.inheritedOntologyTerms);
+                        lyph.collectInheritedExternals($Field.references, $Field.inheritedReferences);
                     }
                 }
             });
@@ -338,6 +341,7 @@ export class Graph extends Group{
                 res.groups.unshift(defaultGroup);
             }
             //res.createForceLinks();
+            res.scaleFactor = 1;
         }
 
         res.generated = true;
@@ -556,14 +560,12 @@ export class Graph extends Group{
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
-        const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
-        if (this.scaffoldResources) {
-            (this.scaffoldResources.anchors || []).forEach(e => e.layout && scalePoint(e.layout));
-            (this.scaffoldResources.wires || []).forEach(e => e::isObject()
-                && e.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE && e.radius && scalePoint(e.radius));
-            (this.scaffoldResources.wires || []).forEach(e => e::isObject() && (e.length = (e.length || 10) * scaleFactor));
-            (this.scaffoldResources.regions || []).forEach(e => (e.points||[]).forEach(p => !p.hostedBy && scalePoint(p)));
+        if (this.scaleFactor === scaleFactor){
+            //The graph has been scaled - processing an expanded model
+            return;
         }
+        const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
+        (this.scaffolds||[]).forEach(scaffold => scaffold.scale(scaleFactor));
         (this.lyphs||[]).forEach(lyph => {
             if (lyph.width)  {lyph.width  *= scaleFactor}
             if (lyph.height) {lyph.height *= scaleFactor}
@@ -571,11 +573,12 @@ export class Graph extends Group{
         (this.nodes||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.links||[]).forEach(e => {
             if (e::isObject()) {
-                e.length = (e.length || 10) * scaleFactor;
+                e.length = (e.length || $Default.EDGE_LENGTH) * scaleFactor;
                 e.arcCenter && scalePoint(e.arcCenter);
                 e.controlPoint && scalePoint(e.controlPoint);
             }
         });
+        this.scaleFactor = scaleFactor;
     }
 
     /**
