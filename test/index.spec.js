@@ -11,11 +11,13 @@ import tooMap from './scaffolds/tooMap.json';
 import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
 import keast from './data/keastSpinalFull.json';
+import recursive from './data/basicLyphTemplateRecursive.json';
 import {keys, entries, pick} from 'lodash-bound';
 import {$Field, $SchemaClass, modelClasses, schemaClassModels} from '../src/model/index';
 import schema from '../src/model/graphScheme.json';
 import {Validator} from "jsonschema";
 import {getGenID, getGenName} from "../src/model/utils";
+import {$LogMsg, Logger} from "../src/model/logger";
 
 
 describe("JSON Schema loads correctly", () => {
@@ -100,37 +102,64 @@ describe("JSON Schema matches patterns", () => {
     })
 })
 
-// describe("Nested resource definitions are processed", () => {
-//     it("Nested chain levels are converted to links", () => {})
-//         let graphData = modelClasses.Graph.fromJSON(chainFromLevels, modelClasses);
-//         expect(graphData.chains).to.be.an("array").that.has.length(1);
-//         //FIXME why is this not holding anymore?
-//         expect(graphData.nodes).to.be.an("array").that.has.length(6);
-//         expect(graphData.links).to.be.an("array").that.has.length(5);
-//
-//         expect(graphData.chains[0]).to.have.property("id").that.equals("t1");
-//         expect(graphData.chains[0].levels).to.have.length(5);
-//         expect(graphData.chains[0].numLevels).to.be.equal(5);
-//         expect(graphData.chains[0]).to.have.property("root").that.is.an("object");
-//         expect(graphData.chains[0]).to.have.property("leaf").that.is.an("object");
-//         expect(graphData.chains[0].root).to.have.property("id").that.equals("n1");
-//         expect(graphData.chains[0].leaf).to.have.property("id").that.equals("n2");
-//
-//         let n1 = graphData.nodes.find(e => e.id === "n1");
-//         let n2 = graphData.nodes.find(e => e.id === "n2");
-//         expect(n1).to.have.property("layout").that.has.property("x");
-//         expect(n2).to.have.property("layout").that.has.property("x");
-//         expect(n1).to.have.property("sourceOf").that.is.an("array");
-//         expect(n1.sourceOf[0]).has.property("id").that.equals("t1_lnk_1");
-//         expect(n2).to.have.property("targetOf").that.is.an("array");
-//         expect(n2.targetOf[0]).has.property("id").that.equals("t1_lnk_5");
-//
-//         expect(graphData.groups).to.be.an("array").that.has.length(1);
-//         let group = graphData.groups.find(g => g.id === "group_t1");
-//         expect(group).to.have.property("nodes").that.has.length(6);
-//         expect(group).to.have.property("links").that.has.length(5);
-//         expect(group).to.have.property("lyphs").that.has.length(6);
-// })
+describe("Nested resource definitions are processed", () => {
+    it("Nested chain levels are converted to links", () => {})
+        let graphData = modelClasses.Graph.fromJSON(chainFromLevels, modelClasses);
+        expect(graphData.chains).to.be.an("array").that.has.length(1);
+        expect(graphData.nodes).to.be.an("array").that.has.length(6);
+        expect(graphData.links).to.be.an("array").that.has.length(5);
+
+        expect(graphData.chains[0]).to.have.property("id").that.equals("t1");
+        expect(graphData.chains[0].levels).to.have.length(5);
+        expect(graphData.chains[0].numLevels).to.be.equal(5);
+        expect(graphData.chains[0]).to.have.property("root").that.is.an("object");
+        expect(graphData.chains[0]).to.have.property("leaf").that.is.an("object");
+        expect(graphData.chains[0].root).to.have.property("id").that.equals("n1");
+        expect(graphData.chains[0].leaf).to.have.property("id").that.equals("n2");
+
+        let n1 = graphData.nodes.find(e => e.id === "n1");
+        let n2 = graphData.nodes.find(e => e.id === "n2");
+        expect(n1).to.have.property("layout").that.has.property("x");
+        expect(n2).to.have.property("layout").that.has.property("x");
+        expect(n1).to.have.property("sourceOf").that.is.an("array");
+        expect(n1.sourceOf[0]).has.property("id").that.equals("t1_lnk_1");
+        expect(n2).to.have.property("targetOf").that.is.an("array");
+        expect(n2.targetOf[0]).has.property("id").that.equals("t1_lnk_5");
+
+        expect(graphData.groups).to.be.an("array").that.has.length(1);
+        let group = graphData.groups.find(g => g.id === "group_t1");
+        expect(group).to.have.property("nodes").that.has.length(6);
+        expect(group).to.have.property("links").that.has.length(5);
+        expect(group).to.have.property("lyphs").that.has.length(6);
+})
+
+describe("Model with recursive lyph template does not stuck in a loop", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(recursive, modelClasses);
+    });
+
+    it("Graph model created", () => {
+        expect(graphData).to.have.property("class");
+        expect(graphData).to.have.property("lyphs");
+        const ns = graphData.lyphs.find(e => e.id === "ns");
+        expect(ns).to.have.property("subtypes");
+        expect(ns).to.have.property("supertype");
+        expect(ns.supertype).to.have.property("id").that.equals("ns");
+        expect(ns.subtypes).to.be.an("array").that.has.length(1);
+        expect(ns.subtypes[0]).to.have.property("id").that.equals("ns");
+    });
+
+    it("Validator detected a self reference", () => {
+        let errors = graphData.logger.entries.filter(logEvent => logEvent.level === Logger.LEVEL.ERROR);
+        expect(errors).to.have.length(1);
+        expect(errors[0].msg).to.be.equal($LogMsg.LYPH_SELF);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
 
 describe("Generate model (Basal Ganglia)", () => {
     let graphData;
@@ -139,7 +168,6 @@ describe("Generate model (Basal Ganglia)", () => {
     });
 
     it("Graph model created", () => {
-
         expect(graphData).to.have.property("class");
         expect(graphData).to.be.instanceOf(modelClasses.Graph);
 

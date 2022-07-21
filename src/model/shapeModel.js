@@ -169,8 +169,8 @@ export class Lyph extends Shape {
      */
     static clone(parentGroup, sourceLyph, targetLyph){
         if (!sourceLyph) { return; }
-        if (sourceLyph === targetLyph){
-            logger.warn($LogMsg.LYPH_SELF, sourceLyph);
+        if (sourceLyph === targetLyph || sourceLyph.id === targetLyph.id){
+            logger.error($LogMsg.LYPH_SELF, sourceLyph);
             return;
         }
 
@@ -337,7 +337,7 @@ export class Lyph extends Shape {
         this[inheritedProp] = this[inheritedProp] || [];
         const ids = this[inheritedProp].map(x => x.id);
         let curr = this.supertype;
-        while (curr){
+        while (curr && curr.fullID !== this.fullID){
             (curr[prop]||[]).forEach(e => {
                 if (!ids.includes(e.id)){
                     this[inheritedProp].push(e);
