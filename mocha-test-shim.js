@@ -1,16 +1,6 @@
-var jsdom = require('jsdom');
-const { JSDOM } = jsdom;
-
-var { document } = (new JSDOM('')).window;
-var window = document.defaultView;
-
-global.document = document;
-global.HTMLElement = window.HTMLElement;
-global.XMLHttpRequest = window.XMLHttpRequest;
-
+global.XMLHttpRequest = require('xhr2');
 require('@babel/polyfill');
 require('reflect-metadata');
-
 require('zone.js/dist/zone');
 require('zone.js/dist/long-stack-trace-zone');
 require('zone.js/dist/proxy');
@@ -18,7 +8,17 @@ require('zone.js/dist/sync-test');
 require('zone.js/dist/async-test');
 require('zone.js/dist/fake-async-test');
 
-var testing = require('@angular/core/testing');
-var browser = require('@angular/platform-browser-dynamic/testing');
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+const { document } = (new JSDOM(``, {
+  url: "http://localhost"
+})).window;
+const window = document.defaultView;
+window.console = global.console;
 
-testing.TestBed.initTestEnvironment(browser.BrowserDynamicTestingModule, browser.platformBrowserDynamicTesting());
+global.document = document;
+global.window = document.defaultView;
+global.HTMLElement = window.HTMLElement;
+global.navigator = window.navigator;
+global.Node = window.Node;
+global.self = global.window;

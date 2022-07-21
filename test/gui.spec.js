@@ -1,6 +1,5 @@
 import { BrowserDynamicTestingModule,
     platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
-
 import {OverlayContainer} from '@angular/cdk/overlay';
 
 import {TestBed, inject} from '@angular/core/testing';
@@ -34,12 +33,12 @@ import basalGanglia from './data/basalGanglia.json';
 import {modelClasses} from "../src/model";
 import {CSG} from 'three-csg-ts';
 import {THREE} from "../src/view/utils";
+import {By} from "@angular/platform-browser";
 
 describe("Solid constructive geometry works", () => {
     beforeEach(() => {});
 
     it("Operations on meshes performed correctly", () => {
-        expect(CSG).to.be.defined;
         const objA = new THREE.CylinderGeometry(10, 10, 20, 10, 4);
         const objB = new THREE.CylinderGeometry(5, 10, 10, 10, 4);
         const meshA = new THREE.Mesh(objA);
@@ -159,14 +158,12 @@ describe("SearchBar component", () => {
     });
 
     function sendInput(text: string) {
-        let inputElement;
-        inputElement = fixture.nativeElement.querySelector('input');
-        inputElement.dispatchEvent(new Event('focus'));
-        inputElement.dispatchEvent(new Event('focusin'));
-        inputElement.dispatchEvent(new Event('input'));
-        inputElement.dispatchEvent(new Event('keydown'));
-        inputElement.value = text;
-        inputElement.dispatchEvent(new Event('input'));
+        let inputElement = fixture.debugElement.query(By.css('input'));
+        inputElement.triggerEventHandler('focus', {});
+        inputElement.triggerEventHandler('focusin', {});
+        inputElement.triggerEventHandler('input', {target:{value: ""}});
+        inputElement.triggerEventHandler('keydown', {});
+        inputElement.triggerEventHandler('input', {target:{value: text}});
         fixture.detectChanges();
         return fixture.whenStable();
     }

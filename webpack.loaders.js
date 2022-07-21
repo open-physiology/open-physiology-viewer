@@ -12,12 +12,11 @@ module.exports = [
         ]
     },
     {
-        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: ["url-loader"]
-    },
-    {
-        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: ["url-loader"]
+        test: /\.(svg|eot|woff|woff2|ttf)$/,
+        type: 'asset/resource',
+        generator: {
+            filename: 'fonts/[hash][ext][query]'
+        }
     },
     {   test: /\.xlsx$/,
         loader: "webpack-xlsx-loader"
@@ -30,5 +29,17 @@ module.exports = [
             "css-loader",   // translates CSS into CommonJS
             "sass-loader"   // compiles Sass to CSS, using Node Sass by default
         ]
+    },
+    {
+        resolve: {
+            fallback: {
+                 "url": require.resolve("url/"),
+                 "vm": require.resolve("vm-browserify"),
+                 "stream": require.resolve("stream-browserify"),
+                 "path": require.resolve("path-browserify"),
+                 "util": require.resolve("util/"),
+                 "process": false
+            },
+        }
     }
 ];
