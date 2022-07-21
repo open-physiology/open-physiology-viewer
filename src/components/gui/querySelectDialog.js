@@ -49,14 +49,17 @@ const QUERY_PREFIX = "/dynamic/demos/apinat/";
                 >
             </mat-form-field>
 
-            <section>
-            <i *ngIf="status === 'ERROR'"
-               class="fa fa-exclamation-triangle" style="color:red"> </i>
-            <i *ngIf="status === 'OK'"
-               class="fa fa-check-circle" style="color:green"> </i>
-            <i *ngIf="status === 'NEW'"
-               class="fa fa-question-circle-o"> </i>
-            {{statusInfo}}
+            <section *ngIf="status === 'ERROR'">
+                <i class="fa fa-exclamation-triangle" style="color:red"> </i>
+                {{statusInfo}}
+            </section>
+            <section *ngIf="status === 'OK'">
+                <i class="fa fa-check-circle" style="color:green"> </i>
+                {{statusInfo}}
+            </section>
+            <section *ngIf="status === 'NEW'">
+                <i class="fa fa-question-circle"> </i>
+                {{statusInfo}} 
             </section>
             
             <section class="w3-right">

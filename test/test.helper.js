@@ -7,7 +7,10 @@ export {chai};
 import mocha from 'mocha';
 import {Logger, $LogMsg} from "../src/model/logger";
 
-const global = Function('return this')(); // window or global, depending on environment
+const testing = require('@angular/core/testing');
+const browser = require('@angular/platform-browser-dynamic/testing');
+testing.TestBed.initTestEnvironment(browser.BrowserDynamicTestingModule, browser.platformBrowserDynamicTesting());
+
 export const describe   = mocha.describe   || global.describe;
 export const it         = mocha.it         || global.it;
 export const beforeEach = mocha.beforeEach || global.beforeEach;

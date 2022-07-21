@@ -15,10 +15,14 @@ import {HttpClient} from "@angular/common/http";
                     <mat-list-option *ngFor="let url of _urls; let i = index;" [selected]="_selected[i]">
                         <section matLine>
                             {{url}}
-                            <section class="w3-right">
-                                <i *ngIf="_status[i] === 'ERROR'" class="fa fa-exclamation-triangle" style="color:red"> </i>
-                                <i *ngIf="_status[i] === 'OK'"    class="fa fa-check-circle" style="color:green"> </i>
-                                <i *ngIf="_status[i] === 'NEW'"   class="fa fa-question-circle-o"> </i>
+                            <section *ngIf="_status[i] === 'ERROR'" class="w3-right">
+                                <i class="fa fa-exclamation-triangle" style="color:red"> </i>
+                            </section>
+                            <section *ngIf="_status[i] === 'OK'" class="w3-right">
+                                <i class="fa fa-check-circle" style="color:green"> </i>
+                            </section>
+                            <section *ngIf="_status[i] === 'NEW'" class="w3-right">
+                                <i class="fa fa-question-circle"> </i>
                             </section>
                         </section>
                     </mat-list-option> 

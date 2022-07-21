@@ -20,7 +20,6 @@ import basicJointTrees from './data/basicJointTrees';
 import basicLyphWithNoAxis from './data/basicLyphWithNoAxis';
 import basicSharedNodes from './data/basicSharedNodes';
 import basicVillus from './data/basicVillus';
-import fullBody from './data/fullBody';
 import keastSpinal from './data/keastSpinal';
 import neuron from './data/neuron';
 import neuronTemplate from './data/neuronTemplate';
@@ -185,15 +184,6 @@ describe("BasicSharedNodes", () => {
 describe("BasicVillus", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicVillus, modelClasses));
-    it("Model generated without warnings", () => expectNoWarnings(graphData));
-    after(() => {
-        graphData.logger.clear();
-    });
-});
-
-describe("FullBody", () => {
-    let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(fullBody, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();

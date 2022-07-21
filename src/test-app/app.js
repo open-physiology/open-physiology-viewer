@@ -36,10 +36,12 @@ import {
 import 'hammerjs';
 import initModel from '../data/graph.json';
 
-import 'font-awesome/css/font-awesome.css';
-import 'jsoneditor/dist/jsoneditor.min.css';
-import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 import "./styles/material.scss";
+import 'jsoneditor/dist/jsoneditor.min.css';
+import "@fortawesome/fontawesome-free/js/all.js";
+import "@fortawesome/fontawesome-free/css/all.css";
+import "@fortawesome/fontawesome-free/js/v4-shims";
+import "@fortawesome/fontawesome-free/css/v4-shims.css";
 
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg, logger} from "../model/logger";
@@ -125,7 +127,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         <section id="main-panel">
             <section id="repo-panel" *ngIf="showRepoPanel" class="w3-quarter w3-gray w3-border-right w3-border-white">
                 <section class="w3-padding-small">
-                    <i class="fa fa-database"> Model Repository </i>
+                    <i class="fa fa-database"> </i> Model Repository 
                 </section>
                 <modelRepoPanel (onModelLoad)="loadFromRepo($event)">
                 </modelRepoPanel>
@@ -134,7 +136,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <mat-tab-group animationDuration="0ms">
                 <!--Viewer-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-heartbeat"> Viewer </i></ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer </ng-template>
                     <webGLScene #webGLScene
                             [modelClasses]="modelClasses"
                             [graphData]="_graphData"
@@ -149,7 +151,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
                 <!--Relationship graph-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>
-                    <ng-template mat-tab-label><i class="fa fa-project-diagram"> Relationship graph </i></ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Relationship graph</ng-template>
                     <relGraph 
                             [graphData]="_graphData"
                             [isActive]="relGraphTab.isActive"> 
@@ -157,27 +159,27 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 </mat-tab>
 
                 <!--Resource editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-wpforms"> Resources </i></ng-template>
-                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
-                                title="Apply changes">
-                            <i class="fa fa-check"> </i>
-                        </button>
-                    </section>
-                    <section id="resource-editor">
-                        <resourceEditor
-                                [modelClasses]="modelClasses"
-                                [modelResources]="_graphData.entitiesByID || {}"
-                                [resource]="_model"
-                                [className]="className">
-                        </resourceEditor>
-                    </section>
-                </mat-tab>
+<!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
+<!--                    <ng-template mat-tab-label><i class="fa fa-wpforms"></i> Resources</ng-template>-->
+<!--                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">-->
+<!--                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"-->
+<!--                                title="Apply changes">-->
+<!--                            <i class="fa fa-check"> </i>-->
+<!--                        </button>-->
+<!--                    </section>-->
+<!--                    <section id="resource-editor">-->
+<!--                        <resourceEditor-->
+<!--                                [modelClasses]="modelClasses"-->
+<!--                                [modelResources]="_graphData.entitiesByID || {}"-->
+<!--                                [resource]="_model"-->
+<!--                                [className]="className">-->
+<!--                        </resourceEditor>-->
+<!--                    </section>-->
+<!--                </mat-tab>-->
                 
                 <!--Layout editor-->
                 <mat-tab *ngIf="!!_model?.scaffolds" class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-wpforms"> Layout </i></ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-wpforms"> </i>Layout</ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
                                 title="Apply changes">
@@ -195,7 +197,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
                 <!--Code editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-edit"> Code </i></ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-edit"></i> Code </ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()"
                                 title="Apply changes">
@@ -223,7 +225,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         .vertical-toolbar{
             width : 48px;
         }
-               
+                
         #main-panel{            
             margin-top : 40px;
             margin-left: 48px; 
@@ -251,7 +253,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         }
         
         #repo-panel{
-            height : 100vh;
+            height : 95vh;
         }
 
         footer{
@@ -669,13 +671,12 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [BrowserModule, WebGLSceneModule, MatDialogModule, BrowserAnimationsModule, ResourceEditorModule, MatSnackBarModule,
-        RelGraphModule,
-        MatTabsModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule, MatListModule,
-    MatFormFieldModule],
-	declarations: [TestApp, ResourceEditorDialog, ImportDialog],
+	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, ResourceEditorModule,
+        RelGraphModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
+        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule],
+	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
-    entryComponents: [ResourceEditorDialog, ImportDialog],
+    entryComponents: [ImportDialog, ResourceEditorDialog],
     providers   : [
         {
             provide: MatSnackBar,
