@@ -3,7 +3,7 @@ import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
 
-import {isObject, unionBy, merge, keys, entries, isArray, pick, sortBy} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick, sortBy, isNumber} from 'lodash-bound';
 import {
     $SchemaClass,
     $Field,
@@ -18,7 +18,7 @@ import {
     getRefNamespace,
     refToResource,
     mergeGenResource,
-    genResource
+    genResource, $Default
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -226,7 +226,7 @@ export class Group extends Resource {
                             [$Field.generatedFrom]: refID,
                             [$Field.skipLabel]    : true
                         }, "groupModel.replaceRefToMaterial (Lyph)");
-                        template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.color]));
+                        template::merge(material::pick([$Field.name, $Field.external, $Field.ontologyTerms, $Field.references, $Field.color]));
                         mergeGenResource(undefined, parentGroup, template, $Field.lyphs);
                     } else {
                         if (getRefNamespace(refID, parentGroup.namespace) !== parentGroup.namespace){

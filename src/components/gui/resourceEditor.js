@@ -18,7 +18,7 @@ import {UtilsModule} from "./utils";
 import {isArray, fromPairs, merge, values, entries, cloneDeep} from 'lodash-bound';
 import {HttpClientModule} from '@angular/common/http';
 import {getClassName, schemaClassModels} from '../../model/index';
-import {annotations} from "../../data/config.json";
+import config from "../../data/config.json";
 import {FieldTableEditorModule} from "./fieldTableEditor";
 import {$Field, $SchemaClass, $SchemaType, getNewID, getGenID} from "../../model/utils";
 
@@ -175,7 +175,7 @@ export class ResourceEditor {
      * @param {string} key - relationship name
      */
     createExternalResource([key, ]) {
-        const config = {title: `Link new external resource?`}::merge(annotations);
+        const config = {title: `Link new external resource?`}::merge(config.annotations);
         let dialogRef = this.dialog.open(ExternalSelectDialog, { width: '75%', data: config });
 
         dialogRef.afterClosed().subscribe(result => {

@@ -63,18 +63,7 @@ export class Wire extends Edge {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
         json.class = json.class || $SchemaClass.Wire;
-        const res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
-        //Wires are not in the force-field, so we set their length from end points
-        const s = res.source && res.source.layout;
-        const t = res.target && res.target.layout;
-        if (s && t){
-            const d = {};
-            ["x", "y"].forEach(dim => d[dim] = (t[dim] || 0) - (s[dim] || 0));
-            res.length = Math.sqrt( d.x * d.x + d.y * d.y + d.z * d.z);
-        } else {
-            res.length = 10; //TODO replace with config construct
-        }
-        return res;
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
     applyToEndAnchors(handler){

@@ -1,7 +1,7 @@
 import {Component, Input, NgModule} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HttpClient, HttpClientModule} from '@angular/common/http';
-import {annotations} from "../../data/config.json";
+import config from "../../data/config.json";
 
 @Component({
     selector: 'sciGraphSearch',
@@ -65,7 +65,7 @@ export class ExternalSearchBar {
 
     executeQuery(){
         if (!this.query){ throw Error ("Query is not defined!"); }
-        let url = annotations.baseURL + this.query;
+        let url = config.annotations.baseURL + this.query;
 
         this.http.get(url).subscribe(res => {
             this.result = JSON.stringify(res);

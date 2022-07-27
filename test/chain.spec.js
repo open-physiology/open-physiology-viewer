@@ -210,8 +210,8 @@ describe("Link joint chains (Keast Spinal)", () => {
         const collapsibleLinks = graphData.links.filter(lnk => lnk.collapsible);
         const chain1 = graphData.chains.find(ch => ch.id === "t1");
         const chain2 = graphData.chains.find(ch => ch.id === "t2");
-        expect(chain1).has.property('levels').that.has.length.of(7);
-        expect(chain2).has.property('levels').that.has.length.of(10);
+        expect(chain1).has.property('levels').that.has.length(7);
+        expect(chain2).has.property('levels').that.has.length(10);
         for (let i = 0; i < 7; i++){
             expect(chain1.levels[i]).to.have.property("levelIn");
             expect(chain1.levels[i].levelIn).to.be.an('array').that.has.length(1);
@@ -222,13 +222,13 @@ describe("Link joint chains (Keast Spinal)", () => {
             expect(chain2.levels[i].levelIn).to.be.an('array').that.has.length(1);
             expect(chain2.levels[i].levelIn[0]).to.have.property("id").that.equals(chain2.id);
         }
-        expect(collapsibleLinks).has.length.of(17);
+        expect(collapsibleLinks).has.length(17);
     });
 
     it("Chain joining node was cloned", () => {
         const joinNode = graphData.nodes.find(node => node.id === "n2");
         expect(joinNode).to.be.an('object');
-        expect(joinNode).to.have.property('clones').that.has.length.of(2);
+        expect(joinNode).to.have.property('clones').that.has.length(2);
     });
 
     it("Joint chains are linked together", () => {
@@ -240,8 +240,8 @@ describe("Link joint chains (Keast Spinal)", () => {
         expect(firstInChain2).to.be.an('object');
         expect(lastInChain1).to.have.property('nextChainStartLevels');
         expect(firstInChain2).to.have.property('prevChainEndLevels');
-        expect(lastInChain1.nextChainStartLevels).to.be.an('array').that.has.length.of(1);
-        expect(firstInChain2.prevChainEndLevels).to.be.an('array').that.has.length.of(1);
+        expect(lastInChain1.nextChainStartLevels).to.be.an('array').that.has.length(1);
+        expect(firstInChain2.prevChainEndLevels).to.be.an('array').that.has.length(1);
         expect(lastInChain1.nextChainStartLevels[0]).to.be.an('object');
         expect(firstInChain2.prevChainEndLevels[0]).to.be.an('object');
         expect(lastInChain1.nextChainStartLevels[0]).to.have.property('id').that.equals(firstInChain2.id);

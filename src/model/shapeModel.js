@@ -7,6 +7,7 @@ import {
     LYPH_TOPOLOGY,
     $Field,
     $Prefix,
+    $Default,
     $Color,
     $SchemaClass,
     getGenID,
@@ -17,7 +18,7 @@ import {
     refToResource,
     getFullID,
     mergeGenResource,
-    genResource,
+    genResource
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -168,8 +169,8 @@ export class Lyph extends Shape {
      */
     static clone(parentGroup, sourceLyph, targetLyph){
         if (!sourceLyph) { return; }
-        if (sourceLyph === targetLyph){
-            logger.warn($LogMsg.LYPH_SELF, sourceLyph);
+        if (sourceLyph === targetLyph || sourceLyph.id === targetLyph.id){
+            logger.error($LogMsg.LYPH_SELF, sourceLyph);
             return;
         }
 
@@ -332,21 +333,21 @@ export class Lyph extends Shape {
         mapToLayers2($Field.internalNodes, $Field.nodes);
     }
 
-    collectInheritedExternals(){
-        const externals = this.inheritedExternal || [];
-        const ids = externals.map(x => x.id);
+    collectInheritedExternals(prop, inheritedProp){
+        this[inheritedProp] = this[inheritedProp] || [];
+        const ids = this[inheritedProp].map(x => x.id);
         let curr = this.supertype;
-        while (curr){
-            (curr.external||[]).forEach(e => {
+        while (curr && curr.fullID !== this.fullID){
+            (curr[prop]||[]).forEach(e => {
                 if (!ids.includes(e.id)){
-                    externals.push(e);
+                    this[inheritedProp].push(e);
                     ids.push(e.id);
                 }
             });
             curr = curr.supertype;
         }
-        if (externals.length > 0){
-            this.inheritedExternal = externals;
+        if (this[inheritedProp].length === 0){
+            delete this[inheritedProp];
         }
     }
 
@@ -402,7 +403,7 @@ export class Lyph extends Shape {
      * @returns {{height: number, width: number}}
      */
     get sizeFromAxis() {
-        const length = this.axis && this.axis.length || 10;
+        const length = this.axis && this.axis.length || $Default.EDGE_LENGTH;
         let res = {width: length, height: length};
         this.scale = this.scale || {
             [$Field.width] : 40,
@@ -526,7 +527,7 @@ export class Lyph extends Shape {
             } else {
                 //TODO lyph can be internal in a region - dynamically compute length based on region width or length
             }
-            this.axis.length = this.axis.length || 10;
+            this.axis.length = this.axis.length || $Default.EDGE_LENGTH;
         }
     }
 
@@ -612,7 +613,7 @@ export class Region extends Shape {
             template.facets.forEach(wireRef => {
                 let wire = refToResource(wireRef, parentGroup, $Field.wires);
                 if (!wire || !wire.source || !wire.target){
-                    logger.warn($LogMsg.REGION_FACET_ERROR, wire);
+                    logger.warn($LogMsg.REGION_FACET_ERROR, wireRef);
                     return;
                 }
                 let sourceAnchor = refToResource(wire.source, parentGroup, $Field.anchors);
@@ -662,7 +663,7 @@ export class Region extends Shape {
                     [$Field.id]        : getGenID($Prefix.wire, template.id, i),
                     [$Field.source]    : anchors[i - 1].id,
                     [$Field.target]    : anchors[i % anchors.length].id,
-                    [$Field.color]     : template.color? tinycolor(template.color).darken(25): $Color.Wire,
+                    [$Field.color]     : template.color? tinycolor(template.color).darken(25).toRgbString(): $Color.Wire,
                     [$Field.skipLabel] : true
                 }, "shapeModel.expandTemplate (Wire)"));
             }

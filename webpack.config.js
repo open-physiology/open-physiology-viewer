@@ -15,20 +15,23 @@ module.exports = {
     },
 	output: {
 		path: __dirname + '/dist',
+        publicPath: '',
 		filename: '[name].js',
 		sourceMapFilename: '[file].map',
 		devtoolModuleFilenameTemplate:         '[absolute-resource-path]',
 		devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
-	},
+ 	},
 	module: {
 		rules: loaders
 	},
 	plugins: plugins.concat([
-        new CopyWebpackPlugin([
-            { from: 'test-app/index.html',  to: 'test-app/index.html' },
-            { from: 'test-app/favicon.ico', to: 'test-app/favicon.ico' },
-            { from: 'test-app/styles',      to: 'test-app/styles'},
-            { from: 'test-app/styles/images', to: 'test-app/styles/images'}
-        ])
+        new CopyWebpackPlugin({
+            "patterns": [
+                { from: 'test-app/index.html',  to: 'test-app/index.html' },
+                { from: 'test-app/favicon.ico', to: 'test-app/favicon.ico' },
+                { from: 'test-app/styles',      to: 'test-app/styles'},
+                { from: 'test-app/styles/images', to: 'test-app/styles/images'}
+            ]
+        })
     ])
 };

@@ -15,7 +15,7 @@ import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
 import {isString, isObject, isArray, isNumber, isEmpty, keys, assign} from "lodash-bound";
-import * as schema from "./graphScheme";
+import schema from "./graphScheme";
 import {logger} from "./logger";
 
 import * as XLSX from 'xlsx';

@@ -189,13 +189,5 @@
       "id": "n5-t",
       "name": "Hillock"
     }
-  ],
-  "assign": [
-    {
-      "path": "$.links[?(@.id!='main')]",
-      "value": {
-        "length": 10
-      }
-    }
   ]
 }
