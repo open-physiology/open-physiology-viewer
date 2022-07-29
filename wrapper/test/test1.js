@@ -4,7 +4,8 @@ const { execSync } = require("child_process");
 
 const test1 = () => {
     var folder_content = ""
-    execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i ${process.env['MODEL_ID']} `);
+    // execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i ${process.env['MODEL_ID']} `);
+    execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i 1dy12y8mLp82Fe8NeWQa2NmxSiS5Ogy4ef1wbLU8-jGg `);
     fs.readdirSync("test1-folder").forEach(file => {
         folder_content += file;
         folder_content += "\n";
@@ -37,7 +38,7 @@ describe("CLI", () => {
     expect(test2()).to.have.string('model.json', 'model-generated.json', 'model.jsonld');
   }).timeout(15000);
   it("Should check the number of lines in the jsonld file", () => {
-    expect(test3()).to.have.string('178705');
+    expect(test3()).to.have.string('174434');
     fs.rmdirSync('test1-folder', { recursive: true });
     fs.rmdirSync('test2-folder', { recursive: true });
   }).timeout(15000);

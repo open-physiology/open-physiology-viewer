@@ -184,6 +184,10 @@ export function fromJSON(inputModel) {
  * @returns
  */
 export function fromJSONGenerated(inputModel) {
+    let namespace = inputModel.namespace || undefined;
+    let entitiesByID = { waitingList: {}};
+    const added = [];
+
     function typeCast(obj) {
         if (obj instanceof Object && !(obj instanceof Array) && !(typeof obj === 'function') && obj['class'] !== undefined && modelClasses[obj['class']] !== undefined) {
             const cls = modelClasses[obj['class']];
@@ -197,17 +201,14 @@ export function fromJSONGenerated(inputModel) {
         }
     }
 
-    let namespace = inputModel.namespace || undefined;
-    let entitiesByID = { waitingList: {}};
     const _casted_model = typeCast(inputModel);
-    const added = [];
-
     if (_casted_model.class === ModelType.GRAPH) {
         Graph.processGraphWaitingList(_casted_model, entitiesByID, namespace, added, modelClasses, typeCast);
     } else if (_casted_model.class === ModelType.SCAFFOLD) {
         Scaffold.processScaffoldWaitingList(_casted_model, entitiesByID, namespace, added, modelClasses, typeCast);
     }
 
+    _casted_model.entitiesByID = entitiesByID;
     return _casted_model;
 }
 
