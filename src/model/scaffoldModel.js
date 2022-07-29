@@ -128,15 +128,19 @@ export class Scaffold extends Component {
      * @param scaleFactor {number} - scaling factor
      */
     scale(scaleFactor){
+        if (this.scaleFactor === scaleFactor){
+            //The graph has been scaled - processing an expanded model
+            return;
+        }
         const scalePoint = p => ["x", "y", "z"].forEach(key => p[key]::isNumber() && (p[key] *= scaleFactor));
         (this.anchors||[]).forEach(e => e.layout && scalePoint(e.layout));
         (this.wires||[]).forEach(e => {
-            e.length && (e.length *= scaleFactor);
             e.arcCenter && scalePoint(e.arcCenter);
             e.controlPoint && scalePoint(e.controlPoint);
             e.radius && scalePoint(e.radius);
         });
         (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
+        this.scaleFactor = scaleFactor;
     }
 
     /**

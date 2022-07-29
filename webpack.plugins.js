@@ -1,11 +1,8 @@
 const webpack              = require('webpack');
 const path                 = require('path');
-const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 const LicensePlugin        = require('license-webpack-plugin').LicenseWebpackPlugin;
 
 module.exports = [
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.ContextReplacementPlugin(
         /angular[\\\/]core[\\\/](esm[\\\/]src|src)[\\\/]linker/,
         path.resolve('./src'),
@@ -17,10 +14,9 @@ module.exports = [
         {}
     ),
     new webpack.ProvidePlugin({
-        'THREE': 'three'
-    }),
-    new FilterWarningsPlugin({
-        exclude: /System.import/
+        THREE: 'three',
+        CSG: 'three-csg-ts',
+        process: 'process/browser'
     }),
     new LicensePlugin({
         stats: {

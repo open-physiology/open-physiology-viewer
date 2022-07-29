@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
 
 import {HttpClient} from "@angular/common/http";
-import {repoURL} from '../data/config';
+import config from '../data/config';
 
 /**
  * @ignore
@@ -35,7 +35,7 @@ import {repoURL} from '../data/config';
                     <mat-nav-list id="modelList">                
                         <mat-list-item *ngFor="let fileName of fileNames">
                             <button mat-icon-button (dblclick)="loadModel(fileName)">
-                                <i class="fa fa-file"> {{fileName}} </i> 
+                                <i class="fa fa-file"></i> {{fileName}}  
                             </button>
                         </mat-list-item>
                     </mat-nav-list>
@@ -56,9 +56,9 @@ import {repoURL} from '../data/config';
             font-size: 90%;
             text-align: right;
         }
-
+         
         #modelRepo {
-            height: 100vh;
+            height: 90vh;
             overflow-y: scroll;
         }
     `]
@@ -66,7 +66,7 @@ import {repoURL} from '../data/config';
 export class ModelRepoPanel {
     models = {};
     fileNames = [];
-    url = repoURL;
+    url = config.repoURL;
 
     @Output() onModelLoad = new EventEmitter();
 

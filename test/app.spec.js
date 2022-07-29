@@ -11,7 +11,7 @@ import {
     expect,
 } from './test.helper';
 
-import {BrowserModule} from "@angular/platform-browser";
+import {BrowserModule, By} from "@angular/platform-browser";
 import {MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -23,7 +23,7 @@ import {FormsModule} from "@angular/forms";
 
 import {LogInfoModule} from "../src/components/gui/logInfoDialog";
 import {SettingsPanelModule} from "../src/components/settingsPanel";
-import {WebGLSceneComponent} from "../src/components/webGLScene";
+//import {WebGLSceneComponent} from "../src/components/webGLScene";
 
 import {MainToolbar} from "../src/components/mainToolbar";
 import {ImportExcelModelDialog} from "../src/components/gui/importExcelModelDialog";
@@ -58,8 +58,8 @@ describe("MainToolbar component", () => {
     });
 
     it("Create new model button works", () => {
-        const button = fixture.nativeElement.querySelector('#createBtn');
-        button.dispatchEvent(new Event('click'));
+        const button = fixture.debugElement.query(By.css('#createBtn'));
+        button.triggerEventHandler('click', {});
         fixture.detectChanges();
         fixture.whenStable().then(() => {
             //TODO expectations - onCreateModel.emit called with {} as parameter
@@ -67,26 +67,26 @@ describe("MainToolbar component", () => {
     });
 
     it("Load model from file button works", () => {
-        const button = fixture.nativeElement.querySelector('#loadBtn');
-        button.dispatchEvent(new Event('click'));
+        const button = fixture.debugElement.query(By.css('#loadBtn'));
+        button.triggerEventHandler('click', {});
         //TODO expectations - onLoadModel.emit called with parsed JSON model as parameter
     });
 
     it("Join models button works", () => {
-        const button = fixture.nativeElement.querySelector('#joinBtn');
-        button.dispatchEvent(new Event('click'));
+        const button = fixture.debugElement.query(By.css('#joinBtn'));
+        button.triggerEventHandler('click', {});
         //TODO expectations
     });
 
     it("Merge models button works", () => {
-        const button = fixture.nativeElement.querySelector('#mergeBtn');
-        button.dispatchEvent(new Event('click'));
+        const button = fixture.debugElement.query(By.css('#mergeBtn'));
+        button.triggerEventHandler('click', {});
         //TODO expectations
     });
 
     it("Toggle model repo buttons work", () => {
-        const showBtn = fixture.nativeElement.querySelector('#showRepoBtn');
-        showBtn.dispatchEvent(new Event('click'));
+        const showBtn = fixture.debugElement.query(By.css('#showRepoBtn'));
+        showBtn.triggerEventHandler('click', {});
         //TODO expectations
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -97,8 +97,8 @@ describe("MainToolbar component", () => {
     });
 
     it("Export model button works", () => {
-        const button = fixture.nativeElement.querySelector('#saveBtn');
-        button.dispatchEvent(new Event('click'));
+        const button = fixture.debugElement.query(By.css('#saveBtn'));
+        button.triggerEventHandler('click', {});
         //TODO expectations
     });
 
@@ -115,32 +115,32 @@ describe("RelationshipGraph component", () => {
 describe("SettingsPanel component", () => {
 });
 
-//FIXME
-describe("WebGLScene component", () => {
-    let viewer;
-    let fixture;
-    beforeEach(() => {
-        TestBed.resetTestEnvironment();
-        TestBed.initTestEnvironment(BrowserDynamicTestingModule,
-            platformBrowserDynamicTesting());
-
-        TestBed.configureTestingModule({
-            imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
-                BrowserAnimationsModule, HotkeyModule.forRoot()],
-            declarations: [
-                WebGLSceneComponent
-            ]
-        });
-
-        fixture = TestBed.createComponent(WebGLSceneComponent);
-        viewer = fixture.componentInstance;
-    });
-
-    it("ApiNATOMY viewer created", () => {
-        expect(viewer).to.be.an('object');
-        //add conditions
-    });
-
-    afterEach(() => {});
-});
+// //FIXME
+// describe("WebGLScene component", () => {
+//     let viewer;
+//     let fixture;
+//     beforeEach(() => {
+//         TestBed.resetTestEnvironment();
+//         TestBed.initTestEnvironment(BrowserDynamicTestingModule,
+//             platformBrowserDynamicTesting());
+//
+//         TestBed.configureTestingModule({
+//             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
+//                 BrowserAnimationsModule, HotkeyModule.forRoot()],
+//             declarations: [
+//                 WebGLSceneComponent
+//             ]
+//         });
+//
+//         fixture = TestBed.createComponent(WebGLSceneComponent);
+//         viewer = fixture.componentInstance;
+//     });
+//
+//     it("ApiNATOMY viewer created", () => {
+//         expect(viewer).to.be.an('object');
+//         //add conditions
+//     });
+//
+//     afterEach(() => {});
+// });
 

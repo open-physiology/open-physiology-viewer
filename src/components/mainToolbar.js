@@ -44,7 +44,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="hideRepoBtn" *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
                     (click)="toggleRepoPanel()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
-           </button>
+           </button> 
            <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
                <i class="fa fa-file-excel-o"> </i>
            </button>
@@ -58,7 +58,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     `,
     styles: [`
         .vertical-toolbar{
-            width : 48px; 
+            width : 48px;  
         }
 	`]
 })

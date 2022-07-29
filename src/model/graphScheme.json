@@ -641,12 +641,6 @@
           "type": "number",
           "advanced": true
         },
-        "length": {
-          "description": "The length of the edge (for links can be set, for wires usually computed)",
-          "type": "number",
-          "minimum": 0,
-          "maximum": 100
-        },
         "arcCenter": {
           "description": "Center of an elliptic curve for an arc edge",
           "anyOf": [
@@ -660,9 +654,7 @@
         },
         "curvature": {
           "description": "Curvature of an arc or spline edge, defined as percentage of length",
-          "type": "number",
-          "minimum": -100,
-          "maximum": 100
+          "type": "number"
         },
         "onBorder": {
           "description": "Border that contains this link",
@@ -703,8 +695,8 @@
           "description": "Resource category, i.e., FMA ontology, etc.",
           "type": "string"
         },
-        "annotates": {
-          "description": "Model resources annotated by the given external resource (ontology)",
+        "externalTo": {
+          "description": "Model resources corresponding to the given external resource",
           "type": "array",
           "items": {
             "anyOf": [
@@ -718,9 +710,45 @@
           },
           "relatedTo": "external",
           "advanced": true
-        },
+        }
+      }
+    },
+    "OntologyTerm": {
+      "description": "Definition of an external term",
+      "allOf": [
+        {
+          "$ref": "#/definitions/External"
+        }
+      ],
+      "properties": {
+        "annotates": {
+          "description": "Model resources annotated by the given ontology term",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Resource"
+              }
+            ]
+          },
+          "relatedTo": "ontologyTerms",
+          "advanced": true
+        }
+      }
+    },
+    "Reference": {
+      "description": "Reference to a publication",
+      "allOf": [
+        {
+          "$ref": "#/definitions/External"
+        }
+      ],
+      "properties": {
         "documents": {
-          "description": "Model resources documented by the given external resource (publication)",
+          "description": "Model resources documented by the given reference",
           "type": "array",
           "items": {
             "anyOf": [
@@ -734,27 +762,7 @@
           },
           "relatedTo": "references",
           "advanced": true
-        }
-      }
-    },
-    "OntologyTerm": {
-      "description": "Definition of an external term",
-      "allOf": [
-        {
-          "$ref": "#/definitions/External"
-        }
-      ],
-      "properties": {
-      }
-    },
-    "Reference": {
-      "description": "Reference to a publication",
-      "allOf": [
-        {
-          "$ref": "#/definitions/External"
-        }
-      ],
-      "properties": {
+        },
         "parent": {
           "description": "Reference that contains the given published resource, i.e., a book contains a figure",
           "anyOf": [
@@ -807,6 +815,11 @@
             "type": "string",
             "format": "uri"
           }
+        },
+        "scaleFactor": {
+          "description": "Number of pixels per unit of length, set in a generated model",
+          "type": "number",
+          "readOnly": true
         }
       }
     },
@@ -869,7 +882,6 @@
           ],
           "readOnly": true
         },
-
         "nodes": {
           "description": "Nodes connect separate links into semantically meaningful groups that reflect the organizational composition of body parts and/or flow in physiological processes.",
           "type": "array",
@@ -1083,8 +1095,6 @@
         "length": {
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
           "type": "number",
-          "minimum": 0,
-          "maximum": 100,
           "advanced": true
         },
         "conveyingType": {
@@ -1133,6 +1143,11 @@
             }
           ],
           "relatedTo": "targetOf"
+        },
+        "length": {
+          "description": "The length of the edge (for links can be set, for wires usually computed)",
+          "type": "number",
+          "minimum": 0
         },
         "hostedNodes": {
           "description": "Nodes that are positioned on a link or border edge. If the same node is positioned on several edges, it is cloned and all its clones are connected by auto-generated collapsible dashed links with the original node.",
@@ -1385,7 +1400,6 @@
               "type": "number"
             }
           },
-          "default": {},
           "advanced": true
         },
         "length": {
@@ -1401,7 +1415,6 @@
               "type": "number"
             }
           },
-          "default": {},
           "advanced": true
         },
         "subtypes": {
@@ -1442,6 +1455,36 @@
               },
               {
                 "$ref": "#/definitions/External"
+              }
+            ]
+          },
+          "readOnly": true
+        },
+        "inheritedOntologyTerms": {
+          "description": "Identifiers of ontology terms inherited from all ancestors (supertypes)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          },
+          "readOnly": true
+        },
+        "inheritedReferences": {
+          "description": "Identifiers of references inherited from all ancestors (supertypes)",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Reference"
               }
             ]
           },
@@ -1744,7 +1787,6 @@
           "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
           "type": "number",
           "minimum": 0,
-          "maximum": 100,
           "advanced": true
         },
         "scale": {
@@ -1757,8 +1799,7 @@
             },
             "height": {
               "type": "number",
-              "minimum": 0,
-              "maximum": 100
+              "minimum": 0
             }
           },
           "advanced": true
@@ -1772,7 +1813,6 @@
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
           "type": "number",
           "minimum": 0,
-          "maximum": 100,
           "advanced": true
         }
       }
@@ -2033,14 +2073,10 @@
       "type": "object",
       "properties": {
         "x": {
-          "type": "number",
-          "minimum": -100,
-          "maximum": 100
+          "type": "number"
         },
         "y": {
-          "type": "number",
-          "minimum": -100,
-          "maximum": 100
+          "type": "number"
         }
       }
     },
@@ -2054,9 +2090,7 @@
       ],
       "properties": {
         "z": {
-          "type": "number",
-          "minimum": -100,
-          "maximum": 100
+          "type": "number"
         }
       }
     },
@@ -2309,7 +2343,6 @@
           ],
           "advanced": true
         },
-
         "external": {
           "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
           "type": "array",
@@ -2323,7 +2356,7 @@
               }
             ]
           },
-          "relatedTo": "annotates"
+          "relatedTo": "externalTo"
         },
         "references": {
           "description": "Identifier of an evidence source in an external library",
@@ -2367,6 +2400,11 @@
           "items": {
             "$ref": "#/definitions/CurieMapping"
           }
+        },
+        "scaleFactor": {
+          "description": "Number of pixels per unit of length, set in a generated model",
+          "type": "number",
+          "readOnly": true
         }
       }
     },

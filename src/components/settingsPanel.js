@@ -16,7 +16,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {TreeModule} from '@circlon/angular-tree-component';
+//import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
 
 /**
@@ -77,16 +77,15 @@ const COLORS = {
                         <div *ngIf="config.selected" class="default-boxContent">
                             <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                             </resourceInfoPanel>
-                            <button *ngIf="!!_selected" title="Edit"
-                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
-                                <img src="./styles/images/edit-data-icon.svg"/>
-                                Edit data
-                            </button>
+<!--                            <button *ngIf="!!_selected" title="Edit"-->
+<!--                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">-->
+<!--                                <i class="fa fa-edit"> </i>-->
+<!--                            </button> -->
                             <sciGraphSearch [selected]="_selected">
                             </sciGraphSearch>
                         </div>
                     </div>
-                </mat-expansion-panel>
+                </mat-expansion-panel> 
             </mat-accordion>
 
             <!--Group controls-->
@@ -1187,7 +1186,8 @@ export class SettingsPanel {
 
 @NgModule({
     imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule, MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule, TreeModule],
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule,
+        MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule], //TreeModule],
     declarations: [SettingsPanel, StopPropagation, ResourceVisibility],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
