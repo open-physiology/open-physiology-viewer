@@ -62,7 +62,7 @@ let baseContext = {
         "@prefix": true
     },
     "name": "rdfs:label",
-    "id": "@id",
+    "fullID": "@id",
     "class": {
         "@id": "rdf:type",
         "@type": "@id",
