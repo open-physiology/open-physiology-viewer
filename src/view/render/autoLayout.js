@@ -127,7 +127,8 @@ function autoSizeLyph(lyph) {
     //NK I removed inChain from properties as I am working on a refactoring that allows one lyph to be shared by several chains
     //A link that the lyph conveys is shared by all chains, so this should work for you too
     const link = lyph.userData?.conveys;
-    if (link)//any link should be good enough as they are of the same size
+    const layerIn = lyph?.userData?.layerIn;
+    if (link && !layerIn)//any link should be good enough as they are of the same size
     {
       const linkWidth = link.length * LYPH_LINK_SIZE_PROPORTION * 0.5;
       if (lyphWidth < linkWidth && lyphWidth < MAX_LYPH_WIDTH)
@@ -140,7 +141,7 @@ function autoSizeLyph(lyph) {
       lyphWidth = linkWidth ;
     }
     //prevent max size
-    if (lyphWidth > MAX_LYPH_WIDTH)
+    if (lyphWidth > MAX_LYPH_WIDTH && !layerIn)
     {
       f = MAX_LYPH_WIDTH / lyphWidth ;
       lyph.scale.setX(f);

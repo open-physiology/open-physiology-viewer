@@ -15,20 +15,22 @@ import {
 
 import JSONPath from 'JSONPath';
 import {
-    schemaClassModels,
     $Field,
-    $SchemaType,
-    $SchemaClass,
-    isClassAbstract,
-    getClassName,
     getNewID,
     getFullID,
+    $SchemaType,
+    getClassName,
+    $SchemaClass,
     mergeWithModel,
     getRefNamespace,
+    isClassAbstract,
+    assignEntityById,
+    schemaClassModels,
     getRefID,
     genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
+import { ngModuleJitUrl } from '@angular/compiler';
 
 /**
  * The class defining common methods for all resources
@@ -87,39 +89,47 @@ export class Resource{
 
         res::assign(json);
 
-        if (entitiesByID){
-            if (!res.id) { res.id = getNewID(entitiesByID); }
-            if (res.id::isNumber()){
-                res.id = res.id.toString();
-                logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
-            }
-
-            if (entitiesByID[res.fullID]){
-                if (entitiesByID[res.fullID] !== res) {
-                    logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.fullID], res);
-                }
-            } else {
-                entitiesByID[res.fullID] = res;
-                res.reviseWaitingList(entitiesByID.waitingList);
-                res.replaceIDs(modelClasses, entitiesByID);
-            }
-        }
+        assignEntityById(res, entitiesByID, namespace, modelClasses);
         return res;
     }
 
-    static createResource(ref, clsName, model, modelClasses, entitiesByID, namespace){
+
+    static createResource(ref, clsName, model, modelClasses, entitiesByID, namespace, castingMethod){
+        let e = undefined;
         const nm = getRefNamespace(ref, namespace);
-        let e = modelClasses[clsName].fromJSON(genResource({
-                [$Field.id]: getRefID(ref),
-                [$Field.namespace]: nm
-            },"resourceModel.createResource (" + clsName + ") in " + nm),
-            modelClasses, entitiesByID, nm);
+
+        if (castingMethod) {
+            e = castingMethod({
+                [$Field.id]        : getRefID(ref),
+                [$Field.class]     : clsName,
+                [$Field.namespace] : nm,
+                [$Field.generated] : true
+            });
+        } else {
+            try {
+                e = modelClasses[clsName].fromJSON(genResource({
+                    [$Field.id]: getRefID(ref),
+                    [$Field.namespace]: nm
+                },"resourceModel.createResource (" + clsName + ") in " + nm),
+                modelClasses, entitiesByID, nm);
+            } catch {
+                console.log("Error found")
+                console.log(id)
+                console.log(clsName)
+                //console.log(model)
+                console.log(modelClasses);
+                //console.log(entitiesByID)
+                console.log(namespace)
+                console.log(castingMethod)
+            }
+        }
 
         //Do not show labels for generated visual resources
-        if (e.prototype instanceof modelClasses.VisualResource){
+        if (e?.prototype instanceof modelClasses.VisualResource){
             e.skipLabel = true;
         }
         mergeWithModel(e, clsName, model);
+        e.fullID = e.fullID || getFullID(e.namespace, e.id);
         entitiesByID[e.fullID] = e;
 
         return e;
@@ -321,35 +331,7 @@ export class Resource{
         })
     }
 
-    /**
-     * Waiting list keeps objects that refer to unresolved model resources.
-     * When a new resource definition is found or created, all resources that referenced this resource by ID get the
-     * corresponding object reference instead
-     * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
-     */
-    reviseWaitingList(waitingList){
-        let res = this;
-        (waitingList[res.fullID]||[]).forEach(([obj, key, clsName]) => {
-            if (obj[key]::isArray()){
-                obj[key].forEach((e, i) => {
-                    if (e === res.id || e === res.fullID){
-                        if (!schemaClassModels[res.class].extendsClass(clsName)){
-                            logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
-                        }
-                        obj[key][i] = res;
-                    }
-                });
-            } else {
-                if (obj[key] === res.id || obj[key] === res.fullID){
-                    if (!schemaClassModels[res.class].extendsClass(clsName)){
-                        logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
-                    }
-                    obj[key] = res;
-                }
-            }
-        });
-        delete waitingList[res.fullID];
-    }
+    
 
     /**
      * Synchronize a relationship field of the resource with its counterpart (auto-fill a field that is involved into a bi-directional relationship based on its partial definition, i.e., A.child = B yields B.parent = A).
