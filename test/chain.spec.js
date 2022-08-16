@@ -362,7 +362,7 @@ describe("Process model with multiple namespaces (Spleen)", () => {
         if (duplicates.length !== 14) {
             console.log(duplicates);
         }
-        expect(duplicates).to.have.length(14);
+        expect(duplicates).to.have.length(13);
         expect(noFullID).to.have.length(0);
     });
 

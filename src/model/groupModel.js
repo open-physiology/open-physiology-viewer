@@ -232,7 +232,6 @@ export class Group extends Resource {
                         if (getRefNamespace(refID, parentGroup.namespace) !== parentGroup.namespace){
                             //Reference does not exist
                             if (!refToResource(refID, parentGroup, $Field.lyphs)){
-                            //if (parentGroup.lyphsByID && !parentGroup.lyphsByID[getFullID(parentGroup.namespace, refID)]) {
                                 logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, key, ref);
                             }
                         }

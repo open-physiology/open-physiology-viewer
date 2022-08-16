@@ -14,25 +14,19 @@ import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
-import {isString, isObject, isArray, isNumber, isEmpty, keys, assign} from "lodash-bound";
+import {isString, keys, assign} from "lodash-bound";
 import schema from "./graphScheme";
 import {logger} from "./logger";
 
 import * as XLSX from 'xlsx';
 
-import * as jsonld from "jsonld/dist/node6/lib/jsonld";
-
-import { entries, mergeWith } from 'lodash-bound';
+import { mergeWith } from 'lodash-bound';
 
 import {
     $Field,
-    getFullID,
     ModelType,
     $SchemaClass,
-    mergeWithModel,
-    getRefNamespace,
-    assignEntityById,
-    schemaClassModels,
+    assignEntityByID,
     $SchemaType,
     getGenID,
     getGenName
@@ -186,7 +180,6 @@ export function fromJSON(inputModel) {
 export function fromJSONGenerated(inputModel) {
     let namespace = inputModel.namespace || undefined;
     let entitiesByID = { waitingList: {}};
-    const added = [];
 
     function typeCast(obj) {
         if (obj instanceof Object && !(obj instanceof Array) && !(typeof obj === 'function') && obj['class'] !== undefined && modelClasses[obj['class']] !== undefined) {
@@ -194,7 +187,7 @@ export function fromJSONGenerated(inputModel) {
             const res = new cls(obj.id, cls.name);
             res.class = obj['class'];
             res::assign(obj);
-            assignEntityById(res, entitiesByID, namespace, modelClasses);
+            assignEntityByID(res, entitiesByID, namespace, modelClasses);
             return res;
         } else {
             return obj;
@@ -203,9 +196,9 @@ export function fromJSONGenerated(inputModel) {
 
     const _casted_model = typeCast(inputModel);
     if (_casted_model.class === ModelType.GRAPH) {
-        Graph.processGraphWaitingList(_casted_model, entitiesByID, namespace, added, modelClasses, typeCast);
+        Graph.processGraphWaitingList(_casted_model, entitiesByID, namespace, modelClasses, typeCast);
     } else if (_casted_model.class === ModelType.SCAFFOLD) {
-        Scaffold.processScaffoldWaitingList(_casted_model, entitiesByID, namespace, added, modelClasses, typeCast);
+        Scaffold.processScaffoldWaitingList(_casted_model, entitiesByID, namespace, modelClasses, typeCast);
     }
 
     _casted_model.entitiesByID = entitiesByID;
