@@ -3,10 +3,7 @@ import {
     isArray,
     merge,
     isObject,
-    isNumber,
-    isString,
     keys,
-    isEmpty,
     assign,
     defaults,
     pick,
@@ -23,14 +20,12 @@ import {
     $SchemaClass,
     mergeWithModel,
     getRefNamespace,
-    isClassAbstract,
-    assignEntityById,
+    assignEntityByID,
     schemaClassModels,
     getRefID,
     genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
-import { ngModuleJitUrl } from '@angular/compiler';
 
 /**
  * The class defining common methods for all resources
@@ -88,11 +83,10 @@ export class Resource{
         json.fullID = getFullID(json.namespace, json.id);
 
         res::assign(json);
+        assignEntityByID(res, entitiesByID, namespace, modelClasses);
 
-        assignEntityById(res, entitiesByID, namespace, modelClasses);
         return res;
     }
-
 
     static createResource(ref, clsName, model, modelClasses, entitiesByID, namespace, castingMethod){
         let e = undefined;
@@ -113,14 +107,7 @@ export class Resource{
                 },"resourceModel.createResource (" + clsName + ") in " + nm),
                 modelClasses, entitiesByID, nm);
             } catch {
-                console.log("Error found")
-                console.log(id)
-                console.log(clsName)
-                //console.log(model)
-                console.log(modelClasses);
-                //console.log(entitiesByID)
-                console.log(namespace)
-                console.log(castingMethod)
+                logger.error("Failed to create resource:", id, clsName, namespace);
             }
         }
 
@@ -134,88 +121,6 @@ export class Resource{
 
         return e;
     }
-
-    /**
-     * Replace IDs with object references
-     * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
-     * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
-     */
-    replaceIDs(modelClasses, entitiesByID){
-        const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
-
-        const createObj = (res, key, value, spec) => {
-            if (skip(value)) { return value; }
-
-            if (value::isNumber()) {
-                value = value.toString();
-                logger.warn($LogMsg.RESOURCE_NUM_VAL_TO_STR, value, res.fullID, key);
-            }
-
-            let clsName = getClassName(spec);
-            if (!clsName){
-                logger.warn($LogMsg.RESOURCE_NO_CLASS,
-                    spec, value);
-                return value;
-            }
-
-            if (value && value::isString()) {
-                let fullValueID = getFullID(res.namespace, value);
-                if (!entitiesByID[fullValueID]) {
-                    //put to a waiting list instead
-                    entitiesByID.waitingList[fullValueID] = entitiesByID.waitingList[fullValueID] || [];
-                    entitiesByID.waitingList[fullValueID].push([res, key, clsName]);
-                    return value;
-                } else {
-                    return entitiesByID[fullValueID];
-                }
-            }
-
-            if (value.id) {
-                value.fullID = value.fullID || getFullID(res.namespace, value.id);
-                if (entitiesByID[value.fullID]) {
-                    if (value !== entitiesByID[value.fullID]) {
-                        if (!value.generated || !entitiesByID[value.fullID].generated) {
-                            logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[value.fullID]);
-                        }
-                    }
-                    return entitiesByID[value.fullID];
-                }
-            }
-
-            //value is an object and it is not in the map
-            if (isClassAbstract(clsName)){
-                if (value.class) {
-                    clsName = value.class;
-                    if (!modelClasses[clsName]){
-                        logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, value.class, value);
-                    }
-                } else {
-                    logger.error($LogMsg.RESOURCE_NO_ABSTRACT_CLASS, value);
-                    return null;
-                }
-            }
-            return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID, res.namespace);
-        };
-
-        if (!modelClasses[this.class]){
-            logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, modelClasses, this.class);
-            return;
-        }
-
-        let refFields = schemaClassModels[this.class].relationships;
-        let res = this;
-        refFields.forEach(([key, spec]) => {
-            if (skip(res[key])) { return; }
-            if (res[key]::isArray()){
-                res[key] = res[key].map(value => createObj(res, key, value, spec));
-            } else {
-                res[key] = createObj(res, key, res[key], spec);
-                if (spec.type === $SchemaType.ARRAY){ //The spec expects multiple values, replace an object with an array of objects
-                    res[key] = [res[key]];
-                }
-            }
-        });
-    };
 
     /**
      * Create relationships defined with the help of JSONPath expressions in the resource 'assign' statements
@@ -439,7 +344,7 @@ export class Resource{
         function fieldToJSON(value, depth) { return value::isArray()? value.map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
         if (depth <= 0) {
-            return this.id? this.fullID: null;
+            return this.fullID || this.id || null;
         }
 
         let res = {};

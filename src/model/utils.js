@@ -125,7 +125,7 @@ export const getNewID = entitiesByID => "new-" +
 
 export const getRefID = (ref) => {
     let id = getID(ref);
-    if (!id || !id::isString()) return "";
+    if (!id || !(id::isString())) return "";
     return id.substr(id.lastIndexOf(":") + 1);
 }
 
@@ -182,10 +182,18 @@ export const compareResources  = (e1, e2) => getID(e1) === getID(e2);
  */
 //FIXME Merge only resources from the same namespace???
 export function mergeResources(a, b) {
+    if (a === undefined) {
+        return b;
+    }
+    if (b === undefined){
+        return a;
+    }
     if (a::isArray()){
         if (b::isArray()) {
-            let ab = a.map(x => x::merge(b.find(y => y[$Field.id] === x[$Field.id])));
-            return ab::unionBy(b, $Field.id);
+            let ab = [];
+            a.forEach(aEl => aEl && ab.push(aEl));
+            b.forEach(bEl => bEl && !ab.find(x => getRefID(x) === getRefID(bEl)) && ab.push(bEl));
+            return ab;
         } else {
             return a.push(b);
         }
@@ -687,7 +695,7 @@ export class SchemaClass {
  * Definition of all schema-based resource classes
  */
 
-export const assignEntityById = (res, entitiesByID, namespace, modelClasses) => {
+export const assignEntityByID = (res, entitiesByID, namespace, modelClasses) => {
     if (entitiesByID){
         if (!res.id) { res.id = getNewID(entitiesByID); }
         if (res.id::isNumber()){
@@ -702,7 +710,7 @@ export const assignEntityById = (res, entitiesByID, namespace, modelClasses) => 
         } else {
             entitiesByID[res.fullID] = res;
             reviseWaitingList(entitiesByID.waitingList, res);
-            replaceIDs(modelClasses, entitiesByID, namespace, res);
+            replaceIDs(modelClasses, entitiesByID, res);
         }
     }
 };
@@ -738,13 +746,14 @@ export const reviseWaitingList = (waitingList, context) => {
     delete waitingList[res.fullID];
 };
 
-
+/**
 /**
  * Replace IDs with object references
  * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
  * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
+ * @param res - resource to update
  */
-export const replaceIDs = (modelClasses, entitiesByID, namespace, res) => {
+export const replaceIDs = (modelClasses, entitiesByID, res) => {
     const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
     const createObj = (res, key, value, spec) => {
@@ -763,7 +772,7 @@ export const replaceIDs = (modelClasses, entitiesByID, namespace, res) => {
         }
 
         if (value && value::isString()) {
-            let fullValueID = getFullID(namespace, value);
+            let fullValueID = getFullID(res.namespace, value);
             if (!entitiesByID[fullValueID]) {
                 //put to a waiting list instead
                 entitiesByID.waitingList[fullValueID] = entitiesByID.waitingList[fullValueID] || [];

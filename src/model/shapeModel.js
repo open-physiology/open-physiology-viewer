@@ -130,15 +130,6 @@ export class Lyph extends Shape {
         //Template supertype must contain id's for correct generation
         template.subtypes = (template.subtypes||[]).map(e => getID(e));
 
-        // parentGroup.lyphs.forEach(e => {
-        //     if (e.supertype === template.id) {
-        //         if (!template.subtypes.includes(e.id)) {
-        //             template.subtypes.push(e.id);
-        //         }
-        //     }
-        // });
-        //template.subtypes = template.subtypes.map(ref => getFullID(template.namespace, ref));
-
         (parentGroup.lyphsByID || {})::values().forEach(e => {
             if ((e.supertype === template.id || e.supertype === template.fullID) &&
                 !(template.subtypes.includes(e.id) || template.subtypes.includes(e.fullID))) {
@@ -155,7 +146,6 @@ export class Lyph extends Shape {
                 logger.error($LogMsg.LYPH_SUBTYPE_NOT_FOUND, template.namespace, template.id, ref);
             }
         });
-
         subtypes.forEach(subtype => this.clone(parentGroup, template, subtype));
         template._inactive = true;
     }
@@ -177,7 +167,7 @@ export class Lyph extends Shape {
         targetLyph = targetLyph || genResource({}, "shapeModel.clone.0 (Lyph)");
 
         if (!parentGroup.lyphs) {parentGroup.lyphs = [];}
- 
+
         if (sourceLyph.supertype && (sourceLyph.layers||[]).length === 0){
             //expand the supertype - the sourceLyph may need to get its layers from the supertype first
             //FIXME supertype in another namespace?
@@ -189,8 +179,7 @@ export class Lyph extends Shape {
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
             $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.namespace,
-                $Field.materials, $Field.channels, $Field.bundlesChains]),
-            mergeResources);
+                $Field.materials, $Field.channels, $Field.bundlesChains]), mergeResources);
         //If targetLyph is from different namespace, add namespace to default materials
         if (targetLyph.namespace !== sourceLyph.namespace){
             [$Field.materials, $Field.channels, $Field.bundlesChains].forEach(prop => {
@@ -250,8 +239,8 @@ export class Lyph extends Shape {
                 [$Field.skipLabel] : true
             }, "shapeModel.clone (Lyph)"));
             mergeGenResource(undefined, parentGroup, targetLayer, $Field.lyphs);
-            this.clone(parentGroup, sourceLayer, targetLayer);
 
+            this.clone(parentGroup, sourceLayer, targetLayer);
             targetLayer::merge(targetLyph::pick([$Field.topology]));
             targetLyph.layers = targetLyph.layers || [];
             targetLyph.layers.push(targetLayer.id);

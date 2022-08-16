@@ -461,7 +461,7 @@ export class WebGLSceneComponent {
                 const blob = new Blob([result], {type: 'application/ld+json'});
                 FileSaver.saveAs(blob, filename);
             };
-            this._graphData.entitiesToJSONLDFlat(this._graphData.entitiesToJSONLD(), callback);
+            this._graphData.modelClasses.Graph.entitiesToJSONLDFlat(this._graphData.entitiesToJSONLD(), callback);
         }
     }
 

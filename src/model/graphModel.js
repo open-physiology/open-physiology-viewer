@@ -123,12 +123,12 @@ export class Graph extends Group{
      * @param res           - ApiNATOMY connectivity model
      * @param entitiesByID  - map of entities by ID
      * @param namespace     - namespace
-     * @param added         - array of added elements
-     * @param resVal        - resVal
+     * @param modelClasses  - modelClasses
      * @param castingMethod - method used for different casting if working from an intermediate step
      * @returns {*}
      */
-    static processGraphWaitingList(res, entitiesByID, namespace, added, modelClasses, castingMethod) {
+    static processGraphWaitingList(res, entitiesByID, namespace, modelClasses, castingMethod) {
+        let added = [];
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
@@ -286,8 +286,7 @@ export class Graph extends Group{
         }
 
         //Auto-create missing definitions for used references
-        let added = [];
-        this.processGraphWaitingList(res, entitiesByID, inputModel.namespace, added, modelClasses, undefined);
+        this.processGraphWaitingList(res, entitiesByID, inputModel.namespace, modelClasses, undefined);
 
         if (!res.generated) {
             let noAxisLyphsInternal = (res.lyphs || []).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
