@@ -183,12 +183,15 @@ export class Logger {
     constructor(){}
 
     info(msg, ...params){
+        //console.info(msg, params);
         this.entries.push({"level": this.levelOptions.INFO, msg, params});
     }
     warn(msg, ...params){
+        //console.warn(msg, params);
         this.entries.push({"level": this.levelOptions.WARN, msg, params});
     }
     error(msg, ...params){
+        //console.error(msg, params);
         this.entries.push({"level": this.levelOptions.ERROR, msg, params});
     }
 

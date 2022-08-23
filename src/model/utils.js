@@ -525,6 +525,56 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
     })
 }
 
+/**
+ * Recursively merges objects from the given object fields
+ * @param obj - object to process
+ * @param key - property to recurse
+ * @param props - properties toc merge
+ * @param msg - logging message
+ */
+export const mergeRecursively = (obj, key, props, msg) => {
+    if (obj._processed){
+        return;
+    }
+    (obj[key]||[]).forEach(obj2 => {
+        if (obj2.id === obj.id) {
+            logger.warn(msg, obj.id, obj2.id);
+            return;
+        }
+        if (obj2[key]){
+            mergeRecursively(obj2, key, props, msg);
+        }
+    });
+    (obj[key]||[]).forEach(obj2 => {
+        if (obj2.id !== obj.id) {
+            (props||[]).forEach(prop => {
+                if (obj2[prop]::isArray()) {
+                    obj[prop] = (obj[prop] || [])::unionBy(obj2[prop], $Field.fullID);
+                    obj[prop] = obj[prop].filter(x => x && x.class);
+                }
+            });
+        }
+    });
+    obj._processed = true;
+}
+
+/**
+ * Removes a given field from an object recursively
+ * @param obj - object to modify
+ * @param key - property to recurse
+ * @param prop - property to delete
+ */
+export function deleteRecursively(obj, key, prop){
+    delete obj[prop];
+    (obj[key]||[]).forEach(obj2 => deleteRecursively(obj2, key, prop));
+}
+
+/**
+ * Creates maps of resources defined in the input model groups
+ * @param json - input model
+ * @param relFieldNames - resource properties to process
+ * @param groupProp - property name to classify resources (e.g., "group" or "component")
+ */
 export function collectNestedResources(json, relFieldNames = [], groupProp){
     relFieldNames.forEach(prop => {
         let mapProp = [prop + "ByID"];

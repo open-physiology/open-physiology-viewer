@@ -75,8 +75,8 @@ export function validateValue(value, key){
 export function validateExternal(externals, localConventions){
     const faultyExternal = [];
     (externals || []).forEach(r => {
-        if (!(localConventions||[]).find(c => r.id.startsWith(c.prefix))) {
-            faultyExternal.push(r.id);
+        if (r.fullID.indexOf(":") > -1 && !(localConventions||[]).find(c => r.fullID.startsWith(c.prefix))) {
+            faultyExternal.push(r.fullID);
         }
     });
     if (faultyExternal.length > 0){

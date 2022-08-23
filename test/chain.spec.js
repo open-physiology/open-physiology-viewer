@@ -359,11 +359,19 @@ describe("Process model with multiple namespaces (Spleen)", () => {
         })
         duplicates = [... new Set(duplicates)];
         //Note: duplicates are layers and their borders for 2 copies of lyph-medulla
-        if (duplicates.length !== 14) {
+        if (duplicates.length !== 13) {
             console.log(duplicates);
         }
         expect(duplicates).to.have.length(13);
         expect(noFullID).to.have.length(0);
+    });
+
+    it("Exported generated model contains definitions of ontologyTerms (Spleen)", () => {
+        let serializedGraphData = graphData.toJSON(3);
+        expect(serializedGraphData).to.have.property("ontologyTerms");
+        expect(serializedGraphData.ontologyTerms).to.be.an("array").that.has.length.greaterThan(0);
+        expect(serializedGraphData.ontologyTerms[0]).to.have.property("fullID");
+        expect(serializedGraphData.ontologyTerms[0]).to.have.property("annotates");
     });
 
     after(() => {

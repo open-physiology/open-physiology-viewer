@@ -879,5 +879,31 @@
     {
       "id": "UBERON:0000483"
     }
-  ]
+  ],
+    "localConventions": [
+        {
+            "prefix": "UBERON",
+            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+        },
+        {
+            "prefix": "FMA",
+            "namespace": "http://purl.org/sig/ont/fma/fma"
+        },
+        {
+            "prefix": "GO",
+            "namespace": "http://purl.obolibrary.org/obo/GO_"
+        },
+        {
+            "prefix": "CL",
+            "namespace": "http://purl.obolibrary.org/obo/CL_"
+        },
+        {
+            "prefix": "NCIT",
+            "namespace": "http://purl.obolibrary.org/obo/NCIT_"
+        },
+        {
+            "prefix": "CHEBI",
+            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+        }
+    ]
 }

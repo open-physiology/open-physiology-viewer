@@ -5,7 +5,7 @@ import {
     entries, keys, values,
     isNumber, isArray, isObject, isString, isEmpty,
     pick, merge,
-    cloneDeep, defaults, unionBy
+    cloneDeep, unionBy
 } from 'lodash-bound';
 import {Validator} from 'jsonschema';
 import schema from './graphScheme.json';
@@ -24,7 +24,7 @@ import {
     findResourceByID,
     collectNestedResources,
     getFullID, genResource,
-    pickColor
+    pickColor, deleteRecursively
 } from "./utils";
 import {
     extractLocalConventions,
@@ -195,7 +195,8 @@ export class Graph extends Group{
         let resVal = V.validate(json, schema);
 
         //Copy existing entities to a map to enable nested model instantiation
-        let inputModel = json::cloneDeep()::defaults({id: "mainGraph"});
+        let inputModel = json::cloneDeep();
+        inputModel.id = inputModel.id || "mainGraph";
 
         /**
          * @property waitingList
@@ -222,7 +223,6 @@ export class Graph extends Group{
 
             //Collect resources necessary for template expansion from all groups
             let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels];
-
             collectNestedResources(inputModel, relFieldNames, $Field.groups);
 
             modelClasses.Channel.defineChannelLyphTemplates(inputModel);
@@ -289,6 +289,7 @@ export class Graph extends Group{
         this.processGraphWaitingList(res, entitiesByID, inputModel.namespace, modelClasses, undefined);
 
         if (!res.generated) {
+
             let noAxisLyphsInternal = (res.lyphs || []).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
             res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID);
 
@@ -328,6 +329,11 @@ export class Graph extends Group{
                 }
             });
             validateExternal(res.external, res.localConventions);
+            validateExternal(res.ontologyTerms, res.localConventions);
+            validateExternal(res.references, res.localConventions);
+
+            res.mergeSubgroupResources();
+            deleteRecursively(res, $Field.group, "_processed");
 
             res.mergeScaffoldResources();
             (res.chains || []).forEach(chain => {
@@ -488,7 +494,7 @@ export class Graph extends Group{
             const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(inputModel[key]||[]);
     		XLSX.utils.book_append_sheet(wb, ws, key);
         })
-        XLSX.writeFile(wb, (inputModel.id||"mainGraph") + "-converted.xlsx");
+        XLSX.writeFile(wb, inputModel.id + "-converted.xlsx");
         return wb;
     }
 
@@ -534,13 +540,17 @@ export class Graph extends Group{
 
     /**
      * Auto-generate links for lyphs without axes
-     * @param noAxisLyphs - a list of lyphs without axis
+     * @param noAxisLyphs - a list of lyphs without axisnpm
      * @param modelClasses - model resource classes
      * @param entitiesByID - a global resource map to include the generated resources
      */
     createAxes(noAxisLyphs, modelClasses, entitiesByID){
         let group = (this.groups||[]).find(g => g.id === getGenID($Prefix.group, $Prefix.default));
         noAxisLyphs.forEach(lyph => {
+            if (!lyph.createAxis){
+                logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph);
+                return;
+            }
             let link = lyph.createAxis(modelClasses, entitiesByID, lyph.namespace);
             this.links.push(link);
             link.applyToEndNodes(end => this.nodes.push(end));

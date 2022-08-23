@@ -126,5 +126,11 @@
       "id": "PMID:29561168",
       "uri": "https://pubmed.ncbi.nlm.nih.gov/29561168/"
     }
+  ],
+  "localConventions": [
+        {
+            "prefix": "PMID",
+            "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+        }
   ]
 }

@@ -89,10 +89,8 @@ export class Channel extends GroupTemplate {
             mcLyphs.forEach(lyph => {
                 lyph.isTemplate = true;
                 lyph = genResource(lyph, "channelModel.defineChannelLyphTemplates (Lyph)");
-                parentGroup.lyphs.push(lyph);
-                parentGroup.lyphsByID[lyph.id] = lyph;
+                mergeGenResource(undefined, parentGroup, lyph, $Field.lyphs);
             });
-            parentGroup._mcLyphs = mcLyphs;
             channels.forEach(channel => {
                  if (channel::isObject()) {
                      this.expandTemplate(parentGroup, channel, mcLyphs);
@@ -316,7 +314,7 @@ export class Channel extends GroupTemplate {
                         isOk = (membraneMaterials || []).find(membraneMaterial => lyph.layers[1].containsMaterial(membraneMaterial.id))
                     }
                     if (!isOk){
-                        logger.warn($LogMsg.CHANNEL_WRONG_LAYER, lyph.layers[1]);
+                        logger.warn($LogMsg.CHANNEL_WRONG_LAYER, lyph.layers[1].id);
                     }
                 } else {
                     logger.warn($LogMsg.CHANNEL_VALIDATION_SKIPPED);
