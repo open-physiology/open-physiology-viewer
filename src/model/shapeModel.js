@@ -1,7 +1,7 @@
 import {VisualResource} from './visualResourceModel';
 import {Node} from './verticeModel';
 import {Edge, Link} from './edgeModel';
-import {clone, merge, pick, isObject, mergeWith, values} from 'lodash-bound';
+import {clone, merge, pick, isObject, mergeWith, values, keys} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
     LYPH_TOPOLOGY,
@@ -127,13 +127,14 @@ export class Lyph extends Shape {
                 parentGroup.lyphsByID[getFullID(parentGroup.namespace, s.id)] = s;
             }
         });
+
         //Template supertype must contain id's for correct generation
         template.subtypes = (template.subtypes||[]).map(e => getID(e));
 
         (parentGroup.lyphsByID || {})::values().forEach(e => {
             if ((e.supertype === template.id || e.supertype === template.fullID) &&
                 !(template.subtypes.includes(e.id) || template.subtypes.includes(e.fullID))) {
-                template.subtypes.push(e.fullID);
+                template.subtypes.push(e.fullID || e.id);
             }
         });
 
@@ -211,7 +212,7 @@ export class Lyph extends Shape {
 
         targetLyph.name = targetLyph.name || getGenName(sourceLyph.name);
 
-        if ((targetLyph.layers||[]).length > 0) {
+        if ((targetLyph.layers||[]).length > 0 && (sourceLyph.layers||[]) > 0) {
             logger.warn($LogMsg.LYPH_SUBTYPE_HAS_OWN_LAYERS, targetLyph);
         }
 

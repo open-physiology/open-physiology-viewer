@@ -18,7 +18,8 @@ import {
     getRefNamespace,
     refToResource,
     mergeGenResource,
-    genResource, $Default
+    genResource,
+    mergeRecursively
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -62,7 +63,6 @@ export class Group extends Resource {
         //create graph resource
         let res  = super.fromJSON(json, modelClasses, entitiesByID, namespace);
         //copy nested references to resources to the parent group
-        res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec
         addColor(res.links, $Color.Link);
@@ -354,21 +354,9 @@ export class Group extends Resource {
      * Add resources from subgroups to the current group
      */
     mergeSubgroupResources(){
-        //Place references to subgroup resources to the current group
         let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames([$SchemaClass.GroupTemplate])
             .filter(prop => ![$Field.seed, $Field.seedIn].includes(prop));
-        (this.groups||[]).forEach(group => {
-            if (group.id === this.id) {
-                logger.warn($LogMsg.GROUP_SELF, this.id, group.id);
-                return;
-            }
-            relFieldNames.forEach(prop => {
-                if (group[prop]::isArray()){
-                    this[prop] = (this[prop]||[])::unionBy(group[prop], "fullID");
-                    this[prop] = this[prop].filter(x => x && x.class);
-                }
-            });
-        });
+        mergeRecursively(this, $Field.groups, relFieldNames, $LogMsg.GROUP_SELF);
     }
 
     /**

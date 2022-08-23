@@ -18,7 +18,7 @@ import {
     prepareForExport,
     schemaClassModels,
     refToResource,
-    collectNestedResources
+    collectNestedResources, deleteRecursively
 } from "./utils";
 import {extractLocalConventions, extractModelAnnotation, convertValue, validateValue, validateExternal} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
@@ -34,7 +34,8 @@ import * as XLSX from "xlsx";
  */
 export class Scaffold extends Component {
 
-    static processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, castingMethod) {
+    static processScaffoldWaitingList(res, entitiesByID, namespace, modelClasses, castingMethod) {
+        let added = [];
         let standalone = entitiesByID === undefined;
 
         (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
@@ -109,13 +110,17 @@ export class Scaffold extends Component {
         }
 
         //Auto-create missing definitions for used references
-        let added = [];
-        Scaffold.processScaffoldWaitingList(res, entitiesByID, namespace, added, modelClasses, undefined);
+        Scaffold.processScaffoldWaitingList(res, entitiesByID, namespace, modelClasses, undefined);
+
+        res.mergeSubgroupResources();
+        deleteRecursively(res, $Field.component, "_processed");
 
         (res.components||[]).forEach(component => component.includeRelated && component.includeRelated());
         res.generated = true;
 
         validateExternal(res.external, res.localConventions);
+        validateExternal(res.ontologyTerms, res.localConventions);
+        validateExternal(res.references, res.localConventions);
 
         //Log info about the number of generated resources
         logger.info($LogMsg.SCAFFOLD_RESOURCE_NUM, this.id, entitiesByID::keys().length - before);

@@ -435,7 +435,7 @@ export class TestApp {
             }
             let result = JSON.stringify(this._model, null, 4);
             const blob = new Blob([result], {type: 'text/plain'});
-            FileSaver.saveAs(blob, (this._model.id ? this._model.id : 'mainGraph') + '-model.json');
+            FileSaver.saveAs(blob, this._model.id + '-model.json');
         }
     }
 

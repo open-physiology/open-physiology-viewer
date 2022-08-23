@@ -1,6 +1,6 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Color, $Field, $SchemaClass, addColor, schemaClassModels, showGroups} from "./utils";
+import {$Color, $Field, $SchemaClass, addColor, mergeRecursively, schemaClassModels, showGroups} from "./utils";
 import {logger, $LogMsg} from "./logger";
 import {Anchor} from './verticeModel';
 import {Wire} from './edgeModel';
@@ -28,7 +28,6 @@ export class Component extends Resource {
         //Create scaffold
         json.class = json.class || $SchemaClass.Component;
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
-        res.mergeSubgroupResources();
 
         //Assign color to visual resources with no color in the spec
         addColor(res.regions, $Color.Region);
@@ -125,20 +124,8 @@ export class Component extends Resource {
      * Add resources from sub-components to the current component
      */
     mergeSubgroupResources(){
-        //Place references to subcomponent resources to the current component
         let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();
-        (this.components||[]).forEach(component => {
-            if (component.id === this.id) {
-                logger.warn($LogMsg.COMPONENT_SELF, this.id, component.id);
-                return;
-            }
-            relFieldNames.forEach(prop => {
-                if (component[prop]::isArray()){
-                    this[prop] = (this[prop]||[])::unionBy(component[prop], $Field.id);
-                    this[prop] = this[prop].filter(x => x.class);
-                }
-            });
-        });
+        mergeRecursively(this, $Field.components, relFieldNames, $LogMsg.COMPONENT_SELF);
     }
 
     includeRelated(){

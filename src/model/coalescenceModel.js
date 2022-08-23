@@ -97,7 +97,7 @@ export class Coalescence extends Resource{
                 logger.warn($LogMsg.COALESCENCE_SELF, lyph, lyph2);
             }
             if (!lyph.axis || !lyph2.axis) {
-                logger.warn($LogMsg.COALESCENCE_NO_AXIS, !lyph.axis ? lyph : lyph2);
+                logger.warn($LogMsg.COALESCENCE_NO_AXIS, !lyph.axis? lyph.id : lyph2.id);
             }
            if (this.topology === Coalescence.COALESCENCE_TOPOLOGY.CONNECTING) {
                lyph2.angle = 180; //subordinate coalescing lyph should turn to its master

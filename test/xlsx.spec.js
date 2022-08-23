@@ -133,7 +133,7 @@ describe("Convert excel data to JSON and back", () => {
         model = loadModel(testModel, "TestModel", "xlsx", false);
     });
 
-    it("JSON model converted to Excel)", () => {
+     it("JSON model converted to Excel)", () => {
         model.chains[0].levels = [null, {}, {"target": "n1"}];
         model.lyphs[0].border = {"borders": [{},{},{},{"hostedNodes": ["n2", "n3"]}]};
         let excel = jsonToExcel(model);

@@ -1,4 +1,4 @@
-import {$Field, modelClasses} from "../model";
+import {modelClasses} from "../model";
 import {merge, values} from 'lodash-bound';
 import {
     align,
@@ -165,7 +165,6 @@ Lyph.prototype.createViewObjects = function(state) {
     if (!this.axis) { return; }
 
     if (this.isTemplate){
-        console.warn("Creating visual objects for an abstract lyph", this);
         return;
     }
     Shape.prototype.createViewObjects.call(this, state);
