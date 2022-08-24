@@ -268,6 +268,7 @@ export class Lyph extends Shape {
                     let internalID = getID(resource);
                     if (internalID && !layer[prop].find(x => x === internalID)){
                         layer[prop].push(internalID);
+                        return true;
                     }
                     logger.info($LogMsg.RESOURCE_TO_LAYER, internalID, layer.id, prop, layer[prop]);
                 } else {
@@ -276,20 +277,29 @@ export class Lyph extends Shape {
             } else {
                 logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers.length, lyph.id);
             }
+            return false;
         }
 
-        //A.internalLyphs=[B,C] + A.internalLyphsInLayers=[1,2]
         /**
          * Map internal lyph resources to its layers
          * @param key1 property containing references to internal resources (internalLyphs or internalNodes)
          * @param key2 property containing indexes of layers to map internal resources into
+         * @example A.internalLyphs=[B,C] and A.internalLyphsInLayers=[1,2]
          */
         function mapToLayers1(key1, key2){
             (parentGroup.lyphs||[]).forEach(lyph => {
-                if (lyph.layers && lyph[key1] && lyph[key2]) {
-                    for (let i = 0; i < Math.min(lyph[key1].length, lyph[key2].length); i++) {
-                        moveResourceToLayer(lyph[key1][i], lyph[key2][i], lyph, key1);
-                        lyph[key1][i] = null;
+                if (lyph.layers && lyph[key1]) {
+                    lyph[key2] = lyph[key2] || [];
+                    const k = lyph[key2].length;
+                    const n = Math.max(lyph[key1].length, k);
+                    //Issue #209 - for consistency an absent internalLyphsInLayers expand to layer 0 for all lyphs.
+                    for (let i = k; i < n; i++){
+                        lyph[key2].push(0);
+                    }
+                    for (let i = 0; i < n; i++) {
+                        if(moveResourceToLayer(lyph[key1][i], lyph[key2][i], lyph, key1)) {
+                            lyph[key1][i] = undefined;
+                        }
                     }
                     lyph[key1] = lyph[key1].filter(x => !!x);
                 }
