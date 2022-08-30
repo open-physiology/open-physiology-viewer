@@ -3,7 +3,7 @@ import {
     it,
     before,
     after,
-    expect
+    expect, expectNoErrors
 } from './test.helper';
 
 import basalGanglia from './data/basalGanglia';
@@ -11,6 +11,7 @@ import basalGangliaAuto from './data/basalGangliaAuto';
 import basic from './data/basic';
 import basicChainsInGroup from './data/basicChainsInGroup';
 import basicChainsInternalInLayer from './data/basicChainsInternalInLayer';
+import basicHousedChain from './data/basicChainWrongHousing.json';
 import basicHostedNode from './data/basicHostedNode';
 import basicLyphOnBorder from './data/basicLyphOnBorder';
 import basicLinkWithChainsAsEnds from './data/basicLinkWithChainsAsEnds';
@@ -97,6 +98,32 @@ describe("BasicChainsInGroup", () => {
     after(() => {
         graphData.logger.clear();
         graphData2.logger.clear();
+    });
+});
+
+
+describe("BasicHousedChain", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicHousedChain, modelClasses));
+    it("Model validator raises warning about chain housing", () => {
+        expectNoErrors(graphData);
+        //Correct chain
+        expect(graphData.chains[0]).to.have.property("levels");
+        expect(graphData.chains[0].levels).to.be.an("array").that.has.length(2);
+        //Wrong chain
+        expect(graphData.chains[1]).to.have.property("levels");
+        expect(graphData.chains[1].levels).to.be.an("array").that.has.length(3);
+
+        let logEvents = graphData.logger.entries;
+        let warnings = logEvents.filter(logEvent => logEvent.level === Logger.LEVEL.WARN);
+        expect(warnings).to.have.length(1);
+        expect(warnings[0]).to.have.property("msg").that.equals($LogMsg.CHAIN_WRONG_HOUSING);
+
+        expect(graphData).to.have.property("chains");
+        expect(graphData.chains).to.be.an("array").that.has.length(2);
+    });
+    after(() => {
+        graphData.logger.clear();
     });
 });
 

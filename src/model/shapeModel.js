@@ -531,6 +531,15 @@ export class Lyph extends Shape {
         }
     }
 
+    get isFirstLayer(){
+        if (this.layerIn?.layers?.length > 0){
+            if (this.layerIn.layers[0].fullID === this.fullID){
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Checks if the current lyph carries a material.
      * @param materialID
