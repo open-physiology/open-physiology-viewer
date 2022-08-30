@@ -338,6 +338,7 @@ export class Graph extends Group{
             res.mergeScaffoldResources();
             (res.chains || []).forEach(chain => {
                 if (chain instanceof modelClasses.Chain) {
+                    chain.validateHousedChainRoute();
                     chain.validateAnchoring();
                     chain.resizeLyphs();
                 } else {

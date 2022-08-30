@@ -469,5 +469,5 @@ describe("Neurulator discovers neurons (Pancreas)", () => {
 
     after(() => {
         graphData.logger.clear();
-    });
+    }); 
 });

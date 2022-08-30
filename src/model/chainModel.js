@@ -721,6 +721,26 @@ export class Chain extends GroupTemplate {
         const endLyph = this.levels[n - 1].conveyingLyph;
         return !(endLyph && [Lyph.LYPH_TOPOLOGY["BAG+"], Lyph.LYPH_TOPOLOGY.BAG2, Lyph.LYPH_TOPOLOGY.CYST].includes(endLyph.topology));
     }
+
+    validateHousedChainRoute(){
+        if (this.housingLyphs || this.housingChain){
+            if (this.levels.length < 1){
+                return;
+            }
+            let firstHost = this.levels[0].endsIn;
+            if (firstHost?.isFirstLayer){
+                return;
+            }
+            for (let i = 1; i < this.levels.length; i++){
+                let hostLyph = this.levels[i].fasciculatesIn;
+                if (hostLyph?.isFirstLayer){
+                    //Issue warning
+                    logger.warn($LogMsg.CHAIN_WRONG_HOUSING, this.id);
+                    return;
+                }
+            }
+        }
+    }
 }
 
 
