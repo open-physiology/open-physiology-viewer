@@ -483,15 +483,18 @@ export class Chain extends GroupTemplate {
                     logger.warn($LogMsg.CHAIN_NO_HOUSING_LAYERS, hostLyph.layers, hostLyph.id);
                     return;
                 }
-                //FIXME search by fullID?
-                bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id));
+                let nm = chain.namespace || parentGroup.namespace;
+                bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id ||
+                    (nm && t === getFullID(nm, chain.id))));
                 let index = layers.length - 1;
                 if (chain.housingLayers && chain.housingLayers.length > i){
-                    if (chain.housingLayers[i] < index){
-                        index = Math.max(0, chain.housingLayers[i]);
-                        if (bundlingLayer && (bundlingLayer !== layers[index])){
-                            logger.warn($LogMsg.CHAIN_CONFLICT3,
-                                bundlingLayer.id, layers[index].id);
+                    //Negative housing layer means the chain always passes through the outermost layer
+                    if (chain.housingLayers[i] > 0){
+                        if (chain.housingLayers[i] < index) {
+                            index = Math.max(0, chain.housingLayers[i]);
+                            if (bundlingLayer && (bundlingLayer !== layers[index])) {
+                                logger.warn($LogMsg.CHAIN_CONFLICT3, bundlingLayer.id, layers[index].id);
+                            }
                         }
                     }
                 }

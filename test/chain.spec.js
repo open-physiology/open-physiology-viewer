@@ -16,6 +16,7 @@ import wbkgStomach from './data/wbkgStomach.json';
 import wbkgPancreas from './data/wbkgPancreas.json';
 import wbkgSynapseTest from './data/wbkgSynapseTest.json';
 import wiredChain from './data/basicChainWireConflict.json';
+import uotBag from './data/neurulatorTestShortUotBag.json';
 
 describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
@@ -128,7 +129,6 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(c3).to.have.property("internalLyphsInLayers");
         expect(c3.internalLyphsInLayers).to.be.an('array').that.has.length(1);
         expect(c3.internalLyphsInLayers[0]).to.be.equal(3);
-        //TODO check that properties like fascilitatesIn and bundles are updated after mapInternalResourcesToLayers
 
         expect(c3).to.have.property("layers");
         expect(c3.layers).to.be.an('array').that.has.length(14);
@@ -155,16 +155,31 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(nn1.housingRange).to.have.property("min").that.equals(2);
         expect(nn1.housingRange).to.have.property("max").that.equals(9);
         expect(nn1.housingLayers).to.be.an('array').that.has.length(7);
+        expect(nn1.housingLayers[5]).to.be.equal(-1);
+
+        expect(nn1.levels).to.be.an("array").that.has.length(7);
+        expect(nn1.levels[5]).to.have.property("fasciculatesIn");
+        let outerLayer = nn1.levels[5].fasciculatesIn;
+        expect(outerLayer).to.have.property("layerIn");
+        expect(outerLayer.layerIn).to.have.property("layers");
+        let numLayers = outerLayer.layerIn.layers.length;
+        expect(outerLayer.layerIn.layers[numLayers-1]).to.have.property("id").that.equals(outerLayer.id);
 
         for (let i = nn1.housingRange.min; i < nn1.housingRange.max; i++){
             expect(ch1.lyphs[i]).to.be.an('object');
             expect(ch1.lyphs[i]).to.have.property('layers');
             let j = nn1.housingLayers[i - nn1.housingRange.min];
+            if (j < 0){
+                j = ch1.lyphs[i].layers.length - 1;
+            }
             expect(ch1.lyphs[i].layers).to.be.an('array').that.has.length.above(j);
             expect(ch1.lyphs[i].layers[j]).to.be.an('object');
         }
         for (let i = nn1.housingRange.min + 1; i < nn1.housingRange.max - 1; i++) {
             let j = nn1.housingLayers[i - nn1.housingRange.min];
+            if (j < 0){
+                j = ch1.lyphs[i].layers.length - 1;
+            }
             expect(ch1.lyphs[i].layers[j]).to.have.property('bundles');
             expect(ch1.lyphs[i].layers[j].endBundles).to.be.a("undefined");
             const lnk = ch1.lyphs[i].layers[j].bundles;
@@ -182,6 +197,9 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
 
         [nn1.housingRange.min, nn1.housingRange.max-1].forEach(i => {
             let j = nn1.housingLayers[i - nn1.housingRange.min];
+             if (j < 0){
+                j = ch1.lyphs[i].layers.length - 1;
+            }
             expect(ch1.lyphs[i].layers[j]).to.have.property('endBundles');
             const lnk = ch1.lyphs[i].layers[j].endBundles;
             expect(lnk).to.be.an('array').that.has.length(1);
@@ -469,5 +487,25 @@ describe("Neurulator discovers neurons (Pancreas)", () => {
 
     after(() => {
         graphData.logger.clear();
-    }); 
+    });
 });
+
+describe("Neurulator discovers closed groups (UOT)", () => {
+    let graphData;
+    before(() => {
+        graphData = modelClasses.Graph.fromJSON(uotBag, modelClasses);
+    });
+
+   it("Dynamic group representing tree (UOT)", () => {
+        expect(graphData).to.be.instanceOf(modelClasses.Graph);
+        graphData.neurulator();
+        expect(graphData).to.have.property("groups");
+        expect(graphData.groups[0]).to.be.instanceOf(modelClasses.Group);
+        let dynamic = graphData.groups.filter(g => g.description === "dynamic");
+        expect(dynamic.length).to.be.equal(1);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+})
