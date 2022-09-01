@@ -22,3 +22,4 @@ global.HTMLElement = window.HTMLElement;
 global.navigator = window.navigator;
 global.Node = window.Node;
 global.self = global.window;
+global.crypto = window.crypto;

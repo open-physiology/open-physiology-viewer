@@ -37,6 +37,7 @@ import {
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
 import * as XLSX from "xlsx";
+import {v4 as uuidv4} from 'uuid';
 //Do not include modelClasses here, it creates circular dependency
 
 export { schema };
@@ -177,8 +178,8 @@ export class Graph extends Group{
 
         res.syncRelationships(modelClasses, entitiesByID);
         res.modelClasses = modelClasses;
+        res.uuid = uuidv4();
     }
-
 
     /**
      * Create expanded Graph model from the given JSON input model

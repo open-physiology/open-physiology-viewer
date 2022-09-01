@@ -638,7 +638,7 @@ const getFieldDefaultValues = (className) => {
                 ? specObj.default::cloneDeep()
                 : specObj.default )
             : undefined;
-    };
+    }
     return schema.definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
 };
 
@@ -656,7 +656,7 @@ const recurseSchema = (className, handler) => {
             let refs = getClassRefs(schema.definitions[clsName]);
             (refs||[]).forEach(ref => {
                 stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
-            })
+            });
         }
         i++;
     }
@@ -668,6 +668,7 @@ const recurseSchema = (className, handler) => {
 
 /**
  * A class that provides helper properties for schema-based resource classes
+ * @class
  * @property schema
  * @property schemaClassName
  * @property defaultValues
