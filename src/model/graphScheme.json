@@ -147,6 +147,11 @@
         "author": {
           "description": "Name of the model author",
           "type": "string"
+        },
+        "uuid": {
+          "description": "Generated UUID for exported model",
+          "type": "string",
+          "readOnly": true
         }
       }
     },

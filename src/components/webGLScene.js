@@ -441,7 +441,7 @@ export class WebGLSceneComponent {
                 [$Field.scaffolds]: 5
             }), null, 2);
             const blob = new Blob([result], {type: 'application/json'});
-            FileSaver.saveAs(blob, this._graphData.id + '-generated.json');
+            FileSaver.saveAs(blob, this._graphData.id + '-generated-' + this._graphData.uuid + '.json');
         }
     }
 
@@ -449,13 +449,13 @@ export class WebGLSceneComponent {
         if (this._graphData){
             let result = JSON.stringify(this._graphData.entitiesToJSONLD(), null, 2);
             const blob = new Blob([result], {type: 'application/ld+json'});
-            FileSaver.saveAs(blob, this._graphData.id + '-resourceMap.jsonld');
+            FileSaver.saveAs(blob, this._graphData.id + '-resourceMap-' + this._graphData.uuid + '.jsonld');
         }
     }
 
     exportResourceMapLDFlat(){
         if (this._graphData){
-            let filename = this._graphData.id + '-resourceMap-flattened.jsonld';
+            let filename = this._graphData.id + '-resourceMap-flattened-'  + this._graphData.uuid + '.jsonld';
             const callback = res => {
                 let result = JSON.stringify(res, null, 2);
                 const blob = new Blob([result], {type: 'application/ld+json'});
@@ -475,7 +475,7 @@ export class WebGLSceneComponent {
             if (res !== undefined){
                 let result = JSON.stringify(res, null, 2);
                 const blob = new Blob([result], {type: 'application/txt'});
-                FileSaver.saveAs(blob, this._graphData.id + '-log.json');
+                FileSaver.saveAs(blob, this._graphData.id + '-log-' + this._graphData.uuid + '.json');
             }
         });
     }

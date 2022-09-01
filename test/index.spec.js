@@ -63,7 +63,7 @@ describe("JSON Schema matches patterns", () => {
         v = new Validator();
     });
 
-    it("IdentifierSchema does not accept weird expressions as identifiers", () => {
+    it("IdentifierScheme does not accept weird expressions as identifiers", () => {
         const ids = ["a+b=c",
             "2*2=4",
             "Just some text with spaces"];
@@ -73,7 +73,7 @@ describe("JSON Schema matches patterns", () => {
         });
     })
 
-    it("IdentifierSchema accepts URIs", () => {
+    it("IdentifierScheme accepts URIs", () => {
         const ids = ["http://www.amazon.com/?isbn=0321154991",
             "doi:10.1016/B978-0-444-53491-0.09985-5",
             "doi:10.1016/j.mpaic.2008.08.005",
@@ -141,6 +141,8 @@ describe("Model with recursive lyph template does not stuck in a loop", () => {
 
     it("Graph model created", () => {
         expect(graphData).to.have.property("class");
+        expect(graphData).to.have.property("fullID");
+        expect(graphData).to.have.property("uuid");
         expect(graphData).to.have.property("lyphs");
         const ns = graphData.lyphs.find(e => e.id === "ns");
         expect(ns).to.have.property("subtypes");
