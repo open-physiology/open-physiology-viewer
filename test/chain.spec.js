@@ -215,6 +215,46 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         })
     });
 
+    it("Neuron chains are correctly embedded when housingLayers are negative or outside the range", () => {
+        const ch1 = graphData.chains.find(chain => chain.id === "ch1");
+        expect(ch1).to.be.an('object');
+        expect(ch1).to.have.property("lyphs");
+        expect(ch1.lyphs).to.be.an('array').that.has.length(16);
+
+        const nn2 = graphData.chains.find(chain => chain.id === "nn2");
+        expect(nn2).to.be.an('object');
+        expect(nn2).to.have.property("housingChain");
+        expect(nn2).to.have.property("housingRange");
+        expect(nn2).to.have.property("housingLayers");
+        expect(nn2.housingRange).to.have.property("min").that.equals(2);
+        expect(nn2.housingRange).to.have.property("max").that.equals(11);
+        expect(nn2.housingLayers).to.be.an('array').that.has.length(9);
+        expect(nn2.levels).to.be.an("array").that.has.length(9);
+
+        expect(nn2.housingLayers[6]).to.be.equal(-2);
+        expect(nn2.housingLayers[7]).to.be.equal(100);
+        expect(nn2.housingLayers[8]).to.be.equal(-100);
+
+        //Index -2 means the chain level is embedded to second to last outermost layer
+        expect(nn2.levels[6]).to.have.property("fasciculatesIn");
+        let hostLayer = nn2.levels[6].fasciculatesIn;
+        expect(hostLayer).to.have.property("layerIn");
+        let hostLyph = hostLayer.layerIn;
+        expect(hostLyph).to.have.property("layers");
+        let numLayers = hostLyph.layers.length;
+        expect(hostLyph.layers[numLayers-2]).to.have.property("id").that.equals(hostLayer.id);
+
+        //Positive out-of-range index defaults to host lyph
+        expect(nn2.levels[7]).to.have.property("fasciculatesIn");
+        let hostLyph1 = nn2.levels[7].fasciculatesIn;
+        expect(hostLyph1).to.have.property("id").that.equals("l2");
+
+        //Negative out-of-range index defaults to host lyph
+        expect(nn2.levels[8]).to.have.property("endsIn");
+        let hostLyph2 = nn2.levels[8].endsIn;
+        expect(hostLyph2).to.have.property("id").that.equals("l3");
+    });
+
     after(() => {});
 });
 
@@ -425,6 +465,17 @@ describe("Process model with multiple namespaces (Stomach)", () => {
         }
         expect(duplicates).to.have.length(0);
         expect(noFullID).to.have.length(0);
+    });
+
+    it("Generated lyph layers inherit composition materials (Stomach)", () => {
+        let lt_dend_bag = graphData.entitiesByID["wbkg:lt-dend-bag"];
+        expect(lt_dend_bag).not.to.be.an("undefined");
+        expect(lt_dend_bag).to.have.property("topology").that.equals("BAG-");
+        expect(lt_dend_bag).to.have.property("layers");
+        let layer = lt_dend_bag.layers[0];
+        expect(layer).to.have.property("materials");
+        expect(layer.materials).to.be.an("array").that.has.length(1);
+        expect(layer.materials[0]).to.have.property("fullID").that.equals("wbkg:mat-cytoplasm");
     });
 
     after(() => {
