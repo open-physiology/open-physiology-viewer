@@ -20,6 +20,8 @@ import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
 
+import { neuroViewUpdateLayout } from '../view/render/neuroView'
+
 const WindowResize = require('three-window-resize');
 
 /**
