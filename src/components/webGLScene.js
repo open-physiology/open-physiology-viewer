@@ -4,7 +4,6 @@ import {FormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
-import FileSaver  from 'file-saver';
 import {keys, values, isObject, cloneDeep, defaults} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
@@ -18,6 +17,8 @@ import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
+
+import { neuroViewUpdateLayout } from '../view/render/neuroView'
 
 const WindowResize = require('three-window-resize');
 
@@ -127,6 +128,7 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
+                        (onToggleNeurulatedGroup)="toggleNeurulatedGroup($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
             </section>
@@ -753,6 +755,10 @@ export class WebGLSceneComponent {
             group.hide();
         }
         if (this.graph) { this.graph.graphData(this.graphData); }
+    }
+
+    toggleNeurulatedGroup(group) {
+        neuroViewUpdateLayout(this.graph?.graphData?.scaffoldComponents, group);
     }
 }
 
