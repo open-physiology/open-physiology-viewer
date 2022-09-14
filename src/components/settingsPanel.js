@@ -18,6 +18,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
+import config from '../data/config';
 
 /**
  * @ignore
@@ -99,6 +100,9 @@ const COLORS = {
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
+                        <div class="wrap">
+                            <mat-checkbox [(ngModel)]="neuroViewEnabled" (change)="enableNeuroview($event, false)">Enable Neuroview</mat-checkbox>
+                        </div>
                         <div class="default-box-header">
                             <div class="search-bar">
                                 <img src="./styles/images/search.svg"/>
@@ -108,11 +112,11 @@ const COLORS = {
                                 <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
                                      (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')"/>
                             </div>
-                            <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
+                            <button mat-raised-button (click)="toggleAllGroups()" [disabled]="neuroViewEnabled">Toggle all</button>
                         </div>
                         <div class="wrap" *ngFor="let group of filteredGroups">
-                            <mat-slide-toggle [checked]="!group.hidden"
-                                              (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
+                            <mat-slide-toggle class="toggle-group" [checked]="!group.hidden"
+                                              (change)="toggleGroup($event, group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
                         </div>
                         <!--Tree structure-->
                         <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
@@ -120,7 +124,7 @@ const COLORS = {
                             <span>{{node.data.name}}</span>
                             <mat-slide-toggle></mat-slide-toggle>
                           </ng-template>
-                        </tree-root> -->
+                          </tree-root> -->
                         <!--Tree structure-->
                     </div>
                 </mat-expansion-panel>
@@ -136,6 +140,9 @@ const COLORS = {
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
+                        <div class="wrap">
+                            <mat-checkbox [(ngModel)]="neuroViewEnabled" (change)="enableNeuroview($event, true)">Enable Neuroview</mat-checkbox>
+                        </div>
                         <div class="default-box-header">
                             <div class="search-bar">
                                 <img src="./styles/images/search.svg"/>
@@ -151,7 +158,7 @@ const COLORS = {
                         </div>
                         <div class="wrap" *ngFor="let group of filteredDynamicGroups">
                             <mat-slide-toggle [checked]="!group.hidden"
-                                              (change)="onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
+                                              (change)="toggleGroup($event, group)">{{group.name || group.id}}</mat-slide-toggle>
                         </div>
                         <!--Tree structure-->
                         <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
@@ -535,6 +542,17 @@ const COLORS = {
 
         :host ::ng-deep .default-box .wrap {
           padding: 0 1.067rem;
+          display: flex;
+        }
+
+        :host ::ng-deep .default-box .wrap-neurulated {
+          padding: 0 1.067rem;
+          display: flex;
+        }
+
+        :host ::ng-deep .default-box .toggle-group {
+          padding: 0 1.067rem;
+          display: flex;
         }
 
         :host ::ng-deep .default-box .wrap .mat-slide-toggle {
@@ -1007,6 +1025,7 @@ export class SettingsPanel {
     @Output() onUpdateShowLabels   = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup        = new EventEmitter();
+    @Output() onToggleNeurulatedGroup  = new EventEmitter();
     @Output() onToggleMode         = new EventEmitter();
     @Output() onToggleLayout       = new EventEmitter();
     @Output() onToggleHelperPlane  = new EventEmitter();
@@ -1132,6 +1151,29 @@ export class SettingsPanel {
       this.toggleAllDynamicGroup();
     }
 
+    toggleGroup = (event, group) => {
+      if ( this.neuroViewEnabled ) { 
+        let allVisible = this.groups.filter( group => group.hidden == false );
+        allVisible.forEach( g =>  this.onToggleGroup.emit(g));
+        this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === false ) { this.onToggleGroup.emit(scaffold) } });
+      }
+      if ( event.checked && group.hidden ) {
+        this.onToggleGroup.emit(group);
+      } else if ( !event.checked && !group.hidden ) {
+        this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === false ) { this.onToggleGroup.emit(scaffold) } });
+        this.onToggleGroup.emit(group);
+      }
+      if ( this.neuroViewEnabled ) {
+        this.scaffolds.forEach( scaffold => {
+          scaffold.wires.forEach( wire => {
+              if ( wire?.id === group?.generatedFrom?.wiredTo?.id ) {
+                scaffold?.id != "too-map" ? this.onToggleGroup.emit(scaffold) : null;
+              }
+          });
+        });
+      }  
+    }
+
     toggleAllDynamicGroup = () => {
       let allVisible = this.dynamicGroups.filter( group => group.hidden || group.undefined );
 
@@ -1139,6 +1181,40 @@ export class SettingsPanel {
         if(group.hidden || allVisible.length == 0) {
           this.onToggleGroup.emit(group);
         }
+      }
+    }
+
+    filterGroups = (groups) => {
+      return groups.filter( g => {
+        return g.generatedFrom?.external?.find( external => {
+          return config.neurulatedGroups.includes(external.namespace);
+        }) || g.generatedFrom?.ontologyTerms?.find( external => {
+          return config.neurulatedGroups.includes(external.namespace);
+        });
+      });
+    } 
+
+    enableNeuroview = (e, dynamic) => {
+      if(e.checked){
+        this.filteredDynamicGroups = this.filterGroups(this.dynamicGroups);
+        this.filteredGroups = this.filterGroups(this.groups);
+        const neuroViewVisibleNeurons = this.groups.filter( group => group.hidden == false );
+        
+        let allVisible = this.groups.filter( group => group.hidden == false );
+        allVisible.forEach( g =>  this.onToggleGroup.emit(g));
+
+        allVisible = this.dynamicGroups.filter( group => group.hidden == false );
+        allVisible.forEach( g =>  this.onToggleGroup.emit(g));
+
+        this.scaffolds.forEach( scaffold =>  this.onToggleGroup.emit(scaffold));
+        this.updateRenderedResources();
+        
+        neuroViewVisibleNeurons.length == 1 ? this.onToggleGroup.emit(neuroViewVisibleNeurons[0]) : null;
+      } else {
+        this.filteredGroups = this.groups;
+        this.filteredDynamicGroups = this.dynamicGroups;
+        this.scaffolds.forEach( scaffold =>  this.onToggleGroup.emit(scaffold));
+        this.updateRenderedResources();
       }
     }
 
