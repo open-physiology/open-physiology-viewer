@@ -20,6 +20,7 @@ import basicHousedTree from './data/basicHousedTree';
 import basicJointTrees from './data/basicJointTrees';
 import basicLyphWithNoAxis from './data/basicLyphWithNoAxis';
 import basicSharedNodes from './data/basicSharedNodes';
+import basicTemplateAsInternalLyphInLayer from './data/basicTemplateAsInternalLyphInLayer';
 import basicVillus from './data/basicVillus';
 import keastSpinal from './data/keastSpinal';
 import neuron from './data/neuron';
@@ -207,6 +208,28 @@ describe("BasicSharedNodes", () => {
         graphData.logger.clear();
     });
 });
+
+describe("BasicTemplateAsInternalLyphInLayer", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicTemplateAsInternalLyphInLayer, modelClasses));
+    it("Model generated without warnings", () => {
+        expectNoWarnings(graphData);
+        //Chain levels have internalLyphs
+        expect(graphData).to.have.property("lyphs");
+        let h2 = graphData.entitiesByID["h2"];
+        let h3 = graphData.entitiesByID["h3"];
+        expect(h2).to.have.property("layers").that.has.length(3);
+        expect(h3).to.have.property("layers").that.has.length(3);
+        expect(h2.layers[1]).to.have.property("internalLyphs").that.has.length(1);
+        expect(h3.layers[2]).to.have.property("internalLyphs").that.has.length(1);
+        expect(h2.layers[1].internalLyphs[0]).to.have.property("supertype");
+        expect(h3.layers[2].internalLyphs[0]).to.have.property("supertype");
+    });
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
 
 describe("BasicVillus", () => {
     let graphData;
