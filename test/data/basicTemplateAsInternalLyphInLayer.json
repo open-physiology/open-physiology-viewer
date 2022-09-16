@@ -1,0 +1,90 @@
+{
+  "id": "Internal-lyph-template",
+  "name": "Lyph template to place internal lyphs to layers",
+  "description": "See issue #41: https://github.com/open-physiology/open-physiology-viewer/issues/212",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "a",
+      "layout": {"x": -25, "y": 0}
+    },
+    {
+      "id": "b",
+      "layout": {"x": 25, "y": 0}
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "h1_l1",
+      "isTemplate": true
+    },
+    {
+      "id": "h1_l2",
+      "isTemplate": true
+    },
+    {
+      "id": "h1_l3",
+      "isTemplate": true
+    },
+    {
+      "id": "h_l",
+      "isTemplate": true,
+      "layers": ["h1_l1", "h1_l2", "h1_l3"]
+    },
+    {
+      "id": "h1",
+      "layers": ["h1_l1", "h1_l2", "h1_l3"]
+    },
+    {
+      "id": "h2",
+      "supertype": "h_l",
+      "internalLyphs": ["internal"],
+      "internalLyphsInLayers": [1]
+    },
+    {
+      "id": "h3",
+      "supertype": "h_l",
+      "internalLyphs": ["internal"],
+      "internalLyphsInLayers": [2]
+    },
+    {
+      "id": "h4",
+      "supertype": "h_l"
+    },
+    {
+      "id": "h5_l1"
+    },
+    {
+      "id": "h5_l2"
+    },
+    {
+      "id": "h5_l3"
+    },
+    {
+      "id": "h5_l4"
+    },
+    {
+      "id": "h5",
+      "layers": ["h5_l1", "h5_l2", "h5_l3", "h5_l4"]
+    },
+    {
+      "id": "internal",
+      "layers": ["internal_l1", "internal_l2"],
+      "isTemplate": true
+    },
+    {
+      "id": "internal_l1"
+    },
+    {
+      "id": "internal_l2"
+    }
+  ],
+  "chains": [
+    {
+      "id": "c1",
+      "root": "a",
+      "leaf": "b",
+      "lyphs": ["h1", "h2", "h3", "h4", "h5"]
+    }
+  ]
+}

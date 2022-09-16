@@ -34,7 +34,7 @@ import {
 } from '../model/index';
 
 import 'hammerjs';
-import initModel from '../data/graph.json';
+import initModel from '../../test/data/basicTemplateAsInternalLyphInLayer.json'
 
 import "./styles/material.scss";
 import 'jsoneditor/dist/jsoneditor.min.css';
