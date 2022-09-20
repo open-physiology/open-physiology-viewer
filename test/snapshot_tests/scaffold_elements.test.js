@@ -11,7 +11,7 @@ var scriptName = path.basename(__filename, '.js');
 
 //SNAPSHOT
 const SNAPSHOT_OPTIONS = {
-    customSnapshotsDir: `./tests/snapshots/${scriptName}`,
+    customSnapshotsDir: `./test/snapshot_tests/snapshots/${scriptName}`,
     comparisonMethod: 'ssim',
     customDiffConfig: {
         ssim: 'fast', //where higher accuracy is desired at the expense of time or a higher quality diff image is needed for debugging
@@ -69,8 +69,22 @@ describe('Scaffold Model Elements', () => {
 
     it('Scaffold Model', async () => {
         await wait4selector(page, BASE_PAGE_SELECTOR, { timeout: ONE_MINUTE });
-       
+        await page.waitForTimeout(ONE_SECOND * 2)
+        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Scaffold Model')
     });
+
+    it('Groups from Scaffold Model', async () => {
+        console.log('Toggle Groups from Scaffold Model')
+
+        await click_(page, SHOW_SETTING_SELECTOR)
+
+        const ScaffoldGroups = await page.evaluate(() => document.querySelectorAll("span.mat-slide-toggle-content").length)
+        expect(ScaffoldGroups).toBe(9)
+
+        await fullpageSnapshot(page, SNAPSHOT_OPTIONS, 'Groups from Scaffold Model')
+        await click_(page, HIDE_SETTINGS_SELECTOR)
+
+    })
 
 })
 
