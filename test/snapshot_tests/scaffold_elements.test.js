@@ -29,7 +29,9 @@ const SHOW_SETTING_SELECTOR = 'button[title = "Show settings"]';
 const HIDE_SETTINGS_SELECTOR = 'button[title = "Hide settings"]';
 const MERGE_MODEL_SELECTOR = '#mergeBtn > i';
 const TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR = 'button[class = "mat-focus-indicator mat-raised-button mat-button-base"]';
-
+const UNTOGLE_ALL_GROUPS_SELECTOR = 'button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]';
+const ERROR_PANEL_SELECTOR = '.cdk-overlay-pane';
+const OK_ERROR_SELECTOR = 'div[class = "mat-simple-snackbar-action ng-star-inserted"]';
 
 
 
@@ -108,8 +110,8 @@ describe('Scaffold Model: F Group', () => {
         expect(anchor).toBe(scaffoldGroupName[0])
 
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
     
         await page.evaluate(() => {
@@ -134,8 +136,7 @@ describe('Scaffold Model: F Group', () => {
 
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const wire = await page.evaluate(() => {
@@ -146,8 +147,8 @@ describe('Scaffold Model: F Group', () => {
         });
         expect(wire).toBe(scaffoldGroupName[3])
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
 
         await page.evaluate(() => {
@@ -171,8 +172,7 @@ describe('Scaffold Model: F Group', () => {
 
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
 
@@ -184,8 +184,8 @@ describe('Scaffold Model: F Group', () => {
         });
         expect(region).toBe(scaffoldGroupName[6])
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
 
         await page.evaluate(() => {
@@ -207,12 +207,11 @@ describe('Scaffold Model: F Group', () => {
 
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
         
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
 
         await page.evaluate(() => {
@@ -254,8 +253,8 @@ describe('Scaffold Model: D Group', () => {
         expect(anchor).toBe(scaffoldGroupName[1])
 
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
     
         await page.evaluate(() => {
@@ -275,13 +274,10 @@ describe('Scaffold Model: D Group', () => {
     it('D Wires from Scaffold Model', async () => {
         console.log('Toggle D Wires from Scaffold Model')
 
-
         await click_(page, SHOW_SETTING_SELECTOR)
-
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const wire = await page.evaluate(() => {
@@ -292,10 +288,9 @@ describe('Scaffold Model: D Group', () => {
         });
         expect(wire).toBe(scaffoldGroupName[4])
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
-
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
             for (var i = 0; i < map.length; i++) {
@@ -305,20 +300,16 @@ describe('Scaffold Model: D Group', () => {
 
         await click_(page, HIDE_SETTINGS_SELECTOR)
 
-
         await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Wires from Scaffold Model')
     })
 
     it('D  Regions from Scaffold Model', async () => {
         console.log('Toggle D Regions from Scaffold Model')
 
-
         await click_(page, SHOW_SETTING_SELECTOR)
-
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
 
@@ -330,10 +321,9 @@ describe('Scaffold Model: D Group', () => {
         });
         expect(region).toBe(scaffoldGroupName[7])
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
-
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
             for (var i = 0; i < map.length; i++) {
@@ -353,14 +343,11 @@ describe('Scaffold Model: D Group', () => {
 
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
-        
-
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
             for (var i = 0; i < map.length; i++) {
@@ -378,14 +365,14 @@ describe('Scaffold Model: D Group', () => {
 })
 
 
+
 describe('Scaffold Model: N Group', () => {
 
     it('N Anchors, Wires and Regions from Scaffold Model', async () => {
         console.log('Toggle N Anchors from Scaffold Model')
+        
         await page.reload()
-
         await click_(page, SHOW_SETTING_SELECTOR)
-
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
 
@@ -398,10 +385,9 @@ describe('Scaffold Model: N Group', () => {
         expect(anchor).toBe(scaffoldGroupName[2])
 
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
-    
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
             for (var i = 0; i < map.length; i++) {
@@ -411,7 +397,6 @@ describe('Scaffold Model: N Group', () => {
 
         await click_(page, HIDE_SETTINGS_SELECTOR)
 
-
         await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Anchors from Scaffold Model')
 
     })
@@ -419,13 +404,10 @@ describe('Scaffold Model: N Group', () => {
     it('N Wires from Scaffold Model', async () => {
         console.log('Toggle N Wires from Scaffold Model')
 
-
         await click_(page, SHOW_SETTING_SELECTOR)
-
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const wire = await page.evaluate(() => {
@@ -436,8 +418,8 @@ describe('Scaffold Model: N Group', () => {
         });
         expect(wire).toBe(scaffoldGroupName[5])
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
 
         await page.evaluate(() => {
@@ -449,22 +431,17 @@ describe('Scaffold Model: N Group', () => {
 
         await click_(page, HIDE_SETTINGS_SELECTOR)
 
-
         await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Wires from Scaffold Model')
     })
 
     it('N  Regions from Scaffold Model', async () => {
         console.log('Toggle N Regions from Scaffold Model')
 
-
         await click_(page, SHOW_SETTING_SELECTOR)
-
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
-
 
         const region = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
@@ -474,10 +451,9 @@ describe('Scaffold Model: N Group', () => {
         });
         expect(region).toBe(scaffoldGroupName[8])
 
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
         
-
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
             for (var i = 0; i < map.length; i++) {
@@ -494,16 +470,12 @@ describe('Scaffold Model: N Group', () => {
         console.log('Toggle N Anchors, wires and regions from Scaffold Model')
 
         await click_(page, SHOW_SETTING_SELECTOR)
-
         await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        //Untoggling all groups
-        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
-        
-        await page.waitForSelector('.cdk-overlay-pane')
-        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
-        
+        await page.waitForSelector(ERROR_PANEL_SELECTOR)
+        await page.click(OK_ERROR_SELECTOR)
 
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
