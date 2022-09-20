@@ -4,6 +4,7 @@
   "description": "Open-physiology viewer",
   "main": "dist/index.js",
   "scripts": {
+    "snapshot_test": "jest",
     "test": "mochapack --opts mocha-webpack.opts --timeout 50000 test/**/*.spec.js",
     "build": "cross-env BABEL_ENV=production webpack",
     "watch": "webpack --progress --watch",
@@ -53,6 +54,7 @@
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "puppeteer": "^18.0.3",
     "sass": "^1.53.0",
     "sass-loader": "^11.1.1",
     "source-map-support": "^0.5.21",
