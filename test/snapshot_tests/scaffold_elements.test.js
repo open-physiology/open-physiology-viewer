@@ -82,10 +82,153 @@ describe('Scaffold Model Elements', () => {
         expect(ScaffoldGroups).toBe(9)
 
         await fullpageSnapshot(page, SNAPSHOT_OPTIONS, 'Groups from Scaffold Model')
+
         await click_(page, HIDE_SETTINGS_SELECTOR)
 
     })
 
+})
+
+describe('Scaffold Model: F Group', () => {
+
+    
+    it('F Anchors, Wires and Regions from Scaffold Model', async () => {
+        console.log('Toggle F Anchors from Scaffold Model')
+
+        await click_(page, SHOW_SETTING_SELECTOR)
+        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await page.waitForTimeout(2000)
+
+        const anchor = await page.evaluate(() => {
+            let map = document.querySelectorAll('span.mat-slide-toggle-content');
+            for (var i = 0; i < map.length; i++) {
+                return map[0].innerText
+            }
+        });
+        expect(anchor).toBe(scaffoldGroupName[0])
+
+
+        await page.waitForSelector('.cdk-overlay-pane')
+        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        
+    
+        await page.evaluate(() => {
+            let map = document.querySelectorAll('div.mat-slide-toggle-bar');
+            for (var i = 0; i < map.length; i++) {
+                map[0].click();
+            }
+        });
+
+        await click_(page, HIDE_SETTINGS_SELECTOR)
+
+
+        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Anchors from Scaffold Model')
+
+    })
+
+    it('F Wires from Scaffold Model', async () => {
+        console.log('Toggle F Wires from Scaffold Model')
+
+
+        await click_(page, SHOW_SETTING_SELECTOR)
+
+        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await page.waitForTimeout(2000)
+        //Untoggling all groups
+        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.waitForTimeout(2000)
+
+        const wire = await page.evaluate(() => {
+            let map = document.querySelectorAll('span.mat-slide-toggle-content');
+            for (var i = 0; i < map.length; i++) {
+                return map[3].innerText
+            }
+        });
+        expect(wire).toBe(scaffoldGroupName[3])
+
+        await page.waitForSelector('.cdk-overlay-pane')
+        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        
+
+        await page.evaluate(() => {
+            let map = document.querySelectorAll('div.mat-slide-toggle-bar');
+            for (var i = 0; i < map.length; i++) {
+                map[3].click();
+            }
+        });
+
+        await click_(page, HIDE_SETTINGS_SELECTOR)
+
+
+        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Wires from Scaffold Model')
+    })
+
+    it('F  Regions from Scaffold Model', async () => {
+        console.log('Toggle F Regions from Scaffold Model')
+
+
+        await click_(page, SHOW_SETTING_SELECTOR)
+
+        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await page.waitForTimeout(2000)
+        //Untoggling all groups
+        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.waitForTimeout(2000)
+
+
+        const region = await page.evaluate(() => {
+            let map = document.querySelectorAll('span.mat-slide-toggle-content');
+            for (var i = 0; i < map.length; i++) {
+                return map[6].innerText
+            }
+        });
+        expect(region).toBe(scaffoldGroupName[6])
+
+        await page.waitForSelector('.cdk-overlay-pane')
+        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        
+
+        await page.evaluate(() => {
+            let map = document.querySelectorAll('div.mat-slide-toggle-bar');
+            for (var i = 0; i < map.length; i++) {
+                map[6].click();
+            }
+        });
+
+        await click_(page, HIDE_SETTINGS_SELECTOR)
+
+        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Regions from Scaffold Model')
+    })
+
+    it('F  group elements from Scaffold Model', async () => {
+        console.log('Toggle F Anchors, wires and regions from Scaffold Model')
+
+        await click_(page, SHOW_SETTING_SELECTOR)
+
+        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await page.waitForTimeout(2000)
+        //Untoggling all groups
+        await page.click('button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]')
+        await page.waitForTimeout(2000)
+        
+        await page.waitForSelector('.cdk-overlay-pane')
+        await page.click('div[class = "mat-simple-snackbar-action ng-star-inserted"]')
+        
+
+        await page.evaluate(() => {
+            let map = document.querySelectorAll('div.mat-slide-toggle-bar');
+            for (var i = 0; i < map.length; i++) {
+                map[0].click();
+                map[3].click();
+                map[6].click();
+            }
+        });
+
+        await click_(page, HIDE_SETTINGS_SELECTOR)
+
+        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F group elements from Scaffold Model')
+    })
+   
 })
 
 
