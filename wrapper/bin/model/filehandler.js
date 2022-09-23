@@ -97,12 +97,12 @@ class ConversionHandler {
         }
     }
 
-    #fromJsonToGenerated(file) {
+    async #fromJsonToGenerated(file) {
         try {
             if (fs.existsSync(file)) {
                 const filename = this._destination_folder + "/model" + convertedExtensions["json-resources"];
                 const _json = fs.readFileSync(file, 'binary');
-                const _generated = converter.fromJsonToGenerated(_json);
+                const _generated = await converter.fromJsonToGenerated(_json);
                 fs.writeFileSync(filename, _generated);
                 return filename;
             } else {

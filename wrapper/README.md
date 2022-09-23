@@ -2,7 +2,7 @@
 
 #### Description
 
-The purpose of this wrapper is to extract the data conversion that happens inside the open-phisiology viewer UI and make this available through a CLI wrapper tool usable from command line.
+The purpose of this wrapper is to extract the data conversion that happens inside the open-physiology viewer UI and make this available through a CLI wrapper tool usable from command line.
 
 #### Usage
 

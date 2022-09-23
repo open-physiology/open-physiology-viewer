@@ -86,13 +86,14 @@ export class MainToolbar {
 
         dialogRef.afterClosed().subscribe(spreadsheetID => {
             if (spreadsheetID !== undefined){
-                let url = `https://docs.google.com/spreadsheets/d/e/${spreadsheetID}/pub?output=xlsx`;
+                let url = `https://docs.google.com/spreadsheets/d/${spreadsheetID}/export?format=xlsx`;
                 this._http.get(url,{responseType: 'arraybuffer'}).subscribe(
                     res => {
                         let model = loadModel(res, spreadsheetID, "xlsx");
                         this.onImportExcelModel.emit(model);
                     },
                     err => {
+                        console.error(err);
                         throw new Error("Failed to import Google spreadsheet model!");
                     }
                 );

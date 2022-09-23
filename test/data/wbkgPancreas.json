@@ -97,7 +97,7 @@
         "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
     ],
     "id": "pancreas_WBKG1",
-    "name": "pancreas model + TOO-map-linked reference connectivity model",
+    "name": "Pancreas + TOO-map-linked reference connectivity model",
     "groups": [
         {
             "references": [],
