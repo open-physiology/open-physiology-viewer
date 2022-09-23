@@ -2,6 +2,11 @@ const fs = require('fs');
 const { expect } = require("chai");
 const { execSync } = require("child_process");
 
+global.self = {};
+global.window = {};
+global.crypto = require('crypto')
+global.XMLHttpRequest = require('xhr2');
+
 const test1 = () => {
     var folder_content = ""
     // execSync(`node bin/converter.js -f id -t xlsx -o test1-folder -i ${process.env['MODEL_ID']} `);

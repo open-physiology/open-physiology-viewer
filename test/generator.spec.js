@@ -34,7 +34,7 @@ import uot from './data/uot';
 import wbkg from './data/wbkg.json';
 
 import {expectNoWarnings} from "./test.helper";
-import {modelClasses, fromJSON, joinModels} from '../src/model/index';
+import {modelClasses, generateFromJSON, joinModels} from '../src/model/index';
 import {$LogMsg, Logger} from "../src/model/logger";
 
 describe("BasalGanglia", () => {
@@ -320,7 +320,7 @@ describe("RespiratoryInternalLyphsInLayers", () => {
 
 describe("Uot", () => {
     let graphData;
-    before(() => graphData = fromJSON(uot, modelClasses));
+    before(() => graphData = generateFromJSON(uot, modelClasses));
     it("Model detects absence of local convention mapping, auto-detected connectivity model", () => {
         expect (graphData.logger.status).to.be.equal(Logger.STATUS.ERROR);
         let logEvents = graphData.logger.entries;
@@ -337,7 +337,7 @@ describe("Basic+wbkg", () => {
     let jointModel, graphData;
     before(() => {
        jointModel = joinModels(basic, wbkg, false);
-       graphData = fromJSON(jointModel, modelClasses)
+       graphData = generateFromJSON(jointModel, modelClasses)
     });
 
     it("Joint model accumulates imports from both models", () => {

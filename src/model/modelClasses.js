@@ -162,14 +162,67 @@ export function jsonToExcel(inputModel) {
 /**
  * Create complete typed model from JSON input specification
  * @param inputModel - JSON input specification of connectivity model or scaffold
+ * @param includeImports
  * @returns {Graph}
  */
-export function fromJSON(inputModel) {
-    if (isScaffold(inputModel)){
+export function generateFromJSON(inputModel) {
+    if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
         return Graph.fromJSON(inputModel, modelClasses);
     }
+}
+
+export async function mergeWithImports(inputModel){
+    if (inputModel.imports) {
+        function get(url) {
+            return new Promise(function (resolve, reject) {
+                let req = new XMLHttpRequest();
+                req.responseType = 'json';
+                req.open('GET', url);
+                req.onload = function () {
+                    if (req.status === 200) {
+                        resolve(req.response);
+                    } else {
+                        reject(Error(req.statusText));
+                    }
+                }
+                req.onerror = function () {
+                    reject(Error("Unexpected error when trying to import model: " + url));
+                }
+                req.send();
+            });
+        }
+        await Promise.all((inputModel.imports || []).map(url => get(url))).then(values => {
+             if (values && values.length > 0) {
+                processImports(inputModel, values);
+             }
+        });
+    }
+    return inputModel;
+}
+
+export function processImports(inputModel, importedModels){
+    let scaffolds = importedModels.filter(m => isScaffold(m));
+    let groups = importedModels.filter(m => isGraph(m));
+    inputModel.scaffolds = inputModel.scaffolds || [];
+    inputModel.groups = inputModel.groups || [];
+    scaffolds.forEach(newModel => {
+        const scaffoldIdx = inputModel.scaffolds.findIndex(s => s.id === newModel.id);
+        if (scaffoldIdx === -1) {
+            inputModel.scaffolds.push(newModel);
+        } else {
+            inputModel.scaffolds[scaffoldIdx] = newModel;
+        }
+    });
+    groups.forEach(newModel => {
+        const groupIdx = inputModel.groups.findIndex(s => s.id === newModel.id);
+        if (groupIdx === -1) {
+            inputModel.groups.push(newModel);
+        } else {
+            inputModel.groups[groupIdx] = newModel;
+        }
+    });
 }
 
 /**

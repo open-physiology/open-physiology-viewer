@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-
 global.self = {};
 global.window = {};
+global.crypto = require('crypto')
+global.XMLHttpRequest = require('xhr2');
 
 const yargs = require("yargs");
 const ConversionHandler = require('./model/filehandler');

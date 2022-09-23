@@ -6,7 +6,7 @@ import {
     expectNoWarnings,
 } from './test.helper';
 
-import {modelClasses, fromJSON} from '../src/model/index';
+import {modelClasses, generateFromJSON} from '../src/model/index';
 import scaffoldD from './scaffolds/scaffold_D.json';
 import scaffoldF from './scaffolds/scaffold_F.json';
 import scaffoldN from './scaffolds/scaffold_N.json';
@@ -36,7 +36,7 @@ describe("Scaffold F", () => {
 describe("Scaffold N", () => {
     let graphData;
     before(() => {
-        graphData = fromJSON(scaffoldN, modelClasses);
+        graphData = generateFromJSON(scaffoldN, modelClasses);
     });
     it("Model generated without warnings, auto-detected scaffolding model",  () => expectNoWarnings(graphData));
     after(() => {

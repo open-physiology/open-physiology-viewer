@@ -28,8 +28,9 @@ import {
     isGraph,
     isScaffold,
     isSnapshot,
-    fromJSON,
+    generateFromJSON,
     jsonToExcel,
+    processImports,
     $SchemaClass
 } from '../model/index';
 
@@ -345,26 +346,9 @@ export class TestApp {
                     let scaffolds = result.filter(m => isScaffold(m));
                     let groups = result.filter(m => isGraph(m));
                     let snapshots = result.filter(m => isSnapshot(m));
-                    this._model.scaffolds = this._model.scaffolds || [];
-                    this._model.groups = this._model.groups || [];
-                    scaffolds.forEach(newModel => {
-                        const scaffoldIdx = this._model.scaffolds.findIndex(s => s.id === newModel.id);
-                        if (scaffoldIdx === -1) {
-                            this._model.scaffolds.push(newModel);
-                        } else {
-                            this._model.scaffolds[scaffoldIdx] = newModel;
-                        }
-                    });
-                    groups.forEach(newModel => {
-                        const groupIdx = this._model.groups.findIndex(s => s.id === newModel.id);
-                        if (groupIdx === -1) {
-                            this._model.groups.push(newModel);
-                        } else {
-                            this._model.groups[groupIdx] = newModel;
-                        }
-                    });
+                    processImports(this._model, result);
                     if (groups.length > 0 || scaffolds.length > 0) {
-                       this.model = this._model;
+                        this.model = this._model;
                     }
                     if (snapshots.length > 0){
                         this.loadSnapshot(snapshots[0]);
@@ -448,7 +432,7 @@ export class TestApp {
     applyJSONEditorChanges() {
         if (this._editor){
             logger.clear();
-            this._graphData = fromJSON({});
+            this._graphData = generateFromJSON({});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
@@ -456,7 +440,7 @@ export class TestApp {
 
     applyChanges(){
         logger.clear();
-        this._graphData = fromJSON({});
+        this._graphData = generateFromJSON({});
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
@@ -467,8 +451,8 @@ export class TestApp {
 	set model(model){
         this._model = model;
         //try{
-            this._modelName = this._model.name || "?";
-            this._graphData = fromJSON(this._model);
+            this._modelName = this._model.name || this._model.id || "?";
+            this._graphData = generateFromJSON(this._model);
         // } catch(err){
         //    throw new Error(err);
         // }
