@@ -18,7 +18,6 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import config from '../data/config';
 
 /**
  * @ignore
@@ -100,9 +99,6 @@ const COLORS = {
                     </mat-expansion-panel-header>
 
                     <div class="default-box">
-                        <div class="wrap">
-                            <mat-checkbox [(ngModel)]="neuroViewEnabled" (change)="enableNeuroview($event, false)">Enable Neuroview</mat-checkbox>
-                        </div>
                         <div class="default-box-header">
                             <div class="search-bar">
                                 <img src="./styles/images/search.svg"/>
@@ -1029,6 +1025,7 @@ export class SettingsPanel {
     @Output() onToggleMode         = new EventEmitter();
     @Output() onToggleLayout       = new EventEmitter();
     @Output() onToggleHelperPlane  = new EventEmitter();
+    @Output() onToggleNeuroview        = new EventEmitter();
 
     constructor() {
         this._labelProps    = [$Field.id, $Field.name];
@@ -1151,27 +1148,50 @@ export class SettingsPanel {
       this.toggleAllDynamicGroup();
     }
 
+    toggleScaffoldsNeuroview = (event, group) => {
+      this.scaffolds.forEach( scaffold =>  { if ( scaffold._visible !== false ) { this.onToggleGroup.emit(scaffold) } });
+      this.scaffolds.forEach( scaffold => {
+        scaffold.wires.forEach( wire => {
+            // console.log("wire found ", wire?.id);
+            if ( wire?.id === group?.generatedFrom?.wiredTo?.id ) {
+              console.log("group id ",  group?.generatedFrom?.wiredTo?.id);
+              this.onToggleGroup.emit(scaffold)
+            }
+        });
+      });
+    }
+
+    toggleWiresRegionsNeuroview = (event, group) => {}
+
+    layoutNeuroviewLyphs = (event, group) => {}
+
+    hideVisibleGroups =  () => {
+      // Hide all visible   
+      let allVisible = this.dynamicGroups.filter( g => g.hidden == false );
+      allVisible.forEach( g =>  this.onToggleGroup.emit(g));
+    }
+
     toggleGroup = (event, group) => {
       if ( this.neuroViewEnabled ) { 
-        let allVisible = this.groups.filter( group => group.hidden == false );
-        allVisible.forEach( g =>  this.onToggleGroup.emit(g));
-        this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === false ) { this.onToggleGroup.emit(scaffold) } });
-      }
-      if ( event.checked && group.hidden ) {
+        
+         this.hideVisibleGroups();
+        // Step 3 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+         this.onToggleNeurulatedGroup.emit({ checked: event.checked, group : group});
+
+        /** 
+           Steps 4 and 5 : Identify TOO map component from {F, D, N } to which group elements are anchored.
+           Switch visibility for F,D,N if one of group elements are anchored to it.
+        */
+        this.toggleScaffoldsNeuroview(event, group);
+        
+        // Step 6 : Turn ON wire and regions that anchor group elements that are neuron segments.
+        this.toggleWiresRegionsNeuroview(event, group);
+
+        // Step 7 : Only show Lyphs that are neuron segments and in group. 
+        this.layoutNeuroviewLyphs(event, group);
+      } else {
         this.onToggleGroup.emit(group);
-      } else if ( !event.checked && !group.hidden ) {
-        this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === false ) { this.onToggleGroup.emit(scaffold) } });
-        this.onToggleGroup.emit(group);
       }
-      if ( this.neuroViewEnabled ) {
-        this.scaffolds.forEach( scaffold => {
-          scaffold.wires.forEach( wire => {
-              if ( wire?.id === group?.generatedFrom?.wiredTo?.id ) {
-                scaffold?.id != "too-map" ? this.onToggleGroup.emit(scaffold) : null;
-              }
-          });
-        });
-      }  
     }
 
     toggleAllDynamicGroup = () => {
@@ -1185,36 +1205,31 @@ export class SettingsPanel {
     }
 
     filterGroups = (groups) => {
-      return groups.filter( g => {
-        return g.generatedFrom?.external?.find( external => {
-          return config.neurulatedGroups.includes(external.namespace);
-        }) || g.generatedFrom?.ontologyTerms?.find( external => {
-          return config.neurulatedGroups.includes(external.namespace);
-        });
-      });
+      return groups;
     } 
 
-    enableNeuroview = (e, dynamic) => {
+    // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
+    toggleNeuroView = (visible) => {
+      // Toggle visibility of scaffold components
+      this.scaffolds.forEach( scaffold =>  { if ( scaffold._visible === visible || scaffold._visible === undefined ) { this.onToggleGroup.emit(scaffold) } });
+      this.updateRenderedResources();
+      !this.config.layout.showLayers && this.toggleLayout('showLayers');
+
+      // Reset filteredgroups
+      this.filteredDynamicGroups = this.dynamicGroups;
+    }
+
+    /**
+     * Neuroview mode, allows selecting only one dynamic group at a time.
+     * @param {*} e - Checkbox event
+     */
+    enableNeuroview = (e) => {
       if(e.checked){
-        this.filteredDynamicGroups = this.filterGroups(this.dynamicGroups);
-        this.filteredGroups = this.filterGroups(this.groups);
-        const neuroViewVisibleNeurons = this.groups.filter( group => group.hidden == false );
-        
-        let allVisible = this.groups.filter( group => group.hidden == false );
-        allVisible.forEach( g =>  this.onToggleGroup.emit(g));
-
-        allVisible = this.dynamicGroups.filter( group => group.hidden == false );
-        allVisible.forEach( g =>  this.onToggleGroup.emit(g));
-
-        this.scaffolds.forEach( scaffold =>  this.onToggleGroup.emit(scaffold));
-        this.updateRenderedResources();
-        
-        neuroViewVisibleNeurons.length == 1 ? this.onToggleGroup.emit(neuroViewVisibleNeurons[0]) : null;
+        this.toggleNeuroView(true);
+        // Step 2 : hide all visible groups once in neuruview mode
+        this.hideVisibleGroups();
       } else {
-        this.filteredGroups = this.groups;
-        this.filteredDynamicGroups = this.dynamicGroups;
-        this.scaffolds.forEach( scaffold =>  this.onToggleGroup.emit(scaffold));
-        this.updateRenderedResources();
+        this.toggleNeuroView(false);
       }
     }
 

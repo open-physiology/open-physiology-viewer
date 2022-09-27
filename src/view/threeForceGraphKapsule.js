@@ -311,7 +311,7 @@ export default Kapsule({
           } else { layout['tick'](); }
 
           state.graphData.updateViewObjects(state);
-          // autoLayout(state.graphScene, state.graphData);
+          //autoLayout(state.graphScene, state.graphData);
         }
     }
 });
