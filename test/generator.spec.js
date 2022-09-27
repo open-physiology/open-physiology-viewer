@@ -20,6 +20,7 @@ import basicHousedTree from './data/basicHousedTree';
 import basicJointTrees from './data/basicJointTrees';
 import basicLyphWithNoAxis from './data/basicLyphWithNoAxis';
 import basicSharedNodes from './data/basicSharedNodes';
+import basicTemplateAsInternalLyphInLayer from './data/basicTemplateAsInternalLyphInLayer';
 import basicVillus from './data/basicVillus';
 import keastSpinal from './data/keastSpinal';
 import neuron from './data/neuron';
@@ -33,7 +34,7 @@ import uot from './data/uot';
 import wbkg from './data/wbkg.json';
 
 import {expectNoWarnings} from "./test.helper";
-import {modelClasses, fromJSON, joinModels} from '../src/model/index';
+import {modelClasses, generateFromJSON, joinModels} from '../src/model/index';
 import {$LogMsg, Logger} from "../src/model/logger";
 
 describe("BasalGanglia", () => {
@@ -208,6 +209,28 @@ describe("BasicSharedNodes", () => {
     });
 });
 
+describe("BasicTemplateAsInternalLyphInLayer", () => {
+    let graphData;
+    before(() => graphData = modelClasses.Graph.fromJSON(basicTemplateAsInternalLyphInLayer, modelClasses));
+    it("Model generated without warnings", () => {
+        expectNoWarnings(graphData);
+        //Chain levels have internalLyphs
+        expect(graphData).to.have.property("lyphs");
+        let h2 = graphData.entitiesByID["h2"];
+        let h3 = graphData.entitiesByID["h3"];
+        expect(h2).to.have.property("layers").that.has.length(3);
+        expect(h3).to.have.property("layers").that.has.length(3);
+        expect(h2.layers[1]).to.have.property("internalLyphs").that.has.length(1);
+        expect(h3.layers[2]).to.have.property("internalLyphs").that.has.length(1);
+        expect(h2.layers[1].internalLyphs[0]).to.have.property("supertype");
+        expect(h3.layers[2].internalLyphs[0]).to.have.property("supertype");
+    });
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+
 describe("BasicVillus", () => {
     let graphData;
     before(() => graphData = modelClasses.Graph.fromJSON(basicVillus, modelClasses));
@@ -297,7 +320,7 @@ describe("RespiratoryInternalLyphsInLayers", () => {
 
 describe("Uot", () => {
     let graphData;
-    before(() => graphData = fromJSON(uot, modelClasses));
+    before(() => graphData = generateFromJSON(uot, modelClasses));
     it("Model detects absence of local convention mapping, auto-detected connectivity model", () => {
         expect (graphData.logger.status).to.be.equal(Logger.STATUS.ERROR);
         let logEvents = graphData.logger.entries;
@@ -314,7 +337,7 @@ describe("Basic+wbkg", () => {
     let jointModel, graphData;
     before(() => {
        jointModel = joinModels(basic, wbkg, false);
-       graphData = fromJSON(jointModel, modelClasses)
+       graphData = generateFromJSON(jointModel, modelClasses)
     });
 
     it("Joint model accumulates imports from both models", () => {

@@ -13,6 +13,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.21.1",
+    "crypto": "^1.0.1",
     "fs": "0.0.1-security",
     "util": "^0.12.3",
     "yargs": "^17.0.1"
