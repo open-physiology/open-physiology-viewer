@@ -416,11 +416,16 @@ describe("Process model with multiple namespaces (Spleen)", () => {
             }
         })
         duplicates = [... new Set(duplicates)];
-        //Note: duplicates are layers and their borders for 2 copies of lyph-medulla
-        if (duplicates.length !== 13) {
-            console.log(duplicates);
+        //Note: duplicates are lyph templates generated in 2 different namespaces from the same material
+        //   'mat_mat-gastrointestinal-circular-muscle',
+        //   'mat_mat-myenteric-plexus',
+        //   'mat_mat-gastrointestinal-serosa',
+        //   'mat_mat-blood',
+        //   'mat_mat-tissue-cardiovascular-endothelium'
+        if (duplicates.length !== 10) {
+           console.log(duplicates);
         }
-        expect(duplicates).to.have.length(13);
+        expect(duplicates).to.have.length(10);
         expect(noFullID).to.have.length(0);
     });
 
@@ -430,6 +435,16 @@ describe("Process model with multiple namespaces (Spleen)", () => {
         expect(serializedGraphData.ontologyTerms).to.be.an("array").that.has.length.greaterThan(0);
         expect(serializedGraphData.ontologyTerms[0]).to.have.property("fullID");
         expect(serializedGraphData.ontologyTerms[0]).to.have.property("annotates");
+    });
+
+    it("InternalLyphsInLayers property is processed correctly", () => {
+        let host = graphData.entitiesByID["wbkg:lyph-T5-spinal-segment"];
+        let internal = graphData.entitiesByID["spleen:lyph-soma-neuron-T8"];
+        expect(host).to.have.property("layers").that.has.length(8);
+        let host_layer = host.layers[7].id;
+        expect(internal).to.have.property("internalIn");
+        let internal_in = internal.internalIn.id;
+        expect(host_layer).to.be.equal(internal_in);
     });
 
     after(() => {
