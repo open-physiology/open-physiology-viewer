@@ -3,18 +3,38 @@
   "name": "Urinary Omega Tree",
   "description": "Urinary Omega Tree, generated from Excel model, with channels",
   "localConventions": [
-      {
-        "prefix": "PR",
-        "namespace": "https://reactome.org/content/detail/interactor"
-      },
-      {
-          "prefix": "UBERON",
-          "namespace": "http://purl.obolibrary.org/obo/UBERON_"
-      },
-      {
-          "prefix": "FMA",
-          "namespace": "http://purl.org/sig/ont/fma/fma"
-      }
+        {
+            "prefix": "UBERON",
+            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+        },
+        {
+            "prefix": "CHEBI",
+            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+        },
+        {
+            "prefix": "FMA",
+            "namespace": "http://purl.org/sig/ont/fma/fma"
+        },
+        {
+            "prefix": "GO",
+            "namespace": "http://purl.obolibrary.org/obo/GO_"
+        },
+        {
+            "prefix": "PMID",
+            "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+        },
+        {
+            "prefix": "CL",
+            "namespace": "http://purl.obolibrary.org/obo/CL_"
+        },
+        {
+            "prefix": "ILX",
+            "namespace": "http://uri.interlex.org/base/ilx_"
+        },
+        {
+            "prefix": "PR",
+            "namespace": "https://www.uniprot.org/"
+        }
   ],
   "nodes": [
     {

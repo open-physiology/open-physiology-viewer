@@ -17,11 +17,8 @@ import {State, Snapshot} from "./snapshotModel";
 import {isString, keys, assign} from "lodash-bound";
 import schema from "./graphScheme";
 import {logger} from "./logger";
-
 import * as XLSX from 'xlsx';
-
 import { mergeWith } from 'lodash-bound';
-
 import {
     $Field,
     ModelType,
@@ -31,6 +28,8 @@ import {
     getGenID,
     getGenName
 } from "./utils";
+
+const hash = require('object-hash');
 
 export const modelClasses = {
     /*Abstract */
@@ -166,6 +165,7 @@ export function jsonToExcel(inputModel) {
  * @returns {Graph}
  */
 export function generateFromJSON(inputModel) {
+    inputModel.schemaVersion = hash(schema);
     if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
