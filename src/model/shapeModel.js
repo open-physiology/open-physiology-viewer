@@ -132,8 +132,10 @@ export class Lyph extends Shape {
         template.subtypes = (template.subtypes||[]).map(e => getID(e));
 
         (parentGroup.lyphsByID || {})::values().forEach(e => {
-            if ((e.supertype === template.id || e.supertype === template.fullID) &&
-                !(template.subtypes.includes(e.id) || template.subtypes.includes(e.fullID))) {
+            //Revised to avoid duplication of generated lyph templates with the same name in different namespaces:
+            //e.g, in 'wbkgSpleen' lyph templates 'mat_mat-myenteric-plexus' are generated for both 'wbkg' and 'spleen'
+            if (getFullID(e.namespace, e.supertype) === template.fullID &&
+                !template.subtypes.includes(e.id) && !template.subtypes.includes(e.fullID)) {
                 template.subtypes.push(e.fullID || e.id);
             }
         });
@@ -261,7 +263,7 @@ export class Lyph extends Shape {
     static mapInternalResourcesToLayers(parentGroup){
 
         function moveResourceToLayer(resource, layerIndex, lyph, prop){
-            if (layerIndex < lyph.layers.length){
+            if (layerIndex < lyph.layers?.length){
                 let layer = refToResource(lyph.layers[layerIndex], parentGroup, $Field.lyphs);
                 if (layer){
                     layer[prop] = layer[prop] || [];
@@ -275,7 +277,7 @@ export class Lyph extends Shape {
                     logger.warn($LogMsg.LYPH_INTERNAL_NO_LAYER, lyph, layerIndex, lyph.layers[layerIndex]);
                 }
             } else {
-                logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers.length, lyph.id);
+                logger.warn($LogMsg.LYPH_INTERNAL_OUT_RANGE, layerIndex, lyph.layers?.length, lyph.id);
             }
             return false;
         }
