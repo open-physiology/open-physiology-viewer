@@ -77,7 +77,7 @@ export class Node extends Vertice {
         targetNode = targetNode || {};
         targetNode.cloneOf = sourceNode.id;
         targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone);
-        targetNode::merge(sourceNode::pick([$Field.color, $Field.hidden, $Field.namespace]));
+        targetNode::merge(sourceNode::pick([$Field.color, $Field.hidden, $Field.namespace, $Field.val]));
         targetNode.skipLabel = true;
         targetNode.generated = true;
         if (!sourceNode.clones){
