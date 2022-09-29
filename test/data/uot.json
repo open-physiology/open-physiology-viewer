@@ -1314,10 +1314,6 @@
         {
             "prefix": "CL",
             "namespace": "http://purl.obolibrary.org/obo/CL_"
-        },
-       {
-            "prefix": "ILX",
-            "namespace": "http://uri.interlex.org/base/ilx_"
         }
     ]
 }
