@@ -283,7 +283,7 @@ Lyph.prototype.updateViewObjects = function(state) {
             }
         }
         //update lyph
-        obj.visible = this.isVisible && state.showLyphs;
+        obj.visible = !this.hidden && state.showLyphs;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
         copyCoords(obj.position, this.center);
