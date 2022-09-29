@@ -1155,12 +1155,10 @@ export class SettingsPanel {
      */
     toggleScaffoldsNeuroview = (event, group, neuronTriplets) => {
       neuronTriplets?.e?.forEach( triplet => {
-        let scaffold = this.scaffolds.find( scaffold =>  
-          scaffold.id !== "too-map" && (Object.keys(scaffold.wiresByID).includes( triplet )  
-          || Object.keys(scaffold.regionsByID).includes( triplet )) 
-        );
-        if ( scaffold )  {
-          scaffold.hidden !== false && this.onToggleGroup.emit(scaffold);
+        let scaffolds = this.scaffolds.filter( scaffold =>  
+          scaffold.id !== "too-map" && ( (scaffold.wires?.find( w => w.fullID == triplet )) || (scaffold.regions?.find( w => w.fullID == triplet )) ));
+        if ( scaffolds.length > 0 )  {
+          scaffolds.forEach( scaffold => scaffold.hidden !== false && this.onToggleGroup.emit(scaffold));
         }
       });
     }
@@ -1170,20 +1168,30 @@ export class SettingsPanel {
     hideVisibleGroups =  () => {
       // Hide all visible   
       let allVisible = this.dynamicGroups.filter( g => g.hidden == false );
-      allVisible.forEach( g =>  this.onToggleGroup.emit(g));
+      allVisible.forEach( g =>  { 
+        g.lyphs.forEach( lyph => {
+          lyph.hidden = false;
+        });
+        this.onToggleGroup.emit(g);
+      });
     }
 
     toggleNeurulatedGroup(event, group) {
       // Extract Neurons from Segment
+      event.checked && this.onToggleGroup.emit(group);
+
       let housingLyph;
       let neuronTriplets = {x : [], y : [], e : [] };
       group?.lyphs?.filter( lyph => {
           // Step 3a: Identify Neuron segments
-          lyph.supertype?.ontologyTerms?.find( external => {
-              if ( config.neurulatedGroups.includes(external.namespace) ) {
-                neuronTriplets.x.push(lyph);
-              }
-          });
+          const neuron = lyph.ontologyTerms?.find( external => config.neurulatedGroups.includes(external.namespace));
+
+          if ( neuron ){
+            lyph.hidden = false;
+            neuronTriplets.x.push(lyph);
+          } else {
+            lyph.hidden = true;
+          }
       });
 
       neuronTriplets?.x?.forEach( lyph => {
@@ -1197,9 +1205,8 @@ export class SettingsPanel {
           housingLyph?.hostedBy && neuronTriplets.e.push(housingLyph.hostedBy);
       });
 
-      neuronTriplets.e.push("too:w-N-T", "too:w-O-R", "too:w-X-f1L")
+      // neuronTriplets.e.push("too:w-G-U", "too:w-M-W", "too:w-J")
       // Make group visible
-      event.checked && this.onToggleGroup.emit(group);
 
       return neuronTriplets;
   }
@@ -1249,7 +1256,6 @@ export class SettingsPanel {
       // Toggle visibility of scaffold components
       this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === visible || ( !visible && scaffold.hidden === undefined ) ) { this.onToggleGroup.emit(scaffold) } });
       this.updateRenderedResources();
-      this.config.layout.showLayers && this.toggleLayout('showLayers');
       this.hideVisibleGroups();
     }
 
@@ -1260,9 +1266,10 @@ export class SettingsPanel {
     enableNeuroview = (e) => {
       if(e.checked){
         this.toggleNeuroView(false);
-        // Step 2 : hide all visible groups once in neuruview mode
+        this.config.layout.showLayers && this.toggleLayout('showLayers');
       } else {
-        this.toggleNeuroView(true); 
+        this.toggleNeuroView(true);
+        !this.config.layout.showLayers && this.toggleLayout('showLayers'); 
       }
     }
 
