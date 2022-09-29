@@ -10,5 +10,5 @@
   },
   "mainURL": "https://api.github.com/repos/open-physiology/apinatomy-models/contents/models",
   "repoURL": "https://api.github.com/repos/open-physiology/open-physiology-viewer/contents/test/data",
-  "neurulatedGroups" : ["NLX"]
+  "neurulatedGroups" : ["SAO", "NLX"]
 }

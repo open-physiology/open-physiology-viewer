@@ -303,6 +303,8 @@ export default Kapsule({
         const startTickTime = new Date();
         state.onFrame = layoutTick;
         state.onFinishLoading();
+        const event = new CustomEvent('stateUpdate', { detail : { scene : state.graphScene } });
+        window.dispatchEvent(event);
 
         function layoutTick() {
           if (++state.cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
