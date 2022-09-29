@@ -395,7 +395,7 @@ export class WebGLSceneComponent {
         let width = this.container.clientWidth;
         let height = this.container.clientHeight;
 
-        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 10000);
+        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
         this.camera.aspect = width / height;
         this.resetCamera();
 
@@ -405,7 +405,7 @@ export class WebGLSceneComponent {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.controls.minDistance = 10;
-        this.controls.maxDistance = 10000 - 100 * this.scaleFactor;
+        this.controls.maxDistance = 4000 - 100 * this.scaleFactor;
 
         this.controls.minZoom = 0;
         this.controls.maxZoom = 10;
