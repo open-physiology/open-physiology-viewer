@@ -18,6 +18,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
+import config from '../data/config';
 
 /**
  * @ignore
@@ -1021,11 +1022,10 @@ export class SettingsPanel {
     @Output() onUpdateShowLabels   = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup        = new EventEmitter();
-    @Output() onToggleNeurulatedGroup  = new EventEmitter();
     @Output() onToggleMode         = new EventEmitter();
     @Output() onToggleLayout       = new EventEmitter();
     @Output() onToggleHelperPlane  = new EventEmitter();
-    @Output() onToggleNeuroview        = new EventEmitter();
+    @Output() onToggleNeurulatedGroup        = new EventEmitter();
 
     constructor() {
         this._labelProps    = [$Field.id, $Field.name];
@@ -1148,20 +1148,22 @@ export class SettingsPanel {
       this.toggleAllDynamicGroup();
     }
 
-    toggleScaffoldsNeuroview = (event, group) => {
-      this.scaffolds.forEach( scaffold =>  { if ( scaffold._visible !== false ) { this.onToggleGroup.emit(scaffold) } });
-      this.scaffolds.forEach( scaffold => {
-        scaffold.wires.forEach( wire => {
-            // console.log("wire found ", wire?.id);
-            if ( wire?.id === group?.generatedFrom?.wiredTo?.id ) {
-              console.log("group id ",  group?.generatedFrom?.wiredTo?.id);
-              this.onToggleGroup.emit(scaffold)
-            }
-        });
+    /**
+     * For each e in the list of (x,y,e) triplets, identify the TOO map component from {F,D,N} to which e belongs. 
+     * If either F or D are involved with an e, switch on the visibility of the whole circular scaffold for F-or-D.
+     * Switch on visibility of the wire or region in the LHS view.
+     */
+    toggleScaffoldsNeuroview = (event, group, neuronTriplets) => {
+      neuronTriplets?.e?.forEach( triplet => {
+        let scaffold = this.scaffolds.find( scaffold =>  
+          scaffold.id !== "too-map" && (Object.keys(scaffold.wiresByID).includes( triplet )  
+          || Object.keys(scaffold.regionsByID).includes( triplet )) 
+        );
+        if ( scaffold )  {
+          scaffold.hidden !== false && this.onToggleGroup.emit(scaffold);
+        }
       });
     }
-
-    toggleWiresRegionsNeuroview = (event, group) => {}
 
     layoutNeuroviewLyphs = (event, group) => {}
 
@@ -1171,24 +1173,58 @@ export class SettingsPanel {
       allVisible.forEach( g =>  this.onToggleGroup.emit(g));
     }
 
+    toggleNeurulatedGroup(event, group) {
+      // Extract Neurons from Segment
+      let housingLyph;
+      let neuronTriplets = {x : [], y : [], e : [] };
+      group?.lyphs?.filter( lyph => {
+          // Step 3a: Identify Neuron segments
+          lyph.supertype?.ontologyTerms?.find( external => {
+              if ( config.neurulatedGroups.includes(external.namespace) ) {
+                neuronTriplets.x.push(lyph);
+              }
+          });
+      });
+
+      neuronTriplets?.x?.forEach( lyph => {
+          housingLyph = lyph;
+          // Step 3b and 3c : Find parent HousingLyph of each Lyph
+          while ( lyph?.housingLyph ) {
+              housingLyph = lyph?.housingLyph;
+          }
+          neuronTriplets.y.push(housingLyph);
+          housingLyph?.wiredTo && neuronTriplets.e.push(housingLyph.wiredTo);
+          housingLyph?.hostedBy && neuronTriplets.e.push(housingLyph.hostedBy);
+      });
+
+      neuronTriplets.e.push("too:w-N-T", "too:w-O-R", "too:w-X-f1L")
+      // Make group visible
+      event.checked && this.onToggleGroup.emit(group);
+
+      return neuronTriplets;
+  }
+
     toggleGroup = (event, group) => {
       if ( this.neuroViewEnabled ) { 
-        
-         this.hideVisibleGroups();
-        // Step 3 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-         this.onToggleNeurulatedGroup.emit({ checked: event.checked, group : group});
+        // Disable all scaffolds 
+        event.checked ? this.toggleNeuroView(false) : this.toggleNeuroView(true);
+        // Hide all groups
+        this.hideVisibleGroups();
+        // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+        let neuronTriplets = this.toggleNeurulatedGroup(event, group);
+        console.log("Neurons for group : ", group.name);
+        console.log("Group Lyphs : ", group.lyphs)
+        console.log("Triplets : " , neuronTriplets)
 
-        /** 
-           Steps 4 and 5 : Identify TOO map component from {F, D, N } to which group elements are anchored.
-           Switch visibility for F,D,N if one of group elements are anchored to it.
-        */
-        this.toggleScaffoldsNeuroview(event, group);
-        
-        // Step 6 : Turn ON wire and regions that anchor group elements that are neuron segments.
-        this.toggleWiresRegionsNeuroview(event, group);
+        // Step 5 :Identify TOO Map components and turn them ON
+        // Step 6 : Turn ON wire and regions that anchor group elements that are neuron segments
+        this.toggleScaffoldsNeuroview(event, group, neuronTriplets);
 
         // Step 7 : Only show Lyphs that are neuron segments and in group. 
-        this.layoutNeuroviewLyphs(event, group);
+        this.layoutNeuroviewLyphs(event, group, neuronTriplets);
+
+        this.onToggleNeurulatedGroup.emit(neuronTriplets);
+
       } else {
         this.onToggleGroup.emit(group);
       }
@@ -1211,12 +1247,10 @@ export class SettingsPanel {
     // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
     toggleNeuroView = (visible) => {
       // Toggle visibility of scaffold components
-      this.scaffolds.forEach( scaffold =>  { if ( scaffold._visible === visible || scaffold._visible === undefined ) { this.onToggleGroup.emit(scaffold) } });
+      this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === visible || ( !visible && scaffold.hidden === undefined ) ) { this.onToggleGroup.emit(scaffold) } });
       this.updateRenderedResources();
-      !this.config.layout.showLayers && this.toggleLayout('showLayers');
-
-      // Reset filteredgroups
-      this.filteredDynamicGroups = this.dynamicGroups;
+      this.config.layout.showLayers && this.toggleLayout('showLayers');
+      this.hideVisibleGroups();
     }
 
     /**
@@ -1225,11 +1259,10 @@ export class SettingsPanel {
      */
     enableNeuroview = (e) => {
       if(e.checked){
-        this.toggleNeuroView(true);
-        // Step 2 : hide all visible groups once in neuruview mode
-        this.hideVisibleGroups();
-      } else {
         this.toggleNeuroView(false);
+        // Step 2 : hide all visible groups once in neuruview mode
+      } else {
+        this.toggleNeuroView(true); 
       }
     }
 

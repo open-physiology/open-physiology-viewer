@@ -127,7 +127,7 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
-                        (onToggleNeurulatedGroup)="toggleNeurulatedGroup($event, $group)"
+                        (onToggleNeurulatedGroup)="toggleNeurulatedGroup($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
             </section>
@@ -756,26 +756,19 @@ export class WebGLSceneComponent {
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 
-    toggleNeurulatedGroup(data) {
-        // Extract Neurons from Segment
-        let housingLyph;
-        data?.group?.lyphs?.filter( lyph => {
-            housingLyph = lyph;
-            console.log("generated from ", lyph.generatedFrom);
-            console.log("housingLyph ", lyph.housingLyph);
-            while ( lyph?.housingLyph ) {
-                housingLyph = lyph?.housingLyph;
-                lyph.visible = false;
-                console.log("Found housingLyph ", housingLyph);
-            }
-
-            housingLyph.generatedFrom?.external?.find( external => {
-                console.log("Found neuron ", lyph);
-                return config.neurulatedGroups.includes(external.namespace);
-            });
+    toggleNeurulatedGroup(triplets) {
+        let that = this;
+        
+        window.addEventListener('stateUpdate', (e) => { 
+            let mapIds = triplets.y.map( t => t.id );
+            e.detail?.scene.children?.forEach( c => {
+                if ( !mapIds.includes(c.userData?.id) && c.userData?.class === "Lyph" ){
+                    console.log("Hide Mesh ", c.userData.id);
+                    c.visible = false;
+                    c.userData.viewObjects.main.visible = false;
+                }
+            })
         });
-
-        data.checked && this.toggleGroup(data?.group);
     }
 }
 
