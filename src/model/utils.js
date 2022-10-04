@@ -206,27 +206,38 @@ export function mergeResources(a, b) {
     }
 }
 
-export function mergeWithModel(e, clsName, model){
+/**
+ * Include generated resource into corresponding model resource list
+ * @param resource - generated resource
+ * @param clsName - class of the generated resource
+ * @param parentGroup - parent group that contains all resources
+ */
+export function mergeWithModel(resource, clsName, parentGroup){
     const clsToProp = {
-        [$SchemaClass.Lyph]       : $Field.lyphs,
-        [$SchemaClass.Material]   : $Field.materials,
-        [$SchemaClass.Link]       : $Field.links,
-        [$SchemaClass.Node]       : $Field.nodes,
-        [$SchemaClass.Chain]      : $Field.chains,
-        [$SchemaClass.Tree]       : $Field.trees,
-        [$SchemaClass.Channel]    : $Field.channels,
-        [$SchemaClass.Coalescence]: $Field.coalescences,
-        [$SchemaClass.Group]      : $Field.groups,
-        [$SchemaClass.Scaffold]   : $Field.scaffolds,
-        [$SchemaClass.Anchor]     : $Field.anchors,
-        [$SchemaClass.Region]     : $Field.regions,
-        [$SchemaClass.Wire]       : $Field.wires,
-        [$SchemaClass.Component]  : $Field.components
+        [$SchemaClass.External]    : $Field.external,
+        [$SchemaClass.OntologyTerm]: $Field.ontologyTerms,
+        [$SchemaClass.Reference]   : $Field.references,
+        [$SchemaClass.Lyph]        : $Field.lyphs,
+        [$SchemaClass.Material]    : $Field.materials,
+        [$SchemaClass.Link]        : $Field.links,
+        [$SchemaClass.Node]        : $Field.nodes,
+        [$SchemaClass.Chain]       : $Field.chains,
+        [$SchemaClass.Tree]        : $Field.trees,
+        [$SchemaClass.Channel]     : $Field.channels,
+        [$SchemaClass.Coalescence] : $Field.coalescences,
+        [$SchemaClass.Group]       : $Field.groups,
+        [$SchemaClass.Scaffold]    : $Field.scaffolds,
+        [$SchemaClass.Anchor]      : $Field.anchors,
+        [$SchemaClass.Region]      : $Field.regions,
+        [$SchemaClass.Wire]        : $Field.wires,
+        [$SchemaClass.Component]   : $Field.components
     }
     let prop = clsToProp[clsName];
     if (prop){
-        model[prop] = model[prop] || [];
-        model[prop].push(e);
+        parentGroup[prop] = parentGroup[prop] || [];
+        if (!parentGroup[prop].find(x => x && resource && x.id === resource.id)) {
+            parentGroup[prop].push(resource);
+        }
     }
 }
 
@@ -288,7 +299,7 @@ export const addBorderNode = (border, nodeID) => {
  * @returns {*|void}
  */
 export const findResourceByID = (eArray, ref, namespace = undefined) => {
-    return ref::isObject() ? ref : (eArray || []).find(x => ref && x.id === ref && (!namespace || !x.namespace || x.namespace === namespace));
+    return ref::isObject() ? ref : (eArray || []).find(x => ref && x.id === getRefID(ref) && (!namespace || !x.namespace || x.namespace === namespace));
 }
 
 /**
@@ -313,9 +324,9 @@ export const findIndex = (eArray, ref, namespace = undefined) =>
 /**
  * Find resource object given its reference (identifier)
  * @param ref - reference to resource (objet, identifier or full identifier)
- * @param parentGroup
- * @param prop
- * @param generate
+ * @param parentGroup - group that the reference is used in
+ * @param prop - group field that is supposed to contain the referred resource
+ * @param generate - flag indicating whether to generate resource if it is not found
  * @returns {undefined|*}
  */
 export const refToResource = (ref, parentGroup, prop, generate = false) => {

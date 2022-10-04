@@ -130,7 +130,7 @@
         "version": {
           "description": "Model version",
           "type": "string",
-          "pattern": "^(?:(d+).)?(?:(d+).)?(d+)$"
+          "readOnly": true
         },
         "created": {
           "description": "Date of the model creation",

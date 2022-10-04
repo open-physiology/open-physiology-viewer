@@ -880,30 +880,58 @@
       "id": "UBERON:0000483"
     }
   ],
-    "localConventions": [
-        {
-            "prefix": "UBERON",
-            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
-        },
-        {
-            "prefix": "FMA",
-            "namespace": "http://purl.org/sig/ont/fma/fma"
-        },
-        {
-            "prefix": "GO",
-            "namespace": "http://purl.obolibrary.org/obo/GO_"
-        },
-        {
-            "prefix": "CL",
-            "namespace": "http://purl.obolibrary.org/obo/CL_"
-        },
-        {
+  "localConventions": [
+      {
+          "prefix": "UBERON",
+          "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+      },
+      {
+          "prefix": "CHEBI",
+          "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+      },
+      {
+          "prefix": "FMA",
+          "namespace": "http://purl.org/sig/ont/fma/fma"
+      },
+      {
+          "prefix": "GO",
+          "namespace": "http://purl.obolibrary.org/obo/GO_"
+      },
+      {
+          "prefix": "ILX",
+          "namespace": "http://uri.interlex.org/base/ilx_"
+      },
+      {
+          "prefix": "NLX",
+          "namespace": "http://uri.neuinfo.org/nif/nifstd/nlx_"
+      },
+      {
+          "prefix": "SAO",
+          "namespace": "http://uri.neuinfo.org/nif/nifstd/sao"
+      },
+      {
+          "prefix": "PMID",
+          "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+      },
+      {
+          "prefix": "EMAPA",
+          "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
+      },
+      {
+          "prefix": "CL",
+          "namespace": "http://purl.obolibrary.org/obo/CL_"
+      },
+      {
+          "prefix": "NCBITaxon",
+          "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
+      },
+      {
+          "prefix": "ilxtr",
+          "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
+      },
+      {
             "prefix": "NCIT",
             "namespace": "http://purl.obolibrary.org/obo/NCIT_"
-        },
-        {
-            "prefix": "CHEBI",
-            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
-        }
-    ]
+      }
+  ]
 }

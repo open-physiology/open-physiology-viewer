@@ -161,11 +161,13 @@ export function jsonToExcel(inputModel) {
 /**
  * Create complete typed model from JSON input specification
  * @param inputModel - JSON input specification of connectivity model or scaffold
- * @param includeImports
  * @returns {Graph}
  */
 export function generateFromJSON(inputModel) {
+    inputModel.id = inputModel.id || "main";
+    inputModel.namespace = inputModel.namespace || "nm_" + inputModel.id;
     inputModel.schemaVersion = hash(schema);
+    inputModel.version = hash(inputModel);
     if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
@@ -173,6 +175,11 @@ export function generateFromJSON(inputModel) {
     }
 }
 
+/**
+ * Import external files and merge them with the model
+ * @param inputModel - input model
+ * @returns {Promise<*>} - input model with imported parts (e.g., scaffold)
+ */
 export async function mergeWithImports(inputModel){
     if (inputModel.imports) {
         function get(url) {

@@ -24,7 +24,7 @@ import {
     findResourceByID,
     collectNestedResources,
     getFullID, genResource,
-    pickColor, deleteRecursively
+    pickColor, deleteRecursively,
 } from "./utils";
 import {
     extractLocalConventions,
@@ -197,7 +197,6 @@ export class Graph extends Group{
 
         //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep();
-        inputModel.id = inputModel.id || "mainGraph";
 
         /**
          * @property waitingList
@@ -325,7 +324,7 @@ export class Graph extends Group{
                     let axis = lyph.axis;
                     let housingLyph = axis && (axis.fasciculatesIn || axis.endsIn);
                     if (housingLyph) {
-                        lyph.housingLyph = housingLyph
+                        lyph.housingLyph = housingLyph;
                     }
                 }
             });

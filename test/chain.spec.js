@@ -5,7 +5,7 @@ import {
     after,
     expect,
 } from './test.helper';
-import {modelClasses} from '../src/model/index';
+import {modelClasses, generateFromJSON} from '../src/model/index';
 import {Logger} from "../src/model/logger";
 import {values} from 'lodash-bound';
 import {getRefID} from "../src/model/utils";
@@ -21,7 +21,7 @@ import uotBag from './data/neurulatorTestShortUotBag.json';
 describe("Generate groups from chain templates (Keast Spinal Test)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(keastSpinalTest, modelClasses);
+        graphData = generateFromJSON(keastSpinalTest, modelClasses);
     });
 
     it("Housing chain template expanded", () => {
@@ -261,7 +261,7 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
 describe("Link joint chains (Keast Spinal)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(keastSpinal, modelClasses);
+        graphData = generateFromJSON(keastSpinal, modelClasses);
     });
 
     it("Collapsible links created for join nodes", () => {
@@ -314,7 +314,7 @@ describe("Link joint chains (Keast Spinal)", () => {
 describe("Validate chain wiring", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(wiredChain, modelClasses);
+        graphData = generateFromJSON(wiredChain, modelClasses);
     });
 
     it("Chain t1 is correctly wired", () => {
@@ -397,7 +397,7 @@ describe("Validate chain wiring", () => {
 describe("Process model with multiple namespaces (Spleen)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(wbkgSpleen, modelClasses);
+        graphData = generateFromJSON(wbkgSpleen, modelClasses);
     });
 
     it("Resources generated without duplicates (Spleen)", () => {
@@ -440,7 +440,7 @@ describe("Process model with multiple namespaces (Spleen)", () => {
     it("InternalLyphsInLayers property is processed correctly", () => {
         let host = graphData.entitiesByID["wbkg:lyph-T5-spinal-segment"];
         let internal = graphData.entitiesByID["spleen:lyph-soma-neuron-T8"];
-        expect(host).to.have.property("layers").that.has.length(8);
+        expect(host).to.have.property("layers").that.has.length(14);
         let host_layer = host.layers[7].id;
         expect(internal).to.have.property("internalIn");
         let internal_in = internal.internalIn.id;
@@ -455,7 +455,7 @@ describe("Process model with multiple namespaces (Spleen)", () => {
 describe("Process model with multiple namespaces (Stomach)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(wbkgStomach, modelClasses);
+        graphData = generateFromJSON(wbkgStomach, modelClasses);
     });
 
     it("Resources generated without duplicates (Stomach)", () => {
@@ -501,7 +501,7 @@ describe("Process model with multiple namespaces (Stomach)", () => {
 describe("Process a model with lyph, chain and channel templates from a different namespace", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(wbkgSynapseTest, modelClasses);
+        graphData = generateFromJSON(wbkgSynapseTest, modelClasses);
     });
 
     it("Resources generated without duplicates", () => {
@@ -536,7 +536,7 @@ describe("Process a model with lyph, chain and channel templates from a differen
 describe("Neurulator discovers neurons (Pancreas)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(wbkgPancreas, modelClasses);
+        graphData = generateFromJSON(wbkgPancreas, modelClasses);
     });
 
    it("Dynamic groups created for model neurons (Pancreas)", () => {
@@ -559,7 +559,7 @@ describe("Neurulator discovers neurons (Pancreas)", () => {
 describe("Neurulator discovers closed groups (UOT)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(uotBag, modelClasses);
+        graphData = generateFromJSON(uotBag, modelClasses);
     });
 
    it("Dynamic group representing tree (UOT)", () => {
