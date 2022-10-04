@@ -4,6 +4,13 @@ import {
     before,
     expect, after
 } from './test.helper';
+import {keys, entries, pick, flatten, values} from 'lodash-bound';
+import {$Field, $SchemaClass, modelClasses, schemaClassModels, generateFromJSON} from '../src/model/index';
+import schema from '../src/model/graphScheme.json';
+import {Validator} from "jsonschema";
+import {getGenID, getGenName, getRefID} from "../src/model/utils";
+import {$LogMsg, Logger} from "../src/model/logger";
+
 import chainFromLevels from './data/basicChainWithNestedLevels.json';
 import basalGanglia from './data/basalGanglia.json';
 import respiratory from './data/respiratory.json';
@@ -12,13 +19,7 @@ import villus from './data/basicVillus';
 import lyphOnBorder from './data/basicLyphOnBorder';
 import keast from './data/keastSpinalFull.json';
 import recursive from './data/basicLyphTemplateRecursive.json';
-import {keys, entries, pick} from 'lodash-bound';
-import {$Field, $SchemaClass, modelClasses, schemaClassModels} from '../src/model/index';
-import schema from '../src/model/graphScheme.json';
-import {Validator} from "jsonschema";
-import {getGenID, getGenName} from "../src/model/utils";
-import {$LogMsg, Logger} from "../src/model/logger";
-
+import wbkgCardiac from './data/wbkgCardiac.json';
 
 describe("JSON Schema loads correctly", () => {
     it("Link geometry types are loaded", () => {
@@ -55,7 +56,6 @@ describe("JSON Schema loads correctly", () => {
         expect(modelClasses.Coalescence.COALESCENCE_TOPOLOGY).to.have.property("CONNECTING");
     });
 });
-
 
 describe("JSON Schema matches patterns", () => {
     let v;
@@ -104,7 +104,7 @@ describe("JSON Schema matches patterns", () => {
 
 describe("Nested resource definitions are processed", () => {
     it("Nested chain levels are converted to links", () => {})
-        let graphData = modelClasses.Graph.fromJSON(chainFromLevels, modelClasses);
+        let graphData = generateFromJSON(chainFromLevels, modelClasses);
         expect(graphData.chains).to.be.an("array").that.has.length(1);
         expect(graphData.nodes).to.be.an("array").that.has.length(6);
         expect(graphData.links).to.be.an("array").that.has.length(5);
@@ -136,7 +136,7 @@ describe("Nested resource definitions are processed", () => {
 describe("Model with recursive lyph template does not stuck in a loop", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(recursive, modelClasses);
+        graphData = generateFromJSON(recursive, modelClasses);
     });
 
     it("Graph model created", () => {
@@ -166,7 +166,7 @@ describe("Model with recursive lyph template does not stuck in a loop", () => {
 describe("Generate model (Basal Ganglia)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
+        graphData = generateFromJSON(basalGanglia, modelClasses);
     });
 
     it("Graph model created", () => {
@@ -256,7 +256,7 @@ describe("Serialize data", () => {
     let graphData;
 
     it("All necessary fields serialized (respiratory system)", () => {
-        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
+        graphData = generateFromJSON(respiratory, modelClasses);
         let serializedGraphData = graphData.toJSON();
         const excluded = ["infoFields", "entitiesByID", "scaffoldResources", "logger", "modelClasses", "scaffoldComponents"];
         let expectedToBeSerialized = graphData::entries().filter(([key, value]) => !!value && !excluded.includes(key)
@@ -288,7 +288,7 @@ describe("Serialize data", () => {
     });
 
     it("Nested villus resource serialized", () => {
-        graphData = modelClasses.Graph.fromJSON(villus, modelClasses);
+        graphData = generateFromJSON(villus, modelClasses);
         let serializedGraphData = graphData.toJSON(3, {"villus": 3});
         let lyph = serializedGraphData.lyphs.find(e => e.id === "l1");
         expect(lyph).to.be.an('object');
@@ -300,7 +300,7 @@ describe("Serialize data", () => {
     });
 
     it("Borders serialized", () => {
-        graphData = modelClasses.Graph.fromJSON(lyphOnBorder, modelClasses);
+        graphData = generateFromJSON(lyphOnBorder, modelClasses);
         let serializedGraphData = graphData.toJSON(3, {"border": 3, "borders": 3});
         let lyph = serializedGraphData.lyphs.find(lyph => lyph.id === "3");
         expect(lyph).to.be.an('object');
@@ -315,7 +315,7 @@ describe("Serialize data", () => {
     });
 
     it("Housing chain layers serialized", () => {
-        graphData = modelClasses.Graph.fromJSON(keast, modelClasses);
+        graphData = generateFromJSON(keast, modelClasses);
         let serializedGraphData = graphData.toJSON(3);
         let chain = serializedGraphData.chains.find(e => e.id === "acn1");
         expect(chain).to.be.an('object');
@@ -349,7 +349,7 @@ describe("Serialize scaffold", () => {
 describe("Create, save and load snapshots", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses);
+        graphData = generateFromJSON(respiratory, modelClasses);
     });
 
     it("Serialized snapshot contains necessary fields", () => {
@@ -426,7 +426,7 @@ describe("Create, save and load snapshots", () => {
 describe("Serialize data to JSON-LD", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(keast, modelClasses);
+        graphData = generateFromJSON(keast, modelClasses);
     });
 
     it("JSON-LD context generated for Keast model", () => {
@@ -452,6 +452,56 @@ describe("Serialize data to JSON-LD", () => {
             expect(res).to.have.property('@graph');
         };
         modelClasses.Graph.entitiesToJSONLDFlat(graphData.entitiesToJSONLD(), callback);
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
+
+describe("Find paths from neurons to scaffold wires (via housing lyphs)", () => {
+    let graphData;
+    before(() => {
+        graphData = generateFromJSON(wbkgCardiac, modelClasses);
+        graphData.neurulator();
+    });
+
+    it("Locate wires that direct wkbgCardiac chains accommodating neurons", () => {
+            let n_5 = graphData.dynamicGroups.find(g => g.id === "neuron-5");
+            expect(n_5).to.be.an("object").that.has.property("class").that.equals("Group");
+
+            let hostedLinks = n_5.links.filter(l => l.fasciculatesIn || l.endsIn);
+            expect(hostedLinks.length).to.be.equal(110);
+            let housingLyphs = [...new Set(hostedLinks.map(l => l.fasciculatesIn || l.endsIn))];
+            expect(housingLyphs.length).to.be.equal(37);
+
+            let housingLyphsInChains = housingLyphs.filter(h => h.axis?.levelIn);
+            let housingChains = [...new Set(housingLyphsInChains.map(h => h.axis.levelIn)::flatten())]; // lyphs -> chains
+            expect(housingChains.length).to.be.equal(5);
+            let housingChainRoots = housingChains.filter(c => c.root).map(c => c.root); // chains -> nodes
+            let housingChainLeaves = housingChains.filter(c => c.leaf).map(c => c.leaf);
+            expect(housingChainRoots.length).to.be.equal(5);
+            expect(housingChainLeaves.length).to.be.equal(5);
+
+            let wiredHousingChains = housingChains.filter(c => c.wiredTo).map(c => c.wiredTo); // chains -> wires
+            expect(wiredHousingChains.length).to.be.equal(1);
+
+            let hostedHousingChains = housingChains.filter(c => c.hostedBy).map(c => c.hostedBy); //chains -> regions
+            expect(hostedHousingChains.length).to.be.equal(4);
+    });
+
+    it("Generated model has schemaVersion and version", () => {
+        expect(graphData).to.have.property("schemaVersion");
+        expect(graphData).to.have.property("version");
+    });
+
+    it("All resources have fullID with prefix", () => {
+        graphData.entitiesByID::values().forEach(r => {
+            //We skipp non-resources, e.g., missing scaffold regions
+            if (r.class) {
+                expect(r.fullID).to.be.equal(r.namespace + ":" + getRefID(r.id));
+            }
+        });
     });
 
     after(() => {

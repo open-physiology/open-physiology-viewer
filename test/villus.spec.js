@@ -7,12 +7,12 @@ import {
 } from './test.helper';
 import villus from './data/basicVillus';
 
-import {modelClasses} from '../src/model/index';
+import {modelClasses, generateFromJSON} from '../src/model/index';
 
 describe("Generate groups from villus templates", () => {
     let graphData;
     beforeEach(() => {
-        graphData = modelClasses.Graph.fromJSON(villus, modelClasses);
+        graphData = generateFromJSON(villus, modelClasses);
     });
 
     it("Villus template expanded", () => {

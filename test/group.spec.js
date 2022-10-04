@@ -6,13 +6,13 @@ import {
     expect,
 } from './test.helper';
 
-import {modelClasses} from '../src/model/index';
+import {modelClasses, generateFromJSON} from '../src/model/index';
 import bolserLewis from './data/bolserLewis';
 
 describe("Nested groups (BolserLewis)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(bolserLewis, modelClasses);
+        graphData = generateFromJSON(bolserLewis, modelClasses);
     });
 
     it("Groups defined as union of chains include all necessary resources", () => {

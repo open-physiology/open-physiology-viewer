@@ -34,6 +34,7 @@ export const $LogMsg = {
     CHAIN_NO_LEAF               : "A chain without leaf",
     CHAIN_NO_LEVELS             : "A chain without levels",
     CHAIN_MISMATCH_HOUSING      : "Mismatch between number of levels and the number of housing lyphs",
+    CHAIN_REF_NOT_FOUND         : "Referred chain definition not found in the model",
 
     CHANNEL_NO_GROUP            : "Cannot create channel instances: canonical group not found",
     CHANNEL_NO_ID               : "Skipped channel template - it must have (non-empty) identifier",
@@ -86,6 +87,7 @@ export const $LogMsg = {
 
     LINK_NO_END_NODE            : "Failed to process link with undefined end node",
     LINK_FORCE_FAILED           : "Failed to create a force link",
+    LINK_REF_NOT_FOUND          : "Referred link definition not found in the model",
 
     LYPH_INTERNAL_NO_LAYER      : "Failed to locate layer lyph to reposition internal lyphs",
     LYPH_INTERNAL_OUT_RANGE     : "Failed to relocate internal lyph to layer: layer index out of range",

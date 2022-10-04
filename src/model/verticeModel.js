@@ -182,8 +182,8 @@ export class Node extends Vertice {
                         [$Field.skipLabel] : true
                     }, "verticeModel.replicateInternalNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
-
                     mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
+
                     let k = findIndex(hostLyph.internalNodes, nodeFullID, parentGroup.namespace);
                     if (k > -1){
                         hostLyph.internalNodes[k] = nodeClone.fullID;
@@ -202,6 +202,8 @@ export class Node extends Vertice {
                             if (lnk.target === nodeID){
                                 targetOfLinks.push(lnk);
                             }
+                        } else {
+                             logger.warn($LogMsg.LINK_REF_NOT_FOUND, lnkRef, parentGroup.id);
                         }
                     });
 
@@ -224,16 +226,18 @@ export class Node extends Vertice {
                             if (node[prop]) {
                                 node[prop] = node[prop].filter(e => !chains.includes(e));
                             }
-                            chains.forEach(chainID => {
-                                let chain = refToResource(chainID, parentGroup, $Field.chains);
+                            chains.forEach(chainRef => {
+                                let chain = refToResource(chainRef, parentGroup, $Field.chains);
                                 if (chain && chain.group) {
                                     mergeGenResource(chain.group, parentGroup, nodeClone, $Field.nodes);
                                     let relatedProp = prop === $Field.leafOf ? $Field.leaf : $Field.root;
                                     chain[relatedProp] = nodeClone.fullID;
+                                } else {
+                                    logger.warn($LogMsg.CHAIN_REF_NOT_FOUND, chainRef, parentGroup.id);
                                 }
                             })
                         }
-                    };
+                    }
 
                     fixNodeChainRels(leafChains, $Field.leafOf);
                     fixNodeChainRels(rootChains, $Field.rootOf);

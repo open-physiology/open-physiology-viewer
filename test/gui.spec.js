@@ -30,7 +30,7 @@ import {ExternalSearchBar} from "../src/components/gui/externalSearchBar";
 import {ExternalSelectDialog} from "../src/components/gui/externalSelectDialog";
 
 import basalGanglia from './data/basalGanglia.json';
-import {modelClasses} from "../src/model";
+import {modelClasses, generateFromJSON} from "../src/model";
 import {CSG} from 'three-csg-ts';
 import {THREE} from "../src/view/utils";
 import {By} from "@angular/platform-browser";
@@ -131,7 +131,7 @@ describe("SearchBar component", () => {
     let resourceNames;
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses);
+        graphData = generateFromJSON(basalGanglia, modelClasses);
         resourceNames = (graphData.resources||[]).filter(e => e.name).map(e => e.name);
     });
 

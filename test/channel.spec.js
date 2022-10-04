@@ -6,12 +6,12 @@ import {
     expect,
 } from './test.helper';
 import uotWithChannels from './data/uotWithChannels.json';
-import {modelClasses} from '../src/model/index';
+import {modelClasses, generateFromJSON} from '../src/model/index';
 
 describe("Generate groups from channel templates (UOT)", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(uotWithChannels, modelClasses);
+        graphData = generateFromJSON(uotWithChannels, modelClasses);
     });
 
     it("Channel templates expanded", () => {
