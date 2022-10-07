@@ -10,14 +10,14 @@ import keastExcelEvilBagModel from './excel/Keast_Flatmap_evilBag.xlsx';
 import testModel from './excel/test_model.xlsx';
 import {loadModel, jsonToExcel} from "../src/model/index";
 
-import {modelClasses} from '../src/model/index';
+import {modelClasses, generateFromJSON} from '../src/model/index';
 import {levelTargetsToLevels, borderNamesToBorder} from "../src/model/utilsParser";
 
 describe("Load Excel templates", () => {
     let graphData;
     beforeEach(() => {
         let keastModel = loadModel(keastExcelModel, "KeastModel", "xlsx", false);
-        graphData = modelClasses.Graph.fromJSON(keastModel, modelClasses);
+        graphData = generateFromJSON(keastModel, modelClasses);
     });
 
     it("Excel model imported (KeastModel)", () => {
@@ -50,7 +50,7 @@ describe("Neurulate Excel template without out-of-memory error ", () => {
     let graphData;
     beforeEach(() => {
         let keastModel = loadModel(keastExcelEvilBagModel, "KeastModel", "xlsx", false);
-        graphData = modelClasses.Graph.fromJSON(keastModel, modelClasses);
+        graphData = generateFromJSON(keastModel, modelClasses);
     });
 
     it("Excel model neurulated (KeastModel)", () => {
@@ -76,7 +76,7 @@ describe("Convert excel data to JSON", () => {
     let graphData;
     beforeEach(() => {
         let model = loadModel(testModel, "TestModel", "xlsx", false);
-        graphData = modelClasses.Graph.fromJSON(model, modelClasses);
+        graphData = generateFromJSON(model, modelClasses);
     });
 
     it("Excel model imported (TestModel)", () => {

@@ -14,7 +14,7 @@ import scaffoldN from './scaffolds/scaffold_N.json';
 describe("Scaffold D", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Scaffold.fromJSON(scaffoldD, modelClasses);
+        graphData = generateFromJSON(scaffoldD, modelClasses);
     });
     it("Model generated without warnings",  () => expectNoWarnings(graphData));
     after(() => {
@@ -25,7 +25,7 @@ describe("Scaffold D", () => {
 describe("Scaffold F", () => {
     let graphData;
     before(() => {
-        graphData = modelClasses.Scaffold.fromJSON(scaffoldF, modelClasses);
+        graphData = generateFromJSON(scaffoldF, modelClasses);
     });
     it("Model generated without warnings",  () => expectNoWarnings(graphData));
     after(() => {

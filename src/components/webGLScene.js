@@ -618,8 +618,8 @@ export class WebGLSceneComponent {
             return;
         }
         (resource.external||[]).forEach(external => {
-            if (external.id) {
-                let parts = external.id.split(":");
+            if (external.fullID) {
+                let parts = external.fullID.split(":");
                 if (parts.length === 2) {
                     let [prefix, suffix] = parts;
                     let localConvention = this._graphData.localConventions.find(obj => obj.prefix === prefix);

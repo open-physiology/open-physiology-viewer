@@ -264,12 +264,21 @@ export class Lyph extends Shape {
 
         function moveResourceToLayer(resource, layerIndex, lyph, prop){
             if (layerIndex < lyph.layers?.length){
-                let layer = refToResource(lyph.layers[layerIndex], parentGroup, $Field.lyphs);
+                let internalID = getID(resource);
+                let layerRef = lyph.layers[layerIndex];
+                let layer = refToResource(layerRef, parentGroup, $Field.lyphs);
+                if (!layer && lyph.namespace && !lyph.layers[layerIndex].includes(':')){
+                    //search in the main lyph namespace
+                    layerRef = lyph.namespace + ":" + lyph.layers[layerIndex];
+                    layer = refToResource(layerRef, parentGroup, $Field.lyphs);
+                }
                 if (layer){
                     layer[prop] = layer[prop] || [];
-                    let internalID = getID(resource);
                     if (internalID && !layer[prop].find(x => x === internalID)){
-                        layer[prop].push(internalID);
+                        layer[prop].push(getFullID(parentGroup.namespace, internalID));
+                        if (resource::isObject()){
+                            resource.internalIn = layerRef;
+                        }
                         return true;
                     }
                     logger.info($LogMsg.RESOURCE_TO_LAYER, internalID, layer.id, prop, layer[prop]);
@@ -323,7 +332,6 @@ export class Lyph extends Shape {
                     if (lyph){
                         if (resource.internalInLayer){
                             moveResourceToLayer(resource, resource.internalInLayer, lyph, key1);
-                            delete resource.internalIn;
                         }
                     } else {
                         logger.error($LogMsg.LYPH_INTERNAL_IN_NOT_FOUND, resource.id, resource.internalIn);

@@ -39,7 +39,7 @@ import {$LogMsg, Logger} from "../src/model/logger";
 
 describe("BasalGanglia", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basalGanglia, modelClasses));
+    before(() => graphData = generateFromJSON(basalGanglia, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -48,7 +48,7 @@ describe("BasalGanglia", () => {
 
 describe("BasalGangliaAuto", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basalGangliaAuto, modelClasses));
+    before(() => graphData = generateFromJSON(basalGangliaAuto, modelClasses));
     it("Model generated without errors", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -57,7 +57,7 @@ describe("BasalGangliaAuto", () => {
 
 describe("Basic", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basic, modelClasses));
+    before(() => graphData = generateFromJSON(basic, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -67,8 +67,8 @@ describe("Basic", () => {
 describe("BasicChainsInGroup", () => {
     let graphData, graphData2;
     before(() => {
-        graphData = modelClasses.Graph.fromJSON(basicChainsInGroup, modelClasses);
-        graphData2 = modelClasses.Graph.fromJSON(basicChainsInternalInLayer, modelClasses)
+        graphData = generateFromJSON(basicChainsInGroup, modelClasses);
+        graphData2 = generateFromJSON(basicChainsInternalInLayer, modelClasses)
     });
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     it("Model2 generated without warnings", () => expectNoWarnings(graphData2));
@@ -105,7 +105,7 @@ describe("BasicChainsInGroup", () => {
 
 describe("BasicHousedChain", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicHousedChain, modelClasses));
+    before(() => graphData = generateFromJSON(basicHousedChain, modelClasses));
     it("Model validator raises warning about chain housing", () => {
         expectNoErrors(graphData);
         //Correct chain
@@ -130,7 +130,7 @@ describe("BasicHousedChain", () => {
 
 describe("BasicHostedNode", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicHostedNode, modelClasses));
+    before(() => graphData = generateFromJSON(basicHostedNode, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -139,7 +139,7 @@ describe("BasicHostedNode", () => {
 
 describe("BasicLyphOnBorder", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicLyphOnBorder, modelClasses));
+    before(() => graphData = generateFromJSON(basicLyphOnBorder, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -148,7 +148,7 @@ describe("BasicLyphOnBorder", () => {
 
 describe("BasicLyphTypes", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicLyphTypes, modelClasses));
+    before(() => graphData = generateFromJSON(basicLyphTypes, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -157,7 +157,7 @@ describe("BasicLyphTypes", () => {
 
 describe("BasicLinkWithChainsAsEnds", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicLinkWithChainsAsEnds, modelClasses));
+    before(() => graphData = generateFromJSON(basicLinkWithChainsAsEnds, modelClasses));
     it("Validator detects type mismatch error", () => {
         expect(graphData).to.have.property("logger");
         expect(graphData.logger).to.have.property("entries");
@@ -175,7 +175,7 @@ describe("BasicLinkWithChainsAsEnds", () => {
 
 describe("BasicHousedTree", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicHousedTree, modelClasses));
+    before(() => graphData = generateFromJSON(basicHousedTree, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -184,7 +184,7 @@ describe("BasicHousedTree", () => {
 
 describe("BasicJointTrees", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicJointTrees, modelClasses));
+    before(() => graphData = generateFromJSON(basicJointTrees, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -193,7 +193,7 @@ describe("BasicJointTrees", () => {
 
 describe("BasicLyphsWithNoAxis", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicLyphWithNoAxis, modelClasses));
+    before(() => graphData = generateFromJSON(basicLyphWithNoAxis, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -202,7 +202,7 @@ describe("BasicLyphsWithNoAxis", () => {
 
 describe("BasicSharedNodes", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicSharedNodes, modelClasses));
+    before(() => graphData = generateFromJSON(basicSharedNodes, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -211,13 +211,13 @@ describe("BasicSharedNodes", () => {
 
 describe("BasicTemplateAsInternalLyphInLayer", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicTemplateAsInternalLyphInLayer, modelClasses));
+    before(() => graphData = generateFromJSON(basicTemplateAsInternalLyphInLayer, modelClasses));
     it("Model generated without warnings", () => {
         expectNoWarnings(graphData);
         //Chain levels have internalLyphs
         expect(graphData).to.have.property("lyphs");
-        let h2 = graphData.entitiesByID["h2"];
-        let h3 = graphData.entitiesByID["h3"];
+        let h2 = graphData.entitiesByID["nm_Internal-lyph-template:h2"];
+        let h3 = graphData.entitiesByID["nm_Internal-lyph-template:h3"];
         expect(h2).to.have.property("layers").that.has.length(3);
         expect(h3).to.have.property("layers").that.has.length(3);
         expect(h2.layers[1]).to.have.property("internalLyphs").that.has.length(1);
@@ -230,10 +230,9 @@ describe("BasicTemplateAsInternalLyphInLayer", () => {
     });
 });
 
-
 describe("BasicVillus", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(basicVillus, modelClasses));
+    before(() => graphData = generateFromJSON(basicVillus, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -242,7 +241,7 @@ describe("BasicVillus", () => {
 
 describe("KeastSpinal", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(keastSpinal, modelClasses));
+    before(() => graphData = generateFromJSON(keastSpinal, modelClasses));
     it("Model detects absent IDs", () => {
         expect (graphData.logger.status).to.be.equal(Logger.STATUS.WARNING);
         let logEvents = graphData.logger.entries;
@@ -257,7 +256,7 @@ describe("KeastSpinal", () => {
 
 describe("Neuron", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(neuron, modelClasses));
+    before(() => graphData = generateFromJSON(neuron, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -266,7 +265,7 @@ describe("Neuron", () => {
 
 describe("NeuronTemplate", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(neuronTemplate, modelClasses));
+    before(() => graphData = generateFromJSON(neuronTemplate, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -275,7 +274,7 @@ describe("NeuronTemplate", () => {
 
 describe("NeuronTemplateRegion", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(neuronTemplateRegion, modelClasses));
+    before(() => graphData = generateFromJSON(neuronTemplateRegion, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -284,7 +283,7 @@ describe("NeuronTemplateRegion", () => {
 
 describe("NeuronTree", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(neuronTree, modelClasses));
+    before(() => graphData = generateFromJSON(neuronTree, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -293,7 +292,7 @@ describe("NeuronTree", () => {
 
 describe("NeuronTreeWithLevels", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(neuronTreeWithLevels, modelClasses));
+    before(() => graphData = generateFromJSON(neuronTreeWithLevels, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -302,7 +301,7 @@ describe("NeuronTreeWithLevels", () => {
 
 describe("Respiratory", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(respiratory, modelClasses));
+    before(() => graphData = generateFromJSON(respiratory, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
@@ -311,7 +310,7 @@ describe("Respiratory", () => {
 
 describe("RespiratoryInternalLyphsInLayers", () => {
     let graphData;
-    before(() => graphData = modelClasses.Graph.fromJSON(respiratoryInternalLyphsInLayers, modelClasses));
+    before(() => graphData = generateFromJSON(respiratoryInternalLyphsInLayers, modelClasses));
     it("Model generated without warnings", () => expectNoWarnings(graphData));
     after(() => {
         graphData.logger.clear();
