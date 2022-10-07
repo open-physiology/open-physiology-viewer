@@ -1,0 +1,36 @@
+name: Tests CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "tests/164" ]
+  pull_request:
+    branches: [ "tests/164" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  ci:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+
+    container: lironavon/docker-puppeteer-container:14.16.0
+    env:
+      CI: true
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+          node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test
+      run: |
+          npm ci
+          npm snapshot_test
+      env:
+          CI: true
+
