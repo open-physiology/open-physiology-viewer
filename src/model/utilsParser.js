@@ -1,5 +1,5 @@
-import {$Field, $SchemaType, getSchemaClass, schemaClassModels} from "./utils";
-import {isArray, isObject, isString, merge, omit, pick, values} from "lodash-bound";
+import {$Field, $SchemaClass, $SchemaType, getSchemaClass, schemaClassModels} from "./utils";
+import {entries, isArray, isObject, isString, keys, merge, omit, pick, values} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
 /**
@@ -72,15 +72,52 @@ export function validateValue(value, key){
     return true;
 }
 
-export function validateExternal(externals, localConventions){
+/**
+ * Replaces prefixes in external references with full URL from local conventions
+ * @param parentGroup
+ * @param localConventions
+ */
+export function replaceReferencesToExternal(parentGroup, localConventions) {
     const faultyExternal = [];
-    (externals || []).forEach(r => {
-        if (r.fullID.indexOf(":") > -1 && !(localConventions||[]).find(c => r.fullID.startsWith(c.prefix))) {
-            faultyExternal.push(r.fullID);
+
+    const replaceExternalPrefix = ref => {
+        // NK: if there are explicit resource definitions, we won't alter them
+        // if (ref::isObject()){
+        //    ref.id = replaceExternalPrefix(ref.id);
+        //    ref.fullID = ref.id;
+        //    ref.namespace = undefined;
+        // }
+        if (ref::isString()) {
+            let c = (localConventions || []).find(c => ref.startsWith(c.prefix + ":"));
+            if (c) {
+                return ref.replace(c.prefix + ":", c.namespace);
+            } else {
+                faultyExternal.push(ref);
+            }
+        }
+        return ref;
+    }
+
+    (parentGroup::entries()||[]).forEach(([relName, resources]) => {
+        if (!resources::isArray()) { return; }
+        let classNames = schemaClassModels[parentGroup.class].relClassNames;
+        if (classNames[relName]) {
+            let refsToExternal = [];
+            [$SchemaClass.External, $SchemaClass.OntologyTerm, $SchemaClass.Reference].forEach(extClsName =>
+                refsToExternal.push(...schemaClassModels[classNames[relName]].selectedRelNames(extClsName)));
+            (resources || []).forEach(resource => {
+                (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
+                    if (refsToExternal.includes(key)) {
+                         //All external annotations are in arrays
+                         resource[key] = resource[key].map(ref => replaceExternalPrefix(ref));
+                    }
+                });
+            })
         }
     });
+
     if (faultyExternal.length > 0){
-        logger.error($LogMsg.EXTERNAL_NO_MAPPING, faultyExternal);
+        logger.error($LogMsg.EXTERNAL_NO_MAPPING, parentGroup.id, faultyExternal);
     }
 }
 

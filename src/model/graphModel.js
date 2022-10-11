@@ -32,7 +32,8 @@ import {
     validateValue,
     convertValue,
     levelTargetsToLevels,
-    borderNamesToBorder, validateExternal
+    borderNamesToBorder,
+    replaceReferencesToExternal
 } from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
@@ -189,15 +190,14 @@ export class Graph extends Group{
      */
     static fromJSON(json, modelClasses = {}) {
         const V = new Validator();
-
-        //Validate using Graph schema
         delete schema.oneOf;
         schema.$ref = "#/definitions/Graph";
         let resVal = V.validate(json, schema);
 
-        //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep();
+        inputModel.class = $SchemaClass.Graph;
 
+        //Copy existing entities to a map to enable nested model instantiation
         /**
          * @property waitingList
          * @type {Object}
@@ -226,6 +226,12 @@ export class Graph extends Group{
             collectNestedResources(inputModel, relFieldNames, $Field.groups);
 
             modelClasses.Channel.defineChannelLyphTemplates(inputModel);
+
+            replaceReferencesToExternal(inputModel, inputModel.localConventions);
+            inputModel.groupsByID::values().forEach(json => {
+                json.class = json.class || $SchemaClass.Group;
+                replaceReferencesToExternal(json, json.localConventions || inputModel.localConventions);
+            });
 
             modelClasses.Group.replaceReferencesToTemplates(inputModel);
             inputModel.groupsByID::values().forEach(json => {
@@ -274,9 +280,6 @@ export class Graph extends Group{
             inputModel.groupsByID::values().forEach(json => {
                 modelClasses.Lyph.mapInternalResourcesToLayers(json, modelClasses);
             });
-
-            //Create graph
-            inputModel.class = $SchemaClass.Graph;
         }
 
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, inputModel.namespace);
@@ -328,9 +331,6 @@ export class Graph extends Group{
                     }
                 }
             });
-            validateExternal(res.external, res.localConventions);
-            validateExternal(res.ontologyTerms, res.localConventions);
-            validateExternal(res.references, res.localConventions);
 
             res.mergeSubgroupResources();
             deleteRecursively(res, $Field.group, "_processed");
@@ -617,8 +617,7 @@ export class Graph extends Group{
         let uri = m.concat(this.id);
 
         let curiesContext = {};
-        let localConventions = this.localConventions || [];
-        localConventions.forEach((obj) =>
+        (this.localConventions || []).forEach((obj) =>
             curiesContext[obj.prefix] = {"@id": obj.namespace, "@prefix": true});
 
         let localContext = {
