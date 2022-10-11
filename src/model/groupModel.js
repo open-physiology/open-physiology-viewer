@@ -184,7 +184,6 @@ export class Group extends Resource {
      * @param parentGroup - input model
      */
     static replaceReferencesToTemplates(parentGroup){
-
         let changedLyphs = 0;
         let changedMaterials = 0;
 
@@ -257,7 +256,7 @@ export class Group extends Resource {
                     resource[key] = replaceRefToTemplate(resource[key], resource);
                 }
             }
-        };
+        }
 
         (parentGroup::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
@@ -268,8 +267,8 @@ export class Group extends Resource {
                 (resources || []).forEach(resource => {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
                         if (refsToLyphs.includes(key)) { replaceAbstractRefs(resource, key); }
-                    })
-                })
+                    });
+                });
             }
         });
         if (changedLyphs > 0){

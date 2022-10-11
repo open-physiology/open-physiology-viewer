@@ -8,7 +8,7 @@ import {keys, entries, pick, flatten, values} from 'lodash-bound';
 import {$Field, $SchemaClass, modelClasses, schemaClassModels, generateFromJSON} from '../src/model/index';
 import schema from '../src/model/graphScheme.json';
 import {Validator} from "jsonschema";
-import {getGenID, getGenName, getRefID} from "../src/model/utils";
+import {getFullID, getGenID, getGenName} from "../src/model/utils";
 import {$LogMsg, Logger} from "../src/model/logger";
 
 import chainFromLevels from './data/basicChainWithNestedLevels.json';
@@ -499,7 +499,7 @@ describe("Find paths from neurons to scaffold wires (via housing lyphs)", () => 
         graphData.entitiesByID::values().forEach(r => {
             //We skipp non-resources, e.g., missing scaffold regions
             if (r.class) {
-                expect(r.fullID).to.be.equal(r.namespace + ":" + getRefID(r.id));
+                expect(r.fullID).to.be.equal(getFullID(r.namespace, r.id));
             }
         });
     });
