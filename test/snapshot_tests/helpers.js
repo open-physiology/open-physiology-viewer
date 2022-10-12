@@ -77,15 +77,18 @@ export function range(size, startAt = 0) {
 
 export const fullpageSnapshot = async (page, snapshotOptions, snapshotIdentifier) => {
   await console.log('... taking snapshot ...')
+  await page.waitForTimeout(ONE_SECOND)
   expect(await page.screenshot())
     .toMatchImageSnapshot({
       ...snapshotOptions,
       customSnapshotIdentifier: snapshotIdentifier
     });
+  await page.waitForTimeout(ONE_SECOND)
 }
 
 
 export const canvasSnapshot = async (page, selector, snapshotOptions, snapshotIdentifier) => {
+  await page.waitForTimeout(ONE_SECOND)
   const canvas = await page.waitForSelector(selector)
   const groups_image = await canvas.screenshot()
   await console.log('... taking canvas snapshot ...')
@@ -94,4 +97,5 @@ export const canvasSnapshot = async (page, selector, snapshotOptions, snapshotId
       ...snapshotOptions,
       customSnapshotIdentifier: snapshotIdentifier
     });
+  await page.waitForTimeout(ONE_SECOND)
 }
