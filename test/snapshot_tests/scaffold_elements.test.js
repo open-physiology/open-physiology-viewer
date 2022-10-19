@@ -6,7 +6,7 @@ import { ONE_SECOND, FIVE_SECONDS, ONE_MINUTE, baseURL, scaffoldGroupName } from
 import { wait4selector, click_, range, canvasSnapshot, fullpageSnapshot } from './helpers';
 const path = require('path');
 var scriptName = path.basename(__filename, '.js');
-
+import * as selectors from './selectors'
 
 //SNAPSHOT
 const SNAPSHOT_OPTIONS = {
@@ -22,15 +22,15 @@ const SNAPSHOT_OPTIONS = {
 };
 
 //SELECTORS: 
-const BASE_PAGE_SELECTOR = '#mat-tab-content-0-1';
-const MAIN_PANEL_SELECTOR = '#main-panel';
-const SHOW_SETTING_SELECTOR = 'button[title = "Show settings"]';
-const HIDE_SETTINGS_SELECTOR = 'button[title = "Hide settings"]';
-const MERGE_MODEL_SELECTOR = '#mergeBtn > i';
-const TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR = 'button[class = "mat-focus-indicator mat-raised-button mat-button-base"]';
-const UNTOGLE_ALL_GROUPS_SELECTOR = 'button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]';
-const ERROR_PANEL_SELECTOR = '.cdk-overlay-pane';
-const OK_ERROR_SELECTOR = 'div[class = "mat-simple-snackbar-action ng-star-inserted"]';
+// const BASE_PAGE_SELECTOR = '#mat-tab-content-0-1';
+// const MAIN_PANEL_SELECTOR = '#main-panel';
+// const SHOW_SETTING_SELECTOR = 'button[title = "Show settings"]';
+// const HIDE_SETTINGS_SELECTOR = 'button[title = "Hide settings"]';
+// const MERGE_MODEL_SELECTOR = '#mergeBtn > i';
+// const TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR = 'button[class = "mat-focus-indicator mat-raised-button mat-button-base"]';
+// const UNTOGLE_ALL_GROUPS_SELECTOR = 'button[class = "mat-focus-indicator mat-raised-button mat-button-base cdk-focused cdk-mouse-focused"]';
+// const ERROR_PANEL_SELECTOR = '.cdk-overlay-pane';
+// const OK_ERROR_SELECTOR = 'div[class = "mat-simple-snackbar-action ng-star-inserted"]';
 
 
 //TESTS:
@@ -62,22 +62,22 @@ describe('Scaffold Model Elements', () => {
     });
 
     it('Scaffold Model', async () => {
-        await wait4selector(page, BASE_PAGE_SELECTOR, { timeout: ONE_MINUTE });
+        await wait4selector(page, selectors.BASE_PAGE_SELECTOR, { timeout: ONE_MINUTE });
         await page.waitForTimeout(ONE_SECOND * 2)
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Scaffold Model')
     });
 
     it('Groups from Scaffold Model', async () => {
         console.log('Toggle Groups from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await page.waitForTimeout(ONE_SECOND)
         const ScaffoldGroups = await page.evaluate(() => document.querySelectorAll("span.mat-slide-toggle-content").length)
         expect(ScaffoldGroups).toBe(9)
 
         await fullpageSnapshot(page, SNAPSHOT_OPTIONS, 'Groups from Scaffold Model')
         await page.waitForTimeout(ONE_SECOND)
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
     })
 })
 
@@ -87,8 +87,8 @@ describe('Scaffold Model: F Group', () => {
     it('F Anchors, Wires and Regions from Scaffold Model', async () => {
         console.log('Toggle F Anchors from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
 
         const anchor = await page.evaluate(() => {
@@ -99,8 +99,8 @@ describe('Scaffold Model: F Group', () => {
         });
         expect(anchor).toBe(scaffoldGroupName[0])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -109,18 +109,18 @@ describe('Scaffold Model: F Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Anchors from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Anchors from Scaffold Model')
     })
 
     it('F Wires from Scaffold Model', async () => {
         console.log('Toggle F Wires from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const wire = await page.evaluate(() => {
@@ -131,8 +131,8 @@ describe('Scaffold Model: F Group', () => {
         });
         expect(wire).toBe(scaffoldGroupName[3])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)  
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)  
 
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -141,18 +141,18 @@ describe('Scaffold Model: F Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Wires from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Wires from Scaffold Model')
     })
 
     it('F  Regions from Scaffold Model', async () => {
         console.log('Toggle F Regions from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const region = await page.evaluate(() => {
@@ -163,8 +163,8 @@ describe('Scaffold Model: F Group', () => {
         });
         expect(region).toBe(scaffoldGroupName[6])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -173,21 +173,21 @@ describe('Scaffold Model: F Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Regions from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Regions from Scaffold Model')
     })
 
     it('F  group elements from Scaffold Model', async () => {
         console.log('Toggle F Anchors, wires and regions from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR) 
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR) 
 
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -198,9 +198,9 @@ describe('Scaffold Model: F Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F group elements from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F group elements from Scaffold Model')
     })  
 })
 
@@ -212,8 +212,8 @@ describe('Scaffold Model: D Group', () => {
         console.log('Toggle D Anchors from Scaffold Model')
         
         await page.reload()
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
 
         const anchor = await page.evaluate(() => {
@@ -224,8 +224,8 @@ describe('Scaffold Model: D Group', () => {
         });
         expect(anchor).toBe(scaffoldGroupName[1])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
     
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -234,19 +234,19 @@ describe('Scaffold Model: D Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Anchors from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Anchors from Scaffold Model')
 
     })
 
     it('D Wires from Scaffold Model', async () => {
         console.log('Toggle D Wires from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const wire = await page.evaluate(() => {
@@ -257,8 +257,8 @@ describe('Scaffold Model: D Group', () => {
         });
         expect(wire).toBe(scaffoldGroupName[4])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -267,18 +267,18 @@ describe('Scaffold Model: D Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Wires from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Wires from Scaffold Model')
     })
 
     it('D  Regions from Scaffold Model', async () => {
         console.log('Toggle D Regions from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const region = await page.evaluate(() => {
@@ -289,8 +289,8 @@ describe('Scaffold Model: D Group', () => {
         });
         expect(region).toBe(scaffoldGroupName[7])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -299,22 +299,22 @@ describe('Scaffold Model: D Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Regions from Scaffold Model')
+        await canvasSnapshot(page,selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Regions from Scaffold Model')
     })
 
     it('D  group elements from Scaffold Model', async () => {
         console.log('Toggle D Anchors, wires and regions from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
 
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -325,9 +325,9 @@ describe('Scaffold Model: D Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D group elements from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D group elements from Scaffold Model')
     })
 })
 
@@ -338,8 +338,8 @@ describe('Scaffold Model: N Group', () => {
         console.log('Toggle N Anchors from Scaffold Model')
         
         await page.reload()
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
 
         const anchor = await page.evaluate(() => {
@@ -350,8 +350,8 @@ describe('Scaffold Model: N Group', () => {
         });
         expect(anchor).toBe(scaffoldGroupName[2])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -360,19 +360,19 @@ describe('Scaffold Model: N Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Anchors from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Anchors from Scaffold Model')
 
     })
 
     it('N Wires from Scaffold Model', async () => {
         console.log('Toggle N Wires from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const wire = await page.evaluate(() => {
@@ -383,8 +383,8 @@ describe('Scaffold Model: N Group', () => {
         });
         expect(wire).toBe(scaffoldGroupName[5])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
 
         await page.evaluate(() => {
@@ -394,18 +394,18 @@ describe('Scaffold Model: N Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Wires from Scaffold Model')
+        await canvasSnapshot(page,selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Wires from Scaffold Model')
     })
 
     it('N  Regions from Scaffold Model', async () => {
         console.log('Toggle N Regions from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
 
         const region = await page.evaluate(() => {
@@ -416,8 +416,8 @@ describe('Scaffold Model: N Group', () => {
         });
         expect(region).toBe(scaffoldGroupName[8])
 
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
         
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -426,21 +426,21 @@ describe('Scaffold Model: N Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Regions from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Regions from Scaffold Model')
     })
 
     it('N  group elements from Scaffold Model', async () => {
         console.log('Toggle N Anchors, wires and regions from Scaffold Model')
 
-        await click_(page, SHOW_SETTING_SELECTOR)
-        await click_(page, TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
+        await click_(page, selectors.SHOW_SETTING_SELECTOR)
+        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.click(UNTOGLE_ALL_GROUPS_SELECTOR)
+        await page.click(selectors.UNTOGLE_ALL_GROUPS_SELECTOR)
         await page.waitForTimeout(2000)
-        await page.waitForSelector(ERROR_PANEL_SELECTOR)
-        await page.click(OK_ERROR_SELECTOR)
+        await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
+        await page.click(selectors.OK_ERROR_SELECTOR)
 
         await page.evaluate(() => {
             let map = document.querySelectorAll('div.mat-slide-toggle-bar');
@@ -451,9 +451,9 @@ describe('Scaffold Model: N Group', () => {
             }
         });
 
-        await click_(page, HIDE_SETTINGS_SELECTOR)
+        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
-        await canvasSnapshot(page, MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N group elements from Scaffold Model')
+        await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N group elements from Scaffold Model')
     })
 })
 
