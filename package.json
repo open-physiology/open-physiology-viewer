@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "snapshot_test": "jest scaffold_elements.test.js",
+    "keast_snapshot_test": "jest KeastSpinal_ConnectivityModel_Elements.test.js",
     "test": "mochapack --opts mocha-webpack.opts --timeout 50000 test/**/*.spec.js",
     "build": "cross-env BABEL_ENV=production webpack",
     "watch": "webpack --progress --watch",
