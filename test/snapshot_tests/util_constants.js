@@ -3,6 +3,8 @@ export const FIVE_SECONDS = 5000;
 export const TEN_SECONDS = 10000;
 export const ONE_MINUTE = 60000;
 export const baseURL = 'https://open-physiology-viewer-tgbugs.surge.sh/'
+// export const baseURL = 'https://open-physiology-viewer.surge.sh/'
+
 
 export const scaffoldGroupName = [
     'F anchors',
@@ -14,4 +16,12 @@ export const scaffoldGroupName = [
     'F regions',
     'D regions',
     'N regions'
+]
+
+
+export const KeastSpinalModelGroups = [
+    'Ungrouped',
+    'Sympathetic chain',
+    'Axon',
+    'Dendrite'
 ]
