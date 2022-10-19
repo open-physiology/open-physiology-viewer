@@ -70,7 +70,7 @@ describe('Load TOO Map', () => {
             page.waitForFileChooser(),
             page.click('#loadBtn') 
         ]);
-        await fileChooser.accept(['/Users/simaosa/Desktop/MetaCell/Projects/APINatomy/Automated Tests/APINatomy-Keast-Spinal-Connectivity-Model/APINatomy-Keast-Spinal-Connectivity-Model-/tests/assets/too-map.json']);
+        // await fileChooser.accept(['/Users/simaosa/Desktop/MetaCell/Projects/APINatomy/Automated Tests/APINatomy-Keast-Spinal-Connectivity-Model/APINatomy-Keast-Spinal-Connectivity-Model-/tests/assets/too-map.json']);
         await fileChooser.accept([__dirname + '/assets/too-map.json']);
 
         // const filePath = path.relative(process.cwd(), __dirname + '/assets/too-map.json');
