@@ -20,7 +20,7 @@ const SNAPSHOT_OPTIONS = {
     //     ssim: 'bezkrovny', //other option, optimized for speed at a small change in accuracy
     // },
     failureThresholdType: 'percent',
-    failureThreshold: 0.020 //best one to allow some minor changes in display 
+    failureThreshold: 0.050 //best one to allow some minor changes in display 
 };
 
 
@@ -131,10 +131,8 @@ describe('Keast Spinal Model Snapshot Tests', () => {
         await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
+        await page.waitForTimeout(ONE_SECOND)
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Keast Spinal model')
-        await click_(page, selectors.SHOW_SETTING_SELECTOR)
-        await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
-        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
     })
 
@@ -143,7 +141,6 @@ describe('Keast Spinal Model Snapshot Tests', () => {
 
         await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
-        await click_(page,selectors.UNTOGGLE_ALL_SELECTOR)
 
         const group = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
@@ -161,7 +158,7 @@ describe('Keast Spinal Model Snapshot Tests', () => {
                 map[i].innerText.includes('Sympathetic chain') && map[i].click();
             }
         });
-        await page.waitForTimeout(HALF_SECOND)
+        await page.waitForTimeout(ONE_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Keast Spinal model group: Sympathetic chain')
 
@@ -219,7 +216,7 @@ describe('Keast Spinal Model Snapshot Tests', () => {
                 map[i].innerText.includes('Dendrite') && map[i].click();
             }
         });
-        await page.waitForTimeout(HALF_SECOND)
+        await page.waitForTimeout(ONE_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Keast Spinal model group: Dendrite')
 
