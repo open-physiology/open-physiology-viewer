@@ -2,7 +2,7 @@
 import 'expect-puppeteer';
 import { toMatchImageSnapshot } from 'jest-image-snapshot'
 expect.extend({ toMatchImageSnapshot })
-import { ONE_SECOND, FIVE_SECONDS, ONE_MINUTE, baseURL, scaffoldGroupName } from './util_constants'
+import { ONE_SECOND, FIVE_SECONDS, ONE_MINUTE,HALF_SECOND, baseURL, scaffoldGroupName } from './util_constants'
 import { wait4selector, click_, range, canvasSnapshot, fullpageSnapshot } from './helpers';
 const path = require('path');
 var scriptName = path.basename(__filename, '.js');
@@ -96,7 +96,7 @@ describe('Scaffold Model: F Group', () => {
                 return map[0].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[0])
+        expect(anchor).toContain(scaffoldGroupName[0])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -104,10 +104,10 @@ describe('Scaffold Model: F Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:F anchors' && map[i].click();
+                map[i].innerText.includes('F anchors') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Anchors from Scaffold Model')
@@ -128,7 +128,7 @@ describe('Scaffold Model: F Group', () => {
                 return map[3].innerText
             }
         });
-        expect(wire).toBe(scaffoldGroupName[3])
+        expect(wire).toContain(scaffoldGroupName[3])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)  
@@ -136,10 +136,10 @@ describe('Scaffold Model: F Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:F wires' &&  map[i].click();
+                map[i].innerText.includes('F wires') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Wires from Scaffold Model')
@@ -160,7 +160,7 @@ describe('Scaffold Model: F Group', () => {
                 return map[6].innerText
             }
         });
-        expect(region).toBe(scaffoldGroupName[6])
+        expect(region).toContain(scaffoldGroupName[6])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -168,10 +168,10 @@ describe('Scaffold Model: F Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:F regions' &&  map[i].click();
+                map[i].innerText.includes('F regions') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F Regions from Scaffold Model')
@@ -191,13 +191,13 @@ describe('Scaffold Model: F Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:F anchors' &&  map[i].click()
-                map[i].innerText == 'too:F wires' &&  map[i].click()
-                map[i].innerText == 'too:F regions' &&  map[i].click()
+                map[i].innerText.includes('F anchors') &&  map[i].click()
+                map[i].innerText.includes('F wires') &&  map[i].click()
+                map[i].innerText.includes('F regions') &&  map[i].click()
                
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'F group elements from Scaffold Model')
@@ -223,7 +223,7 @@ describe('Scaffold Model: D Group', () => {
                 return map[1].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[1])
+        expect(anchor).toContain(scaffoldGroupName[1])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -231,10 +231,10 @@ describe('Scaffold Model: D Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:D anchors' && map[i].click();
+                map[i].innerText.includes('D anchors') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Anchors from Scaffold Model')
@@ -256,7 +256,7 @@ describe('Scaffold Model: D Group', () => {
                 return map[4].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[4])
+        expect(anchor).toContain(scaffoldGroupName[4])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -264,10 +264,10 @@ describe('Scaffold Model: D Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:D wires' && map[i].click();
+                map[i].innerText.includes('D wires') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Wires from Scaffold Model')
@@ -288,7 +288,7 @@ describe('Scaffold Model: D Group', () => {
                 return map[7].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[7])
+        expect(anchor).toContain(scaffoldGroupName[7])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -296,10 +296,10 @@ describe('Scaffold Model: D Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:D regions' && map[i].click();
+                map[i].innerText.includes('D regions') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D Regions from Scaffold Model')
@@ -319,13 +319,13 @@ describe('Scaffold Model: D Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:D anchors' &&  map[i].click()
-                map[i].innerText == 'too:D wires' &&  map[i].click()
-                map[i].innerText == 'too:D regions' &&  map[i].click()
+                map[i].innerText.includes('D anchors') &&  map[i].click()
+                map[i].innerText.includes('D wires') &&  map[i].click()
+                map[i].innerText.includes('D regions') &&  map[i].click()
                
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'D group elements from Scaffold Model')
@@ -350,7 +350,7 @@ describe('Scaffold Model: N Group', () => {
                 return map[2].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[2])
+        expect(anchor).toContain(scaffoldGroupName[2])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -358,10 +358,10 @@ describe('Scaffold Model: N Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:N anchors' && map[i].click();
+                map[i].innerText.includes('N anchors') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Anchors from Scaffold Model')
@@ -383,7 +383,7 @@ describe('Scaffold Model: N Group', () => {
                 return map[5].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[5])
+        expect(anchor).toContain(scaffoldGroupName[5])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -391,10 +391,10 @@ describe('Scaffold Model: N Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:N wires' && map[i].click();
+                map[i].innerText.includes('N wires') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Wires from Scaffold Model')
@@ -415,7 +415,7 @@ describe('Scaffold Model: N Group', () => {
                 return map[8].innerText
             }
         });
-        expect(anchor).toBe(scaffoldGroupName[8])
+        expect(anchor).toContain(scaffoldGroupName[8])
 
         await page.waitForSelector(selectors.ERROR_PANEL_SELECTOR)
         await page.click(selectors.OK_ERROR_SELECTOR)
@@ -423,10 +423,10 @@ describe('Scaffold Model: N Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:N regions' && map[i].click();
+                map[i].innerText.includes('N regions') &&  map[i].click()
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N Regions from Scaffold Model')
@@ -446,13 +446,13 @@ describe('Scaffold Model: N Group', () => {
         await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                map[i].innerText == 'too:N anchors' &&  map[i].click()
-                map[i].innerText == 'too:N wires' &&  map[i].click()
-                map[i].innerText == 'too:N regions' &&  map[i].click()
+                map[i].innerText.includes('N anchors') &&  map[i].click()
+                map[i].innerText.includes('N wires') &&  map[i].click()
+                map[i].innerText.includes('N regions') &&  map[i].click()
                
             }
         });
-        await page.waitForTimeout(500)
+        await page.waitForTimeout(HALF_SECOND)
         await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
 
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'N group elements from Scaffold Model')
