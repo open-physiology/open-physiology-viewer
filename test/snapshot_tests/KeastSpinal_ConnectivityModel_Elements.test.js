@@ -15,12 +15,10 @@ const SNAPSHOT_OPTIONS = {
     customSnapshotsDir: `./test/snapshot_tests/snapshots/${scriptName}`,
     comparisonMethod: 'ssim',
     customDiffConfig: {
-        ssim: 'fast', //where higher accuracy is desired at the expense of time or a higher quality diff image is needed for debugging
+        ssim: 'fast', 
     },
-    //     ssim: 'bezkrovny', //other option, optimized for speed at a small change in accuracy
-    // },
     failureThresholdType: 'percent',
-    failureThreshold: 0.050 //best one to allow some minor changes in display 
+    failureThreshold: 0.040 //best one to allow some minor changes in display 
 };
 
 
