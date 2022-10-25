@@ -3,11 +3,13 @@
 import 'expect-puppeteer';
 import { toMatchImageSnapshot } from 'jest-image-snapshot'
 expect.extend({ toMatchImageSnapshot })
-import { ONE_SECOND, FIVE_SECONDS, ONE_MINUTE,HALF_SECOND, baseURL, KeastSpinalModelGroups } from './util_constants'
+import {KEAST_SPINAL_TEST_MODEL_LINK , TOO_MAP_MODEL_LINK, ONE_SECOND,ONE_MINUTE,HALF_SECOND, baseURL, KeastSpinalModelGroups } from './util_constants'
 import { wait4selector, click_, range, canvasSnapshot, fullpageSnapshot } from './helpers';
 const path = require('path');
 var scriptName = path.basename(__filename, '.js');
 import * as selectors from './selectors'
+const axios = require('axios').default;
+const fs = require('fs');
 
 
 //SNAPSHOT
@@ -55,9 +57,21 @@ describe('Access Open Physiology Viewer', () => {
         expect(model_name).toBe(' Model: TOO-map-linked reference connectivity model ')
 
     });
+
+    it('Fetching too-map.json file', async ()=>{
+        
+        await axios.get( TOO_MAP_MODEL_LINK, { responseType:"arraybuffer"}).then(response => {
+            fs.writeFile('./test/snapshot_tests/assets/too-map.json', response.data, (err) => {
+                if (err) throw err;
+                    console.log('too-map.json file fetched');
+                });
+        });
+    })
 })
 
 describe('Load TOO Map', () => {
+
+
     it('Load TOO Map', async () => {
         console.log('Load TOO Map')
 
@@ -91,6 +105,16 @@ describe('Load TOO Map', () => {
 })
 
 describe('Merge Keast Spinal Model', () => {
+
+    it('Fetching keastSpinalTest.json file', async ()=>{
+        
+        await axios.get( KEAST_SPINAL_TEST_MODEL_LINK, { responseType:"arraybuffer"}).then(response => {
+            fs.writeFile('./test/snapshot_tests/assets/keastSpinalTest.json', response.data, (err) => {
+                if (err) throw err;
+                    console.log('keastSpinalTest.json file fetched');
+                });
+        });
+    })
 
     it('Merge Keast Spinal Model', async () => {
         console.log('Merging Keast Spinal Model')
