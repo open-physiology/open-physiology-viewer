@@ -21,7 +21,7 @@ const SNAPSHOT_OPTIONS = {
     //     ssim: 'bezkrovny', //other option, optimized for speed at a small change in accuracy
     // },
     failureThresholdType: 'percent',
-    failureThreshold: 0.030 //best one to allow some minor changes in display 
+    failureThreshold: 0.040 //best one to allow some minor changes in display 
 };
 
 
@@ -69,16 +69,6 @@ describe('Scaffold Model Elements', () => {
         await canvasSnapshot(page, selectors.MAIN_PANEL_SELECTOR, SNAPSHOT_OPTIONS, 'Scaffold Model')
     });
 
-    it('Groups from Scaffold Model', async () => {
-        console.log('Toggle Groups from Scaffold Model')
-
-        await click_(page, selectors.SHOW_SETTING_SELECTOR)
-        await page.waitForTimeout(ONE_SECOND)
-
-        await fullpageSnapshot(page, SNAPSHOT_OPTIONS, 'Groups from Scaffold Model')
-        await page.waitForTimeout(ONE_SECOND)
-        await click_(page, selectors.HIDE_SETTINGS_SELECTOR)
-    })
 })
 
 
