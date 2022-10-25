@@ -2,11 +2,14 @@
 import 'expect-puppeteer';
 import { toMatchImageSnapshot } from 'jest-image-snapshot'
 expect.extend({ toMatchImageSnapshot })
-import { ONE_SECOND, FIVE_SECONDS, ONE_MINUTE,HALF_SECOND, baseURL, scaffoldGroupName } from './util_constants'
+import {  TOO_MAP_MODEL_LINK,ONE_SECOND, FIVE_SECONDS, ONE_MINUTE,HALF_SECOND, baseURL, scaffoldGroupName } from './util_constants'
 import { wait4selector, click_, range, canvasSnapshot, fullpageSnapshot } from './helpers';
 const path = require('path');
 var scriptName = path.basename(__filename, '.js');
 import * as selectors from './selectors'
+const axios = require('axios').default;
+const fs = require('fs');
+
 
 //SNAPSHOT
 const SNAPSHOT_OPTIONS = {
@@ -30,18 +33,6 @@ describe('Scaffold Model Elements', () => {
     beforeAll(async () => {
         console.log('Starting tests ...')
 
-        // page.on('response', response => {
-        //     const client_server_errors = range(200, 400)
-        //     for (let i = 0; i < client_server_errors.length; i++) {
-        //         expect(response.status()).not.toBe(client_server_errors[i])
-        //     }
-        // })
-
-        // page.on('requestfailed', request => {
-        //     console.log('REQUEST FAILED')
-        //     throw new Error(`Request failed - method: ${request.method()}, url: ${request.url()}, errText: ${request.failure().errorText}`)
-        // });
-
         page.on("pageerror", err => {
             console.log('ERROR')
             throw new Error(`Page error: ${err.toString()}`);
@@ -49,6 +40,16 @@ describe('Scaffold Model Elements', () => {
 
         await page.goto(baseURL);
     });
+
+    it('Fetching too-map.json file', async ()=>{
+        
+        await axios.get( TOO_MAP_MODEL_LINK, { responseType:"arraybuffer"}).then(response => {
+            fs.writeFile('./test/snapshot_tests/assets/too-map.json', response.data, (err) => {
+                if (err) throw err;
+                    console.log('too-map.json file fetched');
+                });
+        });
+    })
 
     it('Merge Too Map', async () => {
         await wait4selector(page, selectors.BASE_PAGE_SELECTOR, { timeout: ONE_MINUTE });
