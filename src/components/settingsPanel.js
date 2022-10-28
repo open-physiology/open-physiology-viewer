@@ -30,6 +30,9 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {FieldEditorDialog} from "./gui/fieldEditorDialog";
 import {FieldEditor} from "./gui/fieldEditor";
+import { buildNeurulatedTriplets, toggleNeurulatedLyph, handleNeurulatedGroup, toggleScaffoldsNeuroview } from "../view/render/neuroView";
+import { autoSizeLyph } from "../view/render/autoLayout"
+import config from '../data/config';
 
 /**
  * @ignore
@@ -160,43 +163,65 @@ const COLORS = {
                             <mat-slide-toggle></mat-slide-toggle>
                           </ng-template>
                           </tree-root> -->
-                        <!--Tree structure-->
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
+            <!--Tree structure-->
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
 
+      <mat-accordion *ngIf="!!dynamicGroups">
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Dynamic groups </mat-panel-title>
+          </mat-expansion-panel-header>
 
-            <mat-accordion *ngIf="!!dynamicGroups">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Dynamic groups
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-
-                    <div class="default-box">
-                        <div class="wrap">
-                            <mat-checkbox [(ngModel)]="neuroViewEnabled" (change)="enableNeuroview($event, true)">Enable Neuroview</mat-checkbox>
-                        </div>
-                        <div class="default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <input type="text" class="search-input" id="filter" #filter
-                                       placeholder="Search for a dynamic group" name="searchDynamicTerm"
-                                       [(ngModel)]="searchDynamicTerm"
-                                       (input)="search($event?.target?.value, 'filteredDynamicGroups', 'dynamicGroups')"/>
-                                <!--<input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>-->
-                                <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear"
-                                     (click)="clearTreeSearch(filter, tree)"/>
-                            </div>
-                            <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
-                        </div>
-                        <div class="wrap" *ngFor="let group of filteredDynamicGroups">
-                            <mat-slide-toggle [checked]="!group.hidden"
-                                              (change)="toggleGroup($event, group)">{{group.name || group.id}}</mat-slide-toggle>
-                        </div>
-                        <!--Tree structure-->
-                        <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
+          <div class="default-box">
+            <div class="wrap">
+              <mat-checkbox
+                [(ngModel)]="neuroViewEnabled"
+                (change)="enableNeuroview($event, true)"
+                >Enable Neuroview</mat-checkbox
+              >
+            </div>
+            <div class="default-box-header">
+              <div class="search-bar">
+                <img src="./styles/images/search.svg" />
+                <input
+                  type="text"
+                  class="search-input"
+                  id="filter"
+                  #filter
+                  placeholder="Search for a dynamic group"
+                  name="searchDynamicTerm"
+                  [(ngModel)]="searchDynamicTerm"
+                  (input)="
+                    search(
+                      $event?.target?.value,
+                      'filteredDynamicGroups',
+                      'dynamicGroups'
+                    )
+                  "
+                />
+                <!--<input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>-->
+                <img
+                  *ngIf="filter.value !== ''"
+                  src="./styles/images/close.svg"
+                  class="input-clear"
+                  (click)="clearTreeSearch(filter, tree)"
+                />
+              </div>
+              <button mat-raised-button (click)="toggleAllDynamicGroup()">
+                Toggle all
+              </button>
+            </div>
+            <div class="wrap" *ngFor="let group of filteredDynamicGroups">
+              <mat-slide-toggle
+                [checked]="!group.hidden"
+                (change)="toggleGroup($event, group)"
+                >{{ group.name || group.id }}</mat-slide-toggle
+              >
+            </div>
+            <!--Tree structure-->
+            <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
                           <ng-template #treeNodeTemplate let-node let-index="index">
                             <span>{{node.data.name}}</span>
                             <mat-slide-toggle></mat-slide-toggle>
@@ -355,23 +380,13 @@ const COLORS = {
             margin: 0.134rem;
         }
 
-        :host >>> legend {
-            padding: 0.2em 0.5em;
-            border : 0.067rem solid ${COLORS.grey};
-            color  : ${COLORS.grey};
-            font-size: 90%;
-            text-align: right;
-        }
-        
-        .pb-0 {
-          padding-bottom: 0 !important;
-        }
-        
-        .default-box .default-box-header {
-          padding: 1.067rem;
-          display: flex;
-          align-items: center;
-        }
+      :host >>> legend {
+        padding: 0.2em 0.5em;
+        border: 0.067rem solid ${COLORS.grey};
+        color: ${COLORS.grey};
+        font-size: 90%;
+        text-align: right;
+      }
 
         .default-box .default-box-header .search-bar {
           flex-grow: 1;
@@ -381,84 +396,94 @@ const COLORS = {
           width: 100%;
         }
 
-        .search-bar .mat-form-field {
-          display: block;
-          width: 100%;
-        }
+      .default-box .default-box-header {
+        padding: 1.067rem;
+        display: flex;
+        align-items: center;
+      }
 
-        .search-bar .mat-form-field-underline {
-          display: none;
-        }
+      .default-box .default-box-header .search-bar {
+        flex-grow: 1;
+      }
 
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
+      .search-bar .mat-form-field {
+        display: block;
+        width: 100%;
+      }
 
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-infix {
-          padding: 0;
-          width: 100%;
-          margin: 0;
-          border: none;
-        }
+      .search-bar .mat-form-field-underline {
+        display: none;
+      }
 
-        .search-bar input.mat-input-element {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
+      .search-bar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
+        padding-bottom: 0;
+      }
 
-        .search-bar .search-input {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          display: block;
-          width: 100%;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
+      .search-bar .mat-form-field-appearance-legacy .mat-form-field-infix {
+        padding: 0;
+        width: 100%;
+        margin: 0;
+        border: none;
+      }
 
-        .search-bar {
-          position: relative;
-        }
+      .search-bar input.mat-input-element {
+        background: ${COLORS.white};
+        border: 0.067rem solid ${COLORS.inputBorderColor};
+        box-sizing: border-box;
+        border-radius: 0.134rem;
+        margin: 0;
+        height: 2.134rem;
+        color: ${COLORS.inputTextColor};
+        font-weight: 500;
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        padding: 0 0.534rem 0 1.734rem;
+      }
 
-        .search-bar img {
-          position: absolute;
-          left: 0.534rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: ${COLORS.inputTextColor};
-          font-size: 0.934rem;
-        }
+      .search-bar .search-input {
+        background: ${COLORS.white};
+        border: 0.067rem solid ${COLORS.inputBorderColor};
+        box-sizing: border-box;
+        border-radius: 0.134rem;
+        margin: 0;
+        display: block;
+        width: 100%;
+        height: 2.134rem;
+        color: ${COLORS.inputTextColor};
+        font-weight: 500;
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        padding: 0 0.534rem 0 1.734rem;
+      }
 
-        .search-bar img.input-clear {
-          right: 0.534rem;
-          cursor: pointer;
-          left: auto;
-        }
+      .search-bar {
+        position: relative;
+      }
 
-        .search-bar .search-input:focus {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
+      .search-bar img {
+        position: absolute;
+        left: 0.534rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: ${COLORS.inputTextColor};
+        font-size: 0.934rem;
+      }
 
-        .search-bar .search-input::placeholder {
-          color: ${COLORS.inputPlacholderColor};
-        }
+      .search-bar img.input-clear {
+        right: 0.534rem;
+        cursor: pointer;
+        left: auto;
+      }
+
+      .search-bar .search-input:focus {
+        outline: none;
+        border-color: ${COLORS.toggleActiveBg};
+        box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
+      }
+
+      .search-bar .search-input::placeholder {
+        color: ${COLORS.inputPlacholderColor};
+      }
 
         .default-box .default-boxContent {
           padding: 1.067rem;
@@ -571,415 +596,468 @@ const COLORS = {
           margin: 0;
         }
 
-        :host ::ng-deep .default-box .wrap {
-          padding: 0 1.067rem;
-          display: flex;
-        }
-
-        :host ::ng-deep .default-box .wrap-neurulated {
-          padding: 0 1.067rem;
-          display: flex;
-        }
-
-        :host ::ng-deep .default-box .toggle-group {
-          padding: 0 1.067rem;
-          display: flex;
-        }
-
-        :host ::ng-deep .default-box .wrap .mat-slide-toggle {
-          padding: 0.267rem 0;
-        }
-
-        :host ::ng-deep .default-box .mat-slide-toggle {
-          height: auto;
-          display: flex;
-          width: 100%;
-        }
-
-        :host ::ng-deep .angular-tree-component {
-          padding: 0 1.067rem;
-          max-width: 100%;
-          width: auto;
-          display: block;
-        }
-
-        :host ::ng-deep .node-content-wrapper {
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-          padding: 0;
-          border-radius: 0;
-        }
-
-        :host ::ng-deep .angular-tree-component {
-          cursor: default;
-        }
-
-        :host ::ng-deep .node-content-wrapper-focused {
-          background: transparent;
-          box-shadow: none;
-        }
-
-        :host ::ng-deep .node-drop-slot {
-          height: 0.06667rem;
-          background: ${COLORS.inputBorderColor};
-          margin: 0.5334rem 0 0;
-          display: none;
-        }
-
-        :host ::ng-deep .node-content-wrapper:hover {
-          box-shadow: none;
-          background: transparent;
-        }
-
-        :host ::ng-deep .node-content-wrapper tree-node-content {
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-        }
-
-        :host ::ng-deep tree-node-collection > div > tree-node {
-          display: block;
-        }
-
-        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node + tree-node {
-          border-top: 0.067rem solid ${COLORS.inputBorderColor};
-          padding-top: 0.534rem;
-          margin-top: 0.534rem;
-        }
-
-        :host ::ng-deep tree-node-expander {
-          display: block;
-        }
-
-        :host ::ng-deep tree-node-expander * {
-          box-sizing: border-box;
-        }
-
-        :host ::ng-deep .toggle-children-wrapper {
-          display: block;
-        }
-
-        :host ::ng-deep .toggle-children {
-          display: block;
-          width: 0;
-          height: 0;
-          border-style: solid;
-          margin-right: 0.8rem;
-          background: none;
-          top: 0;
-          border-width: 0.23334rem 0 0.23334rem 0.26667rem;
-          border-color: transparent transparent transparent ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node > .tree-node > tree-node-wrapper > .node-wrapper {
-          color: ${COLORS.black}
-        }
-
-        :host ::ng-deep .angular-tree-component > tree-node-collection > div > tree-node > .tree-node > tree-node-wrapper > .node-wrapper .node-content-wrapper tree-node-content > span {
-          border-color: transparent transparent transparent ${COLORS.black};
-        }
-
-        :host ::ng-deep tree-node-collection > div > tree-node:last-child .node-drop-slot:last-child {
-          display: none;
-          margin-top: 0;
-        }
-
-        :host ::ng-deep .toggle-children-wrapper {
-          padding: 0
-        }
-
-        :host ::ng-deep .node-content-wrapper tree-node-content > span {
-          flex-grow: 1;
-        }
-
-        :host ::ng-deep .node-content-wrapper tree-node-content .mat-slide-toggle {
-          width: auto !important;
-        }
-
-        :host ::ng-deep .node-content-wrapper:hover {
-          box-shadow: none;
-        }
-
-        :host ::ng-deep .node-wrapper {
-          min-height: 0.067rem;
-          padding: 0.267rem 0;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-          color: ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep tree-node-children .node-drop-slot {
-          display: none;
-        }
-
-        :host ::ng-deep .mat-tree-node {
-          min-height: 0.067rem;
-          padding: 0.267rem 0;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-          color: ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep .mat-tree-node .mat-tree-node {
-          padding: 0;
-        }
-
-         :host ::ng-deep .mat-tree-node > li {
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-        }
-
-        :host ::ng-deep .mat-tree {
-          padding: 0 1.067rem;
-          display: block;
-        }
-
-        :host ::ng-deep .mat-tree-node button {
-          padding: 0;
-          border: none;
-          background: transparent;
-          width: auto;
-          height: auto;
-        }
-
-        :host ::ng-deep .mat-nested-tree-node {
-          display: block;
-        }
-
-        :host ::ng-deep .mat-tree-node button {
-          width: 1.067rem;
-          height: 1.067rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.934rem;
-          cursor: pointer;
-          margin-right: 0.534rem;
-          color: ${COLORS.black};
-        }
-
-        .default-box > .mat-tree > .mat-nested-tree-node + .mat-nested-tree-node {
-          border-top: 0.067rem solid ${COLORS.inputBorderColor};
-          padding-top: 0.534rem;
-          margin-top: 0.534rem;
-        }
-
-        :host ::ng-deep .mat-nested-tree-node ul button {
-          color: ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep .mat-nested-tree-node ul button[disabled="true"] {
-          display: none;
-        }
-
-        :host ::ng-deep .mat-nested-tree-node ul {
-          margin: 0;
-          padding: 0 0 0 1.6rem;
-        }
-
-        :host ::ng-deep .mat-nested-tree-node ul .mat-slide-toggle-content {
-          color: ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep .mat-radio-label {
-          display: flex;
-        }
-
-        :host ::ng-deep .mat-radio-label-content {
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-          color: ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep .mat-slide-toggle-label {
-          flex-direction: row-reverse;
-        }
-
-        :host ::ng-deep .mat-radio-container {
-          width: 0.934rem;
-          height: 0.934rem;
-        }
-
-        :host ::ng-deep .mat-radio-outer-circle {
-          width: 100%;
-          height: 100%;
-          border-width: 0.067rem;
-          border-color: ${COLORS.inputTextColor};
-        }
-
-        :host ::ng-deep .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
-          border-color: ${COLORS.toggleActiveBg};
-        }
-
-        :host ::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle,
-        :host ::ng-deep .mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element:not(.mat-radio-persistent-ripple),
-        :host ::ng-deep .mat-radio-button.mat-accent.mat-radio-checked .mat-radio-persistent-ripple,
-        :host ::ng-deep .mat-radio-button.mat-accent:active .mat-radio-persistent-ripple {
-          background-color: ${COLORS.toggleActiveBg};
-        }
-
-        :host ::ng-deep .mat-radio-inner-circle {
-          width: 0.8rem;
-          height: 0.8rem;
-          left: 0.067rem;
-          top: 0.067rem;
-        }
-
-        :host ::ng-deep .mat-slide-toggle-content {
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          flex-grow: 1;
-          display: flex;
-          align-items: center;
-          color: ${COLORS.black};
-        }
-
-        :host ::ng-deep .mat-slide-toggle-content img {
-          margin-right: 0.534rem;
-          transform: rotate(0deg);
-          transition: all ease-in-out .3s;
-        }
-
-        :host ::ng-deep .mat-slide-toggle-bar {
-          width: 2.134rem;
-          height: 1.067rem;
-          margin-right: 0;
-          margin-left: 0.534rem;
-          background: ${COLORS.inputBorderColor};
-        }
-
-        :host ::ng-deep .mat-slide-toggle-thumb-container {
-          width: auto; height: auto;
-          top: 0.134rem;
-          left: 0.134rem;
-        }
-
-        :host ::ng-deep .mat-radio-button {
-          display: flex;
-          padding: 0.267rem 1.067rem 0.267rem 1.6rem;
-        }
-
-        :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-content img {
-          transform: rotate(90deg);
-          transition: all ease-in-out .3s;
-        }
-
-        :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
-          background: ${COLORS.toggleActiveBg};
-        }
-
-        :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-          background: ${COLORS.white};
-        }
-
-        :host ::ng-deep .mat-slide-toggle .mat-slide-toggle-ripple {
-          display: none;
-        }
-
-        :host ::ng-deep .mat-slide-toggle-thumb {
-          background: ${COLORS.white};
-          box-shadow: 0 0.067rem 0.334rem rgba(0, 0, 0, 0.2);
-          border-radius: 0.534rem;
-          width: 0.8rem;
-          height: 0.8rem;
-        }
-
-        :host ::ng-deep button.mat-raised-button {
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          padding: 0.534rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          margin-left: 0.534rem;
-          box-shadow: none;
-          line-height: 1.067rem;
-          border-radius: 0.134rem;
-          flex-shrink: 0;
-        }
-
-        :host ::ng-deep .mat-button-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        :host ::ng-deep button.mat-raised-button .fa {
-          display: block;
-          margin-right: 0.267rem;
-        }
-
-        :host ::ng-deep .mat-expansion-indicator::after {
-          display: block;
-          border-color: ${COLORS.black};
-          border-width: 0 0.067rem 0.067rem 0;
-        }
-
-        .default-box {
-          padding-bottom: 1.067rem;
-        }
-
-        .default-box h5 {
-          padding: 0.8rem 0;
-          margin: 0 1.067rem;
-          font-weight: 500;
-          color: ${COLORS.black};
-          font-size: 0.8rem;
-          line-height: 0.934rem;
-          display: flex;
-          align-items: center;
-        }
-
-        :host ::ng-deep .settings-wrap {
-          padding-bottom: 0.8rem;
-          margin-top: 0;
-          position: relative;
-        }
-
-        :host ::ng-deep .mat-expansion-panel {
-          box-shadow: none;
-          border-top: 0.067rem solid ${COLORS.inputBorderColor};
-          border-radius: 0 !important;
-        }
-
-        :host ::ng-deep .mat-expansion-panel-header {
-          background: ${COLORS.headingBg};
-          padding: 0.8rem 1.067rem;
-          box-sizing: border-box;
-          height: 2.534rem !important;
-        }
-
-        :host ::ng-deep .mat-expansion-panel-header.mat-expanded {
-          background: ${COLORS.headingBg} !important;
-        }
-
-        :host ::ng-deep .mat-expansion-panel-header:hover {
-          background: ${COLORS.headingBg} !important;
-        }
-
-        :host ::ng-deep .mat-expansion-panel-header-title {
-          font-size: 0.8rem;
-          line-height: 0.934rem;
-          color: ${COLORS.black};
-        }
-
-        :host ::ng-deep .mat-expansion-panel-body {
-          padding: 0;
-        }
-
-        .dynamic-tree-invisible {
-          display: none;
-        }
+      :host ::ng-deep .default-box .wrap {
+        padding: 0 1.067rem;
+        display: flex;
+      }
+
+      :host ::ng-deep .default-box .wrap-neurulated {
+        padding: 0 1.067rem;
+        display: flex;
+      }
+
+      :host ::ng-deep .default-box .toggle-group {
+        padding: 0 1.067rem;
+        display: flex;
+      }
+
+      :host ::ng-deep .default-box .wrap .mat-slide-toggle {
+        padding: 0.267rem 0;
+      }
+
+      :host ::ng-deep .default-box .mat-slide-toggle {
+        height: auto;
+        display: flex;
+        width: 100%;
+      }
+
+      :host ::ng-deep .angular-tree-component {
+        padding: 0 1.067rem;
+        max-width: 100%;
+        width: auto;
+        display: block;
+      }
+
+      :host ::ng-deep .node-content-wrapper {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      :host ::ng-deep .angular-tree-component {
+        cursor: default;
+      }
+
+      :host ::ng-deep .node-content-wrapper-focused {
+        background: transparent;
+        box-shadow: none;
+      }
+
+      :host ::ng-deep .node-drop-slot {
+        height: 0.06667rem;
+        background: ${COLORS.inputBorderColor};
+        margin: 0.5334rem 0 0;
+        display: none;
+      }
+
+      :host ::ng-deep .node-content-wrapper:hover {
+        box-shadow: none;
+        background: transparent;
+      }
+
+      :host ::ng-deep .node-content-wrapper tree-node-content {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+      }
+
+      :host ::ng-deep tree-node-collection > div > tree-node {
+        display: block;
+      }
+
+      :host
+        ::ng-deep
+        .angular-tree-component
+        > tree-node-collection
+        > div
+        > tree-node
+        + tree-node {
+        border-top: 0.067rem solid ${COLORS.inputBorderColor};
+        padding-top: 0.534rem;
+        margin-top: 0.534rem;
+      }
+
+      :host ::ng-deep tree-node-expander {
+        display: block;
+      }
+
+      :host ::ng-deep tree-node-expander * {
+        box-sizing: border-box;
+      }
+
+      :host ::ng-deep .toggle-children-wrapper {
+        display: block;
+      }
+
+      :host ::ng-deep .toggle-children {
+        display: block;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        margin-right: 0.8rem;
+        background: none;
+        top: 0;
+        border-width: 0.23334rem 0 0.23334rem 0.26667rem;
+        border-color: transparent transparent transparent
+          ${COLORS.inputTextColor};
+      }
+
+      :host
+        ::ng-deep
+        .angular-tree-component
+        > tree-node-collection
+        > div
+        > tree-node
+        > .tree-node
+        > tree-node-wrapper
+        > .node-wrapper {
+        color: ${COLORS.black};
+      }
+
+      :host
+        ::ng-deep
+        .angular-tree-component
+        > tree-node-collection
+        > div
+        > tree-node
+        > .tree-node
+        > tree-node-wrapper
+        > .node-wrapper
+        .node-content-wrapper
+        tree-node-content
+        > span {
+        border-color: transparent transparent transparent ${COLORS.black};
+      }
+
+      :host
+        ::ng-deep
+        tree-node-collection
+        > div
+        > tree-node:last-child
+        .node-drop-slot:last-child {
+        display: none;
+        margin-top: 0;
+      }
+
+      :host ::ng-deep .toggle-children-wrapper {
+        padding: 0;
+      }
+
+      :host ::ng-deep .node-content-wrapper tree-node-content > span {
+        flex-grow: 1;
+      }
+
+      :host
+        ::ng-deep
+        .node-content-wrapper
+        tree-node-content
+        .mat-slide-toggle {
+        width: auto !important;
+      }
+
+      :host ::ng-deep .node-content-wrapper:hover {
+        box-shadow: none;
+      }
+
+      :host ::ng-deep .node-wrapper {
+        min-height: 0.067rem;
+        padding: 0.267rem 0;
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        color: ${COLORS.inputTextColor};
+      }
+
+      :host ::ng-deep tree-node-children .node-drop-slot {
+        display: none;
+      }
+
+      :host ::ng-deep .mat-tree-node {
+        min-height: 0.067rem;
+        padding: 0.267rem 0;
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        color: ${COLORS.inputTextColor};
+      }
+
+      :host ::ng-deep .mat-tree-node .mat-tree-node {
+        padding: 0;
+      }
+
+      :host ::ng-deep .mat-tree-node > li {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+      }
+
+      :host ::ng-deep .mat-tree {
+        padding: 0 1.067rem;
+        display: block;
+      }
+
+      :host ::ng-deep .mat-tree-node button {
+        padding: 0;
+        border: none;
+        background: transparent;
+        width: auto;
+        height: auto;
+      }
+
+      :host ::ng-deep .mat-nested-tree-node {
+        display: block;
+      }
+
+      :host ::ng-deep .mat-tree-node button {
+        width: 1.067rem;
+        height: 1.067rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.934rem;
+        cursor: pointer;
+        margin-right: 0.534rem;
+        color: ${COLORS.black};
+      }
+
+      .default-box > .mat-tree > .mat-nested-tree-node + .mat-nested-tree-node {
+        border-top: 0.067rem solid ${COLORS.inputBorderColor};
+        padding-top: 0.534rem;
+        margin-top: 0.534rem;
+      }
+
+      :host ::ng-deep .mat-nested-tree-node ul button {
+        color: ${COLORS.inputTextColor};
+      }
+
+      :host ::ng-deep .mat-nested-tree-node ul button[disabled="true"] {
+        display: none;
+      }
+
+      :host ::ng-deep .mat-nested-tree-node ul {
+        margin: 0;
+        padding: 0 0 0 1.6rem;
+      }
+
+      :host ::ng-deep .mat-nested-tree-node ul .mat-slide-toggle-content {
+        color: ${COLORS.inputTextColor};
+      }
+
+      :host ::ng-deep .mat-radio-label {
+        display: flex;
+      }
+
+      :host ::ng-deep .mat-radio-label-content {
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        color: ${COLORS.inputTextColor};
+      }
+
+      :host ::ng-deep .mat-slide-toggle-label {
+        flex-direction: row-reverse;
+      }
+
+      :host ::ng-deep .mat-radio-container {
+        width: 0.934rem;
+        height: 0.934rem;
+      }
+
+      :host ::ng-deep .mat-radio-outer-circle {
+        width: 100%;
+        height: 100%;
+        border-width: 0.067rem;
+        border-color: ${COLORS.inputTextColor};
+      }
+
+      :host
+        ::ng-deep
+        .mat-radio-button.mat-accent.mat-radio-checked
+        .mat-radio-outer-circle {
+        border-color: ${COLORS.toggleActiveBg};
+      }
+
+      :host ::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle,
+      :host
+        ::ng-deep
+        .mat-radio-button.mat-accent
+        .mat-radio-ripple
+        .mat-ripple-element:not(.mat-radio-persistent-ripple),
+      :host
+        ::ng-deep
+        .mat-radio-button.mat-accent.mat-radio-checked
+        .mat-radio-persistent-ripple,
+      :host
+        ::ng-deep
+        .mat-radio-button.mat-accent:active
+        .mat-radio-persistent-ripple {
+        background-color: ${COLORS.toggleActiveBg};
+      }
+
+      :host ::ng-deep .mat-radio-inner-circle {
+        width: 0.8rem;
+        height: 0.8rem;
+        left: 0.067rem;
+        top: 0.067rem;
+      }
+
+      :host ::ng-deep .mat-slide-toggle-content {
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        color: ${COLORS.black};
+      }
+
+      :host ::ng-deep .mat-slide-toggle-content img {
+        margin-right: 0.534rem;
+        transform: rotate(0deg);
+        transition: all ease-in-out 0.3s;
+      }
+
+      :host ::ng-deep .mat-slide-toggle-bar {
+        width: 2.134rem;
+        height: 1.067rem;
+        margin-right: 0;
+        margin-left: 0.534rem;
+        background: ${COLORS.inputBorderColor};
+      }
+
+      :host ::ng-deep .mat-slide-toggle-thumb-container {
+        width: auto;
+        height: auto;
+        top: 0.134rem;
+        left: 0.134rem;
+      }
+
+      :host ::ng-deep .mat-radio-button {
+        display: flex;
+        padding: 0.267rem 1.067rem 0.267rem 1.6rem;
+      }
+
+      :host
+        ::ng-deep
+        .mat-slide-toggle.mat-checked
+        .mat-slide-toggle-content
+        img {
+        transform: rotate(90deg);
+        transition: all ease-in-out 0.3s;
+      }
+
+      :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+        background: ${COLORS.toggleActiveBg};
+      }
+
+      :host ::ng-deep .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+        background: ${COLORS.white};
+      }
+
+      :host ::ng-deep .mat-slide-toggle .mat-slide-toggle-ripple {
+        display: none;
+      }
+
+      :host ::ng-deep .mat-slide-toggle-thumb {
+        background: ${COLORS.white};
+        box-shadow: 0 0.067rem 0.334rem rgba(0, 0, 0, 0.2);
+        border-radius: 0.534rem;
+        width: 0.8rem;
+        height: 0.8rem;
+      }
+
+      :host ::ng-deep button.mat-raised-button {
+        border: 0.067rem solid ${COLORS.inputBorderColor};
+        padding: 0.534rem;
+        color: ${COLORS.inputTextColor};
+        font-weight: 500;
+        font-size: 0.8rem;
+        margin-left: 0.534rem;
+        box-shadow: none;
+        line-height: 1.067rem;
+        border-radius: 0.134rem;
+        flex-shrink: 0;
+      }
+
+      :host ::ng-deep .mat-button-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      :host ::ng-deep button.mat-raised-button .fa {
+        display: block;
+        margin-right: 0.267rem;
+      }
+
+      :host ::ng-deep .mat-expansion-indicator::after {
+        display: block;
+        border-color: ${COLORS.black};
+        border-width: 0 0.067rem 0.067rem 0;
+      }
+
+      .default-box {
+        padding-bottom: 1.067rem;
+      }
+
+      .default-box h5 {
+        padding: 0.8rem 0;
+        margin: 0 1.067rem;
+        font-weight: 500;
+        color: ${COLORS.black};
+        font-size: 0.8rem;
+        line-height: 0.934rem;
+        display: flex;
+        align-items: center;
+      }
+
+      :host ::ng-deep .settings-wrap {
+        padding-bottom: 0.8rem;
+        margin-top: 0;
+        position: relative;
+      }
+
+      :host ::ng-deep .mat-expansion-panel {
+        box-shadow: none;
+        border-top: 0.067rem solid ${COLORS.inputBorderColor};
+        border-radius: 0 !important;
+      }
+
+      :host ::ng-deep .mat-expansion-panel-header {
+        background: ${COLORS.headingBg};
+        padding: 0.8rem 1.067rem;
+        box-sizing: border-box;
+        height: 2.534rem !important;
+      }
+
+      :host ::ng-deep .mat-expansion-panel-header.mat-expanded {
+        background: ${COLORS.headingBg} !important;
+      }
+
+      :host ::ng-deep .mat-expansion-panel-header:hover {
+        background: ${COLORS.headingBg} !important;
+      }
+
+      :host ::ng-deep .mat-expansion-panel-header-title {
+        font-size: 0.8rem;
+        line-height: 0.934rem;
+        color: ${COLORS.black};
+      }
+
+      :host ::ng-deep .mat-expansion-panel-body {
+        padding: 0;
+      }
+
+      .dynamic-tree-invisible {
+        display: none;
+      }
 
         .dynamic-tree ul,
         .dynamic-tree li {
@@ -1028,6 +1106,7 @@ export class SettingsPanel {
             this._showGroups = new Set((this.groups || []).filter(g => ids.includes(g.id)));
         }
     }
+  }
 
     @Input('helperKeys') set helperKeys(newHelperKeys) {
         if (this._helperKeys !== newHelperKeys) {
@@ -1035,6 +1114,7 @@ export class SettingsPanel {
             this._showHelpers = new Set([]);
         }
     }
+  }
 
     @Input('modelId') set modelId(modelId) {
         // if (this._modelId !== modelId) {
@@ -1075,9 +1155,32 @@ export class SettingsPanel {
         this.searchTermScaffolds = '';
     }
 
-    get config() {
-        return this._config;
+  @Input("selected") set selected(entity) {
+    if (this.selected !== entity) {
+      this._selected = entity;
+      this._selectedName = entity ? entity.name || "" : "";
     }
+  }
+  @Input() searchOptions;
+  @Input() highlighted;
+
+  @Output() onSelectBySearch = new EventEmitter();
+  @Output() onOpenExternal = new EventEmitter();
+  @Output() onEditResource = new EventEmitter();
+  @Output() onUpdateShowLabels = new EventEmitter();
+  @Output() onUpdateLabelContent = new EventEmitter();
+  @Output() onToggleGroup = new EventEmitter();
+  @Output() onToggleMode = new EventEmitter();
+  @Output() onToggleLayout = new EventEmitter();
+  @Output() onToggleHelperPlane = new EventEmitter();
+  @Output() onToggleNeurulatedGroup = new EventEmitter();
+
+  constructor() {
+    this._labelProps = [$Field.id, $Field.name];
+    this._showHelpers = new Set([]);
+    this.searchTerm = "";
+    this.searchTermScaffolds = "";
+  }
 
     get selected() {
         return this._selected;
@@ -1087,17 +1190,15 @@ export class SettingsPanel {
         return this._scaffolds;
     }
 
-    selectBySearch(name) {
-        if (name !== this._selectedName) {
-            this._selectedName = name;
-            this.onSelectBySearch.emit(name);
-        }
-    }
+  get scaffolds() {
+    return this._scaffolds;
+  }
 
     toggleMode() {
         this.config.layout.numDimensions = (this.config.layout.numDimensions === 3) ? 2 : 3;
         this.onToggleMode.emit(this.config.layout.numDimensions);
     }
+  }
 
     toggleLayout(prop) {
         this.config.layout[prop] = !this.config.layout[prop];
@@ -1115,6 +1216,7 @@ export class SettingsPanel {
         this.scaffoldResourceVisibility = !this.scaffoldResourceVisibility;
         this.updateRenderedResources();
     }
+  }
 
     updateRenderedResources() {
         let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
@@ -1153,8 +1255,28 @@ export class SettingsPanel {
             if (this[prop].length === 0) {
                 this[prop] = undefined;
             }
-        });
-    }
+          });
+          (s.wires || []).forEach((r) => {
+            if (!r.generated) {
+              r._parent = s;
+              this.renderedWires.push(r);
+            }
+          });
+          (s.regions || []).forEach((r) => {
+            if (!r.generated) {
+              r._parent = s;
+              this.renderedRegions.push(r);
+            }
+          });
+        }
+      }
+    });
+    scaffoldResourceNames.forEach((prop) => {
+      if (this[prop].length === 0) {
+        this[prop] = undefined;
+      }
+    });
+  }
 
     updateShowLabels(labelClass) {
         this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
@@ -1177,6 +1299,8 @@ export class SettingsPanel {
         }
         this.onToggleHelperPlane.emit(helper);
     }
+    this.onToggleHelperPlane.emit(helper);
+  }
 
     toggleAllGroups = () => {
         let allVisible = this.groups.filter(group => group.hidden || group.undefined);
@@ -1191,91 +1315,191 @@ export class SettingsPanel {
         this.toggleAllDynamicGroup();
     }
 
-    /**
-     * For each e in the list of (x,y,e) triplets, identify the TOO map component from {F,D,N} to which e belongs. 
-     * If either F or D are involved with an e, switch on the visibility of the whole circular scaffold for F-or-D.
-     * Switch on visibility of the wire or region in the LHS view.
-     */
-    toggleScaffoldsNeuroview = (event, group, neuronTriplets) => {
-      neuronTriplets?.e?.forEach( triplet => {
-        let scaffolds = this.scaffolds.filter( scaffold =>  
-          scaffold.id !== "too-map" && ( (scaffold.wires?.find( w => w.fullID == triplet )) || (scaffold.regions?.find( w => w.fullID == triplet )) ));
-        if ( scaffolds.length > 0 )  {
-          scaffolds.forEach( scaffold => scaffold.hidden !== false && this.onToggleGroup.emit(scaffold));
+    // If all groups are toggled, toggle dynamic groups too.
+    this.toggleAllDynamicGroup();
+  };
+
+  toggleGroupLyphsView = (event, group, neuronTriplets) => {
+    let matches = [];
+    // Find group where housing lyph belongs
+    neuronTriplets.y?.forEach((triplet) => {
+      const match = this.graphData.lyphs.find(
+        (lyph) => lyph.fullID === triplet.fullID
+      );
+      matches.push(match);
+      if (match) {
+        const groupMatched = this.graphData.groups.find((group) =>
+          group.lyphs.find((lyph) => lyph.fullID === match.fullID)
+        );
+        if (groupMatched) {
+          console.log("Group matched ", groupMatched);
+          this.activeNeurulatedComponents?.groups?.includes(groupMatched) ? null : this.activeNeurulatedComponents.groups.push(groupMatched);
+        }
+      }
+    });
+
+    console.log("Groups matched ", this.activeNeurulatedComponents.groups);
+    
+    this.activeNeurulatedComponents.groups.forEach((g) => {
+      handleNeurulatedGroup(event.checked, g, neuronTriplets);
+    });
+    
+    matches.forEach((m) => {
+      m.hidden = !event.checked;
+      m.conveys?.levelIn ? m.hostedBy = m.conveys?.levelIn[0]?.hostedBy : null;
+      m.conveys?.levelIn ? m.wiredTo = m.conveys?.levelIn[0]?.wiredTo : null;
+      if (m.hostedBy) {
+        m.hostedBy?.hostedLyphs
+          ? m.hostedBy.hostedLyphs?.includes(m)
+            ? null
+            : m.hostedBy.hostedLyphs?.push(m)
+          : (m.hostedBy.hostedLyphs = [m]);
+      }
+    });
+  };
+
+  hideVisibleGroups = () => {
+    // Hide all visible
+    let allVisible = this.dynamicGroups.filter((g) => g.hidden == false);
+    // allVisible = allVisible.concat(this.activeNeurulatedComponents.groups);
+    allVisible.forEach((g) => {
+      g.lyphs.forEach((lyph) => {
+        lyph.hidden = true;
+      });
+      this.onToggleGroup.emit(g);
+    });
+  };
+
+  toggleGroup = (event, group) => {
+    if (this.neuroViewEnabled) {
+      // Disable all scaffolds
+      // this.onToggleGroup.emit(group);
+      
+      // event.checked ? this.toggleNeuroView(false) : this.toggleNeuroView(true);
+      this.activeNeurulatedComponents?.components?.forEach(
+        (component) => (component.inactive = false)
+      );
+
+      // Hide all groups
+      this.hideVisibleGroups();
+
+      // FIXME : uNTOGGLE GROUPS
+      // this.onToggleGroup.emit(group);
+
+      this.scaffolds.forEach((scaffold) => {
+        if (scaffold.hidden !== true) {
+          this.onToggleGroup.emit(scaffold);
         }
       });
-    }
 
-    layoutNeuroviewLyphs = (event, group) => {}
+      this.activeNeurulatedComponents = { groups: [], components: [] };
 
-    hideVisibleGroups =  () => {
-      // Hide all visible   
-      let allVisible = this.dynamicGroups.filter( g => g.hidden == false );
-      allVisible.forEach( g =>  { 
-        g.lyphs.forEach( lyph => {
-          lyph.hidden = false;
-        });
-        this.onToggleGroup.emit(g);
-      });
-    }
-
-    toggleNeurulatedGroup(event, group) {
-      // Extract Neurons from Segment
-      event.checked && this.onToggleGroup.emit(group);
-
-      let housingLyph;
-      let neuronTriplets = {x : [], y : [], e : [] };
-      group?.lyphs?.filter( lyph => {
-          // Step 3a: Identify Neuron segments
-          const neuron = lyph.ontologyTerms?.find( external => config.neurulatedGroups.includes(external.namespace));
-
-          if ( neuron ){
-            lyph.hidden = false;
-            neuronTriplets.x.push(lyph);
-          } else {
-            lyph.hidden = true;
-          }
-      });
-
-      neuronTriplets?.x?.forEach( lyph => {
-          housingLyph = lyph;
-          // Step 3b and 3c : Find parent HousingLyph of each Lyph
-          while ( lyph?.housingLyph ) {
-              housingLyph = lyph?.housingLyph;
-          }
-          neuronTriplets.y.push(housingLyph);
-          housingLyph?.wiredTo && neuronTriplets.e.push(housingLyph.wiredTo);
-          housingLyph?.hostedBy && neuronTriplets.e.push(housingLyph.hostedBy);
-      });
-
-      // neuronTriplets.e.push("too:w-G-U", "too:w-M-W", "too:w-J")
-      // Make group visible
-
-      return neuronTriplets;
-  }
-
-    toggleGroup = (event, group) => {
-      if ( this.neuroViewEnabled ) { 
-        // Disable all scaffolds 
-        event.checked ? this.toggleNeuroView(false) : this.toggleNeuroView(true);
-        // Hide all groups
-        this.hideVisibleGroups();
-        // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-        let neuronTriplets = this.toggleNeurulatedGroup(event, group);
-        console.log("Neurons for group : ", group.name);
-        console.log("Group Lyphs : ", group.lyphs)
-        console.log("Triplets : " , neuronTriplets)
-
+      // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      console.log("Neurons for group : ", group);
+      let neuronTriplets = buildNeurulatedTriplets(group);
+      console.log("Triplets : ", neuronTriplets);
+      handleNeurulatedGroup(event.checked, group, neuronTriplets);
+      if (event.checked) {
         // Step 5 :Identify TOO Map components and turn them ON
         // Step 6 : Turn ON wire and regions that anchor group elements that are neuron segments
-        this.toggleScaffoldsNeuroview(event, group, neuronTriplets);
+        const matchScaffolds = toggleScaffoldsNeuroview(
+          this.scaffolds,
+          this.activeNeurulatedComponents,
+          neuronTriplets
+        );
+        if (matchScaffolds.length > 0) {
+          matchScaffolds.forEach(
+            (scaffold) =>
+              scaffold.hidden !== false && this.onToggleGroup.emit(scaffold)
+          );
+        }
+      }
 
-        // Step 7 : Only show Lyphs that are neuron segments and in group. 
-        this.layoutNeuroviewLyphs(event, group, neuronTriplets);
+      this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-        this.onToggleNeurulatedGroup.emit(neuronTriplets);
+      this.toggleGroupLyphsView(
+        event,
+        group,
+        neuronTriplets
+      );
+      this.onToggleNeurulatedGroup.emit();
+      let that = this;
+      window.addEventListener(
+        "doneUpdating",
+        () => {
+          console.log("Done Updating");
 
-      } else {
+            console.log("Toggle");
+            
+            neuronTriplets.y.forEach((m) => {
+              if (m.viewObjects["main"]) {
+                if (m.hostedBy) {
+                  console.log("HostedBy ", m.hostedBy);
+                  console.log("Mesh exists ", m);
+
+                  m.autoSize(m.hostedBy);
+                }
+              } else {
+                console.log("Mesh does not exist ", m);
+              }
+            });
+
+            neuronTriplets.nodes.forEach((m) => {
+              if (m.viewObjects["main"]) {
+                console.log("Updating Node ", m);
+                m.updateViewObjects()
+              } else {
+                console.log("Node does not exist ", m);
+              }
+            });
+
+            neuronTriplets.links.forEach((m) => {
+              if (m.viewObjects["main"]) {
+                console.log("Updating Link Node Source ", m.source?.id);
+                m.source?.updateViewObjects();
+                console.log("Updating Link Node Target ", m.target?.id);
+                m.target?.updateViewObjects()
+              } else {
+                console.log("Link does not exist ", m);
+              }
+            });
+
+            neuronTriplets.links.forEach((m) => {
+              if (m.viewObjects["main"]) {
+                console.log("Updating Link ", m);
+                m.updateViewObjects()
+              } else {
+                console.log("Link does not exist ", m);
+              }
+            });
+
+            neuronTriplets.y.forEach((m) => {
+              if (m.viewObjects["main"]) {
+                if (m.wiredTo) {
+                  console.log("Mesh exists ", m);
+                  console.log("WiredTo ", m.conveys?.levelIn[0]?.wiredTo);
+                  autoSizeLyph(m.viewObjects["main"])
+                }
+              } else {
+                console.log("Mesh does not exist ", m);
+              }
+            });
+        }
+      );
+
+      console.log("all done now with webgl ");
+    } else {
+      this.onToggleGroup.emit(group);
+    }
+  };
+
+  toggleAllDynamicGroup = () => {
+    let allVisible = this.dynamicGroups.filter(
+      (group) => group.hidden || group.undefined
+    );
+
+    for (let group of this.dynamicGroups) {
+      if (group.hidden || allVisible.length == 0) {
         this.onToggleGroup.emit(group);
       }
     }
@@ -1289,32 +1513,13 @@ export class SettingsPanel {
             }
         }
     }
+  };
 
-    filterGroups = (groups) => {
-      return groups;
-    } 
-
-    // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
-    toggleNeuroView = (visible) => {
-      // Toggle visibility of scaffold components
-      this.scaffolds.forEach( scaffold =>  { if ( scaffold.hidden === visible || ( !visible && scaffold.hidden === undefined ) ) { this.onToggleGroup.emit(scaffold) } });
-      this.updateRenderedResources();
-      this.hideVisibleGroups();
-    }
-
-    /**
-     * Neuroview mode, allows selecting only one dynamic group at a time.
-     * @param {*} e - Checkbox event
-     */
-    enableNeuroview = (e) => {
-      if(e.checked){
-        this.toggleNeuroView(false);
-        this.config.layout.showLayers && this.toggleLayout('showLayers');
-      } else {
-        this.toggleNeuroView(true);
-        !this.config.layout.showLayers && this.toggleLayout('showLayers'); 
-      }
-    }
+  search(value, filterOptions, allOptions) {
+    this[filterOptions] = this[allOptions]?.filter(
+      (val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase())
+    );
+  }
 
     search(value, filterOptions, allOptions) {
         this[filterOptions] = this[allOptions]?.filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
@@ -1346,6 +1551,11 @@ export class SettingsPanel {
         this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
         this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
     }
+    this.filteredGroups = this.filteredGroups || this.groups;
+    this.filteredDynamicGroups =
+      this.filteredDynamicGroups || this.dynamicGroups;
+    this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+  }
 
     clearSearch(term, filterOptions, allOptions) {
         this[term] = '';

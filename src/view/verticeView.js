@@ -1,6 +1,8 @@
 import {copyCoords, extractCoords, getCenterOfMass, THREE} from "./utils";
 import {MaterialFactory} from "./materialFactory";
 import {modelClasses} from "../model";
+import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
+
 const {VisualResource, Vertice, Node, Anchor} = modelClasses;
 
 /**
@@ -21,7 +23,7 @@ Vertice.prototype.createViewObjects = function(state) {
         obj.userData = this;
         this.viewObjects["main"] = obj;
     }
-    this.createLabels();
+    // this.createLabels();
 };
 
 /**
@@ -31,7 +33,8 @@ Vertice.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
     if (!this.invisible) {
         copyCoords(this.viewObjects["main"].position, this);
-        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
+        this.viewObjects["main"].visible = !this.inactive;
+        // this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
     }
 };
 
@@ -60,8 +63,19 @@ Node.prototype.updateViewObjects = function(state) {
         if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
+        if ( this.internalIn ) {
+            if ( this.internalIn?.viewObjects["main"] ) {
+                const hostMeshPosition = getWorldPosition(this.internalIn?.viewObjects["main"]);
+                if ( this.viewObjects["main"] ) {
+                    this.viewObjects["main"].position.set(hostMeshPosition.x, hostMeshPosition.y, hostMeshPosition.z);
+                    copyCoords(this, this.internalIn);
+                }
+            } else {
+                copyCoords(this, this.internalIn);
+            }
+        }
     }
-    Vertice.prototype.updateViewObjects.call(this, state);
+    // state ? Vertice.prototype.updateViewObjects.call(this, state) : null;
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {

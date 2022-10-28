@@ -14,6 +14,8 @@ import {
     isInRange,
     THREE
 } from "./utils";
+import { fitToTargetRegion,LYPH_H_PERCENT_MARGIN } from "./render/autoLayout";
+import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -142,6 +144,39 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
     }
 };
 
+Lyph.prototype.autoSize = function(host){
+    if (this.viewObjects["main"]) {
+        const hostMesh = host?.viewObjects["main"];
+        const lyph = this.viewObjects["main"];
+
+        fitToTargetRegion(hostMesh, lyph, false); 
+
+        // extract host mesh size
+        const hostDim = getBoundingBoxSize(hostMesh);
+        
+        const matchIndex = host.hostedLyphs?.indexOf(lyph.userData);
+
+        let refSize = getBoundingBoxSize(lyph);
+
+        const hostMeshPosition = getWorldPosition(hostMesh);
+        let targetX = hostMeshPosition.x - (hostDim.x * .45);
+        let targetY = hostMeshPosition.y;
+
+        //starts building on 0,0
+
+        const refWidth  = refSize.x * lyph.scale.x;
+
+        const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
+
+        targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
+        // targetY = targetY + refPaddingY + refHeight * matchIndex + ( 2 * refPaddingY * matchIndex);
+        
+        lyph.position.x = targetX ;
+        lyph.position.y = targetY ;
+        lyph.position.z = hostMesh.z ? hostMesh.position.z + 5 : 10;          
+    }
+};
+
 /**
  * Positions the point on the lyph surface
  * @param p0 - initial point (coordinates)
@@ -160,7 +195,7 @@ Lyph.prototype.translate = function(p0) {
  * Create visual objects for a lyph
  * @param state
  */
-Lyph.prototype.createViewObjects = function(state) {
+Lyph.prototype.createViewObjects = function(state) {   
     //Cannot draw a lyph without axis
     if (!this.axis) { return; }
 
@@ -195,6 +230,7 @@ Lyph.prototype.createViewObjects = function(state) {
             : lyphShape([this.width, this.height, radius, ...this.radialTypes]),
             params);
         obj.userData = this;
+        obj.visible = !this.hidden;
         this.viewObjects['main'] = this.viewObjects['2d'] = obj;
 
         if (this.create3d){
@@ -264,10 +300,11 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if (!this.axis) { return; }
 
-    let obj = this.viewObjects["main"] = this.viewObjects["2d"];
+    let obj = this.viewObjects["main"];
 
     if (state.showLyphs3d && this.viewObjects["3d"]){
-        obj = this.viewObjects["main"] = this.viewObjects["3d"];
+        console.log("3d ", this.id)
+        obj = this.viewObjects["main"];
     }
 
     if (!obj){
@@ -275,6 +312,7 @@ Lyph.prototype.updateViewObjects = function(state) {
         return;
     }
 
+    obj.visible = !this.hidden;
     if (!this.layerIn) {//update label
         if (!this.internalIn) {
             const labelKey = state.labels[this.constructor.name];
@@ -283,10 +321,10 @@ Lyph.prototype.updateViewObjects = function(state) {
             }
         }
         //update lyph
-        obj.visible = !this.hidden && state.showLyphs;
+        obj.visible = !this.hidden;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
-        copyCoords(obj.position, this.center);
+        // copyCoords(obj.position, this.center);
 
         //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
         //preventing this
@@ -378,7 +416,7 @@ Region.prototype.createViewObjects = function(state) {
         this.updatePoints(state.edgeResolution);
         let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
         let obj = createMeshWithBorder(shape, {
-                color: this.color,
+                color: "#9acce3",
                 polygonOffsetFactor: this.polygonOffsetFactor
             },
             !this.facets // draw border if region is not defined by facets (e.g., to distinguish regions in connectivity models)
@@ -395,8 +433,8 @@ Region.prototype.createViewObjects = function(state) {
  */
 Region.prototype.updateViewObjects = function(state) {
     Shape.prototype.updateViewObjects.call(this, state);
-
     let obj = this.viewObjects["main"];
+
     if (obj) {
         let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
         if (linkPos) {
@@ -405,6 +443,7 @@ Region.prototype.updateViewObjects = function(state) {
             linkPos.needsUpdate = true;
             obj.geometry.computeBoundingSphere();
         }
+        obj.visible = !this.inactive;
     }
 
     this.border.updateViewObjects(state);

@@ -120,6 +120,7 @@ const WindowResize = require('three-window-resize');
                         [groups]="graphData?.activeGroups"
                         [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
+                        [graphData]="graphData"
                         [searchOptions]="_searchOptions"
                         [varianceDisabled]="graphData?.variance"
                         [clade]="graphData?.clade"
