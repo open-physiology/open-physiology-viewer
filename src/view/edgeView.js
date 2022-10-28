@@ -68,6 +68,7 @@ Edge.prototype.getViewObject = function (state){
     if (this.stroke !== Edge.EDGE_STROKE.THICK){
          geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
     }
+    obj.visible = !this.inactive;
     return obj;
 }
 
@@ -107,6 +108,7 @@ Link.prototype.createViewObjects = function(state){
 
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
+        obj.visible = !this.inactive;
         this.viewObjects["main"] = obj;
     }
 
@@ -154,7 +156,7 @@ Link.prototype.getCurve = function(start, end){
  * Update visual objects for a link
  */
 Link.prototype.updateViewObjects = function(state) {
-    Edge.prototype.updateViewObjects.call(this, state);
+    state ? Edge.prototype.updateViewObjects.call(this, state) : null;
 
     const obj = this.viewObjects["main"];
     let start = extractCoords(this.source);
@@ -190,10 +192,10 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
+    state ? this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge)) : null;
 
     if (this.conveyingLyph){
-        this.conveyingLyph.updateViewObjects(state);
+        state ? this.conveyingLyph.updateViewObjects(state) : null;
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
@@ -212,7 +214,9 @@ Link.prototype.updateViewObjects = function(state) {
             let arrow  = obj.children[0];
             let dir = direction(this.source, this.target);
             let length = curve && curve.getLength? curve.getLength(): dir.length();
-            let t = this.state.arrowLength / length;
+            let arrowLength;
+            state ? arrowLength = this.state.arrowLength : arrowLength = 40;
+            let t = arrowLength / length;
             if (curve && curve.getTangent){
                 dir = curve.getTangent(1 - t);
             }
@@ -238,6 +242,9 @@ Link.prototype.updateViewObjects = function(state) {
                 }
             }
         }
+
+        obj.visible = !this.inactive;
+        obj.position.z = 15;
     }
 };
 
@@ -349,6 +356,8 @@ Wire.prototype.updateViewObjects = function(state) {
                 }
             }
         }
+
+        obj.visible = !this.inactive;
     }
 };
 
