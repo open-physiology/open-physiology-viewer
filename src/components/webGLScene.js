@@ -17,7 +17,6 @@ import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
-import config from '../data/config';
 
 const WindowResize = require('three-window-resize');
 
@@ -117,6 +116,7 @@ const WindowResize = require('three-window-resize');
                         [groups]="graphData?.activeGroups"
                         [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
+                        [graphData]="graphData"
                         [searchOptions]="_searchOptions"
                         [modelId]="graphData?.fullID || graphData?.id"
                         (onSelectBySearch)="selectByName($event)"
@@ -756,8 +756,8 @@ export class WebGLSceneComponent {
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 
-    toggleNeurulatedGroup(triplets) {
-        
+    toggleNeurulatedGroup() {
+        if (this.graph) { this.graph.graphData(this.graphData); }
     }
 }
 

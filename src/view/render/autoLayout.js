@@ -20,9 +20,9 @@ import { rotateAroundCenter
   , translateMeshToTarget
   , translateGroupToTarget   } from "./autoLayout/transform";
 
-const LYPH_H_PERCENT_MARGIN = 0.10;
-const LYPH_V_PERCENT_MARGIN = 0.10;
-const MAX_LYPH_WIDTH = 100;
+export const LYPH_H_PERCENT_MARGIN = 0.10;
+export const LYPH_V_PERCENT_MARGIN = 0.10;
+export const MAX_LYPH_WIDTH = 100;
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
@@ -47,7 +47,7 @@ function preventZFighting(scene)
   })
 }
 
-function fitToTargetRegion(target, source, lyphInLyph) {
+export function fitToTargetRegion(target, source, lyphInLyph) {
   let targetSize =  getBoundingBoxSize(target);
   let sourceSize =  getBoundingBoxSize(source);
 
@@ -65,9 +65,13 @@ function fitToTargetRegion(target, source, lyphInLyph) {
     sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
     sz = ( targetSize.z / sourceSize.z ) ;
   } else {
-    sx = ( targetSize.x / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN) ;
-    sy = ( targetSize.y / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN) ;
-    sz = ( targetSize.z / sourceSize.z ) ;
+
+    let hostMaxSize = Math.max(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
+    let idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+
+    sx = idealSize / sourceSize.x;
+    sy = idealSize / sourceSize.y;
+    sz = idealSize / sourceSize.z;
   }
 
   source.scale.setX(sx);
@@ -116,7 +120,7 @@ function autoSizeLyphs(scene, hostLyphLyphDic) {
   })
 }
 
-function autoSizeLyph(lyph) {
+export function autoSizeLyph(lyph) {
   if (lyph)
   {
     
@@ -150,7 +154,7 @@ function autoSizeLyph(lyph) {
   }
 }
 
-function arrangeLyphsGrid(lyphs, h, v) {
+export function arrangeLyphsGrid(lyphs, h, v) {
   let group = new THREE.Group();
   const refLyph = lyphs[0];
   let refPosition = refLyph.position ;
@@ -200,6 +204,32 @@ function arrangeLyphsGrid(lyphs, h, v) {
 function avg(a,b)
 {
   return (a+b)/2;
+}
+
+export function lyphsInHost(host, hostedLyphs) {
+  const hostDim = getBoundingBoxSize(host);
+  const AR = hostDim.x / hostDim.y;
+  //get number of lyhps
+  if (hostedLyphs.length > 0) {
+    let hn = getNumberOfHorizontalLyphs(AR, hostedLyphs.length);
+    let vn = hostedLyphs.length - hn;
+
+    if (hn == 0) hn = 1;
+
+    if (hn > 0 && vn > 0) {
+      if (lyphInLyph) {
+        hostedLyphs.forEach((l) => {
+          fitToTargetRegion(host, l, lyphInLyph);
+          translateMeshToTarget(host, l);
+        });
+      } else {
+        const g = arrangeLyphsGrid(hostedLyphs, hn, vn);
+        fitToTargetRegion(host, g, lyphInLyph);
+        translateGroupToTarget(host, g);
+        scene.add(g);
+      }
+    }
+  }
 }
 
 function layoutLyphs(scene, hostLyphDic, lyphDic, lyphInLyph)
