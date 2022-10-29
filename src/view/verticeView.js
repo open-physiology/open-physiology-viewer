@@ -21,9 +21,20 @@ Vertice.prototype.createViewObjects = function(state) {
         let obj = new THREE.Mesh(geometry, material);
         // Attach vertice data
         obj.userData = this;
+        if ( this.internalIn ) {
+            if ( this.internalIn?.viewObjects["main"] ) {
+                const hostMeshPosition = getWorldPosition(this.internalIn?.viewObjects["main"]);
+                if ( obj ) {
+                    obj.position.set(hostMeshPosition.x, hostMeshPosition.y, hostMeshPosition.z);
+                    copyCoords(this, this.internalIn);
+                }
+            } else {
+                copyCoords(this, this.internalIn);
+            }
+        }
         this.viewObjects["main"] = obj;
     }
-    // this.createLabels();
+    this.createLabels();
 };
 
 /**
@@ -34,7 +45,7 @@ Vertice.prototype.updateViewObjects = function(state) {
     if (!this.invisible) {
         copyCoords(this.viewObjects["main"].position, this);
         this.viewObjects["main"].visible = !this.inactive;
-        // this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
+        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
     }
 };
 
@@ -75,7 +86,7 @@ Node.prototype.updateViewObjects = function(state) {
             }
         }
     }
-    // state ? Vertice.prototype.updateViewObjects.call(this, state) : null;
+    state ? Vertice.prototype.updateViewObjects.call(this, state) : null;
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
