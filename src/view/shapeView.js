@@ -144,36 +144,48 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
     }
 };
 
-Lyph.prototype.autoSize = function(host){
+Lyph.prototype.autoSize = function(){
     if (this.viewObjects["main"]) {
-        const hostMesh = host?.viewObjects["main"];
-        const lyph = this.viewObjects["main"];
+        let hostMesh = this.hostedBy?.viewObjects["main"];
+        let lyph = this.viewObjects["main"];
 
-        fitToTargetRegion(hostMesh, lyph, false); 
+        if ( hostMesh ) {
+            fitToTargetRegion(hostMesh, lyph, false); 
 
-        // extract host mesh size
-        const hostDim = getBoundingBoxSize(hostMesh);
-        
-        const matchIndex = host.hostedLyphs?.indexOf(lyph.userData);
+            // extract host mesh size
+            const hostDim = getBoundingBoxSize(hostMesh);
+            
+            const matchIndex = this.hostedBy?.hostedLyphs?.indexOf(lyph.userData);
 
-        let refSize = getBoundingBoxSize(lyph);
+            let refSize = getBoundingBoxSize(lyph);
 
-        const hostMeshPosition = getWorldPosition(hostMesh);
-        let targetX = hostMeshPosition.x - (hostDim.x * .45);
-        let targetY = hostMeshPosition.y;
+            const hostMeshPosition = getWorldPosition(hostMesh);
+            let targetX = hostMeshPosition.x - (hostDim.x * .45);
+            let targetY = hostMeshPosition.y;
 
-        //starts building on 0,0
+            //starts building on 0,0
 
-        const refWidth  = refSize.x * lyph.scale.x;
+            const refWidth  = refSize.x * lyph.scale.x;
 
-        const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
+            const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
 
-        targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
-        // targetY = targetY + refPaddingY + refHeight * matchIndex + ( 2 * refPaddingY * matchIndex);
-        
-        lyph.position.x = targetX ;
-        lyph.position.y = targetY ;
-        lyph.position.z = hostMesh.z ? hostMesh.position.z + 5 : 10;          
+            targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
+            // targetY = targetY + refPaddingY + refHeight * matchIndex + ( 2 * refPaddingY * matchIndex);
+            
+            lyph.position.x = targetX ;
+            lyph.position.y = targetY ;
+            lyph.position.z = hostMesh.z ? hostMesh.position.z + 5 : 10;
+        } else {
+            let wiredTo = this.wiredTo?.viewObjects["main"];
+
+            if ( wiredTo ) {
+                // To Fix
+            } else {
+                lyph.position.x = 0 ;
+                lyph.position.y = 0 ;
+                lyph.position.z = 10;
+            }
+        }         
     }
 };
 
