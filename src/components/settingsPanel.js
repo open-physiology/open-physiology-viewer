@@ -1427,63 +1427,7 @@ export class SettingsPanel {
       window.addEventListener(
         "doneUpdating",
         () => {
-          console.log("Done Updating");
-
-            console.log("Toggle");
-            
-            neuronTriplets.y.forEach((m) => {
-              if (m.viewObjects["main"]) {
-                if (m.hostedBy) {
-                  console.log("HostedBy ", m.hostedBy);
-                  console.log("Mesh exists ", m);
-
-                  m.autoSize(m.hostedBy);
-                }
-              } else {
-                console.log("Mesh does not exist ", m);
-              }
-            });
-
-            neuronTriplets.nodes.forEach((m) => {
-              if (m.viewObjects["main"]) {
-                console.log("Updating Node ", m);
-                m.updateViewObjects()
-              } else {
-                console.log("Node does not exist ", m);
-              }
-            });
-
-            neuronTriplets.links.forEach((m) => {
-              if (m.viewObjects["main"]) {
-                console.log("Updating Link Node Source ", m.source?.id);
-                m.source?.updateViewObjects();
-                console.log("Updating Link Node Target ", m.target?.id);
-                m.target?.updateViewObjects()
-              } else {
-                console.log("Link does not exist ", m);
-              }
-            });
-
-            neuronTriplets.links.forEach((m) => {
-              if (m.viewObjects["main"]) {
-                console.log("Updating Link ", m);
-                m.updateViewObjects()
-              } else {
-                console.log("Link does not exist ", m);
-              }
-            });
-
-            neuronTriplets.y.forEach((m) => {
-              if (m.viewObjects["main"]) {
-                if (m.wiredTo) {
-                  console.log("Mesh exists ", m);
-                  console.log("WiredTo ", m.conveys?.levelIn[0]?.wiredTo);
-                  autoSizeLyph(m.viewObjects["main"])
-                }
-              } else {
-                console.log("Mesh does not exist ", m);
-              }
-            });
+          autoLayoutNeuron(neuronTriplets);
         }
       );
 

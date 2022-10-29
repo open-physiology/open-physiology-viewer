@@ -1,16 +1,36 @@
 import {flatten } from "lodash-bound";
+import { autoSizeLyph } from "./autoLayout"
 
 export function buildNeurulatedTriplets(group) {
   // Extract Neurons from Segment
   let neuronTriplets = { x: group.lyphs, y: [], w: [], r: [], links : [], chains : [], nodes : [] };
 
-  let hostedLinks = group.links?.filter((l) => l.fasciculatesIn || l.endsIn);
+  let hostedLinks = group.links?.filter((l) => l.fasciculatesIn || l.endsIn );
   console.log("Hosted links ", hostedLinks);
   neuronTriplets.links = hostedLinks;
 
-  let housingLyphs = [
-    ...new Set(hostedLinks.map((l) => l.fasciculatesIn || l.endsIn)),
-  ]; //links -> lyphs
+  let hostedLyphs2 = group.links?.filter((l) => l.fasciculatesIn || l.endsIn || l.fasciculatesIn?.internalIn || l.fasciculatesIn?.layerIn || l.endsIn?.internalIn || l.ends?.layerIn );
+  console.log("Hosted lyphs ", hostedLyphs2);
+
+  let housingLyphs = [];
+  hostedLinks.forEach((l) => { 
+    if (!housingLyphs.includes(l.fasciculatesIn || l.endsIn)) {
+      housingLyphs.push(l.fasciculatesIn || l.endsIn);
+    }
+    l.levelIn?.forEach( c => {
+      console.log("C ", c);
+      c.housingLyphs?.forEach ( h => {
+        console.log("H ", h);
+        if (!housingLyphs.includes(h)) {
+          console.log("push  ", h);
+          housingLyphs.push(h);
+        }
+      });
+    }) 
+  });
+   //links -> lyphs
+  // Traverse through layers of fasciculatesIn, get to inmediate housing lyph: internalIn and layerIn
+  // axis property
   console.log("housingLyphs ", housingLyphs);
 
   let hostedHousingLyphs = housingLyphs?.map((l) => l.hostedBy); //lyphs -> regions
@@ -159,4 +179,58 @@ export function toggleScaffoldsNeuroview(
   );
   console.log("Match scaffolds for wires and regions : ", scaffolds);
   return scaffolds;
+}
+
+
+export function autoLayoutNeuron(neuronTriplets) {
+  neuronTriplets.y.forEach((m) => {
+    if (m.viewObjects["main"]) {
+        console.log("HostedBy ", m.hostedBy);
+        console.log("Mesh exists ", m);
+        m.autoSize();
+    } else {
+      console.log("Mesh does not exist ", m);
+    }
+  });
+
+  neuronTriplets.nodes.forEach((m) => {
+    if (m.viewObjects["main"]) {
+      console.log("Updating Node ", m);
+      m.updateViewObjects()
+    } else {
+      console.log("Node does not exist ", m);
+    }
+  });
+
+  neuronTriplets.links.forEach((m) => {
+    if (m.viewObjects["main"]) {
+      console.log("Updating Link Node Source ", m.source?.id);
+      m.source?.updateViewObjects();
+      console.log("Updating Link Node Target ", m.target?.id);
+      m.target?.updateViewObjects()
+    } else {
+      console.log("Link does not exist ", m);
+    }
+  });
+
+  neuronTriplets.links.forEach((m) => {
+    if (m.viewObjects["main"]) {
+      console.log("Updating Link ", m);
+      m.updateViewObjects()
+    } else {
+      console.log("Link does not exist ", m);
+    }
+  });
+
+  neuronTriplets.y.forEach((m) => {
+    if (m.viewObjects["main"]) {
+      if (m.wiredTo) {
+        console.log("Mesh exists ", m);
+        console.log("WiredTo ", m.conveys?.levelIn[0]?.wiredTo);
+        autoSizeLyph(m.viewObjects["main"])
+      }
+    } else {
+      console.log("Mesh does not exist ", m);
+    }
+  });
 }
