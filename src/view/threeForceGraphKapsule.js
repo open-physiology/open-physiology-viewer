@@ -57,7 +57,7 @@ export default Kapsule({
                 if (container) {
                     container.classList.add('force-graph-container');
                     container.style.position = 'relative';
-                    container.appendChild(state.toolTipElem);
+                    // container.appendChild(state.toolTipElem);
                 }
 
                 d3Select(state.canvas).call(

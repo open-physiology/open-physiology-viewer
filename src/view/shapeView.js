@@ -315,7 +315,6 @@ Lyph.prototype.updateViewObjects = function(state) {
     let obj = this.viewObjects["main"];
 
     if (state.showLyphs3d && this.viewObjects["3d"]){
-        console.log("3d ", this.id)
         obj = this.viewObjects["main"];
     }
 
