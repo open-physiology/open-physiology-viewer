@@ -18,7 +18,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, handleNeurulatedGroup, toggleScaffoldsNeuroview } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, handleNeurulatedGroup, toggleScaffoldsNeuroview, toggleGroupLyphsView } from "../view/render/neuroView";
 
 /**
  * @ignore
@@ -1316,45 +1316,6 @@ export class SettingsPanel {
     this.toggleAllDynamicGroup();
   };
 
-  toggleGroupLyphsView = (event, group, neuronTriplets) => {
-    let matches = [];
-    // Find group where housing lyph belongs
-    neuronTriplets.y?.forEach((triplet) => {
-      const match = this.graphData.lyphs.find(
-        (lyph) => lyph.fullID === triplet.fullID
-      );
-      matches.push(match);
-      if (match) {
-        const groupMatched = this.graphData.groups.find((group) =>
-          group.lyphs.find((lyph) => lyph.fullID === match.fullID)
-        );
-        if (groupMatched) {
-          console.log("Group matched ", groupMatched);
-          this.activeNeurulatedComponents?.groups?.includes(groupMatched) ? null : this.activeNeurulatedComponents.groups.push(groupMatched);
-        }
-      }
-    });
-
-    console.log("Groups matched ", this.activeNeurulatedComponents.groups);
-    
-    this.activeNeurulatedComponents.groups.forEach((g) => {
-      handleNeurulatedGroup(event.checked, g, neuronTriplets);
-    });
-    
-    matches.forEach((m) => {
-      m.hidden = !event.checked;
-      m.conveys?.levelIn ? m.hostedBy = m.conveys?.levelIn[0]?.hostedBy : null;
-      m.conveys?.levelIn ? m.wiredTo = m.conveys?.levelIn[0]?.wiredTo : null;
-      if (m.hostedBy) {
-        m.hostedBy?.hostedLyphs
-          ? m.hostedBy.hostedLyphs?.includes(m)
-            ? null
-            : m.hostedBy.hostedLyphs?.push(m)
-          : (m.hostedBy.hostedLyphs = [m]);
-      }
-    });
-  };
-
   hideVisibleGroups = () => {
     // Hide all visible
     let allVisible = this.dynamicGroups.filter((g) => g.hidden == false);
@@ -1369,9 +1330,6 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      // Disable all scaffolds
-      // this.onToggleGroup.emit(group);
-      
       // event.checked ? this.toggleNeuroView(false) : this.toggleNeuroView(true);
       this.activeNeurulatedComponents?.components?.forEach(
         (component) => (component.inactive = false)
@@ -1414,10 +1372,11 @@ export class SettingsPanel {
 
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-      this.toggleGroupLyphsView(
+      toggleGroupLyphsView(
         event,
-        group,
-        neuronTriplets
+        this.graphData,
+        neuronTriplets, 
+        this.activeNeurulatedComponents
       );
       this.onToggleNeurulatedGroup.emit();
       let that = this;
