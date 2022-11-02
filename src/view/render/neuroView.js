@@ -5,24 +5,21 @@ export function buildNeurulatedTriplets(group) {
   // Extract Neurons from Segment
   let neuronTriplets = { x: group.lyphs, y: [], w: [], r: [], links : [], chains : [], nodes : [] };
 
-  let hostedLinks = group.links?.filter((l) => l.fasciculatesIn || l.endsIn );
+  let hostedLinks = group.links?.filter((l) => l.fasciculatesIn || l.endsIn || l.levelIn );
   console.log("Hosted links ", hostedLinks);
   neuronTriplets.links = hostedLinks;
 
-  let hostedLyphs2 = group.links?.filter((l) => l.fasciculatesIn || l.endsIn || l.fasciculatesIn?.internalIn || l.fasciculatesIn?.layerIn || l.endsIn?.internalIn || l.ends?.layerIn );
-  console.log("Hosted lyphs ", hostedLyphs2);
-
   let housingLyphs = [];
   hostedLinks.forEach((l) => { 
-    if (!housingLyphs.includes(l.fasciculatesIn || l.endsIn)) {
-      housingLyphs.push(l.fasciculatesIn || l.endsIn);
+    console.log("Lyph ", l);
+    // Avoid duplicate housing lyphs
+    if (!housingLyphs.includes(l.fasciculatesIn || l.endsIn ) &&  (l.fasciculatesIn || l.endsIn ) ) {
+      housingLyphs.push(l.fasciculatesIn || l.endsIn );
     }
+    // Traverse through levelIn housingLypphs
     l.levelIn?.forEach( c => {
-      console.log("C ", c);
       c.housingLyphs?.forEach ( h => {
-        console.log("H ", h);
         if (!housingLyphs.includes(h)) {
-          console.log("push  ", h);
           housingLyphs.push(h);
         }
       });
@@ -33,16 +30,16 @@ export function buildNeurulatedTriplets(group) {
   // axis property
   console.log("housingLyphs ", housingLyphs);
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l.hostedBy); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy); //lyphs -> regions
   console.log("hostedHousingLyphs ", hostedHousingLyphs);
   //Find housing lyph chains
   neuronTriplets.y = housingLyphs;
 
-  let housingLyphsInChains = housingLyphs?.filter((h) => h.axis?.levelIn);
-  console.log("hostedHousingLyphs ", housingLyphsInChains);
+  let housingLyphsInChains = housingLyphs?.filter((h) => h?.axis?.levelIn);
+  console.log("housingLyphsInChains ", housingLyphsInChains);
 
   let housingChains = [
-    ...new Set(housingLyphsInChains.map((h) => h.axis.levelIn)::flatten()),
+    ...new Set(housingLyphsInChains.map((h) => h?.axis?.levelIn)::flatten()),
   ]; // lyphs -> links -> chains, each link can be part of several chains, hence levelIn gives an array that we need to flatten
   console.log("housingChains ", housingChains);
   neuronTriplets.chains = housingChains;
@@ -78,7 +75,7 @@ export function buildNeurulatedTriplets(group) {
 
   let hostedHousingChains = housingChains
     .filter((c) => c.hostedBy)
-    .map((c) => c.hostedBy); //chains -> regions
+    .map((c) => c.hostedBy) //chains -> regions
   console.log("hostedHousingChains ", hostedHousingChains);
   hostedHousingChains.forEach((region) => neuronTriplets.r.push(region));
 
@@ -108,8 +105,8 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
       link.inactive = !checked;
       link.source ? link.source.inactive = !checked : null;
       link.target ? link.target.inactive = !checked : null;
-      console.log("Source ", link.source);
-      console.log("Target ", link.target)
+      // console.log("Source ", link.source);
+      // console.log("Target ", link.target)
     } else {
       link.inactive = checked;
       link.source ? link.source.inactive = checked : null;
@@ -117,7 +114,6 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
     }
   });
 
-  console.log("Initial setup ");
   checked ? groupMatched.show() : groupMatched.hide();
 
   groupMatched.lyphs.forEach((lyph) => {
@@ -185,7 +181,6 @@ export function toggleScaffoldsNeuroview(
 export function autoLayoutNeuron(neuronTriplets) {
   neuronTriplets.y.forEach((m) => {
     if (m.viewObjects["main"]) {
-        console.log("HostedBy ", m.hostedBy);
         console.log("Mesh exists ", m);
         m.autoSize();
     } else {
@@ -195,42 +190,82 @@ export function autoLayoutNeuron(neuronTriplets) {
 
   neuronTriplets.nodes.forEach((m) => {
     if (m.viewObjects["main"]) {
-      console.log("Updating Node ", m);
       m.updateViewObjects()
     } else {
       console.log("Node does not exist ", m);
     }
   });
 
-  neuronTriplets.links.forEach((m) => {
-    if (m.viewObjects["main"]) {
-      console.log("Updating Link Node Source ", m.source?.id);
-      m.source?.updateViewObjects();
-      console.log("Updating Link Node Target ", m.target?.id);
-      m.target?.updateViewObjects()
-    } else {
-      console.log("Link does not exist ", m);
-    }
+  neuronTriplets.chains.forEach((m) => {
+    m.update()
   });
 
   neuronTriplets.links.forEach((m) => {
     if (m.viewObjects["main"]) {
-      console.log("Updating Link ", m);
+      m.source?.updateViewObjects();
+      m.target?.updateViewObjects()
       m.updateViewObjects()
     } else {
       console.log("Link does not exist ", m);
     }
   });
 
-  neuronTriplets.y.forEach((m) => {
-    if (m.viewObjects["main"]) {
-      if (m.wiredTo) {
-        console.log("Mesh exists ", m);
-        console.log("WiredTo ", m.conveys?.levelIn[0]?.wiredTo);
-        autoSizeLyph(m.viewObjects["main"])
+  neuronTriplets.y?.forEach( n => {
+    console.log("Housing Neuron : " , n.fullID);
+    n.hostedBy && console.log("Hosted By : " , n.hostedBy?.fullID);
+    n.wiredTo && console.log("Wired To : ", n.wiredTo?.fullID);
+  })
+}
+
+export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNeurulatedComponents) {
+  let matches = [];
+  // Find group where housing lyph belongs
+  neuronTriplets.y?.forEach((triplet) => {
+    const match = graphData.lyphs.find(
+      (lyph) => lyph.fullID === triplet.fullID
+    );
+    matches.push(match);
+    if (match) {
+      const groupMatched = graphData.groups.find((group) =>
+        group.lyphs.find((lyph) => lyph.fullID === match.fullID)
+      );
+      if (groupMatched) {
+        console.log("Group matched ", groupMatched);
+        activeNeurulatedComponents?.groups?.includes(groupMatched) ? null : activeNeurulatedComponents.groups.push(groupMatched);
       }
-    } else {
-      console.log("Mesh does not exist ", m);
     }
   });
-}
+
+  console.log("Groups matched ", activeNeurulatedComponents.groups);
+  
+  activeNeurulatedComponents.groups.forEach((g) => {
+    handleNeurulatedGroup(event.checked, g, neuronTriplets);
+  });
+  
+  console.log("Matches ", matches);
+
+  matches.forEach((m) => {
+    m.hidden = !event.checked;
+    m.conveys?.levelIn ? m.hostedBy = m.conveys?.levelIn[0]?.hostedBy : null;
+    m.conveys?.levelIn ? m.wiredTo = m.conveys?.levelIn[0]?.wiredTo : null;
+
+    if ( m.hostedBy === undefined ) {
+      if (m.internalIn?.layerIn ) {
+        if (m.internalIn?.layerIn.class == "Wire") {
+          m.wiredTo = m.internalIn.layerIn;
+        } else if (m.internalIn?.layerIn.class == "Region") {
+          m.hostedBy = m.internalIn.layerIn;
+        } else if (m.internalIn?.layerIn.class == "Lyph") {
+          m.hostedBy = m.internalIn.layerIn;
+        }
+      }
+    }
+    if (m.hostedBy) {
+      m.hostedBy?.hostedLyphs
+        ? m.hostedBy.hostedLyphs?.includes(m)
+          ? null
+          : m.hostedBy.hostedLyphs?.push(m)
+        : (m.hostedBy.hostedLyphs = [m]);
+    }
+  });
+};
