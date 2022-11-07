@@ -14,8 +14,9 @@ import {
     isInRange,
     THREE
 } from "./utils";
-import { fitToTargetRegion,LYPH_H_PERCENT_MARGIN } from "./render/autoLayout";
+import { fitToTargetRegion, autoSizeLyph, LYPH_H_PERCENT_MARGIN, maxLyphSize, MIN_LYPH_WIDTH } from "./render/autoLayout";
 import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
+import { rotateAroundCenter } from "./render/autoLayout/transform";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -154,36 +155,50 @@ Lyph.prototype.autoSize = function(){
 
             // extract host mesh size
             const hostDim = getBoundingBoxSize(hostMesh);
-            
-            const matchIndex = this.hostedBy?.hostedLyphs?.indexOf(lyph.userData);
+            const maxSize = maxLyphSize(hostMesh);
 
-            let refSize = getBoundingBoxSize(lyph);
+            const lyphDim = getBoundingBoxSize(lyph);
 
             const hostMeshPosition = getWorldPosition(hostMesh);
-            let targetX = hostMeshPosition.x - (hostDim.x * .45);
-            let targetY = hostMeshPosition.y;
-
-            //starts building on 0,0
-
-            const refWidth  = refSize.x * lyph.scale.x;
-
+            const refWidth  = lyphDim.x * lyph.scale.x;
             const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
+            const matchIndex = this.hostedBy?.hostedLyphs?.indexOf(lyph.userData);
+
+            let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* this.hostedBy?.hostedLyphs.length) * .5 );
+            let targetY = hostMeshPosition.y;
+            
 
             targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
             // targetY = targetY + refPaddingY + refHeight * matchIndex + ( 2 * refPaddingY * matchIndex);
             
             lyph.position.x = targetX ;
             lyph.position.y = targetY ;
-            lyph.position.z = hostMesh.z ? hostMesh.position.z + 5 : 10;
+            lyph.position.z = hostMesh.z ? hostMesh.position.z + 5 : 6;
         } else {
             let wiredTo = this.wiredTo?.viewObjects["main"];
 
             if ( wiredTo ) {
-                // To Fix
+                const wiredDim = getBoundingBoxSize(wiredTo);
+                const wireMeshPosition = this.wiredTo?.center;
+
+                lyph.position.x = wireMeshPosition.x ;
+                lyph.position.y = wireMeshPosition.y ;
+                lyph.position.z = wireMeshPosition.z ? wireMeshPosition.position.z + 5 : 10;
+
+                rotateAroundCenter(lyph
+                                , wiredTo.rotation.x
+                                , wiredTo.rotation.y
+                                , wiredTo.rotation.z);  
+                
             } else {
+                const lyphDim = getBoundingBoxSize(lyph);
+                const lyphMin = Math.min(lyphDim.x, lyphDim.y);
+                if ( lyphMin < MIN_LYPH_WIDTH ){
+                    lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
+                    lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);                  
+                }
                 lyph.position.x = 0 ;
                 lyph.position.y = 0 ;
-                lyph.position.z = 10;
             }
         }         
     }
@@ -208,9 +223,10 @@ Lyph.prototype.translate = function(p0) {
  * @param state
  */
 Lyph.prototype.createViewObjects = function(state) {   
-    //Cannot draw a lyph without axis
-    if (!this.axis) { return; }
-
+    if ( this.id == "lyph-PNS-ganglion-atrial-intrinsic-cardiac-ganglion" || this.id == "lyph-cardiovascular-heart"){
+        console.log("match ", this);
+    }
+ 
     if (this.isTemplate){
         return;
     }
@@ -300,7 +316,7 @@ Lyph.prototype.createViewObjects = function(state) {
     }
     //Do not create labels for layers and nested lyphs
     if (this.layerIn || this.internalIn) { return; }
-    this.createLabels();
+    // this.createLabels();
 };
 
 /**
