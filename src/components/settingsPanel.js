@@ -1364,8 +1364,17 @@ export class SettingsPanel {
         );
         if (matchScaffolds.length > 0) {
           matchScaffolds.forEach(
-            (scaffold) =>
-              scaffold.hidden !== false && this.onToggleGroup.emit(scaffold)
+            (scaffold) => {
+              scaffold.hidden !== false && this.onToggleGroup.emit(scaffold);
+              neuronTriplets.r.forEach( r => {
+                let region = scaffold.regions?.find( reg => reg.fullID == r.fullID )
+                region ? region.inactive = !event.checked : null;
+              });
+              neuronTriplets.w.forEach ( w => {
+                let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID );
+                scaffoldMatch ? scaffoldMatch.inactive = !event.checked : null;
+              });
+            }
           );
         }
       }
@@ -1387,7 +1396,7 @@ export class SettingsPanel {
         }
       );
 
-      console.log("all done now with webgl ");
+      console.log("all done now with webgl " ,this.graphData);
     } else {
       this.onToggleGroup.emit(group);
     }

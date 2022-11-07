@@ -23,6 +23,7 @@ import { rotateAroundCenter
 export const LYPH_H_PERCENT_MARGIN = 0.10;
 export const LYPH_V_PERCENT_MARGIN = 0.10;
 export const MAX_LYPH_WIDTH = 100;
+export const MIN_LYPH_WIDTH = 100;
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
@@ -65,9 +66,7 @@ export function fitToTargetRegion(target, source, lyphInLyph) {
     sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
     sz = ( targetSize.z / sourceSize.z ) ;
   } else {
-
-    let hostMaxSize = Math.max(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
-    let idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+    let idealSize = maxLyphSize(target);
 
     sx = idealSize / sourceSize.x;
     sy = idealSize / sourceSize.y;
@@ -83,7 +82,20 @@ export function fitToTargetRegion(target, source, lyphInLyph) {
                   , parent.rotation.x
                   , parent.rotation.y
                   , parent.rotation.z);  
-} 
+}
+
+export function maxLyphSize(target) {
+  let targetSize =  getBoundingBoxSize(target);
+
+  let hostMaxSize = Math.max(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
+  let hostMinSize = Math.min(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
+  let idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+  if ( idealSize > hostMinSize ){
+    idealSize = hostMinSize;
+  }
+
+  return idealSize;
+}
 
 function checkMaxLyphSize(target) {
   if (target)

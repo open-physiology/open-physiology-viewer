@@ -1,7 +1,7 @@
 import {copyCoords, extractCoords, getCenterOfMass, THREE} from "./utils";
 import {MaterialFactory} from "./materialFactory";
 import {modelClasses} from "../model";
-import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
+import { getMiddle, getWorldPosition } from "./render/autoLayout/objects";
 
 const {VisualResource, Vertice, Node, Anchor} = modelClasses;
 
@@ -22,14 +22,21 @@ Vertice.prototype.createViewObjects = function(state) {
         // Attach vertice data
         obj.userData = this;
         if ( this.internalIn ) {
-            if ( this.internalIn?.viewObjects["main"] ) {
-                const hostMeshPosition = getWorldPosition(this.internalIn?.viewObjects["main"]);
-                if ( obj ) {
-                    obj.position.set(hostMeshPosition.x, hostMeshPosition.y, hostMeshPosition.z);
-                    copyCoords(this, this.internalIn);
+            let housingLyph = this.internalIn;
+            while( housingLyph.internalIn || housingLyph.layerIn ){
+                housingLyph = housingLyph.internalIn || housingLyph.layerIn;
+            }
+            if ( housingLyph?.viewObjects["main"] ) {
+                const hostMeshPosition = getWorldPosition(housingLyph?.viewObjects["main"]);
+                if ( this.viewObjects["main"] ) {
+                    this.viewObjects["main"].position.x  = hostMeshPosition.x;
+                    this.viewObjects["main"].position.y = hostMeshPosition.y;
+                    this.viewObjects["main"].position.z = hostMeshPosition.z;
+                    this.viewObjects["main"]?.geometry?.center()
+                    copyCoords(this, housingLyph);
                 }
             } else {
-                copyCoords(this, this.internalIn);
+                copyCoords(this, housingLyph);
             }
         }
         this.viewObjects["main"] = obj;
@@ -56,6 +63,7 @@ Vertice.prototype.updateViewObjects = function(state) {
 Node.prototype.createViewObjects = function(state) {
     this.val = this.val || state.nodeVal;
     Vertice.prototype.createViewObjects.call(this, state);
+    console.log("Create view object ", this);
 };
 
 /**
@@ -75,14 +83,23 @@ Node.prototype.updateViewObjects = function(state) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
         if ( this.internalIn ) {
-            if ( this.internalIn?.viewObjects["main"] ) {
-                const hostMeshPosition = getWorldPosition(this.internalIn?.viewObjects["main"]);
+            let housingLyph = this.internalIn;
+            while( housingLyph.internalIn || housingLyph.layerIn ){
+                housingLyph = housingLyph.internalIn || housingLyph.layerIn;
+            }
+            if ( housingLyph?.viewObjects["main"] ) {
+                const hostMeshPosition = getWorldPosition(housingLyph?.viewObjects["main"]);
                 if ( this.viewObjects["main"] ) {
-                    this.viewObjects["main"].position.set(hostMeshPosition.x, hostMeshPosition.y, hostMeshPosition.z);
-                    copyCoords(this, this.internalIn);
+                    this.viewObjects["main"].position.x  = hostMeshPosition.x;
+                    this.viewObjects["main"].position.y = hostMeshPosition.y;
+                    this.viewObjects["main"].position.z = hostMeshPosition.z;
+                    //this.viewObjects["main"]?.geometry?.center()
+                    ( this.viewObjects["main"]?.visible && this.viewObjects["main"]?.position ) && console.log("Update link position ", this.viewObjects["main"].position);
+                    copyCoords(this, housingLyph);
+                    ( this.viewObjects["main"]?.visible && this.viewObjects["main"]?.position ) && console.log("Update link coordinates ", this);
                 }
             } else {
-                copyCoords(this, this.internalIn);
+                copyCoords(this, housingLyph);
             }
         }
     }
