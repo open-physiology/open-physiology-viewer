@@ -7,7 +7,7 @@ import './verticeView';
 import './edgeView';
 import './shapeView';
 
-const {Group, Link, Coalescence, Component, Chain, Node} = modelClasses;
+const {Group, Link, Lyph, Coalescence, Component, Chain, Node} = modelClasses;
 
 
 //Update chain with dynamic ends
@@ -80,6 +80,16 @@ Group.prototype.createViewObjects = function(state){
         link.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE){
             link.viewObjects["main"].material.visible = false;
+        }
+    });
+
+    this.visibleLyphs.forEach(lyph => {
+        if (!(lyph instanceof Lyph)){ return; }
+        if (lyph.inactive){ return; }
+        if ( lyph.inactive == false && lyph.hidden == false ) {
+            console.log("LYph creation ", lyph.id)
+            lyph.createViewObjects(state);
+            lyph.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
         }
     });
 };
