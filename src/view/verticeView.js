@@ -26,8 +26,9 @@ Vertice.prototype.createViewObjects = function(state) {
             while( housingLyph.internalIn || housingLyph.layerIn ){
                 housingLyph = housingLyph.internalIn || housingLyph.layerIn;
             }
-            if ( housingLyph?.viewObjects["main"] ) {
-                const hostMeshPosition = getWorldPosition(housingLyph?.viewObjects["main"]);
+            if ( housingLyph ) {
+                let hostMeshPosition = extractCoords(housingLyph);
+
                 if ( this.viewObjects["main"] ) {
                     this.viewObjects["main"].position.x  = hostMeshPosition.x;
                     this.viewObjects["main"].position.y = hostMeshPosition.y;
@@ -35,8 +36,6 @@ Vertice.prototype.createViewObjects = function(state) {
                     this.viewObjects["main"]?.geometry?.center()
                     copyCoords(this, housingLyph);
                 }
-            } else {
-                copyCoords(this, housingLyph);
             }
         }
         this.viewObjects["main"] = obj;
@@ -63,7 +62,6 @@ Vertice.prototype.updateViewObjects = function(state) {
 Node.prototype.createViewObjects = function(state) {
     this.val = this.val || state.nodeVal;
     Vertice.prototype.createViewObjects.call(this, state);
-    console.log("Create view object ", this);
 };
 
 /**
@@ -93,10 +91,7 @@ Node.prototype.updateViewObjects = function(state) {
                     this.viewObjects["main"].position.x  = hostMeshPosition.x;
                     this.viewObjects["main"].position.y = hostMeshPosition.y;
                     this.viewObjects["main"].position.z = hostMeshPosition.z;
-                    //this.viewObjects["main"]?.geometry?.center()
-                    ( this.viewObjects["main"]?.visible && this.viewObjects["main"]?.position ) && console.log("Update link position ", this.viewObjects["main"].position);
                     copyCoords(this, housingLyph);
-                    ( this.viewObjects["main"]?.visible && this.viewObjects["main"]?.position ) && console.log("Update link coordinates ", this);
                 }
             } else {
                 copyCoords(this, housingLyph);

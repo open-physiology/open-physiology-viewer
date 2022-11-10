@@ -57,7 +57,7 @@ export default Kapsule({
                 if (container) {
                     container.classList.add('force-graph-container');
                     container.style.position = 'relative';
-                    // container.appendChild(state.toolTipElem);
+                    container.appendChild(state.toolTipElem);
                 }
 
                 d3Select(state.canvas).call(
@@ -165,8 +165,8 @@ export default Kapsule({
                         obj.userData instanceof modelClasses.Region));
                 state.canvas && (state.canvas.style.cursor = obj && obj.__isDraggable? 'pointer' : null);
                 const tooltipContent = obj? obj.userData.id + "-" + (obj.userData.name || '?') : '';
-                if (state.toolTipElem) {
-                    state.toolTipElem.style.visibility = tooltipContent ? 'visible' : 'hidden';
+                if (state.toolTipElem ) {
+                    state.toolTipElem.style.visibility = tooltipContent && obj?.visible ? 'visible' : 'hidden';
                     state.toolTipElem.innerHTML = tooltipContent;
                 }
             }

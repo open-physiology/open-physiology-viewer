@@ -19,6 +19,7 @@ import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/object
 import { rotateAroundCenter } from "./render/autoLayout/transform";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
+const MIN_Z = 15;
 
 /**
  * Create visual object for shape
@@ -127,7 +128,7 @@ Object.defineProperty(Lyph.prototype, "center", {
  */
 Object.defineProperty(Lyph.prototype, "points", {
     get: function() {
-        return (this._points||[]).map(p => this.translate(p))
+        return (this._points||[]);
     }
 });
 
@@ -149,15 +150,14 @@ Lyph.prototype.autoSize = function(){
     if (this.viewObjects["main"]) {
         let hostMesh = this.hostedBy?.viewObjects["main"];
         let lyph = this.viewObjects["main"];
+        const lyphDim = getBoundingBoxSize(lyph);
+        const lyphMin = Math.min(lyphDim.x, lyphDim.y);
 
         if ( hostMesh ) {
-            fitToTargetRegion(hostMesh, lyph, false); 
+            fitToTargetRegion(hostMesh, lyph, this.class == "Region"); 
 
             // extract host mesh size
-            const hostDim = getBoundingBoxSize(hostMesh);
             const maxSize = maxLyphSize(hostMesh);
-
-            const lyphDim = getBoundingBoxSize(lyph);
 
             const hostMeshPosition = getWorldPosition(hostMesh);
             const refWidth  = lyphDim.x * lyph.scale.x;
@@ -169,38 +169,54 @@ Lyph.prototype.autoSize = function(){
             
 
             targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
-            // targetY = targetY + refPaddingY + refHeight * matchIndex + ( 2 * refPaddingY * matchIndex);
             
             lyph.position.x = targetX ;
             lyph.position.y = targetY ;
-            lyph.position.z = hostMesh.z ? hostMesh.position.z + 5 : 6;
+            lyph.position.z = MIN_Z * 2;
         } else {
             let wiredTo = this.wiredTo?.viewObjects["main"];
 
-            if ( wiredTo ) {
-                const wiredDim = getBoundingBoxSize(wiredTo);
-                const wireMeshPosition = this.wiredTo?.center;
+            if ( wiredTo && !lyph.hidden ) {
+                let wiredLyphs = [];
+                this.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => !l.hidden && wiredLyphs.push(l)) );
+                console.log("Wired chains ", wiredLyphs);
+                let index = wiredLyphs?.findIndex(l => l.id === this.id );
+                console.log("Index of lyph in chain ", );
 
-                lyph.position.x = wireMeshPosition.x ;
-                lyph.position.y = wireMeshPosition.y ;
-                lyph.position.z = wireMeshPosition.z ? wireMeshPosition.position.z + 5 : 10;
-
+                const position = Math.floor(( (index + 1) / (wiredLyphs.length + 1)) * this.wiredTo?.points.length)
+                let result = this.wiredTo?.points[position];
+                console.log("Position ", position);
+                console.log("Result ", result);
+                
+                lyph.position.x = result.x ;
+                lyph.position.y = result.y ;
+                lyph.position.z = result.z + MIN_Z;
                 rotateAroundCenter(lyph
                                 , wiredTo.rotation.x
                                 , wiredTo.rotation.y
-                                , wiredTo.rotation.z);  
-                
-            } else {
-                const lyphDim = getBoundingBoxSize(lyph);
-                const lyphMin = Math.min(lyphDim.x, lyphDim.y);
+                                , wiredTo.rotation.z);
+
                 if ( lyphMin < MIN_LYPH_WIDTH ){
                     lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
-                    lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);                  
+                    lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
+                    lyph.scale.setZ(MIN_Z); 
                 }
-                lyph.position.x = 0 ;
-                lyph.position.y = 0 ;
+                console.log("wired to ", this.wiredTo);
+                console.log("W lyph ", lyph);
+            } else {
+                if ( lyphMin < MIN_LYPH_WIDTH ){
+                    lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
+                    lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
+                    lyph.scale.setZ(MIN_Z); 
+                }
+                const min = -250, max = 250;
+                lyph.position.x = Math.floor(Math.random() * (max - min + 1)) + min;
+                lyph.position.y = Math.floor(Math.random() * (max - min + 1)) + min;
+                lyph.position.z = MIN_Z;
+                console.log("Flying Lyph ", lyph);
             }
-        }         
+        }
+        copyCoords(this, lyph.position);         
     }
 };
 
@@ -223,10 +239,6 @@ Lyph.prototype.translate = function(p0) {
  * @param state
  */
 Lyph.prototype.createViewObjects = function(state) {   
-    if ( this.id == "lyph-PNS-ganglion-atrial-intrinsic-cardiac-ganglion" || this.id == "lyph-cardiovascular-heart"){
-        console.log("match ", this);
-    }
- 
     if (this.isTemplate){
         return;
     }
@@ -459,13 +471,13 @@ Region.prototype.createViewObjects = function(state) {
  * Update visual objects of a region
  */
 Region.prototype.updateViewObjects = function(state) {
-    Shape.prototype.updateViewObjects.call(this, state);
+    state &&  Shape.prototype.updateViewObjects.call(this, state);
     let obj = this.viewObjects["main"];
 
     if (obj) {
         let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
         if (linkPos) {
-            this.updatePoints(state.edgeResolution);
+            state &&  this.updatePoints(state.edgeResolution);
             this.points.forEach((p, i) => p && ["x", "y", "z"].forEach((dim, j) => linkPos.array[3 * i + j] = p[dim]));
             linkPos.needsUpdate = true;
             obj.geometry.computeBoundingSphere();
@@ -473,8 +485,35 @@ Region.prototype.updateViewObjects = function(state) {
         obj.visible = !this.inactive;
     }
 
-    this.border.updateViewObjects(state);
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
+    state && this.border.updateViewObjects(state);
+    state && this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
+
+    if ( this.hostedLyphs?.length > 0 && obj ) {
+        this.hostedLyphs?.forEach( lyph => {
+            if ( !lyph.hidden && lyph.viewObjects["main"] ) {
+                const lyphMesh = lyph.viewObjects["main"];
+                fitToTargetRegion(obj, lyphMesh, false); 
+
+                // extract host mesh size
+                const maxSize = maxLyphSize(obj);
+                const lyphDim = getBoundingBoxSize(lyphMesh);
+                const hostMeshPosition = getWorldPosition(obj);
+                const refWidth  = lyphDim.x * lyphMesh.scale.x;
+                const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
+                const matchIndex = this.hostedLyphs?.indexOf(lyph);
+            
+                let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* this.hostedLyphs.length) * .5 );
+                let targetY = hostMeshPosition.y;
+            
+                targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
+                
+                lyphMesh.position.x = targetX ;
+                lyphMesh.position.y = targetY ;
+                lyphMesh.position.z = MIN_Z;
+                copyCoords(lyph, lyphMesh.position);         
+            }
+        })
+    }
 };
 
 Region.prototype.relocate = function (delta){

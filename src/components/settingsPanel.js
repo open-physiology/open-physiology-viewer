@@ -1360,10 +1360,10 @@ export class SettingsPanel {
         const matchScaffolds = toggleScaffoldsNeuroview(
           this.scaffolds,
           this.activeNeurulatedComponents,
-          neuronTriplets
+          neuronTriplets,
+          event.checked
         );
-        if (matchScaffolds.length > 0) {
-          matchScaffolds.forEach(
+          matchScaffolds?.forEach(
             (scaffold) => {
               scaffold.hidden !== false && this.onToggleGroup.emit(scaffold);
               neuronTriplets.r.forEach( r => {
@@ -1376,7 +1376,6 @@ export class SettingsPanel {
               });
             }
           );
-        }
       }
 
       this.config.layout.showLayers && this.toggleLayout("showLayers");
@@ -1389,14 +1388,11 @@ export class SettingsPanel {
       );
       this.onToggleNeurulatedGroup.emit();
       let that = this;
-      window.addEventListener(
-        "doneUpdating",
+      window.addEventListener("doneUpdating",
         () => {
           autoLayoutNeuron(neuronTriplets);
         }
       );
-
-      console.log("all done now with webgl " ,this.graphData);
     } else {
       this.onToggleGroup.emit(group);
     }
@@ -1422,7 +1418,11 @@ export class SettingsPanel {
   toggleNeuroView = (visible) => {
     // Toggle visibility of scaffold components
     this.activeNeurulatedComponents?.components?.forEach(
-      (component) => (component.inactive = !visible)
+      (component) => { 
+        component.inactive = !visible;
+        component.borderAnchors?.forEach((anchor) => (anchor.inactive = !visible));
+        component.facets?.forEach((facet) => (facet.inactive = !visible));
+      }
     );
     this.activeNeurulatedComponents.groups.forEach((g) => {
       handleNeurulatedGroup(visible, g, {});
