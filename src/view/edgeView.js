@@ -15,7 +15,7 @@ import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
-
+const MIN_Z = 20;
 /**
  * Create visual object for edge
  */
@@ -159,12 +159,9 @@ Link.prototype.updateViewObjects = function(state) {
     state ? Edge.prototype.updateViewObjects.call(this, state) : null;
 
     const obj = this.viewObjects["main"];
-    this.inactive == false && console.log("Update link object ", this);
 
     let start = extractCoords(this.source);
     let end   = extractCoords(this.target);
-    this.inactive == false && console.log("start ", start);
-    this.inactive == false && console.log("end ", end);
 
     let curve = this.getCurve(start, end);
     this.center = getPoint(curve, start, end, 0.5);
@@ -237,21 +234,23 @@ Link.prototype.updateViewObjects = function(state) {
             if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
+                obj.material.lineWidth = MIN_Z;
                 obj.computeLineDistances();
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
-                    //this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
-                    linkPos.needsUpdate = true;
-                    obj.geometry.setFromPoints(this.points);
-                    obj.geometry.verticesNeedUpdate = true;
-                    obj.computeLineDistances();
+                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    obj.geometry.attributes.position.needsUpdate = true;
+                    obj.position.y = MIN_Z;
+                    obj.material.lineWidth = MIN_Z;
+                    obj.geometry.computeBoundingBox();
+                    obj.geometry.computeBoundingSphere();
+                    copyCoords(this, obj.position);
                 }
             }
         }
 
         obj.visible = !this.inactive;
-        obj.position.z = 15;
     }
 };
 
