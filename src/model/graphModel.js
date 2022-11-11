@@ -692,12 +692,19 @@ export class Graph extends Group {
             delete obj['collide'];
             delete obj['scale'];
             delete obj['scaleFactor'];
+            // FIXME when serializing the top level group/graph need to remove imported lyphs etc.
             return obj;
         }
 
         let alsothis = this;
         function ns (obj) {
-            return  !(obj instanceof Resource) || (obj instanceof External) || alsothis.namespace === obj.namespace;
+            return  !(obj instanceof Resource) || (obj instanceof External
+                                                   && ( Object.hasOwn(obj, 'annotates') ?
+                                                        obj.annotates.filter(a =>
+                                                            a.namespace === alsothis.namespace &&
+                                                                a.id !== alsothis.id).length !== 0
+                                                        : false )
+                                                  ) || alsothis.namespace === obj.namespace;
         }
 
         (this.entitiesByID||{})::values()
