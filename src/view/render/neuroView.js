@@ -1,6 +1,8 @@
 import {flatten } from "lodash-bound";
 import { autoSizeLyph } from "./autoLayout"
 
+// Build hierarchy used by neuroview to render a neuron. Here we keep track of a neuron's : 
+// housing lyphs, links, chains, anchors.
 export function buildNeurulatedTriplets(group) {
   // Extract Neurons from Segment
   let neuronTriplets = { x: group.lyphs, y: [], w: [], r: [], links : [], chains : [], nodes : [] };
@@ -11,19 +13,10 @@ export function buildNeurulatedTriplets(group) {
 
   let housingLyphs = [];
   hostedLinks.forEach((l) => { 
-    console.log("Lyph ", l);
     // Avoid duplicate housing lyphs
     if (!housingLyphs.includes(l.fasciculatesIn || l.endsIn ) &&  (l.fasciculatesIn || l.endsIn ) ) {
       housingLyphs.push(l.fasciculatesIn || l.endsIn );
     }
-    // Traverse through levelIn housingLypphs
-    // l.levelIn?.forEach( c => {
-    //   c.housingLyphs?.forEach ( h => {
-    //     if (!housingLyphs.includes(h)) {
-    //       housingLyphs.push(h);
-    //     }
-    //   });
-    // }) 
   });
    //links -> lyphs
   // Traverse through layers of fasciculatesIn, get to inmediate housing lyph: internalIn and layerIn
@@ -55,13 +48,11 @@ export function buildNeurulatedTriplets(group) {
     .filter((c) => c.root)
     .map((c) => c.root); // chains -> nodes
   console.log("housingChainRoots ", housingChainRoots);
-  // neuronTriplets.nodes = neuronTriplets.nodes.concat(housingChainRoots)
 
   let housingChainLeaves = housingChains
     .filter((c) => c.leaf)
     .map((c) => c.leaf);
   console.log("housingChainLeaves ", housingChainLeaves);
-  // neuronTriplets.nodes = neuronTriplets.nodes.concat(housingChainLeaves)
 
   let anchoredHousingChainRoots = housingChainRoots.filter((n) => n.anchoredTo); //nodes -> anchors
   console.log("anchoredHousingChainRoots ", anchoredHousingChainRoots);
@@ -176,6 +167,9 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, activeNeurulatedCompon
       ) ||
         scaffold.regions?.find((w) =>
           neuronTriplets?.r?.find((matchReg) => w.id === matchReg.id)
+        ) ||
+        scaffold.anchors?.find((anchor) =>
+          neuronTriplets?.w?.find((wire) => anchor.id === wire?.source?.id || anchor.id === wire?.target?.id )
         ))
   );
 
@@ -187,21 +181,10 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, activeNeurulatedCompon
 export function autoLayoutNeuron(neuronTriplets) {
   neuronTriplets.y.forEach((m) => {
     if (m.viewObjects["main"]) {
-        console.log("Mesh exists ", m);
         autoSizeLyph(m.viewObjects["main"]);
         m.autoSize();
     } else {
       console.log("Mesh does not exist ", m);
-    }
-  });
-
-  neuronTriplets.links.forEach((m) => {
-    if (m.viewObjects["main"]) {
-      m.source?.updateViewObjects();
-      m.target?.updateViewObjects()
-      m.updateViewObjects()
-    } else {
-      console.log("Link does not exist ", m);
     }
   });
 
@@ -251,16 +234,7 @@ export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNe
           }
         });
       }) 
-    });
-    //links -> lyphs
-    // Traverse through layers of fasciculatesIn, get to inmediate housing lyph: internalIn and layerIn
-    // axis property
-    console.log("housingLyphs ", housingLyphs);
-
-    let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy); //lyphs -> regions
-    console.log("hostedHousingLyphs ", hostedHousingLyphs);
-    
-    
+    });    
   });
   
   console.log("Matches ", matches);

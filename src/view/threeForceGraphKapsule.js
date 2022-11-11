@@ -202,6 +202,8 @@ export default Kapsule({
         onLoading        : { default: () => {}, triggerUpdate: false },
         onFinishLoading  : { default: () => {}, triggerUpdate: false },
 
+        neuroviewEnabled      : { default: false},
+
         enablePointerInteraction: {
             default: true,
             onChange(_, state) {
@@ -309,15 +311,14 @@ export default Kapsule({
           if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
               state.onFrame = null;
-              const event = new CustomEvent('doneUpdating', { detail : { scene : state.graphScene } });
+              const event = new CustomEvent('doneUpdating');
               window.dispatchEvent(event);
               console.log("count ticks done")
           } else { layout['tick'](); }
 
-          console.log("Lets update LAYOUTICK")
           state.graphData.updateViewObjects(state);
           console.log("Updated VIEW OBJECTS")
-          const event2 = new CustomEvent('stateUpdate');
+          const event2 = new CustomEvent('doneUpdating');
           window.dispatchEvent(event2);
           //autoLayout(state.graphScene, state.graphData);
         }

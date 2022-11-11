@@ -128,7 +128,7 @@ Object.defineProperty(Lyph.prototype, "center", {
  */
 Object.defineProperty(Lyph.prototype, "points", {
     get: function() {
-        return (this._points||[]);
+        return (this._points||[]).map(p => this.translate(p));
     }
 });
 
@@ -179,30 +179,42 @@ Lyph.prototype.autoSize = function(){
             if ( wiredTo && !lyph.hidden ) {
                 let wiredLyphs = [];
                 this.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => !l.hidden && wiredLyphs.push(l)) );
-                console.log("Wired chains ", wiredLyphs);
                 let index = wiredLyphs?.findIndex(l => l.id === this.id );
-                console.log("Index of lyph in chain ", );
 
-                const position = Math.floor(( (index + 1) / (wiredLyphs.length + 1)) * this.wiredTo?.points.length)
-                let result = this.wiredTo?.points[position];
-                console.log("Position ", position);
-                console.log("Result ", result);
-                
-                lyph.position.x = result.x ;
-                lyph.position.y = result.y ;
-                lyph.position.z = result.z + MIN_Z;
-                rotateAroundCenter(lyph
-                                , wiredTo.rotation.x
-                                , wiredTo.rotation.y
-                                , wiredTo.rotation.z);
-
-                if ( lyphMin < MIN_LYPH_WIDTH ){
-                    lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
-                    lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
-                    lyph.scale.setZ(MIN_Z); 
+                if ( wiredLyphs.length == 1 ) {
+                    const position = this.wiredTo.center;
+                    
+                    lyph.position.x = position.x ;
+                    lyph.position.y = position.y ;
+                    lyph.position.z = MIN_Z;
+                    rotateAroundCenter(lyph
+                                    , wiredTo.rotation.x
+                                    , wiredTo.rotation.y
+                                    , wiredTo.rotation.z);
+    
+                    if ( lyphMin < MIN_LYPH_WIDTH ){
+                        lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
+                        lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
+                        lyph.scale.setZ(MIN_Z); 
+                    }
+                } else if ( wiredLyphs.length > 1 ){
+                    const position = Math.floor(( (index + 1) / (wiredLyphs.length + 1)) * this.wiredTo?.points.length)
+                    let result = this.wiredTo?.points[position];
+                    
+                    lyph.position.x = result.x ;
+                    lyph.position.y = result.y ;
+                    lyph.position.z = result.z + MIN_Z;
+                    rotateAroundCenter(lyph
+                                    , wiredTo.rotation.x
+                                    , wiredTo.rotation.y
+                                    , wiredTo.rotation.z);
+    
+                    if ( lyphMin < MIN_LYPH_WIDTH ){
+                        lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
+                        lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
+                        lyph.scale.setZ(MIN_Z); 
+                    }
                 }
-                console.log("wired to ", this.wiredTo);
-                console.log("W lyph ", lyph);
             } else {
                 if ( lyphMin < MIN_LYPH_WIDTH ){
                     lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
@@ -328,7 +340,7 @@ Lyph.prototype.createViewObjects = function(state) {
     }
     //Do not create labels for layers and nested lyphs
     if (this.layerIn || this.internalIn) { return; }
-    // this.createLabels();
+    this.createLabels();
 };
 
 /**
@@ -363,7 +375,7 @@ Lyph.prototype.updateViewObjects = function(state) {
         obj.visible = !this.hidden;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
-        // copyCoords(obj.position, this.center);
+        copyCoords(obj.position, this.center);
 
         //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
         //preventing this
