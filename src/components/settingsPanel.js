@@ -179,6 +179,7 @@ const COLORS = {
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
                 (change)="enableNeuroview($event, true)"
+                *ngIf="scaffolds && scaffolds.length > 0"
                 >Enable Neuroview</mat-checkbox
               >
             </div>
@@ -1342,7 +1343,7 @@ export class SettingsPanel {
       this.hideVisibleGroups();
 
       // FIXME : uNTOGGLE GROUPS
-      // this.onToggleGroup.emit(group);
+      this.onToggleGroup.emit(group);
 
       this.scaffolds.forEach((scaffold) => {
         if (scaffold.hidden !== true) {

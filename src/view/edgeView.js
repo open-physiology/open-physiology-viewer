@@ -156,7 +156,7 @@ Link.prototype.getCurve = function(start, end){
  * Update visual objects for a link
  */
 Link.prototype.updateViewObjects = function(state) {
-    state ? Edge.prototype.updateViewObjects.call(this, state) : null;
+    Edge.prototype.updateViewObjects.call(this, state);
 
     const obj = this.viewObjects["main"];
 
@@ -194,10 +194,10 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    state ? this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge)) : null;
+    this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
 
     if (this.conveyingLyph){
-        state ? this.conveyingLyph.updateViewObjects(state) : null;
+        this.conveyingLyph.updateViewObjects(state);
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
@@ -216,9 +216,7 @@ Link.prototype.updateViewObjects = function(state) {
             let arrow  = obj.children[0];
             let dir = direction(this.source, this.target);
             let length = curve && curve.getLength? curve.getLength(): dir.length();
-            let arrowLength;
-            state ? arrowLength = this.state.arrowLength : arrowLength = 40;
-            let t = arrowLength / length;
+            let t = this.state.arrowLength / length;
             if (curve && curve.getTangent){
                 dir = curve.getTangent(1 - t);
             }
@@ -234,7 +232,6 @@ Link.prototype.updateViewObjects = function(state) {
             if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
-                obj.material.lineWidth = MIN_Z;
                 obj.computeLineDistances();
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
