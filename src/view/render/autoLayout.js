@@ -24,6 +24,7 @@ export const LYPH_H_PERCENT_MARGIN = 0.10;
 export const LYPH_V_PERCENT_MARGIN = 0.10;
 export const MAX_LYPH_WIDTH = 100;
 export const MIN_LYPH_WIDTH = 100;
+export const MIN_INNER_LYPH_WIDTH = 50;
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
@@ -56,15 +57,15 @@ export function fitToTargetRegion(target, source, lyphInLyph) {
 
   //Handle size for internal lyphs
   if ( lyphInLyph ) {
-    let minD = targetSize.x < targetSize.y ? targetSize.x : targetSize.y;
+    let idealSize = maxLyphSize(target);
 
-    if ( source.userData.supertype ){
-      minD = minD * .5;
+    if ( idealSize < MIN_INNER_LYPH_WIDTH ){
+      idealSize = MIN_INNER_LYPH_WIDTH 
     }
-
-    sx = ( minD / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN);
-    sy = ( minD / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
-    sz = ( targetSize.z / sourceSize.z ) ;
+    
+    sx = ( idealSize / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN);
+    sy = ( idealSize / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
+    sz = ( idealSize / sourceSize.z ) ;
   } else {
     let idealSize = maxLyphSize(target);
 
@@ -89,7 +90,7 @@ export function maxLyphSize(target) {
 
   let hostMaxSize = Math.max(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
   let hostMinSize = Math.min(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
-  let idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+  let idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.filter( l => !l.hidden )?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
   if ( idealSize > hostMinSize ){
     idealSize = hostMinSize;
   }
@@ -503,4 +504,9 @@ export function autoLayout(scene, graphData) {
   //FIXME : Fix chians with nodes
   //autoLayoutChains(scene, graphData, links);
   //links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
+}
+
+export const DIMENSIONS =  {
+  SHAPE_MIN_Z : 15,
+  EDGE_MIN_Z : 20
 }

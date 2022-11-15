@@ -8,14 +8,15 @@ import {
     semicircleCurve,
     rectangleCurve,
     getPoint,
-    arcCurve, getDefaultControlPoint
+    arcCurve,
+    getDefaultControlPoint
 } from "./utils";
+import { DIMENSIONS } from "./render/autoLayout";
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
-const MIN_Z = 20;
 /**
  * Create visual object for edge
  */
@@ -238,8 +239,8 @@ Link.prototype.updateViewObjects = function(state) {
                 if (linkPos) {
                     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.y = MIN_Z;
-                    obj.material.lineWidth = MIN_Z;
+                    obj.position.y = DIMENSIONS.EDGE_MIN_Z;
+                    obj.material.lineWidth = DIMENSIONS.EDGE_MIN_Z;
                     obj.geometry.computeBoundingBox();
                     obj.geometry.computeBoundingSphere();
                     copyCoords(this, obj.position);

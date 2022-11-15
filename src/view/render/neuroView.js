@@ -91,22 +91,20 @@ function toggleNeurulatedLyph(lyph, checked, neuronMatches) {
 
 export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) {
   groupMatched.nodes.forEach((node) => { 
-    if ( neurulatedMatches?.nodes?.find( l => l.id === node.id ) ) {
-      node.inactive = !checked;
-    } else {
+    // if ( neurulatedMatches?.nodes?.find( l => l.id === node.id ) ) {
+    //   node.inactive = !checked;
+    // } else {
       node.inactive = checked;
-    }
+    //}
   });
   groupMatched?.links?.forEach((link) => { 
     if ( neurulatedMatches?.links?.find( l => l.id === link.id ) ) {
       link.inactive = !checked;
-      link.source ? link.source.inactive = !checked : null;
-      link.target ? link.target.inactive = !checked : null;
     } else {
       link.inactive = checked;
-      link.source ? link.source.inactive = checked : null;
-      link.target ? link.target.inactive = checked : null;
     }
+    link.source ? link.source.inactive = checked : null;
+    link.target ? link.target.inactive = checked : null;
   });
 
   checked ? groupMatched.show() : groupMatched.hide();
@@ -180,7 +178,7 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, activeNeurulatedCompon
 
 export function autoLayoutNeuron(neuronTriplets) {
   neuronTriplets.y.forEach((m) => {
-    if (m.viewObjects["main"]) {
+    if (m.viewObjects["main"] &&  m?.hostedBy?.class !== "Lyph") {
         autoSizeLyph(m.viewObjects["main"]);
         m.autoSize();
     } else {
@@ -188,8 +186,12 @@ export function autoLayoutNeuron(neuronTriplets) {
     }
   });
 
-  neuronTriplets.r.forEach((m) => {
-    m.updateViewObjects()
+  neuronTriplets.y.forEach((m) => {
+    if (m.viewObjects["main"] &&  m?.hostedBy?.class === "Lyph") {
+        m.autoSize();
+    } else {
+      console.log("Mesh does not exist ", m);
+    }
   });
 }
 
