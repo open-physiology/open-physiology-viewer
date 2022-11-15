@@ -98,7 +98,7 @@ Node.prototype.updateViewObjects = function(state) {
             }
         }
     }
-    state ? Vertice.prototype.updateViewObjects.call(this, state) : null;
+    Vertice.prototype.updateViewObjects.call(this, state);
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {

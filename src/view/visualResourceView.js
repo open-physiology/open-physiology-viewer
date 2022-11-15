@@ -24,7 +24,7 @@ VisualResource.prototype.createLabels = function(){
 
     if (this.labels[labelKey]){
         this.viewObjects["label"] = this.labels[labelKey];
-        this.viewObjects["label"].visible = !this.hidden && this.state.showLabels;
+        this.viewObjects["label"].visible = (this.hidden == false && this.state.showLabels[this.constructor.name]);
     } else {
         delete this.viewObjects["label"];
     }
@@ -38,7 +38,7 @@ VisualResource.prototype.updateLabels = function(position){
     if (this.skipLabel || !this.state.showLabels) { return; }
     const labelKey = this.state.labels[this.constructor.name];
     if (this.labels[labelKey]){
-        this.labels[labelKey].visible = this.state.showLabels[this.constructor.name];
+        this.labels[labelKey].visible = (this.hidden == false && this.state.showLabels[this.class]);
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
             copyCoords(this.labels[labelKey].position, position);

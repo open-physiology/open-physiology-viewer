@@ -1339,9 +1339,6 @@ export class SettingsPanel {
       // Hide all groups
       this.hideVisibleGroups();
 
-      // FIXME : uNTOGGLE GROUPS
-      this.onToggleGroup.emit(group);
-
       this.scaffolds.forEach((scaffold) => {
         if (scaffold.hidden !== true) {
           this.onToggleGroup.emit(scaffold);
@@ -1387,7 +1384,7 @@ export class SettingsPanel {
         neuronTriplets, 
         this.activeNeurulatedComponents
       );
-      this.onToggleNeurulatedGroup.emit();
+      // this.onToggleNeurulatedGroup.emit();
       let that = this;
       window.addEventListener("doneUpdating",
         () => {
