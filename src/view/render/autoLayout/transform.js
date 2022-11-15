@@ -1,4 +1,8 @@
-import { getCenterPoint, setMeshPos, computeGroupCenter } from "./objects";
+import { getCenterPoint, setMeshPos, computeGroupCenter, getBoundingBoxSize } from "./objects";
+import {  MIN_LYPH_WIDTH, DIMENSIONS } from "./../autoLayout";
+import {
+  copyCoords,
+} from "./../../utils";
 
 export function translateGroupToOrigin(group) {
   const groupPos  = computeGroupCenter(group);
@@ -29,4 +33,24 @@ export function translateGroupToTarget(target, group) {
   group.translateX(targetPos.x - groupPos.x) ; //- ( objSize.x * 0.5 * 0 );
   group.translateY(targetPos.y - groupPos.y) ; //- ( objSize.y * 0.5 * 0);
   group.translateZ(3) ; 
+}
+
+export function setLyphPosition(lyph, host, position) {
+  lyph.position.x = position.x ;
+  lyph.position.y = position.y ;
+  lyph.position.z = DIMENSIONS.SHAPE_MIN_Z;
+
+  if ( host ) {
+    rotateAroundCenter(lyph, host.rotation.x, host.rotation.y, host.rotation.z);
+  }
+
+  const lyphDim = getBoundingBoxSize(lyph);
+  const lyphMin = Math.min(lyphDim.x, lyphDim.y);
+
+  if ( lyphMin < MIN_LYPH_WIDTH ){
+      lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
+      lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
+      lyph.scale.setZ(DIMENSIONS.SHAPE_MIN_Z); 
+  }
+  copyCoords(lyph?.userData, position);
 }
