@@ -785,6 +785,7 @@ export const assignEntityByID = (res, entitiesByID, namespace, modelClasses) => 
  * When a new resource definition is found or created, all resources that referenced this resource by ID get the
  * corresponding object reference instead
  * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
+ * @param context - resource that will replace identifier references to it in the waiting list
  */
 export const reviseWaitingList = (waitingList, context) => {
     let res = context;

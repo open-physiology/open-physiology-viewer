@@ -39,6 +39,7 @@ import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
 import * as XLSX from "xlsx";
 import {v4 as uuidv4} from 'uuid';
+import {expect} from "../../test/test.helper";
 //Do not include modelClasses here, it creates circular dependency
 
 export { schema };
@@ -366,6 +367,8 @@ export class Graph extends Group{
             //res.createForceLinks();
             res.scaleFactor = 1;
         }
+
+        res.groups?.forEach(g => g.markImported());
 
         res.generated = true;
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);

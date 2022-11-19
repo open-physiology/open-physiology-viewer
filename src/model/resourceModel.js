@@ -44,6 +44,7 @@ import {logger, $LogMsg} from './logger';
  * @property {Array<Reference>} references
  * @property {Array<OntologyTerm>} ontologyTerms
  * @property {Array<External>} external
+ * @property {boolean} imported
  */
 export class Resource{
     constructor(id, clsName) {
@@ -76,7 +77,7 @@ export class Resource{
             .filter(x => !["_inactive"].includes(x));
 
         if (difference.length > 0) {
-            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, json, difference.join(","));
+            logger.warn($LogMsg.RESOURCE_IGNORE_FIELDS, this.name, difference.join(","));
         }
 
         json.namespace = getRefNamespace(json, namespace);

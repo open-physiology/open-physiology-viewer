@@ -163,10 +163,6 @@
           "description": "Scaffold identifier",
           "$ref": "#/definitions/IdentifierScheme"
         },
-        "hidden": {
-          "description": "Scaffold visibility status",
-          "type": "boolean"
-        },
         "annotation": {
           "description": "Annotation for the saved scaffold, e.g., version, author, etc.",
           "$ref": "#/definitions/AnnotationSchema"
@@ -845,7 +841,7 @@
           "advanced": true
         },
         "hidden": {
-          "description": "A boolean flag to indicate that this group is hidden",
+          "description": "A property that indicates whether this group is hidden",
           "type": "boolean",
           "default": true
         },
@@ -2289,10 +2285,14 @@
           "type": "string",
           "advanced": true
         },
-                "generated": {
+        "generated": {
           "description": "A boolean flag to mark automatically generated resources",
           "type": "boolean",
           "readOnly": true
+        },
+        "imported": {
+          "description": "A property that indicates whether this group is imported",
+          "type": "boolean"
         },
         "assign": {
           "description": "Dynamically assign properties to selected resources",
