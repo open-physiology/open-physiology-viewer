@@ -18,7 +18,8 @@ import {
     prepareForExport,
     schemaClassModels,
     refToResource,
-    collectNestedResources, deleteRecursively
+    collectNestedResources,
+    deleteRecursively
 } from "./utils";
 import {extractLocalConventions, extractModelAnnotation,
     convertValue, validateValue, replaceReferencesToExternal} from './utilsParser';
@@ -127,6 +128,12 @@ export class Scaffold extends Component {
 
              (res.components || []).forEach(component => component.includeRelated && component.includeRelated());
              res.generated = true;
+         }
+
+         if (res.imported){
+             res.markImported();
+         } else {
+             res.components?.forEach(g => g.markImported());
          }
 
         //Log info about the number of generated resources

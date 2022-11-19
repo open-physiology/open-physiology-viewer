@@ -22,6 +22,7 @@ import {
     mergeRecursively
 } from './utils';
 import {logger, $LogMsg} from './logger';
+import {expect} from "../../test/test.helper";
 
 /**
  * Group (subgraph) in the connectivity model
@@ -347,6 +348,21 @@ export class Group extends Resource {
 
     static embedChainsToHousingLyphs(json, modelClasses){
        (json.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
+    }
+
+    markImported(){
+        if (this.imported) {
+            let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames();
+            relFieldNames.forEach(prop => {
+                if (this[prop]::isArray()) {
+                    this[prop]?.forEach(r => r.imported = true)
+                } else {
+                    if (this[prop]::isObject()){
+                        this[prop].imported = true;
+                    }
+                }
+            });
+        }
     }
 
     /**

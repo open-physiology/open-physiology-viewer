@@ -215,6 +215,7 @@ export function processImports(inputModel, importedModels){
     inputModel.scaffolds = inputModel.scaffolds || [];
     inputModel.groups = inputModel.groups || [];
     scaffolds.forEach(newModel => {
+        newModel.imported = true;
         const scaffoldIdx = inputModel.scaffolds.findIndex(s => s.id === newModel.id);
         if (scaffoldIdx === -1) {
             inputModel.scaffolds.push(newModel);
@@ -223,6 +224,7 @@ export function processImports(inputModel, importedModels){
         }
     });
     groups.forEach(newModel => {
+        newModel.imported = true;
         const groupIdx = inputModel.groups.findIndex(s => s.id === newModel.id);
         if (groupIdx === -1) {
             inputModel.groups.push(newModel);

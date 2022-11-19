@@ -1,4 +1,3 @@
-global.XMLHttpRequest = require('xhr2');
 require('@babel/polyfill');
 require('reflect-metadata');
 require('zone.js/dist/zone');
@@ -16,6 +15,7 @@ const { document } = (new JSDOM(``, {
 const window = document.defaultView;
 window.console = global.console;
 
+global.XMLHttpRequest = require('xhr2');
 global.document = document;
 global.window = document.defaultView;
 global.HTMLElement = window.HTMLElement;

@@ -5,6 +5,7 @@ import {
     after,
     expect, expectNoErrors
 } from './test.helper';
+import {cloneDeep} from 'lodash-bound';
 
 import basalGanglia from './data/basalGanglia';
 import basalGangliaAuto from './data/basalGangliaAuto';
@@ -34,8 +35,16 @@ import uot from './data/uot';
 import wbkg from './data/wbkg.json';
 
 import {expectNoWarnings} from "./test.helper";
-import {modelClasses, generateFromJSON, joinModels} from '../src/model/index';
+import {
+    modelClasses,
+    generateFromJSON,
+    joinModels,
+    processImports,
+    schemaClassModels,
+    $SchemaClass
+} from '../src/model/index';
 import {$LogMsg, Logger} from "../src/model/logger";
+import {mergeWithImports} from "../src/model/modelClasses";
 
 describe("BasalGanglia", () => {
     let graphData;
@@ -341,8 +350,8 @@ describe("Basic+wbkg", () => {
 
     it("Joint model accumulates imports from both models", () => {
         expect(graphData).to.have.property("imports");
-        //3 + 1 - 1 as the TOO-map is in both models
-        expect(graphData.imports).to.be.an('array').that.has.length(3);
+        //4 + 1 - 1 as the TOO-map is in both models
+        expect(graphData.imports).to.be.an('array').that.has.length(4);
     });
 
     it("Chains join via a node in levelTargets", () => {
@@ -364,4 +373,47 @@ describe("Basic+wbkg", () => {
     after(() => {
         graphData.logger.clear();
     });
-})
+});
+
+describe("Basic+imports", () => {
+    let graphData;
+    let imported_models = [];
+    let model = basic::cloneDeep();
+    model.imports.length = 2;
+
+    before(() => {
+        return new Promise(async(resolve, reject) => {
+            model = await mergeWithImports(model);
+            resolve();
+        }).then(() => {
+            processImports(model, imported_models);
+            graphData = generateFromJSON(model, modelClasses);
+        })
+    });
+
+    it("Imported scaffold resources have property 'imported' set to true", () => {
+        let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();
+        let importedScaffold = graphData.scaffolds[0];
+        expect(importedScaffold).to.have.property("imported");
+        relFieldNames.forEach(prop => {
+            importedScaffold[prop]?.forEach(r => {
+                expect(r).to.have.property("imported").that.equals(true);
+            });
+        });
+    });
+
+    it("Imported group resources have property 'imported' set to true", () => {
+        let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames();
+        let importedGroup = graphData.groups.find(g => g.id === "WBKG1");
+        expect(importedGroup).to.have.property("imported");
+        relFieldNames.forEach(prop => {
+            importedGroup[prop]?.forEach(r => {
+                expect(r).to.have.property("imported").that.equals(true);
+            });
+        });
+    });
+
+    after(() => {
+        graphData.logger.clear();
+    });
+});
