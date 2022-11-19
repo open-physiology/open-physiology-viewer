@@ -1,5 +1,5 @@
 import { Group } from './groupModel';
-import { Resource, External } from "./resourceModel";
+import { Resource, External, Reference } from "./resourceModel";
 //import {EDGE_STROKE} from "./utils";
 import {
     entries, keys, values,
@@ -656,7 +656,8 @@ export class Graph extends Group{
             obj.class === "OntologyTerm" ?
                 obj["@type"] = "owl:Class" :
                 obj["@type"] = "owl:NamedIndividual" ;
-            if (obj.class === "OntologyTerm") { delete obj['generated'] }
+            if (["External", "OntologyTerm", "Reference"].includes(obj.class)) { delete obj['generated'] } // FIXME why does instanceof fail here ...
+            if (obj.class === "Reference" && obj.namespace !== alsothis.namespace) { delete obj['uri'] }
             delete obj['border']; // FIXME XXX weird circular brokeness when trying to serialize scaffolds when there is a 'host' property
             delete obj['id'];  // sigh
             delete obj['namespace'];  // sigh
@@ -680,13 +681,18 @@ export class Graph extends Group{
 
         let alsothis = this;
         function ns (obj) {
-            return  !(obj instanceof Resource) || (obj instanceof External
-                                                   && ( Object.hasOwn(obj, 'annotates') ?
-                                                        obj.annotates.filter(a =>
-                                                            a.namespace === alsothis.namespace &&
-                                                                a.id !== alsothis.id).length !== 0
-                                                        : false )
-                                                  ) || alsothis.namespace === obj.namespace;
+            return  !(obj instanceof Resource) ||
+                (obj instanceof External
+                 && ( Object.hasOwn(obj, 'annotates') ?
+                      obj.annotates.filter(a =>
+                          a.namespace === alsothis.namespace &&
+                              a.id !== alsothis.id).length !== 0
+                      : false )) ||
+                (obj instanceof Reference
+                 && (obj.namespace === alsothis.namespace ||
+                     // FIXME evil hardcoded hack to deal with import issues
+                     obj.namespace !== "wbkg")) ||
+                alsothis.namespace === obj.namespace;
         }
 
         (this.entitiesByID||{})::values()
