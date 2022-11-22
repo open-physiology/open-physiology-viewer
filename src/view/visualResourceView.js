@@ -59,7 +59,7 @@ VisualResource.prototype.createViewObjects = function(state) {
 /**
  * Update visual object for abstract visual resource
  */
-VisualResource.prototype.updateViewObjects = function(state) {
+VisualResource.prototype.updateViewObjects = function(state) {   
     const labelKey = state.labels[this.constructor.name];
     if (!this.viewObjects["main"] || (!this.skipLabel && !this.labels[labelKey] && this[labelKey])) {
         this.createViewObjects(state);

@@ -18,7 +18,9 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, handleNeurulatedGroup, toggleScaffoldsNeuroview, toggleGroupLyphsView } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, handleNeurulatedGroup, toggleScaffoldsNeuroview, toggleGroupLyphsView, getHouseLyph } from "../view/render/neuroView";
+import { getWorldPosition } from "./../view/render/autoLayout/objects";
+import { pointAlongLine } from "./../view/render/autoLayout";
 
 /**
  * @ignore
@@ -1320,7 +1322,14 @@ export class SettingsPanel {
   hideVisibleGroups = () => {
     // Hide all visible
     let allVisible = this.dynamicGroups.filter((g) => g.hidden == false);
-    // allVisible = allVisible.concat(this.activeNeurulatedComponents.groups);
+    allVisible.forEach((g) => {
+      g.lyphs.forEach((lyph) => {
+        lyph.hidden = true;
+      });
+      this.onToggleGroup.emit(g);
+    });
+
+    allVisible = this.groups.filter((g) => g.hidden == false);
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
@@ -1331,66 +1340,90 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      // event.checked ? this.toggleNeuroView(false) : this.toggleNeuroView(true);
-      this.activeNeurulatedComponents?.components?.forEach(
-        (component) => (component.inactive = false)
-      );
-
-      // Hide all groups
-      this.hideVisibleGroups();
-
-      this.scaffolds.forEach((scaffold) => {
-        if (scaffold.hidden !== true) {
-          this.onToggleGroup.emit(scaffold);
-        }
-      });
+      this.activeNeurulatedComponents?.components?.forEach( component => component.inactive = false );
 
       this.activeNeurulatedComponents = { groups: [], components: [] };
+      this.toggleNeuroView(false);
 
       // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
       console.log("Neurons for group : ", group);
       let neuronTriplets = buildNeurulatedTriplets(group);
       console.log("Triplets : ", neuronTriplets);
       handleNeurulatedGroup(event.checked, group, neuronTriplets);
-      if (event.checked) {
-        // Step 5 :Identify TOO Map components and turn them ON
-        // Step 6 : Turn ON wire and regions that anchor group elements that are neuron segments
-        const matchScaffolds = toggleScaffoldsNeuroview(
-          this.scaffolds,
-          this.activeNeurulatedComponents,
-          neuronTriplets,
-          event.checked
-        );
-          matchScaffolds?.forEach(
-            (scaffold) => {
-              scaffold.hidden !== false && this.onToggleGroup.emit(scaffold);
-              neuronTriplets.r.forEach( r => {
-                let region = scaffold.regions?.find( reg => reg.fullID == r.fullID )
-                region ? region.inactive = !event.checked : null;
-              });
-              neuronTriplets.w.forEach ( w => {
-                let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID );
-                scaffoldMatch ? scaffoldMatch.inactive = !event.checked : null;
-              });
-            }
-          );
-      }
 
+      // Step 5 :Identify TOO Map components and turn them ON/OFF
+      const matchScaffolds = toggleScaffoldsNeuroview(
+        this.scaffolds,
+        this.activeNeurulatedComponents,
+        neuronTriplets,
+        event.checked
+      );
+      matchScaffolds?.forEach((scaffold) => {
+        scaffold.hidden !== !event.checked && this.onToggleGroup.emit(scaffold);
+        neuronTriplets.r.forEach((r) => {
+          let region = scaffold.regions?.find((reg) => reg.fullID == r.fullID);
+          region ? (region.inactive = !event.checked) : null;
+        });
+        neuronTriplets.w.forEach((w) => {
+          let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID );
+          scaffoldMatch ? (scaffoldMatch.inactive = !event.checked) : null;
+        });
+      });
+
+      let linksmap = {};
+      neuronTriplets.links.forEach((l) => {
+        if ( linksmap[l.source?.id] == undefined ) linksmap[l.source?.id] = [l];
+        if ( linksmap[l.target?.id] == undefined ) linksmap[l.target?.id] = [l];
+    
+        linksmap[l.target?.id].includes(l) ? null : linksmap[l.target?.id].push(l);
+        linksmap[l.source?.id].includes(l) ? null : linksmap[l.source?.id].push(l);
+
+      });
+
+      neuronTriplets.links.forEach((l) => {
+        console.log("### Link : ", l.id);
+        //if ( l.source.inactive == true && !l.source?.internalIn && !l.source?.hostedBy && !l.source?.anchoredTo){
+          linksmap[l.source?.id].forEach( link => {
+            let matchTargetLyph = getHouseLyph(link.target);
+            let matchSourceLyph = getHouseLyph(link.source);
+
+            console.log("-- S: targetHousingLyph ", matchTargetLyph);
+            console.log("-- S: matchSourceLyph ", matchSourceLyph);
+          })
+        //}
+
+        //if ( l.target.inactive == true && !l.target?.internalIn && !l.target?.hostedBy && !l.target?.anchoredTo){
+          linksmap[l.target?.id].forEach( ll => {
+            let matchTargetLyph = getHouseLyph(ll.target);
+            let matchSourceLyph = getHouseLyph(ll.source);
+
+            console.log("-- T: targetHousingLyph ", matchTargetLyph);
+            console.log("-- T: matchSourceLyph ", matchSourceLyph);
+          })
+        //}
+
+        let matchTargetLyph = getHouseLyph(l.target);
+        let matchSourceLyph = getHouseLyph(l.source);
+
+        if ( matchTargetLyph == undefined && matchSourceLyph == undefined ){
+          l.inactive = true;
+          if (l.viewObjects["main"]) { l.viewObjects["main"].visible = false; }
+        }
+      });
+
+      console.log("Linksmap ", linksmap);
+    
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
       toggleGroupLyphsView(
         event,
         this.graphData,
-        neuronTriplets, 
+        neuronTriplets,
         this.activeNeurulatedComponents
       );
-      // this.onToggleNeurulatedGroup.emit();
-      let that = this;
-      window.addEventListener("doneUpdating",
-        () => {
-          autoLayoutNeuron(neuronTriplets);
-        }
-      );
+      
+      
+      window.addEventListener("doneUpdating", () => autoLayoutNeuron(neuronTriplets));
     } else {
       this.onToggleGroup.emit(group);
     }
