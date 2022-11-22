@@ -23,7 +23,7 @@ import { rotateAroundCenter
 export const LYPH_H_PERCENT_MARGIN = 0.10;
 export const LYPH_V_PERCENT_MARGIN = 0.10;
 export const MAX_LYPH_WIDTH = 100;
-export const MIN_LYPH_WIDTH = 100;
+export const MIN_LYPH_WIDTH = 50;
 export const MIN_INNER_LYPH_WIDTH = 50;
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
@@ -500,10 +500,13 @@ export function autoLayout(scene, graphData) {
       });
     }
   });
-  
-  //FIXME : Fix chians with nodes
-  //autoLayoutChains(scene, graphData, links);
-  //links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
+}
+
+export function pointAlongLine(pointA, pointB, percentage) {
+  let dir = pointB.clone().sub(pointA);
+  let len = dir.length();
+  dir = dir.normalize().multiplyScalar(len * percentage);
+  return pointA.clone().add(dir);
 }
 
 export const DIMENSIONS =  {

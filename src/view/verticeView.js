@@ -74,13 +74,13 @@ Node.prototype.updateViewObjects = function(state) {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
         }
-        if (this.hostedBy) {
+        else if (this.hostedBy) {
             copyCoords(this, this.hostedBy);
         }
-        if (this.controlNodes) {
+        else if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
-        if ( this.internalIn ) {
+        else if ( this.internalIn ) {
             let housingLyph = this.internalIn;
             while( housingLyph.internalIn || housingLyph.layerIn ){
                 housingLyph = housingLyph.internalIn || housingLyph.layerIn;
@@ -88,17 +88,14 @@ Node.prototype.updateViewObjects = function(state) {
             if ( housingLyph?.viewObjects["main"] ) {
                 const hostMeshPosition = getWorldPosition(housingLyph?.viewObjects["main"]);
                 if ( this.viewObjects["main"] ) {
-                    this.viewObjects["main"].position.x  = hostMeshPosition.x;
-                    this.viewObjects["main"].position.y = hostMeshPosition.y;
-                    this.viewObjects["main"].position.z = hostMeshPosition.z;
-                    copyCoords(this, housingLyph);
+                    copyCoords(this, hostMeshPosition);
                 }
             } else {
                 copyCoords(this, housingLyph);
             }
         }
     }
-    Vertice.prototype.updateViewObjects.call(this, state);
+    state && Vertice.prototype.updateViewObjects.call(this, state);
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
