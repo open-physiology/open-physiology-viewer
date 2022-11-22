@@ -22,7 +22,6 @@ import {
     mergeRecursively
 } from './utils';
 import {logger, $LogMsg} from './logger';
-import {expect} from "../../test/test.helper";
 
 /**
  * Group (subgraph) in the connectivity model
