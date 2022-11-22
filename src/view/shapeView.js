@@ -14,7 +14,7 @@ import {
     isInRange,
     THREE
 } from "./utils";
-import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, MIN_LYPH_WIDTH, DIMENSIONS } from "./render/autoLayout";
+import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, pointAlongLine, DIMENSIONS } from "./render/autoLayout";
 import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
 import { setLyphPosition } from "./render/autoLayout/transform";
 
@@ -150,7 +150,6 @@ Lyph.prototype.autoSize = function(){
         let hostMesh = this.hostedBy?.viewObjects["main"];
         let lyph = this.viewObjects["main"];
         const lyphDim = getBoundingBoxSize(lyph);
-        const lyphMin = Math.min(lyphDim.x, lyphDim.y);
 
         if ( hostMesh ) {
             fitToTargetRegion(hostMesh, lyph, false); 
@@ -183,20 +182,22 @@ Lyph.prototype.autoSize = function(){
 
                 let position = this.wiredTo.center;
                 if ( wiredLyphs.length > 1 ){
-                    const match_index = Math.floor(( (index + 1) / (wiredLyphs.length + 1)) * this.wiredTo?.points.length)
-                    position = this.wiredTo?.points[match_index];
+                    const pointA = this.wiredTo?.points[0];
+                    const pointB = this.wiredTo?.points[this.wiredTo?.points.length - 1];
+                    position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
                 }
                 setLyphPosition(lyph, wiredTo, position);
                 wiredLyphs?.forEach( wL => wL.hostedLyphs?.forEach ( hL => fitToTargetRegion(wL.viewObjects["main"], hL.viewObjects["main"], false)));
 
-            } else {
+            }
+             else {
                 const min = -250, max = 250;
                 let position =  new THREE.Vector3( Math.floor(Math.random() * (max - min + 1)) + min, Math.floor(Math.random() * (max - min + 1)) + min, DIMENSIONS.SHAPE_MIN_Z);
-                console.log("Flying Lyph ", lyph);
                 setLyphPosition(lyph, null, position)
             }
         }
-        copyCoords(this, lyph.position);         
+        copyCoords(this, lyph.position);  
+        this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
     }
 };
 

@@ -157,7 +157,7 @@ Link.prototype.getCurve = function(start, end){
  * Update visual objects for a link
  */
 Link.prototype.updateViewObjects = function(state) {
-    Edge.prototype.updateViewObjects.call(this, state);
+    state && Edge.prototype.updateViewObjects.call(this, state);
 
     const obj = this.viewObjects["main"];
 
@@ -195,10 +195,10 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
+    // this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
 
     if (this.conveyingLyph){
-        this.conveyingLyph.updateViewObjects(state);
+        state && this.conveyingLyph.updateViewObjects(state);
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
