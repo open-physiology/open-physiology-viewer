@@ -241,8 +241,7 @@ Link.prototype.updateViewObjects = function(state) {
                     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     obj.geometry.attributes.position.needsUpdate = true;
                     obj.position.z = DIMENSIONS.EDGE_MIN_Z;
-                    obj.material.lineWidth = DIMENSIONS.EDGE_MIN_Z;
-                    this.stroke === Link.EDGE_STROKE.THICK;
+                    obj.material.lineWidth = DIMENSIONS.EDGE_MIN_Z * 2;
                     obj.geometry.verticesNeedUpdate = true;
                     obj.computeLineDistances();
                     obj.geometry.computeBoundingBox();
