@@ -16,7 +16,7 @@ import {
 } from "./utils";
 import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, pointAlongLine, DIMENSIONS } from "./render/autoLayout";
 import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
-import { setLyphPosition } from "./render/autoLayout/transform";
+import { setLyphPosition, setLyphScale } from "./render/autoLayout/transform";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -186,13 +186,18 @@ Lyph.prototype.autoSize = function(){
                     const pointB = this.wiredTo?.points[this.wiredTo?.points.length - 1];
                     position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
                 }
+                setLyphScale(lyph);
                 setLyphPosition(lyph, wiredTo, position);
+                const lyphDim = getBoundingBoxSize(lyph);
+                const refHeight  = lyphDim.y * lyph.scale.y;
+                lyph.position.y = lyph.position.y + refHeight/3;
                 wiredLyphs?.forEach( wL => wL.hostedLyphs?.forEach ( hL => fitToTargetRegion(wL.viewObjects["main"], hL.viewObjects["main"], false)));
 
             }
              else {
                 const min = -250, max = 250;
                 let position =  new THREE.Vector3( Math.floor(Math.random() * (max - min + 1)) + min, Math.floor(Math.random() * (max - min + 1)) + min, DIMENSIONS.SHAPE_MIN_Z);
+                setLyphScale(lyph);
                 setLyphPosition(lyph, null, position)
             }
         }
