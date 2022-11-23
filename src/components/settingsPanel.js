@@ -210,7 +210,7 @@ const COLORS = {
                   (click)="clearTreeSearch(filter, tree)"
                 />
               </div>
-              <button mat-raised-button (click)="toggleAllDynamicGroup()">
+              <button mat-raised-button [disabled]="neuroViewEnabled" (click)="toggleAllDynamicGroup()">
                 Toggle all
               </button>
             </div>
@@ -1359,61 +1359,11 @@ export class SettingsPanel {
         neuronTriplets,
         event.checked
       );
+
       matchScaffolds?.forEach((scaffold) => {
-        scaffold.hidden !== !event.checked && this.onToggleGroup.emit(scaffold);
-        neuronTriplets.r.forEach((r) => {
-          let region = scaffold.regions?.find((reg) => reg.fullID == r.fullID);
-          region ? (region.inactive = !event.checked) : null;
-        });
-        neuronTriplets.w.forEach((w) => {
-          let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID );
-          scaffoldMatch ? (scaffoldMatch.inactive = !event.checked) : null;
-        });
+        this.onToggleGroup.emit(scaffold);
       });
 
-      let linksmap = {};
-      neuronTriplets.links.forEach((l) => {
-        if ( linksmap[l.source?.id] == undefined ) linksmap[l.source?.id] = [l];
-        if ( linksmap[l.target?.id] == undefined ) linksmap[l.target?.id] = [l];
-    
-        linksmap[l.target?.id].includes(l) ? null : linksmap[l.target?.id].push(l);
-        linksmap[l.source?.id].includes(l) ? null : linksmap[l.source?.id].push(l);
-
-      });
-
-      neuronTriplets.links.forEach((l) => {
-        console.log("### Link : ", l.id);
-        //if ( l.source.inactive == true && !l.source?.internalIn && !l.source?.hostedBy && !l.source?.anchoredTo){
-          linksmap[l.source?.id].forEach( link => {
-            let matchTargetLyph = getHouseLyph(link.target);
-            let matchSourceLyph = getHouseLyph(link.source);
-
-            console.log("-- S: targetHousingLyph ", matchTargetLyph);
-            console.log("-- S: matchSourceLyph ", matchSourceLyph);
-          })
-        //}
-
-        //if ( l.target.inactive == true && !l.target?.internalIn && !l.target?.hostedBy && !l.target?.anchoredTo){
-          linksmap[l.target?.id].forEach( ll => {
-            let matchTargetLyph = getHouseLyph(ll.target);
-            let matchSourceLyph = getHouseLyph(ll.source);
-
-            console.log("-- T: targetHousingLyph ", matchTargetLyph);
-            console.log("-- T: matchSourceLyph ", matchSourceLyph);
-          })
-        //}
-
-        let matchTargetLyph = getHouseLyph(l.target);
-        let matchSourceLyph = getHouseLyph(l.source);
-
-        if ( matchTargetLyph == undefined && matchSourceLyph == undefined ){
-          l.inactive = true;
-          if (l.viewObjects["main"]) { l.viewObjects["main"].visible = false; }
-        }
-      });
-
-      console.log("Linksmap ", linksmap);
-    
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
       toggleGroupLyphsView(
@@ -1422,9 +1372,8 @@ export class SettingsPanel {
         neuronTriplets,
         this.activeNeurulatedComponents
       );
-      
-      
-      window.addEventListener("doneUpdating", () => autoLayoutNeuron(neuronTriplets));
+
+      window.addEventListener("doneUpdating", () => autoLayoutNeuron(event.checked,neuronTriplets));
     } else {
       this.onToggleGroup.emit(group);
     }

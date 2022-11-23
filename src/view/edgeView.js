@@ -195,8 +195,6 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    // this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
-
     if (this.conveyingLyph){
         state && this.conveyingLyph.updateViewObjects(state);
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
@@ -234,13 +232,19 @@ Link.prototype.updateViewObjects = function(state) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();
+                obj.geometry.computeBoundingBox();
+                obj.geometry.computeBoundingSphere();
+                copyCoords(this, obj.position);
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
                     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.y = DIMENSIONS.EDGE_MIN_Z;
+                    obj.position.z = DIMENSIONS.EDGE_MIN_Z;
                     obj.material.lineWidth = DIMENSIONS.EDGE_MIN_Z;
+                    this.stroke === Link.EDGE_STROKE.THICK;
+                    obj.geometry.verticesNeedUpdate = true;
+                    obj.computeLineDistances();
                     obj.geometry.computeBoundingBox();
                     obj.geometry.computeBoundingSphere();
                     copyCoords(this, obj.position);
@@ -249,6 +253,7 @@ Link.prototype.updateViewObjects = function(state) {
         }
 
         obj.visible = !this.inactive;
+        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
     }
 };
 

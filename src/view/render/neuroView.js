@@ -1,5 +1,9 @@
 import {flatten } from "lodash-bound";
 import { autoSizeLyph, pointAlongLine } from "./autoLayout"
+import {$Field, modelClasses} from "../../model";
+const {Edge} = modelClasses;
+
+import {copyCoords} from "./../utils";
 import { getWorldPosition } from "./autoLayout/objects";
 
 /**
@@ -166,14 +170,34 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, activeNeurulatedCompon
         ))
   );
 
-  return scaffolds;
+  let modifiedScaffolds = [];
+  scaffolds?.forEach((scaffold) => {
+    scaffold.hidden !== !checked && modifiedScaffolds.push(scaffold);
+    scaffold.wires?.forEach( w => w.inactive = checked );
+    scaffold.anchors?.forEach( w => w.inactive = checked );
+
+    neuronTriplets.r.forEach((r) => {
+      let region = scaffold.regions?.find((reg) => reg.fullID == r.fullID);
+      region ? (region.inactive = !checked) : null;
+    });
+    neuronTriplets.w.forEach((w) => {
+      let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID );
+      if ( scaffoldMatch ) {
+        scaffoldMatch.inactive = !checked;
+        scaffoldMatch.source.inactive = !checked;
+        scaffoldMatch.target.inactive = !checked;
+      }
+    });
+  });
+
+  return modifiedScaffolds;
 }
 
 /**
  * 
  * @param {*} neuronTriplets 
  */
-export function autoLayoutNeuron(neuronTriplets) {
+export function autoLayoutNeuron(checked, neuronTriplets) {
   neuronTriplets.y.forEach((m) => {
     if (m.viewObjects["main"] &&  m?.hostedBy?.class !== "Lyph") {
         autoSizeLyph(m.viewObjects["main"]);
@@ -186,6 +210,8 @@ export function autoLayoutNeuron(neuronTriplets) {
         m.autoSize();
     }
   });
+
+  linksUpdate(checked, neuronTriplets);      
 }
 
 /**
@@ -204,7 +230,7 @@ export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNe
     );
     matches.push(match);
     if (match) {
-      match.inactive = !event.checked;
+      event.checked ? match.inactive = !event.checked : null;
       const groupMatched = graphData.groups.find((group) =>
         group.lyphs.find((lyph) => lyph.id === match.id)
       );
@@ -262,4 +288,43 @@ export function getHouseLyph(lyph) {
   }
 
   return housingLyph;
+}
+
+export function linksUpdate(checked, neuronTriplets) {
+  let linksmap = {};
+      neuronTriplets.links.forEach((l) => {
+        if ( linksmap[l.source?.id] == undefined ) linksmap[l.source?.id] = [l];
+        if ( linksmap[l.target?.id] == undefined ) linksmap[l.target?.id] = [l];
+    
+        linksmap[l.target?.id].includes(l) ? null : linksmap[l.target?.id].push(l);
+        linksmap[l.source?.id].includes(l) ? null : linksmap[l.source?.id].push(l);
+
+      });
+
+      neuronTriplets.links.forEach((l) => {
+        let matchTargetLyph,matchSourceLyph;
+        linksmap[l.source?.id].forEach((link) => {
+          matchTargetLyph = getHouseLyph(link.target);
+          matchSourceLyph = getHouseLyph(link.source);
+        });
+
+        linksmap[l.target?.id].forEach((ll) => {
+          matchTargetLyph = matchTargetLyph || getHouseLyph(ll.target);
+          matchSourceLyph = matchSourceLyph || getHouseLyph(ll.source);
+        });
+
+        if (matchTargetLyph?.viewObjects["main"]) {
+          l.target.housingLyph = matchTargetLyph;
+        }
+
+        if (matchSourceLyph?.viewObjects["main"] ) {
+          l.source.housingLyph = matchSourceLyph;
+        }
+
+        if ( matchSourceLyph === undefined || matchTargetLyph == undefined ){
+          l.inactive = checked;
+          l.source.inactive = checked;
+          l.target.inactive = checked;
+        }
+      });
 }

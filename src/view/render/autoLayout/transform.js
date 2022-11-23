@@ -44,6 +44,10 @@ export function setLyphPosition(lyph, host, position) {
     rotateAroundCenter(lyph, host.rotation.x, host.rotation.y, host.rotation.z);
   }
 
+  copyCoords(lyph?.userData, position);
+}
+
+export function setLyphScale(lyph) {
   const lyphDim = getBoundingBoxSize(lyph);
   const lyphMin = Math.min(lyphDim.x, lyphDim.y);
 
@@ -52,5 +56,4 @@ export function setLyphPosition(lyph, host, position) {
       lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
       lyph.scale.setZ(DIMENSIONS.SHAPE_MIN_Z); 
   }
-  copyCoords(lyph?.userData, position);
 }
