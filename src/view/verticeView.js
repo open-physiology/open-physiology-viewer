@@ -1,7 +1,8 @@
 import {copyCoords, extractCoords, getCenterOfMass, THREE} from "./utils";
 import {MaterialFactory} from "./materialFactory";
 import {modelClasses} from "../model";
-import { getMiddle, getWorldPosition } from "./render/autoLayout/objects";
+import { getHouseLyph } from "./render/neuroView";
+import { getWorldPosition } from "./render/autoLayout/objects";
 
 const {VisualResource, Vertice, Node, Anchor} = modelClasses;
 
@@ -51,8 +52,9 @@ Vertice.prototype.updateViewObjects = function(state) {
     if (!this.invisible) {
         copyCoords(this.viewObjects["main"].position, this);
         this.viewObjects["main"].visible = !this.inactive;
-        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
     }
+
+    this.viewObjects["main"] && this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
 };
 
 /**
@@ -74,25 +76,18 @@ Node.prototype.updateViewObjects = function(state) {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
         }
-        else if (this.hostedBy) {
-            copyCoords(this, this.hostedBy);
-        }
+        
         else if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
         else if ( this.internalIn ) {
-            let housingLyph = this.internalIn;
-            while( housingLyph.internalIn || housingLyph.layerIn ){
-                housingLyph = housingLyph.internalIn || housingLyph.layerIn;
-            }
-            if ( housingLyph?.viewObjects["main"] ) {
-                const hostMeshPosition = getWorldPosition(housingLyph?.viewObjects["main"]);
-                if ( this.viewObjects["main"] ) {
-                    copyCoords(this, hostMeshPosition);
-                }
-            } else {
-                copyCoords(this, housingLyph);
-            }
+            copyCoords(this, this.internalIn);
+        }
+        else if (this.housingLyph) {
+            copyCoords(this, this.housingLyph);
+        }
+        else if (this.hostedBy) {
+            copyCoords(this, this.hostedBy);
         }
     }
     state && Vertice.prototype.updateViewObjects.call(this, state);
