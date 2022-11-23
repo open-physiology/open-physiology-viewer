@@ -681,6 +681,7 @@ export class Graph extends Group {
             delete obj['namespace'];  // sigh
             delete obj['localConventions']; // sigh
             // cosmetics that are just noise
+            delete obj['imported'];
             delete obj['length'];
             delete obj['width'];
             delete obj['height'];
@@ -698,7 +699,7 @@ export class Graph extends Group {
         }
 
         let alsothis = this;
-        function ns (obj) {
+        function include_in_export (obj) {
             return  !(obj instanceof Resource) ||
                 (obj instanceof External
                  && ( Object.hasOwn(obj, 'annotates') ?
@@ -715,7 +716,7 @@ export class Graph extends Group {
 
         (this.entitiesByID||{})::values()
             .forEach(obj =>
-                ns(obj) ? // so you can use the ternary operator but not an if statement ... sigh
+                include_in_export(obj) ? // so you can use the ternary operator but not an if statement ... sigh
                     res["@graph"].push(
                         (obj instanceof Resource) ? addType(obj.toJSON()) :
                             (obj instanceof Object) ? null : obj // avoid including stray objects
