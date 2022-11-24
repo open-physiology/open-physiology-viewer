@@ -303,6 +303,8 @@ export function linksUpdate(checked, neuronTriplets) {
 
       neuronTriplets.links.forEach((l) => {
         let matchTargetLyph,matchSourceLyph;
+        console.log("L: ", l.id)
+
         linksmap[l.source?.id].forEach((link) => {
           matchTargetLyph = getHouseLyph(link.target);
           matchSourceLyph = getHouseLyph(link.source);
@@ -312,6 +314,10 @@ export function linksUpdate(checked, neuronTriplets) {
           matchTargetLyph = matchTargetLyph || getHouseLyph(ll.target);
           matchSourceLyph = matchSourceLyph || getHouseLyph(ll.source);
         });
+
+        console.log("-- matchTargetLyph ", matchTargetLyph?.id)
+        console.log("-- matchSourceLyph ", matchSourceLyph?.id)
+
 
         if (matchTargetLyph?.viewObjects["main"]) {
           l.target.housingLyph = matchTargetLyph;
@@ -327,4 +333,6 @@ export function linksUpdate(checked, neuronTriplets) {
           l.target.inactive = checked;
         }
       });
+
+      console.log("Linksmap ", linksmap)
 }
