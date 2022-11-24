@@ -81,7 +81,8 @@ Node.prototype.updateViewObjects = function(state) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
         else if ( this.internalIn ) {
-            copyCoords(this, this.internalIn);
+            let housingLyph = getHouseLyph(this.internalIn);
+            copyCoords(this, housingLyph);
         }
         else if (this.housingLyph) {
             copyCoords(this, this.housingLyph);
