@@ -9,7 +9,7 @@ import {SearchBarModule} from './gui/searchBar';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
-import {$Field, $SchemaClass} from "../model";
+import {$Field, $SchemaClass, loadModel, processImports} from "../model";
 import {StopPropagation} from "./gui/stopPropagation";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatInputModule} from '@angular/material/input';
@@ -179,7 +179,6 @@ const COLORS = {
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
                 (change)="enableNeuroview($event, true)"
-                *ngIf="scaffolds && scaffolds.length > 0"
                 >Enable Neuroview</mat-checkbox
               >
             </div>
@@ -1175,6 +1174,8 @@ export class SettingsPanel {
   @Output() onToggleLayout = new EventEmitter();
   @Output() onToggleHelperPlane = new EventEmitter();
   @Output() onToggleNeurulatedGroup = new EventEmitter();
+  @Output() onLoadModel = new EventEmitter();
+  @Output() onImportExcelModel = new EventEmitter();
 
   constructor() {
     this._labelProps = [$Field.id, $Field.name];
