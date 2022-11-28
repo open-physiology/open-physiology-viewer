@@ -328,9 +328,35 @@ export class TestApp {
         this._flattenGroups = false;
     }
 
+    // Load the imports of a model
+    loadImports(modelURL) {
+        let that = this;
+        fetch(modelURL)
+        .then(res2 => res2.json())
+        .then(model => {
+            let snapshots = [model].filter(m => isSnapshot(m));
+            let groups = [model].filter(m => isGraph(m));
+            let scaffolds = [model].filter(m => isScaffold(m));
+
+            processImports(that._model, [model]);
+            if (groups.length > 0 || scaffolds.length > 0) {
+                that.model = that._model;
+            }
+            if (snapshots.length > 0){
+                that.loadSnapshot(snapshots[0]);
+                if (snapshots.length > 1){
+                    logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
+                }
+            }
+            model.imports?.length > 0 && that.loadImports(model.imports[0]);
+        });
+    }
+
     load(newModel) {
         this.model = newModel;
         this._flattenGroups = false;
+        // Load imports if model has any
+        newModel.imports[0] && this.loadImports(newModel.imports[0]);
     }
 
     importExternal(){
