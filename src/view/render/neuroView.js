@@ -98,6 +98,20 @@ function toggleNeurulatedLyph(lyph, checked, neuronMatches) {
   }
 }
 
+function traverseWires(component, checked){
+  if (component)  { 
+    component.inactive = !checked;
+    component.hidden = !checked;
+    let hostedWire = component.hostedBy;
+    if ( hostedWire ){
+      hostedWire.inactive = !checked;
+      hostedWire.hidden = !checked;
+      traverseWires(hostedWire.source, checked);
+      traverseWires(hostedWire.target, checked);
+    }
+  }
+}
+
 export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) {
   // Hides links and nodes we don't want to display
   groupMatched?.links?.forEach((link) => { 
@@ -181,12 +195,20 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, activeNeurulatedCompon
       region ? (region.inactive = !checked) : null;
     });
     neuronTriplets.w.forEach((w) => {
-      let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID );
+      let scaffoldMatch = scaffold.wires?.find( wire => wire.fullID == w.fullID);
       if ( scaffoldMatch ) {
         scaffoldMatch.inactive = !checked;
-        scaffoldMatch.source.inactive = !checked;
-        scaffoldMatch.target.inactive = !checked;
+        if (scaffoldMatch.source ) scaffoldMatch.source.inactive = !checked;
+        if (scaffoldMatch.target ) scaffoldMatch.target.inactive = !checked;
       }
+    });
+
+    // Looks for arcs making up the scaffold wires 
+    let scaffoldMatchs = scaffold.wires?.filter( wire => wire.geometry == "arc");
+    scaffoldMatchs.filter( scaffoldMatch => {
+      scaffoldMatch.inactive = !checked;
+      traverseWires(scaffoldMatch.source , checked)
+      traverseWires(scaffoldMatch.target , checked)
     });
   });
 
