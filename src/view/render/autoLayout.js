@@ -511,5 +511,6 @@ export function pointAlongLine(pointA, pointB, percentage) {
 
 export const DIMENSIONS =  {
   SHAPE_MIN_Z : 15,
-  EDGE_MIN_Z : 20
+  EDGE_MIN_Z : 20,
+  WIRE_MIN_Z : 10
 }

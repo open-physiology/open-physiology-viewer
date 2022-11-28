@@ -358,7 +358,7 @@ export class TestApp {
         this.model = newModel;
         this._flattenGroups = false;
         // Load imports if model has any
-        newModel.imports[0] && this.loadImports(newModel.imports[0]);
+        newModel.imports && this.loadImports(newModel.imports[0]);
     }
 
     importExternal(){
