@@ -14,12 +14,9 @@ export function rotateAroundCenter(target, rx, ry, rz) {
   if (target.geometry)
   {
     target.geometry.center();
-    target.rotation._x = rx;
-    target.rotation._y = ry;
-    target.rotation._z = rz;
-    target.quaternion._x = rx;
-    target.quaternion._y = ry;
-    target.quaternion._z = rz;
+    target.rotation.x = rx;
+    target.rotation.y = ry;
+    target.rotation.z = rz;
   }
 }
 

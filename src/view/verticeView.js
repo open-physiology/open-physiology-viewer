@@ -39,6 +39,9 @@ Vertice.prototype.createViewObjects = function(state) {
                 }
             }
         }
+        obj.geometry.verticesNeedUpdate = true;
+        obj.geometry.computeBoundingBox();
+        obj.geometry.computeBoundingSphere();
         this.viewObjects["main"] = obj;
     }
     this.createLabels();
@@ -50,6 +53,9 @@ Vertice.prototype.createViewObjects = function(state) {
 Vertice.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
     if (!this.invisible) {
+        this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+        this.viewObjects["main"].geometry.computeBoundingBox();
+        this.viewObjects["main"].geometry.computeBoundingSphere();
         copyCoords(this.viewObjects["main"].position, this);
         this.viewObjects["main"].visible = !this.inactive;
     }
@@ -83,12 +89,18 @@ Node.prototype.updateViewObjects = function(state) {
         else if ( this.internalIn ) {
             let housingLyph = getHouseLyph(this.internalIn);
             copyCoords(this, housingLyph);
+
+            this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+            this.viewObjects["main"].geometry.computeBoundingBox();
+            this.viewObjects["main"].geometry.computeBoundingSphere();
         }
         else if (this.housingLyph) {
-            copyCoords(this, this.housingLyph);
-        }
-        else if (this.hostedBy) {
-            copyCoords(this, this.hostedBy);
+            let housingLyph = getHouseLyph(this.housingLyph);
+            copyCoords(this, housingLyph);
+
+            this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+            this.viewObjects["main"].geometry.computeBoundingBox();
+            this.viewObjects["main"].geometry.computeBoundingSphere();
         }
     }
     state && Vertice.prototype.updateViewObjects.call(this, state);

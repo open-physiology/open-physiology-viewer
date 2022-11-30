@@ -38,7 +38,7 @@ VisualResource.prototype.updateLabels = function(position){
     if (this.skipLabel || !this.state.showLabels) { return; }
     const labelKey = this.state.labels[this.constructor.name];
     if (this.labels[labelKey]){
-        this.labels[labelKey].visible = ((this.hidden == false || this.inactive == false) && this.state.showLabels[this.class]);
+        this.labels[labelKey].visible = ((this.hidden == false || ( this.hidden != true &&  this.inactive == false)) && this.state.showLabels[this.class]);
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
             copyCoords(this.labels[labelKey].position, position);
