@@ -306,18 +306,15 @@ export default Kapsule({
         state.onFrame = layoutTick;
         state.onFinishLoading();
 
-        console.log("KAPSULE UPDATE")
         function layoutTick() {
           if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
               state.onFrame = null;
               const event = new CustomEvent('doneUpdating');
               window.dispatchEvent(event);
-              console.log("count ticks done")
           } else { layout['tick'](); }
 
           state.graphData.updateViewObjects(state);
-          console.log("Updated VIEW OBJECTS")
           const event2 = new CustomEvent('doneUpdating');
           window.dispatchEvent(event2);
           //autoLayout(state.graphScene, state.graphData);
