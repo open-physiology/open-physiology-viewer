@@ -159,7 +159,7 @@ Lyph.prototype.autoSize = function(){
 
             const hostMeshPosition = getWorldPosition(hostMesh);
             const refWidth  = lyphDim.x * lyph.scale.x;
-            const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN;
+            const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
             const matchIndex = this.hostedBy?.hostedLyphs?.indexOf(lyph.userData);
 
             let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* this.hostedBy?.hostedLyphs.length) * .5 );
