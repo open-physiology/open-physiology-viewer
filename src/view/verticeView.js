@@ -22,26 +22,6 @@ Vertice.prototype.createViewObjects = function(state) {
         let obj = new THREE.Mesh(geometry, material);
         // Attach vertice data
         obj.userData = this;
-        if ( this.internalIn ) {
-            let housingLyph = this.internalIn;
-            while( housingLyph.internalIn || housingLyph.layerIn ){
-                housingLyph = housingLyph.internalIn || housingLyph.layerIn;
-            }
-            if ( housingLyph ) {
-                let hostMeshPosition = extractCoords(housingLyph);
-
-                if ( this.viewObjects["main"] ) {
-                    this.viewObjects["main"].position.x  = hostMeshPosition.x;
-                    this.viewObjects["main"].position.y = hostMeshPosition.y;
-                    this.viewObjects["main"].position.z = hostMeshPosition.z;
-                    this.viewObjects["main"]?.geometry?.center()
-                    copyCoords(this, housingLyph);
-                }
-            }
-        }
-        obj.geometry.verticesNeedUpdate = true;
-        obj.geometry.computeBoundingBox();
-        obj.geometry.computeBoundingSphere();
         this.viewObjects["main"] = obj;
     }
     this.createLabels();
@@ -53,12 +33,8 @@ Vertice.prototype.createViewObjects = function(state) {
 Vertice.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
     if (!this.invisible) {
-        this.viewObjects["main"].geometry.verticesNeedUpdate = true;
-        this.viewObjects["main"].geometry.computeBoundingBox();
-        this.viewObjects["main"].geometry.computeBoundingSphere();
-        copyCoords(this.viewObjects["main"].position, this);
         this.viewObjects["main"].visible = !this.inactive;
-    }
+    } 
 
     this.viewObjects["main"] && this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
 };
@@ -82,25 +58,17 @@ Node.prototype.updateViewObjects = function(state) {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
         }
-        
         else if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
         else if ( this.internalIn ) {
             let housingLyph = getHouseLyph(this.internalIn);
             copyCoords(this, housingLyph);
-
-            this.viewObjects["main"].geometry.verticesNeedUpdate = true;
-            this.viewObjects["main"].geometry.computeBoundingBox();
-            this.viewObjects["main"].geometry.computeBoundingSphere();
-        }
-        else if (this.housingLyph) {
-            let housingLyph = getHouseLyph(this.housingLyph);
+        } else if (this.cloneOf) {
+            copyCoords(this, this.cloneOf);
+        } else if (this.hostedBy) {
+            let housingLyph = getHouseLyph(this.hostedBy);
             copyCoords(this, housingLyph);
-
-            this.viewObjects["main"].geometry.verticesNeedUpdate = true;
-            this.viewObjects["main"].geometry.computeBoundingBox();
-            this.viewObjects["main"].geometry.computeBoundingSphere();
         }
     }
     state && Vertice.prototype.updateViewObjects.call(this, state);
