@@ -197,12 +197,10 @@ export default Kapsule({
         d3VelocityDecay  : { default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
 
         warmupTicks      : { default: 10 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks    : { default: 10 },
+        cooldownTicks    : { default: 100 },
         cooldownTime     : { default: 1000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading        : { default: () => {}, triggerUpdate: false },
         onFinishLoading  : { default: () => {}, triggerUpdate: false },
-
-        neuroviewEnabled      : { default: false},
 
         enablePointerInteraction: {
             default: true,
