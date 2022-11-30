@@ -233,8 +233,6 @@ export function autoLayoutNeuron(checked, neuronTriplets) {
         m.autoSize();
     }
   });
-
-  linksUpdate(checked, neuronTriplets);      
 }
 
 /**
@@ -344,34 +342,34 @@ export function getHouseLyph(lyph) {
   return housingLyph;
 }
 
-export function linksUpdate(checked, neuronTriplets) {
-  let linksmap = {};
-      neuronTriplets.links.forEach((l) => {
-        if ( linksmap[l.source?.id] == undefined ) linksmap[l.source?.id] = [l];
-        if ( linksmap[l.target?.id] == undefined ) linksmap[l.target?.id] = [l];
+// export function linksUpdate(checked, neuronTriplets) {
+//   let linksmap = {};
+//       neuronTriplets.links.forEach((l) => {
+//         if ( linksmap[l.source?.id] == undefined ) linksmap[l.source?.id] = [l];
+//         if ( linksmap[l.target?.id] == undefined ) linksmap[l.target?.id] = [l];
     
-        linksmap[l.target?.id].includes(l) ? null : linksmap[l.target?.id].push(l);
-        linksmap[l.source?.id].includes(l) ? null : linksmap[l.source?.id].push(l);
+//         linksmap[l.target?.id].includes(l) ? null : linksmap[l.target?.id].push(l);
+//         linksmap[l.source?.id].includes(l) ? null : linksmap[l.source?.id].push(l);
 
-      });
+//       });
 
-      neuronTriplets.links.forEach((l) => {
-        console.log("L -- ", l?.id)
-        let matchTargetLyph,matchSourceLyph;
+//       neuronTriplets.links.forEach((l) => {
+//         console.log("L -- ", l?.id)
+//         let matchTargetLyph,matchSourceLyph;
 
-        linksmap[l.source?.id].forEach((link) => {
-          //matchTargetLyph = getHouseLyph(link.target);
-          matchSourceLyph = getHouseLyph(link.source);
-        });
+//         linksmap[l.source?.id].forEach((link) => {
+//           //matchTargetLyph = getHouseLyph(link.target);
+//           matchSourceLyph = getHouseLyph(link.source);
+//         });
 
-        linksmap[l.target?.id].forEach((ll) => {
-          matchTargetLyph = getHouseLyph(ll.target) || matchTargetLyph;
-          //matchSourceLyph = getHouseLyph(ll.source) || matchSourceLyph;
-        });
+//         linksmap[l.target?.id].forEach((ll) => {
+//           matchTargetLyph = getHouseLyph(ll.target) || matchTargetLyph;
+//           //matchSourceLyph = getHouseLyph(ll.source) || matchSourceLyph;
+//         });
 
-        console.log("-- matchTargetLyph ", matchTargetLyph)
-        console.log("-- matchSourceLyph ", matchSourceLyph)
-      });
+//         console.log("-- matchTargetLyph ", matchTargetLyph)
+//         console.log("-- matchSourceLyph ", matchSourceLyph)
+//       });
 
-      console.log("Linksmap ", linksmap)
-}
+//       console.log("Linksmap ", linksmap)
+// }
