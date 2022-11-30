@@ -20,8 +20,8 @@ import { rotateAroundCenter
   , translateMeshToTarget
   , translateGroupToTarget   } from "./autoLayout/transform";
 
-export const LYPH_H_PERCENT_MARGIN = 0.10;
-export const LYPH_V_PERCENT_MARGIN = 0.10;
+export const LYPH_H_PERCENT_MARGIN = 0.30;
+export const LYPH_V_PERCENT_MARGIN = 0.30;
 export const MAX_LYPH_WIDTH = 100;
 export const MIN_LYPH_WIDTH = 50;
 export const MIN_INNER_LYPH_WIDTH = 50;

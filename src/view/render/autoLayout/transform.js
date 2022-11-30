@@ -53,7 +53,7 @@ export function setLyphScale(lyph) {
 
   if ( lyphMin < MIN_LYPH_WIDTH ){
       lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
-      lyph.scale.setY(MIN_LYPH_WIDTH / lyphDim.y);
+      lyph.scale.setY((MIN_LYPH_WIDTH / lyphDim.y));
       lyph.scale.setZ(DIMENSIONS.SHAPE_MIN_Z); 
   }
 }

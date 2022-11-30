@@ -323,15 +323,16 @@ export function getHouseLyph(lyph) {
     }
   }
 
-  if ( housingLyph.class == "Node" ){
-    if (housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host) {
-      let tempParent = housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+  if ( housingLyph.class == "Node" || housingLyph.class == "Link" ){
+    housingLyph.cloneOf ? housingLyph = housingLyph.cloneOf : null;
+    if (housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host || housingLyph.onBorder) {
+      let tempParent = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
       if ( tempParent.class != "Region" && tempParent.class != "Wire" ){
-        housingLyph = housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
-        while ( housingLyph?.hostedBy || housingLyph?.onBorder || housingLyph.host) {
-          let tempParent = housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+        housingLyph =housingLyph.internalIn || housingLyph?.layerIn ||  housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+        while ( housingLyph.internalIn || housingLyph?.layerIn || housingLyph?.hostedBy || housingLyph?.onBorder || housingLyph.host) {
+          let tempParent = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
           if ( tempParent.class != "Region" && tempParent.class != "Wire" ){
-            housingLyph = housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+            housingLyph = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
           } else {
             break;
           }
@@ -359,13 +360,13 @@ export function linksUpdate(checked, neuronTriplets) {
         let matchTargetLyph,matchSourceLyph;
 
         linksmap[l.source?.id].forEach((link) => {
-          matchTargetLyph = getHouseLyph(link.target);
+          //matchTargetLyph = getHouseLyph(link.target);
           matchSourceLyph = getHouseLyph(link.source);
         });
 
         linksmap[l.target?.id].forEach((ll) => {
           matchTargetLyph = getHouseLyph(ll.target) || matchTargetLyph;
-          matchSourceLyph = getHouseLyph(ll.source) || matchSourceLyph;
+          //matchSourceLyph = getHouseLyph(ll.source) || matchSourceLyph;
         });
 
         console.log("-- matchTargetLyph ", matchTargetLyph)
