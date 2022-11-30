@@ -159,12 +159,11 @@ Lyph.prototype.autoSize = function(){
 
             const hostMeshPosition = getWorldPosition(hostMesh);
             const refWidth  = lyphDim.x * lyph.scale.x;
-            const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
+            const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN;
             const matchIndex = this.hostedBy?.hostedLyphs?.indexOf(lyph.userData);
 
             let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* this.hostedBy?.hostedLyphs.length) * .5 );
             let targetY = hostMeshPosition.y;
-            
 
             targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
             
@@ -187,18 +186,12 @@ Lyph.prototype.autoSize = function(){
                     position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
                 }
                 setLyphScale(lyph);
+                lyph.scale.setY(lyph.scale.y * .7);
                 setLyphPosition(lyph, wiredTo, position);
-                const lyphDim = getBoundingBoxSize(lyph);
                 const refHeight  = lyphDim.y * lyph.scale.y;
                 lyph.position.y = lyph.position.y + refHeight/3;
                 wiredLyphs?.forEach( wL => wL.hostedLyphs?.forEach ( hL => fitToTargetRegion(wL.viewObjects["main"], hL.viewObjects["main"], false)));
 
-            }
-             else {
-                const min = -250, max = 250;
-                let position =  new THREE.Vector3( Math.floor(Math.random() * (max - min + 1)) + min, Math.floor(Math.random() * (max - min + 1)) + min, DIMENSIONS.SHAPE_MIN_Z);
-                setLyphScale(lyph);
-                setLyphPosition(lyph, null, position)
             }
         }
         copyCoords(this, lyph.position);  

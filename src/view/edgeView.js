@@ -110,8 +110,6 @@ Link.prototype.createViewObjects = function(state){
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
         obj.visible = !this.inactive;
-        obj.geometry.verticesNeedUpdate = true;
-        obj.geometry.computeBoundingSphere();
         this.viewObjects["main"] = obj;
     }
 
@@ -234,17 +232,20 @@ Link.prototype.updateViewObjects = function(state) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();
+                obj.geometry.computeBoundingBox();
+                obj.geometry.computeBoundingSphere();
+                copyCoords(this, obj.position);
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
                     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     linkPos.needsUpdate = true;
                     obj.geometry.computeBoundingSphere();
+                    copyCoords(this, obj.position);
                 }
             }
         }
-        obj.geometry.verticesNeedUpdate = true;
-        obj.geometry.computeBoundingSphere();
+
         obj.visible = !this.inactive;
         this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
     }
@@ -270,6 +271,12 @@ Wire.prototype.createViewObjects = function(state){
         obj.userData = this;   // Attach link data
         obj.visible = !this.inactive;
         this.viewObjects["main"] = obj;
+    }
+    if ( this.viewObjects["main"] ){
+        this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+        this.viewObjects["main"].position.z = DIMENSIONS.WIRE_MIN_Z;
+        this.viewObjects["main"].geometry.computeBoundingBox();
+        this.viewObjects["main"].geometry.computeBoundingSphere();
     }
     this.createLabels();
 };
@@ -345,6 +352,7 @@ Wire.prototype.updateViewObjects = function(state) {
             let coordArray = [];
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
+            obj.computeLineDistances();
         } else {
             if (obj && this.stroke === Wire.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
@@ -359,7 +367,10 @@ Wire.prototype.updateViewObjects = function(state) {
                 }
             }
         }
+
         obj.geometry.verticesNeedUpdate = true;
+        obj.computeLineDistances();
+        obj.geometry.computeBoundingBox();
         obj.geometry.computeBoundingSphere();
         obj.visible = !this.inactive;
     }
