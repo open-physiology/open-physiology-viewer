@@ -127,7 +127,6 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
-                        (onToggleNeurulatedGroup)="toggleNeurulatedGroup($event)"
                         (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
                 > </settingsPanel>
             </section>
@@ -753,10 +752,6 @@ export class WebGLSceneComponent {
         } else {
             group.hide();
         }
-        if (this.graph) { this.graph.graphData(this.graphData); }
-    }
-
-    toggleNeurulatedGroup() {
         if (this.graph) { this.graph.graphData(this.graphData); }
     }
 }

@@ -234,20 +234,23 @@ Link.prototype.updateViewObjects = function(state) {
                 obj.computeLineDistances();
                 obj.geometry.computeBoundingBox();
                 obj.geometry.computeBoundingSphere();
-                copyCoords(this, obj.position);
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
                     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
-                    linkPos.needsUpdate = true;
+                    obj.geometry.attributes.position.needsUpdate = true;
+                    obj.position.z = DIMENSIONS.LINK_MIN_Z;
+                    obj.material.lineWidth = DIMENSIONS.LINK_MIN_Z * 2;
+                    obj.geometry.verticesNeedUpdate = true;
+                    obj.geometry.computeBoundingBox();
                     obj.geometry.computeBoundingSphere();
-                    copyCoords(this, obj.position);
                 }
             }
         }
-
+        copyCoords(this, obj.position);
         obj.visible = !this.inactive;
-        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
+        this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
+        
     }
 };
 
@@ -367,11 +370,6 @@ Wire.prototype.updateViewObjects = function(state) {
                 }
             }
         }
-
-        obj.geometry.verticesNeedUpdate = true;
-        obj.computeLineDistances();
-        obj.geometry.computeBoundingBox();
-        obj.geometry.computeBoundingSphere();
         obj.visible = !this.inactive;
     }
 };

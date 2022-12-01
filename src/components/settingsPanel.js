@@ -1184,7 +1184,6 @@ export class SettingsPanel {
   @Output() onToggleMode = new EventEmitter();
   @Output() onToggleLayout = new EventEmitter();
   @Output() onToggleHelperPlane = new EventEmitter();
-  @Output() onToggleNeurulatedGroup = new EventEmitter();
   @Output() onLoadModel = new EventEmitter();
   @Output() onImportExcelModel = new EventEmitter();
 
@@ -1321,7 +1320,7 @@ export class SettingsPanel {
 
   hideVisibleGroups = () => {
     // Hide all visible
-    let allVisible = this.dynamicGroups.filter((g) => g.hidden == false);
+    let allVisible = this.dynamicGroups.filter((g) => g.hidden == false );
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
@@ -1340,15 +1339,11 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      this.activeNeurulatedComponents?.components?.forEach( component => component.inactive = false );
-
-      this.activeNeurulatedComponents = { groups: [], components: [] };
       this.toggleNeuroView(false);
 
       // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-      console.log("Neurons for group : ", group);
       let neuronTriplets = buildNeurulatedTriplets(group);
-      console.log("Triplets : ", neuronTriplets);
+      console.log("Neurulated Information : ", neuronTriplets);
       handleNeurulatedGroup(event.checked, group, neuronTriplets);
 
       // Step 5 :Identify TOO Map components and turn them ON/OFF
@@ -1359,23 +1354,19 @@ export class SettingsPanel {
         event.checked
       );
 
-      matchScaffolds?.forEach((scaffold) => {
-        this.onToggleGroup.emit(scaffold);
-      });
+      matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
 
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-      toggleGroupLyphsView(
-        event,
-        this.graphData,
-        neuronTriplets,
-        this.activeNeurulatedComponents
-      );
+      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedComponents);
 
-      window.addEventListener("doneUpdating", () => autoLayoutNeuron(event.checked,neuronTriplets));
+      window.addEventListener("doneUpdating", () => autoLayoutNeuron(neuronTriplets));
     } else {
       this.onToggleGroup.emit(group);
     }
+
+    let visibleLyphs = this.graphData.lyphs.filter( l => l.inactive == false || l.hidden == false);
+    console.log("Visible lyphs ", visibleLyphs);
   };
 
   toggleAllDynamicGroup = () => {
@@ -1396,7 +1387,7 @@ export class SettingsPanel {
 
   // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
   toggleNeuroView = (visible) => {
-    // Toggle visibility of scaffold components
+    // Hide visible group components
     this.activeNeurulatedComponents?.components?.forEach(
       (component) => { 
         component.inactive = !visible;

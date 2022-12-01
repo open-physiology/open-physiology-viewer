@@ -14,9 +14,8 @@ import {
     isInRange,
     THREE
 } from "./utils";
-import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, pointAlongLine, DIMENSIONS } from "./render/autoLayout";
+import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
 import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
-import { setLyphPosition, setLyphScale } from "./render/autoLayout/transform";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -145,56 +144,28 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
     }
 };
 
+/**
+ * Scale lyph to fit inside a region, wire or another lyph.
+ * Position lyph inside a region, wire or another lyph.
+ */
 Lyph.prototype.autoSize = function(){
+    // Continue if there's a THREE object
     if (this.viewObjects["main"]) {
+        // Get the host, usually a region or another lyph
         let hostMesh = this.hostedBy?.viewObjects["main"];
-        let lyph = this.viewObjects["main"];
-        const lyphDim = getBoundingBoxSize(lyph);
-
         if ( hostMesh ) {
-            fitToTargetRegion(hostMesh, lyph, false); 
-
-            // extract host mesh size
-            const maxSize = maxLyphSize(hostMesh);
-
-            const hostMeshPosition = getWorldPosition(hostMesh);
-            const refWidth  = lyphDim.x * lyph.scale.x;
-            const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
-            const matchIndex = this.hostedBy?.hostedLyphs?.indexOf(lyph.userData);
-
-            let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* this.hostedBy?.hostedLyphs.length) * .5 );
-            let targetY = hostMeshPosition.y;
-
-            targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
-            
-            lyph.position.x = targetX ;
-            lyph.position.y = targetY ;
-            lyph.position.z = DIMENSIONS.SHAPE_MIN_Z * 2;
-
+            // Place and scale lyph inside host region or lyph
+            placeLyphInHost(this)
         } else {
             let wiredTo = this.wiredTo?.viewObjects["main"];
-
-            if ( wiredTo && !lyph.hidden ) {
-                let wiredLyphs = [];
-                this.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => !l.hidden && wiredLyphs.push(l)) );
-                let index = wiredLyphs?.findIndex(l => l.id === this.id );
-
-                let position = this.wiredTo.center;
-                if ( wiredLyphs.length > 1 ){
-                    const pointA = this.wiredTo?.points[0];
-                    const pointB = this.wiredTo?.points[this.wiredTo?.points.length - 1];
-                    position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
-                }
-                setLyphScale(lyph);
-                lyph.scale.setY(lyph.scale.y * .7);
-                setLyphPosition(lyph, wiredTo, position);
-                const refHeight  = lyphDim.y * lyph.scale.y;
-                lyph.position.y = lyph.position.y + refHeight/3;
-                wiredLyphs?.forEach( wL => wL.hostedLyphs?.forEach ( hL => fitToTargetRegion(wL.viewObjects["main"], hL.viewObjects["main"], false)));
-
+            // If lyph is attach to the wire
+            if ( wiredTo ) {
+                // Place and scale lyph along wire
+                placeLyphInWire(this)
             }
         }
-        copyCoords(this, lyph.position);  
+        // save position into object
+        copyCoords(this, this.viewObjects["main"]?.position);  
         this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
     }
 };
@@ -319,10 +290,10 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if (!this.axis) { return; }
 
-    let obj = this.viewObjects["main"];
+    let obj = this.viewObjects["main"] = this.viewObjects["2d"];
 
     if (state.showLyphs3d && this.viewObjects["3d"]){
-        obj = this.viewObjects["main"];
+        obj = this.viewObjects["main"] = this.viewObjects["3d"];
     }
 
     if (!obj){
@@ -434,7 +405,7 @@ Region.prototype.createViewObjects = function(state) {
         this.updatePoints(state.edgeResolution);
         let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
         let obj = createMeshWithBorder(shape, {
-                color: "#9acce3",
+                color: this.color,
                 polygonOffsetFactor: this.polygonOffsetFactor
             },
             !this.facets // draw border if region is not defined by facets (e.g., to distinguish regions in connectivity models)
@@ -488,7 +459,7 @@ Region.prototype.updateViewObjects = function(state) {
                 
                 lyphMesh.position.x = targetX ;
                 lyphMesh.position.y = targetY ;
-                lyphMesh.position.z = DIMENSIONS.SHAPE_MIN_Z;
+                lyphMesh.position.z = DIMENSIONS.REGION_MIN_Z;
                 copyCoords(lyph, lyphMesh.position);         
             }
         })

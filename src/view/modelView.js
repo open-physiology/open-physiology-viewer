@@ -86,7 +86,7 @@ Group.prototype.createViewObjects = function(state){
     this.visibleLyphs.forEach(lyph => {
         if (!(lyph instanceof Lyph)){ return; }
         if (lyph.inactive){ return; }
-        if ( lyph.inactive == false ) {
+        if ( lyph.inactive == false && lyph.hidden == false ) {
             console.log("Creating Lyph ", lyph.id)
             lyph.createViewObjects(state);
             lyph.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
