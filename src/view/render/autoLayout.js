@@ -18,13 +18,22 @@ import { trasverseHostedBy
 
 import { rotateAroundCenter
   , translateMeshToTarget
-  , translateGroupToTarget   } from "./autoLayout/transform";
+  , translateGroupToTarget
+  , setLyphScale
+  , setLyphPosition   } from "./autoLayout/transform";
 
 export const LYPH_H_PERCENT_MARGIN = 0.25;
 export const LYPH_V_PERCENT_MARGIN = 0.10;
 export const MAX_LYPH_WIDTH = 100;
 export const MIN_LYPH_WIDTH = 50;
 export const MIN_INNER_LYPH_WIDTH = 50;
+export const DIMENSIONS =  {
+  LYPH_MIN_Z : 2,
+  REGION_MIN_Z : 1,
+  LINK_MIN_Z : 3,
+  WIRE_MIN_Z : 1
+}
+
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
 const DENDRYTE = "dend";
 const AXON = "axon";
@@ -50,7 +59,7 @@ function preventZFighting(scene)
 }
 
 export function fitToTargetRegion(target, source, lyphInLyph) {
-  let targetSize =  getBoundingBoxSize(target);
+  if (source == undefined ) return;
   let sourceSize =  getBoundingBoxSize(source);
 
   let sx = 1, sy = 1, sz = 1;
@@ -79,10 +88,10 @@ export function fitToTargetRegion(target, source, lyphInLyph) {
 
 
   let parent = traverseMeshParent(target);
-  rotateAroundCenter(source
-                  , parent.rotation.x
-                  , parent.rotation.y
-                  , parent.rotation.z);  
+  source.geometry.center();
+  source.rotation.x = parent.rotation.x;
+  source.rotation.y = parent.rotation.y;
+  source.rotation.z = parent.rotation.z;
 }
 
 export function maxLyphSize(target) {
@@ -509,8 +518,53 @@ export function pointAlongLine(pointA, pointB, percentage) {
   return pointA.clone().add(dir);
 }
 
-export const DIMENSIONS =  {
-  SHAPE_MIN_Z : 15,
-  EDGE_MIN_Z : 20,
-  WIRE_MIN_Z : 10
+export function placeLyphInWire(lyph){
+  let wiredTo = lyph.wiredTo?.viewObjects["main"];
+  let lyphMesh = lyph.viewObjects["main"];
+  const lyphDim = getBoundingBoxSize(lyphMesh);
+
+  if ( wiredTo && !lyph.hidden ) {
+    let wiredLyphs = [];
+    lyph.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => !l.hidden && wiredLyphs.push(l)) );
+    let index = wiredLyphs?.findIndex(l => l.id === lyph.id );
+
+    let position = lyph.wiredTo.center;
+    if ( wiredLyphs.length > 1 ){
+      const pointA = lyph.wiredTo?.points[0];
+      const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
+      position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
+    }
+    setLyphScale(lyphMesh);
+    lyphMesh.scale.setX(lyphMesh.scale.x * .7);
+    setLyphPosition(lyphMesh, wiredTo, position, true);
+    const refHeight  = lyphDim.y * lyphMesh.scale.y;
+    lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
+    wiredLyphs?.forEach( wL => wL.hostedLyphs?.forEach ( hL => fitToTargetRegion(wL.viewObjects["main"], hL.viewObjects["main"], false)));
+  }
+}
+
+export function placeLyphInHost(lyph){
+  let hostMesh = lyph.hostedBy?.viewObjects["main"];
+  let lyphMesh = lyph.viewObjects["main"];
+  const lyphDim = getBoundingBoxSize(lyphMesh);
+
+  fitToTargetRegion(hostMesh, lyphMesh, false); 
+
+  // extract host mesh size
+  const maxSize = maxLyphSize(hostMesh);
+
+  const hostMeshPosition = getWorldPosition(hostMesh);
+  const refWidth  = lyphDim.x * lyphMesh.scale.x;
+  const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
+
+  const matchIndex = lyph.hostedBy?.hostedLyphs?.indexOf(lyph);
+
+  let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* lyph.hostedBy?.hostedLyphs.length) * .5 );
+  let targetY = hostMeshPosition.y;
+
+  targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
+  
+  lyphMesh.position.x = targetX ;
+  lyphMesh.position.y = targetY ;
+  lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z * 2;
 }
