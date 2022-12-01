@@ -14,9 +14,9 @@ export function rotateAroundCenter(target, rx, ry, rz) {
   if (target.geometry)
   {
     target.geometry.center();
-    target.rotation.x = rx;
-    target.rotation.y = ry;
-    target.rotation.z = rz;
+    target.rotateX(rx);
+    target.rotateY(ry);
+    target.rotateZ(rz);
   }
 }
 
@@ -35,12 +35,12 @@ export function translateGroupToTarget(target, group) {
   group.translateZ(3) ; 
 }
 
-export function setLyphPosition(lyph, host, position) {
+export function setLyphPosition(lyph, host, position, rotate) {
   lyph.position.x = position.x ;
   lyph.position.y = position.y ;
-  lyph.position.z = DIMENSIONS.SHAPE_MIN_Z;
+  lyph.position.z = DIMENSIONS.LYPH_MIN_Z;
 
-  if ( host ) {
+  if ( host && rotate ) {
     rotateAroundCenter(lyph, host.rotation.x, host.rotation.y, host.rotation.z);
   }
 
@@ -54,6 +54,6 @@ export function setLyphScale(lyph) {
   if ( lyphMin < MIN_LYPH_WIDTH ){
       lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
       lyph.scale.setY((MIN_LYPH_WIDTH / lyphDim.y));
-      lyph.scale.setZ(DIMENSIONS.SHAPE_MIN_Z); 
+      lyph.scale.setZ(DIMENSIONS.LYPH_MIN_Z); 
   }
 }

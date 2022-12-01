@@ -22,7 +22,15 @@ Vertice.prototype.createViewObjects = function(state) {
         let obj = new THREE.Mesh(geometry, material);
         // Attach vertice data
         obj.userData = this;
+        if (this.layout) {
+            let coords = extractCoords(this.layout);
+            copyCoords(this, coords);
+            copyCoords(obj.position, coords);
+            this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice));
+        }
+        obj.visible = !this.hidden;
         this.viewObjects["main"] = obj;
+        this.viewObjects["main"].geometry.computeBoundingSphere();
     }
     this.createLabels();
 };
@@ -36,7 +44,13 @@ Vertice.prototype.updateViewObjects = function(state) {
         this.viewObjects["main"].visible = !this.inactive;
     } 
 
-    this.viewObjects["main"] && this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
+    if (this.layout && this.viewObjects["main"]) {
+        let coords = extractCoords(this.layout);
+        copyCoords(this.viewObjects["main"].position, coords);
+        this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice));
+    } else {
+        this.updateLabels(this.center?.clone().addScalar(this.state.labelOffset.Vertice));
+    }
 };
 
 /**
