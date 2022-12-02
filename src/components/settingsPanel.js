@@ -18,7 +18,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, handleNeurulatedGroup, toggleScaffoldsNeuroview, toggleGroupLyphsView, linksUpdate } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, toggleGroupLyphsView } from "../view/render/neuroView";
 
 /**
  * @ignore
@@ -1344,12 +1344,11 @@ export class SettingsPanel {
       // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
       let neuronTriplets = buildNeurulatedTriplets(group);
       console.log("Neurulated Information : ", neuronTriplets);
-      handleNeurulatedGroup(event.checked, group, neuronTriplets);
+      this.activeNeurulatedComponents.groups.push(group);
 
       // Step 5 :Identify TOO Map components and turn them ON/OFF
       const matchScaffolds = toggleScaffoldsNeuroview(
         this.scaffolds,
-        this.activeNeurulatedComponents,
         neuronTriplets,
         event.checked
       );
@@ -1388,16 +1387,6 @@ export class SettingsPanel {
   // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
   toggleNeuroView = (visible) => {
     // Hide visible group components
-    this.activeNeurulatedComponents?.components?.forEach(
-      (component) => { 
-        component.inactive = !visible;
-        component.borderAnchors?.forEach((anchor) => (anchor.inactive = !visible));
-        component.facets?.forEach((facet) => (facet.inactive = !visible));
-      }
-    );
-    this.activeNeurulatedComponents.groups.forEach((g) => {
-      handleNeurulatedGroup(visible, g, {});
-    });
     this.hideVisibleGroups();
     this.scaffolds.forEach((scaffold) => {
       if (

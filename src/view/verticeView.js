@@ -28,7 +28,7 @@ Vertice.prototype.createViewObjects = function(state) {
             copyCoords(obj.position, coords);
             this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice));
         }
-        obj.visible = !this.hidden;
+        obj.visible = !this.inactive;
         this.viewObjects["main"] = obj;
         this.viewObjects["main"].geometry.computeBoundingSphere();
     }
