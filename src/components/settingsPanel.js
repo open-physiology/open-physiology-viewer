@@ -1346,12 +1346,11 @@ export class SettingsPanel {
       // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
       let neuronTriplets = buildNeurulatedTriplets(group);
       console.log("Neurulated Information : ", neuronTriplets);
-      handleNeurulatedGroup(event.checked, group, neuronTriplets);
+      this.activeNeurulatedComponents.groups.push(group);
 
       // Step 5 :Identify TOO Map components and turn them ON/OFF
       const matchScaffolds = toggleScaffoldsNeuroview(
         this.scaffolds,
-        this.activeNeurulatedComponents,
         neuronTriplets,
         event.checked
       );
