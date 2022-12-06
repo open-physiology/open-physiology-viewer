@@ -12,7 +12,6 @@ import Kapsule from 'kapsule';
 import {generateFromJSON, modelClasses} from '../model/index';
 import './modelView';
 import {extractCoords} from './utils';
-import { autoLayout } from './render/autoLayout'
 
 const {Graph} = modelClasses;
 

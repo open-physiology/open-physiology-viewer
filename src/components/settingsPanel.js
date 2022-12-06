@@ -9,16 +9,15 @@ import {SearchBarModule} from './gui/searchBar';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
-import {$Field, $SchemaClass, loadModel, processImports} from "../model";
+import {$Field, $SchemaClass} from "../model";
 import {StopPropagation} from "./gui/stopPropagation";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
-//import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, toggleGroupLyphsView } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, toggleGroupLyphsView,toggleWire } from "../view/render/neuroView";
 
 /**
  * @ignore
@@ -1123,7 +1122,7 @@ export class SettingsPanel {
   filteredScaffolds;
   nodes;
   previousId = "";
-  activeNeurulatedComponents = { groups: [], components: [] };
+  activeNeurulatedGroups = [];
 
   scaffoldResourceVisibility: Boolean = false;
   renderedComponents;
@@ -1341,31 +1340,26 @@ export class SettingsPanel {
     if (this.neuroViewEnabled) {
       this.toggleNeuroView(false);
 
-      // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      // Find housing lyphs of neuron, also links and chains.
       let neuronTriplets = buildNeurulatedTriplets(group);
-      console.log("Neurulated Information : ", neuronTriplets);
-      this.activeNeurulatedComponents.groups.push(group);
+      console.log("Neuron Information : ", neuronTriplets);
+      this.activeNeurulatedGroups.push(group);
 
       // Step 5 :Identify TOO Map components and turn them ON/OFF
-      const matchScaffolds = toggleScaffoldsNeuroview(
-        this.scaffolds,
-        neuronTriplets,
-        event.checked
-      );
-
+      const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
-
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedComponents);
+      //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
-      window.addEventListener("doneUpdating", () => autoLayoutNeuron(neuronTriplets));
+      window.addEventListener("doneUpdating", () => { 
+        autoLayoutNeuron(neuronTriplets); 
+        autoLayoutNeuron(neuronTriplets);
+      });
     } else {
       this.onToggleGroup.emit(group);
     }
-
-    let visibleLyphs = this.graphData.lyphs.filter( l => l.inactive == false || l.hidden == false);
-    console.log("Visible lyphs ", visibleLyphs);
   };
 
   toggleAllDynamicGroup = () => {
@@ -1389,6 +1383,18 @@ export class SettingsPanel {
     // Hide visible group components
     this.hideVisibleGroups();
     this.scaffolds.forEach((scaffold) => {
+      scaffold.anchors?.forEach( a => a.inactive = !visible);
+      scaffold.regions?.forEach( r => r.inactive = !visible);
+      scaffold.wires?.forEach( w => { 
+        w.inactive = !visible;
+        if (w.source ) { 
+          toggleWire(w.source, visible);
+        }
+        if (w.target ) { 
+          toggleWire(w.target, visible);
+        }
+      });
+      
       if (
         scaffold.hidden === visible ||
         (!visible && scaffold.hidden === undefined)
@@ -1396,7 +1402,7 @@ export class SettingsPanel {
         this.onToggleGroup.emit(scaffold);
       }
     });
-    this.activeNeurulatedComponents = { groups: [], components: [] };
+    this.activeNeurulatedGroups = [];
     this.updateRenderedResources();
     this.config.layout.neuroviewEnabled = !visible;
   };
