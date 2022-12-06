@@ -535,7 +535,7 @@ export function placeLyphInWire(lyph){
       position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
     }
     setLyphScale(lyphMesh);
-    lyphMesh.scale.setX(lyphMesh.scale.x * .7);
+    lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
     setLyphPosition(lyphMesh, wiredTo, position, true);
     const refHeight  = lyphDim.y * lyphMesh.scale.y;
     lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
@@ -566,5 +566,5 @@ export function placeLyphInHost(lyph){
   
   lyphMesh.position.x = targetX ;
   lyphMesh.position.y = targetY ;
-  lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z * 2;
+  hostMesh?.userData?.class == "Lyph" ? lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z + 1 :lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z;
 }
