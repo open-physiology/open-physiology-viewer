@@ -9,7 +9,7 @@ import {SearchBarModule} from './gui/searchBar';
 import {ResourceInfoModule} from './gui/resourceInfo';
 import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
-import {$Field, $SchemaClass, loadModel, processImports} from "../model";
+import {$Field, $SchemaClass} from "../model";
 import {StopPropagation} from "./gui/stopPropagation";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatInputModule} from '@angular/material/input';
@@ -1343,31 +1343,26 @@ export class SettingsPanel {
     if (this.neuroViewEnabled) {
       this.toggleNeuroView(false);
 
-      // Step 3 and 4: Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      // Find housing lyphs of neuron, also links and chains.
       let neuronTriplets = buildNeurulatedTriplets(group);
-      console.log("Neurulated Information : ", neuronTriplets);
-      this.activeNeurulatedComponents.groups.push(group);
+      console.log("Neuron Information : ", neuronTriplets);
+      this.activeNeurulatedGroups.push(group);
 
       // Step 5 :Identify TOO Map components and turn them ON/OFF
-      const matchScaffolds = toggleScaffoldsNeuroview(
-        this.scaffolds,
-        neuronTriplets,
-        event.checked
-      );
-
+      const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
-
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedComponents);
+      //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
-      window.addEventListener("doneUpdating", () => autoLayoutNeuron(neuronTriplets));
+      window.addEventListener("doneUpdating", () => { 
+        autoLayoutNeuron(neuronTriplets); 
+        autoLayoutNeuron(neuronTriplets);
+      });
     } else {
       this.onToggleGroup.emit(group);
     }
-
-    let visibleLyphs = this.graphData.lyphs.filter( l => l.inactive == false || l.hidden == false);
-    console.log("Visible lyphs ", visibleLyphs);
   };
 
   toggleAllDynamicGroup = () => {
