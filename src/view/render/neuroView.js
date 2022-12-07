@@ -1,6 +1,6 @@
 import {flatten } from "lodash-bound";
-import { autoSizeLyph, pointAlongLine } from "./autoLayout"
-import {$Field, modelClasses} from "../../model";
+import { autoSizeLyph } from "./autoLayout"
+import {modelClasses} from "../../model";
 const {Edge} = modelClasses;
 
 
@@ -104,12 +104,10 @@ export function buildNeurulatedTriplets(group) {
  */
 export function toggleNeurulatedLyph(lyph, checked, neuronMatches) {
   lyph.hidden = checked;
+  // Toggle visibility for links not part of the neurulated neuron
   if ( !neuronMatches?.links?.find( l => l.id === lyph.conveys?.id ) ) {
-    if ( lyph.conveys?.class == "Lyph" ) {
-      toggleNeurulatedLyph((lyph.conveys, checked, neurulatedMatches))}
-    else if(lyph.conveys ) { 
-      lyph.conveys.inactive = checked;
-    }
+    lyph.conveys.inactive = checked;
+    lyph.conveys.hidden = checked;
     lyph.conveys?.source ? (lyph.conveys.source.inactive = checked) : null;
     lyph.conveys?.target ? (lyph.conveys.target.inactive = checked) : null;
   }
@@ -159,14 +157,14 @@ export function toggleWire(target, checked){
   target.inactive = !checked;
   target.hidden = !checked;
   target.sourceOf?.forEach( s => { 
-    if ( s.name ) {
+    if ( s.geometry == Edge.EDGE_GEOMETRY.ARC && s.name ) {
       s.inactive = !checked;
       s.hidden = !checked;
     }
   });
 
   target.targetOf?.forEach( s => { 
-    if ( s.name ) {
+    if ( s.geometry == Edge.EDGE_GEOMETRY.ARC && s.name ) {
       s.inactive = !checked;
       s.hidden = !checked;
     }
@@ -295,13 +293,14 @@ export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNe
     }
   });
 
+
+  // Update hosted properties of lyphs, matching them to their region or wire
+  matches = updateLyphsHosts(matches, neuronTriplets);
+  
   // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
   activeNeurulatedGroups.forEach((g) => {
     handleNeurulatedGroup(event.checked, g, neuronTriplets);    
   });
-
-  // Update hosted properties of lyphs, matching them to their region or wire
-  matches = updateLyphsHosts(matches, neuronTriplets);
 };
 
 function updateLyphsHosts(matches,neuronTriplets){
@@ -343,28 +342,24 @@ function updateLyphsHosts(matches,neuronTriplets){
   return matches;
 }
 
+/**
+ * Find the housing lyph of a lyph.
+ * @param {*} lyph - Target lyph we the need the house for
+ * @returns 
+ */
 export function getHouseLyph(lyph) {
   let housingLyph = lyph;
-  if (lyph.internalIn || lyph.layerIn) {
-    housingLyph = lyph.internalIn || lyph.layerIn;
-    while ( housingLyph?.internalIn || housingLyph?.layerIn ) {
-      housingLyph = housingLyph.internalIn || housingLyph?.layerIn;
-    }
-  }
 
-  if ( housingLyph.class == "Node" || housingLyph.class == "Link" ){
-    housingLyph.cloneOf ? housingLyph = housingLyph.cloneOf : null;
-    if (housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host || housingLyph.onBorder) {
-      let tempParent = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
-      if ( tempParent.class != "Region" && tempParent.class != "Wire" ){
-        housingLyph =housingLyph.internalIn || housingLyph?.layerIn ||  housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
-        while ( housingLyph.internalIn || housingLyph?.layerIn || housingLyph?.hostedBy || housingLyph?.onBorder || housingLyph.host) {
-          let tempParent = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
-          if ( tempParent.class != "Region" && tempParent.class != "Wire" ){
-            housingLyph = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
-          } else {
-            break;
-          }
+  if (housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host || housingLyph.onBorder) {
+    let tempParent = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+    if ( tempParent.class != "Region" && tempParent.class != "Wire" ){
+      housingLyph =housingLyph.internalIn || housingLyph?.layerIn ||  housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+      while ( housingLyph.internalIn || housingLyph?.layerIn || housingLyph?.hostedBy || housingLyph?.onBorder || housingLyph.host) {
+        let tempParent = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+        if ( tempParent.class != "Region" && tempParent.class != "Wire" ){
+          housingLyph = housingLyph.internalIn || housingLyph?.layerIn || housingLyph.hostedBy || housingLyph.onBorder || housingLyph.host;
+        } else {
+          break;
         }
       }
     }
