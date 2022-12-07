@@ -425,7 +425,6 @@ Region.prototype.updateViewObjects = function(state) {
     state &&  Shape.prototype.updateViewObjects.call(this, state);
     let obj = this.viewObjects["main"];
     obj.position.z = DIMENSIONS.REGION_MIN_Z;
-    
     if (obj) {
         let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
         if (linkPos) {
