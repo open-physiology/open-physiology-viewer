@@ -459,7 +459,7 @@ Region.prototype.updateViewObjects = function(state) {
                 
                 lyphMesh.position.x = targetX ;
                 lyphMesh.position.y = targetY ;
-                lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z;
+                lyphMesh.position.z = DIMENSIONS.REGION_MIN_Z;
                 copyCoords(lyph, lyphMesh.position);         
             }
         })
