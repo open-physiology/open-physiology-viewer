@@ -41,7 +41,7 @@ Vertice.prototype.createViewObjects = function(state) {
 Vertice.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
     if (!this.invisible) {
-        this.viewObjects["main"].visible = !this.inactive;
+        this.viewObjects["main"].visible = !this.inactive
     } 
 
     if (this.layout && this.viewObjects["main"]) {

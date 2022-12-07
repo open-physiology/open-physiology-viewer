@@ -535,11 +535,10 @@ export function placeLyphInWire(lyph){
       position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
     }
     setLyphScale(lyphMesh);
-    lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
     setLyphPosition(lyphMesh, wiredTo, position, true);
     const refHeight  = lyphDim.y * lyphMesh.scale.y;
+    lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
     lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
-    wiredLyphs?.forEach( wL => wL.hostedLyphs?.forEach ( hL => fitToTargetRegion(wL.viewObjects["main"], hL.viewObjects["main"], false)));
   }
 }
 
