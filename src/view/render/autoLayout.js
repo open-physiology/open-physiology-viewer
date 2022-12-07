@@ -558,10 +558,13 @@ export function placeLyphInHost(lyph){
 
   const matchIndex = lyph.hostedBy?.hostedLyphs?.indexOf(lyph);
 
-  let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* lyph.hostedBy?.hostedLyphs.length) * .5 );
+  let targetX = hostMeshPosition.x;
+  if ( lyph.hostedBy?.hostedLyphs.length > 1 ){
+    targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* lyph.hostedBy?.hostedLyphs.length) * .5 );
+    targetX = targetX + refPaddingX + refWidth * matchIndex + ( refPaddingX * matchIndex);
+  }
   let targetY = hostMeshPosition.y;
 
-  targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
   
   lyphMesh.position.x = targetX ;
   lyphMesh.position.y = targetY ;
