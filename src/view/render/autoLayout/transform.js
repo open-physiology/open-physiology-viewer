@@ -36,8 +36,8 @@ export function translateGroupToTarget(target, group) {
 }
 
 export function setLyphPosition(lyph, host, position, rotate) {
-  lyph.position.x = position.x ;
-  lyph.position.y = position.y ;
+  lyph.position.x = position.x * .95;
+  lyph.position.y = position.y;
   lyph.position.z = DIMENSIONS.LYPH_MIN_Z;
 
   if ( host && rotate ) {

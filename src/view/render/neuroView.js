@@ -42,11 +42,10 @@ export function buildNeurulatedTriplets(group) {
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
   neuronTriplets.y?.forEach( neuron => {
-    if ( neuron.hostedBy?.class == "Lyph" ) {
-      !updatedLyphs.includes(neuron.hostedBy) && updatedLyphs.push(neuron.hostedBy);
-      const hosts = neuron.hostedBy?.axis?.levelIn?.filter( l => l.wiredTo);
-      hosts.forEach( h => h.wiredTo && neuronTriplets.w.push(h.wiredTo));
-    }
+    const houseLyph = getHouseLyph(neuron);
+    ( houseLyph?.class == "Lyph" && !updatedLyphs.includes(houseLyph) ) && updatedLyphs.push(houseLyph);
+    const hosts = houseLyph?.axis?.levelIn?.filter( l => l.wiredTo);
+    hosts?.forEach( h => ( h.wiredTo && !neuronTriplets.w.includes(h.wiredTo)) && neuronTriplets.w.push(h.wiredTo));
   })
 
   neuronTriplets.y = neuronTriplets.y.concat(updatedLyphs);
