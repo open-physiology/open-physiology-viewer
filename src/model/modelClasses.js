@@ -164,10 +164,10 @@ export function jsonToExcel(inputModel) {
  * @returns {Graph}
  */
 export function generateFromJSON(inputModel) {
+    inputModel.version = hash(inputModel);
     inputModel.id = inputModel.id || "main";
     inputModel.namespace = inputModel.namespace || "nm_" + inputModel.id;
     inputModel.schemaVersion = hash(schema);
-    inputModel.version = hash(inputModel);
     if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
