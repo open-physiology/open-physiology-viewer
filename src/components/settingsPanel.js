@@ -1350,12 +1350,13 @@ export class SettingsPanel {
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
+
       //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
       toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
       window.addEventListener("doneUpdating", () => { 
-        autoLayoutNeuron(neuronTriplets); 
-        autoLayoutNeuron(neuronTriplets);
+        autoLayoutNeuron(neuronTriplets.y); 
+        autoLayoutNeuron(neuronTriplets.y);
       });
     } else {
       this.onToggleGroup.emit(group);

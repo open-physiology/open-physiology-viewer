@@ -260,10 +260,9 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
  * Loops through housing neurons and call auto placement function
  * @param {*} neuronTriplets 
  */
-export function autoLayoutNeuron(neuronTriplets) {
-  neuronTriplets.y.forEach((m) => {
+export function autoLayoutNeuron(lyphs) {
+  lyphs.forEach((m) => {
     if (m.viewObjects["main"]) {
-        autoSizeLyph(m.viewObjects["main"]);
         m.autoSize();
     }
   });
@@ -302,6 +301,12 @@ export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNe
   });
 };
 
+/**
+ * Update Lyphs 
+ * @param {*} matches 
+ * @param {*} neuronTriplets 
+ * @returns 
+ */
 function updateLyphsHosts(matches,neuronTriplets){
   matches.forEach((m) => {
     if (m.internalIn?.layerIn ) {
