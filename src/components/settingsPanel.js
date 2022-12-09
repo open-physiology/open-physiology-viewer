@@ -17,7 +17,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, toggleGroupLyphsView,toggleWire } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups,toggleWire, handleNeurulatedGroup } from "../view/render/neuroView";
 
 /**
  * @ignore
@@ -1317,12 +1317,16 @@ export class SettingsPanel {
     this.toggleAllDynamicGroup();
   };
 
-  hideVisibleGroups = () => {
+  hideVisibleGroups = (visible) => {
     // Hide all visible
     let allVisible = this.dynamicGroups.filter((g) => g.hidden == false );
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
+        if ( !visible ){
+          lyph.hostedBy = undefined;
+          lyph.wiredTo = undefined;
+        }
       });
       this.onToggleGroup.emit(g);
     });
@@ -1331,6 +1335,10 @@ export class SettingsPanel {
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
+        if ( !visible ){
+          lyph.hostedBy = undefined;
+          lyph.wiredTo = undefined;
+        }
       });
       this.onToggleGroup.emit(g);
     });
@@ -1338,7 +1346,7 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      this.toggleNeuroView(false);
+      this.toggleNeuroView(event.checked);
 
       // Find housing lyphs of neuron, also links and chains.
       let neuronTriplets = buildNeurulatedTriplets(group);
@@ -1350,11 +1358,17 @@ export class SettingsPanel {
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-
       //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedGroups);
+      findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
+      // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+      this.activeNeurulatedGroups.forEach((g) => {
+        handleNeurulatedGroup(event.checked, g, neuronTriplets);    
+      });
+      
+      let that = this;
       window.addEventListener("doneUpdating", () => { 
+        // Update hosted properties of lyphs, matching them to their region or wire
         autoLayoutNeuron(neuronTriplets.y); 
         autoLayoutNeuron(neuronTriplets.y);
       });
@@ -1382,12 +1396,12 @@ export class SettingsPanel {
   // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
   toggleNeuroView = (visible) => {
     // Hide visible group components
-    this.hideVisibleGroups();
+    visible && this.hideVisibleGroups(visible);
     this.scaffolds.forEach((scaffold) => {
-      scaffold.anchors?.forEach( a => a.inactive = !visible);
-      scaffold.regions?.forEach( r => r.inactive = !visible);
+      scaffold.anchors?.forEach( a => a.inactive = visible);
+      scaffold.regions?.forEach( r => r.inactive = visible);
       scaffold.wires?.forEach( w => { 
-        w.inactive = !visible;
+        w.inactive = visible;
         if (w.source ) { 
           toggleWire(w.source, visible);
         }
@@ -1397,15 +1411,15 @@ export class SettingsPanel {
       });
       
       if (
-        scaffold.hidden === visible ||
-        (!visible && scaffold.hidden === undefined)
+        scaffold.hidden === !visible ||
+        (visible && scaffold.hidden === undefined)
       ) {
         this.onToggleGroup.emit(scaffold);
       }
     });
     this.activeNeurulatedGroups = [];
     this.updateRenderedResources();
-    this.config.layout.neuroviewEnabled = !visible;
+    this.config.layout.neuroviewEnabled = visible;
   };
 
   /**
@@ -1414,10 +1428,10 @@ export class SettingsPanel {
    */
   enableNeuroview = (e) => {
     if (e.checked) {
-      this.toggleNeuroView(false);
+      this.toggleNeuroView(e.checked);
       this.config.layout.showLayers && this.toggleLayout("showLayers");
     } else {
-      this.toggleNeuroView(true);
+      this.toggleNeuroView(e.checked);
       !this.config.layout.showLayers && this.toggleLayout("showLayers");
     }
   };
