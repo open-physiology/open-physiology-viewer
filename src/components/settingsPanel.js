@@ -1320,12 +1320,16 @@ export class SettingsPanel {
     this.toggleAllDynamicGroup();
   };
 
-  hideVisibleGroups = () => {
+  hideVisibleGroups = (visible) => {
     // Hide all visible
     let allVisible = this.dynamicGroups.filter((g) => g.hidden == false );
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
+        if ( !visible ){
+          lyph.hostedBy = undefined;
+          lyph.wiredTo = undefined;
+        }
       });
       this.onToggleGroup.emit(g);
     });
@@ -1334,6 +1338,10 @@ export class SettingsPanel {
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
+        if ( !visible ){
+          lyph.hostedBy = undefined;
+          lyph.wiredTo = undefined;
+        }
       });
       this.onToggleGroup.emit(g);
     });
@@ -1341,7 +1349,7 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      this.toggleNeuroView(false);
+      this.toggleNeuroView(event.checked);
 
       // Find housing lyphs of neuron, also links and chains.
       let neuronTriplets = buildNeurulatedTriplets(group);
@@ -1353,11 +1361,17 @@ export class SettingsPanel {
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-
       //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-      toggleGroupLyphsView(event, this.graphData, neuronTriplets, this.activeNeurulatedGroups);
+      findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
+      // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+      this.activeNeurulatedGroups.forEach((g) => {
+        handleNeurulatedGroup(event.checked, g, neuronTriplets);    
+      });
+      
+      let that = this;
       window.addEventListener("doneUpdating", () => { 
+        // Update hosted properties of lyphs, matching them to their region or wire
         autoLayoutNeuron(neuronTriplets.y); 
         autoLayoutNeuron(neuronTriplets.y);
       });
