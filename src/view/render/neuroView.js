@@ -153,19 +153,19 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
 }
 
 export function toggleWire(target, checked){
-  target.inactive = !checked;
-  target.hidden = !checked;
+  target.inactive = checked;
+  target.hidden = checked;
   target.sourceOf?.forEach( s => { 
     if ( s.geometry == Edge.EDGE_GEOMETRY.ARC && s.name ) {
-      s.inactive = !checked;
-      s.hidden = !checked;
+      s.inactive = checked;
+      s.hidden = checked;
     }
   });
 
   target.targetOf?.forEach( s => { 
     if ( s.geometry == Edge.EDGE_GEOMETRY.ARC && s.name ) {
-      s.inactive = !checked;
-      s.hidden = !checked;
+      s.inactive = checked;
+      s.hidden = checked;
     }
   });
 }
@@ -275,7 +275,7 @@ export function autoLayoutNeuron(lyphs) {
  * @param {*} neuronTriplets 
  * @param {*} activeNeurulatedGroups 
  */
-export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNeurulatedGroups) {
+export function findHousingLyphsGroups (graphData, neuronTriplets, activeNeurulatedGroups) {
   let matches = [];
   // Find groups where housing lyph belongs
   neuronTriplets.y?.forEach((triplet) => {
@@ -291,14 +291,8 @@ export function toggleGroupLyphsView (event, graphData, neuronTriplets, activeNe
     }
   });
 
-
   // Update hosted properties of lyphs, matching them to their region or wire
-  matches = updateLyphsHosts(matches, neuronTriplets);
-  
-  // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-  activeNeurulatedGroups.forEach((g) => {
-    handleNeurulatedGroup(event.checked, g, neuronTriplets);    
-  });
+  updateLyphsHosts(matches, neuronTriplets);
 };
 
 /**
