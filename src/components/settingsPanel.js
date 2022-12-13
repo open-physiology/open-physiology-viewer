@@ -178,7 +178,7 @@ const COLORS = {
             <div class="wrap">
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
-                (change)="enableNeuroview($event, true)"
+                (change)="handleNeuroView($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
             </div>
@@ -1349,29 +1349,30 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      this.toggleNeuroView(event.checked);
+      // V1 : Step1
+      // Step 1 Handle Neuro view initial settings. Turns OFF groups and scaffolds
+      this.handleNeuroView(true);
 
+      // V1 : Steps 3 -5 
       // Find housing lyphs of neuron, also links and chains.
       let neuronTriplets = buildNeurulatedTriplets(group);
       console.log("Neuron Information : ", neuronTriplets);
-      this.activeNeurulatedGroups.push(group);
 
-      // Step 5 :Identify TOO Map components and turn them ON/OFF
+      this.activeNeurulatedGroups.push(group);
+      // V1 Step 5 :Identify TOO Map components and turn them ON/OFF
       const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-      //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
       findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
       // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
       this.activeNeurulatedGroups.forEach((g) => {
-        handleNeurulatedGroup(event.checked, g, neuronTriplets);    
+        handleNeurulatedGroup(event.checked, g, neuronTriplets);
       });
-      
-      let that = this;
       window.addEventListener("doneUpdating", () => { 
-        // Update hosted properties of lyphs, matching them to their region or wire
+        // Run auto layout code to position lyphs on their regions and wires
         autoLayoutNeuron(neuronTriplets.y); 
         autoLayoutNeuron(neuronTriplets.y);
       });
