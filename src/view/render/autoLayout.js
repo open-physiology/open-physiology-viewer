@@ -22,7 +22,7 @@ import { rotateAroundCenter
   , setLyphScale
   , setLyphPosition   } from "./autoLayout/transform";
 
-export const LYPH_H_PERCENT_MARGIN = 0.25;
+export const LYPH_H_PERCENT_MARGIN = 0.3;
 export const LYPH_V_PERCENT_MARGIN = 0.10;
 export const MAX_LYPH_WIDTH = 100;
 export const MIN_LYPH_WIDTH = 50;
@@ -511,6 +511,13 @@ export function autoLayout(scene, graphData) {
   });
 }
 
+/**
+ * Find a point along a line
+ * @param {*} pointA 
+ * @param {*} pointB 
+ * @param {*} percentage 
+ * @returns 
+ */
 export function pointAlongLine(pointA, pointB, percentage) {
   let dir = pointB.clone().sub(pointA);
   let len = dir.length();
@@ -518,6 +525,10 @@ export function pointAlongLine(pointA, pointB, percentage) {
   return pointA.clone().add(dir);
 }
 
+/**
+ * Place lyph on wire
+ * @param {*} lyph 
+ */
 export function placeLyphInWire(lyph){
   let wiredTo = lyph.wiredTo?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
@@ -541,12 +552,16 @@ export function placeLyphInWire(lyph){
     lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
   }
 }
-
+/**
+ * Places lyph inside hosted region
+ * @param {*} lyph 
+ */
 export function placeLyphInHost(lyph){
   let hostMesh = lyph.hostedBy?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
   const lyphDim = getBoundingBoxSize(lyphMesh);
 
+  // Fit lyph to region
   fitToTargetRegion(hostMesh, lyphMesh, false); 
 
   // extract host mesh size
@@ -558,10 +573,10 @@ export function placeLyphInHost(lyph){
 
   const matchIndex = lyph.hostedBy?.hostedLyphs?.indexOf(lyph);
 
+  // Figure out X position of lyph, could have to share space with other lyphs
   let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* lyph.hostedBy?.hostedLyphs.length) * .5 );
   targetX = targetX + refPaddingX + refWidth * matchIndex + ( refPaddingX * matchIndex);
   let targetY = hostMeshPosition.y;
-
   
   lyphMesh.position.x = targetX ;
   lyphMesh.position.y = targetY ;

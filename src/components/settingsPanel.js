@@ -17,7 +17,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups,toggleWire, handleNeurulatedGroup } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire } from "../view/render/neuroView";
 
 /**
  * @ignore
@@ -159,7 +159,7 @@ const COLORS = {
             <div class="wrap">
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
-                (change)="enableNeuroview($event, true)"
+                (change)="handleNeuroView($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
             </div>
@@ -1346,29 +1346,30 @@ export class SettingsPanel {
 
   toggleGroup = (event, group) => {
     if (this.neuroViewEnabled) {
-      this.toggleNeuroView(event.checked);
+      // V1 : Step1
+      // Step 1 Handle Neuro view initial settings. Turns OFF groups and scaffolds
+      this.handleNeuroView(true);
 
+      // V1 : Steps 3 -5 
       // Find housing lyphs of neuron, also links and chains.
       let neuronTriplets = buildNeurulatedTriplets(group);
       console.log("Neuron Information : ", neuronTriplets);
-      this.activeNeurulatedGroups.push(group);
 
-      // Step 5 :Identify TOO Map components and turn them ON/OFF
+      this.activeNeurulatedGroups.push(group);
+      // V1 Step 5 :Identify TOO Map components and turn them ON/OFF
       const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
       matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
       this.config.layout.showLayers && this.toggleLayout("showLayers");
 
-      //Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+      //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
       findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
 
       // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
       this.activeNeurulatedGroups.forEach((g) => {
-        handleNeurulatedGroup(event.checked, g, neuronTriplets);    
+        handleNeurulatedGroup(event.checked, g, neuronTriplets);
       });
-      
-      let that = this;
       window.addEventListener("doneUpdating", () => { 
-        // Update hosted properties of lyphs, matching them to their region or wire
+        // Run auto layout code to position lyphs on their regions and wires
         autoLayoutNeuron(neuronTriplets.y); 
         autoLayoutNeuron(neuronTriplets.y);
       });
@@ -1393,47 +1394,34 @@ export class SettingsPanel {
     return groups;
   };
 
-  // Step 1 : Default view in the left-hand side (LHS) viewing window is a blank: no parts of the TOO map are shown;
-  toggleNeuroView = (visible) => {
-    // Hide visible group components
-    visible && this.hideVisibleGroups(visible);
+  /**
+   * Neuroview mode on or off, allows selecting only one dynamic group at a time.
+   * @param {*} visible - Checkbox event
+  */
+  handleNeuroView = (visible) => {
+    // Hide any visible groups
+    this.hideVisibleGroups(visible);
+    // Turn off all scaffolds components if neuroview is enabled, turn on if disabled.
     this.scaffolds.forEach((scaffold) => {
       scaffold.anchors?.forEach( a => a.inactive = visible);
       scaffold.regions?.forEach( r => r.inactive = visible);
       scaffold.wires?.forEach( w => { 
-        w.inactive = visible;
-        if (w.source ) { 
-          toggleWire(w.source, visible);
-        }
-        if (w.target ) { 
-          toggleWire(w.target, visible);
-        }
+        toggleWire(w, !visible);
       });
       
-      if (
-        scaffold.hidden === !visible ||
-        (visible && scaffold.hidden === undefined)
-      ) {
+      // Call event to toggle scaffolds
+      if (scaffold.hidden === !visible || (visible && scaffold.hidden === undefined)) {
         this.onToggleGroup.emit(scaffold);
       }
     });
+
+    // clear array keeping track of manipulated groups
     this.activeNeurulatedGroups = [];
+    // Update rendered scafoold components
     this.updateRenderedResources();
     this.config.layout.neuroviewEnabled = visible;
-  };
-
-  /**
-   * Neuroview mode, allows selecting only one dynamic group at a time.
-   * @param {*} e - Checkbox event
-   */
-  enableNeuroview = (e) => {
-    if (e.checked) {
-      this.toggleNeuroView(e.checked);
-      this.config.layout.showLayers && this.toggleLayout("showLayers");
-    } else {
-      this.toggleNeuroView(e.checked);
-      !this.config.layout.showLayers && this.toggleLayout("showLayers");
-    }
+    // Toggle layers on or off
+    this.config.layout.showLayers && this.toggleLayout("showLayers");
   };
 
   search(value, filterOptions, allOptions) {
