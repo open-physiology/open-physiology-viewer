@@ -173,18 +173,27 @@ export function toggleWire(target, checked){
   }
 }
 
-function toggleHostedWire(target, checked, hostedWires){
+/**
+ * Toggle wires connected between target wire and scaffold ones.
+ * @param {*} target 
+ * @param {*} checked 
+ * @param {*} hostedWires 
+ */
+function toggleHostedWire(target, checked){
   toggleWire(target, checked);
+  let anchors = [target.source.id , target.target.id];
   target.source?.sourceOf?.forEach( s => { 
-    if ( hostedWires?.find( w => w.id == s.id)) {
+    let connectedWire = ((anchors.includes(s.target.id) || anchors.includes(s.source.id)) && s.source?.sourceOf?.find( w => w.geometry  === Edge.EDGE_GEOMETRY.ARC))
+    if (target.geometry === Edge.EDGE_GEOMETRY.SPLINE  && connectedWire == undefined ) {
       toggleWire(s, checked);
-    } 
+    }  
   });
 
-  target.target?.targetOf?.forEach( s => { 
-    if ( hostedWires?.find( w => w.id == s.id)) {
+  target.source?.targetOf?.forEach( s => { 
+    let connectedWire = ((anchors.includes(s.target.id) || anchors.includes(s.source.id)) && s.target?.sourceOf?.find( w => w.geometry  === Edge.EDGE_GEOMETRY.ARC))
+    if (target.geometry === Edge.EDGE_GEOMETRY.SPLINE && connectedWire == undefined) {
       toggleWire(s, checked);
-    }
+    } 
   });
 }
 
@@ -253,7 +262,7 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
     });
 
     // Find all wires on the scaffold that are Arcs and have a name. This will turn on the Rings for the F/D Scaffold
-    let scaffoldMatchs = scaffold.wires?.filter( wire => wire.geometry == Edge.EDGE_GEOMETRY.ARC && wire.name );
+    let scaffoldMatchs = scaffold.wires?.filter( wire => wire.geometry == Edge.EDGE_GEOMETRY.ARC && wire.color != "#000" );
     scaffoldMatchs.filter( scaffoldMatch => {
       scaffoldMatch.inactive = !checked;
       scaffoldMatch.hidden = !checked;
@@ -265,7 +274,7 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
     neuronTriplets.w.forEach((w) => {
       let scaffoldMatch = scaffold.wires?.find( wire => wire.id == w.id);
       if ( scaffoldMatch ) {
-        toggleHostedWire(scaffoldMatch, checked, neuronTriplets.w);
+        toggleHostedWire(scaffoldMatch, checked);
       }
     });
   });
