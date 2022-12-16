@@ -38,9 +38,6 @@ export function buildNeurulatedTriplets(group) {
       l.levelIn?.forEach( ll =>  ll.housingLyphs?.forEach( lyph => (!housingLyphs.includes(lyph) && housingLyphs.push(lyph))));
     }
   });
-   //links -> lyphs
-  // Traverse through layers of fasciculatesIn, get to inmediate housing lyph: internalIn and layerIn
-  // axis property
   console.log("housingLyphs ", housingLyphs);
 
   let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy); //lyphs -> regions
@@ -213,13 +210,8 @@ function toggleRegions(scaffoldsList, neuronTriplets, checked){
         if ( match === undefined ) {
           region.inactive = checked;
           region.hostedLyphs = [];
-          region.borderAnchors?.forEach((anchor) => (anchor.inactive = checked));
-          region.facets?.forEach((facet) => (facet.inactive = checked));
-
         } else {
           region.inactive = !checked;
-          region.borderAnchors?.forEach((anchor) => (anchor.inactive = !checked));
-          region.facets?.forEach((facet) => (facet.inactive = !checked));
           region.hostedLyphs = [];
           if ( match?.namespace != region.namespace ) {
             neuronTriplets.r = neuronTriplets?.r?.filter(
@@ -262,6 +254,7 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
     });
 
     // Find all wires on the scaffold that are Arcs and have a name. This will turn on the Rings for the F/D Scaffold
+    // FIXME : Find a better way to filter helper wires, and only turn on ones that belong to the F/D ring
     let scaffoldMatchs = scaffold.wires?.filter( wire => wire.geometry == Edge.EDGE_GEOMETRY.ARC && wire.color != "#000" );
     scaffoldMatchs.filter( scaffoldMatch => {
       scaffoldMatch.inactive = !checked;
@@ -365,7 +358,7 @@ function updateLyphsHosts(matches,neuronTriplets){
 }
 
 /**
- * Find the housing lyph of a lyph.
+ * Find the housing lyph of a lyph component.
  * @param {*} lyph - Target lyph we the need the house for
  * @returns 
  */

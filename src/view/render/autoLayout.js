@@ -21,6 +21,7 @@ import { rotateAroundCenter
   , translateGroupToTarget
   , setLyphScale
   , setLyphPosition   } from "./autoLayout/transform";
+import { DIALOG_SCROLL_STRATEGY_PROVIDER_FACTORY } from "@angular/cdk/dialog";
 
 export const LYPH_H_PERCENT_MARGIN = 0.3;
 export const LYPH_V_PERCENT_MARGIN = 0.10;
@@ -68,13 +69,9 @@ export function fitToTargetRegion(target, source, lyphInLyph) {
   if ( lyphInLyph ) {
     let idealSize = maxLyphSize(target);
 
-    if ( idealSize < MIN_INNER_LYPH_WIDTH ){
-      idealSize = MIN_INNER_LYPH_WIDTH 
-    }
-    
-    sx = ( idealSize / sourceSize.x ) * ( 1 - LYPH_H_PERCENT_MARGIN);
-    sy = ( idealSize / sourceSize.y ) * ( 1 - LYPH_V_PERCENT_MARGIN);
-    sz = ( idealSize / sourceSize.z ) ;
+    sx = idealSize / sourceSize.x;
+    sy = idealSize / sourceSize.y;
+    sz = DIMENSIONS.LYPH_MIN_Z + 1;
   } else {
     let idealSize = maxLyphSize(target);
 
@@ -99,7 +96,10 @@ export function maxLyphSize(target) {
 
   let hostMaxSize = Math.max(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
   let hostMinSize = Math.min(targetSize.x, targetSize.y)* ( 1 - LYPH_H_PERCENT_MARGIN);
-  let idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.filter( l => !l.hidden )?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+  let idealSize = hostMinSize;
+  if (  target?.userData?.hostedLyphs ){
+    idealSize = (hostMaxSize / target?.userData?.hostedLyphs?.filter( l => !l.hidden )?.length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+  }
   if ( idealSize > hostMinSize ){
     idealSize = hostMinSize;
   }
@@ -557,12 +557,12 @@ export function placeLyphInWire(lyph){
  * @param {*} lyph 
  */
 export function placeLyphInHost(lyph){
-  let hostMesh = lyph.hostedBy?.viewObjects["main"];
+  let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
   const lyphDim = getBoundingBoxSize(lyphMesh);
 
   // Fit lyph to region
-  fitToTargetRegion(hostMesh, lyphMesh, false); 
+  fitToTargetRegion(hostMesh, lyphMesh, hostMesh?.userData?.class == "Lyph"); 
 
   // extract host mesh size
   const maxSize = maxLyphSize(hostMesh);
@@ -571,10 +571,10 @@ export function placeLyphInHost(lyph){
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
   const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
 
-  const matchIndex = lyph.hostedBy?.hostedLyphs?.indexOf(lyph);
-
+  const matchIndex = hostMesh?.userData?.hostedLyphs?.indexOf(lyph) || 0;
+  let hostLyphsLength = hostMesh?.userData?.hostedLyphs?.length || 1;
   // Figure out X position of lyph, could have to share space with other lyphs
-  let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* lyph.hostedBy?.hostedLyphs.length) * .5 );
+  let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* hostLyphsLength) * .5 );
   targetX = targetX + refPaddingX + refWidth * matchIndex + ( refPaddingX * matchIndex);
   let targetY = hostMeshPosition.y;
   

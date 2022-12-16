@@ -152,7 +152,7 @@ Lyph.prototype.autoSize = function(){
     // Continue if there's a THREE object
     if (this.viewObjects["main"]) {
         // Get the host, usually a region or another lyph
-        let hostMesh = this.hostedBy?.viewObjects["main"];
+        let hostMesh = this.hostedBy?.viewObjects["main"] || this.housingLyph?.viewObjects["main"];
         if ( hostMesh ) {
             // Place and scale lyph inside host region or lyph
             placeLyphInHost(this)
