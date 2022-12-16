@@ -1400,7 +1400,19 @@ export class SettingsPanel {
   */
   handleNeuroView = (visible) => {
     // Hide any visible groups
-    this.hideVisibleGroups(visible);
+    
+    if ( visible ) {
+      this.hideVisibleGroups(visible);
+    } else {
+      let visibleGroups = this.dynamicGroups.filter( dg => !dg.hidden );
+      visibleGroups?.forEach(group => { 
+        group.lyphs.forEach( lyph => {
+          lyph.hidden = false;
+          lyph.inactive = false;
+        });
+      });
+    }
+
     // Turn off all scaffolds components if neuroview is enabled, turn on if disabled.
     this.scaffolds.forEach((scaffold) => {
       scaffold.anchors?.forEach( a => a.inactive = visible);
