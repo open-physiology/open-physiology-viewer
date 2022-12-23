@@ -159,12 +159,12 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
 export function toggleWire(target, checked){
   target.inactive = !checked;
   target.hidden = !checked;
-  if ( target.source ){
+  if ( target.source && typeof target.source === 'object'){
     target.source.inactive = !checked;
     target.source.hidden = !checked;
   }
 
-  if ( target.target ){
+  if ( target.target && typeof target.target === 'object'){
     target.target.inactive = !checked;
     target.target.hidden = !checked;
   }
