@@ -1415,8 +1415,8 @@ export class SettingsPanel {
 
     // Turn off all scaffolds components if neuroview is enabled, turn on if disabled.
     this.scaffolds.forEach((scaffold) => {
-      scaffold.anchors?.forEach( a => a.inactive = visible);
-      scaffold.regions?.forEach( r => r.inactive = visible);
+      scaffold.anchors?.filter( a => typeof a === 'object' ).forEach( a => a.inactive = visible);
+      scaffold.regions?.filter( r => typeof r === 'object' ).forEach( r => r.inactive = visible);
       scaffold.wires?.forEach( w => { 
         toggleWire(w, !visible);
       });
