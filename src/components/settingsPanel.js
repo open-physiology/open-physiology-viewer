@@ -17,7 +17,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire, getHouseLyph } from "../view/render/neuroView";
 
 /**
  * @ignore
@@ -1345,6 +1345,8 @@ export class SettingsPanel {
   };
 
   toggleGroup = (event, group) => {
+    
+    let neuronTriplets = buildNeurulatedTriplets(group);
     if (this.neuroViewEnabled) {
       // V1 : Step1
       // Step 1 Handle Neuro view initial settings. Turns OFF groups and scaffolds
@@ -1352,7 +1354,6 @@ export class SettingsPanel {
 
       // V1 : Steps 3 -5 
       // Find housing lyphs of neuron, also links and chains.
-      let neuronTriplets = buildNeurulatedTriplets(group);
       console.log("Neuron Information : ", neuronTriplets);
 
       this.activeNeurulatedGroups.push(group);
@@ -1370,11 +1371,14 @@ export class SettingsPanel {
       });
       window.addEventListener("doneUpdating", () => { 
         // Run auto layout code to position lyphs on their regions and wires
-        autoLayoutNeuron(neuronTriplets.y); 
-        autoLayoutNeuron(neuronTriplets.y);
+        autoLayoutNeuron(neuronTriplets.y, group);
       });
     } else {
       this.onToggleGroup.emit(group);
+
+      window.addEventListener("doneUpdating", () => { 
+        autoLayoutNeuron(neuronTriplets.y, group);
+      });
     }
   };
 

@@ -77,15 +77,28 @@ Node.prototype.updateViewObjects = function(state) {
         }
         else if ( this.internalIn ) {
             let housingLyph = this.internalIn;
-            if ( housingLyph?.class != "Lyph" || housingLyph?.layerIn ){
-                housingLyph = getHouseLyph(this.internalIn);
+            if ( housingLyph?.class != "Lyph" ){
+                housingLyph = getHouseLyph(housingLyph);
+                housingLyph?.viewObjects["main"] && copyCoords(housingLyph, getWorldPosition(housingLyph.viewObjects["main"]));
+                copyCoords(this,housingLyph);
+            } else if ( housingLyph?.layerIn ){
+                if ( !housingLyph?.layerIn?.viewObjects["main"]?.visible ){
+                    housingLyph = getHouseLyph(housingLyph);
+                    housingLyph?.viewObjects["main"] && copyCoords(housingLyph, getWorldPosition(housingLyph.viewObjects["main"]));
+                    copyCoords(this,housingLyph);
+                } else {
+                    housingLyph?.viewObjects["main"] && copyCoords(housingLyph, getWorldPosition(housingLyph.viewObjects["main"]));
+                    copyCoords(this,housingLyph);
+                }
+            } else {
+                housingLyph?.viewObjects["main"] && copyCoords(this,getWorldPosition(housingLyph.viewObjects["main"]));
             }
-            copyCoords(this, housingLyph);
         } else if (this.cloneOf) {
             copyCoords(this, this.cloneOf);
         } else if (this.hostedBy) {
             let housingLyph = getHouseLyph(this.hostedBy);
-            copyCoords(this, housingLyph);
+            housingLyph?.viewObjects["main"] && copyCoords(housingLyph, getWorldPosition(housingLyph?.viewObjects["main"]));
+            housingLyph && copyCoords(this, housingLyph);
         } else if ( this.targetOf ){
             this.targetOf?.forEach( link => {
                 let sourceLyph = undefined;
@@ -105,7 +118,30 @@ Node.prototype.updateViewObjects = function(state) {
                 link.levelIn?.forEach( chain => {
                     housingLyph = chain.housingLyphs?.find( lyph => lyph.id !== usedHousingLyph?.id);
                 })
-                copyCoords(this, housingLyph);
+                housingLyph?.viewObjects["main"] && copyCoords(housingLyph, getWorldPosition(housingLyph?.viewObjects["main"]));
+                housingLyph && copyCoords(this, housingLyph);
+            })
+        } else if ( this.sourceOf ){
+            this.sourceOf?.forEach( link => {
+                let sourceLyph = undefined;
+                link.source?.clones?.forEach( clone => {
+                    sourceLyph = clone;
+                });
+
+                let targetLyph = undefined;
+                link.target?.clones?.forEach( clone => {
+                    targetLyph = clone;
+                });
+                    
+                sourceLyph !== undefined ? sourceLyph = getHouseLyph(sourceLyph) : null;
+                targetLyph !== undefined ? targetLyph = getHouseLyph(targetLyph) : null;
+                let usedHousingLyph = sourceLyph || targetLyph;
+                let housingLyph = undefined;
+                link.levelIn?.forEach( chain => {
+                    housingLyph = chain.housingLyphs?.find( lyph => lyph.id !== usedHousingLyph?.id);
+                })
+                housingLyph?.viewObjects["main"] && copyCoords(housingLyph, getWorldPosition(housingLyph?.viewObjects["main"]));
+                housingLyph && copyCoords(this, housingLyph);
             })
         }
     }
