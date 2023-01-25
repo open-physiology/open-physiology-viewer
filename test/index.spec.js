@@ -473,7 +473,7 @@ describe("Find paths from neurons to scaffold wires (via housing lyphs)", () => 
             let hostedLinks = n_5.links.filter(l => l.fasciculatesIn || l.endsIn);
             expect(hostedLinks.length).to.be.equal(110);
             let housingLyphs = [...new Set(hostedLinks.map(l => l.fasciculatesIn || l.endsIn))];
-            expect(housingLyphs.length).to.be.equal(37);
+            expect(housingLyphs.length).to.be.equal(43);
 
             let housingLyphsInChains = housingLyphs.filter(h => h.axis?.levelIn);
             let housingChains = [...new Set(housingLyphsInChains.map(h => h.axis.levelIn)::flatten())]; // lyphs -> chains

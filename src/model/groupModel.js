@@ -3,7 +3,7 @@ import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
 
-import {isObject, unionBy, merge, keys, entries, isArray, pick, sortBy, isNumber} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {
     $SchemaClass,
     $Field,
@@ -69,9 +69,6 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         res.assignScaffoldComponents();
-        if (res.groups) {
-            res.groups = res.groups::sortBy($Field.fullID);
-        }
         return res;
     }
 
