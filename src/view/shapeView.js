@@ -168,7 +168,7 @@ Lyph.prototype.autoSize = function(){
 
         let that = this;
         this?.layers?.forEach((layer,index) => { 
-            const house = getHouseLyph(layer.layerIn)
+            const house = getHouseLyph(layer)
             const obj = layer?.viewObjects["main"]
             let hostMeshPosition = obj.position;
             if ( house?.viewObjects["main"] ) {

@@ -1371,13 +1371,16 @@ export class SettingsPanel {
       });
       window.addEventListener("doneUpdating", () => { 
         // Run auto layout code to position lyphs on their regions and wires
-        autoLayoutNeuron(neuronTriplets.y, group);
+        group.neurulated && autoLayoutNeuron(neuronTriplets, group);
+        group.neurulated && autoLayoutNeuron(neuronTriplets, group);
+
       });
+      group.neurulated = true;
     } else {
       this.onToggleGroup.emit(group);
 
       window.addEventListener("doneUpdating", () => { 
-        autoLayoutNeuron(neuronTriplets.y, group);
+        group.neurulated && autoLayoutNeuron(neuronTriplets, group);
       });
     }
   };
@@ -1407,6 +1410,27 @@ export class SettingsPanel {
     
     if ( visible ) {
       this.hideVisibleGroups(visible);
+      let that = this;
+      document.addEventListener('keydown', (e) => {  
+          e.preventDefault();
+          if ((e.metaKey || e.ctrlKey) && e.code === 'KeyL') {
+            let visibleGroups = this.dynamicGroups.filter( dg => !dg.hidden );
+            visibleGroups?.forEach(group => { 
+              group.links?.forEach( lyph => {
+                lyph.viewObjects["main"].material.lineWidth = lyph.viewObjects["main"].material.lineWidth + .1;
+              });
+            });
+          }
+          if ((e.metaKey || e.ctrlKey) && e.code === 'KeyK') {
+            let visibleGroups = this.dynamicGroups.filter( dg => !dg.hidden );
+            visibleGroups?.forEach(group => { 
+              group.links?.forEach( lyph => {
+                lyph.viewObjects["main"].material.lineWidth = lyph.viewObjects["main"].material.lineWidth - .1;
+                lyph.viewObjects["main"].geometry.verticesNeedUpdate = true;
+              });
+            });
+          }    
+      })
     } else {
       let visibleGroups = this.dynamicGroups.filter( dg => !dg.hidden );
       visibleGroups?.forEach(group => { 
