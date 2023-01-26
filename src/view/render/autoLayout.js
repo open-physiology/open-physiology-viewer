@@ -1,5 +1,5 @@
 import {
- getDefaultControlPoint
+ getDefaultControlPoint, copyCoords
 } from "../utils";
 
 import { getSceneObjectByModelClass
@@ -68,7 +68,7 @@ export function fitToTargetRegion(target, source, lyphInLyph) {
 
   sx = idealSize / sourceSize.x;
   sy = idealSize / sourceSize.y;
-  sz = DIMENSIONS.LYPH_MIN_Z + 1;
+  sz = DIMENSIONS.LYPH_MIN_Z + .2;
 
   source.scale.setX(sx);
   source.scale.setY(sy);
@@ -108,7 +108,7 @@ export function maxLyphSize(target) {
     }
     
     if ( length == 1 ){
-      idealSize = hostMinSize/5;
+      idealSize = hostMinSize/3;
     }
   
   }
@@ -558,6 +558,7 @@ export function placeLyphInWire(lyph){
     const refHeight  = lyphDim.y * lyphMesh.scale.y;
     lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
     lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
+    copyCoords(lyph, lyphMesh.position);
   }
 }
 /**
@@ -568,21 +569,23 @@ export function placeLyphInHost(lyph){
   let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
   const lyphDim = getBoundingBoxSize(lyphMesh);
-  const hostDim = getBoundingBoxSize(hostMesh);
   
+  hostMesh.geometry.computeBoundingBox();
+
   // Fit lyph to region
   fitToTargetRegion(hostMesh, lyphMesh, hostMesh?.userData?.class == "Lyph"); 
 
-  // extract host mesh size
-  const maxSize = maxLyphSize(hostMesh);
-
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
-  const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.25;
+  const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.55;
 
   let matchIndex = hostMesh?.userData?.hostedLyphs?.indexOf(lyph);
   if ( matchIndex == undefined || matchIndex < 0 ){
     matchIndex = hostMesh?.userData?.internalLyphs?.indexOf(lyph)
+  }
+
+  if ( matchIndex == undefined ){
+    matchIndex = 1;
   }
 
   let hostLyphsLength = hostMesh?.userData?.hostedLyphs?.length;
@@ -590,13 +593,19 @@ export function placeLyphInHost(lyph){
     hostLyphsLength = hostMesh?.userData?.internalLyphs?.length;
   }
 
+  if ( hostLyphsLength == undefined ){
+    hostLyphsLength = 1;
+  }
+
   // Figure out X position of lyph, could have to share space with other lyphs
-  let targetX = hostMeshPosition.x - (((refWidth ) * hostLyphsLength) * .5 );
-  targetX = targetX + refPaddingX + refWidth * matchIndex + ( refPaddingX * matchIndex);
+  let targetX = hostMeshPosition.x - (((refWidth ) * hostLyphsLength) * .6 );
+  targetX = targetX + refPaddingX+ refWidth * matchIndex + ( refPaddingX * (matchIndex ))  + refPaddingX;
   let targetY = hostMeshPosition.y;
   
   lyphMesh.position.x = targetX ;
   lyphMesh.position.y = targetY ;
-  hostMesh?.userData?.class == "Lyph" ? lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z + 1 :lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z;
+  hostMesh?.userData?.class == "Lyph" ? lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z + .2 :lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z;
   lyphMesh.geometry.center();
+
+  copyCoords(lyph, lyphMesh.position);
 }

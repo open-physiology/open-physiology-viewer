@@ -41,6 +41,7 @@ VisualResource.prototype.updateLabels = function(position){
         this.labels[labelKey].visible = (this.viewObjects["main"]?.visible ) && this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
+            position ? position.y = position.y - 20 : null;
             copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];
         }
