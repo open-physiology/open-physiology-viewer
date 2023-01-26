@@ -75,15 +75,15 @@ export function cloneTargetGeometry(target, source) {
 export function getMiddle(object)
 {
   var middle = new THREE.Vector3();
-  object.geometry.computeBoundingBox();
-  object.geometry.boundingBox.getCenter( middle );
+  object?.geometry.computeBoundingBox();
+  object?.geometry.boundingBox.getCenter( middle );
   return middle ;
 }
 
 export function getCenterPoint(mesh) {
 
   const middle = getMiddle(mesh);
-  mesh.localToWorld( middle );
+  mesh?.localToWorld( middle );
 
   return middle;
 }
@@ -143,7 +143,7 @@ export function getPointInBetweenByPerc(pointA, pointB, percentage) {
 
 export function getWorldPosition(host){
   var position = new THREE.Vector3();
-  host.getWorldPosition(position);
+  host?.getWorldPosition(position);
   return getCenterPoint(host);
 }
 

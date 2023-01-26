@@ -1374,13 +1374,16 @@ export class SettingsPanel {
       });
       window.addEventListener("doneUpdating", () => { 
         // Run auto layout code to position lyphs on their regions and wires
-        autoLayoutNeuron(neuronTriplets.y, group);
+        group.neurulated && autoLayoutNeuron(neuronTriplets, group);
+        group.neurulated && autoLayoutNeuron(neuronTriplets, group);
+
       });
+      group.neurulated = true;
     } else {
       this.onToggleGroup.emit(group);
 
       window.addEventListener("doneUpdating", () => { 
-        autoLayoutNeuron(neuronTriplets.y, group);
+        group.neurulated && autoLayoutNeuron(neuronTriplets, group);
       });
     }
   };
