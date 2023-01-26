@@ -794,6 +794,80 @@
         }
       }
     },
+    "VarianceSpec": {
+      "description": "Specification of variance among species",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "properties": {
+        "hasInstanceInSpecies": {
+          "description": "External resources identifying species",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          }
+        },
+        "hasInstanceInTaxon": {
+          "description": "External resources identifying taxon",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          }
+        },
+        "includes": {
+          "description": "Variance specifications which are parts of the given specification",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VarianceSpec"
+              }
+            ]
+          }
+        },
+        "isBasalInClade": {
+          "description": "Ontology term that identifies resource from which the variance present in all descendants unless lost",
+          "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+        },
+        "isAbsentInClade": {
+          "description": "Ontology term that identifies resource which masks the basal variant",
+          "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+        }
+      }
+    },
     "Graph": {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$ref": "#/definitions/Group",
@@ -1022,7 +1096,15 @@
             "$ref": "#/definitions/Scaffold"
           },
           "advanced": true
-        }
+        },
+        "varianceSpecs": {
+          "description": "Specifications of variance among species",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/VarianceSpec"
+            },
+            "advanced": true
+          }
       }
     },
     "EdgeGeometryScheme": {
@@ -2392,6 +2474,20 @@
             ]
           },
           "relatedTo": "annotates"
+        },
+        "varianceSpecs": {
+          "description": "Variance specifications associated with the resource",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VarianceSpec"
+              }
+            ]
+          }
         }
       }
     },

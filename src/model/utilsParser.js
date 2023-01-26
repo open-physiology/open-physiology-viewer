@@ -108,8 +108,13 @@ export function replaceReferencesToExternal(parentGroup, localConventions) {
             (resources || []).forEach(resource => {
                 (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
                     if (refsToExternal.includes(key)) {
-                         //All external annotations are in arrays
-                         resource[key] = resource[key].map(ref => replaceExternalPrefix(ref));
+                        if (resource[key]) {
+                            if (resource[key]::isArray()) {
+                                resource[key] = resource[key].map(ref => replaceExternalPrefix(ref));
+                            } else {
+                                resource[key] = replaceExternalPrefix(resource[key])
+                            }
+                        }
                     }
                 });
             })
