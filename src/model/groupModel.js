@@ -39,6 +39,7 @@ import {logger, $LogMsg} from './logger';
  * @property coalescences
  * @property scaffolds
  * @property hostedBy
+ * @property varianceSpecs
  */
 export class Group extends Resource {
     /**

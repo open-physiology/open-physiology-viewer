@@ -43,6 +43,7 @@ export const ModelType = {
  * @property External
  * @property Reference
  * @property OntologyTerm
+ * @property VarianceSpec
  * @property VisualResource
  * @property Vertice
  * @property Node

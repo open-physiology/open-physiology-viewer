@@ -8,6 +8,7 @@ import {Component} from './componentModel';
 import {Graph}   from './graphModel';
 import {Scaffold} from './scaffoldModel';
 import {Resource, External, Reference, OntologyTerm} from './resourceModel';
+import {VarianceSpec} from "./varianceSpecModel";
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
@@ -44,6 +45,7 @@ export const modelClasses = {
     [$SchemaClass.External]       : External,
     [$SchemaClass.Reference]      : Reference,
     [$SchemaClass.OntologyTerm]   : OntologyTerm,
+    [$SchemaClass.VarianceSpec]   : VarianceSpec,
     [$SchemaClass.Coalescence]    : Coalescence,
     [$SchemaClass.Channel]        : Channel,
     [$SchemaClass.Chain]          : Chain,
