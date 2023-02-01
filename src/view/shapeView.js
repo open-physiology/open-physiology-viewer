@@ -169,17 +169,17 @@ Lyph.prototype.autoSize = function(){
         let that = this;
         this?.layers?.forEach((layer,index) => { 
             const house = getHouseLyph(layer)
-            const obj = layer?.viewObjects["main"]
+            let obj = layer?.viewObjects["main"]
             let hostMeshPosition = obj.position;
             if ( house?.viewObjects["main"] ) {
                 const houseDim = getBoundingBoxSize(house?.viewObjects["main"]);
                 const size = houseDim.y / that.layers.length 
                 let y = (0 - houseDim.x/2) + ( (size/2) * (index + 0 ));
-                hostMeshPosition = new THREE.Vector3(y,0,1);
+                hostMeshPosition = new THREE.Vector3(y,0,DIMENSIONS.LYPH_MIN_Z);
             }
             obj.position.x = hostMeshPosition.x;
             obj.position.y = hostMeshPosition.y;
-            obj.position.z = house?.viewObjects["main"]?.position?.z;
+            obj.position.z = DIMENSIONS.LAYER_MIN_Z;;
                 
             obj.geometry.center();
                 
@@ -460,6 +460,7 @@ Region.prototype.updateViewObjects = function(state) {
     state && this.border.updateViewObjects(state);
     state && this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 
+    // this.hostedLyphs = this.hostedLyphs?.sort((a, b) => -1 * a.id.localeCompare(b.id));
     if ( this.hostedLyphs?.length > 0 && obj ) {
         this.hostedLyphs?.forEach( lyph => {
             if ( !lyph.hidden && lyph.viewObjects["main"] ) {
@@ -481,7 +482,6 @@ Region.prototype.updateViewObjects = function(state) {
                 
                 lyphMesh.position.x = targetX ;
                 lyphMesh.position.y = targetY ;
-                lyphMesh.position.z = DIMENSIONS.REGION_MIN_Z;
                 copyCoords(lyph, lyphMesh.position);         
             }
         })

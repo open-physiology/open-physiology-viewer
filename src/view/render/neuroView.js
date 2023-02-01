@@ -291,12 +291,7 @@ export function autoLayoutNeuron(triplets, group) {
   });
 
   group?.lyphs?.forEach( m => {
-    let l = getHouseLyph(m);
-    l.internalLyphs = []
-  });
-
-  group?.lyphs?.forEach( m => {
-    let l = getHouseLyph(m);
+    let l = getNodeLyph(m);
     l?.internalLyphs
     ? l.internalLyphs?.includes(m)
       ? null
@@ -304,8 +299,8 @@ export function autoLayoutNeuron(triplets, group) {
     : (l.internalLyphs = [m]);
   });
   
-  group?.lyphs?.forEach((m) => {
-    m.autoSize();
+  group?.lyphs?.forEach((lyph) => {
+    lyph.autoSize();
   });
 }
 
