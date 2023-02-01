@@ -19,20 +19,20 @@ import { trasverseHostedBy
 import { translateMeshToTarget
   , translateGroupToTarget
   , setLyphScale
-  , setLyphPosition   } from "./autoLayout/transform";
+  , setLyphPosition
+  , rotateAroundCenter   } from "./autoLayout/transform";
 
-import { getHouseLyph } from "./neuroView";
-
-export const LYPH_H_PERCENT_MARGIN = 0.3;
-export const LYPH_V_PERCENT_MARGIN = 0.10;
+export const LYPH_H_PERCENT_MARGIN = 0.2;
+export const LYPH_V_PERCENT_MARGIN = 0.05;
 export const MAX_LYPH_WIDTH = 100;
 export const MIN_LYPH_WIDTH = 50;
 export const MIN_INNER_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
-  LYPH_MIN_Z : 2,
-  REGION_MIN_Z : 1,
-  LINK_MIN_Z : 3,
-  WIRE_MIN_Z : 1
+  LYPH_MIN_Z : .2,
+  REGION_MIN_Z : 0,
+  LINK_MIN_Z : .5,
+  WIRE_MIN_Z : 0,
+  LAYER_MIN_Z : .2
 }
 
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
@@ -96,22 +96,24 @@ export function maxLyphSize(target) {
     idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
 
     if ( idealSize > hostMinSize ){
-      idealSize = hostMinSize;
+      idealSize = hostMinSize / 2;
     }
   }
-  if (  target?.userData?.internalLyphs ){
+  else if (  target?.userData?.internalLyphs ){
     length = target?.userData?.internalLyphs?.length;
     idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
 
     if ( idealSize > hostMinSize ){
-      idealSize = hostMinSize;
+      idealSize = hostMinSize / 2;
     }
     
     if ( length == 1 ){
-      idealSize = hostMinSize/3;
-    }
-  
+      idealSize = hostMinSize/4;
+    }  
+
+    target?.userData?.layerIn ? idealSize = hostMinSize * 3  : null;
   }
+
   return idealSize;
 }
 
@@ -199,8 +201,8 @@ export function arrangeLyphsGrid(lyphs, h, v) {
   const refWidth  = refSize.x * refLyph.scale.x ;
   const refHeight = refSize.y * refLyph.scale.y ;
 
-  const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
-  const refPaddingY = refHeight * LYPH_V_PERCENT_MARGIN * 0.5 ;
+  const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN ;
+  const refPaddingY = refHeight * LYPH_V_PERCENT_MARGIN ;
 
   let maxX = 0 ;
   let maxY = 0 ;
@@ -577,35 +579,37 @@ export function placeLyphInHost(lyph){
 
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
-  const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.55;
+  const refPaddingX = refWidth * (LYPH_H_PERCENT_MARGIN);
 
-  let matchIndex = hostMesh?.userData?.hostedLyphs?.indexOf(lyph);
-  if ( matchIndex == undefined || matchIndex < 0 ){
-    matchIndex = hostMesh?.userData?.internalLyphs?.indexOf(lyph)
+  let matchIndex = 0;
+  if ( hostMesh?.userData?.hostedLyphs?.indexOf(lyph) >= 0 ){
+    matchIndex = hostMesh?.userData?.hostedLyphs?.indexOf(lyph)
+  } else if ( hostMesh?.userData?.internalLyphs?.indexOf(lyph) >= 0 ) {
+    matchIndex = hostMesh?.userData?.internalLyphs?.indexOf(lyph);
   }
 
-  if ( matchIndex == undefined ){
-    matchIndex = 1;
-  }
-
-  let hostLyphsLength = hostMesh?.userData?.hostedLyphs?.length;
-  if ( hostLyphsLength == undefined || hostLyphsLength < 0 ){
+  let hostLyphsLength = 1;
+  if ( hostMesh?.userData?.hostedLyphs?.length >= 1 ){
+    hostLyphsLength = hostMesh?.userData?.hostedLyphs?.length;
+  } else if ( hostMesh?.userData?.internalLyphs?.length >= 1 ) {
     hostLyphsLength = hostMesh?.userData?.internalLyphs?.length;
-  }
-
-  if ( hostLyphsLength == undefined ){
-    hostLyphsLength = 1;
-  }
+  } else if ( hostMesh?.userData?.layerIn ) {
+    hostLyphsLength = hostMesh?.userData?.layerIn?.internalLyphs?.length;
+  } 
 
   // Figure out X position of lyph, could have to share space with other lyphs
-  let targetX = hostMeshPosition.x - (((refWidth ) * hostLyphsLength) * .6 );
-  targetX = targetX + refPaddingX+ refWidth * matchIndex + ( refPaddingX * (matchIndex ))  + refPaddingX;
+  let targetX = hostMeshPosition.x + (refPaddingX/2) - (((refWidth / 2 ) * hostLyphsLength) );
+  hostLyphsLength <= 1 ? targetX = hostMeshPosition.x + refPaddingX/2 - (((refWidth/3 )) ) : null;
+  targetX = targetX + refPaddingX+ refWidth * matchIndex + ( refPaddingX * (matchIndex ));
   let targetY = hostMeshPosition.y;
-  
+
+  rotateAroundCenter(lyphMesh, hostMesh.rotation.x, hostMesh.rotation.y, hostMesh.rotation.z);
   lyphMesh.position.x = targetX ;
   lyphMesh.position.y = targetY ;
-  hostMesh?.userData?.class == "Lyph" ? lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z + .2 :lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z;
+  lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z + .2;
   lyphMesh.geometry.center();
+  lyphMesh.geometry.computeBoundingBox();
+  rotateAroundCenter(lyphMesh, hostMesh.rotation.x, hostMesh.rotation.y, hostMesh.rotation.z);
 
   copyCoords(lyph, lyphMesh.position);
 }
