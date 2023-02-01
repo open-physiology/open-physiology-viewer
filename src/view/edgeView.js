@@ -47,8 +47,8 @@ Edge.prototype.getViewObject = function (state){
         } else {
             //Normal lines
             material = MaterialFactory.createLineBasicMaterial({
-                color: "#000000",
-                lineWidth: this.lineWidth + .1,
+                color: this.color,
+                lineWidth: 1,
                 polygonOffsetFactor: this.polygonOffsetFactor
             });
         }
@@ -242,7 +242,7 @@ Link.prototype.updateViewObjects = function(state) {
                 if (linkPos) {
                     this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.z = DIMENSIONS.LYPH_MIN_Z;
+                    obj.position.z = DIMENSIONS.LINK_MIN_Z;
                     obj.geometry.verticesNeedUpdate = true;
                     obj.geometry.computeBoundingBox();
                     obj.geometry.computeBoundingSphere();

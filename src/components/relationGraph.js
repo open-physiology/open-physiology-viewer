@@ -448,7 +448,10 @@ export class RelGraph {
                 this.selected = d
             });
 
-            node.on("click", d => this.selected = d);
+            node.on("click", d => { 
+                this.selected = d;
+                console.log("D selected ", d);
+            });
 
             node.on("mouseover", d => {
                 this.highlighted = d;
