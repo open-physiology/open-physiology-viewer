@@ -79,16 +79,14 @@ Node.prototype.updateViewObjects = function(state) {
             housingLyph ? null : housingLyph = this.cloneOf?.targetOf[0]?.conveyingLyph;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
-        } else if (this.hostedBy) {
-            let housingLyph = this.sourceOf[0]?.conveyingLyph;
-            let position = getWorldPosition(housingLyph?.viewObjects["main"]);
-            copyCoords(this, position);
         } else if ( this.sourceOf ){
             let housingLyph = this.sourceOf[0]?.conveyingLyph;
+            housingLyph ? null : housingLyph = this.targetOf[0]?.conveyingLyph;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
         } else if ( this.targetOf ){
             let housingLyph = this.targetOf[0]?.conveyingLyph;
+            housingLyph ? null : housingLyph = this.sourceOf[0]?.conveyingLyph;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
         } else if ( this.internalIn ) {
@@ -98,6 +96,11 @@ Node.prototype.updateViewObjects = function(state) {
             } else if ( housingLyph?.layerIn ){
                 housingLyph = housingLyph;
             }
+            let position = getWorldPosition(housingLyph?.viewObjects["main"]);
+            copyCoords(this, position);
+        } else if (this.hostedBy) {
+            let housingLyph = this.sourceOf[0]?.conveyingLyph;
+            housingLyph ? null : housingLyph = this.targetOf[0]?.conveyingLyph;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
         }

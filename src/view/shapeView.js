@@ -15,7 +15,7 @@ import {
     THREE
 } from "./utils";
 import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
-import { getHouseLyph } from "./render/neuroView";
+import { getHouseLyph, getNodeLyph } from "./render/neuroView";
 import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
@@ -298,7 +298,7 @@ Lyph.prototype.createViewObjects = function(state) {
         });
     }
     //Do not create labels for layers and nested lyphs
-    if (this.layerIn || this.internalIn) { return; }
+    if (this.layerIn) { return; }
     this.createLabels();
 };
 
