@@ -6,6 +6,7 @@ import {
 } from "./utils";
 
 import './lines/Line2.js';
+import { getBoundingBoxSize } from "./render/autoLayout/objects";
 
 const {VisualResource} = modelClasses;
 
@@ -19,7 +20,8 @@ VisualResource.prototype.createLabels = function(){
 
     if (!this.labels[labelKey] && this[labelKey]) {
         this.labels[labelKey] = new SpriteText2D(this[labelKey], this.state.fontParams);
-        this.labels[labelKey].material.alphaTest = 0.1
+        this.labels[labelKey].material.alphaTest = .4;
+        this.labels[labelKey].scale.set(.1, .1, .1)
     }
 
     if (this.labels[labelKey]){
@@ -41,7 +43,9 @@ VisualResource.prototype.updateLabels = function(position){
         this.labels[labelKey].visible = (this.viewObjects["main"]?.visible ) && this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
-            position ? position.y = position.y - 20 : null;
+            const lyphDim = getBoundingBoxSize(this.viewObjects["main"]);
+            const refHeight  = lyphDim.y * this.viewObjects["main"].scale.y;
+            position ? position.y = position.y - refHeight/2: null;
             copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];
         }

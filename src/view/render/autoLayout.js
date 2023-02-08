@@ -21,6 +21,7 @@ import { translateMeshToTarget
   , setLyphScale
   , setLyphPosition
   , rotateAroundCenter   } from "./autoLayout/transform";
+import { getHouseLyph, getNodeLyph } from "./neuroView";
 
 export const LYPH_H_PERCENT_MARGIN = 0.2;
 export const LYPH_V_PERCENT_MARGIN = 0.05;
@@ -28,11 +29,11 @@ export const MAX_LYPH_WIDTH = 100;
 export const MIN_LYPH_WIDTH = 50;
 export const MIN_INNER_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
-  LYPH_MIN_Z : .2,
+  LYPH_MIN_Z : .5,
   REGION_MIN_Z : 0,
-  LINK_MIN_Z : .5,
+  LINK_MIN_Z : 1,
   WIRE_MIN_Z : 0,
-  LAYER_MIN_Z : .2
+  LAYER_MIN_Z : .25
 }
 
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
@@ -560,6 +561,7 @@ export function placeLyphInWire(lyph){
     const refHeight  = lyphDim.y * lyphMesh.scale.y;
     lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
     lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
+    rotateAroundCenter(lyphMesh, wiredTo.rotation._x, wiredTo.rotation._y, wiredTo.rotation._z);
     copyCoords(lyph, lyphMesh.position);
   }
 }
@@ -568,14 +570,12 @@ export function placeLyphInWire(lyph){
  * @param {*} lyph 
  */
 export function placeLyphInHost(lyph){
-  let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"];
+  let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"] || lyph.layerIn?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
-  const lyphDim = getBoundingBoxSize(lyphMesh);
   
-  hostMesh.geometry.computeBoundingBox();
-
   // Fit lyph to region
   fitToTargetRegion(hostMesh, lyphMesh, hostMesh?.userData?.class == "Lyph"); 
+  const lyphDim = getBoundingBoxSize(lyphMesh);
 
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
@@ -588,28 +588,40 @@ export function placeLyphInHost(lyph){
     matchIndex = hostMesh?.userData?.internalLyphs?.indexOf(lyph);
   }
 
-  let hostLyphsLength = 1;
+  let hostLyphsLength = 1, targetZ = DIMENSIONS.LYPH_MIN_Z;
   if ( hostMesh?.userData?.hostedLyphs?.length >= 1 ){
     hostLyphsLength = hostMesh?.userData?.hostedLyphs?.length;
+    targetZ = DIMENSIONS.LYPH_MIN_Z;
   } else if ( hostMesh?.userData?.internalLyphs?.length >= 1 ) {
     hostLyphsLength = hostMesh?.userData?.internalLyphs?.length;
+    hostMesh ? targetZ = hostMesh.position.z + 1 : targetZ = DIMENSIONS.LYPH_MIN_Z + 1;
   } else if ( hostMesh?.userData?.layerIn ) {
     hostLyphsLength = hostMesh?.userData?.layerIn?.internalLyphs?.length;
+    targetZ = DIMENSIONS.LAYER_MIN_Z;
   } 
 
   // Figure out X position of lyph, could have to share space with other lyphs
   let targetX = hostMeshPosition.x + (refPaddingX/2) - (((refWidth / 2 ) * hostLyphsLength) );
   hostLyphsLength <= 1 ? targetX = hostMeshPosition.x + refPaddingX/2 - (((refWidth/3 )) ) : null;
   targetX = targetX + refPaddingX+ refWidth * matchIndex + ( refPaddingX * (matchIndex ));
+  
+  const housingLyph = getHouseLyph(hostMesh?.userData);
   let targetY = hostMeshPosition.y;
+  if ( housingLyph?.wiredTo?.viewObjects["main"] ){
+    if ( housingLyph?.viewObjects["main"].quaternion._x < 0 || housingLyph?.viewObjects["main"].rotation._y < 0 || housingLyph?.viewObjects["main"].quaternion._x > 0 || housingLyph?.viewObjects["main"].rotation._y > 0 ){
+      targetY = housingLyph?.viewObjects["main"]?.position.y;
+      targetY = targetY + refPaddingX + (refWidth/3);
+    }
+  }
 
-  rotateAroundCenter(lyphMesh, hostMesh.rotation.x, hostMesh.rotation.y, hostMesh.rotation.z);
   lyphMesh.position.x = targetX ;
   lyphMesh.position.y = targetY ;
-  lyphMesh.position.z = DIMENSIONS.LYPH_MIN_Z + .2;
+  lyphMesh.position.z = targetZ;
+  lyphMesh.rotation._x = housingLyph?.viewObjects["main"].rotation._x;
+  lyphMesh.rotation._y = housingLyph?.viewObjects["main"].rotation._y;
+  lyphMesh.rotation._z = housingLyph?.viewObjects["main"].rotation._z;
   lyphMesh.geometry.center();
   lyphMesh.geometry.computeBoundingBox();
-  rotateAroundCenter(lyphMesh, hostMesh.rotation.x, hostMesh.rotation.y, hostMesh.rotation.z);
-
   copyCoords(lyph, lyphMesh.position);
+
 }

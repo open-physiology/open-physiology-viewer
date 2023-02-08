@@ -292,6 +292,11 @@ export function autoLayoutNeuron(triplets, group) {
 
   group?.lyphs?.forEach( m => {
     let l = getNodeLyph(m);
+    l.internalLyphs = []
+  });
+
+  group?.lyphs?.forEach( m => {
+    let l = getNodeLyph(m);
     l?.internalLyphs
     ? l.internalLyphs?.includes(m)
       ? null
