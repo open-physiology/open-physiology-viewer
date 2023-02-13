@@ -432,7 +432,7 @@ export class TestApp {
     applyJSONEditorChanges() {
         if (this._editor){
             logger.clear();
-            this._graphData = generateFromJSON({});
+            this._graphData = generateFromJSON({"id":"Empty"});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
@@ -440,7 +440,7 @@ export class TestApp {
 
     applyChanges(){
         logger.clear();
-        this._graphData = generateFromJSON({});
+        this._graphData = generateFromJSON({"id": "Empty"});
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 

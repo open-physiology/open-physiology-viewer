@@ -1,0 +1,157 @@
+{
+  "id"  : "lyphComplexes",
+  "name": "Lyph template with internal lyph templates",
+  "description":
+    "Nucleated cells have organelles such as nucleus, vesicles, mitochondria and endoplasmic reticulum in their cytoplasm. A canonical nucleated cell lyph to create a smooth muscle cell, chief stomach cell, or a sensory neuron",
+  "author": "Natallia Kokash",
+  "nodes": [
+    {
+      "id": "a",
+      "layout": {"x": -50, "y": 0, "z": 0}
+    },
+    {
+      "id": "b",
+      "layout": {"x": -50, "y": 50, "z": 0}
+    },
+    {
+      "id": "c",
+      "layout": {"x": 0, "y": 0, "z": 0}
+    },
+    {
+      "id": "d",
+      "layout": {"x": 0, "y": 50, "z": 0}
+    },
+    {
+      "id": "e",
+      "layout": {"x": 50, "y": 0, "z": 0}
+    },
+    {
+      "id": "f",
+      "layout": {"x": 50, "y": 50, "z": 0}
+    },
+    {
+      "id": "g",
+      "layout": {"x": 100, "y": 0, "z": 0}
+    },
+    {
+      "id": "h",
+      "layout": {"x": 100, "y": 50, "z": 0}
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "source": "a",
+      "target": "b",
+      "length": 30,
+      "conveyingLyph": "smoothMuscle"
+    },
+    {
+      "id": "lnk2",
+      "source": "c",
+      "target": "d",
+      "length": 30,
+      "conveyingLyph": "chiefStomach"
+    },
+    {
+      "id": "lnk3",
+      "source": "e",
+      "target": "f",
+      "length": 30,
+      "conveyingLyph": "sensoryNeuron"
+    },
+     {
+      "id": "lnk4",
+      "source": "g",
+      "target": "h",
+      "length": 30,
+      "conveyingLyph": "sensoryNeuronAlt"
+    }
+  ],
+  "lyphs": [
+    {
+      "id": "smoothMuscle",
+      "topology": "TUBE",
+      "supertype": "nucleatedCell",
+      "create3d": true
+    },
+    {
+      "id": "chiefStomach",
+      "topology": "CYST",
+      "supertype": "nucleatedCell",
+      "create3d": true
+    },
+    {
+      "id": "sensoryNeuron",
+      "topology": "BAG",
+      "supertype": "nucleatedCell",
+      "create3d": true
+    },
+    {
+      "id": "sensoryNeuronAlt",
+      "topology": "BAG",
+      "supertype": "nucleatedCellAlt",
+      "create3d": true
+    },
+
+    {
+      "id": "nucleatedCell",
+      "isTemplate": true,
+      "layers": ["cytoplasm", "wall"],
+      "color": "#ccc"
+    },
+
+    {
+      "id": "nucleatedCellAlt",
+      "isTemplate": true,
+      "layers": ["cytoplasmAlt", "wall"],
+      "color": "#ccc",
+      "internalLyphs": ["nucleus", "vesicle", "mitochondria", "endoplasmicReticulum"],
+      "internalLyphsInLayers": [0,0,0,0]
+    },
+
+    {
+      "id": "wall",
+      "isTemplate": true
+    },
+    {
+      "id": "cytoplasm",
+      "isTemplate": true,
+      "internalLyphs": ["nucleus", "vesicle", "mitochondria", "endoplasmicReticulum"]
+    },
+    {
+      "id": "cytoplasmAlt",
+      "isTemplate": true
+    },
+    {
+      "id": "nucleus",
+      "isTemplate": true
+    },
+    {
+      "id": "vesicle",
+      "isTemplate": true
+    },
+    {
+      "id": "mitochondria",
+      "topology": "CYST",
+      "layers": ["l1", "l2", "l3", "l4"],
+      "isTemplate": true
+    },
+    {
+      "id": "endoplasmicReticulum",
+      "isTemplate": true
+    },
+    {
+      "id": "l1"
+    },
+        {
+      "id": "l2"
+    },
+        {
+      "id": "l3"
+    },
+        {
+      "id": "l4"
+    }
+  ]
+}

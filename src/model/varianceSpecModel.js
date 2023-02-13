@@ -4,11 +4,10 @@ import {Resource} from "./resourceModel";
 /**
  * Variance specification for species
  * @class
- * @property hasInstanceInSpecies
- * @property hasInstanceInTaxon
+ * @property presence
+ * @property phenotypes
  * @property includes
- * @property isBasalInClade
- * @property isAbsentInClade
+ * @property clades
  */
 
 export class VarianceSpec extends Resource {
