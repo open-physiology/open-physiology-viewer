@@ -9,7 +9,7 @@ import {select as d3Select } from 'd3-selection';
 import {drag as d3Drag } from 'd3-drag';
 
 import Kapsule from 'kapsule';
-import {modelClasses} from '../model/index';
+import {generateFromJSON, modelClasses} from '../model/index';
 import './modelView';
 import {extractCoords} from './utils';
 import { autoLayout } from './render/autoLayout'
@@ -22,7 +22,7 @@ const {Graph} = modelClasses;
 export default Kapsule({
     props: {
         graphData: {
-            default: Graph.fromJSON({}, modelClasses),
+            default: Graph.fromJSON({"id":"Empty"}, modelClasses),
             onChange(value, state) {
                 state.onFrame = null;
             }

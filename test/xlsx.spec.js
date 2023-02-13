@@ -94,8 +94,8 @@ describe("Convert excel data to JSON", () => {
         expect(graphData).to.have.property("varianceSpecs");
         const vs1 = graphData.varianceSpecs.find(vs => vs.id === "vs-1");
         expect(vs1).to.be.instanceOf(modelClasses.VarianceSpec);
-        expect(vs1).to.have.property("hasInstanceInSpecies");
-        expect(vs1.hasInstanceInSpecies).to.be.an("array").that.has.length(1);
+        expect(vs1).to.have.property("clades");
+        expect(vs1.clades).to.be.an("array").that.has.length(1);
 
         const vs3 = graphData.varianceSpecs.find(vs => vs.id === "vs-3");
         expect(vs3).to.be.instanceOf(modelClasses.VarianceSpec);

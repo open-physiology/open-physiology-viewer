@@ -93,7 +93,7 @@ export const $LogMsg = {
     LYPH_INTERNAL_OUT_RANGE     : "Failed to relocate internal lyph to layer: layer index out of range",
     LYPH_INTERNAL_IN_NOT_FOUND  : "Failed to locate lyph host for an internal resource",
 
-    LYPH_NO_TEMPLATE_LAYER      : "Template layer object not found",
+    LYPH_NO_TEMPLATE            : "Template object not found",
     LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
     LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
     LYPH_SUBTYPE_NOT_FOUND      : "Lyph subtype not found",

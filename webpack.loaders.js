@@ -38,7 +38,10 @@ module.exports = [
                  "stream": require.resolve("stream-browserify"),
                  "path": require.resolve("path-browserify"),
                  "util": require.resolve("util/"),
-                 "process": false
+                 "process": false,
+                 "fs": false,
+                 "os": require.resolve("os-browserify"),
+                 "assert": require.resolve("assert")
             },
         }
     }

@@ -105,6 +105,7 @@ export const $Prefix = {
     border      : "b",      //lyph border
     villus      : "vls",    //villus template
     layer       : "layer",  //generated lyph layer
+    internal    : "int",    //generated internal lyph
     template    : "ref",    //from lyph template
     material    : "mat",    //from material reference
     clone       : "clone",  //node clone
@@ -113,6 +114,7 @@ export const $Prefix = {
     wire        : "wire",   //wire
     query       : "query",  //dynamic query
     default     : "default", //default group ID
+    autoLinks   : "autoLinks", //AUto-generated links
     force       : "force"
 };
 

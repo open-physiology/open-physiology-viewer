@@ -802,8 +802,8 @@
         }
       ],
       "properties": {
-        "hasInstanceInSpecies": {
-          "description": "External resources identifying species",
+        "clades": {
+          "description": "External resources identifying clades",
           "type": "array",
           "items": {
             "anyOf": [
@@ -816,8 +816,8 @@
             ]
           }
         },
-        "hasInstanceInTaxon": {
-          "description": "External resources identifying taxon",
+        "phenotypes": {
+          "description": "External resources identifying phenotypes",
           "type": "array",
           "items": {
             "anyOf": [
@@ -844,27 +844,9 @@
             ]
           }
         },
-        "isBasalInClade": {
+        "presence": {
           "description": "Ontology term that identifies resource from which the variance present in all descendants unless lost",
-          "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/OntologyTerm"
-              }
-            ]
-        },
-        "isAbsentInClade": {
-          "description": "Ontology term that identifies resource which masks the basal variant",
-          "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/OntologyTerm"
-              }
-            ]
+          "type": "string"
         }
       }
     },

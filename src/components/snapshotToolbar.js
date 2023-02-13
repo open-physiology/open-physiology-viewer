@@ -16,13 +16,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
        <section class="w3-bar w3-light-grey w3-bottom snapshot-toolbar" title="Snapshot model">
            <input #fileInput type="file" accept=".json" [style.display]="'none'"
                    (change)="load(fileInput.files)"/>
-           <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create new snapshot model">
+           <button id="createSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create new snapshot model">
                 <i class="fa fa-plus"> </i>
            </button>
-           <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load snapshot model">
+           <button id="loadSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load snapshot model">
                 <i class="fa fa-folder"> </i>
            </button>
-           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">
+           <button id="saveSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">
                 <i class="fa fa-save"> </i> 
            </button>
         </section>
