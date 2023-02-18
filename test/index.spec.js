@@ -176,14 +176,15 @@ describe("Model with internal lyph templates", () => {
         expect(graphData).to.have.property("fullID");
         expect(graphData).to.have.property("uuid");
         expect(graphData).to.have.property("lyphs").that.has.length.above(12);
-        let mainLyphs = graphData.lyphs.filter(l => ["smoothMuscle", "chiefStomach", "sensoryNeuron"].includes(l.id));
-        expect(mainLyphs).to.have.length(3);
+        let mainLyphs = graphData.lyphs.filter(l => ["smoothMuscle", "chiefStomach", "sensoryNeuron", "sensoryNeuronAlt"].includes(l.id));
+        expect(mainLyphs).to.have.length(4);
         mainLyphs.forEach(lyph => {
             expect(lyph).to.have.property("layers").that.has.length(2);
             expect(lyph.layers[0]).to.have.property("internalLyphs").that.has.length(4);
             let mito = lyph.layers[0].internalLyphs.find(l => l.id.startsWith("ref_mitochondria"));
             expect(mito).not.to.be.an("undefined");
             expect(mito).to.have.property("layers").that.has.length(4);
+            expect(mito).to.have.property("topology").that.equals("CYST")
         });
     });
 
