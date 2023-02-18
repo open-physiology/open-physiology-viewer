@@ -244,7 +244,10 @@ export class Lyph extends Shape {
 
                 mergeGenResource(undefined, parentGroup, targetPart, $Field.lyphs);
                 this.clone(parentGroup, sourcePart, targetPart);
-                targetPart::merge(targetLyph::pick([$Field.topology]));
+                if (prop === "layers") {
+                    //Layers inherit their topology from hosting lyph
+                    targetPart::merge(sourcePart::pick([$Field.topology]));
+                }
                 targetLyph[prop] = targetLyph[prop] || [];
                 targetLyph[prop].push(targetPart.id);
             });
