@@ -14,9 +14,9 @@ import {
     isInRange,
     THREE
 } from "./utils";
-import { fitToTargetRegion, LYPH_H_PERCENT_MARGIN, maxLyphSize, DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
-import { getHouseLyph, getNodeLyph } from "./render/neuroView";
-import { getBoundingBoxSize, getWorldPosition } from "./render/autoLayout/objects";
+import { DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
+import { getHouseLyph } from "./render/neuroView";
+import { getBoundingBoxSize } from "./render/autoLayout/objects";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -166,29 +166,31 @@ Lyph.prototype.autoSize = function(){
             }
         }
 
-        let that = this;
-        this?.layers?.forEach((layer,index) => { 
-            const house = getHouseLyph(layer)
-            let obj = layer?.viewObjects["main"]
-            let hostMeshPosition = obj.position;
-            if ( house?.viewObjects["main"] ) {
-                const houseDim = getBoundingBoxSize(house?.viewObjects["main"]);
-                const size = houseDim.y / that.layers.length 
-                let y = (0 - houseDim.x/2) + ( (size/2) * (index + 0 ));
-                hostMeshPosition = new THREE.Vector3(y,0,DIMENSIONS.LYPH_MIN_Z);
-            }
-            obj.position.x = hostMeshPosition.x;
-            obj.position.y = hostMeshPosition.y;
-            obj.position.z = DIMENSIONS.LAYER_MIN_Z;;
-                
-            obj.geometry.center();
-                
-            copyCoords(layer, obj.position);
-        });
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
         this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
     }
+
+
+    let that = this;
+    this?.layers?.forEach((layer,index) => { 
+        const house = getHouseLyph(layer)
+        let obj = layer?.viewObjects["main"]
+        let hostMeshPosition = obj.position;
+        if ( house?.viewObjects["main"] ) {
+            const houseDim = getBoundingBoxSize(house?.viewObjects["main"]);
+            const size = houseDim.x / that.layers.length 
+            let x = (0 - houseDim.x/2) + ( (size) * (index + 0 ));
+            hostMeshPosition = new THREE.Vector3(x,0,DIMENSIONS.LYPH_MIN_Z);
+        }
+        obj.position.x = hostMeshPosition.x;
+        obj.position.y = hostMeshPosition.y;
+        obj.position.z = DIMENSIONS.LAYER_MIN_Z;;
+            
+        obj.geometry.center();
+            
+        copyCoords(layer, obj.position);
+    });
 };
 
 /**
@@ -298,7 +300,6 @@ Lyph.prototype.createViewObjects = function(state) {
         });
     }
     //Do not create labels for layers and nested lyphs
-    if (this.layerIn) { return; }
     this.createLabels();
 };
 
@@ -334,7 +335,7 @@ Lyph.prototype.updateViewObjects = function(state) {
         obj.visible = !this.hidden;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
-        copyCoords(obj.position, this.center);
+        !this.hidden && copyCoords(obj.position, this.center);
 
         //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
         //preventing this
@@ -350,12 +351,12 @@ Lyph.prototype.updateViewObjects = function(state) {
     //update layers
     (this.layers || []).forEach(layer => layer.updateViewObjects(state));
 
-    this.border.updateViewObjects(state);
+    if ( !this.layerIn ) this.border.updateViewObjects(state);
+
+    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
-
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Lyph));
 };
 
 /**
@@ -443,13 +444,13 @@ Region.prototype.createViewObjects = function(state) {
  * Update visual objects of a region
  */
 Region.prototype.updateViewObjects = function(state) {
-    state &&  Shape.prototype.updateViewObjects.call(this, state);
+    Shape.prototype.updateViewObjects.call(this, state);
     let obj = this.viewObjects["main"];
     obj.position.z = DIMENSIONS.REGION_MIN_Z;
     if (obj) {
         let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
         if (linkPos) {
-            state &&  this.updatePoints(state.edgeResolution);
+            this.updatePoints(state.edgeResolution);
             this.points.forEach((p, i) => p && ["x", "y", "z"].forEach((dim, j) => linkPos.array[3 * i + j] = p[dim]));
             linkPos.needsUpdate = true;
             obj.geometry.computeBoundingSphere();
@@ -457,35 +458,7 @@ Region.prototype.updateViewObjects = function(state) {
         obj.visible = !this.inactive;
     }
 
-    state && this.border.updateViewObjects(state);
-    state && this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
-
-    // this.hostedLyphs = this.hostedLyphs?.sort((a, b) => -1 * a.id.localeCompare(b.id));
-    if ( this.hostedLyphs?.length > 0 && obj ) {
-        this.hostedLyphs?.forEach( lyph => {
-            if ( !lyph.hidden && lyph.viewObjects["main"] ) {
-                const lyphMesh = lyph.viewObjects["main"];
-                fitToTargetRegion(obj, lyphMesh, false); 
-
-                // extract host mesh size
-                const maxSize = maxLyphSize(obj);
-                const lyphDim = getBoundingBoxSize(lyphMesh);
-                const hostMeshPosition = getWorldPosition(obj);
-                const refWidth  = lyphDim.x * lyphMesh.scale.x;
-                const refPaddingX = refWidth * LYPH_H_PERCENT_MARGIN * 0.5 ;
-                const matchIndex = this.hostedLyphs?.indexOf(lyph);
-            
-                let targetX = hostMeshPosition.x - (((maxSize + refPaddingX )* this.hostedLyphs.length) * .5 );
-                let targetY = hostMeshPosition.y;
-            
-                targetX = targetX + refPaddingX + refWidth * matchIndex + ( 2 * refPaddingX * matchIndex);
-                
-                lyphMesh.position.x = targetX ;
-                lyphMesh.position.y = targetY ;
-                copyCoords(lyph, lyphMesh.position);         
-            }
-        })
-    }
+    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 };
 
 Region.prototype.relocate = function (delta){

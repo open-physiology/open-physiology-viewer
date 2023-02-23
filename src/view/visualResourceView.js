@@ -44,7 +44,7 @@ VisualResource.prototype.updateLabels = function(position){
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
             const lyphDim = getBoundingBoxSize(this.viewObjects["main"]);
-            const refHeight  = lyphDim.y * this.viewObjects["main"].scale.y;
+            const refHeight  = lyphDim.y * this.viewObjects["main"].scale.y * .85;
             position ? position.y = position.y - refHeight/2: null;
             copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];

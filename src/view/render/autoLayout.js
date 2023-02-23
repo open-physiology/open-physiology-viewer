@@ -1,5 +1,5 @@
 import {
- getDefaultControlPoint, copyCoords
+ getDefaultControlPoint, copyCoords, extractCoords
 } from "../utils";
 
 import { getSceneObjectByModelClass
@@ -25,15 +25,14 @@ import { getHouseLyph, getNodeLyph } from "./neuroView";
 
 export const LYPH_H_PERCENT_MARGIN = 0.2;
 export const LYPH_V_PERCENT_MARGIN = 0.05;
-export const MAX_LYPH_WIDTH = 100;
+export const MAX_LYPH_WIDTH = 15;
 export const MIN_LYPH_WIDTH = 50;
-export const MIN_INNER_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
-  LYPH_MIN_Z : .5,
+  LYPH_MIN_Z : 0.15,
   REGION_MIN_Z : 0,
-  LINK_MIN_Z : 1,
+  LINK_MIN_Z : 0.15,
   WIRE_MIN_Z : 0,
-  LAYER_MIN_Z : .25
+  LAYER_MIN_Z : 0.125
 }
 
 const LYPH_LINK_SIZE_PROPORTION = 0.75;
@@ -60,29 +59,32 @@ function preventZFighting(scene)
   })
 }
 
-export function fitToTargetRegion(target, source, lyphInLyph) {
-  if (source == undefined ) return;
+export function fitToTargetRegion(target, source, terminalLyph) {
   let sourceSize =  getBoundingBoxSize(source);
+  let idealSize = maxLyphSize(target, source, terminalLyph);
 
-  let sx = 1, sy = 1, sz = 1;
-  let idealSize = maxLyphSize(target);
+  let sx = 1, sy = 1;
 
-  sx = idealSize / sourceSize.x;
-  sy = idealSize / sourceSize.y;
-  sz = DIMENSIONS.LYPH_MIN_Z + .2;
+  sx = ( idealSize / sourceSize.x );
+  sy = ( idealSize / sourceSize.y );
 
-  source.scale.setX(sx);
-  source.scale.setY(sy);
 
-  let parent = traverseMeshParent(target);
-  source.geometry.center();
-  source.geometry.computeBoundingBox();
-  source.rotation.x = parent.rotation.x;
-  source.rotation.y = parent.rotation.y;
-  source.rotation.z = parent.rotation.z;
+  if ( !terminalLyph ){
+    source.scale.setX(sx);
+    source.scale.setY(sy);
+    let parent = traverseMeshParent(target);
+    source.geometry.center();
+    source.geometry.computeBoundingBox();
+    source.rotation.x = parent.rotation.x;
+    source.rotation.y = parent.rotation.y;
+    source.rotation.z = parent.rotation.z;
+  } else {
+    source.scale.setX(sx/2);
+    source.scale.setY(sy);
+  }
 }
 
-export function maxLyphSize(target) {
+export function maxLyphSize(target, source, terminalLyph) {
   
   let targetSize =  getBoundingBoxSize(target);
 
@@ -92,27 +94,30 @@ export function maxLyphSize(target) {
   let idealSize = hostMinSize;
   let length = target?.userData?.hostedLyphs?.length;
 
-  if (  target?.userData?.hostedLyphs ){
-    length = target?.userData?.hostedLyphs?.length;
-    idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+  if( !terminalLyph ) {
+    if (  target?.userData?.hostedLyphs ){
+      length = target?.userData?.hostedLyphs?.length;
+      idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+    } else if (  target?.userData?.internalLyphs ){
+      length = target?.userData?.internalLyphs?.length;
+      idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+    }
 
     if ( idealSize > hostMinSize ){
       idealSize = hostMinSize / 2;
     }
-  }
-  else if (  target?.userData?.internalLyphs ){
-    length = target?.userData?.internalLyphs?.length;
-    idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+  } else {
+    idealSize = hostMinSize;
 
-    if ( idealSize > hostMinSize ){
-      idealSize = hostMinSize / 2;
+    let link = source.userData.conveys;
+    if ( link ) {
+      link.viewObjects["main"].computeLineDistances();
+      let ld = link.viewObjects["main"].geometry.getAttribute("lineDistance");
+      idealSize = ld.getX(ld.count - 1) / 3;
+      if ( idealSize > MAX_LYPH_WIDTH ){
+        idealSize = MAX_LYPH_WIDTH;
+      }
     }
-    
-    if ( length == 1 ){
-      idealSize = hostMinSize/4;
-    }  
-
-    target?.userData?.layerIn ? idealSize = hostMinSize * 3  : null;
   }
 
   return idealSize;
@@ -541,23 +546,30 @@ export function pointAlongLine(pointA, pointB, percentage) {
  * @param {*} lyph 
  */
 export function placeLyphInWire(lyph){
+  // Get parent TOO-MAP wire
   let wiredTo = lyph.wiredTo?.viewObjects["main"];
+
+  // Lyph and dimensions of lyph
   let lyphMesh = lyph.viewObjects["main"];
   const lyphDim = getBoundingBoxSize(lyphMesh);
 
   if ( wiredTo && !lyph.hidden ) {
+    // Find wire where lyph is attached
     let wiredLyphs = [];
     lyph.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => !l.hidden && wiredLyphs.push(l)) );
     let index = wiredLyphs?.findIndex(l => l.id === lyph.id );
 
+    // Position lyph along the wire
     let position = lyph.wiredTo.center;
     if ( wiredLyphs.length > 1 ){
       const pointA = lyph.wiredTo?.points[0];
       const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
       position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
     }
+
     setLyphScale(lyphMesh);
     setLyphPosition(lyphMesh, wiredTo, position, true);
+    
     const refHeight  = lyphDim.y * lyphMesh.scale.y;
     lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
     lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
@@ -572,11 +584,13 @@ export function placeLyphInWire(lyph){
 export function placeLyphInHost(lyph){
   let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"] || lyph.layerIn?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
-  
-  // Fit lyph to region
-  fitToTargetRegion(hostMesh, lyphMesh, hostMesh?.userData?.class == "Lyph"); 
-  const lyphDim = getBoundingBoxSize(lyphMesh);
+  let terminalLyph = lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" ||lyph.supertype?.id === "lt-dend-bag";
 
+  // Fit lyph to region
+  fitToTargetRegion(hostMesh, lyphMesh, terminalLyph); 
+  
+
+  const lyphDim = getBoundingBoxSize(lyphMesh);
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
   const refPaddingX = refWidth * (LYPH_H_PERCENT_MARGIN);
@@ -614,14 +628,10 @@ export function placeLyphInHost(lyph){
     }
   }
 
-  lyphMesh.position.x = targetX ;
-  lyphMesh.position.y = targetY ;
-  lyphMesh.position.z = targetZ;
-  lyphMesh.rotation._x = housingLyph?.viewObjects["main"].rotation._x;
-  lyphMesh.rotation._y = housingLyph?.viewObjects["main"].rotation._y;
-  lyphMesh.rotation._z = housingLyph?.viewObjects["main"].rotation._z;
-  lyphMesh.geometry.center();
-  lyphMesh.geometry.computeBoundingBox();
-  copyCoords(lyph, lyphMesh.position);
-
+  if ( !terminalLyph ){
+    lyphMesh.position.x = targetX ;
+    lyphMesh.position.y = targetY ;
+    lyphMesh.position.z = targetZ;
+    copyCoords(lyph, lyphMesh.position);
+  } 
 }

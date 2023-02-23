@@ -1345,60 +1345,61 @@ export class SettingsPanel {
   };
 
   toggleGroup = (event, group) => {
-    
-    let neuronTriplets = buildNeurulatedTriplets(group);
-    if (this.neuroViewEnabled) {
-      // V1 : Step1
-      // Step 1 Handle Neuro view initial settings. Turns OFF groups and scaffolds
-      this.handleNeuroView(true);
-
-      // V1 : Steps 3 -5 
-      // Find housing lyphs of neuron, also links and chains.
-      console.log("Neuron Information : ", neuronTriplets);
-
-      this.activeNeurulatedGroups.push(group);
-
-      // V1 Step 5 :Identify TOO Map components and turn them ON/OFF
-      const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
-      matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
-      this.config.layout.showLayers && this.toggleLayout("showLayers");
-
-      //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-      findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
-
-      // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-      this.activeNeurulatedGroups.forEach((g) => {
-        handleNeurulatedGroup(event.checked, g, neuronTriplets);
-      });
-      window.addEventListener("doneUpdating", () => { 
-        // Run auto layout code to position lyphs on their regions and wires
-        if ( group.neurulated ) {
-          autoLayoutNeuron(neuronTriplets, group);
-          autoLayoutNeuron(neuronTriplets, group);
+      if (this.neuroViewEnabled) {
+        // Housing Lyphs Group
+        if ( group.cloneOf ){
+          this.toggleGroup(event, group.cloneOf);
+          return;
         }
-      });
-      group.neurulated = true;
+        
+        // Find housing lyphs of neuron, also links and chains.
+        let neuronTriplets = buildNeurulatedTriplets(group);
+        console.log("Neuron Information : ", neuronTriplets);
+        
+        // Handle Neuro view initial settings. Turns OFF groups and scaffolds
+        this.handleNeuroView(true);
 
-      const newGroupName = group.name + " - Neurulated";
+        // Identify TOO Map components and turn them ON/OFF
+        const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
+        matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
+        this.config.layout.showLayers && this.toggleLayout("showLayers");
+        this.activeNeurulatedGroups.push(group);
 
-      if ( this.filteredDynamicGroups.filter(g => g.id == group.id ).length <= 1 ) {
-        let groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
-        groupClone.name = newGroupName;
-        groupClone.links = [];
-        groupClone.nodes = [];
-        groupClone.lyphs = neuronTriplets.y;
-        this.filteredDynamicGroups.push(groupClone);
-      } else if ( this.filteredDynamicGroups.find(g => g.name == newGroupName ) ) {
+        //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+        findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
+
         // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-        const groupMatched = this.filteredDynamicGroups.find(g => g.name == newGroupName );
-        groupMatched.hidden = !event.checked;
-      } 
-    } else {
-      this.onToggleGroup.emit(group);
-      window.addEventListener("doneUpdating", () => { 
-          autoLayoutNeuron(neuronTriplets, group);
-      });
-    }
+        this.activeNeurulatedGroups.forEach((g) => {
+          handleNeurulatedGroup(event.checked, g, neuronTriplets);
+        });
+
+        group.neurulated = true;
+
+        // Create a new Group with only the housing lyphs
+        const newGroupName = group.name + " - Housing Lyphs";
+        if ( this.filteredDynamicGroups.filter(g => g.id == group.id ).length <= 1 ) {
+          let groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
+          groupClone.name = newGroupName;
+          groupClone.links = [];
+          groupClone.nodes = [];
+          groupClone.lyphs = neuronTriplets.y;
+          groupClone.cloneOf = group;
+          this.filteredDynamicGroups.push(groupClone);
+        } else if ( this.filteredDynamicGroups.find(g => g.name == newGroupName ) ) {
+          // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+          const groupMatched = this.filteredDynamicGroups.find(g => g.name == newGroupName );
+          groupMatched.hidden = !event.checked;
+        }
+        window.addEventListener("doneUpdating", function updateLayout(e){
+          // Run auto layout code to position lyphs on their regions and wires
+          if ( group.neurulated && e.detail.updating ) {
+            autoLayoutNeuron(neuronTriplets, group);
+            autoLayoutNeuron(neuronTriplets, group);
+          }
+        });
+      } else {
+        this.onToggleGroup.emit(group);
+      }
   };
 
   toggleAllDynamicGroup = () => {

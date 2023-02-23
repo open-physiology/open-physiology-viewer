@@ -44,7 +44,7 @@ export function setLyphPosition(lyph, host, position, rotate) {
     rotateAroundCenter(lyph, host.rotation.x, host.rotation.y, host.rotation.z);
   }
 
-  copyCoords(lyph?.userData, position);
+  copyCoords(lyph?.userData, lyph.position);
 }
 
 export function setLyphScale(lyph) {
