@@ -70,7 +70,7 @@ const WindowResize = require('three-window-resize');
                             <i class="fa fa-download"> </i>
                         </button>
                         <mat-slider vertical class="w3-grey"
-                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                    [min]="0.02 * scaleFactor" [max]="0.4 * scaleFactor"
                                     [step]="0.05 * scaleFactor" tickInterval="1"
                                     [value]="labelRelSize" title="Label size"
                                     (change)="onScaleChange($event.value)">
@@ -189,7 +189,7 @@ export class WebGLSceneComponent {
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
-    labelRelSize   = 0.1 * this.scaleFactor;
+    labelRelSize   = 0.02 * this.scaleFactor;
     lockControls   = false;
     isConnectivity = true;
 

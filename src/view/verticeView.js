@@ -77,16 +77,13 @@ Node.prototype.updateViewObjects = function(state) {
         } else if (this.cloneOf) {
             let housingLyph = this.cloneOf?.sourceOf[0]?.conveyingLyph;
             housingLyph ? null : housingLyph = this.cloneOf?.targetOf[0]?.conveyingLyph;
+            housingLyph = getNodeLyph(housingLyph);
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
-        } else if ( this.sourceOf ){
+        }  else if (this.hostedBy) {
             let housingLyph = this.sourceOf[0]?.conveyingLyph;
             housingLyph ? null : housingLyph = this.targetOf[0]?.conveyingLyph;
-            let position = getWorldPosition(housingLyph?.viewObjects["main"]);
-            copyCoords(this, position);
-        } else if ( this.targetOf ){
-            let housingLyph = this.targetOf[0]?.conveyingLyph;
-            housingLyph ? null : housingLyph = this.sourceOf[0]?.conveyingLyph;
+            housingLyph = getNodeLyph(housingLyph);
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
         } else if ( this.internalIn ) {
@@ -94,18 +91,13 @@ Node.prototype.updateViewObjects = function(state) {
             if ( housingLyph?.class != "Lyph" ){
                 housingLyph = getNodeLyph(housingLyph);
             } else if ( housingLyph?.layerIn ){
-                housingLyph = housingLyph;
+                housingLyph = getNodeLyph(housingLyph);;
             }
-            let position = getWorldPosition(housingLyph?.viewObjects["main"]);
-            copyCoords(this, position);
-        } else if (this.hostedBy) {
-            let housingLyph = this.sourceOf[0]?.conveyingLyph;
-            housingLyph ? null : housingLyph = this.targetOf[0]?.conveyingLyph;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
         }
     }
-    state && Vertice.prototype.updateViewObjects.call(this, state);
+    Vertice.prototype.updateViewObjects.call(this, state);
 };
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {

@@ -187,16 +187,16 @@ export default Kapsule({
         showLabels       : { default: {}},
 
         labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
-        labelRelSize     : { default: 0.1},
-        labelOffset      : { default: {Vertice: 10, Edge: 5, Lyph: 10, Region: 10}},
-        fontParams       : { default: { font: '24px Arial', fillStyle: '#000000' , antialias: true}},
+        labelRelSize     : { default: 0.01},
+        labelOffset      : { default: {Vertice: 1, Edge: 1, Lyph: 1, Region: 1}},
+        fontParams       : { default: { font: '12px Arial', fillStyle: '#000000' , antialias: true}},
 
         d3AlphaDecay     : { default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},
         d3AlphaTarget    : { default: 0}, //triggerUpdate: false, onChange(alphaTarget, state) { state.simulation.alphaTarget(alphaTarget) }},
         d3VelocityDecay  : { default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
 
         warmupTicks      : { default: 10 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks    : { default: 100 },
+        cooldownTicks    : { default: 1 },
         cooldownTime     : { default: 1000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading        : { default: () => {}, triggerUpdate: false },
         onFinishLoading  : { default: () => {}, triggerUpdate: false },
@@ -307,12 +307,13 @@ export default Kapsule({
           if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
               state.onFrame = null;
+              const event2 = new CustomEvent('doneUpdating', { detail : { updating : false }});
+              window.dispatchEvent(event2);
           } else { layout['tick'](); }
 
           state.graphData.updateViewObjects(state);
-          const event2 = new CustomEvent('doneUpdating');
+          const event2 = new CustomEvent('doneUpdating',  { detail : { updating : true }});
           window.dispatchEvent(event2);
-          //autoLayout(state.graphScene, state.graphData);
         }
     }
 });
