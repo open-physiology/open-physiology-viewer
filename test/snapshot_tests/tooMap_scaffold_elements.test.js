@@ -84,7 +84,7 @@ describe('Scaffold Model: F Group', () => {
         const anchor = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[0].innerText
+                return map[4].innerText
             }
         });
         expect(anchor).toContain(scaffoldGroupName[0])
@@ -116,7 +116,7 @@ describe('Scaffold Model: F Group', () => {
         const wire = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[3].innerText
+                return map[6].innerText
             }
         });
         expect(wire).toContain(scaffoldGroupName[3])
@@ -148,7 +148,7 @@ describe('Scaffold Model: F Group', () => {
         const region = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[6].innerText
+                return map[5].innerText
             }
         });
         expect(region).toContain(scaffoldGroupName[6])
@@ -244,7 +244,7 @@ describe('Scaffold Model: D Group', () => {
         const anchor = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[4].innerText
+                return map[3].innerText
             }
         });
         expect(anchor).toContain(scaffoldGroupName[4])
@@ -276,7 +276,7 @@ describe('Scaffold Model: D Group', () => {
         const anchor = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[7].innerText
+                return map[2].innerText
             }
         });
         expect(anchor).toContain(scaffoldGroupName[7])
@@ -338,7 +338,7 @@ describe('Scaffold Model: N Group', () => {
         const anchor = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[2].innerText
+                return map[7].innerText
             }
         });
         expect(anchor).toContain(scaffoldGroupName[2])
@@ -371,7 +371,7 @@ describe('Scaffold Model: N Group', () => {
         const anchor = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[5].innerText
+                return map[9].innerText
             }
         });
         expect(anchor).toContain(scaffoldGroupName[5])
