@@ -51,6 +51,7 @@ export function buildNeurulatedTriplets(group) {
   })
 
   neuronTriplets.y = neuronTriplets.y.concat(updatedLyphs);
+  neuronTriplets.y = neuronTriplets.y.filter((v,i,a)=>a.findIndex(v2=>(v.id === v2.id))===i);
   
   let housingLyphsInChains = housingLyphs?.filter((h) => h?.axis?.levelIn);
   console.log("housingLyphsInChains ", housingLyphsInChains);
@@ -290,12 +291,12 @@ export function autoLayoutNeuron(triplets, group) {
     m.autoSize();
   });
 
-  group?.lyphs?.forEach( m => {
+  triplets?.x?.forEach((m) => {
     let l = getNodeLyph(m);
     l.internalLyphs = []
   });
 
-  group?.lyphs?.forEach( m => {
+  triplets?.x?.forEach((m) => {
     let l = getNodeLyph(m);
     l?.internalLyphs
     ? l.internalLyphs?.includes(m)
@@ -303,8 +304,8 @@ export function autoLayoutNeuron(triplets, group) {
       : l.internalLyphs?.push(m)
     : (l.internalLyphs = [m]);
   });
-  
-  group?.lyphs?.forEach((lyph) => {
+
+  triplets?.x?.forEach((lyph) => {
     lyph.autoSize();
   });
 }

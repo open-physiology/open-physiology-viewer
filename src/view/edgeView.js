@@ -159,7 +159,7 @@ Link.prototype.getCurve = function(start, end){
  * Update visual objects for a link
  */
 Link.prototype.updateViewObjects = function(state) {
-    state && Edge.prototype.updateViewObjects.call(this, state);
+    Edge.prototype.updateViewObjects.call(this, state);
 
     const obj = this.viewObjects["main"];
 
@@ -198,7 +198,7 @@ Link.prototype.updateViewObjects = function(state) {
     });
 
     if (this.conveyingLyph){
-        state && this.conveyingLyph.updateViewObjects(state);
+        this.conveyingLyph.updateViewObjects(state);
         this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
@@ -251,7 +251,7 @@ Link.prototype.updateViewObjects = function(state) {
         }
         copyCoords(this, obj.position);
         obj.visible = !this.inactive;
-        this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
+        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
         
     }
 };
@@ -347,7 +347,7 @@ Wire.prototype.updateViewObjects = function(state) {
 
     });
 
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Edge));
+    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
 
     if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
 
