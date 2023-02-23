@@ -167,7 +167,7 @@ describe('Keast Spinal Model Snapshot Tests', () => {
         const group = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[0].innerText
+                return map[2].innerText
             }
         });
         expect(group).toContain(KeastSpinalModelGroups[0])
@@ -196,7 +196,7 @@ describe('Keast Spinal Model Snapshot Tests', () => {
         const group = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[1].innerText
+                return map[0].innerText
             }
         });
         expect(group).toContain(KeastSpinalModelGroups[1])
@@ -225,7 +225,7 @@ describe('Keast Spinal Model Snapshot Tests', () => {
         const group = await page.evaluate(() => {
             let map = document.querySelectorAll('span.mat-slide-toggle-content');
             for (var i = 0; i < map.length; i++) {
-                return map[2].innerText
+                return map[1].innerText
             }
         });
         expect(group).toContain(KeastSpinalModelGroups[2])
