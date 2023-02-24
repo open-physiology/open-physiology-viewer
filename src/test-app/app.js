@@ -346,6 +346,7 @@ export class TestApp {
                     let scaffolds = result.filter(m => isScaffold(m));
                     let groups = result.filter(m => isGraph(m));
                     let snapshots = result.filter(m => isSnapshot(m));
+                    logger.clear();
                     processImports(this._model, result);
                     if (groups.length > 0 || scaffolds.length > 0) {
                         this.model = this._model;
