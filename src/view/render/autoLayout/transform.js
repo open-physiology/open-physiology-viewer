@@ -36,7 +36,7 @@ export function translateGroupToTarget(target, group) {
 }
 
 export function setLyphPosition(lyph, host, position, rotate) {
-  lyph.position.x = position.x * .95;
+  lyph.position.x = position.x;
   lyph.position.y = position.y;
   lyph.position.z = host.position.z + 1;
 
@@ -49,11 +49,10 @@ export function setLyphPosition(lyph, host, position, rotate) {
 
 export function setLyphScale(lyph) {
   const lyphDim = getBoundingBoxSize(lyph);
-  const lyphMin = Math.min(lyphDim.x, lyphDim.y);
+  const lyphMin = Math.min(lyphDim.x * lyph.scale.x, lyphDim.y * lyph.scale.y);
 
   if ( lyphMin < MIN_LYPH_WIDTH ){
       lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);
       lyph.scale.setY((MIN_LYPH_WIDTH / lyphDim.y));
-      lyph.scale.setZ(DIMENSIONS.LYPH_MIN_Z); 
   }
 }

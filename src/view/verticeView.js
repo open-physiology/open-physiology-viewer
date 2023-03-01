@@ -1,8 +1,10 @@
-import {copyCoords, extractCoords, getCenterOfMass, THREE} from "./utils";
+import {copyCoords, extractCoords, getCenterOfMass, THREE, direction} from "./utils";
 import {MaterialFactory} from "./materialFactory";
 import {modelClasses} from "../model";
-import { getHouseLyph, getNodeLyph } from "./render/neuroView";
-import { getWorldPosition } from "./render/autoLayout/objects";
+import { on } from "events";
+import { getHouseLyph } from "./render/neuroView";
+import { pointAlongLine } from "./render/autoLayout"
+import { getWorldPosition, getBoundingBoxSize } from "./render/autoLayout/objects";
 
 const {VisualResource, Vertice, Node, Anchor} = modelClasses;
 
@@ -42,7 +44,7 @@ Vertice.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
     if (!this.invisible) {
         this.viewObjects["main"].visible = !this.inactive
-    } 
+    }
 
     if (this.layout && this.viewObjects["main"]) {
         let coords = extractCoords(this.layout);
@@ -71,30 +73,42 @@ Node.prototype.updateViewObjects = function(state) {
     } else {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
-        }
-        else if (this.controlNodes) {
-            copyCoords(this, getCenterOfMass(this.controlNodes));
-        } else if (this.cloneOf) {
-            let housingLyph = this.cloneOf?.sourceOf[0]?.conveyingLyph;
-            housingLyph ? null : housingLyph = this.cloneOf?.targetOf[0]?.conveyingLyph;
-            housingLyph = getNodeLyph(housingLyph);
-            let position = getWorldPosition(housingLyph?.viewObjects["main"]);
-            copyCoords(this, position);
-        }  else if (this.hostedBy) {
-            let housingLyph = this.sourceOf[0]?.conveyingLyph;
-            housingLyph ? null : housingLyph = this.targetOf[0]?.conveyingLyph;
-            housingLyph = getNodeLyph(housingLyph);
-            let position = getWorldPosition(housingLyph?.viewObjects["main"]);
-            copyCoords(this, position);
-        } else if ( this.internalIn ) {
-            let housingLyph = this.internalIn;
-            if ( housingLyph?.class != "Lyph" ){
-                housingLyph = getNodeLyph(housingLyph);
-            } else if ( housingLyph?.layerIn ){
-                housingLyph = getNodeLyph(housingLyph);;
+        } else if (this.hostedBy) {
+            let hostedBy = this.hostedBy;
+            if ( hostedBy.onBorder ){
+                let onBorder = hostedBy.onBorder;
+                let host = onBorder?.host;
+                if ( host ) {
+                    if ( host.viewObjects["main"] ){
+                        let position = getWorldPosition(host?.viewObjects["main"]);
+                        const houseDim = getBoundingBoxSize(host?.viewObjects["main"]);
+                        const height  = (houseDim.x *  host?.viewObjects["main"].scale.x ) /2;
+                        const widht = (houseDim.y * host?.viewObjects["main"].scale.y) /2;
+
+                        let corners = [];
+                        corners.push(new THREE.Vector3(position.x + widht, position.y - height, position.z));
+                        corners.push(new THREE.Vector3(position.x - widht, position.y - height, position.z));
+                        corners.push(new THREE.Vector3(position.x - widht, position.y + height, position.z));
+                        corners.push(new THREE.Vector3(position.x + widht, position.y + height, position.z));
+
+                        if ( onBorder ) {
+                            let index = onBorder.borders.indexOf(hostedBy);
+                            let start = corners[index];
+                            let end = corners[index+1];
+                            index == 3 ? start = corners[index] : null;
+                            index == 3 ? end = corners[0] : null;
+                            let center = pointAlongLine(start, end, .5);
+                            copyCoords(this, center);
+                        }
+                    }
+                }
             }
+        } else if (this.internalIn) {
+            let housingLyph = this.internalIn;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             copyCoords(this, position);
+        } else if (this.controlNodes) {
+            copyCoords(this, getCenterOfMass(this.controlNodes));
         }
     }
     Vertice.prototype.updateViewObjects.call(this, state);

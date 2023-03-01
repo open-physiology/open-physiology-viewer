@@ -36,7 +36,7 @@ export function getBoundingBoxSize(obj)
 export function getMeshBoundingBoxSize(obj)
 {
   obj.geometry.computeBoundingBox();
-  const size = new THREE.Vector3();
+  let size = new THREE.Vector3();
   obj.geometry.boundingBox.getSize(size);
   return size ;
 }

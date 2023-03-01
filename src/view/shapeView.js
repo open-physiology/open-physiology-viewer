@@ -170,27 +170,6 @@ Lyph.prototype.autoSize = function(){
         copyCoords(this, this.viewObjects["main"]?.position);  
         this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
     }
-
-
-    let that = this;
-    this?.layers?.forEach((layer,index) => { 
-        const house = getHouseLyph(layer)
-        let obj = layer?.viewObjects["main"]
-        let hostMeshPosition = obj.position;
-        if ( house?.viewObjects["main"] ) {
-            const houseDim = getBoundingBoxSize(house?.viewObjects["main"]);
-            const size = houseDim.x / that.layers.length 
-            let x = (0 - houseDim.x/2) + ( (size) * (index + 0 ));
-            hostMeshPosition = new THREE.Vector3(x,0,DIMENSIONS.LYPH_MIN_Z);
-        }
-        obj.position.x = hostMeshPosition.x;
-        obj.position.y = hostMeshPosition.y;
-        obj.position.z = DIMENSIONS.LAYER_MIN_Z;;
-            
-        obj.geometry.center();
-            
-        copyCoords(layer, obj.position);
-    });
 };
 
 /**
@@ -215,6 +194,7 @@ Lyph.prototype.createViewObjects = function(state) {
     if (this.isTemplate){
         return;
     }
+
     Shape.prototype.createViewObjects.call(this, state);
 
     for (let i = 1; i < (this.layers || []).length; i++) {
@@ -296,7 +276,7 @@ Lyph.prototype.createViewObjects = function(state) {
             let layerObj3d = layer.viewObjects["3d"];
             if (layerObj3d) {
                 this.viewObjects["3d"].add(layerObj3d);
-            }
+            }       
         });
     }
     //Do not create labels for layers and nested lyphs
