@@ -1,5 +1,7 @@
 import {flatten } from "lodash-bound";
 import {modelClasses} from "../../model";
+import { orthogonalLayout } from "./neuroViewHelper";
+import { stddev, avg } from '../utils';
 const {Edge} = modelClasses;
 
 /**
@@ -295,6 +297,20 @@ export function autoLayoutNeuron(triplets, group) {
   });
 }
 
+export function autoLayoutSegments(orthogonalSegments, links)
+{
+  const link_ids = Object.keys(orthogonalSegments);
+  link_ids.forEach( orthogonal_link_id => {
+    const link_model = links.find( l => l.id == orthogonal_link_id );
+    if (link_model) 
+    {
+      const links = orthogonalSegments[orthogonal_link_id];
+      if (links.length > 0)
+        link_model.regenerateFromSegments(links);
+    }
+  });
+}
+
 /**
  * 
  * @param {*} event 
@@ -390,4 +406,36 @@ export function getHouseLyph(lyph) {
   }
 
   return housingLyph;
+}
+
+function distance(a, b) {
+  return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+}
+
+export function applyOrthogonalLayout(links, nodes, left, top, width, height) {
+  const distances = [];
+  links.forEach(l => {
+    const linkDistance = distance(l.source, l.target);
+
+    distances.push(linkDistance);
+  });
+  if (distances.length > 0)
+  {
+    const dev = stddev(distances);
+    const average = avg(distances);
+    const max_delta = average - 0.25 * dev ;
+    const distance_indexes = distances.map((d,i) => { 
+      if (d > max_delta)
+        return i ;
+    })
+    .filter(d => d);
+    const filtered_links = [];
+    distance_indexes.forEach( (di) => {
+      filtered_links.push(links[di])
+    })
+    if (filtered_links.length > 0)
+    {
+      return orthogonalLayout(filtered_links, nodes, left, top, width, height) ;
+    }
+  }
 }

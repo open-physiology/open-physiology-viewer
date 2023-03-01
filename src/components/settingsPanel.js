@@ -1393,11 +1393,28 @@ export class SettingsPanel {
           const groupMatched = this.filteredDynamicGroups.find(g => g.name == newGroupName );
           groupMatched.hidden = !event.checked;
         }
-        window.addEventListener("doneUpdating", function updateLayout(e){
+
+        window.addEventListener("updateTick",function updateLayout(e){
           // Run auto layout code to position lyphs on their regions and wires
           if ( group.neurulated && e.detail.updating ) {
             autoLayoutNeuron(neuronTriplets, group);
             autoLayoutNeuron(neuronTriplets, group);
+          }
+        });
+  
+        window.addEventListener("doneUpdating", () => { 
+          // Run auto layout code to position lyphs on their regions and wires
+          if ( group.neurulated ) {
+            const visibleLinks = group.links.filter( l => !l.hidden && !l.inactive && l.collapsible );
+            const neuroTriplets = buildNeurulatedTriplets(group);
+            const bigLyphs = neuroTriplets.y;
+            const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, this.viewPortSize.left, this.viewPortSize.top, this.viewPortSize.width, this.viewPortSize.height)
+            if (orthogonalSegments)
+            {
+              console.log("Visible links: ", visibleLinks);
+              console.log("Orthogonal segments Information : ", orthogonalSegments);
+              autoLayoutSegments(orthogonalSegments, visibleLinks);
+            }
           }
         });
       } else {
