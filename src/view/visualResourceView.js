@@ -20,7 +20,7 @@ VisualResource.prototype.createLabels = function(){
 
     if (!this.labels[labelKey] && this[labelKey]) {
         this.labels[labelKey] = new SpriteText2D(this[labelKey], this.state.fontParams);
-        this.labels[labelKey].material.alphaTest = .4;
+        this.labels[labelKey].material.alphaTest = .2;
         this.labels[labelKey].scale.set(.1, .1, .1)
     }
 

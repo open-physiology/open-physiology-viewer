@@ -17,7 +17,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire, getHouseLyph } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire, getHouseLyph, applyOrthogonalLayout, autoLayoutSegments } from "../view/render/neuroView";
+
 
 /**
  * @ignore
@@ -1136,6 +1137,8 @@ export class SettingsPanel {
 
   @Input() dynamicGroups;
 
+  @Input() viewPortSize; 
+
   @Input("scaffolds") set scaffolds(newScaffolds) {
     this._scaffolds = newScaffolds;
     this.updateRenderedResources();
@@ -1390,11 +1393,28 @@ export class SettingsPanel {
           const groupMatched = this.filteredDynamicGroups.find(g => g.name == newGroupName );
           groupMatched.hidden = !event.checked;
         }
-        window.addEventListener("doneUpdating", function updateLayout(e){
+
+        window.addEventListener("updateTick",function updateLayout(e){
           // Run auto layout code to position lyphs on their regions and wires
           if ( group.neurulated && e.detail.updating ) {
             autoLayoutNeuron(neuronTriplets, group);
             autoLayoutNeuron(neuronTriplets, group);
+          }
+        });
+  
+        window.addEventListener("doneUpdating", () => { 
+          // Run auto layout code to position lyphs on their regions and wires
+          if ( group.neurulated ) {
+            const visibleLinks = group.links.filter( l => !l.hidden && !l.inactive && l.collapsible );
+            const neuroTriplets = buildNeurulatedTriplets(group);
+            const bigLyphs = neuroTriplets.y;
+            const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, this.viewPortSize.left, this.viewPortSize.top, this.viewPortSize.width, this.viewPortSize.height)
+            if (orthogonalSegments)
+            {
+              console.log("Visible links: ", visibleLinks);
+              console.log("Orthogonal segments Information : ", orthogonalSegments);
+              autoLayoutSegments(orthogonalSegments, visibleLinks);
+            }
           }
         });
       } else {
@@ -1454,10 +1474,12 @@ export class SettingsPanel {
     // clear array keeping track of manipulated groups
     this.activeNeurulatedGroups = [];
     // Update rendered scafoold components
-    this.updateRenderedResources();
     this.config.layout.neuroviewEnabled = visible;
     // Toggle layers on or off
     this.config.layout.showLayers && this.toggleLayout("showLayers");
+
+
+    this.updateRenderedResources();
   };
 
   search(value, filterOptions, allOptions) {

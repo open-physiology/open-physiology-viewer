@@ -90,6 +90,7 @@ Node.prototype.updateViewObjects = function(state) {
                         corners.push(new THREE.Vector3(position.x - widht, position.y - height, position.z));
                         corners.push(new THREE.Vector3(position.x - widht, position.y + height, position.z));
                         corners.push(new THREE.Vector3(position.x + widht, position.y + height, position.z));
+                        copyCoords(this, position);
 
                         if ( onBorder ) {
                             let index = onBorder.borders.indexOf(hostedBy);
@@ -97,7 +98,10 @@ Node.prototype.updateViewObjects = function(state) {
                             let end = corners[index+1];
                             index == 3 ? start = corners[index] : null;
                             index == 3 ? end = corners[0] : null;
-                            let center = pointAlongLine(start, end, .5);
+                            let nodeIndex = hostedBy.hostedNodes?.indexOf(this);
+                            let placeInLink = (nodeIndex + 1 ) / ( hostedBy.hostedNodes?.length + 1);
+                            placeInLink == undefined || placeInLink < 0 ? placeInLink = .5 : null;
+                            let center = pointAlongLine(start, end, placeInLink);
                             copyCoords(this, center);
                         }
                     }

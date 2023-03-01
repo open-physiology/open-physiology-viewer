@@ -15,8 +15,6 @@ import {
     THREE
 } from "./utils";
 import { DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
-import { getHouseLyph } from "./render/neuroView";
-import { getBoundingBoxSize } from "./render/autoLayout/objects";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 

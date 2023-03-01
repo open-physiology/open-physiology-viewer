@@ -1,5 +1,5 @@
 import {$Field, modelClasses} from "../model";
-
+import { random_rgba } from "./utils";
 import {
     extractCoords,
     THREE,
@@ -154,10 +154,41 @@ Link.prototype.getCurve = function(start, end){
     return curve;
 };
 
+Link.prototype.regenerateFromSegments = function(segments) {
+  this.viewObjects['linkSegments'] = segments ;
+}
+
 /**
  * Update visual objects for a link
  */
 Link.prototype.updateViewObjects = function(state) {
+
+  if ( this.viewObjects['linkSegments'] ) {
+    
+    const points = []
+    const z = Math.floor(Math.random() * 6) + 1 ;
+
+    const segments = this.viewObjects['linkSegments'][0] ;
+
+    segments.forEach( segment => {
+      points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
+    })
+    
+    const material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+    
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    const line = new THREE.Line( geometry, material );
+
+    line.userData = this;
+    line.geometry.verticesNeedUpdate = true;
+    line.computeLineDistances();
+    line.geometry.computeBoundingBox();
+    line.geometry.computeBoundingSphere();
+    line.position.z = DIMENSIONS.LINK_MIN_Z;
+    this.viewObjects["main"] = line ;
+    this.createLabels();
+  }else{
+
     Edge.prototype.updateViewObjects.call(this, state);
 
     const obj = this.viewObjects["main"];
@@ -249,6 +280,7 @@ Link.prototype.updateViewObjects = function(state) {
         this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge));
 
     }
+  }
 };
 
 Object.defineProperty(Link.prototype, "polygonOffsetFactor", {

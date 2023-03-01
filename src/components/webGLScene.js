@@ -117,6 +117,7 @@ const WindowResize = require('three-window-resize');
                         [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
                         [graphData]="graphData"
+                        [viewPortSize]="viewPortSize"
                         [searchOptions]="_searchOptions"
                         [modelId]="graphData?.fullID || graphData?.id"
                         (onSelectBySearch)="selectByName($event)"
@@ -182,6 +183,7 @@ export class WebGLSceneComponent {
 
     _searchOptions;
     _helperKeys = [];
+    _viewPortSize = { width: 0, height: 0 };
 
     graph;
     helpers   = {};
@@ -363,6 +365,10 @@ export class WebGLSceneComponent {
         return this._graphData;
     }
 
+    get viewPortSize() { 
+      return this._viewPortSize ;
+    }
+
     ngAfterViewInit() {
         if (this.renderer) {  return; }
 
@@ -502,6 +508,7 @@ export class WebGLSceneComponent {
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(() => this.animate());
+        this.updateViewPortSize();
     }
 
     createHelpers() {
@@ -739,6 +746,10 @@ export class WebGLSceneComponent {
         this.mouse.x =  ( ( evt.clientX - rect.left ) / rect.width  ) * 2 - 1;
         this.mouse.y = -( ( evt.clientY - rect.top  ) / rect.height ) * 2 + 1;
         this.highlighted = this.getMouseOverEntity();
+    }
+
+    updateViewPortSize() {
+      this._viewPortSize = this.renderer.domElement.getBoundingClientRect() ;
     }
 
     toggleLayout(prop){
