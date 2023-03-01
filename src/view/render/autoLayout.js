@@ -25,7 +25,7 @@ import { getHouseLyph, getNodeLyph } from "./neuroView";
 
 export const LYPH_H_PERCENT_MARGIN = 0.2;
 export const LYPH_V_PERCENT_MARGIN = 0.05;
-export const MAX_LYPH_WIDTH = 15;
+export const MAX_LYPH_WIDTH = 35;
 export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
   LYPH_MIN_Z : 0.15,
@@ -551,7 +551,6 @@ export function placeLyphInWire(lyph){
 
   // Lyph and dimensions of lyph
   let lyphMesh = lyph.viewObjects["main"];
-  const lyphDim = getBoundingBoxSize(lyphMesh);
 
   if ( wiredTo && !lyph.hidden ) {
     // Find wire where lyph is attached
@@ -566,14 +565,7 @@ export function placeLyphInWire(lyph){
       const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
       position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
     }
-
-    setLyphScale(lyphMesh);
-    setLyphPosition(lyphMesh, wiredTo, position, true);
-    
-    const refHeight  = lyphDim.y * lyphMesh.scale.y;
-    lyphMesh.scale.setX(Math.ceil(lyphMesh.scale.x) * .7);
-    lyphMesh.position.y = lyphMesh.position.y + refHeight/3;
-    rotateAroundCenter(lyphMesh, wiredTo.rotation._x, wiredTo.rotation._y, wiredTo.rotation._z);
+    setLyphPosition(lyphMesh, wiredTo, position, false); 
     copyCoords(lyph, lyphMesh.position);
   }
 }
@@ -584,12 +576,22 @@ export function placeLyphInWire(lyph){
 export function placeLyphInHost(lyph){
   let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"] || lyph.layerIn?.viewObjects["main"];
   let lyphMesh = lyph.viewObjects["main"];
-  let terminalLyph = lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" ||lyph.supertype?.id === "lt-dend-bag";
+  let terminalLyph = lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" || lyph.supertype?.id === "lt-dend-bag" || lyph.supertype?.id === "lt-segment-of-neuron";
 
   // Fit lyph to region
   fitToTargetRegion(hostMesh, lyphMesh, terminalLyph); 
-  
 
+  const targetPosition = getLyphPosition(lyphMesh, hostMesh, lyph);
+
+  if ( !terminalLyph ){
+    lyphMesh.position.x = targetPosition.x ;
+    lyphMesh.position.y = targetPosition.y ;
+    lyphMesh.position.z = targetPosition.z;
+    copyCoords(lyph, lyphMesh.position);
+  } 
+}
+
+function getLyphPosition(lyphMesh, hostMesh, lyph) {
   const lyphDim = getBoundingBoxSize(lyphMesh);
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
@@ -628,10 +630,5 @@ export function placeLyphInHost(lyph){
     }
   }
 
-  if ( !terminalLyph ){
-    lyphMesh.position.x = targetX ;
-    lyphMesh.position.y = targetY ;
-    lyphMesh.position.z = targetZ;
-    copyCoords(lyph, lyphMesh.position);
-  } 
+  return new THREE.Vector3(targetX, targetY, targetZ);
 }
