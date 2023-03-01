@@ -196,8 +196,8 @@ export default Kapsule({
         d3VelocityDecay  : { default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
 
         warmupTicks      : { default: 1 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks    : { default: 1 },
-        cooldownTime     : { default: 1 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
+        cooldownTicks    : { default: 10 },
+        cooldownTime     : { default: 100 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading        : { default: () => {}, triggerUpdate: false },
         onFinishLoading  : { default: () => {}, triggerUpdate: false },
 
@@ -306,14 +306,16 @@ export default Kapsule({
         function layoutTick() {
           if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
-              state.onFrame = null;
-              const event2 = new CustomEvent('doneUpdating', { detail : { updating : false }});
+              const event2 = new CustomEvent('updateTick', { detail : { updating : false }});
               window.dispatchEvent(event2);
+              const event4 = new CustomEvent('doneUpdating');
+              window.dispatchEvent(event4);
+              state.onFrame = null;
           } else { layout['tick'](); }
 
           state.graphData.updateViewObjects(state);
-          const event2 = new CustomEvent('doneUpdating',  { detail : { updating : true }});
-          window.dispatchEvent(event2);
+          const event = new CustomEvent('updateTick',  { detail : { updating : true }});
+          window.dispatchEvent(event);
         }
     }
 });

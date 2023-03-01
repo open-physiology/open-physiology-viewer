@@ -588,7 +588,14 @@ export function placeLyphInHost(lyph){
     lyphMesh.position.y = targetPosition.y ;
     lyphMesh.position.z = targetPosition.z;
     copyCoords(lyph, lyphMesh.position);
-  } 
+  } else if ( terminalLyph ){
+    lyphMesh.position.z = getHouseLyph(lyph)?.z + DIMENSIONS.LYPH_MIN_Z;
+    copyCoords(lyph, lyphMesh.position);
+    lyph?.layers?.forEach( l => {
+      l.viewObjects["main"].position.z = lyph.conveys.z + (DIMENSIONS.LYPH_MIN_Z/2);
+      l.z = lyph.conveys.z;
+    })
+  }
 }
 
 function getLyphPosition(lyphMesh, hostMesh, lyph) {
@@ -610,7 +617,7 @@ function getLyphPosition(lyphMesh, hostMesh, lyph) {
     targetZ = DIMENSIONS.LYPH_MIN_Z;
   } else if ( hostMesh?.userData?.internalLyphs?.length >= 1 ) {
     hostLyphsLength = hostMesh?.userData?.internalLyphs?.length;
-    hostMesh ? targetZ = hostMesh.position.z + 1 : targetZ = DIMENSIONS.LYPH_MIN_Z + 1;
+    hostMesh ? targetZ = hostMesh.position.z + DIMENSIONS.LYPH_MIN_Z : targetZ = DIMENSIONS.LYPH_MIN_Z;
   } else if ( hostMesh?.userData?.layerIn ) {
     hostLyphsLength = hostMesh?.userData?.layerIn?.internalLyphs?.length;
     targetZ = DIMENSIONS.LAYER_MIN_Z;
