@@ -17,6 +17,7 @@ import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
+
 /**
  * Create visual object for edge
  */
@@ -34,7 +35,7 @@ Edge.prototype.updateViewObjects = function(state) {
 Edge.prototype.getViewObject = function (state){
     let material;
     if (this.stroke === Edge.EDGE_STROKE.DASHED) {
-        material = MaterialFactory.createLineDashedMaterial({color: this.color});
+        material = MaterialFactory.createLineDashedMaterial({color: "#000000"});
     } else {
         //Thick lines
         if (this.stroke === Edge.EDGE_STROKE.THICK) {
@@ -47,8 +48,7 @@ Edge.prototype.getViewObject = function (state){
         } else {
             //Normal lines
             material = MaterialFactory.createLineBasicMaterial({
-                color: this.color,
-                lineWidth: 1,
+                color: "#000000",
                 polygonOffsetFactor: this.polygonOffsetFactor
             });
         }
@@ -111,7 +111,6 @@ Link.prototype.createViewObjects = function(state){
 
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
-        obj.visible = !this.inactive;
         this.viewObjects["main"] = obj;
     }
 
@@ -162,10 +161,8 @@ Link.prototype.updateViewObjects = function(state) {
     Edge.prototype.updateViewObjects.call(this, state);
 
     const obj = this.viewObjects["main"];
-
     let start = extractCoords(this.source);
     let end   = extractCoords(this.target);
-
     let curve = this.getCurve(start, end);
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
@@ -229,7 +226,6 @@ Link.prototype.updateViewObjects = function(state) {
             let coordArray = [];
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
-            obj.material.lineWidth = .1;
         } else {
             if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
@@ -250,9 +246,8 @@ Link.prototype.updateViewObjects = function(state) {
             }
         }
         copyCoords(this, obj.position);
-        obj.visible = !this.inactive;
-        this.updateLabels( this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
-        
+        this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge));
+
     }
 };
 
@@ -382,4 +377,3 @@ Object.defineProperty(Wire.prototype, "polygonOffsetFactor", {
             (this[prop].polygonOffsetFactor || 0) - 1: 0));
     }
 });
-
