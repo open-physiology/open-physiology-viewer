@@ -617,7 +617,7 @@ function getLyphPosition(lyphMesh, hostMesh, lyph) {
     targetZ = DIMENSIONS.LYPH_MIN_Z;
   } else if ( hostMesh?.userData?.internalLyphs?.length >= 1 ) {
     hostLyphsLength = hostMesh?.userData?.internalLyphs?.length;
-    hostMesh ? targetZ = hostMesh.position.z + DIMENSIONS.LYPH_MIN_Z : targetZ = DIMENSIONS.LYPH_MIN_Z;
+    hostMesh ? targetZ = getHouseLyph(hostMesh.userData)?.z + DIMENSIONS.LYPH_MIN_Z * 2: targetZ = DIMENSIONS.LYPH_MIN_Z * 2;
   } else if ( hostMesh?.userData?.layerIn ) {
     hostLyphsLength = hostMesh?.userData?.layerIn?.internalLyphs?.length;
     targetZ = DIMENSIONS.LAYER_MIN_Z;
