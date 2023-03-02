@@ -77,7 +77,8 @@ export function orthogonalLayout(links, nodes, left, top, width, height)
         id: link.id,
         source: { id: source.id },
         target: { id: target.id },
-        router: { name: 'manhattan' }
+        router: { name: 'manhattan' },
+        connector : { name : 'jumpover'}
       });
       cells.push(linkModel);
     }
