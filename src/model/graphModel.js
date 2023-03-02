@@ -5,7 +5,7 @@ import {
     entries, keys, values,
     isNumber, isArray, isObject, isString, isEmpty,
     pick, merge,
-    cloneDeep, unionBy
+    cloneDeep, unionBy, sortBy
 } from 'lodash-bound';
 import {Validator} from 'jsonschema';
 import schema from './graphScheme.json';
@@ -32,7 +32,8 @@ import {
     validateValue,
     convertValue,
     levelTargetsToLevels,
-    borderNamesToBorder, validateExternal
+    borderNamesToBorder,
+    replaceReferencesToExternal
 } from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
@@ -189,15 +190,14 @@ export class Graph extends Group{
      */
     static fromJSON(json, modelClasses = {}) {
         const V = new Validator();
-
-        //Validate using Graph schema
         delete schema.oneOf;
         schema.$ref = "#/definitions/Graph";
         let resVal = V.validate(json, schema);
 
-        //Copy existing entities to a map to enable nested model instantiation
         let inputModel = json::cloneDeep();
+        inputModel.class = $SchemaClass.Graph;
 
+        //Copy existing entities to a map to enable nested model instantiation
         /**
          * @property waitingList
          * @type {Object}
@@ -226,6 +226,12 @@ export class Graph extends Group{
             collectNestedResources(inputModel, relFieldNames, $Field.groups);
 
             modelClasses.Channel.defineChannelLyphTemplates(inputModel);
+
+            replaceReferencesToExternal(inputModel, inputModel.localConventions);
+            inputModel.groupsByID::values().forEach(json => {
+                json.class = json.class || $SchemaClass.Group;
+                replaceReferencesToExternal(json, json.localConventions || inputModel.localConventions);
+            });
 
             modelClasses.Group.replaceReferencesToTemplates(inputModel);
             inputModel.groupsByID::values().forEach(json => {
@@ -274,9 +280,6 @@ export class Graph extends Group{
             inputModel.groupsByID::values().forEach(json => {
                 modelClasses.Lyph.mapInternalResourcesToLayers(json, modelClasses);
             });
-
-            //Create graph
-            inputModel.class = $SchemaClass.Graph;
         }
 
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, inputModel.namespace);
@@ -328,9 +331,6 @@ export class Graph extends Group{
                     }
                 }
             });
-            validateExternal(res.external, res.localConventions);
-            validateExternal(res.ontologyTerms, res.localConventions);
-            validateExternal(res.references, res.localConventions);
 
             res.mergeSubgroupResources();
             deleteRecursively(res, $Field.group, "_processed");
@@ -365,6 +365,14 @@ export class Graph extends Group{
             }
             //res.createForceLinks();
             res.scaleFactor = 1;
+        }
+
+        if (res.groups) {
+            res.groups.forEach(g => g.markImported());
+            res.groups = res.groups::sortBy([$Field.namespace, $Field.name, $Field.id]);
+        }
+        if (res.scaffolds) {
+            res.scaffolds = res.scaffolds::sortBy([$Field.namespace, $Field.name, $Field.id]);
         }
 
         res.generated = true;
@@ -547,6 +555,9 @@ export class Graph extends Group{
      */
     createAxes(noAxisLyphs, modelClasses, entitiesByID){
         let group = (this.groups||[]).find(g => g.id === getGenID($Prefix.group, $Prefix.default));
+        if (!group){
+            group = {links: [], nodes: [], name: "Auto-created links"};
+        }
         noAxisLyphs.forEach(lyph => {
             if (!lyph.createAxis){
                 logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph);
@@ -555,7 +566,7 @@ export class Graph extends Group{
             let link = lyph.createAxis(modelClasses, entitiesByID, lyph.namespace);
             this.links.push(link);
             link.applyToEndNodes(end => this.nodes.push(end));
-            if (group){
+            if (group && !group.links.find(lnk => lnk.id === link.id)){
                 group.links.push(link);
                 link.applyToEndNodes(end => group.nodes.push(end));
             }
@@ -563,7 +574,20 @@ export class Graph extends Group{
         if (noAxisLyphs.length > 0){
             logger.info($LogMsg.GROUP_GEN_LYPH_AXIS, noAxisLyphs.map(x => x.id));
         }
-        noAxisLyphs.forEach(lyph => lyph.assignAxisLength());
+        noAxisLyphs.forEach(lyph => lyph.assignAxisLength && lyph.assignAxisLength());
+        if (group.name === "Auto-created links" && group.links.length > 0){
+            const autoID = getGenID($Prefix.group, $Prefix.autoLinks);
+            let autoGroup = modelClasses.Group.fromJSON(genResource({
+                [$Field.id]: autoID,
+                [$Field.fullID]: getFullID(this.namespace, autoID),
+                [$Field.namespace]: this.namespace,
+                [$Field.name]: group.name,
+                [$Field.hidden]: true,
+                [$Field.links]: group.links,
+                [$Field.nodes]: group.nodes
+            }, "graphModel.createAxes (Group)"));
+            this.groups.push(autoGroup);
+        }
     }
 
     /**
@@ -617,8 +641,7 @@ export class Graph extends Group{
         let uri = m.concat(this.id);
 
         let curiesContext = {};
-        let localConventions = this.localConventions || [];
-        localConventions.forEach((obj) =>
+        (this.localConventions || []).forEach((obj) =>
             curiesContext[obj.prefix] = {"@id": obj.namespace, "@prefix": true});
 
         let localContext = {

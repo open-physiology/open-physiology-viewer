@@ -90,6 +90,19 @@ describe("Convert excel data to JSON", () => {
         expect(s41.internalLyphs).to.be.an("array").that.has.length(4);
     });
 
+    it("Variance specifications are converted to resources (TestModel)", () => {
+        expect(graphData).to.have.property("varianceSpecs");
+        const vs1 = graphData.varianceSpecs.find(vs => vs.id === "vs-1");
+        expect(vs1).to.be.instanceOf(modelClasses.VarianceSpec);
+        expect(vs1).to.have.property("clades");
+        expect(vs1.clades).to.be.an("array").that.has.length(1);
+
+        const vs3 = graphData.varianceSpecs.find(vs => vs.id === "vs-3");
+        expect(vs3).to.be.instanceOf(modelClasses.VarianceSpec);
+        expect(vs3).to.have.property("includes");
+        expect(vs3.includes).to.be.an("array").that.has.length(2);
+    });
+
     after(() => {
         graphData.logger.clear();
     });

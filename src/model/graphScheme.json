@@ -163,10 +163,6 @@
           "description": "Scaffold identifier",
           "$ref": "#/definitions/IdentifierScheme"
         },
-        "hidden": {
-          "description": "Scaffold visibility status",
-          "type": "boolean"
-        },
         "annotation": {
           "description": "Annotation for the saved scaffold, e.g., version, author, etc.",
           "$ref": "#/definitions/AnnotationSchema"
@@ -798,6 +794,62 @@
         }
       }
     },
+    "VarianceSpec": {
+      "description": "Specification of variance among species",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        }
+      ],
+      "properties": {
+        "clades": {
+          "description": "External resources identifying clades",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          }
+        },
+        "phenotypes": {
+          "description": "External resources identifying phenotypes",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          }
+        },
+        "includes": {
+          "description": "Variance specifications which are parts of the given specification",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VarianceSpec"
+              }
+            ]
+          }
+        },
+        "presence": {
+          "description": "Ontology term that identifies resource from which the variance present in all descendants unless lost",
+          "type": "string"
+        }
+      }
+    },
     "Graph": {
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$ref": "#/definitions/Group",
@@ -845,7 +897,7 @@
           "advanced": true
         },
         "hidden": {
-          "description": "A boolean flag to indicate that this group is hidden",
+          "description": "A property that indicates whether this group is hidden",
           "type": "boolean",
           "default": true
         },
@@ -1026,7 +1078,15 @@
             "$ref": "#/definitions/Scaffold"
           },
           "advanced": true
-        }
+        },
+        "varianceSpecs": {
+          "description": "Specifications of variance among species",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/VarianceSpec"
+            },
+            "advanced": true
+          }
       }
     },
     "EdgeGeometryScheme": {
@@ -2289,10 +2349,14 @@
           "type": "string",
           "advanced": true
         },
-                "generated": {
+        "generated": {
           "description": "A boolean flag to mark automatically generated resources",
           "type": "boolean",
           "readOnly": true
+        },
+        "imported": {
+          "description": "A property that indicates whether this group is imported",
+          "type": "boolean"
         },
         "assign": {
           "description": "Dynamically assign properties to selected resources",
@@ -2392,6 +2456,20 @@
             ]
           },
           "relatedTo": "annotates"
+        },
+        "varianceSpecs": {
+          "description": "Variance specifications associated with the resource",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VarianceSpec"
+              }
+            ]
+          }
         }
       }
     },

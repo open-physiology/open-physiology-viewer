@@ -10,7 +10,7 @@ import {
     isNumber,
     isObject,
     keys,
-    pick
+    pick, sortBy, values
 } from "lodash-bound";
 import {
     $Field,
@@ -18,9 +18,11 @@ import {
     prepareForExport,
     schemaClassModels,
     refToResource,
-    collectNestedResources, deleteRecursively
+    collectNestedResources,
+    deleteRecursively
 } from "./utils";
-import {extractLocalConventions, extractModelAnnotation, convertValue, validateValue, validateExternal} from './utilsParser';
+import {extractLocalConventions, extractModelAnnotation,
+    convertValue, validateValue, replaceReferencesToExternal} from './utilsParser';
 import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import * as XLSX from "xlsx";
 
@@ -86,8 +88,8 @@ export class Scaffold extends Component {
         schema.$ref = "#/definitions/Scaffold";
         let resVal = V.validate(json, schema);
 
-        let inputModel = json::cloneDeep()::defaults({id: "mainScaffold"});
-        inputModel.class = inputModel.class || $SchemaClass.Scaffold;
+        let inputModel = json::cloneDeep();
+        inputModel.class = $SchemaClass.Scaffold;
 
         //Copy existing entities to a map to enable nested model instantiation
         /**
@@ -99,8 +101,16 @@ export class Scaffold extends Component {
 
         let namespace = inputModel.namespace || defaultNamespace;
 
-        let relFieldNames = [$Field.anchors, $Field.wires, $Field.regions];
-        collectNestedResources(inputModel, relFieldNames, $Field.components);
+        if (!inputModel.generated) {
+            let relFieldNames = [$Field.anchors, $Field.wires, $Field.regions];
+            collectNestedResources(inputModel, relFieldNames, $Field.components);
+
+            replaceReferencesToExternal(inputModel, inputModel.localConventions);
+            inputModel.componentsByID::values().forEach(json => {
+                json.class = json.class || $SchemaClass.Component;
+                replaceReferencesToExternal(json, json.localConventions || inputModel.localConventions);
+            });
+        }
 
         //Create scaffold
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, namespace);
@@ -112,15 +122,22 @@ export class Scaffold extends Component {
         //Auto-create missing definitions for used references
         Scaffold.processScaffoldWaitingList(res, entitiesByID, namespace, modelClasses, undefined);
 
-        res.mergeSubgroupResources();
-        deleteRecursively(res, $Field.component, "_processed");
+         if (!res.generated) {
+             res.mergeSubgroupResources();
+             deleteRecursively(res, $Field.component, "_processed");
 
-        (res.components||[]).forEach(component => component.includeRelated && component.includeRelated());
-        res.generated = true;
+             (res.components || []).forEach(component => component.includeRelated && component.includeRelated());
+             res.generated = true;
+         }
 
-        validateExternal(res.external, res.localConventions);
-        validateExternal(res.ontologyTerms, res.localConventions);
-        validateExternal(res.references, res.localConventions);
+         if (res.imported){
+             res.markImported();
+         } else {
+             res.components?.forEach(g => g.markImported());
+         }
+         if (res.components) {
+            res.components = res.components::sortBy([$Field.namespace, $Field.name, $Field.id]);
+        }
 
         //Log info about the number of generated resources
         logger.info($LogMsg.SCAFFOLD_RESOURCE_NUM, this.id, entitiesByID::keys().length - before);

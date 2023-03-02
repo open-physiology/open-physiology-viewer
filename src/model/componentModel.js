@@ -6,6 +6,13 @@ import {Anchor} from './verticeModel';
 import {Wire} from './edgeModel';
 import {Region} from './shapeModel';
 
+/**
+ * @class
+ * @property anchors
+ * @property wires
+ * @property regions
+ * @property components
+ */
 export class Component extends Resource {
 
     /**
@@ -118,6 +125,13 @@ export class Component extends Resource {
      */
     get visibleRegions(){
         return (this.regions||[]).filter(e => e.isVisible);
+    }
+
+    markImported(){
+        if (this.imported) {
+            let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();
+            relFieldNames.forEach(prop => this[prop]?.forEach(r => r.imported = true));
+        }
     }
 
     /**

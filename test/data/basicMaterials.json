@@ -5,7 +5,6 @@
   "author": "Natallia Kokash",
   "imports": [
     "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json",
-    "https://raw.githubusercontent.com/open-physiology/open-physiology-viewer/master/test/data/wbkg.json",
     "https://api.github.com/repositories/100824100/contents/test/scaffolds/nonExistingModel.json",
     "some wrong url"
   ],
@@ -44,15 +43,36 @@
     },
     {
       "id": "5",
-      "isTemplate": true
+      "isTemplate": true,
+      "name": "Layer 1",
+      "ontologyTerms": ["FMA12345"],
+      "layers": ["m1"]
     },
     {
       "id": "6",
-      "isTemplate": true
+      "isTemplate": true,
+      "name": "Layer 2",
+      "supertype": "m2"
     },
     {
       "id": "7",
-      "isTemplate": true
+      "isTemplate": true,
+      "name": "Layer 3",
+      "materials": ["m3"]
+    }
+  ],
+  "materials": [
+    {
+      "id": "m1",
+      "name": "Material 1"
+    },
+    {
+      "id": "m2",
+      "name": "Material 2"
+    },
+    {
+      "id": "m3",
+      "name": "Material 3"
     }
   ]
 }

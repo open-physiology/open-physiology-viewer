@@ -477,15 +477,19 @@ export class Chain extends GroupTemplate {
             let sourceBorderIndex = 1;
             let targetBorderIndex = 3;
             if (hostLyph.layers){
+                if (hostLyph.namespace !== parentGroup.namespace){
+                    hostLyph.layers = hostLyph.layers.map(layerID => getFullID(hostLyph.namespace, layerID));
+                }
                 let layers = hostLyph.layers.map(layerID => refToResource(layerID, parentGroup, $Field.lyphs));
                 layers = layers.filter(layer => !!layer);
-                if (layers.length < hostLyph.layers){
+                if (layers.length < (hostLyph.layers||[]).length){
                     logger.warn($LogMsg.CHAIN_NO_HOUSING_LAYERS, hostLyph.layers, hostLyph.id);
                     return;
                 }
+                //NK FIXME another namespace lyph can bundle the chain, consider more cases
                 let nm = chain.namespace || parentGroup.namespace;
                 bundlingLayer = layers.find(e => (e.bundlesChains||[]).find(t => t === chain.id ||
-                    (nm && t === getFullID(nm, chain.id))));
+                                                                                (nm && t === getFullID(nm, chain.id))));
                 let hostLayer = null;
                 if (chain.housingLayers && chain.housingLayers.length > i){
                     if (chain.housingLayers[i] >= 0){
@@ -502,7 +506,6 @@ export class Chain extends GroupTemplate {
                         logger.warn($LogMsg.CHAIN_CONFLICT3, bundlingLayer.id, hostLayer.id);
                     }
                 }
-
                 hostLyph = bundlingLayer || hostLayer || hostLyph;
             }
 

@@ -953,7 +953,7 @@ export class SettingsPanel {
     searchTermScaffolds = '';
     filteredScaffolds;
     nodes;
-    previousId = '';
+    // previousId = '';
 
     scaffoldResourceVisibility: Boolean = false;
     renderedComponents;
@@ -987,9 +987,9 @@ export class SettingsPanel {
     }
 
     @Input('modelId') set modelId(modelId){
-        if (this._modelId !== modelId) {
-            this._modelId = modelId;
-        }
+        // if (this._modelId !== modelId) {
+        //     this._modelId = modelId;
+        // }
     }
 
     @Input('selected') set selected(entity){
@@ -1155,19 +1155,19 @@ export class SettingsPanel {
     }
 
     ngOnInit() {
-      this.previousId = this._modelId;
+      // this.previousId = this._modelId;
       this.filteredGroups = this.groups;
       this.filteredDynamicGroups = this.dynamicGroups;
       this.filteredScaffolds = this.scaffolds;
     }
 
     ngOnChanges() {
-      if (this._modelId !== this.previousId) {
-        this.previousId = this._modelId;
+      // if (this._modelId !== this.previousId) {
+      //   this.previousId = this._modelId;
         this.search(this.searchTerm, 'filteredGroups', 'groups');
         this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
         this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
-      }
+      // }
       this.filteredGroups = this.filteredGroups || this.groups;
       this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
       this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;

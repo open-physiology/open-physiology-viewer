@@ -43,6 +43,7 @@ export const ModelType = {
  * @property External
  * @property Reference
  * @property OntologyTerm
+ * @property VarianceSpec
  * @property VisualResource
  * @property Vertice
  * @property Node
@@ -104,6 +105,7 @@ export const $Prefix = {
     border      : "b",      //lyph border
     villus      : "vls",    //villus template
     layer       : "layer",  //generated lyph layer
+    internal    : "int",    //generated internal lyph
     template    : "ref",    //from lyph template
     material    : "mat",    //from material reference
     clone       : "clone",  //node clone
@@ -112,6 +114,7 @@ export const $Prefix = {
     wire        : "wire",   //wire
     query       : "query",  //dynamic query
     default     : "default", //default group ID
+    autoLinks   : "autoLinks", //AUto-generated links
     force       : "force"
 };
 
@@ -123,9 +126,10 @@ export const getNewID = entitiesByID => "new-" +
     (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
 
-export const getRefID = (ref) => {
+export const getRefID = ref => {
     let id = getID(ref);
     if (!id || !(id::isString())) return "";
+    if (id.startsWith("http")) return ref;
     return id.substr(id.lastIndexOf(":") + 1);
 }
 
@@ -150,6 +154,7 @@ export const getRefNamespace = (ref, namespace= undefined) => {
     }
     let id = getID(ref);
     if (!id) return namespace;
+    if (id.startsWith("http")) return undefined;
     let idx = id.lastIndexOf(":");
     if (idx > -1) {
         return id.substr(0, idx);
@@ -783,6 +788,7 @@ export const assignEntityByID = (res, entitiesByID, namespace, modelClasses) => 
  * When a new resource definition is found or created, all resources that referenced this resource by ID get the
  * corresponding object reference instead
  * @param {Map<string, Array<Resource>>} waitingList - associative array that maps unresolved IDs to the list of resource definitions that refer to it
+ * @param context - resource that will replace identifier references to it in the waiting list
  */
 export const reviseWaitingList = (waitingList, context) => {
     let res = context;

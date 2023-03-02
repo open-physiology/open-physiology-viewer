@@ -346,6 +346,7 @@ export class TestApp {
                     let scaffolds = result.filter(m => isScaffold(m));
                     let groups = result.filter(m => isGraph(m));
                     let snapshots = result.filter(m => isSnapshot(m));
+                    logger.clear();
                     processImports(this._model, result);
                     if (groups.length > 0 || scaffolds.length > 0) {
                         this.model = this._model;
@@ -432,7 +433,7 @@ export class TestApp {
     applyJSONEditorChanges() {
         if (this._editor){
             logger.clear();
-            this._graphData = generateFromJSON({});
+            this._graphData = generateFromJSON({"id":"Empty"});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
@@ -440,7 +441,7 @@ export class TestApp {
 
     applyChanges(){
         logger.clear();
-        this._graphData = generateFromJSON({});
+        this._graphData = generateFromJSON({"id": "Empty"});
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 

@@ -3,7 +3,7 @@ import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
 
-import {isObject, unionBy, merge, keys, entries, isArray, pick, sortBy, isNumber} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
 import {
     $SchemaClass,
     $Field,
@@ -39,6 +39,7 @@ import {logger, $LogMsg} from './logger';
  * @property coalescences
  * @property scaffolds
  * @property hostedBy
+ * @property varianceSpecs
  */
 export class Group extends Resource {
     /**
@@ -69,9 +70,6 @@ export class Group extends Resource {
         addColor(res.lyphs);
 
         res.assignScaffoldComponents();
-        if (res.groups) {
-            res.groups = res.groups::sortBy($Field.fullID);
-        }
         return res;
     }
 
@@ -96,7 +94,6 @@ export class Group extends Resource {
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
             this[prop].forEach(res => res.includeRelated && res.includeRelated(this));
-            //TODO why not all nodes marked as hidden: keastSpinalFull
             this[prop].hidden = this.hidden;
         });
 
@@ -114,15 +111,25 @@ export class Group extends Resource {
         }
     }
 
-    createGroup(groupID, name, nodes, links, lyphs, modelClasses){
+    /**
+     * Generate a (dynamic) group
+     * @param id
+     * @param name
+     * @param nodes
+     * @param links
+     * @param lyphs
+     * @param modelClasses
+     * @returns {*}
+     */
+    createGroup(id, name, nodes, links, lyphs, modelClasses){
         const resources = {
             [$Field.nodes]: nodes,
             [$Field.links]: links,
             [$Field.lyphs]: lyphs
         }
-        let group = (this.groups||[]).find(g => g.id === groupID);
+        let group = (this.groups||[]).find(g => g.id === id);
         let json = group || genResource({
-            [$Field.id]    : groupID,
+            [$Field.id]    : id,
             [$Field.name]  : name
         }, "groupModel.createGroup (Group)");
         if (group) {
@@ -184,7 +191,6 @@ export class Group extends Resource {
      * @param parentGroup - input model
      */
     static replaceReferencesToTemplates(parentGroup){
-
         let changedLyphs = 0;
         let changedMaterials = 0;
 
@@ -257,7 +263,7 @@ export class Group extends Resource {
                     resource[key] = replaceRefToTemplate(resource[key], resource);
                 }
             }
-        };
+        }
 
         (parentGroup::entries()||[]).forEach(([relName, resources]) => {
             if (!resources::isArray()) { return; }
@@ -267,9 +273,11 @@ export class Group extends Resource {
                 if (!refsToLyphs){ return; }
                 (resources || []).forEach(resource => {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
-                        if (refsToLyphs.includes(key)) { replaceAbstractRefs(resource, key); }
-                    })
-                })
+                        if (refsToLyphs.includes(key)) {
+                            replaceAbstractRefs(resource, key);
+                        }
+                    });
+                });
             }
         });
         if (changedLyphs > 0){
@@ -348,6 +356,21 @@ export class Group extends Resource {
 
     static embedChainsToHousingLyphs(json, modelClasses){
        (json.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
+    }
+
+    markImported(){
+        if (this.imported) {
+            let relFieldNames = schemaClassModels[$SchemaClass.Group].filteredRelNames();
+            relFieldNames.forEach(prop => {
+                if (this[prop]::isArray()) {
+                    this[prop]?.forEach(r => r.imported = true)
+                } else {
+                    if (this[prop]::isObject()){
+                        this[prop].imported = true;
+                    }
+                }
+            });
+        }
     }
 
     /**

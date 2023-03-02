@@ -8,6 +8,7 @@ import {Component} from './componentModel';
 import {Graph}   from './graphModel';
 import {Scaffold} from './scaffoldModel';
 import {Resource, External, Reference, OntologyTerm} from './resourceModel';
+import {VarianceSpec} from "./varianceSpecModel";
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
@@ -44,6 +45,7 @@ export const modelClasses = {
     [$SchemaClass.External]       : External,
     [$SchemaClass.Reference]      : Reference,
     [$SchemaClass.OntologyTerm]   : OntologyTerm,
+    [$SchemaClass.VarianceSpec]   : VarianceSpec,
     [$SchemaClass.Coalescence]    : Coalescence,
     [$SchemaClass.Channel]        : Channel,
     [$SchemaClass.Chain]          : Chain,
@@ -164,10 +166,10 @@ export function jsonToExcel(inputModel) {
  * @returns {Graph}
  */
 export function generateFromJSON(inputModel) {
+    inputModel.version = hash(inputModel);
     inputModel.id = inputModel.id || "main";
     inputModel.namespace = inputModel.namespace || "nm_" + inputModel.id;
     inputModel.schemaVersion = hash(schema);
-    inputModel.version = hash(inputModel);
     if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
@@ -215,6 +217,7 @@ export function processImports(inputModel, importedModels){
     inputModel.scaffolds = inputModel.scaffolds || [];
     inputModel.groups = inputModel.groups || [];
     scaffolds.forEach(newModel => {
+        newModel.imported = true;
         const scaffoldIdx = inputModel.scaffolds.findIndex(s => s.id === newModel.id);
         if (scaffoldIdx === -1) {
             inputModel.scaffolds.push(newModel);
@@ -223,6 +226,7 @@ export function processImports(inputModel, importedModels){
         }
     });
     groups.forEach(newModel => {
+        newModel.imported = true;
         const groupIdx = inputModel.groups.findIndex(s => s.id === newModel.id);
         if (groupIdx === -1) {
             inputModel.groups.push(newModel);

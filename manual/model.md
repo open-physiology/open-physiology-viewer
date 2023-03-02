@@ -231,6 +231,29 @@ The ApiNATOMY model essentially defines a graph where the positions of nodes are
 
  The property `internalLyphs` is used to define the inner content of a shape, i.e., neurons within the neural system parts. The related property, `internalIn`, will indicate to which shape (lyph or region) the given lyph belongs.
  Internal lyphs should have an axis of rotation to be hold in place. In practice, there may be elements with uncertain or unspecified position within a larger element, i.e., blood cells within blood fluid. Until the method of positioning of inner content within a lyph is clarified by the physiology experts, we auto-generate links and position them on a grid within the container shape.
+ 
+ Lyph templates can be internal in other lyph templates, including their layers. Such constructs would cause replication
+ and instantiation of the internal lyph structure to each and every lyph instance derived from the lyph template that includes the internal lyph template.    
+ For example, the listing below would produce 3 lyph instances, smooth muscle, chief stomach, and sensory neuron, derived     
+ from a generic nucleated cell composed of a cytoplasm and wall layers. The cytoplasm layer of each lyph 
+ has 4 internal lyphs representing nucleus, vesicle, mitochondria and endoplasmic reticulum. The mitochondria lyph template
+ consists of 4 layers (l1,l2,l4,l4 - they must be explicitly defined in the model since they are also replicable templates, but we omit
+ the definitions for the sake of brevity).
+
+ ```
+ id               topology  supertype      isTemplate  layers         internalLyphs
+ smoothMuscle         TUBE  nucleatedCell			
+ chiefStomach         CYST  nucleatedCell			
+ sensoryNeuron         BAG  nucleatedCell			
+ nucleatedCell                             TRUE        cytoplasm,wall	
+ wall                                      TRUE		
+ cytoplasm                                 TRUE                       nucleus,vesicle,mitochondria,endoplasmicReticulum
+ nucleus                                   TRUE		
+ vesicle                                   TRUE		
+ mitochondria         CYST                 TRUE        l1,l2,l3,l4	
+ endoplasmicReticulum                      TRUE		
+ ```
+ <img src="asset/basicLyphComplex.png" width="75%" caption = "Internal lyphs in lyph templates">
 
  It is possible to model a lyph within another lyph via explicit relationships, i.e., among its axis ends and lyph borders.
 
