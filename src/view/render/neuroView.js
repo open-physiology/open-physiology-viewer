@@ -415,8 +415,10 @@ function distance(a, b) {
 export function applyOrthogonalLayout(links, nodes, left, top, width, height) {
   const distances = [];
   links.forEach(l => {
-    const linkDistance = distance(l.source, l.target);
-
+    const sourcePosition = { x: l.points[0].x, y: l.points[0].y }
+    const targetPosition = { x: l.points[1].x, y: l.points[1].y }
+    const linkDistance = distance(sourcePosition, targetPosition);
+    l['euclidianDistance'] = linkDistance ;
     distances.push(linkDistance);
   });
   if (distances.length > 0)
@@ -424,18 +426,8 @@ export function applyOrthogonalLayout(links, nodes, left, top, width, height) {
     const dev = stddev(distances);
     const average = avg(distances);
     const max_delta = average - 0.25 * dev ;
-    const distance_indexes = distances.map((d,i) => { 
-      if (d > max_delta)
-        return i ;
-    })
-    .filter(d => d);
-    const filtered_links = [];
-    distance_indexes.forEach( (di) => {
-      filtered_links.push(links[di])
-    })
+    const filtered_links = links.filter ( l => l.euclidianDistance > max_delta );
     if (filtered_links.length > 0)
-    {
       return orthogonalLayout(filtered_links, nodes, left, top, width, height) ;
-    }
   }
 }
