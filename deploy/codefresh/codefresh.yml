@@ -20,19 +20,6 @@ steps:
     working_directory: ./open-physiology-viewer
     buildkit: true    
     registry: "${{CODEFRESH_REGISTRY}}"
-  deploy:
-    stage: "deploy"
-    title: "Deploying Apinatomy"
-    image: codefresh/kubectl
-    working_directory: ./open-physiology-viewer/deploy/k8s
-    commands:
-      - export CLUSTER_NAME="${{CLUSTER_NAME}}"
-      - export NAMESPACE="${{NAMESPACE}}"
-      - export CF_BUILD_ID
-      - export REGISTRY="${{REGISTRY}}/"
-      - export DOMAIN="${{DOMAIN}}"
-      - chmod +x ./deploy.sh
-      - ./deploy.sh
   test_build:
     stage: test
     type: build
