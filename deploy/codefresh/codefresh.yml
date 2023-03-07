@@ -40,7 +40,7 @@ steps:
       services:
         app:
           image: '${{build}}'
-          working_dir: /home/pptruser
+          # working_dir: /home/pptruser
           ports:
             - 80
     composition_candidates:
