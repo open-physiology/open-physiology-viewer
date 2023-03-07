@@ -2,6 +2,7 @@ version: "1.0"
 stages:
   - "clone"
   - "build"
+  - "test"
   - "deploy"
 steps:
   clone:
