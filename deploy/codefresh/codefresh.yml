@@ -33,3 +33,30 @@ steps:
       - export DOMAIN="${{DOMAIN}}"
       - chmod +x ./deploy.sh
       - ./deploy.sh
+  test_build:
+    stage: test
+    type: build
+    title: Building Apinatomy test image
+    image_name: apinatomy_test
+    working_directory: ./open-physiology-viewer
+    dockerfile: Dockerfile.testing
+    buildkit: true
+  test:
+    type: composition
+    title: Running Tests
+    description: Temporary test environment
+    stage: test
+    working_directory: ./open-physiology-viewer
+    composition:
+      version: '2'
+      services:
+        app:
+          image: '${{build}}'
+          working_dir: /home/pptruser
+          ports:
+            - 80
+    composition_candidates:
+      test:
+        image: '${{test_build}}'
+        working_dir: /home/pptruser
+        command: bash -c 'ls -l && npm run keast_snapshot_test'
