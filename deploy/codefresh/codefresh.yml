@@ -49,4 +49,4 @@ steps:
         links:
          - app
         working_dir: /home/pptruser
-        command: bash -c 'ls -l && npm run keast_snapshot_test'
+        command: bash -c 'npm install && ls -l  && npm run keast_snapshot_test'
