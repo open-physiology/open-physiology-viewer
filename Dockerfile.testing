@@ -6,6 +6,8 @@ COPY package-lock.json /package-lock.json
 
 RUN npm install
 
+RUN pwd
+
 COPY . ./
 
 RUN pwd
