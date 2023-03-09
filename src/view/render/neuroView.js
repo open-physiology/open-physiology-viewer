@@ -423,10 +423,11 @@ export function applyOrthogonalLayout(links, nodes, left, top, width, height) {
   });
   if (distances.length > 0)
   {
-    const dev = stddev(distances);
-    const average = avg(distances);
-    const max_delta = average - 0.25 * dev ;
-    const filtered_links = links.filter ( l => l.euclidianDistance > max_delta );
+    // const dev = stddev(distances);
+    // const average = avg(distances);
+    // const max_delta = average - 0.25 * dev ;
+    const threshold = 50 ;
+    const filtered_links = links.filter ( l => l.euclidianDistance > threshold );
     if (filtered_links.length > 0)
       return orthogonalLayout(filtered_links, nodes, left, top, width, height) ;
   }
