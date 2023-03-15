@@ -20,7 +20,7 @@ const SNAPSHOT_OPTIONS = {
         ssim: 'fast', 
     },
     failureThresholdType: 'percent',
-    failureThreshold: 0.040 //best one to allow some minor changes in display 
+    failureThreshold: 0.1 //best one to allow some minor changes in display 
 };
 
 

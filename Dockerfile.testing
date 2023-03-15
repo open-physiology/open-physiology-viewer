@@ -1,11 +1,7 @@
 FROM ghcr.io/puppeteer/puppeteer:16.1.0
 
-
-
-
 COPY package.json .
 COPY package-lock.json .
-
 
 RUN npm ci
 
@@ -18,4 +14,3 @@ COPY .babelrc .
 
 ENV TEST_URL=https://open-physiology-viewer.surge.sh/
 
-CMD npm run keast_snapshot_test
