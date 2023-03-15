@@ -12,5 +12,3 @@ COPY jest-puppeteer.config.js .
 COPY setUpSnapTests.js .
 COPY .babelrc .
 
-ENV TEST_URL=https://open-physiology-viewer.surge.sh/
-
