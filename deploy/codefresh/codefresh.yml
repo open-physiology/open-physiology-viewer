@@ -11,24 +11,27 @@ steps:
     type: "git-clone"
     repo: "metacell/open-physiology-viewer"
     revision: "${{CF_BRANCH}}"
-  build:
-    stage: "build"
-    title: "Building Apinatomy"
-    type: "build"
-    image_name: "apinatomy"
-    tag: "${{CF_BUILD_ID}}"
-    dockerfile: Dockerfile
-    working_directory: ./open-physiology-viewer
-    buildkit: true    
-    registry: "${{CODEFRESH_REGISTRY}}"
-  test_build:
-    stage: test
-    type: build
-    title: Building Apinatomy test image
-    image_name: apinatomy-test
-    working_directory: ./open-physiology-viewer
-    dockerfile: Dockerfile.testing
-    buildkit: true
+  builds:
+    type: parallel
+    steps:
+      build:
+        stage: "build"
+        title: "Building Apinatomy"
+        type: "build"
+        image_name: "apinatomy"
+        tag: "${{CF_BUILD_ID}}"
+        dockerfile: Dockerfile
+        working_directory: ./open-physiology-viewer
+        buildkit: true    
+        registry: "${{CODEFRESH_REGISTRY}}"
+      test_build:
+        stage: test
+        type: build
+        title: Building Apinatomy test image
+        image_name: apinatomy-test
+        working_directory: ./open-physiology-viewer
+        dockerfile: Dockerfile.testing
+        buildkit: true
   test:
     type: composition
     title: Running Tests
@@ -49,4 +52,6 @@ steps:
         links:
          - app
         working_dir: /home/pptruser
-        command: bash -c 'npm install && ls -l  && npm run keast_snapshot_test'
+        environment:
+        - TEST_URL=http://app:80
+        command: bash -c 'npm run keast_snapshot_test'
