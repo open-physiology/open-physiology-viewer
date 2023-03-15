@@ -55,16 +55,16 @@ steps:
         environment:
         - TEST_URL=http://app:80
         command: bash -c 'npm run snapshot_test && npm run keast_snapshot_test'
-  # deploy:
-  #   stage: "deploy"
-  #   title: "Deploying Apinatomy"
-  #   image: codefresh/kubectl
-  #   working_directory: ./open-physiology-viewer/deploy/k8s
-  #   commands:
-  #     - export CLUSTER_NAME="${{CLUSTER_NAME}}"
-  #     - export NAMESPACE="${{NAMESPACE}}"
-  #     - export CF_BUILD_ID
-  #     - export REGISTRY="${{REGISTRY}}/"
-  #     - export DOMAIN="${{DOMAIN}}"
-  #     - chmod +x ./deploy.sh
-  #     - ./deploy.sh
+  deploy:
+    stage: "deploy"
+    title: "Deploying Apinatomy"
+    image: codefresh/kubectl
+    working_directory: ./open-physiology-viewer/deploy/k8s
+    commands:
+      - export CLUSTER_NAME="${{CLUSTER_NAME}}"
+      - export NAMESPACE="${{NAMESPACE}}"
+      - export CF_BUILD_ID
+      - export REGISTRY="${{REGISTRY}}/"
+      - export DOMAIN="${{DOMAIN}}"
+      - chmod +x ./deploy.sh
+      - ./deploy.sh
