@@ -36,6 +36,7 @@ describe('Access Open Physiology Viewer', () => {
     it('Main Page: Open Physiology Viewer', async () => {
 
         await page.goto(baseURL);
+        await console.log(page.url())
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36');
 
         page.on('response', response => {
