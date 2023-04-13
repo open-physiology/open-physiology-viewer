@@ -15,4 +15,6 @@ export class VarianceSpec extends Resource {
           json.class = json.class || $SchemaClass.VarianceSpec;
           return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
+
+
 }

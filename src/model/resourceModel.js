@@ -237,7 +237,6 @@ export class Resource{
         })
     }
 
-    
 
     /**
      * Synchronize a relationship field of the resource with its counterpart (auto-fill a field that is involved into a bi-directional relationship based on its partial definition, i.e., A.child = B yields B.parent = A).
@@ -387,6 +386,11 @@ export class Resource{
     }
 }
 
+/**
+ * @property uri
+ * @property type
+ * @property externalTo
+ */
 export class External extends Resource {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
           json.class = json.class || $SchemaClass.External;
@@ -394,6 +398,11 @@ export class External extends Resource {
     }
 }
 
+/**
+ * @property documents
+ * @property parent
+ * @property children
+ */
 export class Reference extends External {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
           json.class = json.class || $SchemaClass.Reference;
@@ -401,6 +410,10 @@ export class Reference extends External {
     }
 }
 
+/**
+ * @property annotates
+ * @property cladeInVariances
+ */
 export class OntologyTerm extends External {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
           json.class = json.class || $SchemaClass.OntologyTerm;

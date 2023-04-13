@@ -7,7 +7,8 @@ import {$SchemaClass} from "./utils";
  * @property {Map<string, Object>} viewObjects - visual objects representing the resource
  * @property {boolean} hidden    - indicates whether the resource is currently hidden (invisible in the scene)
  * @property {boolean} skipLabel - excludes resource labels from the view
- * @property {Object} cloneOf
+ * @property {Object} cloneOf    - points to other instances of the same conceptual resource
+ * @property {Object} viewObjects - WebGL objects corresponding to the visual resource
  */
 export class VisualResource extends Resource{
 
@@ -22,6 +23,9 @@ export class VisualResource extends Resource{
 
 /**
  * The class to model Material resources
+ * @property materials
+ * @property inMaterials
+ * @property transportedBy
  */
 export class Material extends VisualResource {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {

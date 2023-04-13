@@ -5,7 +5,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
-import {keys, values, isObject, cloneDeep, defaults} from 'lodash-bound';
+import {keys, values, isObject, cloneDeep, defaults, union} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
@@ -18,6 +18,7 @@ import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
+import {VARIANCE_PRESENCE} from "../model/utils";
 
 const WindowResize = require('three-window-resize');
 
@@ -118,6 +119,9 @@ const WindowResize = require('three-window-resize');
                         [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
                         [searchOptions]="_searchOptions"
+                        [varianceDisabled]="graphData?.variance"
+                        [clade]="graphData?.clade"
+                        [clades]="graphData?.clades"
                         [modelId]="graphData?.fullID || graphData?.id"
                         (onSelectBySearch)="selectByName($event)"
                         (onOpenExternal)="openExternal($event)"
@@ -127,7 +131,9 @@ const WindowResize = require('three-window-resize');
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
-                        (onToggleHelperPlane)="this.helpers[$event].visible = !this.helpers[$event].visible"
+                        (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
+                        (onCladeChange)="updateVariance($event)"
+                        (onCladeReset)="resetVariance()"
                 > </settingsPanel>
             </section>
         </section> 
@@ -203,6 +209,7 @@ export class WebGLSceneComponent {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
             this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
+
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
             if (this._graphData.neurulator) {
@@ -269,6 +276,19 @@ export class WebGLSceneComponent {
      * @type {EventEmitter<any>}
      */
     @Output() scaffoldUpdated = new EventEmitter();
+
+    /**
+     * @emits varianceUpdated - Species variance was changed
+     * @type {EventEmitter<T> | EventEmitter<any>}
+     */
+    @Output() varianceUpdated = new EventEmitter();
+
+    /**
+     *
+     * @emits varianceReset - Species removal of variance
+     * @type {EventEmitter<T> | EventEmitter<any>}
+     */
+    @Output() varianceReset = new EventEmitter();
 
     /**
      * @emits onImportExternal - import of external models is requested
@@ -753,6 +773,84 @@ export class WebGLSceneComponent {
             group.hide();
         }
         if (this.graph) { this.graph.graphData(this.graphData); }
+    }
+
+    resetVariance(){
+        delete this._graphData.variance;
+        delete this._graphData.clade;
+        this.varianceReset.emit();
+    }
+
+    updateVariance(clade){
+        //The current model is general, we can alter it without regeneration
+        if (this._graphData){
+            //TODO there may be multiple variances with the given clade
+            let variance = (this._graphData.varianceSpecs||[]).find(vs => (vs.clades||[]).find(c => c === clade || c.id && c.id === clade));
+            if (!variance){
+                return;
+            }
+            this._graphData.variance = variance;
+            this._graphData.clade = clade;
+
+            if (variance.presence && variance.presence === VARIANCE_PRESENCE.ABSENT) {
+                let relevantLyphs = [];
+                (this._graphData.lyphs || []).forEach(lyph => {
+                    if ((lyph.varianceSpecs || []).find(vs => vs.id === variance.id)) {
+                        relevantLyphs.push(lyph);
+                    }
+                });
+                let lyphsToRemove = {
+                    templates: [],
+                    layers: [],
+                    lyphs: []
+                }
+                let removed = [];
+                relevantLyphs.forEach(lyph => {
+                    if (lyph.isTemplate){
+                        lyphsToRemove.templates.push(lyph);
+                    } else {
+                        if (lyph.layerIn) {
+                            lyphsToRemove.layers.push(lyph);
+                        } else {
+                            lyphsToRemove.lyphs.push(lyph);
+                        }
+                    }
+                });
+
+                if (lyphsToRemove.templates.length > 0){
+                    this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_TEMPLATES, lyphsToRemove.templates.map(e => e.fullID));
+                }
+                if (lyphsToRemove.layers.length > 0){
+                    //There will be  problem as we do not update lyph visuals
+                    this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_LAYERS, lyphsToRemove.templates.map(e => e.fullID));
+                }
+
+                lyphsToRemove.lyphs.forEach(lyph => {
+                    removed = removed::union(this._graphData.removeLyph(lyph));
+                });
+                this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
+                this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
+
+                if ((this.scene.children||[]).length > 0) {
+                    removed.forEach(lyph => {
+                        (lyph.viewObjects||{})::values().forEach(viewObj => {
+                            const object = this.scene.getObjectByProperty( 'uuid', viewObj.uuid);
+                            if (object) {
+                                object.visible = false;
+                                object.geometry.dispose();
+                                object.material.dispose();
+                                this.scene.remove(object);
+                            } else {
+                                this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
+                            }
+                        });
+                    });
+                    this.renderer.dispose();
+                }
+                this.graph.graphData(this._graphData);
+                this.varianceUpdated.emit(clade, variance);
+            }
+        }
     }
 }
 

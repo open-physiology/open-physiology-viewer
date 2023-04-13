@@ -3,7 +3,7 @@ import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
 
-import {isObject, unionBy, merge, keys, entries, isArray, pick} from 'lodash-bound';
+import {isObject, unionBy, merge, keys, entries, isArray, pick, flatten} from 'lodash-bound';
 import {
     $SchemaClass,
     $Field,
@@ -19,7 +19,7 @@ import {
     refToResource,
     mergeGenResource,
     genResource,
-    mergeRecursively
+    mergeRecursively, VARIANCE_PRESENCE
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -40,6 +40,7 @@ import {logger, $LogMsg} from './logger';
  * @property scaffolds
  * @property hostedBy
  * @property varianceSpecs
+ * @property entitiesByID
  */
 export class Group extends Resource {
     /**
@@ -73,6 +74,15 @@ export class Group extends Resource {
         return res;
     }
 
+    get clades(){
+        return Array.from(new Set((this.varianceSpecs || []).map(vs => vs.clades || [])::flatten()));
+    }
+
+    getVarianceSpecForClade(clade){
+         let varianceSpecs = (this.varianceSpecs || []).filter(vs => vs.clades||[]);
+
+    }
+
     contains(resource){
         if (resource instanceof Node){
             return findResourceByID(this.nodes, resource.id);
@@ -84,6 +94,23 @@ export class Group extends Resource {
             return findResourceByID(this.links, resource.id);
         }
         return false;
+    }
+
+    deleteFromGroup(lyph){
+        if (this.entitiesByID && this.entitiesByID[lyph.fullID]){
+            delete this.entitiesByID[lyph.fullID];
+        }
+        if (this.lyphsByID && this.lyphsByID[lyph.fullID]){
+            delete this.lyphsByID[lyph.fullID];
+        }
+        let idx = (this.lyphs || []).findIndex(e => e.fullID === lyph.fullID);
+        if (idx > -1) {
+            this.lyphs.splice(idx, 1);
+        }
+        if (this.coalescences){
+            this.coalescences = this.coalescences.filter(c => (c.lyphs||[]).length > 1);
+        }
+        (this.groups||[]).forEach(g => g.deleteFromGroup(lyph));
     }
 
     /**

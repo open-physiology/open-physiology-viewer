@@ -277,6 +277,7 @@
               }
             ]
           },
+          "relatedTo": "inChains",
           "default": []
         },
         "lyphTemplate": {
@@ -737,6 +738,22 @@
           },
           "relatedTo": "ontologyTerms",
           "advanced": true
+        },
+        "cladeInVariances": {
+          "description": "Variance specs in which the term defines clade",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VarianceSpec"
+              }
+            ]
+          },
+          "relatedTo": "clades",
+          "advanced": "true"
         }
       }
     },
@@ -814,7 +831,8 @@
                 "$ref": "#/definitions/OntologyTerm"
               }
             ]
-          }
+          },
+          "relatedTo": "cladeInVariances"
         },
         "phenotypes": {
           "description": "External resources identifying phenotypes",
@@ -846,7 +864,8 @@
         },
         "presence": {
           "description": "Ontology term that identifies resource from which the variance present in all descendants unless lost",
-          "type": "string"
+          "type": "string",
+          "enum": ["basal", "absent", "observed"]
         }
       }
     },
@@ -877,6 +896,10 @@
           "description": "Number of pixels per unit of length, set in a generated model",
           "type": "number",
           "readOnly": true
+        },
+        "variance": {
+          "description": "Variance for which model was generated",
+          "$ref": "#/definitions/VarianceSpec"
         }
       }
     },
@@ -1800,6 +1823,22 @@
           },
           "relatedTo": "lyphs",
           "default": [],
+          "advanced": true
+        },
+        "inChains": {
+          "description": "Shows chains in which the given lyph is used as level",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
+          "relatedTo": "lyphs",
           "advanced": true
         },
         "generatedFrom": {

@@ -94,6 +94,8 @@ export const $LogMsg = {
     LYPH_INTERNAL_IN_NOT_FOUND  : "Failed to locate lyph host for an internal resource",
 
     LYPH_NO_TEMPLATE            : "Template object not found",
+    LYPH_REMOVE_FAIL            : "Failed to clear references to a lyph: it is template or material",
+
     LYPH_SELF                   : "The lyph contains self-references or cyclic lyph dependencies",
     LYPH_SUBTYPE_HAS_OWN_LAYERS : "Subtype lyph already has layers, conflicts with generated layer definitions possible",
     LYPH_SUBTYPE_NOT_FOUND      : "Lyph subtype not found",
@@ -152,6 +154,11 @@ export const $LogMsg = {
     TREE_GEN_LIMIT              : "Reached maximum allowed number of generated resources per tree instance",
     TREE_NO_LEVEL_LINK          : "Failed to find the tree level link, created to proceed",
     TREE_NO_LEVEL_TARGET        : "Failed to find tree level target node, created to proceed",
+
+    VARIANCE_REMOVED_LAYERS     : "Variance requires layer removal",
+    VARIANCE_REMOVED_TEMPLATES  : "Variance requires template removal",
+    VARIANCE_REMOVED_LYPHS      : "Variance caused lyph removal",
+    VARIANCE_ALL_REMOVED_LYPHS  : "Variance caused lyph removal with dependencies",
 
     VILLUS_ABSTRACT_HOST        : "Skipping generation of villus group for lyph template",
     VILLUS_NO_HOST              : "Incomplete villus definition: hosting lyph is missing",

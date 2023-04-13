@@ -80,6 +80,12 @@ export const EDGE_STROKE          = schema.definitions[$SchemaClass.Edge].proper
 export const PROCESS_TYPE         = schema.definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LYPH_TOPOLOGY        = schema.definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const COALESCENCE_TOPOLOGY = schema.definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+/**
+ * @property BASAL
+ * @property ABSENT
+ * @property OBSERVED
+ */
+export const VARIANCE_PRESENCE    = schema.definitions[$SchemaClass.VarianceSpec].properties[$Field.presence].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const $Color = {
     Anchor       : "#ccc",

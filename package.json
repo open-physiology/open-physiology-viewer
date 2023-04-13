@@ -112,6 +112,7 @@
     "three-csg-ts": "^3.1.9",
     "three-text2d": "^0.4.1",
     "three-window-resize": "^1.0.4",
+    "three.js": "^0.77.1",
     "tinycolor2": "^1.4.1",
     "url": "^0.11.0",
     "uuid": "^8.3.2",

@@ -86,6 +86,7 @@ export class Shape extends VisualResource {
  * @property internalIn
  * @property inMaterials
  * @property inCoalescences
+ * @property inChains
  * @property bundles
  * @property endBbundles
  * @property bundlesChains
@@ -97,6 +98,7 @@ export class Shape extends VisualResource {
  * @property length
  * @property thickness
  * @property internalNodesInLayers
+ * @property seedIn
  */
 export class Lyph extends Shape {
     /**
@@ -601,6 +603,51 @@ export class Lyph extends Shape {
             res = this.layerIn.isSubtypeOf(supertypeID)
         }
         return res;
+    }
+
+    clearReferences(){
+        if (this.isTemplate || this.subtypes){
+            return;
+        }
+        let removed = [this];
+        if (this.conveys) {
+            delete this.conveys.conveyingLyph;
+            this.conveys.collapsible = true;
+        }
+        if (this.border){
+            (this.border.borders||[]).forEach(e => delete e.onBorder);
+        }
+        //1..*
+        let props = [$Field.internalIn, $Field.layerIn, $Field.supertype, $Field.hostedBy, $Field.cloneOf];
+        let otherProps = [$Field.internalLyphs, $Field.layers, $Field.subtypes, $Field.hostedLyphs, $Field.clones];
+        props.forEach((prop, i) => {
+            if (this[prop]) {
+                this[prop][otherProps[i]] = (this[prop][otherProps[i]]||[]).filter(e => e.fullID !== this.fullID);
+            }
+        });
+        //1..1
+        props = [$Field.endBundles, $Field.bundles, $Field.seedIn, $Field.villus, $Field.border];
+        otherProps = [$Field.endsIn, $Field.fasciculatesIn, $Field.seed, $Field.villusOf, $Field.host];
+        props.forEach((prop, i) => {
+            if (this[prop]){
+                delete this[prop][otherProps[i]];
+            }
+        });
+        //*..*
+        props = [$Field.transportedBy, $Field.materials, $Field.channels, $Field.bundlesChains, $Field.external,
+            $Field.references, $Field.ontologyTerms, $Field.inCoalescences, $Field.clones, $Field.inChains];
+        otherProps = [$Field.materials, $Field.inMaterials, $Field.housingLyphs, $Field.housingLyphs, $Field.externalTo,
+            $Field.documents, $Field.annotates, $Field.lyphs, $Field.cloneOf, $Field.lyphs];
+        props.forEach((prop, i) => {
+            if (this[prop]){
+                this[prop].forEach(r => r[otherProps[i]] = (r[otherProps[i]]||[]).filter(e => e.fullID !== this.fullID));
+            }
+        });
+        (this.layers||[]).forEach(layer => {
+            removed.push(layer);
+            layer.clearReferences();
+        });
+        return removed;
     }
 }
 

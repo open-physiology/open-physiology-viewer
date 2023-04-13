@@ -1,0 +1,4014 @@
+{
+    "references": [],
+    "varianceSpecs": [
+        {
+            "id": "vs-mammalia",
+            "name": "mammals",
+            "presence": "basal",
+            "clades": [
+                "NCBITaxon:40674"
+            ]
+        },
+        {
+            "id": "vs-human",
+            "name": "Variance Test Human",
+            "presence": "basal",
+            "clades": [
+                "NCBITaxon:9606"
+            ]
+        },
+        {
+            "id": "vs-no-rodent",
+            "name": "Variance Test No Rodentia",
+            "presence": "absent",
+            "clades": [
+                "NCBITaxon:9989"
+            ]
+        },
+        {
+            "id": "vs-rodent",
+            "name": "Variance Test Rodentia",
+            "presence": "basal",
+            "clades": [
+                "NCBITaxon:9989"
+            ]
+        },
+        {
+            "id": "vs-and-human-rodent",
+            "name": "Variance Test human rodent",
+            "includes": [
+                "vs-human",
+                "vs-rodent"
+            ]
+        },
+        {
+            "id": "vs-4",
+            "name": "Variance Test Frog",
+            "presence": "observed",
+            "clades": [
+                "NCBITaxon:8353"
+            ]
+        },
+        {
+            "id": "vs-5",
+            "name": "Variance Test Male",
+            "presence": "basal",
+            "phenotypes": [
+                "PATO:0000384"
+            ]
+        }
+    ],
+    "nodes": [],
+    "links": [],
+    "lyphs": [
+        {
+            "id": "lt-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0005844"
+            ],
+            "name": "Segment of Spinal Cord",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-rodent"
+            ],
+            "isTemplate": true,
+            "layers": [
+                "mat-CNS-cerebrospinal-fluid",
+                "mat-CNS-ependyma",
+                "mat-rex-lam-X",
+                "mat-CNS-white-matter-of-spinal-cord",
+                "mat-rex-lam-IX",
+                "mat-rex-lam-VIII",
+                "mat-rex-lam-VII",
+                "mat-rex-lam-VI",
+                "mat-rex-lam-V",
+                "mat-rex-lam-IV",
+                "mat-rex-lam-III",
+                "mat-rex-lam-II",
+                "mat-rex-lam-I",
+                "mat-CNS-white-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "lyph-C1-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006469"
+            ],
+            "name": "C1 spinal segment",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C2-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006489"
+            ],
+            "name": "C2 spinal segment",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C3-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006488"
+            ],
+            "name": "C3 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment",
+            "internalLyphs": [
+                "lyph-CNS-nucleus-phrenic-C3-portion"
+            ]
+        },
+        {
+            "id": "lyph-C4-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006490"
+            ],
+            "name": "C4 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment",
+            "internalLyphs": [
+                "lyph-CNS-nucleus-phrenic-C4-portion"
+            ]
+        },
+        {
+            "id": "lyph-C5-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006491"
+            ],
+            "name": "C5 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment",
+            "internalLyphs": [
+                "lyph-CNS-nucleus-phrenic-C5-portion"
+            ]
+        },
+        {
+            "id": "lyph-C6-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006492"
+            ],
+            "name": "C6 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C7-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006493"
+            ],
+            "name": "C7 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-C8-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006470"
+            ],
+            "name": "C8 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T1-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006457"
+            ],
+            "name": "T1 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T2-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006458"
+            ],
+            "name": "T2 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T3-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006459"
+            ],
+            "name": "T3 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T4-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006452"
+            ],
+            "name": "T4 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T5-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006453"
+            ],
+            "name": "T5 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T6-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006454"
+            ],
+            "name": "T6 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T7-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006455"
+            ],
+            "name": "T7 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T8-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006456"
+            ],
+            "name": "T8 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T9-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006465"
+            ],
+            "name": "T9 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T10-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006466"
+            ],
+            "name": "T10 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T11-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006467"
+            ],
+            "name": "T11 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T12-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006468"
+            ],
+            "name": "T12 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-T13-spinal-segment",
+            "ontologyTerms": [
+                "ILX:0793357"
+            ],
+            "name": "T13 spinal segment",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L1-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006448"
+            ],
+            "name": "L1 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L2-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006450"
+            ],
+            "name": "L2 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L3-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006449"
+            ],
+            "name": "L3 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L4-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006451"
+            ],
+            "name": "L4 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L5-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006447"
+            ],
+            "name": "L5 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-L6-spinal-segment",
+            "ontologyTerms": [
+                "ILX:0793358"
+            ],
+            "name": "L6 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S1-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006460"
+            ],
+            "name": "S1 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S2-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006461"
+            ],
+            "name": "S2 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S3-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006462"
+            ],
+            "name": "S3 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S4-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006463"
+            ],
+            "name": "S4 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-S5-spinal-segment",
+            "ontologyTerms": [
+                "UBERON:0006464"
+            ],
+            "name": "S5 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx1-spinal-segment",
+            "ontologyTerms": [
+                "ILX:0777083"
+            ],
+            "name": "Cx1 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx2-spinal-segment",
+            "ontologyTerms": [
+                "ILX:0777084"
+            ],
+            "name": "Cx2 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx3-spinal-segment",
+            "ontologyTerms": [
+                "ILX:0777085"
+            ],
+            "name": "Cx3 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "TUBE",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lyph-Cx4-spinal-segment",
+            "ontologyTerms": [
+                "ILX:0793139"
+            ],
+            "name": "Cx4 spinal segment",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "topology": "BAG",
+            "supertype": "lt-spinal-segment"
+        },
+        {
+            "id": "lt-ganglion-dorsal-root",
+            "ontologyTerms": [
+                "UBERON:0002261"
+            ],
+            "name": "Segment of dorsal root chain-ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ],
+            "hostedBy": "n2R"
+        },
+        {
+            "id": "lyph-C2-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002839"
+            ],
+            "name": "C2 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C3-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002840"
+            ],
+            "name": "C3 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C4-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002841"
+            ],
+            "name": "C4 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C5-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002842"
+            ],
+            "name": "C5 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C6-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0007711"
+            ],
+            "name": "C6 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C7-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002843"
+            ],
+            "name": "C7 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-C8-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002844"
+            ],
+            "name": "C8 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T1-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002845"
+            ],
+            "name": "T1 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T2-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002846"
+            ],
+            "name": "T2 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T3-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002847"
+            ],
+            "name": "T3 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T4-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0007712"
+            ],
+            "name": "T4 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T5-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002848"
+            ],
+            "name": "T5 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T6-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002849"
+            ],
+            "name": "T6 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T7-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002850"
+            ],
+            "name": "T7 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T8-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002851"
+            ],
+            "name": "T8 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T9-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002852"
+            ],
+            "name": "T9 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T10-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002853"
+            ],
+            "name": "T10 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T11-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002854"
+            ],
+            "name": "T11 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T12-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002855"
+            ],
+            "name": "T12 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-T13-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "ILX:0793359"
+            ],
+            "name": "T13 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L1-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002857"
+            ],
+            "name": "L1 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L2-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002856"
+            ],
+            "name": "L2 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L3-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002858"
+            ],
+            "name": "L3 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L4-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0003943"
+            ],
+            "name": "L4 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L5-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002859"
+            ],
+            "name": "L5 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-L6-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "ILX:0739221"
+            ],
+            "name": "L6 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S1-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002860"
+            ],
+            "name": "S1 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S2-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002861"
+            ],
+            "name": "S2 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S3-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002862"
+            ],
+            "name": "S3 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S4-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0007713"
+            ],
+            "name": "S4 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lyph-S5-dorsal-root-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002863"
+            ],
+            "name": "S5 dorsal root ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ganglion-dorsal-root"
+        },
+        {
+            "id": "lt-ventral-root",
+            "ontologyTerms": [
+                "UBERON:0002260"
+            ],
+            "name": "Segment of ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "materials": [
+                "mat-CNS-white-matter-of-spinal-cord"
+            ],
+            "hostedBy": "n2R"
+        },
+        {
+            "id": "lyph-C1-ventral-root",
+            "ontologyTerms": [
+                "ILX:0792444"
+            ],
+            "name": "C1 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C2-ventral-root",
+            "ontologyTerms": [
+                "ILX:0784614"
+            ],
+            "name": "C2 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C3-ventral-root",
+            "ontologyTerms": [
+                "ILX:0786384"
+            ],
+            "name": "C3 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C4-ventral-root",
+            "ontologyTerms": [
+                "ILX:0785015"
+            ],
+            "name": "C4 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C5-ventral-root",
+            "ontologyTerms": [
+                "ILX:0792263"
+            ],
+            "name": "C5 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C6-ventral-root",
+            "ontologyTerms": [
+                "ILX:0789335"
+            ],
+            "name": "C6 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C7-ventral-root",
+            "ontologyTerms": [
+                "ILX:0785896"
+            ],
+            "name": "C7 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-C8-ventral-root",
+            "ontologyTerms": [
+                "ILX:0786163"
+            ],
+            "name": "C8 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T1-ventral-root",
+            "ontologyTerms": [
+                "ILX:0787722"
+            ],
+            "name": "T1 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T2-ventral-root",
+            "ontologyTerms": [
+                "ILX:0789894"
+            ],
+            "name": "T2 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T3-ventral-root",
+            "ontologyTerms": [
+                "ILX:0784804"
+            ],
+            "name": "T3 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T4-ventral-root",
+            "ontologyTerms": [
+                "ILX:0792838"
+            ],
+            "name": "T4 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T5-ventral-root",
+            "ontologyTerms": [
+                "ILX:0790146"
+            ],
+            "name": "T5 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T6-ventral-root",
+            "ontologyTerms": [
+                "ILX:0791062"
+            ],
+            "name": "T6 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T7-ventral-root",
+            "ontologyTerms": [
+                "ILX:0789966"
+            ],
+            "name": "T7 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T8-ventral-root",
+            "ontologyTerms": [
+                "ILX:0788026"
+            ],
+            "name": "T8 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T9-ventral-root",
+            "ontologyTerms": [
+                "ILX:0791932"
+            ],
+            "name": "T9 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T10-ventral-root",
+            "ontologyTerms": [
+                "ILX:0788670"
+            ],
+            "name": "T10 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T11-ventral-root",
+            "ontologyTerms": [
+                "ILX:0790602"
+            ],
+            "name": "T11 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T12-ventral-root",
+            "ontologyTerms": [
+                "ILX:0792048"
+            ],
+            "name": "T12 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-T13-ventral-root",
+            "ontologyTerms": [
+                "ILX:0793207"
+            ],
+            "name": "T13 ventral root",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L1-ventral-root",
+            "ontologyTerms": [
+                "ILX:0785421"
+            ],
+            "name": "L1 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L2-ventral-root",
+            "ontologyTerms": [
+                "ILX:0788675"
+            ],
+            "name": "L2 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L3-ventral-root",
+            "ontologyTerms": [
+                "ILX:0787520"
+            ],
+            "name": "L3 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L4-ventral-root",
+            "ontologyTerms": [
+                "ILX:0789968"
+            ],
+            "name": "L4 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L5-ventral-root",
+            "ontologyTerms": [
+                "ILX:0791148"
+            ],
+            "name": "L5 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-L6-ventral-root",
+            "ontologyTerms": [
+                "ILX:0793615"
+            ],
+            "name": "L6 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S1-ventral-root",
+            "ontologyTerms": [
+                "ILX:0792853"
+            ],
+            "name": "S1 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S2-ventral-root",
+            "ontologyTerms": [
+                "ILX:0788884"
+            ],
+            "name": "S2 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S3-ventral-root",
+            "ontologyTerms": [
+                "ILX:0786888"
+            ],
+            "name": "S3 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S4-ventral-root",
+            "ontologyTerms": [
+                "ILX:0788553"
+            ],
+            "name": "S4 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-S5-ventral-root",
+            "ontologyTerms": [
+                "ILX:0785971"
+            ],
+            "name": "S5 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lyph-Cx1-ventral-root",
+            "ontologyTerms": [
+                "ILX:0788265"
+            ],
+            "name": "Cx1 ventral root",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-ventral-root"
+        },
+        {
+            "id": "lt-PNS-ganglion",
+            "ontologyTerms": [
+                "UBERON:0000045"
+            ],
+            "name": "Ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true
+        },
+        {
+            "id": "lt-ganglion-visceral-mural",
+            "ontologyTerms": [
+                "UBERON:0001805"
+            ],
+            "name": "Autonomic ganglion in visceral wall",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-PNS-ganglion",
+            "hostedBy": "n2G"
+        },
+        {
+            "id": "lt-sympathetic-ganglion",
+            "ontologyTerms": [
+                "UBERON:0001806"
+            ],
+            "name": "Sympathetic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-PNS-ganglion",
+            "hostedBy": "n2G"
+        },
+        {
+            "id": "lt-prevertebral-ganglia",
+            "ontologyTerms": [
+                "UBERON:0003964"
+            ],
+            "name": "Prevertebral ganglia",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-sympathetic-ganglion",
+            "hostedBy": "n2G"
+        },
+        {
+            "id": "lt-paravertebral-ganglia",
+            "ontologyTerms": [
+                "UBERON:0001807"
+            ],
+            "name": "Paravertebral ganglia",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "supertype": "lt-sympathetic-ganglion",
+            "hostedBy": "n2G"
+        },
+        {
+            "id": "lyph-superior-cervical-ganglion",
+            "ontologyTerms": [
+                "UBERON:0001989"
+            ],
+            "name": "Superior cervical ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-SCG-MCG",
+            "ontologyTerms": [
+                "ILX:0738292"
+            ],
+            "name": "Interganglionic branch of superior cervical ganglion to middle cervical ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-middle-cervical-ganglion",
+            "ontologyTerms": [
+                "UBERON:0001990"
+            ],
+            "name": "Middle cervical ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-MCG-stellate",
+            "ontologyTerms": [
+                "ILX:0738290"
+            ],
+            "name": "Interganglionic branch of middle cervical ganglion to stellate",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-stellate-ganglion",
+            "ontologyTerms": [
+                "UBERON:0002441"
+            ],
+            "name": "Stellate ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-cervicothoracic-T2",
+            "ontologyTerms": [
+                "ILX:0793355"
+            ],
+            "name": "Interganglionic branch of cervicothoracic ganglion to second thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T2-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0786228"
+            ],
+            "name": "T2 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T2-T3",
+            "ontologyTerms": [
+                "ILX:0777095"
+            ],
+            "name": "Interganglionic branch of second thoracic ganglion to third thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T3-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0786722"
+            ],
+            "name": "T3 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T3-T4",
+            "ontologyTerms": [
+                "ILX:0777096"
+            ],
+            "name": "Interganglionic branch of third thoracic ganglion to fourth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T4-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0786272"
+            ],
+            "name": "T4 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T4-T5",
+            "ontologyTerms": [
+                "ILX:0777097"
+            ],
+            "name": "Interganglionic branch of fourth thoracic ganglion to fifth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T5-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0786141"
+            ],
+            "name": "T5 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T5-T6",
+            "ontologyTerms": [
+                "ILX:0777098"
+            ],
+            "name": "Interganglionic branch of fifth thoracic ganglion to sixth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T6-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0789947"
+            ],
+            "name": "T6 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T6-T7",
+            "ontologyTerms": [
+                "ILX:0793235"
+            ],
+            "name": "Interganglionic branch of sixth thoracic ganglion to seventh thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T7-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0790482"
+            ],
+            "name": "T7 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T7-T8",
+            "ontologyTerms": [
+                "ILX:0793236"
+            ],
+            "name": "Interganglionic branch of seventh thoracic ganglion to eighth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T8-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0784721"
+            ],
+            "name": "T8 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T8-T9",
+            "ontologyTerms": [
+                "ILX:0793237"
+            ],
+            "name": "Interganglionic branch of eighth thoracic ganglion to ninth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T9-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0784378"
+            ],
+            "name": "T9 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T9-T10",
+            "ontologyTerms": [
+                "ILX:0793238"
+            ],
+            "name": "Interganglionic branch of ninth thoracic ganglion to tenth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T10-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0784569"
+            ],
+            "name": "T10 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T10-T11",
+            "ontologyTerms": [
+                "ILX:0793239"
+            ],
+            "name": "Interganglionic branch of tenth thoracic ganglion to eleventh thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T11-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0787015"
+            ],
+            "name": "T11 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T11-T12",
+            "ontologyTerms": [
+                "ILX:0793240"
+            ],
+            "name": "Interganglionic branch of eleventh thoracic ganglion to twelfth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T12-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0787009"
+            ],
+            "name": "T12 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T12-T13",
+            "ontologyTerms": [
+                "ILX:0777086"
+            ],
+            "name": "Interganglionic branch of twelfth thoracic ganglion to thirteenth thoracic ganglion",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ]
+        },
+        {
+            "id": "lyph-T13-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0739295"
+            ],
+            "name": "T13 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-T13-L1",
+            "ontologyTerms": [
+                "ILX:0777087"
+            ],
+            "name": "Interganglionic branch of thirteenth thoracic ganglion to first lumbar ganglion",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ]
+        },
+        {
+            "id": "lyph-L1-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0789862"
+            ],
+            "name": "L1 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L1-L2",
+            "ontologyTerms": [
+                "ILX:0793244"
+            ],
+            "name": "Interganglionic branch of first lumbar ganglion to second lumbar ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-L2-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0786933"
+            ],
+            "name": "L2 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L2-L3",
+            "ontologyTerms": [
+                "ILX:0793245"
+            ],
+            "name": "Interganglionic branch of second lumbar ganglion to third lumbar ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-L3-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0788315"
+            ],
+            "name": "L3 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L3-L4",
+            "ontologyTerms": [
+                "ILX:0793246"
+            ],
+            "name": "Interganglionic branch of third lumbar ganglion to fourth lumbar ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-L4-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0788315"
+            ],
+            "name": "L4 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L4-L5",
+            "ontologyTerms": [
+                "ILX:0793247"
+            ],
+            "name": "Interganglionic branch of fourth lumbar ganglion to first sacral ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-L5-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0739296"
+            ],
+            "name": "L5 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L5-L6",
+            "ontologyTerms": [
+                "ILX:0793248"
+            ],
+            "name": "Interganglionic branch of fifth lumbar ganglion to sixth lumbar ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-L6-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0739297"
+            ],
+            "name": "L6 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-L6-S1",
+            "ontologyTerms": [
+                "ILX:0777093"
+            ],
+            "name": "Interganglionic branch of sixth lumbar ganglion to first sacral ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-S1-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0789109"
+            ],
+            "name": "S1 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S1-S2",
+            "ontologyTerms": [
+                "ILX:0793250"
+            ],
+            "name": "Interganglionic branch of first sacral ganglion to second sacral ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-S2-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0789655"
+            ],
+            "name": "S2 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S2-S3",
+            "ontologyTerms": [
+                "ILX:0793251"
+            ],
+            "name": "Interganglionic branch of second sacral ganglion to third sacral ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-S3-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0790394"
+            ],
+            "name": "S3 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S3-S4",
+            "ontologyTerms": [
+                "ILX:0793252"
+            ],
+            "name": "Interganglionic branch of third sacral ganglion to fourth sacral ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-S4-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0786049"
+            ],
+            "name": "S4 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lyph-sympathetic-trunk-S4-Cx1",
+            "ontologyTerms": [
+                "ILX:0793169"
+            ],
+            "name": "Interganglionic branch of fourth sacral ganglion to first coccygeal ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ]
+        },
+        {
+            "id": "lyph-Cx1-sympathetic-chain-ganglion",
+            "ontologyTerms": [
+                "ILX:0789739"
+            ],
+            "name": "Cx1 sympathetic chain ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-paravertebral-ganglia"
+        },
+        {
+            "id": "lt-white-ramus",
+            "ontologyTerms": [
+                "FMA:5875"
+            ],
+            "name": "White communicating ramus",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true,
+            "hostedBy": "n2G"
+        },
+        {
+            "id": "lyph-superior-cervical-ganglion-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793148"
+            ],
+            "name": "Superior cervical ganglion white ramus",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-middle-cervical-ganglion-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793150"
+            ],
+            "name": "Middle cervical ganglion white ramus",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-stellate-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793170"
+            ],
+            "name": "White communicating ramus of cervicothoracic nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T2-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793208"
+            ],
+            "name": "White communicating ramus of second intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T3-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793209"
+            ],
+            "name": "White communicating ramus of third intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T4-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793210"
+            ],
+            "name": "White communicating ramus of fourth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T5-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793211"
+            ],
+            "name": "White communicating ramus of fifth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T6-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793212"
+            ],
+            "name": "White communicating ramus of sixth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T7-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793213"
+            ],
+            "name": "White communicating ramus of seventh intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T8-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793214"
+            ],
+            "name": "White communicating ramus of eighth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T9-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793215"
+            ],
+            "name": "White communicating ramus of ninth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T10-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793216"
+            ],
+            "name": "White communicating ramus of tenth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T11-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793217"
+            ],
+            "name": "White communicating ramus of eleventh intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T12-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793218"
+            ],
+            "name": "White communicating ramus of twelfth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-T13-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793219"
+            ],
+            "name": "White communicating ramus of thirteen intercostal nerve",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-L1-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793220"
+            ],
+            "name": "White communicating ramus of first lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-L2-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793221"
+            ],
+            "name": "White communicating ramus of second lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lyph-L3-white-ramus",
+            "ontologyTerms": [
+                "ILX:0793361"
+            ],
+            "name": "White communicating ramus of third lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-white-ramus"
+        },
+        {
+            "id": "lt-gray-ramus",
+            "ontologyTerms": [
+                "ILX:0744300"
+            ],
+            "name": "Gray communicating ramus",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "isTemplate": true
+        },
+        {
+            "id": "lyph-superior-cervical-ganglion-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793149"
+            ],
+            "name": "Gray communicating ramus of superior cervical ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus",
+            "hostedBy": "n2G"
+        },
+        {
+            "id": "lyph-middle-cervical-ganglion-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793151"
+            ],
+            "name": "Gray communicating ramus of middle cervical ganglion",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-stellate-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793171"
+            ],
+            "name": "Gray communicating ramus of cervicothoracic nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T2-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0791105"
+            ],
+            "name": "Gray communicating ramus of second intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T3-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0787562"
+            ],
+            "name": "Gray communicating ramus of third intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T4-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0788945"
+            ],
+            "name": "Gray communicating ramus of fourth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T5-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0784439"
+            ],
+            "name": "Gray communicating ramus of fifth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T6-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0787946"
+            ],
+            "name": "Gray communicating ramus of sixth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T7-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0788771"
+            ],
+            "name": "Gray communicating ramus of seventh intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T8-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0791560"
+            ],
+            "name": "Gray communicating ramus of eighth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T9-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0785542"
+            ],
+            "name": "Gray communicating ramus of ninth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T10-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0792409"
+            ],
+            "name": "Gray communicating ramus of tenth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T11-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0785067"
+            ],
+            "name": "Gray communicating ramus of eleventh intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T12-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793576"
+            ],
+            "name": "Gray communicating ramus of twelfth intercostal nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-T13-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793227"
+            ],
+            "name": "Gray communicating ramus of thirteen intercostal nerve",
+            "varianceSpecs": [
+                "vs-human",
+                "vs-no-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L1-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0785825"
+            ],
+            "name": "Gray communicating ramus of first lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L2-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0785733"
+            ],
+            "name": "Gray communicating ramus of second lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L3-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0785932"
+            ],
+            "name": "Gray communicating ramus of third lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L4-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0788536"
+            ],
+            "name": "Gray communicating ramus of fourth lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L5-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0785119"
+            ],
+            "name": "Gray communicating ramus of fifth lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-L6-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0739299"
+            ],
+            "name": "Gray communicating ramus of sixth  lumbar nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S1-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793228"
+            ],
+            "name": "Gray communicating ramus of first sacral nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S2-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793229"
+            ],
+            "name": "Gray communicating ramus of second sacral nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S3-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793230"
+            ],
+            "name": "Gray communicating ramus of third sacral nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-S4-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793231"
+            ],
+            "name": "Gray communicating ramus of fourth sacral nerve",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        },
+        {
+            "id": "lyph-Cx1-grey-ramus",
+            "ontologyTerms": [
+                "ILX:0793147"
+            ],
+            "name": "Cx1 grey ramus",
+            "varianceSpecs": [
+                "vs-and-human-rodent"
+            ],
+            "supertype": "lt-gray-ramus"
+        }
+    ],
+    "materials": [
+        {
+            "id": "mat-body-fluid",
+            "ontologyTerms": [
+                "UBERON:0006314"
+            ],
+            "name": "Body fluid",
+            "materials": [
+                "mat-body-gas",
+                "mat-body-liquid"
+            ]
+        },
+        {
+            "id": "mat-body-gas",
+            "ontologyTerms": [
+                "UBERON:0034873"
+            ],
+            "name": "Body gas",
+            "materials": [
+                "mat-gas-oxygen",
+                "mat-gas-carbondioxide",
+                "mat-gas-nitrogen",
+                "mat-gas-water"
+            ]
+        },
+        {
+            "id": "mat-body-liquid",
+            "ontologyTerms": [
+                "ILX:0793131"
+            ],
+            "name": "Body liquid",
+            "materials": [
+                "mat-liquid-water",
+                "mat-aqueous-oxygen",
+                "mat-aqueous-carbondioxide",
+                "mat-aqueous-nitrogen",
+                "mat-aqueous-sodium-ion",
+                "mat-aqueous-potassium-ion",
+                "mat-aqueous-calcium-ion",
+                "mat-aqueous-chloride-ion",
+                "mat-aqueous-hydrogen-ion",
+                "mat-aqueous-hydroxide-ion",
+                "mat-aqueous-bicarbonate-ion",
+                "mat-aqueous-magnesium-ion"
+            ]
+        },
+        {
+            "id": "mat-gas-oxygen",
+            "ontologyTerms": [
+                "CHEBI:33263"
+            ],
+            "name": "Gaseous oxygen"
+        },
+        {
+            "id": "mat-gas-carbondioxide",
+            "ontologyTerms": [
+                "CHEBI:16526"
+            ],
+            "name": "Gaseous carbon dioxide"
+        },
+        {
+            "id": "mat-gas-nitrogen",
+            "ontologyTerms": [
+                "CHEBI:33266"
+            ],
+            "name": "Gaseous nitrogen"
+        },
+        {
+            "id": "mat-gas-water",
+            "ontologyTerms": [
+                "CHEBI:15377"
+            ],
+            "name": "Water vapour"
+        },
+        {
+            "id": "mat-liquid-water",
+            "ontologyTerms": [
+                "CHEBI:15377"
+            ],
+            "name": "Liquid water"
+        },
+        {
+            "id": "mat-aqueous-oxygen",
+            "ontologyTerms": [
+                "CHEBI:33263"
+            ],
+            "name": "Aqueous oxygen"
+        },
+        {
+            "id": "mat-aqueous-carbondioxide",
+            "ontologyTerms": [
+                "CHEBI:16526"
+            ],
+            "name": "Aqueous carbon dioxide"
+        },
+        {
+            "id": "mat-aqueous-nitrogen",
+            "ontologyTerms": [
+                "CHEBI:33266"
+            ],
+            "name": "Aqueous nitrogen"
+        },
+        {
+            "id": "mat-aqueous-sodium-ion",
+            "ontologyTerms": [
+                "CHEBI:29101"
+            ],
+            "name": "Aqueous sodium ion"
+        },
+        {
+            "id": "mat-aqueous-potassium-ion",
+            "ontologyTerms": [
+                "CHEBI:29103"
+            ],
+            "name": "Aqueous potassium ion"
+        },
+        {
+            "id": "mat-aqueous-calcium-ion",
+            "ontologyTerms": [
+                "CHEBI:29108"
+            ],
+            "name": "Aqueous calcium ion"
+        },
+        {
+            "id": "mat-aqueous-chloride-ion",
+            "ontologyTerms": [
+                "CHEBI:17996"
+            ],
+            "name": "Aqueous chloride ion"
+        },
+        {
+            "id": "mat-aqueous-hydrogen-ion",
+            "ontologyTerms": [
+                "CHEBI:24636"
+            ],
+            "name": "Aqueous hydrogen ion"
+        },
+        {
+            "id": "mat-aqueous-hydroxide-ion",
+            "ontologyTerms": [
+                "CHEBI:16234"
+            ],
+            "name": "Aqueous hydroxide ion"
+        },
+        {
+            "id": "mat-aqueous-bicarbonate-ion",
+            "ontologyTerms": [
+                "CHEBI:17544"
+            ],
+            "name": "Aqueous bicarbonate ion"
+        },
+        {
+            "id": "mat-aqueous-magnesium-ion",
+            "ontologyTerms": [
+                "CHEBI:18420"
+            ],
+            "name": "Aqueous magensium ion"
+        },
+        {
+            "id": "mat-airway-air",
+            "ontologyTerms": [
+                "UBERON:0034874"
+            ],
+            "name": "Air in airways",
+            "materials": [
+                "mat-body-gas",
+                "mat-gas-water"
+            ]
+        },
+        {
+            "id": "mat-plasma-in-blood",
+            "ontologyTerms": [
+                "UBERON:0001969"
+            ],
+            "name": "Blood plasma",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-red-cells-in-blood",
+            "name": "Red cell parenchyma of blood",
+            "materials": [
+                "lyph-cell-red-blood"
+            ]
+        },
+        {
+            "id": "mat-white-cells-in-blood",
+            "name": "White cell parenchyma of blood",
+            "materials": [
+                "lyph-cell-white-blood"
+            ]
+        },
+        {
+            "id": "mat-platelets-in-blood",
+            "name": "Platelet parenchyma of blood",
+            "materials": [
+                "lyph-cell-platelet"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-blood",
+            "ontologyTerms": [
+                "ILX:0793696"
+            ],
+            "name": "Blood cell parenchyma",
+            "materials": [
+                "mat-red-cells-in-blood",
+                "mat-white-cells-in-blood",
+                "mat-platelets-in-blood"
+            ]
+        },
+        {
+            "id": "mat-blood",
+            "ontologyTerms": [
+                "UBERON:0000178"
+            ],
+            "name": "Blood",
+            "materials": [
+                "mat-plasma-in-blood",
+                "mat-cellular-component-of-blood"
+            ]
+        },
+        {
+            "id": "mat-extracellular-fluid",
+            "ontologyTerms": [
+                "ILX:0492026"
+            ],
+            "name": "Extracellular fluid",
+            "materials": [
+                "mat-body-fluid"
+            ]
+        },
+        {
+            "id": "mat-extracellular-matrix",
+            "ontologyTerms": [
+                "ILX:0104048"
+            ],
+            "name": "Extracellular matrix"
+        },
+        {
+            "id": "mat-extracellular-material",
+            "ontologyTerms": [
+                "ILX:0793695"
+            ],
+            "name": "Extracellular material",
+            "materials": [
+                "mat-extracellular-fluid",
+                "mat-extracellular-matrix"
+            ]
+        },
+        {
+            "id": "mat-basement-membrane",
+            "ontologyTerms": [
+                "UBERON:0005769"
+            ],
+            "name": "Basement membrane",
+            "materials": [
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-basal-lamina",
+            "ontologyTerms": [
+                "ILX:0101107"
+            ],
+            "name": "Basal lamina",
+            "materials": [
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-plasma-membrane",
+            "ontologyTerms": [
+                "SAO:1663586795"
+            ],
+            "name": "Plasma membrane"
+        },
+        {
+            "id": "mat-cytoplasmic-structures",
+            "ontologyTerms": [
+                "ILX:0490105"
+            ],
+            "name": "Cytoplasmic structures"
+        },
+        {
+            "id": "mat-cytosol",
+            "ontologyTerms": [
+                "SAO:101633890"
+            ],
+            "name": "Cytosol",
+            "materials": [
+                "mat-intracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-cytoplasm",
+            "ontologyTerms": [
+                "GO:0005737"
+            ],
+            "name": "Cytoplasm",
+            "materials": [
+                "mat-cytosol",
+                "mat-cytoplasmic-structures"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-connective-tissue",
+            "name": "Cellular component of connective tissue",
+            "materials": [
+                "lyph-cell-fibroblast",
+                "lyph-cell-macrophage"
+            ]
+        },
+        {
+            "id": "mat-tissue-connective-tissue",
+            "ontologyTerms": [
+                "UBERON:0002384"
+            ],
+            "name": "Connective tissue",
+            "materials": [
+                "mat-cellular-component-of-connective-tissue",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-alveolar-epithelium",
+            "name": "Cellular component of alveolar epithelium",
+            "materials": [
+                "lyph-cell-type-I-alveolar",
+                "lyph-cell-type-II-alveolar"
+            ]
+        },
+        {
+            "id": "mat-tissue-alveolar-epithelium",
+            "ontologyTerms": [
+                "UBERON:0004807"
+            ],
+            "name": "Alveolar epithelial tissue",
+            "materials": [
+                "mat-cellular-component-of-alveolar-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-adventitia",
+            "name": "Cellular component of vascular adventitia",
+            "materials": [
+                "lyph-cell-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-vascular-adventitia",
+            "ontologyTerms": [
+                "UBERON:0005734"
+            ],
+            "name": "Vascular adventitial tissue",
+            "materials": [
+                "mat-cellular-component-of-vascular-adventitia",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-endothelium",
+            "name": "Cellular component of vascular endothelium",
+            "materials": [
+                "lyph-cell-cardiovascular-endothelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-endothelium",
+            "ontologyTerms": [
+                "UBERON:0001986"
+            ],
+            "name": "Vascular endothelial tissue",
+            "materials": [
+                "mat-cellular-component-of-vascular-endothelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-media",
+            "name": "Cellular component of vascular media",
+            "materials": [
+                "lyph-cell-fibroblast",
+                "lyph-cell-vascular-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-vascular-media",
+            "ontologyTerms": [
+                "UBERON:0002522"
+            ],
+            "name": "Vascular medial tissue",
+            "materials": [
+                "mat-cellular-component-of-vascular-media",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-myocardium",
+            "name": "Cellular component of myocardium",
+            "materials": [
+                "lyph-cell-cardiovascular-myocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-myocardium",
+            "ontologyTerms": [
+                "UBERON:0002349"
+            ],
+            "name": "Myocardial tissue",
+            "materials": [
+                "mat-cellular-component-of-myocardium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-vascular-smooth-muscle",
+            "name": "Cellular component of vascular smooth muscle",
+            "materials": [
+                "lyph-cell-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-vascular-smooth-muscle",
+            "ontologyTerms": [
+                "UBERON:0004237"
+            ],
+            "name": "Vascular smooth muscle tissue",
+            "materials": [
+                "mat-cellular-component-of-vascular-smooth-muscle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-pulmonary-smooth-muscle",
+            "name": "Cellular component of pulmonary smooth muscle",
+            "materials": [
+                "lyph-cell-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-serous-pericardium",
+            "ontologyTerms": [
+                "UBERON:0002357"
+            ],
+            "name": "Serous pericardial tissue",
+            "materials": [
+                "mat-cellular-component-of-cardiovascular-serous-pericardium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-cardiovascular-serous-pericardium",
+            "name": "Cellular component of serous pericardial tissue",
+            "materials": [
+                "lyph-cell-cardiovascular-pericardial-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-fibrous-pericardium",
+            "ontologyTerms": [
+                "UBERON:0002359"
+            ],
+            "name": "Fibrous pericardial tissue",
+            "materials": [
+                "mat-cellular-component-of-cardiovascular-fibrous-pericardium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-cardiovascular-fibrous-pericardium",
+            "name": "Cellular component of fibrous pericardial tissue",
+            "materials": [
+                "lyph-cell-cardiovascular-pericardial-fibroblast"
+            ]
+        },
+        {
+            "id": "mat-tissue-cardiovascular-epicardial-fat",
+            "ontologyTerms": [
+                "UBERON:0015129"
+            ],
+            "name": "Epicardial fat tissue",
+            "materials": [
+                "mat-cellular-component-of-cardiovascular-epicardial-fat",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-cardiovascular-epicardial-fat",
+            "name": "Cellular component of epicardial fat tissue",
+            "materials": [
+                "lyph-cell-cardiovascular-adipocyte-of-epicardial-fat"
+            ]
+        },
+        {
+            "id": "mat-tissue-pulmonary-smooth-muscle",
+            "ontologyTerms": [
+                "UBERON:0004225"
+            ],
+            "name": "Pulmonary smooth muscular tissue",
+            "materials": [
+                "mat-cellular-component-of-pulmonary-smooth-muscle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-fluid-pericardial",
+            "ontologyTerms": [
+                "UBERON:0002409"
+            ],
+            "name": "Pericardial fluid",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchiolar-epithelium",
+            "name": "Cellular component of bronchiolar epithelium",
+            "materials": [
+                "lyph-cell-columnar-cuboidal-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchiolar-epithelium",
+            "ontologyTerms": [
+                "UBERON:0002051"
+            ],
+            "name": "Bronchiolar epithelial tissue",
+            "materials": [
+                "mat-cellular-component-of-bronchiolar-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-epithelium",
+            "name": "Cellular component of bronchial epithelium",
+            "materials": [
+                "lyph-cell-bronchial-columnar-ciliated-epithelial",
+                "lyph-cell-bronchial-goblet",
+                "lyph-cell-bronchial-neuroendocrine"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchial-epithelium",
+            "ontologyTerms": [
+                "UBERON:0010499"
+            ],
+            "name": "Pseudostratified bronchial ciliated columnar epithelial tissue",
+            "materials": [
+                "mat-cellular-component-of-bronchial-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-cartilage",
+            "name": "Cellular component of bronchial cartilage",
+            "materials": [
+                "lyph-cell-chondrocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-bronchial-cartilage",
+            "ontologyTerms": [
+                "UBERON:0001956"
+            ],
+            "name": "Bronchial cartilage",
+            "materials": [
+                "mat-cellular-component-of-bronchial-cartilage",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-lung-connective-tissue",
+            "name": "Cellular component of lung connective tissue"
+        },
+        {
+            "id": "mat-tissue-lung-connective-tissue",
+            "ontologyTerms": [
+                "UBERON:0000114"
+            ],
+            "name": "Lung connective tissue"
+        },
+        {
+            "id": "mat-cellular-component-of-adventitia-of-primary-bronchus",
+            "name": "Cellular component of adventitia of primary bronchus"
+        },
+        {
+            "id": "mat-tissue-of-adventitia-of-primary-bronchus",
+            "ontologyTerms": [
+                "ILX:0793134"
+            ],
+            "name": "Adventita of primary bronchus"
+        },
+        {
+            "id": "mat-cellular-component-of-bronchial-connective-tissue",
+            "name": "Cellular component of bronchial connective tissue"
+        },
+        {
+            "id": "mat-tissue-bronchial-connective",
+            "ontologyTerms": [
+                "UBERON:0003592"
+            ],
+            "name": "Bronchial connective tissue"
+        },
+        {
+            "id": "mat-tissue-bronchial-submucosa",
+            "ontologyTerms": [
+                "UBERON:0001957"
+            ],
+            "name": "Bronchial submucosa",
+            "materials": [
+                "mat-cellular-component-of-connective-tissue",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-fluid-urinary",
+            "ontologyTerms": [
+                "UBERON:0001088"
+            ],
+            "name": "Urinary liquid",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-urinary-rhabdosphincter",
+            "name": "Cellular component of urinary rhabdosphincter",
+            "materials": [
+                "lyph-cell-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-rhabdosphincter",
+            "ontologyTerms": [
+                "ILX:0793141"
+            ],
+            "name": "Urinary rhabdosphincter",
+            "materials": [
+                "mat-cellular-component-of-urinary-rhabdosphincter",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-transitional-epithelium",
+            "name": "Cellular component of urethral epithelium",
+            "materials": [
+                "lyph-cell-urinary-transitional-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-transitional-epithelium",
+            "ontologyTerms": [
+                "UBERON:0002325"
+            ],
+            "name": "Transitional epithelium",
+            "materials": [
+                "mat-cellular-component-of-transitional-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-urinary-muscularis",
+            "name": "Cellular component of urinary muscularis",
+            "materials": [
+                "lyph-cell-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-muscularis",
+            "ontologyTerms": [
+                "UBERON:0006676"
+            ],
+            "name": "Urinary muscularis",
+            "materials": [
+                "mat-cellular-component-of-urinary-muscularis",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-collecting-duct-epithelium",
+            "name": "Cellular component of collecting duct epithelium",
+            "materials": [
+                "lyph-cell-renal-principal-epithelial",
+                "lyph-cell-renal-type-A-intercalated-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-collecting-duct-epithelium",
+            "ontologyTerms": [
+                "UBERON:0014388"
+            ],
+            "name": "Collecting duct epithelium",
+            "materials": [
+                "mat-cellular-component-of-collecting-duct-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-Bowmans-capsule-visceral",
+            "name": "Cellular component of visceral Bowman's capsule",
+            "materials": [
+                "lyph-cell-epithelial-squamous"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-Bowmans-capsule-visceral",
+            "ontologyTerms": [
+                "UBERON:0005751"
+            ],
+            "name": "Visceral Bowman's capsule tissue",
+            "materials": [
+                "mat-cellular-component-of-Bowmans-capsule-visceral",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-Bowmans-capsule-parietal",
+            "name": "Cellular component of parietal Bowman's capsule",
+            "materials": [
+                "lyph-cell-urinary-podocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-Bowmans-capsule-parietal",
+            "ontologyTerms": [
+                "UBERON:0005750"
+            ],
+            "name": "Parietal Bowman's capsule tissue",
+            "materials": [
+                "mat-cellular-component-of-Bowmans-capsule-parietal",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-proximal-convoluted-tubule",
+            "name": "Cellular component of Proximal convoluted tubule",
+            "materials": [
+                "lyph-cell-columnar-cuboidal-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-proximal-convoluted-tubule",
+            "ontologyTerms": [
+                "UBERON:0001287"
+            ],
+            "name": "Proximal convoluted tubule tissue",
+            "materials": [
+                "mat-cellular-component-of-proximal-convoluted-tubule",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-proximal-straight-tubule",
+            "name": "Cellular component of Proximal straight tubule",
+            "materials": [
+                "lyph-cell-columnar-cuboidal-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-proximal-straight-tubule",
+            "ontologyTerms": [
+                "UBERON:0001290"
+            ],
+            "name": "Proximal straight tubule tissue",
+            "materials": [
+                "mat-cellular-component-of-proximal-straight-tubule",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-thin-limbs-of-Henle",
+            "name": "Cellular component of thin limbs of Henle",
+            "materials": [
+                "lyph-cell-epithelial-squamous"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-thin-limbs-of-Henle",
+            "ontologyTerms": [
+                "UBERON:0005130"
+            ],
+            "name": "Tissue of thin limbs of Henle",
+            "materials": [
+                "mat-cellular-component-of-thin-limbs-of-Henle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-distal-tubule",
+            "name": "Cellular component of distal tubule",
+            "materials": [
+                "lyph-cell-columnar-cuboidal-epithelial"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-distal-tubule",
+            "ontologyTerms": [
+                "UBERON:0004135"
+            ],
+            "name": "Distal tubule tissue",
+            "materials": [
+                "mat-cellular-component-of-distal-tubule",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-distal-macula-densa-tubule",
+            "name": "Cellular component of maciula densa portion of distal tubule",
+            "materials": [
+                "lyph-cell-columnar-cuboidal-epithelial",
+                "lyph-cell-urinary-macula-densa"
+            ]
+        },
+        {
+            "id": "mat-tissue-urinary-distal-macula-densa-tubule",
+            "ontologyTerms": [
+                "UBERON:0002335"
+            ],
+            "name": "Macula densa portion of the distal tubule tissue",
+            "materials": [
+                "mat-cellular-component-of-distal-macula-densa-tubule",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-temporary-laryngeal-wall",
+            "name": "Laryngeal wall"
+        },
+        {
+            "id": "mat-temporary-oral-wall",
+            "name": "Wall of oral cavity"
+        },
+        {
+            "id": "mat-temporary-dental",
+            "name": "Content of tooth"
+        },
+        {
+            "id": "mat-temporary-epiglottic",
+            "name": "Content of epiglottis"
+        },
+        {
+            "id": "mat-temporary-vocal-cord",
+            "name": "Content of vocal cord"
+        },
+        {
+            "id": "mat-CNS-cerebrospinal-fluid",
+            "ontologyTerms": [
+                "UBERON:0001359"
+            ],
+            "name": "Cerebrospinal fluid"
+        },
+        {
+            "id": "mat-CNS-ependyma",
+            "ontologyTerms": [
+                "UBERON:0004670"
+            ],
+            "name": "Ependyma"
+        },
+        {
+            "id": "mat-CNS-parenchymal-tissue",
+            "ontologyTerms": [
+                "UBERON:0001017"
+            ],
+            "name": "Central nervous system tissue",
+            "materials": [
+                "mat-CNS-white-matter-of-brain",
+                "mat-CNS-grey-matter-of-brain"
+            ]
+        },
+        {
+            "id": "mat-CNS-white-matter-of-spinal-cord",
+            "ontologyTerms": [
+                "UBERON:0016549"
+            ],
+            "name": "White matter of CNS of the spinal cord",
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-CNS-grey-matter-of-spinal-cord",
+            "ontologyTerms": [
+                "UBERON:0016548"
+            ],
+            "name": "Gray matter of CNS of the spinal cord",
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-CNS-white-matter-of-brain",
+            "ontologyTerms": [
+                "UBERON:0003544"
+            ],
+            "name": "White matter of CNS of the brain",
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-CNS-grey-matter-of-brain",
+            "ontologyTerms": [
+                "UBERON:0003528"
+            ],
+            "name": "Gray matter of CNS of the brain",
+            "materials": [
+                "lyph-cell-oligodendrocyte",
+                "lyph-cell-microglial"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-I",
+            "ontologyTerms": [
+                "UBERON:0006118"
+            ],
+            "name": "lamina I of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-II",
+            "ontologyTerms": [
+                "UBERON:0002181"
+            ],
+            "name": "lamina II of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-III",
+            "ontologyTerms": [
+                "UBERON:0016574"
+            ],
+            "name": "lamina III of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-IV",
+            "ontologyTerms": [
+                "UBERON:0016575"
+            ],
+            "name": "lamina IV of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-V",
+            "ontologyTerms": [
+                "UBERON:0016576"
+            ],
+            "name": "lamina V of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-VI",
+            "ontologyTerms": [
+                "UBERON:0016577"
+            ],
+            "name": "lamina VI of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-VII",
+            "ontologyTerms": [
+                "UBERON:0016578"
+            ],
+            "name": "lamina VII of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-VIII",
+            "ontologyTerms": [
+                "UBERON:0016579"
+            ],
+            "name": "lamina VIII of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-IX",
+            "ontologyTerms": [
+                "UBERON:0016580"
+            ],
+            "name": "lamina IX of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-rex-lam-X",
+            "ontologyTerms": [
+                "UBERON:0004677"
+            ],
+            "name": "lamina X of gray matter of spinal cord",
+            "materials": [
+                "mat-CNS-grey-matter-of-spinal-cord"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-luminal-fluid",
+            "name": "Gastrointesinal fluid in the lumen",
+            "materials": [
+                "mat-body-fluid"
+            ]
+        },
+        {
+            "id": "mat-gastric-mucosa",
+            "name": "Gastric mucosa",
+            "materials": [
+                "lyph-cell-stomach-chief-cell",
+                "lyph-cell-gastric-parietal",
+                "lyph-cell-gastric-enteroendocrine"
+            ]
+        },
+        {
+            "id": "mat-mucosa-of-lower-two-thirds-of-esophagus",
+            "ontologyTerms": [
+                "UBERON:0002469"
+            ],
+            "name": "Mucosa of lower two thirds of esophagus"
+        },
+        {
+            "id": "mat-gastric-muscularis-mucosa",
+            "name": "Gastric muscularis",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-muscularis-mucosa-of-lower-two-thirds-of-esophagus",
+            "ontologyTerms": [
+                "UBERON:0004648"
+            ],
+            "name": "Muscularis of lower two thirds of esophagus"
+        },
+        {
+            "id": "mat-gastric-submucosa",
+            "name": "Gastric submucosa"
+        },
+        {
+            "id": "mat-gastric-oblique-muscle",
+            "name": "Gastric oblique muscle",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-circular-muscle",
+            "name": "Gastrointestinal circular muscle",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-myenteric-plexus",
+            "ontologyTerms": [
+                "UBERON:0002439"
+            ],
+            "name": "Myenteric plexus"
+        },
+        {
+            "id": "mat-gastrointestinal-longitudinal-muscle",
+            "name": "Gastrointestinal longitudinal muscle",
+            "materials": [
+                "mat-tissue-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-gastrointestinal-serosa",
+            "name": "Gastrointestinal serosa"
+        },
+        {
+            "id": "mat-submucosa-of-lower-two-thirds-of-esophagus",
+            "ontologyTerms": [
+                "UBERON:0001972"
+            ],
+            "name": "Submucosa of lower two thirds of esophagus"
+        },
+        {
+            "id": "mat-cellular-component-of-gastrointestinal-smooth-muscle",
+            "name": "Cellular component of gastrointestinal smooth muscle",
+            "materials": [
+                "lyph-cell-gastrointestinal-smooth-muscle"
+            ]
+        },
+        {
+            "id": "mat-tissue-gastrointestinal-smooth-muscle",
+            "ontologyTerms": [
+                "UBERON:0004226"
+            ],
+            "name": "Gastrointestinal smooth muscle tissue",
+            "materials": [
+                "mat-cellular-component-of-gastrointestinal-smooth-muscle",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-intracellular-fluid",
+            "name": "Intracellular fluid",
+            "materials": [
+                "mat-body-fluid"
+            ]
+        },
+        {
+            "id": "mat-fluid-pancreatic-juice",
+            "ontologyTerms": [
+                "UBERON:0000326"
+            ],
+            "name": "Pancreatic juice",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-tissue-pancreatic-acinar-epithelium",
+            "ontologyTerms": [
+                "ILX:0793613"
+            ],
+            "name": "Pancreatic acinar epithelium",
+            "materials": [
+                "mat-cellular-component-of-pancreatic-acinar-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-pancreatic-acinar-epithelium",
+            "name": "Cellular component of pancreatic acinar epithelium",
+            "materials": [
+                "lyph-cell-pancreatic-acinar"
+            ]
+        },
+        {
+            "id": "mat-fluid-bile",
+            "ontologyTerms": [
+                "UBERON:0000326"
+            ],
+            "name": "Pancreatic juice",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-tissue-hepatic-lobular-epithelium",
+            "ontologyTerms": [
+                "UBERON:0005452"
+            ],
+            "name": "Hepatic lobular epithelial cords",
+            "materials": [
+                "mat-cellular-component-of-hepatic-lobular-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-hepatic-lobular-epithelium",
+            "name": "Cellular component of hepatic lobular epithelium",
+            "materials": [
+                "lyph-cell-liver-hepatocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-duodenal-mucosal-epithelium",
+            "ontologyTerms": [
+                "UBERON:0000320"
+            ],
+            "name": "Duodenal mucosal epithelium",
+            "materials": [
+                "mat-cellular-component-of-duodenal-mucosal-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-of-duodenal-mucosal-epithelium",
+            "name": "Cellular component of duodenal mucosal epithelium",
+            "materials": [
+                "lyph-cell-gastrointestinal-duodenal-goblet",
+                "lyph-cell-gastrointestinal-duodenal-gland-enterocyte-of-epithelium"
+            ]
+        },
+        {
+            "id": "mat-fluid-biliary",
+            "ontologyTerms": [
+                "UBERON:0001970"
+            ],
+            "name": "Bile",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-fluid-pancreatic",
+            "ontologyTerms": [
+                "UBERON:0000326"
+            ],
+            "name": "Pancreatic juice",
+            "materials": [
+                "mat-extracellular-fluid"
+            ]
+        },
+        {
+            "id": "mat-fluid-biliopancreatic",
+            "ontologyTerms": [
+                "ILX:0793746"
+            ],
+            "name": "Biliopancreatic fluid",
+            "materials": [
+                "mat-fluid-biliary",
+                "mat-fluid-pancreatic"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-biliary-bile-duct-epithelium",
+            "name": "Cellular component of biliary epithelial tissue",
+            "materials": [
+                "lyph-cell-biliary-cholangiocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-biliary-bile-duct-epithelium",
+            "name": "Biliary epithelial tissue",
+            "materials": [
+                "mat-cellular-component-biliary-bile-duct-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-canal-hering-epithelium",
+            "name": "Cellular component of biliary duct canal of Hering",
+            "materials": [
+                "lyph-cell-biliary-cholangiocyte",
+                "lyph-cell-biliary-hepatocyte",
+                "lyph-cell-biliary-hepatocyte-stem"
+            ]
+        },
+        {
+            "id": "mat-tissue-biliary-canal-hering-epithelium",
+            "name": "Biliary duct canal of Hering epithelial tissue",
+            "materials": [
+                "mat-cellular-component-canal-hering-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-biliary-canaliculus-epithelium",
+            "name": "Cellular component of biliary canaliculus",
+            "materials": [
+                "lyph-cell-biliary-hepatocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-biliary-canaliculus-epithelium",
+            "name": "Biliary canaliculus tissue",
+            "materials": [
+                "mat-cellular-component-biliary-canaliculus-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-biliary-gallbladder-epithelium",
+            "name": "Cellular component of gallbladder epithelium",
+            "materials": [
+                "lyph-cell-biliary-cholangiocyte"
+            ]
+        },
+        {
+            "id": "mat-tissue-biliary-gallbladder-epithelium",
+            "name": "Gallbladder epithelial tissue",
+            "materials": [
+                "mat-cellular-component-biliary-gallbladder-epithelium",
+                "mat-extracellular-material"
+            ]
+        },
+        {
+            "id": "mat-cellular-component-biliary-gallbladder-neck-epithelium",
+            "name": "Cellular component of the neck of gallbladder epithelium",
+            "materials": [
+                "lyph-cell-biliary-cholangiocyte",
+                "lyph-cell-biliary-goblet"
+            ]
+        },
+        {
+            "id": "mat-tissue-biliary-gallbladder-neck-epithelium",
+            "name": "Neck of gallbladder epithelial tissue",
+            "materials": [
+                "mat-cellular-component-biliary-gallbladder-neck-epithelium",
+                "mat-extracellular-material"
+            ]
+        }
+    ],
+    "coalescences": [],
+    "chains": [
+        {
+            "id": "chain-brain-and-stem",
+            "name": "Supraventricular-csf-tract",
+            "ontologyTerms": [
+                "UBERON:0001359"
+            ],
+            "lyphs": [
+                "lyph-CNS-pons",
+                "lyph-CNS-midbrain",
+                "lyph-CNS-diencephalon",
+                "lyph-CNS-cerebral-nuclei",
+                "lyph-CNS-telencephalon"
+            ],
+            "wiredTo": "too:w-N-H"
+        },
+        {
+            "id": "chain-csf-flow-spinal-cord",
+            "name": "Infraventricular-csf-tract",
+            "ontologyTerms": [
+                "UBERON:0002240",
+                "UBERON:0001896"
+            ],
+            "lyphs": [
+                "lyph-CNS-medulla",
+                "lyph-C1-spinal-segment",
+                "lyph-C2-spinal-segment",
+                "lyph-C3-spinal-segment",
+                "lyph-C4-spinal-segment",
+                "lyph-C5-spinal-segment",
+                "lyph-C6-spinal-segment",
+                "lyph-C7-spinal-segment",
+                "lyph-C8-spinal-segment",
+                "lyph-T1-spinal-segment",
+                "lyph-T2-spinal-segment",
+                "lyph-T3-spinal-segment",
+                "lyph-T4-spinal-segment",
+                "lyph-T5-spinal-segment",
+                "lyph-T6-spinal-segment",
+                "lyph-T7-spinal-segment",
+                "lyph-T8-spinal-segment",
+                "lyph-T9-spinal-segment",
+                "lyph-T10-spinal-segment",
+                "lyph-T11-spinal-segment",
+                "lyph-T12-spinal-segment",
+                "lyph-T13-spinal-segment",
+                "lyph-L1-spinal-segment",
+                "lyph-L2-spinal-segment",
+                "lyph-L3-spinal-segment",
+                "lyph-L4-spinal-segment",
+                "lyph-L5-spinal-segment",
+                "lyph-L6-spinal-segment",
+                "lyph-S1-spinal-segment",
+                "lyph-S2-spinal-segment",
+                "lyph-S3-spinal-segment",
+                "lyph-S4-spinal-segment",
+                "lyph-S5-spinal-segment",
+                "lyph-Cx1-spinal-segment",
+                "lyph-Cx2-spinal-segment",
+                "lyph-Cx3-spinal-segment",
+                "lyph-Cx4-spinal-segment"
+            ],
+            "wiredTo": "too:w-N-T"
+        },
+        {
+            "id": "chain-sympathetic-chain",
+            "name": "Sympathetic chain",
+            "ontologyTerms": [
+                "UBERON:0000407"
+            ],
+            "lyphs": [
+                "lyph-superior-cervical-ganglion",
+                "lyph-sympathetic-trunk-C1-C2",
+                "lyph-middle-cervical-ganglion",
+                "lyph-sympathetic-trunk-C2-cervicothoracic",
+                "lyph-stellate-ganglion",
+                "lyph-sympathetic-trunk-cervicothoracic-T2",
+                "lyph-T2-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T2-T3",
+                "lyph-T3-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T3-T4",
+                "lyph-T4-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T4-T5",
+                "lyph-T5-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T5-T6",
+                "lyph-T6-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T6-T7",
+                "lyph-T7-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T7-T8",
+                "lyph-T8-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T8-T9",
+                "lyph-T9-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T9-T10",
+                "lyph-T10-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T10-T11",
+                "lyph-T11-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T12-L1",
+                "lyph-T12-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T12-T13",
+                "lyph-T13-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-T13-L1",
+                "lyph-L1-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L1-L2",
+                "lyph-L2-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L2-L3",
+                "lyph-L3-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L3-L4",
+                "lyph-L4-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L4-L5",
+                "lyph-L5-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L5-L6",
+                "lyph-L6-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-L6-S1",
+                "lyph-S1-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S1-S2",
+                "lyph-S2-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S2-S3",
+                "lyph-S3-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S3-S4",
+                "lyph-S4-sympathetic-chain-ganglion",
+                "lyph-sympathetic-trunk-S4-Cx1",
+                "lyph-Cx1-sympathetic-chain-ganglion"
+            ],
+            "hostedBy": "too:n2G"
+        },
+        {
+            "id": "chain-ventral-spinal-roots",
+            "name": "Ventral spinal roots",
+            "lyphs": [
+                "lyph-C1-ventral-root",
+                "lyph-C2-ventral-root",
+                "lyph-C3-ventral-root",
+                "lyph-C4-ventral-root",
+                "lyph-C5-ventral-root",
+                "lyph-C6-ventral-root",
+                "lyph-C7-ventral-root",
+                "lyph-C8-ventral-root",
+                "lyph-T1-ventral-root",
+                "lyph-T2-ventral-root",
+                "lyph-T3-ventral-root",
+                "lyph-T4-ventral-root",
+                "lyph-T5-ventral-root",
+                "lyph-T6-ventral-root",
+                "lyph-T7-ventral-root",
+                "lyph-T8-ventral-root",
+                "lyph-T9-ventral-root",
+                "lyph-T10-ventral-root",
+                "lyph-T11-ventral-root",
+                "lyph-T12-ventral-root",
+                "lyph-T13-ventral-root",
+                "lyph-L1-ventral-root",
+                "lyph-L2-ventral-root",
+                "lyph-L3-ventral-root",
+                "lyph-L4-ventral-root",
+                "lyph-L5-ventral-root",
+                "lyph-L6-ventral-root",
+                "lyph-S1-ventral-root",
+                "lyph-S2-ventral-root",
+                "lyph-S3-ventral-root",
+                "lyph-S4-ventral-root",
+                "lyph-S5-ventral-root",
+                "lyph-Cx1-ventral-root"
+            ],
+            "hostedBy": "too:n2R"
+        },
+        {
+            "id": "chain-dorsal-spinal-roots",
+            "name": "Dorsal spinal roots and ganglia",
+            "lyphs": [
+                "lyph-C2-dorsal-root-ganglion",
+                "lyph-C3-dorsal-root-ganglion",
+                "lyph-C4-dorsal-root-ganglion",
+                "lyph-C5-dorsal-root-ganglion",
+                "lyph-C6-dorsal-root-ganglion",
+                "lyph-C7-dorsal-root-ganglion",
+                "lyph-C8-dorsal-root-ganglion",
+                "lyph-T1-dorsal-root-ganglion",
+                "lyph-T2-dorsal-root-ganglion",
+                "lyph-T3-dorsal-root-ganglion",
+                "lyph-T4-dorsal-root-ganglion",
+                "lyph-T5-dorsal-root-ganglion",
+                "lyph-T6-dorsal-root-ganglion",
+                "lyph-T7-dorsal-root-ganglion",
+                "lyph-T8-dorsal-root-ganglion",
+                "lyph-T9-dorsal-root-ganglion",
+                "lyph-T10-dorsal-root-ganglion",
+                "lyph-T11-dorsal-root-ganglion",
+                "lyph-T12-dorsal-root-ganglion",
+                "lyph-T13-dorsal-root-ganglion",
+                "lyph-L1-dorsal-root-ganglion",
+                "lyph-L2-dorsal-root-ganglion",
+                "lyph-L3-dorsal-root-ganglion",
+                "lyph-L4-dorsal-root-ganglion",
+                "lyph-L5-dorsal-root-ganglion",
+                "lyph-L6-dorsal-root-ganglion",
+                "lyph-S1-dorsal-root-ganglion",
+                "lyph-S2-dorsal-root-ganglion",
+                "lyph-S3-dorsal-root-ganglion",
+                "lyph-S4-dorsal-root-ganglion",
+                "lyph-S5-dorsal-root-ganglion"
+            ],
+            "hostedBy": "too:n2R"
+        },
+        {
+            "id": "chain-white-rami",
+            "name": "White spinal rami",
+            "lyphs": [
+                "lyph-superior-cervical-ganglion-white-ramus",
+                "lyph-middle-cervical-ganglion-white-ramus",
+                "lyph-stellate-white-ramus",
+                "lyph-T2-white-ramus",
+                "lyph-T3-white-ramus",
+                "lyph-T4-white-ramus",
+                "lyph-T5-white-ramus",
+                "lyph-T6-white-ramus",
+                "lyph-T7-white-ramus",
+                "lyph-T8-white-ramus",
+                "lyph-T9-white-ramus",
+                "lyph-T10-white-ramus",
+                "lyph-T11-white-ramus",
+                "lyph-T12-white-ramus",
+                "lyph-T13-white-ramus",
+                "lyph-L1-white-ramus",
+                "lyph-L2-white-ramus",
+                "lyph-L3-white-ramus"
+            ],
+            "hostedBy": "too:n2G"
+        },
+        {
+            "id": "chain-grey-rami",
+            "name": "Grey spinal rami",
+            "lyphs": [
+                "lyph-superior-cervical-ganglion-grey-ramus",
+                "lyph-middle-cervical-ganglion-grey-ramus",
+                "lyph-stellate-grey-ramus",
+                "lyph-T2-grey-ramus",
+                "lyph-T3-grey-ramus",
+                "lyph-T4-grey-ramus",
+                "lyph-T5-grey-ramus",
+                "lyph-T6-grey-ramus",
+                "lyph-T7-grey-ramus",
+                "lyph-T8-grey-ramus",
+                "lyph-T9-grey-ramus",
+                "lyph-T10-grey-ramus",
+                "lyph-T11-grey-ramus",
+                "lyph-T12-grey-ramus",
+                "lyph-T13-grey-ramus",
+                "lyph-L1-grey-ramus",
+                "lyph-L2-grey-ramus",
+                "lyph-L3-grey-ramus",
+                "lyph-L4-grey-ramus",
+                "lyph-L5-grey-ramus",
+                "lyph-L6-grey-ramus",
+                "lyph-S1-grey-ramus",
+                "lyph-S2-grey-ramus",
+                "lyph-S3-grey-ramus",
+                "lyph-S4-grey-ramus",
+                "lyph-Cx1-grey-ramus"
+            ],
+            "hostedBy": "too:n2G"
+        }
+    ],
+    "groups": [],
+    "localConventions": [
+        {
+            "prefix": "UBERON",
+            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+        },
+        {
+            "prefix": "CHEBI",
+            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+        },
+        {
+            "prefix": "FMA",
+            "namespace": "http://purl.org/sig/ont/fma/fma"
+        },
+        {
+            "prefix": "GO",
+            "namespace": "http://purl.obolibrary.org/obo/GO_"
+        },
+        {
+            "prefix": "ILX",
+            "namespace": "http://uri.interlex.org/base/ilx_"
+        },
+        {
+            "prefix": "NLX",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/nlx_"
+        },
+        {
+            "prefix": "SAO",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/sao"
+        },
+        {
+            "prefix": "PMID",
+            "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+        },
+        {
+            "prefix": "EMAPA",
+            "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
+        },
+        {
+            "prefix": "CL",
+            "namespace": "http://purl.obolibrary.org/obo/CL_"
+        },
+        {
+            "prefix": "NCBITaxon",
+            "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
+        },
+        {
+            "prefix": "wbkg",
+            "namespace": "https://apinatomy.org/uris/models/wbrcm/ids/"
+        },
+        {
+            "prefix": "too",
+            "namespace": "https://apinatomy.org/uris/models/too-map/ids/"
+        }
+    ],
+    "id": "spinal-var-test",
+    "name": "spinal cord variabilty example",
+    "namespace": "spvt",
+    "version": "e32e30be8213458f2c0363e56409d46b56e19d44",
+    "schemaVersion": "c4fda4a80ce8c7373c8f2757e1f7ff19719f4cab"
+}

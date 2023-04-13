@@ -222,7 +222,8 @@ export class Graph extends Group{
             inputModel.groups = inputModel.groups || [];
 
             //Collect resources necessary for template expansion from all groups
-            let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels];
+            let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels,
+                $Field.varianceSpecs];
             collectNestedResources(inputModel, relFieldNames, $Field.groups);
 
             modelClasses.Channel.defineChannelLyphTemplates(inputModel);
@@ -830,5 +831,15 @@ export class Graph extends Group{
             json.scaffolds.push(s.getCurrentState())
         })
         return json;
+    }
+
+    removeLyph(lyph){
+        let removed = lyph.clearReferences();
+        if (!removed) {
+            logger.error($LogMsg.LYPH_REMOVE_FAIL, this.id);
+        } else {
+            removed.forEach(lyph => this.deleteFromGroup(lyph));
+        }
+        return removed;
     }
 }

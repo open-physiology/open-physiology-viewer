@@ -146,7 +146,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
                             (editResource)="onEditResource($event)"
-                            (scaffoldUpdated)="onScaffoldUpdated($event)">
+                            (scaffoldUpdated)="onScaffoldUpdated($event)"
+                            (varianceReset)="applyChanges()"
+                    >
                     </webGLScene>
                 </mat-tab> 
 

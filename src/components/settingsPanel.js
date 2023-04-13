@@ -16,8 +16,20 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MatDividerModule} from "@angular/material/divider";
+import {MatCardModule} from "@angular/material/card";
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatSelectModule} from "@angular/material/select";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {FieldEditorDialog} from "./gui/fieldEditorDialog";
+import {FieldEditor} from "./gui/fieldEditor";
 
 /**
  * @ignore
@@ -39,7 +51,31 @@ const COLORS = {
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section>
-
+            <!--Variance-->
+            <mat-accordion>
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-checkbox *ngIf="varianceDisabled" matTooltip="Reset" class="w3-margin-right"
+                                              [checked] = "varianceDisabled"
+                                              (change)  = "onCladeReset.emit()">
+                            </mat-checkbox>
+                            Variance
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <mat-form-field *ngIf="!cladeDisabled">
+                        <mat-select 
+                                [placeholder]="Clade"
+                                [matTooltip]="Clade"
+                                [value]="clade"
+                                (selectionChange)="onCladeChange.emit($event.value)">
+                            <mat-option *ngFor="let option of clades" [value]="option.id">
+                                {{option.id}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </mat-expansion-panel>
+            </mat-accordion>  
             <!--Highlighted entity-->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -302,13 +338,9 @@ const COLORS = {
                                                   (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
                             </div>
                         </div>
-
                     </div>
-
-
                 </mat-expansion-panel>
-            </mat-accordion>            
-            
+            </mat-accordion>              
         </section>
     `,
     styles: [`
@@ -337,6 +369,10 @@ const COLORS = {
 
         .default-box .default-box-header .search-bar {
           flex-grow: 1;
+        }
+        
+        .mat-form-field {
+          width: 100%;
         }
 
         .search-bar .mat-form-field {
@@ -417,10 +453,6 @@ const COLORS = {
         .search-bar .search-input::placeholder {
           color: ${COLORS.inputPlacholderColor};
         }
-
-        /* .search-bar .mat-form-field-subscript-wrapper {
-          display: none;
-        } */
 
         .default-box .default-boxContent {
           padding: 1.067rem;
@@ -935,7 +967,8 @@ const COLORS = {
         .dynamic-tree ul,
         .dynamic-tree li {
           list-style-type: none;
-        }
+        }        
+        
     `]
 })
 export class SettingsPanel {
@@ -965,7 +998,7 @@ export class SettingsPanel {
 
     @Input() dynamicGroups;
 
-    @Input('scaffolds') set scaffolds(newScaffolds){
+    @Input('scaffolds') set scaffolds(newScaffolds) {
         this._scaffolds = newScaffolds;
         this.updateRenderedResources();
     }
@@ -975,45 +1008,52 @@ export class SettingsPanel {
             this._config = newConfig;
             this._labelClasses = this._config[$Field.labels]::keys();
             let ids = this._config.visibleGroups || [];
-            this._showGroups = new Set((this.groups||[]).filter(g => ids.includes(g.id)));
+            this._showGroups = new Set((this.groups || []).filter(g => ids.includes(g.id)));
         }
     }
 
-    @Input('helperKeys') set helperKeys(newHelperKeys){
+    @Input('helperKeys') set helperKeys(newHelperKeys) {
         if (this._helperKeys !== newHelperKeys) {
             this._helperKeys = newHelperKeys;
             this._showHelpers = new Set([]);
         }
     }
 
-    @Input('modelId') set modelId(modelId){
+    @Input('modelId') set modelId(modelId) {
         // if (this._modelId !== modelId) {
         //     this._modelId = modelId;
         // }
     }
 
-    @Input('selected') set selected(entity){
-      if (this.selected !== entity) {
-          this._selected = entity;
-          this._selectedName = entity ? entity.name || "" : "";
-      }
-  }
+    @Input('selected') set selected(entity) {
+        if (this.selected !== entity) {
+            this._selected = entity;
+            this._selectedName = entity ? entity.name || "" : "";
+        }
+    }
+
     @Input() searchOptions;
     @Input() highlighted;
 
-    @Output() onSelectBySearch     = new EventEmitter();
-    @Output() onOpenExternal       = new EventEmitter();
-    @Output() onEditResource       = new EventEmitter();
-    @Output() onUpdateShowLabels   = new EventEmitter();
+    @Input() varianceDisabled;
+    @Input() clade;
+    @Input() clades;
+
+    @Output() onSelectBySearch = new EventEmitter();
+    @Output() onOpenExternal = new EventEmitter();
+    @Output() onEditResource = new EventEmitter();
+    @Output() onUpdateShowLabels = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
-    @Output() onToggleGroup        = new EventEmitter();
-    @Output() onToggleMode         = new EventEmitter();
-    @Output() onToggleLayout       = new EventEmitter();
-    @Output() onToggleHelperPlane  = new EventEmitter();
+    @Output() onToggleGroup = new EventEmitter();
+    @Output() onToggleMode = new EventEmitter();
+    @Output() onToggleLayout = new EventEmitter();
+    @Output() onToggleHelperPlane = new EventEmitter();
+    @Output() onCladeChange = new EventEmitter();
+    @Output() onCladeReset = new EventEmitter();
 
     constructor() {
-        this._labelProps    = [$Field.id, $Field.name];
-        this._showHelpers   = new Set([]);
+        this._labelProps = [$Field.id, $Field.name];
+        this._showHelpers = new Set([]);
         this.searchTerm = '';
         this.searchTermScaffolds = '';
     }
@@ -1022,11 +1062,11 @@ export class SettingsPanel {
         return this._config;
     }
 
-    get selected(){
+    get selected() {
         return this._selected;
     }
 
-    get scaffolds(){
+    get scaffolds() {
         return this._scaffolds;
     }
 
@@ -1037,63 +1077,63 @@ export class SettingsPanel {
         }
     }
 
-    toggleMode(){
-        this.config.layout.numDimensions = (this.config.layout.numDimensions === 3)? 2: 3;
+    toggleMode() {
+        this.config.layout.numDimensions = (this.config.layout.numDimensions === 3) ? 2 : 3;
         this.onToggleMode.emit(this.config.layout.numDimensions);
     }
 
-    toggleLayout(prop){
+    toggleLayout(prop) {
         this.config.layout[prop] = !this.config.layout[prop];
         this.onToggleLayout.emit(prop);
     }
 
-    toggleScaffold(scaffold){
+    toggleScaffold(scaffold) {
         this.onToggleGroup.emit(scaffold);
         if (scaffold.class === $SchemaClass.Scaffold) {
             this.updateRenderedResources();
         }
     }
 
-    toggleVisibility(){
+    toggleVisibility() {
         this.scaffoldResourceVisibility = !this.scaffoldResourceVisibility;
         this.updateRenderedResources();
     }
 
-    updateRenderedResources(){
+    updateRenderedResources() {
         let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
         scaffoldResourceNames.forEach(prop => this[prop] = []);
-        (this.scaffolds||[]).forEach(s => {
-             //Only include wires from the scaffold, no components
-             if (s.class === $SchemaClass.Scaffold && !s.hidden) {
-                 (s.components || []).forEach(r => {
+        (this.scaffolds || []).forEach(s => {
+            //Only include wires from the scaffold, no components
+            if (s.class === $SchemaClass.Scaffold && !s.hidden) {
+                (s.components || []).forEach(r => {
                     r._parent = s;
                     r._visible = true;
                     this.renderedComponents.push(r);
-                 });
-                 if (this.scaffoldResourceVisibility) {
-                     (s.anchors || []).forEach(r => {
-                         if (!r.generated) {
-                             r._parent = s;
-                             this.renderedAnchors.push(r);
-                         }
-                     });
-                     (s.wires || []).forEach(r => {
-                         if (!r.generated) {
-                             r._parent = s;
-                             this.renderedWires.push(r);
-                         }
-                     });
-                     (s.regions || []).forEach(r => {
-                         if (!r.generated) {
-                             r._parent = s;
-                             this.renderedRegions.push(r);
-                         }
-                     });
-                 }
-             }
+                });
+                if (this.scaffoldResourceVisibility) {
+                    (s.anchors || []).forEach(r => {
+                        if (!r.generated) {
+                            r._parent = s;
+                            this.renderedAnchors.push(r);
+                        }
+                    });
+                    (s.wires || []).forEach(r => {
+                        if (!r.generated) {
+                            r._parent = s;
+                            this.renderedWires.push(r);
+                        }
+                    });
+                    (s.regions || []).forEach(r => {
+                        if (!r.generated) {
+                            r._parent = s;
+                            this.renderedRegions.push(r);
+                        }
+                    });
+                }
+            }
         });
         scaffoldResourceNames.forEach(prop => {
-            if (this[prop].length === 0){
+            if (this[prop].length === 0) {
                 this[prop] = undefined;
             }
         });
@@ -1101,17 +1141,19 @@ export class SettingsPanel {
 
     updateShowLabels(labelClass) {
         this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
-        this.onUpdateShowLabels.emit(this.config.showLabels||{});
+        this.onUpdateShowLabels.emit(this.config.showLabels || {});
     }
 
     updateLabelContent(labelClass, labelProp) {
         this.config.labels[labelClass] = labelProp;
-        this.onUpdateLabelContent.emit(this.config.labels||{})
+        this.onUpdateLabelContent.emit(this.config.labels || {})
     }
 
     toggleHelperPlane(helper) {
-        if (!helper) { return; }
-        if (this._showHelpers.has(helper)){
+        if (!helper) {
+            return;
+        }
+        if (this._showHelpers.has(helper)) {
             this._showHelpers.delete(helper);
         } else {
             this._showHelpers.add(helper);
@@ -1120,77 +1162,80 @@ export class SettingsPanel {
     }
 
     toggleAllGroups = () => {
-      let allVisible = this.groups.filter( group => group.hidden || group.undefined );
+        let allVisible = this.groups.filter(group => group.hidden || group.undefined);
 
-      for(let group of this.groups) {
-        if(group.hidden || allVisible.length == 0) {
-          this.onToggleGroup.emit(group);
+        for (let group of this.groups) {
+            if (group.hidden || allVisible.length == 0) {
+                this.onToggleGroup.emit(group);
+            }
         }
-      }
 
-      // If all groups are toggled, toggle dynamic groups too. 
-      this.toggleAllDynamicGroup();
+        // If all groups are toggled, toggle dynamic groups too.
+        this.toggleAllDynamicGroup();
     }
 
     toggleAllDynamicGroup = () => {
-      let allVisible = this.dynamicGroups.filter( group => group.hidden || group.undefined );
+        let allVisible = this.dynamicGroups.filter(group => group.hidden || group.undefined);
 
-      for(let group of this.dynamicGroups) {
-        if(group.hidden || allVisible.length == 0) {
-          this.onToggleGroup.emit(group);
+        for (let group of this.dynamicGroups) {
+            if (group.hidden || allVisible.length == 0) {
+                this.onToggleGroup.emit(group);
+            }
         }
-      }
     }
 
     search(value, filterOptions, allOptions) {
-      this[filterOptions] = this[allOptions]?.filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
+        this[filterOptions] = this[allOptions]?.filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
     }
 
     searchScaffold(value) {
-      this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
-        const lowerCaseValue = value?.toLowerCase();
-        const displayTerm = ((scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name).toLowerCase() ;
-        return displayTerm.includes(lowerCaseValue) || scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) || scaffold?.name?.toLowerCase()?.includes(lowerCaseValue);
-      });
+        this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
+            const lowerCaseValue = value?.toLowerCase();
+            const displayTerm = ((scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name).toLowerCase();
+            return displayTerm.includes(lowerCaseValue) || scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) || scaffold?.name?.toLowerCase()?.includes(lowerCaseValue);
+        });
     }
 
     ngOnInit() {
-      // this.previousId = this._modelId;
-      this.filteredGroups = this.groups;
-      this.filteredDynamicGroups = this.dynamicGroups;
-      this.filteredScaffolds = this.scaffolds;
+        // this.previousId = this._modelId;
+        this.filteredGroups = this.groups;
+        this.filteredDynamicGroups = this.dynamicGroups;
+        this.filteredScaffolds = this.scaffolds;
     }
 
     ngOnChanges() {
-      // if (this._modelId !== this.previousId) {
-      //   this.previousId = this._modelId;
+        // if (this._modelId !== this.previousId) {
+        //   this.previousId = this._modelId;
         this.search(this.searchTerm, 'filteredGroups', 'groups');
         this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
         this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
-      // }
-      this.filteredGroups = this.filteredGroups || this.groups;
-      this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
-      this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+        // }
+        this.filteredGroups = this.filteredGroups || this.groups;
+        this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
+        this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
     }
 
     clearSearch(term, filterOptions, allOptions) {
-      this[term] = '';
-      this[filterOptions] = this[allOptions];
+        this[term] = '';
+        this[filterOptions] = this[allOptions];
     }
 
     clearTreeSearch(filter, tree) {
-      tree?.treeModel?.filterNodes('');
-      filter.value = '';
+        tree?.treeModel?.filterNodes('');
+        filter.value = '';
     }
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
+    imports: [CommonModule, FormsModule, BrowserAnimationsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
         MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule,
-        MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule], //TreeModule],
+        MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule,
+        MatFormFieldModule, MatAutocompleteModule, MatSelectModule
+    ], //TreeModule],
     declarations: [SettingsPanel, StopPropagation, ResourceVisibility],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
 })
+
 export class SettingsPanelModule {
 }
