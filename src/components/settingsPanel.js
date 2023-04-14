@@ -52,7 +52,7 @@ const COLORS = {
     template: `
         <section>
             <!--Variance-->
-            <mat-accordion>
+            <mat-accordion *ngIf="clades?.length > 0">
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <mat-panel-title>
@@ -63,17 +63,20 @@ const COLORS = {
                             Variance
                         </mat-panel-title>
                     </mat-expansion-panel-header>
-                    <mat-form-field *ngIf="!cladeDisabled">
-                        <mat-select 
-                                [placeholder]="Clade"
-                                [matTooltip]="Clade"
-                                [value]="clade"
-                                (selectionChange)="onCladeChange.emit($event.value)">
-                            <mat-option *ngFor="let option of clades" [value]="option.id">
-                                {{option.id}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <mat-form-field >
+                        <div class="default-box pb-0">
+                            <mat-select *ngIf="!cladeDisabled" class="default-boxContent"
+                                    [disabled]="varianceDisabled" 
+                                    [placeholder]="Clade"
+                                    [matTooltip]="Clade"
+                                    [value]="clade"
+                                    (selectionChange)="onCladeChange.emit($event.value)">
+                                <mat-option *ngFor="let option of clades" [value]="option.id">
+                                    {{option.id}}
+                                </mat-option>
+                            </mat-select>
+                        </div>
+                   </mat-form-field>
                 </mat-expansion-panel>
             </mat-accordion>  
             <!--Highlighted entity-->
