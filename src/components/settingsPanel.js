@@ -16,9 +16,11 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {ResourceVisibility} from "./gui/resourceVisibility";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire, getHouseLyph, applyOrthogonalLayout, autoLayoutSegments } from "../view/render/neuroView";
+
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
-import {ResourceVisibility} from "./gui/resourceVisibility";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatDividerModule} from "@angular/material/divider";
@@ -30,9 +32,6 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {FieldEditorDialog} from "./gui/fieldEditorDialog";
 import {FieldEditor} from "./gui/fieldEditor";
-import { buildNeurulatedTriplets, toggleNeurulatedLyph, handleNeurulatedGroup, toggleScaffoldsNeuroview } from "../view/render/neuroView";
-import { autoSizeLyph } from "../view/render/autoLayout"
-import config from '../data/config';
 
 /**
  * @ignore
@@ -50,114 +49,135 @@ const COLORS = {
 };
 
 @Component({
-    selector: 'settingsPanel',
-    changeDetection: ChangeDetectionStrategy.Default,
-    template: `
-        <section>
-            <!--Variance-->
-            <mat-accordion *ngIf="clades?.length > 0">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <mat-checkbox *ngIf="varianceDisabled" matTooltip="Reset" class="w3-margin-right"
-                                              [checked] = "varianceDisabled"
-                                              (change)  = "onCladeReset.emit()">
-                            </mat-checkbox>
-                            Variance
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <mat-form-field >
-                        <div class="default-box pb-0">
-                            <mat-select *ngIf="!cladeDisabled" class="default-boxContent"
-                                    [disabled]="varianceDisabled" 
-                                    [placeholder]="Clade"
-                                    [matTooltip]="Clade"
-                                    [value]="clade"
-                                    (selectionChange)="onCladeChange.emit($event.value)">
-                                <mat-option *ngFor="let option of clades" [value]="option.id">
-                                    {{option.id}}
-                                </mat-option>
-                            </mat-select>
-                        </div>
-                   </mat-form-field>
-                </mat-expansion-panel>
-            </mat-accordion>  
-            <!--Highlighted entity-->
-            <mat-accordion>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Highlighted
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <div class="default-box pb-0">
-                        <div *ngIf="config.highlighted" class="default-boxContent">
-                            <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"></resourceInfoPanel>
-                        </div>
-                        <div *ngIf="!highlighted" class="default-boxError">
-                            Hover an instance to see its details.
-                        </div>
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
-            <mat-accordion>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Selected
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <div class="default-box pb-0">
-                        <div class="default-searchBar default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
-                                           (selectedItemChange)="selectBySearch($event)">
-                                </searchBar>
-                            </div>
-                        </div>
-                        <div *ngIf="config.selected" class="default-boxContent">
-                            <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
-                            </resourceInfoPanel>
-<!--                            <button *ngIf="!!_selected" title="Edit"-->
-<!--                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">-->
-<!--                                <i class="fa fa-edit"> </i>-->
-<!--                            </button> -->
-                            <sciGraphSearch [selected]="_selected">
-                            </sciGraphSearch>
-                        </div>
-                    </div>
-                </mat-expansion-panel> 
-            </mat-accordion>
+  selector: "settingsPanel",
+  changeDetection: ChangeDetectionStrategy.Default,
+  template: `
+    <section>
+      <!--Variance-->
+      <mat-accordion>
+          <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                  <mat-panel-title>
+                      <mat-checkbox *ngIf="varianceDisabled" matTooltip="Reset" class="w3-margin-right"
+                                        [checked] = "varianceDisabled"
+                                        (change)  = "onCladeReset.emit()">
+                      </mat-checkbox>
+                      Variance
+                  </mat-panel-title>
+              </mat-expansion-panel-header>
+              <mat-form-field *ngIf="!cladeDisabled">
+                  <mat-select 
+                          [placeholder]="Clade"
+                          [matTooltip]="Clade"
+                          [value]="clade"
+                          (selectionChange)="onCladeChange.emit($event.value)">
+                      <mat-option *ngFor="let option of clades" [value]="option.id">
+                          {{option.id}}
+                      </mat-option>
+                  </mat-select>
+              </mat-form-field>
+          </mat-expansion-panel>
+      </mat-accordion>     
+      <!--Highlighted entity-->
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Highlighted </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="default-box pb-0">
+            <div *ngIf="config.highlighted" class="default-boxContent">
+              <resourceInfoPanel
+                *ngIf="!!highlighted"
+                [resource]="highlighted"
+              ></resourceInfoPanel>
+            </div>
+            <div *ngIf="!highlighted" class="default-boxError">
+              Hover an instance to see its details.
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Selected </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="default-box pb-0">
+            <div class="default-searchBar default-box-header">
+              <div class="search-bar">
+                <img src="./styles/images/search.svg" />
+                <searchBar
+                  [selected]="_selectedName"
+                  [searchOptions]="searchOptions"
+                  (selectedItemChange)="selectBySearch($event)"
+                >
+                </searchBar>
+              </div>
+            </div>
+            <div *ngIf="config.selected" class="default-boxContent">
+              <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
+              </resourceInfoPanel>
+              <!--                            <button *ngIf="!!_selected" title="Edit"-->
+              <!--                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">-->
+              <!--                                <i class="fa fa-edit"> </i>-->
+              <!--                            </button> -->
+              <sciGraphSearch [selected]="_selected"> </sciGraphSearch>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
 
-            <!--Group controls-->
+      <!--Group controls-->
 
-            <mat-accordion *ngIf="!!groups">
-                <mat-expansion-panel [expanded]="true">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Groups
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
+      <mat-accordion *ngIf="!!groups">
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Groups </mat-panel-title>
+          </mat-expansion-panel-header>
 
-                    <div class="default-box">
-                        <div class="default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <input type="text" class="search-input" placeholder="Search for a group"
-                                       name="searchTerm" [(ngModel)]="searchTerm"
-                                       (input)="search($event.target.value, 'filteredGroups', 'groups')"/>
-                                <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
-                                     (click)="clearSearch('searchTerm', 'filteredGroups', 'groups')"/>
-                            </div>
-                            <button mat-raised-button (click)="toggleAllGroups()" [disabled]="neuroViewEnabled">Toggle all</button>
-                        </div>
-                        <div class="wrap" *ngFor="let group of filteredGroups">
-                            <mat-slide-toggle class="toggle-group" [checked]="!group.hidden"
-                                              (change)="toggleGroup($event, group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
-                        </div>
-                        <!--Tree structure-->
-                        <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
+          <div class="default-box">
+            <div class="default-box-header">
+              <div class="search-bar">
+                <img src="./styles/images/search.svg" />
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Search for a group"
+                  name="searchTerm"
+                  [(ngModel)]="searchTerm"
+                  (input)="
+                    search($event.target.value, 'filteredGroups', 'groups')
+                  "
+                />
+                <img
+                  *ngIf="searchTerm !== ''"
+                  src="./styles/images/close.svg"
+                  class="input-clear"
+                  (click)="
+                    clearSearch('searchTerm', 'filteredGroups', 'groups')
+                  "
+                />
+              </div>
+              <button
+                mat-raised-button
+                (click)="toggleAllGroups()"
+                [disabled]="neuroViewEnabled"
+              >
+                Toggle all
+              </button>
+            </div>
+            <div class="wrap" *ngFor="let group of filteredGroups">
+              <mat-slide-toggle
+                class="toggle-group"
+                [checked]="!group.hidden"
+                [disabled]="neuroViewEnabled"
+                (change)="toggleGroup($event, group)"
+                >{{ group.namespace ? group.namespace + ":" : ""
+                }}{{ group.name || group.id }}</mat-slide-toggle
+              >
+            </div>
+            <!--Tree structure-->
+            <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
                           <ng-template #treeNodeTemplate let-node let-index="index">
                             <span>{{node.data.name}}</span>
                             <mat-slide-toggle></mat-slide-toggle>
@@ -227,158 +247,208 @@ const COLORS = {
                             <mat-slide-toggle></mat-slide-toggle>
                           </ng-template>
                         </tree-root> -->
-                        <!--Tree structure-->
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
+            <!--Tree structure-->
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
 
-            <!--Scaffold controls-->
+      <!--Scaffold controls-->
 
-            <mat-accordion *ngIf="scaffolds && scaffolds.length > 0">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Scaffolds
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
+      <mat-accordion *ngIf="scaffolds && scaffolds.length > 0">
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Scaffolds </mat-panel-title>
+          </mat-expansion-panel-header>
 
-                    <div class="default-box">
-                        <div class="default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <input type="text" class="search-input" placeholder="Search for a group"
-                                       name="searchTermScaffolds" [(ngModel)]="searchTermScaffolds"
-                                       (input)="searchScaffold($event.target.value)"/>
-                                <img *ngIf="searchTermScaffolds !== ''" src="./styles/images/close.svg"
-                                     class="input-clear"
-                                     (click)="clearSearch('searchTermScaffold', 'filteredScaffolds', 'scaffolds')"/>
-                            </div>
-                        </div>
-                        <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
-                            <mat-slide-toggle [checked]="!scaffold.hidden"
-                                              (change)="toggleScaffold(scaffold)">{{scaffold._parent ? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
-                        </div>
-                    </div>
+          <div class="default-box">
+            <div class="default-box-header">
+              <div class="search-bar">
+                <img src="./styles/images/search.svg" />
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Search for a group"
+                  name="searchTermScaffolds"
+                  [(ngModel)]="searchTermScaffolds"
+                  (input)="searchScaffold($event.target.value)"
+                />
+                <img
+                  *ngIf="searchTermScaffolds !== ''"
+                  src="./styles/images/close.svg"
+                  class="input-clear"
+                  (click)="
+                    clearSearch(
+                      'searchTermScaffold',
+                      'filteredScaffolds',
+                      'scaffolds'
+                    )
+                  "
+                />
+              </div>
+            </div>
+            <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
+              <mat-slide-toggle
+                [checked]="!scaffold.hidden"
+                (change)="toggleScaffold(scaffold)"
+                >{{ scaffold._parent ? scaffold._parent.id + ":" : ""
+                }}{{ scaffold.name || scaffold.id }}</mat-slide-toggle
+              >
+            </div>
+          </div>
 
-                    <!-- Component visibility -->
-                    <resourceVisibility 
-                            title = "Component visibility"
-                            [renderedResources] = "renderedComponents"                        
-                            [dependentProperties] = "['anchors', 'wires', 'regions']">                
-                    </resourceVisibility>
+          <!-- Component visibility -->
+          <resourceVisibility
+            title="Component visibility"
+            [renderedResources]="renderedComponents"
+            [dependentProperties]="['anchors', 'wires', 'regions']"
+          >
+          </resourceVisibility>
 
-                    <div class="default-box">
-                        <div class="settings-wrap">
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle scaffold resource visibility" (change)="toggleVisibility()"
-                                                  [checked]="scaffoldResourceVisibility">Show all resources
-                                </mat-slide-toggle>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Wire visibility -->
-                    <resourceVisibility
-                            title = "Wire visibility"
-                            [renderedResources] = "renderedWires">                
-                    </resourceVisibility>
-                    
-                    <!-- Regions visibility -->
-                    <resourceVisibility
-                            title = "Region visibility"
-                            [renderedResources] = "renderedRegions"            
-                            [dependentProperties] = "['facets', 'borderAnchors']">                
-                    </resourceVisibility>
-        
-                    <!-- Anchor visibility -->
-                    <resourceVisibility
-                            title = "Anchor visibility"
-                            [renderedResources] = "renderedAnchors">
-                    </resourceVisibility>
-                </mat-expansion-panel>
-            </mat-accordion>
-               
-            <!-- Settings -->
-            <mat-accordion>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Settings
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
+          <div class="default-box">
+            <div class="settings-wrap">
+              <div class="wrap">
+                <mat-slide-toggle
+                  matTooltip="Toggle scaffold resource visibility"
+                  (change)="toggleVisibility()"
+                  [checked]="scaffoldResourceVisibility"
+                  >Show all resources
+                </mat-slide-toggle>
+              </div>
+            </div>
+          </div>
 
-                    <div class="default-box">
-                        <div class="settings-wrap">
-                            
-                            <h5>Layout</h5>
+          <!-- Wire visibility -->
+          <resourceVisibility
+            title="Wire visibility"
+            [renderedResources]="renderedWires"
+          >
+          </resourceVisibility>
 
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle view mode" (change)="toggleMode()"
-                                                  [checked]="config.layout.numDimensions === 2">2D mode
-                                </mat-slide-toggle>
-                            </div>
+          <!-- Regions visibility -->
+          <resourceVisibility
+            title="Region visibility"
+            [renderedResources]="renderedRegions"
+            [dependentProperties]="['facets', 'borderAnchors']"
+          >
+          </resourceVisibility>
 
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle lyphs" (change)="toggleLayout('showLyphs')"
-                                                  [checked]="config.layout.showLyphs">Lyphs
-                                </mat-slide-toggle>
-                            </div>
+          <!-- Anchor visibility -->
+          <resourceVisibility
+            title="Anchor visibility"
+            [renderedResources]="renderedAnchors"
+          >
+          </resourceVisibility>
+        </mat-expansion-panel>
+      </mat-accordion>
 
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle layers" [disabled]="!config.layout.showLyphs"
-                                                  (change)="toggleLayout('showLayers')"
-                                                  [checked]="config.layout.showLayers">Layers
-                                </mat-slide-toggle>
-                            </div>
+      <!-- Settings -->
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Settings </mat-panel-title>
+          </mat-expansion-panel-header>
 
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle 3D lyphs" [disabled]="!config.layout.showLyphs"
-                                                  (change)="toggleLayout('showLyphs3d')"
-                                                  [checked]="config.layout.showLyphs3d">Lyphs 3D
-                                </mat-slide-toggle>
-                            </div>
+          <div class="default-box">
+            <div class="settings-wrap">
+              <h5>Layout</h5>
 
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle coalescences" [disabled]="!config.layout.showLyphs"
-                                                  (change)="toggleLayout('showCoalescences')"
-                                                  [checked]="config.layout.showCoalescences">Coalescences
-                                </mat-slide-toggle>
-                            </div>
-                        </div>
+              <div class="wrap">
+                <mat-slide-toggle
+                  matTooltip="Toggle view mode"
+                  (change)="toggleMode()"
+                  [checked]="config.layout.numDimensions === 2"
+                  >2D mode
+                </mat-slide-toggle>
+              </div>
 
-                        <div class="settings-wrap">
-                            <h5>Labels</h5>
-                            <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                                <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]"
-                                                  (change)="updateShowLabels(labelClass)"><img
-                                        src="./styles/images/toggle-icon.svg"/>{{labelClass}}</mat-slide-toggle>
-                                <mat-radio-group [(ngModel)]="config.labels[labelClass]"
-                                                 *ngIf="config.showLabels[labelClass]">
-                                    <mat-radio-button *ngFor="let labelProp of _labelProps"
-                                                      [value]="labelProp"
-                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
-                                    </mat-radio-button>
-                                </mat-radio-group>
-                            </div>
-                        </div>
+              <div class="wrap">
+                <mat-slide-toggle
+                  matTooltip="Toggle lyphs"
+                  (change)="toggleLayout('showLyphs')"
+                  [checked]="config.layout.showLyphs"
+                  >Lyphs
+                </mat-slide-toggle>
+              </div>
 
-                        <div class="settings-wrap">
-                            <h5>Helpers</h5>
-                            <div class="wrap" *ngFor="let helper of _helperKeys">
-                                <mat-slide-toggle matTooltip="Toggle planes" [checked]="_showHelpers.has(helper)"
-                                                  (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
-                            </div>
-                        </div>
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>              
-        </section>
-    `,
-    styles: [`
-        :host >>> fieldset {
-            border: 0.067rem solid ${COLORS.grey};
-            margin: 0.134rem;
-        }
+              <div class="wrap">
+                <mat-slide-toggle
+                  matTooltip="Toggle layers"
+                  [disabled]="!config.layout.showLyphs"
+                  (change)="toggleLayout('showLayers')"
+                  [checked]="config.layout.showLayers"
+                  >Layers
+                </mat-slide-toggle>
+              </div>
+
+              <div class="wrap">
+                <mat-slide-toggle
+                  matTooltip="Toggle 3D lyphs"
+                  [disabled]="!config.layout.showLyphs"
+                  (change)="toggleLayout('showLyphs3d')"
+                  [checked]="config.layout.showLyphs3d"
+                  >Lyphs 3D
+                </mat-slide-toggle>
+              </div>
+
+              <div class="wrap">
+                <mat-slide-toggle
+                  matTooltip="Toggle coalescences"
+                  [disabled]="!config.layout.showLyphs"
+                  (change)="toggleLayout('showCoalescences')"
+                  [checked]="config.layout.showCoalescences"
+                  >Coalescences
+                </mat-slide-toggle>
+              </div>
+            </div>
+
+            <div class="settings-wrap">
+              <h5>Labels</h5>
+              <div class="wrap" *ngFor="let labelClass of _labelClasses">
+                <mat-slide-toggle
+                  matTooltip="Toggle labels"
+                  [checked]="config.showLabels[labelClass]"
+                  (change)="updateShowLabels(labelClass)"
+                  ><img src="./styles/images/toggle-icon.svg" />{{
+                    labelClass
+                  }}</mat-slide-toggle
+                >
+                <mat-radio-group
+                  [(ngModel)]="config.labels[labelClass]"
+                  *ngIf="config.showLabels[labelClass]"
+                >
+                  <mat-radio-button
+                    *ngFor="let labelProp of _labelProps"
+                    [value]="labelProp"
+                    (change)="updateLabelContent(labelClass, labelProp)"
+                  >
+                    {{ labelProp }}
+                  </mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </div>
+
+            <div class="settings-wrap">
+              <h5>Helpers</h5>
+              <div class="wrap" *ngFor="let helper of _helperKeys">
+                <mat-slide-toggle
+                  matTooltip="Toggle planes"
+                  [checked]="_showHelpers.has(helper)"
+                  (change)="toggleHelperPlane(helper)"
+                  >{{ helper }}</mat-slide-toggle
+                >
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </section>
+  `,
+  styles: [
+    `
+      :host >>> fieldset {
+        border: 0.067rem solid ${COLORS.grey};
+        margin: 0.134rem;
+      }
 
       :host >>> legend {
         padding: 0.2em 0.5em;
@@ -388,13 +458,17 @@ const COLORS = {
         text-align: right;
       }
 
-        .default-box .default-box-header .search-bar {
-          flex-grow: 1;
-        }
+      .pb-0 {
+        padding-bottom: 0 !important;
+      }
+
+      .default-box .default-box-header .search-bar {
+        flex-grow: 1;
+      }
         
-        .mat-form-field {
-          width: 100%;
-        }
+      .mat-form-field {
+        width: 100%;
+      }
 
       .default-box .default-box-header {
         padding: 1.067rem;
@@ -485,116 +559,129 @@ const COLORS = {
         color: ${COLORS.inputPlacholderColor};
       }
 
-        .default-box .default-boxContent {
-          padding: 1.067rem;
-          font-size: 0.75rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-        }
-        .default-box .default-box-header ~ .default-boxContent {
-          padding-top: 0;
-        }
-        :host >>> .default-box .default-boxFooter {
-          text-align: right;
-        }
-        :host >>> .default-box .default-boxContent section section {
-          display: flex;
-        }
-        :host >>> .default-box .default-boxContent .w3-label {
-          width: 6.25rem;
-          flex: none;
-        }
-        :host >>> .default-box .default-boxContent button {
-          border: ${COLORS.inputBorderColor} 1px solid;
-          background: transparent;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-          padding: 0.313rem 0.625rem;
-          margin: 0.625rem 0 0;
-          cursor: pointer;
-        }
-        :host >>> .default-box .default-boxContent button img {
-          position: relative;
-          top: -2px;
-        }
-        :host >>> .default-box .default-boxError {
-          min-height: 6.25rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-        :host >>> .default-box .default-boxContent ~ .default-boxError {
-          padding-bottom: 2rem;
-        }
-        :host >>> .default-box .default-boxResult {
-          border-top:${COLORS.inputBorderColor} 1px solid;
-          margin: 1rem 0 0;
-          padding-top: 0.625rem;
-        }
-        :host >>> .default-box .default-boxResult {
-          display: flex;
-        }
-        :host >>> .default-box .default-boxResult label {
-          width: 6.25rem;
-          flex: none;
-        }
-        :host >>> .default-box .default-boxResult ~ .default-boxError {
+      /* .search-bar .mat-form-field-subscript-wrapper {
           display: none;
-        }
-        :host >>> .default-box .default-boxContent button:hover {
-          background: transparent !important;
-          color:  ${COLORS.inputTextColor} !important;
-        }
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-underline {
-          display: none;
-        }
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-        :host >>> .default-searchBar .mat-form-field-should-float .mat-form-field-label {
-          display: none !important;
-        }
-        :host >>> .default-searchBar .search-bar img {
-          z-index: 10;
-        }
-        :host >>> .default-searchBar .mat-form-field-label {
-          padding-left: 1.625rem;
-          top: 1.5em;
-          color: ${COLORS.inputPlacholderColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-        :host >>> .default-searchBar .mat-form-field-infix {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0.5rem 2rem 0 2rem;
-        }
-        :host >>> .default-searchBar .mat-focused .mat-form-field-infix {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
-        .default-box h4 {
-          background: ${COLORS.headingBg};
-          padding: 0.8rem 1.067rem;
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 0.934rem;
-          color: ${COLORS.black};
-          margin: 0;
-        }
+        } */
+
+      .default-box .default-boxContent {
+        padding: 1.067rem;
+        font-size: 0.75rem;
+        color: ${COLORS.inputTextColor};
+        font-weight: 500;
+      }
+      .default-box .default-box-header ~ .default-boxContent {
+        padding-top: 0;
+      }
+      :host >>> .default-box .default-boxFooter {
+        text-align: right;
+      }
+      :host >>> .default-box .default-boxContent section section {
+        display: flex;
+      }
+      :host >>> .default-box .default-boxContent .w3-label {
+        width: 6.25rem;
+        flex: none;
+      }
+      :host >>> .default-box .default-boxContent button {
+        border: ${COLORS.inputBorderColor} 1px solid;
+        background: transparent;
+        color: ${COLORS.inputTextColor};
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.313rem 0.625rem;
+        margin: 0.625rem 0 0;
+        cursor: pointer;
+      }
+      :host >>> .default-box .default-boxContent button img {
+        position: relative;
+        top: -2px;
+      }
+      :host >>> .default-box .default-boxError {
+        min-height: 6.25rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: ${COLORS.inputTextColor};
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      :host >>> .default-box .default-boxContent ~ .default-boxError {
+        padding-bottom: 2rem;
+      }
+      :host >>> .default-box .default-boxResult {
+        border-top: ${COLORS.inputBorderColor} 1px solid;
+        margin: 1rem 0 0;
+        padding-top: 0.625rem;
+      }
+      :host >>> .default-box .default-boxResult {
+        display: flex;
+      }
+      :host >>> .default-box .default-boxResult label {
+        width: 6.25rem;
+        flex: none;
+      }
+      :host >>> .default-box .default-boxResult ~ .default-boxError {
+        display: none;
+      }
+      :host >>> .default-box .default-boxContent button:hover {
+        background: transparent !important;
+        color: ${COLORS.inputTextColor} !important;
+      }
+      :host
+        >>> .default-searchBar
+        .mat-form-field-appearance-legacy
+        .mat-form-field-underline {
+        display: none;
+      }
+      :host
+        >>> .default-searchBar
+        .mat-form-field-appearance-legacy
+        .mat-form-field-wrapper {
+        padding-bottom: 0;
+      }
+      :host
+        >>> .default-searchBar
+        .mat-form-field-should-float
+        .mat-form-field-label {
+        display: none !important;
+      }
+      :host >>> .default-searchBar .search-bar img {
+        z-index: 10;
+      }
+      :host >>> .default-searchBar .mat-form-field-label {
+        padding-left: 1.625rem;
+        top: 1.5em;
+        color: ${COLORS.inputPlacholderColor};
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      :host >>> .default-searchBar .mat-form-field-infix {
+        background: ${COLORS.white};
+        border: 0.067rem solid ${COLORS.inputBorderColor};
+        box-sizing: border-box;
+        border-radius: 0.134rem;
+        margin: 0;
+        height: 2.134rem;
+        color: ${COLORS.inputTextColor};
+        font-weight: 500;
+        font-size: 0.8rem;
+        line-height: 1.067rem;
+        padding: 0.5rem 2rem 0 2rem;
+      }
+      :host >>> .default-searchBar .mat-focused .mat-form-field-infix {
+        outline: none;
+        border-color: ${COLORS.toggleActiveBg};
+        box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
+      }
+      .default-box h4 {
+        background: ${COLORS.headingBg};
+        padding: 0.8rem 1.067rem;
+        font-weight: 500;
+        font-size: 0.8rem;
+        line-height: 0.934rem;
+        color: ${COLORS.black};
+        margin: 0;
+      }
 
       :host ::ng-deep .default-box .wrap {
         padding: 0 1.067rem;
@@ -1059,52 +1146,58 @@ const COLORS = {
         display: none;
       }
 
-        .dynamic-tree ul,
-        .dynamic-tree li {
-          list-style-type: none;
-        }        
-        
-    `]
+      .dynamic-tree ul,
+      .dynamic-tree li {
+        list-style-type: none;
+      }
+    `,
+  ],
 })
 export class SettingsPanel {
-    _config;
-    _scaffolds;
-    _helperKeys;
-    _showHelpers;
-    _labelProps;
-    _labelClasses;
-    _selectedName;
-    _modelId;
-    searchTerm = '';
-    filteredGroups;
-    filteredDynamicGroups;
-    searchTermScaffolds = '';
-    filteredScaffolds;
-    nodes;
-    // previousId = '';
+  _config;
+  _scaffolds;
+  _helperKeys;
+  _showHelpers;
+  _labelProps;
+  _labelClasses;
+  _selectedName;
+  _modelId;
+  searchTerm = "";
+  filteredGroups;
+  filteredDynamicGroups;
+  searchTermScaffolds = "";
+  filteredScaffolds;
+  nodes;
+  previousId = "";
+  activeNeurulatedGroups = [];
 
-    scaffoldResourceVisibility: Boolean = false;
-    renderedComponents;
-    renderedWires;
-    renderedRegions;
-    renderedAnchors;
+  scaffoldResourceVisibility: Boolean = false;
+  renderedComponents;
+  renderedWires;
+  renderedRegions;
+  renderedAnchors;
 
-    @Input() groups;
+  @Input() graphData;
 
-    @Input() dynamicGroups;
+  @Input() groups;
 
-    @Input('scaffolds') set scaffolds(newScaffolds) {
-        this._scaffolds = newScaffolds;
-        this.updateRenderedResources();
-    }
+  @Input() dynamicGroups;
 
-    @Input('config') set config(newConfig) {
-        if (this._config !== newConfig) {
-            this._config = newConfig;
-            this._labelClasses = this._config[$Field.labels]::keys();
-            let ids = this._config.visibleGroups || [];
-            this._showGroups = new Set((this.groups || []).filter(g => ids.includes(g.id)));
-        }
+  @Input() viewPortSize; 
+
+  @Input("scaffolds") set scaffolds(newScaffolds){
+    this._scaffolds = newScaffolds;
+    this.updateRenderedResources();
+  }
+
+  @Input("config") set config(newConfig){
+    if (this._config !== newConfig) {
+      this._config = newConfig;
+      this._labelClasses = this._config[$Field.labels]::keys();
+      let ids = this._config.visibleGroups || [];
+      this._showGroups = new Set(
+        (this.groups||[]).filter((g) => ids.includes(g.id))
+      );
     }
   }
 
@@ -1114,8 +1207,6 @@ export class SettingsPanel {
             this._showHelpers = new Set([]);
         }
     }
-  }
-
     @Input('modelId') set modelId(modelId) {
         // if (this._modelId !== modelId) {
         //     this._modelId = modelId;
@@ -1155,165 +1246,121 @@ export class SettingsPanel {
         this.searchTermScaffolds = '';
     }
 
-  @Input("selected") set selected(entity) {
-    if (this.selected !== entity) {
-      this._selected = entity;
-      this._selectedName = entity ? entity.name || "" : "";
-    }
-  }
-  @Input() searchOptions;
-  @Input() highlighted;
-
-  @Output() onSelectBySearch = new EventEmitter();
-  @Output() onOpenExternal = new EventEmitter();
-  @Output() onEditResource = new EventEmitter();
-  @Output() onUpdateShowLabels = new EventEmitter();
-  @Output() onUpdateLabelContent = new EventEmitter();
-  @Output() onToggleGroup = new EventEmitter();
-  @Output() onToggleMode = new EventEmitter();
-  @Output() onToggleLayout = new EventEmitter();
-  @Output() onToggleHelperPlane = new EventEmitter();
-  @Output() onLoadModel = new EventEmitter();
-  @Output() onImportExcelModel = new EventEmitter();
-
-  constructor() {
-    this._labelProps = [$Field.id, $Field.name];
-    this._showHelpers = new Set([]);
-    this.searchTerm = "";
-    this.searchTermScaffolds = "";
+  get config(){
+    return this._config;
   }
 
-    get selected() {
-        return this._selected;
-    }
+  get selected(){
+    return this._selected;
+  }
 
-    get scaffolds() {
-        return this._scaffolds;
-    }
-
-  get scaffolds() {
+  get scaffolds(){
     return this._scaffolds;
   }
 
-    toggleMode() {
-        this.config.layout.numDimensions = (this.config.layout.numDimensions === 3) ? 2 : 3;
-        this.onToggleMode.emit(this.config.layout.numDimensions);
+  selectBySearch(name) {
+    if (name !== this._selectedName) {
+      this._selectedName = name;
+      this.onSelectBySearch.emit(name);
     }
   }
 
-    toggleLayout(prop) {
-        this.config.layout[prop] = !this.config.layout[prop];
-        this.onToggleLayout.emit(prop);
-    }
+  toggleMode() {
+    this.config.layout.numDimensions = (this.config.layout.numDimensions === 3) ? 2 : 3;
+    this.onToggleMode.emit(this.config.layout.numDimensions);
+  }
 
-    toggleScaffold(scaffold) {
-        this.onToggleGroup.emit(scaffold);
-        if (scaffold.class === $SchemaClass.Scaffold) {
-            this.updateRenderedResources();
-        }
-    }
+  toggleLayout(prop) {
+    this.config.layout[prop] = !this.config.layout[prop];
+    this.onToggleLayout.emit(prop);
+  }
 
-    toggleVisibility() {
-        this.scaffoldResourceVisibility = !this.scaffoldResourceVisibility;
-        this.updateRenderedResources();
+  toggleScaffold(scaffold) {
+    this.onToggleGroup.emit(scaffold);
+    if (scaffold.class === $SchemaClass.Scaffold) {
+      this.updateRenderedResources();
     }
   }
 
-    updateRenderedResources() {
-        let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
-        scaffoldResourceNames.forEach(prop => this[prop] = []);
-        (this.scaffolds || []).forEach(s => {
-            //Only include wires from the scaffold, no components
-            if (s.class === $SchemaClass.Scaffold && !s.hidden) {
-                (s.components || []).forEach(r => {
-                    r._parent = s;
-                    r._visible = true;
-                    this.renderedComponents.push(r);
+  toggleVisibility(){
+    this.scaffoldResourceVisibility = !this.scaffoldResourceVisibility;
+    this.updateRenderedResources();
+  }
+
+  updateRenderedResources() {
+    let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
+    scaffoldResourceNames.forEach(prop => this[prop] = []);
+    (this.scaffolds || []).forEach(s => {
+        //Only include wires from the scaffold, no components
+        if (s.class === $SchemaClass.Scaffold && !s.hidden) {
+            (s.components || []).forEach(r => {
+                r._parent = s;
+                r._visible = true;
+                this.renderedComponents.push(r);
+            });
+            if (this.scaffoldResourceVisibility) {
+                (s.anchors || []).forEach(r => {
+                    if (!r.generated) {
+                        r._parent = s;
+                        this.renderedAnchors.push(r);
+                    }
                 });
-                if (this.scaffoldResourceVisibility) {
-                    (s.anchors || []).forEach(r => {
-                        if (!r.generated) {
-                            r._parent = s;
-                            this.renderedAnchors.push(r);
-                        }
-                    });
-                    (s.wires || []).forEach(r => {
-                        if (!r.generated) {
-                            r._parent = s;
-                            this.renderedWires.push(r);
-                        }
-                    });
-                    (s.regions || []).forEach(r => {
-                        if (!r.generated) {
-                            r._parent = s;
-                            this.renderedRegions.push(r);
-                        }
-                    });
-                }
+                (s.wires || []).forEach(r => {
+                    if (!r.generated) {
+                        r._parent = s;
+                        this.renderedWires.push(r);
+                    }
+                });
+                (s.regions || []).forEach(r => {
+                    if (!r.generated) {
+                        r._parent = s;
+                        this.renderedRegions.push(r);
+                    }
+                });
             }
-        });
-        scaffoldResourceNames.forEach(prop => {
-            if (this[prop].length === 0) {
-                this[prop] = undefined;
-            }
-          });
-          (s.wires || []).forEach((r) => {
-            if (!r.generated) {
-              r._parent = s;
-              this.renderedWires.push(r);
-            }
-          });
-          (s.regions || []).forEach((r) => {
-            if (!r.generated) {
-              r._parent = s;
-              this.renderedRegions.push(r);
-            }
-          });
         }
-      }
     });
-    scaffoldResourceNames.forEach((prop) => {
-      if (this[prop].length === 0) {
-        this[prop] = undefined;
-      }
+    scaffoldResourceNames.forEach(prop => {
+        if (this[prop].length === 0) {
+            this[prop] = undefined;
+        }
     });
   }
 
-    updateShowLabels(labelClass) {
-        this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
-        this.onUpdateShowLabels.emit(this.config.showLabels || {});
-    }
-
-    updateLabelContent(labelClass, labelProp) {
-        this.config.labels[labelClass] = labelProp;
-        this.onUpdateLabelContent.emit(this.config.labels || {})
-    }
-
-    toggleHelperPlane(helper) {
-        if (!helper) {
-            return;
-        }
-        if (this._showHelpers.has(helper)) {
-            this._showHelpers.delete(helper);
-        } else {
-            this._showHelpers.add(helper);
-        }
-        this.onToggleHelperPlane.emit(helper);
-    }
-    this.onToggleHelperPlane.emit(helper);
+  updateShowLabels(labelClass) {
+    this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
+    this.onUpdateShowLabels.emit(this.config.showLabels || {});
   }
 
-    toggleAllGroups = () => {
-        let allVisible = this.groups.filter(group => group.hidden || group.undefined);
+  updateLabelContent(labelClass, labelProp) {f
+    this.config.labels[labelClass] = labelProp;
+    this.onUpdateLabelContent.emit(this.config.labels || {});
+  }
 
-        for (let group of this.groups) {
-            if (group.hidden || allVisible.length == 0) {
-                this.onToggleGroup.emit(group);
-            }
-        }
+  updateShowLabels(labelClass) {
+    this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
+    this.onUpdateShowLabels.emit(this.config.showLabels || {});
+  }
+  toggleHelperPlane(helper) {
+    if (!helper) {
+      return;
+    }
+    if (this._showHelpers.has(helper)) {
+      this._showHelpers.delete(helper);
+    } else {
+      this._showHelpers.add(helper);
+    }
+  }
 
-        // If all groups are toggled, toggle dynamic groups too.
-        this.toggleAllDynamicGroup();
+  toggleAllGroups = () => {
+    let allVisible = this.groups.filter(
+      (group) => group.hidden || group.undefined
+    );
+
+    for (let group of this.groups) {
+      if (group.hidden || allVisible.length == 0) {
+        this.onToggleGroup.emit(group);
+      }
     }
 
     // If all groups are toggled, toggle dynamic groups too.
@@ -1432,69 +1479,104 @@ export class SettingsPanel {
         this.onToggleGroup.emit(group);
       }
     }
+  };
 
-    toggleAllDynamicGroup = () => {
-        let allVisible = this.dynamicGroups.filter(group => group.hidden || group.undefined);
+  filterGroups = (groups) => {
+    return groups;
+  };
 
-        for (let group of this.dynamicGroups) {
-            if (group.hidden || allVisible.length == 0) {
-                this.onToggleGroup.emit(group);
-            }
-        }
+  /**
+   * Neuroview mode on or off, allows selecting only one dynamic group at a time.
+   * @param {*} visible - Checkbox event
+  */
+  handleNeuroView = (visible) => {
+    // Hide any visible groups
+    
+    if ( visible ) {
+      this.hideVisibleGroups(visible);
+    } else {
+      let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
+      visibleGroups?.forEach(group => { 
+        group.lyphs.forEach( lyph => {
+          lyph.hidden = false;
+          lyph.inactive = false;
+        });
+      });
     }
+
+    // Turn off all scaffolds components if neuroview is enabled, turn on if disabled.
+    this.scaffolds.forEach((scaffold) => {
+      scaffold.anchors?.filter( a => typeof a === 'object' ).forEach( a => a.inactive = visible);
+      scaffold.regions?.filter( r => typeof r === 'object' ).forEach( r => r.inactive = visible);
+      scaffold.wires?.forEach( w => { 
+        toggleWire(w, !visible);
+      });
+      
+      // Call event to toggle scaffolds
+      if (scaffold.hidden === !visible || (visible && scaffold.hidden === undefined)) {
+        this.onToggleGroup.emit(scaffold);
+      }
+    });
+
+    // clear array keeping track of manipulated groups
+    this.activeNeurulatedGroups = [];
+    // Update rendered scafoold components
+    this.config.layout.neuroviewEnabled = visible;
+    // Toggle layers on or off
+    this.config.layout.showLayers && this.toggleLayout("showLayers");
+
+
+    this.updateRenderedResources();
   };
 
   search(value, filterOptions, allOptions) {
-    this[filterOptions] = this[allOptions]?.filter(
-      (val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase())
-    );
+      this[filterOptions] = this[allOptions]?.filter(
+        (val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase())
+      );
   }
 
-    search(value, filterOptions, allOptions) {
-        this[filterOptions] = this[allOptions]?.filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
-    }
-
-    searchScaffold(value) {
-        this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
-            const lowerCaseValue = value?.toLowerCase();
-            const displayTerm = ((scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name).toLowerCase();
-            return displayTerm.includes(lowerCaseValue) || scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) || scaffold?.name?.toLowerCase()?.includes(lowerCaseValue);
-        });
-    }
-
-    ngOnInit() {
-        // this.previousId = this._modelId;
-        this.filteredGroups = this.groups;
-        this.filteredDynamicGroups = this.dynamicGroups;
-        this.filteredScaffolds = this.scaffolds;
-    }
-
-    ngOnChanges() {
-        // if (this._modelId !== this.previousId) {
-        //   this.previousId = this._modelId;
-        this.search(this.searchTerm, 'filteredGroups', 'groups');
-        this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
-        this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
-        // }
-        this.filteredGroups = this.filteredGroups || this.groups;
-        this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
-        this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
-    }
-    this.filteredGroups = this.filteredGroups || this.groups;
-    this.filteredDynamicGroups =
-      this.filteredDynamicGroups || this.dynamicGroups;
-    this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+  searchScaffold(value) {
+      this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
+        const lowerCaseValue = value?.toLowerCase();
+        const displayTerm = (
+          (scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name
+        ).toLowerCase();
+        return (
+          displayTerm.includes(lowerCaseValue) ||
+          scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) ||
+          scaffold?.name?.toLowerCase()?.includes(lowerCaseValue)
+        );
+      });
   }
 
-    clearSearch(term, filterOptions, allOptions) {
-        this[term] = '';
-        this[filterOptions] = this[allOptions];
-    }
+  ngOnInit() {
+      this.previousId = this._modelId;
+      this.filteredGroups = this.groups;
+      this.filteredDynamicGroups = this.dynamicGroups;
+      this.filteredScaffolds = this.scaffolds;
+  }
 
-    clearTreeSearch(filter, tree) {
-        tree?.treeModel?.filterNodes('');
-        filter.value = '';
-    }
+  ngOnChanges() {
+      if (this._modelId !== this.previousId) {
+        this.previousId = this._modelId;
+        this.search(this.searchTerm, "filteredGroups", "groups");
+        this.search(this.searchTerm, "filteredDynamicGroups", "dynamicGroups");
+        this.search(this.searchTerm, "filteredScaffolds", "scaffolds");
+      }
+      this.filteredGroups = this.filteredGroups || this.groups;
+      this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
+      this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+  }
+
+  clearSearch(term, filterOptions, allOptions) {
+      this[term] = "";
+      this[filterOptions] = this[allOptions];
+  }
+
+  clearTreeSearch(filter, tree) {
+      tree?.treeModel?.filterNodes("");
+      filter.value = "";
+  }
 }
 
 @NgModule({
