@@ -15,6 +15,7 @@ import { DIMENSIONS } from "./render/autoLayout";
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
+import { link } from "d3-shape";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
 
@@ -164,7 +165,6 @@ Link.prototype.regenerateFromSegments = function(segments) {
 Link.prototype.updateViewObjects = function(state) {
 
   if ( this.viewObjects['linkSegments'] ) {
-    
     const points = []
     const z = Math.floor(Math.random() * 6) + 1 ;
 
@@ -180,12 +180,12 @@ Link.prototype.updateViewObjects = function(state) {
     const line = new THREE.Line( geometry, material );
 
     line.userData = this;
+    line.position.z = DIMENSIONS.LINK_MIN_Z;
+    this.viewObjects["main"] = line ;
     line.geometry.verticesNeedUpdate = true;
     line.computeLineDistances();
     line.geometry.computeBoundingBox();
     line.geometry.computeBoundingSphere();
-    line.position.z = DIMENSIONS.LINK_MIN_Z;
-    this.viewObjects["main"] = line ;
     this.createLabels();
   }else{
 
@@ -198,7 +198,7 @@ Link.prototype.updateViewObjects = function(state) {
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
-    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+    if (this.geometry === Link.LINK_GEOMETRY.ARC){       
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y,0));
     }
 
@@ -267,9 +267,33 @@ Link.prototype.updateViewObjects = function(state) {
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
-                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    if ( this.neurulated && (start.y !== end.y)  && (start.x !== end.x) ) {
+                        // Elevation of the curve for the link
+                        let elevation = 0, height = 1.5;
+                        if ( this.source?.hostedBy ) {
+                            end.y < start.y ? elevation = -1 * height : elevation = height;
+                        } else {
+                            end.y > start.y ? elevation = -1 * height : elevation = height;
+                        }
+
+                        let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(start.y) - Math.abs(end.y)));
+                        let points = [start, getDefaultControlPoint(start, end, curvature), end];
+                        const curve3 = new THREE.SplineCurve( points);
+                        this.points = curve3.getPoints(41);
+
+                        if (this.conveyingLyph?.viewObjects["main"]){
+                            let centerPoint = this.points[Math.floor(this.points.length/2)];
+                            this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
+                            this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
+                            this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
+                            copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
+                        }
+                    } else {
+                        this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    }
+                    obj.geometry.setFromPoints(this.points);
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.z = DIMENSIONS.LINK_MIN_Z;
+                    obj.position.z = DIMENSIONS.LINK_MIN_Z * 2;
                     obj.geometry.verticesNeedUpdate = true;
                     obj.geometry.computeBoundingBox();
                     obj.geometry.computeBoundingSphere();
@@ -278,7 +302,6 @@ Link.prototype.updateViewObjects = function(state) {
         }
         copyCoords(this, obj.position);
         this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge));
-
     }
   }
 };

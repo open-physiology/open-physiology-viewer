@@ -405,7 +405,6 @@ export class WebGLSceneComponent {
         this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
         this.camera.aspect = width / height;
         this.resetCamera();
-
         this.ray = new THREE.Raycaster();
         this.scene = new THREE.Scene();
 
@@ -776,7 +775,8 @@ export class WebGLSceneComponent {
     }
 
     toggleLayout(prop){
-        if (this.graph){ this.graph[prop](this._config.layout[prop]); }
+        if (this.graph && prop){ this.graph[prop](this._config.layout[prop]); }
+        else if ( this.graph ) { this.graph.graphData(this.graphData); }
     }
 
     toggleGroup(group) {

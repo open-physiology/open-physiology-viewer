@@ -325,7 +325,7 @@ Lyph.prototype.updateViewObjects = function(state) {
     } else {
         obj.visible = this.state.showLayers;
     }
-
+    obj.geometry.computeBoundingSphere();
     //update layers
     (this.layers || []).forEach(layer => layer.updateViewObjects(state));
 

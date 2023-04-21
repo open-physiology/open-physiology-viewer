@@ -441,7 +441,7 @@ export class Group extends Resource {
      */
     show(){
         this.hidden = false;
-        this.resources.forEach(entity => delete entity.hidden);
+        this.resources.forEach(entity => entity.hidden = false);
     }
 
     /**
