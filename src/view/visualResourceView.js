@@ -6,6 +6,7 @@ import {
 } from "./utils";
 
 import './lines/Line2.js';
+import { getBoundingBoxSize } from "./render/autoLayout/objects";
 
 const {VisualResource} = modelClasses;
 
@@ -19,12 +20,13 @@ VisualResource.prototype.createLabels = function(){
 
     if (!this.labels[labelKey] && this[labelKey]) {
         this.labels[labelKey] = new SpriteText2D(this[labelKey], this.state.fontParams);
-        this.labels[labelKey].material.alphaTest = 0.1
+        this.labels[labelKey].material.alphaTest = .2;
+        this.labels[labelKey].scale.set(.05, .05, .05)
     }
 
     if (this.labels[labelKey]){
         this.viewObjects["label"] = this.labels[labelKey];
-        this.viewObjects["label"].visible = !this.hidden;
+        this.viewObjects["label"].visible = (this.viewObjects["main"]?.visible ) && this.state.showLabels[this.constructor.name];
     } else {
         delete this.viewObjects["label"];
     }
@@ -38,9 +40,12 @@ VisualResource.prototype.updateLabels = function(position){
     if (this.skipLabel || !this.state.showLabels) { return; }
     const labelKey = this.state.labels[this.constructor.name];
     if (this.labels[labelKey]){
-        this.labels[labelKey].visible = this.state.showLabels[this.constructor.name];
+        this.labels[labelKey].visible = (this.viewObjects["main"]?.visible ) && this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
+            const lyphDim = getBoundingBoxSize(this.viewObjects["main"]);
+            const refHeight  = lyphDim.y * this.viewObjects["main"].scale.y;
+            position ? position.y = position.y - refHeight/2: null;
             copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];
         }
@@ -59,7 +64,7 @@ VisualResource.prototype.createViewObjects = function(state) {
 /**
  * Update visual object for abstract visual resource
  */
-VisualResource.prototype.updateViewObjects = function(state) {
+VisualResource.prototype.updateViewObjects = function(state) {   
     const labelKey = state.labels[this.constructor.name];
     if (!this.viewObjects["main"] || (!this.skipLabel && !this.labels[labelKey] && this[labelKey])) {
         this.createViewObjects(state);

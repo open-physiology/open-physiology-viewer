@@ -14,6 +14,7 @@ import {
     isInRange,
     THREE
 } from "./utils";
+import { DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -124,7 +125,7 @@ Object.defineProperty(Lyph.prototype, "center", {
  */
 Object.defineProperty(Lyph.prototype, "points", {
     get: function() {
-        return (this._points||[]).map(p => this.translate(p))
+        return (this._points||[]).map(p => this.translate(p));
     }
 });
 
@@ -139,6 +140,33 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
         if (children && children.length > 0){
             children[0].material.visible = isVisible;
         }
+    }
+};
+
+/**
+ * Scale lyph to fit inside a region, wire or another lyph.
+ * Position lyph inside a region, wire or another lyph.
+ */
+Lyph.prototype.autoSize = function(){
+    // Continue if there's a THREE object
+    if (this.viewObjects["main"]) {
+        // Get the host, usually a region or another lyph
+        let hostMesh = this.hostedBy?.viewObjects["main"] || this.housingLyph?.viewObjects["main"] || this.internalIn?.viewObjects["main"];
+        if ( hostMesh ) {
+            // Place and scale lyph inside host region or lyph
+            placeLyphInHost(this);
+        } else {
+            let wiredTo = this.wiredTo?.viewObjects["main"];
+            // If lyph is attach to the wire
+            if ( wiredTo ) {
+                // Place and scale lyph along wire
+                placeLyphInWire(this);
+            }
+        }
+
+        // save position into object
+        copyCoords(this, this.viewObjects["main"]?.position);  
+        this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
     }
 };
 
@@ -160,13 +188,11 @@ Lyph.prototype.translate = function(p0) {
  * Create visual objects for a lyph
  * @param state
  */
-Lyph.prototype.createViewObjects = function(state) {
-    //Cannot draw a lyph without axis
-    if (!this.axis) { return; }
-
+Lyph.prototype.createViewObjects = function(state) {       
     if (this.isTemplate){
         return;
     }
+
     Shape.prototype.createViewObjects.call(this, state);
 
     for (let i = 1; i < (this.layers || []).length; i++) {
@@ -195,6 +221,7 @@ Lyph.prototype.createViewObjects = function(state) {
             : lyphShape([this.width, this.height, radius, ...this.radialTypes]),
             params);
         obj.userData = this;
+        obj.visible = !this.hidden;
         this.viewObjects['main'] = this.viewObjects['2d'] = obj;
 
         if (this.create3d){
@@ -247,11 +274,10 @@ Lyph.prototype.createViewObjects = function(state) {
             let layerObj3d = layer.viewObjects["3d"];
             if (layerObj3d) {
                 this.viewObjects["3d"].add(layerObj3d);
-            }
+            }       
         });
     }
     //Do not create labels for layers and nested lyphs
-    if (this.layerIn || this.internalIn) { return; }
     this.createLabels();
 };
 
@@ -275,6 +301,7 @@ Lyph.prototype.updateViewObjects = function(state) {
         return;
     }
 
+    obj.visible = !this.hidden;
     if (!this.layerIn) {//update label
         if (!this.internalIn) {
             const labelKey = state.labels[this.constructor.name];
@@ -283,10 +310,10 @@ Lyph.prototype.updateViewObjects = function(state) {
             }
         }
         //update lyph
-        obj.visible = this.isVisible && state.showLyphs;
+        obj.visible = !this.hidden;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
-        copyCoords(obj.position, this.center);
+        !this.hidden && copyCoords(obj.position, this.center);
 
         //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
         //preventing this
@@ -298,16 +325,16 @@ Lyph.prototype.updateViewObjects = function(state) {
     } else {
         obj.visible = this.state.showLayers;
     }
-
+    obj.geometry.computeBoundingSphere();
     //update layers
     (this.layers || []).forEach(layer => layer.updateViewObjects(state));
 
-    this.border.updateViewObjects(state);
+    if ( !this.layerIn ) this.border.updateViewObjects(state);
+
+    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
-
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Lyph));
 };
 
 /**
@@ -384,6 +411,7 @@ Region.prototype.createViewObjects = function(state) {
             !this.facets // draw border if region is not defined by facets (e.g., to distinguish regions in connectivity models)
         );
         obj.userData = this;
+        obj.position.z = DIMENSIONS.REGION_MIN_Z;
         this.viewObjects['main'] = obj;
         this.border.createViewObjects(state);
     }
@@ -395,8 +423,8 @@ Region.prototype.createViewObjects = function(state) {
  */
 Region.prototype.updateViewObjects = function(state) {
     Shape.prototype.updateViewObjects.call(this, state);
-
     let obj = this.viewObjects["main"];
+    obj.position.z = DIMENSIONS.REGION_MIN_Z;
     if (obj) {
         let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
         if (linkPos) {
@@ -405,9 +433,9 @@ Region.prototype.updateViewObjects = function(state) {
             linkPos.needsUpdate = true;
             obj.geometry.computeBoundingSphere();
         }
+        obj.visible = !this.inactive;
     }
 
-    this.border.updateViewObjects(state);
     this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 };
 

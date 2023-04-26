@@ -1,0 +1,70 @@
+version: "1.0"
+stages:
+  - "clone"
+  - "build"
+  - "test"
+  - "deploy"
+steps:
+  clone:
+    stage: "clone"
+    title: "Cloning Apinatomy"
+    type: "git-clone"
+    repo: "metacell/open-physiology-viewer"
+    revision: "${{CF_BRANCH}}"
+  builds:
+    type: parallel
+    steps:
+      build:
+        stage: "build"
+        title: "Building Apinatomy"
+        type: "build"
+        image_name: "apinatomy"
+        tag: "${{CF_BUILD_ID}}"
+        dockerfile: Dockerfile
+        working_directory: ./open-physiology-viewer
+        buildkit: true    
+        registry: "${{CODEFRESH_REGISTRY}}"
+      test_build:
+        stage: test
+        type: build
+        title: Building Apinatomy test image
+        image_name: apinatomy-test
+        working_directory: ./open-physiology-viewer
+        dockerfile: Dockerfile.testing
+        buildkit: true
+  test:
+    type: composition
+    title: Running Tests
+    description: Temporary test environment
+    stage: test
+    working_directory: ./open-physiology-viewer
+    composition:
+      version: '2'
+      services:
+        app:
+          image: '${{build}}'
+          working_dir: /home/pptruser
+          ports:
+            - 80
+    composition_candidates:
+      test:
+        image: '${{test_build}}'
+        links:
+         - app
+        working_dir: /home/pptruser
+        environment:
+        - TEST_URL=http://app:80
+        command: bash -c 'npm run snapshot_test && npm run keast_snapshot_test'
+  deploy:
+    stage: "deploy"
+    title: "Deploying Apinatomy"
+    image: codefresh/kubectl
+    working_directory: ./open-physiology-viewer/deploy/k8s
+    commands:
+      - export CLUSTER_NAME="${{CLUSTER_NAME}}"
+      - export NAMESPACE="${{NAMESPACE}}"
+      - export CF_BUILD_ID
+      - export REGISTRY="${{REGISTRY}}/"
+      - export DOMAIN="${{DOMAIN}}"
+      - chmod +x ./deploy.sh
+      - ./deploy.sh

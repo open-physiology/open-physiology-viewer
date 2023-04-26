@@ -1,5 +1,5 @@
 import {$Field, modelClasses} from "../model";
-
+import { random_rgba } from "./utils";
 import {
     extractCoords,
     THREE,
@@ -8,11 +8,14 @@ import {
     semicircleCurve,
     rectangleCurve,
     getPoint,
-    arcCurve, getDefaultControlPoint
+    arcCurve,
+    getDefaultControlPoint
 } from "./utils";
+import { DIMENSIONS } from "./render/autoLayout";
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
+import { link } from "d3-shape";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
 
@@ -33,7 +36,7 @@ Edge.prototype.updateViewObjects = function(state) {
 Edge.prototype.getViewObject = function (state){
     let material;
     if (this.stroke === Edge.EDGE_STROKE.DASHED) {
-        material = MaterialFactory.createLineDashedMaterial({color: this.color});
+        material = MaterialFactory.createLineDashedMaterial({color: "#000000"});
     } else {
         //Thick lines
         if (this.stroke === Edge.EDGE_STROKE.THICK) {
@@ -46,7 +49,7 @@ Edge.prototype.getViewObject = function (state){
         } else {
             //Normal lines
             material = MaterialFactory.createLineBasicMaterial({
-                color: this.color,
+                color: "#000000",
                 polygonOffsetFactor: this.polygonOffsetFactor
             });
         }
@@ -68,6 +71,8 @@ Edge.prototype.getViewObject = function (state){
     if (this.stroke !== Edge.EDGE_STROKE.THICK){
          geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
     }
+    obj.visible = !this.inactive;
+    obj.position.z = DIMENSIONS.LINK_MIN_Z;
     return obj;
 }
 
@@ -150,10 +155,40 @@ Link.prototype.getCurve = function(start, end){
     return curve;
 };
 
+Link.prototype.regenerateFromSegments = function(segments) {
+  this.viewObjects['linkSegments'] = segments ;
+}
+
 /**
  * Update visual objects for a link
  */
 Link.prototype.updateViewObjects = function(state) {
+
+  if ( this.viewObjects['linkSegments'] ) {
+    const points = []
+    const z = Math.floor(Math.random() * 6) + 1 ;
+
+    const segments = this.viewObjects['linkSegments'][0] ;
+
+    segments.forEach( segment => {
+      points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
+    })
+    
+    const material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+    
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    const line = new THREE.Line( geometry, material );
+
+    line.userData = this;
+    line.position.z = DIMENSIONS.LINK_MIN_Z;
+    this.viewObjects["main"] = line ;
+    line.geometry.verticesNeedUpdate = true;
+    line.computeLineDistances();
+    line.geometry.computeBoundingBox();
+    line.geometry.computeBoundingSphere();
+    this.createLabels();
+  }else{
+
     Edge.prototype.updateViewObjects.call(this, state);
 
     const obj = this.viewObjects["main"];
@@ -163,7 +198,7 @@ Link.prototype.updateViewObjects = function(state) {
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
-    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+    if (this.geometry === Link.LINK_GEOMETRY.ARC){       
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y,0));
     }
 
@@ -189,8 +224,6 @@ Link.prototype.updateViewObjects = function(state) {
         const pos = getPoint(curve, start, end, d_i);
         copyCoords(node, pos);
     });
-
-    this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
 
     if (this.conveyingLyph){
         this.conveyingLyph.updateViewObjects(state);
@@ -229,16 +262,48 @@ Link.prototype.updateViewObjects = function(state) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();
+                obj.geometry.computeBoundingBox();
+                obj.geometry.computeBoundingSphere();
             } else {
                 let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
                 if (linkPos) {
-                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
-                    linkPos.needsUpdate = true;
+                    if ( this.neurulated && (start.y !== end.y)  && (start.x !== end.x) ) {
+                        // Elevation of the curve for the link
+                        let elevation = 0, height = 1.5;
+                        if ( this.source?.hostedBy ) {
+                            end.y < start.y ? elevation = -1 * height : elevation = height;
+                        } else {
+                            end.y > start.y ? elevation = -1 * height : elevation = height;
+                        }
+
+                        let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(start.y) - Math.abs(end.y)));
+                        let points = [start, getDefaultControlPoint(start, end, curvature), end];
+                        const curve3 = new THREE.SplineCurve( points);
+                        this.points = curve3.getPoints(41);
+
+                        if (this.conveyingLyph?.viewObjects["main"]){
+                            let centerPoint = this.points[Math.floor(this.points.length/2)];
+                            this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
+                            this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
+                            this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
+                            copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
+                        }
+                    } else {
+                        this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    }
+                    obj.geometry.setFromPoints(this.points);
+                    obj.geometry.attributes.position.needsUpdate = true;
+                    obj.position.z = DIMENSIONS.LINK_MIN_Z * 2;
+                    obj.geometry.verticesNeedUpdate = true;
+                    obj.geometry.computeBoundingBox();
                     obj.geometry.computeBoundingSphere();
                 }
             }
         }
+        copyCoords(this, obj.position);
+        this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge));
     }
+  }
 };
 
 Object.defineProperty(Link.prototype, "polygonOffsetFactor", {
@@ -259,7 +324,14 @@ Wire.prototype.createViewObjects = function(state){
         let obj = Edge.prototype.getViewObject.call(this, state);
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
+        obj.visible = !this.inactive;
         this.viewObjects["main"] = obj;
+    }
+    if ( this.viewObjects["main"] ){
+        this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+        this.viewObjects["main"].position.z = DIMENSIONS.WIRE_MIN_Z;
+        this.viewObjects["main"].geometry.computeBoundingBox();
+        this.viewObjects["main"].geometry.computeBoundingSphere();
     }
     this.createLabels();
 };
@@ -325,7 +397,7 @@ Wire.prototype.updateViewObjects = function(state) {
 
     });
 
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Edge));
+    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
 
     if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
 
@@ -335,6 +407,7 @@ Wire.prototype.updateViewObjects = function(state) {
             let coordArray = [];
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
+            obj.computeLineDistances();
         } else {
             if (obj && this.stroke === Wire.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
@@ -349,6 +422,7 @@ Wire.prototype.updateViewObjects = function(state) {
                 }
             }
         }
+        obj.visible = !this.inactive;
     }
 };
 
@@ -358,4 +432,3 @@ Object.defineProperty(Wire.prototype, "polygonOffsetFactor", {
             (this[prop].polygonOffsetFactor || 0) - 1: 0));
     }
 });
-

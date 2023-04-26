@@ -441,7 +441,7 @@ export class Group extends Resource {
      */
     show(){
         this.hidden = false;
-        this.resources.forEach(entity => delete entity.hidden);
+        this.resources.forEach(entity => entity.hidden = false);
     }
 
     /**
@@ -491,7 +491,7 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get visibleLyphs(){
-       return (this.lyphs||[]).filter(e => e.isVisible && e.axis && e.axis.isVisible);
+       return (this.lyphs||[]).filter(e => !e.hidden);
     }
 
     get create3d(){

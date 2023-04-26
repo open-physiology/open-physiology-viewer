@@ -12,7 +12,6 @@ import Kapsule from 'kapsule';
 import {generateFromJSON, modelClasses} from '../model/index';
 import './modelView';
 import {extractCoords} from './utils';
-import { autoLayout } from './render/autoLayout'
 
 const {Graph} = modelClasses;
 
@@ -165,8 +164,8 @@ export default Kapsule({
                         obj.userData instanceof modelClasses.Region));
                 state.canvas && (state.canvas.style.cursor = obj && obj.__isDraggable? 'pointer' : null);
                 const tooltipContent = obj? obj.userData.id + "-" + (obj.userData.name || '?') : '';
-                if (state.toolTipElem) {
-                    state.toolTipElem.style.visibility = tooltipContent ? 'visible' : 'hidden';
+                if (state.toolTipElem ) {
+                    state.toolTipElem.style.visibility = tooltipContent && obj?.visible ? 'visible' : 'hidden';
                     state.toolTipElem.innerHTML = tooltipContent;
                 }
             }
@@ -188,17 +187,17 @@ export default Kapsule({
         showLabels       : { default: {}},
 
         labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
-        labelRelSize     : { default: 0.1},
-        labelOffset      : { default: {Vertice: 10, Edge: 5, Lyph: 0, Region: 0}},
-        fontParams       : { default: { font: '24px Arial', fillStyle: '#000', antialias: true}},
+        labelRelSize     : { default: 0.005},
+        labelOffset      : { default: {Vertice: 1, Edge: 1, Lyph: 1, Region: 1}},
+        fontParams       : { default: { font: '11px Arial', fillStyle: '#000000' , antialias: true}},
 
         d3AlphaDecay     : { default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},
         d3AlphaTarget    : { default: 0}, //triggerUpdate: false, onChange(alphaTarget, state) { state.simulation.alphaTarget(alphaTarget) }},
         d3VelocityDecay  : { default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
 
-        warmupTicks      : { default: 10 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks    : { default: 100 },
-        cooldownTime     : { default: 1000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
+        warmupTicks      : { default: 1 }, // how many times to tick the force engine at init before starting to render
+        cooldownTicks    : { default: 10 },
+        cooldownTime     : { default: 100 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
         onLoading        : { default: () => {}, triggerUpdate: false },
         onFinishLoading  : { default: () => {}, triggerUpdate: false },
 
@@ -305,13 +304,18 @@ export default Kapsule({
         state.onFinishLoading();
 
         function layoutTick() {
-          if (++state.cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
+          if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
+              const event2 = new CustomEvent('updateTick', { detail : { updating : false }});
+              window.dispatchEvent(event2);
+              const event4 = new CustomEvent('doneUpdating');
+              window.dispatchEvent(event4);
               state.onFrame = null;
           } else { layout['tick'](); }
 
           state.graphData.updateViewObjects(state);
-          //autoLayout(state.graphScene, state.graphData);
+          const event = new CustomEvent('updateTick',  { detail : { updating : true }});
+          window.dispatchEvent(event);
         }
     }
 });

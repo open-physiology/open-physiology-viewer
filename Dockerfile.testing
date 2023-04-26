@@ -1,0 +1,16 @@
+FROM ghcr.io/puppeteer/puppeteer:16.1.0
+
+COPY package.json .
+COPY package-lock.json .
+
+RUN npm ci
+
+USER pptruser
+COPY --chown=pptruser:pptruser test test
+COPY jest.config.js .
+COPY jest-puppeteer.config.js .
+COPY setUpSnapTests.js .
+COPY .babelrc .
+
+ENV TEST_URL=https://open-physiology-viewer.surge.sh/
+
