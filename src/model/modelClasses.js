@@ -216,15 +216,15 @@ export function processImports(inputModel, importedModels){
     let groups = importedModels.filter(m => isGraph(m));
     inputModel.scaffolds = inputModel.scaffolds || [];
     inputModel.groups = inputModel.groups || [];
-    scaffolds.forEach(newModel => {
-        newModel.imported = true;
-        const scaffoldIdx = inputModel.scaffolds.findIndex(s => s.id === newModel.id);
-        if (scaffoldIdx === -1) {
-            inputModel.scaffolds.push(newModel);
-        } else {
-            inputModel.scaffolds[scaffoldIdx] = newModel;
-        }
-    });
+
+    function addNestedImports(newModel){
+        (newModel.imports||[]).forEach(newImport => {
+            if (!inputModel.imports.find(url => url === newImport)){
+                inputModel.imports.push(newImport);
+            }
+        });
+    }
+
     groups.forEach(newModel => {
         newModel.imported = true;
         const groupIdx = inputModel.groups.findIndex(s => s.id === newModel.id);
@@ -233,6 +233,21 @@ export function processImports(inputModel, importedModels){
         } else {
             inputModel.groups[groupIdx] = newModel;
         }
+         //Uplift imported model's scaffolds to reveal them in the settings panel
+        (newModel.scaffolds||[]).forEach(scaffold => {
+           scaffolds.push(scaffold);
+        });
+        addNestedImports(newModel);
+    });
+    scaffolds.forEach(newModel => {
+        newModel.imported = true;
+        const scaffoldIdx = inputModel.scaffolds.findIndex(s => s.id === newModel.id);
+        if (scaffoldIdx === -1) {
+            inputModel.scaffolds.push(newModel);
+        } else {
+            inputModel.scaffolds[scaffoldIdx] = newModel;
+        }
+        addNestedImports(newModel);
     });
 }
 
