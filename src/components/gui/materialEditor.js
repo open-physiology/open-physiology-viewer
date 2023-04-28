@@ -3,6 +3,7 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
+import { cloneDeep} from 'lodash-bound';
 
 export class Node {
     constructor(id, parents, label, type, resource) {
@@ -131,6 +132,7 @@ export class Edge {
     `]
 })
 export class DagViewerD3Component {
+    _originalModel;
     _model;
     g;
     nodesByID;
@@ -145,7 +147,8 @@ export class DagViewerD3Component {
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
     @Input('model') set model(newModel) {
-        this._model = newModel;
+        this._originalModel = newModel;
+        this._model = newModel::cloneDeep();
         this.updateGraph();
         this.draw();
     }
@@ -215,11 +218,11 @@ export class DagViewerD3Component {
     }
 
     onEdgeClick(d){
-        console.log("Clicked on: ", d);
+        // console.log("Clicked on: ", d);
     }
 
     onNodeClick(d) {
-        console.log("Clicked on: ", d);
+        // console.log("Clicked on: ", d);
     }
 
     updateGraph() {
@@ -270,8 +273,8 @@ export class DagViewerD3Component {
             ))
         });
         (this._model.lyphs || []).forEach(m => {
-            // if ((m._inMaterials||[]).length > 0) {
-            if (m._inMaterials) {
+            if ((m._inMaterials||[]).length > 0) {
+            // if (m._inMaterials) {
                 this.nodes.push(new Node(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
@@ -310,7 +313,6 @@ export class DagViewerD3Component {
 
     defineAsLyph(node){
         console.log("Defining lyph: ", node);
-        // this._model.lyphs.push();
     }
 
     defineAsMaterial(node){
