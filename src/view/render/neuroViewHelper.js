@@ -1,10 +1,4 @@
-import orthogonalConnector2 from "./orthogonalConnector2";
 import { dia, shapes } from 'jointjs';
-import { combineLatestAll, generate } from "rxjs";
-import {
-  extractCoords
-} from "./../utils";
-import { getBoundingBoxSize, getWorldPosition } from "./autoLayout/objects";
 
 function extractVerticesFromPath(path)
 {
@@ -53,7 +47,7 @@ function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight)
   svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   svg.setAttribute('width', paperWidth);
   svg.setAttribute('height', paperHeight);
-  const deltaX = 500 ;
+  const deltaX = paperWidth ;
 
   // Iterate through all the elements in the JointJS graph
   graphJSONCells.forEach((cellData) => {
@@ -67,7 +61,7 @@ function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight)
       rect.setAttribute('height', cellData.size.height);
       rect.setAttribute('fill', "blue");
       rect.setAttribute('stroke', "blue");
-      rect.setAttribute('stroke-width', 3);
+      rect.setAttribute('stroke-width', 1);
 
       svg.appendChild(rect);
     } else if (cellData.type === 'standard.Link') {
@@ -79,7 +73,7 @@ function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight)
       path.setAttribute('d', pathData);
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', 'red');
-      path.setAttribute('stroke-width', 2);
+      path.setAttribute('stroke-width', 1);
 
       svg.appendChild(path);
     }
@@ -93,67 +87,146 @@ function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight)
   return svgString;
 }
 
-export function orthogonalLayout(links, nodes, left, top, width, height, debug = false)
+export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
   const graph = new dia.Graph();
   const linkVertices = {};
-  debug = true 
+  debug = true
+  const obstacles = [];
+  const connections = []; 
+  const linkNodes = [];
+
+  const elementToRemove = document.getElementById("orthogonalDiv");
+  if (elementToRemove) {
+    elementToRemove.remove();
+  }
 
   const el = document.createElement('div');
-  el.style.width = width + 'px';
-  el.style.height = height + 'px';
+  el.id = "orthogonalDiv";
+  el.style.width = canvasWidth * 2 + 'px';
+  el.style.height = canvasHeight *  2 + 'px';
+
+  const linkNodeSide = 5 ;
+
+  if (debug)
+  {
+    el.style.cssText = 'position:absolute;opacity:0.3;z-index:100;background:#000;';
+    document.body.appendChild(el);
+  }
 
   const paper = new dia.Paper({
     el: el,
-    width: width,
-    height: height,
-    gridSize: 10,
+    width: canvasWidth,
+    height: canvasHeight,
+    gridSize: 1,
+    drawGrid: true,
+    defaultRouter: { name: 'manhattan' }, // use the manhattan router
     model: graph,
-    defaultConnector: { name: 'jumpover' },
-    defaultConnectionPoint: { name: 'boundary', args: { extrapolate: true } },
     interactive: true
   });
+
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  // Define the CSS rules to customize the grid lines
+  var css = 'path.joint-grid-line { stroke: blue; stroke-dasharray: 5, 5; }';
+
+  // Add the CSS rules to the style element
+  if (style.styleSheet) {
+    // For IE8 and earlier versions
+    style.styleSheet.cssText = css;
+  } else {
+    // For modern browsers
+    style.appendChild(document.createTextNode(css));
+  }
+
+  // Add the style element to the paper element
+  paper.$el.append(style);
   //obstacles, anything not a lyph and orphaned
 
   nodes.forEach( node => {
     const lyphMesh = node.state.graphScene.children.find( c => c.userData?.id == node.id)
-    if ( lyphMesh ) {
-      const scale = lyphMesh?.scale 
-      const nodeModel = new shapes.standard.Rectangle({
-        id: node.id,
-        position: { x: node.x, y: node.y },
-        size: { 
-          width: node.width * scale.x + 2
-          , height: node.height * scale.y + 2
-        }
-      });
-      graph.addCell(nodeModel);
-    }
+    const scale = lyphMesh.scale 
+    const width = node.width * scale.x ;
+    const height = node.height * scale.y
+    const nodeModel = new shapes.standard.Rectangle({
+      id: node.id,
+      position: { 
+          x: node.x - 0.5 * height + canvasWidth
+        , y: node.y - 0.5 * width
+      },
+      size: { 
+          width: height
+        , height: width
+      }
+    });
+    obstacles.push(nodeModel);
   });
 
   links.forEach( link => {
 
     if (link.points?.length > 0)
     {
-      let start = getWorldPosition(link.source.viewObjects["main"])
-      let end   = getWorldPosition(link.target.viewObjects["main"])
+      const sx = link.points[0].x ; //+ canvasWidth;
+      const sy = link.points[0].y ;
+      const tx = link.points[link.points.length-1].x ; //+ canvasWidth ;
+      const ty = link.points[link.points.length-1].y ;
 
-      const sx = start.x ;
-      const sy = start.y ;
-      const tx = end.x ;
-      const ty = end.y 
-  
+      const sourceNode = new shapes.standard.Rectangle({
+        id: link.id + '-source',
+        position: { 
+            x: sx - linkNodeSide * 0.5
+          , y: sy - linkNodeSide * 0.5
+        },
+        size: { 
+          width: linkNodeSide
+          , height: linkNodeSide
+        }
+      });
+
+      const targetNode = new shapes.standard.Rectangle({
+        id: link.id + '-target',
+        position: { 
+            x: tx - linkNodeSide * 0.5
+          , y: ty - linkNodeSide * 0.5
+        },
+        size: { 
+            width: linkNodeSide
+          , height: linkNodeSide
+        }
+      });
+      linkNodes.push(sourceNode);
+      linkNodes.push(targetNode);
       const connection = new shapes.standard.Link({
         id: link.id,
-        source: { x: sx, y: sy },
-        target: { x: tx, y: ty },
-        router: { name: 'manhattan'
-        , connector : { name : 'jumpover'}
-        , args: { obstacles: graph.getElements() } }
+        source: { id: sourceNode.id },
+        target: { id: targetNode.id }
       });
-      graph.addCell(connection);
+      connections.push(connection);
     }
   })
+
+  graph.addCells(obstacles).addCells(linkNodes).addCells(connections);
+
+  graph.on('change:position', function(cell) {
+
+    // has an obstacle been moved? Then reroute the link.
+    if (obstacles.indexOf(cell) > -1) {
+        //link.findView(paper).requestConnectionUpdate();
+        const json = graph.toJSON();
+        json.cells.forEach(cell => {
+          if (cell.type == 'standard.Link') {
+            const linkModel = graph.getCell(cell.id);
+            const newLinkView = paper.findViewByModel(linkModel);
+            
+            if (newLinkView) {
+              newLinkView.requestConnectionUpdate();
+            }
+          }
+        });
+    }
+});
+
 
   // Wait for the routing update to complete
   const json = graph.toJSON();
@@ -162,6 +235,7 @@ export function orthogonalLayout(links, nodes, left, top, width, height, debug =
       const linkModel = graph.getCell(cell.id);
       const newLinkView = paper.findViewByModel(linkModel);
       if (newLinkView) {
+        newLinkView.requestConnectionUpdate();
         const vertices = newLinkView.path.toPoints();
         linkVertices[cell.id] = vertices ;
       }
@@ -170,8 +244,9 @@ export function orthogonalLayout(links, nodes, left, top, width, height, debug =
 
   if (debug)
   {
-    const svg = exportToSVG(json.cells, graph, paper, width, height);
+    const svg = exportToSVG(json.cells, graph, paper, canvasWidth, canvasHeight);
     console.log(svg);  
   }
   return linkVertices ;
 }
+
