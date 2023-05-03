@@ -1,0 +1,1257 @@
+{
+    "references": [
+        {
+            "id": "PMID: 30842720",
+            "uri": "https://pubmed.ncbi.nlm.nih.gov/30842720/"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "s_jo21",
+            "name": "lyph neuron2 joint infracranial"
+        },
+        {
+            "id": "t_jo22",
+            "name": "lyph neuron2 joint IPGs"
+        },
+        {
+            "id": "s_jo4",
+            "name": "neuron 4 joint in IPG"
+        },
+        {
+            "id": "bile_pancreas_o",
+            "name": "pancreatic bile"
+        },
+        {
+            "id": "bile_liver_o",
+            "name": "liver bile"
+        },
+        {
+            "id": "con_t5",
+            "name": "joining point of neuron 1 in greater splanchic nerve"
+        }
+    ],
+    "links": [
+        {
+            "id": "link-soma-t5",
+            "name": "link to soma in t5 spinal cord segment",
+            "source": "s_t5",
+            "target": "t_t5",
+            "conveyingLyph": "lyph-sympathetic-pre-ganglionic-neuron-soma-t5"
+        },
+        {
+            "id": "link-soma-t6",
+            "name": "link to soma in t6 spinal cord segment",
+            "source": "s_t6",
+            "target": "t_t6",
+            "conveyingLyph": "lyph-sympathetic-pre-ganglionic-neuron-soma-t6"
+        },
+        {
+            "id": "link-soma-t7",
+            "name": "link to soma in t7 spinal cord segment",
+            "source": "s_t7",
+            "target": "t_t7",
+            "conveyingLyph": "lyph-sympathetic-pre-ganglionic-neuron-soma-t7"
+        },
+        {
+            "id": "link-soma-t8",
+            "name": "link to soma in t8 spinal cord segment",
+            "source": "s_t8",
+            "target": "t_t8",
+            "conveyingLyph": "lyph-sympathetic-pre-ganglionic-neuron-soma-t8"
+        },
+        {
+            "id": "link-soma-t9",
+            "name": "link to soma in t9 spinal cord segment",
+            "source": "s_t9",
+            "target": "t_t9",
+            "conveyingLyph": "lyph-sympathetic-pre-ganglionic-neuron-soma-t9"
+        },
+        {
+            "id": "link-soma-cg",
+            "name": "link to soma in CG",
+            "source": "s_cg",
+            "target": "t_cg",
+            "conveyingLyph": "lyph-soma-celiac-ganglion-neuron-2"
+        },
+        {
+            "id": "link-soma-smg",
+            "name": "link to soma in SMG",
+            "source": "s_smg",
+            "target": "t_smg",
+            "conveyingLyph": "lyph-soma-superior-mesenteric-ganglia-neuron-2"
+        },
+        {
+            "id": "link-soma-intrapancreatic-ganglia-islets-neuron3",
+            "name": "link somaintrapangreatic ganglia to islets neuron 3",
+            "source": "s_isle3",
+            "target": "t_isle3",
+            "conveyingLyph": "lyph-soma-intrapancreatic-ganglia-islets-neuron3"
+        },
+        {
+            "id": "link-soma-proximal-duodenum-neuron-4",
+            "name": "link soma proximal duodenum neuron 4",
+            "source": "s_pd4",
+            "target": "t_pd4",
+            "conveyingLyph": "lyph-soma-proximal-duodenum-neuron-4"
+        },
+        {
+            "id": "link-soma-gastric-antrum-neuron-4",
+            "name": "link soma gastric antrum neuron 4",
+            "source": "s_ga4",
+            "target": "t_ga4",
+            "conveyingLyph": "lyph-soma-gastric-antrum-neuron-4"
+        },
+        {
+            "id": "link-soma-dmv-neuron-5",
+            "name": "link soma dmv neuron 5",
+            "source": "s_dvm5",
+            "target": "t_dmv5",
+            "conveyingLyph": "lyph-soma-dmv-neuron-5"
+        }
+    ],
+    "lyphs": [
+        {
+            "id": "lyph-sympathetic-pre-ganglionic-neuron-soma-t5",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma of SPR neuron in T5_Neuron 1",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-T5-spinal-segment",
+            "internalInLayer": 6,
+            "seedIn": "neuron-1"
+        },
+        {
+            "id": "lyph-sympathetic-pre-ganglionic-neuron-soma-t6",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma of SPR neuron in T6_Neuron 1",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-T6-spinal-segment",
+            "internalInLayer": 6
+        },
+        {
+            "id": "lyph-sympathetic-pre-ganglionic-neuron-soma-t7",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma of SPR neuron in T7_Neuron 1",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-T7-spinal-segment",
+            "internalInLayer": 6
+        },
+        {
+            "id": "lyph-sympathetic-pre-ganglionic-neuron-soma-t8",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma of SPR neuron in T8_Neuron 1",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-T8-spinal-segment",
+            "internalInLayer": 6
+        },
+        {
+            "id": "lyph-sympathetic-pre-ganglionic-neuron-soma-t9",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma of SPR neuron in T9_Neuron 1",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-T9-spinal-segment",
+            "internalInLayer": 6
+        },
+        {
+            "id": "lyph-soma-superior-mesenteric-ganglia-neuron-2",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma in superior mesenteric ganglia of Neuron 2",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-PNS-ganglion-superior-mesenteric",
+            "internalInLayer": 0,
+            "seedIn": "neuron-2"
+        },
+        {
+            "id": "lyph-soma-celiac-ganglion-neuron-2",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma in celiac ganglion of Neuron 2",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-PNS-ganglion-celiac",
+            "internalInLayer": 0
+        },
+        {
+            "id": "lyph-soma-intrapancreatic-ganglia-islets-neuron3",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma in IPG of Neuron 3",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-PNS-ganglion-intrapancreatic",
+            "internalInLayer": 0,
+            "seedIn": "neuron-3"
+        },
+        {
+            "id": "lyph-soma-proximal-duodenum-neuron-4",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma in proximal duodenum of Neuron 4",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "lyph-proximal-duodenum",
+            "internalInLayer": 5,
+            "seedIn": "neuron-4"
+        },
+        {
+            "id": "lyph-soma-gastric-antrum-neuron-4",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma in gastric antrum of Neuron 4",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "lyph-gastric-antrum",
+            "internalInLayer": 6
+        },
+        {
+            "id": "lyph-soma-dmv-neuron-5",
+            "ontologyTerms": [
+                "NLX:154731"
+            ],
+            "name": "Soma in DMV of Neuron 5",
+            "supertype": "wbkg:lt-segment-of-neuron",
+            "internalIn": "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus",
+            "internalInLayer": 0,
+            "seedIn": "neuron-5"
+        },
+        {
+            "id": "lyph-blood-vessel",
+            "ontologyTerms": [
+                "UBERON:0001981"
+            ],
+            "name": "Blood vessel",
+            "topology": "TUBE",
+            "layers": [
+                "wbkg:mat-blood",
+                "mat-wall-of-vessel"
+            ]
+        },
+        {
+            "id": "lyph-proximal-duodenum",
+            "ontologyTerms": [
+                "ILX:0774562"
+            ],
+            "name": "proximal duodenum",
+            "layers": [
+                "wbkg:mat-gastrointestinal-luminal-fluid",
+                "wbkg:mat-gastric-mucosa",
+                "wbkg:mat-gastric-muscularis-mucosa",
+                "wbkg:mat-gastric-submucosa",
+                "wbkg:mat-gastrointestinal-circular-muscle",
+                "wbkg:mat-myenteric-plexus",
+                "wbkg:mat-gastrointestinal-longitudinal-muscle",
+                "wbkg:mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-gastric-antrum",
+            "ontologyTerms": [
+                "UBERON:0001165"
+            ],
+            "name": "gastric antrum",
+            "layers": [
+                "wbkg:mat-gastrointestinal-luminal-fluid",
+                "wbkg:mat-gastric-mucosa",
+                "wbkg:mat-gastric-muscularis-mucosa",
+                "wbkg:mat-gastric-submucosa",
+                "wbkg:mat-gastric-oblique-muscle",
+                "wbkg:mat-gastrointestinal-circular-muscle",
+                "wbkg:mat-myenteric-plexus",
+                "wbkg:mat-gastrointestinal-longitudinal-muscle",
+                "wbkg:mat-gastrointestinal-serosa"
+            ]
+        },
+        {
+            "id": "lyph-nerve-plexus-of-adventitia-splenic-artery",
+            "ontologyTerms": [
+                "ILX:0793673"
+            ],
+            "name": "Nerve plexus in adventitia of splenic artery",
+            "internalIn": "wbkg:lyph-cardiovascular-artery-splenic",
+            "internalInLayer": 0
+        },
+        {
+            "id": "lyph-nerve-plexus-of-adventitia-inferior-pancreaticoduodenal-artery",
+            "ontologyTerms": [
+                "ILX:0793674"
+            ],
+            "name": "Nerve plexus in adventicia of inferior pancreaticoduodenal artery",
+            "internalIn": "wbkg:lyph-cardiovascular-artery-inferior-pancreaticoduodenal",
+            "internalInLayer": 0
+        },
+        {
+            "id": "lyph-nerve-plexus-of-adventitia-hepatic-artery",
+            "ontologyTerms": [
+                "ILX:0793676"
+            ],
+            "name": "Nerve plexus in adventitia of hepatic artery",
+            "internalIn": "wbkg:lyph-cardiovascular-artery-hepatic",
+            "internalInLayer": 0
+        }
+    ],
+    "materials": [
+        {
+            "id": "mat-wall-of-vessel",
+            "name": "Wall of vessel",
+            "ontologyTerms": [
+                "UBERON:0035965"
+            ],
+            "inMaterials": [
+                "mat-tissue-connective-tissue-tissue"
+            ]
+        },
+        {
+            "id": "mat-muscular-layer",
+            "name": "muscular layer"
+        }
+    ],
+    "coalescences": [
+        {
+            "id": "co-pancreas-vasculature",
+            "name": "pancreatico-vascular coalescence",
+            "lyphs": [
+                "lyph-pancreatic-acini",
+                "lyph-pancreatic-vasculature"
+            ],
+            "topology": "CONNECTING"
+        },
+        {
+            "id": "co-hepato-vasculature",
+            "name": "hepato-vascular colescence",
+            "lyphs": [
+                "lyph-liver",
+                "lyph-hepatic-vasculature"
+            ],
+            "topology": "CONNECTING"
+        }
+    ],
+    "chains": [
+        {
+            "id": "chain-spinal-cord-and-medulla",
+            "name": "spinal cord and medulla",
+            "lyphs": [
+                "wbkg:lyph-T5-spinal-segment",
+                "wbkg:lyph-T6-spinal-segment",
+                "wbkg:lyph-T7-spinal-segment",
+                "wbkg:lyph-T8-spinal-segment",
+                "wbkg:lyph-CNS-medulla"
+            ],
+            "root": "spinalcm1",
+            "leaf": "spinalcm2",
+            "wiredTo": "too:w-N-T",
+            "startFromLeaf": true
+        },
+        {
+            "id": "chain-blood-flow-in-pancreas-1-in",
+            "name": "example of blood flow in pancreas - in",
+            "lyphTemplate": "lyph-blood-vessel",
+            "root": "root_bloodin",
+            "leaf": "bloodin_branch1",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-celiac-trunk",
+                "wbkg:lyph-cardiovascular-artery-hepatic",
+                "wbkg:lyph-cardiovascular-hepatic-blood-capillary"
+            ],
+            "wiredTo": "too:w-S-A",
+            "startFromLeaf": true
+        },
+        {
+            "id": "chain-blood-flow-in-pancreas-2-in",
+            "lyphTemplate": "lyph-blood-vessel",
+            "root": "bloodin_branch2",
+            "leaf": "bloodin_branch4",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-artery-superior-mesenteric",
+                "wbkg:lyph-cardiovascular-artery-inferior-pancreaticoduodenal",
+                "wbkg:lyph-cardiovascular-pancreatic-blood-capillary",
+                "wbkg:lyph-cardiovascular-vein-heptoportal"
+            ],
+            "wiredTo": "too:w-S-A",
+            "startFromLeaf": true
+        },
+        {
+            "id": "chain-blood-flow-in-pancreas-3-in",
+            "lyphTemplate": "lyph-blood-vessel",
+            "root": "bloodin_branch3",
+            "leaf": "bloodin_branch4",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-celiac-trunk",
+                "wbkg:lyph-cardiovascular-artery-splenic",
+                "wbkg:lyph-spleen",
+                "wbkg:lyph-cardiovascular-vein-heptoportal"
+            ]
+        },
+        {
+            "id": "chain-blood-flow-in-pancreas-4-in",
+            "lyphTemplate": "lyph-blood-vessel",
+            "root": "bloodin_branch4",
+            "leaf": "bloodin_branch1",
+            "housingLayers": [
+                0,
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-vein-heptoportal",
+                "wbkg:lyph-cardiovascular-hepatic-blood-capillary"
+            ],
+            "startFromLeaf": true
+        },
+        {
+            "id": "chain-blood-flow-in-pancreas-5-out",
+            "lyphTemplate": "lyph-blood-vessel",
+            "root": "bloodin_branch1",
+            "leaf": "bloodout_branch5",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-hepatic-blood-capillary"
+            ],
+            "wiredTo": "too:w-S-Y"
+        },
+        {
+            "id": "chain-pancreas-juices-flow-to-pancreas",
+            "name": "Main pancreatic duct",
+            "lyphTemplate": "wbkg:lyph-digestive-pancreas-main-duct",
+            "root": "bile_pancreas_o",
+            "leaf": "bile_pancreas",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-pancreatic-acinus"
+            ],
+            "wiredTo": "too:w-I-f1P",
+            "startFromLeaf": true
+        },
+        {
+            "id": "chain-bile-flow-to-liver",
+            "name": "Hepatic duct",
+            "lyphTemplate": "wbkg:lyph-digestive-biliary-hepatic-duct",
+            "root": "bile_liver_o",
+            "leaf": "bile_liver",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-hepatic-epithelium-of-lobule"
+            ],
+            "wiredTo": "too:w-I-f2L",
+            "startFromLeaf": true
+        },
+        {
+            "id": "dendrite-chain-sympathetic-pre-ganglionic-neuron-soma-t5",
+            "name": "dendrite chain for soma in t5 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_t5",
+            "leaf": "leaf_t5",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T5-spinal-segment"
+            ]
+        },
+        {
+            "id": "axon-chain-sympathetic-pre-ganglionic-neuron-soma-t5",
+            "name": "axon chain for soma in t5 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_t5",
+            "leaf": "con_t5",
+            "housingLayers": [
+                6,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T5-spinal-segment",
+                "wbkg:lyph-T5-ventral-root"
+            ]
+        },
+        {
+            "id": "dendrite-chain-sympathetic-pre-ganglionic-neuron-soma-t6",
+            "name": "dendrite chain for soma in t6 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_t6",
+            "leaf": "leaf_t6",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T6-spinal-segment"
+            ]
+        },
+        {
+            "id": "axon-chain-sympathetic-pre-ganglionic-neuron-soma-t6",
+            "name": "axon chain for soma in t6 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_t6",
+            "leaf": "con_t5",
+            "housingLayers": [
+                6,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T6-spinal-segment",
+                "wbkg:lyph-T6-ventral-root"
+            ]
+        },
+        {
+            "id": "dendrite-chain-sympathetic-pre-ganglionic-neuron-soma-t7",
+            "name": "dendrite chain for soma in t7 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_t7",
+            "leaf": "leaf_t7",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T7-spinal-segment"
+            ]
+        },
+        {
+            "id": "axon-chain-sympathetic-pre-ganglionic-neuron-soma-t7",
+            "name": "axon chain for soma in t7 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_t7",
+            "leaf": "con_t5",
+            "housingLayers": [
+                6,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T7-spinal-segment",
+                "wbkg:lyph-T7-ventral-root"
+            ]
+        },
+        {
+            "id": "dendrite-chain-sympathetic-pre-ganglionic-neuron-soma-t8",
+            "name": "dendrite chain for soma in t8 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_t8",
+            "leaf": "leaf_t8",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T8-spinal-segment"
+            ]
+        },
+        {
+            "id": "axon-chain-sympathetic-pre-ganglionic-neuron-soma-t8",
+            "name": "axon chain for soma in t8 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_t8",
+            "leaf": "con_t5",
+            "housingLayers": [
+                6,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T8-spinal-segment",
+                "wbkg:lyph-T8-ventral-root"
+            ]
+        },
+        {
+            "id": "dendrite-chain-sympathetic-pre-ganglionic-neuron-soma-t9",
+            "name": "dendrite chain for soma in t9 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_t9",
+            "leaf": "leaf_t9",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T9-spinal-segment"
+            ]
+        },
+        {
+            "id": "axon-chain-sympathetic-pre-ganglionic-neuron-soma-t9",
+            "name": "axon chain for soma in t9 spinal cord segment Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_t9",
+            "leaf": "con_t5",
+            "housingLayers": [
+                6,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T9-spinal-segment",
+                "wbkg:lyph-T9-ventral-root"
+            ]
+        },
+        {
+            "id": "axon-chain-soma-t5-splanchnic-commonnode2",
+            "name": "Axon from t5 from common node 1 to 2 Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "con_t5",
+            "leaf": "con_t6",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T5-sympathetic-chain-ganglion",
+                "wbkg:lyph-PNS-nerve-greater-splanchnic"
+            ]
+        },
+        {
+            "id": "axon-chain-soma-t6-splanchnic-commonnode2",
+            "name": "Axon from t6 from common node 1 to 2 Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "con_t5",
+            "leaf": "con_t6",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T6-sympathetic-chain-ganglion",
+                "wbkg:lyph-PNS-nerve-greater-splanchnic"
+            ]
+        },
+        {
+            "id": "axon-chain-soma-t7-splanchnic-commonnode2",
+            "name": "Axon from t7 from common node 1 to 2 Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "con_t5",
+            "leaf": "con_t6",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T7-sympathetic-chain-ganglion",
+                "wbkg:lyph-PNS-nerve-greater-splanchnic"
+            ]
+        },
+        {
+            "id": "axon-chain-soma-t8-splanchnic-commonnode2",
+            "name": "Axon from t8 from common node 1 to 2 Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "con_t5",
+            "leaf": "con_t6",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T8-sympathetic-chain-ganglion",
+                "wbkg:lyph-PNS-nerve-greater-splanchnic"
+            ]
+        },
+        {
+            "id": "axon-chain-soma-t9-splanchnic-commonnode2",
+            "name": "Axon from t9 from common node 1 to 2 Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "con_t5",
+            "leaf": "con_t6",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-T9-sympathetic-chain-ganglion",
+                "wbkg:lyph-PNS-nerve-greater-splanchnic"
+            ]
+        },
+        {
+            "id": "axon-commonnode2-celiac",
+            "name": "axon commonnode2 celiac Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "con_t6",
+            "leaf": "con_t7gc",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-nerve-greater-splanchnic",
+                "wbkg:lyph-PNS-ganglion-celiac"
+            ]
+        },
+        {
+            "id": "axon-commonnode2-smg",
+            "name": "axon commonnode2 smg Neuron 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "con_t6",
+            "leaf": "con_t8gsm",
+            "housingLayers": [
+                0,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-nerve-greater-splanchnic",
+                "wbkg:lyph-PNS-ganglion-superior-mesenteric"
+            ]
+        },
+        {
+            "id": "dendrite-chain-superior-mesenteric-ganglia-neuron-2",
+            "name": "dendrite chain superior mesenteric ganglia neuron 2 to joint 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_smg",
+            "leaf": "leaf_smg",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-superior-mesenteric"
+            ]
+        },
+        {
+            "id": "axon-chain-superior-mesenteric-ganglia-neuron-2",
+            "name": "axon chain superior mesenteric ganglia neuron 2 to joint 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_smg",
+            "leaf": "s_jo21",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-superior-mesenteric"
+            ]
+        },
+        {
+            "id": "dendrite-chain-celiac-ganglion-neuron-2",
+            "name": "dendrite chain celiac ganglia neuron 2 to joint 1",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_cg",
+            "leaf": "leaf_cg",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-celiac"
+            ]
+        },
+        {
+            "id": "axon-chain-celiac-ganglion-neuron-2",
+            "name": "axon chain celiac ganglia neuron 2 to joint 1",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_cg",
+            "leaf": "s_jo21",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-celiac"
+            ]
+        },
+        {
+            "id": "axon-chain-joint-a-neuron-2",
+            "name": "axon A neuron 2 from joing1 infracranial to IPGs",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "s_jo21",
+            "leaf": "t_jo22",
+            "housingLayers": [
+                4,
+                4,
+                0,
+                4,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-artery-superior-mesenteric",
+                "wbkg:lyph-cardiovascular-artery-inferior-pancreaticoduodenal",
+                "lyph-nerve-plexus-of-adventitia-inferior-pancreaticoduodenal-artery",
+                "wbkg:lyph-cardiovascular-artery-inferior-pancreaticoduodenal",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-joint-b-neuron-2",
+            "name": "axon B neuron 2 from joing1 infracranial to IPGs",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "s_jo21",
+            "leaf": "t_jo22",
+            "housingLayers": [
+                4,
+                4,
+                0,
+                4,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-celiac-trunk",
+                "wbkg:lyph-cardiovascular-artery-hepatic",
+                "lyph-nerve-plexus-of-adventitia-hepatic-artery",
+                "wbkg:lyph-cardiovascular-artery-hepatic",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-joint-c-neuron-2",
+            "name": "axon C neuron 2 from joing1 infracranial to IPGs",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "s_jo21",
+            "leaf": "t_jo22",
+            "housingLayers": [
+                4,
+                0,
+                4,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-cardiovascular-artery-splenic",
+                "lyph-nerve-plexus-of-adventitia-splenic-artery",
+                "wbkg:lyph-cardiovascular-artery-splenic",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-ipgs-neuron-2",
+            "name": "axon E neuron 2 from IPGs to Islets",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "t_jo22",
+            "leaf": "t_jo24",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-islets-neuron-2",
+            "name": "axon D neuron 2 from IPGs to Islets",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "t_jo22",
+            "leaf": "t_jo23",
+            "housingLayers": [
+                0,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-intrapancreatic",
+                "lyph-pancreatic-vasculature",
+                "wbkg:lyph-pancreatic-islet-of-langerhans"
+            ]
+        },
+        {
+            "id": "dendrite-chain-interpancreatic-ganglia-islets-neuron-3",
+            "name": "dendrite chain interpancreatic ganglia islets neuron 3",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_isle3",
+            "leaf": "leaf_isle3",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-interpancreatic-ganglia-islets-neuron-3",
+            "name": "axon chain interpancreatic ganglia islets neuron 3",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "t_isle3",
+            "leaf": "con_isle3",
+            "housingLayers": [
+                0,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-intrapancreatic",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-pancreatic-islet-of-langerhans"
+            ]
+        },
+        {
+            "id": "dendrite-chain-proximal-duodenum-neuron-4",
+            "name": "dendrite chain proximal duodenum neuron 4",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_pd4",
+            "leaf": "leaf_pd4",
+            "housingLayers": [
+                5
+            ],
+            "housingLyphs": [
+                "lyph-proximal-duodenum"
+            ]
+        },
+        {
+            "id": "axon-chain-proximal-duodenum-neuron-4",
+            "name": "axon chain proximal duodenum neuron 4",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_pd4",
+            "leaf": "s_jo4",
+            "housingLayers": [
+                5,
+                6,
+                7,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "lyph-proximal-duodenum",
+                "lyph-proximal-duodenum",
+                "lyph-proximal-duodenum",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "dendrite-chain-gastric-antrum-neuron-4",
+            "name": "dendrite chain gastric antrum neuron 4",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_ga4",
+            "leaf": "leaf_ga4",
+            "housingLayers": [
+                6
+            ],
+            "housingLyphs": [
+                "lyph-gastric-antrum"
+            ]
+        },
+        {
+            "id": "axon-chain-gastric-duodenum-neuron-4",
+            "name": "axon chain gastric duodenum neuron 4",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-tube",
+            "root": "t_ga4",
+            "leaf": "s_jo4",
+            "housingLayers": [
+                6,
+                7,
+                8,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "lyph-gastric-antrum",
+                "lyph-gastric-antrum",
+                "lyph-gastric-antrum",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-neuron-4-to-intrapancreatic-ganglion",
+            "name": "axon chain from IPG to IPG",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "s_jo4",
+            "leaf": "s_pa",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        },
+        {
+            "id": "axon-chain-neuron-4-to-acinar-cell",
+            "name": "axon chain from intrapancreatic ganglion to acinar cell",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "s_jo4",
+            "leaf": "s_pi",
+            "housingLayers": [
+                0,
+                3,
+                2,
+                1
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-PNS-ganglion-intrapancreatic",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-pancreatic-acinus"
+            ]
+        },
+        {
+            "id": "dend-chain-neuron-5",
+            "name": "dendrite chain in dorsal motor nucleus neuron 5",
+            "ontologyTerms": [
+                "SAO:1211023249"
+            ],
+            "lyphTemplate": "wbkg:lt-dend-bag",
+            "root": "s_dvm5",
+            "leaf": "n_neuron-5-dend",
+            "housingLayers": [
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus"
+            ]
+        },
+        {
+            "id": "axon-chain-neuron-5",
+            "name": "axon chain in dorsal motor nucleus neuron 5",
+            "ontologyTerms": [
+                "SAO:1770195789"
+            ],
+            "lyphTemplate": "wbkg:lt-axon-bag",
+            "root": "t_dmv5",
+            "leaf": "n_neuron-5-axon",
+            "housingLayers": [
+                0,
+                2,
+                0,
+                3,
+                0
+            ],
+            "housingLyphs": [
+                "wbkg:lyph-CNS-nucleus-dorsal-motor-vagus",
+                "wbkg:lyph-CNS-medulla",
+                "wbkg:lyph-PNS-nerve-vagus-main-trunk",
+                "wbkg:lyph-pancreatic-acinus",
+                "wbkg:lyph-PNS-ganglion-intrapancreatic"
+            ]
+        }
+    ],
+    "groups": [
+        {
+            "id": "neuron-1",
+            "name": "Neuron 1",
+            "ontologyTerms": [
+                "ilxtr:neuron-type-pancr-1"
+            ]
+        },
+        {
+            "id": "neuron-2",
+            "name": "Neuron 2",
+            "ontologyTerms": [
+                "ilxtr:neuron-type-pancr-2"
+            ]
+        },
+        {
+            "id": "neuron-3",
+            "name": "Neuron 3",
+            "ontologyTerms": [
+                "ilxtr:neuron-type-pancr-3"
+            ]
+        },
+        {
+            "id": "neuron-4",
+            "name": "Neuron 4",
+            "ontologyTerms": [
+                "ilxtr:neuron-type-pancr-4"
+            ]
+        },
+        {
+            "id": "neuron-5",
+            "name": "Neuron 5",
+            "ontologyTerms": [
+                "ilxtr:neuron-type-pancr-5"
+            ]
+        },
+        {
+            "id": "gsplan",
+            "name": "greater splanc",
+            "lyphs": [
+                "wbkg:lyph-PNS-nerve-greater-splanchnic"
+            ]
+        },
+        {
+            "id": "soma-4",
+            "name": "Soma 4",
+            "links": [
+                "link-soma-proximal-duodenum-neuron-4",
+                "link-soma-gastric-antrum-neuron-4"
+            ]
+        }
+    ],
+    "localConventions": [
+        {
+            "prefix": "UBERON",
+            "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+        },
+        {
+            "prefix": "CHEBI",
+            "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+        },
+        {
+            "prefix": "FMA",
+            "namespace": "http://purl.org/sig/ont/fma/fma"
+        },
+        {
+            "prefix": "GO",
+            "namespace": "http://purl.obolibrary.org/obo/GO_"
+        },
+        {
+            "prefix": "ILX",
+            "namespace": "http://uri.interlex.org/base/ilx_"
+        },
+        {
+            "prefix": "NLX",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/nlx_"
+        },
+        {
+            "prefix": "SAO",
+            "namespace": "http://uri.neuinfo.org/nif/nifstd/sao"
+        },
+        {
+            "prefix": "PMID",
+            "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+        },
+        {
+            "prefix": "EMAPA",
+            "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
+        },
+        {
+            "prefix": "CL",
+            "namespace": "http://purl.obolibrary.org/obo/CL_"
+        },
+        {
+            "prefix": "NCBITaxon",
+            "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
+        },
+        {
+            "prefix": "ilxtr",
+            "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
+        },
+        {
+            "prefix": "pancr",
+            "namespace": "https://apinatomy.org/uris/models/pancreas/ids/"
+        },
+        {
+            "prefix": "wbkg",
+            "namespace": "https://apinatomy.org/uris/models/wbrcm/ids/"
+        },
+        {
+            "prefix": "too",
+            "namespace": "https://apinatomy.org/uris/models/too-map/ids/"
+        }
+    ],
+    "id": "pancreas",
+    "name": "pancreas model",
+    "namespace": "pancr",
+    "imports": [
+        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/wbrcm/source/wbrcm.json"
+    ]
+}

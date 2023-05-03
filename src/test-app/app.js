@@ -52,6 +52,7 @@ import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
 import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
+import {MaterialEditorModule} from "../components/gui/materialEditor";
 
 enableProdMode();
 
@@ -209,7 +210,14 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     </section>
                     <section #jsonEditor id="json-editor">                        
                     </section>
-                </mat-tab>               
+                </mat-tab>       
+                
+                <!--Material editor-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
+                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Material editor </ng-template>
+                    <materialEditor [model]="_model"> 
+                    </materialEditor> 
+                </mat-tab>
             </mat-tab-group>
         </section>
 
@@ -685,8 +693,9 @@ export class TestApp {
  */
 @NgModule({
 	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, ResourceEditorModule,
-        RelGraphModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
-        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule],
+        RelGraphModule,
+        ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
+        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule],
 	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog, ResourceEditorDialog],
