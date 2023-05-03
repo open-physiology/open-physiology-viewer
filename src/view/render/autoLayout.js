@@ -555,15 +555,21 @@ export function placeLyphInWire(lyph){
   if ( wiredTo && !lyph.hidden ) {
     // Find wire where lyph is attached
     let wiredLyphs = [];
-    lyph.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => !l.hidden && wiredLyphs.push(l)) );
+    lyph.wiredTo?.wiredChains?.forEach( c => c.lyphs.forEach( l => { 
+      if ( !l.hidden ) { 
+        !wiredLyphs.includes(l) && wiredLyphs.push(l)
+      } 
+    }));
     let index = wiredLyphs?.findIndex(l => l.id === lyph.id );
+
+    let visibleLyphs = wiredLyphs?.filter( l => !l.hidden );
 
     // Position lyph along the wire
     let position = lyph.wiredTo.center;
     if ( wiredLyphs.length > 1 ){
       const pointA = lyph.wiredTo?.points[0];
       const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
-      position = pointAlongLine(pointA, pointB, (index + 1) / (wiredLyphs.length + 1)); 
+      position = pointAlongLine(pointA, pointB, (index + 1) / (visibleLyphs.length + 1)); 
     }
     setLyphPosition(lyphMesh, wiredTo, position, false); 
     copyCoords(lyph, lyphMesh.position);
