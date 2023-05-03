@@ -1468,12 +1468,11 @@ export class SettingsPanel {
       let bigLyphs = []
       for (let group of this.filteredDynamicGroups) {
         if ( !group?.hidden && !group?.cloneOf ) {
-          let neuroTriplets = buildNeurulatedTriplets(group);        
-          visibleLinks = visibleLinks.concat(group.links.filter( l => !l.hidden && !l.inactive && l.collapsible ));
+          let neuroTriplets = buildNeurulatedTriplets(group); 
+          visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
           bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
         }
       }
-
       visibleLinks?.forEach( l => l.neurulated = false );
 
       let that = this;

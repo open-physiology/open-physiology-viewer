@@ -1,5 +1,5 @@
 import { dia, shapes } from 'jointjs';
-
+import { getWorldPosition } from "./autoLayout/objects";
 function extractVerticesFromPath(path)
 {
   const vertices = [];
@@ -146,14 +146,15 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
 
   nodes.forEach( node => {
     const lyphMesh = node.state.graphScene.children.find( c => c.userData?.id == node.id)
-    const scale = lyphMesh.scale 
+    let scale = lyphMesh?.scale 
+    scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
     const width = node.width * scale.x ;
     const height = node.height * scale.y
     const nodeModel = new shapes.standard.Rectangle({
       id: node.id,
       position: { 
-          x: node.x - 0.5 * height + canvasWidth
-        , y: node.y - 0.5 * width
+        x: node.x - 0.5 * height + canvasWidth
+      , y: node.y - 0.5 * width
       },
       size: { 
           width: height
@@ -164,13 +165,13 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   });
 
   links.forEach( link => {
+      let start = getWorldPosition(link.source.viewObjects["main"])
+      let end   = getWorldPosition(link.target.viewObjects["main"])
 
-    if (link.points?.length > 0)
-    {
-      const sx = link.points[0].x ; //+ canvasWidth;
-      const sy = link.points[0].y ;
-      const tx = link.points[link.points.length-1].x ; //+ canvasWidth ;
-      const ty = link.points[link.points.length-1].y ;
+      const sx = start.x ;
+      const sy = start.y ;
+      const tx = end.x ;
+      const ty = end.y 
 
       const sourceNode = new shapes.standard.Rectangle({
         id: link.id + '-source',
@@ -203,7 +204,6 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         target: { id: targetNode.id }
       });
       connections.push(connection);
-    }
   })
 
   graph.addCells(obstacles).addCells(linkNodes).addCells(connections);

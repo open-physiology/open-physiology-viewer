@@ -69,6 +69,7 @@ Node.prototype.createViewObjects = function(state) {
  */
 Node.prototype.updateViewObjects = function(state) {
     Vertice.prototype.updateViewObjects.call(this, state);
+
     if (this.anchoredTo){
         copyCoords(this, this.anchoredTo);
     } else {
@@ -93,7 +94,7 @@ Node.prototype.updateViewObjects = function(state) {
                         corners.push(new THREE.Vector3(position.x + widht, position.y + height, position.z));
                         copyCoords(this, position);
 
-                        if ( onBorder ) {
+                        if ( onBorder && this.inactive !== undefined ) {
                             // Find border where link is hosted
                             let borderIndex = onBorder.borders.indexOf(hostedBy);
                             let start = corners[borderIndex];
@@ -125,9 +126,33 @@ Node.prototype.updateViewObjects = function(state) {
         } else if (this.internalIn) {
             let housingLyph = this.internalIn;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
+            if ( this.viewObjects["main"] && this.inactive !== undefined ){
+                this.viewObjects["main"].position.x = position.x;
+                this.viewObjects["main"].position.y = position.y;
+                this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+                this.viewObjects["main"]?.geometry?.computeBoundingSphere();
+            }
             copyCoords(this, position);
         } else if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
+        } else {
+            let sStart = getWorldPosition(this.sourceOf?.[0]?.target?.internalIn?.viewObjects["main"]);
+            let sEnd = getWorldPosition(this.sourceOf?.[this.sourceOf.length - 1]?.target?.internalIn?.viewObjects["main"]);
+            let sMiddle = pointAlongLine(sStart, sEnd, .5);
+
+            let tStart = getWorldPosition(this.targetOf?.[0]?.source?.internalIn?.viewObjects["main"]);
+            let tEnd = getWorldPosition(this.targetOf?.[this.targetOf.length - 1]?.source?.internalIn?.viewObjects["main"]);
+            let tMiddle = pointAlongLine(tStart, tEnd, .5);
+
+            let middle = pointAlongLine(sMiddle, tMiddle, .5);
+            if ( this.viewObjects["main"] && this.inactive !== undefined ){
+                this.viewObjects["main"].position.x = middle.x;
+                this.viewObjects["main"].position.y = middle.y;
+                this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+                this.viewObjects["main"]?.geometry?.computeBoundingSphere();
+            }
+            copyCoords(this, middle);
+
         }
     }
 };
