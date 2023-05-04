@@ -69,6 +69,11 @@ Node.prototype.createViewObjects = function(state) {
  */
 Node.prototype.updateViewObjects = function(state) {
     Vertice.prototype.updateViewObjects.call(this, state);
+    let neurulatedLinks = [];
+    this.sourceOf != undefined ? neurulatedLinks = this.sourceOf?.filter( l => l.neurulated ) : null;
+    this.targetOf != undefined ?  neurulatedLinks = neurulatedLinks.concat(this.targetOf?.filter( l => l.neurulated )) : null;
+    // This flag is true if there's Links that were neurulated, which happens when Neuroview is enabled
+    const neurulated = neurulatedLinks.length > 0;
 
     if (this.anchoredTo){
         copyCoords(this, this.anchoredTo);
@@ -76,54 +81,58 @@ Node.prototype.updateViewObjects = function(state) {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
         } else if (this.hostedBy) {
-            let hostedBy = this.hostedBy;
-            if ( hostedBy.onBorder ){
-                let onBorder = hostedBy.onBorder;
-                let host = onBorder?.host;
-                if ( host ) {
-                    if ( host.viewObjects["main"] ){
-                        let position = getWorldPosition(host?.viewObjects["main"]);
-                        const houseDim = getBoundingBoxSize(host?.viewObjects["main"]);
-                        const height  = (houseDim.x *  host?.viewObjects["main"].scale.x ) /2;
-                        const widht = (houseDim.y * host?.viewObjects["main"].scale.y) /2;
+            if ( neurulated ) {
+                let hostedBy = this.hostedBy;
+                if ( hostedBy.onBorder ){
+                    let onBorder = hostedBy.onBorder;
+                    let host = onBorder?.host;
+                    if ( host ) {
+                        if ( host.viewObjects["main"] ){
+                            let position = getWorldPosition(host?.viewObjects["main"]);
+                            const houseDim = getBoundingBoxSize(host?.viewObjects["main"]);
+                            const height  = (houseDim.x *  host?.viewObjects["main"].scale.x ) /2;
+                            const widht = (houseDim.y * host?.viewObjects["main"].scale.y) /2;
 
-                        let corners = [];
-                        corners.push(new THREE.Vector3(position.x + widht, position.y - height, position.z));
-                        corners.push(new THREE.Vector3(position.x - widht, position.y - height, position.z));
-                        corners.push(new THREE.Vector3(position.x - widht, position.y + height, position.z));
-                        corners.push(new THREE.Vector3(position.x + widht, position.y + height, position.z));
-                        copyCoords(this, position);
+                            let corners = [];
+                            corners.push(new THREE.Vector3(position.x + widht, position.y - height, position.z));
+                            corners.push(new THREE.Vector3(position.x - widht, position.y - height, position.z));
+                            corners.push(new THREE.Vector3(position.x - widht, position.y + height, position.z));
+                            corners.push(new THREE.Vector3(position.x + widht, position.y + height, position.z));
+                            copyCoords(this, position);
 
-                        if ( onBorder && this.inactive !== undefined ) {
-                            // Find border where link is hosted
-                            let borderIndex = onBorder.borders.indexOf(hostedBy);
-                            let start = corners[borderIndex];
-                            let end = corners[borderIndex+1];
+                            if ( onBorder && this.inactive !== undefined ) {
+                                // Find border where link is hosted
+                                let borderIndex = onBorder.borders.indexOf(hostedBy);
+                                let start = corners[borderIndex];
+                                let end = corners[borderIndex+1];
 
-                            // If it's the last border, reset boundaries
-                            borderIndex == 3 ? start = corners[borderIndex] : null;
-                            borderIndex == 3 ? end = corners[0] : null;
+                                // If it's the last border, reset boundaries
+                                borderIndex == 3 ? start = corners[borderIndex] : null;
+                                borderIndex == 3 ? end = corners[0] : null;
 
-                            // Get position of node along the border
-                            let nodeIndex = hostedBy.hostedNodes?.indexOf(this);
+                                // Get position of node along the border
+                                let nodeIndex = hostedBy.hostedNodes?.indexOf(this);
 
-                            // Place node along the border in link
-                            let placeInLink = (nodeIndex + 1 ) / ( hostedBy.hostedNodes?.length + 1);
-                            borderIndex > 2 ? placeInLink = (( hostedBy.hostedNodes?.length + 1 ) - (nodeIndex + 1)) / ( hostedBy.hostedNodes?.length + 1): null;
-                            placeInLink == undefined || placeInLink < 0 ? placeInLink = .5 : null;
-                            
-                            // Get point along the curve
-                            let pointAlonLink = pointAlongLine(start, end, placeInLink);
-                            this.viewObjects["main"].position.x = pointAlonLink.x;
-                            this.viewObjects["main"].position.y = pointAlonLink.y;
-                            this.viewObjects["main"].geometry.verticesNeedUpdate = true;
-                            this.viewObjects["main"]?.geometry?.computeBoundingSphere();
-                            copyCoords(this, pointAlonLink);
+                                // Place node along the border in link
+                                let placeInLink = (nodeIndex + 1 ) / ( hostedBy.hostedNodes?.length + 1);
+                                borderIndex > 2 ? placeInLink = (( hostedBy.hostedNodes?.length + 1 ) - (nodeIndex + 1)) / ( hostedBy.hostedNodes?.length + 1): null;
+                                placeInLink == undefined || placeInLink < 0 ? placeInLink = .5 : null;
+                                
+                                // Get point along the curve
+                                let pointAlonLink = pointAlongLine(start, end, placeInLink);
+                                this.viewObjects["main"].position.x = pointAlonLink.x;
+                                this.viewObjects["main"].position.y = pointAlonLink.y;
+                                this.viewObjects["main"].geometry.verticesNeedUpdate = true;
+                                this.viewObjects["main"]?.geometry?.computeBoundingSphere();
+                                copyCoords(this, pointAlonLink);
+                            }
                         }
                     }
                 }
+            } else {
+                copyCoords(this, this.hostedBy);
             }
-        } else if (this.internalIn) {
+        } else if (this.internalIn && neurulated) {
             let housingLyph = this.internalIn;
             let position = getWorldPosition(housingLyph?.viewObjects["main"]);
             if ( this.viewObjects["main"] && this.inactive !== undefined ){
@@ -135,7 +144,7 @@ Node.prototype.updateViewObjects = function(state) {
             copyCoords(this, position);
         } else if (this.controlNodes) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
-        } else {
+        } else if ( neurulated ) {
             let sStart = getWorldPosition(this.sourceOf?.[0]?.target?.internalIn?.viewObjects["main"]);
             let sEnd = getWorldPosition(this.sourceOf?.[this.sourceOf.length - 1]?.target?.internalIn?.viewObjects["main"]);
             let sMiddle = pointAlongLine(sStart, sEnd, .5);

@@ -9,9 +9,10 @@ import {
     rectangleCurve,
     getPoint,
     arcCurve,
-    getDefaultControlPoint
+    getDefaultControlPoint,
 } from "./utils";
-import { DIMENSIONS } from "./render/autoLayout";
+import { DIMENSIONS, pointAlongLine } from "./render/autoLayout";
+
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
@@ -276,10 +277,24 @@ Link.prototype.updateViewObjects = function(state) {
                             end.y > start.y ? elevation = -1 * height : elevation = height;
                         }
 
-                        let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(start.y) - Math.abs(end.y)));
-                        let points = [start, getDefaultControlPoint(start, end, curvature), end];
+                        // Look for neurulated links whose target/source is this node
+                        let neurulatedLinks = [];
+                        this.source.sourceOf != undefined ? neurulatedLinks = this.source.sourceOf?.filter( l => l.neurulated ) : null;
+                        this.source.targetOf != undefined ?  neurulatedLinks = neurulatedLinks.concat(this.source.targetOf?.filter( l => l.neurulated )) : null;
+                        this.target.sourceOf != undefined ? neurulatedLinks = neurulatedLinks.concat(this.target.sourceOf?.filter( l => l.neurulated )) : null
+                        this.target.targetOf != undefined ?  neurulatedLinks = neurulatedLinks.concat(this.target.targetOf?.filter( l => l.neurulated )) : null;
+                        const neurulated = neurulatedLinks.length > 0;
+
+                        // For Links with source/target nodes at center of lyph, create some space from center
+                        let newStart = start;
+                        this.source.internalIn && neurulated ? newStart = pointAlongLine(start, end, .05) : null;
+                        let newEnd = end;
+                        this.target.internalIn && neurulated ? newEnd = pointAlongLine(start, end, .95) : null;
+
+                        let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(newStart.y) - Math.abs(newEnd.y)));
+                        let points = [newStart, getDefaultControlPoint(newStart, newEnd, curvature), newEnd];
                         const curve3 = new THREE.SplineCurve( points);
-                        this.points = curve3.getPoints(41);
+                        this.points = curve3.getPoints(50);
 
                         if (this.conveyingLyph?.viewObjects["main"]){
                             let centerPoint = this.points[Math.floor(this.points.length/2)];
