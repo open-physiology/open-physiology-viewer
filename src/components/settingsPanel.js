@@ -198,6 +198,7 @@ const COLORS = {
             <div class="wrap">
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
+                [disabled]="disableNeuroview"
                 (change)="handleNeuroView($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
@@ -1394,6 +1395,32 @@ export class SettingsPanel {
     });
   };
 
+  handleOrthogonalLinks = () => {
+      let visibleLinks = [];
+      let bigLyphs = []
+      for (let group of this.filteredDynamicGroups) {
+        if ( !group?.hidden && !group?.cloneOf ) {
+          let neuroTriplets = buildNeurulatedTriplets(group); 
+          visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+          bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
+        }
+      }
+      visibleLinks?.forEach( l => l.neurulated = false );
+
+      let that = this;
+      let doneUpdating = () => { 
+        const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
+        if (orthogonalSegments)
+        {
+          autoLayoutSegments(orthogonalSegments, visibleLinks);
+        }
+        that.onToggleLayout.emit();
+        window.removeEventListener("doneUpdating", doneUpdating);
+      };
+
+      window.addEventListener("doneUpdating", doneUpdating);
+  }
+
   toggleGroup = (event, group) => {
       if (this.neuroViewEnabled) {
         // Housing Lyphs Group
@@ -1449,44 +1476,25 @@ export class SettingsPanel {
             autoLayoutNeuron(neuronTriplets, group);
           }
         });
-  
+        this.handleOrthogonalLinks();
       } else {
         this.onToggleGroup.emit(group);
-        group?.lyphs?.forEach((m) => {
-          m.hidden = !event.checked;
-          m.inactive = !event.checked;
-        });
-        window.addEventListener("updateTick",function updateLayout(e){
-          if ( !group.hidden && e?.detail?.updating ) {
-            group?.lyphs?.forEach((m) => {
-              m.autoSize();
-            });
-          }
-        });
-      }
-      let visibleLinks = [];
-      let bigLyphs = []
-      for (let group of this.filteredDynamicGroups) {
-        if ( !group?.hidden && !group?.cloneOf ) {
-          let neuroTriplets = buildNeurulatedTriplets(group); 
-          visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
-          bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
+        if ( !this.disableNeuroview ) {
+          group?.lyphs?.forEach((m) => {
+            m.hidden = !event.checked;
+            m.inactive = !event.checked;
+          });
+          window.addEventListener("updateTick",function updateLayout(e){
+            if ( !group.hidden && e?.detail?.updating ) {
+              group?.lyphs?.forEach((m) => {
+                m.autoSize();
+              });
+            }
+          });
+          this.handleOrthogonalLinks();
         }
       }
-      visibleLinks?.forEach( l => l.neurulated = false );
-
-      let that = this;
-      let doneUpdating = () => { 
-        const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
-        if (orthogonalSegments)
-        {
-          autoLayoutSegments(orthogonalSegments, visibleLinks);
-        }
-        that.onToggleLayout.emit();
-        window.removeEventListener("doneUpdating", doneUpdating);
-      };
-
-      window.addEventListener("doneUpdating", doneUpdating);
+      
   };
 
   toggleAllDynamicGroup = () => {
@@ -1601,6 +1609,8 @@ export class SettingsPanel {
       this.filteredGroups = this.groups;
       this.filteredDynamicGroups = this.dynamicGroups;
       this.filteredScaffolds = this.scaffolds;
+      this.disableNeuroview = !(this.scaffolds?.length > 0);
+      this.config.layout.disableNeuroview = this.disableNeuroview;
   }
 
   ngOnChanges() {

@@ -296,7 +296,7 @@ Link.prototype.updateViewObjects = function(state) {
                         const curve3 = new THREE.SplineCurve( points);
                         this.points = curve3.getPoints(50);
 
-                        if (this.conveyingLyph?.viewObjects["main"]){
+                        if (this.conveyingLyph?.viewObjects["main"] && this.neurulated){
                             let centerPoint = this.points[Math.floor(this.points.length/2)];
                             this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
                             this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
