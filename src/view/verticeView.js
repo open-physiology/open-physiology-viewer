@@ -48,7 +48,7 @@ Vertice.prototype.updateViewObjects = function(state) {
 
     if (this.layout && this.viewObjects["main"]) {
         let coords = extractCoords(this.layout);
-        copyCoords(this.viewObjects["main"].position, coords);
+        copyCoords(this.viewObjects["main"].position, this);
         this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice));
     } else {
         this.updateLabels(this.center?.clone().addScalar(this.state.labelOffset.Vertice));

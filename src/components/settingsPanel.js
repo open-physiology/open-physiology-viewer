@@ -1405,8 +1405,7 @@ export class SettingsPanel {
           bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
         }
       }
-      visibleLinks?.forEach( l => l.neurulated = false );
-
+      
       let that = this;
       let doneUpdating = () => { 
         const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
