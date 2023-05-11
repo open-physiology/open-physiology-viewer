@@ -1478,7 +1478,7 @@ export class SettingsPanel {
         this.handleOrthogonalLinks();
       } else {
         this.onToggleGroup.emit(group);
-        if ( !this.disableNeuroview ) {
+        if ( !this.disableNeuroview && group.neurulated ) {
           group?.lyphs?.forEach((m) => {
             m.hidden = !event.checked;
             m.inactive = !event.checked;

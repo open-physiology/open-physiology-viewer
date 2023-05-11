@@ -145,7 +145,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   //obstacles, anything not a lyph and orphaned
 
   nodes.forEach( node => {
-    const lyphMesh = node.state.graphScene.children.find( c => c.userData?.id == node.id)
+    const lyphMesh = node.state.graphScene?.children?.find( c => c.userData?.id == node.id)
     let scale = lyphMesh?.scale 
     scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
     const width = node.width * scale.x ;
