@@ -1371,6 +1371,15 @@ export class SettingsPanel {
   hideVisibleGroups = (visible) => {
     // Hide all visible
     let allVisible = this.filteredDynamicGroups.filter((g) => g.hidden == false );
+    this.filteredDynamicGroups.forEach((g) => {
+      g.nodes.forEach((node) => {
+        node.hidden = visible;
+        node.inactive = visible;
+      });
+      g.links.forEach((link) => {
+        link.hidden = visible;
+      });
+    });
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
@@ -1378,6 +1387,12 @@ export class SettingsPanel {
           lyph.hostedBy = undefined;
           lyph.wiredTo = undefined;
         }
+      });
+      g.nodes.forEach((node) => {
+        node.hidden = true;
+      });
+      g.links.forEach((link) => {
+        link.hidden = true;
       });
       this.onToggleGroup.emit(g);
     });
