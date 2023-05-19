@@ -12,7 +12,7 @@ import {
     getDefaultControlPoint,
 } from "./utils";
 import { DIMENSIONS, pointAlongLine } from "./render/autoLayout";
-
+import { rotateAroundCenter } from "./render/autoLayout/transform";
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
@@ -37,7 +37,7 @@ Edge.prototype.updateViewObjects = function(state) {
 Edge.prototype.getViewObject = function (state){
     let material;
     if (this.stroke === Edge.EDGE_STROKE.DASHED) {
-        material = MaterialFactory.createLineDashedMaterial({color: "#000000"});
+        material = MaterialFactory.createLineDashedMaterial({color: this.color});
     } else {
         //Thick lines
         if (this.stroke === Edge.EDGE_STROKE.THICK) {
@@ -50,7 +50,7 @@ Edge.prototype.getViewObject = function (state){
         } else {
             //Normal lines
             material = MaterialFactory.createLineBasicMaterial({
-                color: "#000000",
+                color: this.color,
                 polygonOffsetFactor: this.polygonOffsetFactor
             });
         }
@@ -174,8 +174,13 @@ Link.prototype.updateViewObjects = function(state) {
     segments.forEach( segment => {
       points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
     })
-    
-    const material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+
+    let material;
+    if ( this.collapsible ) {
+        material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+    } else {
+        material = MaterialFactory.createLineBasicMaterial({color : random_rgba()});
+    }
     
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
     const line = new THREE.Line( geometry, material );
@@ -188,6 +193,26 @@ Link.prototype.updateViewObjects = function(state) {
     line.geometry.computeBoundingBox();
     line.geometry.computeBoundingSphere();
     this.createLabels();
+
+    if (this.conveyingLyph){
+        this.conveyingLyph.updateViewObjects(state);
+        this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
+        this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+
+        let edgeObj = this.viewObjects["linkSegments"];
+        if (edgeObj){
+            copyCoords(edgeObj.position, this.conveyingLyph.center);
+        }
+    }
+    if (this.conveyingLyph?.viewObjects["main"] && this.neurulated){
+        let centerPoint = pointAlongLine(points[0], points[points.length - 1], .5)
+         
+        this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
+        this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
+        this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
+        rotateAroundCenter(lyph, host.rotation.x, host.rotation.y, host.rotation.z);
+        copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
+    }
   }else{
 
     Edge.prototype.updateViewObjects.call(this, state);

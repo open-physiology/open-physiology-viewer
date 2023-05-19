@@ -1412,27 +1412,49 @@ export class SettingsPanel {
 
   handleOrthogonalLinks = () => {
       let visibleLinks = [];
-      let bigLyphs = []
+      let bigLyphs = [];
+      let internalLinks = [];
       for (let group of this.filteredDynamicGroups) {
         if ( !group?.hidden && !group?.cloneOf ) {
           let neuroTriplets = buildNeurulatedTriplets(group); 
-          visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+          visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => { 
+            let sourceBorder = l.source.hostedBy?.onBorder?.borders?.indexOf(l.source?.hostedBy);
+            let targetBorder = l.target.hostedBy?.onBorder?.borders?.indexOf(l.target?.hostedBy);
+            let absDiff = Math.abs(sourceBorder - targetBorder);
+            let internalLink =  ( !l.collapsible && ( absDiff == 1 || absDiff == 3) )
+            if (!l.collapsible && internalLink) {
+              internalLinks.push(l);
+            } 
+            return l.collapsible;
+          }));
           bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
         }
       }
       
       let that = this;
       let doneUpdating = () => { 
-        const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
+        // Create segment lines for collapsible links, these ones go from lyph to lyph
+        let orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height, 10, "manhattan")
         if (orthogonalSegments)
         {
           autoLayoutSegments(orthogonalSegments, visibleLinks);
         }
+
+        // Create segment lines for internal links, ones inside Lyphs
+        orthogonalSegments = applyOrthogonalLayout(internalLinks, [], that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height, 1, "metro")
+        if (orthogonalSegments)
+        {
+          autoLayoutSegments(orthogonalSegments, internalLinks);
+        }
+
         that.onToggleLayout.emit();
         window.removeEventListener("doneUpdating", doneUpdating);
+
       };
 
       window.addEventListener("doneUpdating", doneUpdating);
+
+      
   }
 
   toggleGroup = (event, group) => {
@@ -1514,6 +1536,7 @@ export class SettingsPanel {
   toggleAllDynamicGroup = () => {
     let visibleLinks = [];
     let bigLyphs = [];
+    let internalLinks = [];
     let toggleOn = true;
     const length = this.filteredDynamicGroups.filter( g => g.hidden )?.length;
     length == 0 ? toggleOn = false : null;
@@ -1532,20 +1555,36 @@ export class SettingsPanel {
       if ( group.hidden === toggleOn ) {
         this.onToggleGroup.emit(group);
       }
-      
+
       if ( !group?.hidden && !group?.cloneOf ) {
-        neuroTriplets = buildNeurulatedTriplets(group);        
-        visibleLinks = visibleLinks.concat(group.links.filter( l => !l.hidden && !l.inactive && l.collapsible ));
+        neuroTriplets = buildNeurulatedTriplets(group); 
+        visibleLinks = visibleLinks.concat(group.links.filter( l => { 
+          let sourceBorder = l.source.hostedBy?.onBorder?.borders?.indexOf(l.source?.hostedBy);
+          let targetBorder = l.target.hostedBy?.onBorder?.borders?.indexOf(l.target?.hostedBy);
+          let absDiff = Math.abs(sourceBorder - targetBorder);
+          let internalLink =  ( !l.collapsible && ( absDiff == 1 || absDiff == 3) )
+          if (!l.collapsible && internalLink) {
+            internalLinks.push(l);
+          } 
+          return !l.hidden && !l.inactive && l.collapsible;
+        }));
         bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
       }
     }  
 
     let that = this;
     window.addEventListener("doneUpdating", () => { 
-      const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
+      let orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height, 10, "manhattan")
       if (orthogonalSegments)
       {
         autoLayoutSegments(orthogonalSegments, visibleLinks);
+      }
+
+      // Create segment lines for internal links, ones inside Lyphs
+      orthogonalSegments = applyOrthogonalLayout(internalLinks, [], that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height, 1, "metro")
+      if (orthogonalSegments)
+      {
+        autoLayoutSegments(orthogonalSegments, internalLinks);
       }
     });
   };
