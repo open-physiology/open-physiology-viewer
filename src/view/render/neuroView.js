@@ -401,7 +401,7 @@ function distance(a, b) {
   return Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
 }
 
-export function applyOrthogonalLayout(links, nodes, left, top, width, height, threshold, router) {
+export function applyOrthogonalLayout(links, nodes, left, top, width, height) {
   const distances = [];
   links.forEach(l => {
     let start = getWorldPosition(l.source.viewObjects["main"])
@@ -414,8 +414,9 @@ export function applyOrthogonalLayout(links, nodes, left, top, width, height, th
   });
   if (distances.length > 0)
   {
+    const threshold = 10 ;
     const filtered_links = links.filter ( l => l.euclidianDistance > threshold );
     if (filtered_links.length > 0)
-      return orthogonalLayout(filtered_links, nodes, left, top, width, height, false, router) ;
+      return orthogonalLayout(filtered_links, nodes, left, top, width, height) ;
   }
 }
