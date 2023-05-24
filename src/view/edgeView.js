@@ -210,7 +210,8 @@ Link.prototype.updateViewObjects = function(state) {
         this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
         this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
         this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
-        rotateAroundCenter(lyph, host.rotation.x, host.rotation.y, host.rotation.z);
+        let hostMesh = this.conveyingLyph.hostedBy?.viewObjects["main"] || this.conveyingLyph.housingLyph?.viewObjects["main"] || this.conveyingLyph.internalIn?.viewObjects["main"] || this.conveyingLyph.layerIn?.viewObjects["main"];
+        rotateAroundCenter(this.conveyingLyph, hostMesh?.rotation.x, hostMesh?.rotation.y, hostMesh?.rotation.z);
         copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
     }
   }else{
