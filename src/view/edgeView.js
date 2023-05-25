@@ -210,8 +210,21 @@ Link.prototype.updateViewObjects = function(state) {
         this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
         this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
         this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
-        let hostMesh = this.conveyingLyph.hostedBy?.viewObjects["main"] || this.conveyingLyph.housingLyph?.viewObjects["main"] || this.conveyingLyph.internalIn?.viewObjects["main"] || this.conveyingLyph.layerIn?.viewObjects["main"];
-        rotateAroundCenter(this.conveyingLyph, hostMesh?.rotation.x, hostMesh?.rotation.y, hostMesh?.rotation.z);
+        
+        // estimate angle between two points
+        let quaternion = new THREE.Quaternion();
+        let start = points[0];
+        let end = points[points.length - 1];
+        start.normalize();
+        end.normalize();
+        quaternion.setFromUnitVectors(start,end);
+
+        // apply rotation to conveying lyph so it matches rotation of hostingLink
+        let euler = new THREE.Euler();
+        euler.setFromQuaternion(quaternion);
+        let rotationEuler = euler.toArray();
+        this.conveyingLyph.viewObjects["main"].rotateX(rotationEuler[0]);
+        this.conveyingLyph.viewObjects["main"].rotateY(rotationEuler[1]);
         copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
     }
   }else{
