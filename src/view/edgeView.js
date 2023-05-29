@@ -170,6 +170,8 @@ Link.prototype.updateViewObjects = function(state) {
     const z = Math.floor(Math.random() * 6) + 1 ;
 
     const segments = this.viewObjects['linkSegments'][0] ;
+    this.viewObjects['linkSegments'] = null ; //need to reset this to null
+                                              //, for some reason at some after step the view tries to render this array and it's just a set of points
 
     segments.forEach( segment => {
       points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
