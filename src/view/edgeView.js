@@ -37,7 +37,7 @@ Edge.prototype.updateViewObjects = function(state) {
 Edge.prototype.getViewObject = function (state){
     let material;
     if (this.stroke === Edge.EDGE_STROKE.DASHED) {
-        material = MaterialFactory.createLineDashedMaterial({color: "#000000"});
+        material = MaterialFactory.createLineDashedMaterial({color: this.color});
     } else {
         //Thick lines
         if (this.stroke === Edge.EDGE_STROKE.THICK) {
@@ -50,7 +50,7 @@ Edge.prototype.getViewObject = function (state){
         } else {
             //Normal lines
             material = MaterialFactory.createLineBasicMaterial({
-                color: "#000000",
+                color: this.color,
                 polygonOffsetFactor: this.polygonOffsetFactor
             });
         }
