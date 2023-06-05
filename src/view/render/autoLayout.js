@@ -9,6 +9,7 @@ import { getSceneObjectByModelClass
   , getBoundingBox
   , getMeshBoundingBoxSize
   , getWorldPosition
+  , getHostMesh
   , setMeshPos } from "./autoLayout/objects";
 
 import { trasverseHostedBy
@@ -74,7 +75,7 @@ export function fitToTargetRegion(target, source, terminalLyph) {
     source.scale.setY(sy);
     let parent = traverseMeshParent(target);
     source.geometry.center();
-    source.geometry.computeBoundingBox();
+    source.geometry.verticesNeedUpdate = true;
     source.rotation.x = parent.rotation.x;
     source.rotation.y = parent.rotation.y;
     source.rotation.z = parent.rotation.z;
@@ -106,16 +107,16 @@ export function maxLyphSize(target, source, terminalLyph) {
     if ( idealSize > hostMinSize ){
       idealSize = hostMinSize / 2;
     }
-  } else {
-    idealSize = hostMinSize;
-
+  } 
+  else {
     let link = source.userData.conveys;
+    length = target?.userData?.internalLyphs?.length;
     if ( link ) {
       link.viewObjects["main"].computeLineDistances();
       let ld = link.viewObjects["main"].geometry.getAttribute("lineDistance");
       idealSize = ld.getX(ld.count - 1) / 3;
-      if ( idealSize > MAX_LYPH_WIDTH ){
-        idealSize = MAX_LYPH_WIDTH;
+      if ( idealSize > hostMinSize ){
+        idealSize = hostMinSize/1.5;
       }
     }
   }
@@ -376,7 +377,6 @@ function layoutChains(scene, hostChainDic, links)
               // Create the final object to add to the scene
               const line = new THREE.Line( geometry, material );
               if ( link ) {
-                line?.geometry?.computeBoundingBox();
                 line.userData = link.userData;
                 line.position.z = 4;
                 scene.remove(link);
@@ -571,7 +571,8 @@ export function placeLyphInWire(lyph){
       const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
       position = pointAlongLine(pointA, pointB, (index + 1) / (visibleLyphs.length + 1)); 
     }
-    setLyphPosition(lyphMesh, wiredTo, position, false); 
+    setLyphPosition(lyphMesh, wiredTo, position, false);
+    lyphMesh.geometry.verticesNeedUpdate = true;
     copyCoords(lyph, lyphMesh.position);
   }
 }
@@ -579,34 +580,30 @@ export function placeLyphInWire(lyph){
  * Places lyph inside hosted region
  * @param {*} lyph 
  */
-export function placeLyphInHost(lyph){
-  let hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"] || lyph.layerIn?.viewObjects["main"];
+export function placeLyphInHost(lyph, updatePosition){
+  let hostMesh = getHostMesh(lyph);
   let lyphMesh = lyph.viewObjects["main"];
   let terminalLyph = lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" || lyph.supertype?.id === "lt-dend-bag" || lyph.supertype?.id === "lt-segment-of-neuron";
 
   // Fit lyph to region
-  fitToTargetRegion(hostMesh, lyphMesh, terminalLyph); 
+  if ( hostMesh ) {    
+    fitToTargetRegion(hostMesh, lyphMesh, terminalLyph); 
+  }
 
-  const targetPosition = getLyphPosition(lyphMesh, hostMesh, lyph);
+  if ( hostMesh ) {
+    const targetPosition = getLyphPosition(lyphMesh, hostMesh, lyph);
 
-  if ( !terminalLyph ){
-    lyphMesh.position.x = targetPosition.x ;
-    lyphMesh.position.y = targetPosition.y ;
-    lyphMesh.position.z = targetPosition.z;
-    lyphMesh.geometry.verticesNeedUpdate = true;
-    lyphMesh?.geometry?.computeBoundingBox();
-  } else if ( terminalLyph ){
-    lyphMesh.position.z = getHouseLyph(lyph)?.z + DIMENSIONS.LYPH_MIN_Z;
+    if ( !terminalLyph ){
+      lyphMesh.position.x = targetPosition.x ;
+      lyphMesh.position.y = targetPosition.y ;
+      lyphMesh.position.z = targetPosition.z;
+    } else if ( terminalLyph ){
+      lyphMesh.position.z = getHouseLyph(lyph)?.z + DIMENSIONS.LYPH_MIN_Z;
+    }
     copyCoords(lyph, lyphMesh.position);
-    lyph?.layers?.forEach( l => {
-      l.viewObjects["main"].position.z = lyph.conveys.z + (DIMENSIONS.LYPH_MIN_Z/2);
-      l.z = lyph.conveys.z;
-    })
     lyphMesh.geometry.verticesNeedUpdate = true;
     lyphMesh?.geometry?.computeBoundingBox();
   }
-  lyphMesh.geometry.verticesNeedUpdate = true;
-  lyphMesh?.geometry?.computeBoundingBox();
 }
 
 function getLyphPosition(lyphMesh, hostMesh, lyph) {
