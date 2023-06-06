@@ -209,24 +209,24 @@ function adjustLinks(graph, cell) {
   cell = cell.model || cell;
 
   if (cell instanceof dia.Element) {
-      // `cell` is an element
+    // `cell` is an element
 
-      _.chain(graph.getConnectedLinks(cell))
-          .groupBy(function(link) {
+    _.chain(graph.getConnectedLinks(cell))
+      .groupBy(function (link) {
 
-              // the key of the group is the model id of the link's source or target
-              // cell id is omitted
-              return _.omit([link.source().id, link.target().id], cell.id)[0];
-          })
-          .each(function(group, key) {
+        // the key of the group is the model id of the link's source or target
+        // cell id is omitted
+        return _.omit([link.source().id, link.target().id], cell.id)[0];
+      })
+      .each(function (group, key) {
 
-              // if the member of the group has both source and target model
-              // then adjust links
-              if (key !== 'undefined') adjustLinks(graph, _.first(group));
-          })
-          .value();
+        // if the member of the group has both source and target model
+        // then adjust links
+        if (key !== 'undefined') adjustLinks(graph, _.first(group));
+      })
+      .value();
 
-      return;
+    return;
   }
 
   // `cell` is a link
@@ -239,67 +239,76 @@ function adjustLinks(graph, cell) {
   // the link is interpreted as having no siblings
   if (!sourceId || !targetId) return;
 
-  // identify link siblings based on proximity
-  var siblings = _.filter(graph.getLinks(), function(sibling) {
-      // exclude self
-      if (sibling === cell) return false;
+  // Define the threshold for overlapping comparison
+  var threshold = 5; // Adjust this threshold as needed
 
-      // calculate the distance between the centers of the links
-      var siblingCenter = sibling.getBBox().center();
-      var cellCenter = cell.getBBox().center();
-      var distance = siblingCenter.distance(cellCenter);
+  // Identify link siblings that overlap within the threshold
+  var siblings = _.filter(graph.getLinks(), function (sibling) {
+    // Exclude self
+    if (sibling === cell) return false;
 
-      // adjust this threshold value as needed
-      var proximityThreshold = 50;
+    var siblingVertices = sibling.get('vertices');
+    var siblingSource = sibling.source();
+    var siblingTarget = sibling.target();
 
-      // check if the links are within the proximity threshold
-      return distance <= proximityThreshold;
+    // Check if the sibling link overlaps within the threshold in the same X or Y value
+    return _.some(siblingVertices, function (vertex) {
+      return (
+        Math.abs(vertex.x - siblingSource.x) <= threshold &&
+        Math.abs(vertex.x - siblingTarget.x) <= threshold
+      ) || (
+        Math.abs(vertex.y - siblingSource.y) <= threshold &&
+        Math.abs(vertex.y - siblingTarget.y) <= threshold
+      );
+    });
   });
 
   var numSiblings = siblings.length;
   switch (numSiblings) {
 
-      case 0: {
-          // the link has no siblings
-          break;
+    case 0: {
+      // the link has no siblings
+      break;
+    }
 
-      } case 1: {
-          // there is only one link
-          // no need to adjust position
-          break;
+    case 1: {
+      // there is only one link
+      // no need to adjust position
+      break;
+    }
 
-      } default: {
-          // there are multiple siblings
-          // adjust link positions
+    default: {
+      // there are multiple siblings
+      // adjust link positions
 
-          // find the middle point of the link
-          var sourceCenter = graph.getCell(sourceId).getBBox().center();
-          var targetCenter = graph.getCell(targetId).getBBox().center();
-          var midPoint = g.Line(sourceCenter, targetCenter).midpoint();
+      // find the middle point of the link
+      var sourceCenter = graph.getCell(sourceId).getBBox().center();
+      var targetCenter = graph.getCell(targetId).getBBox().center();
+      var midPoint = g.Line(sourceCenter, targetCenter).midpoint();
 
-          // find the angle of the link
-          var theta = sourceCenter.theta(targetCenter);
+      // find the angle of the link
+      var theta = sourceCenter.theta(targetCenter);
 
-          // constant
-          // the minimum distance between two sibling links
-          var GAP = 20;
+      // constant
+      // the minimum distance between two sibling links
+      var GAP = 20;
 
-          // calculate the total width occupied by siblings
-          var totalWidth = (numSiblings - 1) * GAP;
+      // calculate the total width occupied by siblings
+      var totalWidth = (numSiblings - 1) * GAP;
 
-          // calculate the starting position for the first link
-          var startX = midPoint.x - totalWidth / 2;
+      // calculate the starting position for the first link
+      var startX = midPoint.x - totalWidth / 2;
 
-          _.each(siblings, function(sibling, index) {
+      _.each(siblings, function (sibling, index) {
 
-              // calculate the position of the link
-              var linkX = startX + index * GAP;
+        // calculate the position of the link
+        var linkX = startX + index * GAP;
 
-              // update the link's source and target points
-              sibling.source({ x: linkX, y: midPoint.y });
-              sibling.target({ x: linkX, y: midPoint.y });
-          });
-      }
+        // update the link's source and target points
+        sibling.source({ x: linkX, y: midPoint.y });
+        sibling.target({ x: linkX, y: midPoint.y });
+      });
+    }
   }
 }
 
