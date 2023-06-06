@@ -1,5 +1,7 @@
 import { dia, shapes } from 'jointjs';
 import { getWorldPosition } from "./autoLayout/objects";
+import _ from 'lodash';
+
 function extractVerticesFromPath(path)
 {
   const vertices = [];
@@ -201,6 +203,101 @@ function adjustVertices(graph, cell) {
   }
 }
 
+function adjustLinks(graph, cell) {
+
+  // if `cell` is a view, find its model
+  cell = cell.model || cell;
+
+  if (cell instanceof dia.Element) {
+      // `cell` is an element
+
+      _.chain(graph.getConnectedLinks(cell))
+          .groupBy(function(link) {
+
+              // the key of the group is the model id of the link's source or target
+              // cell id is omitted
+              return _.omit([link.source().id, link.target().id], cell.id)[0];
+          })
+          .each(function(group, key) {
+
+              // if the member of the group has both source and target model
+              // then adjust links
+              if (key !== 'undefined') adjustLinks(graph, _.first(group));
+          })
+          .value();
+
+      return;
+  }
+
+  // `cell` is a link
+  // get its source and target model IDs
+  var sourceId = cell.get('source').id || cell.previous('source').id;
+  var targetId = cell.get('target').id || cell.previous('target').id;
+
+  // if one of the ends is not a model
+  // (if the link is pinned to paper at a point)
+  // the link is interpreted as having no siblings
+  if (!sourceId || !targetId) return;
+
+  // identify link siblings
+  var siblings = _.filter(graph.getLinks(), function(sibling) {
+
+      var siblingSourceId = sibling.source().id;
+      var siblingTargetId = sibling.target().id;
+
+      // if source and target are the same
+      // or if source and target are reversed
+      return ((siblingSourceId === sourceId) && (siblingTargetId === targetId))
+          || ((siblingSourceId === targetId) && (siblingTargetId === sourceId));
+  });
+
+  var numSiblings = siblings.length;
+  switch (numSiblings) {
+
+      case 0: {
+          // the link has no siblings
+          break;
+
+      } case 1: {
+          // there is only one link
+          // no need to adjust position
+          break;
+
+      } default: {
+          // there are multiple siblings
+          // adjust link positions
+
+          // find the middle point of the link
+          var sourceCenter = graph.getCell(sourceId).getBBox().center();
+          var targetCenter = graph.getCell(targetId).getBBox().center();
+          var midPoint = g.Line(sourceCenter, targetCenter).midpoint();
+
+          // find the angle of the link
+          var theta = sourceCenter.theta(targetCenter);
+
+          // constant
+          // the minimum distance between two sibling links
+          var GAP = 20;
+
+          // calculate the total width occupied by siblings
+          var totalWidth = (numSiblings - 1) * GAP;
+
+          // calculate the starting position for the first link
+          var startX = midPoint.x - totalWidth / 2;
+
+          _.each(siblings, function(sibling, index) {
+
+              // calculate the position of the link
+              var linkX = startX + index * GAP;
+
+              // update the link's source and target points
+              sibling.source({ x: linkX, y: midPoint.y });
+              sibling.target({ x: linkX, y: midPoint.y });
+          });
+      }
+  }
+}
+
 export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
   const graph = new dia.Graph();
@@ -355,6 +452,14 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
     }
   });
 
+  // bind `graph` to the `adjustVertices` function
+  var adjustGraphVertices = _.partial(adjustVertices, graph);
+  var adjustGraphLinks    = _.partial(adjustLinks, graph);
+
+  // adjust vertices when a cell is removed or its source/target was changed
+  graph.on('render:done', adjustGraphVertices);
+  graph.on('render:done', adjustGraphLinks);
+    
   if (debug)
   {
     const svg = exportToSVG(json.cells, graph, paper, canvasWidth, canvasHeight);

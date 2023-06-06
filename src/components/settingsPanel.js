@@ -1529,9 +1529,7 @@ export class SettingsPanel {
     window.addEventListener("doneUpdating", () => { 
       const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
       if (orthogonalSegments)
-      {
         autoLayoutSegments(orthogonalSegments, visibleLinks);
-      }
     });
   };
 
