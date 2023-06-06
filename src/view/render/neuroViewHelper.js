@@ -1,4 +1,4 @@
-import { dia, shapes } from 'jointjs';
+import { dia, shapes, g } from 'jointjs';
 import { getWorldPosition } from "./autoLayout/objects";
 import _ from 'lodash';
 
@@ -239,16 +239,21 @@ function adjustLinks(graph, cell) {
   // the link is interpreted as having no siblings
   if (!sourceId || !targetId) return;
 
-  // identify link siblings
+  // identify link siblings based on proximity
   var siblings = _.filter(graph.getLinks(), function(sibling) {
+      // exclude self
+      if (sibling === cell) return false;
 
-      var siblingSourceId = sibling.source().id;
-      var siblingTargetId = sibling.target().id;
+      // calculate the distance between the centers of the links
+      var siblingCenter = sibling.getBBox().center();
+      var cellCenter = cell.getBBox().center();
+      var distance = siblingCenter.distance(cellCenter);
 
-      // if source and target are the same
-      // or if source and target are reversed
-      return ((siblingSourceId === sourceId) && (siblingTargetId === targetId))
-          || ((siblingSourceId === targetId) && (siblingTargetId === sourceId));
+      // adjust this threshold value as needed
+      var proximityThreshold = 50;
+
+      // check if the links are within the proximity threshold
+      return distance <= proximityThreshold;
   });
 
   var numSiblings = siblings.length;
@@ -446,19 +451,20 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const newLinkView = paper.findViewByModel(linkModel);
       if (newLinkView) {
         newLinkView.requestConnectionUpdate();
+        adjustLinks(graph, linkModel);
         const vertices = newLinkView.path.toPoints();
         linkVertices[cell.id] = vertices ;
       }
     }
   });
 
-  // bind `graph` to the `adjustVertices` function
-  var adjustGraphVertices = _.partial(adjustVertices, graph);
-  var adjustGraphLinks    = _.partial(adjustLinks, graph);
+  // // bind `graph` to the `adjustVertices` function
+  // var adjustGraphVertices = _.partial(adjustVertices, graph);
+  // var adjustGraphLinks    = _.partial(adjustLinks, graph);
 
-  // adjust vertices when a cell is removed or its source/target was changed
-  graph.on('render:done', adjustGraphVertices);
-  graph.on('render:done', adjustGraphLinks);
+  // // adjust vertices when a cell is removed or its source/target was changed
+  // graph.on('render:done', adjustGraphVertices);
+  // graph.on('render:done', adjustGraphLinks);
     
   if (debug)
   {
