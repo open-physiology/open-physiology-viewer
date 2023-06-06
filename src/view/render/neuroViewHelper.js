@@ -230,36 +230,27 @@ function adjustLinks(graph, cell) {
   }
 
   // `cell` is a link
-  // get its source and target model IDs
-  var sourceId = cell.get('source').id || cell.previous('source').id;
-  var targetId = cell.get('target').id || cell.previous('target').id;
-
-  // if one of the ends is not a model
-  // (if the link is pinned to paper at a point)
-  // the link is interpreted as having no siblings
-  if (!sourceId || !targetId) return;
+  // get its vertices array
+  var vertices = cell.vertices();
 
   // Define the threshold for overlapping comparison
-  var threshold = 5; // Adjust this threshold as needed
+  var threshold = 5; 
 
   // Identify link siblings that overlap within the threshold
   var siblings = _.filter(graph.getLinks(), function (sibling) {
     // Exclude self
     if (sibling === cell) return false;
 
-    var siblingVertices = sibling.get('vertices');
-    var siblingSource = sibling.source();
-    var siblingTarget = sibling.target();
+    var siblingVertices = sibling.vertices();
 
-    // Check if the sibling link overlaps within the threshold in the same X or Y value
-    return _.some(siblingVertices, function (vertex) {
-      return (
-        Math.abs(vertex.x - siblingSource.x) <= threshold &&
-        Math.abs(vertex.x - siblingTarget.x) <= threshold
-      ) || (
-        Math.abs(vertex.y - siblingSource.y) <= threshold &&
-        Math.abs(vertex.y - siblingTarget.y) <= threshold
-      );
+    // Check if the sibling link overlaps within the threshold in terms of vertices
+    return _.some(siblingVertices, function (siblingVertex) {
+      return _.some(vertices, function (vertex) {
+        return (
+          Math.abs(vertex.x - siblingVertex.x) <= threshold &&
+          Math.abs(vertex.y - siblingVertex.y) <= threshold
+        );
+      });
     });
   });
 
@@ -282,12 +273,7 @@ function adjustLinks(graph, cell) {
       // adjust link positions
 
       // find the middle point of the link
-      var sourceCenter = graph.getCell(sourceId).getBBox().center();
-      var targetCenter = graph.getCell(targetId).getBBox().center();
-      var midPoint = g.Line(sourceCenter, targetCenter).midpoint();
-
-      // find the angle of the link
-      var theta = sourceCenter.theta(targetCenter);
+      var midPoint = getMidPoint(vertices);
 
       // constant
       // the minimum distance between two sibling links
@@ -304,13 +290,15 @@ function adjustLinks(graph, cell) {
         // calculate the position of the link
         var linkX = startX + index * GAP;
 
-        // update the link's source and target points
-        sibling.source({ x: linkX, y: midPoint.y });
-        sibling.target({ x: linkX, y: midPoint.y });
+        // update the sibling link's vertices
+        var siblingVertices = sibling.vertices();
+        var translatedVertices = translateVertices(siblingVertices, linkX - vertices[0].x, midPoint.y - vertices[0].y);
+        sibling.vertices(translatedVertices);
       });
     }
   }
 }
+
 
 export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
@@ -460,7 +448,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const newLinkView = paper.findViewByModel(linkModel);
       if (newLinkView) {
         newLinkView.requestConnectionUpdate();
-        adjustLinks(graph, linkModel);
+        adjustLinks(graph, newLinkView);
         const vertices = newLinkView.path.toPoints();
         linkVertices[cell.id] = vertices ;
       }
