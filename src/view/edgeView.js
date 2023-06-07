@@ -186,7 +186,6 @@ Link.prototype.updateViewObjects = function(state) {
     line.geometry.verticesNeedUpdate = true;
     line.computeLineDistances();
     line.geometry.computeBoundingBox();
-    line.geometry.computeBoundingSphere();
     this.createLabels();
   }else{
 
@@ -308,9 +307,7 @@ Link.prototype.updateViewObjects = function(state) {
                     }
                     obj.geometry.setFromPoints(this.points);
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.z = DIMENSIONS.LINK_MIN_Z * 2;
-                    obj.geometry.verticesNeedUpdate = true;
-                    obj.geometry.computeBoundingBox();
+                    obj.position.z = 0.05;
                     obj.geometry.computeBoundingSphere();
                 }
             }

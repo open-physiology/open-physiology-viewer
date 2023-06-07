@@ -692,6 +692,7 @@ export class WebGLSceneComponent {
         };
 
         let intersects = this.ray.intersectObjects(this.graph.children);
+        intersects = intersects.filter( i => i.object?.visible )
         if (intersects.length > 0) {
             let entity = intersects[0].object.userData;
             if (!entity || entity.inactive) { return; }
