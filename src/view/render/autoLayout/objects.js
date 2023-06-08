@@ -162,6 +162,15 @@ export function clearByObjectType(scene, type) {
   });
 }
 
+export function getHostMesh(lyph){
+  let hostMesh = lyph.internalIn?.viewObjects["main"];
+  if ( !hostMesh ) {
+    hostMesh = lyph.hostedBy?.viewObjects["main"] || lyph.housingLyph?.viewObjects["main"] || lyph.internalIn?.viewObjects["main"] ||  lyph.layerIn?.viewObjects["main"];
+  }
+
+  return hostMesh;
+}
+
 function preventMaxSizeLyph() {
   let all = [];
   let kapsuleChildren = scene.children ;

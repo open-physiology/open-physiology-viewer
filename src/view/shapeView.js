@@ -154,7 +154,7 @@ Lyph.prototype.autoSize = function(){
         let hostMesh = this.hostedBy?.viewObjects["main"] || this.housingLyph?.viewObjects["main"] || this.internalIn?.viewObjects["main"];
         if ( hostMesh ) {
             // Place and scale lyph inside host region or lyph
-            placeLyphInHost(this);
+            placeLyphInHost(this, true);
         } else {
             let wiredTo = this.wiredTo?.viewObjects["main"];
             // If lyph is attach to the wire

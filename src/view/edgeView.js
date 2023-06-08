@@ -174,7 +174,7 @@ Link.prototype.updateViewObjects = function(state) {
     segments.forEach( segment => {
       points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
     })
-
+    
     let material;
     if ( this.collapsible ) {
         material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
@@ -191,7 +191,6 @@ Link.prototype.updateViewObjects = function(state) {
     line.geometry.verticesNeedUpdate = true;
     line.computeLineDistances();
     line.geometry.computeBoundingBox();
-    line.geometry.computeBoundingSphere();
     this.createLabels();
 
     if (this.conveyingLyph){
@@ -206,11 +205,11 @@ Link.prototype.updateViewObjects = function(state) {
     }
     if (this.conveyingLyph?.viewObjects["main"] && this.neurulated){
         let centerPoint = pointAlongLine(points[0], points[points.length - 1], .5)
-         
+
         this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
         this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
         this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
-        
+
         // estimate angle between two points
         let quaternion = new THREE.Quaternion();
         let start = points[0];
@@ -347,9 +346,7 @@ Link.prototype.updateViewObjects = function(state) {
                     }
                     obj.geometry.setFromPoints(this.points);
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.z = DIMENSIONS.LINK_MIN_Z * 2;
-                    obj.geometry.verticesNeedUpdate = true;
-                    obj.geometry.computeBoundingBox();
+                    obj.position.z = 0.05;
                     obj.geometry.computeBoundingSphere();
                 }
             }

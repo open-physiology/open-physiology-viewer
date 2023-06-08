@@ -106,7 +106,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.style.width = canvasWidth * 2 + 'px';
   el.style.height = canvasHeight *  2 + 'px';
 
-  const linkNodeSide = 0 ;
+  const linkNodeSide = 0;
 
   if (debug)
   {
@@ -145,8 +145,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   //obstacles, anything not a lyph and orphaned
 
   nodes?.forEach( node => {
-    const lyphMesh = node.state.graphScene?.children?.find( c => c.userData?.id == node.id)
-    let scale = lyphMesh?.scale 
+    const lyphMesh = node.state.graphScene?.children?.find( c => c.userData?.id == node.id);    let scale = lyphMesh?.scale 
     scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
     const width = node.width * scale.x ;
     const height = node.height * scale.y
@@ -176,8 +175,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const sourceNode = new shapes.standard.Rectangle({
         id: link.id + '-source',
         position: { 
-            x: sx - linkNodeSide 
-          , y: sy - linkNodeSide 
+            x: sx - linkNodeSide
+          , y: sy - linkNodeSide
         },
         size: { 
           width: linkNodeSide
@@ -188,8 +187,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const targetNode = new shapes.standard.Rectangle({
         id: link.id + '-target',
         position: { 
-            x: tx - linkNodeSide 
-          , y: ty - linkNodeSide 
+            x: tx - linkNodeSide
+          , y: ty - linkNodeSide
         },
         size: { 
             width: linkNodeSide

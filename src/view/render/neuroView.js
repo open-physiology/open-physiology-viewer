@@ -111,6 +111,9 @@ function traverseWires(component, checked){
 
 export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) {
   // Hides links and nodes we don't want to display
+  groupMatched?.nodes.forEach( n => {
+    n.inactive = checked;
+  })
   groupMatched?.links?.forEach((link) => { 
     if ( neurulatedMatches?.links?.find( l => l.id === link.id ) ) {
       link.inactive = !checked;

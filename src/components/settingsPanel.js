@@ -1449,12 +1449,9 @@ export class SettingsPanel {
 
         that.onToggleLayout.emit();
         window.removeEventListener("doneUpdating", doneUpdating);
-
       };
 
       window.addEventListener("doneUpdating", doneUpdating);
-
-      
   }
 
   toggleGroup = (event, group) => {
@@ -1477,7 +1474,6 @@ export class SettingsPanel {
         // Identify TOO Map components and turn them ON/OFF
         const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
         matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
-        this.config.layout.showLayers && this.toggleLayout("showLayers");
         this.activeNeurulatedGroups.push(group);
 
         //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
@@ -1535,8 +1531,8 @@ export class SettingsPanel {
 
   toggleAllDynamicGroup = () => {
     let visibleLinks = [];
-    let bigLyphs = [];
     let internalLinks = [];
+    let bigLyphs = [];
     let toggleOn = true;
     const length = this.filteredDynamicGroups.filter( g => g.hidden )?.length;
     length == 0 ? toggleOn = false : null;
@@ -1555,7 +1551,7 @@ export class SettingsPanel {
       if ( group.hidden === toggleOn ) {
         this.onToggleGroup.emit(group);
       }
-
+      
       if ( !group?.hidden && !group?.cloneOf ) {
         neuroTriplets = buildNeurulatedTriplets(group); 
         visibleLinks = visibleLinks.concat(group.links.filter( l => { 
@@ -1630,9 +1626,6 @@ export class SettingsPanel {
     this.activeNeurulatedGroups = [];
     // Update rendered scafoold components
     this.config.layout.neuroviewEnabled = visible;
-    // Toggle layers on or off
-    this.config.layout.showLayers && this.toggleLayout("showLayers");
-
 
     this.updateRenderedResources();
   };

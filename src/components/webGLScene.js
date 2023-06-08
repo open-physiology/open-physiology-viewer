@@ -242,7 +242,12 @@ export class WebGLSceneComponent {
         } else {
             this.highlight(this._selected, this.selectColor, false);
         }
-        this.highlight(entity, this.highlightColor, entity !== this._selected);
+        
+        let color = this.highlightColor;
+        if ( entity?.class === "Region" ){
+            color = 0xeeffff;
+        }
+        this.highlight(entity, color, entity !== this._selected);
         this._highlighted = entity;
         this.highlightedItemChange.emit(entity);
 
@@ -688,6 +693,7 @@ export class WebGLSceneComponent {
         };
 
         let intersects = this.ray.intersectObjects(this.graph.children);
+        intersects = intersects.filter( i => i.object?.visible )
         if (intersects.length > 0) {
             let entity = intersects[0].object.userData;
             if (!entity || entity.inactive) { return; }
