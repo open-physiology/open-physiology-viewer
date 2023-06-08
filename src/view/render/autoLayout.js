@@ -597,8 +597,11 @@ export function placeLyphInHost(lyph, updatePosition){
       lyphMesh.position.x = targetPosition.x ;
       lyphMesh.position.y = targetPosition.y ;
       lyphMesh.position.z = targetPosition.z;
+      if ( hostMesh?.userData?.class === "Lyph" ){
+        lyphMesh.position.z = getHouseLyph(lyph)?.z + DIMENSIONS.LYPH_MIN_Z;
+      }
     } else if ( terminalLyph ){
-      lyphMesh.position.z = getHouseLyph(lyph)?.z + DIMENSIONS.LYPH_MIN_Z;
+      lyphMesh.position.z = getHouseLyph(lyph)?.z + ( DIMENSIONS.LYPH_MIN_Z * 1.25 );
     }
     copyCoords(lyph, lyphMesh.position);
     lyphMesh.geometry.verticesNeedUpdate = true;
