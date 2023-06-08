@@ -167,7 +167,7 @@ Lyph.prototype.autoSize = function(){
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
     }
-    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
+    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
 };
 
 /**
@@ -278,7 +278,7 @@ Lyph.prototype.createViewObjects = function(state) {
         });
     }
     //Do not create labels for layers and nested lyphs
-    ( !this.housingLyph ) && this.createLabels();
+    this.createLabels();
 };
 
 /**
@@ -331,7 +331,7 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if ( !this.layerIn ) this.border.updateViewObjects(state);
 
-    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
+    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
@@ -415,7 +415,7 @@ Region.prototype.createViewObjects = function(state) {
         this.viewObjects['main'] = obj;
         this.border.createViewObjects(state);
     }
-    ( !this.housingLyph ) && this.createLabels();
+    this.createLabels();
 };
 
 /**
@@ -436,7 +436,7 @@ Region.prototype.updateViewObjects = function(state) {
         obj.visible = !this.inactive;
     }
 
-    ( !this.housingLyph ) && this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
+    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 };
 
 Region.prototype.relocate = function (delta){
