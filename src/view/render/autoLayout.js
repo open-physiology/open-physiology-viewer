@@ -116,7 +116,7 @@ export function maxLyphSize(target, source, terminalLyph) {
       let ld = link.viewObjects["main"].geometry.getAttribute("lineDistance");
       idealSize = ld.getX(ld.count - 1) / 3;
       if ( idealSize > hostMinSize ){
-        idealSize = hostMinSize/1.5;
+        idealSize = hostMinSize;
       }
     }
   }
