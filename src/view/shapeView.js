@@ -154,7 +154,7 @@ Lyph.prototype.autoSize = function(){
         let hostMesh = this.hostedBy?.viewObjects["main"] || this.housingLyph?.viewObjects["main"] || this.internalIn?.viewObjects["main"];
         if ( hostMesh ) {
             // Place and scale lyph inside host region or lyph
-            placeLyphInHost(this);
+            placeLyphInHost(this, true);
         } else {
             let wiredTo = this.wiredTo?.viewObjects["main"];
             // If lyph is attach to the wire
@@ -168,6 +168,7 @@ Lyph.prototype.autoSize = function(){
         copyCoords(this, this.viewObjects["main"]?.position);  
         this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
     }
+    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
 };
 
 /**
@@ -278,7 +279,7 @@ Lyph.prototype.createViewObjects = function(state) {
         });
     }
     //Do not create labels for layers and nested lyphs
-    this.createLabels();
+    ( !this.housingLyph ) && this.createLabels();
 };
 
 /**
@@ -331,7 +332,7 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if ( !this.layerIn ) this.border.updateViewObjects(state);
 
-    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
+    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
@@ -415,7 +416,7 @@ Region.prototype.createViewObjects = function(state) {
         this.viewObjects['main'] = obj;
         this.border.createViewObjects(state);
     }
-    this.createLabels();
+    ( !this.housingLyph ) && this.createLabels();
 };
 
 /**
@@ -436,7 +437,7 @@ Region.prototype.updateViewObjects = function(state) {
         obj.visible = !this.inactive;
     }
 
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
+    ( !this.housingLyph ) && this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
 };
 
 Region.prototype.relocate = function (delta){

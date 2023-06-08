@@ -12,7 +12,7 @@ import {
     getDefaultControlPoint,
 } from "./utils";
 import { DIMENSIONS, pointAlongLine } from "./render/autoLayout";
-import { rotateAroundCenter } from "./render/autoLayout/transform";
+
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
@@ -174,13 +174,8 @@ Link.prototype.updateViewObjects = function(state) {
     segments.forEach( segment => {
       points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
     })
-
-    let material;
-    if ( this.collapsible ) {
-        material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
-    } else {
-        material = MaterialFactory.createLineBasicMaterial({color : random_rgba()});
-    }
+    
+    const material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
     
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
     const line = new THREE.Line( geometry, material );
