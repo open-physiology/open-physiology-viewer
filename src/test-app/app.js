@@ -51,8 +51,8 @@ import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
-import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
-import {MaterialEditorModule} from "../components/gui/materialEditor";
+import {removeDisconnectedObjects} from '../../src/view/render/autoLayout'
+import {MaterialEditorModule} from "../components/materialEditor";
 
 enableProdMode();
 
@@ -215,7 +215,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 <!--Material editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
                     <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Material editor </ng-template>
-                    <materialEditor [model]="_model"> 
+                    <materialEditor 
+                            [model]="_model"
+                            (onChangesSave)="applyMaterialEditorChanges($event)"> 
                     </materialEditor> 
                 </mat-tab>
             </mat-tab-group>
@@ -447,6 +449,14 @@ export class TestApp {
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
+    }
+
+    applyMaterialEditorChanges(newModel){
+        console.log("Applying material changes");
+        console.log("Before: ", this._model.materials.length);
+        this._model = newModel;
+        this.applyChanges();
+        console.log("After: ", this._model.materials.length);
     }
 
     applyChanges(){

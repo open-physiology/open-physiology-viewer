@@ -1,7 +1,7 @@
 import {VisualResource} from './visualResourceModel';
 import {Node} from './verticeModel';
 import {Edge, Link} from './edgeModel';
-import {clone, merge, pick, isObject, mergeWith, values, keys} from 'lodash-bound';
+import {clone, merge, pick, isObject, mergeWith, values} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
     LYPH_TOPOLOGY,
@@ -18,7 +18,7 @@ import {
     refToResource,
     getFullID,
     mergeGenResource,
-    genResource, replaceAbstractRefs
+    genResource
 } from './utils';
 import tinycolor from "tinycolor2";
 

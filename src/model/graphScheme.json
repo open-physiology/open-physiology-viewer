@@ -1693,7 +1693,7 @@
           }
         },
         "hostedBy": {
-          "description": "ID or reference of the lyph which this lyph must be projected to",
+          "description": "ID or reference of the region which this lyph must be projected to",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
