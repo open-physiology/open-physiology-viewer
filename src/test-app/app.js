@@ -452,11 +452,8 @@ export class TestApp {
     }
 
     applyMaterialEditorChanges(newModel){
-        console.log("Applying material changes");
-        console.log("Before: ", this._model.materials.length);
         this._model = newModel;
         this.applyChanges();
-        console.log("After: ", this._model.materials.length);
     }
 
     applyChanges(){

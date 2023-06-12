@@ -103,6 +103,7 @@ export class Edge {
           <ng-template matMenuContent let-item="item" let-type="type"> 
             <div *ngIf="type === 'type-lyph' || type === 'type-material'">
                 <button mat-menu-item (click)="deleteMaterial(item)">Delete</button> 
+                <button mat-menu-item (click)="deleteDefinition(item)">Delete definition</button> 
                 <button mat-menu-item (click)="removeParents(item)">Disconnect from parents</button> 
                 <button mat-menu-item (click)="removeChildren(item)">Disconnect from children</button> 
             </div>
@@ -113,6 +114,10 @@ export class Edge {
             <div *ngIf="type === 'has-material'">
                 <button mat-menu-item (click)="removeRelation(item)">Delete relation</button> 
             </div>          
+            <div *ngIf="type === 'type-new'">
+                <button mat-menu-item (click)="addMaterial(item)">Add material</button> 
+            </div>          
+              
           </ng-template> 
         </mat-menu> 
     `,
@@ -256,7 +261,6 @@ export class DagViewerD3Component {
     entitiesByID;
     nodes = [];
     edges = [];
-    edgesByID;
     menuTopLeftPosition = {x: '0', y: '0'}
 
     steps = [];
@@ -282,7 +286,6 @@ export class DagViewerD3Component {
 
     constructor(snackBar: MatSnackBar) {
         this._snackBar = snackBar;
-        console.log("Snackbar: ", this._snackBar);
         this._snackBarConfig.panelClass = ['w3-panel', 'w3-yellow'];
     }
 
@@ -298,7 +301,7 @@ export class DagViewerD3Component {
           .attr("width", "100%")
           .attr("height", "100%")
           .attr("fill", "white")
-          .on('contextmenu', this.onEmptyRightClick);
+          .on('contextmenu', d => this.onEmptyRightClick(d));
         this.tooltip = d3.select(this.tooltipRef.nativeElement).style("opacity", 0);
         this.width  = this.svgRef.nativeElement.clientWidth;
         this.height = this.svgRef.nativeElement.clientHeight;
@@ -332,9 +335,9 @@ export class DagViewerD3Component {
         }
         this.svg.select('g').remove();
 
-        let inner = this.svg.append("g");
+        this.inner = this.svg.append("g");
         this.zoom = d3.zoom().on("zoom", () => {
-            inner.attr("transform", d3.event.transform);
+            this.inner.attr("transform", d3.event.transform);
         });
         this.svg.call(this.zoom);
 
@@ -350,8 +353,8 @@ export class DagViewerD3Component {
         (this.edges || []).forEach(e => {
             this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis})
         });
-        let render = new dagreD3.render(this.graphD3);
-        render(inner, this.graphD3);
+        this.render = new dagreD3.render(this.graphD3);
+        this.render(this.inner, this.graphD3);
 
         let selected_node, source_node, target_node, md_node;
         let hide_line = true;
@@ -364,7 +367,7 @@ export class DagViewerD3Component {
             hide_line = true;
         }
 
-        let nodes = inner.selectAll("g.node");
+        let nodes = this.inner.selectAll("g.node");
         nodes
             .on('click', d => {
                 this.onNodeClick(d);
@@ -400,7 +403,6 @@ export class DagViewerD3Component {
                             resetMouseVars();
                             return;
                         }
-                        //NK TODO prevent loop
                         let areConnected = isPath(this.entitiesByID, target_node, source_node);
                         if (areConnected){
                             let message = "Cannot create the edge: a loop will be introduced!";
@@ -409,17 +411,6 @@ export class DagViewerD3Component {
 
                         let existing_edge = this.graphD3.edge(source_node, target_node);
                         if (!existing_edge) {
-                            this.graphD3.setEdge(source_node, target_node, {
-                                label: "new",
-                                arrowhead: "vee",
-                                arrowheadStyle: "fill: #a5a5a5",
-                                style: "stroke: #a5a5a5; stroke-dasharray: 3, 3;",
-                                lineInterpolate: 'bundle'
-                            });
-
-                            let edge = new Edge(source_node + '---' + target_node, this.entitiesByID[source_node], this.entitiesByID[target_node], 'has-material');
-                            this.edges.push(edge);
-
                             if (source_node && target_node) {
                                 let material1 = this.entitiesByID[source_node];
                                 let material2 = this.entitiesByID[target_node];
@@ -427,11 +418,12 @@ export class DagViewerD3Component {
                                     material1.materials = material1.materials || [];
                                     if (!material1.materials.find(m => m === material2.id)) {
                                         material1.materials.push(material2.id);
+                                        this.graphD3.setEdge(material1.id, material2.id, {curve: d3.curveBasis})
+                                        this.inner.call(this.render, this.graphD3);
 
-                                        //NK TODO add edge without redrawing
-
-                                        this.updateGraph();
-                                        this.draw();
+                                        let path = this.graphD3.edge({v:material1.id, w: material2.id});
+                                        d3.select(path.elem).on('click', d => this.onEdgeClick(d))
+                                            .on('contextmenu', d => this.onEdgeRightClick(d));
                                     }
                                 }
                             }
@@ -441,17 +433,15 @@ export class DagViewerD3Component {
                 }
             });
 
-        let edges = inner.selectAll("g.edgePath");
+        let edges = this.inner.selectAll("g.edgePath");
         edges
             .on('click', d => this.onEdgeClick(d))
             .on('contextmenu', d => this.onEdgeRightClick(d));
 
         this.svg.attr("height", this.graphD3.graph().height + 40);
-        // inner.attr("height", this.graphD3.graph().height + 40);
 
-        //Experimental
-        // this.svg.append('svg:defs').append('svg:marker')
-        inner.append('svg:defs').append('svg:marker')
+        // Adding temporary edge
+        this.inner.append('svg:defs').append('svg:marker')
             .attr('id', 'end-arrow')
             .attr("viewBox", "0 0 10 10")
             .attr("refX", 9)
@@ -486,11 +476,11 @@ export class DagViewerD3Component {
             resetMouseVars();
         }
 
-        let drag_line = inner.append('svg:path')
+        let drag_line = this.inner.append('svg:path')
           .attr('class', 'link dragline hidden')
           .attr('d', 'M0,0L0,0');
 
-        inner.on('mousedown', mousedown)
+        this.inner.on('mousedown', mousedown)
           .on('mousemove', mousemove)
           .on('mouseup', mouseup);
     }
@@ -501,9 +491,9 @@ export class DagViewerD3Component {
     updateGraph() {
         this.faultyDefs = [];
         this.entitiesByID = {};
-        this.edgesByID = {};
         this.nodes = [];
         this.edges = [];
+        let created = [];
 
         this.updateSearchOptions();
 
@@ -517,7 +507,6 @@ export class DagViewerD3Component {
                 this.entitiesByID[m.id] = m;
             });
         });
-        let created = [];
         (this._model.materials || []).forEach(m => {
             (m.materials || []).forEach(childID => {
                 if (!this.entitiesByID[childID]) {
@@ -572,10 +561,7 @@ export class DagViewerD3Component {
         this.nodes.forEach(node => {
             (node.parents || []).forEach(p => {
                 let edge = new Edge(node.id + '---' + p, this.entitiesByID[p], node.resource, 'has-material');
-                if (!this.edgesByID[edge.id]) {
-                    this.edges.push(edge);
-                    this.edgesByID[edge.id] = edge;
-                }
+                this.edges.push(edge);
             });
         });
 
@@ -673,84 +659,173 @@ export class DagViewerD3Component {
 
     onEmptyRightClick(){
         d3.event.preventDefault();
+        let type = "type-new";
+        this.menuTopLeftPosition.x = d3.event.clientX + 'px';
+        this.menuTopLeftPosition.y = d3.event.clientY + 'px';
+        let pos = {x: d3.event.clientX + 'px', y: d3.event.clientY + 'px'};
+        this.matMenuTrigger.menuData = {item: pos, type: type}
+        this.matMenuTrigger.openMenu();
+    }
+
+    removeNode(nodeID){
+        delete this.entitiesByID[nodeID];
+        this.graphD3.removeNode(nodeID);
+        let idx = (this.nodes||[]).findIndex(n => n.id === nodeID);
+        if (idx > -1){
+            this.nodes.splice(idx, 1);
+        }
+    }
+
+    removeEdge({v, w}){
+        this.graphD3.removeEdge(v, w);
+        let idx = (this.edges||[]).findIndex(e => e.source === v && e.target === w);
+        if (idx > -1){
+            this.edges.splice(idx, 1);
+        }
+    }
+
+    removeMaterialOrLyph(nodeID){
+        let idx = (this._model.materials||[]).findIndex(m => m.id === nodeID);
+        if (idx > -1){
+            this._model.materials.splice(idx, 1);
+        } else {
+            idx = (this._model.lyphs||[]).findIndex(m => m.id === nodeID);
+            this._model.lyphs.splice(idx, 1);
+        }
+        this.updateSearchOptions();
+    }
+
+
+    defineNewMaterial(){
+        let newMat = {
+            [$Field.id]   : "newMat" + ++this.newMatCounter,
+            [$Field.name] : "New material " + this.newMatCounter,
+            "_class"      : $SchemaClass.Material
+        }
+        this._model.materials.push(newMat);
+        this.entitiesByID[newMat.id] = newMat;
+        return newMat;
     }
 
     createMaterial(){
-        let newMat = {
-            "id": "newMat" + ++this.newMatCounter,
-            "name": "New material " + this.newMatCounter
-        }
-        this._model.materials.push(newMat);
+        let newMat = this.defineNewMaterial();
         this.updateGraph();
         this.draw();
         this.selectedNode = newMat.id;
     }
 
-    deleteMaterial(nodeID){
+    addMaterial(pos){
+        //NK TODO pos provides coordinates of client area, reposition to canvas
+        let newMat = this.defineNewMaterial();
+        this.graphD3.setNode(newMat.id, {
+            label: newMat.name,
+            class: 'type-material'
+        });
+        this.inner.call(this.render, this.graphD3);
+        this.nodes.push(new Node(newMat.id,[], [], newMat.name, "type-material", newMat));
+
+        let node = this.graphD3.node(newMat.id);
+        if (node) {
+            let elem = d3.select(node.elem);
+            elem.style('transform', 'translate(' + pos.x + ',' + pos.y + ')');
+        }
+        this.updateSearchOptions();
+        this.selectedNode = newMat.id;
+    }
+
+    addDefinition(prop, nodeID){
+        let resource = this.entitiesByID[nodeID];
+        resource.name = "Generated " + nodeID;
+        resource._class = prop === $Field.lyphs? $SchemaClass.Lyph: $SchemaClass.Material;
+        delete resource.generated;
+        this._model[prop] = this._model[prop] || [];
+        this._model[prop].push(resource);
+    }
+
+    deleteDefinition(nodeID){
         let material = this.entitiesByID[nodeID];
         if (material) {
-            this.saveStep("Delete material");
-            clearMaterialRefs(this._model, material.id);
-            this.updateGraph();
-            this.draw();
+            this.removeMaterialOrLyph(nodeID);
+            this.entitiesByID[nodeID]._generated = true;
+            delete this.entitiesByID[nodeID]._class;
+            let node = this.graphD3.node(nodeID);
+            if (node){
+                node.class = 'type-undefined';
+                let val = d3.select(node.elem).attr("class").replace('type-material', node.class).replace('type-lyph', node.class);
+                d3.select(node.elem).attr("class", val);
+            }
+            this.saveStep("Delete definition");
         }
     }
 
     defineAsLyph(nodeID){
+        this.addDefinition($Field.lyphs, nodeID);
+        let node = this.graphD3.node(nodeID);
+        if (node){
+            node.class = 'type-lyph';
+            let val = d3.select(node.elem).attr("class").replace('type-undefined', node.class);
+            d3.select(node.elem).attr("class", val);
+        }
         this.saveStep("Define as lyph");
-        let lyph = this.entitiesByID[nodeID];
-        lyph.name = "Generated " + lyph.id;
-        this._model.lyphs.push(lyph);
-        this.saveStep("Define lyph");
-        //NK TODO Update node color
     }
 
     defineAsMaterial(nodeID){
-        this.saveStep("Define as material");
-        let material = this.entitiesByID[nodeID];
-        material.name = "Generated " + material.id;
-        this._model.materials.push(material);
-        this.saveStep("Define material");
-        //NK TODO Update node color
+        this.addDefinition($Field.materials, nodeID);
         let node = this.graphD3.node(nodeID);
         if (node){
-            node._class = 'type-material';
-            d3.select(node.elem).select("g rect").attr("class", 'type-material');
+            node.class = 'type-material';
+            let val = d3.select(node.elem).attr("class").replace('type-undefined', node.class);
+            d3.select(node.elem).attr("class", val);
         }
-        // console.log(node.elem);
+        this.saveStep("Define as material");
+    }
+
+    deleteMaterial(nodeID){
+        let material = this.entitiesByID[nodeID];
+        if (material) {
+            clearMaterialRefs(this._model, nodeID);
+            this.removeMaterialOrLyph(nodeID);
+            this.removeNode(nodeID);
+            let edges = this.graphD3.nodeEdges(nodeID);
+            (edges||[]).forEach(({v, w}) => this.removeEdge({v, w}));
+            this.inner.call(this.render, this.graphD3);
+            this.saveStep("Delete material");
+        }
     }
 
     removeParents(nodeID){
         let material = this.entitiesByID[nodeID];
         if ((material._inMaterials||[]).length > 0) {
-            this.saveStep("Disconnect parents");
-            material._inMaterials.forEach(m => clearMany(m, ["materials"], material.id));
+            material._inMaterials.forEach(m => {
+                clearMany(m, ["materials"], material.id);
+                this.removeEdge({v: m.id, w:material.id})
+            });
             material._inMaterials = [];
-            this.updateGraph();
-            this.draw();
+            this.inner.call(this.render, this.graphD3);
+            this.saveStep("Disconnect parents");
         }
     }
 
     removeChildren(nodeID){
         let material = this.entitiesByID[nodeID];
         if ((material.materials||[]).length > 0) {
-            this.saveStep("Disconnect children");
-            material.materials.forEach(m => clearMany(m, ["_inMaterials"], material.id));
+            material.materials.forEach(m => {
+                clearMany(m, ["_inMaterials"], material.id);
+                this.removeEdge({v:material.id, w: m});
+            });
             material.materials = [];
-            this.updateGraph();
-            this.draw();
+            this.inner.call(this.render, this.graphD3);
+            this.saveStep("Disconnect children");
         }
     }
 
     removeRelation({v, w}){
         let material = this.entitiesByID[v];
         if ((material.materials||[]).length > 0) {
-            this.saveStep("Remove relation");
             clearMany(material, ["materials"], w);
-            let edge = this.graphD3.edge({v,w});
-            if (edge){
-                d3.select(edge.elem).remove();
-            }
+            this.removeEdge({v, w});
+            this.inner.call(this.render, this.graphD3);
+            this.saveStep("Remove relation");
         }
     }
 
@@ -769,11 +844,11 @@ export class DagViewerD3Component {
 
     undo(){
         console.log("Undo!");
-        if (this.currentStep > 1) {
+        if (this.currentStep > 0) {
             this._model = this.steps[this.currentStep - 1];
+            this.currentStep -= 1;
             this.updateGraph();
             this.draw();
-            this.currentStep -= 1;
         }
     }
 
@@ -781,9 +856,9 @@ export class DagViewerD3Component {
         console.log("Redo!");
         if (this.currentStep < this.steps.length) {
             this._model = this.steps[this.currentStep].snapshot;
+            this.currentStep += 1;
             this.updateGraph();
             this.draw();
-            this.currentStep += 1;
         }
     }
 
