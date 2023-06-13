@@ -89,216 +89,79 @@ function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight)
   return svgString;
 }
 
-function adjustVertices(graph, cell) {
+// Set the threshold values for x and y coordinates
+const thresholdX = 10; // Adjust as needed
+const thresholdY = 10; // Adjust as needed
 
-  // if `cell` is a view, find its model
-  cell = cell.model || cell;
+function doLineSegmentsOverlap(segment1, segment2) {
+  const [{ x: x1, y: y1 }, { x: x2, y: y2 }] = segment1;
+  const [{ x: x3, y: y3 }, { x: x4, y: y4 }] = segment2;
 
-  if (cell instanceof dia.Element) {
-      // `cell` is an element
-
-      _.chain(graph.getConnectedLinks(cell))
-          .groupBy(function(link) {
-
-              // the key of the group is the model id of the link's source or target
-              // cell id is omitted
-              return _.omit([link.source().id, link.target().id], cell.id)[0];
-          })
-          .each(function(group, key) {
-
-              // if the member of the group has both source and target model
-              // then adjust vertices
-              if (key !== 'undefined') adjustVertices(graph, _.first(group));
-          })
-          .value();
-
-      return;
+  // Check for overlap in the x-axis
+  if ((x1 >= x3 && x1 <= x4) || (x2 >= x3 && x2 <= x4) || (x3 >= x1 && x3 <= x2) || (x4 >= x1 && x4 <= x2)) {
+    // Segments overlap in the x-axis, now check for overlap in the y-axis
+    if ((y1 >= y3 && y1 <= y4) || (y2 >= y3 && y2 <= y4) || (y3 >= y1 && y3 <= y2) || (y4 >= y1 && y4 <= y2)) {
+      return true; // Segments overlap in both x-axis and y-axis
+    }
   }
 
-  // `cell` is a link
-  // get its source and target model IDs
-  var sourceId = cell.get('source').id || cell.previous('source').id;
-  var targetId = cell.get('target').id || cell.previous('target').id;
-
-  // if one of the ends is not a model
-  // (if the link is pinned to paper at a point)
-  // the link is interpreted as having no siblings
-  if (!sourceId || !targetId) return;
-
-  // identify link siblings
-  var siblings = _.filter(graph.getLinks(), function(sibling) {
-
-      var siblingSourceId = sibling.source().id;
-      var siblingTargetId = sibling.target().id;
-
-      // if source and target are the same
-      // or if source and target are reversed
-      return ((siblingSourceId === sourceId) && (siblingTargetId === targetId))
-          || ((siblingSourceId === targetId) && (siblingTargetId === sourceId));
-  });
-
-  var numSiblings = siblings.length;
-  switch (numSiblings) {
-
-      case 0: {
-          // the link has no siblings
-          break;
-
-      } case 1: {
-          // there is only one link
-          // no vertices needed
-          cell.unset('vertices');
-          break;
-
-      } default: {
-          // there are multiple siblings
-          // we need to create vertices
-
-          // find the middle point of the link
-          var sourceCenter = graph.getCell(sourceId).getBBox().center();
-          var targetCenter = graph.getCell(targetId).getBBox().center();
-          var midPoint = g.Line(sourceCenter, targetCenter).midpoint();
-
-          // find the angle of the link
-          var theta = sourceCenter.theta(targetCenter);
-
-          // constant
-          // the maximum distance between two sibling links
-          var GAP = 20;
-
-          _.each(siblings, function(sibling, index) {
-
-              // we want offset values to be calculated as 0, 20, 20, 40, 40, 60, 60 ...
-              var offset = GAP * Math.ceil(index / 2);
-
-              // place the vertices at points which are `offset` pixels perpendicularly away
-              // from the first link
-              //
-              // as index goes up, alternate left and right
-              //
-              //  ^  odd indices
-              //  |
-              //  |---->  index 0 sibling - centerline (between source and target centers)
-              //  |
-              //  v  even indices
-              var sign = ((index % 2) ? 1 : -1);
-
-              // to assure symmetry, if there is an even number of siblings
-              // shift all vertices leftward perpendicularly away from the centerline
-              if ((numSiblings % 2) === 0) {
-                  offset -= ((GAP / 2) * sign);
-              }
-
-              // make reverse links count the same as non-reverse
-              var reverse = ((theta < 180) ? 1 : -1);
-
-              // we found the vertex
-              var angle = g.toRad(theta + (sign * reverse * 90));
-              var vertex = g.Point.fromPolar(offset, angle, midPoint);
-
-              // replace vertices array with `vertex`
-              sibling.vertices([vertex]);
-          });
-      }
-  }
+  return false; // Segments do not overlap in the same axis
 }
 
-function adjustLinks(graph, cell) {
+// Function to check if two links overlap within the given threshold
+function checkIfLinksOverlap(segment1, segment2) {
+  const [{ x: x1, y: y1 }, { x: x2, y: y2 }] = segment1;
+  const [{ x: x3, y: y3 }, { x: x4, y: y4 }] = segment2;
 
-  // if `cell` is a view, find its model
-  cell = cell.model || cell;
+  const overlapX = (x1 >= x3 && x1 <= x4) || (x2 >= x3 && x2 <= x4) || (x3 >= x1 && x3 <= x2) || (x4 >= x1 && x4 <= x2);
+  const overlapY = (y1 >= y3 && y1 <= y4) || (y2 >= y3 && y2 <= y4) || (y3 >= y1 && y3 <= y2) || (y4 >= y1 && y4 <= y2);
 
-  if (cell instanceof dia.Element) {
-    // `cell` is an element
-
-    _.chain(graph.getConnectedLinks(cell))
-      .groupBy(function (link) {
-
-        // the key of the group is the model id of the link's source or target
-        // cell id is omitted
-        return _.omit([link.source().id, link.target().id], cell.id)[0];
-      })
-      .each(function (group, key) {
-
-        // if the member of the group has both source and target model
-        // then adjust links
-        if (key !== 'undefined') adjustLinks(graph, _.first(group));
-      })
-      .value();
-
-    return;
-  }
-
-  // `cell` is a link
-  // get its vertices array
-  var vertices = cell.vertices();
-
-  // Define the threshold for overlapping comparison
-  var threshold = 5; 
-
-  // Identify link siblings that overlap within the threshold
-  var siblings = _.filter(graph.getLinks(), function (sibling) {
-    // Exclude self
-    if (sibling === cell) return false;
-
-    var siblingVertices = sibling.vertices();
-
-    // Check if the sibling link overlaps within the threshold in terms of vertices
-    return _.some(siblingVertices, function (siblingVertex) {
-      return _.some(vertices, function (vertex) {
-        return (
-          Math.abs(vertex.x - siblingVertex.x) <= threshold &&
-          Math.abs(vertex.y - siblingVertex.y) <= threshold
-        );
-      });
-    });
-  });
-
-  var numSiblings = siblings.length;
-  switch (numSiblings) {
-
-    case 0: {
-      // the link has no siblings
-      break;
-    }
-
-    case 1: {
-      // there is only one link
-      // no need to adjust position
-      break;
-    }
-
-    default: {
-      // there are multiple siblings
-      // adjust link positions
-
-      // find the middle point of the link
-      var midPoint = getMidPoint(vertices);
-
-      // constant
-      // the minimum distance between two sibling links
-      var GAP = 20;
-
-      // calculate the total width occupied by siblings
-      var totalWidth = (numSiblings - 1) * GAP;
-
-      // calculate the starting position for the first link
-      var startX = midPoint.x - totalWidth / 2;
-
-      _.each(siblings, function (sibling, index) {
-
-        // calculate the position of the link
-        var linkX = startX + index * GAP;
-
-        // update the sibling link's vertices
-        var siblingVertices = sibling.vertices();
-        var translatedVertices = translateVertices(siblingVertices, linkX - vertices[0].x, midPoint.y - vertices[0].y);
-        sibling.vertices(translatedVertices);
-      });
-    }
-  }
+  return { overlapX, overlapY };
 }
 
+// Function to find pairs of overlapping links within the given set
+function fixOverlappingLinks(links) {
+  const overlappingPairs = [];
+
+  // Get the link IDs
+  const linkIds = Object.keys(links);
+
+  // Iterate over each link ID to check for overlaps
+  for (let i = 0; i < linkIds.length; i++) {
+    const link1 = links[linkIds[i]][0];
+
+    for (let j = i + 1; j < linkIds.length; j++) {
+      const link2 = links[linkIds[j]][0];
+      const { overlapX, overlapY } = checkIfLinksOverlap(link1, link2);
+      if (overlapX)
+        translateVerticesX(link1, link2);
+      if (overlapY)
+        translateVerticesY(link1, link2);
+    }
+  }
+
+  return overlappingPairs;
+}
+
+function getMidPoint(vertices) {
+  const sum = vertices.reduce((acc, vertex) => {
+    return { x: acc.x + vertex.x, y: acc.y + vertex.y };
+  }, { x: 0, y: 0 });
+
+  return { x: sum.x / vertices.length, y: sum.y / vertices.length };
+}
+
+function translateVerticesX(vertices, offsetX, offsetY) {
+  return vertices.map(vertex => {
+    return { x: vertex.x + offsetX, y: vertex.y + offsetY };
+  });
+}
+
+function translateVerticesY(vertices, offsetX, offsetY) {
+  return vertices.map(vertex => {
+    return { x: vertex.x + offsetX, y: vertex.y + offsetY };
+  });
+}
 
 export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
@@ -448,12 +311,13 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const newLinkView = paper.findViewByModel(linkModel);
       if (newLinkView) {
         newLinkView.requestConnectionUpdate();
-        adjustLinks(graph, newLinkView);
         const vertices = newLinkView.path.toPoints();
         linkVertices[cell.id] = vertices ;
       }
     }
   });
+
+  const overlappingLinks = fixOverlappingLinks(linkVertices)
 
   // // bind `graph` to the `adjustVertices` function
   // var adjustGraphVertices = _.partial(adjustVertices, graph);
