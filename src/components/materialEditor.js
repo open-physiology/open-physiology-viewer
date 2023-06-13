@@ -265,7 +265,12 @@ export class DagViewerD3Component {
 
     steps = [];
     currentStep = 0;
-    newMatCounter = 0;
+
+    selected_node;
+    source_node;
+    target_node;
+    md_node;
+    hide_line = true;
 
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
@@ -297,6 +302,7 @@ export class DagViewerD3Component {
 
     ngAfterViewInit() {
         this.svg = d3.select(this.svgRef.nativeElement);
+
         this.svg.select("rect")
           .attr("width", "100%")
           .attr("height", "100%")
@@ -356,91 +362,16 @@ export class DagViewerD3Component {
         this.render = new dagreD3.render(this.graphD3);
         this.render(this.inner, this.graphD3);
 
-        let selected_node, source_node, target_node, md_node;
-        let hide_line = true;
-
-        function resetMouseVars() {
-            selected_node = null;
-            source_node = null;
-            target_node = null;
-            md_node = null;
-            hide_line = true;
-        }
-
-        let nodes = this.inner.selectAll("g.node");
-        nodes
-            .on('click', d => {
-                this.onNodeClick(d);
-            })
-            .on('contextmenu', d => this.onRightClick(d))
-            .on('mouseover', d => {
-                this.tooltip.style("opacity", .9);
-                this.tooltip.html(`<div>${this.entitiesByID[d]?.id}: ${this.entitiesByID[d]?.name || "?"}<\div>`)
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px");
-            })
-            .on('mouseout', d => {
-                this.tooltip.style("opacity", 0);
-                if (source_node && (d === source_node)) {
-                    hide_line = false;
-                }
-            })
-            .on('mousedown', d => {
-                if (d3.event.shiftKey){
-                    source_node = d;
-                    selected_node = (source_node === selected_node)? null: source_node;
-                    md_node = this.graphD3.node(d);
-                    drag_line
-                        .style('marker-end', 'url(#end-arrow)')
-                        .attr('d', 'M' + md_node.x + ',' + md_node.y + 'L' + md_node.x + ',' + md_node.y);
-                } else {
-                    if (source_node) {
-                        drag_line
-                            .classed('hidden', true)
-                            .style('marker-end', '');
-                        target_node = d;
-                        if (target_node === source_node) {
-                            resetMouseVars();
-                            return;
-                        }
-                        let areConnected = isPath(this.entitiesByID, target_node, source_node);
-                        if (areConnected){
-                            let message = "Cannot create the edge: a loop will be introduced!";
-                            this._snackBar.open(message, "OK", this._snackBarConfig);
-                        }
-
-                        let existing_edge = this.graphD3.edge(source_node, target_node);
-                        if (!existing_edge) {
-                            if (source_node && target_node) {
-                                let material1 = this.entitiesByID[source_node];
-                                let material2 = this.entitiesByID[target_node];
-                                if (material1 && material2) {
-                                    material1.materials = material1.materials || [];
-                                    if (!material1.materials.find(m => m === material2.id)) {
-                                        material1.materials.push(material2.id);
-                                        this.graphD3.setEdge(material1.id, material2.id, {curve: d3.curveBasis})
-                                        this.inner.call(this.render, this.graphD3);
-
-                                        let path = this.graphD3.edge({v:material1.id, w: material2.id});
-                                        d3.select(path.elem).on('click', d => this.onEdgeClick(d))
-                                            .on('contextmenu', d => this.onEdgeRightClick(d));
-                                    }
-                                }
-                            }
-                            resetMouseVars();
-                        }
-                    }
-                }
-            });
-
-        let edges = this.inner.selectAll("g.edgePath");
-        edges
-            .on('click', d => this.onEdgeClick(d))
-            .on('contextmenu', d => this.onEdgeRightClick(d));
-
         this.svg.attr("height", this.graphD3.graph().height + 40);
 
-        // Adding temporary edge
+        let nodes = this.inner.selectAll("g.node");
+        this.appendNodeEvents(nodes);
+
+        let edges = this.inner.selectAll("g.edgePath");
+        this.appendEdgeEvents(edges);
+
+        // Draw temporary edge when creating a new relationship
+
         this.inner.append('svg:defs').append('svg:marker')
             .attr('id', 'end-arrow')
             .attr("viewBox", "0 0 10 10")
@@ -456,33 +387,111 @@ export class DagViewerD3Component {
             .style("stroke-dasharray", "1,0")
             .attr('fill', '#a5a5a5');
 
-        function mousedown() {
-        }
-
-        function mousemove() {
-            if (source_node) {
-                drag_line
-                    .classed('hidden', hide_line)
-                    .attr('d', 'M' + md_node.x + ',' + md_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
-            }
-        }
-
-        function mouseup() {
-            if (source_node) {
-                drag_line
-                    .classed('hidden', true)
-                    .style('marker-end', '');
-            }
-            resetMouseVars();
-        }
-
-        let drag_line = this.inner.append('svg:path')
+        this.drag_line = this.inner.append('svg:path')
           .attr('class', 'link dragline hidden')
           .attr('d', 'M0,0L0,0');
 
-        this.inner.on('mousedown', mousedown)
-          .on('mousemove', mousemove)
-          .on('mouseup', mouseup);
+        let self = this;
+
+        function canvasMouseMove(){
+            if (self.source_node) {
+                self.drag_line
+                    .classed('hidden', self.hide_line)
+                    .attr('d', 'M' + self.md_node.x + ',' + self.md_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
+            }
+        }
+
+        function canvasMouseUp(){
+            if (self.source_node) {
+                self.drag_line
+                    .classed('hidden', true)
+                    .style('marker-end', '');
+            }
+            self.resetMouseVars();
+        }
+
+        this.inner
+          .on('mousemove', canvasMouseMove)
+          .on('mouseup', canvasMouseUp);
+    }
+
+    resetMouseVars() {
+        this.selected_node = null;
+        this.source_node = null;
+        this.target_node = null;
+        this.md_node = null;
+        this.hide_line = true;
+    }
+
+    appendNodeEvents(nodes){
+        nodes.on('click', d => {
+            this.onNodeClick(d);
+        })
+        .on('contextmenu', d => this.onRightClick(d))
+        .on('mouseover', d => {
+            this.tooltip.style("opacity", .9);
+            this.tooltip.html(`<div>${this.entitiesByID[d]?.id}: ${this.entitiesByID[d]?.name || "?"}<\div>`)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 48) + "px");
+        })
+        .on('mouseout', d => {
+            this.tooltip.style("opacity", 0);
+            if (this.source_node && (d === this.source_node)) {
+                this.hide_line = false;
+            }
+        })
+        .on('mousedown', d => {
+            if (d3.event.shiftKey){
+                this.source_node = d;
+                this.selected_node = (this.source_node === this.selected_node)? null: this.source_node;
+                this.md_node = this.graphD3.node(d);
+                this.drag_line
+                    .style('marker-end', 'url(#end-arrow)')
+                    .attr('d', 'M' + this.md_node.x + ',' + this.md_node.y + 'L' + this.md_node.x + ',' + this.md_node.y);
+            } else {
+                if (this.source_node) {
+                    this.drag_line
+                        .classed('hidden', true)
+                        .style('marker-end', '');
+                    this.target_node = d;
+                    if (this.target_node === this.source_node) {
+                        this.resetMouseVars();
+                        return;
+                    }
+                    let areConnected = isPath(this.entitiesByID, this.target_node, this.source_node);
+                    if (areConnected){
+                        let message = "Cannot create the edge: a loop will be introduced!";
+                        this._snackBar.open(message, "OK", this._snackBarConfig);
+                    }
+
+                    let existing_edge = this.graphD3.edge(this.source_node, this.target_node);
+                    if (!existing_edge) {
+                        if (this.source_node && this.target_node) {
+                            let material1 = this.entitiesByID[this.source_node];
+                            let material2 = this.entitiesByID[this.target_node];
+                            if (material1 && material2) {
+                                material1.materials = material1.materials || [];
+                                if (!material1.materials.find(m => m === material2.id)) {
+                                    material1.materials.push(material2.id);
+                                    this.graphD3.setEdge(material1.id, material2.id, {curve: d3.curveBasis})
+                                    this.inner.call(this.render, this.graphD3);
+
+                                    let path = this.graphD3.edge({v:material1.id, w: material2.id});
+                                    this.appendEdgeEvents(d3.select(path.elem));
+                                }
+                            }
+                        }
+                        this.resetMouseVars();
+                    }
+                }
+            }
+        });
+    }
+
+    appendEdgeEvents(edges){
+        edges
+            .on('click', d => this.onEdgeClick(d))
+            .on('contextmenu', d => this.onEdgeRightClick(d));
     }
 
     /**
@@ -493,6 +502,7 @@ export class DagViewerD3Component {
         this.entitiesByID = {};
         this.nodes = [];
         this.edges = [];
+
         let created = [];
 
         this.updateSearchOptions();
@@ -534,7 +544,7 @@ export class DagViewerD3Component {
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
         });
         (this._model.lyphs || []).forEach(m => {
-            // if ((m._inMaterials||[]).length > 0) {
+             if ((m._inMaterials||[]).length > 0 || m._include) {
                 this.nodes.push(new Node(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
@@ -543,7 +553,7 @@ export class DagViewerD3Component {
                     "type-lyph",
                     m
                 ));
-            // }
+            }
             this.entitiesByID[m.id]._class = $SchemaClass.Lyph;
         });
         (created || []).forEach(m => {
@@ -662,8 +672,7 @@ export class DagViewerD3Component {
         let type = "type-new";
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
-        let pos = {x: d3.event.clientX + 'px', y: d3.event.clientY + 'px'};
-        this.matMenuTrigger.menuData = {item: pos, type: type}
+        this.matMenuTrigger.menuData = {item: [d3.event.clientX, d3.event.clientY - 48], type: type}
         this.matMenuTrigger.openMenu();
     }
 
@@ -695,11 +704,15 @@ export class DagViewerD3Component {
         this.updateSearchOptions();
     }
 
-
     defineNewMaterial(){
+        let newMatCounter = 1;
+        let newMatID = "newMat" + newMatCounter;
+        while (this.entitiesByID[newMatID]){
+            newMatID = "newMat" + ++newMatCounter;
+        }
         let newMat = {
-            [$Field.id]   : "newMat" + ++this.newMatCounter,
-            [$Field.name] : "New material " + this.newMatCounter,
+            [$Field.id]   : newMatID,
+            [$Field.name] : "New material " + newMatCounter,
             "_class"      : $SchemaClass.Material
         }
         this._model.materials.push(newMat);
@@ -709,35 +722,39 @@ export class DagViewerD3Component {
 
     createMaterial(){
         let newMat = this.defineNewMaterial();
-        this.updateGraph();
-        this.draw();
-        this.selectedNode = newMat.id;
-    }
-
-    addMaterial(pos){
-        //NK TODO pos provides coordinates of client area, reposition to canvas
-        let newMat = this.defineNewMaterial();
         this.graphD3.setNode(newMat.id, {
             label: newMat.name,
             class: 'type-material'
         });
         this.inner.call(this.render, this.graphD3);
         this.nodes.push(new Node(newMat.id,[], [], newMat.name, "type-material", newMat));
-
         let node = this.graphD3.node(newMat.id);
         if (node) {
             let elem = d3.select(node.elem);
-            elem.style('transform', 'translate(' + pos.x + ',' + pos.y + ')');
+            this.appendNodeEvents(elem);
         }
         this.updateSearchOptions();
         this.selectedNode = newMat.id;
+        return newMat.id;
+    }
+
+    addMaterial(pos){
+        let nodeID = this.createMaterial();
+        let node = this.graphD3.node(nodeID);
+        if (node) {
+            let elem = d3.select(node.elem);
+            let selection = this.svg.select("rect");
+            let transform = d3.zoomTransform(selection.node());
+            let zoomPos = transform.invert(pos);
+            elem.attr('transform', 'translate(' + zoomPos[0] + ',' + zoomPos[1] + ')');
+        }
     }
 
     addDefinition(prop, nodeID){
         let resource = this.entitiesByID[nodeID];
         resource.name = "Generated " + nodeID;
         resource._class = prop === $Field.lyphs? $SchemaClass.Lyph: $SchemaClass.Material;
-        delete resource.generated;
+        delete resource._generated;
         this._model[prop] = this._model[prop] || [];
         this._model[prop].push(resource);
     }
@@ -871,6 +888,7 @@ export class DagViewerD3Component {
             delete obj._inMaterials;
             delete obj._class;
             delete obj._generated;
+            delete obj._include;
         });
 
         this.onChangesSave.emit(this._model);
