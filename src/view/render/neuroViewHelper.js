@@ -121,13 +121,15 @@ function fixOverlappingSegments(link1, link2, threshold) {
         if (i > 0)
         {
           const prevSegment = segments1[i-1]
-          prevSegment[1].y = segment1[0].y ;
+          prevSegment[0].y += threshold ;
+          prevSegment[1].y += threshold ;
         }
 
         if ( i < segments1.length -1 ) 
         {
           const nextSegment = segments1[i+1];
-          nextSegment[0].y = segment1[1].y ;
+          nextSegment[0].y += threshold ;
+          nextSegment[1].y += threshold ;
         }
       }
       if (overlapY)
@@ -138,14 +140,16 @@ function fixOverlappingSegments(link1, link2, threshold) {
         if (i > 0)
         {
           const prevSegment = segments1[i-1];
-          prevSegment[1].x = segment1[0].x ;
+          prevSegment[0].x += threshold ;
+          prevSegment[1].x += threshold ;
         }
 
         if ( i < segments1.length -1 )
         {
           const nextSegment = segments1[i+1] ;
-          nextSegment[0].x = segment1[1].x ;
-        }
+          nextSegment[0].x += threshold ;
+          nextSegment[1].x += threshold ;
+          }
       }
     }
   }
@@ -191,7 +195,7 @@ function fixOverlappingLinks(links) {
     for (let j = i + 1; j < linkIds.length; j++) {
       const link2 = links[linkIds[j]][0];
 
-      const { segments1, segments2 } = fixOverlappingSegments(link1, link2, 10);
+      const { segments1, segments2 } = fixOverlappingSegments(link1, link2, 2);
       //fix the first one only by now, leave the other one in place
       links[linkIds[i]][0] = spreadSegmentsToPoints(segments1);
     }
