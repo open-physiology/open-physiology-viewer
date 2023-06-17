@@ -130,7 +130,7 @@ const COLORS = {
       <!--Group controls-->
 
       <mat-accordion *ngIf="!!groups">
-        <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel [expanded]="!config.demoMode">
           <mat-expansion-panel-header>
             <mat-panel-title> Groups </mat-panel-title>
           </mat-expansion-panel-header>
@@ -189,7 +189,7 @@ const COLORS = {
       </mat-accordion>
 
       <mat-accordion *ngIf="!!dynamicGroups">
-        <mat-expansion-panel>
+        <mat-expansion-panel [expanded]="config.demoMode">
           <mat-expansion-panel-header>
             <mat-panel-title> Dynamic groups </mat-panel-title>
           </mat-expansion-panel-header>
@@ -1200,6 +1200,7 @@ export class SettingsPanel {
         (this.groups||[]).filter((g) => ids.includes(g.id))
       );
     }
+    this.neuroViewEnabled =  this.config.layout.neuroviewEnabled
   }
 
     @Input('helperKeys') set helperKeys(newHelperKeys) {
@@ -1573,9 +1574,8 @@ export class SettingsPanel {
 
     // clear array keeping track of manipulated groups
     this.activeNeurulatedGroups = [];
-    // Update rendered scafoold components
     this.config.layout.neuroviewEnabled = visible;
-
+    // Update rendered scafoold components
     this.updateRenderedResources();
   };
 

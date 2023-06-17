@@ -111,7 +111,7 @@ const WindowResize = require('three-window-resize');
                 </section>
                 <canvas #canvas> </canvas>
             </section>
-            <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
+            <section [expanded]="showPanel" id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
                         [config]="_config"
                         [selected]="_selected"
@@ -222,12 +222,21 @@ export class WebGLSceneComponent {
             }
             if (this.graph) {
                 this.graph.graphData(this._graphData);
+                let that = this;
+                let doneUpdating = () => { 
+                  that.showPanel = that._config.demoMode;
+                  window.removeEventListener("graphLoaded", doneUpdating);
+                };
+            
+                window.addEventListener("graphLoaded", doneUpdating);
             }
         }
     }
 
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
+        this._config.demoMode = this.getUrlParameter("demoMode");
+        console.log("Demo mode ", this._config.demoMode);
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
@@ -314,7 +323,8 @@ export class WebGLSceneComponent {
                 showLayers      : true,
                 showLyphs3d     : false,
                 showCoalescences: false,
-                numDimensions   : 3
+                numDimensions   : 3,
+                neuroviewEnabled : false
             },
             showLabels: {
                 [$SchemaClass.Wire]  : false,
@@ -870,6 +880,22 @@ export class WebGLSceneComponent {
                 this.varianceUpdated.emit(clade, variance);
             }
         }
+    }
+
+    getUrlParameter(sParam){
+        let sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+    
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+    
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
     }
 }
 

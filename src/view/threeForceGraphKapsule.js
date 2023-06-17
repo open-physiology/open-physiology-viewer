@@ -306,10 +306,14 @@ export default Kapsule({
         function layoutTick() {
           if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
-              const event2 = new CustomEvent('updateTick', { detail : { updating : false }});
-              window.dispatchEvent(event2);
-              const event4 = new CustomEvent('doneUpdating');
-              window.dispatchEvent(event4);
+              let event = new CustomEvent('updateTick', { detail : { updating : false }});
+              window.dispatchEvent(event);
+              event = new CustomEvent('doneUpdating');
+              window.dispatchEvent(event);
+              if ( state.graphScene?.children?.length > 0 ) {
+                event = new CustomEvent('graphLoaded');
+                window.dispatchEvent(event);
+              }
               state.onFrame = null;
           } else { layout['tick'](); }
 
