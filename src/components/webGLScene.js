@@ -19,9 +19,10 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
-import {GRAPH_LOADED} from './../view/utils';
+import {GRAPH_LOADED, SNAPSHOT_STATE_CHANGED} from './../view/utils';
 
 import { neuroViewUpdateLayout } from '../view/render/neuroView'
+import { STATE_CANCELLED, STATE_CHANGED } from 'hammerjs';
 
 const WindowResize = require('three-window-resize');
 
@@ -227,10 +228,15 @@ export class WebGLSceneComponent {
                 // Showpanel if demo mode is ON
                 let doneUpdating = () => { 
                   that.showPanel = that._config.demoMode;
+                  console.log("Graph loaded demo ", that.showPanel)
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
                 };
             
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
+              
+                window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
+                    that.showPanel = true;
+                });
             }
         }
     }

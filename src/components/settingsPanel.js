@@ -32,7 +32,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {FieldEditorDialog} from "./gui/fieldEditorDialog";
 import {FieldEditor} from "./gui/fieldEditor";
-import { GRAPH_LOADED, STATE_CHANGED } from "./../view/utils"
+import { GRAPH_LOADED, SNAPSHOT_STATE_CHANGED } from "./../view/utils"
 /**
  * @ignore
  */
@@ -1625,7 +1625,7 @@ export class SettingsPanel {
       this.disableNeuroview = !(this.scaffolds?.length > 0);
       this.config.layout.disableNeuroview = this.disableNeuroview;
       let that = this;
-      window.addEventListener(STATE_CHANGED, () => { 
+      window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
         that.handleNeuroViewStart = false;
       });
   }

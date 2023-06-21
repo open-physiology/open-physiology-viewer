@@ -448,4 +448,4 @@ export function getBoundingBox(mesh) {
 }
 
 export const GRAPH_LOADED = "graph_loaded";
-export const STATE_CHANGED = "state_change"
+export const SNAPSHOT_STATE_CHANGED = "state_change"

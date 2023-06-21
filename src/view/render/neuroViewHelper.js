@@ -91,7 +91,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
 {
   const graph = new dia.Graph();
   const linkVertices = {};
-  debug = true
+  debug = false
   const obstacles = [];
   const connections = []; 
   const linkNodes = [];
@@ -103,10 +103,10 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
 
   const el = document.createElement('div');
   el.id = "orthogonalDiv";
-  el.style.width = canvasWidth * 2 + 'px';
+  el.style.width = canvasWidth + 'px';
   el.style.height = canvasHeight *  2 + 'px';
 
-  const linkNodeSide = 5 ;
+  const linkNodeSide = 0 ;
 
   if (debug)
   {
