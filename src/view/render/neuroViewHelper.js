@@ -149,7 +149,7 @@ function fixOverlappingSegments(link1, link2, threshold) {
           const nextSegment = segments1[i+1] ;
           nextSegment[0].x += threshold ;
           nextSegment[1].x += threshold ;
-          }
+        }
       }
     }
   }
@@ -220,7 +220,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.style.width = canvasWidth * 2 + 'px';
   el.style.height = canvasHeight *  2 + 'px';
 
-  const linkNodeSide = 5 ;
+  const linkNodeSide = 25 ;
 
   if (debug)
   {
@@ -258,25 +258,6 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   paper.$el.append(style);
   //obstacles, anything not a lyph and orphaned
 
-  nodes.forEach( node => {
-    const lyphMesh = node.state.graphScene.children.find( c => c.userData?.id == node.id)
-    const scale = lyphMesh.scale 
-    const width = node.width * scale.x ;
-    const height = node.height * scale.y
-    const nodeModel = new shapes.standard.Rectangle({
-      id: node.id,
-      position: { 
-          x: node.x - 0.5 * height + canvasWidth
-        , y: node.y - 0.5 * width
-      },
-      size: { 
-          width: height
-        , height: width
-      }
-    });
-    obstacles.push(nodeModel);
-  });
-
   links.forEach( link => {
 
     if (link.points?.length > 0)
@@ -289,8 +270,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const sourceNode = new shapes.standard.Rectangle({
         id: link.id + '-source',
         position: { 
-            x: sx - linkNodeSide * 0.5
-          , y: sy - linkNodeSide * 0.5
+            x: sx //- linkNodeSide * 0.5
+          , y: sy //- linkNodeSide * 0.5
         },
         size: { 
           width: linkNodeSide
@@ -301,8 +282,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const targetNode = new shapes.standard.Rectangle({
         id: link.id + '-target',
         position: { 
-            x: tx - linkNodeSide * 0.5
-          , y: ty - linkNodeSide * 0.5
+            x: tx //- linkNodeSide * 0.5
+          , y: ty //- linkNodeSide * 0.5
         },
         size: { 
             width: linkNodeSide
@@ -357,14 +338,6 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   });
 
   fixOverlappingLinks(linkVertices); //in place on dictionary
-
-  // // bind `graph` to the `adjustVertices` function
-  // var adjustGraphVertices = _.partial(adjustVertices, graph);
-  // var adjustGraphLinks    = _.partial(adjustLinks, graph);
-
-  // // adjust vertices when a cell is removed or its source/target was changed
-  // graph.on('render:done', adjustGraphVertices);
-  // graph.on('render:done', adjustGraphLinks);
     
   if (debug)
   {

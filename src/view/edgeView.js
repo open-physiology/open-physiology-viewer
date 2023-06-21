@@ -174,7 +174,7 @@ Link.prototype.updateViewObjects = function(state) {
                                               //, for some reason at some after step the view tries to render this array and it's just a set of points
 
     segments.forEach( segment => {
-      points.push( new THREE.Vector3( segment.x, segment.y, 0 ) );
+      points.push( new THREE.Vector3( segment.x, segment.y, 2 ) );
     })
     
     const material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});

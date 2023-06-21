@@ -23,8 +23,8 @@ import { translateMeshToTarget
   , rotateAroundCenter   } from "./autoLayout/transform";
 import { getHouseLyph, getNodeLyph } from "./neuroView";
 
-export const LYPH_H_PERCENT_MARGIN = 0.2;
-export const LYPH_V_PERCENT_MARGIN = 0.05;
+export const LYPH_H_PERCENT_MARGIN = 0.75;
+export const LYPH_V_PERCENT_MARGIN = 0.15;
 export const MAX_LYPH_WIDTH = 35;
 export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
