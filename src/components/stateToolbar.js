@@ -5,6 +5,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
+import { GRAPH_LOADED, STATE_CHANGED } from "./../view/utils"
 
 @Component({
     selector: 'state-toolbar',
@@ -53,10 +54,14 @@ export class StateToolbar {
 
     previousState(){
         this.onPreviousState.emit();
+        let event = new CustomEvent(STATE_CHANGED);
+        window.dispatchEvent(event);
     }
 
     nextState(){
         this.onNextState.emit();
+        let event = new CustomEvent(STATE_CHANGED);
+        window.dispatchEvent(event);
     }
 
     homeState(){

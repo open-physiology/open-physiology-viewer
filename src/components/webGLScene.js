@@ -19,6 +19,7 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
+import {GRAPH_LOADED} from './../view/utils';
 
 import { neuroViewUpdateLayout } from '../view/render/neuroView'
 
@@ -60,11 +61,11 @@ const WindowResize = require('three-window-resize');
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Show settings">
                             <i class="fa fa-cog"> </i>
                         </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
@@ -223,12 +224,13 @@ export class WebGLSceneComponent {
             if (this.graph) {
                 this.graph.graphData(this._graphData);
                 let that = this;
+                // Showpanel if demo mode is ON
                 let doneUpdating = () => { 
                   that.showPanel = that._config.demoMode;
-                  window.removeEventListener("graphLoaded", doneUpdating);
+                  window.removeEventListener(GRAPH_LOADED, doneUpdating);
                 };
             
-                window.addEventListener("graphLoaded", doneUpdating);
+                window.addEventListener(GRAPH_LOADED, doneUpdating);
             }
         }
     }
@@ -240,7 +242,7 @@ export class WebGLSceneComponent {
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
-            this._config.layout::keys().forEach(prop => this.graph[prop](this._config.layout[prop]))
+            this._config.layout::keys().forEach(prop => this.graph[prop]?.(this._config.layout[prop]))
         }
     }
 
@@ -790,7 +792,7 @@ export class WebGLSceneComponent {
     }
 
     toggleLayout(prop){
-        if (this.graph && prop){ this.graph[prop](this._config.layout[prop]); }
+        if (this.graph && prop){ this.graph[prop]?.(this._config.layout[prop]); }
         else if ( this.graph ) { this.graph.graphData(this.graphData); }
     }
 

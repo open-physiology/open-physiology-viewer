@@ -446,3 +446,6 @@ export function getBoundingBox(mesh) {
     }
     return mesh.geometry.boundingBox;
 }
+
+export const GRAPH_LOADED = "graph_loaded";
+export const STATE_CHANGED = "state_change"

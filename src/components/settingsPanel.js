@@ -32,7 +32,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {FieldEditorDialog} from "./gui/fieldEditorDialog";
 import {FieldEditor} from "./gui/fieldEditor";
-
+import { GRAPH_LOADED, STATE_CHANGED } from "./../view/utils"
 /**
  * @ignore
  */
@@ -1166,6 +1166,7 @@ export class SettingsPanel {
   searchTerm = "";
   filteredGroups;
   filteredDynamicGroups;
+  handleNeuroViewStart = false;
   searchTermScaffolds = "";
   filteredScaffolds;
   nodes;
@@ -1200,7 +1201,7 @@ export class SettingsPanel {
         (this.groups||[]).filter((g) => ids.includes(g.id))
       );
     }
-    this.neuroViewEnabled =  this.config.layout.neuroviewEnabled
+    this.neuroViewEnabled =  this.config.layout.neuroviewEnabled;
   }
 
     @Input('helperKeys') set helperKeys(newHelperKeys) {
@@ -1384,6 +1385,7 @@ export class SettingsPanel {
     });
 
     allVisible = this.groups.filter((g) => g.hidden == false);
+    console.log("Hide groups ", allVisible);
     allVisible.forEach((g) => {
       g.lyphs.forEach((lyph) => {
         lyph.hidden = true;
@@ -1391,6 +1393,23 @@ export class SettingsPanel {
           lyph.hostedBy = undefined;
           lyph.wiredTo = undefined;
         }
+      });
+      g.chains?.forEach((chain) => {
+        chain.inactive = true;
+        chain.hidden = true;
+        if ( chain?.viewObjects?.["main"]?.visible ) { 
+          chain.viewObjects["main"].visible = false;
+        }
+        chain?.levels?.forEach( link => {
+          link.inactive = true;
+          link.hidden = true;
+          if ( link?.viewObjects["main"]?.visible ) link.viewObjects["main"].visible = false;
+        })
+      });
+      g.links?.forEach((chain) => {
+        chain.inactive = true;
+        chain.hidden = true;
+        if ( chain?.viewObjects?.["main"]?.visible ) chain.viewObjects["main"].visible = false;
       });
       this.onToggleGroup.emit(g);
     });
@@ -1493,7 +1512,6 @@ export class SettingsPanel {
           this.handleOrthogonalLinks();
         }
       }
-      
   };
 
   toggleAllDynamicGroup = () => {
@@ -1545,7 +1563,6 @@ export class SettingsPanel {
   */
   handleNeuroView = (visible) => {
     // Hide any visible groups
-    
     if ( visible ) {
       this.hideVisibleGroups(visible);
     } else {
@@ -1577,6 +1594,7 @@ export class SettingsPanel {
     this.config.layout.neuroviewEnabled = visible;
     // Update rendered scafoold components
     this.updateRenderedResources();
+    this.handleNeuroViewStart = true;
   };
 
   search(value, filterOptions, allOptions) {
@@ -1606,6 +1624,10 @@ export class SettingsPanel {
       this.filteredScaffolds = this.scaffolds;
       this.disableNeuroview = !(this.scaffolds?.length > 0);
       this.config.layout.disableNeuroview = this.disableNeuroview;
+      let that = this;
+      window.addEventListener(STATE_CHANGED, () => { 
+        that.handleNeuroViewStart = false;
+      });
   }
 
   ngOnChanges() {
@@ -1615,9 +1637,34 @@ export class SettingsPanel {
         this.search(this.searchTerm, "filteredDynamicGroups", "dynamicGroups");
         this.search(this.searchTerm, "filteredScaffolds", "scaffolds");
       }
+      
       this.filteredGroups = this.filteredGroups || this.groups;
       this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
       this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+      let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
+      let update = false;
+      let that = this;
+      visibleGroups?.forEach( vg => {
+        let neuroTriplets = buildNeurulatedTriplets(vg);
+        neuroTriplets?.x?.forEach( l => {
+          if ( !l.hidden ) {
+            if ( !l?.viewObjects["main"]?.visible ) {
+              update = false;
+            }else{
+              update = true;
+            }
+          } 
+        })
+      })
+      if ( this.config.layout.neuroviewEnabled && update && !this.handleNeuroViewStart ) {
+        console.log("Update layout ", update)
+        // this.handleNeuroView(true);
+        console.log("Visible groups layout ", visibleGroups);
+        visibleGroups?.forEach( (vg, index) => {
+          index == 0 && that.toggleGroup({checked : true}, vg)
+        })
+        console.log("this.config.layout.neuroviewEnabled ", this.config.layout.neuroviewEnabled);
+      }
   }
 
   clearSearch(term, filterOptions, allOptions) {

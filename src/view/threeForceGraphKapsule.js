@@ -11,7 +11,7 @@ import {drag as d3Drag } from 'd3-drag';
 import Kapsule from 'kapsule';
 import {generateFromJSON, modelClasses} from '../model/index';
 import './modelView';
-import {extractCoords} from './utils';
+import {extractCoords, GRAPH_LOADED} from './utils';
 
 const {Graph} = modelClasses;
 
@@ -311,7 +311,8 @@ export default Kapsule({
               event = new CustomEvent('doneUpdating');
               window.dispatchEvent(event);
               if ( state.graphScene?.children?.length > 0 ) {
-                event = new CustomEvent('graphLoaded');
+                event = new CustomEvent(GRAPH_LOADED);
+                console.log("C ", state.graphScene?.children?.filter( c => c.visible ))
                 window.dispatchEvent(event);
               }
               state.onFrame = null;

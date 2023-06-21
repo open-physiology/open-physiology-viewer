@@ -613,7 +613,7 @@ function getLyphPosition(lyphMesh, hostMesh, lyph) {
   const lyphDim = getBoundingBoxSize(lyphMesh);
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
-  const refPaddingX = refWidth * (LYPH_H_PERCENT_MARGIN);
+  const refPaddingX = refWidth * (1 - LYPH_H_PERCENT_MARGIN);
 
   let matchIndex = 0;
   if ( hostMesh?.userData?.hostedLyphs?.indexOf(lyph) >= 0 ){
