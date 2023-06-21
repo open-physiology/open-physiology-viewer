@@ -1,9 +1,5 @@
-import { dia, shapes, g } from 'jointjs';
+import { dia, shapes } from 'jointjs';
 import { getWorldPosition } from "./autoLayout/objects";
-import _ from 'lodash';
-
-const MOVE_SEGMENT_THRESHOLD = 10 ;
-
 function extractVerticesFromPath(path)
 {
   const vertices = [];
@@ -20,6 +16,96 @@ function extractVerticesFromPath(path)
     }
   });
   return vertices ;
+}
+
+function fixOverlappingSegments(link1, link2, threshold) {
+  const segments1 = getSegments(link1);
+  const segments2 = getSegments(link2);
+  for (let i = 0; i < segments1.length; i ++) {
+    for (let j = 0; j < segments2.length; j ++) {
+      const segment1 = segments1[i];
+      const segment2 = segments2[j];
+      const overlapX =
+        segment1[0].x >= segment2[0].x &&
+        segment1[0].x <= segment2[1].x &&
+        (Math.abs(segment1[0].y - segment2[0].y) <= threshold ||
+          Math.abs(segment1[0].y - segment2[1].y) <= threshold);
+      const overlapY =
+        segment1[0].y >= segment2[0].y &&
+        segment1[0].y <= segment2[1].y &&
+        (Math.abs(segment1[0].x - segment2[0].x) <= threshold ||
+          Math.abs(segment1[0].x - segment2[1].x) <= threshold);
+      if (overlapX)
+      {
+        segment1[0].y += threshold ;
+        segment1[1].y += threshold ;
+        if (i > 0)
+        {
+          const prevSegment = segments1[i-1]
+          prevSegment[0].y += threshold ;
+          prevSegment[1].y += threshold ;
+        }
+        if ( i < segments1.length -1 ) 
+        {
+          const nextSegment = segments1[i+1];
+          nextSegment[0].y += threshold ;
+          nextSegment[1].y += threshold ;
+        }
+      }
+      if (overlapY)
+      {
+        segment1[0].x += threshold ;
+        segment1[1].x += threshold ;
+        if (i > 0)
+        {
+          const prevSegment = segments1[i-1];
+          prevSegment[0].x += threshold ;
+          prevSegment[1].x += threshold ;
+        }
+        if ( i < segments1.length -1 )
+        {
+          const nextSegment = segments1[i+1] ;
+          nextSegment[0].x += threshold ;
+          nextSegment[1].x += threshold ;
+        }
+      }
+    }
+  }
+  return { segments1, segments2 }
+}
+// Helper function to get segments from link points
+function getSegments(points) {
+  const segments = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const segment = [points[i], points[i + 1]];
+    segments.push(segment);
+  }
+  return segments;
+}
+function spreadSegmentsToPoints(segments) {
+  const points = [];
+  for (const segment of segments) {
+    points.push(segment[0]); // Add the start point of the segment
+    if (segment.length > 1) {
+      points.push(segment[1]); // Add the end point of the segment
+    }
+  }
+  return points;
+}
+// Function to find pairs of overlapping links within the given set
+function fixOverlappingLinks(links) {
+  // Get the link IDs
+  const linkIds = Object.keys(links);
+  // Iterate over each link ID to check for overlaps
+  for (let i = 0; i < linkIds.length; i++) {
+    const link1 = links[linkIds[i]][0];
+    for (let j = i + 1; j < linkIds.length; j++) {
+      const link2 = links[linkIds[j]][0];
+      const { segments1, segments2 } = fixOverlappingSegments(link1, link2, 2);
+      //fix the first one only by now, leave the other one in place
+      links[linkIds[i]][0] = spreadSegmentsToPoints(segments1);
+    }
+  }
 }
 
 function pointsToSVGPath(points, deltaX) {
@@ -91,121 +177,11 @@ function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight)
   return svgString;
 }
 
-function fixOverlappingSegments(link1, link2, threshold) {
-  const segments1 = getSegments(link1);
-  const segments2 = getSegments(link2);
-
-  for (let i = 0; i < segments1.length; i ++) {
-    for (let j = 0; j < segments2.length; j ++) {
-
-      const segment1 = segments1[i];
-      const segment2 = segments2[j];
-
-      const overlapX =
-        segment1[0].x >= segment2[0].x &&
-        segment1[0].x <= segment2[1].x &&
-        (Math.abs(segment1[0].y - segment2[0].y) <= threshold ||
-          Math.abs(segment1[0].y - segment2[1].y) <= threshold);
-
-      const overlapY =
-        segment1[0].y >= segment2[0].y &&
-        segment1[0].y <= segment2[1].y &&
-        (Math.abs(segment1[0].x - segment2[0].x) <= threshold ||
-          Math.abs(segment1[0].x - segment2[1].x) <= threshold);
-
-      if (overlapX)
-      {
-        segment1[0].y += threshold ;
-        segment1[1].y += threshold ;
-
-        if (i > 0)
-        {
-          const prevSegment = segments1[i-1]
-          prevSegment[0].y += threshold ;
-          prevSegment[1].y += threshold ;
-        }
-
-        if ( i < segments1.length -1 ) 
-        {
-          const nextSegment = segments1[i+1];
-          nextSegment[0].y += threshold ;
-          nextSegment[1].y += threshold ;
-        }
-      }
-      if (overlapY)
-      {
-        segment1[0].x += threshold ;
-        segment1[1].x += threshold ;
-
-        if (i > 0)
-        {
-          const prevSegment = segments1[i-1];
-          prevSegment[0].x += threshold ;
-          prevSegment[1].x += threshold ;
-        }
-
-        if ( i < segments1.length -1 )
-        {
-          const nextSegment = segments1[i+1] ;
-          nextSegment[0].x += threshold ;
-          nextSegment[1].x += threshold ;
-        }
-      }
-    }
-  }
-
-  return { segments1, segments2 }
-}
-
-// Helper function to get segments from link points
-function getSegments(points) {
-  const segments = [];
-
-  for (let i = 0; i < points.length - 1; i++) {
-    const segment = [points[i], points[i + 1]];
-    segments.push(segment);
-  }
-
-  return segments;
-}
-
-function spreadSegmentsToPoints(segments) {
-  const points = [];
-
-  for (const segment of segments) {
-    points.push(segment[0]); // Add the start point of the segment
-
-    if (segment.length > 1) {
-      points.push(segment[1]); // Add the end point of the segment
-    }
-  }
-
-  return points;
-}
-
-// Function to find pairs of overlapping links within the given set
-function fixOverlappingLinks(links) {
-  // Get the link IDs
-  const linkIds = Object.keys(links);
-
-  // Iterate over each link ID to check for overlaps
-  for (let i = 0; i < linkIds.length; i++) {
-    const link1 = links[linkIds[i]][0];
-
-    for (let j = i + 1; j < linkIds.length; j++) {
-      const link2 = links[linkIds[j]][0];
-
-      const { segments1, segments2 } = fixOverlappingSegments(link1, link2, 2);
-      //fix the first one only by now, leave the other one in place
-      links[linkIds[i]][0] = spreadSegmentsToPoints(segments1);
-    }
-  }
-}
-
 export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
   const graph = new dia.Graph();
   const linkVertices = {};
+  debug = true
   const obstacles = [];
   const connections = []; 
   const linkNodes = [];
@@ -220,7 +196,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.style.width = canvasWidth * 2 + 'px';
   el.style.height = canvasHeight *  2 + 'px';
 
-  const linkNodeSide = 25 ;
+  const linkNodeSide = 5 ;
 
   if (debug)
   {
@@ -258,20 +234,40 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   paper.$el.append(style);
   //obstacles, anything not a lyph and orphaned
 
-  links.forEach( link => {
+  nodes.forEach( node => {
+    const lyphMesh = node.state.graphScene.children.find( c => c.userData?.id == node.id)
+    let scale = lyphMesh?.scale 
+    scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
+    const width = node.width * scale.x ;
+    const height = node.height * scale.y
+    const nodeModel = new shapes.standard.Rectangle({
+      id: node.id,
+      position: { 
+        x: node.x - 0.5 * height + canvasWidth
+      , y: node.y - 0.5 * width
+      },
+      size: { 
+          width: height
+        , height: width
+      }
+    });
+    obstacles.push(nodeModel);
+  });
 
-    if (link.points?.length > 0)
-    {
-      const sx = link.points[0].x ; //+ canvasWidth;
-      const sy = link.points[0].y ;
-      const tx = link.points[link.points.length-1].x ; //+ canvasWidth ;
-      const ty = link.points[link.points.length-1].y ;
+  links.forEach( link => {
+      let start = getWorldPosition(link.source.viewObjects["main"])
+      let end   = getWorldPosition(link.target.viewObjects["main"])
+
+      const sx = start.x ;
+      const sy = start.y ;
+      const tx = end.x ;
+      const ty = end.y 
 
       const sourceNode = new shapes.standard.Rectangle({
         id: link.id + '-source',
         position: { 
-            x: sx //- linkNodeSide * 0.5
-          , y: sy //- linkNodeSide * 0.5
+            x: sx - linkNodeSide * 0.5
+          , y: sy - linkNodeSide * 0.5
         },
         size: { 
           width: linkNodeSide
@@ -282,8 +278,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const targetNode = new shapes.standard.Rectangle({
         id: link.id + '-target',
         position: { 
-            x: tx //- linkNodeSide * 0.5
-          , y: ty //- linkNodeSide * 0.5
+            x: tx - linkNodeSide * 0.5
+          , y: ty - linkNodeSide * 0.5
         },
         size: { 
             width: linkNodeSide
@@ -298,7 +294,6 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         target: { id: targetNode.id }
       });
       connections.push(connection);
-    }
   })
 
   graph.addCells(obstacles).addCells(linkNodes).addCells(connections);
@@ -338,7 +333,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   });
 
   fixOverlappingLinks(linkVertices); //in place on dictionary
-    
+
   if (debug)
   {
     const svg = exportToSVG(json.cells, graph, paper, canvasWidth, canvasHeight);
@@ -346,4 +341,3 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   }
   return linkVertices ;
 }
-
