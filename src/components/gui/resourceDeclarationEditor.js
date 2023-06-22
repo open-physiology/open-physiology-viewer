@@ -2,19 +2,11 @@ import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
-import {MatExpansionModule} from '@angular/material/expansion';
-import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatDialogModule} from '@angular/material/dialog';
-import {MatSelectModule} from '@angular/material/select';
-import {MatDatepickerModule,} from '@angular/material/datepicker';
-import {MatNativeDateModule} from '@angular/material/core';
 
-const COLORS = {
+export const COLORS = {
   grey: 'grey',
   white: '#FFFFFF',
   inputBorderColor: '#E0E0E0',
@@ -25,58 +17,57 @@ const COLORS = {
   headingBg: '#F1F1F1',
 };
 
-
 @Component({
     selector: 'resourceDeclaration',
     template: `
         <div class="default-box">
-           <div class="settings-wrap">
+            <div class="settings-wrap">
                <div class="default-boxContent">
-               <mat-form-field>
-                    <input matInput class="w3-input"
-                           placeholder="id"
-                           matTooltip="Identifier"
-                           [value]="resource?.id"
-                           (keyup.enter)="updateValue('id', $event.target.value)"
-                    >
-               </mat-form-field>
-                
-               <mat-form-field>
-                    <input matInput class="w3-input"
-                           placeholder="name"
-                           matTooltip="Name"
-                           [value]="resource?.name"
-                           (keyup.enter)="updateValue('name', $event.target.value)"
-                    >
-               </mat-form-field>
-    
-               <div>  
-                   <ul *ngFor="let term of resource?.ontologyTerms; let i = index; trackBy: trackByFn" class="w3-ul">
-                       <mat-form-field class="removable_field">
-                            <input matInput class="w3-input"
-                                   placeholder="ontologyTerm"
-                                   matTooltip="Ontology term"
-                                   [value]="term"
-                                   (input)="updateOneOfMany('ontologyTerms', $event.target.value, i)"
-                            >
-                       </mat-form-field> 
-                       <button mat-menu-item (click)="deleteOneFromMany(term, 'ontologyTerms')" class="w3-right w3-hover-light-grey">
-                            <i class="fa fa-trash"></i>
+                   <mat-form-field>
+                        <input matInput class="w3-input"
+                               placeholder="id"
+                               matTooltip="Identifier"
+                               [value]="resource?.id"
+                               (keyup.enter)="updateValue('id', $event.target.value)"
+                        >
+                   </mat-form-field>
+                    
+                   <mat-form-field>
+                        <input matInput class="w3-input"
+                               placeholder="name"
+                               matTooltip="Name"
+                               [value]="resource?.name"
+                               (keyup.enter)="updateValue('name', $event.target.value)"
+                        >
+                   </mat-form-field>
+        
+                   <div>  
+                       <ul *ngFor="let term of resource?.ontologyTerms; let i = index; trackBy: trackByFn" class="w3-ul">
+                           <mat-form-field class="removable_field">
+                                <input matInput class="w3-input"
+                                       placeholder="ontologyTerm"
+                                       matTooltip="Ontology term"
+                                       [value]="term"
+                                       (input)="updateOneOfMany('ontologyTerms', $event.target.value, i)"
+                                >
+                           </mat-form-field> 
+                           <button mat-menu-item (click)="deleteOneFromMany(term, 'ontologyTerms')" class="w3-right w3-hover-light-grey">
+                                <i class="fa fa-trash"></i>
+                           </button> 
+                       </ul>
+                       <button mat-menu-item (click)="addOneToMany('ontologyTerms')" class="w3-right w3-hover-light-grey">
+                            <i class="fa fa-add">
+                            </i>
                        </button> 
-                   </ul>
-                   <button mat-menu-item (click)="addOneToMany('ontologyTerms')" class="w3-right w3-hover-light-grey">
-                        <i class="fa fa-add">
-                        </i>
-                   </button> 
-               </div>
-               </div>
-           </div>
+                   </div>
+                </div>
+            </div>
         </div> 
     `,
     styles: [`
        .mat-form-field {
           width: 100%;
-        }
+       }
        
         .removable_field{            
             width : calc(100% - 48px);
@@ -93,11 +84,7 @@ const COLORS = {
           display: flex;
           align-items: center;
         }
-
-        .default-box .default-box-header .search-bar {
-          flex-grow: 1;
-        }
-        
+       
         .default-box .default-boxContent {
           padding: 1.067rem;
           font-size: 0.75rem;
@@ -172,6 +159,9 @@ export class ResourceDeclarationEditor {
     @Output() onValueChange = new EventEmitter();
 
     updateValue(prop, value) {
+        if (prop === "id"){
+            //NK TODO Validate by schema that it is correct
+        }
         this.resource[prop] = value;
         this.onValueChange.emit({prop: prop, value: value});
     }
@@ -184,17 +174,21 @@ export class ResourceDeclarationEditor {
     }
 
     deleteOneFromMany(rID, prop){
-        let idx = this.resource[prop].findIndex(m => m === rID);
-        if (idx > -1){
-            this.resource[prop].splice(idx, 1);
+        if (this.resource) {
+            let idx = this.resource[prop].findIndex(m => m === rID);
+            if (idx > -1) {
+                this.resource[prop].splice(idx, 1);
+            }
+            // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
         }
-        // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
     }
 
     addOneToMany(prop){
-        this.resource[prop] = this.resource[prop] || [];
-        this.resource[prop].push(this.resource.id + "_" + prop + "_new_" + (this.resource[prop].length+1));
-        // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+        if (this.resource) {
+            this.resource[prop] = this.resource[prop] || [];
+            this.resource[prop].push(this.resource.id + "_" + prop + "_new_" + (this.resource[prop].length + 1));
+            // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+        }
     }
 
     trackByFn(index, item) {
@@ -203,11 +197,8 @@ export class ResourceDeclarationEditor {
 }
 
 @NgModule({
-    imports: [FormsModule, BrowserAnimationsModule, MatExpansionModule, MatDividerModule, MatFormFieldModule, MatInputModule,
-        MatCheckboxModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule, MatDatepickerModule,
-        MatNativeDateModule],
+    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
     declarations: [ResourceDeclarationEditor],
-    providers:[MatDatepickerModule],
     exports: [ResourceDeclarationEditor]
 })
 export class ResourceDeclarationModule {

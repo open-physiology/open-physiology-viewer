@@ -40,7 +40,8 @@ export function clearMany(resource, props, resourceID){
     props.forEach(prop => {
         if (resource[prop]){
             //NK we assume here that only references are used, no nested objects and (no other namespaces yet!)
-            let idx = resource[prop].findIndex(m => m === resourceID);
+            let idx = resource[prop].findIndex(m => (m.id || m) === resourceID);
+            console.log("TEST", idx, resourceID, resource[prop]);
             if (idx > -1){
                 resource[prop].splice(idx, 1);
                 res = true;

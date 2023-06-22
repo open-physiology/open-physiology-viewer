@@ -21,15 +21,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {ResourceVisibility} from "./gui/resourceVisibility";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MatDividerModule} from "@angular/material/divider";
-import {MatCardModule} from "@angular/material/card";
-import {MatTooltipModule} from "@angular/material/tooltip";
-import {MatDialogModule} from "@angular/material/dialog";
 import {MatSelectModule} from "@angular/material/select";
-import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatNativeDateModule} from "@angular/material/core";
-import {FieldEditorDialog} from "./gui/fieldEditorDialog";
-import {FieldEditor} from "./gui/fieldEditor";
 
 /**
  * @ignore

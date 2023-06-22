@@ -6,6 +6,7 @@ import {CommonModule} from "@angular/common";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
     selector: 'searchBar',
@@ -16,7 +17,7 @@ import {MatInputModule} from "@angular/material/input";
                    matTooltip="Describe resource you want to find"
                    type="text"
                    aria-label="Find resource"
-                   [value]="selected"
+                   [(ngModel)]="selected"
                    [formControl]="_myControl" 
                    [matAutocomplete]="auto"
                    (input)="inputChange.emit($event.target.value)"
@@ -27,6 +28,9 @@ import {MatInputModule} from "@angular/material/input";
                     {{option}}
                 </mat-option>
             </mat-autocomplete>
+            <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear" (click)="selected=''">
+                <i class="fa fa-close"> </i>
+            </button>
         </mat-form-field>
     `,
     styles: [`
@@ -65,7 +69,7 @@ export class SearchBar {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatButtonModule],
     declarations: [SearchBar],
     exports: [SearchBar]
 })
