@@ -24,7 +24,7 @@ import { translateMeshToTarget
   , rotateAroundCenter   } from "./autoLayout/transform";
 import { getHouseLyph, getNodeLyph } from "./neuroView";
 
-export const LYPH_H_PERCENT_MARGIN = 0.2;
+export const LYPH_H_PERCENT_MARGIN = 0.5;
 export const LYPH_V_PERCENT_MARGIN = 0.05;
 export const MAX_LYPH_WIDTH = 35;
 export const MIN_LYPH_WIDTH = 50;
@@ -68,7 +68,9 @@ export function fitToTargetRegion(target, source, terminalLyph) {
 
   sx = ( idealSize / sourceSize.x );
   sy = ( idealSize / sourceSize.y );
-
+  source.userData.prevScaleX = source.scale.x;
+  source.userData.prevScaleY = source.scale.y;
+  source.userData.prevScaleZ = source.scale.z;
 
   if ( !terminalLyph ){
     source.scale.setX(sx);
@@ -603,6 +605,9 @@ export function placeLyphInHost(lyph, updatePosition){
     } else if ( terminalLyph ){
       lyphMesh.position.z = getHouseLyph(lyph)?.z + ( DIMENSIONS.LYPH_MIN_Z * 1.25 );
     }
+    lyph.prevX = lyph.x;
+    lyph.prevY = lyph.y;
+    lyph.prevZ = lyph.z;
     copyCoords(lyph, lyphMesh.position);
     lyphMesh.geometry.verticesNeedUpdate = true;
     lyphMesh?.geometry?.computeBoundingBox();

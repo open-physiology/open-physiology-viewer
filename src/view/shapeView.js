@@ -149,7 +149,7 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
  */
 Lyph.prototype.autoSize = function(){
     // Continue if there's a THREE object
-    if (this.viewObjects["main"]) {
+    if (this.viewObjects["main"] && this.neurulated ) {
         // Get the host, usually a region or another lyph
         let hostMesh = this.hostedBy?.viewObjects["main"] || this.housingLyph?.viewObjects["main"] || this.internalIn?.viewObjects["main"];
         if ( hostMesh ) {
@@ -166,6 +166,12 @@ Lyph.prototype.autoSize = function(){
 
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
+    } else if (this.viewObjects["main"] && !this.neurulated ) {
+        console.log("This ", this);
+        this.viewObjects["main"].scale.setX(this.prevScaleX);
+        this.viewObjects["main"].scale.setY(this.prevScaleY);
+        this.viewObjects["main"].scale.setZ(this.prevScaleZ);
+        copyCoords(this, new THREE.Vector3(this.prevX, this.prevY, this.prevZ));
     }
     this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
 };

@@ -165,7 +165,7 @@ Link.prototype.regenerateFromSegments = function(segments) {
  */
 Link.prototype.updateViewObjects = function(state) {
 
-  if ( this.viewObjects['linkSegments'] ) {
+  if ( this.viewObjects['linkSegments'] && this.neurulated) {
     const points = []
     const z = Math.floor(Math.random() * 6) + 1 ;
 
@@ -295,13 +295,13 @@ Link.prototype.updateViewObjects = function(state) {
                         const curve3 = new THREE.SplineCurve( points);
                         this.points = curve3.getPoints(50);
 
-                        if (this.conveyingLyph?.viewObjects["main"] && this.neurulated){
-                            let centerPoint = this.points[Math.floor(this.points.length/2)];
-                            this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
-                            this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
-                            this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
-                            copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
-                        }
+                        // if (this.conveyingLyph?.viewObjects["main"]){
+                        //     let centerPoint = this.points[Math.floor(this.points.length/2)];
+                        //     this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
+                        //     this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
+                        //     this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
+                        //     copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
+                        // }
                     } else {
                         this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     }

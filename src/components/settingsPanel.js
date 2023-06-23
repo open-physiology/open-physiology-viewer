@@ -1451,6 +1451,8 @@ export class SettingsPanel {
         // Find housing lyphs of neuron, also links and chains.
         let neuronTriplets = buildNeurulatedTriplets(group);
         neuronTriplets.links?.forEach( l => l.neurulated = true );
+        neuronTriplets.x?.forEach( l => l.neurulated = true );
+        neuronTriplets.y?.forEach( l => l.neurulated = true );
 
         console.log("Neuron Information : ", neuronTriplets);
         
@@ -1510,7 +1512,7 @@ export class SettingsPanel {
             }
           });
           this.handleOrthogonalLinks();
-        }
+        }      
       }
   };
 
