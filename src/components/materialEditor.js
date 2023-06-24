@@ -96,7 +96,7 @@ export class Edge {
                             </div>
                         </div>
                     </div>
-                    <button *ngIf="lyphToInclude" (click)="includeLyph(lyphToInclude)" class="w3-right w3-hover-light-grey add-button">
+                    <button *ngIf="matToLink" (click)="linkMaterial(matToLink)" class="w3-right w3-hover-light-grey add-button">
                         <i class="fa fa-add">
                         </i>
                     </button> 
@@ -121,27 +121,18 @@ export class Edge {
                          let-hasChildren="hasChildren">
                 <div *ngIf="type === 'type-lyph' || type === 'type-material'">
                     <button mat-menu-item (click)="deleteMaterial(item)">Delete</button>
-                    <button mat-menu-item (click)="deleteDefinition(item)">Delete definition</button>
-                    <div *ngIf="hasParents">
-                        <button mat-menu-item (click)="removeParents(item)">Disconnect from parents</button>
-                    </div>
-                    <div *ngIf="hasChildren">
-                        <button mat-menu-item (click)="removeChildren(item)">Disconnect from children</button>
-                    </div>
+                    <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item)">Delete definition</button>
+                    <button *ngIf="hasParents" mat-menu-item (click)="removeParents(item)">Disconnect from parents</button>
+                    <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children</button>
                 </div>
-                <div *ngIf="type === 'type-lyph' && !hasChildren && !hasParents">
-                    <button mat-menu-item (click)="excludeLyph(item)">Exclude from view</button>
-                </div>
+                <button *ngIf="type === 'type-lyph' && !hasChildren && !hasParents" 
+                        mat-menu-item (click)="excludeLyph(item)">Exclude from view</button>
                 <div *ngIf="type === 'type-undefined'">
                     <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
                     <button mat-menu-item (click)="defineAsLyph(item)">Define as lyph</button>
                 </div>
-                <div *ngIf="type === 'has-material'">
-                    <button mat-menu-item (click)="removeRelation(item)">Delete relation</button>
-                </div>
-                <div *ngIf="type === 'type-new'">
-                    <button mat-menu-item (click)="addMaterial(item)">Add material</button>
-                </div>
+                <button *ngIf="type === 'has-material'" mat-menu-item (click)="removeRelation(item)">Delete relation</button>
+                <button *ngIf="type === 'type-new'" mat-menu-item (click)="addMaterial(item)">Add material</button>
 
             </ng-template>
         </mat-menu>
@@ -455,6 +446,7 @@ export class DagViewerD3Component {
             .attr("width", "100%")
             .attr("height", "100%")
             .attr("fill", "white")
+            .on('click', d => this.onEmptyClick())
             .on('contextmenu', d => this.onEmptyRightClick(d));
         this.tooltip = d3.select(this.tooltipRef.nativeElement).style("opacity", 0);
         this.width = this.svgRef.nativeElement.clientWidth;
@@ -488,7 +480,7 @@ export class DagViewerD3Component {
     }
 
     get redoTitle() {
-      return `Redo ${(this.canRedo? '"' + this.steps[this.currentStep].action + '"': "")}`;
+      return `Redo ${(this.canRedo? '"' + this.steps[this.currentStep + 1].action + '"': "")}`;
     }
 
     /**
@@ -818,6 +810,10 @@ export class DagViewerD3Component {
         this.matMenuTrigger.openMenu();
     }
 
+    onEmptyClick() {
+        this.selectedNode = null;
+    }
+
     onEmptyRightClick() {
         d3.event.preventDefault();
         let type = "type-new";
@@ -837,6 +833,8 @@ export class DagViewerD3Component {
                 this.graphD3.setEdge(v, w, {curve: d3.curveBasis})
                 this.inner.call(this.render, this.graphD3);
                 let path = this.graphD3.edge({v: v, w: w});
+                material2._inMaterials = material2._inMaterials || [];
+                material2._inMaterials.push(material1);
                 this.appendEdgeEvents(d3.select(path.elem));
                 this.saveStep(`Add relation ${v + "---" + w}`);
             }
@@ -1096,8 +1094,8 @@ export class DagViewerD3Component {
         );
         let node = this.entitiesByID[nodeID];
         if (node) {
-            if (node._class === $SchemaClass.Lyph && !node._included) {
-                this.lyphToInclude = nodeID;
+            if (this.selectedNode) {
+                this.matToLink = nodeID;
             } else {
                 this.selectedNode = nodeID;
             }
@@ -1106,30 +1104,32 @@ export class DagViewerD3Component {
 
     /**
      * Add lyph to the graph. If a node is selected beforehand, create the relationship
-     * @param lyphID
+     * @param matID
      */
-    includeLyph(lyphID) {
-        let lyph = this.entitiesByID[lyphID];
-        if (lyph) {
-            this.graphD3.setNode(lyphID, {
-                label: lyph.name,
-                class: 'type-lyph'
-            });
-            this.nodes.push(new Node(lyphID, [], [], lyph.name, "type-lyph", lyph));
-            if (this.selectedNode){
-                this._addRelation({v: this.selectedNode, w: lyphID});
-            } else {
+    linkMaterial(matID) {
+        let mat = this.entitiesByID[matID];
+        if (mat) {
+            let node = this.graphD3.node(matID);
+            if (!node && mat._class === $SchemaClass.Lyph){
+                this.graphD3.setNode(matID, {
+                    label: mat.name,
+                    class: 'type-lyph'
+                });
+                this.nodes.push(new Node(matID, [], [], mat.name, "type-lyph", mat));
                 this.inner.call(this.render, this.graphD3);
-            }
-            let node = this.graphD3.node(lyphID);
-            if (node) {
+                node = this.graphD3.node(matID);
                 let elem = d3.select(node.elem);
                 this.appendNodeEvents(elem);
+                if (mat._class === $SchemaClass.Lyph) {
+                    mat._included = true;
+                }
+                this.saveStep('Included lyph ' + matID);
             }
-            lyph._included = true;
-            this.entitiesByID[lyphID] = lyph;
-            this.lyphToInclude = null;
-            this.saveStep('Included lyph ' + lyphID);
+            if (this.selectedNode){
+                this._addRelation({v: this.selectedNode, w: matID});
+                this.saveStep(`Add relation + ${this.selectedNode + "---" + matID}`);
+            }
+            this.matToLink = null;
         }
     }
 
