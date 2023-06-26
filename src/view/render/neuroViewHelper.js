@@ -1,22 +1,5 @@
 import { dia, shapes } from 'jointjs';
 import { getWorldPosition } from "./autoLayout/objects";
-function extractVerticesFromPath(path)
-{
-  const vertices = [];
-  path.forEach(function(path) {
-    const d = path.toString.attr('d');
-    const matches = d.match(/L\s*([\d.-]+)\s*,\s*([\d.-]+)/ig);
-
-    if (matches) {
-      matches.forEach(function(match) {
-        const values = match.replace(/L\s*/i, '').split(/,\s*/);
-        const vertex = { x: parseFloat(values[0]), y: parseFloat(values[1]) };
-        vertices.push(vertex);
-      });
-    }
-  });
-  return vertices ;
-}
 
 function fixOverlappingSegments(link1, link2, threshold) {
   const segments1 = getSegments(link1);
@@ -131,57 +114,13 @@ function pointsToSVGPath(points, deltaX) {
   return pathData;
 }
 
-function exportToSVG(graphJSONCells, jointGraph, paper, paperWidth, paperHeight) {
-  // Create an SVG element for the exported content
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  svg.setAttribute('width', paperWidth);
-  svg.setAttribute('height', paperHeight);
-  const deltaX = paperWidth ;
-
-  // Iterate through all the elements in the JointJS graph
-  graphJSONCells.forEach((cellData) => {
-    const cell = jointGraph.getCell(cellData.id);
-
-    if (cellData.type === 'standard.Rectangle') {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', cellData.position.x + deltaX);
-      rect.setAttribute('y', cellData.position.y);
-      rect.setAttribute('width', cellData.size.width);
-      rect.setAttribute('height', cellData.size.height);
-      rect.setAttribute('fill', "blue");
-      rect.setAttribute('stroke', "blue");
-      rect.setAttribute('stroke-width', 1);
-
-      svg.appendChild(rect);
-    } else if (cellData.type === 'standard.Link') {
-      const link = paper.findViewByModel(cell);
-      const points = link.path.toPoints();
-      const pathData = pointsToSVGPath(points[0], deltaX);
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', pathData);
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', 'red');
-      path.setAttribute('stroke-width', 1);
-
-      svg.appendChild(path);
-    }
-  });
-
-  // Serialize the SVG content to a string
-  const serializer = new XMLSerializer();
-  const svgString = serializer.serializeToString(svg);
-
-  // Return the serialized SVG string
-  return svgString;
-}
-
 export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
-  const graph = new dia.Graph();
+  var namespace = shapes;           
+
+  var graph = new dia.Graph({}, { cellNamespace: namespace });
+
   const linkVertices = {};
-  debug = true
   const obstacles = [];
   const connections = []; 
   const linkNodes = [];
@@ -193,27 +132,22 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
 
   const el = document.createElement('div');
   el.id = "orthogonalDiv";
-  el.style.width = canvasWidth * 2 + 'px';
-  el.style.height = canvasHeight *  2 + 'px';
 
   const linkNodeSide = 5 ;
 
-  if (debug)
-  {
-    el.style.cssText = 'position:absolute;opacity:0.3;z-index:100;background:#000;';
-    document.body.appendChild(el);
-  }
-
-  const paper = new dia.Paper({
+  var paper = new dia.Paper({
     el: el,
+    model: graph,
     width: canvasWidth,
-    height: canvasHeight,
-    gridSize: 1,
+    height: canvasHeight, // height had to be increased
+    gridSize: 10,
     drawGrid: true,
     defaultRouter: { name: 'manhattan' }, // use the manhattan router
-    model: graph,
-    interactive: true
-  });
+    background: {
+        color: 'rgba(0, 255, 0, 0.3)'
+    },
+    cellViewNamespace: namespace
+});
 
   var style = document.createElement('style');
   style.type = 'text/css';
@@ -258,16 +192,18 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       let start = getWorldPosition(link.source.viewObjects["main"])
       let end   = getWorldPosition(link.target.viewObjects["main"])
 
-      const sx = start.x ;
-      const sy = start.y ;
-      const tx = end.x ;
-      const ty = end.y 
+      function fixPos(p) { return p } //> 0 ? p : p *-1 }
+
+      const sx = fixPos(start.x) + canvasWidth;
+      const sy = fixPos(start.y) ;
+      const tx = fixPos(end.x) + canvasWidth;
+      const ty = fixPos(end.y); 
 
       const sourceNode = new shapes.standard.Rectangle({
         id: link.id + '-source',
         position: { 
-            x: sx - linkNodeSide * 0.5
-          , y: sy - linkNodeSide * 0.5
+            x: sx
+          , y: sy
         },
         size: { 
           width: linkNodeSide
@@ -278,8 +214,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const targetNode = new shapes.standard.Rectangle({
         id: link.id + '-target',
         position: { 
-            x: tx - linkNodeSide * 0.5
-          , y: ty - linkNodeSide * 0.5
+            x: tx
+          , y: ty
         },
         size: { 
             width: linkNodeSide
@@ -298,46 +234,25 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
 
   graph.addCells(obstacles).addCells(linkNodes).addCells(connections);
 
-  graph.on('change:position', function(cell) {
-
-    // has an obstacle been moved? Then reroute the link.
-    if (obstacles.indexOf(cell) > -1) {
-        //link.findView(paper).requestConnectionUpdate();
-        const json = graph.toJSON();
-        json.cells.forEach(cell => {
-          if (cell.type == 'standard.Link') {
-            const linkModel = graph.getCell(cell.id);
-            const newLinkView = paper.findViewByModel(linkModel);
-            
-            if (newLinkView) {
-              newLinkView.requestConnectionUpdate();
-            }
-          }
-        });
-    }
-});
-
-
   // Wait for the routing update to complete
   const json = graph.toJSON();
+  console.log(json);
   json.cells.forEach(cell => {
     if (cell.type == 'standard.Link') {
       const linkModel = graph.getCell(cell.id);
       const newLinkView = paper.findViewByModel(linkModel);
       if (newLinkView) {
-        newLinkView.requestConnectionUpdate();
-        const vertices = newLinkView.path.toPoints();
-        linkVertices[cell.id] = vertices ;
+        const connection = newLinkView.getConnection();
+        let vertices = [];
+        connection.segments.forEach( s=> {
+          vertices.push([ s.end.x -canvasWidth, s.end.y ]);
+        })
+        linkVertices[cell.id] = [vertices] ;
       }
     }
   });
 
-  fixOverlappingLinks(linkVertices); //in place on dictionary
+  //fixOverlappingLinks(linkVertices); //in place on dictionary
 
-  if (debug)
-  {
-    const svg = exportToSVG(json.cells, graph, paper, canvasWidth, canvasHeight);
-    console.log(svg);  
-  }
   return linkVertices ;
 }
