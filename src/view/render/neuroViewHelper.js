@@ -1,6 +1,27 @@
 import { dia, shapes } from 'jointjs';
 import { getWorldPosition } from "./autoLayout/objects";
 
+function waitForLinkRendering(view) {
+  return new Promise((resolve, reject) => {
+    const renderLinks = () => {
+      const links = view.model.getLinks();
+
+      // Check if any links are still being rendered
+      const renderingInProgress = links.some((link) => !link.findView(view));
+
+      if (!renderingInProgress) {
+        // Links have finished rendering
+        resolve();
+      } else {
+        // Wait for a short interval and check again
+        setTimeout(renderLinks, 100);
+      }
+    };
+
+    renderLinks();
+  });
+}
+
 function fixOverlappingSegments(link1, link2, threshold) {
   const segments1 = getSegments(link1);
   const segments2 = getSegments(link2);
@@ -114,7 +135,7 @@ function pointsToSVGPath(points, deltaX) {
   return pathData;
 }
 
-export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
+export async function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
   var namespace = shapes;           
 
@@ -133,7 +154,14 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   const el = document.createElement('div');
   el.id = "orthogonalDiv";
 
-  const linkNodeSide = 5 ;
+  if (debug)
+  {
+    const canvasContainer = document.getElementById('apiLayoutContainer')
+    canvasContainer.innerHTML = '';
+    canvasContainer.appendChild(el);
+  }
+
+  const linkNodeSide = 2 ;
 
   var paper = new dia.Paper({
     el: el,
@@ -243,16 +271,16 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       const newLinkView = paper.findViewByModel(linkModel);
       if (newLinkView) {
         const connection = newLinkView.getConnection();
-        let vertices = [];
-        connection.segments.forEach( s=> {
-          vertices.push([ s.end.x -canvasWidth, s.end.y ]);
-        })
-        linkVertices[cell.id] = [vertices] ;
+        const points = connection.toPoints()
+        points[0].forEach( p => p.x -= canvasWidth) // move back
+        linkVertices[cell.id] = points ;
       }
     }
   });
 
-  //fixOverlappingLinks(linkVertices); //in place on dictionary
+  await waitForLinkRendering(paper);
+
+  fixOverlappingLinks(linkVertices); //in place on dictionary
 
   return linkVertices ;
 }
