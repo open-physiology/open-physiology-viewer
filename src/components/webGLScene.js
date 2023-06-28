@@ -21,7 +21,8 @@ import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
 import {GRAPH_LOADED, SNAPSHOT_STATE_CHANGED} from './../view/utils';
 
-import { neuroViewUpdateLayout } from '../view/render/neuroView'
+import { buildNeurulatedTriplets, toggleScaffoldsNeuroview, findHousingLyphsGroups,
+    handleNeurulatedGroup } from '../view/render/neuroView'
 import { STATE_CANCELLED, STATE_CHANGED } from 'hammerjs';
 
 const WindowResize = require('three-window-resize');
@@ -810,6 +811,45 @@ export class WebGLSceneComponent {
             group.hide();
         }
         if (this.graph) { this.graph.graphData(this.graphData); }
+    }
+
+    toggleNeurulatedGroup(event, filteredDynamicGroups, viewPortSize, group) {
+        // Find housing lyphs of neuron, also links and chains.
+        let neuronTriplets = buildNeurulatedTriplets(group);
+        neuronTriplets.links?.forEach( l => l.neurulated = true );
+        neuronTriplets.x?.forEach( l => l.neurulated = true );
+        neuronTriplets.y?.forEach( l => l.neurulated = true );
+
+        console.log("Neuron Information : ", neuronTriplets);
+        
+        // Handle Neuro view initial settings. Turns OFF groups and scaffolds
+        handleNeuroView(visibleGroups, groups, graphData?.scaffoldComponents, visible, this.onToggleGroup);
+        let activeNeurulatedGroups = [];
+
+        // Identify TOO Map components and turn them ON/OFF
+        const matchScaffolds = toggleScaffoldsNeuroview(graphData?.scaffoldComponents,neuronTriplets,event.checked);
+        matchScaffolds?.forEach((scaffold) => toggleGroupAction(scaffold));
+        activeNeurulatedGroups.push(group);
+
+        //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+        findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
+
+        // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+        activeNeurulatedGroups.forEach((g) => {
+          handleNeurulatedGroup(event.checked, g, neuronTriplets);
+        });
+
+        group.neurulated = true;
+
+        newGroup(event, group, neuronTriplets, filteredDynamicGroups);
+        window.addEventListener("updateTick",function updateLayout(e){
+          // Run auto layout code to position lyphs on their regions and wires
+          if ( group?.neurulated && !group.hidden && e?.detail?.updating ) {
+            autoLayoutNeuron(neuronTriplets, group);
+            autoLayoutNeuron(neuronTriplets, group);
+          }
+        });
+        handleOrthogonalLinks(filteredDynamicGroups, viewPortSize);
     }
 
     resetVariance(){

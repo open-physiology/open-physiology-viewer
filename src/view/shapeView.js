@@ -167,7 +167,6 @@ Lyph.prototype.autoSize = function(){
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
     } else if (this.viewObjects["main"] && !this.neurulated ) {
-        console.log("This ", this);
         this.viewObjects["main"].scale.setX(this.prevScaleX);
         this.viewObjects["main"].scale.setY(this.prevScaleY);
         this.viewObjects["main"].scale.setZ(this.prevScaleZ);
