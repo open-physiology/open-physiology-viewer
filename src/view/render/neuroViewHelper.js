@@ -2,24 +2,17 @@ import { dia, shapes } from 'jointjs';
 import { getWorldPosition } from "./autoLayout/objects";
 
 function waitForLinkRendering(view) {
-  return new Promise((resolve, reject) => {
-    const renderLinks = () => {
-      const links = view.model.getLinks();
-
-      // Check if any links are still being rendered
-      const renderingInProgress = links.some((link) => !link.findView(view));
-
-      if (!renderingInProgress) {
-        // Links have finished rendering
-        resolve();
-      } else {
-        // Wait for a short interval and check again
-        setTimeout(renderLinks, 100);
+  // Listen for the 'render:done' event
+  return new Promise((resolve) => {
+    async function cb() { 
+      await setTimeout(function() { 
+        return resolve()
       }
-    };
-
-    renderLinks();
+      , 200); 
+    } 
+    view.on('render:done', cb());
   });
+  
 }
 
 function fixOverlappingSegments(link1, link2, threshold) {
@@ -112,30 +105,39 @@ function fixOverlappingLinks(links) {
   }
 }
 
-function pointsToSVGPath(points, deltaX) {
-  if (!points || points.length === 0) {
-    return '';
+var CustomRouter = dia.Link.define('CustomRouter', {
+  route: function(vertices) {
+    // Get the source and target elements
+    var source = this.getSourceElement();
+    var target = this.getTargetElement();
+
+    // Calculate the default route
+    var defaultRoute = joint.routers.manhattan.route.call(this, vertices);
+
+    // Check if the link should jump over other elements
+    var shouldJump = source && target && source.id !== target.id;
+
+    if (shouldJump) {
+      // Calculate the bounding box of the elements
+      var sourceBBox = source.getBBox();
+      var targetBBox = target.getBBox();
+
+      // Check if the elements overlap vertically
+      var overlapVertical = sourceBBox.y > targetBBox.y + targetBBox.height ||
+                            sourceBBox.y + sourceBBox.height < targetBBox.y;
+
+      if (!overlapVertical) {
+        // Adjust the default route to create a jump effect
+        var jumpOffset = 40; // Adjust this value as needed
+        var jumpPath = new joint.g.Path(defaultRoute).translate(0, jumpOffset);
+        return jumpPath.serialize();
+      }
+    }
+
+    return defaultRoute;
   }
-
-  const pathCommands = [];
-
-  // Move to the first point
-  const firstPoint = points[0];
-  pathCommands.push(`M ${firstPoint.x + deltaX} ${firstPoint.y}`);
-
-  // Create line commands for the rest of the points
-  for (let i = 1; i < points.length; i++) {
-    const point = points[i];
-    pathCommands.push(`L ${point.x+deltaX} ${point.y}`);
-  }
-
-  // Join the commands into a single string
-  const pathData = pathCommands.join(' ');
-
-  return pathData;
-}
-
-export async function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
+});
+export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
 {
   var namespace = shapes;           
 
@@ -255,7 +257,8 @@ export async function orthogonalLayout(links, nodes, left, top, canvasWidth, can
       const connection = new shapes.standard.Link({
         id: link.id,
         source: { id: sourceNode.id },
-        target: { id: targetNode.id }
+        target: { id: targetNode.id },
+        connector: { name: 'jumpover' }
       });
       connections.push(connection);
   })
@@ -264,7 +267,6 @@ export async function orthogonalLayout(links, nodes, left, top, canvasWidth, can
 
   // Wait for the routing update to complete
   const json = graph.toJSON();
-  console.log(json);
   json.cells.forEach(cell => {
     if (cell.type == 'standard.Link') {
       const linkModel = graph.getCell(cell.id);
@@ -278,7 +280,7 @@ export async function orthogonalLayout(links, nodes, left, top, canvasWidth, can
     }
   });
 
-  await waitForLinkRendering(paper);
+  //await waitForLinkRendering(paper);
 
   fixOverlappingLinks(linkVertices); //in place on dictionary
 

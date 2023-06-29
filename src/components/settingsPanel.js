@@ -1395,7 +1395,7 @@ export class SettingsPanel {
     });
   };
 
-  handleOrthogonalLinks = async () => {
+  handleOrthogonalLinks = () => {
       let visibleLinks = [];
       let bigLyphs = []
       for (let group of this.filteredDynamicGroups) {
@@ -1407,8 +1407,8 @@ export class SettingsPanel {
       }
       
       let that = this;
-      let doneUpdating = async () => { 
-        const orthogonalSegments = await applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
+      let doneUpdating = () => { 
+        const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
         if (orthogonalSegments)
         {
           autoLayoutSegments(orthogonalSegments, visibleLinks);
@@ -1526,8 +1526,8 @@ export class SettingsPanel {
     }  
 
     let that = this;
-    window.addEventListener("doneUpdating", async () => { 
-      const orthogonalSegments = await applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
+    window.addEventListener("doneUpdating", () => { 
+      const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
       if (orthogonalSegments)
         autoLayoutSegments(orthogonalSegments, visibleLinks);
     });
