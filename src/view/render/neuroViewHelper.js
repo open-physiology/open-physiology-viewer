@@ -155,13 +155,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
 
   const el = document.createElement('div');
   el.id = "orthogonalDiv";
-
-  if (debug)
-  {
-    const canvasContainer = document.getElementById('apiLayoutContainer')
-    canvasContainer.innerHTML = '';
-    canvasContainer.appendChild(el);
-  }
+  document.body.appendChild(el);
 
   const linkNodeSide = 2 ;
 
@@ -177,7 +171,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         color: 'rgba(0, 255, 0, 0.3)'
     },
     cellViewNamespace: namespace
-});
+  });
 
   var style = document.createElement('style');
   style.type = 'text/css';
@@ -279,6 +273,13 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
       }
     }
   });
+
+  if (!debug)
+  {
+    const removeOrthogonal = document.getElementById('orthogonalDiv');
+    if (removeOrthogonal)
+      removeOrthogonal.remove();
+  }
 
   //await waitForLinkRendering(paper);
 
