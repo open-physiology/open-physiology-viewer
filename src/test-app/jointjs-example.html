@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.7.4/joint.css" />
+</head>
+<body>
+    <!-- content -->
+    <div id="myholder"></div>
+
+    <!-- dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.7.4/joint.js"></script>
+
+    <!-- code -->
+    <script type="text/javascript">
+
+        var namespace = joint.shapes;           
+
+        var graph = new joint.dia.Graph({}, { cellNamespace: namespace });
+
+        var paper = new joint.dia.Paper({
+            el: document.getElementById('myholder'),
+            model: graph,
+            width: 985,
+            height: 740, // height had to be increased
+            gridSize: 10,
+            drawGrid: true,
+            defaultRouter: { name: 'manhattan' }, // use the manhattan router
+            background: {
+                color: 'rgba(0, 255, 0, 0.3)'
+            },
+            cellViewNamespace: namespace
+        });
+
+        // Load graph from JSON
+        var json = {
+  "cells": [
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 633.375,
+        "y": 182.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-PNS-ganglion-celiac",
+      "z": 1,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 687.5416666666667,
+        "y": 252.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-PNS-nerve-greater-splanchnic",
+      "z": 2,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 664.625,
+        "y": 182.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-T2-sympathetic-chain-ganglion",
+      "z": 3,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 748.6846846846847,
+        "y": -4.3243243243243
+      },
+      "size": {
+        "width": 17.2972972972973,
+        "height": 8.64864864864865
+      },
+      "angle": 0,
+      "id": "lyph-T2-spinal-segment",
+      "z": 4,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 670.875,
+        "y": 112.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-T2-ventral-root",
+      "z": 5,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 695.875,
+        "y": 182.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-T2-white-ramus",
+      "z": 6,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 727.125,
+        "y": 182.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-T3-sympathetic-chain-ganglion",
+      "z": 7,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 482.0180180180181,
+        "y": -4.324324324324276
+      },
+      "size": {
+        "width": 17.2972972972973,
+        "height": 8.64864864864865
+      },
+      "angle": 0,
+      "id": "lyph-T3-spinal-segment",
+      "z": 8,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 702.125,
+        "y": 112.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-T3-ventral-root",
+      "z": 9,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 758.375,
+        "y": 182.5
+      },
+      "size": {
+        "width": 25,
+        "height": 25
+      },
+      "angle": 0,
+      "id": "lyph-T3-white-ramus",
+      "z": 10,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 687.5416666666667,
+        "y": 265
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8final_node_1_clone_axon-chain-scaletta-neuron-8final_node_1-source",
+      "z": 11,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 658.375,
+        "y": 195
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8final_node_1_clone_axon-chain-scaletta-neuron-8final_node_1-target",
+      "z": 12,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 664.625,
+        "y": 199.16666666666666
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8acde_node_1_clone_axon-chain-scaletta-neuron-8acde_node_1-source",
+      "z": 13,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 712.5416666666667,
+        "y": 260.8333333333333
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8acde_node_1_clone_axon-chain-scaletta-neuron-8acde_node_1-target",
+      "z": 14,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 670.875,
+        "y": 125
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8ac_node_11_clone_axon-chain-scaletta-neuron-8ac_node_11-source",
+      "z": 15,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 720.875,
+        "y": 199.16666666666666
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8ac_node_11_clone_axon-chain-scaletta-neuron-8ac_node_11-target",
+      "z": 16,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 748.6846850713094,
+        "y": 8.339768330217817
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8ac_node_10_clone_axon-chain-scaletta-neuron-8ac_node_10-source",
+      "z": 17,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 695.875,
+        "y": 125
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8ac_node_10_clone_axon-chain-scaletta-neuron-8ac_node_10-target",
+      "z": 18,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 727.125,
+        "y": 199.16666666666666
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8bcde_node_1_clone_axon-chain-scaletta-neuron-8bcde_node_1-source",
+      "z": 19,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 712.5416666666667,
+        "y": 269.1666666666667
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8bcde_node_1_clone_axon-chain-scaletta-neuron-8bcde_node_1-target",
+      "z": 20,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 702.125,
+        "y": 125
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8bc_node_11_clone_axon-chain-scaletta-neuron-8bc_node_11-source",
+      "z": 21,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 783.375,
+        "y": 195
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8bc_node_11_clone_axon-chain-scaletta-neuron-8bc_node_11-target",
+      "z": 22,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 482.0180184046428,
+        "y": 8.33976833021784
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8bc_node_10_clone_axon-chain-scaletta-neuron-8bc_node_10-source",
+      "z": 23,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Rectangle",
+      "position": {
+        "x": 727.125,
+        "y": 125
+      },
+      "size": {
+        "width": 5,
+        "height": 5
+      },
+      "angle": 0,
+      "id": "lnk_axon-chain-scaletta-neuron-8bc_node_10_clone_axon-chain-scaletta-neuron-8bc_node_10-target",
+      "z": 24,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8final_node_1_clone_axon-chain-scaletta-neuron-8final_node_1-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8final_node_1_clone_axon-chain-scaletta-neuron-8final_node_1-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8final_node_1_clone_axon-chain-scaletta-neuron-8final_node_1",
+      "z": 25,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8acde_node_1_clone_axon-chain-scaletta-neuron-8acde_node_1-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8acde_node_1_clone_axon-chain-scaletta-neuron-8acde_node_1-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8acde_node_1_clone_axon-chain-scaletta-neuron-8acde_node_1",
+      "z": 26,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8ac_node_11_clone_axon-chain-scaletta-neuron-8ac_node_11-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8ac_node_11_clone_axon-chain-scaletta-neuron-8ac_node_11-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8ac_node_11_clone_axon-chain-scaletta-neuron-8ac_node_11",
+      "z": 27,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8ac_node_10_clone_axon-chain-scaletta-neuron-8ac_node_10-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8ac_node_10_clone_axon-chain-scaletta-neuron-8ac_node_10-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8ac_node_10_clone_axon-chain-scaletta-neuron-8ac_node_10",
+      "z": 28,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8bcde_node_1_clone_axon-chain-scaletta-neuron-8bcde_node_1-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8bcde_node_1_clone_axon-chain-scaletta-neuron-8bcde_node_1-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8bcde_node_1_clone_axon-chain-scaletta-neuron-8bcde_node_1",
+      "z": 29,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8bc_node_11_clone_axon-chain-scaletta-neuron-8bc_node_11-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8bc_node_11_clone_axon-chain-scaletta-neuron-8bc_node_11-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8bc_node_11_clone_axon-chain-scaletta-neuron-8bc_node_11",
+      "z": 30,
+      "attrs": {}
+    },
+    {
+      "type": "standard.Link",
+      "source": {
+        "id": "lnk_axon-chain-scaletta-neuron-8bc_node_10_clone_axon-chain-scaletta-neuron-8bc_node_10-source"
+      },
+      "target": {
+        "id": "lnk_axon-chain-scaletta-neuron-8bc_node_10_clone_axon-chain-scaletta-neuron-8bc_node_10-target"
+      },
+      "id": "lnk_axon-chain-scaletta-neuron-8bc_node_10_clone_axon-chain-scaletta-neuron-8bc_node_10",
+      "z": 31,
+      "attrs": {}
+    }
+  ]
+}
+        // var json = {
+        //     "cells": [
+        //         {
+        //             "id": 1,
+        //             "type": "basic.Rect",
+        //             "position": {
+        //                 "x": 100,
+        //                 "y": 100
+        //             },
+        //             "size": {
+        //                 "width": 80,
+        //                 "height": 40
+        //             },
+        //             "attrs": {
+        //                 "body": {
+        //                     "fill": "blue"
+        //                 },
+        //                 "label": {
+        //                     "text": "Rectangle 1",
+        //                     "fill": "white"
+        //                 }
+        //             }
+        //         },
+        //         {
+        //             "id": 2,
+        //             "type": "basic.Rect",
+        //             "position": {
+        //                 "x": 300,
+        //                 "y": 100
+        //             },
+        //             "size": {
+        //                 "width": 80,
+        //                 "height": 40
+        //             },
+        //             "attrs": {
+        //                 "body": {
+        //                     "fill": "green"
+        //                 },
+        //                 "label": {
+        //                     "text": "Rectangle 2",
+        //                     "fill": "white"
+        //                 }
+        //             }
+        //         },
+        //         {
+        //             "type": "link",
+        //             "source": {
+        //                 "id": 1
+        //             },
+        //             "target": {
+        //                 "id": 2
+        //             }
+        //         }
+        //     ]
+        // };
+
+        graph.fromJSON(json);
+
+    </script>
+</body>
+</html>

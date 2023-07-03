@@ -77,7 +77,16 @@ Group.prototype.createViewObjects = function(state){
     this.visibleLinks.forEach(link => {
         if (!(link instanceof Link)){ return; }
         link.createViewObjects(state);
-        link.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
+        link.viewObjects::values().forEach((obj) => 
+        { 
+          if(obj)
+          {
+            //if (!Array.isArray(obj))
+            //   obj.forEach( child => state.graphScene.add( child))
+            // else
+              state.graphScene.add(obj)
+          }
+        });
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE){
             link.viewObjects["main"].material.visible = false;
         }

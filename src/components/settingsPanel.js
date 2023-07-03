@@ -1420,7 +1420,7 @@ export class SettingsPanel {
       window.addEventListener("doneUpdating", doneUpdating);
   }
 
-  toggleGroup = (event, group) => {
+  toggleGroup = async (event, group) => {
       if (this.neuroViewEnabled) {
         // Housing Lyphs Group
         if ( group.cloneOf ){
@@ -1474,7 +1474,7 @@ export class SettingsPanel {
             autoLayoutNeuron(neuronTriplets, group);
           }
         });
-        this.handleOrthogonalLinks();
+        await this.handleOrthogonalLinks();
       } else {
         this.onToggleGroup.emit(group);
         if ( !this.disableNeuroview ) {
@@ -1482,14 +1482,14 @@ export class SettingsPanel {
             m.hidden = !event.checked;
             m.inactive = !event.checked;
           });
-          window.addEventListener("updateTick",function updateLayout(e){
+          window.addEventListener("updateTick",async function updateLayout(e){
             if ( !group.hidden && e?.detail?.updating ) {
               group?.lyphs?.forEach((m) => {
                 m.autoSize();
               });
             }
           });
-          this.handleOrthogonalLinks();
+          await this.handleOrthogonalLinks();
         }
       }
       
@@ -1528,9 +1528,7 @@ export class SettingsPanel {
     window.addEventListener("doneUpdating", () => { 
       const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
       if (orthogonalSegments)
-      {
         autoLayoutSegments(orthogonalSegments, visibleLinks);
-      }
     });
   };
 
