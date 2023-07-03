@@ -494,7 +494,7 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
     
     // Call event to toggle scaffolds
     if (scaffold.hidden === !visible || (visible && scaffold.hidden === undefined)) {
-      toggleGroup.emit(scaffold);
+      toggleGroup.emit ? toggleGroup.emit(scaffold) : toggleGroup(scaffold);
     }
   });
 };
@@ -534,7 +534,7 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
     {
       autoLayoutSegments(orthogonalSegments, visibleLinks);
     }
-    onToggleLayout.emit();
+    onToggleLayout?.emit ? onToggleLayout?.emit() : onToggleLayout();
     window.removeEventListener("doneUpdating", doneUpdating);
   };
 

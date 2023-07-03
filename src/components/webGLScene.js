@@ -22,7 +22,7 @@ import {VARIANCE_PRESENCE} from "../model/utils";
 import {GRAPH_LOADED, SNAPSHOT_STATE_CHANGED} from './../view/utils';
 
 import { buildNeurulatedTriplets, toggleScaffoldsNeuroview, findHousingLyphsGroups,
-    handleNeurulatedGroup } from '../view/render/neuroView'
+    handleNeurulatedGroup, handleNeuroView,newGroup, autoLayoutNeuron, handleOrthogonalLinks } from '../view/render/neuroView'
 import { STATE_CANCELLED, STATE_CHANGED } from 'hammerjs';
 
 const WindowResize = require('three-window-resize');
@@ -225,7 +225,6 @@ export class WebGLSceneComponent {
             }
             if (this.graph) {
                 this.graph.graphData(this._graphData);
-                let that = this;
                 // Showpanel if demo mode is ON
                 let doneUpdating = () => { 
                   that.showPanel = that._config.demoMode;
@@ -234,7 +233,7 @@ export class WebGLSceneComponent {
                 };
             
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
-              
+                let that = this;
                 window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
                     that.showPanel = true;
                 });
@@ -804,16 +803,16 @@ export class WebGLSceneComponent {
     }
 
     toggleGroup(group) {
-        if (!this._graphData){ return; }
+        if (!this?._graphData){ return; }
         if (group.hidden){
             group.show();
         } else {
             group.hide();
         }
-        if (this.graph) { this.graph.graphData(this.graphData); }
+        if (this?.graph) { this.graph.graphData(this.graphData); }
     }
 
-    toggleNeurulatedGroup(event, filteredDynamicGroups, viewPortSize, group) {
+    toggleNeurulatedGroup(event, filteredDynamicGroups, group) {
         // Find housing lyphs of neuron, also links and chains.
         let neuronTriplets = buildNeurulatedTriplets(group);
         neuronTriplets.links?.forEach( l => l.neurulated = true );
@@ -821,18 +820,20 @@ export class WebGLSceneComponent {
         neuronTriplets.y?.forEach( l => l.neurulated = true );
 
         console.log("Neuron Information : ", neuronTriplets);
-        
+        let groups = this.graphData?.groups.filter((g) => g.hidden == false);
+        let visibleGroups = this.graphData?.dynamicGroups.filter( dg => !dg.hidden );
+
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
-        handleNeuroView(visibleGroups, groups, graphData?.scaffoldComponents, visible, this.onToggleGroup);
+        handleNeuroView(visibleGroups, groups, this.graphData?.scaffoldComponents, event.visible, this.toggleGroup);
         let activeNeurulatedGroups = [];
 
         // Identify TOO Map components and turn them ON/OFF
-        const matchScaffolds = toggleScaffoldsNeuroview(graphData?.scaffoldComponents,neuronTriplets,event.checked);
-        matchScaffolds?.forEach((scaffold) => toggleGroupAction(scaffold));
+        const matchScaffolds = toggleScaffoldsNeuroview(this.graphData?.scaffoldComponents,neuronTriplets,event.checked);
+        matchScaffolds?.forEach((scaffold) => toggleGroup(scaffold));
         activeNeurulatedGroups.push(group);
 
         //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-        findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
+        findHousingLyphsGroups(this.graphData, neuronTriplets, activeNeurulatedGroups);
 
         // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
         activeNeurulatedGroups.forEach((g) => {
@@ -849,7 +850,7 @@ export class WebGLSceneComponent {
             autoLayoutNeuron(neuronTriplets, group);
           }
         });
-        handleOrthogonalLinks(filteredDynamicGroups, viewPortSize);
+        handleOrthogonalLinks(filteredDynamicGroups, this._viewPortSize, this.toggleLayout);
     }
 
     resetVariance(){
