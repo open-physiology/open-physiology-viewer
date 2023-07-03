@@ -1364,7 +1364,7 @@ export class SettingsPanel {
     this.toggleAllDynamicGroup();
   };
 
-  toggleGroup = (event, group) => {
+  toggleGroup = async (event, group) => {
       if (this.neuroViewEnabled) {        
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
         this.toggleNeuroView(true);
@@ -1401,17 +1401,17 @@ export class SettingsPanel {
             autoLayoutNeuron(neuronTriplets, group);
           }
         });
-        handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);
+        await handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);
       } else {
         this.onToggleGroup.emit(group);
-        group.neurulated && window.addEventListener("updateTick",function updateLayout(e){
+        group.neurulated && window.addEventListener("updateTick",async function updateLayout(e){
           if ( !group.hidden && e?.detail?.updating ) {
             group?.lyphs?.forEach((m) => {
               m.autoSize();
             });
           }
         });
-        group.neurulated && handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);    
+        group.neurulated && await handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);    
       }
   };
 
@@ -1448,9 +1448,7 @@ export class SettingsPanel {
     window.addEventListener("doneUpdating", () => { 
       const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
       if (orthogonalSegments)
-      {
         autoLayoutSegments(orthogonalSegments, visibleLinks);
-      }
     });
   };
 
