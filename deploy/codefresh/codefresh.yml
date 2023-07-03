@@ -9,7 +9,7 @@ steps:
     stage: "clone"
     title: "Cloning Apinatomy"
     type: "git-clone"
-    repo: "metacell/open-physiology-viewer"
+    repo: "open-physiology/open-physiology-viewer"
     revision: "${{CF_BRANCH}}"
   builds:
     type: parallel
