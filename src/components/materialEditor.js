@@ -3,7 +3,7 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
-import {cloneDeep, values, sortBy} from 'lodash-bound';
+import {cloneDeep, omit, values, sortBy} from 'lodash-bound';
 import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs} from './gui/utils.js'
 import FileSaver from 'file-saver';
 import {ResourceDeclarationModule, COLORS} from "./gui/resourceDeclarationEditor";
@@ -49,7 +49,7 @@ export class Edge {
     selector: 'materialEditor',
     template: `
         <section #materialEditorD3 id="materialEditorD3" class="w3-row">
-            <section class="w3-threequarter">
+            <section [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
                         <button class="w3-bar-item w3-hover-light-grey"
@@ -59,10 +59,6 @@ export class Edge {
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="preview()" title="Preview">
                             <i class="fa fa-magnifying-glass"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
-                                title="Apply changes">
-                            <i class="fa fa-check"> </i>
                         </button>
                         <mat-divider></mat-divider>
 <!--                        <button [disabled]="!isHistory" class="w3-bar-item"-->
@@ -77,6 +73,18 @@ export class Edge {
                                 (click)="redo()" [title]="redoTitle">
                             <i class="fa fa-rotate-right"> </i>
                         </button>
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                                (click)="showPanel = !showPanel" title="Show settings">
+                            <i class="fa fa-cog"> </i>
+                        </button>
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                                (click)="showPanel = !showPanel" title="Hide settings">
+                            <i class="fa fa-window-close"> </i>
+                        </button>
+                        <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
+                                title="Apply changes">
+                            <i class="fa fa-check"> </i>
+                        </button>
                     </section>
                 </section>
                 <svg #svgDagD3>
@@ -84,7 +92,7 @@ export class Edge {
                     <g/>
                 </svg>
             </section>
-            <section class="w3-quarter">
+            <section *ngIf="showPanel" class="w3-quarter">
                 <div class="settings-wrap">
                     <div class="default-box pb-0">
                         <div class="default-searchBar default-box-header">
@@ -388,12 +396,19 @@ export class Edge {
 
     `]
 })
+/**
+ * @class
+ * @property entitiesByID
+ */
 export class DagViewerD3Component {
     _originalModel;
     _model;
     _searchOptions;
     _selectedNode;
 
+    /**
+     * @property nodeEdges
+     */
     graphD3;
     entitiesByID;
     nodes = [];
@@ -407,6 +422,7 @@ export class DagViewerD3Component {
     target_node;
     md_node;
     hide_line = true;
+    showPanel = true;
 
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
@@ -508,7 +524,13 @@ export class DagViewerD3Component {
             });
         });
         (this.edges || []).forEach(e => {
-            this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis})
+            let x = this.graphD3.node(e.source.id);
+            let y = this.graphD3.node(e.target.id);
+            if (x && y) {
+                this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis});
+            } else {
+                throw new Error("Graph cannot have an edge between non-existing nodes: " + e.source.id + " --- " + e.target.id);
+            }
         });
         this.render = new dagreD3.render(this.graphD3);
         this.render(this.inner, this.graphD3);
@@ -606,6 +628,8 @@ export class DagViewerD3Component {
                             .style('marker-end', '');
                         this.target_node = d;
                         if (this.target_node === this.source_node) {
+                            let message = "Cannot create the edge: source and target nodes must be different!";
+                            this._snackBar.open(message, "OK", this._snackBarConfig);
                             this.resetMouseVars();
                             return;
                         }
@@ -614,13 +638,13 @@ export class DagViewerD3Component {
                             let message = "Cannot create the edge: a loop will be introduced!";
                             this._snackBar.open(message, "OK", this._snackBarConfig);
                         }
-
                         let existing_edge = this.graphD3.edge(this.source_node, this.target_node);
                         if (!existing_edge) {
-                            if (this.source_node && this.target_node) {
-                                this._addRelation({v: this.source_node, w: this.target_node});
-                            }
+                            this._addRelation({v: this.source_node, w: this.target_node});
                             this.resetMouseVars();
+                        } else {
+                            let message = "Cannot create the edge: it already exists!";
+                            this._snackBar.open(message, "OK", this._snackBarConfig);
                         }
                     }
                 }
@@ -656,18 +680,21 @@ export class DagViewerD3Component {
                 this.entitiesByID[m.id] = m;
             });
         });
-        (this._model.materials || []).forEach(m => {
-            (m.materials || []).forEach(childID => {
-                if (!this.entitiesByID[childID]) {
-                    this.entitiesByID[childID] = {
-                        "id": childID,
-                        "_generated": true,
-                        "_inMaterials": [],
-                    };
-                    created.push(this.entitiesByID[childID]);
-                }
+
+        [$Field.materials, $Field.lyphs].forEach(prop => {
+            (this._model[prop] || []).forEach(m => {
+                (m.materials || []).forEach(childID => {
+                    if (!this.entitiesByID[childID]) {
+                        this.entitiesByID[childID] = {
+                            "id": childID,
+                            "_generated": true,
+                            "_inMaterials": [],
+                        };
+                        created.push(this.entitiesByID[childID]);
+                    }
+                });
+                (m.materials || []).forEach(childID => this.entitiesByID[childID]._inMaterials.push(m));
             });
-            (m.materials || []).forEach(childID => this.entitiesByID[childID]._inMaterials.push(m));
         });
 
         //Create nodes for visualization
@@ -683,7 +710,7 @@ export class DagViewerD3Component {
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
         });
         (this._model.lyphs || []).forEach(m => {
-            if ((m._inMaterials || []).length > 0 || m._included) {
+            if ((m._inMaterials || []).length > 0 || (m.materials || []).length > 0 || m._included) {
                 this.nodes.push(new Node(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
@@ -697,14 +724,16 @@ export class DagViewerD3Component {
             this.entitiesByID[m.id]._class = $SchemaClass.Lyph;
         });
         (created || []).forEach(m => {
-            this.nodes.push(new Node(
-                m.id,
-                (m._inMaterials || []).map(parent => parent.id),
-                (m.materials || []).map(child => child.id ? child.id : child),
-                m.name || m.id,
-                "type-undefined",
-                m
-            ));
+            if (m.id) {
+                this.nodes.push(new Node(
+                    m.id,
+                    (m._inMaterials || []).map(parent => parent.id),
+                    (m.materials || []).map(child => child.id ? child.id : child),
+                    m.name || m.id,
+                    "type-undefined",
+                    m
+                ));
+            }
         });
 
         // Create edges for visualization
@@ -714,8 +743,7 @@ export class DagViewerD3Component {
                 this.edges.push(edge);
             });
         });
-
-        this.nodes::sortBy(["id"]);
+       this.nodes::sortBy(["id"]);
     }
 
     /**
@@ -733,14 +761,14 @@ export class DagViewerD3Component {
                     node.id = value;
                     this.updateGraph();
                     this.draw();
-                    this.saveStep("ID update " + node.id);
+                    this.saveStep("ID update " + value);
                 }
                 if (prop === "name") {
                     this.graphD3.setNode(this.selectedNode, {
                         label: this.selectedMaterial.name || this.selectedMaterial.id,
                     });
                     this.inner.call(this.render, this.graphD3);
-                    this.saveStep("Name update " + node.id);
+                    this.saveStep("Name update " + value);
                 }
             }
         }
@@ -830,13 +858,16 @@ export class DagViewerD3Component {
             material1.materials = material1.materials || [];
             if (!material1.materials.find(m => m === w)) {
                 material1.materials.push(w);
-                this.graphD3.setEdge(v, w, {curve: d3.curveBasis})
+                this.graphD3.setEdge(v, w, {curve: d3.curveBasis});
                 this.inner.call(this.render, this.graphD3);
                 let path = this.graphD3.edge({v: v, w: w});
                 material2._inMaterials = material2._inMaterials || [];
                 material2._inMaterials.push(material1);
                 this.appendEdgeEvents(d3.select(path.elem));
                 this.saveStep(`Add relation ${v + "---" + w}`);
+            } else {
+                let message = `Cannot create the relationship: material ${v} already contains material ${w}!`;
+                this._snackBar.open(message, "OK", this._snackBarConfig);
             }
         }
     }
@@ -1046,7 +1077,7 @@ export class DagViewerD3Component {
         if (this.currentStep !== this.steps.length - 1){
             this.steps.length = this.currentStep + 1;
         }
-        let snapshot = this._model::cloneDeep();
+        let snapshot = this._model::omit('_inMaterials')::cloneDeep();
         this.steps.push({action: action, snapshot: snapshot});
         this.currentStep = this.steps.length - 1;
     }
@@ -1075,7 +1106,7 @@ export class DagViewerD3Component {
         }
     }
 
-    saveChanges() {
+    _cleanHelpers(){
         this.entitiesByID::values().forEach(obj => {
             //Clean up all helper mods
             delete obj._inMaterials;
@@ -1083,7 +1114,10 @@ export class DagViewerD3Component {
             delete obj._generated;
             delete obj._included;
         });
+    }
 
+    saveChanges() {
+        this._cleanHelpers();
         this.onChangesSave.emit(this._model);
     }
 
@@ -1127,7 +1161,6 @@ export class DagViewerD3Component {
             }
             if (this.selectedNode){
                 this._addRelation({v: this.selectedNode, w: matID});
-                this.saveStep(`Add relation + ${this.selectedNode + "---" + matID}`);
             }
             this.matToLink = null;
         }
