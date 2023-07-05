@@ -53,6 +53,7 @@ import {enableProdMode} from '@angular/core';
 
 import {removeDisconnectedObjects} from '../../src/view/render/autoLayout'
 import {MaterialEditorModule} from "../components/materialEditor";
+import {LyphEditorModule} from "../components/lyphEditor";
 
 enableProdMode();
 
@@ -217,8 +218,17 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Material editor </ng-template>
                     <materialEditor 
                             [model]="_model"
-                            (onChangesSave)="applyMaterialEditorChanges($event)"> 
+                            (onChangesSave)="applyEditorChanges($event)"> 
                     </materialEditor> 
+                </mat-tab>
+
+                <!--Lyph editor-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
+                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Lyph editor </ng-template>
+                    <lyphEditor 
+                            [model]="_model"
+                            (onChangesSave)="applyEditorChanges($event)"> 
+                    </lyphEditor> 
                 </mat-tab>
             </mat-tab-group>
         </section>
@@ -451,7 +461,7 @@ export class TestApp {
         }
     }
 
-    applyMaterialEditorChanges(newModel){
+    applyEditorChanges(newModel){
         this._model = newModel;
         this.applyChanges();
     }
@@ -676,7 +686,8 @@ export class TestApp {
 	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, ResourceEditorModule,
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
-        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule],
+        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
+        LyphEditorModule],
 	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog, ResourceEditorDialog],
