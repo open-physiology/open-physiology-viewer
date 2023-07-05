@@ -38,6 +38,7 @@ import {logger, $LogMsg} from './logger';
  * @property {Boolean} generated
  * @property {Object} infoFields
  * @property {Object} JSON
+ * @property {Object} camera
  * @property {Array<Object>} assign
  * @property {Array<Object>} interpolate
  * @property {Object} generatedFrom

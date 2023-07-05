@@ -653,11 +653,37 @@ export class TestApp {
         }
     }
 
+    cameraDataCapture(){
+      const camera = this._webGLScene.camera ;
+      return {
+        position: camera.position.toArray(),
+        rotation: camera.rotation.toArray(),
+        fov: camera.fov,
+        aspect: camera.aspect,
+        near: camera.near,
+        far: camera.far
+      };
+    }
+
+    restoreCameraData(cameraData) {
+      
+      var camera = new THREE.PerspectiveCamera();
+      camera.position.fromArray(cameraData.position);
+      camera.rotation.fromArray(cameraData.rotation);
+      camera.fov = cameraData.fov;
+      camera.aspect = cameraData.aspect;
+      camera.near = cameraData.near;
+      camera.far = cameraData.far;
+      this._webGLScene.camera = camera ;
+      this._webGLScene.camera.updateProjectionMatrix(); // Call this method to update the camera's internal projection matrix
+    }
+
     createSnapshot(){
         this._snapshot = this.modelClasses.Snapshot.fromJSON({
             [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter),
             [$Field.name]: getGenName("Snapshot for", this._modelName, this._snapshotCounter),
-            [$Field.model]: this._model.id
+            [$Field.model]: this._model.id,
+            [$Field.camera]: this.cameraDataCapture()
         }, this.modelClasses, this._graphData.entitiesByID);
         this._snapshotCounter += 1;
         const annotationProperties = schema.definitions.AnnotationSchema.properties::keys();
@@ -666,6 +692,7 @@ export class TestApp {
 
     loadSnapshot(value){
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
+        this.restoreCameraData(newSnapshot.camera);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
             throw new Error("Snapshot is not applicable to the model!");
