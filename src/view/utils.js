@@ -447,5 +447,10 @@ export function getBoundingBox(mesh) {
     return mesh.geometry.boundingBox;
 }
 
+export function isInternalLyph(lyph) {
+    return lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" || lyph.supertype?.id === "lt-dend-bag" || lyph.supertype?.id === "lt-segment-of-neuron";
+}
+
 export const GRAPH_LOADED = "graph_loaded";
+export const UPDATE_TICK = "updateTick";
 export const SNAPSHOT_STATE_CHANGED = "state_change"

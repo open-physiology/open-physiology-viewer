@@ -53,15 +53,15 @@ export class StateToolbar {
     }
 
     previousState(){
-        this.onPreviousState.emit();
         let event = new CustomEvent(SNAPSHOT_STATE_CHANGED);
         window.dispatchEvent(event);
+        this.onPreviousState.emit();
     }
 
     nextState(){
-        this.onNextState.emit();
         let event = new CustomEvent(SNAPSHOT_STATE_CHANGED);
         window.dispatchEvent(event);
+        this.onNextState.emit();
     }
 
     homeState(){

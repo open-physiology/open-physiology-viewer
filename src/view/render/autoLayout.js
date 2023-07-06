@@ -1,5 +1,5 @@
 import {
- getDefaultControlPoint, copyCoords, extractCoords
+ getDefaultControlPoint, copyCoords, extractCoords, isInternalLyph
 } from "../utils";
 
 import { getSceneObjectByModelClass
@@ -31,7 +31,7 @@ export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
   LYPH_MIN_Z : 0.15,
   REGION_MIN_Z : 0,
-  LINK_MIN_Z : 0.15,
+  LINK_MIN_Z : 0.2,
   WIRE_MIN_Z : 0,
   LAYER_MIN_Z : 0.125
 }
@@ -585,7 +585,7 @@ export function placeLyphInWire(lyph){
 export function placeLyphInHost(lyph, updatePosition){
   let hostMesh = getHostMesh(lyph);
   let lyphMesh = lyph.viewObjects["main"];
-  let terminalLyph = lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" || lyph.supertype?.id === "lt-dend-bag" || lyph.supertype?.id === "lt-segment-of-neuron";
+  let terminalLyph = isInternalLyph(lyph);
 
   // Fit lyph to region
   if ( hostMesh ) {    

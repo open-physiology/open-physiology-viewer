@@ -1498,7 +1498,7 @@ export class SettingsPanel {
       this.filteredGroups = this.groups;
       this.filteredDynamicGroups = this.dynamicGroups;
       this.filteredScaffolds = this.scaffolds;
-      this.disableNeuroview = !(this.scaffolds?.length > 0);
+      this.disableNeuroview = false;
       this.config.layout.disableNeuroview = this.disableNeuroview;
       let that = this;
       window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 

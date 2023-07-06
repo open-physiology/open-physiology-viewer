@@ -643,7 +643,7 @@ export class Chain extends GroupTemplate {
         }
         if (this.leaf){
             (this.leaf.rootOf||[]).forEach(nextChain => nextChain.levels &&
-                connectNeighbor(this.levels[this.levels.length - 1], nextChain.levels[0], $Field.nextChainStartLevels));
+                connectNeighbor(this.levels[this.levels?.length - 1], nextChain.levels[0], $Field.nextChainStartLevels));
         } else {
             logger.warn($LogMsg.CHAIN_NO_LEAF, this.id)
         }
@@ -735,14 +735,14 @@ export class Chain extends GroupTemplate {
 
     validateHousedChainRoute(){
         if (this.housingLyphs || this.housingChain){
-            if (this.levels.length < 1){
+            if (this.levels?.length < 1){
                 return;
             }
             let firstHost = this.levels[0].endsIn;
             if (firstHost?.isFirstLayer){
                 return;
             }
-            for (let i = 1; i < this.levels.length; i++){
+            for (let i = 1; i < this.levels?.length; i++){
                 let hostLyph = this.levels[i].fasciculatesIn;
                 if (hostLyph?.isFirstLayer){
                     //Issue warning

@@ -2,6 +2,8 @@ import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter,
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
@@ -19,7 +21,7 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
-import {GRAPH_LOADED, SNAPSHOT_STATE_CHANGED} from './../view/utils';
+import {GRAPH_LOADED, UPDATE_TICK, SNAPSHOT_STATE_CHANGED, isInternalLyph} from './../view/utils';
 
 import { buildNeurulatedTriplets, toggleScaffoldsNeuroview, findHousingLyphsGroups,
     handleNeurulatedGroup, handleNeuroView,newGroup, autoLayoutNeuron, handleOrthogonalLinks } from '../view/render/neuroView'
@@ -113,6 +115,11 @@ const WindowResize = require('three-window-resize');
                     </section>
                 </section>
                 <canvas #canvas> </canvas>
+                <div *ngIf="loading" class="main-container">
+                    <div class="loading-container">
+                        <mat-spinner color="primary"></mat-spinner>
+                    </div>
+                </div>
             </section>
             <section [expanded]="showPanel" id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
@@ -146,6 +153,22 @@ const WindowResize = require('three-window-resize');
         </section> 
     `,
     styles: [` 
+        .loading-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 56px;
+            right: 0;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            height : 100%;
+            width : 100%;
+        }
 
         #apiLayoutPanel {
             height: 85vh;
@@ -180,6 +203,7 @@ const WindowResize = require('three-window-resize');
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
     showPanel = false;
+    loading = false;
     scene;
     camera;
     renderer;
@@ -224,18 +248,23 @@ export class WebGLSceneComponent {
                 this._graphData.neurulator();
             }
             if (this.graph) {
+                this.loading = true;
                 this.graph.graphData(this._graphData);
                 // Showpanel if demo mode is ON
+                let that = this;
                 let doneUpdating = () => { 
-                  that.showPanel = that._config.demoMode;
-                  console.log("Graph loaded demo ", that.showPanel)
+                  that.showPanel = true;
+                  that.loading = false;
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
                 };
             
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
-                let that = this;
                 window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
                     that.showPanel = true;
+                });
+
+                window.addEventListener(UPDATE_TICK, () => { 
+                    that.loading = false;
                 });
             }
         }
@@ -244,7 +273,6 @@ export class WebGLSceneComponent {
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
         this._config.demoMode = this.getUrlParameter("demoMode");
-        console.log("Demo mode ", this._config.demoMode);
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
@@ -457,6 +485,7 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
+        this.loading = false;
     }
 
     processQuery(){
@@ -659,6 +688,7 @@ export class WebGLSceneComponent {
     }
 
     updateGraph(){
+        this.loading = true;
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
@@ -712,7 +742,24 @@ export class WebGLSceneComponent {
         let intersects = this.ray.intersectObjects(this.graph.children);
         intersects = intersects.filter( i => i.object?.visible )
         if (intersects.length > 0) {
-            let entity = intersects[0].object.userData;
+            let match;
+            let matches = {};
+            intersects.forEach( l => {
+                if ( l.object?.userData?.viewObjects?.["main"]?.visible ){
+                    if ( matches[l.object?.userData?.id] == undefined ){
+                        matches[l.object?.userData?.id] = l;
+                        if ( !match ) {
+                            match = l;
+                        } else if ( match ) {
+                            if ( isInternalLyph(l?.object?.userData )){
+                                match = l;
+                            }
+                        }
+                    }
+                }
+            })
+
+            let entity = match?.object?.userData;
             if (!entity || entity.inactive) { return; }
             return selectLayer(entity);
         }
@@ -949,7 +996,7 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatProgressSpinnerModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog],
     exports: [WebGLSceneComponent]

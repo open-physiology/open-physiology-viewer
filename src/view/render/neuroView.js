@@ -134,9 +134,9 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
       lyph.hidden = !checked;
       lyph.skipLabel = !checked;
       lyph.layers?.forEach( layer => {
-        layer.hidden = !checked;
+        !(layer instanceof String) ? layer.hidden = !checked : null
       });
-      if (checked) { 
+      if (checked &&  !(lyph instanceof String)) { 
         lyph.inactive = !checked;
         lyph.layers?.forEach( layer => {
           layer.inactive = !checked;
@@ -146,9 +146,9 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
       lyph.hidden = checked;
       lyph.skipLabel = checked;
       lyph.layers?.forEach( layer => {
-        layer.hidden = checked;
+        !(layer instanceof String) ? layer.hidden = checked : null
       });
-      if (checked) { 
+      if (checked &&  !(lyph instanceof String)) { 
         lyph.inactive = checked;
         lyph.layers?.forEach( layer => {
           layer.inactive = checked;

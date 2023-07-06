@@ -296,20 +296,14 @@ Link.prototype.updateViewObjects = function(state) {
                         let points = [newStart, getDefaultControlPoint(newStart, newEnd, curvature), newEnd];
                         const curve3 = new THREE.SplineCurve( points);
                         this.points = curve3.getPoints(50);
-
-                        // if (this.conveyingLyph?.viewObjects["main"]){
-                        //     let centerPoint = this.points[Math.floor(this.points.length/2)];
-                        //     this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
-                        //     this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
-                        //     this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
-                        //     copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
-                        // }
                     } else {
                         this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     }
                     obj.geometry.setFromPoints(this.points);
+                    if ( this.conveyingLyph?.viewObjects ){
+                        obj.position.z = this.conveyingLyph.viewObjects["main"].position.z + .1;
+                    } 
                     obj.geometry.attributes.position.needsUpdate = true;
-                    obj.position.z = 0.05;
                     obj.geometry.computeBoundingSphere();
                 }
             }
