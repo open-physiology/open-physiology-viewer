@@ -134,9 +134,9 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
       lyph.hidden = !checked;
       lyph.skipLabel = !checked;
       lyph.layers?.forEach( layer => {
-        layer.hidden = !checked;
+        !(layer instanceof String) ? layer.hidden = !checked : null
       });
-      if (checked) { 
+      if (checked &&  !(lyph instanceof String)) { 
         lyph.inactive = !checked;
         lyph.layers?.forEach( layer => {
           layer.inactive = !checked;
@@ -146,9 +146,9 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
       lyph.hidden = checked;
       lyph.skipLabel = checked;
       lyph.layers?.forEach( layer => {
-        layer.hidden = checked;
+        !(layer instanceof String) ? layer.hidden = checked : null
       });
-      if (checked) { 
+      if (checked &&  !(lyph instanceof String)) { 
         lyph.inactive = checked;
         lyph.layers?.forEach( layer => {
           layer.inactive = checked;
@@ -422,4 +422,121 @@ export function applyOrthogonalLayout(links, nodes, left, top, width, height) {
     if (filtered_links.length > 0)
       return orthogonalLayout(filtered_links, nodes, left, top, width, height) ;
   }
+}
+
+const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
+  // Hide all visible
+  filteredGroups.forEach((g) => {
+    g.lyphs.forEach((lyph) => {
+      lyph.hidden = true;
+      if ( !visible ){
+        lyph.hostedBy = undefined;
+        lyph.wiredTo = undefined;
+      }
+    });
+    toggleGroup.emit(g);
+  });
+
+  console.log("Hide groups ", groups);
+  groups.forEach((g) => {
+    g.lyphs.forEach((lyph) => {
+      lyph.hidden = true;
+      if ( !visible ){
+        lyph.hostedBy = undefined;
+        lyph.wiredTo = undefined;
+      }
+    });
+    g.chains?.forEach((chain) => {
+      chain.inactive = true;
+      chain.hidden = true;
+      if ( chain?.viewObjects?.["main"]?.visible ) { 
+        chain.viewObjects["main"].visible = false;
+      }
+      chain?.levels?.forEach( link => {
+        link.inactive = true;
+        link.hidden = true;
+        if ( link?.viewObjects["main"]?.visible ) link.viewObjects["main"].visible = false;
+      })
+    });
+    g.links?.forEach((chain) => {
+      chain.inactive = true;
+      chain.hidden = true;
+      if ( chain?.viewObjects?.["main"]?.visible ) chain.viewObjects["main"].visible = false;
+    });
+    toggleGroup.emit(g);
+  });
+};
+
+/**
+   * Neuroview mode on or off, allows selecting only one dynamic group at a time.
+   * @param {*} visible - Checkbox event
+  */
+ export const handleNeuroView = (filteredGroups, groups, scaffolds, visible, toggleGroup) => {
+  // Hide any visible groups
+  if ( visible ) {
+    hideVisibleGroups(filteredGroups, groups, visible, toggleGroup);
+  } else {
+    filteredGroups?.forEach(group => { 
+      group.lyphs.forEach( lyph => {
+        lyph.hidden = false;
+        lyph.inactive = false;
+      });
+    });
+  }
+
+  // Turn off all scaffolds components if neuroview is enabled, turn on if disabled.
+  scaffolds.forEach((scaffold) => {
+    scaffold.anchors?.filter( a => typeof a === 'object' ).forEach( a => a.inactive = visible);
+    scaffold.regions?.filter( r => typeof r === 'object' ).forEach( r => r.inactive = visible);
+    scaffold.wires?.forEach( w => { 
+      toggleWire(w, !visible);
+    });
+    
+    // Call event to toggle scaffolds
+    if (scaffold.hidden === !visible || (visible && scaffold.hidden === undefined)) {
+      toggleGroup.emit ? toggleGroup.emit(scaffold) : toggleGroup(scaffold);
+    }
+  });
+};
+
+export const newGroup = (event ,group, neuronTriplets, filteredDynamicGroups) => {
+  // Create a new Group with only the housing lyphs
+  const newGroupName = group.name + " - Housing Lyphs";
+  if ( filteredDynamicGroups.filter(g => g.name == newGroupName ).length < 1 ) {
+    let groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
+    groupClone.name = newGroupName;
+    groupClone.lyphs = neuronTriplets.y;
+    groupClone.links = [];
+    groupClone.nodes = [];
+    groupClone.cloneOf = group;
+    filteredDynamicGroups.push(groupClone);
+  } else if ( filteredDynamicGroups.find(g => g.name == newGroupName ) ) {
+    // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+    const groupMatched = filteredDynamicGroups.find(g => g.name == newGroupName );
+    groupMatched.hidden = !event.checked;
+  }
+}
+
+export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onToggleLayout) => {
+  let visibleLinks = [];
+  let bigLyphs = []
+  for (let group of filteredDynamicGroups) {
+    if ( !group?.hidden && !group?.cloneOf ) {
+      let neuroTriplets = buildNeurulatedTriplets(group); 
+      visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+      bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
+    }
+  }
+  
+  let doneUpdating = () => { 
+    const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height)
+    if (orthogonalSegments)
+    {
+      autoLayoutSegments(orthogonalSegments, visibleLinks);
+    }
+    onToggleLayout?.emit ? onToggleLayout?.emit() : onToggleLayout();
+    window.removeEventListener("doneUpdating", doneUpdating);
+  };
+
+  window.addEventListener("doneUpdating", doneUpdating);
 }

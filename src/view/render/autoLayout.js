@@ -1,5 +1,5 @@
 import {
- getDefaultControlPoint, copyCoords, extractCoords
+ getDefaultControlPoint, copyCoords, extractCoords, isInternalLyph
 } from "../utils";
 
 import { getSceneObjectByModelClass
@@ -24,14 +24,14 @@ import { translateMeshToTarget
   , rotateAroundCenter   } from "./autoLayout/transform";
 import { getHouseLyph, getNodeLyph } from "./neuroView";
 
-export const LYPH_H_PERCENT_MARGIN = 0.25;
-export const LYPH_V_PERCENT_MARGIN = 0.15;
+export const LYPH_H_PERCENT_MARGIN = 0.5;
+export const LYPH_V_PERCENT_MARGIN = 0.05;
 export const MAX_LYPH_WIDTH = 35;
 export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
   LYPH_MIN_Z : 0.15,
   REGION_MIN_Z : 0,
-  LINK_MIN_Z : 0.15,
+  LINK_MIN_Z : 0.2,
   WIRE_MIN_Z : 0,
   LAYER_MIN_Z : 0.125
 }
@@ -68,7 +68,9 @@ export function fitToTargetRegion(target, source, terminalLyph) {
 
   sx = ( idealSize / sourceSize.x );
   sy = ( idealSize / sourceSize.y );
-
+  source.userData.prevScaleX = source.scale.x;
+  source.userData.prevScaleY = source.scale.y;
+  source.userData.prevScaleZ = source.scale.z;
 
   if ( !terminalLyph ){
     source.scale.setX(sx);
@@ -583,7 +585,7 @@ export function placeLyphInWire(lyph){
 export function placeLyphInHost(lyph, updatePosition){
   let hostMesh = getHostMesh(lyph);
   let lyphMesh = lyph.viewObjects["main"];
-  let terminalLyph = lyph.supertype?.id === "lt-axon-tube" || lyph.supertype?.id === "lt-axon-bag" || lyph.supertype?.id === "lt-dend-bag" || lyph.supertype?.id === "lt-segment-of-neuron";
+  let terminalLyph = isInternalLyph(lyph);
 
   // Fit lyph to region
   if ( hostMesh ) {    
@@ -603,6 +605,9 @@ export function placeLyphInHost(lyph, updatePosition){
     } else if ( terminalLyph ){
       lyphMesh.position.z = getHouseLyph(lyph)?.z + ( DIMENSIONS.LYPH_MIN_Z * 1.25 );
     }
+    lyph.prevX = lyph.x;
+    lyph.prevY = lyph.y;
+    lyph.prevZ = lyph.z;
     copyCoords(lyph, lyphMesh.position);
     lyphMesh.geometry.verticesNeedUpdate = true;
     lyphMesh?.geometry?.computeBoundingBox();
@@ -613,7 +618,7 @@ function getLyphPosition(lyphMesh, hostMesh, lyph) {
   const lyphDim = getBoundingBoxSize(lyphMesh);
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
-  const refPaddingX = refWidth * (LYPH_H_PERCENT_MARGIN);
+  const refPaddingX = refWidth * (1 - LYPH_H_PERCENT_MARGIN);
 
   let matchIndex = 0;
   if ( hostMesh?.userData?.hostedLyphs?.indexOf(lyph) >= 0 ){

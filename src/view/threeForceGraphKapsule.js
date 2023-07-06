@@ -11,7 +11,7 @@ import {drag as d3Drag } from 'd3-drag';
 import Kapsule from 'kapsule';
 import {generateFromJSON, modelClasses} from '../model/index';
 import './modelView';
-import {extractCoords} from './utils';
+import {extractCoords, GRAPH_LOADED} from './utils';
 
 const {Graph} = modelClasses;
 
@@ -188,7 +188,7 @@ export default Kapsule({
 
         labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize     : { default: 0.005},
-        labelOffset      : { default: {Vertice: 1, Edge: 1, Lyph: 1, Region: 1}},
+        labelOffset      : { default: {Vertice: 1, Edge: 1, Lyph: .5, Region: .5}},
         fontParams       : { default: { font: '11px Arial', fillStyle: '#000000' , antialias: true}},
 
         d3AlphaDecay     : { default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},
@@ -306,10 +306,15 @@ export default Kapsule({
         function layoutTick() {
           if (++state.cntTicks > state.cooldownTicks) {
               // Stop ticking graph
-              const event2 = new CustomEvent('updateTick', { detail : { updating : false }});
-              window.dispatchEvent(event2);
-              const event4 = new CustomEvent('doneUpdating');
-              window.dispatchEvent(event4);
+              let event = new CustomEvent('updateTick', { detail : { updating : false }});
+              window.dispatchEvent(event);
+              event = new CustomEvent('doneUpdating');
+              window.dispatchEvent(event);
+              if ( state.graphScene?.children?.length > 0 ) {
+                event = new CustomEvent(GRAPH_LOADED);
+                console.log("C ", state.graphScene?.children?.filter( c => c.visible ))
+                window.dispatchEvent(event);
+              }
               state.onFrame = null;
           } else { layout['tick'](); }
 

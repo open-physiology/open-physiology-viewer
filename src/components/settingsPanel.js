@@ -17,22 +17,16 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview, findHousingLyphsGroups, handleNeurulatedGroup, toggleWire, getHouseLyph, applyOrthogonalLayout, autoLayoutSegments } from "../view/render/neuroView";
+import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview,
+   findHousingLyphsGroups, handleNeurulatedGroup, handleOrthogonalLinks,
+   applyOrthogonalLayout, autoLayoutSegments, handleNeuroView,newGroup } from "../view/render/neuroView";
 
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MatDividerModule} from "@angular/material/divider";
-import {MatCardModule} from "@angular/material/card";
-import {MatTooltipModule} from "@angular/material/tooltip";
-import {MatDialogModule} from "@angular/material/dialog";
 import {MatSelectModule} from "@angular/material/select";
-import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatNativeDateModule} from "@angular/material/core";
-import {FieldEditorDialog} from "./gui/fieldEditorDialog";
-import {FieldEditor} from "./gui/fieldEditor";
-
+import { SNAPSHOT_STATE_CHANGED } from "./../view/utils"
 /**
  * @ignore
  */
@@ -130,7 +124,7 @@ const COLORS = {
       <!--Group controls-->
 
       <mat-accordion *ngIf="!!groups">
-        <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel [expanded]="!config.demoMode">
           <mat-expansion-panel-header>
             <mat-panel-title> Groups </mat-panel-title>
           </mat-expansion-panel-header>
@@ -189,7 +183,7 @@ const COLORS = {
       </mat-accordion>
 
       <mat-accordion *ngIf="!!dynamicGroups">
-        <mat-expansion-panel>
+        <mat-expansion-panel [expanded]="config.demoMode">
           <mat-expansion-panel-header>
             <mat-panel-title> Dynamic groups </mat-panel-title>
           </mat-expansion-panel-header>
@@ -199,7 +193,7 @@ const COLORS = {
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
                 [disabled]="disableNeuroview"
-                (change)="handleNeuroView($event.checked)"
+                (change)="toggleNeuroView($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
             </div>
@@ -1166,6 +1160,7 @@ export class SettingsPanel {
   searchTerm = "";
   filteredGroups;
   filteredDynamicGroups;
+  handleNeuroViewStart = false;
   searchTermScaffolds = "";
   filteredScaffolds;
   nodes;
@@ -1200,6 +1195,7 @@ export class SettingsPanel {
         (this.groups||[]).filter((g) => ids.includes(g.id))
       );
     }
+    this.neuroViewEnabled =  this.config.layout.neuroviewEnabled;
   }
 
     @Input('helperKeys') set helperKeys(newHelperKeys) {
@@ -1368,105 +1364,36 @@ export class SettingsPanel {
     this.toggleAllDynamicGroup();
   };
 
-  hideVisibleGroups = (visible) => {
-    // Hide all visible
-    let allVisible = this.filteredDynamicGroups.filter((g) => g.hidden == false );
-    allVisible.forEach((g) => {
-      g.lyphs.forEach((lyph) => {
-        lyph.hidden = true;
-        if ( !visible ){
-          lyph.hostedBy = undefined;
-          lyph.wiredTo = undefined;
-        }
-      });
-      this.onToggleGroup.emit(g);
-    });
-
-    allVisible = this.groups.filter((g) => g.hidden == false);
-    allVisible.forEach((g) => {
-      g.lyphs.forEach((lyph) => {
-        lyph.hidden = true;
-        if ( !visible ){
-          lyph.hostedBy = undefined;
-          lyph.wiredTo = undefined;
-        }
-      });
-      this.onToggleGroup.emit(g);
-    });
-  };
-
-  handleOrthogonalLinks = () => {
-      let visibleLinks = [];
-      let bigLyphs = []
-      for (let group of this.filteredDynamicGroups) {
-        if ( !group?.hidden && !group?.cloneOf ) {
-          let neuroTriplets = buildNeurulatedTriplets(group); 
-          visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
-          bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
-        }
-      }
-      
-      let that = this;
-      let doneUpdating = () => { 
-        const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height)
-        if (orthogonalSegments)
-        {
-          autoLayoutSegments(orthogonalSegments, visibleLinks);
-        }
-        that.onToggleLayout.emit();
-        window.removeEventListener("doneUpdating", doneUpdating);
-      };
-
-      window.addEventListener("doneUpdating", doneUpdating);
-  }
-
   toggleGroup = async (event, group) => {
-      if (this.neuroViewEnabled) {
-        // Housing Lyphs Group
-        if ( group.cloneOf ){
-          this.toggleGroup(event, group.cloneOf);
-          return;
-        }
-        
+      if (this.neuroViewEnabled) {        
+        // Handle Neuro view initial settings. Turns OFF groups and scaffolds
+        this.toggleNeuroView(true);
+
         // Find housing lyphs of neuron, also links and chains.
         let neuronTriplets = buildNeurulatedTriplets(group);
         neuronTriplets.links?.forEach( l => l.neurulated = true );
-
-        console.log("Neuron Information : ", neuronTriplets);
+        neuronTriplets.x?.forEach( l => l.neurulated = true );
+        neuronTriplets.y?.forEach( l => l.neurulated = true );
         
-        // Handle Neuro view initial settings. Turns OFF groups and scaffolds
-        this.handleNeuroView(true);
+        console.log("Neuron Information : ", neuronTriplets);
+        let activeNeurulatedGroups = [];
 
         // Identify TOO Map components and turn them ON/OFF
         const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
         matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
-        this.activeNeurulatedGroups.push(group);
+        activeNeurulatedGroups.push(group);
 
         //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-        findHousingLyphsGroups(this.graphData, neuronTriplets, this.activeNeurulatedGroups);
+        findHousingLyphsGroups(this.graphData, neuronTriplets, activeNeurulatedGroups);
 
         // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-        this.activeNeurulatedGroups.forEach((g) => {
+        activeNeurulatedGroups.forEach((g) => {
           handleNeurulatedGroup(event.checked, g, neuronTriplets);
         });
 
         group.neurulated = true;
 
-        // Create a new Group with only the housing lyphs
-        const newGroupName = group.name + " - Housing Lyphs";
-        if ( this.filteredDynamicGroups.filter(g => g.name == newGroupName ).length < 1 ) {
-          let groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
-          groupClone.name = newGroupName;
-          groupClone.lyphs = neuronTriplets.y;
-          groupClone.links = [];
-          groupClone.nodes = [];
-          groupClone.cloneOf = group;
-          this.filteredDynamicGroups.push(groupClone);
-        } else if ( this.filteredDynamicGroups.find(g => g.name == newGroupName ) ) {
-          // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-          const groupMatched = this.filteredDynamicGroups.find(g => g.name == newGroupName );
-          groupMatched.hidden = !event.checked;
-        }
+        newGroup(event, group, neuronTriplets, this.filteredDynamicGroups);
         window.addEventListener("updateTick",function updateLayout(e){
           // Run auto layout code to position lyphs on their regions and wires
           if ( group?.neurulated && !group.hidden && e?.detail?.updating ) {
@@ -1474,25 +1401,18 @@ export class SettingsPanel {
             autoLayoutNeuron(neuronTriplets, group);
           }
         });
-        await this.handleOrthogonalLinks();
+        await handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);
       } else {
         this.onToggleGroup.emit(group);
-        if ( !this.disableNeuroview ) {
-          group?.lyphs?.forEach((m) => {
-            m.hidden = !event.checked;
-            m.inactive = !event.checked;
-          });
-          window.addEventListener("updateTick",async function updateLayout(e){
-            if ( !group.hidden && e?.detail?.updating ) {
-              group?.lyphs?.forEach((m) => {
-                m.autoSize();
-              });
-            }
-          });
-          await this.handleOrthogonalLinks();
-        }
+        group.neurulated && window.addEventListener("updateTick",async function updateLayout(e){
+          if ( !group.hidden && e?.detail?.updating ) {
+            group?.lyphs?.forEach((m) => {
+              m.autoSize();
+            });
+          }
+        });
+        group.neurulated && await handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);    
       }
-      
   };
 
   toggleAllDynamicGroup = () => {
@@ -1540,41 +1460,17 @@ export class SettingsPanel {
    * Neuroview mode on or off, allows selecting only one dynamic group at a time.
    * @param {*} visible - Checkbox event
   */
-  handleNeuroView = (visible) => {
-    // Hide any visible groups
-    
-    if ( visible ) {
-      this.hideVisibleGroups(visible);
-    } else {
-      let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
-      visibleGroups?.forEach(group => { 
-        group.lyphs.forEach( lyph => {
-          lyph.hidden = false;
-          lyph.inactive = false;
-        });
-      });
-    }
+   toggleNeuroView = (visible) => {
+    let groups = this.groups.filter((g) => g.hidden == false);
+    let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
 
-    // Turn off all scaffolds components if neuroview is enabled, turn on if disabled.
-    this.scaffolds.forEach((scaffold) => {
-      scaffold.anchors?.filter( a => typeof a === 'object' ).forEach( a => a.inactive = visible);
-      scaffold.regions?.filter( r => typeof r === 'object' ).forEach( r => r.inactive = visible);
-      scaffold.wires?.forEach( w => { 
-        toggleWire(w, !visible);
-      });
-      
-      // Call event to toggle scaffolds
-      if (scaffold.hidden === !visible || (visible && scaffold.hidden === undefined)) {
-        this.onToggleGroup.emit(scaffold);
-      }
-    });
+    handleNeuroView(visibleGroups, groups, this.scaffolds, visible, this.onToggleGroup);
 
     // clear array keeping track of manipulated groups
-    this.activeNeurulatedGroups = [];
-    // Update rendered scafoold components
     this.config.layout.neuroviewEnabled = visible;
-
+    // Update rendered scafoold components
     this.updateRenderedResources();
+    this.handleNeuroViewStart = true;
   };
 
   search(value, filterOptions, allOptions) {
@@ -1602,8 +1498,12 @@ export class SettingsPanel {
       this.filteredGroups = this.groups;
       this.filteredDynamicGroups = this.dynamicGroups;
       this.filteredScaffolds = this.scaffolds;
-      this.disableNeuroview = !(this.scaffolds?.length > 0);
+      this.disableNeuroview = false;
       this.config.layout.disableNeuroview = this.disableNeuroview;
+      let that = this;
+      window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
+        that.handleNeuroViewStart = false;
+      });
   }
 
   ngOnChanges() {
@@ -1613,9 +1513,30 @@ export class SettingsPanel {
         this.search(this.searchTerm, "filteredDynamicGroups", "dynamicGroups");
         this.search(this.searchTerm, "filteredScaffolds", "scaffolds");
       }
+      
       this.filteredGroups = this.filteredGroups || this.groups;
       this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
       this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+      let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
+      let update = false;
+      let that = this;
+      visibleGroups?.forEach( vg => {
+        let neuroTriplets = buildNeurulatedTriplets(vg);
+        neuroTriplets?.x?.forEach( l => {
+          if ( !l.hidden ) {
+            if ( !l?.viewObjects["main"]?.visible ) {
+              update = false;
+            }else{
+              update = true;
+            }
+          } 
+        })
+      })
+      if ( this.config.layout.neuroviewEnabled && update && !this.handleNeuroViewStart ) {
+        visibleGroups?.forEach( (vg, index) => {
+          index == 0 && that.toggleGroup({checked : true}, vg)
+        })
+      }
   }
 
   clearSearch(term, filterOptions, allOptions) {

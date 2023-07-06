@@ -2,6 +2,8 @@ import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter,
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver  from 'file-saver';
@@ -19,8 +21,11 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
+import {GRAPH_LOADED, UPDATE_TICK, SNAPSHOT_STATE_CHANGED, isInternalLyph} from './../view/utils';
 
-import { neuroViewUpdateLayout } from '../view/render/neuroView'
+import { buildNeurulatedTriplets, toggleScaffoldsNeuroview, findHousingLyphsGroups,
+    handleNeurulatedGroup, handleNeuroView,newGroup, autoLayoutNeuron, handleOrthogonalLinks } from '../view/render/neuroView'
+import { STATE_CANCELLED, STATE_CHANGED } from 'hammerjs';
 
 const WindowResize = require('three-window-resize');
 
@@ -60,11 +65,11 @@ const WindowResize = require('three-window-resize');
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Show settings">
                             <i class="fa fa-cog"> </i>
                         </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
@@ -110,8 +115,13 @@ const WindowResize = require('three-window-resize');
                     </section>
                 </section>
                 <canvas #canvas> </canvas>
+                <div *ngIf="loading" class="main-container">
+                    <div class="loading-container">
+                        <mat-spinner color="primary"></mat-spinner>
+                    </div>
+                </div>
             </section>
-            <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
+            <section [expanded]="showPanel" id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
                         [config]="_config"
                         [selected]="_selected"
@@ -143,6 +153,22 @@ const WindowResize = require('three-window-resize');
         </section> 
     `,
     styles: [` 
+        .loading-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 56px;
+            right: 0;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            height : 100%;
+            width : 100%;
+        }
 
         #apiLayoutPanel {
             height: 85vh;
@@ -177,6 +203,7 @@ const WindowResize = require('three-window-resize');
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
     showPanel = false;
+    loading = false;
     scene;
     camera;
     renderer;
@@ -221,17 +248,35 @@ export class WebGLSceneComponent {
                 this._graphData.neurulator();
             }
             if (this.graph) {
+                this.loading = true;
                 this.graph.graphData(this._graphData);
+                // Showpanel if demo mode is ON
+                let that = this;
+                let doneUpdating = () => { 
+                  that.showPanel = true;
+                  that.loading = false;
+                  window.removeEventListener(GRAPH_LOADED, doneUpdating);
+                };
+            
+                window.addEventListener(GRAPH_LOADED, doneUpdating);
+                window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
+                    that.showPanel = true;
+                });
+
+                window.addEventListener(UPDATE_TICK, () => { 
+                    that.loading = false;
+                });
             }
         }
     }
 
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
+        this._config.demoMode = this.getUrlParameter("demoMode");
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
-            this._config.layout::keys().forEach(prop => this.graph[prop](this._config.layout[prop]))
+            this._config.layout::keys().forEach(prop => this.graph[prop]?.(this._config.layout[prop]))
         }
     }
 
@@ -314,7 +359,8 @@ export class WebGLSceneComponent {
                 showLayers      : true,
                 showLyphs3d     : false,
                 showCoalescences: false,
-                numDimensions   : 3
+                numDimensions   : 3,
+                neuroviewEnabled : false
             },
             showLabels: {
                 [$SchemaClass.Wire]  : false,
@@ -439,6 +485,7 @@ export class WebGLSceneComponent {
         this.createHelpers();
         this.createGraph();
         this.animate();
+        this.loading = false;
     }
 
     processQuery(){
@@ -641,6 +688,7 @@ export class WebGLSceneComponent {
     }
 
     updateGraph(){
+        this.loading = true;
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
@@ -694,7 +742,24 @@ export class WebGLSceneComponent {
         let intersects = this.ray.intersectObjects(this.graph.children);
         intersects = intersects.filter( i => i.object?.visible )
         if (intersects.length > 0) {
-            let entity = intersects[0].object.userData;
+            let match;
+            let matches = {};
+            intersects.forEach( l => {
+                if ( l.object?.userData?.viewObjects?.["main"]?.visible ){
+                    if ( matches[l.object?.userData?.id] == undefined ){
+                        matches[l.object?.userData?.id] = l;
+                        if ( !match ) {
+                            match = l;
+                        } else if ( match ) {
+                            if ( isInternalLyph(l?.object?.userData )){
+                                match = l;
+                            }
+                        }
+                    }
+                }
+            })
+
+            let entity = match?.object?.userData;
             if (!entity || entity.inactive) { return; }
             return selectLayer(entity);
         }
@@ -780,18 +845,59 @@ export class WebGLSceneComponent {
     }
 
     toggleLayout(prop){
-        if (this.graph && prop){ this.graph[prop](this._config.layout[prop]); }
+        if (this.graph && prop){ this.graph[prop]?.(this._config.layout[prop]); }
         else if ( this.graph ) { this.graph.graphData(this.graphData); }
     }
 
     toggleGroup(group) {
-        if (!this._graphData){ return; }
+        if (!this?._graphData){ return; }
         if (group.hidden){
             group.show();
         } else {
             group.hide();
         }
-        if (this.graph) { this.graph.graphData(this.graphData); }
+        if (this?.graph) { this.graph.graphData(this.graphData); }
+    }
+
+    toggleNeurulatedGroup(event, filteredDynamicGroups, group) {
+        // Find housing lyphs of neuron, also links and chains.
+        let neuronTriplets = buildNeurulatedTriplets(group);
+        neuronTriplets.links?.forEach( l => l.neurulated = true );
+        neuronTriplets.x?.forEach( l => l.neurulated = true );
+        neuronTriplets.y?.forEach( l => l.neurulated = true );
+
+        console.log("Neuron Information : ", neuronTriplets);
+        let groups = this.graphData?.groups.filter((g) => g.hidden == false);
+        let visibleGroups = this.graphData?.dynamicGroups.filter( dg => !dg.hidden );
+
+        // Handle Neuro view initial settings. Turns OFF groups and scaffolds
+        handleNeuroView(visibleGroups, groups, this.graphData?.scaffoldComponents, event.visible, this.toggleGroup);
+        let activeNeurulatedGroups = [];
+
+        // Identify TOO Map components and turn them ON/OFF
+        const matchScaffolds = toggleScaffoldsNeuroview(this.graphData?.scaffoldComponents,neuronTriplets,event.checked);
+        matchScaffolds?.forEach((scaffold) => toggleGroup(scaffold));
+        activeNeurulatedGroups.push(group);
+
+        //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+        findHousingLyphsGroups(this.graphData, neuronTriplets, activeNeurulatedGroups);
+
+        // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+        activeNeurulatedGroups.forEach((g) => {
+          handleNeurulatedGroup(event.checked, g, neuronTriplets);
+        });
+
+        group.neurulated = true;
+
+        newGroup(event, group, neuronTriplets, filteredDynamicGroups);
+        window.addEventListener("updateTick",function updateLayout(e){
+          // Run auto layout code to position lyphs on their regions and wires
+          if ( group?.neurulated && !group.hidden && e?.detail?.updating ) {
+            autoLayoutNeuron(neuronTriplets, group);
+            autoLayoutNeuron(neuronTriplets, group);
+          }
+        });
+        handleOrthogonalLinks(filteredDynamicGroups, this._viewPortSize, this.toggleLayout);
     }
 
     resetVariance(){
@@ -871,10 +977,26 @@ export class WebGLSceneComponent {
             }
         }
     }
+
+    getUrlParameter(sParam){
+        let sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+    
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+    
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+        return false;
+    }
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatProgressSpinnerModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog],
     exports: [WebGLSceneComponent]
