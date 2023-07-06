@@ -143,7 +143,7 @@ const WindowResize = require('three-window-resize');
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
-                        (onToggleUpdateGroup) ="updateGroup($event)"
+                        (onUpdateGroupLayout) ="updateGroupLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
                         (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
                         (onCladeChange)="updateVariance($event)"
@@ -867,7 +867,7 @@ export class WebGLSceneComponent {
         if (this?.graph) { this.graph.graphData(this.graphData); }
     }
 
-    async updateGroup(event){
+    async updateGroupLayout(event){
         let neuronTriplets = buildNeurulatedTriplets(event.group);
         window.addEventListener(UPDATE_TICK,function updateLayout(e){
             // Run auto layout code to position lyphs on their regions and wires

@@ -1227,7 +1227,7 @@ export class SettingsPanel {
     @Output() onUpdateShowLabels = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup = new EventEmitter();
-    @Output() onToggleUpdateGroup = new EventEmitter();
+    @Output() onUpdateGroupLayout = new EventEmitter();
     @Output() onToggleMode = new EventEmitter();
     @Output() onToggleLayout = new EventEmitter();
     @Output() onToggleHelperPlane = new EventEmitter();
@@ -1367,10 +1367,10 @@ export class SettingsPanel {
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
         this.toggleNeuroView(true);
         toggleNeurulatedGroup(event, group, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
-        this.onToggleUpdateGroup.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
+        this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
       } else {
         this.onToggleGroup.emit(group); 
-        this.onToggleUpdateGroup.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});   
+        this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});   
       }
   };
 
