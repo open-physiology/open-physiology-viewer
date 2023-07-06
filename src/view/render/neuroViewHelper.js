@@ -137,7 +137,7 @@ var CustomRouter = dia.Link.define('CustomRouter', {
     return defaultRoute;
   }
 });
-export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false)
+export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHeight, debug = false, router)
 {
   var namespace = shapes;           
 
@@ -157,7 +157,13 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.id = "orthogonalDiv";
   document.body.appendChild(el);
 
-  const linkNodeSide = 2 ;
+  const linkNodeSide = 0;
+
+  if (debug)
+  {
+    el.style.cssText = 'position:absolute;opacity:0.3;z-index:100;background:#000;';
+    document.body.appendChild(el);
+  }
 
   var paper = new dia.Paper({
     el: el,
@@ -166,9 +172,11 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
     height: canvasHeight, // height had to be increased
     gridSize: 10,
     drawGrid: true,
-    defaultRouter: { name: 'manhattan' }, // use the manhattan router
+    defaultRouter: { name: router }, // use the manhattan router
+    model: graph,
+    interactive: true,
     background: {
-        color: 'rgba(0, 255, 0, 0.3)'
+      color: 'rgba(0, 255, 0, 0.3)'
     },
     cellViewNamespace: namespace
   });
@@ -192,9 +200,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   paper.$el.append(style);
   //obstacles, anything not a lyph and orphaned
 
-  nodes.forEach( node => {
-    const lyphMesh = node.state.graphScene.children.find( c => c.userData?.id == node.id)
-    let scale = lyphMesh?.scale 
+  nodes?.forEach( node => {
+    const lyphMesh = node.state.graphScene?.children?.find( c => c.userData?.id == node.id);    let scale = lyphMesh?.scale 
     scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
     const width = node.width * scale.x ;
     const height = node.height * scale.y

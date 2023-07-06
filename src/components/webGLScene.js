@@ -287,7 +287,7 @@ export class WebGLSceneComponent {
         } else {
             this.highlight(this._selected, this.selectColor, false);
         }
-
+        
         let color = this.highlightColor;
         if ( entity?.class === "Region" ){
             color = 0xeeffff;
@@ -295,6 +295,7 @@ export class WebGLSceneComponent {
         this.highlight(entity, color, entity !== this._selected);
         this._highlighted = entity;
         this.highlightedItemChange.emit(entity);
+
         if (this.graph) {
             const obj = entity && entity.viewObjects? entity.viewObjects["main"]: null;
             this.graph.enableDrag = this.lockControls;

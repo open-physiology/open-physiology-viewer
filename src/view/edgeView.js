@@ -12,7 +12,7 @@ import {
     getDefaultControlPoint,
 } from "./utils";
 import { DIMENSIONS, pointAlongLine } from "./render/autoLayout";
-
+import { rotateAroundCenter } from "./render/autoLayout/transform";
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
@@ -177,7 +177,12 @@ Link.prototype.updateViewObjects = function(state) {
       points.push( new THREE.Vector3( segment.x, segment.y, 2 ) );
     })
     
-    const material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+    let material;
+    if ( this.collapsible ) {
+        material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+    } else {
+        material = MaterialFactory.createLineBasicMaterial({color : random_rgba()});
+    }
     
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
     const line = new THREE.Line( geometry, material );
@@ -189,6 +194,40 @@ Link.prototype.updateViewObjects = function(state) {
     line.computeLineDistances();
     line.geometry.computeBoundingBox();
     this.createLabels();
+
+    if (this.conveyingLyph){
+        this.conveyingLyph.updateViewObjects(state);
+        this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
+        this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+
+        let edgeObj = this.viewObjects["linkSegments"];
+        if (edgeObj){
+            copyCoords(edgeObj.position, this.conveyingLyph.center);
+        }
+    }
+    if (this.conveyingLyph?.viewObjects["main"] && this.neurulated){
+        let centerPoint = pointAlongLine(points[0], points[points.length - 1], .5)
+
+        this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
+        this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
+        this.conveyingLyph.viewObjects["main"].position.z = DIMENSIONS.LYPH_MIN_Z * 2;
+
+        // estimate angle between two points
+        let quaternion = new THREE.Quaternion();
+        let start = points[0];
+        let end = points[points.length - 1];
+        start.normalize();
+        end.normalize();
+        quaternion.setFromUnitVectors(start,end);
+
+        // apply rotation to conveying lyph so it matches rotation of hostingLink
+        let euler = new THREE.Euler();
+        euler.setFromQuaternion(quaternion);
+        let rotationEuler = euler.toArray();
+        this.conveyingLyph.viewObjects["main"].rotateX(rotationEuler[0]);
+        this.conveyingLyph.viewObjects["main"].rotateY(rotationEuler[1]);
+        copyCoords(this.conveyingLyph,this.conveyingLyph.viewObjects["main"].position);
+    }
   }else{
 
     Edge.prototype.updateViewObjects.call(this, state);

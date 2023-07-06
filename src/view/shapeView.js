@@ -172,7 +172,7 @@ Lyph.prototype.autoSize = function(){
         this.viewObjects["main"].scale.setZ(this.prevScaleZ);
         copyCoords(this, new THREE.Vector3(this.prevX, this.prevY, this.prevZ));
     }
-    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));       
+    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 };
 
 /**
@@ -283,7 +283,7 @@ Lyph.prototype.createViewObjects = function(state) {
         });
     }
     //Do not create labels for layers and nested lyphs
-    this.createLabels();
+    ( !this.housingLyph ) && this.createLabels();
 };
 
 /**
@@ -336,7 +336,7 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if ( !this.layerIn ) this.border.updateViewObjects(state);
 
-    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
+    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
