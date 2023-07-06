@@ -24,8 +24,8 @@ import { translateMeshToTarget
   , rotateAroundCenter   } from "./autoLayout/transform";
 import { getHouseLyph, getNodeLyph } from "./neuroView";
 
-export const LYPH_H_PERCENT_MARGIN = 0.5;
-export const LYPH_V_PERCENT_MARGIN = 0.05;
+export const LYPH_H_PERCENT_MARGIN = 0.25;
+export const LYPH_V_PERCENT_MARGIN = 0.15;
 export const MAX_LYPH_WIDTH = 35;
 export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
@@ -100,10 +100,10 @@ export function maxLyphSize(target, source, terminalLyph) {
   if( !terminalLyph ) {
     if (  target?.userData?.hostedLyphs ){
       length = target?.userData?.hostedLyphs?.length;
-      idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+      idealSize = (hostMaxSize / length) * ( length > 1 ? ( 1 - LYPH_H_PERCENT_MARGIN) : LYPH_V_PERCENT_MARGIN);
     } else if (  target?.userData?.internalLyphs ){
       length = target?.userData?.internalLyphs?.length;
-      idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+      idealSize = (hostMaxSize / length) * ( length > 1 ? ( 1 - LYPH_H_PERCENT_MARGIN) : LYPH_V_PERCENT_MARGIN);
     }
 
     if ( idealSize > hostMinSize ){

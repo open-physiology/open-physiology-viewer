@@ -21,11 +21,10 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
-import {GRAPH_LOADED, UPDATE_TICK, SNAPSHOT_STATE_CHANGED, isInternalLyph} from './../view/utils';
+import {GRAPH_LOADED, DONE_UPDATING, UPDATE_TICK, SNAPSHOT_STATE_CHANGED, isInternalLyph} from './../view/utils';
 
 import { buildNeurulatedTriplets, toggleScaffoldsNeuroview, findHousingLyphsGroups,
     handleNeurulatedGroup, handleNeuroView,newGroup, autoLayoutNeuron, handleOrthogonalLinks } from '../view/render/neuroView'
-import { STATE_CANCELLED, STATE_CHANGED } from 'hammerjs';
 
 const WindowResize = require('three-window-resize');
 
@@ -117,7 +116,7 @@ const WindowResize = require('three-window-resize');
                 <canvas #canvas> </canvas>
                 <div *ngIf="loading" class="main-container">
                     <div class="loading-container">
-                        <mat-spinner color="primary"></mat-spinner>
+                        Loading Canvas...
                     </div>
                 </div>
             </section>
@@ -144,6 +143,7 @@ const WindowResize = require('three-window-resize');
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
+                        (onToggleUpdateGroup) ="updateGroup($event)"
                         (onToggleGroup)="toggleGroup($event)"
                         (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
                         (onCladeChange)="updateVariance($event)"
@@ -266,6 +266,13 @@ export class WebGLSceneComponent {
                 window.addEventListener(UPDATE_TICK, () => { 
                     that.loading = false;
                 });
+
+                
+                let toggleLayout = () => { 
+                    that.toggleLayout();
+                };
+                
+                window.addEventListener(DONE_UPDATING, toggleLayout);
             }
         }
     }
@@ -860,6 +867,18 @@ export class WebGLSceneComponent {
         if (this?.graph) { this.graph.graphData(this.graphData); }
     }
 
+    async updateGroup(event){
+        let neuronTriplets = buildNeurulatedTriplets(event.group);
+        window.addEventListener(UPDATE_TICK,function updateLayout(e){
+            // Run auto layout code to position lyphs on their regions and wires
+            if ( event.group?.neurulated && !event.group.hidden && e?.detail?.updating ) {
+              autoLayoutNeuron(neuronTriplets, event.group);
+              autoLayoutNeuron(neuronTriplets, event.group);
+            }
+        });
+        await handleOrthogonalLinks(event.filteredDynamicGroups, this._viewPortSize, this.toggleLayout); 
+    }
+
     toggleNeurulatedGroup(event, filteredDynamicGroups, group) {
         // Find housing lyphs of neuron, also links and chains.
         let neuronTriplets = buildNeurulatedTriplets(group);
@@ -891,7 +910,7 @@ export class WebGLSceneComponent {
         group.neurulated = true;
 
         newGroup(event, group, neuronTriplets, filteredDynamicGroups);
-        window.addEventListener("updateTick",function updateLayout(e){
+        window.addEventListener(UPDATE_TICK,function updateLayout(e){
           // Run auto layout code to position lyphs on their regions and wires
           if ( group?.neurulated && !group.hidden && e?.detail?.updating ) {
             autoLayoutNeuron(neuronTriplets, group);

@@ -149,7 +149,7 @@ describe('Merge Keast Spinal Model', () => {
 
 describe('Keast Spinal Model Snapshot Tests', () => {
 
-    it('Keast Spinal Model Group: All groups', async () => {
+    it('Keast Spinal Model Group All groups', async () => {
 
         await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
@@ -159,8 +159,8 @@ describe('Keast Spinal Model Snapshot Tests', () => {
 
     })
 
-    it('Keast Spinal Model Group: Sympathetic chain', async () => {
-        console.log('Keast Spinal Model group: Sympathetic chain')
+    it('Keast Spinal Model Group Sympathetic chain', async () => {
+        console.log('Keast Spinal Model group Sympathetic chain')
 
         await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
@@ -187,8 +187,8 @@ describe('Keast Spinal Model Snapshot Tests', () => {
 
     })
 
-    it('Keast Spinal Model Group: Axon', async () => {
-        console.log('Keast Spinal Model group: Axon')
+    it('Keast Spinal Model Group Axon', async () => {
+        console.log('Keast Spinal Model group Axon')
 
         await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)
@@ -216,8 +216,8 @@ describe('Keast Spinal Model Snapshot Tests', () => {
 
     })
 
-    it('Keast Spinal Model Group: Dendrite', async () => {
-        console.log('Keast Spinal Model group: Dendrite')
+    it('Keast Spinal Model Group Dendrite', async () => {
+        console.log('Keast Spinal Model group Dendrite')
 
         await click_(page, selectors.SHOW_SETTING_SELECTOR)
         await click_(page, selectors.TOGGLE_ALL_GROUPS_CON_MODEL_SELECTOR)

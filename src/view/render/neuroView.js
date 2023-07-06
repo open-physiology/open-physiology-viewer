@@ -2,6 +2,7 @@ import {flatten } from "lodash-bound";
 import {modelClasses} from "../../model";
 import { orthogonalLayout } from "./neuroViewHelper";
 import {  getWorldPosition } from "./autoLayout/objects";
+import { DONE_UPDATING } from "./../utils"
 const {Edge} = modelClasses;
 
 /**
@@ -516,6 +517,33 @@ export const newGroup = (event ,group, neuronTriplets, filteredDynamicGroups) =>
   }
 }
 
+export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, filteredDynamicGroups, scaffolds) => {
+  let neuronTriplets = buildNeurulatedTriplets(group);
+  neuronTriplets.links?.forEach( l => l.neurulated = true );
+  neuronTriplets.x?.forEach( l => l.neurulated = true );
+  neuronTriplets.y?.forEach( l => l.neurulated = true );
+        
+  console.log("Neuron Information : ", neuronTriplets);
+  let activeNeurulatedGroups = [];
+
+  // Identify TOO Map components and turn them ON/OFF
+  const matchScaffolds = toggleScaffoldsNeuroview(scaffolds,neuronTriplets,event.checked);
+  matchScaffolds?.forEach((scaffold) => onToggleGroup.emit(scaffold));
+  activeNeurulatedGroups.push(group);
+
+  //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+  findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
+
+  // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+  activeNeurulatedGroups.forEach((g) => {
+    handleNeurulatedGroup(event.checked, g, neuronTriplets);
+  });
+
+  group.neurulated = true;
+
+  newGroup(event, group, neuronTriplets, filteredDynamicGroups);
+}
+
 export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onToggleLayout) => {
   let visibleLinks = [];
   let bigLyphs = []
@@ -533,9 +561,8 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
     {
       autoLayoutSegments(orthogonalSegments, visibleLinks);
     }
-    onToggleLayout?.emit ? onToggleLayout?.emit() : onToggleLayout();
     window.removeEventListener("doneUpdating", doneUpdating);
   };
 
-  window.addEventListener("doneUpdating", doneUpdating);
+  window.addEventListener(DONE_UPDATING, doneUpdating);
 }

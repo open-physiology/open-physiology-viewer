@@ -17,10 +17,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, autoLayoutNeuron, toggleScaffoldsNeuroview,
-   findHousingLyphsGroups, handleNeurulatedGroup, handleOrthogonalLinks,
-   applyOrthogonalLayout, autoLayoutSegments, handleNeuroView,newGroup } from "../view/render/neuroView";
-
+import { buildNeurulatedTriplets, toggleNeurulatedGroup, handleNeuroView } from "../view/render/neuroView";
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -1230,6 +1227,7 @@ export class SettingsPanel {
     @Output() onUpdateShowLabels = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup = new EventEmitter();
+    @Output() onToggleUpdateGroup = new EventEmitter();
     @Output() onToggleMode = new EventEmitter();
     @Output() onToggleLayout = new EventEmitter();
     @Output() onToggleHelperPlane = new EventEmitter();
@@ -1368,62 +1366,19 @@ export class SettingsPanel {
       if (this.neuroViewEnabled) {        
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
         this.toggleNeuroView(true);
-
-        // Find housing lyphs of neuron, also links and chains.
-        let neuronTriplets = buildNeurulatedTriplets(group);
-        neuronTriplets.links?.forEach( l => l.neurulated = true );
-        neuronTriplets.x?.forEach( l => l.neurulated = true );
-        neuronTriplets.y?.forEach( l => l.neurulated = true );
-        
-        console.log("Neuron Information : ", neuronTriplets);
-        let activeNeurulatedGroups = [];
-
-        // Identify TOO Map components and turn them ON/OFF
-        const matchScaffolds = toggleScaffoldsNeuroview(this.scaffolds,neuronTriplets,event.checked);
-        matchScaffolds?.forEach((scaffold) => this.onToggleGroup.emit(scaffold));
-        activeNeurulatedGroups.push(group);
-
-        //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-        findHousingLyphsGroups(this.graphData, neuronTriplets, activeNeurulatedGroups);
-
-        // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-        activeNeurulatedGroups.forEach((g) => {
-          handleNeurulatedGroup(event.checked, g, neuronTriplets);
-        });
-
-        group.neurulated = true;
-
-        newGroup(event, group, neuronTriplets, this.filteredDynamicGroups);
-        window.addEventListener("updateTick",function updateLayout(e){
-          // Run auto layout code to position lyphs on their regions and wires
-          if ( group?.neurulated && !group.hidden && e?.detail?.updating ) {
-            autoLayoutNeuron(neuronTriplets, group);
-            autoLayoutNeuron(neuronTriplets, group);
-          }
-        });
-        await handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);
+        toggleNeurulatedGroup(event, group, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
+        this.onToggleUpdateGroup.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
       } else {
-        this.onToggleGroup.emit(group);
-        group.neurulated && window.addEventListener("updateTick",async function updateLayout(e){
-          if ( !group.hidden && e?.detail?.updating ) {
-            group?.lyphs?.forEach((m) => {
-              m.autoSize();
-            });
-          }
-        });
-        group.neurulated && await handleOrthogonalLinks(this.filteredDynamicGroups, this.viewPortSize, this.onToggleLayout);    
+        this.onToggleGroup.emit(group); 
+        this.onToggleUpdateGroup.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});   
       }
   };
 
   toggleAllDynamicGroup = () => {
-    let visibleLinks = [];
-    let internalLinks = [];
-    let bigLyphs = [];
     let toggleOn = true;
     const length = this.filteredDynamicGroups.filter( g => g.hidden )?.length;
     length == 0 ? toggleOn = false : null;
     for (let group of this.filteredDynamicGroups) {
-      let neuroTriplets = buildNeurulatedTriplets(group);
       group?.lyphs?.forEach((m) => {
         if ( m.internalIn ) {
           m.hidden = !toggleOn;
@@ -1437,29 +1392,7 @@ export class SettingsPanel {
       if ( group.hidden === toggleOn ) {
         this.onToggleGroup.emit(group);
       }
-      
-      if ( !group?.hidden && !group?.cloneOf ) {
-        neuroTriplets = buildNeurulatedTriplets(group); 
-        visibleLinks = visibleLinks.concat(group.links.filter( l => { 
-          let sourceBorder = l.source.hostedBy?.onBorder?.borders?.indexOf(l.source?.hostedBy);
-          let targetBorder = l.target.hostedBy?.onBorder?.borders?.indexOf(l.target?.hostedBy);
-          let absDiff = Math.abs(sourceBorder - targetBorder);
-          let internalLink =  ( !l.collapsible && ( absDiff == 1 || absDiff == 3) )
-          if (!l.collapsible && internalLink) {
-            internalLinks.push(l);
-          } 
-          return !l.hidden && !l.inactive && l.collapsible;
-        }));
-        bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
-      }
     }  
-
-    let that = this;
-    window.addEventListener("doneUpdating", () => { 
-      let orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, that.viewPortSize.left, that.viewPortSize.top, that.viewPortSize.width, that.viewPortSize.height, 10, "manhattan")
-      if (orthogonalSegments)
-        autoLayoutSegments(orthogonalSegments, visibleLinks);
-    });
   };
 
   filterGroups = (groups) => {

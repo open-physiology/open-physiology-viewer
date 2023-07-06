@@ -454,3 +454,4 @@ export function isInternalLyph(lyph) {
 export const GRAPH_LOADED = "graph_loaded";
 export const UPDATE_TICK = "updateTick";
 export const SNAPSHOT_STATE_CHANGED = "state_change"
+export const DONE_UPDATING = "doneUpdating"

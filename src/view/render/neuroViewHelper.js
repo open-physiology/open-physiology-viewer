@@ -157,7 +157,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.id = "orthogonalDiv";
   document.body.appendChild(el);
 
-  const linkNodeSide = 0;
+  const linkNodeSide = 2;
 
   if (debug)
   {
@@ -174,7 +174,6 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
     drawGrid: true,
     defaultRouter: { name: router }, // use the manhattan router
     model: graph,
-    interactive: true,
     background: {
       color: 'rgba(0, 255, 0, 0.3)'
     },
