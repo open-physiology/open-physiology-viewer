@@ -179,9 +179,9 @@ Link.prototype.updateViewObjects = function(state) {
     
     let material;
     if ( this.collapsible ) {
-        material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+        material = MaterialFactory.createLineDashedMaterial({color: this.color});
     } else {
-        material = MaterialFactory.createLineBasicMaterial({color : random_rgba()});
+        material = MaterialFactory.createLineBasicMaterial({color : this.color});
     }
     
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
