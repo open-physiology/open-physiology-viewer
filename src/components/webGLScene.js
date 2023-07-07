@@ -64,11 +64,11 @@ const WindowResize = require('three-window-resize');
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Show settings">
                             <i class="fa fa-cog"> </i>
                         </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
