@@ -562,6 +562,7 @@ export function placeLyphInWire(lyph){
         !wiredLyphs.includes(l) && wiredLyphs.push(l)
       } 
     }));
+    wiredLyphs = wiredLyphs.sort((a,b) => a.name > b.name ? 1 : -1);
     let index = wiredLyphs?.findIndex(l => l.id === lyph.id );
 
     let visibleLyphs = wiredLyphs?.filter( l => !l.hidden );
@@ -569,8 +570,15 @@ export function placeLyphInWire(lyph){
     // Position lyph along the wire
     let position = lyph.wiredTo.center;
     if ( wiredLyphs.length > 1 ){
-      const pointA = lyph.wiredTo?.points[0];
-      const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
+      let start = lyph.wiredTo?.points[0];
+      let end = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
+
+      if( Math.sqrt( Math.pow(start.x, 2) + Math.pow(end.y, 2)) > Math.sqrt( Math.pow(end.x, 2) + Math.pow(start.y, 2)) ){
+        start = end;
+        end = lyph.wiredTo?.points[0];
+      }
+      const pointA = start;
+      const pointB = end;
       position = pointAlongLine(pointA, pointB, (index + 1) / (visibleLyphs.length + 1)); 
     }
     setLyphPosition(lyphMesh, wiredTo, position, false);

@@ -370,6 +370,11 @@ function updateLyphsHosts(matches,neuronTriplets){
           ? null
           : m.hostedBy.hostedLyphs?.push(m)
         : (m.hostedBy.hostedLyphs = [m]);
+
+
+      console.log("Hosted lyphs ", m.hostedBy?.hostedLyphs);
+      console.log("Filtered ", m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? -1 : 1 ))
+      m.hostedBy.hostedLyphs =  m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? -1 : 1 );
     }
   });
 
@@ -437,7 +442,6 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
     toggleGroup.emit(g);
   });
 
-  console.log("Hide groups ", groups);
   groups.forEach((g) => {
     g.lyphs.forEach((lyph) => {
       lyph.hidden = true;
