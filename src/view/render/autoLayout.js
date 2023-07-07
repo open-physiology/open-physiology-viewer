@@ -562,7 +562,6 @@ export function placeLyphInWire(lyph){
         !wiredLyphs.includes(l) && wiredLyphs.push(l)
       } 
     }));
-    wiredLyphs = wiredLyphs.sort((a,b) => a.name > b.name ? 1 : -1);
     let index = wiredLyphs?.findIndex(l => l.id === lyph.id );
 
     let visibleLyphs = wiredLyphs?.filter( l => !l.hidden );
