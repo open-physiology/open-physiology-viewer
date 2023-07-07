@@ -114,7 +114,7 @@ const WindowResize = require('three-window-resize');
                     </section>
                 </section>
                 <canvas #canvas> </canvas>
-                <div *ngIf="loading" class="main-container">
+                <div *ngIf="loading">
                     <div class="loading-container">
                         Loading Canvas...
                     </div>
@@ -161,13 +161,10 @@ const WindowResize = require('three-window-resize');
             right: 0;
             z-index: 99;
             display: flex;
+            color: grey;
+            font-size: 2rem;
             align-items: center;
             justify-content: center;
-        }
-
-        .spinner {
-            height : 100%;
-            width : 100%;
         }
 
         #apiLayoutPanel {
