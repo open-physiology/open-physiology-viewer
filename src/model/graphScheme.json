@@ -127,6 +127,11 @@
           "type": "string",
           "readOnly": true
         },
+        "camera": {
+          "description": "Camera state saved at snapshot model capture time",
+          "type": "object",
+          "readOnly": false
+        },
         "version": {
           "description": "Model version",
           "type": "string",

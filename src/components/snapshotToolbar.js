@@ -22,7 +22,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="loadSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load snapshot model">
                 <i class="fa fa-folder"> </i>
            </button>
-           <button id="saveSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">
+           <button [disabled]="disableSaveButton" id="saveSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">
                 <i class="fa fa-save"> </i> 
            </button>
         </section>
@@ -35,6 +35,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 })
 export class SnapshotToolbar {
     @Input()  showRepoPanel;
+    @Input() disableButton: boolean;
 
     @Output() onSaveState        = new EventEmitter();
     @Output() onPreviousState    = new EventEmitter();
@@ -47,6 +48,9 @@ export class SnapshotToolbar {
     constructor(http: HttpClient, dialog: MatDialog){
         this._http = http;
         this._dialog = dialog;
+        const queryParams        = new URLSearchParams(window.location.search);
+        const disableButtonParam = queryParams.get('demoUrl');
+        this.disableSaveButton   = disableButtonParam ;
     }
 
     create(){
