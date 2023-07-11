@@ -298,6 +298,22 @@ export class TestApp {
         this.model = initModel;
         this._dialog = dialog;
         this._flattenGroups = false;
+        const queryParams   = new URLSearchParams(window.location.search);
+        this._modelURL = queryParams.get('demoUrl');
+        if (this._modelURL)
+          this.loadModelFromURL(this._modelURL)
+    }
+
+    loadModelFromURL(url) {
+      fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.load(data)
+      })
+      .catch(error => {
+        // Handle any errors that occur during the fetch request
+        console.log('Error:', error);
+      });
     }
 
     ngAfterViewInit(){
