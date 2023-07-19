@@ -17,7 +17,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { buildNeurulatedTriplets, toggleNeurulatedGroup, handleNeuroView } from "../view/render/neuroView";
+import { toggleNeurulatedGroup, toggleNeuroView } from "../view/render/neuroView";
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -190,7 +190,7 @@ const COLORS = {
               <mat-checkbox
                 [(ngModel)]="neuroViewEnabled"
                 [disabled]="disableNeuroview"
-                (change)="toggleNeuroView($event.checked)"
+                (change)="handleNeuroViewChange($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
             </div>
@@ -1362,10 +1362,19 @@ export class SettingsPanel {
     this.toggleAllDynamicGroup();
   };
 
-  toggleGroup = async (event, group) => {
-      if (this.neuroViewEnabled) {        
+  handleNeuroViewChange = (visible) => {
+    toggleNeuroView(visible, this.graphData, this.onToggleGroup)
+    // clear array keeping track of manipulated groups
+    this.config.layout.neuroviewEnabled = visible;
+    // Update rendered scafoold components
+    this.updateRenderedResources();
+    this.handleNeuroViewStart = true;
+  }
+
+  toggleGroup = async (event, group) => { 
+    if (this.neuroViewEnabled) {        
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
-        this.toggleNeuroView(true);
+        this.handleNeuroViewChange(true);
         toggleNeurulatedGroup(event, group, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
         this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
       } else {
@@ -1399,23 +1408,6 @@ export class SettingsPanel {
     return groups;
   };
 
-  /**
-   * Neuroview mode on or off, allows selecting only one dynamic group at a time.
-   * @param {*} visible - Checkbox event
-  */
-   toggleNeuroView = (visible) => {
-    let groups = this.groups.filter((g) => g.hidden == false);
-    let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
-
-    handleNeuroView(visibleGroups, groups, this.scaffolds, visible, this.onToggleGroup);
-
-    // clear array keeping track of manipulated groups
-    this.config.layout.neuroviewEnabled = visible;
-    // Update rendered scafoold components
-    this.updateRenderedResources();
-    this.handleNeuroViewStart = true;
-  };
-
   search(value, filterOptions, allOptions) {
       this[filterOptions] = this[allOptions]?.filter(
         (val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase())
@@ -1445,6 +1437,7 @@ export class SettingsPanel {
       this.config.layout.disableNeuroview = this.disableNeuroview;
       let that = this;
       window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
+        console.log("snapshot state changed ");
         that.handleNeuroViewStart = false;
       });
   }
@@ -1460,26 +1453,6 @@ export class SettingsPanel {
       this.filteredGroups = this.filteredGroups || this.groups;
       this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
       this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
-      let visibleGroups = this.filteredDynamicGroups.filter( dg => !dg.hidden );
-      let update = false;
-      let that = this;
-      visibleGroups?.forEach( vg => {
-        let neuroTriplets = buildNeurulatedTriplets(vg);
-        neuroTriplets?.x?.forEach( l => {
-          if ( !l.hidden ) {
-            if ( !l?.viewObjects["main"]?.visible ) {
-              update = false;
-            }else{
-              update = true;
-            }
-          } 
-        })
-      })
-      if ( this.config.layout.neuroviewEnabled && update && !this.handleNeuroViewStart ) {
-        visibleGroups?.forEach( (vg, index) => {
-          index == 0 && that.toggleGroup({checked : true}, vg)
-        })
-      }
   }
 
   clearSearch(term, filterOptions, allOptions) {

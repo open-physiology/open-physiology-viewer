@@ -382,7 +382,9 @@ export class TestApp {
         this.model = newModel;
         this._flattenGroups = false;
         // Load imports if model has any
-        newModel.imports && this.loadImports(newModel.imports[0]);
+        if ( newModel.imports ) {
+            newModel.imports.forEach( imp => this.loadImports(imp)) 
+        }
     }
 
     importExternal(){
@@ -618,10 +620,14 @@ export class TestApp {
 
     loadState(activeState){
         if (activeState.visibleGroups){
-            this._graphData.showGroups(activeState.visibleGroups);
+            //this._graphData.showGroups(activeState.visibleGroups);
+            this._webGLScene.showVisibleGroups(activeState.visibleGroups, activeState.layout.neuroviewEnabled);
         }
         if (activeState.camera) {
-            this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up);
+            console.log("Camera position ", this._snapshot.camera.position)
+            this._webGLScene.camera.rotation.fromArray(this._snapshot.camera.rotation);
+            this._webGLScene.resetCamera(this._snapshot.active.camera.position);
+            this._webGLScene.controls?.update();
         }
         this._config = {};
         if (activeState.layout) {
@@ -682,15 +688,15 @@ export class TestApp {
     }
 
     restoreCameraData(cameraData) {
-      
-      var camera = new THREE.PerspectiveCamera();
+      let container = document.getElementById('apiLayoutContainer');
+      let width = container.clientWidth;
+      let height = container.clientHeight;
+      var camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
+      camera.aspect = width / height;
       camera.position.fromArray(cameraData.position);
-      camera.rotation.fromArray(cameraData.rotation);
-      camera.fov = cameraData.fov;
-      camera.aspect = cameraData.aspect;
-      camera.near = cameraData.near;
-      camera.far = cameraData.far;
-      this._webGLScene.camera = camera ;
+      this._webGLScene.camera.rotation.fromArray(cameraData.rotation);
+      this._webGLScene.resetCamera(camera.position, [0,1,0])
+      //this._webGLScene.resetCamera(camera.position, camera.up);
       this._webGLScene.camera.updateProjectionMatrix(); // Call this method to update the camera's internal projection matrix
     }
 

@@ -1,5 +1,5 @@
 import {flatten } from "lodash-bound";
-import {modelClasses} from "../../model";
+import {modelClasses,$SchemaClass} from "../../model";
 import { orthogonalLayout } from "./neuroViewHelper";
 import {  getWorldPosition } from "./autoLayout/objects";
 import { DONE_UPDATING } from "./../utils"
@@ -437,7 +437,7 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
         lyph.wiredTo = undefined;
       }
     });
-    toggleGroup.emit(g);
+    toggleGroup.emit ? toggleGroup.emit(g) : toggleGroup(g);
   });
 
   groups.forEach((g) => {
@@ -465,7 +465,7 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
       chain.hidden = true;
       if ( chain?.viewObjects?.["main"]?.visible ) chain.viewObjects["main"].visible = false;
     });
-    toggleGroup.emit(g);
+    toggleGroup.emit ? toggleGroup.emit(g) : toggleGroup(g);
   });
 };
 
@@ -491,11 +491,11 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
     scaffold.anchors?.filter( a => typeof a === 'object' ).forEach( a => a.inactive = visible);
     scaffold.regions?.filter( r => typeof r === 'object' ).forEach( r => r.inactive = visible);
     scaffold.wires?.forEach( w => { 
-      toggleWire(w, !visible);
+      toggleWire(w, visible);
     });
     
     // Call event to toggle scaffolds
-    if (scaffold.hidden === !visible || (visible && scaffold.hidden === undefined)) {
+    if (scaffold.hidden === visible || (!visible && scaffold.hidden === undefined)) {
       toggleGroup.emit ? toggleGroup.emit(scaffold) : toggleGroup(scaffold);
     }
   });
@@ -530,7 +530,7 @@ export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, fi
 
   // Identify TOO Map components and turn them ON/OFF
   const matchScaffolds = toggleScaffoldsNeuroview(scaffolds,neuronTriplets,event.checked);
-  matchScaffolds?.forEach((scaffold) => onToggleGroup.emit(scaffold));
+  matchScaffolds?.forEach((scaffold) => onToggleGroup.emit ? onToggleGroup.emit(scaffold) : onToggleGroup(scaffold));
   activeNeurulatedGroups.push(group);
 
   //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
@@ -568,4 +568,43 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
   };
 
   window.addEventListener(DONE_UPDATING, doneUpdating);
+}
+
+export const toggleNeuroView = (visible, graphData, toggleGroup) => {
+   let groups = graphData?.activeGroups.filter((g) => g.hidden == false);
+   let visibleGroups = graphData?.dynamicGroups.filter( dg => !dg.hidden );
+   console.log("Groups ", groups)
+   console.log("visibleGroups ", visibleGroups)
+   handleNeuroView(visibleGroups, groups, graphData?.scaffoldComponents, visible, toggleGroup);
+}
+
+export const updateRenderedResources = (scaffolds, scaffoldResourceVisibility) => {
+  let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
+  //scaffoldResourceNames.forEach(prop => this[prop] = []);
+  (scaffolds || []).forEach(s => {
+      //Only include wires from the scaffold, no components
+      if (s.class === $SchemaClass.Scaffold && !s.hidden) {
+          (s.components || []).forEach(r => {
+              r._parent = s;
+              r._visible = true;
+          });
+          if (scaffoldResourceVisibility) {
+              (s.anchors || []).forEach(r => {
+                  if (!r.generated) {
+                      r._parent = s;
+                  }
+              });
+              (s.wires || []).forEach(r => {
+                  if (!r.generated) {
+                      r._parent = s;
+                  }
+              });
+              (s.regions || []).forEach(r => {
+                  if (!r.generated) {
+                      r._parent = s;
+                  }
+              });
+          }
+      }
+  });
 }

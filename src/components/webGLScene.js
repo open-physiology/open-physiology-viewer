@@ -21,9 +21,12 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
-import {GRAPH_LOADED, DONE_UPDATING, UPDATE_TICK, isInternalLyph} from './../view/utils';
+import {GRAPH_LOADED, DONE_UPDATING,SNAPSHOT_STATE_CHANGED,
+     UPDATE_TICK, isInternalLyph} from './../view/utils';
 
-import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, autoLayoutNeuron } from '../view/render/neuroView'
+import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, 
+    autoLayoutNeuron, toggleNeuroView, toggleNeurulatedGroup, updateRenderedResources } 
+    from '../view/render/neuroView'
 
 const WindowResize = require('three-window-resize');
 
@@ -256,16 +259,18 @@ export class WebGLSceneComponent {
                 };
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
 
-                window.addEventListener(UPDATE_TICK, () => { 
-                    that.loading = false;
-                });
+                // window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
+                //     that.toggleLayout();
+                // });
             }
         }
     }
 
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
-        this._config.demoMode = this.getUrlParameter("demoMode");
+        const queryParams   = new URLSearchParams(window.location.search);
+        this._modelURL = queryParams.get('demoUrl');
+        this._config.demoMode = this._modelURL !== undefined;
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
@@ -679,6 +684,8 @@ export class WebGLSceneComponent {
         this.camera.position.set(...position);
         this.camera.up.set(...lookup);
         this.camera.updateProjectionMatrix();
+        this.controls?.update();
+        console.log("Updated camera position ", position)
     }
 
     updateGraph(){
@@ -686,6 +693,37 @@ export class WebGLSceneComponent {
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
+    }
+
+    showVisibleGroups(visibleGroups, neuroviewEnabled){
+        let that = this;
+        if (neuroviewEnabled) {        
+            // Handle Neuro view initial settings. Turns OFF groups and scaffolds
+            toggleNeuroView(true, this._graphData, this.toggleGroup);
+            updateRenderedResources(this.graphData.scaffoldComponents, true)
+            // clear array keeping track of manipulated groups
+            this._config.layout.neuroviewEnabled = true;
+            // Update rendered scafoold components
+            console.log("Toggle neuroview ");
+            this.handleNeuroViewStart = true;
+            visibleGroups?.forEach( (vg, index) => {
+                let group =  that._graphData.dynamicGroups.find( g => g.id === vg ) ;
+                if ( group ) {
+                    toggleNeurulatedGroup({checked : true }, group, this.toggleGroup, this._graphData, that._graphData.dynamicGroups, that._graphData.scaffoldComponents);
+                    that.updateGroupLayout({ group : group, filteredDynamicGroups : that._graphData.dynamicGroups});   
+                }
+            })   
+        } else {
+            visibleGroups?.forEach( (vg, index) => {
+                let group =  that._graphData.dynamicGroups.find( g => g.id === vg ) ;
+                if ( group ) {
+                    that.toggleGroup(group);
+                    that.updateGroupLayout({ group : group, filteredDynamicGroups : that._graphData.dynamicGroups});   
+                }
+            })  
+        }
+       
+        this.loading = false;
     }
 
     openExternal(resource){
@@ -844,7 +882,7 @@ export class WebGLSceneComponent {
     }
 
     toggleGroup(group) {
-        if (!this?._graphData){ return; }
+        // if (!this?._graphData){ return; }
         if (group.hidden){
             group.show();
         } else {
@@ -878,6 +916,7 @@ export class WebGLSceneComponent {
           // Need to refresh the canvas after creating new orthogonal links
           if ( that.updateLayout ) {
             that.toggleLayout();
+            console.log("Updating layout")
           }
           that.updateLayout = false;
         
@@ -896,13 +935,16 @@ export class WebGLSceneComponent {
         let neuronTriplets = buildNeurulatedTriplets(event.group);
         this.updateLayout = true;
         let that = this;
+        that.loading = true;
         let updateLayout = async(e) => {
             // Run auto layout code to position lyphs on their regions and wires
             if ( event.group?.neurulated && !event.group.hidden ) {
-                await autoLayoutNeuron(neuronTriplets, event.group);
+                autoLayoutNeuron(neuronTriplets, event.group);
+
                 if ( that.updateLayout ) {
                     await that.handleOrthogonalLinks(event.filteredDynamicGroups, that._viewPortSize);
                 }
+                that.loading = false;
             }
         }
         window.addEventListener(UPDATE_TICK,updateLayout);
