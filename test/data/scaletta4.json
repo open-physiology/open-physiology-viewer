@@ -7667,7 +7667,8 @@
       "name": "TOO-map-linked reference connectivity model",
       "namespace": "wbkg",
       "imports": [
-        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
+        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json",
+        "https://raw.githubusercontent.com/open-physiology/open-physiology-viewer/feature/75_cleanup/test/data/snapshot_scaletta_4.json"
       ],
       "schemaVersion": "154e06766889606a7ed5a231b8bc00d3b28cfdf8",
       "version": "c78610866821bea60e91c97ff68e02250a9b6662",
