@@ -265,7 +265,8 @@ export class WebGLSceneComponent {
 
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
-        this._config.demoMode = this.getUrlParameter("demoMode");
+        const queryParams   = new URLSearchParams(window.location.search);
+        this._config.demoMode = queryParams.get('demoUrl');
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
