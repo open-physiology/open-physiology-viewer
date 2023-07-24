@@ -729,6 +729,7 @@ export class TestApp {
             }
         }
         this._snapshot = newSnapshot;
+        this.nextState();
     }
 
     saveSnapshot(){

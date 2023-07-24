@@ -39,7 +39,7 @@ export function buildNeurulatedTriplets(group) {
     }
   });
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn[0]?.hostedBy ); //lyphs -> regions
   hostedHousingLyphs.forEach( h => h != undefined && h?.class == "Region" && neuronTriplets.r.indexOf(h) == -1 ? neuronTriplets.r.push(h) : null)
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
@@ -571,7 +571,7 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
   }
   
   let doneUpdating = () => { 
-    const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
+    const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "metro")
     console.log("Done updating")
     if (orthogonalSegments)
     {

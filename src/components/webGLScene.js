@@ -906,7 +906,7 @@ export class WebGLSceneComponent {
           if ( !group?.hidden && !group?.cloneOf ) {
             let neuroTriplets = buildNeurulatedTriplets(group); 
             visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
-            bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
+            bigLyphs = neuroTriplets.y;
           }
         }
         let  that = this;

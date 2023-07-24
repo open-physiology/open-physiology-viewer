@@ -651,14 +651,11 @@ function getLyphPosition(lyphMesh, hostMesh, lyph) {
 
   // Figure out X position of lyph, could have to share space with other lyphs
   let targetX = hostMeshPosition.x;
+  let space = (hostMaxSize/(hostLyphsLength + 1 ));
   // hostLyphsLength <= 1 ? targetX = hostMeshPosition.x + refPaddingX/2 - (((refWidth/3 )) ) : null;
-  if ( hostLyphsLength === 1){
-    targetX = targetX ;
-  } else if ( matchIndex < hostLyphsLength/2 ){
-    targetX = targetX - (( (hostMaxSize/hostLyphsLength) * (Math.floor(( hostLyphsLength/2) - matchIndex) )) ) + (hostMaxSize/hostLyphsLength)/2;
-  } else if ( matchIndex >= hostLyphsLength/2 ){
-    targetX = targetX + (( (hostMaxSize/hostLyphsLength) * ( (matchIndex )- Math.floor(( hostLyphsLength/2)) ) )) + refPaddingX/2;
-  }
+  if ( hostLyphsLength > 1){
+    targetX = targetX - hostMaxSize/2 + (( space ) * (matchIndex +  1));
+  } 
   
   const housingLyph = getHouseLyph(hostMesh?.userData);
   let targetY = hostMeshPosition.y;
