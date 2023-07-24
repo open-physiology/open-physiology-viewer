@@ -7424,7 +7424,8 @@
     "namespace": "pancr",
     "imports": [
         "https://raw.githubusercontent.com/open-physiology/open-physiology-viewer/feature/75_cleanup/test/data/wbrcm-model.json",
-        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
+        "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json",
+        "https://raw.githubusercontent.com/open-physiology/open-physiology-viewer/feature/83/test/data/snapshot_pancreas_1.json"
     ],
     "version": "c55f92c815a41edd800785772521d1728137794d",
     "schemaVersion": "da645b92a9a8f8dd8343d8346a6aad356a61c755",
