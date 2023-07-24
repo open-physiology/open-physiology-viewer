@@ -119,7 +119,7 @@ export class Snapshot extends Resource {
             return -1;
         }
         if (this.annotation){
-            if (this.annotation.version !== model.version ||
+            if (this.annotation.schemaVersion !== model.schemaVersion ||
                 this.annotation.lastUpdated !== model.lastUpdated){
                 return 0;
             }

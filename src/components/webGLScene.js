@@ -24,9 +24,8 @@ import {VARIANCE_PRESENCE} from "../model/utils";
 import {GRAPH_LOADED, DONE_UPDATING,SNAPSHOT_STATE_CHANGED,
      UPDATE_TICK, isInternalLyph} from './../view/utils';
 
-import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, 
-    autoLayoutNeuron, toggleNeuroView, toggleNeurulatedGroup, updateRenderedResources } 
-    from '../view/render/neuroView'
+import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, handleNeurulatedGroup,
+    autoLayoutNeuron, toggleNeuroView, toggleNeurulatedGroup, findHousingLyphsGroups, toggleScaffoldsNeuroview } from '../view/render/neuroView'
 
 const WindowResize = require('three-window-resize');
 
@@ -123,7 +122,7 @@ const WindowResize = require('three-window-resize');
                 </div>
             </section>
             <section [expanded]="showPanel" id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
-                <settingsPanel
+                <settingsPanel *ngIf="( !refreshSettings )"
                         [config]="_config"
                         [selected]="_selected"
                         [highlighted]="_highlighted"
@@ -151,6 +150,11 @@ const WindowResize = require('three-window-resize');
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
                 > </settingsPanel>
+                <div *ngIf="refreshSettings">
+                    <div class="refreshing-container">
+                        <img src="./styles/images/loading.png" />
+                    </div>
+                </div>
             </section>
         </section> 
     `,
@@ -167,6 +171,12 @@ const WindowResize = require('three-window-resize');
             font-size: 2rem;
             align-items: center;
             justify-content: center;
+        }
+
+        .refreshing-container {
+            position: absolute;
+            top: 50%;
+            right: 20vh;
         }
 
         #apiLayoutPanel {
@@ -201,8 +211,10 @@ const WindowResize = require('three-window-resize');
  */
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('settingsPanel') settingsPanel: ElementRef;
     showPanel = false;
     loading = false;
+    refreshSettings = false;
     updateLayout = true;
     scene;
     camera;
@@ -249,19 +261,18 @@ export class WebGLSceneComponent {
             }
             if (this.graph) {
                 this.loading = true;
+                this.refreshSettings = true;
                 this.graph.graphData(this._graphData);
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
                   that.showPanel = true;
                   that.loading = false;
+                  that.refreshSettings = false;
+                  console.log("Done updating ")
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
                 };
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
-
-                // window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
-                //     that.toggleLayout();
-                // });
             }
         }
     }
@@ -689,7 +700,6 @@ export class WebGLSceneComponent {
     }
 
     updateGraph(){
-        this.loading = true;
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
@@ -697,32 +707,25 @@ export class WebGLSceneComponent {
 
     showVisibleGroups(visibleGroups, neuroviewEnabled){
         let that = this;
-        if (neuroviewEnabled) {        
-            // Handle Neuro view initial settings. Turns OFF groups and scaffolds
-            toggleNeuroView(true, this._graphData, this.toggleGroup);
-            updateRenderedResources(this.graphData.scaffoldComponents, true)
-            // clear array keeping track of manipulated groups
+        let visible = true;
+        if (neuroviewEnabled) {
+            toggleNeuroView(true, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
+            let filteredGroups = that.graphData.dynamicGroups.filter( dg => !dg.hidden );
+            filteredGroups.forEach((g) => {
+                that.toggleGroup(g);
+            });
             this._config.layout.neuroviewEnabled = true;
-            // Update rendered scafoold components
-            console.log("Toggle neuroview ");
-            this.handleNeuroViewStart = true;
-            visibleGroups?.forEach( (vg, index) => {
-                let group =  that._graphData.dynamicGroups.find( g => g.id === vg ) ;
+            visibleGroups?.forEach( async (vg, index) => {
+                let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
                 if ( group ) {
-                    toggleNeurulatedGroup({checked : true }, group, this.toggleGroup, this._graphData, that._graphData.dynamicGroups, that._graphData.scaffoldComponents);
-                    that.updateGroupLayout({ group : group, filteredDynamicGroups : that._graphData.dynamicGroups});   
+                    console.log("Toggle group ", group.id)
+                    let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
+                    if ( newGroup ) that.graphData.dynamicGroups.push(newGroup);
+                    that.graph.graphData(this._graphData);
+                    that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
                 }
-            })   
-        } else {
-            visibleGroups?.forEach( (vg, index) => {
-                let group =  that._graphData.dynamicGroups.find( g => g.id === vg ) ;
-                if ( group ) {
-                    that.toggleGroup(group);
-                    that.updateGroupLayout({ group : group, filteredDynamicGroups : that._graphData.dynamicGroups});   
-                }
-            })  
-        }
-       
+            })
+        } 
         this.loading = false;
     }
 
@@ -882,7 +885,7 @@ export class WebGLSceneComponent {
     }
 
     toggleGroup(group) {
-        // if (!this?._graphData){ return; }
+        if (!this?._graphData){ return; }
         if (group.hidden){
             group.show();
         } else {
@@ -908,13 +911,15 @@ export class WebGLSceneComponent {
         }
         let  that = this;
         let doneUpdating = () => { 
-          const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
-          if (orthogonalSegments)
-          {
-            autoLayoutSegments(orthogonalSegments, visibleLinks);
-          }
+
           // Need to refresh the canvas after creating new orthogonal links
           if ( that.updateLayout ) {
+            console.log("orthogonalSegments ")
+            const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
+            if (orthogonalSegments)
+            {
+              autoLayoutSegments(orthogonalSegments, visibleLinks);
+            }
             that.toggleLayout();
             console.log("Updating layout")
           }
@@ -939,13 +944,14 @@ export class WebGLSceneComponent {
         let updateLayout = async(e) => {
             // Run auto layout code to position lyphs on their regions and wires
             if ( event.group?.neurulated && !event.group.hidden ) {
+                console.log("Update group layout")
                 autoLayoutNeuron(neuronTriplets, event.group);
-
                 if ( that.updateLayout ) {
-                    await that.handleOrthogonalLinks(event.filteredDynamicGroups, that._viewPortSize);
+                    console.log("updating handle orthogonal ", that.updateLayout)
+                    that.handleOrthogonalLinks(event.filteredDynamicGroups, that._viewPortSize);
                 }
-                that.loading = false;
             }
+            that.loading = false;
         }
         window.addEventListener(UPDATE_TICK,updateLayout);
 

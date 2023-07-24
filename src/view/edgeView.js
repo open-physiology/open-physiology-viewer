@@ -179,7 +179,9 @@ Link.prototype.updateViewObjects = function(state) {
     
     let material;
     if ( this.collapsible ) {
-        material = MaterialFactory.createLineDashedMaterial({color: this.color});
+        material = MaterialFactory.createLineDashedMaterial({color: this.color,
+            linewidth: 1,
+            opacity: 1});
     } else {
         material = MaterialFactory.createLineBasicMaterial({color : this.color});
     }

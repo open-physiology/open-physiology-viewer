@@ -1157,7 +1157,6 @@ export class SettingsPanel {
   searchTerm = "";
   filteredGroups;
   filteredDynamicGroups;
-  handleNeuroViewStart = false;
   searchTermScaffolds = "";
   filteredScaffolds;
   nodes;
@@ -1202,9 +1201,9 @@ export class SettingsPanel {
         }
     }
     @Input('modelId') set modelId(modelId) {
-        // if (this._modelId !== modelId) {
-        //     this._modelId = modelId;
-        // }
+        if (this._modelId !== modelId) {
+            this._modelId = modelId;
+        }
     }
 
     @Input('selected') set selected(entity) {
@@ -1363,12 +1362,10 @@ export class SettingsPanel {
   };
 
   handleNeuroViewChange = (visible) => {
-    toggleNeuroView(visible, this.graphData, this.onToggleGroup)
+    toggleNeuroView(visible, this.groups, this.filteredDynamicGroups, this.scaffolds, this.onToggleGroup)
     // clear array keeping track of manipulated groups
     this.config.layout.neuroviewEnabled = visible;
-    // Update rendered scafoold components
-    this.updateRenderedResources();
-    this.handleNeuroViewStart = true;
+    this.updateRenderedResources();  
   }
 
   toggleGroup = async (event, group) => { 
@@ -1435,11 +1432,6 @@ export class SettingsPanel {
       this.filteredScaffolds = this.scaffolds;
       this.disableNeuroview = false;
       this.config.layout.disableNeuroview = this.disableNeuroview;
-      let that = this;
-      window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
-        console.log("snapshot state changed ");
-        that.handleNeuroViewStart = false;
-      });
   }
 
   ngOnChanges() {

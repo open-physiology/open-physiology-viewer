@@ -53,6 +53,7 @@ import {enableProdMode} from '@angular/core';
 
 import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
 import {MaterialEditorModule} from "../components/gui/materialEditor";
+import {GRAPH_LOADED} from '../../src/view/utils';
 
 enableProdMode();
 
@@ -368,13 +369,17 @@ export class TestApp {
             if (groups.length > 0 || scaffolds.length > 0) {
                 that.model = that._model;
             }
-            if (snapshots.length > 0){
-                that.loadSnapshot(snapshots[0]);
-                if (snapshots.length > 1){
-                    logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
-                }
-            }
             model.imports?.length > 0 && that.loadImports(model.imports[0]);
+            let doneUpdating = () => { 
+                if (snapshots.length > 0){
+                    that.loadSnapshot(snapshots[0]);
+                    if (snapshots.length > 1){
+                        logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
+                    }
+                }
+              window.removeEventListener(GRAPH_LOADED, doneUpdating);
+            };
+            window.addEventListener(GRAPH_LOADED, doneUpdating);
         });
     }
 
@@ -619,10 +624,7 @@ export class TestApp {
     }
 
     loadState(activeState){
-        if (activeState.visibleGroups){
-            //this._graphData.showGroups(activeState.visibleGroups);
-            this._webGLScene.showVisibleGroups(activeState.visibleGroups, activeState.layout.neuroviewEnabled);
-        }
+
         if (activeState.camera) {
             console.log("Camera position ", this._snapshot.camera.position)
             this._webGLScene.camera.rotation.fromArray(this._snapshot.camera.rotation);
@@ -650,6 +652,9 @@ export class TestApp {
                     this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);
                 }
             })
+        }
+        if (activeState.visibleGroups){
+            this._webGLScene.showVisibleGroups(activeState.visibleGroups, true);
         }
         this._webGLScene.updateGraph();
     }
@@ -714,7 +719,7 @@ export class TestApp {
 
     loadSnapshot(value){
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
-        this.restoreCameraData(newSnapshot.camera);
+        // this.restoreCameraData(newSnapshot.camera);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
             throw new Error("Snapshot is not applicable to the model!");
