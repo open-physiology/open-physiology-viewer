@@ -575,7 +575,7 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
   }
   
   let doneUpdating = () => { 
-    const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "metro")
+    const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
     console.log("Done updating")
     if (orthogonalSegments)
     {
