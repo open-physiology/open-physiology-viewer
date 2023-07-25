@@ -190,7 +190,7 @@ Link.prototype.updateViewObjects = function(state) {
     const line = new THREE.Line( geometry, material );
 
     line.userData = this;
-    line.position.z = DIMENSIONS.LINK_MIN_Z;
+    line.position.z = 0;
     this.viewObjects["main"] = line ;
     line.geometry.verticesNeedUpdate = true;
     line.computeLineDistances();

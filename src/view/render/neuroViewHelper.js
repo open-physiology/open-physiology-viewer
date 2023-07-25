@@ -157,7 +157,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.id = "orthogonalDiv";
   document.body.appendChild(el);
 
-  const linkNodeSide = 2;
+  const linkNodeSide = 1;
 
   if (debug)
   {
@@ -202,18 +202,15 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   nodes?.forEach( node => {
     const lyphMesh = node.viewObjects["main"];
     let size = getBoundingBoxSize(lyphMesh);
-    console.log("Node ", node);
-    console.log("lyphMesh ", lyphMesh);
-    console.log("size ", size);
     let scale = node?.scale 
     scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
-    const width = size.y * scale.y ;
-    const height = size.x * scale.x
+    const width = size.x * scale.x;
+    const height = size.y * scale.y
     const nodeModel = new shapes.standard.Rectangle({
       id: node.id,
       position: { 
         x: node.x - 0.5 * height + canvasWidth
-      , y: node.y - 0.5 * width
+      , y: node.y - 0.5 * width + canvasWidth
       },
       size: { 
           width: height

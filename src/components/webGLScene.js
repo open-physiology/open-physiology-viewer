@@ -365,7 +365,7 @@ export class WebGLSceneComponent {
         this.defaultConfig = {
             layout: {
                 showLyphs       : true,
-                showLayers      : false,
+                showLayers      : true,
                 showLyphs3d     : false,
                 showCoalescences: false,
                 numDimensions   : 3,

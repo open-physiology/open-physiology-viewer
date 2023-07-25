@@ -181,7 +181,7 @@ export default Kapsule({
         arrowLength      : { default: 40 },     // arrow length for directed links
 
         showLyphs        : { default: true},
-        showLayers       : { default: false},
+        showLayers       : { default: true},
         showLyphs3d      : { default: false},
         showCoalescences : { default: false},
         showLabels       : { default: {}},
