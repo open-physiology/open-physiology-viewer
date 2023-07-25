@@ -234,6 +234,8 @@ function toggleRegions(scaffoldsList, neuronTriplets, checked){
 export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checked ) {
   // Filter out scaffolds that match the regions attached to the housing lyphs
   toggleRegions(scaffoldsList, neuronTriplets, checked);
+  console.log("scaffoldsList ", scaffoldsList)
+  console.log("neuronTriplets ", neuronTriplets)
   // Filter out scaffolds that match the wires attached to the housing lyphs
   let scaffolds = scaffoldsList.filter(
     (scaffold) => scaffold.id !== "too-map" &&
@@ -244,7 +246,9 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
 
   let modifiedScaffolds = [];
   scaffolds?.forEach((scaffold) => {
-    scaffold.hidden !== !checked && modifiedScaffolds.push(scaffold);
+    //if ( scaffold.hidden !== !checked ) {
+      modifiedScaffolds.push(scaffold);
+    //}
     scaffold.wires?.forEach( w => { 
       w.inactive = checked; 
     });
@@ -537,14 +541,14 @@ export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, fi
   activeNeurulatedGroups.push(group);
   findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
 
-  console.log("Neuron Information : ", neuronTriplets);
+  console.log("scaffolds ", scaffolds)
+  console.log("event.checked ", event.checked)
+  console.log("neuronTriplets ", neuronTriplets)
 
   // Identify TOO Map components and turn them ON/OFF
   const matchScaffolds = toggleScaffoldsNeuroview(scaffolds,neuronTriplets,event.checked);
   matchScaffolds?.forEach((scaffold) => onToggleGroup.emit ? onToggleGroup.emit(scaffold) : onToggleGroup(scaffold));
-  console.log("matchScaffolds : ", matchScaffolds);
-  console.log("Neuron Information : ", neuronTriplets);
-
+  console.log("Match scaffolds ", matchScaffolds)
 
   //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
   findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);

@@ -269,7 +269,6 @@ export class WebGLSceneComponent {
                   that.showPanel = true;
                   that.loading = false;
                   that.refreshSettings = false;
-                  console.log("Done updating ")
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
                 };
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
@@ -696,7 +695,6 @@ export class WebGLSceneComponent {
         this.camera.up.set(...lookup);
         this.camera.updateProjectionMatrix();
         this.controls?.update();
-        console.log("Updated camera position ", position)
     }
 
     updateGraph(){
@@ -706,6 +704,7 @@ export class WebGLSceneComponent {
     }
 
     showVisibleGroups(visibleGroups, neuroviewEnabled){
+        this.refreshSettings = true;
         let that = this;
         let visible = true;
         if (neuroviewEnabled) {
@@ -718,11 +717,16 @@ export class WebGLSceneComponent {
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
                 if ( group ) {
-                    console.log("Toggle group ", group.id)
-                    let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
-                    if ( newGroup ) that.graphData.dynamicGroups.push(newGroup);
-                    that.graph.graphData(this._graphData);
+                    toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
+                    const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
+                    matchScaffolds?.forEach( r => r.hidden = true );
+
+                    matchScaffolds?.forEach((scaffold) => {
+                        that.toggleGroup(scaffold);
+                    });
+
                     that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
+                    that.refreshSettings = false;
                 }
             })
         } 
@@ -914,14 +918,12 @@ export class WebGLSceneComponent {
 
           // Need to refresh the canvas after creating new orthogonal links
           if ( that.updateLayout ) {
-            console.log("orthogonalSegments ")
             const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
             if (orthogonalSegments)
             {
               autoLayoutSegments(orthogonalSegments, visibleLinks);
             }
             that.toggleLayout();
-            console.log("Updating layout")
           }
           that.updateLayout = false;
         
@@ -944,10 +946,8 @@ export class WebGLSceneComponent {
         let updateLayout = async(e) => {
             // Run auto layout code to position lyphs on their regions and wires
             if ( event.group?.neurulated && !event.group.hidden ) {
-                console.log("Update group layout")
                 autoLayoutNeuron(neuronTriplets, event.group);
                 if ( that.updateLayout ) {
-                    console.log("updating handle orthogonal ", that.updateLayout)
                     that.handleOrthogonalLinks(event.filteredDynamicGroups, that._viewPortSize);
                 }
             }

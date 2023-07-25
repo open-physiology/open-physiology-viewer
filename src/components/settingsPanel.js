@@ -1365,7 +1365,7 @@ export class SettingsPanel {
     toggleNeuroView(visible, this.groups, this.filteredDynamicGroups, this.scaffolds, this.onToggleGroup)
     // clear array keeping track of manipulated groups
     this.config.layout.neuroviewEnabled = visible;
-    this.updateRenderedResources();  
+    // this.updateRenderedResources();  
   }
 
   toggleGroup = async (event, group) => { 
