@@ -179,16 +179,18 @@ Link.prototype.updateViewObjects = function(state) {
     
     let material;
     if ( this.collapsible ) {
-        material = MaterialFactory.createLineDashedMaterial({color: random_rgba()});
+        material = MaterialFactory.createLineDashedMaterial({color: this.color,
+            linewidth: 1,
+            opacity: 1});
     } else {
-        material = MaterialFactory.createLineBasicMaterial({color : random_rgba()});
+        material = MaterialFactory.createLineBasicMaterial({color : this.color});
     }
     
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
     const line = new THREE.Line( geometry, material );
 
     line.userData = this;
-    line.position.z = DIMENSIONS.LINK_MIN_Z;
+    line.position.z = 0;
     this.viewObjects["main"] = line ;
     line.geometry.verticesNeedUpdate = true;
     line.computeLineDistances();

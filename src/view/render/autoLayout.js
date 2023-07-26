@@ -24,8 +24,8 @@ import { translateMeshToTarget
   , rotateAroundCenter   } from "./autoLayout/transform";
 import { getHouseLyph, getNodeLyph } from "./neuroView";
 
-export const LYPH_H_PERCENT_MARGIN = 0.5;
-export const LYPH_V_PERCENT_MARGIN = 0.05;
+export const LYPH_H_PERCENT_MARGIN = 0.15;
+export const LYPH_V_PERCENT_MARGIN = 0.15;
 export const MAX_LYPH_WIDTH = 35;
 export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
@@ -103,7 +103,7 @@ export function maxLyphSize(target, source, terminalLyph) {
       idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
     } else if (  target?.userData?.internalLyphs ){
       length = target?.userData?.internalLyphs?.length;
-      idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
+      idealSize = (hostMaxSize / length) * ( length > 1 ? ( 1 - LYPH_H_PERCENT_MARGIN) : LYPH_V_PERCENT_MARGIN);
     }
 
     if ( idealSize > hostMinSize ){
@@ -569,8 +569,15 @@ export function placeLyphInWire(lyph){
     // Position lyph along the wire
     let position = lyph.wiredTo.center;
     if ( wiredLyphs.length > 1 ){
-      const pointA = lyph.wiredTo?.points[0];
-      const pointB = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
+      let start = lyph.wiredTo?.points[0];
+      let end = lyph.wiredTo?.points[lyph.wiredTo?.points.length - 1];
+
+      if( Math.sqrt( Math.pow(start.x, 2) + Math.pow(end.y, 2)) > Math.sqrt( Math.pow(end.x, 2) + Math.pow(start.y, 2)) ){
+        start = end;
+        end = lyph.wiredTo?.points[0];
+      }
+      const pointA = start;
+      const pointB = end;
       position = pointAlongLine(pointA, pointB, (index + 1) / (visibleLyphs.length + 1)); 
     }
     setLyphPosition(lyphMesh, wiredTo, position, false);
@@ -618,31 +625,37 @@ function getLyphPosition(lyphMesh, hostMesh, lyph) {
   const lyphDim = getBoundingBoxSize(lyphMesh);
   const hostMeshPosition = getWorldPosition(hostMesh);
   const refWidth  = lyphDim.x * lyphMesh.scale.x;
-  const refPaddingX = refWidth * (1 - LYPH_H_PERCENT_MARGIN);
+  const refPaddingX = refWidth;
+  let targetSize =  getBoundingBoxSize(hostMesh);
+
+  let hostMaxSize = Math.max(targetSize.x * hostMesh.scale.x, targetSize.y * hostMesh.scale.y);
 
   let matchIndex = 0;
   if ( hostMesh?.userData?.hostedLyphs?.indexOf(lyph) >= 0 ){
-    matchIndex = hostMesh?.userData?.hostedLyphs?.indexOf(lyph)
-  } else if ( hostMesh?.userData?.internalLyphs?.indexOf(lyph) >= 0 ) {
+    matchIndex = hostMesh?.userData?.hostedLyphs?.filter( l => !l.hidden).indexOf(lyph)
+  } else if ( hostMesh?.userData?.internalLyphs?.filter( l => !l.hidden).indexOf(lyph) >= 0 ) {
     matchIndex = hostMesh?.userData?.internalLyphs?.indexOf(lyph);
   }
 
   let hostLyphsLength = 1, targetZ = DIMENSIONS.LYPH_MIN_Z;
   if ( hostMesh?.userData?.hostedLyphs?.length >= 1 ){
-    hostLyphsLength = hostMesh?.userData?.hostedLyphs?.length;
+    hostLyphsLength = hostMesh?.userData?.hostedLyphs?.filter( l => !l.hidden ).length;
     targetZ = DIMENSIONS.LYPH_MIN_Z;
   } else if ( hostMesh?.userData?.internalLyphs?.length >= 1 ) {
-    hostLyphsLength = hostMesh?.userData?.internalLyphs?.length;
+    hostLyphsLength = hostMesh?.userData?.internalLyphs?.filter( l => !l.hidden).length;
     hostMesh ? targetZ = getHouseLyph(hostMesh.userData)?.z + DIMENSIONS.LYPH_MIN_Z * 2: targetZ = DIMENSIONS.LYPH_MIN_Z * 2;
   } else if ( hostMesh?.userData?.layerIn ) {
-    hostLyphsLength = hostMesh?.userData?.layerIn?.internalLyphs?.length;
+    hostLyphsLength = hostMesh?.userData?.layerIn?.internalLyphs?.filter( l => !l.hidden).length;
     targetZ = DIMENSIONS.LAYER_MIN_Z;
   } 
 
   // Figure out X position of lyph, could have to share space with other lyphs
-  let targetX = hostMeshPosition.x + (refPaddingX/2) - (((refWidth / 2 ) * hostLyphsLength) );
-  hostLyphsLength <= 1 ? targetX = hostMeshPosition.x + refPaddingX/2 - (((refWidth/3 )) ) : null;
-  targetX = targetX + refPaddingX+ refWidth * matchIndex + ( refPaddingX * (matchIndex ));
+  let targetX = hostMeshPosition.x;
+  let space = (hostMaxSize/(hostLyphsLength + 1 ));
+  // hostLyphsLength <= 1 ? targetX = hostMeshPosition.x + refPaddingX/2 - (((refWidth/3 )) ) : null;
+  if ( hostLyphsLength > 1){
+    targetX = targetX - hostMaxSize/2 + (( space ) * (matchIndex +  1));
+  } 
   
   const housingLyph = getHouseLyph(hostMesh?.userData);
   let targetY = hostMeshPosition.y;

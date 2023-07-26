@@ -1,5 +1,5 @@
 import { dia, shapes } from 'jointjs';
-import { getWorldPosition } from "./autoLayout/objects";
+import { getWorldPosition, getBoundingBoxSize } from "./autoLayout/objects";
 
 function waitForLinkRendering(view) {
   // Listen for the 'render:done' event
@@ -157,7 +157,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.id = "orthogonalDiv";
   document.body.appendChild(el);
 
-  const linkNodeSide = 0;
+  const linkNodeSide = 1;
 
   if (debug)
   {
@@ -174,7 +174,6 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
     drawGrid: true,
     defaultRouter: { name: router }, // use the manhattan router
     model: graph,
-    interactive: true,
     background: {
       color: 'rgba(0, 255, 0, 0.3)'
     },
@@ -201,15 +200,17 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   //obstacles, anything not a lyph and orphaned
 
   nodes?.forEach( node => {
-    const lyphMesh = node.state.graphScene?.children?.find( c => c.userData?.id == node.id);    let scale = lyphMesh?.scale 
+    const lyphMesh = node.viewObjects["main"];
+    let size = getBoundingBoxSize(lyphMesh);
+    let scale = node?.scale 
     scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
-    const width = node.width * scale.x ;
-    const height = node.height * scale.y
+    const width = size.x * scale.x;
+    const height = size.y * scale.y
     const nodeModel = new shapes.standard.Rectangle({
       id: node.id,
       position: { 
         x: node.x - 0.5 * height + canvasWidth
-      , y: node.y - 0.5 * width
+      , y: node.y - 0.5 * width + canvasWidth
       },
       size: { 
           width: height
@@ -259,7 +260,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         id: link.id,
         source: { id: sourceNode.id },
         target: { id: targetNode.id },
-        connector: { name: 'jumpover' }
+        connector: { name: 'rounded' }
       });
       connections.push(connection);
   })

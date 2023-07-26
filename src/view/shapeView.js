@@ -172,7 +172,7 @@ Lyph.prototype.autoSize = function(){
         this.viewObjects["main"].scale.setZ(this.prevScaleZ);
         copyCoords(this, new THREE.Vector3(this.prevX, this.prevY, this.prevZ));
     }
-    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
+    ( !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
 };
 
 /**

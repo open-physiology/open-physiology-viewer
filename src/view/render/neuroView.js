@@ -1,7 +1,8 @@
 import {flatten } from "lodash-bound";
-import {modelClasses} from "../../model";
+import {modelClasses,$SchemaClass} from "../../model";
 import { orthogonalLayout } from "./neuroViewHelper";
 import {  getWorldPosition } from "./autoLayout/objects";
+import { DONE_UPDATING } from "./../utils"
 const {Edge} = modelClasses;
 
 /**
@@ -38,7 +39,7 @@ export function buildNeurulatedTriplets(group) {
     }
   });
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn[0]?.hostedBy ); //lyphs -> regions
   hostedHousingLyphs.forEach( h => h != undefined && h?.class == "Region" && neuronTriplets.r.indexOf(h) == -1 ? neuronTriplets.r.push(h) : null)
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
@@ -233,6 +234,8 @@ function toggleRegions(scaffoldsList, neuronTriplets, checked){
 export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checked ) {
   // Filter out scaffolds that match the regions attached to the housing lyphs
   toggleRegions(scaffoldsList, neuronTriplets, checked);
+  console.log("scaffoldsList ", scaffoldsList)
+  console.log("neuronTriplets ", neuronTriplets)
   // Filter out scaffolds that match the wires attached to the housing lyphs
   let scaffolds = scaffoldsList.filter(
     (scaffold) => scaffold.id !== "too-map" &&
@@ -243,14 +246,22 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
 
   let modifiedScaffolds = [];
   scaffolds?.forEach((scaffold) => {
-    scaffold.hidden !== !checked && modifiedScaffolds.push(scaffold);
-    scaffold.wires?.forEach( w => w.inactive = checked );
-    scaffold.anchors?.forEach( w => w.inactive = checked );
+    //if ( scaffold.hidden !== !checked ) {
+      modifiedScaffolds.push(scaffold);
+    //}
+    scaffold.wires?.forEach( w => { 
+      w.inactive = checked; 
+    });
+    scaffold.anchors?.forEach( w => { 
+      w.inactive = checked;
+    });
 
     // Toggle regions that are not housing lyphs
     neuronTriplets.r.forEach((r) => {
       let region = scaffold.regions?.find((reg) => reg.id == r.id);
-      region ? (region.inactive = !checked) : null;
+      if ( region ) {
+        region.inactive = !checked;
+      }
     });
 
     // Find all wires on the scaffold that are Arcs and have a name. This will turn on the Rings for the F/D Scaffold
@@ -369,6 +380,9 @@ function updateLyphsHosts(matches,neuronTriplets){
           ? null
           : m.hostedBy.hostedLyphs?.push(m)
         : (m.hostedBy.hostedLyphs = [m]);
+
+
+        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? -1 : 1 );
     }
   });
 
@@ -423,7 +437,7 @@ export function applyOrthogonalLayout(links, nodes, left, top, width, height, th
   }
 }
 
-const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
+export const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
   // Hide all visible
   filteredGroups.forEach((g) => {
     g.lyphs.forEach((lyph) => {
@@ -433,10 +447,9 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
         lyph.wiredTo = undefined;
       }
     });
-    toggleGroup.emit(g);
+    toggleGroup.emit ? toggleGroup.emit(g) : toggleGroup(g);
   });
 
-  console.log("Hide groups ", groups);
   groups.forEach((g) => {
     g.lyphs.forEach((lyph) => {
       lyph.hidden = true;
@@ -462,7 +475,7 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
       chain.hidden = true;
       if ( chain?.viewObjects?.["main"]?.visible ) chain.viewObjects["main"].visible = false;
     });
-    toggleGroup.emit(g);
+    toggleGroup.emit ? toggleGroup.emit(g) : toggleGroup(g);
   });
 };
 
@@ -501,8 +514,9 @@ const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) => {
 export const newGroup = (event ,group, neuronTriplets, filteredDynamicGroups) => {
   // Create a new Group with only the housing lyphs
   const newGroupName = group.name + " - Housing Lyphs";
+  let groupClone;
   if ( filteredDynamicGroups.filter(g => g.name == newGroupName ).length < 1 ) {
-    let groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
+    groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
     groupClone.name = newGroupName;
     groupClone.lyphs = neuronTriplets.y;
     groupClone.links = [];
@@ -514,6 +528,39 @@ export const newGroup = (event ,group, neuronTriplets, filteredDynamicGroups) =>
     const groupMatched = filteredDynamicGroups.find(g => g.name == newGroupName );
     groupMatched.hidden = !event.checked;
   }
+
+  return groupClone;
+}
+
+export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, filteredDynamicGroups, scaffolds) => {
+  let neuronTriplets = buildNeurulatedTriplets(group);
+  neuronTriplets.links?.forEach( l => l.neurulated = true );
+  neuronTriplets.x?.forEach( l => l.neurulated = true );
+  neuronTriplets.y?.forEach( l => l.neurulated = true );
+  let activeNeurulatedGroups = [];
+  activeNeurulatedGroups.push(group);
+  findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
+
+  console.log("scaffolds ", scaffolds)
+  console.log("event.checked ", event.checked)
+  console.log("neuronTriplets ", neuronTriplets)
+
+  // Identify TOO Map components and turn them ON/OFF
+  const matchScaffolds = toggleScaffoldsNeuroview(scaffolds,neuronTriplets,event.checked);
+  matchScaffolds?.forEach((scaffold) => onToggleGroup.emit ? onToggleGroup.emit(scaffold) : onToggleGroup(scaffold));
+  console.log("Match scaffolds ", matchScaffolds)
+
+  //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
+  findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
+
+  // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
+  activeNeurulatedGroups.forEach((g) => {
+    handleNeurulatedGroup(event.checked, g, neuronTriplets);
+  });
+
+  group.neurulated = true;
+
+  return newGroup(event, group, neuronTriplets, filteredDynamicGroups);
 }
 
 export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onToggleLayout) => {
@@ -529,13 +576,52 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
   
   let doneUpdating = () => { 
     const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
+    console.log("Done updating")
     if (orthogonalSegments)
     {
       autoLayoutSegments(orthogonalSegments, visibleLinks);
     }
-    onToggleLayout?.emit ? onToggleLayout?.emit() : onToggleLayout();
     window.removeEventListener("doneUpdating", doneUpdating);
   };
 
-  window.addEventListener("doneUpdating", doneUpdating);
+  window.addEventListener(DONE_UPDATING, doneUpdating);
+}
+
+export const toggleNeuroView = (visible, activeGroups, dynamicGroups, scaffolds, toggleGroup) => {
+   let groups = activeGroups.filter((g) => g.hidden == false);
+   let visibleGroups = dynamicGroups.filter( dg => !dg.hidden );
+   console.log("Groups ", groups)
+   console.log("visibleGroups ", visibleGroups)
+   handleNeuroView(visibleGroups, groups, scaffolds, visible, toggleGroup);
+}
+
+export const updateRenderedResources = (scaffolds, scaffoldResourceVisibility) => {
+  let scaffoldResourceNames = ["renderedComponents", "renderedWires", "renderedRegions", "renderedAnchors"];
+  //scaffoldResourceNames.forEach(prop => this[prop] = []);
+  (scaffolds || []).forEach(s => {
+      //Only include wires from the scaffold, no components
+      if (s.class === $SchemaClass.Scaffold && !s.hidden) {
+          (s.components || []).forEach(r => {
+              r._parent = s;
+              r._visible = true;
+          });
+          if (scaffoldResourceVisibility) {
+              (s.anchors || []).forEach(r => {
+                  if (!r.generated) {
+                      r._parent = s;
+                  }
+              });
+              (s.wires || []).forEach(r => {
+                  if (!r.generated) {
+                      r._parent = s;
+                  }
+              });
+              (s.regions || []).forEach(r => {
+                  if (!r.generated) {
+                      r._parent = s;
+                  }
+              });
+          }
+      }
+  });
 }

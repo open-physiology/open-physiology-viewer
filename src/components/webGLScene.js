@@ -21,11 +21,11 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
-import {GRAPH_LOADED, UPDATE_TICK, SNAPSHOT_STATE_CHANGED, isInternalLyph} from './../view/utils';
+import {GRAPH_LOADED, DONE_UPDATING,SNAPSHOT_STATE_CHANGED,
+     UPDATE_TICK, isInternalLyph} from './../view/utils';
 
-import { buildNeurulatedTriplets, toggleScaffoldsNeuroview, findHousingLyphsGroups,
-    handleNeurulatedGroup, handleNeuroView,newGroup, autoLayoutNeuron, handleOrthogonalLinks } from '../view/render/neuroView'
-import { STATE_CANCELLED, STATE_CHANGED } from 'hammerjs';
+import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, handleNeurulatedGroup,
+    autoLayoutNeuron, toggleNeuroView, toggleNeurulatedGroup, findHousingLyphsGroups, toggleScaffoldsNeuroview } from '../view/render/neuroView'
 
 const WindowResize = require('three-window-resize');
 
@@ -65,11 +65,11 @@ const WindowResize = require('three-window-resize');
                                 title="Update layout">
                             <i class="fa fa-refresh"> </i>
                         </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Show settings">
                             <i class="fa fa-cog"> </i>
                         </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showPanel = !showPanel" title="Hide settings">
                             <i class="fa fa-window-close"> </i>
                         </button>
@@ -115,14 +115,14 @@ const WindowResize = require('three-window-resize');
                     </section>
                 </section>
                 <canvas #canvas> </canvas>
-                <div *ngIf="loading" class="main-container">
+                <div *ngIf="loading">
                     <div class="loading-container">
-                        <mat-spinner color="primary"></mat-spinner>
+                        Loading Canvas...
                     </div>
                 </div>
             </section>
             <section [expanded]="showPanel" id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
-                <settingsPanel
+                <settingsPanel *ngIf="( !refreshSettings )"
                         [config]="_config"
                         [selected]="_selected"
                         [highlighted]="_highlighted"
@@ -144,11 +144,17 @@ const WindowResize = require('three-window-resize');
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
+                        (onUpdateGroupLayout) ="updateGroupLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
                         (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
                 > </settingsPanel>
+                <div *ngIf="refreshSettings">
+                    <div class="refreshing-container">
+                        <img src="./styles/images/loading.png" />
+                    </div>
+                </div>
             </section>
         </section> 
     `,
@@ -161,13 +167,16 @@ const WindowResize = require('three-window-resize');
             right: 0;
             z-index: 99;
             display: flex;
+            color: grey;
+            font-size: 2rem;
             align-items: center;
             justify-content: center;
         }
 
-        .spinner {
-            height : 100%;
-            width : 100%;
+        .refreshing-container {
+            position: absolute;
+            top: 50%;
+            right: 20vh;
         }
 
         #apiLayoutPanel {
@@ -202,8 +211,11 @@ const WindowResize = require('three-window-resize');
  */
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('settingsPanel') settingsPanel: ElementRef;
     showPanel = false;
     loading = false;
+    refreshSettings = false;
+    updateLayout = true;
     scene;
     camera;
     renderer;
@@ -249,30 +261,26 @@ export class WebGLSceneComponent {
             }
             if (this.graph) {
                 this.loading = true;
+                this.refreshSettings = true;
                 this.graph.graphData(this._graphData);
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
                   that.showPanel = true;
                   that.loading = false;
+                  that.refreshSettings = false;
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
                 };
-            
                 window.addEventListener(GRAPH_LOADED, doneUpdating);
-                window.addEventListener(SNAPSHOT_STATE_CHANGED, () => { 
-                    that.showPanel = true;
-                });
-
-                window.addEventListener(UPDATE_TICK, () => { 
-                    that.loading = false;
-                });
             }
         }
     }
 
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
-        this._config.demoMode = this.getUrlParameter("demoMode");
+        const queryParams   = new URLSearchParams(window.location.search);
+        this._modelURL = queryParams.get('demoUrl');
+        this._config.demoMode = this._modelURL !== undefined;
         if (this.graph){
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
@@ -686,13 +694,43 @@ export class WebGLSceneComponent {
         this.camera.position.set(...position);
         this.camera.up.set(...lookup);
         this.camera.updateProjectionMatrix();
+        this.controls?.update();
     }
 
     updateGraph(){
-        this.loading = true;
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
+    }
+
+    showVisibleGroups(visibleGroups, neuroviewEnabled){
+        this.refreshSettings = true;
+        let that = this;
+        let visible = true;
+        if (neuroviewEnabled) {
+            toggleNeuroView(true, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
+            let filteredGroups = that.graphData.dynamicGroups.filter( dg => !dg.hidden );
+            filteredGroups.forEach((g) => {
+                that.toggleGroup(g);
+            });
+            this._config.layout.neuroviewEnabled = true;
+            visibleGroups?.forEach( async (vg, index) => {
+                let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
+                if ( group ) {
+                    toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
+                    const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
+                    matchScaffolds?.forEach( r => r.hidden = true );
+
+                    matchScaffolds?.forEach((scaffold) => {
+                        that.toggleGroup(scaffold);
+                    });
+
+                    that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
+                    that.refreshSettings = false;
+                }
+            })
+        } 
+        this.loading = false;
     }
 
     openExternal(resource){
@@ -860,45 +898,63 @@ export class WebGLSceneComponent {
         if (this?.graph) { this.graph.graphData(this.graphData); }
     }
 
-    toggleNeurulatedGroup(event, filteredDynamicGroups, group) {
-        // Find housing lyphs of neuron, also links and chains.
-        let neuronTriplets = buildNeurulatedTriplets(group);
-        neuronTriplets.links?.forEach( l => l.neurulated = true );
-        neuronTriplets.x?.forEach( l => l.neurulated = true );
-        neuronTriplets.y?.forEach( l => l.neurulated = true );
-
-        console.log("Neuron Information : ", neuronTriplets);
-        let groups = this.graphData?.groups.filter((g) => g.hidden == false);
-        let visibleGroups = this.graphData?.dynamicGroups.filter( dg => !dg.hidden );
-
-        // Handle Neuro view initial settings. Turns OFF groups and scaffolds
-        handleNeuroView(visibleGroups, groups, this.graphData?.scaffoldComponents, event.visible, this.toggleGroup);
-        let activeNeurulatedGroups = [];
-
-        // Identify TOO Map components and turn them ON/OFF
-        const matchScaffolds = toggleScaffoldsNeuroview(this.graphData?.scaffoldComponents,neuronTriplets,event.checked);
-        matchScaffolds?.forEach((scaffold) => toggleGroup(scaffold));
-        activeNeurulatedGroups.push(group);
-
-        //v1 Step 6 : Switch on visibility of group. Toggle ON visibilty of group's lyphs if they are neuron segments only.
-        findHousingLyphsGroups(this.graphData, neuronTriplets, activeNeurulatedGroups);
-
-        // Handle each group individually. Turn group's lyph on or off depending if they are housing lyphs
-        activeNeurulatedGroups.forEach((g) => {
-          handleNeurulatedGroup(event.checked, g, neuronTriplets);
-        });
-
-        group.neurulated = true;
-
-        newGroup(event, group, neuronTriplets, filteredDynamicGroups);
-        window.addEventListener("updateTick",function updateLayout(e){
-          // Run auto layout code to position lyphs on their regions and wires
-          if ( group?.neurulated && !group.hidden && e?.detail?.updating ) {
-            autoLayoutNeuron(neuronTriplets, group);
-            autoLayoutNeuron(neuronTriplets, group);
+    /**
+     * Created orthogonal links to replace collapsible links
+     * @param {*} filteredDynamicGroups 
+     * @param {*} viewPortSize 
+     */
+    handleOrthogonalLinks (filteredDynamicGroups, viewPortSize){
+        let visibleLinks = [];
+        let bigLyphs = []
+        for (let group of filteredDynamicGroups) {
+          if ( !group?.hidden && !group?.cloneOf ) {
+            let neuroTriplets = buildNeurulatedTriplets(group); 
+            visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+            bigLyphs = neuroTriplets.y;
           }
-        });
-        handleOrthogonalLinks(filteredDynamicGroups, this._viewPortSize, this.toggleLayout);
+        }
+        let  that = this;
+        let doneUpdating = () => { 
+
+          // Need to refresh the canvas after creating new orthogonal links
+          if ( that.updateLayout ) {
+            const orthogonalSegments = applyOrthogonalLayout(visibleLinks, bigLyphs, viewPortSize.left, viewPortSize.top, viewPortSize.width, viewPortSize.height,10, "manhattan")
+            if (orthogonalSegments)
+            {
+              autoLayoutSegments(orthogonalSegments, visibleLinks);
+            }
+            that.toggleLayout();
+          }
+          that.updateLayout = false;
+        
+          window.removeEventListener(DONE_UPDATING, doneUpdating);
+        };
+      
+        window.addEventListener(DONE_UPDATING, doneUpdating);
+    }
+
+    /**
+     * Handles displaying a Group using Neuroview. Toggles ON/OFF scaffolds group doesn't
+     * use. Creates orthogonal links instead of collapsible links.
+     * @param {*} event -  Angular Trigger Event 
+     */
+    async updateGroupLayout(event){ 
+        let neuronTriplets = buildNeurulatedTriplets(event.group);
+        this.updateLayout = true;
+        let that = this;
+        that.loading = true;
+        let updateLayout = async(e) => {
+            // Run auto layout code to position lyphs on their regions and wires
+            if ( event.group?.neurulated && !event.group.hidden ) {
+                autoLayoutNeuron(neuronTriplets, event.group);
+                if ( that.updateLayout ) {
+                    that.handleOrthogonalLinks(event.filteredDynamicGroups, that._viewPortSize);
+                }
+            }
+            that.loading = false;
+        }
+        window.addEventListener(UPDATE_TICK,updateLayout);
+
     }
 
     resetVariance(){

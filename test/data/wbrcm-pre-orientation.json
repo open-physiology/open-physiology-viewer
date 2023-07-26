@@ -7,70 +7,6 @@
             "type": "Collection"
         }
     ],
-    "varianceSpecs": [
-        {
-            "id": "vs-mammalia",
-            "name": "basal mammalian state",
-            "presence": "basal",
-            "clades": [
-                "NCBITaxon:40674"
-            ]
-        },
-        {
-            "id": "vs-human",
-            "presence": "basal",
-            "clades": [
-                "NCBITaxon:9606"
-            ]
-        },
-        {
-            "id": "vs-pig",
-            "presence": "basal",
-            "clades": [
-                "NCBITaxon:9823"
-            ]
-        },
-        {
-            "id": "vs-monkey",
-            "presence": "basal"
-        },
-        {
-            "id": "vs-rodent",
-            "presence": "basal",
-            "clades": [
-                "NCBITaxon:9989"
-            ]
-        },
-        {
-            "id": "vs-cat"
-        },
-        {
-            "id": "vs-not-human",
-            "presence": "absent",
-            "clades": [
-                "NCBITaxon:9606"
-            ]
-        },
-        {
-            "id": "vs-not-pig",
-            "presence": "absent"
-        },
-        {
-            "id": "vs-not-monkey",
-            "presence": "absent"
-        },
-        {
-            "id": "vs-not-rodent",
-            "presence": "absent",
-            "clades": [
-                "NCBITaxon:9989"
-            ]
-        },
-        {
-            "id": "vs-not-cat",
-            "presence": "absent"
-        }
-    ],
     "nodes": [
         {
             "id": "node-airway-root",
@@ -2272,9 +2208,6 @@
                 "UBERON:0006469"
             ],
             "name": "C1 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2284,9 +2217,6 @@
                 "UBERON:0006489"
             ],
             "name": "C2 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2296,9 +2226,6 @@
                 "UBERON:0006488"
             ],
             "name": "C3 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment",
             "internalLyphs": [
@@ -2311,9 +2238,6 @@
                 "UBERON:0006490"
             ],
             "name": "C4 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment",
             "internalLyphs": [
@@ -2326,9 +2250,6 @@
                 "UBERON:0006491"
             ],
             "name": "C5 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment",
             "internalLyphs": [
@@ -2341,9 +2262,6 @@
                 "UBERON:0006492"
             ],
             "name": "C6 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2353,9 +2271,6 @@
                 "UBERON:0006493"
             ],
             "name": "C7 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2365,9 +2280,6 @@
                 "UBERON:0006470"
             ],
             "name": "C8 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2377,9 +2289,6 @@
                 "UBERON:0006457"
             ],
             "name": "T1 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2389,9 +2298,6 @@
                 "UBERON:0006458"
             ],
             "name": "T2 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2401,9 +2307,6 @@
                 "UBERON:0006459"
             ],
             "name": "T3 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2413,9 +2316,6 @@
                 "UBERON:0006452"
             ],
             "name": "T4 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2425,9 +2325,6 @@
                 "UBERON:0006453"
             ],
             "name": "T5 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2437,9 +2334,6 @@
                 "UBERON:0006454"
             ],
             "name": "T6 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2449,9 +2343,6 @@
                 "UBERON:0006455"
             ],
             "name": "T7 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2461,9 +2352,6 @@
                 "UBERON:0006456"
             ],
             "name": "T8 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2473,9 +2361,6 @@
                 "UBERON:0006465"
             ],
             "name": "T9 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2485,9 +2370,6 @@
                 "UBERON:0006466"
             ],
             "name": "T10 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2497,9 +2379,6 @@
                 "UBERON:0006467"
             ],
             "name": "T11 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2509,9 +2388,6 @@
                 "UBERON:0006468"
             ],
             "name": "T12 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2521,10 +2397,6 @@
                 "ILX:0793357"
             ],
             "name": "T13 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia",
-                "vs-not-human"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2534,9 +2406,6 @@
                 "UBERON:0006448"
             ],
             "name": "L1 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2546,9 +2415,6 @@
                 "UBERON:0006450"
             ],
             "name": "L2 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2558,9 +2424,6 @@
                 "UBERON:0006449"
             ],
             "name": "L3 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2570,9 +2433,6 @@
                 "UBERON:0006451"
             ],
             "name": "L4 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2582,9 +2442,6 @@
                 "UBERON:0006447"
             ],
             "name": "L5 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2594,11 +2451,6 @@
                 "ILX:0793358"
             ],
             "name": "L6 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia",
-                "vs-not-human",
-                "vs-not-rodent"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2608,9 +2460,6 @@
                 "UBERON:0006460"
             ],
             "name": "S1 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2620,9 +2469,6 @@
                 "UBERON:0006461"
             ],
             "name": "S2 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2632,9 +2478,6 @@
                 "UBERON:0006462"
             ],
             "name": "S3 spinal segment",
-            "varianceSpecs": [
-                "vs-mammalia"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2644,10 +2487,6 @@
                 "UBERON:0006463"
             ],
             "name": "S4 spinal segment",
-            "varianceSpecs": [
-                "vs-rodent",
-                "vs-human"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -2657,9 +2496,6 @@
                 "UBERON:0006464"
             ],
             "name": "S5 spinal segment",
-            "varianceSpecs": [
-                "vs-human"
-            ],
             "topology": "TUBE",
             "supertype": "lt-spinal-segment"
         },
@@ -6654,9 +6490,7 @@
                 "lyph-sympathetic-trunk-S4-Cx1",
                 "lyph-Cx1-sympathetic-chain-ganglion"
             ],
-            "wiredTo": "too:symp-chain-wire",
-            "hostedBy": "too:n2G",
-            "startFromLeaf": true
+            "hostedBy": "too:n2G"
         },
         {
             "id": "chain-ventral-spinal-roots",
@@ -7000,6 +6834,6 @@
     "imports": [
         "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
     ],
-    "version": "844bd0db2695434920182dd475a862f63ac2bfcb",
-    "schemaVersion": "e0dba87327205156ed4e89dc42b1ab036d6a4465"
+    "schemaVersion": "154e06766889606a7ed5a231b8bc00d3b28cfdf8",
+    "version": "c78610866821bea60e91c97ff68e02250a9b6662"
 }

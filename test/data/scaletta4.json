@@ -7740,7 +7740,8 @@
   "name": "scaletta model series #4",
   "namespace": "scaletta",
   "imports": [
-    "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/wbrcm/source/wbrcm.json"
+    "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/wbrcm/source/wbrcm.json",
+    "https://raw.githubusercontent.com/open-physiology/open-physiology-viewer/feature/83/test/data/snapshot_scaletta_4_1.json"
   ],
   "version": "b10c146a98f23c52965315d13b34bbf7cfda915d",
   "schemaVersion": "154e06766889606a7ed5a231b8bc00d3b28cfdf8",

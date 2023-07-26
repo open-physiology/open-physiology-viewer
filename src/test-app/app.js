@@ -53,6 +53,7 @@ import {enableProdMode} from '@angular/core';
 
 import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
 import {MaterialEditorModule} from "../components/gui/materialEditor";
+import {GRAPH_LOADED} from '../../src/view/utils';
 
 enableProdMode();
 
@@ -298,6 +299,22 @@ export class TestApp {
         this.model = initModel;
         this._dialog = dialog;
         this._flattenGroups = false;
+        const queryParams   = new URLSearchParams(window.location.search);
+        this._modelURL = queryParams.get('demoUrl');
+        if (this._modelURL)
+          this.loadModelFromURL(this._modelURL)
+    }
+
+    loadModelFromURL(url) {
+      fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.load(data)
+      })
+      .catch(error => {
+        // Handle any errors that occur during the fetch request
+        console.log('Error:', error);
+      });
     }
 
     ngAfterViewInit(){
@@ -352,13 +369,17 @@ export class TestApp {
             if (groups.length > 0 || scaffolds.length > 0) {
                 that.model = that._model;
             }
-            if (snapshots.length > 0){
-                that.loadSnapshot(snapshots[0]);
-                if (snapshots.length > 1){
-                    logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
-                }
-            }
             model.imports?.length > 0 && that.loadImports(model.imports[0]);
+            let doneUpdating = () => { 
+                if (snapshots.length > 0){
+                    that.loadSnapshot(snapshots[0]);
+                    if (snapshots.length > 1){
+                        logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
+                    }
+                }
+              window.removeEventListener(GRAPH_LOADED, doneUpdating);
+            };
+            window.addEventListener(GRAPH_LOADED, doneUpdating);
         });
     }
 
@@ -366,7 +387,9 @@ export class TestApp {
         this.model = newModel;
         this._flattenGroups = false;
         // Load imports if model has any
-        newModel.imports && this.loadImports(newModel.imports[0]);
+        if ( newModel.imports ) {
+            newModel.imports.forEach( imp => this.loadImports(imp)) 
+        }
     }
 
     importExternal(){
@@ -601,11 +624,12 @@ export class TestApp {
     }
 
     loadState(activeState){
-        if (activeState.visibleGroups){
-            this._graphData.showGroups(activeState.visibleGroups);
-        }
+
         if (activeState.camera) {
-            this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up);
+            console.log("Camera position ", this._snapshot.camera.position)
+            this._webGLScene.camera.rotation.fromArray(this._snapshot.camera.rotation);
+            this._webGLScene.resetCamera(this._snapshot.active.camera.position);
+            this._webGLScene.controls?.update();
         }
         this._config = {};
         if (activeState.layout) {
@@ -628,6 +652,9 @@ export class TestApp {
                     this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);
                 }
             })
+        }
+        if (activeState.visibleGroups){
+            this._webGLScene.showVisibleGroups(activeState.visibleGroups, true);
         }
         this._webGLScene.updateGraph();
     }
@@ -653,11 +680,37 @@ export class TestApp {
         }
     }
 
+    cameraDataCapture(){
+      const camera = this._webGLScene.camera ;
+      return {
+        position: camera.position.toArray(),
+        rotation: camera.rotation.toArray(),
+        fov: camera.fov,
+        aspect: camera.aspect,
+        near: camera.near,
+        far: camera.far
+      };
+    }
+
+    restoreCameraData(cameraData) {
+      let container = document.getElementById('apiLayoutContainer');
+      let width = container.clientWidth;
+      let height = container.clientHeight;
+      var camera = new THREE.PerspectiveCamera(70, width / height, 10, 4000);
+      camera.aspect = width / height;
+      camera.position.fromArray(cameraData.position);
+      this._webGLScene.camera.rotation.fromArray(cameraData.rotation);
+      this._webGLScene.resetCamera(camera.position, [0,1,0])
+      //this._webGLScene.resetCamera(camera.position, camera.up);
+      this._webGLScene.camera.updateProjectionMatrix(); // Call this method to update the camera's internal projection matrix
+    }
+
     createSnapshot(){
         this._snapshot = this.modelClasses.Snapshot.fromJSON({
             [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter),
             [$Field.name]: getGenName("Snapshot for", this._modelName, this._snapshotCounter),
-            [$Field.model]: this._model.id
+            [$Field.model]: this._model.id,
+            [$Field.camera]: this.cameraDataCapture()
         }, this.modelClasses, this._graphData.entitiesByID);
         this._snapshotCounter += 1;
         const annotationProperties = schema.definitions.AnnotationSchema.properties::keys();
@@ -666,6 +719,7 @@ export class TestApp {
 
     loadSnapshot(value){
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
+        // this.restoreCameraData(newSnapshot.camera);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
             throw new Error("Snapshot is not applicable to the model!");
@@ -675,6 +729,7 @@ export class TestApp {
             }
         }
         this._snapshot = newSnapshot;
+        this.nextState();
     }
 
     saveSnapshot(){
