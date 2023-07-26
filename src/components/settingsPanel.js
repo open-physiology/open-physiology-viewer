@@ -1326,7 +1326,7 @@ export class SettingsPanel {
     this.onUpdateShowLabels.emit(this.config.showLabels || {});
   }
 
-  updateLabelContent(labelClass, labelProp) {f
+  updateLabelContent(labelClass, labelProp) {
     this.config.labels[labelClass] = labelProp;
     this.onUpdateLabelContent.emit(this.config.labels || {});
   }
