@@ -39,7 +39,7 @@ export function buildNeurulatedTriplets(group) {
     }
   });
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn[0]?.hostedBy ); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn?.[0]?.hostedBy ); //lyphs -> regions
   hostedHousingLyphs.forEach( h => h != undefined && h?.class == "Region" && neuronTriplets.r.indexOf(h) == -1 ? neuronTriplets.r.push(h) : null)
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
@@ -360,10 +360,10 @@ function updateLyphsHosts(matches,neuronTriplets){
     }
 
     if (m.conveys?.levelIn) {
-      if (m.conveys?.levelIn[0]?.wiredTo) {
-        m.wiredTo = m.conveys?.levelIn[0]?.wiredTo;
-      } else if ( m.conveys?.levelIn[0]?.hostedBy) {
-        m.hostedBy =  m.conveys?.levelIn[0]?.hostedBy;
+      if (m.conveys?.levelIn?.[0]?.wiredTo) {
+        m.wiredTo = m.conveys?.levelIn?.[0]?.wiredTo;
+      } else if ( m.conveys?.levelIn?.[0]?.hostedBy) {
+        m.hostedBy =  m.conveys?.levelIn?.[0]?.hostedBy;
       }
     }
 

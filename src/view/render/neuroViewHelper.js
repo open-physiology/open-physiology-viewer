@@ -260,7 +260,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         id: link.id,
         source: { id: sourceNode.id },
         target: { id: targetNode.id },
-        connector: { name: 'rounded' }
+        connector: { name: 'jumpover' }
       });
       connections.push(connection);
   })
