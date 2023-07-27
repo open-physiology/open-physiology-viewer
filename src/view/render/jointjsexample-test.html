@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.7.4/joint.css" />
+</head>
+<body>
+    <!-- content -->
+    <div id="myholder"></div>
+
+    <!-- dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jointjs/3.7.4/joint.js"></script>
+
+    <!-- code -->
+    <script type="text/javascript">
+
+        var namespace = joint.shapes;           
+
+        var graph = new joint.dia.Graph({}, { cellNamespace: namespace });
+
+        var paper = new joint.dia.Paper({
+            el: document.getElementById('myholder'),
+            model: graph,
+            width: 600,
+            height: 300, // height had to be increased
+            gridSize: 10,
+            drawGrid: true,
+            background: {
+                color: 'rgba(0, 255, 0, 0.3)'
+            },
+            cellViewNamespace: namespace
+        });
+
+        // Load graph from JSON
+        var json = {
+            "cells": [
+                {
+                    "id": 1,
+                    "type": "basic.Rect",
+                    "position": {
+                        "x": 100,
+                        "y": 100
+                    },
+                    "size": {
+                        "width": 80,
+                        "height": 40
+                    },
+                    "attrs": {
+                        "body": {
+                            "fill": "blue"
+                        },
+                        "label": {
+                            "text": "Rectangle 1",
+                            "fill": "white"
+                        }
+                    }
+                },
+                {
+                    "id": 2,
+                    "type": "basic.Rect",
+                    "position": {
+                        "x": 300,
+                        "y": 100
+                    },
+                    "size": {
+                        "width": 80,
+                        "height": 40
+                    },
+                    "attrs": {
+                        "body": {
+                            "fill": "green"
+                        },
+                        "label": {
+                            "text": "Rectangle 2",
+                            "fill": "white"
+                        }
+                    }
+                },
+                {
+                    "type": "link",
+                    "source": {
+                        "id": 1
+                    },
+                    "target": {
+                        "id": 2
+                    }
+                }
+            ]
+        };
+
+        graph.fromJSON(json);
+
+    </script>
+</body>
+</html>

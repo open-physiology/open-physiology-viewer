@@ -690,7 +690,7 @@ export class TestApp {
         near: camera.near,
         far: camera.far
       };
-    }
+    } 
 
     restoreCameraData(cameraData) {
       let container = document.getElementById('apiLayoutContainer');
@@ -700,7 +700,17 @@ export class TestApp {
       camera.aspect = width / height;
       camera.position.fromArray(cameraData.position);
       this._webGLScene.camera.rotation.fromArray(cameraData.rotation);
-      this._webGLScene.resetCamera(camera.position, [0,1,0])
+      // Translate the camera to the center of the canvas
+      const canvasCenterX = width / 2;
+      const canvasCenterY = height / 2;
+      const cameraOffsetX = camera.position.x - canvasCenterX;
+      const cameraOffsetY = camera.position.y - canvasCenterY;
+      this._webGLScene.camera.position.setX(this._webGLScene.camera.position.x - cameraOffsetX);
+      this._webGLScene.camera.position.setY(this._webGLScene.camera.position.y - cameraOffsetY);
+      // Apply rotation to the existing camera's rotation
+      this._webGLScene.camera.rotation.x += cameraData.rotation[0];
+      this._webGLScene.camera.rotation.y += cameraData.rotation[1];
+      this._webGLScene.camera.rotation.z += cameraData.rotation[2];
       //this._webGLScene.resetCamera(camera.position, camera.up);
       this._webGLScene.camera.updateProjectionMatrix(); // Call this method to update the camera's internal projection matrix
     }
@@ -719,7 +729,7 @@ export class TestApp {
 
     loadSnapshot(value){
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
-        // this.restoreCameraData(newSnapshot.camera);
+        this.restoreCameraData(newSnapshot.camera);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
             throw new Error("Snapshot is not applicable to the model!");
