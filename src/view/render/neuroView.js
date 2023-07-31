@@ -327,8 +327,11 @@ export function findHousingLyphsGroups (graphData, neuronTriplets, activeNeurula
   neuronTriplets.y?.forEach((triplet) => {
     // Find the housing on the graph
     const match = graphData.lyphs.find( lyph => lyph.id === triplet.id);
-    matches.push(match);
+    if ( match === undefined ){
+      graphData.chains.find( chain => chain.lyphs.find( lyph => lyph.id === triplet.id));
+    }
     if (match) {
+      matches.push(match);
       // Find the group where this housing lyph belongs
       const groupMatched = graphData.groups.find((group) => group.lyphs.find((lyph) => lyph.id === match.id));
       if (groupMatched) {
