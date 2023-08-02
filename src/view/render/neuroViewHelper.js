@@ -157,7 +157,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
   el.id = "orthogonalDiv";
   document.body.appendChild(el);
 
-  const linkNodeSide = 1;
+  const linkNodeSide = 0;
 
   if (debug)
   {
@@ -203,19 +203,20 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
     const lyphMesh = node.viewObjects["main"];
     if ( lyphMesh ){
       let size = getBoundingBoxSize(lyphMesh);
+      let position = getWorldPosition(lyphMesh)
       let scale = node?.scale 
       scale === undefined ? scale = new THREE.Vector3(1,1,1) : null;
-      const width = size.x * scale.x;
-      const height = size.y * scale.y
+      const width = size.x * lyphMesh.scale.x;
+      const height = size.y * lyphMesh.scale.y
       const nodeModel = new shapes.standard.Rectangle({
         id: node.id,
         position: { 
-          x: node.x - 0.5 * height + canvasWidth
-        , y: node.y - 0.5 * width + canvasWidth
+          x: position.x - 0.5 * width + canvasWidth
+        , y: position.y - 0.5 * height + canvasWidth
         },
         size: { 
-            width: height
-          , height: width
+            width: width
+          , height: height
         }
       });
       obstacles.push(nodeModel);
@@ -237,7 +238,8 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         id: link.id + '-source',
         position: { 
             x: sx
-          , y: sy
+          , y: sy,
+          z : 0
         },
         size: { 
           width: linkNodeSide
@@ -249,7 +251,7 @@ export function orthogonalLayout(links, nodes, left, top, canvasWidth, canvasHei
         id: link.id + '-target',
         position: { 
             x: tx
-          , y: ty
+          , y: ty, z : 0
         },
         size: { 
             width: linkNodeSide

@@ -1195,7 +1195,7 @@
         "Anchor": true,
         "Node": false,
         "Link": false,
-        "Lyph": false,
+        "Lyph": true,
         "Region": false
       },
       "labelContent": {

@@ -12,6 +12,7 @@ import {
     lyphShape,
     extractCoords,
     isInRange,
+    isInternalLyph,
     THREE
 } from "./utils";
 import { DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
@@ -172,7 +173,7 @@ Lyph.prototype.autoSize = function(){
         this.viewObjects["main"].scale.setZ(this.prevScaleZ);
         copyCoords(this, new THREE.Vector3(this.prevX, this.prevY, this.prevZ));
     }
-    ( !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
+    ( !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
 };
 
 /**
@@ -282,8 +283,14 @@ Lyph.prototype.createViewObjects = function(state) {
             }       
         });
     }
+
+    let terminalLyph = isInternalLyph(this);
+
     //Do not create labels for layers and nested lyphs
-    ( !this.housingLyph ) && this.createLabels();
+    if ( !terminalLyph ) {
+        console.log("Label for ", this.id)
+        this.createLabels();
+    }
 };
 
 /**
@@ -336,7 +343,7 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     if ( !this.layerIn ) this.border.updateViewObjects(state);
 
-    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph));
+    ( !this.housingLyph ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
 
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
@@ -441,7 +448,7 @@ Region.prototype.updateViewObjects = function(state) {
         obj.visible = !this.inactive;
     }
 
-    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region));
+    this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Region), obj);
 };
 
 Region.prototype.relocate = function (delta){

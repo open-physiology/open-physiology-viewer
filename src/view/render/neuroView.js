@@ -385,7 +385,7 @@ function updateLyphsHosts(matches,neuronTriplets){
         : (m.hostedBy.hostedLyphs = [m]);
 
 
-        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? -1 : 1 );
+        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? 1 : -1 );
     }
   });
 
