@@ -17,7 +17,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { toggleNeurulatedGroup, toggleNeuroView } from "../view/render/neuroView";
+import { toggleNeurulatedGroup, toggleNeuroView, buildNeurulatedTriplets } from "../view/render/neuroView";
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -1365,18 +1365,36 @@ export class SettingsPanel {
     toggleNeuroView(visible, this.groups, this.filteredDynamicGroups, this.scaffolds, this.onToggleGroup)
     // clear array keeping track of manipulated groups
     this.config.layout.neuroviewEnabled = visible;
-    // this.updateRenderedResources();  
+    // this.updateRenderedResources(); 
   }
 
   toggleGroup = async (event, group) => { 
-    if (this.neuroViewEnabled) {        
+    if (this.neuroViewEnabled && !group.cloneOf ) {        
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
         this.handleNeuroViewChange(true);
+        group.neurulated = true;
         toggleNeurulatedGroup(event, group, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
         this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
-      } else {
-        this.onToggleGroup.emit(group); 
+
+    } else if (this.neuroViewEnabled && group.cloneOf ) {        
+      this.handleNeuroViewChange(true);
+      group.cloneOf.neurulated = true;
+      group.neurulated = true;
+      toggleNeurulatedGroup(event, group.cloneOf, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
+      this.onUpdateGroupLayout.emit({ group : group.cloneOf, filteredDynamicGroups : this.filteredDynamicGroups});
+    } else {        
+      if (group.cloneOf){
+        group.neurulated = true;
+        this.onToggleGroup.emit(group);
+        this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups}); 
+      } else { 
+        group.neurulated = false;
+        let neuronTriplets = buildNeurulatedTriplets(group);
+        neuronTriplets.links?.forEach( l => l.neurulated = false );
+        group.nodes?.forEach( l => l.inactive = false );
+        this.onToggleGroup.emit(group);
       }
+    }
   };
 
   toggleAllDynamicGroup = () => {

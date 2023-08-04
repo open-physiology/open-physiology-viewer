@@ -518,7 +518,7 @@ export const newGroup = (event ,group, neuronTriplets, filteredDynamicGroups) =>
   // Create a new Group with only the housing lyphs
   const newGroupName = group.name + " - Housing Lyphs";
   let groupClone;
-  if ( filteredDynamicGroups.filter(g => g.name == newGroupName ).length < 1 ) {
+  if ( !group.cloneOf && filteredDynamicGroups.filter(g => g.name == newGroupName ).length < 1 ) {
     groupClone = Object.assign(Object.create(Object.getPrototypeOf(group)), group)
     groupClone.name = newGroupName;
     groupClone.lyphs = neuronTriplets.y;
@@ -537,9 +537,9 @@ export const newGroup = (event ,group, neuronTriplets, filteredDynamicGroups) =>
 
 export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, filteredDynamicGroups, scaffolds) => {
   let neuronTriplets = buildNeurulatedTriplets(group);
-  neuronTriplets.links?.forEach( l => l.neurulated = true );
-  neuronTriplets.x?.forEach( l => l.neurulated = true );
-  neuronTriplets.y?.forEach( l => l.neurulated = true );
+  neuronTriplets.links?.forEach( l => l.neurulated = event.checked );
+  neuronTriplets.x?.forEach( l => l.neurulated = event.checked );
+  neuronTriplets.y?.forEach( l => l.neurulated = event.checked );
   let activeNeurulatedGroups = [];
   activeNeurulatedGroups.push(group);
   findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
@@ -561,7 +561,7 @@ export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, fi
     handleNeurulatedGroup(event.checked, g, neuronTriplets);
   });
 
-  group.neurulated = true;
+  //group.neurulated = true;
 
   return newGroup(event, group, neuronTriplets, filteredDynamicGroups);
 }

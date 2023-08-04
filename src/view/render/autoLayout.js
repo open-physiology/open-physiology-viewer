@@ -31,7 +31,7 @@ export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
   LYPH_MIN_Z : 0.15,
   REGION_MIN_Z : 0,
-  LINK_MIN_Z : 0.15,
+  LINK_MIN_Z : 0.2,
   WIRE_MIN_Z : 0,
   LAYER_MIN_Z : 0.125
 }
