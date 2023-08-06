@@ -1385,14 +1385,14 @@ export class SettingsPanel {
     } else {        
       if (group.cloneOf){
         group.neurulated = true;
-        this.onToggleGroup.emit(group);
+        toggleNeurulatedGroup(event, group.cloneOf, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
         this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups}); 
       } else { 
         group.neurulated = false;
         let neuronTriplets = buildNeurulatedTriplets(group);
         neuronTriplets.links?.forEach( l => l.neurulated = false );
         group.nodes?.forEach( l => l.inactive = false );
-        this.onToggleGroup.emit(group);
+        toggleNeurulatedGroup(event, group, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
       }
     }
   };
