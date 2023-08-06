@@ -36,6 +36,7 @@ import {
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
+import {HttpClient} from "@angular/common/http";
 
 import "./styles/material.scss";
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -295,7 +296,8 @@ export class TestApp {
     @ViewChild('webGLScene') _webGLScene: ElementRef;
     @ViewChild('jsonEditor') _container: ElementRef;
 
-    constructor(dialog: MatDialog){
+    constructor(http: HttpClient, dialog: MatDialog){
+        this._http = http;
         this.model = initModel;
         this._dialog = dialog;
         this._flattenGroups = false;
@@ -306,15 +308,16 @@ export class TestApp {
     }
 
     loadModelFromURL(url) {
-      fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        this.load(data)
-      })
-      .catch(error => {
-        // Handle any errors that occur during the fetch request
-        console.log('Error:', error);
-      });
+        this._http.get(url,{responseType: 'arraybuffer'}).subscribe(
+            res => {
+                let model = loadModel(res,  ".xlsx", "xlsx");
+                this.load(model)
+            },
+            err => {
+                console.error(err);
+                throw new Error("Failed to import Google spreadsheet model!");
+            }
+        );
     }
 
     ngAfterViewInit(){

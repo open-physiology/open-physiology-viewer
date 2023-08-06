@@ -263,6 +263,7 @@ export class WebGLSceneComponent {
                 this.loading = true;
                 this.refreshSettings = true;
                 this.graph.graphData(this._graphData);
+                console.log("Graph data ", this._graphData);
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
@@ -717,11 +718,7 @@ export class WebGLSceneComponent {
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
                 if ( group ) {
-                    group.neurulated = true;
-                    const newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
-                    group.neurulated = true;
-                    that.graphData.groups.push(newGroup);
-                    that.graphData.dynamicGroups.push(newGroup);
+                    toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
                     const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
                     matchScaffolds?.forEach( r => r.hidden = true );
 
@@ -914,6 +911,7 @@ export class WebGLSceneComponent {
           if ( !group?.hidden && !group?.cloneOf ) {
             let neuroTriplets = buildNeurulatedTriplets(group); 
             visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+            visibleLinks = visibleLinks?.filter( l => (l.id.match(/_clone/g) || []).length <= 1 );
             bigLyphs = neuroTriplets.y;
           }
         }
