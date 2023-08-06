@@ -39,7 +39,7 @@ export function buildNeurulatedTriplets(group) {
     }
   });
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn[0]?.hostedBy ); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn?.[0]?.hostedBy ); //lyphs -> regions
   hostedHousingLyphs.forEach( h => h != undefined && h?.class == "Region" && neuronTriplets.r.indexOf(h) == -1 ? neuronTriplets.r.push(h) : null)
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
@@ -327,8 +327,11 @@ export function findHousingLyphsGroups (graphData, neuronTriplets, activeNeurula
   neuronTriplets.y?.forEach((triplet) => {
     // Find the housing on the graph
     const match = graphData.lyphs.find( lyph => lyph.id === triplet.id);
-    matches.push(match);
+    if ( match === undefined ){
+      graphData.chains.find( chain => chain.lyphs.find( lyph => lyph.id === triplet.id));
+    }
     if (match) {
+      matches.push(match);
       // Find the group where this housing lyph belongs
       const groupMatched = graphData.groups.find((group) => group.lyphs.find((lyph) => lyph.id === match.id));
       if (groupMatched) {
@@ -360,10 +363,10 @@ function updateLyphsHosts(matches,neuronTriplets){
     }
 
     if (m.conveys?.levelIn) {
-      if (m.conveys?.levelIn[0]?.wiredTo) {
-        m.wiredTo = m.conveys?.levelIn[0]?.wiredTo;
-      } else if ( m.conveys?.levelIn[0]?.hostedBy) {
-        m.hostedBy =  m.conveys?.levelIn[0]?.hostedBy;
+      if (m.conveys?.levelIn?.[0]?.wiredTo) {
+        m.wiredTo = m.conveys?.levelIn?.[0]?.wiredTo;
+      } else if ( m.conveys?.levelIn?.[0]?.hostedBy) {
+        m.hostedBy =  m.conveys?.levelIn?.[0]?.hostedBy;
       }
     }
 
@@ -382,7 +385,7 @@ function updateLyphsHosts(matches,neuronTriplets){
         : (m.hostedBy.hostedLyphs = [m]);
 
 
-        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? -1 : 1 );
+        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? 1 : -1 );
     }
   });
 

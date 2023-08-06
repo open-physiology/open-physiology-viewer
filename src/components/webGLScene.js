@@ -79,8 +79,8 @@ const WindowResize = require('three-window-resize');
                             <i class="fa fa-download"> </i>
                         </button>
                         <mat-slider vertical class="w3-grey"
-                                    [min]="0.02 * scaleFactor" [max]="0.4 * scaleFactor"
-                                    [step]="0.05 * scaleFactor" tickInterval="1"
+                                    [min]="0.01 * scaleFactor" [max]="0.1 * scaleFactor"
+                                    [step]="0.01 * scaleFactor" tickInterval="1"
                                     [value]="labelRelSize" title="Label size"
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>

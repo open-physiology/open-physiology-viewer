@@ -1376,7 +1376,6 @@ export class SettingsPanel {
         this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
       } else {
         this.onToggleGroup.emit(group); 
-        this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});   
       }
   };
 
