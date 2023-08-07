@@ -1218,7 +1218,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -2423,7 +2423,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -3628,7 +3628,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -4833,7 +4833,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
