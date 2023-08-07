@@ -263,7 +263,6 @@ export class WebGLSceneComponent {
                 this.loading = true;
                 this.refreshSettings = true;
                 this.graph.graphData(this._graphData);
-                console.log("Graph data ", this._graphData);
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
@@ -706,6 +705,7 @@ export class WebGLSceneComponent {
 
     showVisibleGroups(visibleGroups, neuroviewEnabled){
         this.refreshSettings = true;
+        this.loading = true;
         let that = this;
         let visible = true;
         if (neuroviewEnabled) {
@@ -718,19 +718,21 @@ export class WebGLSceneComponent {
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
                 if ( group ) {
-                    toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
+                    let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
                     const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
                     matchScaffolds?.forEach( r => r.hidden = true );
 
                     matchScaffolds?.forEach((scaffold) => {
                         that.toggleGroup(scaffold);
                     });
-
+                    that.graphData.groups.push(newGroup);
+                    that.graphData.dynamicGroups.push(newGroup);
                     that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
-                    that.refreshSettings = false;
                 }
             })
-        } 
+        }
+        this.graph.graphData(this.graphData); 
+        this.refreshSettings = false;
         this.loading = false;
     }
 

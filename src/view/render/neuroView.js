@@ -3,6 +3,7 @@ import {modelClasses,$SchemaClass} from "../../model";
 import { orthogonalLayout } from "./neuroViewHelper";
 import {  getWorldPosition } from "./autoLayout/objects";
 import { DONE_UPDATING } from "./../utils"
+import { random_rgba } from "./../utils"
 const {Edge} = modelClasses;
 
 /**
@@ -93,6 +94,12 @@ export function buildNeurulatedTriplets(group) {
     .map((c) => c.hostedBy) //chains -> regions
   hostedHousingChains.forEach((region) => neuronTriplets.r.indexOf(region) == -1 && neuronTriplets.r.push(region));
 
+  let color = random_rgba();
+  neuronTriplets.links?.forEach( link=> {
+    if ( link.color === undefined || link.color === "#000" || link.color === "#010" ){
+      link.color = color;
+    }  
+  })
   return neuronTriplets;
 }
 
