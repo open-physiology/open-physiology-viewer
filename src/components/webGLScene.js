@@ -239,7 +239,7 @@ export class WebGLSceneComponent {
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
-    labelRelSize   = 0.02 * this.scaleFactor;
+    labelRelSize   = 0.08 * this.scaleFactor;
     lockControls   = false;
     isConnectivity = true;
 
@@ -728,6 +728,7 @@ export class WebGLSceneComponent {
                     that.graphData.groups.push(newGroup);
                     that.graphData.dynamicGroups.push(newGroup);
                     that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
+                    toggleNeuroView(false, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
                 }
             })
         }

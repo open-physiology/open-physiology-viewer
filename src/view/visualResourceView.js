@@ -21,7 +21,7 @@ VisualResource.prototype.createLabels = function(){
     if (!this.labels[labelKey] && this[labelKey] && !this.hidden) {
         this.labels[labelKey] = new SpriteText2D(this[labelKey], this.state.fontParams);
         this.labels[labelKey].material.alphaTest = .1;
-        // this.labels[labelKey].scale.set(.5, .5, .5)
+        // this.labels[labelKey].scale.set(2.5, 2.5, 2.5)
     }
 
     if (this.labels[labelKey] && !this.hidden){

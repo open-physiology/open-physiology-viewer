@@ -163,13 +163,15 @@ Lyph.prototype.autoSize = function(){
             if ( wiredTo ) {
                 // Place and scale lyph along wire
                 placeLyphInWire(this);
+                this.viewObjects["main"].scale.setX(2.5);
+                this.viewObjects["main"].scale.setY(2.5);
             }
         }
 
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
     } 
-    ( !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
+    ( !this.housingLyph && !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
 };
 
 /**
@@ -430,7 +432,7 @@ Region.prototype.createViewObjects = function(state) {
         this.updatePoints(state.edgeResolution);
         let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
         let obj = createMeshWithBorder(shape, {
-                color: this.color,
+                color: "#ccebfa",
                 polygonOffsetFactor: this.polygonOffsetFactor
             },
             !this.facets // draw border if region is not defined by facets (e.g., to distinguish regions in connectivity models)

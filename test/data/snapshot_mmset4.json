@@ -1210,7 +1210,7 @@
       },
       "layout": {
         "showLyphs": true,
-        "showLayers": true,
+        "showLayers": false,
         "showLyphs3d": false,
         "showCoalescences": false,
         "numDimensions": 3,
@@ -1219,7 +1219,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -2416,7 +2416,7 @@
       },
       "layout": {
         "showLyphs": true,
-        "showLayers": true,
+        "showLayers": false,
         "showLyphs3d": false,
         "showCoalescences": false,
         "numDimensions": 3,
@@ -2425,7 +2425,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -3622,7 +3622,7 @@
       },
       "layout": {
         "showLyphs": true,
-        "showLayers": true,
+        "showLayers": false,
         "showLyphs3d": false,
         "showCoalescences": false,
         "numDimensions": 3,
@@ -3631,7 +3631,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -4827,7 +4827,7 @@
       },
       "layout": {
         "showLyphs": true,
-        "showLayers": true,
+        "showLayers": false,
         "showLyphs3d": false,
         "showCoalescences": false,
         "numDimensions": 3,
@@ -4836,7 +4836,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,
@@ -6032,7 +6032,7 @@
       },
       "layout": {
         "showLyphs": true,
-        "showLayers": true,
+        "showLayers": false,
         "showLyphs3d": false,
         "showCoalescences": false,
         "numDimensions": 3,
@@ -6041,7 +6041,7 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": true,
+        "Anchor": false,
         "Node": false,
         "Link": false,
         "Lyph": true,

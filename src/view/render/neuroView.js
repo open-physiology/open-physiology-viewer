@@ -499,7 +499,7 @@ export const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) 
     hideVisibleGroups(filteredGroups, groups, visible, toggleGroup);
   } else {
     filteredGroups?.forEach(group => { 
-      group.lyphs.forEach( lyph => {
+      group?.lyphs.forEach( lyph => {
         lyph.hidden = false;
         lyph.inactive = false;
       });
@@ -599,8 +599,8 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
 }
 
 export const toggleNeuroView = (visible, activeGroups, dynamicGroups, scaffolds, toggleGroup) => {
-   let groups = activeGroups.filter((g) => g.hidden == false);
-   let visibleGroups = dynamicGroups.filter( dg => !dg.hidden );
+   let groups = activeGroups.filter((g) => g?.hidden == false);
+   let visibleGroups = dynamicGroups.filter( dg => !dg?.hidden );
    console.log("Groups ", groups)
    console.log("visibleGroups ", visibleGroups)
    handleNeuroView(visibleGroups, groups, scaffolds, visible, toggleGroup);
