@@ -1226,12 +1226,12 @@
         "Region": false
       },
       "labelContent": {
-        "Wire": "id",
+        "Wire": "name",
         "Anchor": "id",
         "Node": "id",
         "Link": "id",
-        "Lyph": "id",
-        "Region": "id"
+        "Lyph": "name",
+        "Region": "name"
       }
     },
     {
@@ -2432,12 +2432,12 @@
         "Region": false
       },
       "labelContent": {
-        "Wire": "id",
+        "Wire": "name",
         "Anchor": "id",
         "Node": "id",
         "Link": "id",
-        "Lyph": "id",
-        "Region": "id"
+        "Lyph": "name",
+        "Region": "name"
       }
     },
     {
@@ -3638,12 +3638,12 @@
         "Region": false
       },
       "labelContent": {
-        "Wire": "id",
+        "Wire": "name",
         "Anchor": "id",
         "Node": "id",
         "Link": "id",
-        "Lyph": "id",
-        "Region": "id"
+        "Lyph": "name",
+        "Region": "name"
       }
     },
     {
@@ -4843,12 +4843,12 @@
         "Region": false
       },
       "labelContent": {
-        "Wire": "id",
+        "Wire": "name",
         "Anchor": "id",
         "Node": "id",
         "Link": "id",
-        "Lyph": "id",
-        "Region": "id"
+        "Lyph": "name",
+        "Region": "name"
       }
     },
     {
@@ -6048,12 +6048,12 @@
         "Region": false
       },
       "labelContent": {
-        "Wire": "id",
+        "Wire": "name",
         "Anchor": "id",
         "Node": "id",
         "Link": "id",
-        "Lyph": "id",
-        "Region": "id"
+        "Lyph": "name",
+        "Region": "name"
       }
     },
     {
@@ -7254,12 +7254,12 @@
         "Region": false
       },
       "labelContent": {
-        "Wire": "id",
+        "Wire": "name",
         "Anchor": "id",
         "Node": "id",
         "Link": "id",
-        "Lyph": "id",
-        "Region": "id"
+        "Lyph": "name",
+        "Region": "name"
       }
     }
   ]
