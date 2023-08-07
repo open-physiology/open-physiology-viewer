@@ -318,9 +318,7 @@ Link.prototype.updateViewObjects = function(state) {
 
                         // For Links with source/target nodes at center of lyph, create some space from center
                         let newStart = start;
-                        this.source.internalIn && neurulated ? newStart = pointAlongLine(start, end, .05) : null;
                         let newEnd = end;
-                        this.target.internalIn && neurulated ? newEnd = pointAlongLine(start, end, .95) : null;
 
                         let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(newStart.y) - Math.abs(newEnd.y)));
                         let centerPoint = getDefaultControlPoint(newStart, newEnd, curvature)

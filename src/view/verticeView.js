@@ -130,11 +130,7 @@ Node.prototype.updateViewObjects = function(state) {
                     }
                 }
             } else {
-                if ( this.cloneOf ){
-                    copyCoords(this, this.cloneOf);
-                } else {
-                    copyCoords(this, this.hostedBy);
-                }
+                copyCoords(this, this.hostedBy);
             }
         } else if (this.internalIn && neurulated) {
             let housingLyph = this.internalIn;
