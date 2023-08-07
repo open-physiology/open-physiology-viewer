@@ -1188,7 +1188,7 @@ export class SettingsPanel {
       this._labelClasses = this._config[$Field.labels]::keys();
       let ids = this._config.visibleGroups || [];
       this._showGroups = new Set(
-        (this.groups||[]).filter((g) => ids.includes(g.id))
+        (this.groups||[]).filter((g) => ids.includes(g?.id))
       );
     }
     this.neuroViewEnabled =  this.config.layout.neuroviewEnabled;

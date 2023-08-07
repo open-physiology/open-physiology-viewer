@@ -53,7 +53,8 @@ export function buildNeurulatedTriplets(group) {
 
   neuronTriplets.y = neuronTriplets.y.concat(updatedLyphs);
   neuronTriplets.y = neuronTriplets.y.filter((v,i,a)=>a.findIndex(v2=>(v.id === v2.id))===i);
-  
+  neuronTriplets.y = neuronTriplets.y.filter((y)=> y?.hostedBy?.class !== "Lyph");
+
   let housingLyphsInChains = housingLyphs?.filter((h) => h?.axis?.levelIn);
 
   let housingChains = [
