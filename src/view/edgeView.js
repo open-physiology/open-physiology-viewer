@@ -455,7 +455,9 @@ Wire.prototype.updateViewObjects = function(state) {
 
     });
 
-    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge),this.viewObjects["main"]);
+    let position = pointAlongLine(start, end, .5);
+
+    this.updateLabels(position.clone().addScalar(this.state.labelOffset.Edge),this.viewObjects["main"]);
 
     if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
 

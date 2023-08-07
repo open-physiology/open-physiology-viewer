@@ -53,7 +53,6 @@ export function buildNeurulatedTriplets(group) {
 
   neuronTriplets.y = neuronTriplets.y.concat(updatedLyphs);
   neuronTriplets.y = neuronTriplets.y.filter((v,i,a)=>a.findIndex(v2=>(v.id === v2.id))===i);
-  neuronTriplets.y = neuronTriplets.y.filter((y)=> y?.hostedBy?.class !== "Lyph");
 
   let housingLyphsInChains = housingLyphs?.filter((h) => h?.axis?.levelIn);
 
@@ -548,6 +547,7 @@ export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, fi
   neuronTriplets.links?.forEach( l => l.neurulated = true );
   neuronTriplets.x?.forEach( l => l.neurulated = true );
   neuronTriplets.y?.forEach( l => l.neurulated = true );
+  
   let activeNeurulatedGroups = [];
   activeNeurulatedGroups.push(group);
   findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);

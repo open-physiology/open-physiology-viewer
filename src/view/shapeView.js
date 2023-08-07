@@ -171,6 +171,9 @@ Lyph.prototype.autoSize = function(){
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
     } 
+    if ( this.hostedBy?.class =="Lyph" ) {
+        this.viewObjects["main"].visible = false;
+    }
     ( !this.housingLyph && !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
 };
 

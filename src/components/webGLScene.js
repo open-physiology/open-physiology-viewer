@@ -266,7 +266,6 @@ export class WebGLSceneComponent {
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
-                  that.showPanel = true;
                   that.loading = false;
                   that.refreshSettings = false;
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
@@ -681,7 +680,7 @@ export class WebGLSceneComponent {
     }
 
     resetCamera(positionPoint, lookupPoint) {
-        let position = [0, -100, 120 * this.scaleFactor];
+        let position = [0, -60, 40 * this.scaleFactor];
         let lookup =  [0, 0, 1];
         ["x", "y", "z"].forEach((dim, i) => {
             if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
