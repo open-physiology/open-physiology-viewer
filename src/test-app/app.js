@@ -631,7 +631,7 @@ export class TestApp {
         if (activeState.camera) {
             console.log("Camera position ", this._snapshot.camera.position)
             this._webGLScene.camera.rotation.fromArray(this._snapshot.camera.rotation);
-            this._webGLScene.resetCamera(this._snapshot.active.camera.position);
+            this._webGLScene.resetCamera();
             this._webGLScene.controls?.update();
         }
         this._config = {};
