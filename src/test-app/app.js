@@ -616,7 +616,7 @@ export class TestApp {
             },
             [$Field.layout]: this._config.layout::cloneDeep(),
             [$Field.showLabels]: this._config.showLabels::cloneDeep(),
-            [$Field.labelContent]: this._config.labels::cloneDeep()
+            [$Field.labelContent]: this._config.labelContent::cloneDeep()
         }::merge(this._graphData.getCurrentState());
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }

@@ -383,7 +383,7 @@ export class WebGLSceneComponent {
                 [$SchemaClass.Anchor]: $Field.id,
                 [$SchemaClass.Node]  : $Field.id,
                 [$SchemaClass.Link]  : $Field.id,
-                [$SchemaClass.Lyph]  : $Field.id,
+                [$SchemaClass.Lyph]  : $Field.name,
                 [$SchemaClass.Region]: $Field.id
             },
             groups      : true,
