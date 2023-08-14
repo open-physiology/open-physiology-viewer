@@ -23,7 +23,7 @@ steps:
         dockerfile: Dockerfile
         working_directory: ./open-physiology-viewer
         buildkit: true    
-        registry: "${{REGISTRY}}"
+        registry: "${{CODEFRESH_REGISTRY}}"
       # test_build:
       #   stage: "test"
       #   type: "build"
