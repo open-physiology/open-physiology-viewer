@@ -24,16 +24,16 @@ steps:
         working_directory: ./open-physiology-viewer
         buildkit: true    
         registry: "${{CODEFRESH_REGISTRY}}"
-      test_build:
-        stage: "test"
-        type: "build"
-        title: "Building Apinatomy test image"
-        image_name: "apinatomy-test"
-        tag: "${{CF_BUILD_ID}}"
-        working_directory: ./open-physiology-viewer
-        dockerfile: Dockerfile.testing
-        buildkit: true
-        registry: "${{CODEFRESH_REGISTRY}}"
+      # test_build:
+      #   stage: "test"
+      #   type: "build"
+      #   title: "Building Apinatomy test image"
+      #   image_name: "apinatomy-test"
+      #   tag: "${{CF_BUILD_ID}}"
+      #   working_directory: ./open-physiology-viewer
+      #   dockerfile: Dockerfile.testing
+      #   buildkit: true
+      #   registry: "${{CODEFRESH_REGISTRY}}"
   # test:
   #   type: composition
   #   title: Running Tests
