@@ -189,7 +189,7 @@ export default Kapsule({
         labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize     : { default: 0.005},
         labelOffset      : { default: {Vertice: 1, Edge: 1, Lyph: .5, Region: .5}},
-        fontParams       : { default: { font: '10px Arial', fillStyle: '#000000' , antialias: true}},
+        fontParams       : { default: { font: '16px Arial', fillStyle: '#000000' , antialias: true}},
 
         d3AlphaDecay     : { default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},
         d3AlphaTarget    : { default: 0}, //triggerUpdate: false, onChange(alphaTarget, state) { state.simulation.alphaTarget(alphaTarget) }},

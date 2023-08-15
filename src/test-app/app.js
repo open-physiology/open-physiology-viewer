@@ -36,6 +36,7 @@ import {
 
 import 'hammerjs';
 import initModel from '../data/graph.json';
+import {HttpClient} from "@angular/common/http";
 
 import "./styles/material.scss";
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -295,7 +296,8 @@ export class TestApp {
     @ViewChild('webGLScene') _webGLScene: ElementRef;
     @ViewChild('jsonEditor') _container: ElementRef;
 
-    constructor(dialog: MatDialog){
+    constructor(http: HttpClient, dialog: MatDialog){
+        this._http = http;
         this.model = initModel;
         this._dialog = dialog;
         this._flattenGroups = false;
@@ -306,15 +308,16 @@ export class TestApp {
     }
 
     loadModelFromURL(url) {
-      fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        this.load(data)
-      })
-      .catch(error => {
-        // Handle any errors that occur during the fetch request
-        console.log('Error:', error);
-      });
+        this._http.get(url,{responseType: 'arraybuffer'}).subscribe(
+            res => {
+                let model = loadModel(res,  ".xlsx", "xlsx");
+                this.load(model)
+            },
+            err => {
+                console.error(err);
+                throw new Error("Failed to import Google spreadsheet model!");
+            }
+        );
     }
 
     ngAfterViewInit(){
@@ -613,7 +616,7 @@ export class TestApp {
             },
             [$Field.layout]: this._config.layout::cloneDeep(),
             [$Field.showLabels]: this._config.showLabels::cloneDeep(),
-            [$Field.labelContent]: this._config.labels::cloneDeep()
+            [$Field.labelContent]: this._config.labelContent::cloneDeep()
         }::merge(this._graphData.getCurrentState());
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
@@ -628,7 +631,7 @@ export class TestApp {
         if (activeState.camera) {
             console.log("Camera position ", this._snapshot.camera.position)
             this._webGLScene.camera.rotation.fromArray(this._snapshot.camera.rotation);
-            this._webGLScene.resetCamera(this._snapshot.active.camera.position);
+            this._webGLScene.resetCamera();
             this._webGLScene.controls?.update();
         }
         this._config = {};

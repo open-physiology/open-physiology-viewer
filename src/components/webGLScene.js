@@ -239,7 +239,7 @@ export class WebGLSceneComponent {
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
-    labelRelSize   = 0.02 * this.scaleFactor;
+    labelRelSize   = 0.08 * this.scaleFactor;
     lockControls   = false;
     isConnectivity = true;
 
@@ -266,7 +266,6 @@ export class WebGLSceneComponent {
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
-                  that.showPanel = true;
                   that.loading = false;
                   that.refreshSettings = false;
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
@@ -384,7 +383,7 @@ export class WebGLSceneComponent {
                 [$SchemaClass.Anchor]: $Field.id,
                 [$SchemaClass.Node]  : $Field.id,
                 [$SchemaClass.Link]  : $Field.id,
-                [$SchemaClass.Lyph]  : $Field.id,
+                [$SchemaClass.Lyph]  : $Field.name,
                 [$SchemaClass.Region]: $Field.id
             },
             groups      : true,
@@ -681,7 +680,7 @@ export class WebGLSceneComponent {
     }
 
     resetCamera(positionPoint, lookupPoint) {
-        let position = [0, -100, 120 * this.scaleFactor];
+        let position = [0, -60, 40 * this.scaleFactor];
         let lookup =  [0, 0, 1];
         ["x", "y", "z"].forEach((dim, i) => {
             if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
@@ -705,6 +704,7 @@ export class WebGLSceneComponent {
 
     showVisibleGroups(visibleGroups, neuroviewEnabled){
         this.refreshSettings = true;
+        this.loading = true;
         let that = this;
         let visible = true;
         if (neuroviewEnabled) {
@@ -717,19 +717,22 @@ export class WebGLSceneComponent {
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
                 if ( group ) {
-                    toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
+                    let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
                     const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
                     matchScaffolds?.forEach( r => r.hidden = true );
 
                     matchScaffolds?.forEach((scaffold) => {
                         that.toggleGroup(scaffold);
                     });
-
+                    that.graphData.groups.push(newGroup);
+                    that.graphData.dynamicGroups.push(newGroup);
                     that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
-                    that.refreshSettings = false;
+                    toggleNeuroView(false, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
                 }
             })
-        } 
+        }
+        this.graph.graphData(this.graphData); 
+        this.refreshSettings = false;
         this.loading = false;
     }
 
@@ -910,6 +913,7 @@ export class WebGLSceneComponent {
           if ( !group?.hidden && !group?.cloneOf ) {
             let neuroTriplets = buildNeurulatedTriplets(group); 
             visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+            visibleLinks = visibleLinks?.filter( l => (l.id.match(/_clone/g) || []).length <= 1 );
             bigLyphs = neuroTriplets.y;
           }
         }

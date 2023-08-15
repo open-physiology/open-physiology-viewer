@@ -80,7 +80,7 @@ Node.prototype.updateViewObjects = function(state) {
     } else {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
-        } else if (this.hostedBy) {
+        } else if (this.hostedBy ) {
             if ( neurulated ) {
                 let hostedBy = this.hostedBy;
                 if ( hostedBy.onBorder ){

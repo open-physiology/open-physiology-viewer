@@ -15,7 +15,8 @@ import {
     isInternalLyph,
     THREE
 } from "./utils";
-import { DIMENSIONS, placeLyphInWire, placeLyphInHost } from "./render/autoLayout";
+import { getBoundingBoxSize } from "./render/autoLayout/objects";
+import { DIMENSIONS, placeLyphInWire, placeLyphInHost,pointAlongLine } from "./render/autoLayout";
 
 const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
 
@@ -162,18 +163,18 @@ Lyph.prototype.autoSize = function(){
             if ( wiredTo ) {
                 // Place and scale lyph along wire
                 placeLyphInWire(this);
+                this.viewObjects["main"].scale.setX(2.5);
+                this.viewObjects["main"].scale.setY(2.5);
             }
         }
 
         // save position into object
         copyCoords(this, this.viewObjects["main"]?.position);  
-    } else if (this.viewObjects["main"] && !this.neurulated ) {
-        this.viewObjects["main"].scale.setX(this.prevScaleX);
-        this.viewObjects["main"].scale.setY(this.prevScaleY);
-        this.viewObjects["main"].scale.setZ(this.prevScaleZ);
-        copyCoords(this, new THREE.Vector3(this.prevX, this.prevY, this.prevZ));
+    } 
+    if ( this.hostedBy?.class =="Lyph" ) {
+        this.viewObjects["main"].visible = false;
     }
-    ( !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
+    ( !this.housingLyph && !this.housingLyph && this.viewObjects["main"]?.position ) && this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Lyph), this.viewObjects["main"]);
 };
 
 /**
@@ -288,7 +289,6 @@ Lyph.prototype.createViewObjects = function(state) {
 
     //Do not create labels for layers and nested lyphs
     if ( !terminalLyph ) {
-        console.log("Label for ", this.id)
         this.createLabels();
     }
 };
@@ -325,7 +325,6 @@ Lyph.prototype.updateViewObjects = function(state) {
         obj.visible = !this.hidden;
         this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
 
-        !this.hidden && copyCoords(obj.position, this.center);
 
         //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
         //preventing this
@@ -337,6 +336,25 @@ Lyph.prototype.updateViewObjects = function(state) {
     } else {
         obj.visible = this.state.showLayers;
     }
+    !this.hidden && copyCoords(obj.position, this.center);
+
+    if ( this.conveys?.viewObjects["main"] ){
+        let centerPoint = pointAlongLine(this.conveys.points[0], this.conveys.points[this.conveys.points.length - 1], .5)
+        obj.position.x = centerPoint.x;
+        obj.position.y = centerPoint.y;
+        obj.position.z = centerPoint.z + .1;
+        !this.hidden && copyCoords(this, obj.position);
+        this.conveys.viewObjects["main"].computeLineDistances();
+        let ld = this.conveys.viewObjects["main"].geometry.getAttribute("lineDistance");
+        let idealSize = ld.getX(ld.count - 1) / 3;
+        let sourceSize =  getBoundingBoxSize(obj);
+        let sx = 1, sy = 1;
+        sx = ( idealSize / 2 / sourceSize.x );
+        sy = ( idealSize / sourceSize.y );
+        obj.scale.setX(sx);
+        obj.scale.setY(sy);
+    }
+
     obj.geometry.computeBoundingSphere();
     //update layers
     (this.layers || []).forEach(layer => layer.updateViewObjects(state));
@@ -417,7 +435,7 @@ Region.prototype.createViewObjects = function(state) {
         this.updatePoints(state.edgeResolution);
         let shape = new THREE.Shape(this.points.map(p => new THREE.Vector2(p.x, p.y))); //Expects Vector2
         let obj = createMeshWithBorder(shape, {
-                color: this.color,
+                color: "#ccebfa",
                 polygonOffsetFactor: this.polygonOffsetFactor
             },
             !this.facets // draw border if region is not defined by facets (e.g., to distinguish regions in connectivity models)
