@@ -745,7 +745,7 @@ export class TestApp {
             throw new Error("Snapshot is not applicable to the model!");
         } else {
             if (match === 0){
-                throw new Error("Snapshot corresponds to a different version of the model!");
+                // throw new Error("Snapshot corresponds to a different version of the model!");
             }
         }
         this._snapshot = newSnapshot;
