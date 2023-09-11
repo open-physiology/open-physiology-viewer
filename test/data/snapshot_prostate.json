@@ -23,8 +23,8 @@
   "model": "sparc-nlp",
   "annotation": {
     "namespace": "nlp",
-    "schemaVersion": "dcb30ab7f02e06e7628787d9419bde8c2c4d593a",
-    "version": "fb58e67d4e21acc4eb0826be7e27a1f17dd4988e",
+    "schemaVersion": "e0dba87327205156ed4e89dc42b1ab036d6a4465",
+    "version": "60cd36aaf21e10dcdb3fe08ec38823fb81d1a1e9",
     "author": "Natallia Kokash"
   },
   "states": [
