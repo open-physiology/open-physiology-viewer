@@ -970,72 +970,73 @@ export class WebGLSceneComponent {
     updateVariance(clade){
         //The current model is general, we can alter it without regeneration
         if (this._graphData){
-            //TODO there may be multiple variances with the given clade
-            let variance = (this._graphData.varianceSpecs||[]).find(vs => (vs.clades||[]).find(c => c === clade || c.id && c.id === clade));
+            //We find the first variance with given clade and presence set to 'absent'
+            let variance = (this._graphData.varianceSpecs||[]).find(vs =>
+                vs.presence && vs.presence === VARIANCE_PRESENCE.ABSENT
+                && (vs.clades||[]).find(c => c === clade || c.id && c.id === clade));
             if (!variance){
                 return;
             }
             this._graphData.variance = variance;
             this._graphData.clade = clade;
 
-            if (variance.presence && variance.presence === VARIANCE_PRESENCE.ABSENT) {
-                let relevantLyphs = [];
-                (this._graphData.lyphs || []).forEach(lyph => {
-                    if ((lyph.varianceSpecs || []).find(vs => vs.id === variance.id)) {
-                        relevantLyphs.push(lyph);
-                    }
-                });
-                let lyphsToRemove = {
-                    templates: [],
-                    layers: [],
-                    lyphs: []
+            let relevantLyphs = [];
+            (this._graphData.lyphs || []).forEach(lyph => {
+                if ((lyph.varianceSpecs || []).find(vs => vs.id === variance.id)) {
+                    relevantLyphs.push(lyph);
                 }
-                let removed = [];
-                relevantLyphs.forEach(lyph => {
-                    if (lyph.isTemplate){
-                        lyphsToRemove.templates.push(lyph);
-                    } else {
-                        if (lyph.layerIn) {
-                            lyphsToRemove.layers.push(lyph);
-                        } else {
-                            lyphsToRemove.lyphs.push(lyph);
-                        }
-                    }
-                });
-
-                if (lyphsToRemove.templates.length > 0){
-                    this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_TEMPLATES, lyphsToRemove.templates.map(e => e.fullID));
-                }
-                if (lyphsToRemove.layers.length > 0){
-                    //There will be  problem as we do not update lyph visuals
-                    this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_LAYERS, lyphsToRemove.templates.map(e => e.fullID));
-                }
-
-                lyphsToRemove.lyphs.forEach(lyph => {
-                    removed = removed::union(this._graphData.removeLyph(lyph));
-                });
-                this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
-                this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
-
-                if ((this.scene.children||[]).length > 0) {
-                    removed.forEach(lyph => {
-                        (lyph.viewObjects||{})::values().forEach(viewObj => {
-                            const object = this.scene.getObjectByProperty( 'uuid', viewObj.uuid);
-                            if (object) {
-                                object.visible = false;
-                                object.geometry.dispose();
-                                object.material.dispose();
-                                this.scene.remove(object);
-                            } else {
-                                this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
-                            }
-                        });
-                    });
-                    this.renderer.dispose();
-                }
-                this.graph.graphData(this._graphData);
-                this.varianceUpdated.emit(clade, variance);
+            });
+            let lyphsToRemove = {
+                templates: [],
+                layers: [],
+                lyphs: []
             }
+            let removed = [];
+
+            relevantLyphs.forEach(lyph => {
+                if (lyph.isTemplate){
+                    lyphsToRemove.templates.push(lyph);
+                } else {
+                    if (lyph.layerIn) {
+                        lyphsToRemove.layers.push(lyph);
+                    } else {
+                        lyphsToRemove.lyphs.push(lyph);
+                    }
+                }
+            });
+
+            if (lyphsToRemove.templates.length > 0){
+                this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_TEMPLATES, lyphsToRemove.templates.map(e => e.fullID));
+            }
+            if (lyphsToRemove.layers.length > 0){
+                //There will be  problem as we do not update lyph visuals
+                this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_LAYERS, lyphsToRemove.templates.map(e => e.fullID));
+            }
+
+            lyphsToRemove.lyphs.forEach(lyph => {
+                removed = removed::union(this._graphData.removeLyph(lyph));
+            });
+            this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
+            this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
+
+            if ((this.scene.children||[]).length > 0) {
+                removed.forEach(lyph => {
+                    (lyph.viewObjects||{})::values().forEach(viewObj => {
+                        const object = this.scene.getObjectByProperty( 'uuid', viewObj.uuid);
+                        if (object) {
+                            object.visible = false;
+                            object.geometry.dispose();
+                            object.material.dispose();
+                            this.scene.remove(object);
+                        } else {
+                            this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
+                        }
+                    });
+                });
+                this.renderer.dispose();
+            }
+            this.graph.graphData(this._graphData);
+            this.varianceUpdated.emit(clade, variance);
         }
     }
 

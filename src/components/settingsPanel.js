@@ -23,7 +23,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatSelectModule} from "@angular/material/select";
-import { SNAPSHOT_STATE_CHANGED } from "./../view/utils"
 /**
  * @ignore
  */

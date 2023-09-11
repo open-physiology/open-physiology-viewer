@@ -52,9 +52,10 @@ import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
-import { removeDisconnectedObjects } from '../../src/view/render/autoLayout'
-import {MaterialEditorModule} from "../components/gui/materialEditor";
+import {removeDisconnectedObjects} from '../../src/view/render/autoLayout'
+import {MaterialEditorModule} from "../components/materialEditor";
 import {GRAPH_LOADED} from '../../src/view/utils';
+import {LyphEditorModule} from "../components/lyphEditor";
 
 enableProdMode();
 
@@ -217,8 +218,19 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 <!--Material editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
                     <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Material editor </ng-template>
-                    <materialEditor [model]="_model"> 
+                    <materialEditor 
+                            [model]="_model"
+                            (onChangesSave)="applyEditorChanges($event)"> 
                     </materialEditor> 
+                </mat-tab>
+
+                <!--Lyph editor-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
+                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Lyph editor </ng-template>
+                    <lyphEditor 
+                            [model]="_model"
+                            (onChangesSave)="applyEditorChanges($event)"> 
+                    </lyphEditor> 
                 </mat-tab>
             </mat-tab-group>
         </section>
@@ -501,6 +513,11 @@ export class TestApp {
         }
     }
 
+    applyEditorChanges(newModel){
+        this._model = newModel;
+        this.applyChanges();
+    }
+
     applyChanges(){
         logger.clear();
         this._graphData = generateFromJSON({"id": "Empty"});
@@ -753,7 +770,8 @@ export class TestApp {
 	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, ResourceEditorModule,
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
-        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule],
+        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
+        LyphEditorModule],
 	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog, ResourceEditorDialog],
