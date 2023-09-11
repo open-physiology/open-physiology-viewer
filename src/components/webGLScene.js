@@ -1052,6 +1052,8 @@ export class WebGLSceneComponent {
             if (sParameterName[0] === sParam) {
                 return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
             }
+            this.graph.graphData(this._graphData);
+            this.varianceUpdated.emit(clade, variance);
         }
         return false;
     }
