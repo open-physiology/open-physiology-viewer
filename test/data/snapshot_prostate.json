@@ -1,18 +1,18 @@
 {
   "camera": {
     "position": [
-      0,
-      -100.0000000000008,
-      1199.9999999999986
+      -0.000009879661995655565,
+      -0.0004043542905662889,
+      404.47496832291574
     ],
     "rotation": [
-      0.08314123188844198,
-      0,
-      0,
+      9.997016434483897e-7,
+      -2.4425892253888807e-8,
+      -0.024428321751128936,
       "XYZ"
     ],
     "fov": 70,
-    "aspect": 1.7227564102564104,
+    "aspect": 2.4084033613445377,
     "near": 10,
     "far": 4000
   },
@@ -23,8 +23,8 @@
   "model": "sparc-nlp",
   "annotation": {
     "namespace": "nlp",
-    "schemaVersion": "da645b92a9a8f8dd8343d8346a6aad356a61c755",
-    "version": "42d66582bf1f69d8d53201e4b77059b161c28f69",
+    "schemaVersion": "dcb30ab7f02e06e7628787d9419bde8c2c4d593a",
+    "version": "fb58e67d4e21acc4eb0826be7e27a1f17dd4988e",
     "author": "Natallia Kokash"
   },
   "states": [
@@ -1197,9 +1197,9 @@
       ],
       "camera": {
         "position": {
-          "x": 0.12668318482449584,
-          "y": -5.43754604922961,
-          "z": 410.0544328858472
+          "x": -288.951429584074,
+          "y": 104.71909979317219,
+          "z": 404.47506595552653
         },
         "up": {
           "x": 0,
@@ -1218,19 +1218,11 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": false,
+        "Anchor": true,
         "Node": false,
         "Link": false,
         "Lyph": true,
         "Region": false
-      },
-      "labelContent": {
-        "Wire": "name",
-        "Anchor": "id",
-        "Node": "id",
-        "Link": "id",
-        "Lyph": "name",
-        "Region": "name"
       }
     },
     {
@@ -2402,9 +2394,9 @@
       ],
       "camera": {
         "position": {
-          "x": 0.21158404722090102,
-          "y": -9.081694635627116,
-          "z": 684.8657666043628
+          "x": -288.951429584074,
+          "y": 104.71909979317216,
+          "z": 404.47506595550533
         },
         "up": {
           "x": 0,
@@ -2423,19 +2415,11 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": false,
+        "Anchor": true,
         "Node": false,
         "Link": false,
         "Lyph": true,
         "Region": false
-      },
-      "labelContent": {
-        "Wire": "name",
-        "Anchor": "id",
-        "Node": "id",
-        "Link": "id",
-        "Lyph": "name",
-        "Region": "name"
       }
     },
     {
@@ -3607,9 +3591,9 @@
       ],
       "camera": {
         "position": {
-          "x": 0.2115840472209281,
-          "y": -9.081694635627116,
-          "z": 684.8657666043628
+          "x": -288.951429584074,
+          "y": 104.71909979317216,
+          "z": 404.4750659554869
         },
         "up": {
           "x": 0,
@@ -3628,19 +3612,11 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": false,
+        "Anchor": true,
         "Node": false,
         "Link": false,
         "Lyph": true,
         "Region": false
-      },
-      "labelContent": {
-        "Wire": "name",
-        "Anchor": "id",
-        "Node": "id",
-        "Link": "id",
-        "Lyph": "name",
-        "Region": "name"
       }
     },
     {
@@ -4812,9 +4788,9 @@
       ],
       "camera": {
         "position": {
-          "x": 0.21158404722095203,
-          "y": -9.081694635627116,
-          "z": 684.8657666043628
+          "x": -288.9514295836349,
+          "y": 104.7190998111454,
+          "z": 404.47506595547344
         },
         "up": {
           "x": 0,
@@ -4833,19 +4809,11 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": false,
+        "Anchor": true,
         "Node": false,
         "Link": false,
         "Lyph": true,
         "Region": false
-      },
-      "labelContent": {
-        "Wire": "name",
-        "Anchor": "id",
-        "Node": "id",
-        "Link": "id",
-        "Lyph": "name",
-        "Region": "name"
       }
     },
     {
@@ -6017,9 +5985,9 @@
       ],
       "camera": {
         "position": {
-          "x": 0.2115840472209797,
-          "y": -9.081694635627116,
-          "z": 684.8657666043628
+          "x": -288.951429584074,
+          "y": 104.71909979317216,
+          "z": 404.47506595545985
         },
         "up": {
           "x": 0,
@@ -6038,19 +6006,11 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": false,
+        "Anchor": true,
         "Node": false,
         "Link": false,
         "Lyph": true,
         "Region": false
-      },
-      "labelContent": {
-        "Wire": "name",
-        "Anchor": "id",
-        "Node": "id",
-        "Link": "id",
-        "Lyph": "name",
-        "Region": "name"
       }
     },
     {
@@ -7222,9 +7182,9 @@
       ],
       "camera": {
         "position": {
-          "x": 0.2115840472209997,
-          "y": -9.081694635627116,
-          "z": 684.8657666043628
+          "x": -288.951429584074,
+          "y": 104.71909979317216,
+          "z": 404.475065955444
         },
         "up": {
           "x": 0,
@@ -7243,19 +7203,11 @@
       },
       "showLabels": {
         "Wire": false,
-        "Anchor": false,
+        "Anchor": true,
         "Node": false,
         "Link": false,
         "Lyph": true,
         "Region": false
-      },
-      "labelContent": {
-        "Wire": "name",
-        "Anchor": "id",
-        "Node": "id",
-        "Link": "id",
-        "Lyph": "name",
-        "Region": "name"
       }
     }
   ]
