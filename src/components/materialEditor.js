@@ -4,19 +4,23 @@ import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
 import {cloneDeep, omit, values, sortBy} from 'lodash-bound';
-import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs} from './gui/utils.js'
+import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs, COLORS} from './gui/utils.js'
 import FileSaver from 'file-saver';
-import {ResourceDeclarationModule, COLORS} from "./gui/resourceDeclarationEditor";
+import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
 import {$Field, $SchemaClass} from "../model";
-import {SearchBarModule} from "./gui/searchBar";
+import {SearchAddBarModule} from "./gui/searchAddBar";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 
-
 /**
  * @class
- *
+ * @property id
+ * @property parents
+ * @property children
+ * @property label
+ * @property type
+ * @property resource
  */
 export class Node {
     constructor(id, parents, children, label, type, resource) {
@@ -93,22 +97,13 @@ export class Edge {
                 </svg>
             </section>
             <section *ngIf="showPanel" class="w3-quarter">
-                <div class="settings-wrap">
-                    <div class="default-box pb-0">
-                        <div class="default-searchBar default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <searchBar [searchOptions]="_searchOptions"
-                                           (selectedItemChange)="selectBySearch($event)">
-                                </searchBar>
-                            </div>
-                        </div>
-                    </div>
-                    <button *ngIf="matToLink" (click)="linkMaterial(matToLink)" class="w3-right w3-hover-light-grey add-button">
-                        <i class="fa fa-add">
-                        </i>
-                    </button> 
-                </div>
+                <searchAddBar 
+                        [searchOptions]="_searchOptions"
+                        [selected]="matToLink"
+                        (selectedItemChange)="selectBySearch($event)"
+                        (addSelectedItem)="linkMaterial($event)"
+                >
+                </searchAddBar>                          
                 <resourceDeclaration
                         [resource]="selectedMaterial"
                         (onValueChange)="updateProperty($event)"
@@ -148,19 +143,7 @@ export class Edge {
     styles: [`
         .vertical-toolbar {
             width: 48px;
-        }
-        
-        .add-button {
-          width: 30px;
-          border: ${COLORS.inputBorderColor} 1px solid;
-          background: transparent;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-          padding: 0.525rem 0.625rem;
-          cursor: pointer;
-          margin-right: 1rem;
-        }
+        }       
         
         #materialEditorD3 {
             height: 100vh;
@@ -244,156 +227,6 @@ export class Edge {
         :host /deep/ path.link.hidden {
             stroke-width: 0;
         }
-
-        :host ::ng-deep .settings-wrap {
-            padding-bottom: 0.8rem;
-            margin-top: 0;
-            position: relative;
-        }
-
-       .default-box .default-box-header {
-          padding: 1.067rem;
-          display: flex;
-          align-items: center;
-        }
-
-        .default-box .default-box-header .search-bar {
-          flex-grow: 1;
-        }
-        
-        .pb-0 {
-          padding-bottom: 0 !important;
-        }
-        
-        .default-box .default-box-header .search-bar {
-          flex-grow: 1;
-        }
-        
-        .mat-form-field {
-          width: 100%;
-        }
-
-        .search-bar .mat-form-field {
-          display: block;
-          width: 100%;
-        }
-
-        .search-bar .mat-form-field-underline {
-          display: none;
-        }
-
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-infix {
-          padding: 0;
-          width: 100%;
-          margin: 0;
-          border: none;
-        }
-
-        .search-bar input.mat-input-element {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
-
-        .search-bar .search-input {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          display: block;
-          width: 100%;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
-
-        .search-bar {
-          position: relative;
-        }
-
-        .search-bar img {
-          position: absolute;
-          left: 0.534rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: ${COLORS.inputTextColor};
-          font-size: 0.934rem;
-        }
-
-        .search-bar img.input-clear {
-          right: 0.534rem;
-          cursor: pointer;
-          left: auto;
-        }
-
-        .search-bar .search-input:focus {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
-
-        .search-bar .search-input::placeholder {
-          color: ${COLORS.inputPlacholderColor};
-        }
-        
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-underline {
-          display: none;
-        }
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-        :host >>> .default-searchBar .mat-form-field-should-float .mat-form-field-label {
-          display: none !important;
-        }
-        :host >>> .default-searchBar .search-bar img {
-          z-index: 10;
-        }
-        :host >>> .default-searchBar .mat-form-field-label {
-          padding-left: 1.625rem;
-          top: 1.5em;
-          color: ${COLORS.inputPlacholderColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-        :host >>> .default-searchBar .mat-form-field-infix {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0.5rem 2rem 0 2rem;
-        }
-        :host >>> .default-searchBar .mat-focused .mat-form-field-infix {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
-        
-        :host >>> .default-searchBar .search-bar img {
-          z-index: 10;
-        }
-
     `]
 })
 /**
@@ -446,11 +279,11 @@ export class DagViewerD3Component {
 
     constructor(snackBar: MatSnackBar) {
         this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-yellow'];
+        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
     }
 
     updateSearchOptions() {
-        this._searchOptions = (this._model.materials || []).map(e => e.name + ' (' + e.id + ')');
+        this._searchOptions = (this._model.materials || []).map(e => (e.name || '?') + ' (' + e.id + ')');
         this._searchOptions = this._searchOptions.concat((this._model.lyphs || []).map(e => e.name + ' (' + e.id + ')'));
         this._searchOptions.sort();
     }
@@ -653,7 +486,6 @@ export class DagViewerD3Component {
 
     appendEdgeEvents(edges) {
         edges
-            .on('click', d => this.onEdgeClick(d))
             .on('contextmenu', d => this.onEdgeRightClick(d));
     }
 
@@ -771,11 +603,10 @@ export class DagViewerD3Component {
                     this.saveStep("Name update " + value);
                 }
             }
+        } else {
+            let message = `Cannot update the property: material is not selected!`;
+            this._snackBar.open(message, "OK", this._snackBarConfig);
         }
-    }
-
-    onEdgeClick(d) {
-        // console.log("Clicked on: ", d);
     }
 
     onEdgeRightClick({v, w}) {
@@ -803,7 +634,6 @@ export class DagViewerD3Component {
                     d3.select(previous.elem).select("g rect").attr("stroke-width", null);
                 }
             }
-            let material = this.entitiesByID[nodeID];
             this._selectedNode = nodeID;
             let node = this.graphD3.node(nodeID);
             if (node) {
@@ -1106,7 +936,7 @@ export class DagViewerD3Component {
         }
     }
 
-    _cleanHelpers(){
+    cleanHelpers(){
         this.entitiesByID::values().forEach(obj => {
             //Clean up all helper mods
             delete obj._inMaterials;
@@ -1117,7 +947,7 @@ export class DagViewerD3Component {
     }
 
     saveChanges() {
-        this._cleanHelpers();
+        this.cleanHelpers();
         this.onChangesSave.emit(this._model);
     }
 
@@ -1179,7 +1009,7 @@ export class DagViewerD3Component {
 }
 
 @NgModule({
-    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchBarModule, MatButtonModule, MatDividerModule],
+    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule, MatDividerModule],
     declarations: [DagViewerD3Component],
     exports: [DagViewerD3Component]
 })

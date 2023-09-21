@@ -494,6 +494,15 @@ export class Lyph extends Shape {
                 });
             }
         });
+
+        //Add conveyed links
+        if (this.conveys){
+            group.links = group.links || [];
+            if (!group.contains(this.conveys)){
+                group.links.push(this.conveys);
+                this.conveys.hidden = group.hidden;
+            }
+        }
     }
 
     createAxis(modelClasses, entitiesByID, namespace) {

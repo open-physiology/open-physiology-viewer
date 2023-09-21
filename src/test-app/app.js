@@ -215,7 +215,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 
                 <!--Material editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Material editor </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor </ng-template>
                     <materialEditor 
                             [model]="_model"
                             (onChangesSave)="applyEditorChanges($event)"> 
@@ -224,7 +224,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
                 <!--Lyph editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Lyph editor </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor </ng-template>
                     <lyphEditor 
                             [model]="_model"
                             (onChangesSave)="applyEditorChanges($event)"> 
@@ -686,8 +686,7 @@ export class TestApp {
 	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, ResourceEditorModule,
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
-        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule],
+        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule, LyphEditorModule],
 	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog, ResourceEditorDialog],

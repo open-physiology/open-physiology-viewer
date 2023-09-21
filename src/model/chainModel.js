@@ -20,7 +20,7 @@ import {
     $Field,
     $Color,
     $Prefix,
-    $SchemaClass, genResource
+    $SchemaClass, genResource, findResourceByID
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, flatten, isString, values, merge} from 'lodash-bound';
@@ -352,7 +352,7 @@ export class Chain extends GroupTemplate {
 
             for (let i = 1; i < N; i++){
                 if (sources[i] && targets[i-1] && !compareResources(targets[i-1], sources[i])){
-                    logger.error($LogMsg.CHAIN_LEVEL_ERROR, i, targets[i-1], sources[i]);
+                    logger.error($LogMsg.CHAIN_LEVEL_ERROR, chain.id, i, targets[i-1], sources[i]);
                 }
             }
 

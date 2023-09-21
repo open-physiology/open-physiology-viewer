@@ -83,7 +83,7 @@ import {$Field, $SchemaClass} from "../model";
                     </fieldset>
 
                     <!--Search bar-->
-                    <fieldset class="w3-card w3-round w3-margin-small-small">
+                    <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Search</legend>
                         <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
                                    (selectedItemChange)="selectBySearch($event)">
@@ -228,9 +228,13 @@ export class RelGraph {
                 let targets = (node.targetOf||[]).map(lnk => getNode(lnk));
                 sources.forEach(source => {
                     targets.forEach(target => {
-                        this.data.links.push({
-                            "source": source.id, "target": target.id, "type" : source.conveyingType? source.conveyingType.toLowerCase(): "advective"
-                        });
+                        if (source && target) {
+                            this.data.links.push({
+                                "source": source.id,
+                                "target": target.id,
+                                "type": source.conveyingType ? source.conveyingType.toLowerCase() : "advective"
+                            });
+                        }
                     })
                 })
             });

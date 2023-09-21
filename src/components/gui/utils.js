@@ -3,6 +3,18 @@ import {isArray, isObject} from 'lodash-bound';
 import {$Field} from "../../model";
 import {LYPH_TOPOLOGY} from "../../model/utils";
 
+export const COLORS = {
+  grey: 'grey',
+  white: '#FFFFFF',
+  inputBorderColor: '#E0E0E0',
+  inputTextColor: '#797979',
+  inputPlacholderColor: '#C0C0C0',
+  black: '#000000',
+  toggleActiveBg: '#613DB0',
+  headingBg: '#F1F1F1',
+};
+
+
 @Pipe({name: 'objToArray'})
 export class ObjToArray implements PipeTransform {
     transform(obj) {
@@ -41,7 +53,6 @@ export function clearMany(resource, props, resourceID){
         if (resource[prop]){
             //NK we assume here that only references are used, no nested objects and (no other namespaces yet!)
             let idx = resource[prop].findIndex(m => (m.id || m) === resourceID);
-            console.log("TEST", idx, resourceID, resource[prop]);
             if (idx > -1){
                 resource[prop].splice(idx, 1);
                 res = true;

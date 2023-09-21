@@ -222,7 +222,7 @@ export class Scaffold extends Component {
             const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(inputModel[key]||[]);
     		XLSX.utils.book_append_sheet(wb, ws, key);
         })
-        XLSX.writeFile(wb, (inputModel.id||"scaffold") + "-converted.xlsx");
+        XLSX.writeFile(wb, (json.id||"scaffold") + "-converted.xlsx");
         return wb;
     }
 
