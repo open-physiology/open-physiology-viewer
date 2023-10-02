@@ -10,7 +10,6 @@ import {MatRadioModule} from "@angular/material/radio";
 import {COLORS} from './utils.js'
 import {SearchAddBarModule} from "./searchAddBar";
 
-
 @Component({
     selector: 'lyphDeclaration',
     template: `
@@ -22,18 +21,18 @@ import {SearchAddBarModule} from "./searchAddBar";
             <div class="settings-wrap">
                 <div class="resource-boxContent">                 
                     <section>
-                        <mat-radio-group aria-label="Topology">
-                            <mat-radio-button value="TUBE" class="w3-margin-right" (change)="updateProperty('topology', 'TUBE')">TUBE</mat-radio-button>
-                            <mat-radio-button value="CYST" class="w3-margin-right" (change)="updateProperty('topology', 'CYST')">CYST</mat-radio-button>
-                            <mat-radio-button value="BAG+" class="w3-margin-right" (change)="updateProperty('topology', 'BAG+')">BAG+</mat-radio-button>
-                            <mat-radio-button value="BAG-" (change)="updateProperty('topology', 'BAG-')">BAG-</mat-radio-button>
+                        <mat-radio-group name="topology"  aria-label="Topology" [value]="currentTopology">
+                          <mat-radio-button *ngFor="let option of topologyOptions" class="w3-margin-right" 
+                                            [value]="option" (change)="updateValue('topology', option.id)">
+                            {{ option.name }}
+                          </mat-radio-button>
                         </mat-radio-group>
-                    </section>
+                    </section> 
 
                     <mat-checkbox matTooltip="Indicates that the lyph defines layers for its subtypes"
                               labelPosition="after"
                               [checked]="lyph?.isTemplate"
-                              (change)="updateProperty('isTemplate', $event.checked)"
+                              (change)="updateValue('isTemplate', $event.checked)"
                         >isTemplate?
                     </mat-checkbox>  
 
@@ -55,7 +54,7 @@ import {SearchAddBarModule} from "./searchAddBar";
                             placeholder="hostedBy"
                             matTooltip="Lyph or region to host the lyph"
                             [value]="lyph?.hostedBy"
-                            (keyup.enter)="updateProperty('name', $event.target.value)"
+                            (keyup.enter)="updateValue('name', $event.target.value)"
                         >
                     </mat-form-field>                           
                </div>
@@ -101,22 +100,44 @@ import {SearchAddBarModule} from "./searchAddBar";
  * The class to edit a resource field
  */
 export class LyphDeclarationEditor {
-    @Input() lyph;
+    _lyph;
     @Output() onValueChange = new EventEmitter();
 
-    @Input('regions') set value(newModel){
+    topologyOptions: Option[] = [
+      { name: 'None', id: null },
+      { name: 'TUBE', id: 'TUBE' },
+      { name: 'BAG- (BAG)', id: 'BAG' },
+      { name: 'BAG+ (BAG2)', id: 'BAG2' },
+      { name: 'CYST', id: 'CYST' }
+    ];
+
+    @Input('lyph') set lyph(newLyph){
+        if (this._lyph !== newLyph) {
+            this._lyph = newLyph;
+            this.currentTopology = this.topologyOptions.find(e => e.id === newLyph?.topology) || this.topologyOptions[0];
+        }
+    }
+
+    @Input('regions') set regions(newModel){
         this._searchOptions = (newModel || []).map(e => e.name + ' (' + e.id + ')');
         this._searchOptions.sort();
     };
 
-    updateProperty({prop, value}) {
-        if (this.lyph) {
-            this.lyph[prop] = value;
-            if (this.lyph.resource){
-                this.lyph.resource[prop] = value;
+    get lyph(){
+        return this._lyph;
+    }
+
+    updateValue(prop, value) {
+        console.log("INTERNAL", prop, value);
+        if (this.lyph && (this.lyph[prop] !== value)) {
+            let oldValue = this.lyph[prop];
+            if (!value){
+                delete this.lyph[prop];
+            } else {
+                this.lyph[prop] = value;
             }
+            this.onValueChange.emit({prop: prop, value: value, oldValue: oldValue});
         }
-        this.onValueChange.emit({prop, value})
     }
 
     selectBySearch(nodeLabel) {

@@ -4,7 +4,7 @@ import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
 import {cloneDeep, omit, values, sortBy} from 'lodash-bound';
-import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs, COLORS} from './gui/utils.js'
+import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs} from './gui/utils.js'
 import FileSaver from 'file-saver';
 import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
 import {$Field, $SchemaClass} from "../model";
@@ -165,6 +165,16 @@ export class Edge {
             border: 1px solid #666;
             pointer-events: none;
         }
+        
+        ::ng-deep .mat-menu-content {
+          padding-top: 0px !important;
+          padding-bottom: 0px !important;
+        }
+        
+        .mat-menu-item{
+          line-height:32px;
+          height:32px;
+        }
 
         :host /deep/ g.type-undefined > rect {
             fill: lightgrey;
@@ -226,7 +236,7 @@ export class Edge {
 
         :host /deep/ path.link.hidden {
             stroke-width: 0;
-        }
+        } 
     `]
 })
 /**
@@ -518,7 +528,7 @@ export class DagViewerD3Component {
                 (m.materials || []).forEach(childID => {
                     if (!this.entitiesByID[childID]) {
                         this.entitiesByID[childID] = {
-                            "id": childID,
+                            [$Field.id]: childID,
                             "_generated": true,
                             "_inMaterials": [],
                         };
@@ -575,7 +585,7 @@ export class DagViewerD3Component {
                 this.edges.push(edge);
             });
         });
-       this.nodes::sortBy(["id"]);
+       this.nodes::sortBy([$Field.id]);
     }
 
     /**
@@ -587,7 +597,7 @@ export class DagViewerD3Component {
         if (this.selectedNode) {
             let node = this.graphD3.node(this.selectedNode);
             if (node) {
-                if (prop === "id") {
+                if (prop === $Field.id) {
                     replaceMaterialRefs(this._model, this.selectedNode, value);
                     this.selectedNode = value;
                     node.id = value;
@@ -595,7 +605,7 @@ export class DagViewerD3Component {
                     this.draw();
                     this.saveStep("ID update " + value);
                 }
-                if (prop === "name") {
+                if (prop === $Field.name) {
                     this.graphD3.setNode(this.selectedNode, {
                         label: this.selectedMaterial.name || this.selectedMaterial.id,
                     });

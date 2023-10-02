@@ -5,6 +5,7 @@ import {COLORS} from "./utils";
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {$Field} from "../../model";
 
 @Component({
     selector: 'resourceDeclaration',
@@ -105,13 +106,14 @@ export class ResourceDeclarationEditor {
     @Output() onValueChange = new EventEmitter();
 
     updateValue(prop, value) {
-        if (prop === "id") {
+        if (prop === $Field.id) {
             //NK TODO Validate by schema that it is correct
         }
+        let oldValue = this.resource[prop];
         if (this.resource) {
             this.resource[prop] = value;
         }
-        this.onValueChange.emit({prop: prop, value: value});
+        this.onValueChange.emit({prop: prop, value: value, oldValue: oldValue});
     }
 
     updateOneOfMany(prop, value, idx) {

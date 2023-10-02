@@ -15,56 +15,72 @@ import {COLORS} from "./utils";
     selector: 'lyphTreeView',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-        <section>
-            {{title}}
-            <div class="default-box">
-                <mat-tree #tree id="tree" [dataSource]="dataSource" [treeControl]="treeControl">
-                    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-                        <div>
-                            <button mat-icon-button disabled></button>
-                            <button [ngClass]="{
-                                   'selected' : active && (node.id === selectedNode?.id),
-                                   'lyph'     : node.type === 'Lyph', 
-                                   'material' : node.type === 'Material', 
-                                   'undefined': node.type === 'Undefined'}"
-                                    (click)="selectedNode = node" (contextmenu)="onRightClick($event, node)">
-                                {{node.id}}
-                            </button>
-                        </div>
-                        <div *ngFor="let icon of node.icons; let i = index">
-                            <i class="icon-mini" [ngClass]=icon> </i>
-                        </div>
-                        <div *ngIf="showLayerIndex && node?.maxLayerIndex">
-                            <input type="number" matInput class="w3-input w3-margin-small layer-index"
+        <section class="tree-container">
+            <div class="w3-row w3-margin-right">
+                <button matTooltip="Expand all" class="w3-right" (click)="tree?.treeControl.expandAll()">
+                    <i class="fa fa-plus"> </i>
+                </button>
+                <button matTooltip="Collapse all" class="w3-right" (click)="tree?.treeControl.collapseAll()">
+                    <i class="fa fa-minus"> </i>
+                </button>
+            </div>
+            <div class="title">{{title}}</div>
+            <mat-tree #tree id="tree" [dataSource]="dataSource" [treeControl]="treeControl">
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                    <button mat-icon-button disabled></button>
+                    <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
+                    <button [ngClass]="{
+                               'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
+                               'lyph'     : node.type === 'Lyph', 
+                               'material' : node.type === 'Material', 
+                               'undefined': node.type === 'Undefined'}"
+                            (click)="selectNode(node)"
+                            (contextmenu)="onRightClick($event, node)">
+                        {{node.id}}
+                    </button>
+                    <div *ngFor="let icon of node.icons; let i = index">
+                        <i class="icon-mini" [ngClass]=icon> </i>
+                    </div>
+                    <div *ngIf="showLayerIndex && node?.maxLayerIndex">
+                        <input type="number" matInput class="w3-input layer-index"
                                [value]="node?.layerIndex"
-                               [min]=0    
-                               [max]="node?.maxLayerIndex"    
-                            />
-                        </div>
-                    </mat-tree-node>
-                    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-                        <button *ngIf="treeControl.isExpanded(node)" mat-icon-button matTreeNodeToggle
-                                [attr.aria-label]="'Toggle ' + node.id">
-                            <i class="fa fa-chevron-down"> </i>
-                        </button>
-                        <button *ngIf="!treeControl.isExpanded(node)" mat-icon-button matTreeNodeToggle
-                                [attr.aria-label]="'Toggle ' + node.id">
-                            <i class="fa fa-chevron-right"> </i>
-                        </button>
-                        <button [ngClass]="{
-                                'selected' : active && (node.id === selectedNode?.id),
+                               [min]=0
+                               [max]="node?.maxLayerIndex"
+                               (input)="updateLayerIndex(node, $event.target.value)"
+                        />
+                    </div>
+                </mat-tree-node>
+                <!--Closed node with children-->
+                <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                    <button *ngIf="treeControl.isExpanded(node)" mat-icon-button matTreeNodeToggle
+                            [attr.aria-label]="'Toggle ' + node.id">
+                        <i class="fa fa-chevron-down"> </i>
+                    </button>
+                    <button *ngIf="!treeControl.isExpanded(node)" mat-icon-button matTreeNodeToggle
+                            [attr.aria-label]="'Toggle ' + node.id">
+                        <i class="fa fa-chevron-right"> </i>
+                    </button>
+                    <button [ngClass]="{
+                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'lyph'     : node.type === 'Lyph', 
                                 'material' : node.type === 'Material', 
                                 'undefined': node.type === 'Undefined'}"
-                                (click)="selectedNode = node" (contextmenu)="onRightClick($event, node)">
-                            {{node.id}}
-                        </button>
-                        <div *ngFor="let icon of node.icons; let i = index">
-                            <i class="icon-mini" [ngClass]=icon> </i>
-                        </div>
-                    </mat-tree-node>
-                </mat-tree>
-            </div>
+                            (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
+                        {{node.id}}
+                    </button>
+                    <div *ngFor="let icon of node.icons; let i = index">
+                        <i class="icon-mini" [ngClass]=icon> </i>
+                    </div>
+                    <div *ngIf="showLayerIndex && node?.maxLayerIndex">
+                        <input type="number" matInput class="w3-input layer-index"
+                               [value]="node?.layerIndex"
+                               [min]=0
+                               [max]="node?.maxLayerIndex"
+                               (input)="updateLayerIndex(node, $event.target.value)"
+                        />
+                    </div>
+                </mat-tree-node>
+            </mat-tree>
         </section>
 
         <!--Right click-->
@@ -80,42 +96,61 @@ import {COLORS} from "./utils";
                          let-hasChildren="hasChildren" let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown"
                          let-inherited="inherited">
                 <div *ngIf="!inherited">
+                    <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
                     <div *ngIf="type === 'Lyph' || type === 'Material'">
-                        <button mat-menu-item (click)="deleteLyph(item, index)">Delete</button>
-                        <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item, index)">Delete definition</button>
-                        <button *ngIf="!hasParent" mat-menu-item (click)="addLyph(item, index)">Add</button>
-                        <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item, index)">Remove children</button>
+                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
+                        </button>
+                        <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
+                        <button *ngIf="hasChildren" mat-menu-item
+                                (click)="processOperation('removeChildren', item, index)">Remove children
+                        </button>
                     </div>
-                    <button *ngIf="hasParent" mat-menu-item (click)="remove(item)">Remove</button>
+                    <button *ngIf="hasParent" mat-menu-item (click)="processOperation('removeParent', item, index)">
+                        Remove parent
+                    </button>
                     <div *ngIf="type === 'Undefined'">
-                        <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
-                        <button mat-menu-item (click)="defineAsLyph(item)">Define as lyph</button>
+                        <button mat-menu-item (click)="processOperation('defineAsMaterial', item, index)">Define as
+                            material
+                        </button>
+                        <button mat-menu-item (click)="processOperation('defineAsLyph', item, index)">Define as lyph
+                        </button>
                     </div>
-                    <button *ngIf="canMoveUp" mat-menu-item (click)="moveUp(item, index)">Move up</button>
-                    <button *ngIf="canMoveDown" mat-menu-item (click)="moveDown(item, index)">Move down</button>
+                    <button *ngIf="canMoveUp" mat-menu-item (click)="processOperation('up', item, index)">Move up
+                    </button>
+                    <button *ngIf="canMoveDown" mat-menu-item (click)="processOperation('down', item, index)">Move
+                        down
+                    </button>
                 </div>
             </ng-template>
         </mat-menu>
 
     `,
     styles: [`
-        mat-menu-item {
-            padding: 0;
+        ::ng-deep .mat-menu-content {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
         }
 
-        #matMenu- > div {
-            padding: 0;
+        .title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            line-height: 0.934rem;
+        }
+
+        .mat-menu-item {
+            line-height: 32px;
+            height: 32px;
         }
 
         .mat-tree-node {
-            min-height: 2em !important;
-            height: 2em;
+            min-height: 2.2em !important;
+            height: 2.2em;
         }
-        
+
         .mat-icon-button {
             line-height: normal;
         }
-        
+
         .lyph {
             background-color: #ffe4b2;
             border: 0.067rem solid lightgrey;
@@ -134,9 +169,13 @@ import {COLORS} from "./utils";
         .selected {
             border: 3px solid darkgrey;
         }
+        
+        .treeContainer{
+            height: 100vh;
+        }
 
         #tree {
-            height: 100vh;
+            height: 80vh;
             overflow-y: auto;
         }
 
@@ -147,33 +186,35 @@ import {COLORS} from "./utils";
             font-weight: 500;
             cursor: pointer;
         }
-        
-         .icon-mini {
-             transform: scale(0.7);
-         }
-         
-         .layer-index {
-             text-align: right; 
-             font: 12px sans-serif;
-             background: ${COLORS.white};
-             border: 0.067rem solid ${COLORS.inputBorderColor};
-             color: ${COLORS.inputTextColor};
-             box-sizing: border-box;
-             height: 1.7rem;
-             font-size: 0.8rem;
-             padding: 0 0.5rem 0 1.734rem;
-         }
+
+        .icon-mini {
+            transform: scale(0.7);
+        }
+
+        .layer-index {
+            text-align: right;
+            font: 12px sans-serif;
+            background: ${COLORS.white};
+            border: 0.067rem solid ${COLORS.inputBorderColor};
+            color: ${COLORS.inputTextColor};
+            box-sizing: border-box;
+            height: 1.7rem;
+            font-size: 0.8rem;
+            padding: 0 0.5rem 0 1.734rem;
+            margin-left: 0.2rem;
+        }
     `]
 })
 export class LyphTreeView {
-
     @ViewChild('tree') tree;
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
+    @Output() onLayerIndexChange = new EventEmitter();
 
     _treeData = [];
+    _selectedNode;
     rtmTopLeftPosition = {x: '0', y: '0'}
 
     @Input() title;
@@ -186,15 +227,21 @@ export class LyphTreeView {
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;
         this.dataSource.data = newTreeData;
-    }
-
-    ngAfterInitView() {
-        if (this.tree?.treeModel?.roots?.length > 0) {
-            this.selectedNode = this.tree.treeModel.roots[0];
+        if (newTreeData) {
+            this.selectedNode = newTreeData[0];
+            if (newTreeData.length === 1) {
+                this.tree?.treeControl.expandAll();
+            }
         }
     }
 
-    get treeData(){
+    @Input('selectedNode') set selectedNode(node) {
+        if (this._selectedNode !== node) {
+            this._selectedNode = node;
+        }
+    }
+
+    get treeData() {
         return this._treeData;
     }
 
@@ -202,28 +249,14 @@ export class LyphTreeView {
         return this._selectedNode;
     }
 
-    set selectedNode(node) {
-        this._selectedNode = node;
-        this.onNodeClick.emit(node);
-    }
-
     _transformer = (node, level) => {
-        return {
-            expandable: node?.children?.length > 0,
-            id: node.id,
-            label: node.label,
-            level: level,
-            index: node.index,
-            parent: node.parent,
-            children: node.children || [],
-            type: node.type,
-            canMoveUp: node.canMoveUp,
-            canMoveDown: node.canMoveDown,
-            icons: node.icons,
-            layerIndex: node.layerIndex,
-            maxLayerIndex: node.maxLayerIndex || -1,
-            inherited: node.inherited
-        };
+        let res = node;
+        res.expandable = node?.children?.length > 0;
+        res.level = level;
+        res.children = res.children || [];
+        res.canMoveUp = res.canMoveUp && this.ordered;
+        res.canMoveDown = res.canMoveDown && this.ordered;
+        return res;
     };
 
     treeControl = new FlatTreeControl(
@@ -247,10 +280,10 @@ export class LyphTreeView {
         this.rtmTopLeftPosition.x = e.clientX + 'px';
         this.rtmTopLeftPosition.y = e.clientY + 'px';
         this.matMenuTrigger.menuData = {
-            item: node.id,
+            item: node,
             type: node.type,
             hasParent: node.parent,
-            hasChildren: (node.children || []).length > 0,
+            hasChildren: node.children?.length > 0,
             index: node.index,
             canMoveUp: node.canMoveUp,
             canMoveDown: node.canMoveDown,
@@ -259,42 +292,18 @@ export class LyphTreeView {
         this.matMenuTrigger.openMenu();
     }
 
-    deleteLyph(node, index) {
-        this.onChange.emit({operation: "delete", node: node, index: index});
+    processOperation(operation, node, index) {
+        this.onChange.emit({operation: operation, node: node, index: index});
     }
 
-    deleteDefinition(node, index) {
-        this.onChange.emit({operation: "deleteDef", node: node, index: index});
+    updateLayerIndex(node, layerIndex) {
+        this.onLayerIndexChange.emit({node: node, layerIndex: layerIndex});
     }
 
-    addLyph(node, index) {
-        this.onChange.emit({operation: "insert", node: node, index: index});
+    selectNode(node) {
+        this.selectedNode = node;
+        this.onNodeClick.emit(node);
     }
-
-    remove(node, index) {
-        this.onChange.emit({operation: "remove", node: node, index: index});
-    }
-
-    removeChildren(node) {
-        this.onChange.emit({operation: "removeChildren", node: node});
-    }
-
-    defineAsMaterial(node) {
-        this.onChange.emit({operation: "defineMaterial", node: node});
-    }
-
-    defineAsLyph(node) {
-        this.onChange.emit({operation: "defineLyph", node: node});
-    }
-
-    moveUp(node, i) {
-        this.onChange.emit({operation: "up", node: node, index: i});
-    }
-
-    moveDown(node, i) {
-        this.onChange.emit({operation: "down", node: node, index: i});
-    }
-
 }
 
 @NgModule({
