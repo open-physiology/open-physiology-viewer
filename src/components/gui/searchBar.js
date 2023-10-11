@@ -20,7 +20,7 @@ import {COLORS} from "./utils";
                        matTooltip="Describe resource you want to find"
                        type="text"
                        aria-label="Find resource"
-                       [(ngModel)]="selected"
+                       [value]="selected"
                        [formControl]="_myControl"
                        [matAutocomplete]="auto"
                        (input)="inputChange.emit($event.target.value)"
@@ -31,13 +31,13 @@ import {COLORS} from "./utils";
                         {{option}}
                     </mat-option>
                 </mat-autocomplete>
-                <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear" (click)="selected=''">
+                <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear" (click)="selectedItemChange.emit(null)">
                     <i class="fa fa-close"> </i>
                 </button>
             </mat-form-field>
         </div>
     `,
-    styles: [`
+    styles: [` 
         .search-bar {
             padding: 1.067rem;
             flex-grow: 1;
@@ -146,7 +146,16 @@ import {COLORS} from "./utils";
  * Search bar component
  */
 export class SearchBar {
-    @Input()  selected;
+    _selected;
+
+    @Input('selected') set selected(value){
+        this._selected = value;
+        if (!value){
+            this._clearFilter();
+        } else {
+            this._filter(value);
+        }
+    };
     @Input()  searchOptions;
     @Output() selectedItemChange = new EventEmitter();
     @Output() inputChange = new EventEmitter();
@@ -154,15 +163,23 @@ export class SearchBar {
     _myControl = new FormControl();
     _filteredOptions: Observable<string[]>;
 
+    get selected(){
+        return this._selected;
+    }
+
     /**
      * @access private
      */
     ngOnInit() {
+        this._clearFilter();
+    }
+
+    _clearFilter(){
         this._filteredOptions = this._myControl.valueChanges
-            .pipe(
-                startWith(''),
-                map(value => this._filter(value))
-            );
+        .pipe(
+            startWith(''),
+            map(value => this._filter(value))
+        );
     }
 
     _filter(name) {

@@ -17,19 +17,21 @@ import {COLORS} from "./utils";
     template: `
         <section class="tree-container">
             <div class="w3-row w3-margin-right">
-                <button matTooltip="Expand all" class="w3-right" (click)="tree?.treeControl.expandAll()">
+                <button matTooltip="Expand all" class="w3-right" (click)="treeControl.expandAll()">
                     <i class="fa fa-plus"> </i>
                 </button>
-                <button matTooltip="Collapse all" class="w3-right" (click)="tree?.treeControl.collapseAll()">
+                <button matTooltip="Collapse all" class="w3-right" (click)="treeControl.collapseAll()">
                     <i class="fa fa-minus"> </i>
                 </button>
             </div>
-            <div class="title">{{title}}</div>
+            <div class="title w3-margin">
+                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
+            </div>
             <mat-tree #tree id="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button [ngClass]="{
+                    <button class="w3-hover-border-amber" [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                'lyph'     : node.type === 'Lyph', 
                                'material' : node.type === 'Material', 
@@ -41,7 +43,7 @@ import {COLORS} from "./utils";
                     <div *ngFor="let icon of node.icons; let i = index">
                         <i class="icon-mini" [ngClass]=icon> </i>
                     </div>
-                    <div *ngIf="showLayerIndex && node?.maxLayerIndex">
+                    <div *ngIf="showLayerIndex && node?.maxLayerIndex >=0 ">
                         <input type="number" matInput class="w3-input layer-index"
                                [value]="node?.layerIndex"
                                [min]=0
@@ -60,7 +62,7 @@ import {COLORS} from "./utils";
                             [attr.aria-label]="'Toggle ' + node.id">
                         <i class="fa fa-chevron-right"> </i>
                     </button>
-                    <button [ngClass]="{
+                    <button class="w3-hover-border-amber" [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'lyph'     : node.type === 'Lyph', 
                                 'material' : node.type === 'Material', 
@@ -127,8 +129,8 @@ import {COLORS} from "./utils";
     `,
     styles: [`
         ::ng-deep .mat-menu-content {
-            padding-top: 0px !important;
-            padding-bottom: 0px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
         }
 
         .title {
@@ -186,7 +188,7 @@ import {COLORS} from "./utils";
             font-weight: 500;
             cursor: pointer;
         }
-
+        
         .icon-mini {
             transform: scale(0.7);
         }
@@ -206,23 +208,18 @@ import {COLORS} from "./utils";
     `]
 })
 export class LyphTreeView {
-    @ViewChild('tree') tree;
-    @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
-
-    @Output() onNodeClick = new EventEmitter();
-    @Output() onChange = new EventEmitter();
-    @Output() onLayerIndexChange = new EventEmitter();
-
     _treeData = [];
     _selectedNode;
     rtmTopLeftPosition = {x: '0', y: '0'}
+
+    @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
     @Input() title;
     @Input() showLayerIndex;
     @Input() showButtons = false;
     @Input() editable = true;
     @Input() ordered = false;
-    @Input() active = true;
+    @Input() active = false;
 
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;
@@ -230,7 +227,7 @@ export class LyphTreeView {
         if (newTreeData) {
             this.selectedNode = newTreeData[0];
             if (newTreeData.length === 1) {
-                this.tree?.treeControl.expandAll();
+                this.treeControl.expandAll();
             }
         }
     }
@@ -238,8 +235,13 @@ export class LyphTreeView {
     @Input('selectedNode') set selectedNode(node) {
         if (this._selectedNode !== node) {
             this._selectedNode = node;
+            this.treeControl.expand(node);
         }
     }
+
+    @Output() onNodeClick = new EventEmitter();
+    @Output() onChange = new EventEmitter();
+    @Output() onLayerIndexChange = new EventEmitter();
 
     get treeData() {
         return this._treeData;
@@ -276,6 +278,9 @@ export class LyphTreeView {
     hasChild = (_, node) => node.expandable;
 
     onRightClick(e, node) {
+        if (node.inherited){
+            return;
+        }
         e.preventDefault();
         this.rtmTopLeftPosition.x = e.clientX + 'px';
         this.rtmTopLeftPosition.y = e.clientY + 'px';
@@ -283,7 +288,7 @@ export class LyphTreeView {
             item: node,
             type: node.type,
             hasParent: node.parent,
-            hasChildren: node.children?.length > 0,
+            hasChildren: node.children?.filter(x => !x.inherited).length > 0,
             index: node.index,
             canMoveUp: node.canMoveUp,
             canMoveDown: node.canMoveDown,

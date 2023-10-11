@@ -6,7 +6,7 @@ import {SearchAddBarModule} from "./gui/searchAddBar";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {LyphTreeViewModule} from "./gui/lyphTreeView";
-import {cloneDeep, omit, sortBy, values, isObject} from 'lodash-bound';
+import {cloneDeep, omit, sortBy, values, isObject, isNumber} from 'lodash-bound';
 import {$Field, $SchemaClass} from "../model";
 import {LyphDeclarationModule} from "./gui/lyphDeclarationEditor";
 import FileSaver from 'file-saver';
@@ -55,6 +55,12 @@ export class Node {
     }
 }
 
+const ICON = {
+    LAYERS: "fa fa-bars",
+    INTERNAL: "fa fa-building-o",
+    INHERITED: "fa fa-lock"
+}
+
 @Component({
     selector: 'lyphEditor',
     template: `
@@ -63,6 +69,7 @@ export class Node {
                 <section class="w3-col">
                     <lyphTreeView
                             title="Lyphs"
+                            [active]="activeTree === 'lyphTree'"
                             [treeData]="lyphTree"
                             [selectedNode]="selectedNode"
                             (onNodeClick)="selectLyph($event)"
@@ -74,7 +81,7 @@ export class Node {
                     <lyphTreeView *ngIf="selectedLyph"
                                   title="Layers"
                                   ordered="true"
-                                  active="activeTree === layerTree"
+                                  [active]="activeTree === 'layerTree'"
                                   [treeData]="layerTree"
                                   (onNodeClick)="selectLayer($event)"
                                   (onChange)="processLayerChange($event)"
@@ -85,7 +92,7 @@ export class Node {
                     <lyphTreeView *ngIf="selectedLyph
 "
                                   title="Internal lyphs"
-                                  active="activeTree === internalTree"
+                                  [active]="activeTree === 'internalTree'"
                                   [treeData]="internalTree"
                                   [showLayerIndex]="true"
                                   (onNodeClick)="selectInternal($event)"
@@ -174,11 +181,10 @@ export class LyphEditorComponent {
         this._model = newModel::cloneDeep();
         this.steps = [];
         this.currentStep = 0;
-        this.saveStep('Initial model');
         this.prepareLyphTree();
-        this.updateSearchOptions();
+        this.updateView(null, 'lyphTree');
         this.updateRegionOptions();
-
+        this.saveStep('Initial model');
     };
 
     @Output() onChangesSave = new EventEmitter();
@@ -193,11 +199,15 @@ export class LyphEditorComponent {
      * @param nodeLabel
      */
     selectBySearch(nodeLabel) {
-        let nodeID = nodeLabel.substring(
-            nodeLabel.indexOf("(") + 1,
-            nodeLabel.lastIndexOf(")")
-        );
-        this.lyphToLink = this.entitiesByID[nodeID];
+        if (!nodeLabel && this.lyphToLink) {
+            this.lyphToLink = null;
+        } else {
+            let nodeID = nodeLabel.substring(
+                nodeLabel.indexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+            );
+            this.lyphToLink = this.entitiesByID[nodeID];
+        }
     }
 
     /**
@@ -221,12 +231,20 @@ export class LyphEditorComponent {
         return newLyph;
     }
 
-    updateView(lyph) {
+    /**
+     * Pass given lyph to dependent components to display and edit its relations and properties
+     * @param selectedLyph
+     * @param activeTree
+     */
+    updateView(selectedLyph, activeTree) {
+        let lyph = selectedLyph? selectedLyph: (this.lyphTree.length > 0)? this.lyphTree[0].resource: null;
         this.selectedLyph = lyph;
         this.selectedLyphToEdit = lyph;
         this.prepareLayerTree();
         this.prepareInternalTree();
         this.updateSearchOptions();
+        this.lyphToLink = null;
+        this.activeTree = activeTree;
     }
     /**
      * Create a new lyph
@@ -236,7 +254,7 @@ export class LyphEditorComponent {
         let node = this._createLyphNode(lyph);
         this.lyphTree = [node,...this.lyphTree];
         this.selectedNode = node;
-        this.updateView(lyph);
+        this.updateView(lyph, 'lyphTree');
         this.saveStep("Create new lyph " + lyph.id);
     }
 
@@ -248,11 +266,11 @@ export class LyphEditorComponent {
         let lyph = this.entitiesByID[lyphID];
         if (lyph) {
             if (this.selectedLyph) {
-                if (this.activeTree === this.layerTree) {
-                    this.insertLayer(this.selectedLyph);
+                if (this.activeTree === 'layerTree') {
+                    this.addLayer(this.selectedLyph);
                 } else {
-                    if (this.activeTree === this.internalTree) {
-                        this.insertInternal(this.selectedLyph);
+                    if (this.activeTree === 'internalTree') {
+                        this.addInternal(this.selectedLyph);
                     } else {
                         this.insertSubtype(this.selectedLyph);
                     }
@@ -289,11 +307,14 @@ export class LyphEditorComponent {
             }
         });
         (this._model.lyphs || []).forEach(lyph => {
-            if (lyph.supertype && this.entitiesByID[lyph.supertype]) {
-                if (this.entitiesByID[lyph.supertype]._subtypes) {
-                    this.entitiesByID[lyph.supertype]._subtypes.push(lyph);
+            if (lyph.supertype) {
+                let supertype = this.entitiesByID[lyph.supertype];
+                if (supertype) {
+                    supertype._subtypes = supertype._subtypes || [];
+                    supertype._subtypes.push(lyph);
                 } else {
-                    console.error("Lyph with no supertype:", lyph.supertype, lyph);
+                    let message = "No supertype definition found: " + lyph.supertype;
+                    this._snackBar.open(message, "OK", this._snackBarConfig);
                 }
                 lyph._supertype = lyph.supertype;
             }
@@ -302,25 +323,27 @@ export class LyphEditorComponent {
                     lyph._subtypes.push(this.entitiesByID[subtype]);
                     this.entitiesByID[subtype]._supertype = lyph;
                 } else {
-                    console.error("No subtype definition: ", subtype);
+                    let message = `No definition found for subtype ${subtype} of ${lyph.id}`;
+                    this._snackBar.open(message, "OK", this._snackBarConfig);
                 }
             });
         });
 
-        //Create tree
+        //Recursively create lyph tree nodes
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};
             let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
             let length = (parent?._subtypes || []).length || 0;
             let res = this._createLyphNode(lyph, parent, idx, length);
+            lyph._node = res;
             if (lyph._subtypes) {
                 res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i));
             }
-            if (res.resource?.layers && !res.icons.includes("fa fa-bars")) {
-                res.icons.push("fa fa-bars");
+            if (res.resource?.layers && !res.icons.includes(ICON.LAYERS)) {
+                res.icons.push(ICON.LAYERS);
             }
-            if (res.resource?.internalLyphs && !res.icons.includes("fa fa-building-o")) {
-                res.icons.push("fa fa-building-o");
+            if (res.resource?.internalLyphs && !res.icons.includes(ICON.INTERNAL)) {
+                res.icons.push(ICON.INTERNAL);
             }
             return res;
         };
@@ -328,19 +351,38 @@ export class LyphEditorComponent {
         this.lyphTree = treeData::sortBy([$Field.id]);
     }
 
+    /**
+     * Fast update of lyph tree after single lyph property change
+     * @param oldValue
+     * @param newValue
+     * @param prop
+     */
     updateLyphTreeNode(oldValue, newValue, prop){
         if (oldValue === newValue){
             return;
         }
         const replaceNode = parent => {
             if (parent[prop] === oldValue){
-                parent[prop] = newValue;
+                if (newValue === undefined){
+                    delete parent[prop];
+                } else {
+                    parent[prop] = newValue;
+                }
             }
             (parent.children||[]).forEach(e => replaceNode(e));
         }
         (this.lyphTree||[]).forEach(e => replaceNode(e));
     }
 
+    /**
+     * Create lyph tree node for a given ApiNATOMY lyph object or its ID
+     * @param lyphOrID - lyph object or its identifier
+     * @param parent - lyph's parent in the tree (e.f., supertype)
+     * @param idx - position of the node among its siblings
+     * @param length - total number of siblings
+     * @returns {Node} - generated tree node to display in the mat-tree-based component
+     * @private
+     */
     _createLyphNode(lyphOrID, parent, idx, length = 0){
         if (lyphOrID::isObject()) {
             return new Node(lyphOrID.id, lyphOrID.name, lyphOrID._class || $SchemaClass.Lyph, parent, length, [], lyphOrID.isTemplate, idx, lyphOrID);
@@ -382,7 +424,7 @@ export class LyphEditorComponent {
             this.prepareLayerTree();
             this.prepareInternalTree();
         }
-        this.activeTree = this.lyphTree;
+        this.activeTree = 'lyphTree';
     }
 
     /**
@@ -394,7 +436,7 @@ export class LyphEditorComponent {
         if (this.selectedLyph?.id !== nodeID) {
             this.selectedLyphToEdit = this.entitiesByID[nodeID];
         }
-        this.activeTree = this.layerTree;
+        this.activeTree = 'layerTree';
     }
 
     /**
@@ -406,7 +448,7 @@ export class LyphEditorComponent {
         if (this.selectedLyph?.id !== nodeID) {
             this.selectedLyphToEdit = this.entitiesByID[nodeID];
         }
-        this.activeTree = this.internalTree;
+        this.activeTree = 'internalTree';
     }
 
     /**
@@ -417,31 +459,53 @@ export class LyphEditorComponent {
      * @private
      */
     _preparePropertyTree(prop, includeInherited = false) {
+        let stack = [];
+        let loops = [];
+
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};
+            if (parent) {
+                stack.push(parent);
+            }
             let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
             let length = parent ? (parent[prop] || []).length : 1;
             let res = this._createLyphNode(lyph || lyphOrID, parent, idx, length);
             if (lyph) {
-                if (lyph[prop]) {
-                    res.children = lyph[prop].map((e, i) => mapToNodes(e, lyph, i));
-                }
-                if (includeInherited && lyph.supertype) {
-                    let supertype = mapToNodes(lyph.supertype);
-                    supertype.children.forEach(c => {
-                        c.inherited = true;
-                        if (!c.icons.includes("fa fa-lock")) {
-                            c.icons.push("fa fa-lock");
+                let loopStart = stack.find(x => x.id === lyph.id);
+                //Loop detected
+                if (loopStart){
+                    loops.push(lyph.id);
+                    console.error("LOOP: ", lyph.id);
+                } else {
+                    if (lyph[prop]) {
+                        res.children = lyph[prop].map((e, i) => mapToNodes(e, lyph, i));
+                    }
+                    if (includeInherited && lyph.supertype) {
+                        let supertype = mapToNodes(lyph.supertype);
+                        supertype.children.forEach(c => {
+                            c.inherited = true;
+                            if (!c.icons.includes(ICON.INHERITED)) {
+                                c.icons.push(ICON.INHERITED);
+                            }
+                        });
+                        if (supertype.children) {
+                            res.children = res.children.concat(supertype.children);
                         }
-                    });
-                    if (supertype.children) {
-                        res.children = res.children.concat(supertype.children);
                     }
                 }
             }
+            if (parent) {
+                stack.pop();
+            }
             return res;
         };
-        return [mapToNodes(this.selectedLyph)];
+
+        let tree = [mapToNodes(this.selectedLyph)];
+        if (loops.length > 0){
+            let message = "Loop is detected in the " + prop + " tree hierarchy of the following lyphs: " + loops.join(", ");
+            this._snackBar.open(message, "OK", this._snackBarConfig);
+        }
+        return tree;
     }
 
     /** A helper method to cap the layer index for internal lyph assignment */
@@ -534,7 +598,7 @@ export class LyphEditorComponent {
                 this.deleteLyph(node, index);
                 break;
             case 'deleteDef':
-                this.deleteDefinition(node, index);
+                this.deleteDefinition(node, this.lyphTree);
                 break;
             case 'removeParent':
                 this.removeSupertype(node, index);
@@ -566,6 +630,7 @@ export class LyphEditorComponent {
             }
             delete lyph.supertype;
             this.prepareLyphTree();
+            this.updateView(this.selectedLyph, 'lyphTree');
             this.saveStep("Remove supertype of " + node.id);
         }
     }
@@ -582,6 +647,7 @@ export class LyphEditorComponent {
             })
             delete lyph.subtypes;
             this.prepareLyphTree();
+            this.updateView(this.selectedLyph, 'lyphTree');
             this.saveStep("Remove subtypes of " + node.id);
         }
     }
@@ -589,13 +655,14 @@ export class LyphEditorComponent {
     /**
      * Delete lyph definition
      * @param node
+     * @param activeTree
      */
-    deleteDefinition(node) {
+    deleteDefinition(node, activeTree) {
         let lyph = this.entitiesByID[node.id];
         if (lyph) {
             this._removeMaterialOrLyph(node.id);
             this.prepareLyphTree();
-            this.updateSearchOptions();
+            this.updateView(this.selectedLyph, activeTree);
             this.saveStep("Delete definition " + node.id);
         }
     }
@@ -611,6 +678,7 @@ export class LyphEditorComponent {
             clearMaterialRefs(this._model, node.id);
             this._removeMaterialOrLyph(node.id);
             this.prepareLyphTree();
+            this.updateView(null, 'lyphTree');
             this.saveStep("Delete " + cls + " " + node.id);
         }
     }
@@ -644,19 +712,19 @@ export class LyphEditorComponent {
     processInternalChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.insertInternal(node);
+                this.addInternal(node);
                 break;
             case 'delete':
                 this.deleteInternal(node, index);
                 break;
             case 'deleteDef':
-                this.deleteDefinition(node, index);
+                this.deleteDefinition(node, this.internalTree);
                 break;
              case 'removeParent':
                 this.deleteInternal(node, index);
                 break;
             case 'removeChildren':
-                this.removeInternal(node);
+                this.removeAllInternal(node);
                 break;
             case 'defineMaterial':
                 this.defineAsMaterial(node);
@@ -667,17 +735,20 @@ export class LyphEditorComponent {
         }
     }
 
-    removeInternal(node) {
+    removeAllInternal(node) {
         let lyph = this.entitiesByID[node.id];
         if (lyph) {
             (lyph.internalLyphs || []).forEach(layer => delete layer.internalIn);
             delete lyph.internalLyphs;
             this.prepareInternalTree();
+            if (lyph._node){
+                lyph._node.icons = lyph._node.icons.filter(icon => icon !== ICON.INTERNAL);
+            }
             this.saveStep("Remove internal lyphs of " + node.id);
         }
     }
 
-    insertInternal(node) {
+    addInternal(node) {
         let lyph = this.lyphToLink ? this.lyphToLink : this.defineNewLyph();
         let parent = this.entitiesByID[node.id] || this.selectedLyph;
         if (parent) {
@@ -688,7 +759,14 @@ export class LyphEditorComponent {
                 } else {
                     parent.internalLyphs = parent.internalLyphs || [];
                     parent.internalLyphs.push(lyph.id);
+                    if (lyph !== this.lyphToLink){
+                        let node = this._createLyphNode(lyph);
+                        this.lyphTree = [node,...this.lyphTree];
+                    }
                     this.prepareInternalTree();
+                    if (parent._node && !parent._node.icons.includes(ICON.INTERNAL)) {
+                        parent._node.icons.push(ICON.INTERNAL);
+                    }
                     this.saveStep(`Add internal lyph ${lyph.id} to lyph ${parent.id}`);
                 }
             } else {
@@ -701,24 +779,50 @@ export class LyphEditorComponent {
         }
     }
 
+    /**
+     * Delete internal lyph
+     * @param node
+     * @param index
+     */
     deleteInternal(node, index) {
-        let lyph = this.entitiesByID[node.id];
-        if (index > -1 && lyph.internalLyphs?.length > index) {
-            lyph.internalLyphs.splice(idx, 1);
+        let parent = node.parent::isObject()? node.parent: this.entitiesByID[node.parent];
+        if (!parent){
+            this.deleteLyph(node);
+        } else {
+            if (index > -1 && parent.internalLyphs?.length > index) {
+                parent.internalLyphs.splice(index, 1);
+                let lyph = this.entitiesByID[node.id];
+                if (lyph){
+                    delete lyph.internalIn;
+                }
+                if (parent.internalLyphs.length === 0) {
+                    if (parent._node) {
+                        parent._node.icons = parent._node.icons.filter(icon => icon !== ICON.INTERNAL);
+                    }
+                }
+            }
+           this.prepareInternalTree();
         }
-        this.prepareInternalTree();
     }
 
+    /**
+     * Update 'internalLyphsInLayers' property
+     * @param node
+     * @param layerIndex
+     */
     processInternalInLayerChange({node, layerIndex}) {
         if (node.parent) {
             let parent = this.entitiesByID[node.parent.id];
-            let idx = (parent.internalLyphs || []).findIndex(e => e.id === node.id);
+            let idx = node.index;
+            if (!idx::isNumber()) {
+                idx = (parent.internalLyphs || []).findIndex(e => e === node.id);
+            }
             if (idx > -1) {
                 parent.internalLyphsInLayers = parent.internalLyphsInLayers || [];
                 if (parent.internalLyphsInLayers.length < idx) {
                     parent.internalLyphsInLayers.length = idx + 1;
                 }
-                parent.internalLyphsInLayers[idx] = layerIndex;
+                parent.internalLyphsInLayers[idx] = Number(layerIndex);
             }
         }
     }
@@ -732,13 +836,13 @@ export class LyphEditorComponent {
     processLayerChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.insertLayer(node, index);
+                this.addLayer(node, index);
                 break;
             case 'delete':
                 this.deleteLayer(node, index);
                 break;
             case 'deleteDef':
-                this.deleteDefinition(node, index);
+                this.deleteDefinition(node, this.layerTree);
                 break;
             case 'up':
                 this.moveLayerUp(node, index);
@@ -747,7 +851,7 @@ export class LyphEditorComponent {
                 this.moveLayerDown(node, index);
                 break;
             case 'removeParent':
-                this.removeLayerIn(node, index);
+                this.deleteLayer(node, index);
                 break;
             case 'removeChildren':
                 this.removeLayers(node);
@@ -767,13 +871,11 @@ export class LyphEditorComponent {
             (lyph.layers || []).forEach(layer => delete layer.layerIn);
             delete lyph.layers;
             this.prepareLayerTree();
+            if (lyph._node){
+                lyph._node.icons = lyph._node.icons.filter(icon => icon !== ICON.LAYERS);
+            }
             this.saveStep("Remove layers of " + node.id);
         }
-    }
-
-    removeLayerIn(node, index) {
-        //TODO is it different from delete layer?
-        this.deleteLayer(node, index);
     }
 
     _isValidSubtype(parent, child) {
@@ -783,16 +885,18 @@ export class LyphEditorComponent {
     _isValidLayer(parent, child) {
         const hasTemplateLayers = _parent => {
             let supertype = this.entitiesByID[_parent];
-            if ((supertype.layers||[]).length > 0) {
-                return true;
-            } else {
-                if (supertype._supertype) {
-                    return hasTemplateLayers(supertype._supertype);
+            if (supertype) {
+                if ((supertype.layers || []).length > 0) {
+                    return true;
+                } else {
+                    if (supertype._supertype) {
+                        return hasTemplateLayers(supertype._supertype);
+                    }
                 }
             }
             return false;
         }
-        return parent !== child && hasTemplateLayers(parent._supertype);
+        return (parent !== child) && !hasTemplateLayers(parent._supertype);
     }
 
     _isValidInternal(parent, child) {
@@ -821,7 +925,8 @@ export class LyphEditorComponent {
                 parent.subtypes.push(lyph.id);
                 parent.isTemplate = true;
                 this.prepareLyphTree();
-                this.saveStep("")
+                this.updateView(parent, 'lyphTree');
+                this.saveStep(`Add subtype ${lyph.id} to lyph ${parent.id}`);
             }
         } else {
             let message = "Cannot add subtype: no lyph is selected!";
@@ -834,19 +939,29 @@ export class LyphEditorComponent {
      * @param node
      * @param index
      */
-    insertLayer(node, index) {
+    addLayer(node, index) {
         let lyph = this.lyphToLink ? this.lyphToLink : this.defineNewLyph();
         let parent = this.entitiesByID[node.id] || this.selectedLyph;
         if (parent) {
             if (parent._class === $SchemaClass.Lyph) {
                 if (!this._isValidLayer(parent, lyph)) {
-                    let message = "Cannot add layer to an inherited lyph: remove `supertype` property first!";
+                    let message = "Cannot add a layer to this lyph: hierarchy or dependency conflict!";
                     this._snackBar.open(message, "OK", this._snackBarConfig);
                 } else {
                     parent.layers = parent.layers || [];
                     parent.layers.push(lyph.id);
+                    if (lyph !== this.lyphToLink){
+                        let node = this._createLyphNode(lyph);
+                        this.lyphTree = [node,...this.lyphTree];
+                    }
                     this.prepareLayerTree();
-                    this.saveStep(`Add layer ${lyphID} to lyph ${parent.id}`);
+                    if (parent._node && !parent._node.icons.includes(ICON.LAYERS)) {
+                        parent._node.icons.push(ICON.LAYERS);
+                    }
+                    if (parent.internalLyphs){
+                        this.prepareInternalTree();
+                    }
+                    this.saveStep(`Add layer ${lyph.id} to lyph ${parent.id}`);
                 }
             } else {
                 let message = "Cannot add layer to a resource other than lyph!";
@@ -858,12 +973,33 @@ export class LyphEditorComponent {
         }
     }
 
+    /**
+     * Delete layer from the lyph
+     * @param node
+     * @param index
+     */
     deleteLayer(node, index) {
-        let lyph = this.entitiesByID[node.id];
-        if (index > -1 && lyph.layers?.length > index) {
-            lyph.layers.splice(idx, 1);
+        let parent = node.parent::isObject()? node.parent: this.entitiesByID[node.parent];
+        if (!parent){
+            this.deleteLyph(node);
+        } else {
+            if (index > -1 && parent.layers?.length > index) {
+                parent.layers.splice(index, 1);
+                let lyph = this.entitiesByID[node.id];
+                if (lyph){
+                    delete lyph.layerIn;
+                }
+                if (parent.layers.length === 0) {
+                    if (parent._node) {
+                        parent._node.icons = parent._node.icons.filter(icon => icon !== ICON.LAYERS);
+                    }
+                }
+            }
+            this.prepareLayerTree();
+            if (parent.internalLyphs){
+                this.prepareInternalTree();
+            }
         }
-        this.prepareLayerTree();
     }
 
     moveLayerUp(node, index) {
@@ -873,6 +1009,7 @@ export class LyphEditorComponent {
             parent.layers[index - 1] = parent.layers[index];
             parent.layers[index] = tmp;
             this.prepareLayerTree();
+            this.saveStep("Move up layer " + index + " of lyph " + parent.id);
         }
     }
 
@@ -883,6 +1020,7 @@ export class LyphEditorComponent {
             parent.layers[index + 1] = parent.layers[index];
             parent.layers[index] = tmp;
             this.prepareLayerTree();
+            this.saveStep("Move down layer " + index + " of lyph " + parent.id);
         }
     }
 
@@ -895,6 +1033,7 @@ export class LyphEditorComponent {
             delete obj._generated;
             delete obj._subtypes;
             delete obj._supertype;
+            delete obj._node;
         });
     }
 
@@ -921,7 +1060,7 @@ export class LyphEditorComponent {
             this.steps.length = this.currentStep + 1;
         }
         let snapshot = this._model::omit(['_supertype', '_subtypes'])::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedLyph});
+        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedLyph, activeTree: this.activeTree});
         this.currentStep = this.steps.length - 1;
     }
 
@@ -944,13 +1083,18 @@ export class LyphEditorComponent {
         return `Redo ${(this.canRedo ? '"' + this.steps[this.currentStep + 1].action + '"' : "")}`;
     }
 
+    /**
+     * Undo the operatio n
+     */
     undo() {
         if (this.currentStep > 0 && this.currentStep < this.steps.length) {
             this.currentStep -= 1;
             this.lyphTree = [];
-            this._model = this.steps[this.currentStep].snapshot;
+            let restoredStep = this.steps[this.currentStep];
+            this._model = restoredStep.snapshot;
             this.prepareLyphTree();
-            this.updateView(this.steps[this.currentStep].selected);        }
+            this.updateView(restoredStep.selected, restoredStep.activeTree);
+        }
     }
 
     /**
@@ -959,9 +1103,10 @@ export class LyphEditorComponent {
     redo() {
         if (this.currentStep >= 0 && this.currentStep < this.steps.length - 1) {
             this.currentStep += 1;
-            this._model = this.steps[this.currentStep].snapshot;
+            let restoredStep = this.steps[this.currentStep];
+            this._model = restoredStep.snapshot;
             this.prepareLyphTree();
-            this.updateView(this.steps[this.currentStep].selected);
+            this.updateView(restoredStep.selected, restoredStep.activeTree);
         }
     }
 }
