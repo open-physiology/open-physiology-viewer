@@ -128,7 +128,6 @@ export class LyphDeclarationEditor {
     }
 
     updateValue(prop, value) {
-        console.log("INTERNAL", prop, value);
         if (this.lyph && (this.lyph[prop] !== value)) {
             let oldValue = this.lyph[prop];
             if (!value){

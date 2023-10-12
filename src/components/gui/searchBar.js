@@ -147,6 +147,7 @@ import {COLORS} from "./utils";
  */
 export class SearchBar {
     _selected;
+    _searchOptions;
 
     @Input('selected') set selected(value){
         this._selected = value;
@@ -156,12 +157,19 @@ export class SearchBar {
             this._filter(value);
         }
     };
-    @Input()  searchOptions;
+    @Input('searchOptions') set searchOptions(newOptions){
+        this._searchOptions = newOptions || [];
+        this._clearFilter();
+    };
     @Output() selectedItemChange = new EventEmitter();
     @Output() inputChange = new EventEmitter();
 
     _myControl = new FormControl();
     _filteredOptions: Observable<string[]>;
+
+    get searchOptions(){
+        return this._searchOptions;
+    }
 
     get selected(){
         return this._selected;

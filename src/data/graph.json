@@ -9,6 +9,32 @@
   ],
   "varianceSpecs": [
     {
+      "id": "vs-not-human",
+      "presence": "absent",
+      "clades": [
+        "NCBITaxon:9606"
+      ]
+    },
+    {
+      "id": "vs-not-pig",
+      "presence": "absent"
+    },
+    {
+      "id": "vs-not-monkey",
+      "presence": "absent"
+    },
+    {
+      "id": "vs-not-rodent",
+      "presence": "absent",
+      "clades": [
+        "NCBITaxon:9989"
+      ]
+    },
+    {
+      "id": "vs-not-cat",
+      "presence": "absent"
+    },
+    {
       "id": "vs-mammalia",
       "name": "basal mammalian state",
       "presence": "basal",
@@ -43,32 +69,6 @@
     },
     {
       "id": "vs-cat"
-    },
-    {
-      "id": "vs-not-human",
-      "presence": "absent",
-      "clades": [
-        "NCBITaxon:9606"
-      ]
-    },
-    {
-      "id": "vs-not-pig",
-      "presence": "absent"
-    },
-    {
-      "id": "vs-not-monkey",
-      "presence": "absent"
-    },
-    {
-      "id": "vs-not-rodent",
-      "presence": "absent",
-      "clades": [
-        "NCBITaxon:9989"
-      ]
-    },
-    {
-      "id": "vs-not-cat",
-      "presence": "absent"
     }
   ],
   "nodes": [
@@ -4338,7 +4338,7 @@
       ],
       "name": "Inferior mesenteric ganglion",
       "supertype": "lt-prevertebral-ganglia",
-      "hostedBy": "too:n2N"
+      "hostedBy": "too:n2G"
     },
     {
       "id": "lyph-PNS-pelvic-ganglion",
@@ -4356,7 +4356,7 @@
       ],
       "name": "Superior mesenteric ganglion",
       "supertype": "lt-prevertebral-ganglia",
-      "hostedBy": "too:n2N"
+      "hostedBy": "too:n2G"
     },
     {
       "id": "lyph-PNS-ganglion-mediastinal",
@@ -5754,7 +5754,7 @@
       ],
       "name": "Major pelvic ganglion",
       "supertype": "lt-prevertebral-ganglia",
-      "hostedBy": "too:n2N"
+      "hostedBy": "too:n2G"
     },
     {
       "id": "lyph-PNS-pelvic-ganglion-accessory",
@@ -8739,6 +8739,6 @@
   "imports": [
     "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
   ],
-  "version": "1e9573236b8ca7647f2f55305902e8f44fa4ff97",
+  "version": "015ae273a071ddbe9efff501d9bae2fed7301c42",
   "schemaVersion": "e0dba87327205156ed4e89dc42b1ab036d6a4465"
 }

@@ -12,6 +12,7 @@ import {SearchAddBarModule} from "./gui/searchAddBar";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
+import { HostListener } from "@angular/core";
 
 /**
  * @class
@@ -144,6 +145,9 @@ export class Edge {
         .vertical-toolbar {
             width: 48px;
         }       
+        .vertical-toolbar button{
+            height: 48px;
+        }
         
         #materialEditorD3 {
             height: 100vh;
@@ -151,10 +155,12 @@ export class Edge {
             overflow-x: scroll;
         }
 
-        svg {
+        #svgDagD3 {
             display: block;
             width: 100%;
-            height: 200%;
+            top: 0;
+            left: 0;
+            min-height: 100%;
         }
 
         .tooltip {
@@ -290,6 +296,13 @@ export class DagViewerD3Component {
     constructor(snackBar: MatSnackBar) {
         this._snackBar = snackBar;
         this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
+        this.getScreenSize();
+    }
+
+    @HostListener('window:resize', ['$event'])
+    getScreenSize(event?) {
+          this.screenHeight = window.innerHeight;
+          this.screenWidth = window.innerWidth;
     }
 
     updateSearchOptions() {
@@ -378,7 +391,7 @@ export class DagViewerD3Component {
         this.render = new dagreD3.render(this.graphD3);
         this.render(this.inner, this.graphD3);
 
-        this.svg.attr("height", this.graphD3.graph().height + 40);
+        this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
 
         let nodes = this.inner.selectAll("g.node");
         this.appendNodeEvents(nodes);
@@ -751,6 +764,7 @@ export class DagViewerD3Component {
             [$Field.name]: "New material " + newMatCounter,
             "_class": $SchemaClass.Material
         }
+        this._model.materials = this._model.materials || [];
         this._model.materials.push(newMat);
         this.entitiesByID[newMat.id] = newMat;
         return newMat;
@@ -783,6 +797,7 @@ export class DagViewerD3Component {
             let transform = d3.zoomTransform(selection.node());
             let zoomPos = transform.invert(pos);
             elem.attr('transform', 'translate(' + zoomPos[0] + ',' + zoomPos[1] + ')');
+            this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
         }
     }
 

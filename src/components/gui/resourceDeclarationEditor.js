@@ -120,7 +120,7 @@ export class ResourceDeclarationEditor {
         if (this.resource && idx > -1) {
             this.resource[prop][idx] = value;
         }
-        // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+        this.onValueChange.emit({prop: prop, value: this.resource[prop]});
     }
 
     deleteOneFromMany(rID, prop) {
@@ -129,7 +129,7 @@ export class ResourceDeclarationEditor {
             if (idx > -1) {
                 this.resource[prop].splice(idx, 1);
             }
-            // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+            this.onValueChange.emit({prop: prop, value: this.resource[prop]});
         }
     }
 
@@ -137,7 +137,7 @@ export class ResourceDeclarationEditor {
         if (this.resource) {
             this.resource[prop] = this.resource[prop] || [];
             this.resource[prop].push(this.resource.id + "_" + prop + "_new_" + (this.resource[prop].length + 1));
-            // this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+            this.onValueChange.emit({prop: prop, value: this.resource[prop]});
         }
     }
 
