@@ -1,7 +1,7 @@
 import {VisualResource} from './visualResourceModel';
 import {Node} from './verticeModel';
 import {Edge, Link} from './edgeModel';
-import {clone, merge, pick, isObject, mergeWith, values} from 'lodash-bound';
+import {clone, merge, pick, isObject, isNumber, mergeWith, values} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
 import {
     LYPH_TOPOLOGY,
@@ -270,7 +270,7 @@ export class Lyph extends Shape {
     static mapInternalResourcesToLayers(parentGroup){
 
         function moveResourceToLayer(resource, layerIndex, lyph, prop){
-            if (layerIndex < lyph.layers?.length){
+            if (layerIndex::isNumber() && layerIndex > -1 && layerIndex < lyph.layers?.length){
                 let internalID = getID(resource);
                 let layerRef = lyph.layers[layerIndex];
                 let layer = refToResource(layerRef, parentGroup, $Field.lyphs);

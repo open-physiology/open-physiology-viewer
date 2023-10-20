@@ -6,6 +6,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {$Field} from "../../model";
+import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
     selector: 'resourceDeclaration',
@@ -104,16 +106,27 @@ import {$Field} from "../../model";
 export class ResourceDeclarationEditor {
     @Input() resource;
     @Output() onValueChange = new EventEmitter();
+    _snackBar;
+    _snackBarConfig = new MatSnackBarConfig();
+
+    constructor(snackBar: MatSnackBar) {
+        this._snackBar = snackBar;
+        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
+    }
 
     updateValue(prop, value) {
         if (prop === $Field.id) {
-            //NK TODO Validate by schema that it is correct
+            if (!value) {
+                let message = "Cannot assign an empty identifier";
+                this._snackBar.open(message, "OK", this._snackBarConfig);
+                return;
+            }
         }
-        let oldValue = this.resource[prop];
-        if (this.resource) {
+        if (this.resource && (this.resource[prop] !== value)) {
+            let oldValue = this.resource[prop];
             this.resource[prop] = value;
+            this.onValueChange.emit({prop: prop, value: value, oldValue: oldValue});
         }
-        this.onValueChange.emit({prop: prop, value: value, oldValue: oldValue});
     }
 
     updateOneOfMany(prop, value, idx) {

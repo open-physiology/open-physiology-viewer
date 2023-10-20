@@ -3,9 +3,9 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
-import {cloneDeep, omit, values, sortBy} from 'lodash-bound';
+import {cloneDeep, values, sortBy} from 'lodash-bound';
 import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs} from './gui/utils.js'
-import FileSaver from 'file-saver';
+import {DiffDialog} from "./gui/diffDialog";
 import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
 import {$Field, $SchemaClass} from "../model";
 import {SearchAddBarModule} from "./gui/searchAddBar";
@@ -13,6 +13,8 @@ import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import { HostListener } from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
+
 
 /**
  * @class
@@ -55,14 +57,15 @@ export class Edge {
     template: `
         <section #materialEditorD3 id="materialEditorD3" class="w3-row">
             <section [class.w3-threequarter]="showPanel">
-                <section class="w3-padding-right" style="position:relative;">
+                <section class="w3-padding-right w3-white" style="position:relative;">
                     <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="createMaterial()" title="New material">
                             <i class="fa fa-file-pen"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="preview()" title="Preview">
+                               [disabled]="currentStep === 0" 
+                                (click)="showDiff()" title="Compare code">
                             <i class="fa fa-magnifying-glass"> </i>
                         </button>
                         <mat-divider></mat-divider>
@@ -97,7 +100,7 @@ export class Edge {
                     <g/>
                 </svg>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter">
+            <section *ngIf="showPanel" class="w3-quarter w3-white">
                 <searchAddBar 
                         [searchOptions]="_searchOptions"
                         [selected]="matToLink"
@@ -286,6 +289,7 @@ export class DagViewerD3Component {
     @Input('model') set model(newModel) {
         this._originalModel = newModel;
         this._model = newModel::cloneDeep();
+        this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
         this.currentStep = 0;
         this.saveStep('Initial model');
@@ -293,7 +297,8 @@ export class DagViewerD3Component {
         this.draw();
     }
 
-    constructor(snackBar: MatSnackBar) {
+    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
+        this.dialog = dialog;
         this._snackBar = snackBar;
         this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
         this.getScreenSize();
@@ -391,7 +396,7 @@ export class DagViewerD3Component {
         this.render = new dagreD3.render(this.graphD3);
         this.render(this.inner, this.graphD3);
 
-        this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
+        this.resizeCanvas();
 
         let nodes = this.inner.selectAll("g.node");
         this.appendNodeEvents(nodes);
@@ -785,6 +790,7 @@ export class DagViewerD3Component {
         }
         this.updateSearchOptions();
         this.selectedNode = newMat.id;
+        this.saveStep("Create material " + newMat.id);
         return newMat.id;
     }
 
@@ -797,8 +803,13 @@ export class DagViewerD3Component {
             let transform = d3.zoomTransform(selection.node());
             let zoomPos = transform.invert(pos);
             elem.attr('transform', 'translate(' + zoomPos[0] + ',' + zoomPos[1] + ')');
-            this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
+            this.resizeCanvas();
         }
+    }
+
+    resizeCanvas(){
+        this.svg.attr("width", Math.max(this.screenWidth, this.graphD3.graph().width + 40));
+        this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
     }
 
     addDefinition(prop, nodeID) {
@@ -915,12 +926,30 @@ export class DagViewerD3Component {
         }
     }
 
-    preview() {
-        let result = JSON.stringify(this._model, null, 4);
-        const blob = new Blob([result], {type: 'text/plain'});
-        FileSaver.saveAs(blob, this._model.id + '-material-editor.json');
+showDiff(){
+         const dialogRef = this.dialog.open(DiffDialog, {
+            width : '90%',
+            data  : {'oldContent': this._modelText, 'newContent': this.currentText}
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res !== undefined){
+            }
+        });
     }
 
+    get currentText(){
+        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
+            const added = ['_class', '_generated', '_inMaterials', '_included'];
+            let currentModel = this._model::cloneDeep();
+            return JSON.stringify(currentModel,
+                function(key, val) {
+                    if (!added.includes(key)){
+                        return val;
+                    }},
+                4);
+        }
+        return this._modelText;
+    }
     /**
      * Save operation in history
      * @param action
@@ -932,7 +961,7 @@ export class DagViewerD3Component {
         if (this.currentStep !== this.steps.length - 1){
             this.steps.length = this.currentStep + 1;
         }
-        let snapshot = this._model::omit('_inMaterials')::cloneDeep();
+        let snapshot = this._model::cloneDeep();
         this.steps.push({action: action, snapshot: snapshot});
         this.currentStep = this.steps.length - 1;
     }
@@ -961,7 +990,7 @@ export class DagViewerD3Component {
         }
     }
 
-    cleanHelpers(){
+    clearHelpers(){
         this.entitiesByID::values().forEach(obj => {
             //Clean up all helper mods
             delete obj._inMaterials;
@@ -972,7 +1001,7 @@ export class DagViewerD3Component {
     }
 
     saveChanges() {
-        this.cleanHelpers();
+        this.clearHelpers();
         this.onChangesSave.emit(this._model);
     }
 
@@ -1012,7 +1041,7 @@ export class DagViewerD3Component {
                 if (mat._class === $SchemaClass.Lyph) {
                     mat._included = true;
                 }
-                this.saveStep('Included lyph ' + matID);
+                this.saveStep('Include lyph ' + matID);
             }
             if (this.selectedNode){
                 this._addRelation({v: this.selectedNode, w: matID});
