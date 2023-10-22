@@ -104,7 +104,7 @@ export class LyphDeclarationEditor {
     @Output() onValueChange = new EventEmitter();
 
     topologyOptions: Option[] = [
-      { name: 'None', id: null },
+      { name: 'None', id: undefined },
       { name: 'TUBE', id: 'TUBE' },
       { name: 'BAG- (BAG)', id: 'BAG' },
       { name: 'BAG+ (BAG2)', id: 'BAG2' },

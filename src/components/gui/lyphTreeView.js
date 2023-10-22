@@ -16,14 +16,6 @@ import {COLORS} from "./utils";
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="tree-container">
-            <div class="w3-row w3-margin-right">
-                <button matTooltip="Expand all" class="w3-right" (click)="treeControl.expandAll()">
-                    <i class="fa fa-plus"> </i>
-                </button>
-                <button matTooltip="Collapse all" class="w3-right" (click)="treeControl.collapseAll()">
-                    <i class="fa fa-minus"> </i>
-                </button>
-            </div>
             <div class="title w3-margin">
                 <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
             </div>
@@ -229,6 +221,14 @@ export class LyphTreeView {
             if (newTreeData.length === 1) {
                 this.treeControl.expandAll();
             }
+        }
+    }
+
+    @Input('expanded') set expanded(isExpanded){
+        if (isExpanded) {
+            this.treeControl.expandAll();
+        } else {
+            this.treeControl.collapseAll();
         }
     }
 

@@ -3,6 +3,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
 import {SearchAddBarModule} from "./gui/searchAddBar";
+import {CheckboxFilterModule} from "./gui/checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {LyphTreeViewModule} from "./gui/lyphTreeView";
@@ -68,9 +69,24 @@ const ICON = {
         <section #lyphEditorD3 id="lyphEditorD3" class="w3-row">
             <section #lyphView id="lyphView" [class.w3-threequarter]="showPanel">
                 <section class="w3-col">
+                    <div class="w3-row w3-margin-right">
+                        <button matTooltip="Toggle tpology filter" class="w3-right" (click)="showFilter = !showFilter">
+                            <i class="fa fa-filter"> </i>
+                        </button>
+                        <button matTooltip="Expand all" class="w3-right" (click)="lyphTreeExpanded = true">
+                            <i class="fa fa-plus"> </i>
+                        </button>
+                        <button matTooltip="Collapse all" class="w3-right" (click)="lyphTreeExpanded = false">
+                            <i class="fa fa-minus"> </i>
+                        </button>
+                    </div>
+                    <checkboxFilter *ngIf="showFilter" [options]="topologyOptions" 
+                        (onOptionToggle)="updateTopologyFilter($event)"    
+                    ></checkboxFilter>
                     <lyphTreeView
                             title="Lyphs"
                             [active]="activeTree === 'lyphTree'"
+                            [expanded] = "lyphTreeExpanded"
                             [treeData]="lyphTree"
                             [selectedNode]="selectedNode"
                             (onNodeClick)="selectLyph($event)"
@@ -177,6 +193,14 @@ export class LyphEditorComponent {
     lyphTree = [];
     internalTree = [];
     layerTree = [];
+
+    topologyOptions: Option[] = [
+      { name: 'None', id: undefined },
+      { name: 'TUBE', id: 'TUBE' },
+      { name: 'BAG- (BAG)', id: 'BAG' },
+      { name: 'BAG+ (BAG2)', id: 'BAG2' },
+      { name: 'CYST', id: 'CYST' }
+    ];
 
     @Input('model') set value(newModel) {
         this._model = newModel::cloneDeep();
@@ -342,11 +366,15 @@ export class LyphEditorComponent {
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};
             let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
+            let topologyOption = this.topologyOptions.find(x => x.id === lyph.topology);
+            if (topologyOption?.disabled){
+                return;
+            }
             let length = (parent?._subtypes || []).length || 0;
             let res = this._createLyphNode(lyph, parent, idx, length);
             lyph._node = res;
             if (lyph._subtypes) {
-                res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i));
+                res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i)).filter(x => x);
             }
             if (res.resource?.layers && !res.icons.includes(ICON.LAYERS)) {
                 res.icons.push(ICON.LAYERS);
@@ -356,7 +384,7 @@ export class LyphEditorComponent {
             }
             return res;
         };
-        let treeData = (this._model.lyphs || []).filter(e => !e._supertype).map(e => mapToNodes(e));
+        let treeData = (this._model.lyphs || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
         this.lyphTree = treeData::sortBy([$Field.id]);
     }
 
@@ -774,13 +802,13 @@ export class LyphEditorComponent {
     }
 
     addInternal(node) {
-        let lyph = this.lyphToLink ? this.lyphToLink : this.defineNewLyph();
         let parent = this.entitiesByID[node.id] || this.selectedLyph;
         if (parent) {
             if (parent._class === $SchemaClass.Lyph) {
-                if (!this._isValidInternal(parent, lyph)) {
+                if (this.lyphToLink && !this._isValidInternal(parent, this.lyphToLink)) {
                     this.showMessage("Cannot add this internal lyph to the selected lyph!");
                 } else {
+                    let lyph = this.lyphToLink || this.defineNewLyph();
                     parent.internalLyphs = parent.internalLyphs || [];
                     parent.internalLyphs.push(lyph.id);
                     if (lyph !== this.lyphToLink) {
@@ -972,13 +1000,13 @@ export class LyphEditorComponent {
      * @param index
      */
     addLayer(node, index) {
-        let lyph = this.lyphToLink ? this.lyphToLink : this.defineNewLyph();
         let parent = this.entitiesByID[node.id] || this.selectedLyph;
         if (parent) {
             if (parent._class === $SchemaClass.Lyph) {
-                if (!this._isValidLayer(parent, lyph)) {
+                if (this.lyphToLink && !this._isValidLayer(parent, this.lyphToLink)) {
                     this.showMessage("Cannot add a layer to this lyph: hierarchy or dependency conflict!");
                 } else {
+                    let lyph = this.lyphToLink || this.defineNewLyph();
                     parent.layers = parent.layers || [];
                     parent.layers.push(lyph.id);
                     if (lyph !== this.lyphToLink) {
@@ -1160,11 +1188,15 @@ export class LyphEditorComponent {
             this.updateView(newSelected, restoredStep.activeTree);
         }
     }
+
+    updateTopologyFilter(options){
+        this.prepareLyphTree();
+    }
 }
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, LyphTreeViewModule, LyphDeclarationModule],
+        MatDividerModule, LyphTreeViewModule, LyphDeclarationModule, CheckboxFilterModule],
     declarations: [LyphEditorComponent],
     exports: [LyphEditorComponent]
 })
