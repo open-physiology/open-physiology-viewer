@@ -19,6 +19,7 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
+import {prepareSearchOptions} from "./gui/utils";
 
 const WindowResize = require('three-window-resize');
 
@@ -118,7 +119,7 @@ const WindowResize = require('three-window-resize');
                         [groups]="graphData?.activeGroups"
                         [dynamicGroups]="graphData?.dynamicGroups"
                         [scaffolds]="graphData?.scaffoldComponents"
-                        [searchOptions]="_searchOptions"
+                        [searchOptions]="searchOptions"
                         [varianceDisabled]="graphData?.variance"
                         [clade]="graphData?.clade"
                         [clades]="graphData?.clades"
@@ -186,9 +187,9 @@ export class WebGLSceneComponent {
     _highlighted = null;
     _selected    = null;
 
-    _searchOptions;
     _helperKeys = [];
 
+    searchOptions;
     graph;
     helpers   = {};
     highlightColor = 0xff0000;
@@ -208,7 +209,7 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
+            this.searchOptions = prepareSearchOptions(this._graphData);
 
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
@@ -732,14 +733,17 @@ export class WebGLSceneComponent {
         }
     }
 
-    selectByName(name) {
-        let options = (this.graphData.resources||[]).filter(e => e.name === name);
-        if (options.length > 0){
-            //prefer visible lyphs over templates
-            let res = options.find(e => !e.isTemplate);
-            this.selected = res? res: options[0];
+    selectByName(nodeLabel) {
+         if (!nodeLabel){
+            return;
         }
-        else {
+        let nodeID = nodeLabel.substring(
+                nodeLabel.indexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+        );
+        if (this._graphData && (nodeID !== this.selected?.id)) {
+            this.selected = (this._graphData.resources||[]).find(e => e.id === nodeID);
+        } else {
             this.selected = undefined;
         }
     }

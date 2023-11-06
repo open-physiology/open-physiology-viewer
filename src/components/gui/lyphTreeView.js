@@ -25,7 +25,8 @@ import {COLORS} from "./utils";
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-border-amber" [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
-                               'lyph'     : node.type === 'Lyph', 
+                               'lyph'     : node.type === 'Lyph',
+                               'template' : node.isTemplate,
                                'material' : node.type === 'Material', 
                                'undefined': node.type === 'Undefined'}"
                             (click)="selectNode(node)"
@@ -57,6 +58,7 @@ import {COLORS} from "./utils";
                     <button class="w3-hover-border-amber" [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'lyph'     : node.type === 'Lyph', 
+                                'template' : node.isTemplate,
                                 'material' : node.type === 'Material', 
                                 'undefined': node.type === 'Undefined'}"
                             (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
@@ -146,13 +148,17 @@ import {COLORS} from "./utils";
         }
 
         .lyph {
-            background-color: #ffe4b2;
+            background-color: ${COLORS.lyph};
             border: 0.067rem solid lightgrey;
         }
 
         .material {
-            background-color: #CCFFCC;
+            background-color: ${COLORS.material}; 
             border: 0.067rem solid lightgrey;
+        }
+
+        .template {
+            background-color: ${COLORS.template};
         }
 
         .undefined {

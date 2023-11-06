@@ -27,8 +27,8 @@ import {COLORS} from "./utils";
                 >
                 <mat-autocomplete #auto="matAutocomplete"
                                   (optionSelected)="this.selectedItemChange.emit($event.option.value)">
-                    <mat-option *ngFor="let option of _filteredOptions | async" [value]="option">
-                        {{option}}
+                    <mat-option *ngFor="let option of _filteredOptions | async" [value]="option.label" [ngClass]="option.type">
+                        {{option.label}}
                     </mat-option>
                 </mat-autocomplete>
                 <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear" (click)="selectedItemChange.emit(null)">
@@ -139,6 +139,47 @@ import {COLORS} from "./utils";
 
         .search-bar .search-input::placeholder {
             color: ${COLORS.inputPlacholderColor};
+        }           
+        
+        .mat-option {
+            padding: 0;
+            margin: 2px;
+        }
+
+        .Lyph {
+            background-color: ${COLORS.lyph}; 
+        }
+        
+        .Template{
+            background-color: ${COLORS.template}; 
+        }
+        
+        .Material {
+            background-color: ${COLORS.material};
+        }
+        
+        .Link {
+            background-color: ${COLORS.link};
+        }
+        
+        .Node {
+            background-color: ${COLORS.node};
+        }
+        
+        .Wire {
+             background-color: ${COLORS.link};
+        }
+        
+        .Anchor {
+            background-color: ${COLORS.node};
+        }
+        
+        .Region {
+            background-color: ${COLORS.region};
+        }
+
+        .Coalescence {
+            background-color: ${COLORS.coalescence};
         }
     `]
 })
@@ -195,7 +236,7 @@ export class SearchBar {
             return this.searchOptions || [];
         }
         const filterValue = name.toLowerCase();
-        return (this.searchOptions || []).filter(option => option && option.toLowerCase().includes(filterValue));
+        return (this.searchOptions || []).filter(option => option.label && option.label.toLowerCase().includes(filterValue));
     }
 }
 

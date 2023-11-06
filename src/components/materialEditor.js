@@ -4,7 +4,14 @@ import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
 import {cloneDeep, values, sortBy} from 'lodash-bound';
-import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs} from './gui/utils.js'
+import {
+    clearMaterialRefs,
+    clearMany,
+    isPath,
+    replaceMaterialRefs,
+    prepareMaterialSearchOptions,
+    COLORS
+} from './gui/utils.js'
 import {DiffDialog} from "./gui/diffDialog";
 import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
 import {$Field, $SchemaClass} from "../model";
@@ -15,6 +22,21 @@ import {MatDividerModule} from "@angular/material/divider";
 import { HostListener } from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 
+/**
+ * Css class names to represent ApiNATOMY resource classes
+ * @type {{LYPH: string, UNDEFINED: string, TEMPLATE: string, MATERIAL: string}}
+ */
+const CLASS = {
+    LYPH: "type-lyph",
+    TEMPLATE: "type-template",
+    MATERIAL: "type-material",
+    UNDEFINED: 'type-undefined'
+}
+
+const EDGE_CLASS = {
+    MATERIAL: 'has-material',
+    NEW: 'has-new'
+}
 
 /**
  * @class
@@ -91,7 +113,10 @@ export class Edge {
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
                                 title="Apply changes">
-                            <i class="fa fa-check"> </i>
+                            <div style="display: flex">    
+                                <i class="fa fa-check"> </i>
+                                <span *ngIf="currentStep > 0" style="color: red">*</span>
+                            </div>
                         </button>
                     </section>
                 </section>
@@ -102,7 +127,7 @@ export class Edge {
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white">
                 <searchAddBar 
-                        [searchOptions]="_searchOptions"
+                        [searchOptions]="searchOptions"
                         [selected]="matToLink"
                         (selectedItemChange)="selectBySearch($event)"
                         (addSelectedItem)="linkMaterial($event)"
@@ -126,20 +151,20 @@ export class Edge {
         <mat-menu #rightMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-type="type" let-hasParents="hasParents"
                          let-hasChildren="hasChildren">
-                <div *ngIf="type === 'type-lyph' || type === 'type-material'">
+                <div *ngIf="[CLASS.LYPH, CLASS.TEMPLATE, CLASS.MATERIAL].includes(type)">
                     <button mat-menu-item (click)="deleteMaterial(item)">Delete</button>
                     <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item)">Delete definition</button>
                     <button *ngIf="hasParents" mat-menu-item (click)="removeParents(item)">Disconnect from parents</button>
                     <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children</button>
                 </div>
-                <button *ngIf="type === 'type-lyph' && !hasChildren && !hasParents" 
+                <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents" 
                         mat-menu-item (click)="excludeLyph(item)">Exclude from view</button>
-                <div *ngIf="type === 'type-undefined'">
+                <div *ngIf="type === CLASS.UNDEFINED">
                     <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
-                    <button mat-menu-item (click)="defineAsLyph(item)">Define as lyph</button>
+                    <button mat-menu-item (click)="defineAsLyphTemplate(item)">Define as lyph template</button>
                 </div>
-                <button *ngIf="type === 'has-material'" mat-menu-item (click)="removeRelation(item)">Delete relation</button>
-                <button *ngIf="type === 'type-new'" mat-menu-item (click)="addMaterial(item)">Add material</button>
+                <button *ngIf="type === EDGE_CLASS.MATERIAL" mat-menu-item (click)="removeRelation(item)">Delete relation</button>
+                <button *ngIf="type === EDGE_CLASS.NEW" mat-menu-item (click)="addMaterial(item)">Add material</button>
 
             </ng-template>
         </mat-menu>
@@ -185,16 +210,20 @@ export class Edge {
           height:32px;
         }
 
-        :host /deep/ g.type-undefined > rect {
+        :host /deep/ g.${CLASS.UNDEFINED} > rect {
             fill: lightgrey;
         }
 
-        :host /deep/ g.type-material > rect {
-            fill: #CCFFCC;
+        :host /deep/ g.${CLASS.MATERIAL} > rect {
+            fill: ${COLORS.material};
         }
 
-        :host /deep/ g.type-lyph > rect {
-            fill: #ffe4b2;
+        :host /deep/ g.${CLASS.LYPH} > rect {
+            fill: ${COLORS.lyph};
+        }
+
+        :host /deep/ g.${CLASS.TEMPLATE} > rect {
+            fill: ${COLORS.template};
         }
 
         :host /deep/ text {
@@ -253,20 +282,20 @@ export class Edge {
  * @property entitiesByID
  */
 export class DagViewerD3Component {
+    CLASS = CLASS;
+    EDGE_CLASS = EDGE_CLASS;
+
     _originalModel;
     _model;
-    _searchOptions;
     _selectedNode;
 
-    /**
-     * @property nodeEdges
-     */
     graphD3;
     entitiesByID;
     nodes = [];
     edges = [];
     menuTopLeftPosition = {x: '0', y: '0'}
 
+    searchOptions;
     steps = [];
     currentStep = 0;
     selected_node;
@@ -311,9 +340,7 @@ export class DagViewerD3Component {
     }
 
     updateSearchOptions() {
-        this._searchOptions = (this._model.materials || []).map(e => (e.name || '?') + ' (' + e.id + ')');
-        this._searchOptions = this._searchOptions.concat((this._model.lyphs || []).map(e => e.name + ' (' + e.id + ')'));
-        this._searchOptions.sort();
+        this.searchOptions = prepareMaterialSearchOptions(this._model);
     }
 
     ngAfterViewInit() {
@@ -564,7 +591,7 @@ export class DagViewerD3Component {
                 (m._inMaterials || []).map(parent => parent.id),
                 (m.materials || []).map(child => child.id ? child.id : child),
                 m.name || m.id,
-                "type-material",
+                CLASS.MATERIAL,
                 m
             ));
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
@@ -576,7 +603,7 @@ export class DagViewerD3Component {
                     (m._inMaterials || []).map(parent => parent.id),
                     (m.materials || []).map(child => child.id ? child.id : child),
                     m.name || m.id,
-                    "type-lyph",
+                    m.isTemplate? CLASS.TEMPLATE: CLASS.LYPH,
                     m
                 ));
                 m._included = true;
@@ -590,7 +617,7 @@ export class DagViewerD3Component {
                     (m._inMaterials || []).map(parent => parent.id),
                     (m.materials || []).map(child => child.id ? child.id : child),
                     m.name || m.id,
-                    "type-undefined",
+                    CLASS.UNDEFINED,
                     m
                 ));
             }
@@ -682,9 +709,9 @@ export class DagViewerD3Component {
     onRightClick(nodeID) {
         d3.event.preventDefault();
         let node = this.entitiesByID[nodeID];
-        let type = 'type-undefined';
+        let type = CLASS.UNDEFINED;
         if (!node._generated) {
-            type = node._class === $SchemaClass.Material ? "type-material" : "type-lyph";
+            type = node._class === $SchemaClass.Material ? CLASS.MATERIAL : node.isTemplate? CLASS.TEMPLATE: CLASS.LYPH;
         }
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
@@ -702,7 +729,7 @@ export class DagViewerD3Component {
 
     onEmptyRightClick() {
         d3.event.preventDefault();
-        let type = "type-new";
+        let type = EDGE_CLASS.NEW;
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
         this.matMenuTrigger.menuData = {item: [d3.event.clientX, d3.event.clientY - 48], type: type}
@@ -779,10 +806,10 @@ export class DagViewerD3Component {
         let newMat = this.defineNewMaterial();
         this.graphD3.setNode(newMat.id, {
             label: newMat.name,
-            class: 'type-material'
+            class: CLASS.MATERIAL
         });
         this.inner.call(this.render, this.graphD3);
-        this.nodes.push(new Node(newMat.id, [], [], newMat.name, "type-material", newMat));
+        this.nodes.push(new Node(newMat.id, [], [], newMat.name, CLASS.MATERIAL, newMat));
         let node = this.graphD3.node(newMat.id);
         if (node) {
             let elem = d3.select(node.elem);
@@ -819,6 +846,7 @@ export class DagViewerD3Component {
         delete resource._generated;
         this._model[prop] = this._model[prop] || [];
         this._model[prop].push(resource);
+        return resource;
     }
 
     deleteDefinition(nodeID) {
@@ -829,20 +857,24 @@ export class DagViewerD3Component {
             delete this.entitiesByID[nodeID]._class;
             let node = this.graphD3.node(nodeID);
             if (node) {
-                node.class = 'type-undefined';
-                let val = d3.select(node.elem).attr("class").replace('type-material', node.class).replace('type-lyph', node.class);
+                node.class = CLASS.UNDEFINED;
+                let val = d3.select(node.elem).attr("class")
+                    .replace(CLASS.MATERIAL, CLASS.UNDEFINED)
+                    .replace(CLASS.LYPH, CLASS.UNDEFINED)
+                    .replace(CLASS.TEMPLATE, CLASS.UNDEFINED);
                 d3.select(node.elem).attr("class", val);
             }
             this.saveStep("Delete definition " + nodeID);
         }
     }
 
-    defineAsLyph(nodeID) {
-        this.addDefinition($Field.lyphs, nodeID);
+    defineAsLyphTemplate(nodeID) {
+        let lyph = this.addDefinition($Field.lyphs, nodeID);
+        lyph.isTemplate = true;
         let node = this.graphD3.node(nodeID);
         if (node) {
-            node.class = 'type-lyph';
-            let val = d3.select(node.elem).attr("class").replace('type-undefined', node.class);
+            node.class = CLASS.TEMPLATE;
+            let val = d3.select(node.elem).attr("class").replace(CLASS.UNDEFINED, CLASS.TEMPLATE);
             d3.select(node.elem).attr("class", val);
         }
         this.saveStep("Define as lyph " + nodeID);
@@ -852,8 +884,8 @@ export class DagViewerD3Component {
         this.addDefinition($Field.materials, nodeID);
         let node = this.graphD3.node(nodeID);
         if (node) {
-            node.class = 'type-material';
-            let val = d3.select(node.elem).attr("class").replace('type-undefined', node.class);
+            node.class = CLASS.MATERIAL;
+            let val = d3.select(node.elem).attr("class").replace(CLASS.UNDEFINED, CLASS.MATERIAL);
             d3.select(node.elem).attr("class", val);
         }
         this.saveStep("Define as material " + nodeID);
@@ -1031,9 +1063,9 @@ showDiff(){
             if (!node && mat._class === $SchemaClass.Lyph){
                 this.graphD3.setNode(matID, {
                     label: mat.name,
-                    class: 'type-lyph'
+                    class: mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH
                 });
-                this.nodes.push(new Node(matID, [], [], mat.name, "type-lyph", mat));
+                this.nodes.push(new Node(matID, [], [], mat.name, mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH, mat));
                 this.inner.call(this.render, this.graphD3);
                 node = this.graphD3.node(matID);
                 let elem = d3.select(node.elem);

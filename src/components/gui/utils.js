@@ -1,8 +1,14 @@
 import {NgModule, Pipe, PipeTransform} from '@angular/core';
 import {isArray, isObject} from 'lodash-bound';
-import {$Field} from "../../model";
-import {LYPH_TOPOLOGY} from "../../model/utils";
+import {$Field, $SchemaClass} from "../../model";
 
+
+/**
+ * Design schema colors for fields in GUI components
+ * @type {{toggleActiveBg: string, customPurple: string, white: string, headingBg: string, black: string,
+ * inputPlacholderColor: string, customOrange: string, inputTextColor: string, customGreen: string,
+ * inputBorderColor: string, grey: string}}
+ */
 export const COLORS = {
   grey: 'grey',
   white: '#FFFFFF',
@@ -12,6 +18,13 @@ export const COLORS = {
   black: '#000000',
   toggleActiveBg: '#613DB0',
   headingBg: '#F1F1F1',
+  lyph: '#ffe4b2',
+  template: '#ffff99',
+  material: '#ccffcc',
+  link: '#ffccff',
+  node: '#ddffff',
+  region: '#e3e3e3',
+  coalescence: '#ffe7e7'
 };
 
 
@@ -23,6 +36,11 @@ export class ObjToArray implements PipeTransform {
     }
 }
 
+/**
+ * Converts an input field value into serializable format. Objects are referred by the identifier in their 'id' field.
+ * @param value
+ * @returns {string|*}
+ */
 export function printFieldValue(value){
     if (!value) {return ""; }
     if (value::isArray()){
@@ -46,7 +64,13 @@ export function parseFieldValue(value){
     return res;
 }
 
-
+/**
+ * Removes references to a given resourceID from a set of given properties containing multiple values
+ * @param resource - a resource to modify
+ * @param props - properties of the main resource that may contain unwanted references
+ * @param resourceID - a referred resource identifier to remove
+ * @returns {boolean} - returns true if the main resource was altered
+ */
 export function clearMany(resource, props, resourceID){
     let res = false;
     props.forEach(prop => {
@@ -62,6 +86,13 @@ export function clearMany(resource, props, resourceID){
     return res;
 }
 
+/**
+ * Removes references to a given resourceID from a set of given properties containing a single value
+ * @param resource - a resource to modify
+ * @param props - properties of the main resource that may contain unwanted references
+ * @param resourceID - a referred resource identifier to remove
+ * @returns {boolean} - returns true if the main resource was altered
+ */
 export function clearOne(resource, props, resourceID){
     let res = false;
     props.forEach(prop => {
@@ -73,6 +104,14 @@ export function clearOne(resource, props, resourceID){
     return res;
 }
 
+/**
+ * Replaces references in properties of a given resource that expect multiple values
+ * @param resource - a resource to modify
+ * @param props - properties of the main resource that may contain references that need replacing
+ * @param resourceID - a referred resource identifier to replace
+ * @param newResourceID - a new resource identifier to use as replacement
+ * @returns {boolean} - returns true if the main resource was altered
+ */
 export function replaceMany(resource, props, resourceID, newResourceID){
     let res = false;
     props.forEach(prop => {
@@ -137,6 +176,45 @@ export function replaceMaterialRefs(model, materialID, newMaterialID){
     (model.chains||[]).forEach(chain => replaceMany(chain,[$Field.lyphs], materialID, newMaterialID));
     (model.links||[]).forEach(link => replaceMany(link,[$Field.conveyingMaterials], materialID, newMaterialID));
     return model;
+}
+
+/**
+ * Returns a list of lyph and material names joint with identifiers for search boxes in the GUI components
+ * @param model
+ * @returns {{id: *, label: string, type: string}[]}
+ */
+export function prepareMaterialSearchOptions(model){
+    let searchOptions = [];
+    let classNames = [$SchemaClass.Material, $SchemaClass.Lyph];
+    [$Field.materials, $Field.lyphs].forEach((prop, i) => {
+        (model[prop] || []).forEach(e => searchOptions.push({
+            id: e.id,
+            label: (e.name || '?') + ' (' + e.id + ')',
+            type: e.isTemplate? 'Template': classNames[i]
+        }));
+    });
+    searchOptions.sort();
+    return searchOptions;
+}
+
+/**
+ * Returns a list of lyph and material names joint with identifiers for search boxes in the GUI components
+ * @param model
+ * @returns {{id: *, label: string, type: string}[]}
+ */
+export function prepareSearchOptions(model){
+    let searchOptions = [];
+    let classNames = [$SchemaClass.Material, $SchemaClass.Lyph, $SchemaClass.Link, $SchemaClass.Node, $Field.coalescences,
+        $SchemaClass.Wire, $SchemaClass.Anchor, $SchemaClass.Region];
+    [$Field.materials, $Field.lyphs, $Field.links, $Field.nodes, $Field.coalescences, $Field.wires, $Field.anchors, $Field.regions].forEach((prop, i) => {
+        (model[prop] || []).forEach(e => searchOptions.push({
+            id: e.id,
+            label: (e.name || '?') + ' (' + e.id + ')',
+            type: e.isTemplate? 'Template': classNames[i]
+        }));
+    });
+    searchOptions.sort();
+    return searchOptions;
 }
 
 export function isPath(entitiesByID, v, w){

@@ -97,14 +97,9 @@ const COLORS = {
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div class="default-box pb-0">
-                        <div class="default-searchBar default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
-                                           (selectedItemChange)="selectBySearch($event)">
-                                </searchBar>
-                            </div>
-                        </div>
+                        <searchBar [selected]="selectedLabel" [searchOptions]="searchOptions"
+                                   (selectedItemChange)="this.onSelectBySearch.emit($event)">
+                        </searchBar>
                         <div *ngIf="config.selected" class="default-boxContent">
                             <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                             </resourceInfoPanel>
@@ -973,15 +968,13 @@ export class SettingsPanel {
     _showHelpers;
     _labelProps;
     _labelClasses;
-    _selectedName;
-    _modelId;
+    selectedLabel;
     searchTerm = '';
     filteredGroups;
     filteredDynamicGroups;
     searchTermScaffolds = '';
     filteredScaffolds;
     nodes;
-    // previousId = '';
 
     scaffoldResourceVisibility: Boolean = false;
     renderedComponents;
@@ -1014,16 +1007,10 @@ export class SettingsPanel {
         }
     }
 
-    @Input('modelId') set modelId(modelId) {
-        // if (this._modelId !== modelId) {
-        //     this._modelId = modelId;
-        // }
-    }
-
     @Input('selected') set selected(entity) {
         if (this.selected !== entity) {
             this._selected = entity;
-            this._selectedName = entity ? entity.name || "" : "";
+            this.selectedLabel = (entity?.name || '?') + ' (' + entity?.id + ')';
         }
     }
 
@@ -1063,13 +1050,6 @@ export class SettingsPanel {
 
     get scaffolds() {
         return this._scaffolds;
-    }
-
-    selectBySearch(name) {
-        if (name !== this._selectedName) {
-            this._selectedName = name;
-            this.onSelectBySearch.emit(name);
-        }
     }
 
     toggleMode() {
@@ -1192,19 +1172,15 @@ export class SettingsPanel {
     }
 
     ngOnInit() {
-        // this.previousId = this._modelId;
         this.filteredGroups = this.groups;
         this.filteredDynamicGroups = this.dynamicGroups;
         this.filteredScaffolds = this.scaffolds;
     }
 
     ngOnChanges() {
-        // if (this._modelId !== this.previousId) {
-        //   this.previousId = this._modelId;
         this.search(this.searchTerm, 'filteredGroups', 'groups');
         this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
         this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
-        // }
         this.filteredGroups = this.filteredGroups || this.groups;
         this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
         this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;

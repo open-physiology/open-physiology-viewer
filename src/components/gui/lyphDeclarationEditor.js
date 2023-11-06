@@ -17,7 +17,7 @@ import {SearchAddBarModule} from "./searchAddBar";
             [resource]="lyph"
             (onValueChange)="onValueChange.emit($event)"
         ></resourceDeclaration>
-        <div class="resource-box">
+        <div *ngIf="lyph?._class === 'Lyph'" class="resource-box">
             <div class="settings-wrap">
                 <div class="resource-boxContent">                 
                     <section>
@@ -38,14 +38,12 @@ import {SearchAddBarModule} from "./searchAddBar";
 
                </div>
             </div>
-        </div>                     
 <!--        <searchAddBar -->
 <!--                [searchOptions]="_searchOptions"-->
 <!--                [selected]="selectedRegion"-->
 <!--                (selectedItemChange)="selectBySearch($event)"-->
 <!--                (addSelectedItem)="replaceRegion($event)"-->
 <!--        ></searchAddBar>-->
-        <div class="resource-box">
             <div class="settings-wrap">
                 <div class="resource-boxContent">                
                 <!--Search for region-->
