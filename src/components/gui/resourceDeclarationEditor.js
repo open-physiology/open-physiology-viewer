@@ -21,6 +21,7 @@ import {MatDialog} from "@angular/material/dialog";
                                matTooltip="Identifier"
                                [value]="resource?.id"
                                (keyup.enter)="updateValue('id', $event.target.value)"
+                               (focusout)="updateValue('id', $event.target.value)"
                         >
                     </mat-form-field>
 
@@ -30,6 +31,7 @@ import {MatDialog} from "@angular/material/dialog";
                                matTooltip="Name"
                                [value]="resource?.name"
                                (keyup.enter)="updateValue('name', $event.target.value)"
+                               (focusout)="updateValue('name', $event.target.value)"
                         >
                     </mat-form-field>
 

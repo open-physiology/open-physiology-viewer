@@ -223,7 +223,7 @@ export class LyphTreeView {
         this._treeData = newTreeData;
         this.dataSource.data = newTreeData;
         if (newTreeData) {
-            this.selectedNode = newTreeData[0];
+            // this.selectedNode = newTreeData[0];
             if (newTreeData.length === 1) {
                 this.treeControl.expandAll();
             }

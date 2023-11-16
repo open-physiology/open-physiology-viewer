@@ -212,7 +212,7 @@ export class LyphEditorComponent {
         this.steps = [];
         this.currentStep = 0;
         this.prepareLyphTree();
-        this.updateView(null, 'lyphTree');
+        this.updateView(this.selectedLyph, 'lyphTree');
         this.updateRegionOptions();
         this.saveStep('Initial model');
     };
@@ -268,11 +268,13 @@ export class LyphEditorComponent {
      * @param activeTree
      */
     updateView(selectedLyph, activeTree) {
-        let lyph = selectedLyph ? selectedLyph : (this.lyphTree.length > 0) ? this.lyphTree[0].resource : null;
-        this.selectedLyph = lyph;
-        this.selectedLyphToEdit = lyph;
-        this.prepareLayerTree();
-        this.prepareInternalTree();
+        let lyph = selectedLyph? selectedLyph : (this.lyphTree.length > 0) ? this.lyphTree[0].resource : null;
+        if (lyph) {
+            this.selectLyph(lyph.id);
+            if (this.selectedNode?.id !== lyph.id) {
+                this.selectedNode = lyph.id;
+            }
+        }
         this.updateSearchOptions();
         this.lyphToLink = null;
         this.activeTree = activeTree;
@@ -285,7 +287,6 @@ export class LyphEditorComponent {
         let lyph = this.defineNewLyph();
         let node = this._createLyphNode(lyph);
         this.lyphTree = [node, ...this.lyphTree];
-        this.selectedNode = node;
         this.updateView(lyph, 'lyphTree');
         this.saveStep("Create new lyph " + lyph.id);
     }
@@ -481,12 +482,10 @@ export class LyphEditorComponent {
      */
     selectLyph(node) {
         let nodeID = node::isObject() ? node.id : node;
-        if (this.selectedLyph?.id !== nodeID) {
-            this.selectedLyph = this.entitiesByID[nodeID];
-            this.selectedLyphToEdit = this.selectedLyph;
-            this.prepareLayerTree();
-            this.prepareInternalTree();
-        }
+        this.selectedLyph = this.entitiesByID[nodeID];
+        this.selectedLyphToEdit = this.selectedLyph;
+        this.prepareLayerTree();
+        this.prepareInternalTree();
         this.activeTree = 'lyphTree';
     }
 

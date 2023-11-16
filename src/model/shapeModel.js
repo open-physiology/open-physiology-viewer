@@ -99,6 +99,9 @@ export class Shape extends VisualResource {
  * @property thickness
  * @property internalNodesInLayers
  * @property seedIn
+ * @property {Array<External>} inheritedExternal
+ * @property {Array<OntologyTerm>} inheritedOntologyTerms
+ * @property {Array<Reference>} inheritedReferences
  */
 export class Lyph extends Shape {
     /**
@@ -182,9 +185,9 @@ export class Lyph extends Shape {
         }
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-                $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.namespace, $Field.topology,
-                $Field.materials, $Field.channels, $Field.bundlesChains, $Field.internalLyphsInLayers
-            ]), mergeResources);
+            $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.namespace, $Field.topology,
+            $Field.materials, $Field.channels, $Field.bundlesChains, $Field.internalLyphsInLayers
+        ]), mergeResources);
         //If targetLyph is from different namespace, add namespace to default materials
         if (targetLyph.namespace !== sourceLyph.namespace){
             [$Field.materials, $Field.channels, $Field.bundlesChains].forEach(prop => {
@@ -210,6 +213,8 @@ export class Lyph extends Shape {
         } else {
             if (!targetLyph.cloneOf) {
                 targetLyph.cloneOf = sourceLyph.fullID || sourceLyph.id;
+                //Issue #126 cloned lyphs inherit external annotations from the source lyph
+                targetLyph::mergeWith(sourceLyph::pick([$Field.references, $Field.ontologyTerms, $Field.external]), mergeResources);
             }
         }
 
@@ -219,7 +224,7 @@ export class Lyph extends Shape {
             logger.warn($LogMsg.LYPH_SUBTYPE_HAS_OWN_LAYERS, targetLyph);
         }
 
-        const cloneParts = (prop) =>{
+        const cloneParts = prop =>{
             let missingParts = [];
             (sourceLyph[prop] || []).forEach((partRef, i) => {
                 let nm = sourceLyph.namespace || parentGroup.namespace;
@@ -246,7 +251,7 @@ export class Lyph extends Shape {
 
                 mergeGenResource(undefined, parentGroup, targetPart, $Field.lyphs);
                 this.clone(parentGroup, sourcePart, targetPart);
-                if (prop === "layers") {
+                if (prop === $Field.layers) {
                     //Layers inherit their topology from hosting lyph
                     targetPart::merge(sourcePart::pick([$Field.topology]));
                 }
@@ -350,22 +355,30 @@ export class Lyph extends Shape {
         mapToLayers2($Field.internalNodes, $Field.nodes);
     }
 
-    collectInheritedExternals(prop, inheritedProp){
+    collectInheritedProperty(prop, inheritedProp, rel){
         this[inheritedProp] = this[inheritedProp] || [];
-        const ids = this[inheritedProp].map(x => x.id);
-        let curr = this.supertype;
-        while (curr && curr.fullID !== this.fullID){
-            (curr[prop]||[]).forEach(e => {
-                if (!ids.includes(e.id)){
+        let fullIDs = this[inheritedProp].map(x => x.fullID);
+        let curr = this[rel];
+        while (curr && curr.fullID !== this.fullID) {
+            (curr[prop] || []).forEach(e => {
+                if (!fullIDs.includes(e.fullID)) {
                     this[inheritedProp].push(e);
-                    ids.push(e.id);
+                    fullIDs.push(e.fullID);
                 }
             });
-            curr = curr.supertype;
+            curr = curr[rel];
         }
-        if (this[inheritedProp].length === 0){
+        if (this[inheritedProp].length === 0) {
             delete this[inheritedProp];
         }
+
+    }
+
+    collectInheritedExternals(){
+        const props = [$Field.external, $Field.ontologyTerms, $Field.references];
+        const inheritedProps = [$Field.inheritedExternal, $Field.inheritedOntologyTerms, $Field.inheritedReferences];
+        this.supertype && props.forEach((prop, i) => this.collectInheritedProperty(prop, inheritedProps[i], $Field.supertype));
+        this.cloneOf && inheritedProps.forEach(prop=> this.collectInheritedProperty(prop, prop, $Field.cloneOf));
     }
 
     /**

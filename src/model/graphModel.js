@@ -305,14 +305,10 @@ export class Graph extends Group{
 
             //Collect inherited externals
             (res.lyphs || []).forEach(lyph => {
-                if (lyph.supertype) {
-                    if (!lyph.collectInheritedExternals) {
-                        logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
-                    } else {
-                        lyph.collectInheritedExternals($Field.external, $Field.inheritedExternal);
-                        lyph.collectInheritedExternals($Field.ontologyTerms, $Field.inheritedOntologyTerms);
-                        lyph.collectInheritedExternals($Field.references, $Field.inheritedReferences);
-                    }
+                if (!lyph.collectInheritedExternals) {
+                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
+                } else {
+                    lyph.collectInheritedExternals();
                 }
             });
 
