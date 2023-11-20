@@ -70,7 +70,7 @@ const ICON = {
             <section #lyphView id="lyphView" [class.w3-threequarter]="showPanel">
                 <section class="w3-col">
                     <div class="w3-row w3-margin-right">
-                        <button matTooltip="Toggle tpology filter" class="w3-right" (click)="showFilter = !showFilter">
+                        <button matTooltip="Toggle topology filter" class="w3-right" (click)="showFilter = !showFilter">
                             <i class="fa fa-filter"> </i>
                         </button>
                         <button matTooltip="Expand all" class="w3-right" (click)="lyphTreeExpanded = true">
@@ -520,7 +520,7 @@ export class LyphEditorComponent {
      * @returns {({}|*)[]}
      * @private
      */
-    _preparePropertyTree(prop, includeInherited = false) {
+    _preparePropertyTree(prop, tmpProp, includeInherited = false) {
         let stack = [];
         let loops = [];
 
@@ -969,6 +969,9 @@ export class LyphEditorComponent {
     }
 
     _isValidInternal(parent, child) {
+        if ((child.internalLyphs || []).find(e => e.id === parent.id)) {
+            return false;
+        }
         if (!child.isTemplate) {
             if ((parent.internalLyphs || []).find(e => e.id === child.id)) {
                 return false;

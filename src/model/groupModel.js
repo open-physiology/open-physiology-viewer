@@ -223,6 +223,9 @@ export class Group extends Resource {
 
         const replaceRefToTemplate = (ref, parent, ext = null) => {
             let refID = getID(ref);
+            if (refID === parent.id){
+                logger.error($LogMsg.LYPH_TEMPLATE_LOOP, refID);
+            }
             let template = refToResource(refID, parentGroup, $Field.lyphs);
             if (template && template.isTemplate) {
                 changedLyphs++;
@@ -230,9 +233,11 @@ export class Group extends Resource {
                 let subtype = genResource({
                     [$Field.id]        : subtypeID,
                     [$Field.name]      : template.name,
-                    [$Field.supertype] : refID,
                     [$Field.skipLabel] : true
                 }, "groupModel.replaceRefToTemplate (Lyph)");
+                if (refID !== parent.id){
+                   subtype.supertype = refID;
+                }
                 //NK: mergeGenResource assigns namespace and fullID
                 mergeGenResource(undefined, parentGroup, subtype, $Field.lyphs);
                 replaceAbstractRefs(subtype, $Field.layers);
