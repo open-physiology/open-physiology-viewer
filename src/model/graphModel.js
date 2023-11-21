@@ -131,7 +131,7 @@ export class Graph extends Group{
      */
     static processGraphWaitingList(res, entitiesByID, namespace, modelClasses, castingMethod) {
         let added = [];
-        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
+        (entitiesByID?.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 //Do not create missing scaffold resources
@@ -159,7 +159,7 @@ export class Graph extends Group{
         });
 
         if (added.length > 0) {
-            added.forEach(id => delete entitiesByID.waitingList[id]);
+            added.forEach(id => delete entitiesByID?.waitingList[id]);
             added = added.filter(id => !entitiesByID[id]);
 
             let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
@@ -173,8 +173,8 @@ export class Graph extends Group{
             }
         }
 
-        if (entitiesByID.waitingList::keys().length > 0){
-            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID.waitingList::keys());
+        if (entitiesByID?.waitingList::keys().length > 0){
+            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID?.waitingList::keys());
         }
 
         res.syncRelationships(modelClasses, entitiesByID);
@@ -824,7 +824,7 @@ export class Graph extends Group{
 
     getCurrentState(){
         let json =  {
-            [$Field.visibleGroups]: this.visibleGroups.map(g => g.id)
+            [$Field.visibleGroups]: this.visibleGroups.map(g => g?.id)
         }
         json.scaffolds = [];
         (this.scaffolds||[]).forEach(s => {

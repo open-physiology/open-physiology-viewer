@@ -31,7 +31,7 @@ export const MIN_LYPH_WIDTH = 50;
 export const DIMENSIONS =  {
   LYPH_MIN_Z : 0.15,
   REGION_MIN_Z : 0,
-  LINK_MIN_Z : 0.15,
+  LINK_MIN_Z : 0.2,
   WIRE_MIN_Z : 0,
   LAYER_MIN_Z : 0.125
 }
@@ -99,20 +99,20 @@ export function maxLyphSize(target, source, terminalLyph) {
 
   if( !terminalLyph ) {
     if (  target?.userData?.hostedLyphs ){
-      length = target?.userData?.hostedLyphs?.length;
+      length = target?.userData?.hostedLyphs?.filter( l => !l.hidden )?.length;
       idealSize = (hostMaxSize / length) * ( 1 - LYPH_H_PERCENT_MARGIN);
     } else if (  target?.userData?.internalLyphs ){
-      length = target?.userData?.internalLyphs?.length;
+      length = target?.userData?.internalLyphs?.filter( l => !l.hidden )?.length;
       idealSize = (hostMaxSize / length) * ( length > 1 ? ( 1 - LYPH_H_PERCENT_MARGIN) : LYPH_V_PERCENT_MARGIN);
     }
 
     if ( idealSize > hostMinSize ){
-      idealSize = hostMinSize / 2;
+      idealSize = hostMinSize;
     }
   } 
   else {
     let link = source.userData.conveys;
-    length = target?.userData?.internalLyphs?.length;
+    length = target?.userData?.internalLyphs?.filter( l => !l.hidden )?.length;
     if ( link ) {
       link.viewObjects["main"].computeLineDistances();
       let ld = link.viewObjects["main"].geometry.getAttribute("lineDistance");

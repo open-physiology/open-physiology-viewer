@@ -266,17 +266,7 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    if (this.conveyingLyph){
-        this.conveyingLyph.updateViewObjects(state);
-        this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
-        this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
-
-        let edgeObj = this.viewObjects["edge"];
-        if (edgeObj){
-            let centerPoint = pointAlongLine(this.points[0], this.points[this.points.length - 1], .5)
-            copyCoords(centerPoint, this.conveyingLyph.center);
-        }
-    }
+    
 
     //Update buffered geometries
     //Do not update links with fixed node positions
@@ -301,7 +291,7 @@ Link.prototype.updateViewObjects = function(state) {
             obj.geometry.setPositions(coordArray);
         } else {
             if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
-                obj.geometry.setFromPoints(this.points);
+                obj.geometry.setFromPoints([start,end]);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();
                 obj.geometry.computeBoundingBox();
@@ -328,9 +318,7 @@ Link.prototype.updateViewObjects = function(state) {
 
                         // For Links with source/target nodes at center of lyph, create some space from center
                         let newStart = start;
-                        this.source.internalIn && neurulated ? newStart = pointAlongLine(start, end, .05) : null;
                         let newEnd = end;
-                        this.target.internalIn && neurulated ? newEnd = pointAlongLine(start, end, .95) : null;
 
                         let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(newStart.y) - Math.abs(newEnd.y)));
                         let centerPoint = getDefaultControlPoint(newStart, newEnd, curvature)
@@ -347,16 +335,31 @@ Link.prototype.updateViewObjects = function(state) {
                         this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     }
                     obj.geometry.setFromPoints(this.points);
-                    if ( this.conveyingLyph?.viewObjects ){
-                        obj.position.z = this.conveyingLyph.viewObjects["main"].position.z + .1;
-                    } 
+                    obj.geometry.attributes.position.needsUpdate = true;
+                    obj.geometry.computeBoundingSphere();
+                } else {
+                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    obj.geometry.setFromPoints(this.points);
                     obj.geometry.attributes.position.needsUpdate = true;
                     obj.geometry.computeBoundingSphere();
                 }
             }
         }
+
+        if (this.conveyingLyph){
+            this.conveyingLyph.updateViewObjects(state);
+            this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
+            this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+    
+            let edgeObj = this.viewObjects["edge"];
+            if (edgeObj){
+                let centerPoint = pointAlongLine(this.points[0], this.points[this.points.length - 1], .5)
+                copyCoords(centerPoint, this.conveyingLyph.center);
+            }
+        }
         copyCoords(this, obj.position);
         this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge),obj);
+    
     }
   }
 };
@@ -452,7 +455,9 @@ Wire.prototype.updateViewObjects = function(state) {
 
     });
 
-    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge),this.viewObjects["main"]);
+    let position = pointAlongLine(start, end, .5);
+
+    this.updateLabels(position.clone().addScalar(this.state.labelOffset.Edge),this.viewObjects["main"]);
 
     if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
 

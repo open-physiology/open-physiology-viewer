@@ -74,15 +74,15 @@ export class Node extends Vertice {
 
     static clone(sourceNode, targetNode){
         if (!sourceNode) { return; }
+        //One node can be cloned multiple times, hence we add a counter to it's generated ID
+        sourceNode.clones = sourceNode.clones || [];
+        let ext = sourceNode.clones.length;
         targetNode = targetNode || {};
         targetNode.cloneOf = sourceNode.id;
-        targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone);
+        targetNode.id = targetNode.id || getGenID(sourceNode.id, $Prefix.clone + ext);
         targetNode::merge(sourceNode::pick([$Field.color, $Field.hidden, $Field.namespace, $Field.val]));
         targetNode.skipLabel = true;
         targetNode.generated = true;
-        if (!sourceNode.clones){
-            sourceNode.clones = [];
-        }
         sourceNode.clones.push(targetNode.fullID || targetNode.id);
         return targetNode;
     }
@@ -101,6 +101,7 @@ export class Node extends Vertice {
      */
     static replicateBorderNodes(parentGroup, modelClasses){
         let borderNodesByID = {};
+        //NK TODO housing lyphs can be from other groups/namespaces?
         (parentGroup.lyphs||[]).forEach(lyph => {
             if (lyph.border && lyph.border.borders) {
                 lyph.border.borders.forEach(b =>
@@ -112,6 +113,7 @@ export class Node extends Vertice {
 
         borderNodesByID::keys().forEach(nodeFullID => {
             let hostLyphs = borderNodesByID[nodeFullID];
+
             if (hostLyphs.length > 1){
                 const nodeID = getRefID(nodeFullID);
                 let node  = refToResource(nodeFullID, parentGroup, $Field.nodes, true);

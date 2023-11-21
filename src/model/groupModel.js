@@ -85,13 +85,13 @@ export class Group extends Resource {
 
     contains(resource){
         if (resource instanceof Node){
-            return findResourceByID(this.nodes, resource.id);
+            return findResourceByID(this.nodes, resource?.id);
         }
         if (resource instanceof Lyph){
-            return findResourceByID(this.lyphs, resource.id);
+            return findResourceByID(this.lyphs, resource?.id);
         }
         if (resource instanceof Link){
-            return findResourceByID(this.links, resource.id);
+            return findResourceByID(this.links, resource?.id);
         }
         return false;
     }
@@ -103,7 +103,7 @@ export class Group extends Resource {
         if (this.lyphsByID && this.lyphsByID[lyph.fullID]){
             delete this.lyphsByID[lyph.fullID];
         }
-        let idx = (this.lyphs || []).findIndex(e => e.fullID === lyph.fullID);
+        let idx = (this.lyphs || []).findIndex(e => e?.fullID === lyph.fullID);
         if (idx > -1) {
             this.lyphs.splice(idx, 1);
         }
@@ -130,7 +130,7 @@ export class Group extends Resource {
             host.hostedLyphs = host.hostedLyphs || [];
             (this.links||[]).filter(link => link.conveyingLyph && !link.conveyingLyph.internalIn).forEach(link => {
                 link.conveyingLyph.hostedBy = host;
-                if (!host.hostedLyphs.find(e => e.id === link.conveyingLyph.id)){
+                if (!host.hostedLyphs.find(e => e?.id === link.conveyingLyph.id)){
                     host.hostedLyphs.push(link.conveyingLyph);
                 }
             });
@@ -165,7 +165,7 @@ export class Group extends Resource {
                 group[prop] = group[prop].filter(x => !!x && x.class);
             });
         } else {
-            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => json[prop] = resources[prop].map(e => e.fullID));
+            [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => json[prop] = resources[prop].map(e => e?.fullID));
             group = modelClasses.Group.fromJSON(json, modelClasses, this.entitiesByID, this.namespace);
             this.groups.push(group);
         }
@@ -187,7 +187,7 @@ export class Group extends Resource {
     includeLinkEnds(links, nodes){
         nodes = nodes || [];
         (links||[]).forEach(lnk => {
-            if (!findResourceByID(nodes, lnk.source.id)){
+            if (!findResourceByID(nodes, lnk.source?.id)){
                 nodes.push(lnk.source);
             }
             if (!findResourceByID(nodes, lnk.target.id)){
@@ -196,7 +196,7 @@ export class Group extends Resource {
         });
         (this.links||[]).forEach(lnk => {
             if (lnk.collapsible &&
-                findResourceByID(nodes, lnk.source.id) && findResourceByID(nodes, lnk.target.id)){
+                findResourceByID(nodes, lnk.source?.id) && findResourceByID(nodes, lnk.target.id)){
                 links.push(lnk);
             }
         });
@@ -224,19 +224,19 @@ export class Group extends Resource {
         const replaceRefToTemplate = (ref, parent, ext = null) => {
             let refID = getID(ref);
             let template = refToResource(refID, parentGroup, $Field.lyphs);
-            if (template && template.isTemplate) {
+            if (template && template?.isTemplate) {
                 changedLyphs++;
                 const subtypeID = getGenID($Prefix.template, refID, parent.id, ext);
                 let subtype = genResource({
                     [$Field.id]        : subtypeID,
-                    [$Field.name]      : template.name,
+                    [$Field.name]      : template?.name,
                     [$Field.supertype] : refID,
                     [$Field.skipLabel] : true
                 }, "groupModel.replaceRefToTemplate (Lyph)");
                 //NK: mergeGenResource assigns namespace and fullID
                 mergeGenResource(undefined, parentGroup, subtype, $Field.lyphs);
                 replaceAbstractRefs(subtype, $Field.layers);
-                return subtype.id;
+                return subtype?.id;
             }
             return ref;
         };
@@ -248,7 +248,7 @@ export class Group extends Resource {
                 let refID = getID(ref);
                 let lyphID = getGenID($Prefix.material, refID);
                 let template = refToResource(lyphID, parentGroup, $Field.lyphs);
-                if (!template || !template.isTemplate) {
+                if (!template || !template?.isTemplate) {
                     let material = refToResource(refID, parentGroup, $Field.materials);
                     if (material) {
                         template = genResource({
@@ -265,13 +265,13 @@ export class Group extends Resource {
                         if (getRefNamespace(refID, parentGroup.namespace) !== parentGroup.namespace){
                             //Reference does not exist
                             if (!refToResource(refID, parentGroup, $Field.lyphs)){
-                                logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource.id, key, ref);
+                                logger.error($LogMsg.MATERIAL_REF_NOT_FOUND, resource?.id, key, ref);
                             }
                         }
                     }
                 }
                 if (template){
-                    return template.id;
+                    return template?.id;
                 }
                 return ref;
             };
@@ -316,7 +316,7 @@ export class Group extends Resource {
     }
 
     /**
-     * Generate groups from group templates, i.e. auto-create necessary nodes and links conveying given or generated lyphs
+     * Generate groups from group templates, i.e?. auto-create necessary nodes and links conveying given or generated lyphs
      * @param parentGroup - input model
      * @param modelClasses - model resource classes
      */
@@ -449,15 +449,15 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get activeGroups(){
-        return [...(this.groups||[])].filter(e => !e.inactive && (e.description !== "dynamic"));
+        return [...(this.groups||[])].filter(e => !e?.inactive && (e?.description !== "dynamic"));
     }
 
     get dynamicGroups(){
-        return [...(this.groups||[])].filter(e => e.description === "dynamic");
+        return [...(this.groups||[])].filter(e => e?.description === "dynamic");
     }
 
     get visibleGroups(){
-        return [...(this.groups||[])].filter(e => !e.hidden);
+        return [...(this.groups||[])].filter(e => !e?.hidden);
     }
 
     assignScaffoldComponents(){
@@ -475,7 +475,7 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get visibleNodes(){
-        return (this.nodes||[]).filter(e => e.isVisible);
+        return (this.nodes||[]).filter(e => e?.isVisible);
     }
 
     /**
@@ -483,7 +483,7 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get visibleLinks(){
-        return (this.links||[]).filter(e => e.isVisible);
+        return (this.links||[]).filter(e => e?.isVisible);
     }
 
     /**
@@ -491,11 +491,11 @@ export class Group extends Resource {
      * @returns {*[]}
      */
     get visibleLyphs(){
-       return (this.lyphs||[]).filter(e => !e.hidden);
+       return (this.lyphs||[]).filter(e => !e?.hidden);
     }
 
     get create3d(){
-        return (this.lyphs||[]).find(e => e.create3d);
+        return (this.lyphs||[]).find(e => e?.create3d);
     }
 }
 
