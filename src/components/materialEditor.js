@@ -19,18 +19,19 @@ import {SearchAddBarModule} from "./gui/searchAddBar";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import { HostListener } from "@angular/core";
+import {HostListener} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
+import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
 
 /**
  * Css class names to represent ApiNATOMY resource classes
  * @type {{LYPH: string, UNDEFINED: string, TEMPLATE: string, MATERIAL: string}}
  */
 const CLASS = {
-    LYPH: "type-lyph",
-    TEMPLATE: "type-template",
-    MATERIAL: "type-material",
-    UNDEFINED: 'type-undefined'
+    LYPH: $SchemaClass.Lyph,
+    MATERIAL: $SchemaClass.Material,
+    TEMPLATE: "Template",
+    UNDEFINED: "Undefined"
 }
 
 const EDGE_CLASS = {
@@ -47,7 +48,7 @@ const EDGE_CLASS = {
  * @property type
  * @property resource
  */
-export class Node {
+export class MaterialNode {
     constructor(id, parents, children, label, type, resource) {
         this.id = id;
         this.parents = parents;
@@ -77,10 +78,10 @@ export class Edge {
 @Component({
     selector: 'materialEditor',
     template: `
-        <section #materialEditorD3 id="materialEditorD3" class="w3-row">
-            <section [class.w3-threequarter]="showPanel">
+        <section class="w3-row">
+            <section [class.w3-threequarter]="showPanel">                                
                 <section class="w3-padding-right w3-white" style="position:relative;">
-                    <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
+                    <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:20px">
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="createMaterial()" title="New material">
                             <i class="fa fa-file-pen"> </i>
@@ -91,10 +92,6 @@ export class Edge {
                             <i class="fa fa-magnifying-glass"> </i>
                         </button>
                         <mat-divider></mat-divider>
-<!--                        <button [disabled]="!isHistory" class="w3-bar-item"-->
-<!--                                (click)="showHistory()" title="Show history">-->
-<!--                            <i class="fa fa-timeline"> </i>-->
-<!--                        </button>-->
                         <button [disabled]="!canUndo" class="w3-bar-item"
                                 (click)="undo()" [title]="undoTitle">
                             <i class="fa fa-rotate-left"> </i>
@@ -120,10 +117,12 @@ export class Edge {
                         </button>
                     </section>
                 </section>
-                <svg #svgDagD3>
-                    <rect width="100%" height="100%"/>
-                    <g/>
-                </svg>
+                <section #materialEditorD3 id="materialEditorD3">
+                    <svg #svgDagD3>
+                        <rect width="100%" height="100%"/>
+                        <g/>
+                    </svg>                    
+                </section>                
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white">
                 <searchAddBar 
@@ -137,6 +136,14 @@ export class Edge {
                         [resource]="selectedMaterial"
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
+                    <resourceListView 
+                      title="Lyphs"
+                      [showMenu]=false
+                      [listData]="lyphList"
+                      (onNodeClick)="selectLyph($event)"
+                    >
+                    </resourceListView>   
+                
             </section>
         </section>
         <section #tooltip class="tooltip"></section>
@@ -314,6 +321,7 @@ export class DagViewerD3Component {
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
     @Output() onChangesSave = new EventEmitter();
+    @Output() onSwitchEditor = new EventEmitter();
 
     @Input('model') set model(newModel) {
         this._originalModel = newModel;
@@ -415,7 +423,7 @@ export class DagViewerD3Component {
             let x = this.graphD3.node(e.source.id);
             let y = this.graphD3.node(e.target.id);
             if (x && y) {
-                this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis});
+                this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis, class: e.source.id + " " + e.target.id});
             } else {
                 throw new Error("Graph cannot have an edge between non-existing nodes: " + e.source.id + " --- " + e.target.id);
             }
@@ -586,7 +594,7 @@ export class DagViewerD3Component {
 
         //Create nodes for visualization
         (this._model.materials || []).forEach(m => {
-            this.nodes.push(new Node(
+            this.nodes.push(new MaterialNode(
                 m.id,
                 (m._inMaterials || []).map(parent => parent.id),
                 (m.materials || []).map(child => child.id ? child.id : child),
@@ -598,7 +606,7 @@ export class DagViewerD3Component {
         });
         (this._model.lyphs || []).forEach(m => {
             if ((m._inMaterials || []).length > 0 || (m.materials || []).length > 0 || m._included) {
-                this.nodes.push(new Node(
+                this.nodes.push(new MaterialNode(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
                     (m.materials || []).map(child => child.id ? child.id : child),
@@ -612,7 +620,7 @@ export class DagViewerD3Component {
         });
         (created || []).forEach(m => {
             if (m.id) {
-                this.nodes.push(new Node(
+                this.nodes.push(new MaterialNode(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
                     (m.materials || []).map(child => child.id ? child.id : child),
@@ -687,6 +695,7 @@ export class DagViewerD3Component {
                 let previous = this.graphD3.node(this._selectedNode);
                 if (previous) {
                     d3.select(previous.elem).select("g rect").attr("stroke-width", null);
+                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke-width", null);
                 }
             }
             this._selectedNode = nodeID;
@@ -694,7 +703,24 @@ export class DagViewerD3Component {
             if (node) {
                 let elem = d3.select(node.elem);
                 elem.select("g rect").attr("stroke-width", "5");
+                let edges = d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke-width", "5");
             }
+            this.prepareLyphList();
+        }
+    }
+
+    prepareLyphList(){
+        this.lyphList = [];
+        (this._model.lyphs||[]).forEach(lyph => {
+            if ((lyph.layers||[]).find(e => e === this._selectedNode)){
+                this.lyphList.push(ListNode.createInstance(lyph));
+            }
+        });
+    }
+
+    selectLyph(node){
+        if (node.class === $SchemaClass.Lyph || node.class === "Template") {
+            this.onSwitchEditor.emit({editor: "lyph", node: node.id});
         }
     }
 
@@ -743,7 +769,7 @@ export class DagViewerD3Component {
             material1.materials = material1.materials || [];
             if (!material1.materials.find(m => m === w)) {
                 material1.materials.push(w);
-                this.graphD3.setEdge(v, w, {curve: d3.curveBasis});
+                this.graphD3.setEdge(v, w, {curve: d3.curveBasis, class: v + " " + w});
                 this.inner.call(this.render, this.graphD3);
                 let path = this.graphD3.edge({v: v, w: w});
                 material2._inMaterials = material2._inMaterials || [];
@@ -809,7 +835,7 @@ export class DagViewerD3Component {
             class: CLASS.MATERIAL
         });
         this.inner.call(this.render, this.graphD3);
-        this.nodes.push(new Node(newMat.id, [], [], newMat.name, CLASS.MATERIAL, newMat));
+        this.nodes.push(new MaterialNode(newMat.id, [], [], newMat.name, CLASS.MATERIAL, newMat));
         let node = this.graphD3.node(newMat.id);
         if (node) {
             let elem = d3.select(node.elem);
@@ -1065,7 +1091,7 @@ showDiff(){
                     label: mat.name,
                     class: mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH
                 });
-                this.nodes.push(new Node(matID, [], [], mat.name, mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH, mat));
+                this.nodes.push(new MaterialNode(matID, [], [], mat.name, mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH, mat));
                 this.inner.call(this.render, this.graphD3);
                 node = this.graphD3.node(matID);
                 let elem = d3.select(node.elem);
@@ -1095,7 +1121,8 @@ showDiff(){
 }
 
 @NgModule({
-    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule, MatDividerModule],
+    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
+        MatDividerModule, ResourceListViewModule],
     declarations: [DagViewerD3Component],
     exports: [DagViewerD3Component]
 })

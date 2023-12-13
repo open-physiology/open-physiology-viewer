@@ -10,28 +10,31 @@ import {$Field, $SchemaClass} from "../../model";
  * inputBorderColor: string, grey: string}}
  */
 export const COLORS = {
-  grey: 'grey',
-  white: '#FFFFFF',
-  inputBorderColor: '#E0E0E0',
-  inputTextColor: '#797979',
-  inputPlacholderColor: '#C0C0C0',
-  black: '#000000',
-  toggleActiveBg: '#613DB0',
-  headingBg: '#F1F1F1',
-  lyph: '#ffe4b2',
-  template: '#ffff99',
-  material: '#ccffcc',
-  link: '#ffccff',
-  node: '#ddffff',
-  region: '#e3e3e3',
-  coalescence: '#ffe7e7'
+    grey: 'grey',
+    white: '#FFFFFF',
+    inputBorderColor: '#E0E0E0',
+    inputTextColor: '#797979',
+    inputPlacholderColor: '#C0C0C0',
+    black: '#000000',
+    toggleActiveBg: '#613DB0',
+    headingBg: '#F1F1F1',
+    lyph: '#ffe4b2',
+    template: '#ffff99',
+    material: '#ccffcc',
+    link: '#ffccff',
+    node: '#ddffff',
+    region: '#e3e3e3',
+    coalescence: '#ffe7e7',
+    chain: '#ccddff'
 };
 
 
 @Pipe({name: 'objToArray'})
 export class ObjToArray implements PipeTransform {
     transform(obj) {
-        if (obj::isArray()) {return obj; }
+        if (obj::isArray()) {
+            return obj;
+        }
         return [obj];
     }
 }
@@ -41,9 +44,11 @@ export class ObjToArray implements PipeTransform {
  * @param value
  * @returns {string|*}
  */
-export function printFieldValue(value){
-    if (!value) {return ""; }
-    if (value::isArray()){
+export function printFieldValue(value) {
+    if (!value) {
+        return "";
+    }
+    if (value::isArray()) {
         return value.map(e => printFieldValue(e)).filter(e => !!e).join(";");
     } else {
         if (value::isObject()) {
@@ -57,10 +62,12 @@ export function printFieldValue(value){
     return value;
 }
 
-export function parseFieldValue(value){
-    if (!value) { return [];}
-    let res  = value.split(";");
-    res = res.map(obj => (obj.indexOf("{") > -1)? JSON.parse(obj): obj);
+export function parseFieldValue(value) {
+    if (!value) {
+        return [];
+    }
+    let res = value.split(";");
+    res = res.map(obj => (obj.indexOf("{") > -1) ? JSON.parse(obj) : obj);
     return res;
 }
 
@@ -71,13 +78,13 @@ export function parseFieldValue(value){
  * @param resourceID - a referred resource identifier to remove
  * @returns {boolean} - returns true if the main resource was altered
  */
-export function clearMany(resource, props, resourceID){
+export function clearMany(resource, props, resourceID) {
     let res = false;
     props.forEach(prop => {
-        if (resource[prop]){
+        if (resource[prop]) {
             //NK we assume here that only references are used, no nested objects and (no other namespaces yet!)
             let idx = resource[prop].findIndex(m => (m.id || m) === resourceID);
-            if (idx > -1){
+            if (idx > -1) {
                 resource[prop].splice(idx, 1);
                 res = true;
             }
@@ -93,7 +100,7 @@ export function clearMany(resource, props, resourceID){
  * @param resourceID - a referred resource identifier to remove
  * @returns {boolean} - returns true if the main resource was altered
  */
-export function clearOne(resource, props, resourceID){
+export function clearOne(resource, props, resourceID) {
     let res = false;
     props.forEach(prop => {
         if (resource[prop] && resource[prop] === resourceID) {
@@ -112,13 +119,13 @@ export function clearOne(resource, props, resourceID){
  * @param newResourceID - a new resource identifier to use as replacement
  * @returns {boolean} - returns true if the main resource was altered
  */
-export function replaceMany(resource, props, resourceID, newResourceID){
+export function replaceMany(resource, props, resourceID, newResourceID) {
     let res = false;
     props.forEach(prop => {
-        if (resource[prop]){
+        if (resource[prop]) {
             //NK we assume here that only references are used, no nested objects and (no other namespaces yet!)
             let idx = resource[prop].findIndex(m => m === resourceID);
-            if (idx > -1){
+            if (idx > -1) {
                 resource[prop][idx] = newResourceID;
                 res = true;
             }
@@ -127,7 +134,7 @@ export function replaceMany(resource, props, resourceID, newResourceID){
     return res;
 }
 
-export function replaceOne(resource, props, resourceID, newResourceID){
+export function replaceOne(resource, props, resourceID, newResourceID) {
     let res = false;
     props.forEach(prop => {
         if (resource[prop] && resource[prop] === resourceID) {
@@ -145,37 +152,68 @@ export function replaceOne(resource, props, resourceID, newResourceID){
  * @param model
  * @param materialID
  */
-export function clearMaterialRefs(model, materialID){
-    (model.materials||[]).forEach(material => {
-        clearMany(material,[$Field.materials, $Field.inMaterials], materialID);
+export function clearMaterialRefs(model, materialID) {
+    (model.materials || []).forEach(material => {
+        clearMany(material, [$Field.materials, $Field.inMaterials], materialID);
     });
-    (model.lyphs||[]).forEach(lyph => {
-        clearMany(lyph,[$Field.materials, $Field.inMaterials, $Field.layers,
+    (model.lyphs || []).forEach(lyph => {
+        clearMany(lyph, [$Field.materials, $Field.inMaterials, $Field.layers,
             $Field.internalLyphs, $Field.subtypes], materialID);
-        clearOne(lyph,[$Field.layerIn, $Field.supertype, $Field.internalIn, $Field.seed], materialID);
+        clearOne(lyph, [$Field.layerIn, $Field.supertype, $Field.internalIn, $Field.seed], materialID);
     });
-    (model.chains||[]).forEach(chain => clearMany(chain,[$Field.lyphs, $Field.housingLyphs], materialID));
-    (model.groups||[]).forEach(group => clearMany(group,[$Field.seed], materialID));
-    (model.chains||[]).forEach(chain => clearMany(chain,[$Field.lyphs], materialID));
-    (model.links||[]).forEach(link => clearMany(link,[$Field.conveyingMaterials], materialID));
+    (model.chains || []).forEach(chain => clearMany(chain, [$Field.lyphs, $Field.housingLyphs], materialID));
+    (model.groups || []).forEach(group => clearMany(group, [$Field.seed], materialID));
+    (model.chains || []).forEach(chain => clearMany(chain, [$Field.lyphs], materialID));
+    (model.links || []).forEach(link => clearMany(link, [$Field.conveyingMaterials], materialID));
     return model;
 }
 
 
-export function replaceMaterialRefs(model, materialID, newMaterialID){
-    (model.materials||[]).forEach(material => {
-        replaceMany(material,[$Field.materials, $Field.inMaterials], materialID, newMaterialID);
+export function replaceMaterialRefs(model, materialID, newMaterialID) {
+    (model.materials || []).forEach(material => {
+        replaceMany(material, [$Field.materials, $Field.inMaterials], materialID, newMaterialID);
     });
-    (model.lyphs||[]).forEach(lyph => {
-        replaceMany(lyph,[$Field.materials, $Field.inMaterials, $Field.layers,
+    (model.lyphs || []).forEach(lyph => {
+        replaceMany(lyph, [$Field.materials, $Field.inMaterials, $Field.layers,
             $Field.internalLyphs, $Field.subtypes], materialID, newMaterialID);
-        replaceOne(lyph,[$Field.layerIn, $Field.supertype, $Field.internalIn, $Field.seed], materialID, newMaterialID);
+        replaceOne(lyph, [$Field.layerIn, $Field.supertype, $Field.internalIn, $Field.seed], materialID, newMaterialID);
     });
-    (model.chains||[]).forEach(chain => replaceMany(chain,[$Field.lyphs, $Field.housingLyphs], materialID, newMaterialID));
-    (model.groups||[]).forEach(group => replaceMany(group,[$Field.seed], materialID, newMaterialID));
-    (model.chains||[]).forEach(chain => replaceMany(chain,[$Field.lyphs], materialID, newMaterialID));
-    (model.links||[]).forEach(link => replaceMany(link,[$Field.conveyingMaterials], materialID, newMaterialID));
+    (model.chains || []).forEach(chain => replaceMany(chain, [$Field.lyphs, $Field.housingLyphs], materialID, newMaterialID));
+    (model.groups || []).forEach(group => replaceMany(group, [$Field.seed], materialID, newMaterialID));
+    (model.chains || []).forEach(chain => replaceMany(chain, [$Field.lyphs], materialID, newMaterialID));
+    (model.links || []).forEach(link => replaceMany(link, [$Field.conveyingMaterials], materialID, newMaterialID));
     return model;
+}
+
+/**
+ * Create a map of lyphs and materials for input model editors
+ * @param model
+ * @param entitiesByID
+ */
+export function prepareMaterialLyphMap(model, entitiesByID) {
+    (model.lyphs || []).forEach(lyph => {
+        if (lyph::isObject()) {
+            if (!lyph.id) {
+                let counter = 1;
+                let newLyphID = "tmpLyphID" + counter;
+                while (entitiesByID[newLyphID]) {
+                    newLyphID = "tmpLyphID" + ++counter;
+                }
+                lyph._id = true;
+                lyph.id = newLyphID;
+            }
+            lyph._subtypes = [];
+            delete lyph._supertype;
+            lyph._class = $SchemaClass.Lyph;
+            entitiesByID[lyph.id] = lyph;
+        }
+    });
+    (model.materials || []).forEach(material => {
+        if (material.id) {
+            material._class = $SchemaClass.Material;
+            entitiesByID[material.id] = material;
+        }
+    });
 }
 
 /**
@@ -183,16 +221,32 @@ export function replaceMaterialRefs(model, materialID, newMaterialID){
  * @param model
  * @returns {{id: *, label: string, type: string}[]}
  */
-export function prepareMaterialSearchOptions(model){
+export function prepareMaterialSearchOptions(model) {
     let searchOptions = [];
     let classNames = [$SchemaClass.Material, $SchemaClass.Lyph];
     [$Field.materials, $Field.lyphs].forEach((prop, i) => {
         (model[prop] || []).forEach(e => searchOptions.push({
             id: e.id,
             label: (e.name || '?') + ' (' + e.id + ')',
-            type: e.isTemplate? 'Template': classNames[i]
+            type: e.isTemplate ? 'Template' : classNames[i]
         }));
     });
+    searchOptions.sort();
+    return searchOptions;
+}
+
+/**
+ * Returns a list of lyph names joint with identifiers for search boxes in the GUI components
+ * @param model
+ * @returns {{id: *, label: string, type: string}[]}
+ */
+export function prepareLyphSearchOptions(model) {
+    let searchOptions = [];
+    (model.lyphs || []).forEach(e => searchOptions.push({
+        id: e.id,
+        label: (e.name || '?') + ' (' + e.id + ')',
+        type: e.isTemplate ? 'Template' : $SchemaClass.Lyph
+    }));
     searchOptions.sort();
     return searchOptions;
 }
@@ -202,7 +256,7 @@ export function prepareMaterialSearchOptions(model){
  * @param model
  * @returns {{id: *, label: string, type: string}[]}
  */
-export function prepareSearchOptions(model){
+export function prepareSearchOptions(model) {
     let searchOptions = [];
     let classNames = [$SchemaClass.Material, $SchemaClass.Lyph, $SchemaClass.Link, $SchemaClass.Node, $Field.coalescences,
         $SchemaClass.Wire, $SchemaClass.Anchor, $SchemaClass.Region];
@@ -210,31 +264,31 @@ export function prepareSearchOptions(model){
         (model[prop] || []).forEach(e => searchOptions.push({
             id: e.id,
             label: (e.name || '?') + ' (' + e.id + ')',
-            type: e.isTemplate? 'Template': classNames[i]
+            type: e.isTemplate ? 'Template' : classNames[i]
         }));
     });
     searchOptions.sort();
     return searchOptions;
 }
 
-export function isPath(entitiesByID, v, w){
-   let stack = [];
-   let explored = new Set();
-   stack.push(v);
-   explored.add(v);
-   while (stack.length !== 0) {
-      let t = stack.pop();
-      if (t === w){
-          return true;
-      }
-      let t_node = entitiesByID[t];
-      (t_node.materials||[]).filter(n => !explored.has(n))
-      .forEach(n => {
-          explored.add(n);
-          stack.push(n);
-      });
-   }
-   return false;
+export function isPath(entitiesByID, v, w) {
+    let stack = [];
+    let explored = new Set();
+    stack.push(v);
+    explored.add(v);
+    while (stack.length !== 0) {
+        let t = stack.pop();
+        if (t === w) {
+            return true;
+        }
+        let t_node = entitiesByID[t];
+        (t_node.materials || []).filter(n => !explored.has(n))
+            .forEach(n => {
+                explored.add(n);
+                stack.push(n);
+            });
+    }
+    return false;
 }
 
 @NgModule({

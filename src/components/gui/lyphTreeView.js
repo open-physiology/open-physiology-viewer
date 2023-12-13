@@ -7,9 +7,50 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
-import {LyphTreeViewControls} from "./lyphTreeViewControls";
 import {COLORS} from "./utils";
+import {$Field} from "../../model";
 
+/**
+ * @class
+ * @classdesc This is a lyph, material, or reference to undefined lyph to display in lyph tree viewer
+ * @property id
+ * @property label
+ * @property type
+ * @property parent
+ * @property length
+ * @property children
+ * @property isTemplate
+ * @property index
+ * @property resource
+ * @property icons
+ * @property layerIndex
+ * @property maxLayerIndex
+ * @property inherited
+ */
+export class LyphTreeNode {
+    constructor(id, label, type, parent, length, children, isTemplate, index, resource) {
+        this.id = id;
+        this.label = label;
+        this.parent = parent;
+        this.length = length;
+        this.children = children;
+        this.isTemplate = isTemplate;
+        this.type = type;
+        this.index = index;
+        this.resource = resource;
+        this.icons = [];
+        this.canMoveUp = index > 0 && this.length > 1;
+        this.canMoveDown = index < this.length - 1;
+        if (this.resource?.hasOwnProperty($Field.internalInLayer)) {
+            this.layerIndex = this.resource.internalInLayer;
+        }
+        if (this.parent?.internalLyphs && this.parent?.internalLyphsInLayers) {
+            if (this.index < this.parent?.internalLyphsInLayers.length) {
+                this.layerIndex = this.parent.internalLyphsInLayers[this.index];
+            }
+        }
+    }
+}
 
 @Component({
     selector: 'lyphTreeView',
@@ -23,7 +64,7 @@ import {COLORS} from "./utils";
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-border-amber" [ngClass]="{
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                'lyph'     : node.type === 'Lyph',
                                'template' : node.isTemplate,
@@ -55,7 +96,7 @@ import {COLORS} from "./utils";
                             [attr.aria-label]="'Toggle ' + node.id">
                         <i class="fa fa-chevron-right"> </i>
                     </button>
-                    <button class="w3-hover-border-amber" [ngClass]="{
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'lyph'     : node.type === 'Lyph', 
                                 'template' : node.isTemplate,
@@ -146,15 +187,17 @@ import {COLORS} from "./utils";
         .mat-icon-button {
             line-height: normal;
         }
-
+        
+        .node-item {
+            border: 0.067rem solid lightgrey;
+        }
+        
         .lyph {
             background-color: ${COLORS.lyph};
-            border: 0.067rem solid lightgrey;
         }
 
         .material {
             background-color: ${COLORS.material}; 
-            border: 0.067rem solid lightgrey;
         }
 
         .template {
@@ -178,7 +221,7 @@ import {COLORS} from "./utils";
             height: 80vh;
             overflow-y: auto;
         }
-
+        
         button {
             background: transparent;
             color: #797979;
@@ -213,17 +256,14 @@ export class LyphTreeView {
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
     @Input() title;
-    @Input() showLayerIndex;
-    @Input() showButtons = false;
-    @Input() editable = true;
     @Input() ordered = false;
     @Input() active = false;
+    @Input() showLayerIndex;
 
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;
         this.dataSource.data = newTreeData;
         if (newTreeData) {
-            // this.selectedNode = newTreeData[0];
             if (newTreeData.length === 1) {
                 this.treeControl.expandAll();
             }
@@ -320,7 +360,7 @@ export class LyphTreeView {
 @NgModule({
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule,
         MatTreeModule, MatMenuModule],
-    declarations: [LyphTreeView, LyphTreeViewControls],
+    declarations: [LyphTreeView],
     exports: [LyphTreeView]
 })
 export class LyphTreeViewModule {
