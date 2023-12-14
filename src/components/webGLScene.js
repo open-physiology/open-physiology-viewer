@@ -706,13 +706,7 @@ export class WebGLSceneComponent {
         this.refreshSettings = true;
         this.loading = true;
         let that = this;
-        let visible = true;
         if (neuroviewEnabled) {
-            toggleNeuroView(true, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
-            let filteredGroups = that.graphData.dynamicGroups.filter( dg => !dg.hidden );
-            filteredGroups.forEach((g) => {
-                that.toggleGroup(g);
-            });
             this._config.layout.neuroviewEnabled = true;
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
@@ -720,10 +714,6 @@ export class WebGLSceneComponent {
                     let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
                     const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
                     matchScaffolds?.forEach( r => r.hidden = true );
-
-                    matchScaffolds?.forEach((scaffold) => {
-                        that.toggleGroup(scaffold);
-                    });
                     that.graphData.groups.push(newGroup);
                     that.graphData.dynamicGroups.push(newGroup);
                     that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   

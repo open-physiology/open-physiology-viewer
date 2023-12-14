@@ -510,6 +510,12 @@ export class TestApp {
             this._graphData = generateFromJSON({"id":"Empty"});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
+            let that = this;
+            let doneUpdating = () => { 
+                that.restoreState();
+                window.removeEventListener(GRAPH_LOADED, doneUpdating);
+            };
+            window.addEventListener(GRAPH_LOADED, doneUpdating);
         }
     }
 

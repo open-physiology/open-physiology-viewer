@@ -118,15 +118,18 @@ function traverseWires(component, checked){
 }
 
 export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) {
-  // Hides links and nodes we don't want to display
+  // Hides nodes we don't want to display
   groupMatched?.nodes.forEach( n => {
     n.inactive = checked;
   })
+  // Hides links we don't need
   groupMatched?.links?.forEach((link) => { 
+    // Show links that we need for Neuroview
     if ( neurulatedMatches?.links?.find( l => l.id === link.id ) ) {
       link.inactive = !checked;
       link.skipLabel = !checked;
     } else {
+      // Hide links that we don't
       link.inactive = checked;
       link.skipLabel = checked;
     }
@@ -150,7 +153,8 @@ export function handleNeurulatedGroup(checked, groupMatched, neurulatedMatches) 
           layer.inactive = !checked;
         });
       }
-    } else {
+    } 
+    else {
       lyph.hidden = checked;
       lyph.skipLabel = checked;
       lyph.layers?.forEach( layer => {
