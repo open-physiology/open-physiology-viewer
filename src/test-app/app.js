@@ -379,7 +379,6 @@ export class TestApp {
             let snapshots = [model].filter(m => isSnapshot(m));
             let groups = [model].filter(m => isGraph(m));
             let scaffolds = [model].filter(m => isScaffold(m));
-
             processImports(that._model, [model]);
             if (groups.length > 0 || scaffolds.length > 0) {
                 that.model = that._model;
@@ -542,7 +541,7 @@ export class TestApp {
         // } catch(err){
         //    throw new Error(err);
         // }
-        this._snapshot = undefined;
+        //this._snapshot = undefined;
         if (this._editor){
             this._editor.set(this._model);
         }
