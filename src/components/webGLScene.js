@@ -26,6 +26,7 @@ import {GRAPH_LOADED, DONE_UPDATING,SNAPSHOT_STATE_CHANGED,
 
 import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, handleNeurulatedGroup,
     autoLayoutNeuron, toggleNeuroView, toggleNeurulatedGroup, findHousingLyphsGroups, toggleScaffoldsNeuroview } from '../view/render/neuroView'
+import {prepareSearchOptions} from "./gui/utils";
 
 const WindowResize = require('three-window-resize');
 
@@ -79,8 +80,8 @@ const WindowResize = require('three-window-resize');
                             <i class="fa fa-download"> </i>
                         </button>
                         <mat-slider vertical class="w3-grey"
-                                    [min]="0.02 * scaleFactor" [max]="0.4 * scaleFactor"
-                                    [step]="0.05 * scaleFactor" tickInterval="1"
+                                    [min]="0.01 * scaleFactor" [max]="0.1 * scaleFactor"
+                                    [step]="0.01 * scaleFactor" tickInterval="1"
                                     [value]="labelRelSize" title="Label size"
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
@@ -229,17 +230,17 @@ export class WebGLSceneComponent {
     _highlighted = null;
     _selected    = null;
 
-    _searchOptions;
     _helperKeys = [];
     _viewPortSize = { width: 0, height: 0 };
 
+    searchOptions;
     graph;
     helpers   = {};
     highlightColor = 0xff0000;
     selectColor    = 0x00ff00;
     defaultColor   = 0x000000;
     scaleFactor    = 10;
-    labelRelSize   = 0.02 * this.scaleFactor;
+    labelRelSize   = 0.08 * this.scaleFactor;
     lockControls   = false;
     isConnectivity = true;
 
@@ -252,7 +253,7 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
+            this.searchOptions = prepareSearchOptions(this._graphData);
 
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
@@ -266,7 +267,6 @@ export class WebGLSceneComponent {
                 // Showpanel if demo mode is ON
                 let that = this;
                 let doneUpdating = () => { 
-                  that.showPanel = true;
                   that.loading = false;
                   that.refreshSettings = false;
                   window.removeEventListener(GRAPH_LOADED, doneUpdating);
@@ -384,7 +384,7 @@ export class WebGLSceneComponent {
                 [$SchemaClass.Anchor]: $Field.id,
                 [$SchemaClass.Node]  : $Field.id,
                 [$SchemaClass.Link]  : $Field.id,
-                [$SchemaClass.Lyph]  : $Field.id,
+                [$SchemaClass.Lyph]  : $Field.name,
                 [$SchemaClass.Region]: $Field.id
             },
             groups      : true,
@@ -681,7 +681,7 @@ export class WebGLSceneComponent {
     }
 
     resetCamera(positionPoint, lookupPoint) {
-        let position = [0, -100, 120 * this.scaleFactor];
+        let position = [0, -60, 40 * this.scaleFactor];
         let lookup =  [0, 0, 1];
         ["x", "y", "z"].forEach((dim, i) => {
             if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
@@ -705,6 +705,7 @@ export class WebGLSceneComponent {
 
     showVisibleGroups(visibleGroups, neuroviewEnabled){
         this.refreshSettings = true;
+        this.loading = true;
         let that = this;
         let visible = true;
         if (neuroviewEnabled) {
@@ -717,19 +718,22 @@ export class WebGLSceneComponent {
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;
                 if ( group ) {
-                    toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
+                    let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
                     const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
                     matchScaffolds?.forEach( r => r.hidden = true );
 
                     matchScaffolds?.forEach((scaffold) => {
                         that.toggleGroup(scaffold);
                     });
-
+                    that.graphData.groups.push(newGroup);
+                    that.graphData.dynamicGroups.push(newGroup);
                     that.updateGroupLayout({ group : group, filteredDynamicGroups : that.graphData.dynamicGroups});   
-                    that.refreshSettings = false;
+                    toggleNeuroView(false, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
                 }
             })
-        } 
+        }
+        this.graph.graphData(this.graphData); 
+        this.refreshSettings = false;
         this.loading = false;
     }
 
@@ -850,14 +854,17 @@ export class WebGLSceneComponent {
         }
     }
 
-    selectByName(name) {
-        let options = (this.graphData.resources||[]).filter(e => e.name === name);
-        if (options.length > 0){
-            //prefer visible lyphs over templates
-            let res = options.find(e => !e.isTemplate);
-            this.selected = res? res: options[0];
+    selectByName(nodeLabel) {
+         if (!nodeLabel){
+            return;
         }
-        else {
+        let nodeID = nodeLabel.substring(
+                nodeLabel.indexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+        );
+        if (this._graphData && (nodeID !== this.selected?.id)) {
+            this.selected = (this._graphData.resources||[]).find(e => e.id === nodeID);
+        } else {
             this.selected = undefined;
         }
     }
@@ -910,6 +917,7 @@ export class WebGLSceneComponent {
           if ( !group?.hidden && !group?.cloneOf ) {
             let neuroTriplets = buildNeurulatedTriplets(group); 
             visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+            visibleLinks = visibleLinks?.filter( l => (l.id.match(/_clone/g) || []).length <= 1 );
             bigLyphs = neuroTriplets.y;
           }
         }
@@ -966,72 +974,73 @@ export class WebGLSceneComponent {
     updateVariance(clade){
         //The current model is general, we can alter it without regeneration
         if (this._graphData){
-            //TODO there may be multiple variances with the given clade
-            let variance = (this._graphData.varianceSpecs||[]).find(vs => (vs.clades||[]).find(c => c === clade || c.id && c.id === clade));
+            //We find the first variance with given clade and presence set to 'absent'
+            let variance = (this._graphData.varianceSpecs||[]).find(vs =>
+                vs.presence && vs.presence === VARIANCE_PRESENCE.ABSENT
+                && (vs.clades||[]).find(c => c === clade || c.id && c.id === clade));
             if (!variance){
                 return;
             }
             this._graphData.variance = variance;
             this._graphData.clade = clade;
 
-            if (variance.presence && variance.presence === VARIANCE_PRESENCE.ABSENT) {
-                let relevantLyphs = [];
-                (this._graphData.lyphs || []).forEach(lyph => {
-                    if ((lyph.varianceSpecs || []).find(vs => vs.id === variance.id)) {
-                        relevantLyphs.push(lyph);
-                    }
-                });
-                let lyphsToRemove = {
-                    templates: [],
-                    layers: [],
-                    lyphs: []
+            let relevantLyphs = [];
+            (this._graphData.lyphs || []).forEach(lyph => {
+                if ((lyph.varianceSpecs || []).find(vs => vs.id === variance.id)) {
+                    relevantLyphs.push(lyph);
                 }
-                let removed = [];
-                relevantLyphs.forEach(lyph => {
-                    if (lyph.isTemplate){
-                        lyphsToRemove.templates.push(lyph);
-                    } else {
-                        if (lyph.layerIn) {
-                            lyphsToRemove.layers.push(lyph);
-                        } else {
-                            lyphsToRemove.lyphs.push(lyph);
-                        }
-                    }
-                });
-
-                if (lyphsToRemove.templates.length > 0){
-                    this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_TEMPLATES, lyphsToRemove.templates.map(e => e.fullID));
-                }
-                if (lyphsToRemove.layers.length > 0){
-                    //There will be  problem as we do not update lyph visuals
-                    this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_LAYERS, lyphsToRemove.templates.map(e => e.fullID));
-                }
-
-                lyphsToRemove.lyphs.forEach(lyph => {
-                    removed = removed::union(this._graphData.removeLyph(lyph));
-                });
-                this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
-                this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
-
-                if ((this.scene.children||[]).length > 0) {
-                    removed.forEach(lyph => {
-                        (lyph.viewObjects||{})::values().forEach(viewObj => {
-                            const object = this.scene.getObjectByProperty( 'uuid', viewObj.uuid);
-                            if (object) {
-                                object.visible = false;
-                                object.geometry.dispose();
-                                object.material.dispose();
-                                this.scene.remove(object);
-                            } else {
-                                this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
-                            }
-                        });
-                    });
-                    this.renderer.dispose();
-                }
-                this.graph.graphData(this._graphData);
-                this.varianceUpdated.emit(clade, variance);
+            });
+            let lyphsToRemove = {
+                templates: [],
+                layers: [],
+                lyphs: []
             }
+            let removed = [];
+
+            relevantLyphs.forEach(lyph => {
+                if (lyph.isTemplate){
+                    lyphsToRemove.templates.push(lyph);
+                } else {
+                    if (lyph.layerIn) {
+                        lyphsToRemove.layers.push(lyph);
+                    } else {
+                        lyphsToRemove.lyphs.push(lyph);
+                    }
+                }
+            });
+
+            if (lyphsToRemove.templates.length > 0){
+                this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_TEMPLATES, lyphsToRemove.templates.map(e => e.fullID));
+            }
+            if (lyphsToRemove.layers.length > 0){
+                //There will be  problem as we do not update lyph visuals
+                this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_LAYERS, lyphsToRemove.templates.map(e => e.fullID));
+            }
+
+            lyphsToRemove.lyphs.forEach(lyph => {
+                removed = removed::union(this._graphData.removeLyph(lyph));
+            });
+            this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
+            this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
+
+            if ((this.scene.children||[]).length > 0) {
+                removed.forEach(lyph => {
+                    (lyph.viewObjects||{})::values().forEach(viewObj => {
+                        const object = this.scene.getObjectByProperty( 'uuid', viewObj.uuid);
+                        if (object) {
+                            object.visible = false;
+                            object.geometry.dispose();
+                            object.material.dispose();
+                            this.scene.remove(object);
+                        } else {
+                            this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
+                        }
+                    });
+                });
+                this.renderer.dispose();
+            }
+            this.graph.graphData(this._graphData);
+            this.varianceUpdated.emit(clade, variance);
         }
     }
 
@@ -1047,6 +1056,8 @@ export class WebGLSceneComponent {
             if (sParameterName[0] === sParam) {
                 return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
             }
+            this.graph.graphData(this._graphData);
+            this.varianceUpdated.emit(clade, variance);
         }
         return false;
     }

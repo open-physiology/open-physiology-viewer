@@ -17,13 +17,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { toggleNeurulatedGroup, toggleNeuroView } from "../view/render/neuroView";
+import { toggleNeurulatedGroup, toggleNeuroView, buildNeurulatedTriplets } from "../view/render/neuroView";
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatSelectModule} from "@angular/material/select";
-import { SNAPSHOT_STATE_CHANGED } from "./../view/utils"
 /**
  * @ignore
  */
@@ -56,7 +55,7 @@ const COLORS = {
                       Variance
                   </mat-panel-title>
               </mat-expansion-panel-header>
-              <mat-form-field *ngIf="!cladeDisabled">
+              <mat-form-field *ngIf="clades?.length > 0">
                   <mat-select 
                           [placeholder]="Clade"
                           [matTooltip]="Clade"
@@ -100,7 +99,7 @@ const COLORS = {
                 <searchBar
                   [selected]="_selectedName"
                   [searchOptions]="searchOptions"
-                  (selectedItemChange)="selectBySearch($event)"
+                  (selectedItemChange)="this.onSelectBySearch.emit($event)"
                 >
                 </searchBar>
               </div>
@@ -158,22 +157,16 @@ const COLORS = {
               </button>
             </div>
             <div class="wrap" *ngFor="let group of filteredGroups">
-              <mat-slide-toggle
-                class="toggle-group"
-                [checked]="!group.hidden"
-                [disabled]="neuroViewEnabled"
-                (change)="toggleGroup($event, group)"
-                >{{ group.namespace ? group.namespace + ":" : ""
-                }}{{ group.name || group.id }}</mat-slide-toggle
-              >
+                <mat-slide-toggle [checked]="!group.hidden"
+                (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
             </div>
             <!--Tree structure-->
             <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                          <ng-template #treeNodeTemplate let-node let-index="index">
-                            <span>{{node.data.name}}</span>
-                            <mat-slide-toggle></mat-slide-toggle>
-                          </ng-template>
-                          </tree-root> -->
+              <ng-template #treeNodeTemplate let-node let-index="index">
+                <span>{{node.data.name}}</span>
+                <mat-slide-toggle></mat-slide-toggle>
+              </ng-template>
+              </tree-root> -->
             <!--Tree structure-->
           </div>
         </mat-expansion-panel>
@@ -1188,7 +1181,7 @@ export class SettingsPanel {
       this._labelClasses = this._config[$Field.labels]::keys();
       let ids = this._config.visibleGroups || [];
       this._showGroups = new Set(
-        (this.groups||[]).filter((g) => ids.includes(g.id))
+        (this.groups||[]).filter((g) => ids.includes(g?.id))
       );
     }
     this.neuroViewEnabled =  this.config.layout.neuroviewEnabled;
@@ -1200,16 +1193,18 @@ export class SettingsPanel {
             this._showHelpers = new Set([]);
         }
     }
+    
     @Input('modelId') set modelId(modelId) {
         if (this._modelId !== modelId) {
             this._modelId = modelId;
         }
     }
 
+
     @Input('selected') set selected(entity) {
         if (this.selected !== entity) {
             this._selected = entity;
-            this._selectedName = entity ? entity.name || "" : "";
+            this.selectedLabel = (entity?.name || '?') + ' (' + entity?.id + ')';
         }
     }
 
@@ -1365,19 +1360,27 @@ export class SettingsPanel {
     toggleNeuroView(visible, this.groups, this.filteredDynamicGroups, this.scaffolds, this.onToggleGroup)
     // clear array keeping track of manipulated groups
     this.config.layout.neuroviewEnabled = visible;
-    // this.updateRenderedResources();  
+    // this.updateRenderedResources(); 
   }
 
   toggleGroup = async (event, group) => { 
-    if (this.neuroViewEnabled) {        
+    if (this.neuroViewEnabled && !group.cloneOf ) {        
         // Handle Neuro view initial settings. Turns OFF groups and scaffolds
         this.handleNeuroViewChange(true);
+        group.neurulated = true;
         toggleNeurulatedGroup(event, group, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
         this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});
-      } else {
-        this.onToggleGroup.emit(group); 
-        this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups});   
-      }
+
+    } else if (this.neuroViewEnabled && group.cloneOf ) {        
+      this.handleNeuroViewChange(true);
+      group.cloneOf.neurulated = true;
+      group.neurulated = true;
+      toggleNeurulatedGroup(event, group.cloneOf, this.onToggleGroup, this.graphData, this.filteredDynamicGroups, this.scaffolds);
+      this.onUpdateGroupLayout.emit({ group : group.cloneOf, filteredDynamicGroups : this.filteredDynamicGroups});
+    } else {        
+      this.onToggleGroup.emit(group);
+      this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups}); 
+    }
   };
 
   toggleAllDynamicGroup = () => {

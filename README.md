@@ -26,3 +26,5 @@ The compiled code is in the `open-physiology/dist/` folder. After that you shoul
 
 ## Google Chrome flags
 * enable GPU rasterization see chrome://flags/#enable-gpu-rasterization
+
+Changing readme to force action 

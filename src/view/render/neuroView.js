@@ -3,6 +3,7 @@ import {modelClasses,$SchemaClass} from "../../model";
 import { orthogonalLayout } from "./neuroViewHelper";
 import {  getWorldPosition } from "./autoLayout/objects";
 import { DONE_UPDATING } from "./../utils"
+import { random_rgba } from "./../utils"
 const {Edge} = modelClasses;
 
 /**
@@ -39,7 +40,7 @@ export function buildNeurulatedTriplets(group) {
     }
   });
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn[0]?.hostedBy ); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn?.[0]?.hostedBy ); //lyphs -> regions
   hostedHousingLyphs.forEach( h => h != undefined && h?.class == "Region" && neuronTriplets.r.indexOf(h) == -1 ? neuronTriplets.r.push(h) : null)
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
@@ -52,7 +53,7 @@ export function buildNeurulatedTriplets(group) {
 
   neuronTriplets.y = neuronTriplets.y.concat(updatedLyphs);
   neuronTriplets.y = neuronTriplets.y.filter((v,i,a)=>a.findIndex(v2=>(v.id === v2.id))===i);
-  
+
   let housingLyphsInChains = housingLyphs?.filter((h) => h?.axis?.levelIn);
 
   let housingChains = [
@@ -93,6 +94,12 @@ export function buildNeurulatedTriplets(group) {
     .map((c) => c.hostedBy) //chains -> regions
   hostedHousingChains.forEach((region) => neuronTriplets.r.indexOf(region) == -1 && neuronTriplets.r.push(region));
 
+  let color = random_rgba();
+  neuronTriplets.links?.forEach( link=> {
+    if ( link.color === undefined || link.color === "#000" || link.color === "#010" ){
+      link.color = color;
+    }  
+  })
   return neuronTriplets;
 }
 
@@ -327,8 +334,11 @@ export function findHousingLyphsGroups (graphData, neuronTriplets, activeNeurula
   neuronTriplets.y?.forEach((triplet) => {
     // Find the housing on the graph
     const match = graphData.lyphs.find( lyph => lyph.id === triplet.id);
-    matches.push(match);
+    if ( match === undefined ){
+      graphData.chains.find( chain => chain.lyphs.find( lyph => lyph.id === triplet.id));
+    }
     if (match) {
+      matches.push(match);
       // Find the group where this housing lyph belongs
       const groupMatched = graphData.groups.find((group) => group.lyphs.find((lyph) => lyph.id === match.id));
       if (groupMatched) {
@@ -360,10 +370,10 @@ function updateLyphsHosts(matches,neuronTriplets){
     }
 
     if (m.conveys?.levelIn) {
-      if (m.conveys?.levelIn[0]?.wiredTo) {
-        m.wiredTo = m.conveys?.levelIn[0]?.wiredTo;
-      } else if ( m.conveys?.levelIn[0]?.hostedBy) {
-        m.hostedBy =  m.conveys?.levelIn[0]?.hostedBy;
+      if (m.conveys?.levelIn?.[0]?.wiredTo) {
+        m.wiredTo = m.conveys?.levelIn?.[0]?.wiredTo;
+      } else if ( m.conveys?.levelIn?.[0]?.hostedBy) {
+        m.hostedBy =  m.conveys?.levelIn?.[0]?.hostedBy;
       }
     }
 
@@ -382,7 +392,7 @@ function updateLyphsHosts(matches,neuronTriplets){
         : (m.hostedBy.hostedLyphs = [m]);
 
 
-        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? -1 : 1 );
+        m.hostedBy.hostedLyphs = m.hostedBy?.hostedLyphs?.sort( (a,b) => a.id > b.id ? 1 : -1 );
     }
   });
 
@@ -489,7 +499,7 @@ export const hideVisibleGroups = (filteredGroups, groups, visible, toggleGroup) 
     hideVisibleGroups(filteredGroups, groups, visible, toggleGroup);
   } else {
     filteredGroups?.forEach(group => { 
-      group.lyphs.forEach( lyph => {
+      group?.lyphs.forEach( lyph => {
         lyph.hidden = false;
         lyph.inactive = false;
       });
@@ -537,6 +547,7 @@ export const toggleNeurulatedGroup = (event, group, onToggleGroup, graphData, fi
   neuronTriplets.links?.forEach( l => l.neurulated = true );
   neuronTriplets.x?.forEach( l => l.neurulated = true );
   neuronTriplets.y?.forEach( l => l.neurulated = true );
+  
   let activeNeurulatedGroups = [];
   activeNeurulatedGroups.push(group);
   findHousingLyphsGroups(graphData, neuronTriplets, activeNeurulatedGroups);
@@ -570,6 +581,7 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
     if ( !group?.hidden && !group?.cloneOf ) {
       let neuroTriplets = buildNeurulatedTriplets(group); 
       visibleLinks = visibleLinks.concat(neuroTriplets.links.filter( l => l.collapsible ));
+      visibleLinks = visibleLinks?.filter( l => (l.id.match(/_clone/g) || []).length <= 1 );
       bigLyphs = bigLyphs.concat(neuroTriplets.y).filter( l => !l.hidden );
     }
   }
@@ -588,8 +600,8 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
 }
 
 export const toggleNeuroView = (visible, activeGroups, dynamicGroups, scaffolds, toggleGroup) => {
-   let groups = activeGroups.filter((g) => g.hidden == false);
-   let visibleGroups = dynamicGroups.filter( dg => !dg.hidden );
+   let groups = activeGroups.filter((g) => g?.hidden == false);
+   let visibleGroups = dynamicGroups.filter( dg => !dg?.hidden );
    console.log("Groups ", groups)
    console.log("visibleGroups ", visibleGroups)
    handleNeuroView(visibleGroups, groups, scaffolds, visible, toggleGroup);

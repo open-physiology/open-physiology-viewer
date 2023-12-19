@@ -21,7 +21,7 @@ VisualResource.prototype.createLabels = function(){
     if (!this.labels[labelKey] && this[labelKey] && !this.hidden) {
         this.labels[labelKey] = new SpriteText2D(this[labelKey], this.state.fontParams);
         this.labels[labelKey].material.alphaTest = .1;
-        this.labels[labelKey].scale.set(.5, .5, .5)
+        // this.labels[labelKey].scale.set(2.5, 2.5, 2.5)
     }
 
     if (this.labels[labelKey] && !this.hidden){
@@ -36,15 +36,15 @@ VisualResource.prototype.createLabels = function(){
  * Updates resource labels
  * @param {Object} position - label position
  */
-VisualResource.prototype.updateLabels = function(position){
+VisualResource.prototype.updateLabels = function(position, lyphMesh){
     //if (this.skipLabel || !this.state.showLabels) { return; }
     const labelKey = this.state.labels[this.constructor.name];
     if (this.labels[labelKey] && !this.hidden){
         this.labels[labelKey].visible = (this.viewObjects["main"]?.visible ) && this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
             this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
-            const lyphDim = getBoundingBoxSize(this.viewObjects["main"]);
-            const refHeight  = lyphDim.y * this.viewObjects["main"].scale.y;
+            const lyphDim = getBoundingBoxSize(lyphMesh);
+            const refHeight  = Math.min(lyphDim.x,lyphDim.y) * (lyphDim.x > lyphDim.y ? lyphMesh.scale.y : lyphMesh.scale.x);
             position ? position.y = position.y - refHeight/2: null;
             copyCoords(this.labels[labelKey].position, position);
             this.viewObjects['label'] = this.labels[labelKey];

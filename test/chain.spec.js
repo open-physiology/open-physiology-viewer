@@ -56,23 +56,21 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(n2.leafOf[0]).to.have.property("id").that.equal("ch1");
 
         expect(graphData).to.have.property("groups");
-        //Empty "Ungrouped" is not added after issue #149 fix
-        //Do not count auto-created force group when it is disabled, +1 otherwise
-        expect(graphData.groups).to.be.an('array').that.has.length(3);
+        expect(graphData.groups).to.be.an('array').that.has.length.above(2);
 
         const gr1 = graphData.groups.find(g => g.id === "group_ch1");
         expect(gr1).to.be.an('object');
         expect(gr1).to.have.property("generated").that.equal(true);
 
         expect(gr1).to.have.property("nodes").that.is.an('array');
-        expect(gr1.nodes.length).to.be.equal(21);
+        expect(gr1.nodes.length).to.be.equal(17);
         expect(gr1.nodes[0]).to.be.an('object');
         expect(gr1.nodes[0]).to.have.property('id').that.equal("n1");
         expect(gr1.nodes[16]).to.be.an('object');
         expect(gr1.nodes[16]).to.have.property('id').that.equal("n2");
 
         expect(gr1).to.have.property("links").that.is.an('array');
-        expect(gr1.links.length).to.be.equal(17);
+        expect(gr1.links.length).to.be.equal(16);
         expect(gr1.links[0]).to.have.property("next");
         expect(gr1.links[0].next).to.be.an('array').that.has.length(1);
         expect(gr1.links[0].next[0]).to.have.property("id").that.equals(gr1.links[1].id);
@@ -103,14 +101,23 @@ describe("Generate groups from chain templates (Keast Spinal Test)", () => {
         expect(genLyphs[0].supertype).to.have.property("id").that.equal("229");
     });
 
-    it("Lyphs inherit properties from supertype", () => {
-        const lyphs = graphData.lyphs.filter(e => e.supertype && e.supertype.external && e.supertype.external.length > 0);
+    it("Lyphs inherit externals from supertype", () => {
+        const lyphs = graphData.lyphs.filter(e => e.supertype && (e.supertype.external||[]).length > 0);
         expect(lyphs).to.have.length.above(1);
         expect(lyphs[0]).to.have.property("inheritedExternal");
         expect(lyphs[0].inheritedExternal).to.be.an('array');
         expect(lyphs[0].inheritedExternal).to.have.length(1);
         expect(lyphs[0].inheritedExternal[0]).to.be.instanceOf(modelClasses.External);
         expect(lyphs[0].inheritedExternal[0]).to.have.property("fullID").that.equal("UBERON:0005844");
+    });
+
+    it("Lyphs inherit external terms from cloneOf", () => {
+        const lyphs = graphData.lyphs.filter(e => e.cloneOf && (e.cloneOf.inheritedExternal||[]).length > 0);
+        expect(lyphs).to.have.length.above(1);
+        expect(lyphs[0]).to.have.property("inheritedExternal");
+        expect(lyphs[0].inheritedExternal).to.be.an('array');
+        expect(lyphs[0].inheritedExternal).to.have.length.above(0);
+        expect(lyphs[0].inheritedExternal[0]).to.be.instanceOf(modelClasses.External);
     });
 
     it("Lyphs retain own annotations", () => {

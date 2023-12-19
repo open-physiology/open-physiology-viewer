@@ -49,7 +49,7 @@ export function setLyphPosition(lyph, host, position, rotate) {
 
 export function setLyphScale(lyph) {
   const lyphDim = getBoundingBoxSize(lyph);
-  const lyphMin = Math.min(lyphDim.x * lyph.scale.x, lyphDim.y * lyph.scale.y);
+  const lyphMin = Math.min(lyphDim.x * lyph.scale.x * 3, lyphDim.y * lyph.scale.y * 3);
 
   if ( lyphMin < MIN_LYPH_WIDTH ){
       lyph.scale.setX(MIN_LYPH_WIDTH / lyphDim.x);

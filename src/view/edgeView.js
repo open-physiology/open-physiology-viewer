@@ -12,11 +12,9 @@ import {
     getDefaultControlPoint,
 } from "./utils";
 import { DIMENSIONS, pointAlongLine } from "./render/autoLayout";
-import { rotateAroundCenter } from "./render/autoLayout/transform";
 
 import './lines/Line2.js';
 import {MaterialFactory} from "./materialFactory";
-import { link } from "d3-shape";
 
 const {VisualResource, Edge, Link, Wire} = modelClasses;
 
@@ -174,7 +172,7 @@ Link.prototype.updateViewObjects = function(state) {
                                               //, for some reason at some after step the view tries to render this array and it's just a set of points
 
     segments.forEach( segment => {
-      points.push( new THREE.Vector3( segment.x, segment.y, 2 ) );
+      points.push( new THREE.Vector3( segment.x, segment.y, DIMENSIONS.LINK_MIN_Z ) );
     })
     
     let material;
@@ -268,16 +266,7 @@ Link.prototype.updateViewObjects = function(state) {
         copyCoords(node, pos);
     });
 
-    if (this.conveyingLyph){
-        this.conveyingLyph.updateViewObjects(state);
-        this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
-        this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
-
-        let edgeObj = this.viewObjects["edge"];
-        if (edgeObj){
-            copyCoords(edgeObj.position, this.conveyingLyph.center);
-        }
-    }
+    
 
     //Update buffered geometries
     //Do not update links with fixed node positions
@@ -302,7 +291,7 @@ Link.prototype.updateViewObjects = function(state) {
             obj.geometry.setPositions(coordArray);
         } else {
             if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
-                obj.geometry.setFromPoints(this.points);
+                obj.geometry.setFromPoints([start,end]);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();
                 obj.geometry.computeBoundingBox();
@@ -329,28 +318,48 @@ Link.prototype.updateViewObjects = function(state) {
 
                         // For Links with source/target nodes at center of lyph, create some space from center
                         let newStart = start;
-                        this.source.internalIn && neurulated ? newStart = pointAlongLine(start, end, .05) : null;
                         let newEnd = end;
-                        this.target.internalIn && neurulated ? newEnd = pointAlongLine(start, end, .95) : null;
 
                         let curvature = this.curvature ? this.curvature :elevation * (Math.abs(Math.abs(newStart.y) - Math.abs(newEnd.y)));
-                        let points = [newStart, getDefaultControlPoint(newStart, newEnd, curvature), newEnd];
+                        let centerPoint = getDefaultControlPoint(newStart, newEnd, curvature)
+                        let points = [newStart, centerPoint, newEnd];
+                        
                         const curve3 = new THREE.SplineCurve( points);
                         this.points = curve3.getPoints(50);
+
+                        if ( this.conveyingLyph?.viewObjects ){
+                            this.conveyingLyph.viewObjects["main"].position.x = centerPoint.x;
+                            this.conveyingLyph.viewObjects["main"].position.y = centerPoint.y;
+                        } 
                     } else {
                         this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
                     }
                     obj.geometry.setFromPoints(this.points);
-                    if ( this.conveyingLyph?.viewObjects ){
-                        obj.position.z = this.conveyingLyph.viewObjects["main"].position.z + .1;
-                    } 
+                    obj.geometry.attributes.position.needsUpdate = true;
+                    obj.geometry.computeBoundingSphere();
+                } else {
+                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                    obj.geometry.setFromPoints(this.points);
                     obj.geometry.attributes.position.needsUpdate = true;
                     obj.geometry.computeBoundingSphere();
                 }
             }
         }
+
+        if (this.conveyingLyph){
+            this.conveyingLyph.updateViewObjects(state);
+            this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
+            this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+    
+            let edgeObj = this.viewObjects["edge"];
+            if (edgeObj){
+                let centerPoint = pointAlongLine(this.points[0], this.points[this.points.length - 1], .5)
+                copyCoords(centerPoint, this.conveyingLyph.center);
+            }
+        }
         copyCoords(this, obj.position);
-        this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge));
+        this.updateLabels( obj.position.clone().addScalar(this.state.labelOffset.Edge),obj);
+    
     }
   }
 };
@@ -438,7 +447,7 @@ Wire.prototype.updateViewObjects = function(state) {
         copyCoords(anchor, pos);
         if (anchor.viewObjects["main"]) {
             copyCoords(anchor.viewObjects["main"].position, anchor);
-            anchor.updateLabels(anchor.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
+            anchor.updateLabels(anchor.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice),anchor.viewObjects["main"]);
         }
         //When hosted anchor is repositioned, the wires that end in it should be updated too
         (anchor.sourceOf||[]).forEach(w => w.updateViewObjects(state));
@@ -446,7 +455,9 @@ Wire.prototype.updateViewObjects = function(state) {
 
     });
 
-    this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Edge));
+    let position = pointAlongLine(start, end, .5);
+
+    this.updateLabels(position.clone().addScalar(this.state.labelOffset.Edge),this.viewObjects["main"]);
 
     if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
 

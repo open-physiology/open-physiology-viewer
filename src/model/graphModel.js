@@ -131,7 +131,7 @@ export class Graph extends Group{
      */
     static processGraphWaitingList(res, entitiesByID, namespace, modelClasses, castingMethod) {
         let added = [];
-        (entitiesByID.waitingList)::entries().forEach(([id, refs]) => {
+        (entitiesByID?.waitingList)::entries().forEach(([id, refs]) => {
             let [obj, key] = refs[0];
             if (obj && obj.class){
                 //Do not create missing scaffold resources
@@ -159,7 +159,7 @@ export class Graph extends Group{
         });
 
         if (added.length > 0) {
-            added.forEach(id => delete entitiesByID.waitingList[id]);
+            added.forEach(id => delete entitiesByID?.waitingList[id]);
             added = added.filter(id => !entitiesByID[id]);
 
             let resources = added.filter(id => entitiesByID[id].class !== $SchemaClass.External);
@@ -173,8 +173,8 @@ export class Graph extends Group{
             }
         }
 
-        if (entitiesByID.waitingList::keys().length > 0){
-            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID.waitingList::keys());
+        if (entitiesByID?.waitingList::keys().length > 0){
+            logger.error($LogMsg.REF_UNDEFINED, "model", entitiesByID?.waitingList::keys());
         }
 
         res.syncRelationships(modelClasses, entitiesByID);
@@ -219,6 +219,7 @@ export class Graph extends Group{
                     }
                 }
             ));
+
             inputModel.groups = inputModel.groups || [];
 
             //Collect resources necessary for template expansion from all groups
@@ -304,14 +305,10 @@ export class Graph extends Group{
 
             //Collect inherited externals
             (res.lyphs || []).forEach(lyph => {
-                if (lyph.supertype) {
-                    if (!lyph.collectInheritedExternals) {
-                        logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
-                    } else {
-                        lyph.collectInheritedExternals($Field.external, $Field.inheritedExternal);
-                        lyph.collectInheritedExternals($Field.ontologyTerms, $Field.inheritedOntologyTerms);
-                        lyph.collectInheritedExternals($Field.references, $Field.inheritedReferences);
-                    }
+                if (!lyph.collectInheritedExternals) {
+                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
+                } else {
+                    lyph.collectInheritedExternals();
                 }
             });
 
@@ -504,7 +501,7 @@ export class Graph extends Group{
             const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(inputModel[key]||[]);
     		XLSX.utils.book_append_sheet(wb, ws, key);
         })
-        XLSX.writeFile(wb, inputModel.id + "-converted.xlsx");
+        XLSX.writeFile(wb, (json.id||"model") + "-converted.xlsx");
         return wb;
     }
 
@@ -824,7 +821,7 @@ export class Graph extends Group{
 
     getCurrentState(){
         let json =  {
-            [$Field.visibleGroups]: this.visibleGroups.map(g => g.id)
+            [$Field.visibleGroups]: this.visibleGroups.map(g => g?.id)
         }
         json.scaffolds = [];
         (this.scaffolds||[]).forEach(s => {

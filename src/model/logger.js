@@ -93,6 +93,7 @@ export const $LogMsg = {
     LYPH_INTERNAL_OUT_RANGE     : "Failed to relocate internal lyph to layer: layer index out of range",
     LYPH_INTERNAL_IN_NOT_FOUND  : "Failed to locate lyph host for an internal resource",
 
+    LYPH_TEMPLATE_LOOP          : "Lyph template refers to itself, reference disconnected from the supertype to avoid stack overflow, revise the model!",
     LYPH_NO_TEMPLATE            : "Template object not found",
     LYPH_REMOVE_FAIL            : "Failed to clear references to a lyph: it is template or material",
 

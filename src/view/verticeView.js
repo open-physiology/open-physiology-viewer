@@ -28,7 +28,7 @@ Vertice.prototype.createViewObjects = function(state) {
             let coords = extractCoords(this.layout);
             copyCoords(this, coords);
             copyCoords(obj.position, coords);
-            this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice));
+            this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice),obj);
         }
         obj.visible = !this.inactive;
         this.viewObjects["main"] = obj;
@@ -49,9 +49,9 @@ Vertice.prototype.updateViewObjects = function(state) {
     if (this.layout && this.viewObjects["main"]) {
         let coords = extractCoords(this.layout);
         copyCoords(this.viewObjects["main"].position, this);
-        this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice));
+        this.updateLabels(coords?.clone().addScalar(this.state.labelOffset.Vertice),this.viewObjects["main"]);
     } else {
-        this.updateLabels(this.center?.clone().addScalar(this.state.labelOffset.Vertice));
+        this.updateLabels(this.center?.clone().addScalar(this.state.labelOffset.Vertice),this.viewObjects["main"]);
     }
 };
 
@@ -80,7 +80,7 @@ Node.prototype.updateViewObjects = function(state) {
     } else {
         if (this.fixed && this.layout) {
             copyCoords(this, this.layout);
-        } else if (this.hostedBy) {
+        } else if (this.hostedBy ) {
             if ( neurulated ) {
                 let hostedBy = this.hostedBy;
                 if ( hostedBy.onBorder ){

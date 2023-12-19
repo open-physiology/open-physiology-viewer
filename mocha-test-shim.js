@@ -20,6 +20,6 @@ global.document = document;
 global.window = document.defaultView;
 global.HTMLElement = window.HTMLElement;
 global.navigator = window.navigator;
-global.Node = window.Node;
+global.LyphTreeNode = window.LyphTreeNode;
 global.self = global.window;
 global.crypto = window.crypto;
