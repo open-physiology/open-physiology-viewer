@@ -8,7 +8,14 @@ import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {COLORS} from "./utils";
-import {$Field} from "../../model";
+import {$Field, $SchemaClass} from "../../model";
+import {isNumber, isObject} from "lodash-bound";
+
+export const ICON = {
+    LAYERS: "fa fa-bars",
+    INTERNAL: "fa fa-building-o",
+    INHERITED: "fa fa-lock"
+}
 
 /**
  * @class
@@ -50,6 +57,83 @@ export class LyphTreeNode {
             }
         }
     }
+
+    /**
+     * Create lyph tree node for a given ApiNATOMY lyph object or its ID
+     * @param lyphOrID - lyph object or its identifier
+     * @param parent - lyph's parent in the tree (e.f., supertype)
+     * @param idx - position of the node among its siblings
+     * @param length - total number of siblings
+     * @returns {LyphTreeNode} - generated tree node to display in the mat-tree-based component
+     * @public
+     */
+    static createInstance(lyphOrID, parent, idx, length = 0) {
+        if (lyphOrID::isObject()) {
+            return new this(lyphOrID.id, lyphOrID.name, lyphOrID._class || $SchemaClass.Lyph, parent, length, [], lyphOrID.isTemplate, idx, lyphOrID);
+        } else {
+            return new this(lyphOrID, "Generated " + lyphOrID, "Undefined", parent, length, [], false, idx, undefined);
+        }
+    }
+
+    /**
+     * Prepares a nested hierarchy of lyphs to display in the lyphTreeViewer
+     * @param selectedLyph - root lyph
+     * @param entitiesByID - map of all resources
+     * @param prop - property to build the hierarchy
+     * @param includeInherited - indicates whether to include supertype properties into the hierarchy
+     * @returns {([({}|LyphTreeNode)]|[])[]}
+     * @public
+     */
+    static preparePropertyTree(selectedLyph, entitiesByID, prop, includeInherited = false) {
+        let stack = [];
+        let loops = [];
+
+        const mapToNodes = (lyphOrID, parent, idx) => {
+            if (!lyphOrID) return {};
+            if (parent) {
+                stack.push(parent);
+            }
+            let lyph = lyphOrID.id ? lyphOrID : entitiesByID[lyphOrID];
+            let length = parent ? (parent[prop] || []).length : 1;
+            let res = this.createInstance(lyph || lyphOrID, parent, idx, length);
+            if (lyph) {
+                let loopStart = stack.find(x => x.id === lyph.id);
+                //Loop detected
+                if (loopStart) {
+                    loops.push(lyph.id);
+                } else {
+                    res.children = (lyph[prop]||[]).map((e, i) => mapToNodes(e, lyph, i));
+                    if (includeInherited && lyph.supertype) {
+                        let supertype = mapToNodes(lyph.supertype);
+                        supertype.children.forEach(c => {
+                            c.inherited = true;
+                            if (!c.icons.includes(ICON.INHERITED)) {
+                                c.icons.push(ICON.INHERITED);
+                            }
+                        });
+                        if (supertype.children) {
+                            res.children = res.children.concat(supertype.children);
+                        }
+                    }
+                    if (prop === $Field.layers) {
+                        (lyph.internalLyphsInLayers || []).forEach(layerIndex => {
+                            if (layerIndex::isNumber() && layerIndex > -1 && layerIndex < res.children.length) {
+                                res.children[layerIndex].icons.push(ICON.INTERNAL);
+                            }
+                        });
+                    }
+                }
+            }
+            if (parent) {
+                stack.pop();
+            }
+            return res;
+        };
+
+        let tree = [mapToNodes(selectedLyph)];
+        return [tree, loops];
+    }
+
 }
 
 @Component({
@@ -259,6 +343,7 @@ export class LyphTreeView {
     @Input() ordered = false;
     @Input() active = false;
     @Input() showLayerIndex;
+    @Input() showMenu = true;
 
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;
@@ -324,7 +409,7 @@ export class LyphTreeView {
     hasChild = (_, node) => node.expandable;
 
     onRightClick(e, node) {
-        if (node.inherited){
+        if (!this.showMenu || node.inherited){
             return;
         }
         e.preventDefault();

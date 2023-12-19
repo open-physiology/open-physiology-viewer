@@ -1,4 +1,4 @@
-import {NgModule, Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
+import {NgModule, Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener} from '@angular/core';
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
@@ -19,9 +19,9 @@ import {SearchAddBarModule} from "./gui/searchAddBar";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {HostListener} from "@angular/core";
 import {MatDialog} from "@angular/material/dialog";
 import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
+import {MaterialGraphViewerModule} from "./gui/materialGraphViewer";
 
 /**
  * Css class names to represent ApiNATOMY resource classes
@@ -56,6 +56,21 @@ export class MaterialNode {
         this.label = label;
         this.type = type;
         this.resource = resource;
+    }
+
+    /**
+     * @param material - ApiNATOMY material resource object
+     * @returns {MaterialNode}
+     */
+    static createInstance(material, clsName= CLASS.MATERIAL){
+        return new this(
+            material.id,
+            (material._inMaterials || []).map(parent => parent.id),
+            (material.materials || []).map(child => child.id ? child.id : child),
+            material.name || material.id,
+            (clsName === CLASS.LYPH && material.isTemplate) ? CLASS.TEMPLATE : clsName,
+            material
+        );
     }
 }
 
@@ -115,16 +130,27 @@ export class Edge {
                                 <span *ngIf="currentStep > 0" style="color: red">*</span>
                             </div>
                         </button>
+                        <button *ngIf="showTree" class="w3-bar-item w3-hover-light-grey"
+                                (click)="showTree = !showTree" title="Return to DAG">
+                            <i class="fa fa-reply-all"> </i>
+                        </button>
                     </section>
                 </section>
-                <section #materialEditorD3 id="materialEditorD3">
-                    <svg #svgDagD3>
+                <section [hidden]="showTree" #materialEditor id="materialEditor">
+                    <svg #svgDag>
                         <rect width="100%" height="100%"/>
                         <g/>
-                    </svg>                    
+                    </svg>                                                     
                 </section>                
+                <section [hidden]="!showTree"> 
+                    <materialGraphViewer 
+                        [rootNode]="selectedTreeNode"
+                        (onNodeSelect)="onNodeClick($event)"
+                    >                        
+                    </materialGraphViewer>
+               </section>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter w3-white">
+            <section *ngIf="showPanel" class="w3-quarter w3-white" id="matEditorEditPanel">
                 <searchAddBar 
                         [searchOptions]="searchOptions"
                         [selected]="matToLink"
@@ -136,14 +162,13 @@ export class Edge {
                         [resource]="selectedMaterial"
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
-                    <resourceListView 
-                      title="Lyphs"
-                      [showMenu]=false
-                      [listData]="lyphList"
-                      (onNodeClick)="selectLyph($event)"
-                    >
-                    </resourceListView>   
-                
+                <resourceListView 
+                  title="Lyphs"
+                  [showMenu]=false
+                  [listData]="lyphList"
+                  (onNodeClick)="selectLyph($event)"
+                >
+                </resourceListView>                   
             </section>
         </section>
         <section #tooltip class="tooltip"></section>
@@ -184,13 +209,13 @@ export class Edge {
             height: 48px;
         }
         
-        #materialEditorD3 {
+        #materialEditor {
             height: 100vh;
-            overflow-y: scroll;
-            overflow-x: scroll;
+            overflow-y: auto;
+            overflow-x: auto;
         }
 
-        #svgDagD3 {
+        #svgDag {
             display: block;
             width: 100%;
             top: 0;
@@ -282,6 +307,12 @@ export class Edge {
         :host /deep/ path.link.hidden {
             stroke-width: 0;
         } 
+        
+        #matEditorEditPanel{
+          height: 100vh;
+          overflow-y: auto;
+          overflow-x: auto;
+        }
     `]
 })
 /**
@@ -296,6 +327,7 @@ export class DagViewerD3Component {
     _model;
     _selectedNode;
 
+    showTree = false;
     graphD3;
     entitiesByID;
     nodes = [];
@@ -316,8 +348,8 @@ export class DagViewerD3Component {
     _snackBarConfig = new MatSnackBarConfig();
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
-    @ViewChild('materialEditorD3') materialEditor: ElementRef;
-    @ViewChild('svgDagD3') svgRef: ElementRef;
+    @ViewChild('materialEditor') materialEditor: ElementRef;
+    @ViewChild('svgDag') svgRef: ElementRef;
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
     @Output() onChangesSave = new EventEmitter();
@@ -496,6 +528,7 @@ export class DagViewerD3Component {
         nodes.on('click', d => {
             this.onNodeClick(d);
         })
+            .on('dblclick', d => this.onDblClick(d))
             .on('contextmenu', d => this.onRightClick(d))
             .on('mouseover', d => {
                 this.tooltip.style("opacity", .9);
@@ -560,6 +593,7 @@ export class DagViewerD3Component {
         this.entitiesByID = {};
         this.nodes = [];
         this.edges = [];
+        this.nodesByID = {};
 
         let created = [];
 
@@ -594,40 +628,25 @@ export class DagViewerD3Component {
 
         //Create nodes for visualization
         (this._model.materials || []).forEach(m => {
-            this.nodes.push(new MaterialNode(
-                m.id,
-                (m._inMaterials || []).map(parent => parent.id),
-                (m.materials || []).map(child => child.id ? child.id : child),
-                m.name || m.id,
-                CLASS.MATERIAL,
-                m
-            ));
+            let node = MaterialNode.createInstance(m);
+            this.nodes.push(node);
+            this.nodesByID[m.id] = node; 
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
         });
         (this._model.lyphs || []).forEach(m => {
             if ((m._inMaterials || []).length > 0 || (m.materials || []).length > 0 || m._included) {
-                this.nodes.push(new MaterialNode(
-                    m.id,
-                    (m._inMaterials || []).map(parent => parent.id),
-                    (m.materials || []).map(child => child.id ? child.id : child),
-                    m.name || m.id,
-                    m.isTemplate? CLASS.TEMPLATE: CLASS.LYPH,
-                    m
-                ));
+                let node = MaterialNode.createInstance(m, CLASS.LYPH);
+                this.nodes.push(node);
+                this.nodesByID[m.id] = node;
                 m._included = true;
             }
             this.entitiesByID[m.id]._class = $SchemaClass.Lyph;
         });
         (created || []).forEach(m => {
             if (m.id) {
-                this.nodes.push(new MaterialNode(
-                    m.id,
-                    (m._inMaterials || []).map(parent => parent.id),
-                    (m.materials || []).map(child => child.id ? child.id : child),
-                    m.name || m.id,
-                    CLASS.UNDEFINED,
-                    m
-                ));
+                let node = MaterialNode.createInstance(m, CLASS.UNDEFINED);
+                this.nodes.push(node);
+                this.nodesByID[m.id] = node;
             }
         });
 
@@ -681,6 +700,17 @@ export class DagViewerD3Component {
         this.matMenuTrigger.openMenu();
     }
 
+    onDblClick(nodeID){
+        const buildTree = root => {
+            if (root && root.children){
+                root.children = root.children.map(childID => buildTree(this.nodesByID[childID]));
+            }
+            return root;
+        }
+        this.selectedTreeNode = buildTree(this.nodesByID[nodeID]);
+        this.showTree = true;
+    }
+
     onNodeClick(nodeID) {
         this.selectedNode = nodeID;
     }
@@ -694,16 +724,16 @@ export class DagViewerD3Component {
             if (this._selectedNode) {
                 let previous = this.graphD3.node(this._selectedNode);
                 if (previous) {
-                    d3.select(previous.elem).select("g rect").attr("stroke-width", null);
-                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke-width", null);
+                    d3.select(previous.elem).select("g rect").attr("stroke", "lightgrey");
+                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke", "lightgrey");
                 }
             }
             this._selectedNode = nodeID;
             let node = this.graphD3.node(nodeID);
             if (node) {
                 let elem = d3.select(node.elem);
-                elem.select("g rect").attr("stroke-width", "5");
-                let edges = d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke-width", "5");
+                elem.select("g rect").attr("stroke", "black");
+                d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke", "black");
             }
             this.prepareLyphList();
         }
@@ -789,6 +819,7 @@ export class DagViewerD3Component {
         let idx = (this.nodes || []).findIndex(n => n.id === nodeID);
         if (idx > -1) {
             this.nodes.splice(idx, 1);
+            delete this.nodesByID[nodeID];
         }
     }
 
@@ -804,9 +835,13 @@ export class DagViewerD3Component {
         let idx = (this._model.materials || []).findIndex(m => m.id === nodeID);
         if (idx > -1) {
             this._model.materials.splice(idx, 1);
+            delete this.nodesByID[nodeID];
         } else {
             idx = (this._model.lyphs || []).findIndex(m => m.id === nodeID);
-            this._model.lyphs.splice(idx, 1);
+            if (idx > -1) {
+                this._model.lyphs.splice(idx, 1);
+                delete this.nodesByID[nodeID];
+            }
         }
         this.updateSearchOptions();
     }
@@ -835,7 +870,9 @@ export class DagViewerD3Component {
             class: CLASS.MATERIAL
         });
         this.inner.call(this.render, this.graphD3);
-        this.nodes.push(new MaterialNode(newMat.id, [], [], newMat.name, CLASS.MATERIAL, newMat));
+        let newNode = MaterialNode.createInstance(newMat, CLASS.MATERIAL);
+        this.nodes.push(newNode);
+        this.nodesByID[newMat.id] = newNode;
         let node = this.graphD3.node(newMat.id);
         if (node) {
             let elem = d3.select(node.elem);
@@ -984,14 +1021,10 @@ export class DagViewerD3Component {
         }
     }
 
-showDiff(){
+    showDiff(){
          const dialogRef = this.dialog.open(DiffDialog, {
             width : '90%',
             data  : {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
-        dialogRef.afterClosed().subscribe(res => {
-            if (res !== undefined){
-            }
         });
     }
 
@@ -1091,7 +1124,9 @@ showDiff(){
                     label: mat.name,
                     class: mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH
                 });
-                this.nodes.push(new MaterialNode(matID, [], [], mat.name, mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH, mat));
+                let newNode = MaterialNode.createInstance(mat, CLASS.LYPH);
+                this.nodes.push(newNode);
+                this.nodesByID[matID] = newNode;
                 this.inner.call(this.render, this.graphD3);
                 node = this.graphD3.node(matID);
                 let elem = d3.select(node.elem);
@@ -1114,6 +1149,7 @@ showDiff(){
         let idx = (this.nodes || []).findIndex(n => n.id === nodeID);
         if (idx > -1) {
             this.nodes.splice(idx, 1);
+            delete this.nodesByID[nodeID];
         }
         this.inner.call(this.render, this.graphD3);
         this.saveStep('Excluded lyph ' + nodeID);
@@ -1122,7 +1158,7 @@ showDiff(){
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule],
+        MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule],
     declarations: [DagViewerD3Component],
     exports: [DagViewerD3Component]
 })

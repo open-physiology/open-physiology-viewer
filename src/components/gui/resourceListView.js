@@ -40,6 +40,7 @@ export class ListNode {
      * @param idx - position in the list
      * @param length - length of the list
      * @returns {ListNode}
+     * @public
      */
     static createInstance(objOrID, idx, length = 0) {
         if (objOrID::isObject()) {

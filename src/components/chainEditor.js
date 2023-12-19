@@ -15,6 +15,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
 import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "./gui/utils";
+import {LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
 
 @Component({
     selector: 'chainEditor',
@@ -38,6 +39,7 @@ import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "./gui/utils";
                               ordered="true"
                               expectedClass="Lyph"
                               [listData]="chainLyphs"
+                              (onNodeClick)="selectLyph($event)"
                               (onChange)="processLyphChange($event)"
                     >
                     </resourceListView>
@@ -96,6 +98,13 @@ import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "./gui/utils";
                         (onValueChange)="updateProperty($event)"
                 >
                 </chainDeclaration>
+                <lyphTreeView *ngIf="selectedLyph"
+                                  title="Layers"
+                                  ordered="true"
+                                  [showMenu]=false  
+                                  [treeData]="layerTree"
+                    >
+                </lyphTreeView>
             </section>
         </section>
     `,
@@ -189,6 +198,23 @@ export class ChainEditorComponent {
         let nodeID = node::isObject() ? node.id : node;
         this.selectedChain = this.entitiesByID[nodeID];
         this.prepareChainLyphs();
+    }
+
+    selectLyph(node){
+        let nodeID = node::isObject() ? node.id : node;
+        this.selectedLyph = this.entitiesByID[nodeID];
+        this.prepareLayerTree();
+    }
+
+    /**
+     * Prepare a hierarchy of inherited and own layers
+     */
+    prepareLayerTree() {
+        let loops = [];
+        [this.layerTree, loops] = LyphTreeNode.preparePropertyTree(this.selectedLyph, this.entitiesByID, $Field.layers, true);
+        if (loops.length > 0) {
+            this.showMessage("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
+        }
     }
 
     moveLevelUp(node, index) {
@@ -490,10 +516,6 @@ export class ChainEditorComponent {
             width : '90%',
             data  : {'oldContent': this._modelText, 'newContent': this.currentText}
         });
-        dialogRef.afterClosed().subscribe(res => {
-            if (res !== undefined){
-            }
-        });
     }
 
     get currentText(){
@@ -508,23 +530,6 @@ export class ChainEditorComponent {
                 4);
         }
         return this._modelText;
-    }
-
-    /**
-     * Save operation in history
-     * @param action
-     */
-    saveStep(action) {
-        if (this.currentStep > this.steps.length - 1) {
-            this.currentStep = this.steps.length - 1;
-        }
-        if (this.currentStep !== this.steps.length - 1) {
-            this.steps.length = this.currentStep + 1;
-        }
-        //NK test if nested properties are removed
-        let snapshot = this._model::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedLyph?.id, activeTree: this.activeTree});
-        this.currentStep = this.steps.length - 1;
     }
 
     /**
@@ -566,6 +571,23 @@ export class ChainEditorComponent {
         }
     }
 
+     /**
+     * Save operation in history
+     * @param action
+     */
+    saveStep(action) {
+        if (this.currentStep > this.steps.length - 1) {
+            this.currentStep = this.steps.length - 1;
+        }
+        if (this.currentStep !== this.steps.length - 1) {
+            this.steps.length = this.currentStep + 1;
+        }
+        //NK test if nested properties are removed
+        let snapshot = this._model::cloneDeep();
+        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedChain?.id});
+        this.currentStep = this.steps.length - 1;
+    }
+
     /**
      * Restore history state
      */
@@ -580,7 +602,8 @@ export class ChainEditorComponent {
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule],
+        MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
+        LyphTreeViewModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]
 })

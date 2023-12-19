@@ -6,7 +6,7 @@ import {SearchAddBarModule} from "./gui/searchAddBar";
 import {CheckboxFilterModule} from "./gui/checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {LyphTreeViewModule, LyphTreeNode} from "./gui/lyphTreeView";
+import {LyphTreeViewModule, LyphTreeNode, ICON} from "./gui/lyphTreeView";
 import {cloneDeep, sortBy, values, isObject, isNumber} from 'lodash-bound';
 import {$Field, $SchemaClass} from "../model";
 import {LyphDeclarationModule} from "./gui/lyphDeclarationEditor";
@@ -15,12 +15,6 @@ import {clearMaterialRefs, prepareMaterialSearchOptions, replaceMaterialRefs, pr
 import {DiffDialog} from "./gui/diffDialog";
 import {MatDialog} from "@angular/material/dialog";
 import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
-
-const ICON = {
-    LAYERS: "fa fa-bars",
-    INTERNAL: "fa fa-building-o",
-    INHERITED: "fa fa-lock"
-}
 
 @Component({
     selector: 'lyphEditor',
@@ -282,7 +276,7 @@ export class LyphEditorComponent {
      */
     createLyph() {
         let lyph = this.defineNewLyph();
-        let node = this.getLyphNode(lyph);
+        let node = LyphTreeNode.createInstance(lyph);
         this.lyphTree = [node, ...this.lyphTree];
         //NK TEST node.index is not updated here, make sure there is no related errors
         this.updateView(lyph, 'lyphTree');
@@ -356,7 +350,7 @@ export class LyphEditorComponent {
                 return;
             }
             let length = (parent?._subtypes || []).length || 0;
-            let res = this.getLyphNode(lyph, parent, idx, length);
+            let res = LyphTreeNode.createInstance(lyph, parent, idx, length);
             lyph._node = res;
             if (lyph._subtypes) {
                 res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i)).filter(x => x);
@@ -413,24 +407,6 @@ export class LyphEditorComponent {
             (parent.children || []).forEach(e => replaceNode(e));
         }
         (this.lyphTree || []).forEach(e => replaceNode(e));
-    }
-
-
-    /**
-     * Create lyph tree node for a given ApiNATOMY lyph object or its ID
-     * @param lyphOrID - lyph object or its identifier
-     * @param parent - lyph's parent in the tree (e.f., supertype)
-     * @param idx - position of the node among its siblings
-     * @param length - total number of siblings
-     * @returns {LyphTreeNode} - generated tree node to display in the mat-tree-based component
-     * @private
-     */
-    getLyphNode(lyphOrID, parent, idx, length = 0) {
-        if (lyphOrID::isObject()) {
-            return new LyphTreeNode(lyphOrID.id, lyphOrID.name, lyphOrID._class || $SchemaClass.Lyph, parent, length, [], lyphOrID.isTemplate, idx, lyphOrID);
-        } else {
-            return new LyphTreeNode(lyphOrID, "Generated " + lyphOrID, "Undefined", parent, length, [], false, idx, undefined);
-        }
     }
 
     /**
@@ -498,66 +474,6 @@ export class LyphEditorComponent {
         this.activeTree = 'internalTree';
     }
 
-    /**
-     * A helper method to prepare a tree hierarchy
-     * @param prop - hierarchical relationship, i.e., 'layers' or 'internalLyphs'
-     * @param includeInherited - a flag indicating whether to include resources inherited from the supertype
-     * @returns {({}|*)[]}
-     * @private
-     */
-    _preparePropertyTree(prop, tmpProp, includeInherited = false) {
-        let stack = [];
-        let loops = [];
-
-        const mapToNodes = (lyphOrID, parent, idx) => {
-            if (!lyphOrID) return {};
-            if (parent) {
-                stack.push(parent);
-            }
-            let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
-            let length = parent ? (parent[prop] || []).length : 1;
-            let res = this.getLyphNode(lyph || lyphOrID, parent, idx, length);
-            if (lyph) {
-                let loopStart = stack.find(x => x.id === lyph.id);
-                //Loop detected
-                if (loopStart) {
-                    loops.push(lyph.id);
-                } else {
-                    res.children = (lyph[prop]||[]).map((e, i) => mapToNodes(e, lyph, i));
-                    if (includeInherited && lyph.supertype) {
-                        let supertype = mapToNodes(lyph.supertype);
-                        supertype.children.forEach(c => {
-                            c.inherited = true;
-                            if (!c.icons.includes(ICON.INHERITED)) {
-                                c.icons.push(ICON.INHERITED);
-                            }
-                        });
-                        if (supertype.children) {
-                            res.children = res.children.concat(supertype.children);
-                        }
-                    }
-                    if (prop === $Field.layers) {
-                        (lyph.internalLyphsInLayers || []).forEach(layerIndex => {
-                            if (layerIndex::isNumber() && layerIndex > -1 && layerIndex < res.children.length) {
-                                res.children[layerIndex].icons.push(ICON.INTERNAL);
-                            }
-                        });
-                    }
-                }
-            }
-            if (parent) {
-                stack.pop();
-            }
-            return res;
-        };
-
-        let tree = [mapToNodes(this.selectedLyph)];
-        if (loops.length > 0) {
-            this.showMessage("Loop is detected in the " + prop + " tree hierarchy of the following lyphs: " + loops.join(", "));
-        }
-        return tree;
-    }
-
     /** A helper method to cap the layer index for internal lyph assignment */
     _setMaxLayerIndex() {
         if (this.internalTree?.length > 0 && this.layerTree?.length > 0) {
@@ -571,14 +487,22 @@ export class LyphEditorComponent {
      * Prepare a hierarchy of inherited and own layers
      */
     prepareLayerTree() {
-        this.layerTree = this._preparePropertyTree($Field.layers, true);
+        let loops = [];
+        [this.layerTree, loops] = LyphTreeNode.preparePropertyTree(this.selectedLyph, this.entitiesByID, $Field.layers, true);
+        if (loops.length > 0) {
+            this.showMessage("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
+        }
     }
 
     /**
      * Prepare a hierarchy of inherited and own internal lyphs
      */
     prepareInternalTree() {
-        this.internalTree = this._preparePropertyTree($Field.internalLyphs, true);
+        let loops = [];
+        [this.internalTree, loops] = LyphTreeNode.preparePropertyTree(this.selectedLyph, this.entitiesByID, $Field.internalLyphs, true);
+        if (loops.length > 0) {
+            this.showMessage("Loop is detected in the internal lyph hierarchy of the following lyphs: " + loops.join(", "));
+        }
         this._setMaxLayerIndex();
     }
 
@@ -817,7 +741,7 @@ export class LyphEditorComponent {
                     parent.internalLyphs = parent.internalLyphs || [];
                     parent.internalLyphs.push(lyph.id);
                     if (lyph !== this.lyphToLink) {
-                        let node = this.getLyphNode(lyph);
+                        let node = LyphTreeNode.createInstance(lyph);
                         this.lyphTree = [node, ...this.lyphTree];
                         //NK TEST node.index is not updated here, make sure there is no related errors
                     }
@@ -1027,7 +951,7 @@ export class LyphEditorComponent {
                     parent.layers = parent.layers || [];
                     parent.layers.push(lyph.id);
                     if (lyph !== this.lyphToLink) {
-                        let node = this.getLyphNode(lyph);
+                        let node = LyphTreeNode.createInstance(lyph);
                         this.lyphTree = [node, ...this.lyphTree];
                         //NK TEST node.index is not updated here, make sure there is no related errors
                     }
@@ -1121,10 +1045,6 @@ export class LyphEditorComponent {
          const dialogRef = this.dialog.open(DiffDialog, {
             width : '90%',
             data  : {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
-        dialogRef.afterClosed().subscribe(res => {
-            if (res !== undefined){
-            }
         });
     }
 
